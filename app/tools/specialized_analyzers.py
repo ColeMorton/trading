@@ -624,13 +624,13 @@ class MultiStrategyAnalyzer:
         """Analyze a single strategy using market data and strategy files."""
         ticker = strategy["ticker"]
         strategy_type = strategy["strategy_type"]
-        short_window = strategy["short_window"]
-        long_window = strategy["long_window"]
-        signal_window = strategy.get("signal_window", 0)
+        fast_period = strategy["fast_period"]
+        slow_period = strategy["slow_period"]
+        signal_period = strategy.get("signal_period", 0)
 
-        strategy_name = f"{ticker}_{strategy_type}_{short_window}_{long_window}"
-        if signal_window > 0:
-            strategy_name += f"_{signal_window}"
+        strategy_name = f"{ticker}_{strategy_type}_{fast_period}_{slow_period}"
+        if signal_period > 0:
+            strategy_name += f"_{signal_period}"
 
         self.logger.debug(f"Analyzing strategy: {strategy_name}")
 
@@ -701,13 +701,13 @@ class MultiStrategyAnalyzer:
         """Create a synthetic result for a failed strategy analysis."""
         ticker = strategy["ticker"]
         strategy_type = strategy["strategy_type"]
-        short_window = strategy["short_window"]
-        long_window = strategy["long_window"]
-        signal_window = strategy.get("signal_window", 0)
+        fast_period = strategy["fast_period"]
+        slow_period = strategy["slow_period"]
+        signal_period = strategy.get("signal_period", 0)
 
-        strategy_name = f"{ticker}_{strategy_type}_{short_window}_{long_window}"
-        if signal_window > 0:
-            strategy_name += f"_{signal_window}"
+        strategy_name = f"{ticker}_{strategy_type}_{fast_period}_{slow_period}"
+        if signal_period > 0:
+            strategy_name += f"_{signal_period}"
 
         simple_result = create_simple_result(
             strategy_name=strategy_name,
@@ -808,14 +808,14 @@ class MultiPositionAnalyzer:
         """Analyze a single position using market data and position history."""
         ticker = position["ticker"]
         strategy_type = position["strategy_type"]
-        short_window = position["short_window"]
-        long_window = position["long_window"]
-        signal_window = position.get("signal_window", 0)
+        fast_period = position["fast_period"]
+        slow_period = position["slow_period"]
+        signal_period = position.get("signal_period", 0)
         entry_date = position["entry_date"]
 
-        position_uuid = f"{ticker}_{strategy_type}_{short_window}_{long_window}"
-        if signal_window > 0:
-            position_uuid += f"_{signal_window}"
+        position_uuid = f"{ticker}_{strategy_type}_{fast_period}_{slow_period}"
+        if signal_period > 0:
+            position_uuid += f"_{signal_period}"
         position_uuid += f"_{entry_date.replace('-', '')}"
 
         self.logger.debug(f"Analyzing position: {position_uuid}")
@@ -887,14 +887,14 @@ class MultiPositionAnalyzer:
         """Create a synthetic result for a failed position analysis."""
         ticker = position["ticker"]
         strategy_type = position["strategy_type"]
-        short_window = position["short_window"]
-        long_window = position["long_window"]
-        signal_window = position.get("signal_window", 0)
+        fast_period = position["fast_period"]
+        slow_period = position["slow_period"]
+        signal_period = position.get("signal_period", 0)
         entry_date = position["entry_date"]
 
-        position_uuid = f"{ticker}_{strategy_type}_{short_window}_{long_window}"
-        if signal_window > 0:
-            position_uuid += f"_{signal_window}"
+        position_uuid = f"{ticker}_{strategy_type}_{fast_period}_{slow_period}"
+        if signal_period > 0:
+            position_uuid += f"_{signal_period}"
         position_uuid += f"_{entry_date.replace('-', '')}"
 
         simple_result = create_simple_result(
@@ -1089,9 +1089,9 @@ class StrategyAnalyzer:
         self.parsed_param = parsed_param
         self.ticker = parsed_param.ticker
         self.strategy_type = parsed_param.strategy_type
-        self.short_window = parsed_param.short_window
-        self.long_window = parsed_param.long_window
-        self.signal_window = parsed_param.signal_window or 0
+        self.fast_period = parsed_param.fast_period
+        self.slow_period = parsed_param.slow_period
+        self.signal_period = parsed_param.signal_period or 0
         self.logger = logger or logging.getLogger(__name__)
 
         if parsed_param.parameter_type != ParameterType.STRATEGY_SPEC:
@@ -1099,7 +1099,7 @@ class StrategyAnalyzer:
 
         self.logger.info(
             f"Strategy analyzer initialized for {self.ticker} {self.strategy_type} "
-            f"{self.short_window}/{self.long_window}"
+            f"{self.fast_period}/{self.slow_period}"
         )
 
     async def analyze(self) -> Dict[str, Any]:
@@ -1111,7 +1111,7 @@ class StrategyAnalyzer:
         """
         self.logger.info(
             f"Starting enhanced strategy analysis for {self.ticker} "
-            f"{self.strategy_type}_{self.short_window}_{self.long_window}"
+            f"{self.strategy_type}_{self.fast_period}_{self.slow_period}"
         )
 
         # Perform layered analysis: Asset Distribution + Strategy Performance + Equity Curves
@@ -1125,7 +1125,7 @@ class StrategyAnalyzer:
             Dictionary with comprehensive analysis results
         """
         strategy_name = (
-            f"{self.ticker}_{self.strategy_type}_{self.short_window}_{self.long_window}"
+            f"{self.ticker}_{self.strategy_type}_{self.fast_period}_{self.slow_period}"
         )
 
         try:
@@ -1159,7 +1159,7 @@ class StrategyAnalyzer:
 
     def _find_equity_curve_file(self) -> Optional[Path]:
         """Find the specific equity curve file for this strategy."""
-        equity_filename = f"{self.ticker}_{self.strategy_type}_{self.short_window}_{self.long_window}.csv"
+        equity_filename = f"{self.ticker}_{self.strategy_type}_{self.fast_period}_{self.slow_period}.csv"
 
         # Search in equity data directories
         equity_dirs = [
@@ -1408,7 +1408,7 @@ class StrategyAnalyzer:
         # Construct expected filename patterns
         filename_patterns = [
             f"{self.ticker}_D_{self.strategy_type}.csv",
-            f"{self.ticker}_{self.strategy_type}_{self.short_window}_{self.long_window}.csv",
+            f"{self.ticker}_{self.strategy_type}_{self.fast_period}_{self.slow_period}.csv",
         ]
 
         # Search in various directories
@@ -1461,11 +1461,11 @@ class StrategyAnalyzer:
                     result.divergence_metrics.update(
                         {
                             "analysis_mode": "STRATEGY_SPECIFIC",
-                            "target_strategy": f"{self.strategy_type}_{self.short_window}_{self.long_window}",
+                            "target_strategy": f"{self.strategy_type}_{self.fast_period}_{self.slow_period}",
                             "strategy_parameters": {
-                                "short_window": self.short_window,
-                                "long_window": self.long_window,
-                                "signal_window": self.signal_window,
+                                "fast_period": self.fast_period,
+                                "slow_period": self.slow_period,
+                                "signal_period": self.signal_period,
                             },
                         }
                     )
@@ -1484,8 +1484,8 @@ class StrategyAnalyzer:
 
         # Look for equity curve files
         equity_patterns = [
-            f"{self.strategy_type}_{self.short_window}_{self.long_window}.csv",
-            f"{self.ticker}_{self.strategy_type}_{self.short_window}_{self.long_window}.csv",
+            f"{self.strategy_type}_{self.fast_period}_{self.slow_period}.csv",
+            f"{self.ticker}_{self.strategy_type}_{self.fast_period}_{self.slow_period}.csv",
         ]
 
         equity_dirs = [
@@ -1558,7 +1558,7 @@ class StrategyAnalyzer:
                 exit_signal = "HOLD"
                 confidence = 0.50
 
-            strategy_name = f"{self.ticker}_{self.strategy_type}_{self.short_window}_{self.long_window}"
+            strategy_name = f"{self.ticker}_{self.strategy_type}_{self.fast_period}_{self.slow_period}"
 
             simple_result = create_simple_result(
                 strategy_name=strategy_name,
@@ -1575,9 +1575,9 @@ class StrategyAnalyzer:
                     "percentile_95": float(percentile_95),
                     "analysis_mode": "STRATEGY_EQUITY",
                     "strategy_parameters": {
-                        "short_window": self.short_window,
-                        "long_window": self.long_window,
-                        "signal_window": self.signal_window,
+                        "fast_period": self.fast_period,
+                        "slow_period": self.slow_period,
+                        "signal_period": self.signal_period,
                     },
                 },
             )
@@ -1592,7 +1592,7 @@ class StrategyAnalyzer:
     async def _create_synthetic_strategy_result(self) -> Dict[str, Any]:
         """Create synthetic strategy analysis result."""
         strategy_name = (
-            f"{self.ticker}_{self.strategy_type}_{self.short_window}_{self.long_window}"
+            f"{self.ticker}_{self.strategy_type}_{self.fast_period}_{self.slow_period}"
         )
 
         self.logger.info(f"Creating synthetic result for strategy: {strategy_name}")
@@ -1610,9 +1610,9 @@ class StrategyAnalyzer:
                 "analysis_mode": "SYNTHETIC_STRATEGY",
                 "strategy_type": self.strategy_type,
                 "strategy_parameters": {
-                    "short_window": self.short_window,
-                    "long_window": self.long_window,
-                    "signal_window": self.signal_window,
+                    "fast_period": self.fast_period,
+                    "slow_period": self.slow_period,
+                    "signal_period": self.signal_period,
                 },
             },
         )
@@ -1638,9 +1638,9 @@ class PositionAnalyzer:
         self.parsed_param = parsed_param
         self.ticker = parsed_param.ticker
         self.strategy_type = parsed_param.strategy_type
-        self.short_window = parsed_param.short_window
-        self.long_window = parsed_param.long_window
-        self.signal_window = parsed_param.signal_window or 0
+        self.fast_period = parsed_param.fast_period
+        self.slow_period = parsed_param.slow_period
+        self.signal_period = parsed_param.signal_period or 0
         self.entry_date = parsed_param.entry_date
         self.logger = logger or logging.getLogger(__name__)
 
@@ -1649,7 +1649,7 @@ class PositionAnalyzer:
 
         self.logger.info(
             f"Position analyzer initialized for {self.ticker} "
-            f"{self.strategy_type}_{self.short_window}_{self.long_window} "
+            f"{self.strategy_type}_{self.fast_period}_{self.slow_period} "
             f"entered on {self.entry_date}"
         )
 
@@ -1660,7 +1660,7 @@ class PositionAnalyzer:
         Returns:
             Dictionary with analysis results for the position
         """
-        position_uuid = f"{self.ticker}_{self.strategy_type}_{self.short_window}_{self.long_window}_{self.entry_date}"
+        position_uuid = f"{self.ticker}_{self.strategy_type}_{self.fast_period}_{self.slow_period}_{self.entry_date}"
 
         self.logger.info(
             f"Starting comprehensive position analysis for UUID: {position_uuid}"
@@ -1691,12 +1691,12 @@ class PositionAnalyzer:
             # Create a temporary StrategyAnalyzer to reuse its logic
             strategy_param = ParsedParameter(
                 parameter_type=ParameterType.STRATEGY_SPEC,
-                original_input=f"{self.ticker}_{self.strategy_type}_{self.short_window}_{self.long_window}",
+                original_input=f"{self.ticker}_{self.strategy_type}_{self.fast_period}_{self.slow_period}",
                 ticker=self.ticker,
                 strategy_type=self.strategy_type,
-                short_window=self.short_window,
-                long_window=self.long_window,
-                signal_window=self.signal_window,
+                fast_period=self.fast_period,
+                slow_period=self.slow_period,
+                signal_period=self.signal_period,
             )
             strategy_analyzer = StrategyAnalyzer(strategy_param, self.logger)
             strategy_file = strategy_analyzer._find_strategy_file()
@@ -2169,9 +2169,9 @@ class PositionAnalyzer:
                     "analysis_mode": "POSITION_SPECIFIC",
                     "entry_date": self.entry_date,
                     "strategy_parameters": {
-                        "short_window": self.short_window,
-                        "long_window": self.long_window,
-                        "signal_window": self.signal_window,
+                        "fast_period": self.fast_period,
+                        "slow_period": self.slow_period,
+                        "signal_period": self.signal_period,
                     },
                 },
             )
@@ -2192,12 +2192,12 @@ class PositionAnalyzer:
         # Create a strategy analyzer and use its analysis
         strategy_param = ParsedParameter(
             parameter_type=ParameterType.STRATEGY_SPEC,
-            original_input=f"{self.ticker}_{self.strategy_type}_{self.short_window}_{self.long_window}",
+            original_input=f"{self.ticker}_{self.strategy_type}_{self.fast_period}_{self.slow_period}",
             ticker=self.ticker,
             strategy_type=self.strategy_type,
-            short_window=self.short_window,
-            long_window=self.long_window,
-            signal_window=self.signal_window,
+            fast_period=self.fast_period,
+            slow_period=self.slow_period,
+            signal_period=self.signal_period,
         )
 
         strategy_analyzer = StrategyAnalyzer(strategy_param, self.logger)

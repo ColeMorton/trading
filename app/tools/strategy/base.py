@@ -25,8 +25,8 @@ class BaseStrategy(ABC):
     def calculate(
         self,
         data: pl.DataFrame,
-        short_window: int,
-        long_window: int,
+        fast_period: int,
+        slow_period: int,
         config: Dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
@@ -39,8 +39,8 @@ class BaseStrategy(ABC):
 
         Args:
             data: Input price data with at least a 'close' column
-            short_window: Short moving average window period
-            long_window: Long moving average window period
+            fast_period: Fast moving average period
+            slow_period: Slow moving average period
             config: Configuration dictionary containing strategy parameters
             log: Logging function that accepts message and log level
 
@@ -51,30 +51,30 @@ class BaseStrategy(ABC):
             Exception: If calculation fails
         """
 
-    def validate_windows(
-        self, short_window: int, long_window: int, log: Callable[[str, str], None]
+    def validate_periods(
+        self, fast_period: int, slow_period: int, log: Callable[[str, str], None]
     ) -> bool:
         """
-        Validate window parameters.
+        Validate period parameters.
 
         Args:
-            short_window: Short moving average window period
-            long_window: Long moving average window period
+            fast_period: Fast moving average period
+            slow_period: Slow moving average period
             log: Logging function
 
         Returns:
-            True if windows are valid, False otherwise
+            True if periods are valid, False otherwise
         """
-        if short_window <= 0 or long_window <= 0:
+        if fast_period <= 0 or slow_period <= 0:
             log(
-                f"Window values must be positive: short={short_window}, long={long_window}",
+                f"Period values must be positive: fast={fast_period}, slow={slow_period}",
                 "error",
             )
             return False
 
-        if short_window >= long_window:
+        if fast_period >= slow_period:
             log(
-                f"Short window ({short_window}) must be less than long window ({long_window})",
+                f"Fast period ({fast_period}) must be less than slow period ({slow_period})",
                 "error",
             )
             return False

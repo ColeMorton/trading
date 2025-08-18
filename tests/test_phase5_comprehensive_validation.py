@@ -38,9 +38,9 @@ class TestPhase5ComprehensiveValidation:
                 "Ticker": "BTC-USD",
                 "Allocation [%]": 100.0,
                 "Strategy Type": "EMA",
-                "Short Window": 20,
-                "Long Window": 50,
-                "Signal Window": 0,
+                "Fast Period": 20,
+                "Slow Period": 50,
+                "Signal Period": 0,
                 "Stop Loss [%]": None,
                 "Signal Entry": True,
                 "Signal Exit": False,
@@ -289,7 +289,7 @@ class TestPhase5ComprehensiveValidation:
                         "Allocation [%]",
                         "Stop Loss [%]",
                         "Metric Type",
-                        "Signal Window",
+                        "Signal Period",
                     ]
                     for col in required_columns:
                         assert (

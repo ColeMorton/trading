@@ -57,14 +57,14 @@ class MACrossUnifiedStrategy(AbstractStrategy):
     @property
     def required_parameters(self) -> List[str]:
         """Return list of required parameters for this strategy."""
-        return ["short_window", "long_window", "ma_type"]
+        return ["fast_period", "slow_period", "ma_type"]
 
     @property
     def default_parameters(self) -> Dict[str, Any]:
         """Return default parameters for this strategy."""
         return {
-            "short_window": 20,
-            "long_window": 50,
+            "fast_period": 20,
+            "slow_period": 50,
             "ma_type": "EMA",  # SMA or EMA
             "signal_type": "cross",  # cross, breakout, pullback
             "min_periods": 1,
@@ -81,11 +81,11 @@ class MACrossUnifiedStrategy(AbstractStrategy):
                 return False
 
         # Validate parameter values
-        if params["short_window"] >= params["long_window"]:
-            self._log_error("Short window must be less than long window")
+        if params["fast_period"] >= params["slow_period"]:
+            self._log_error("Fast period must be less than slow period")
             return False
 
-        if params["short_window"] < 1 or params["long_window"] < 2:
+        if params["fast_period"] < 1 or params["slow_period"] < 2:
             self._log_error("Window sizes must be positive integers")
             return False
 
@@ -182,17 +182,17 @@ class MACrossUnifiedStrategy(AbstractStrategy):
         self, data: pd.DataFrame, parameters: Dict[str, Any]
     ) -> pd.DataFrame:
         """Calculate moving average signals."""
-        short_window = parameters["short_window"]
-        long_window = parameters["long_window"]
+        fast_period = parameters["fast_period"]
+        slow_period = parameters["slow_period"]
         ma_type = parameters["ma_type"]
 
         # Calculate moving averages
         if ma_type == "SMA":
-            data["MA_Short"] = data["Close"].rolling(window=short_window).mean()
-            data["MA_Long"] = data["Close"].rolling(window=long_window).mean()
+            data["MA_Short"] = data["Close"].rolling(window=fast_period).mean()
+            data["MA_Long"] = data["Close"].rolling(window=slow_period).mean()
         else:  # EMA
-            data["MA_Short"] = data["Close"].ewm(span=short_window).mean()
-            data["MA_Long"] = data["Close"].ewm(span=long_window).mean()
+            data["MA_Short"] = data["Close"].ewm(span=fast_period).mean()
+            data["MA_Long"] = data["Close"].ewm(span=slow_period).mean()
 
         # Generate signals
         data["Signal"] = 0  # 0 = hold, 1 = buy, -1 = sell
@@ -347,8 +347,8 @@ class MACrossUnifiedStrategy(AbstractStrategy):
     def get_parameter_ranges(self) -> Dict[str, List[Any]]:
         """Get default parameter ranges for optimization."""
         return {
-            "short_window": list(range(5, 51, 5)),  # 5, 10, 15, ..., 50
-            "long_window": list(range(20, 201, 10)),  # 20, 30, 40, ..., 200
+            "fast_period": list(range(5, 51, 5)),  # 5, 10, 15, ..., 50
+            "slow_period": list(range(20, 201, 10)),  # 20, 30, 40, ..., 200
             "ma_type": ["SMA", "EMA"],
         }
 
@@ -379,8 +379,8 @@ StrategyFactory.register_strategy("MA_CROSS", MACrossUnifiedStrategy)
 
 async def execute_ma_cross_single(
     ticker: str,
-    short_window: int = 20,
-    long_window: int = 50,
+    fast_period: int = 20,
+    slow_period: int = 50,
     ma_type: str = "EMA",
     **kwargs,
 ) -> UnifiedStrategyResult:
@@ -396,8 +396,8 @@ async def execute_ma_cross_single(
         strategy_type="MA_CROSS",
         ticker=ticker,
         parameters={
-            "short_window": short_window,
-            "long_window": long_window,
+            "fast_period": fast_period,
+            "slow_period": slow_period,
             "ma_type": ma_type,
         },
         **kwargs,
@@ -423,8 +423,8 @@ async def optimize_ma_cross(
 
     # Set default ranges if not provided
     parameter_ranges = {
-        "short_window": short_range or list(range(5, 51, 5)),
-        "long_window": long_range or list(range(20, 201, 10)),
+        "fast_period": short_range or list(range(5, 51, 5)),
+        "slow_period": long_range or list(range(20, 201, 10)),
         "ma_type": ma_types or ["SMA", "EMA"],
     }
 
@@ -476,7 +476,7 @@ async def demo_unified_ma_cross():
     # Test single ticker execution
     print("\n1. Single Ticker Execution:")
     result = await execute_ma_cross_single(
-        ticker="AAPL", short_window=20, long_window=50, ma_type="EMA"
+        ticker="AAPL", fast_period=20, slow_period=50, ma_type="EMA"
     )
     print(f"Total Return: {result.total_return:.2f}%")
     print(f"Sharpe Ratio: {result.sharpe_ratio:.2f}")
@@ -497,7 +497,7 @@ async def demo_unified_ma_cross():
     print("\n3. Portfolio Execution:")
     portfolio_results = await execute_ma_cross_portfolio(
         tickers=["AAPL", "MSFT", "GOOGL"],
-        parameters={"short_window": 20, "long_window": 50, "ma_type": "EMA"},
+        parameters={"fast_period": 20, "slow_period": 50, "ma_type": "EMA"},
     )
 
     print("Portfolio Results:")

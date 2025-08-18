@@ -19,8 +19,8 @@ config:
   # Single strategy for rapid testing
   strategies:
     - ticker: '{{TICKER}}' # User should replace with actual ticker
-      short_window: '{{SHORT_WINDOW}}' # User should replace with actual value
-      long_window: '{{LONG_WINDOW}}' # User should replace with actual value
+      fast_period: '{{FAST_PERIOD}}' # User should replace with actual value
+      slow_period: '{{SLOW_PERIOD}}' # User should replace with actual value
       strategy_type: '{{STRATEGY_TYPE}}' # SMA or EMA
       stop_loss: null
 
@@ -62,8 +62,8 @@ config:
 
     To use this template:
     1. Replace {{TICKER}} with your symbol (e.g., BTC-USD, AAPL)
-    2. Replace {{SHORT_WINDOW}} with short MA window (e.g., 10)
-    3. Replace {{LONG_WINDOW}} with long MA window (e.g., 30)
+    2. Replace {{FAST_PERIOD}} with short MA window (e.g., 10)
+    3. Replace {{SLOW_PERIOD}} with long MA window (e.g., 30)
     4. Replace {{STRATEGY_TYPE}} with "SMA" or "EMA"
 
     Example command:

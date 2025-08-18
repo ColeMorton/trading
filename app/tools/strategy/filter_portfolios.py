@@ -35,11 +35,20 @@ class PortfolioFilterConfig:
 
     def _setup_strategy_specific_config(self):
         """Setup strategy-specific configuration parameters."""
-        # Window parameter configurations per strategy
+        # Period parameter configurations per strategy (updated naming)
+        self.period_params = {
+            "SMA": ["Fast Period", "Slow Period"],
+            "EMA": ["Fast Period", "Slow Period"],
+            "MACD": ["Fast Period", "Slow Period", "Signal Period"],
+            "MEAN_REVERSION": ["Change PCT"],
+            "RANGE": ["Range Window", "Range Period"],
+        }
+
+        # Legacy window parameters for backwards compatibility
         self.window_params = {
-            "SMA": ["Short Window", "Long Window"],
-            "EMA": ["Short Window", "Long Window"],
-            "MACD": ["Short Window", "Long Window", "Signal Window"],
+            "SMA": ["Fast Period", "Slow Period"],
+            "EMA": ["Fast Period", "Slow Period"],
+            "MACD": ["Fast Period", "Slow Period", "Signal Period"],
             "MEAN_REVERSION": ["Change PCT"],
             "RANGE": ["Range Window", "Range Period"],
         }
@@ -63,9 +72,13 @@ class PortfolioFilterConfig:
         }
 
     def get_window_parameters(self) -> List[str]:
-        """Get window parameters for the strategy."""
+        """Get window/period parameters for the strategy."""
+        # First try new period params, fall back to legacy window params
+        period_params = self.period_params.get(self.strategy_type)
+        if period_params:
+            return period_params
         return self.window_params.get(
-            self.strategy_type, ["Short Window", "Long Window"]
+            self.strategy_type, ["Fast Period", "Slow Period"]
         )
 
     def get_relevant_metrics(self) -> List[str]:
@@ -105,7 +118,7 @@ def create_metric_result(
 
     # Use default window params if not provided
     if window_params is None:
-        window_params = ["Short Window", "Long Window"]
+        period_params = ["Fast Period", "Slow Period"]
 
     # Create result with strategy-specific parameters
     result = {"Metric Type": f"{label} {metric}"}
@@ -116,7 +129,7 @@ def create_metric_result(
             result[param] = row[param]
         else:
             # Set default values for missing parameters
-            if param == "Signal Window":
+            if param == "Signal Period":
                 result[param] = 0
             elif "Window" in param:
                 result[param] = 0
@@ -324,7 +337,29 @@ def filter_portfolios(
                 f"Processing {len(available_metrics)} metrics: {', '.join(available_metrics[:5])}{'...' if len(available_metrics) > 5 else ''}"
             )
 
-        # Process metrics to get extreme values
+        # Apply MINIMUMS filtering first if configured
+        if "MINIMUMS" in config:
+            from app.tools.portfolio.filtering_service import PortfolioFilterService
+
+            filter_service = PortfolioFilterService()
+            filtered_portfolios_df = filter_service.filter_portfolios_dataframe(
+                portfolios_df, config, log
+            )
+
+            if filtered_portfolios_df is None or len(filtered_portfolios_df) == 0:
+                if log:
+                    log("No portfolios remain after MINIMUMS filtering", "warning")
+                return pl.DataFrame()
+
+            # Use filtered portfolios for extreme value processing
+            portfolios_df = filtered_portfolios_df
+
+            if log:
+                log(
+                    f"Applied MINIMUMS filtering: {len(portfolios_df)} portfolios remain"
+                )
+
+        # Process metrics to get extreme values from filtered portfolios
         result_rows = _process_metrics(portfolios_df, available_metrics, window_params)
 
         if not result_rows:
@@ -334,11 +369,6 @@ def filter_portfolios(
 
         # Prepare final result DataFrame
         result_df = _prepare_result_df(result_rows, config, filter_config)
-
-        # Note: We do NOT apply MINIMUMS filtering here because:
-        # 1. The input portfolios have already been filtered by MINIMUMS
-        # 2. Extreme values from filtered portfolios are by definition valid
-        # 3. Re-filtering would incorrectly exclude valid extreme values
 
         if log:
             log(f"Generated {len(result_df)} filtered portfolio results")

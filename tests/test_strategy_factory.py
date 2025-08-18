@@ -34,7 +34,7 @@ class TestStrategyFactory:
         factory = StrategyFactory()
 
         class CustomStrategy(BaseStrategy):
-            def calculate(self, data, short_window, long_window, config, log):
+            def calculate(self, data, fast_period, slow_period, config, log):
                 return data
 
         factory.register_strategy("CUSTOM", CustomStrategy)
@@ -85,7 +85,7 @@ class TestStrategyFactory:
 
         # Add a custom strategy
         class CustomStrategy(BaseStrategy):
-            def calculate(self, data, short_window, long_window, config, log):
+            def calculate(self, data, fast_period, slow_period, config, log):
                 return data
 
         factory.register_strategy("CUSTOM", CustomStrategy)
@@ -115,54 +115,54 @@ class TestBaseStrategy:
         with pytest.raises(TypeError):
             IncompleteStrategy()
 
-    def test_base_strategy_validate_windows(self):
-        """Test window validation in base strategy."""
+    def test_base_strategy_validate_periods(self):
+        """Test period validation in base strategy."""
 
         class TestStrategy(BaseStrategy):
-            def calculate(self, data, short_window, long_window, config, log):
+            def calculate(self, data, fast_period, slow_period, config, log):
                 return data
 
         strategy = TestStrategy()
         log = Mock()
 
-        # Valid windows
-        assert strategy.validate_windows(5, 10, log) is True
+        # Valid periods
+        assert strategy.validate_periods(5, 10, log) is True
 
-        # Invalid: short >= long
-        assert strategy.validate_windows(10, 5, log) is False
+        # Invalid: fast >= slow
+        assert strategy.validate_periods(10, 5, log) is False
         log.assert_called_with(
-            "Short window (10) must be less than long window (5)", "error"
+            "Fast period (10) must be less than slow period (5)", "error"
         )
 
-        # Invalid: negative window
-        assert strategy.validate_windows(-5, 10, log) is False
-        assert strategy.validate_windows(5, -10, log) is False
+        # Invalid: negative period
+        assert strategy.validate_periods(-5, 10, log) is False
+        assert strategy.validate_periods(5, -10, log) is False
 
-        # Invalid: zero window
-        assert strategy.validate_windows(0, 10, log) is False
-        assert strategy.validate_windows(5, 0, log) is False
+        # Invalid: zero period
+        assert strategy.validate_periods(0, 10, log) is False
+        assert strategy.validate_periods(5, 0, log) is False
 
     def test_base_strategy_validate_data(self):
         """Test data validation in base strategy."""
 
         class TestStrategy(BaseStrategy):
-            def calculate(self, data, short_window, long_window, config, log):
+            def calculate(self, data, fast_period, slow_period, config, log):
                 return data
 
         strategy = TestStrategy()
         log = Mock()
 
         # Valid data
-        valid_data = pl.DataFrame({"close": [1.0, 2.0, 3.0]})
+        valid_data = pl.DataFrame({"Close": [1.0, 2.0, 3.0]})
         assert strategy.validate_data(valid_data, log) is True
 
-        # Invalid: no close column
+        # Invalid: no Close column
         invalid_data = pl.DataFrame({"price": [1.0, 2.0, 3.0]})
         assert strategy.validate_data(invalid_data, log) is False
-        log.assert_called_with("Data must contain 'close' column", "error")
+        log.assert_called_with("Data must contain 'Close' column", "error")
 
         # Invalid: empty dataframe
-        empty_data = pl.DataFrame({"close": []})
+        empty_data = pl.DataFrame({"Close": []})
         assert strategy.validate_data(empty_data, log) is False
 
         # Invalid: None
@@ -180,7 +180,7 @@ class TestSMAStrategy:
 
         # Create test data
         data = pl.DataFrame(
-            {"close": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]}
+            {"Close": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]}
         )
 
         # Mock the imported functions
@@ -244,7 +244,7 @@ class TestSMAStrategy:
 
             # Verify log messages
             log.assert_any_call(
-                "Calculating Long SMAs and signals with short window 5 and long window 10"
+                "Calculating Long SMAs and signals with fast period 5 and slow period 10"
             )
 
     def test_sma_strategy_with_rsi(self):
@@ -253,7 +253,7 @@ class TestSMAStrategy:
         log = Mock()
         config = {"DIRECTION": "Long", "USE_RSI": True, "RSI_WINDOW": 14}
 
-        data = pl.DataFrame({"close": list(range(1, 21))})  # 20 data points for RSI
+        data = pl.DataFrame({"Close": list(range(1, 21))})  # 20 data points for RSI
 
         with (
             patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
@@ -284,7 +284,7 @@ class TestSMAStrategy:
         config = {"DIRECTION": "Short"}
 
         data = pl.DataFrame(
-            {"close": [10.0, 9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0]}
+            {"Close": [10.0, 9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0]}
         )
 
         with (
@@ -305,7 +305,7 @@ class TestSMAStrategy:
 
             # Verify short direction in log
             log.assert_any_call(
-                "Calculating Short SMAs and signals with short window 3 and long window 6"
+                "Calculating Short SMAs and signals with fast period 3 and slow period 6"
             )
 
 
@@ -319,7 +319,7 @@ class TestEMAStrategy:
         config = {"DIRECTION": "Long"}
 
         data = pl.DataFrame(
-            {"close": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]}
+            {"Close": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]}
         )
 
         with (
@@ -341,7 +341,7 @@ class TestEMAStrategy:
             # Verify EMA was used (use_sma=False)
             mock_mas.assert_called_once_with(data, 12, 26, False, log)
             log.assert_any_call(
-                "Calculating Long EMAs and signals with short window 12 and long window 26"
+                "Calculating Long EMAs and signals with fast period 12 and slow period 26"
             )
 
     def test_ema_strategy_error_handling(self):
@@ -350,7 +350,7 @@ class TestEMAStrategy:
         log = Mock()
         config = {"DIRECTION": "Long"}
 
-        data = pl.DataFrame({"close": [1.0, 2.0, 3.0]})
+        data = pl.DataFrame({"Close": [1.0, 2.0, 3.0]})
 
         with patch("app.tools.strategy.concrete.calculate_mas") as mock_mas:
             mock_mas.side_effect = Exception("Calculation error")
@@ -373,7 +373,7 @@ class TestStrategyIntegration:
         log = Mock()
         config = {"STRATEGY_TYPE": "SMA", "DIRECTION": "Long"}
 
-        data = pl.DataFrame({"close": list(range(1, 101))})  # 100 data points
+        data = pl.DataFrame({"Close": list(range(1, 101))})  # 100 data points
 
         # Get strategy from factory
         strategy = factory.create_strategy(config.get("STRATEGY_TYPE", "EMA"))
@@ -409,7 +409,7 @@ class TestStrategyIntegration:
         log = Mock()
         config = {"STRATEGY_TYPE": "EMA", "DIRECTION": "Long"}
 
-        data = pl.DataFrame({"close": list(range(1, 51))})  # 50 data points
+        data = pl.DataFrame({"Close": list(range(1, 51))})  # 50 data points
 
         # Mock all the dependencies
         with (

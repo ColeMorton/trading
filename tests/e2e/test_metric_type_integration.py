@@ -72,8 +72,8 @@ class TestMetricTypeE2EIntegration:
                 # Verify other required fields are also present
                 assert "ticker" in portfolio
                 assert "strategy_type" in portfolio
-                assert "short_window" in portfolio
-                assert "long_window" in portfolio
+                assert "fast_period" in portfolio
+                assert "slow_period" in portfolio
 
     def test_async_analysis_metric_type_flow(self, client):
         """Test asynchronous analysis preserves metric_type through complete flow."""

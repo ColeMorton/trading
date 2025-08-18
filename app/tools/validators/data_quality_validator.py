@@ -84,7 +84,7 @@ class DataQualityValidator:
             issues.append("Missing Strategy_Type column for UUID validation")
             return issues
 
-        # Check SMA/EMA strategies should NOT have signal window in UUID
+        # Check SMA/EMA strategies should NOT have signal period in UUID
         sma_ema_df = df[df["Strategy_Type"].isin(["SMA", "EMA"])]
         incorrect_sma_ema = sma_ema_df[
             sma_ema_df["Position_UUID"].str.contains("_0_", na=False)
@@ -92,10 +92,10 @@ class DataQualityValidator:
 
         if len(incorrect_sma_ema) > 0:
             issues.append(
-                f"Found {len(incorrect_sma_ema)} SMA/EMA positions with incorrect UUID format (contains Signal_Window)"
+                f"Found {len(incorrect_sma_ema)} SMA/EMA positions with incorrect UUID format (contains Signal_Period)"
             )
 
-        # Check MACD strategies should have signal window in UUID
+        # Check MACD strategies should have signal period in UUID
         macd_df = df[df["Strategy_Type"] == "MACD"]
         if len(macd_df) > 0:
             # MACD UUIDs should have 6 parts: TICKER_MACD_SHORT_LONG_SIGNAL_DATE
@@ -121,8 +121,8 @@ class DataQualityValidator:
             "Position_UUID",
             "Ticker",
             "Strategy_Type",
-            "Short_Window",
-            "Long_Window",
+            "Fast_Period",
+            "Slow_Period",
             "Direction",
             "Status",
             "Trade_Type",
@@ -247,9 +247,9 @@ class DataQualityValidator:
         issues = []
 
         expected_types = {
-            "Short_Window": "int",
-            "Long_Window": "int",
-            "Signal_Window": "int",
+            "Fast_Period": "int",
+            "Slow_Period": "int",
+            "Signal_Period": "int",
             "Position_Size": "float",
             "Days_Since_Entry": "float",
         }

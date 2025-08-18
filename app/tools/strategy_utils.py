@@ -91,8 +91,8 @@ def determine_strategy_type(strategy_config: Dict[str, Any], log_func=None) -> s
     # If still not found, infer from configuration
     if not strategy_type:
         if (
-            "SIGNAL_WINDOW" in strategy_config
-            and strategy_config.get("SIGNAL_WINDOW", 0) > 0
+            "SIGNAL_PERIOD" in strategy_config
+            and strategy_config.get("SIGNAL_PERIOD", 0) > 0
         ):
             strategy_type = "MACD"
         elif "LENGTH" in strategy_config and "MULTIPLIER" in strategy_config:
@@ -119,9 +119,9 @@ def get_required_fields_for_strategy(strategy_type: str) -> List[str]:
     if strategy_type == "ATR":
         return ["TICKER", "LENGTH", "MULTIPLIER"]
     elif strategy_type == "MACD":
-        return ["TICKER", "SHORT_WINDOW", "LONG_WINDOW", "SIGNAL_WINDOW"]
+        return ["TICKER", "FAST_PERIOD", "SLOW_PERIOD", "SIGNAL_PERIOD"]
     else:  # Default to MA strategy
-        return ["TICKER", "SHORT_WINDOW", "LONG_WINDOW"]
+        return ["TICKER", "FAST_PERIOD", "SLOW_PERIOD"]
 
 
 def validate_strategy_config(
@@ -145,9 +145,9 @@ def validate_strategy_config(
         "TICKER": ["ticker", "TICKER"],
         "LENGTH": ["length", "LENGTH"],
         "MULTIPLIER": ["multiplier", "MULTIPLIER"],
-        "SHORT_WINDOW": ["short_window", "SHORT_WINDOW"],
-        "LONG_WINDOW": ["long_window", "LONG_WINDOW"],
-        "SIGNAL_WINDOW": ["signal_window", "SIGNAL_WINDOW"],
+        "FAST_PERIOD": ["fast_period", "FAST_PERIOD"],
+        "SLOW_PERIOD": ["slow_period", "SLOW_PERIOD"],
+        "SIGNAL_PERIOD": ["signal_period", "SIGNAL_PERIOD"],
         "DIRECTION": ["direction", "DIRECTION"],
         "STRATEGY_TYPE": ["type", "STRATEGY_TYPE"],
     }

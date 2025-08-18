@@ -41,8 +41,8 @@ def parse_strategy_id(strategy_id: str) -> Dict[str, Any]:
 
     Args:
         strategy_id (str): Strategy ID in the format:
-                          - SMA/EMA: {ticker}_{strategy_type}_{short_window}_{long_window}
-                          - MACD/others: {ticker}_{strategy_type}_{short_window}_{long_window}_{signal_window}
+                          - SMA/EMA: {ticker}_{strategy_type}_{fast_period}_{slow_period}
+                          - MACD/others: {ticker}_{strategy_type}_{fast_period}_{slow_period}_{signal_period}
 
     Returns:
         Dict[str, Any]: Dictionary containing the parsed components

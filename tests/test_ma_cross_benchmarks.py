@@ -36,8 +36,8 @@ class TestMACrossPerformanceBenchmarks:
             yield {
                 "TICKER": ["BTC-USD"],
                 "STRATEGY_TYPE": "SMA",
-                "SHORT_WINDOW": 10,
-                "LONG_WINDOW": 20,
+                "FAST_PERIOD": 10,
+                "SLOW_PERIOD": 20,
                 "WINDOWS": [[5, 10], [10, 20], [15, 30]],
                 "DIRECTION": "BOTH",
                 "TIMEFRAME": "D",

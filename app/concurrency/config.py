@@ -83,9 +83,9 @@ class CsvStrategyRow(TypedDict):
     Required Fields:
         Ticker (str): Trading symbol
         Use SMA (bool): Whether to use SMA (vs EMA)
-        Short Window (int): Short moving average period
-        Long Window (int): Long moving average period
-        Signal Window (int): Signal line period (for MACD)
+        Fast Period (int): Short moving average period
+        Slow Period (int): Long moving average period
+        Signal Period (int): Signal line period (for MACD)
 
     Optional Fields:
         strategy_id (NotRequired[str]): Unique strategy identifier
@@ -95,9 +95,9 @@ class CsvStrategyRow(TypedDict):
 
     Ticker: str
     Use_SMA: bool
-    Short_Window: int
-    Long_Window: int
-    Signal_Window: int
+    Fast_Period: int
+    Slow_Period: int
+    Signal_Period: int
     strategy_id: NotRequired[str]
     Allocation: NotRequired[float]  # Allocation [%] in CSV header
     Stop_Loss: NotRequired[float]  # Stop Loss [%] in CSV header
@@ -111,8 +111,8 @@ class JsonMaStrategy(TypedDict):
         timeframe (str): Trading timeframe
         type (str): Strategy type (SMA/EMA)
         direction (str): Trading direction
-        short_window (int): Short moving average period
-        long_window (int): Long moving average period
+        fast_period (int): Short moving average period
+        slow_period (int): Long moving average period
 
     Optional Fields:
         allocation (NotRequired[float]): Allocation percentage for the strategy
@@ -126,8 +126,8 @@ class JsonMaStrategy(TypedDict):
     timeframe: str
     type: str
     direction: str
-    short_window: int
-    long_window: int
+    fast_period: int
+    slow_period: int
     allocation: NotRequired[float]
     stop_loss: NotRequired[float]
     rsi_period: NotRequired[int]
@@ -143,9 +143,9 @@ class JsonMacdStrategy(TypedDict):
         timeframe (str): Trading timeframe
         type (str): Strategy type (MACD)
         direction (str): Trading direction
-        short_window (int): Fast line period
-        long_window (int): Slow line period
-        signal_window (int): Signal line period
+        fast_period (int): Fast line period
+        slow_period (int): Slow line period
+        signal_period (int): Signal line period
 
     Optional Fields:
         allocation (NotRequired[float]): Allocation percentage for the strategy
@@ -159,9 +159,9 @@ class JsonMacdStrategy(TypedDict):
     timeframe: str
     type: str
     direction: str
-    short_window: int
-    long_window: int
-    signal_window: int
+    fast_period: int
+    slow_period: int
+    signal_period: int
     allocation: NotRequired[float]
     stop_loss: NotRequired[float]
     rsi_period: NotRequired[int]
@@ -440,7 +440,7 @@ def validate_csv_portfolio(file_path: str) -> None:
     Raises:
         ValidationError: If CSV format is invalid
     """
-    required_fields = {"Ticker", "Use SMA", "Short Window", "Long Window"}
+    required_fields = {"Ticker", "Use SMA", "Fast Period", "Slow Period"}
 
     try:
         with open(file_path, newline="") as f:
@@ -472,10 +472,10 @@ def validate_ma_portfolio(file_path: str) -> None:
         "timeframe",
         "type",
         "direction",
-        "short_window",
-        "long_window",
+        "fast_period",
+        "slow_period",
     }
-    macd_required_fields = ma_required_fields | {"signal_window"}
+    macd_required_fields = ma_required_fields | {"signal_period"}
     atr_required_fields = {
         "ticker",
         "timeframe",
@@ -533,9 +533,9 @@ def validate_macd_portfolio(file_path: str) -> None:
         "timeframe",
         "type",
         "direction",
-        "short_window",
-        "long_window",
-        "signal_window",
+        "fast_period",
+        "slow_period",
+        "signal_period",
     }
 
     try:

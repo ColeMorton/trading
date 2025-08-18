@@ -25,9 +25,9 @@ class StrategyConfig(TypedDict):
 
     Optional Fields:
         # MA/MACD strategy fields
-        SHORT_WINDOW (NotRequired[int]): Period for short moving average or MACD fast line
-        LONG_WINDOW (NotRequired[int]): Period for long moving average or MACD slow line
-        SIGNAL_WINDOW (NotRequired[int]): Period for MACD signal line
+        FAST_PERIOD (NotRequired[int]): Period for short moving average or MACD fast line
+        SLOW_PERIOD (NotRequired[int]): Period for long moving average or MACD slow line
+        SIGNAL_PERIOD (NotRequired[int]): Period for MACD signal line
 
         # ATR strategy fields
         length (NotRequired[int]): ATR calculation period
@@ -49,9 +49,9 @@ class StrategyConfig(TypedDict):
     STRATEGY_TYPE: str
     DIRECTION: str
     # MA/MACD fields
-    SHORT_WINDOW: NotRequired[int]
-    LONG_WINDOW: NotRequired[int]
-    SIGNAL_WINDOW: NotRequired[int]
+    FAST_PERIOD: NotRequired[int]
+    SLOW_PERIOD: NotRequired[int]
+    SIGNAL_PERIOD: NotRequired[int]
     # ATR fields
     length: NotRequired[int]
     multiplier: NotRequired[float]
@@ -114,8 +114,8 @@ class PortfolioResult(TypedDict):
     Required Fields:
         ticker (str): Ticker symbol
         strategy_type (str): Type of strategy (SMA, EMA, MACD)
-        short_window (int): Period for short moving average
-        long_window (int): Period for long moving average
+        fast_period (int): Period for short moving average
+        slow_period (int): Period for long moving average
         total_return (float): Total return percentage
         max_drawdown (float): Maximum drawdown percentage
         win_rate (float): Win rate percentage
@@ -132,8 +132,8 @@ class PortfolioResult(TypedDict):
 
     ticker: str
     strategy_type: str
-    short_window: int
-    long_window: int
+    fast_period: int
+    slow_period: int
     total_return: float
     max_drawdown: float
     win_rate: float

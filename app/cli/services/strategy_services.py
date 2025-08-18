@@ -124,10 +124,66 @@ class MAStrategyService(BaseStrategyService):
         if config.minimums.beats_bnh is not None:
             legacy_config["MINIMUMS"]["BEATS_BNH"] = config.minimums.beats_bnh
 
-        # Add parameter ranges for sweeps if specified
-        if config.fast_period_range:
+        # Add parameter ranges for sweeps - prioritize strategy-specific params, fall back to global
+        def get_strategy_specific_params(strategy_type: str):
+            """Extract strategy-specific parameters with fallback to global parameters."""
+            if config.strategy_params and hasattr(
+                config.strategy_params, strategy_type
+            ):
+                strategy_params = getattr(config.strategy_params, strategy_type)
+                if strategy_params:
+                    return strategy_params
+            return None
+
+        # Check all strategy types supported by this service (SMA, EMA)
+        strategy_types_to_check = ["SMA", "EMA"]
+        strategy_params_found = None
+
+        for strategy_type in strategy_types_to_check:
+            if strategy_type in [
+                st.value if hasattr(st, "value") else str(st)
+                for st in config.strategy_types
+            ]:
+                strategy_params_found = get_strategy_specific_params(strategy_type)
+                if strategy_params_found:
+                    break
+
+        # CLI overrides take precedence over strategy-specific parameters
+
+        # Fast period range mapping - prioritize CLI overrides
+        if config.fast_period_min is not None and config.fast_period_max is not None:
+            legacy_config["FAST_PERIOD_RANGE"] = (
+                config.fast_period_min,
+                config.fast_period_max,
+            )
+        elif (
+            strategy_params_found
+            and strategy_params_found.fast_period_min is not None
+            and strategy_params_found.fast_period_max is not None
+        ):
+            legacy_config["FAST_PERIOD_RANGE"] = (
+                strategy_params_found.fast_period_min,
+                strategy_params_found.fast_period_max,
+            )
+        elif config.fast_period_range:
             legacy_config["FAST_PERIOD_RANGE"] = config.fast_period_range
-        if config.slow_period_range:
+
+        # Slow period range mapping - prioritize CLI overrides
+        if config.slow_period_min is not None and config.slow_period_max is not None:
+            legacy_config["SLOW_PERIOD_RANGE"] = (
+                config.slow_period_min,
+                config.slow_period_max,
+            )
+        elif (
+            strategy_params_found
+            and strategy_params_found.slow_period_min is not None
+            and strategy_params_found.slow_period_max is not None
+        ):
+            legacy_config["SLOW_PERIOD_RANGE"] = (
+                strategy_params_found.slow_period_min,
+                strategy_params_found.slow_period_max,
+            )
+        elif config.slow_period_range:
             legacy_config["SLOW_PERIOD_RANGE"] = config.slow_period_range
 
         # Add specific periods if provided
@@ -136,8 +192,9 @@ class MAStrategyService(BaseStrategyService):
         if config.slow_period:
             legacy_config["SLOW_PERIOD"] = config.slow_period
 
-        # Add USE_CURRENT configuration
-        legacy_config["USE_CURRENT"] = getattr(config, "use_current", False) or False
+        # Add USE_CURRENT and USE_DATE configuration
+        legacy_config["USE_CURRENT"] = getattr(config.filter, "use_current", False) or False
+        legacy_config["USE_DATE"] = getattr(config.filter, "date_filter", None)
 
         # Add sorting parameters to maintain consistency with MACD
         legacy_config["SORT_BY"] = getattr(config, "sort_by", "Score")
@@ -182,44 +239,101 @@ class MACDStrategyService(BaseStrategyService):
             config.ticker if isinstance(config.ticker, list) else [config.ticker]
         )
 
-        # Direct mapping from YAML config to MACD parameters with fail-fast validation
-        required_params = [
-            "short_window_start",
-            "short_window_end",
-            "long_window_start",
-            "long_window_end",
-            "signal_window_start",
-            "signal_window_end",
-        ]
+        # Check for strategy-specific MACD parameters first, then fall back to global parameters
+        macd_params = None
+        if config.strategy_params and config.strategy_params.MACD:
+            macd_params = config.strategy_params.MACD
 
-        # Check for required parameters
-        missing_params = []
-        for param in required_params:
-            value = getattr(config, param, None)
-            if value is None:
-                missing_params.append(param)
+        # Determine parameter sources with priority: strategy-specific > global new format > legacy format
+        has_strategy_specific = (
+            macd_params is not None
+            and macd_params.fast_period_min is not None
+            and macd_params.fast_period_max is not None
+            and macd_params.slow_period_min is not None
+            and macd_params.slow_period_max is not None
+            and macd_params.signal_period_min is not None
+            and macd_params.signal_period_max is not None
+        )
 
-        if missing_params:
-            rprint(f"[red]Missing required MACD parameters: {missing_params}[/red]")
+        has_global_new_format = (
+            config.fast_period_min is not None
+            and config.fast_period_max is not None
+            and config.slow_period_min is not None
+            and config.slow_period_max is not None
+            and config.signal_period_min is not None
+            and config.signal_period_max is not None
+        )
+
+        has_legacy_format = (
+            config.short_window_start is not None
+            and config.short_window_end is not None
+            and config.long_window_start is not None
+            and config.long_window_end is not None
+            and config.signal_window_start is not None
+            and config.signal_window_end is not None
+        )
+
+        if (
+            not has_strategy_specific
+            and not has_global_new_format
+            and not has_legacy_format
+        ):
+            rprint(f"[red]Missing required MACD parameters[/red]")
             rprint(
-                f"[yellow]Ensure your profile contains: short_window_start, short_window_end, long_window_start, long_window_end, signal_window_start, signal_window_end[/yellow]"
+                f"[yellow]Ensure your profile contains either:\n"
+                + "Strategy-specific: strategy_params.MACD.fast_period_min/max, slow_period_min/max, signal_period_min/max\n"
+                + "Global format: fast_period_min/max, slow_period_min/max, signal_period_min/max\n"
+                + "OR Legacy format: short_window_start/end, long_window_start/end, signal_window_start/end[/yellow]"
             )
-            raise ValueError(f"Incomplete MACD configuration: missing {missing_params}")
+            raise ValueError(f"Incomplete MACD configuration")
 
         try:
+            # Extract parameters with priority: strategy-specific > global new format > legacy format
+            if has_strategy_specific:
+                fast_min, fast_max = (
+                    macd_params.fast_period_min,
+                    macd_params.fast_period_max,
+                )
+                slow_min, slow_max = (
+                    macd_params.slow_period_min,
+                    macd_params.slow_period_max,
+                )
+                signal_min, signal_max = (
+                    macd_params.signal_period_min,
+                    macd_params.signal_period_max,
+                )
+                step = macd_params.step if macd_params.step is not None else 1
+            elif has_global_new_format:
+                fast_min, fast_max = config.fast_period_min, config.fast_period_max
+                slow_min, slow_max = config.slow_period_min, config.slow_period_max
+                signal_min, signal_max = (
+                    config.signal_period_min,
+                    config.signal_period_max,
+                )
+                step = getattr(config, "step", 1)
+            else:  # has_legacy_format
+                fast_min, fast_max = config.short_window_start, config.short_window_end
+                slow_min, slow_max = config.long_window_start, config.long_window_end
+                signal_min, signal_max = (
+                    config.signal_window_start,
+                    config.signal_window_end,
+                )
+                step = getattr(config, "step", 1)
+
             legacy_config = {
                 "STRATEGY_TYPE": "MACD",
                 "STRATEGY_TYPES": ["MACD"],
-                "SHORT_WINDOW_START": config.short_window_start,
-                "SHORT_WINDOW_END": config.short_window_end,
-                "LONG_WINDOW_START": config.long_window_start,
-                "LONG_WINDOW_END": config.long_window_end,
-                "SIGNAL_WINDOW_START": config.signal_window_start,
-                "SIGNAL_WINDOW_END": config.signal_window_end,
-                "SIGNAL_WINDOW": config.signal_window_start,  # For fallback detection
-                "STEP": getattr(config, "step", 1),
+                "SHORT_WINDOW_START": fast_min,
+                "SHORT_WINDOW_END": fast_max,
+                "LONG_WINDOW_START": slow_min,
+                "LONG_WINDOW_END": slow_max,
+                "SIGNAL_WINDOW_START": signal_min,
+                "SIGNAL_WINDOW_END": signal_max,
+                "SIGNAL_PERIOD": signal_min,  # For fallback detection
+                "STEP": step,
                 "DIRECTION": getattr(config, "direction", "Long"),
-                "USE_CURRENT": getattr(config, "use_current", False) or False,
+                "USE_CURRENT": getattr(config.filter, "use_current", False) or False,
+                "USE_DATE": getattr(config.filter, "date_filter", None),
                 "USE_HOURLY": getattr(config, "use_hourly", False),
                 "USE_4HOUR": getattr(config, "use_4hour", False),
                 "USE_YEARS": getattr(config, "use_years", False),

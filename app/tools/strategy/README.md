@@ -29,7 +29,7 @@ from app.tools.strategy.factory import factory
 strategy = factory.create_strategy("SMA")
 
 # Execute strategy
-result = strategy.calculate(data, short_window=20, long_window=50, config=config, log=log)
+result = strategy.calculate(data, fast_period=20, slow_period=50, config=config, log=log)
 ```
 
 ### Adding a New Strategy
@@ -43,7 +43,7 @@ import polars as pl
 class WMAStrategy(BaseStrategy):
     """Weighted Moving Average strategy."""
 
-    def calculate(self, data, short_window, long_window, config, log):
+    def calculate(self, data, fast_period, slow_period, config, log):
         # Implement WMA calculation logic
         pass
 ```
@@ -61,7 +61,7 @@ factory.register_strategy("WMA", WMAStrategy)
 
 ```python
 strategy = factory.create_strategy("WMA")
-result = strategy.calculate(data, 10, 30, config, log)
+result = strategy.calculate(data, fast_period=10, slow_period=30, config=config, log=log)
 ```
 
 ## Backward Compatibility
@@ -72,7 +72,7 @@ The existing `calculate_ma_and_signals` function has been updated to use the fac
 # This still works exactly as before
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 
-result = calculate_ma_and_signals(data, 20, 50, config, log, "SMA")
+result = calculate_ma_and_signals(data, fast_period=20, slow_period=50, config=config, log=log, strategy_type="SMA")
 ```
 
 ## Testing

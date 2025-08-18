@@ -19,8 +19,8 @@ config:
   # Template strategies (to be overridden by user)
   strategies:
     - ticker: '{{TICKER}}' # User should replace with actual ticker
-      short_window: '{{SHORT_WINDOW}}' # User should replace with actual value
-      long_window: '{{LONG_WINDOW}}' # User should replace with actual value
+      fast_period: '{{FAST_PERIOD}}' # User should replace with actual value
+      slow_period: '{{SLOW_PERIOD}}' # User should replace with actual value
       strategy_type: '{{STRATEGY_TYPE}}' # SMA or EMA
       stop_loss: null
 
@@ -39,8 +39,8 @@ config:
   __template_usage: |
     To use this template:
     1. Replace {{TICKER}} with your equity symbol (e.g., AAPL, MSFT, GOOGL)
-    2. Replace {{SHORT_WINDOW}} with your short moving average window (e.g., 20)
-    3. Replace {{LONG_WINDOW}} with your long moving average window (e.g., 50)
+    2. Replace {{FAST_PERIOD}} with your short moving average window (e.g., 20)
+    3. Replace {{SLOW_PERIOD}} with your long moving average window (e.g., 50)
     4. Replace {{STRATEGY_TYPE}} with either "SMA" or "EMA"
     5. Replace {{TICKER_SAFE}} with a filesystem-safe version of ticker (e.g., AAPL)
 

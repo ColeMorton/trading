@@ -17,20 +17,26 @@ from app.tools.strategy.sensitivity_analysis import (
 
 def analyze_parameter_combinations(
     data: pl.DataFrame,
-    short_windows: range,
-    long_windows: range,
-    signal_windows: range,
-    config: Dict[str, Any],
-    log: Callable,
+    fast_periods: range = None,
+    slow_periods: range = None,
+    signal_periods: range = None,
+    short_windows: range = None,
+    long_windows: range = None,
+    signal_windows: range = None,
+    config: Dict[str, Any] = None,
+    log: Callable = None,
 ) -> Optional[pl.DataFrame]:
     """
-    Perform MACD parameter sensitivity analysis across window combinations.
+    Perform MACD parameter sensitivity analysis across period combinations.
 
     Args:
         data: Price data DataFrame
-        short_windows: Range of short EMA window values
-        long_windows: Range of long EMA window values
-        signal_windows: Range of signal line window values
+        fast_periods: Range of fast EMA period values (new parameter name)
+        slow_periods: Range of slow EMA period values (new parameter name)
+        signal_periods: Range of signal line period values (new parameter name)
+        short_windows: Range of short EMA window values (legacy parameter name)
+        long_windows: Range of long EMA window values (legacy parameter name)
+        signal_windows: Range of signal line window values (legacy parameter name)
         config: Configuration dictionary with MACD parameters
         log: Logging function for recording events and errors
 
@@ -40,18 +46,28 @@ def analyze_parameter_combinations(
     try:
         log("Starting MACD parameter sensitivity analysis")
 
+        # Handle both new and legacy parameter names
+        fast_range = fast_periods or short_windows
+        slow_range = slow_periods or long_windows
+        signal_range = signal_periods or signal_windows
+
+        if fast_range is None or slow_range is None or signal_range is None:
+            raise ValueError(
+                "Must provide either fast_periods/slow_periods/signal_periods or short_windows/long_windows/signal_windows"
+            )
+
         # Generate MACD parameter combinations from the provided ranges
         parameter_sets = []
-        for short_window in short_windows:
-            for long_window in long_windows:
-                if long_window <= short_window:  # Skip invalid combinations
+        for fast_period in fast_range:
+            for slow_period in slow_range:
+                if slow_period <= fast_period:  # Skip invalid combinations
                     continue
-                for signal_window in signal_windows:
+                for signal_period in signal_range:
                     parameter_sets.append(
                         {
-                            "short_window": short_window,
-                            "long_window": long_window,
-                            "signal_window": signal_window,
+                            "fast_period": fast_period,
+                            "slow_period": slow_period,
+                            "signal_period": signal_period,
                         }
                     )
 
@@ -88,20 +104,23 @@ def analyze_parameter_combinations(
 
 def analyze_parameter_combination(
     data: pl.DataFrame,
-    short_window: int,
-    long_window: int,
-    signal_window: int,
-    config: Dict[str, Any],
-    log: Callable,
+    fast_period: int = None,
+    slow_period: int = None,
+    signal_period: int = None,
+    config: Dict[str, Any] = None,
+    log: Callable = None,
 ) -> Optional[Dict[str, Any]]:
     """
     Analyze a single MACD parameter combination.
 
     Args:
         data: Price data DataFrame
-        short_window: Short EMA window
-        long_window: Long EMA window
-        signal_window: Signal line window
+        fast_period: Fast EMA period (new parameter name)
+        slow_period: Slow EMA period (new parameter name)
+        signal_period: Signal period (new parameter name)
+        fast_period: Short EMA window (legacy parameter name)
+        slow_period: Long EMA window (legacy parameter name)
+        signal_period: Signal line window (legacy parameter name)
         config: Configuration dictionary
         log: Logging function
 
@@ -112,13 +131,27 @@ def analyze_parameter_combination(
         # Import MACD signal generation
         from app.strategies.macd.tools.signal_generation import generate_macd_signals
 
+        # Handle both new and legacy parameter names
+        fast = fast_period or fast_period
+        slow = slow_period or slow_period
+        signal = signal_period or signal_period
+
+        if fast is None or slow is None or signal is None:
+            raise ValueError(
+                "Must provide either fast_period/slow_period/signal_period or fast_period/slow_period/signal_period parameters"
+            )
+
         # Create temporary config for this parameter combination
         temp_config = config.copy()
         temp_config.update(
             {
-                "short_window": short_window,
-                "long_window": long_window,
-                "signal_window": signal_window,
+                "fast_period": fast,
+                "slow_period": slow,
+                "signal_period": signal,
+                # Keep legacy names for backwards compatibility
+                "fast_period": fast,
+                "slow_period": slow,
+                "signal_period": signal,
             }
         )
 
@@ -136,20 +169,27 @@ def analyze_parameter_combination(
         )
 
         if result is not None:
-            # Add MACD-specific parameters to the result
+            # Add MACD-specific parameters to the result with new column names
             result.update(
                 {
-                    "Short Window": short_window,
-                    "Long Window": long_window,
-                    "Signal Window": signal_window,
+                    "Fast Period": fast,
+                    "Slow Period": slow,
+                    "Signal Period": signal,
+                    # Keep legacy names for backwards compatibility during transition
+                    "Fast Period": fast,
+                    "Slow Period": slow,
+                    "Signal Period": signal,
                 }
             )
 
         return result
 
     except Exception as e:
+        fast = fast_period or fast_period
+        slow = slow_period or slow_period
+        signal = signal_period or signal_period
         log(
-            f"Failed to analyze MACD parameter combination {short_window}/{long_window}/{signal_window}: {str(e)}",
+            f"Failed to analyze MACD parameter combination {fast}/{slow}/{signal}: {str(e)}",
             "error",
         )
         return None
@@ -172,7 +212,7 @@ def export_results(df: pl.DataFrame, config: Dict[str, Any], log: Callable) -> N
 
         # Export using centralized portfolio export functionality
         export_portfolios(
-            portfolios=df.to_dicts(), config=config, export_type="portfolios", log=log
+            portfolios=df.to_dicts(), config=config, export_type="strategies", log=log
         )
 
         log("MACD analysis results exported successfully")

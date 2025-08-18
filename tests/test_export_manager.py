@@ -40,8 +40,8 @@ class TestExportManager:
             {
                 "Ticker": ["BTC-USD", "BTC-USD"],
                 "Strategy Type": ["SMA", "SMA"],
-                "Short Window": [10, 20],
-                "Long Window": [20, 50],
+                "Fast Period": [10, 20],
+                "Slow Period": [20, 50],
                 "Total Trades": [100, 50],
                 "Win Rate [%]": [55.5, 48.2],
             }

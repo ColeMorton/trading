@@ -16,7 +16,7 @@ defaults:
   # Strategy parameters optimized for crypto volatility
   strategy_parameters:
     stop_loss: 3.62 # Default stop loss percentage for crypto
-    windows: 89 # Default window parameter for analysis
+    slow_period_max: 89 # Default maximum slow period for analysis
     volatility_multiplier: 1.5 # Higher volatility adjustment
 
   # Data collection defaults
@@ -40,8 +40,8 @@ cryptocurrencies:
     name: 'Bitcoin'
     category: 'major_crypto'
     strategy_defaults:
-      short_window: 11
-      long_window: 17
+      fast_period: 11
+      slow_period: 17
       stop_loss: 3.62
       preferred_strategy: 'SMA'
     risk_profile:
@@ -54,8 +54,8 @@ cryptocurrencies:
     name: 'Ethereum'
     category: 'major_crypto'
     strategy_defaults:
-      short_window: 12
-      long_window: 26
+      fast_period: 12
+      slow_period: 26
       stop_loss: 4.2
       preferred_strategy: 'EMA'
     risk_profile:
@@ -68,8 +68,8 @@ cryptocurrencies:
     name: 'Solana'
     category: 'alt_crypto'
     strategy_defaults:
-      short_window: 14
-      long_window: 32
+      fast_period: 14
+      slow_period: 32
       stop_loss: null # No stop loss by default
       preferred_strategy: 'SMA'
     risk_profile:
@@ -82,8 +82,8 @@ cryptocurrencies:
     name: 'Sui Network'
     category: 'emerging_crypto'
     strategy_defaults:
-      short_window: 38
-      long_window: 59
+      fast_period: 38
+      slow_period: 59
       stop_loss: null
       preferred_strategy: 'SMA'
     data_collection:

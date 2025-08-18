@@ -140,8 +140,8 @@ def create_portfolio_test_data() -> list[dict]:
         {
             "Ticker": "AAPL",
             "Strategy Type": "SMA",
-            "Short Window": 20,
-            "Long Window": 50,
+            "Fast Period": 20,
+            "Slow Period": 50,
             "Total Return [%]": 125.5,
             "Win Rate [%]": 65.2,
             "Total Trades": 45,
@@ -159,8 +159,8 @@ def create_portfolio_test_data() -> list[dict]:
         {
             "Ticker": "GOOGL",
             "Strategy Type": "EMA",
-            "Short Window": 12,
-            "Long Window": 26,
+            "Fast Period": 12,
+            "Slow Period": 26,
             "Total Return [%]": 89.3,
             "Win Rate [%]": 58.7,
             "Total Trades": 38,
@@ -178,8 +178,8 @@ def create_portfolio_test_data() -> list[dict]:
         {
             "Ticker": "TSLA",
             "Strategy Type": "SMA",
-            "Short Window": 15,
-            "Long Window": 35,
+            "Fast Period": 15,
+            "Slow Period": 35,
             "Total Return [%]": 45.2,
             "Win Rate [%]": 52.1,
             "Total Trades": 28,

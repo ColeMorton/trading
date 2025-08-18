@@ -12,9 +12,9 @@ from typing import Any, Callable, Dict, Optional, Tuple
 def dispatch_fresh_analysis(
     ticker: str,
     strategy_type: str,
-    short_window: int,
-    long_window: int,
-    signal_window: Optional[int],
+    fast_period: int,
+    slow_period: int,
+    signal_period: Optional[int],
     config: Dict[str, Any],
     log: Callable[[str, str], None],
 ) -> Optional[Any]:
@@ -28,9 +28,9 @@ def dispatch_fresh_analysis(
     Args:
         ticker: Ticker symbol to analyze
         strategy_type: Strategy type (SMA, EMA, MACD)
-        short_window: Short window parameter
-        long_window: Long window parameter
-        signal_window: Signal window parameter (for MACD)
+        fast_period: Fast period parameter
+        slow_period: Slow period parameter
+        signal_period: Signal period parameter (for MACD)
         config: Configuration dictionary
         log: Logging function
 
@@ -45,11 +45,11 @@ def dispatch_fresh_analysis(
     try:
         if strategy_type in ["SMA", "EMA"]:
             return _dispatch_ma_analysis(
-                ticker, strategy_type, short_window, long_window, config, log
+                ticker, strategy_type, fast_period, slow_period, config, log
             )
         elif strategy_type == "MACD":
             return _dispatch_macd_analysis(
-                ticker, short_window, long_window, signal_window, config, log
+                ticker, fast_period, slow_period, signal_period, config, log
             )
         else:
             log(
@@ -69,8 +69,8 @@ def dispatch_fresh_analysis(
 def _dispatch_ma_analysis(
     ticker: str,
     strategy_type: str,
-    short_window: int,
-    long_window: int,
+    fast_period: int,
+    slow_period: int,
     config: Dict[str, Any],
     log: Callable[[str, str], None],
 ) -> Optional[Any]:
@@ -89,8 +89,8 @@ def _dispatch_ma_analysis(
         fresh_config.update(
             {
                 "STRATEGY_TYPE": strategy_type,
-                "SHORT_WINDOW": short_window,
-                "LONG_WINDOW": long_window,
+                "FAST_PERIOD": fast_period,
+                "SLOW_PERIOD": slow_period,
                 "TICKER": ticker,
                 "REFRESH": True,  # Force fresh data
                 "USE_CURRENT": True,
@@ -98,7 +98,7 @@ def _dispatch_ma_analysis(
         )
 
         log(
-            f"Executing fresh {strategy_type} analysis for {ticker} ({short_window}/{long_window})",
+            f"Executing fresh {strategy_type} analysis for {ticker} ({fast_period}/{slow_period})",
             "info",
         )
 
@@ -116,7 +116,7 @@ def _dispatch_ma_analysis(
 
         # Calculate signals
         data = calculate_ma_and_signals(
-            data, short_window, long_window, fresh_config, log, strategy_type
+            data, fast_period, slow_period, fresh_config, log, strategy_type
         )
 
         if data is None:
@@ -141,9 +141,9 @@ def _dispatch_ma_analysis(
 
 def _dispatch_macd_analysis(
     ticker: str,
-    short_window: int,
-    long_window: int,
-    signal_window: Optional[int],
+    fast_period: int,
+    slow_period: int,
+    signal_period: Optional[int],
     config: Dict[str, Any],
     log: Callable[[str, str], None],
 ) -> Optional[Any]:
@@ -154,9 +154,9 @@ def _dispatch_macd_analysis(
             process_macd_strategy,
         )
 
-        if signal_window is None:
+        if signal_period is None:
             log(
-                f"Cannot run fresh MACD analysis for {ticker}: missing signal window",
+                f"Cannot run fresh MACD analysis for {ticker}: missing signal period",
                 "error",
             )
             return None
@@ -166,16 +166,16 @@ def _dispatch_macd_analysis(
         fresh_config.update({"REFRESH": True, "USE_CURRENT": True})  # Force fresh data
 
         log(
-            f"Executing fresh MACD analysis for {ticker} ({short_window}/{long_window}/{signal_window})",
+            f"Executing fresh MACD analysis for {ticker} ({fast_period}/{slow_period}/{signal_period})",
             "info",
         )
 
         # Run fresh MACD analysis
         result = process_macd_strategy(
             ticker=ticker,
-            short_window=short_window,
-            long_window=long_window,
-            signal_window=signal_window,
+            fast_period=fast_period,
+            slow_period=slow_period,
+            signal_period=signal_period,
             config=fresh_config,
             log=log,
         )
@@ -201,9 +201,9 @@ def should_trigger_fresh_analysis(
     has_vectorbt_portfolio: bool,
     ticker: str = None,
     strategy_type: str = None,
-    short_window: int = None,
-    long_window: int = None,
-    signal_window: Optional[int] = None,
+    fast_period: int = None,
+    slow_period: int = None,
+    signal_period: Optional[int] = None,
 ) -> bool:
     """
     Determine if fresh analysis should be triggered for equity export.
@@ -213,9 +213,9 @@ def should_trigger_fresh_analysis(
         has_vectorbt_portfolio: Whether VectorBT Portfolio objects exist
         ticker: Ticker symbol (for file existence checking)
         strategy_type: Strategy type (for file existence checking)
-        short_window: Short window (for file existence checking)
-        long_window: Long window (for file existence checking)
-        signal_window: Signal window (for file existence checking)
+        fast_period: Fast period (for file existence checking)
+        slow_period: Slow period (for file existence checking)
+        signal_period: Signal period (for file existence checking)
 
     Returns:
         True if fresh analysis should be triggered, False otherwise
@@ -237,8 +237,7 @@ def should_trigger_fresh_analysis(
 
     # If FORCE_FRESH_ANALYSIS=False, check if equity file already exists
     if all(
-        param is not None
-        for param in [ticker, strategy_type, short_window, long_window]
+        param is not None for param in [ticker, strategy_type, fast_period, slow_period]
     ):
         try:
             from app.tools.equity_export import equity_file_exists, get_equity_file_path
@@ -246,9 +245,9 @@ def should_trigger_fresh_analysis(
             file_exists = equity_file_exists(
                 ticker=ticker,
                 strategy_type=strategy_type,
-                short_window=short_window,
-                long_window=long_window,
-                signal_window=signal_window,
+                fast_period=fast_period,
+                slow_period=slow_period,
+                signal_period=signal_period,
             )
 
             # If file exists, skip fresh analysis
@@ -256,9 +255,9 @@ def should_trigger_fresh_analysis(
                 file_path = get_equity_file_path(
                     ticker=ticker,
                     strategy_type=strategy_type,
-                    short_window=short_window,
-                    long_window=long_window,
-                    signal_window=signal_window,
+                    fast_period=fast_period,
+                    slow_period=slow_period,
+                    signal_period=signal_period,
                 )
                 # Note: This log will be added by the calling function for better context
                 return False

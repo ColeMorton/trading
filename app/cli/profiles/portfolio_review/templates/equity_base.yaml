@@ -58,5 +58,5 @@ config:
     direction: long
     position_size: 1.0
     use_hourly: false
-    signal_window: 9
+    signal_period: 9
     stop_loss: null

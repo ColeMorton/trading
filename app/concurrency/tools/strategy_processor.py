@@ -62,9 +62,9 @@ def process_strategies(
                 "TICKER": ["ticker", "TICKER"],
                 "LENGTH": ["length", "LENGTH"],
                 "MULTIPLIER": ["multiplier", "MULTIPLIER"],
-                "SHORT_WINDOW": ["short_window", "SHORT_WINDOW"],
-                "LONG_WINDOW": ["long_window", "LONG_WINDOW"],
-                "SIGNAL_WINDOW": ["signal_window", "SIGNAL_WINDOW"],
+                "FAST_PERIOD": ["fast_period", "FAST_PERIOD"],
+                "SLOW_PERIOD": ["slow_period", "SLOW_PERIOD"],
+                "SIGNAL_PERIOD": ["signal_period", "SIGNAL_PERIOD"],
                 "DIRECTION": ["direction", "DIRECTION"],
                 "STRATEGY_TYPE": ["type", "STRATEGY_TYPE"],
             }
@@ -172,17 +172,17 @@ def process_strategies(
                         "info",
                     )
                     log(
-                        f"MACD periods: {strategy_config['SHORT_WINDOW']}/"
-                        f"{strategy_config['LONG_WINDOW']}/"
-                        f"{strategy_config['SIGNAL_WINDOW']}",
+                        f"MACD periods: {strategy_config['FAST_PERIOD']}/"
+                        f"{strategy_config['SLOW_PERIOD']}/"
+                        f"{strategy_config['SIGNAL_PERIOD']}",
                         "info",
                     )
 
                     data = calculate_macd(
                         data,
-                        short_window=strategy_config["SHORT_WINDOW"],
-                        long_window=strategy_config["LONG_WINDOW"],
-                        signal_window=strategy_config["SIGNAL_WINDOW"],
+                        fast_period=strategy_config["FAST_PERIOD"],
+                        slow_period=strategy_config["SLOW_PERIOD"],
+                        signal_period=strategy_config["SIGNAL_PERIOD"],
                     )
                     data = calculate_macd_signals(data, is_short)
                     data = data.with_columns(
@@ -199,16 +199,16 @@ def process_strategies(
                         "info",
                     )
                     log(
-                        f"MA windows: {strategy_config['SHORT_WINDOW']}/"
-                        f"{strategy_config['LONG_WINDOW']}",
+                        f"MA windows: {strategy_config['FAST_PERIOD']}/"
+                        f"{strategy_config['SLOW_PERIOD']}",
                         "info",
                     )
 
                     # Calculate MA signals and positions
                     data = calculate_ma_and_signals(
                         data,
-                        strategy_config["SHORT_WINDOW"],
-                        strategy_config["LONG_WINDOW"],
+                        strategy_config["FAST_PERIOD"],
+                        strategy_config["SLOW_PERIOD"],
                         strategy_config,
                         log,
                     )

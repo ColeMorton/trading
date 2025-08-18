@@ -112,7 +112,7 @@ class TestPortfolioMonteCarloManager(unittest.TestCase):
             {"MA Type": "EMA", "Window Short": 10, "Window Long": 20},
             {"MA Type": "SMA", "Window Short": 15, "Window Long": 30},
             {"MA Type": "EMA", "Window Short": 10, "Window Long": 20},  # Duplicate
-            {"Window Short": 5},  # Missing long window
+            {"Window Short": 5},  # Missing slow period
         ]
 
         combinations = self.manager._extract_parameter_combinations(strategies)

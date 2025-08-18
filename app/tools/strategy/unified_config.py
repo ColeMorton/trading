@@ -78,8 +78,8 @@ class BasePortfolioConfig(TypedDict, total=False):
     STEP: NotRequired[int]
 
     # Window parameters for direct strategy execution
-    SHORT_WINDOW: NotRequired[int]
-    LONG_WINDOW: NotRequired[int]
+    FAST_PERIOD: NotRequired[int]
+    SLOW_PERIOD: NotRequired[int]
     WINDOWS: NotRequired[int]  # Some strategies use this for combined ranges
 
     # Filtering and validation - common across strategies
@@ -122,7 +122,7 @@ class MACDConfig(BasePortfolioConfig):
     """
 
     # MACD-specific parameters - required for MACD calculations
-    SIGNAL_WINDOW: NotRequired[int]
+    SIGNAL_PERIOD: NotRequired[int]
     SIGNAL_WINDOW_START: NotRequired[int]
     SIGNAL_WINDOW_END: NotRequired[int]
 
@@ -192,17 +192,17 @@ class ConfigValidator:
                 result["warnings"].append(f"BASE_DIR does not exist: {base_dir}")
 
         # Validate window parameters if present
-        if "SHORT_WINDOW" in config and "LONG_WINDOW" in config:
-            short = config["SHORT_WINDOW"]
-            long = config["LONG_WINDOW"]
+        if "FAST_PERIOD" in config and "SLOW_PERIOD" in config:
+            short = config["FAST_PERIOD"]
+            long = config["SLOW_PERIOD"]
 
             if short >= long:
-                result["errors"].append("SHORT_WINDOW must be less than LONG_WINDOW")
+                result["errors"].append("FAST_PERIOD must be less than SLOW_PERIOD")
                 result["is_valid"] = False
-                result["suggestions"]["LONG_WINDOW"] = short + 10
+                result["suggestions"]["SLOW_PERIOD"] = short + 10
 
         # Validate parameter ranges
-        for param_base in ["SHORT_WINDOW", "LONG_WINDOW", "SIGNAL_WINDOW"]:
+        for param_base in ["FAST_PERIOD", "SLOW_PERIOD", "SIGNAL_PERIOD"]:
             start_key = f"{param_base}_START"
             end_key = f"{param_base}_END"
 
@@ -263,13 +263,13 @@ class ConfigValidator:
         """Validate MACD-specific configuration."""
         result = ConfigValidator.validate_base_config(config)
 
-        # MACD requires SIGNAL_WINDOW for proper calculation
-        if not any(key in config for key in ["SIGNAL_WINDOW", "SIGNAL_WINDOW_START"]):
+        # MACD requires SIGNAL_PERIOD for proper calculation
+        if not any(key in config for key in ["SIGNAL_PERIOD", "SIGNAL_WINDOW_START"]):
             result["errors"].append(
-                "MACD strategy requires SIGNAL_WINDOW or SIGNAL_WINDOW_START/END"
+                "MACD strategy requires SIGNAL_PERIOD or SIGNAL_WINDOW_START/END"
             )
             result["is_valid"] = False
-            result["suggestions"]["SIGNAL_WINDOW"] = 9
+            result["suggestions"]["SIGNAL_PERIOD"] = 9
 
         return result
 
@@ -405,28 +405,28 @@ class ConfigFactory:
         # Strategy-specific defaults
         strategy_defaults = {
             "SMA": {
-                "SHORT_WINDOW": 10,
-                "LONG_WINDOW": 50,
+                "FAST_PERIOD": 10,
+                "SLOW_PERIOD": 50,
             },
             "EMA": {
-                "SHORT_WINDOW": 10,
-                "LONG_WINDOW": 50,
+                "FAST_PERIOD": 10,
+                "SLOW_PERIOD": 50,
             },
             "MACD": {
-                "SHORT_WINDOW": 12,
-                "LONG_WINDOW": 26,
-                "SIGNAL_WINDOW": 9,
+                "FAST_PERIOD": 12,
+                "SLOW_PERIOD": 26,
+                "SIGNAL_PERIOD": 9,
             },
             "MEAN_REVERSION": {
-                "SHORT_WINDOW": 20,
-                "LONG_WINDOW": 50,
+                "FAST_PERIOD": 20,
+                "SLOW_PERIOD": 50,
                 "CHANGE_PCT_START": 0.02,
                 "CHANGE_PCT_END": 0.10,
                 "CHANGE_PCT_STEP": 0.01,
             },
             "RANGE": {
-                "SHORT_WINDOW": 20,
-                "LONG_WINDOW": 50,
+                "FAST_PERIOD": 20,
+                "SLOW_PERIOD": 50,
                 "RANGE_THRESHOLD": 0.05,
             },
         }

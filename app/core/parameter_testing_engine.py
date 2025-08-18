@@ -167,19 +167,19 @@ class ParameterTestingEngine:
 
         if strategy_type == "MA_CROSS":
             # For MA cross, prioritize moderate window sizes and reasonable ratios
-            short_window = parameters.get("short_window", 20)
-            long_window = parameters.get("long_window", 50)
+            fast_period = parameters.get("fast_period", 20)
+            slow_period = parameters.get("slow_period", 50)
 
             # Prefer ratios between 2:1 and 4:1
-            if long_window > 0:
-                ratio = long_window / short_window
+            if slow_period > 0:
+                ratio = slow_period / fast_period
                 if 2.0 <= ratio <= 4.0:
                     priority += 0.5
                 elif ratio < 1.5 or ratio > 6.0:
                     priority -= 0.3
 
             # Prefer moderate window sizes (avoid extremes)
-            if 10 <= short_window <= 30 and 30 <= long_window <= 100:
+            if 10 <= fast_period <= 30 and 30 <= slow_period <= 100:
                 priority += 0.3
 
         elif strategy_type == "MACD":
@@ -438,8 +438,8 @@ def create_ma_cross_parameter_ranges(
 ) -> Dict[str, List[int]]:
     """Create parameter ranges for MA Cross strategy optimization."""
     return {
-        "short_window": list(range(short_min, short_max + 1, short_step)),
-        "long_window": list(range(long_min, long_max + 1, long_step)),
+        "fast_period": list(range(short_min, short_max + 1, short_step)),
+        "slow_period": list(range(long_min, long_max + 1, long_step)),
     }
 
 

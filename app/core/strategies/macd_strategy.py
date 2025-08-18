@@ -56,7 +56,7 @@ class MACDStrategy(StrategyInterface):
             ):
                 return False
 
-            # Validate that long window is larger than short window at minimum
+            # Validate that slow period is larger than fast period at minimum
             if long_start <= short_start:
                 return False
 

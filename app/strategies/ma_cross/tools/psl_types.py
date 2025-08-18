@@ -14,8 +14,8 @@ class PSLConfig(TypedDict):
     """Configuration type definition for protective stop loss analysis.
 
     Required Fields:
-        SHORT_WINDOW (int): Short moving average window
-        LONG_WINDOW (int): Long moving average window
+        FAST_PERIOD (int): Short moving average window
+        SLOW_PERIOD (int): Long moving average window
         BASE_DIR (str): Base directory for output files
         TICKER (str): Ticker symbol
 
@@ -29,8 +29,8 @@ class PSLConfig(TypedDict):
         REFRESH (NotRequired[bool]): Force refresh of analysis
     """
 
-    SHORT_WINDOW: int
-    LONG_WINDOW: int
+    FAST_PERIOD: int
+    SLOW_PERIOD: int
     BASE_DIR: str
     TICKER: str
     USE_SMA: NotRequired[bool]

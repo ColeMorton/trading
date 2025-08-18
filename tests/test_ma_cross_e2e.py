@@ -40,8 +40,8 @@ class TestMACrossWorkflowE2E:
         return {
             "TICKER": ["BTC-USD"],
             "STRATEGY_TYPE": "SMA",
-            "SHORT_WINDOW": 10,
-            "LONG_WINDOW": 20,
+            "FAST_PERIOD": 10,
+            "SLOW_PERIOD": 20,
             "WINDOWS": [[10, 20], [5, 15]],
             "DIRECTION": "BOTH",
             "TIMEFRAME": "D",

@@ -99,7 +99,7 @@ def get_current_window_combinations(filepath: str) -> Set[tuple]:
         filepath: Path to the CSV file containing signal combinations
 
     Returns:
-        Set of tuples containing (short_window, long_window) combinations if valid,
+        Set of tuples containing (fast_period, slow_period) combinations if valid,
         empty set if file is invalid or empty
     """
     if not os.path.exists(filepath) or os.path.getsize(filepath) == 0:
@@ -115,13 +115,13 @@ def get_current_window_combinations(filepath: str) -> Set[tuple]:
 
         # Process header to find column positions
         header = lines[0].strip()
-        if "Short Window" in header and "Long Window" in header:
+        if "Fast Period" in header and "Slow Period" in header:
             # Standard CSV format
             current_signals = pl.read_csv(filepath)
             return set(
                 zip(
-                    current_signals.get_column("Short Window").cast(pl.Int32).to_list(),
-                    current_signals.get_column("Long Window").cast(pl.Int32).to_list(),
+                    current_signals.get_column("Fast Period").cast(pl.Int32).to_list(),
+                    current_signals.get_column("Slow Period").cast(pl.Int32).to_list(),
                 )
             )
         else:
@@ -132,8 +132,8 @@ def get_current_window_combinations(filepath: str) -> Set[tuple]:
                     # Split on any whitespace and convert to integers
                     windows = [int(w) for w in line.strip().split()]
                     if len(windows) == 2:
-                        short_window, long_window = windows
-                        window_combs.add((short_window, long_window))
+                        fast_period, slow_period = windows
+                        window_combs.add((fast_period, slow_period))
                 except (ValueError, IndexError):
                     continue
             return window_combs

@@ -214,21 +214,21 @@ class PortfolioMonteCarloManager:
                 )
 
             short = (
-                strategy.get("SHORT_WINDOW")
+                strategy.get("FAST_PERIOD")
                 or strategy.get("Window Short")
-                or strategy.get("Short Window")
+                or strategy.get("Fast Period")
                 or "X"
             )
             long = (
-                strategy.get("LONG_WINDOW")
+                strategy.get("SLOW_PERIOD")
                 or strategy.get("Window Long")
-                or strategy.get("Long Window")
+                or strategy.get("Slow Period")
                 or "Y"
             )
 
-            # Get signal window for MACD strategies
+            # Get signal period for MACD strategies
             signal = (
-                strategy.get("SIGNAL_WINDOW") or strategy.get("Signal Window") or "0"
+                strategy.get("SIGNAL_PERIOD") or strategy.get("Signal Period") or "0"
             )
 
             if ticker:
@@ -269,14 +269,14 @@ class PortfolioMonteCarloManager:
                 or strategy.get("TICKER")
             )
             short = (
-                strategy.get("SHORT_WINDOW")
+                strategy.get("FAST_PERIOD")
                 or strategy.get("Window Short")
-                or strategy.get("Short Window")
+                or strategy.get("Fast Period")
             )
             long = (
-                strategy.get("LONG_WINDOW")
+                strategy.get("SLOW_PERIOD")
                 or strategy.get("Window Long")
-                or strategy.get("Long Window")
+                or strategy.get("Slow Period")
             )
             strategy_type = (
                 strategy.get("STRATEGY_TYPE")
@@ -494,14 +494,14 @@ class PortfolioMonteCarloManager:
                 or strategy.get("Strategy Type")
             )
             short = (
-                strategy.get("SHORT_WINDOW")
+                strategy.get("FAST_PERIOD")
                 or strategy.get("Window Short")
-                or strategy.get("Short Window")
+                or strategy.get("Fast Period")
             )
             long = (
-                strategy.get("LONG_WINDOW")
+                strategy.get("SLOW_PERIOD")
                 or strategy.get("Window Long")
-                or strategy.get("Long Window")
+                or strategy.get("Slow Period")
             )
 
             if (

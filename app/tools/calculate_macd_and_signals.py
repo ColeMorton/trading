@@ -9,9 +9,9 @@ from app.tools.calculate_rsi import calculate_rsi
 
 def calculate_macd_and_signals(
     data: pl.DataFrame,
-    short_window: int,
-    long_window: int,
-    signal_window: int,
+    fast_period: int,
+    slow_period: int,
+    signal_period: int,
     config: dict,
     log: Callable,
 ) -> pl.DataFrame:
@@ -20,9 +20,9 @@ def calculate_macd_and_signals(
 
     Args:
         data (pl.DataFrame): Input price data
-        short_window (int): Fast EMA period
-        long_window (int): Slow EMA period
-        signal_window (int): Signal line EMA period
+        fast_period (int): Fast EMA period
+        slow_period (int): Slow EMA period
+        signal_period (int): Signal line EMA period
         config (dict): Configuration dictionary
         log (Callable): Logging function
 
@@ -31,12 +31,12 @@ def calculate_macd_and_signals(
     """
     direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
     log(
-        f"Calculating {direction} MACD and signals with fast period {short_window}, slow period {long_window}, and signal period {signal_window}"
+        f"Calculating {direction} MACD and signals with fast period {fast_period}, slow period {slow_period}, and signal period {signal_period}"
     )
 
     try:
         # Calculate MACD
-        data = calculate_macd(data, short_window, long_window, signal_window)
+        data = calculate_macd(data, fast_period, slow_period, signal_period)
 
         # Calculate RSI if needed
         if config.get("RSI_WINDOW") and config.get("RSI_THRESHOLD"):

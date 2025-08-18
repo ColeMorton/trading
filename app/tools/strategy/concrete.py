@@ -27,8 +27,8 @@ class SMAStrategy(BaseStrategy):
     def calculate(
         self,
         data: pl.DataFrame,
-        short_window: int,
-        long_window: int,
+        fast_period: int,
+        slow_period: int,
         config: Dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
@@ -37,8 +37,8 @@ class SMAStrategy(BaseStrategy):
 
         Args:
             data: Input price data
-            short_window: Short SMA period
-            long_window: Long SMA period
+            fast_period: Fast SMA period
+            slow_period: Slow SMA period
             config: Configuration dictionary
             log: Logging function
 
@@ -46,20 +46,20 @@ class SMAStrategy(BaseStrategy):
             DataFrame with SMA signals and positions
         """
         # Validate inputs
-        if not self.validate_windows(short_window, long_window, log):
-            raise ValueError("Invalid window parameters")
+        if not self.validate_periods(fast_period, slow_period, log):
+            raise ValueError("Invalid period parameters")
 
         if not self.validate_data(data, log):
             raise ValueError("Invalid data")
 
         direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
         log(
-            f"Calculating {direction} SMAs and signals with short window {short_window} and long window {long_window}"
+            f"Calculating {direction} SMAs and signals with fast period {fast_period} and slow period {slow_period}"
         )
 
         try:
             # Calculate simple moving averages (use_sma=True)
-            data = calculate_mas(data, short_window, long_window, True, log)
+            data = calculate_mas(data, fast_period, slow_period, True, log)
 
             # Calculate RSI if enabled
             if config.get("USE_RSI", False):
@@ -83,8 +83,11 @@ class SMAStrategy(BaseStrategy):
             # Convert signals to positions with audit trail
             strategy_config = config.copy()
             strategy_config["STRATEGY_TYPE"] = "SMA"
-            strategy_config["SHORT_WINDOW"] = short_window
-            strategy_config["LONG_WINDOW"] = long_window
+            strategy_config["FAST_PERIOD"] = fast_period
+            strategy_config["SLOW_PERIOD"] = slow_period
+            # Keep legacy names for backwards compatibility
+            strategy_config["FAST_PERIOD"] = fast_period
+            strategy_config["SLOW_PERIOD"] = slow_period
 
             data = convert_signals_to_positions(
                 data=data, config=strategy_config, log=log
@@ -108,8 +111,8 @@ class EMAStrategy(BaseStrategy):
     def calculate(
         self,
         data: pl.DataFrame,
-        short_window: int,
-        long_window: int,
+        fast_period: int,
+        slow_period: int,
         config: Dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
@@ -118,8 +121,8 @@ class EMAStrategy(BaseStrategy):
 
         Args:
             data: Input price data
-            short_window: Short EMA period
-            long_window: Long EMA period
+            fast_period: Fast EMA period
+            slow_period: Slow EMA period
             config: Configuration dictionary
             log: Logging function
 
@@ -127,20 +130,20 @@ class EMAStrategy(BaseStrategy):
             DataFrame with EMA signals and positions
         """
         # Validate inputs
-        if not self.validate_windows(short_window, long_window, log):
-            raise ValueError("Invalid window parameters")
+        if not self.validate_periods(fast_period, slow_period, log):
+            raise ValueError("Invalid period parameters")
 
         if not self.validate_data(data, log):
             raise ValueError("Invalid data")
 
         direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
         log(
-            f"Calculating {direction} EMAs and signals with short window {short_window} and long window {long_window}"
+            f"Calculating {direction} EMAs and signals with fast period {fast_period} and slow period {slow_period}"
         )
 
         try:
             # Calculate exponential moving averages (use_sma=False)
-            data = calculate_mas(data, short_window, long_window, False, log)
+            data = calculate_mas(data, fast_period, slow_period, False, log)
 
             # Calculate RSI if enabled
             if config.get("USE_RSI", False):
@@ -164,8 +167,11 @@ class EMAStrategy(BaseStrategy):
             # Convert signals to positions with audit trail
             strategy_config = config.copy()
             strategy_config["STRATEGY_TYPE"] = "EMA"
-            strategy_config["SHORT_WINDOW"] = short_window
-            strategy_config["LONG_WINDOW"] = long_window
+            strategy_config["FAST_PERIOD"] = fast_period
+            strategy_config["SLOW_PERIOD"] = slow_period
+            # Keep legacy names for backwards compatibility
+            strategy_config["FAST_PERIOD"] = fast_period
+            strategy_config["SLOW_PERIOD"] = slow_period
 
             data = convert_signals_to_positions(
                 data=data, config=strategy_config, log=log
@@ -183,15 +189,15 @@ class MACDStrategy(BaseStrategy):
     MACD (Moving Average Convergence Divergence) strategy.
 
     This strategy generates buy/sell signals based on MACD line crossovers
-    with the signal line, using short_window as fast EMA, long_window as slow EMA,
-    and signal_window for the signal line.
+    with the signal line, using fast_period as fast EMA, slow_period as slow EMA,
+    and signal_period for the signal line.
     """
 
     def calculate(
         self,
         data: pl.DataFrame,
-        short_window: int,
-        long_window: int,
+        fast_period: int,
+        slow_period: int,
         config: Dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
@@ -200,40 +206,40 @@ class MACDStrategy(BaseStrategy):
 
         Args:
             data: Input price data
-            short_window: Fast EMA period for MACD calculation
-            long_window: Slow EMA period for MACD calculation
-            config: Configuration dictionary (must include SIGNAL_WINDOW)
+            fast_period: Fast EMA period for MACD calculation
+            slow_period: Slow EMA period for MACD calculation
+            config: Configuration dictionary (must include SIGNAL_PERIOD)
             log: Logging function
 
         Returns:
             DataFrame with MACD signals and positions
 
         Raises:
-            ValueError: If SIGNAL_WINDOW is missing or invalid parameters
+            ValueError: If SIGNAL_PERIOD is missing or invalid parameters
         """
         # Validate inputs
-        if not self.validate_windows(short_window, long_window, log):
-            raise ValueError("Invalid window parameters")
+        if not self.validate_periods(fast_period, slow_period, log):
+            raise ValueError("Invalid period parameters")
 
         if not self.validate_data(data, log):
             raise ValueError("Invalid data")
 
-        # Get signal window from config
-        signal_window = config.get("SIGNAL_WINDOW")
-        if signal_window is None or signal_window <= 0:
+        # Get signal period from config
+        signal_period = config.get("SIGNAL_PERIOD")
+        if signal_period is None or signal_period <= 0:
             raise ValueError(
-                f"MACD strategy requires valid SIGNAL_WINDOW, got: {signal_window}"
+                f"MACD strategy requires valid SIGNAL_PERIOD, got: {signal_period}"
             )
 
         direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
         log(
-            f"Calculating {direction} MACD signals with fast={short_window}, slow={long_window}, signal={signal_window}"
+            f"Calculating {direction} MACD signals with fast={fast_period}, slow={slow_period}, signal={signal_period}"
         )
 
         try:
             # Calculate MACD components
             data = self._calculate_macd_components(
-                data, short_window, long_window, signal_window, log
+                data, fast_period, slow_period, signal_period, log
             )
 
             # Calculate RSI if enabled
@@ -258,9 +264,13 @@ class MACDStrategy(BaseStrategy):
             # Convert signals to positions with audit trail
             strategy_config = config.copy()
             strategy_config["STRATEGY_TYPE"] = "MACD"
-            strategy_config["SHORT_WINDOW"] = short_window
-            strategy_config["LONG_WINDOW"] = long_window
-            strategy_config["SIGNAL_WINDOW"] = signal_window
+            strategy_config["FAST_PERIOD"] = fast_period
+            strategy_config["SLOW_PERIOD"] = slow_period
+            strategy_config["SIGNAL_PERIOD"] = signal_period
+            # Keep legacy names for backwards compatibility
+            strategy_config["FAST_PERIOD"] = fast_period
+            strategy_config["SLOW_PERIOD"] = slow_period
+            strategy_config["SIGNAL_PERIOD"] = signal_period
 
             data = convert_signals_to_positions(
                 data=data, config=strategy_config, log=log

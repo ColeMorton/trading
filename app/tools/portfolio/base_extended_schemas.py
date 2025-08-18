@@ -73,19 +73,19 @@ class BasePortfolioSchema:
             description="Moving average strategy type (SMA, EMA, etc.)",
         ),
         ColumnDefinition(
-            "Short Window",
+            "Fast Period",
             ColumnDataType.INTEGER,
             nullable=True,
-            description="Period for short-term moving average",
+            description="Period for fast-term moving average",
         ),
         ColumnDefinition(
-            "Long Window",
+            "Slow Period",
             ColumnDataType.INTEGER,
             nullable=True,
-            description="Period for long-term moving average",
+            description="Period for slow-term moving average",
         ),
         ColumnDefinition(
-            "Signal Window",
+            "Signal Period",
             ColumnDataType.INTEGER,
             nullable=True,
             description="Period for signal confirmation",
@@ -101,6 +101,12 @@ class BasePortfolioSchema:
             ColumnDataType.BOOLEAN,
             nullable=True,
             description="Current exit signal status",
+        ),
+        ColumnDefinition(
+            "Signal Unconfirmed",
+            ColumnDataType.STRING,
+            nullable=True,
+            description="Signal that would be produced if current price bar closes at current price (Entry, Exit, None)",
         ),
         # Trade Statistics (3 columns)
         ColumnDefinition(
@@ -356,18 +362,6 @@ class BasePortfolioSchema:
             ColumnDataType.FLOAT,
             nullable=True,
             description="Value at Risk (VaR) measure",
-        ),
-        ColumnDefinition(
-            "Alpha",
-            ColumnDataType.FLOAT,
-            nullable=True,
-            description="Alpha coefficient (excess return vs benchmark)",
-        ),
-        ColumnDefinition(
-            "Beta",
-            ColumnDataType.FLOAT,
-            nullable=True,
-            description="Beta coefficient (sensitivity to market movements)",
         ),
         ColumnDefinition(
             "Daily Returns",
@@ -774,11 +768,12 @@ class SchemaTransformer:
         return {
             "Ticker": existing_data.get("Ticker", "UNKNOWN"),
             "Strategy Type": "SMA",
-            "Short Window": 20,
-            "Long Window": 50,
-            "Signal Window": 0,
+            "Fast Period": 20,
+            "Slow Period": 50,
+            "Signal Period": 0,
             "Signal Entry": False,
             "Signal Exit": False,
+            "Signal Unconfirmed": "None",
             "Total Open Trades": 0,
             "Total Trades": existing_data.get("Total Trades", 0),
             "Score": 0.0,
@@ -820,8 +815,6 @@ class SchemaTransformer:
             "Tail Ratio": 1.0,
             "Common Sense Ratio": 1.0,
             "Value at Risk": 0.0,
-            "Alpha": None,
-            "Beta": None,
             "Daily Returns": 0.0,
             "Annual Returns": 0.0,
             "Cumulative Returns": 0.0,
@@ -1297,24 +1290,24 @@ RISK_METRICS = [
 
 # Verify our constants match the schemas
 assert (
-    BASE_COLUMN_COUNT == 58
-), f"Base column count mismatch: expected 58, got {BASE_COLUMN_COUNT}"
+    BASE_COLUMN_COUNT == 57
+), f"Base column count mismatch: expected 57, got {BASE_COLUMN_COUNT}"
 
 assert (
-    EXTENDED_COLUMN_COUNT == 62
-), f"Extended column count mismatch: expected 62, got {EXTENDED_COLUMN_COUNT}"
+    EXTENDED_COLUMN_COUNT == 61
+), f"Extended column count mismatch: expected 61, got {EXTENDED_COLUMN_COUNT}"
 
 assert (
-    FILTERED_COLUMN_COUNT == 63
-), f"Filtered column count mismatch: expected 63, got {FILTERED_COLUMN_COUNT}"
+    FILTERED_COLUMN_COUNT == 62
+), f"Filtered column count mismatch: expected 62, got {FILTERED_COLUMN_COUNT}"
 
 assert (
-    ATR_EXTENDED_COLUMN_COUNT == 64
-), f"ATR Extended column count mismatch: expected 64, got {ATR_EXTENDED_COLUMN_COUNT}"
+    ATR_EXTENDED_COLUMN_COUNT == 63
+), f"ATR Extended column count mismatch: expected 63, got {ATR_EXTENDED_COLUMN_COUNT}"
 
 assert (
-    ATR_FILTERED_COLUMN_COUNT == 65
-), f"ATR Filtered column count mismatch: expected 65, got {ATR_FILTERED_COLUMN_COUNT}"
+    ATR_FILTERED_COLUMN_COUNT == 64
+), f"ATR Filtered column count mismatch: expected 64, got {ATR_FILTERED_COLUMN_COUNT}"
 
 assert all(
     risk_metric in CANONICAL_COLUMN_NAMES for risk_metric in RISK_METRICS

@@ -20,14 +20,19 @@ class PortfolioAnalysisService:
         self,
         base_dir: str = "/Users/colemorton/Projects/trading",
         use_current: bool = False,
+        custom_date: Optional[str] = None,
     ):
-        """Initialize the service with base directory path and current mode flag."""
+        """Initialize the service with base directory path, current mode flag, and optional custom date."""
         self.base_dir = Path(base_dir)
         self.use_current = use_current
+        self.custom_date = custom_date
         self.portfolios_best_dir = self.base_dir / "data" / "raw" / "portfolios_best"
 
     def _get_current_date_string(self) -> str:
-        """Get current date in YYYYMMDD format."""
+        """Get current date in YYYYMMDD format, or custom date if specified."""
+        if self.custom_date:
+            return self.custom_date
+
         from datetime import datetime
 
         return datetime.now().strftime("%Y%m%d")
@@ -50,7 +55,8 @@ class PortfolioAnalysisService:
         if self.use_current:
             current_date = self._get_current_date_string()
             search_location = self.portfolios_best_dir / current_date
-            rprint(f"[dim]Searching current day directory: {search_location}[/dim]")
+            date_type = "custom date" if self.custom_date else "current day"
+            rprint(f"[dim]Searching {date_type} directory: {search_location}[/dim]")
         else:
             search_location = self.portfolios_best_dir
             rprint(f"[dim]Searching general directory: {search_location}[/dim]")
@@ -75,8 +81,9 @@ class PortfolioAnalysisService:
         if missing_tickers:
             if self.use_current:
                 current_date = self._get_current_date_string()
+                date_type = "custom date" if self.custom_date else "current day"
                 rprint(
-                    f"[dim]No current day portfolio files found for: {', '.join(missing_tickers)} in {current_date}/[/dim]"
+                    f"[dim]No {date_type} portfolio files found for: {', '.join(missing_tickers)} in {current_date}/[/dim]"
                 )
             else:
                 rprint(
@@ -86,12 +93,18 @@ class PortfolioAnalysisService:
         if not all_dataframes:
             if self.use_current:
                 current_date = self._get_current_date_string()
+                date_type = "custom date" if self.custom_date else "current day"
                 rprint(
-                    "[yellow]No valid current day portfolio data found for any tickers[/yellow]"
+                    f"[yellow]No valid {date_type} portfolio data found for any tickers[/yellow]"
                 )
-                rprint(
-                    f"[dim]Try without --current to search the general portfolios_best directory[/dim]"
-                )
+                if self.custom_date:
+                    rprint(
+                        f"[dim]Try a different date or remove --date to search the general portfolios_best directory[/dim]"
+                    )
+                else:
+                    rprint(
+                        f"[dim]Try without --current to search the general portfolios_best directory[/dim]"
+                    )
             else:
                 rprint("[yellow]No valid portfolio data found for any tickers[/yellow]")
                 rprint(
@@ -102,11 +115,13 @@ class PortfolioAnalysisService:
         # Combine all dataframes
         combined_df = pd.concat(all_dataframes, ignore_index=True)
 
-        search_type = (
-            f"current day ({self._get_current_date_string()})"
-            if self.use_current
-            else "general"
-        )
+        if self.use_current:
+            date_string = self._get_current_date_string()
+            date_type = "custom date" if self.custom_date else "current day"
+            search_type = f"{date_type} ({date_string})"
+        else:
+            search_type = "general"
+
         rprint(
             f"[green]📊 Loaded {len(combined_df)} portfolios from {len(found_files)} files ({search_type})[/green]"
         )
@@ -130,18 +145,25 @@ class PortfolioAnalysisService:
         current_date = self._get_current_date_string()
         search_dir = self.portfolios_best_dir / current_date
 
-        rprint(f"[dim]Auto-discovering all portfolios in: {search_dir}[/dim]")
+        date_type = "custom date" if self.custom_date else "current day"
+        rprint(
+            f"[dim]Auto-discovering all portfolios in {date_type} directory: {search_dir}[/dim]"
+        )
 
         if not search_dir.exists():
-            rprint(f"[yellow]Current date directory not found: {search_dir}[/yellow]")
+            date_type = "custom date" if self.custom_date else "current date"
+            rprint(
+                f"[yellow]{date_type.title()} directory not found: {search_dir}[/yellow]"
+            )
             return pd.DataFrame()
 
         # Discover all CSV files in current date directory
         all_files = self._discover_all_current_files()
 
         if not all_files:
+            date_type = "custom date" if self.custom_date else "current day"
             rprint(
-                f"[yellow]No portfolio files found in current day directory: {search_dir}[/yellow]"
+                f"[yellow]No portfolio files found in {date_type} directory: {search_dir}[/yellow]"
             )
             return pd.DataFrame()
 
@@ -159,8 +181,9 @@ class PortfolioAnalysisService:
                 rprint(f"[yellow]Warning: Could not read {file_path}: {e}[/yellow]")
 
         if not all_dataframes:
+            date_type = "custom date" if self.custom_date else "current day"
             rprint(
-                "[yellow]No valid portfolio data found in current day files[/yellow]"
+                f"[yellow]No valid portfolio data found in {date_type} files[/yellow]"
             )
             return pd.DataFrame()
 
@@ -175,8 +198,9 @@ class PortfolioAnalysisService:
                 ticker = filename.split("_D_")[0]
                 unique_tickers.add(ticker)
 
+        date_type = "custom date" if self.custom_date else "current day"
         rprint(
-            f"[green]📊 Auto-discovered {len(successful_files)} portfolios from {len(unique_tickers)} tickers ({current_date})[/green]"
+            f"[green]📊 Auto-discovered {len(successful_files)} portfolios from {len(unique_tickers)} tickers ({date_type}: {current_date})[/green]"
         )
         rprint(f"[dim]Tickers found: {', '.join(sorted(unique_tickers))}[/dim]")
 
@@ -227,8 +251,9 @@ class PortfolioAnalysisService:
             search_dir = self.portfolios_best_dir / current_date
 
             if not search_dir.exists():
+                date_type = "custom date" if self.custom_date else "current date"
                 rprint(
-                    f"[yellow]Warning: Current date directory not found: {search_dir}[/yellow]"
+                    f"[yellow]Warning: {date_type.title()} directory not found: {search_dir}[/yellow]"
                 )
                 return []
         else:

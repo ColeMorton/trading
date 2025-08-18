@@ -45,8 +45,8 @@ class TestExportedCSVSchemaValidation:
             {
                 "Ticker": "AAPL",
                 "Strategy Type": "SMA",
-                "Short Window": 10,
-                "Long Window": 20,
+                "Fast Period": 10,
+                "Slow Period": 20,
                 "Total Trades": 50,
                 "Win Rate [%]": 55.0,
                 "Total Return [%]": 25.5,
@@ -73,8 +73,8 @@ class TestExportedCSVSchemaValidation:
             {
                 "Ticker": "MSFT",
                 "Strategy Type": "EMA",
-                "Short Window": 12,
-                "Long Window": 26,
+                "Fast Period": 12,
+                "Slow Period": 26,
                 "Total Trades": 45,
                 "Win Rate [%]": 62.0,
                 "Total Return [%]": 32.1,
@@ -101,9 +101,9 @@ class TestExportedCSVSchemaValidation:
             {
                 "Ticker": "GOOGL",
                 "Strategy Type": "MACD",
-                "Short Window": 12,
-                "Long Window": 26,
-                "Signal Window": 9,
+                "Fast Period": 12,
+                "Slow Period": 26,
+                "Signal Period": 9,
                 "Total Trades": 38,
                 "Win Rate [%]": 68.0,
                 "Total Return [%]": 45.3,
@@ -180,8 +180,8 @@ class TestExportedCSVSchemaValidation:
         expected_columns = [
             "Ticker",
             "Strategy Type",
-            "Short Window",
-            "Long Window",
+            "Fast Period",
+            "Slow Period",
             "Total Trades",
             "Win Rate [%]",
             "Total Return [%]",
@@ -244,8 +244,8 @@ class TestExportedCSVSchemaValidation:
         expected_columns = [
             "Ticker",
             "Strategy Type",
-            "Short Window",
-            "Long Window",
+            "Fast Period",
+            "Slow Period",
             "Total Trades",
             "Win Rate [%]",
             "Total Return [%]",
@@ -307,8 +307,8 @@ class TestExportedCSVSchemaValidation:
         expected_columns = [
             "Ticker",
             "Strategy Type",
-            "Short Window",
-            "Long Window",
+            "Fast Period",
+            "Slow Period",
             "Total Trades",
             "Win Rate [%]",
             "Total Return [%]",
@@ -354,8 +354,8 @@ class TestExportedCSVSchemaValidation:
         common_columns = [
             "Ticker",
             "Strategy Type",
-            "Short Window",
-            "Long Window",
+            "Fast Period",
+            "Slow Period",
             "Score",
         ]
 
@@ -402,7 +402,7 @@ class TestExportedCSVSchemaValidation:
                 assert df_pandas[col].dtype == "object"
 
         # Test numeric columns
-        numeric_columns = ["Total Trades", "Short Window", "Long Window"]
+        numeric_columns = ["Total Trades", "Fast Period", "Slow Period"]
         for col in numeric_columns:
             if col in df_pandas.columns:
                 assert df_pandas[col].dtype in ["int64", "Int64", "float64", "Float64"]
@@ -424,8 +424,8 @@ class TestExportedCSVSchemaValidation:
             {
                 "Ticker": "TEST",
                 "Strategy Type": "SMA",
-                "Short Window": 10,
-                "Long Window": 20,
+                "Fast Period": 10,
+                "Slow Period": 20,
                 "Total Trades": 50,
                 "Win Rate [%]": 55.0,
                 "Total Return [%]": 25.5,
@@ -482,8 +482,8 @@ class TestExportedCSVSchemaValidation:
             {
                 "Ticker": "AAPL",
                 "Strategy Type": "SMA",
-                "Short Window": 10,
-                "Long Window": 20,
+                "Fast Period": 10,
+                "Slow Period": 20,
                 "Total Trades": 50,
                 "Win Rate [%]": 55.0,
                 "Total Return [%]": 25.5,
@@ -494,8 +494,8 @@ class TestExportedCSVSchemaValidation:
             {
                 "Ticker": "MSFT",
                 "Strategy Type": "EMA",
-                "Short Window": 12,
-                "Long Window": 26,
+                "Fast Period": 12,
+                "Slow Period": 26,
                 "Total Trades": 45,
                 "Win Rate [%]": 62.0,
                 "Total Return [%]": 32.1,
@@ -546,8 +546,8 @@ class TestExportedCSVSchemaValidation:
             portfolio = {
                 "Ticker": ticker,
                 "Strategy Type": ["SMA", "EMA", "MACD"][i % 3],
-                "Short Window": 10 + (i % 10),
-                "Long Window": 20 + (i % 20),
+                "Fast Period": 10 + (i % 10),
+                "Slow Period": 20 + (i % 20),
                 "Total Trades": 30 + (i % 50),
                 "Win Rate [%]": 50.0 + (i % 30),
                 "Total Return [%]": 10.0 + (i % 40),

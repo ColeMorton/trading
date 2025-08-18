@@ -116,8 +116,8 @@ class PortfolioMonteCarloVisualizer:
                 portfolio_data.append(
                     {
                         "ticker": ticker,
-                        "short_window": short,
-                        "long_window": long,
+                        "fast_period": short,
+                        "slow_period": long,
                         "score": score,
                     }
                 )
@@ -157,7 +157,7 @@ class PortfolioMonteCarloVisualizer:
 
             # Create pivot table for heatmap
             heatmap_data = ticker_data.pivot(
-                index="long_window", columns="short_window", values="score"
+                index="slow_period", columns="fast_period", values="score"
             )
 
             ax = axes[i] if i < len(axes) else None
@@ -186,8 +186,8 @@ class PortfolioMonteCarloVisualizer:
                 plt.colorbar(im, ax=ax, shrink=0.8)
 
             ax.set_title(f'{ticker} - {metric.replace("_", " ").title()}')
-            ax.set_xlabel("Short Window")
-            ax.set_ylabel("Long Window")
+            ax.set_xlabel("Fast Period")
+            ax.set_ylabel("Slow Period")
 
         # Hide unused subplots
         for i in range(n_tickers, len(axes)):
@@ -426,8 +426,8 @@ Max Params: {portfolio_metrics.get('simulation_parameters', {}).get('max_paramet
 
             plt.colorbar(scatter, ax=axes[1, 0], shrink=0.8, label="Stability Score")
             axes[1, 0].set_title("Recommended Parameters")
-            axes[1, 0].set_xlabel("Short Window")
-            axes[1, 0].set_ylabel("Long Window")
+            axes[1, 0].set_xlabel("Fast Period")
+            axes[1, 0].set_ylabel("Slow Period")
         else:
             axes[1, 0].text(
                 0.5,

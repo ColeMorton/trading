@@ -28,14 +28,20 @@ class TestSchemaDefinitions:
 
     def test_base_schema_properties(self):
         """Test BasePortfolioSchema properties."""
-        assert BasePortfolioSchema.get_column_count() == 58
-        assert len(BasePortfolioSchema.COLUMNS) == 58
+        assert BasePortfolioSchema.get_column_count() == 57
+        assert len(BasePortfolioSchema.COLUMNS) == 57
 
         # Verify key columns exist
         column_names = BasePortfolioSchema.get_column_names()
         assert "Ticker" in column_names
         assert "Total Return [%]" in column_names
         assert "Score" in column_names
+        assert "Signal Unconfirmed" in column_names
+        
+        # Verify Signal Unconfirmed position (after Signal Exit)
+        assert column_names.index("Signal Unconfirmed") == 7
+        assert column_names[6] == "Signal Exit"
+        assert column_names[8] == "Total Open Trades"
 
         # Verify excluded columns are not present
         assert "Allocation [%]" not in column_names
@@ -45,8 +51,8 @@ class TestSchemaDefinitions:
 
     def test_extended_schema_properties(self):
         """Test ExtendedPortfolioSchema properties."""
-        assert ExtendedPortfolioSchema.get_column_count() == 62
-        assert len(ExtendedPortfolioSchema.COLUMNS) == 62
+        assert ExtendedPortfolioSchema.get_column_count() == 61
+        assert len(ExtendedPortfolioSchema.COLUMNS) == 61
 
         # Verify it includes base columns plus allocation, stop loss, and position dates
         column_names = ExtendedPortfolioSchema.get_column_names()
@@ -63,7 +69,7 @@ class TestSchemaDefinitions:
 
     def test_filtered_schema_properties(self):
         """Test FilteredPortfolioSchema properties."""
-        assert FilteredPortfolioSchema.get_column_count() == 63
+        assert FilteredPortfolioSchema.get_column_count() == 62
 
         # Verify metric type is first column
         column_names = FilteredPortfolioSchema.get_column_names()
@@ -80,7 +86,7 @@ class TestSchemaDefinitions:
         """Test that column ordering is consistent across schemas."""
         # Extended should have base columns in same order, plus allocation/stop loss/last position date
         base_cols = BasePortfolioSchema.COLUMNS
-        extended_cols = ExtendedPortfolioSchema.COLUMNS[:58]  # First 58 columns
+        extended_cols = ExtendedPortfolioSchema.COLUMNS[:57]  # First 57 columns
 
         assert base_cols == extended_cols
 
@@ -106,7 +112,7 @@ class TestBackwardCompatibility:
         """Test that canonical aliases work correctly."""
         assert CANONICAL_SCHEMA == ExtendedPortfolioSchema
         assert CanonicalPortfolioSchema == ExtendedPortfolioSchema
-        assert CANONICAL_COLUMN_COUNT == 62
+        assert CANONICAL_COLUMN_COUNT == 61
         assert CANONICAL_COLUMN_NAMES == ExtendedPortfolioSchema.get_column_names()
 
     def test_canonical_usage_patterns(self):
@@ -116,8 +122,8 @@ class TestBackwardCompatibility:
 
         # Test schema instantiation
         schema_instance = CANONICAL_SCHEMA()
-        assert hasattr(schema_instance, "COLUMNS")
-        assert hasattr(schema_instance, "COLUMN_COUNT")
+        assert hasattr(CANONICAL_SCHEMA, "COLUMNS")
+        assert hasattr(CANONICAL_SCHEMA, "COLUMN_COUNT")
 
         # Test column access
         assert "Ticker" in CANONICAL_COLUMN_NAMES
@@ -131,15 +137,16 @@ class TestSchemaTransformer:
         """Set up test data."""
         self.transformer = SchemaTransformer()
 
-        # Sample base portfolio data (56 columns)
+        # Sample base portfolio data (57 columns)
         self.base_portfolio = {
             "Ticker": "AAPL",
             "Strategy Type": "SMA",
-            "Short Window": 20,
-            "Long Window": 50,
-            "Signal Window": 0,
+            "Fast Period": 20,
+            "Slow Period": 50,
+            "Signal Period": 0,
             "Signal Entry": False,
             "Signal Exit": False,
+            "Signal Unconfirmed": "None",
             "Total Open Trades": 0,
             "Total Trades": 100,
             "Score": 1.5,
@@ -229,7 +236,7 @@ class TestSchemaTransformer:
         )
 
         # Should have all base columns plus allocation and stop loss
-        assert len(extended) == 62
+        assert len(extended) == 61
         assert extended["Allocation [%]"] == 25.0
         assert extended["Stop Loss [%]"] == 5.0
         assert extended["Ticker"] == "AAPL"  # Original data preserved
@@ -244,7 +251,7 @@ class TestSchemaTransformer:
         )
 
         # Should have 59 columns with metric type first
-        assert len(filtered) == 63
+        assert len(filtered) == 62
         assert filtered["Metric Type"] == "Most Total Return [%]"
         assert filtered["Allocation [%]"] == 25.0
         assert filtered["Stop Loss [%]"] == 5.0
@@ -260,7 +267,7 @@ class TestSchemaTransformer:
             extended_portfolio, metric_type="Most Total Return [%]"
         )
 
-        assert len(filtered) == 63
+        assert len(filtered) == 62
         assert filtered["Metric Type"] == "Most Total Return [%]"
         assert filtered["Allocation [%]"] == 25.0
 
@@ -270,7 +277,7 @@ class TestSchemaTransformer:
             self.base_portfolio, SchemaType.BASE
         )
 
-        assert len(normalized) == 58
+        assert len(normalized) == 57
         assert "Allocation [%]" not in normalized
         assert "Stop Loss [%]" not in normalized
         assert "Last Position Open Date" not in normalized
@@ -286,7 +293,7 @@ class TestSchemaTransformer:
             stop_loss_pct=7.0,
         )
 
-        assert len(normalized) == 63
+        assert len(normalized) == 61
         assert normalized["Allocation [%]"] == 30.0
         assert normalized["Stop Loss [%]"] == 7.0
 
@@ -300,7 +307,7 @@ class TestSchemaTransformer:
             stop_loss_pct=7.0,
         )
 
-        assert len(normalized) == 63
+        assert len(normalized) == 61
         assert normalized["Metric Type"] == "Mean Score"
         assert normalized["Allocation [%]"] == 30.0
 
@@ -325,7 +332,7 @@ class TestSchemaTransformer:
         )
 
         # Should have all 58 columns with defaults for missing ones
-        assert len(extended) == 62
+        assert len(extended) == 61
         assert extended["Ticker"] == "AAPL"
         assert extended["Score"] == 1.5
         assert extended["Strategy Type"] == "SMA"  # Default
@@ -353,7 +360,7 @@ class TestSchemaTransformer:
         extended = self.transformer.transform_to_extended(
             empty_portfolio, allocation_pct=25.0, stop_loss_pct=5.0
         )
-        assert len(extended) == 62
+        assert len(extended) == 61
         assert extended["Ticker"] == "UNKNOWN"
 
     def test_edge_case_none_values(self):
@@ -472,7 +479,7 @@ class TestPolarsIntegration:
             first_row, allocation_pct=25.0, stop_loss_pct=5.0
         )
 
-        assert len(extended) == 62
+        assert len(extended) == 61
         assert extended["Ticker"] == "AAPL"
         assert extended["Allocation [%]"] == 25.0
 

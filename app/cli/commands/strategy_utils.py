@@ -18,21 +18,6 @@ from ..models.strategy import StrategyConfig
 console = Console()
 
 
-def _calculate_windows_from_ranges(config) -> int:
-    """
-    Calculate WINDOWS value from fast_period_range and slow_period_range.
-
-    For legacy compatibility, returns the maximum slow period range value,
-    or a sensible default if ranges are not specified.
-    """
-    if hasattr(config, "slow_period_range") and config.slow_period_range:
-        return config.slow_period_range[1]  # Use max slow period
-    elif hasattr(config, "fast_period_range") and config.fast_period_range:
-        return config.fast_period_range[1] * 2  # Estimate reasonable slow max
-    else:
-        return 89  # Default fallback
-
-
 def process_ticker_input(ticker: Optional[List[str]]) -> List[str]:
     """
     Process ticker input handling comma-separated values and multiple arguments.
@@ -74,12 +59,17 @@ def build_configuration_overrides(
     fast_max: Optional[int] = None,
     slow_min: Optional[int] = None,
     slow_max: Optional[int] = None,
+    signal_min: Optional[int] = None,
+    signal_max: Optional[int] = None,
     fast_period: Optional[int] = None,
     slow_period: Optional[int] = None,
     years: Optional[int] = None,
     market_type: Optional[str] = None,
+    use_4hour: Optional[bool] = None,
+    date: Optional[str] = None,
     dry_run: bool = False,
     skip_analysis: bool = False,
+    verbose: bool = False,
     **additional_overrides,
 ) -> Dict[str, Any]:
     """
@@ -95,10 +85,13 @@ def build_configuration_overrides(
         fast_max: Fast period maximum for sweep
         slow_min: Slow period minimum for sweep
         slow_max: Slow period maximum for sweep
+        signal_min: Signal period minimum for sweep
+        signal_max: Signal period maximum for sweep
         fast_period: Fast period for single analysis
         slow_period: Slow period for single analysis
         years: Number of years of historical data to analyze (enables year-based analysis when provided)
         market_type: Market type for trading hours (crypto, us_stock, auto)
+        date: Filter by entry signals triggered on specific date (YYYYMMDD format)
         dry_run: Dry run flag
         skip_analysis: Skip data download and analysis, assume portfolio files exist
         **additional_overrides: Additional override parameters
@@ -110,10 +103,8 @@ def build_configuration_overrides(
 
     # Handle ticker input - different behavior for synthetic vs normal mode
     if ticker_2:
-        # Synthetic mode: explicitly clear ticker field and set synthetic configuration
-        overrides[
-            "ticker"
-        ] = []  # Override any default ticker from profile with empty list
+        # Synthetic mode: don't set ticker field at all to allow synthetic processing
+        # The synthetic ticker will be created by process_synthetic_config
         synthetic_config = {"use_synthetic": True, "ticker_2": ticker_2.strip().upper()}
         # If ticker is provided, use the first one as ticker_1
         if ticker:
@@ -138,11 +129,38 @@ def build_configuration_overrides(
             minimums["win_rate"] = min_win_rate
         overrides["minimums"] = minimums
 
-    # Parameter sweep ranges
+    # Track which CLI parameters were provided for accurate source detection
+    cli_params_provided = {
+        "fast": fast_min is not None and fast_max is not None,
+        "slow": slow_min is not None and slow_max is not None,
+        "signal": signal_min is not None and signal_max is not None,
+    }
+    overrides["_cli_params_provided"] = cli_params_provided
+
+    # Parameter sweep ranges - use new min/max structure primarily
+    if fast_min is not None:
+        overrides["fast_period_min"] = fast_min
+    if fast_max is not None:
+        overrides["fast_period_max"] = fast_max
     if fast_min and fast_max:
+        # Also set legacy range for backwards compatibility
         overrides["fast_period_range"] = (fast_min, fast_max)
+
+    if slow_min is not None:
+        overrides["slow_period_min"] = slow_min
+    if slow_max is not None:
+        overrides["slow_period_max"] = slow_max
     if slow_min and slow_max:
+        # Also set legacy range for backwards compatibility
         overrides["slow_period_range"] = (slow_min, slow_max)
+
+    if signal_min is not None:
+        overrides["signal_period_min"] = signal_min
+    if signal_max is not None:
+        overrides["signal_period_max"] = signal_max
+    if signal_min and signal_max:
+        # Also set legacy range for backwards compatibility
+        overrides["signal_period_range"] = (signal_min, signal_max)
 
     # Single analysis periods
     if fast_period:
@@ -165,10 +183,23 @@ def build_configuration_overrides(
     if market_type:
         overrides["market_type"] = market_type
 
+    # Timeframe configuration
+    if use_4hour is not None:
+        overrides["use_4hour"] = use_4hour
+
+    # Filter configuration
+    if date is not None:
+        filter_overrides = {}
+        filter_overrides["date_filter"] = date
+        # Override use_current if date is specified
+        filter_overrides["use_current"] = False
+        overrides["filter"] = filter_overrides
+
     # System flags
     overrides["dry_run"] = dry_run
     if skip_analysis is not None:
         overrides["skip_analysis"] = skip_analysis
+    overrides["verbose"] = verbose
 
     # Add any additional overrides, but filter out None values for optional CLI parameters
     filtered_overrides = {
@@ -199,28 +230,148 @@ def convert_to_legacy_config(
     legacy_config = {
         # Core fields - these are required
         "TICKER": config.ticker,  # Pass the full list or string
-        "FAST_PERIOD_RANGE": config.fast_period_range,
-        "SLOW_PERIOD_RANGE": config.slow_period_range,
         "BASE_DIR": str(config.base_dir),
-        # Strategy execution fields
-        "STRATEGY_TYPES": config.strategy_types,
-        "DIRECTION": config.direction,
-        "USE_HOURLY": config.use_hourly,
-        "USE_4HOUR": config.use_4hour,
-        "USE_YEARS": config.use_years,
-        "YEARS": config.years,
-        "REFRESH": config.refresh,
-        # Synthetic ticker support
-        "USE_SYNTHETIC": config.synthetic.use_synthetic,
-        # Additional features
-        "USE_GBM": config.use_gbm,
-        "USE_SCANNER": config.use_scanner,
-        "SCANNER_LIST": config.scanner_list,
-        # Display and sorting
-        "SORT_BY": config.sort_by,
-        "SORT_ASC": config.sort_ascending,
-        "USE_CURRENT": config.filter.use_current,
     }
+
+    # Parameter range mapping - prioritize strategy-specific params, then global params, then legacy
+    # Priority: strategy-specific params > individual min/max fields > legacy range fields > legacy window fields
+
+    def get_strategy_params_for_active_strategies():
+        """Get strategy-specific parameters for the first available strategy type."""
+        if not config.strategy_params:
+            return None
+
+        # Check strategy types in order of precedence
+        for strategy_type in config.strategy_types:
+            strategy_name = (
+                strategy_type.value
+                if hasattr(strategy_type, "value")
+                else str(strategy_type)
+            )
+            if hasattr(config.strategy_params, strategy_name):
+                strategy_params = getattr(config.strategy_params, strategy_name)
+                if strategy_params:
+                    return strategy_params
+        return None
+
+    strategy_params = get_strategy_params_for_active_strategies()
+
+    # Fast period range mapping - CLI overrides take precedence over strategy-specific parameters
+    if config.fast_period_min is not None and config.fast_period_max is not None:
+        fast_range = (config.fast_period_min, config.fast_period_max)
+    elif (
+        strategy_params
+        and strategy_params.fast_period_min is not None
+        and strategy_params.fast_period_max is not None
+    ):
+        fast_range = (strategy_params.fast_period_min, strategy_params.fast_period_max)
+    elif config.fast_period_range is not None:
+        fast_range = config.fast_period_range
+    elif config.short_window_start is not None and config.short_window_end is not None:
+        # Legacy MACD window mapping to fast period
+        fast_range = (config.short_window_start, config.short_window_end)
+    else:
+        fast_range = None
+
+    if fast_range:
+        legacy_config["FAST_PERIOD_RANGE"] = fast_range
+        # Legacy MACD parameter mapping
+        legacy_config["SHORT_WINDOW_START"] = fast_range[0]
+        legacy_config["SHORT_WINDOW_END"] = fast_range[1]
+
+    # Slow period range mapping - CLI overrides take precedence over strategy-specific parameters
+    if config.slow_period_min is not None and config.slow_period_max is not None:
+        slow_range = (config.slow_period_min, config.slow_period_max)
+    elif (
+        strategy_params
+        and strategy_params.slow_period_min is not None
+        and strategy_params.slow_period_max is not None
+    ):
+        slow_range = (strategy_params.slow_period_min, strategy_params.slow_period_max)
+    elif config.slow_period_range is not None:
+        slow_range = config.slow_period_range
+    elif config.long_window_start is not None and config.long_window_end is not None:
+        # Legacy MACD window mapping to slow period
+        slow_range = (config.long_window_start, config.long_window_end)
+    else:
+        slow_range = None
+
+    if slow_range:
+        legacy_config["SLOW_PERIOD_RANGE"] = slow_range
+        # Legacy MACD parameter mapping
+        legacy_config["LONG_WINDOW_START"] = slow_range[0]
+        legacy_config["LONG_WINDOW_END"] = slow_range[1]
+
+    # Signal period range mapping - CLI overrides take precedence over strategy-specific parameters
+    if config.signal_period_min is not None and config.signal_period_max is not None:
+        signal_range = (config.signal_period_min, config.signal_period_max)
+    elif (
+        strategy_params
+        and strategy_params.signal_period_min is not None
+        and strategy_params.signal_period_max is not None
+    ):
+        signal_range = (
+            strategy_params.signal_period_min,
+            strategy_params.signal_period_max,
+        )
+    elif (
+        hasattr(config, "signal_period_range")
+        and config.signal_period_range is not None
+    ):
+        signal_range = config.signal_period_range
+    elif (
+        config.signal_window_start is not None and config.signal_window_end is not None
+    ):
+        # Legacy MACD window mapping to signal period
+        signal_range = (config.signal_window_start, config.signal_window_end)
+    else:
+        signal_range = None
+
+    if signal_range:
+        legacy_config["SIGNAL_PERIOD_RANGE"] = signal_range
+        # Legacy MACD parameter mapping
+        legacy_config["SIGNAL_WINDOW_START"] = signal_range[0]
+        legacy_config["SIGNAL_WINDOW_END"] = signal_range[1]
+
+    # Add strategy-specific step parameter if available
+    if strategy_params and strategy_params.step is not None:
+        legacy_config["STEP"] = strategy_params.step
+
+    # Individual period values
+    if config.fast_period is not None:
+        legacy_config["FAST_PERIOD"] = config.fast_period
+    if config.slow_period is not None:
+        legacy_config["SLOW_PERIOD"] = config.slow_period
+    if config.signal_period is not None:
+        legacy_config["SIGNAL_PERIOD"] = config.signal_period
+
+    # MACD step parameter
+    if config.step is not None:
+        legacy_config["STEP"] = config.step
+
+    legacy_config.update(
+        {
+            # Strategy execution fields
+            "STRATEGY_TYPES": config.strategy_types,
+            "DIRECTION": config.direction,
+            "USE_HOURLY": config.use_hourly,
+            "USE_4HOUR": config.use_4hour,
+            "USE_YEARS": config.use_years,
+            "YEARS": config.years,
+            "REFRESH": config.refresh,
+            # Synthetic ticker support
+            "USE_SYNTHETIC": config.synthetic.use_synthetic,
+            # Additional features
+            "USE_GBM": config.use_gbm,
+            "USE_SCANNER": config.use_scanner,
+            "SCANNER_LIST": config.scanner_list,
+            # Display and sorting
+            "SORT_BY": config.sort_by,
+            "SORT_ASC": config.sort_ascending,
+            "USE_CURRENT": config.filter.use_current,
+            "USE_DATE": config.filter.date_filter,
+        }
+    )
 
     # Add minimums if they exist - only add non-empty MINIMUMS dict to avoid unwanted filtering
     minimums_dict = {}
@@ -302,17 +453,145 @@ def show_config_preview(
     if config.minimums.trades:
         table.add_row("Min Trades", str(config.minimums.trades))
 
-    # Show sweep-specific parameters if available
-    if hasattr(config, "fast_period_range") and config.fast_period_range:
-        table.add_row("Fast Period Range", str(config.fast_period_range))
-    if hasattr(config, "slow_period_range") and config.slow_period_range:
-        table.add_row("Slow Period Range", str(config.slow_period_range))
+    # Show sweep-specific parameters - prioritize strategy-specific params over global params
+    def get_active_strategy_params():
+        """Get strategy-specific parameters for the first available strategy type."""
+        if not config.strategy_params:
+            return None
+
+        # Check strategy types in order of precedence
+        for strategy_type in config.strategy_types:
+            strategy_name = (
+                strategy_type.value
+                if hasattr(strategy_type, "value")
+                else str(strategy_type)
+            )
+            if hasattr(config.strategy_params, strategy_name):
+                strategy_params = getattr(config.strategy_params, strategy_name)
+                if strategy_params:
+                    return strategy_params, strategy_name
+        return None
+
+    # Check CLI overrides first, then fall back to strategy-specific parameters
+    cli_params_provided = getattr(config, "_cli_params_provided", {})
+    has_cli_fast = cli_params_provided.get("fast", False)
+    has_cli_slow = cli_params_provided.get("slow", False)
+    has_cli_signal = cli_params_provided.get("signal", False)
+
+    active_strategy_result = get_active_strategy_params()
+    has_strategy_params = active_strategy_result is not None
+
+    # Display CLI overrides with highest priority
+    if has_cli_fast or has_cli_slow or has_cli_signal:
+        table.add_row("Parameter Source", "CLI overrides")
+
+        if has_cli_fast:
+            table.add_row(
+                "Fast Period Range",
+                f"{config.fast_period_min}-{config.fast_period_max}",
+            )
+        elif has_strategy_params:
+            strategy_params, _ = active_strategy_result
+            if (
+                strategy_params.fast_period_min is not None
+                and strategy_params.fast_period_max is not None
+            ):
+                table.add_row(
+                    "Fast Period Range",
+                    f"{strategy_params.fast_period_min}-{strategy_params.fast_period_max}",
+                )
+        elif hasattr(config, "fast_period_range") and config.fast_period_range:
+            table.add_row("Fast Period Range", str(config.fast_period_range))
+
+        if has_cli_slow:
+            table.add_row(
+                "Slow Period Range",
+                f"{config.slow_period_min}-{config.slow_period_max}",
+            )
+        elif has_strategy_params:
+            strategy_params, _ = active_strategy_result
+            if (
+                strategy_params.slow_period_min is not None
+                and strategy_params.slow_period_max is not None
+            ):
+                table.add_row(
+                    "Slow Period Range",
+                    f"{strategy_params.slow_period_min}-{strategy_params.slow_period_max}",
+                )
+        elif hasattr(config, "slow_period_range") and config.slow_period_range:
+            table.add_row("Slow Period Range", str(config.slow_period_range))
+
+        if has_cli_signal:
+            table.add_row(
+                "Signal Period Range",
+                f"{config.signal_period_min}-{config.signal_period_max}",
+            )
+        elif has_strategy_params:
+            strategy_params, _ = active_strategy_result
+            if (
+                strategy_params.signal_period_min is not None
+                and strategy_params.signal_period_max is not None
+            ):
+                table.add_row(
+                    "Signal Period Range",
+                    f"{strategy_params.signal_period_min}-{strategy_params.signal_period_max}",
+                )
+        elif hasattr(config, "signal_period_range") and getattr(
+            config, "signal_period_range", None
+        ):
+            table.add_row("Signal Period Range", str(config.signal_period_range))
+
+    elif has_strategy_params:
+        # Fall back to strategy-specific parameters
+        strategy_params, strategy_name = active_strategy_result
+        table.add_row("Parameter Source", f"Strategy-specific ({strategy_name})")
+
+        if (
+            strategy_params.fast_period_min is not None
+            and strategy_params.fast_period_max is not None
+        ):
+            table.add_row(
+                "Fast Period Range",
+                f"{strategy_params.fast_period_min}-{strategy_params.fast_period_max}",
+            )
+        if (
+            strategy_params.slow_period_min is not None
+            and strategy_params.slow_period_max is not None
+        ):
+            table.add_row(
+                "Slow Period Range",
+                f"{strategy_params.slow_period_min}-{strategy_params.slow_period_max}",
+            )
+        if (
+            strategy_params.signal_period_min is not None
+            and strategy_params.signal_period_max is not None
+        ):
+            table.add_row(
+                "Signal Period Range",
+                f"{strategy_params.signal_period_min}-{strategy_params.signal_period_max}",
+            )
+        if strategy_params.step is not None:
+            table.add_row("Step", str(strategy_params.step))
+    else:
+        # Fall back to global configuration
+        table.add_row("Parameter Source", "Global configuration")
+
+        if hasattr(config, "fast_period_range") and config.fast_period_range:
+            table.add_row("Fast Period Range", str(config.fast_period_range))
+        if hasattr(config, "slow_period_range") and config.slow_period_range:
+            table.add_row("Slow Period Range", str(config.slow_period_range))
+        if hasattr(config, "signal_period_range") and getattr(
+            config, "signal_period_range", None
+        ):
+            table.add_row("Signal Period Range", str(config.signal_period_range))
 
     # Show single analysis parameters if available
     if hasattr(config, "fast_period") and config.fast_period:
         table.add_row("Fast Period", str(config.fast_period))
     if hasattr(config, "slow_period") and config.slow_period:
         table.add_row("Slow Period", str(config.slow_period))
+    if hasattr(config, "signal_period") and config.signal_period:
+        table.add_row("Signal Period", str(config.signal_period))
 
     console.print(table)
     rprint("\n[yellow]This is a dry run. Use --no-dry-run to execute.[/yellow]")
@@ -405,8 +684,8 @@ def display_sweep_results_table(
     # Display results with rank
     for i, result in enumerate(results[:max_results], 1):
         strategy = result.get("Strategy Type", "N/A")
-        fast_period = result.get("Short Window", 0)
-        slow_period = result.get("Long Window", 0)
+        fast_period = result.get("Fast Period", 0)
+        slow_period = result.get("Slow Period", 0)
         score = result.get("Score", 0)
         win_rate = result.get("Win Rate [%]", 0)
         trades = result.get("Total Trades", 0)

@@ -51,8 +51,8 @@ def sample_price_data():
 def sample_ma_config():
     """Sample MA configuration for testing."""
     return {
-        "SHORT_WINDOW": 5,
-        "LONG_WINDOW": 15,
+        "FAST_PERIOD": 5,
+        "SLOW_PERIOD": 15,
         "USE_SMA": True,
         "DIRECTION": "Long",
         "TICKER": "TEST",

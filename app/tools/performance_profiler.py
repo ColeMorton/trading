@@ -370,9 +370,9 @@ def create_large_test_portfolio(size: int) -> List[Dict[str, Any]]:
         portfolio = {
             "Ticker": ticker,
             "Strategy Type": strategy,
-            "Short Window": 20 if strategy != "MACD" else 12,
-            "Long Window": 50 if strategy != "MACD" else 26,
-            "Signal Window": None if strategy != "MACD" else 9,
+            "Fast Period": 20 if strategy != "MACD" else 12,
+            "Slow Period": 50 if strategy != "MACD" else 26,
+            "Signal Period": None if strategy != "MACD" else 9,
             "Total Return [%]": np.random.uniform(-20, 50),
             "Sharpe Ratio": np.random.uniform(0.5, 3.0),
             "Max Drawdown [%]": np.random.uniform(5, 25),

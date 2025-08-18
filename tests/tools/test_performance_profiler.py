@@ -262,8 +262,8 @@ class TestTestDataGeneration:
         for portfolio in portfolios:
             assert "Ticker" in portfolio
             assert "Strategy Type" in portfolio
-            assert "Short Window" in portfolio
-            assert "Long Window" in portfolio
+            assert "Fast Period" in portfolio
+            assert "Slow Period" in portfolio
             assert "_equity_data" in portfolio
 
             # Check strategy type is valid

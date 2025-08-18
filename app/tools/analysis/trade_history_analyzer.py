@@ -318,9 +318,9 @@ class TradeHistoryAnalyzer:
             date_pattern = r"_\d{8}$"
             remaining = re.sub(date_pattern, "", remaining)
 
-            # Remove any trailing numeric signal window (often 0)
+            # Remove any trailing numeric signal period (often 0)
             signal_pattern = r"_\d+$"
-            # Only remove if it's a single digit (likely signal window, not strategy parameter)
+            # Only remove if it's a single digit (likely signal period, not strategy parameter)
             if re.search(r"_\d{1}$", remaining):
                 remaining = re.sub(signal_pattern, "", remaining)
 

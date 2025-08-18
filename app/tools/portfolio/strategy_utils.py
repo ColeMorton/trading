@@ -64,11 +64,11 @@ def determine_strategy_type(
                     )
                 return "SMA"  # DEFAULT_STRATEGY_TYPE
 
-    # Check if this might be a MACD strategy based on presence of SIGNAL_WINDOW
-    if "SIGNAL_WINDOW" in row and row["SIGNAL_WINDOW"] is not None:
+    # Check if this might be a MACD strategy based on presence of SIGNAL_PERIOD
+    if "SIGNAL_PERIOD" in row and row["SIGNAL_PERIOD"] is not None:
         if log:
             log(
-                f"Detected MACD strategy for {ticker} based on presence of SIGNAL_WINDOW",
+                f"Detected MACD strategy for {ticker} based on presence of SIGNAL_PERIOD",
                 "info",
             )
         return "MACD"
@@ -133,10 +133,10 @@ def get_strategy_type_for_export(
         if field in df and df[field] is not None:
             return df[field]
 
-    # Check if this might be a MACD strategy based on presence of SIGNAL_WINDOW
-    if "SIGNAL_WINDOW" in df and df["SIGNAL_WINDOW"] is not None:
+    # Check if this might be a MACD strategy based on presence of SIGNAL_PERIOD
+    if "SIGNAL_PERIOD" in df and df["SIGNAL_PERIOD"] is not None:
         if log:
-            log("Detected MACD strategy based on presence of SIGNAL_WINDOW", "info")
+            log("Detected MACD strategy based on presence of SIGNAL_PERIOD", "info")
         return "MACD"
 
     # Default to MACD if no strategy type information is available (fail-fast approach)

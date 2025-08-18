@@ -656,8 +656,8 @@ def review(
             # Create single strategy config from CLI args
             strategy_config = {
                 "ticker": ticker,
-                "short_window": 20,  # Default values
-                "long_window": 50,
+                "fast_period": 20,  # Default values
+                "slow_period": 50,
                 "strategy_type": "SMA",
                 "direction": "long",
                 "position_size": 1.0,
@@ -768,8 +768,8 @@ def review(
         for strategy in config.strategies:
             service_strategy = ServiceStrategyConfig(
                 ticker=strategy.ticker,
-                short_window=strategy.short_window,
-                long_window=strategy.long_window,
+                fast_period=strategy.fast_period,
+                slow_period=strategy.slow_period,
                 strategy_type=strategy.strategy_type.value
                 if hasattr(strategy.strategy_type, "value")
                 else strategy.strategy_type,
@@ -784,7 +784,7 @@ def review(
                 use_hourly=strategy.use_hourly,
                 rsi_window=strategy.rsi_window,
                 rsi_threshold=strategy.rsi_threshold,
-                signal_window=strategy.signal_window,
+                signal_period=strategy.signal_period,
             )
             service_strategies.append(service_strategy)
 
@@ -1419,7 +1419,7 @@ def _show_portfolio_review_config_preview(config: PortfolioReviewConfig):
         strategy = config.strategies[0]
         table.add_row("Ticker", strategy.ticker)
         table.add_row("Strategy Type", strategy.strategy_type.value)
-        table.add_row("Windows", f"{strategy.short_window}/{strategy.long_window}")
+        table.add_row("Windows", f"{strategy.fast_period}/{strategy.slow_period}")
         if strategy.stop_loss:
             table.add_row("Stop Loss", f"{strategy.stop_loss:.2%}")
     else:
@@ -1483,9 +1483,9 @@ def _display_portfolio_review_results(
                 if hasattr(strategy.strategy_type, "value")
                 else strategy.strategy_type
             )
-            windows = f"{strategy.short_window}/{strategy.long_window}"
+            windows = f"{strategy.fast_period}/{strategy.slow_period}"
             strategy_name = (
-                f"{strategy.ticker}_{strategy.short_window}_{strategy.long_window}"
+                f"{strategy.ticker}_{strategy.fast_period}_{strategy.slow_period}"
             )
 
             composition_table.add_row(

@@ -113,13 +113,13 @@ class StrategyAdapter:
             # Convert defaults to parameter ranges format
             ranges = {}
             for key, value in defaults.items():
-                if key in ["SHORT_WINDOW", "LONG_WINDOW"]:
+                if key in ["FAST_PERIOD", "SLOW_PERIOD"]:
                     ranges[key] = {
                         "min": 5 if "SHORT" in key else 20,
                         "max": 50 if "SHORT" in key else 200,
                         "default": value,
                     }
-                elif key == "SIGNAL_WINDOW":
+                elif key == "SIGNAL_PERIOD":
                     ranges[key] = {"min": 5, "max": 15, "default": value}
                 elif key == "DIRECTION":
                     ranges[key] = {"options": ["Long", "Short"], "default": value}
@@ -150,17 +150,17 @@ class StrategyAdapter:
         """Get default parameter ranges for legacy strategies."""
         defaults = {
             "SMA": {
-                "SHORT_WINDOW": {"min": 5, "max": 50, "default": 10},
-                "LONG_WINDOW": {"min": 20, "max": 200, "default": 50},
+                "FAST_PERIOD": {"min": 5, "max": 50, "default": 10},
+                "SLOW_PERIOD": {"min": 20, "max": 200, "default": 50},
             },
             "EMA": {
-                "SHORT_WINDOW": {"min": 5, "max": 50, "default": 10},
-                "LONG_WINDOW": {"min": 20, "max": 200, "default": 50},
+                "FAST_PERIOD": {"min": 5, "max": 50, "default": 10},
+                "SLOW_PERIOD": {"min": 20, "max": 200, "default": 50},
             },
             "MACD": {
-                "SHORT_WINDOW": {"min": 8, "max": 21, "default": 12},
-                "LONG_WINDOW": {"min": 21, "max": 35, "default": 26},
-                "SIGNAL_WINDOW": {"min": 5, "max": 15, "default": 9},
+                "FAST_PERIOD": {"min": 8, "max": 21, "default": 12},
+                "SLOW_PERIOD": {"min": 21, "max": 35, "default": 26},
+                "SIGNAL_PERIOD": {"min": 5, "max": 15, "default": 9},
             },
         }
 
@@ -202,10 +202,10 @@ class StrategyAdapter:
         self, strategy_type: str, config: Dict[str, Any]
     ) -> bool:
         """Basic parameter validation for legacy strategies."""
-        required_params = ["SHORT_WINDOW", "LONG_WINDOW"]
+        required_params = ["FAST_PERIOD", "SLOW_PERIOD"]
 
         if strategy_type.upper() == "MACD":
-            required_params.append("SIGNAL_WINDOW")
+            required_params.append("SIGNAL_PERIOD")
 
         for param in required_params:
             if param not in config:
@@ -213,8 +213,8 @@ class StrategyAdapter:
             if not isinstance(config[param], int) or config[param] <= 0:
                 return False
 
-        if "SHORT_WINDOW" in config and "LONG_WINDOW" in config:
-            if config["SHORT_WINDOW"] >= config["LONG_WINDOW"]:
+        if "FAST_PERIOD" in config and "SLOW_PERIOD" in config:
+            if config["FAST_PERIOD"] >= config["SLOW_PERIOD"]:
                 return False
 
         return True

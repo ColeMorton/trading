@@ -394,14 +394,14 @@ class SignalDataAggregator:
             parts = strategy_name.split("_")
             if len(parts) >= 4:
                 strategy_type = parts[1]  # SMA, EMA, etc.
-                short_window = parts[2]
-                long_window = parts[3]
-                signal_window = "0"  # Default
+                fast_period = parts[2]
+                slow_period = parts[3]
+                signal_period = "0"  # Default
 
                 # Use current date as entry_date placeholder
                 entry_date = "20250706"  # Could be enhanced to use actual entry date
 
-                return f"{ticker}_{strategy_type}_{short_window}_{long_window}_{signal_window}_{entry_date}"
+                return f"{ticker}_{strategy_type}_{fast_period}_{slow_period}_{signal_period}_{entry_date}"
 
             # Fallback UUID
             return f"{ticker}_{strategy_name}_20250706"
@@ -636,10 +636,10 @@ class SignalDataAggregator:
                         if len(parts) >= 4:
                             ticker = parts[0]
                             strategy_type = parts[1]
-                            short_window = parts[2]
-                            long_window = parts[3]
+                            fast_period = parts[2]
+                            slow_period = parts[3]
                             pattern = (
-                                f"{ticker}_{strategy_type}_{short_window}_{long_window}"
+                                f"{ticker}_{strategy_type}_{fast_period}_{slow_period}"
                             )
                             match = df[
                                 df["Position_UUID"].str.contains(

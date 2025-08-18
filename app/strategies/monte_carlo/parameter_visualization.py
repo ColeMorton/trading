@@ -93,11 +93,11 @@ class ParameterStabilityVisualizer:
             return
 
         # Create DataFrame for heatmap
-        df = pd.DataFrame(data_points, columns=["Short_Window", "Long_Window", metric])
+        df = pd.DataFrame(data_points, columns=["Fast_Period", "Slow_Period", metric])
 
         # Pivot for heatmap
         heatmap_data = df.pivot(
-            index="Long_Window", columns="Short_Window", values=metric
+            index="Slow_Period", columns="Fast_Period", values=metric
         )
 
         # Create figure
@@ -140,8 +140,8 @@ class ParameterStabilityVisualizer:
         plt.title(
             f'{ticker} - Parameter {metric.replace("_", " ").title()}\nMonte Carlo Stability Analysis'
         )
-        plt.xlabel("Short Window (Fast MA)")
-        plt.ylabel("Long Window (Slow MA)")
+        plt.xlabel("Fast Period (Fast MA)")
+        plt.ylabel("Slow Period (Slow MA)")
 
         # Add stability threshold line if applicable
         if metric == "stability_score":
@@ -230,7 +230,7 @@ class ParameterStabilityVisualizer:
             label="Base Performance",
         )
 
-        ax1.set_xlabel("Parameter Combination (Short/Long Windows)")
+        ax1.set_xlabel("Parameter Combination (Short/Slow Periods)")
         ax1.set_ylabel(performance_metric)
         ax1.set_title(
             f"{ticker} - {performance_metric} Confidence Intervals\nMonte Carlo Analysis"
@@ -262,7 +262,7 @@ class ParameterStabilityVisualizer:
             label="Moderate Threshold (0.4)",
         )
 
-        ax2.set_xlabel("Parameter Combination (Short/Long Windows)")
+        ax2.set_xlabel("Parameter Combination (Short/Slow Periods)")
         ax2.set_ylabel("Stability Score")
         ax2.set_title("Parameter Stability Scores")
         ax2.set_xticks(x_pos)
@@ -486,8 +486,8 @@ class ParameterStabilityVisualizer:
                 # If interpolation fails, skip surface
                 pass
 
-        ax.set_xlabel("Short Window")
-        ax.set_ylabel("Long Window")
+        ax.set_xlabel("Fast Period")
+        ax.set_ylabel("Slow Period")
         ax.set_zlabel("Stability Score")
         ax.set_title(f"{ticker} - Parameter Stability Landscape\n3D Visualization")
 
@@ -671,8 +671,8 @@ def visualize_monte_carlo_results(
                 fig, ax = plt.subplots(figsize=(10, 8))
 
                 # Extract data for heatmap
-                short_windows = [d.get("Short_Window", 0) for d in data]
-                long_windows = [d.get("Long_Window", 0) for d in data]
+                short_windows = [d.get("Fast_Period", 0) for d in data]
+                long_windows = [d.get("Slow_Period", 0) for d in data]
                 stability_scores = [
                     d.get("Stability_Score", 0)
                     for d in data
@@ -683,16 +683,16 @@ def visualize_monte_carlo_results(
                     # Create DataFrame for heatmap
                     heatmap_df = pd.DataFrame(
                         {
-                            "Short_Window": short_windows[: len(stability_scores)],
-                            "Long_Window": long_windows[: len(stability_scores)],
+                            "Fast_Period": short_windows[: len(stability_scores)],
+                            "Slow_Period": long_windows[: len(stability_scores)],
                             "Stability_Score": stability_scores,
                         }
                     )
 
                     # Pivot for heatmap
                     heatmap_data = heatmap_df.pivot(
-                        index="Long_Window",
-                        columns="Short_Window",
+                        index="Slow_Period",
+                        columns="Fast_Period",
                         values="Stability_Score",
                     )
 
@@ -727,8 +727,8 @@ def visualize_monte_carlo_results(
                                         j, i, f"{value:.3f}", ha="center", va="center"
                                     )
                     plt.title(f"{ticker} - Parameter Stability Scores")
-                    plt.xlabel("Short Window")
-                    plt.ylabel("Long Window")
+                    plt.xlabel("Fast Period")
+                    plt.ylabel("Slow Period")
 
                     plt.tight_layout()
                     plt.savefig(

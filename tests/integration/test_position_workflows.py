@@ -90,9 +90,9 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
                 "Position_UUID": ["TEST_SMA_20_50_20250101"],
                 "Ticker": ["TEST"],
                 "Strategy_Type": ["SMA"],
-                "Short_Window": [20],
-                "Long_Window": [50],
-                "Signal_Window": [0],
+                "Fast_Period": [20],
+                "Slow_Period": [50],
+                "Signal_Period": [0],
                 "Entry_Timestamp": ["2025-01-01"],
                 "Exit_Timestamp": [None],
                 "Avg_Entry_Price": [100.0],
@@ -114,8 +114,8 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
         position_uuid = self.service.add_position_to_portfolio(
             ticker="AAPL",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
+            fast_period=20,
+            slow_period=50,
             entry_date="2025-01-15",
             entry_price=155.0,
             position_size=100.0,
@@ -170,8 +170,8 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
             self.service.add_position_to_portfolio(
                 ticker="",  # Invalid empty ticker
                 strategy_type="SMA",
-                short_window=20,
-                long_window=50,
+                fast_period=20,
+                slow_period=50,
                 entry_date="2025-01-15",
                 entry_price=155.0,
                 portfolio_name="test_validation",
@@ -183,8 +183,8 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
             self.service.add_position_to_portfolio(
                 ticker="AAPL",
                 strategy_type="INVALID",  # Invalid strategy
-                short_window=20,
-                long_window=50,
+                fast_period=20,
+                slow_period=50,
                 entry_date="2025-01-15",
                 entry_price=155.0,
                 portfolio_name="test_validation",
@@ -196,8 +196,8 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
             self.service.add_position_to_portfolio(
                 ticker="AAPL",
                 strategy_type="SMA",
-                short_window=20,
-                long_window=50,
+                fast_period=20,
+                slow_period=50,
                 entry_date="invalid-date",  # Invalid date
                 entry_price=155.0,
                 portfolio_name="test_validation",
@@ -210,8 +210,8 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
         position_uuid = self.service.add_position_to_portfolio(
             ticker="AAPL",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
+            fast_period=20,
+            slow_period=50,
             entry_date="2025-01-15",
             entry_price=155.0,
             portfolio_name="test_duplicates",
@@ -223,8 +223,8 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
             self.service.add_position_to_portfolio(
                 ticker="AAPL",
                 strategy_type="SMA",
-                short_window=20,
-                long_window=50,
+                fast_period=20,
+                slow_period=50,
                 entry_date="2025-01-15",  # Same date = same UUID
                 entry_price=155.0,
                 portfolio_name="test_duplicates",
@@ -244,8 +244,8 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
             self.service.add_position_to_portfolio(
                 ticker=ticker,
                 strategy_type=strategy,
-                short_window=short,
-                long_window=long,
+                fast_period=short,
+                slow_period=long,
                 entry_date=date,
                 entry_price=price,
                 portfolio_name="test_portfolio_ops",
@@ -284,8 +284,8 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
         position_uuid = self.service.add_position_to_portfolio(
             ticker="AAPL",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
+            fast_period=20,
+            slow_period=50,
             entry_date="2025-01-15",
             entry_price=155.0,
             portfolio_name="test_mfe_mae",
@@ -335,8 +335,8 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
         position_uuid = self.service.add_position_to_portfolio(
             ticker="AAPL",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
+            fast_period=20,
+            slow_period=50,
             entry_date="2025-01-15",
             entry_price=155.0,
             portfolio_name="test_failure_handling",
@@ -391,8 +391,8 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
             self.service.add_position_to_portfolio(
                 ticker="AAPL",
                 strategy_type="SMA",
-                short_window=20,
-                long_window=50,
+                fast_period=20,
+                slow_period=50,
                 entry_date="2025-01-15",
                 entry_price=155.0,
                 portfolio_name="test_signal_verification",
@@ -454,8 +454,8 @@ class TestPositionWorkflowsErrorRecovery(unittest.TestCase):
             position_uuid = self.service.add_position_to_portfolio(
                 ticker="MISSING",
                 strategy_type="SMA",
-                short_window=20,
-                long_window=50,
+                fast_period=20,
+                slow_period=50,
                 entry_date="2025-01-15",
                 entry_price=155.0,
                 portfolio_name="test_missing_price",
@@ -469,8 +469,8 @@ class TestPositionWorkflowsErrorRecovery(unittest.TestCase):
             self.service.create_position_record(
                 ticker="AAPL",
                 strategy_type="SMA",
-                short_window=20,
-                long_window=50,
+                fast_period=20,
+                slow_period=50,
                 entry_date="2025-01-15",
                 entry_price=155.0,
                 position_size=0.0,  # Invalid zero size
@@ -481,8 +481,8 @@ class TestPositionWorkflowsErrorRecovery(unittest.TestCase):
             self.service.create_position_record(
                 ticker="AAPL",
                 strategy_type="SMA",
-                short_window=20,
-                long_window=50,
+                fast_period=20,
+                slow_period=50,
                 entry_date="2025-01-15",
                 entry_price=-155.0,  # Invalid negative price
             )

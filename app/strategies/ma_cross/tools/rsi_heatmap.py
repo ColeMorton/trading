@@ -70,8 +70,8 @@ def analyze_rsi_parameters(
         baseline_config = {**config, "USE_RSI": False}
         baseline_data = calculate_ma_and_signals(
             data,
-            baseline_config["SHORT_WINDOW"],
-            baseline_config["LONG_WINDOW"],
+            baseline_config["FAST_PERIOD"],
+            baseline_config["SLOW_PERIOD"],
             baseline_config,
             log,
         )
@@ -104,7 +104,7 @@ def analyze_rsi_parameters(
         for j, window in enumerate(rsi_windows):
             config["RSI_WINDOW"] = window
             data_with_signals = calculate_ma_and_signals(
-                data, config["SHORT_WINDOW"], config["LONG_WINDOW"], config, log
+                data, config["FAST_PERIOD"], config["SLOW_PERIOD"], config, log
             )
 
             portfolio = backtest_strategy(data_with_signals, config, log)
@@ -143,7 +143,7 @@ def analyze_rsi_parameters(
                 log(f"Analyzed RSI window {window}, threshold {threshold}")
 
     # Export results
-    filename = f"{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}.csv"
+    filename = f"{config['FAST_PERIOD']}_{config['SLOW_PERIOD']}.csv"
     export_config = ExportConfig(
         BASE_DIR=config["BASE_DIR"],
         TICKER=config.get("TICKER"),

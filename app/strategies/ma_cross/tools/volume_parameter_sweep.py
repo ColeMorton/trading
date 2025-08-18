@@ -182,23 +182,23 @@ class VolumeParameterSweepEngine:
             signal_data = data.copy()
 
             # Generate MA Cross entry signals
-            short_window = ma_config.get("SHORT_WINDOW", 20)
-            long_window = ma_config.get("LONG_WINDOW", 50)
+            fast_period = ma_config.get("FAST_PERIOD", 20)
+            slow_period = ma_config.get("SLOW_PERIOD", 50)
             use_sma = ma_config.get("USE_SMA", True)
 
             if use_sma:
                 signal_data[f"ma_short"] = (
-                    signal_data["close"].rolling(window=short_window).mean()
+                    signal_data["close"].rolling(window=fast_period).mean()
                 )
                 signal_data[f"ma_long"] = (
-                    signal_data["close"].rolling(window=long_window).mean()
+                    signal_data["close"].rolling(window=slow_period).mean()
                 )
             else:
                 signal_data[f"ma_short"] = (
-                    signal_data["close"].ewm(span=short_window).mean()
+                    signal_data["close"].ewm(span=fast_period).mean()
                 )
                 signal_data[f"ma_long"] = (
-                    signal_data["close"].ewm(span=long_window).mean()
+                    signal_data["close"].ewm(span=slow_period).mean()
                 )
 
             # Entry signal: MA crossover (short MA crosses above long MA)
@@ -346,9 +346,9 @@ class VolumeParameterSweepEngine:
 
             # Prepare backtest config
             backtest_config = {
-                "short_window": ma_config.get("SHORT_WINDOW", 20),
-                "long_window": ma_config.get("LONG_WINDOW", 50),
-                "signal_window": ma_config.get("SIGNAL_WINDOW", 0),
+                "fast_period": ma_config.get("FAST_PERIOD", 20),
+                "slow_period": ma_config.get("SLOW_PERIOD", 50),
+                "signal_period": ma_config.get("SIGNAL_PERIOD", 0),
                 "ticker": ticker,
                 "USE_HOURLY": ma_config.get("USE_HOURLY", False),
                 "DIRECTION": ma_config.get("DIRECTION", "Long"),
@@ -523,7 +523,7 @@ class VolumeParameterSweepEngine:
 
         Args:
             ticker: Ticker symbol to analyze
-            ma_config: MA Cross configuration with SHORT_WINDOW, LONG_WINDOW, USE_SMA
+            ma_config: MA Cross configuration with FAST_PERIOD, SLOW_PERIOD, USE_SMA
             log: Logging function
             use_concurrent: Enable concurrent processing of chunks
 

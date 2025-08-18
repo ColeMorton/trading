@@ -42,9 +42,9 @@ class PositionEntry:
     position_uuid: str
     ticker: str
     strategy_type: str
-    short_window: int
-    long_window: int
-    signal_window: int
+    fast_period: int
+    slow_period: int
+    signal_period: int
     entry_timestamp: datetime
     exit_timestamp: Optional[datetime]
     avg_entry_price: float
@@ -137,9 +137,9 @@ class PositionDataLoader:
             position_uuid=str(row["Position_UUID"]),
             ticker=str(row["Ticker"]),
             strategy_type=str(row["Strategy_Type"]),
-            short_window=int(row["Short_Window"]),
-            long_window=int(row["Long_Window"]),
-            signal_window=int(row.get("Signal_Window", 0)),
+            fast_period=int(row["Fast_Period"]),
+            slow_period=int(row["Slow_Period"]),
+            signal_period=int(row.get("Signal_Period", 0)),
             entry_timestamp=entry_timestamp,
             exit_timestamp=exit_timestamp,
             avg_entry_price=float(row["Avg_Entry_Price"]),

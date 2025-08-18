@@ -2,7 +2,7 @@
 Portfolio Selection Module
 
 This module handles the selection of the best portfolio based on consistent
-Short Window/Long Window combinations in top performing portfolios.
+Fast Period/Slow Period combinations in top performing portfolios.
 """
 
 from typing import List, Optional
@@ -10,7 +10,7 @@ from typing import List, Optional
 import polars as pl
 
 from app.strategies.ma_cross.config_types import Config
-from app.tools.portfolio.collection import sort_portfolios
+from app.tools.portfolio.collection import detect_column_names, sort_portfolios
 from app.tools.portfolio.schema_detection import (
     SchemaVersion,
     detect_schema_version,
@@ -80,8 +80,13 @@ def get_best_portfolios_per_strategy_type(
                 )
                 if best_portfolio:
                     best_portfolios.append(best_portfolio)
+                    # Use detected column names for logging
+                    log_mapping = detect_column_names(pl.DataFrame([best_portfolio]))
+                    fast_col_name = log_mapping["fast_period"] or "Fast Period"
+                    slow_col_name = log_mapping["slow_period"] or "Slow Period"
+
                     log(
-                        f"Found best {strategy_type} portfolio: {best_portfolio.get('Short Window', 'N/A')}/{best_portfolio.get('Long Window', 'N/A')}",
+                        f"Found best {strategy_type} portfolio: {best_portfolio.get(fast_col_name, 'N/A')}/{best_portfolio.get(slow_col_name, 'N/A')}",
                         "info",
                     )
         else:
@@ -159,11 +164,20 @@ def _get_best_single_strategy_portfolio(
             log(f"Available columns: {', '.join(portfolios.columns)}", "info")
             return None
 
-        # Check other required columns
-        other_required_cols = ["Short Window", "Long Window", sort_by]
-        if not all(col in portfolios.columns for col in other_required_cols):
-            log("Missing required columns in portfolios DataFrame", "error")
-            log(f"Required columns: {', '.join(other_required_cols)}", "info")
+        # Detect column naming convention
+        column_mapping = detect_column_names(portfolios)
+        fast_period_col = column_mapping["fast_period"]
+        slow_period_col = column_mapping["slow_period"]
+
+        # Check other required columns with detected column names
+        if not fast_period_col or not slow_period_col:
+            log("Missing required period columns in portfolios DataFrame", "error")
+            log(f"Required: Fast/Slow period columns", "info")
+            log(f"Available columns: {', '.join(portfolios.columns)}", "info")
+            return None
+
+        if sort_by not in portfolios.columns:
+            log(f"Missing sort column '{sort_by}' in portfolios DataFrame", "error")
             log(f"Available columns: {', '.join(portfolios.columns)}", "info")
             return None
 
@@ -186,8 +200,8 @@ def _get_best_single_strategy_portfolio(
             use_sma = portfolios.select("Use SMA").row(0)[0]
             log(f"Using strategy type: {'SMA' if use_sma else 'EMA'}", "info")
 
-        fast_col = "Short Window"
-        slow_col = "Long Window"
+        fast_col = fast_period_col
+        slow_col = slow_period_col
         log(f"Fast column: {fast_col}, Slow column: {slow_col}", "info")
 
         # Sort using centralized function

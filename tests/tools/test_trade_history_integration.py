@@ -67,8 +67,8 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                 "USE_HOURLY": False,
                 "DIRECTION": "Long",
                 "STRATEGY_TYPE": "SMA",
-                "short_window": 10,
-                "long_window": 20,
+                "fast_period": 10,
+                "slow_period": 20,
                 "EXPORT_TRADE_HISTORY": True,
             }
 
@@ -115,8 +115,8 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                 "BASE_DIR": temp_dir,
                 "TICKER": "BTC-USD",
                 "STRATEGY_TYPE": "SMA",
-                "short_window": 10,
-                "long_window": 20,
+                "fast_period": 10,
+                "slow_period": 20,
                 "EXPORT_TRADE_HISTORY": False,  # Disabled in config
             }
 
@@ -143,8 +143,8 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                 "BASE_DIR": temp_dir,
                 "TICKER": "ETH-USD",
                 "STRATEGY_TYPE": "SMA",
-                "short_window": 10,
-                "long_window": 20,
+                "fast_period": 10,
+                "slow_period": 20,
                 "EXPORT_TRADE_HISTORY": False,
             }
 
@@ -171,8 +171,8 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                 "BASE_DIR": temp_dir,
                 "TICKER": "BTC-USD",
                 "STRATEGY_TYPE": "SMA",
-                "short_window": 10,
-                "long_window": 20,
+                "fast_period": 10,
+                "slow_period": 20,
                 "EXPORT_TRADE_HISTORY": True,
             }
 
@@ -233,8 +233,8 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                 "BASE_DIR": temp_dir,
                 "TICKER": "ETH-USD",
                 "STRATEGY_TYPE": "SMA",
-                "short_window": 10,
-                "long_window": 20,
+                "fast_period": 10,
+                "slow_period": 20,
                 "EXPORT_TRADE_HISTORY": True,
             }
 
@@ -278,16 +278,16 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                     "BASE_DIR": temp_dir,
                     "TICKER": "BTC-USD",
                     "STRATEGY_TYPE": "SMA",
-                    "short_window": 10,
-                    "long_window": 20,
+                    "fast_period": 10,
+                    "slow_period": 20,
                     "EXPORT_TRADE_HISTORY": True,
                 },
                 {
                     "BASE_DIR": temp_dir,
                     "TICKER": "ETH-USD",
                     "STRATEGY_TYPE": "SMA",
-                    "short_window": 5,
-                    "long_window": 15,
+                    "fast_period": 5,
+                    "slow_period": 15,
                     "EXPORT_TRADE_HISTORY": True,
                 },
                 {
@@ -295,8 +295,8 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                     "TICKER": "BTC-USD",
                     "USE_HOURLY": True,
                     "STRATEGY_TYPE": "EMA",
-                    "SHORT_WINDOW": 12,
-                    "LONG_WINDOW": 26,
+                    "FAST_PERIOD": 12,
+                    "SLOW_PERIOD": 26,
                     "DIRECTION": "Short",
                     "EXPORT_TRADE_HISTORY": True,
                 },
@@ -334,8 +334,8 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                 "BASE_DIR": temp_dir,
                 "TICKER": "TEST-USD",
                 "STRATEGY_TYPE": "SMA",
-                "short_window": 10,
-                "long_window": 20,
+                "fast_period": 10,
+                "slow_period": 20,
                 "EXPORT_TRADE_HISTORY": True,
             }
 
@@ -394,8 +394,8 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                 "BASE_DIR": temp_dir,
                 "TICKER": "TEST-USD",
                 "STRATEGY_TYPE": "SMA",
-                "short_window": 10,
-                "long_window": 20,
+                "fast_period": 10,
+                "slow_period": 20,
                 "EXPORT_TRADE_HISTORY": True,
             }
 
@@ -439,8 +439,8 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                         "USE_HOURLY": False,
                         "DIRECTION": "Long",
                         "STRATEGY_TYPE": "SMA",
-                        "short_window": 10,
-                        "long_window": 20,
+                        "fast_period": 10,
+                        "slow_period": 20,
                         "EXPORT_TRADE_HISTORY": True,
                     },
                     "expected_filename": "BTC-USD_D_SMA_10_20.json",
@@ -453,8 +453,8 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                         "USE_HOURLY": True,
                         "DIRECTION": "Short",
                         "STRATEGY_TYPE": "EMA",
-                        "SHORT_WINDOW": 12,
-                        "LONG_WINDOW": 26,
+                        "FAST_PERIOD": 12,
+                        "SLOW_PERIOD": 26,
                         "EXPORT_TRADE_HISTORY": True,
                     },
                     "expected_filename": "ETH-USD_H_EMA_12_26_SHORT.json",
@@ -496,8 +496,8 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                 "BASE_DIR": temp_dir,
                 "TICKER": "BTC-USD",
                 "STRATEGY_TYPE": "SMA",
-                "short_window": 10,
-                "long_window": 20,
+                "fast_period": 10,
+                "slow_period": 20,
                 "STOP_LOSS": 0.05,
                 "EXPORT_TRADE_HISTORY": True,
             }

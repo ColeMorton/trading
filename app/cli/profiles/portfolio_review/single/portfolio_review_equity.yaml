@@ -19,8 +19,8 @@ config:
   # Strategy-specific configuration
   strategies:
     - ticker: SPY
-      short_window: 10
-      long_window: 30
+      fast_period: 10
+      slow_period: 30
       strategy_type: EMA
 
   # Custom benchmark for equity analysis

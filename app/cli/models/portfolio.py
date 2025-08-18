@@ -146,8 +146,8 @@ class ReviewStrategyConfig(BaseModel):
     """Configuration for a single strategy in portfolio review."""
 
     ticker: str = Field(..., description="Trading symbol/ticker")
-    short_window: int = Field(..., gt=0, description="Short moving average window")
-    long_window: int = Field(..., gt=0, description="Long moving average window")
+    fast_period: int = Field(..., gt=0, description="Short moving average window")
+    slow_period: int = Field(..., gt=0, description="Long moving average window")
     strategy_type: StrategyType = Field(
         default=StrategyType.SMA, description="Strategy type"
     )
@@ -165,15 +165,15 @@ class ReviewStrategyConfig(BaseModel):
     rsi_threshold: Optional[int] = Field(
         default=None, ge=0, le=100, description="RSI threshold"
     )
-    signal_window: int = Field(
+    signal_period: int = Field(
         default=9, gt=0, description="Signal line window for MACD"
     )
 
-    @validator("long_window")
+    @validator("slow_period")
     def validate_window_relationship(cls, v, values):
-        """Ensure long window is greater than short window."""
-        if "short_window" in values and v <= values["short_window"]:
-            raise ValueError("long_window must be greater than short_window")
+        """Ensure slow period is greater than fast period."""
+        if "fast_period" in values and v <= values["fast_period"]:
+            raise ValueError("slow_period must be greater than fast_period")
         return v
 
 
@@ -384,8 +384,8 @@ class PortfolioReviewConfig(BaseConfig):
         for strategy in v:
             key = (
                 strategy.ticker,
-                strategy.short_window,
-                strategy.long_window,
+                strategy.fast_period,
+                strategy.slow_period,
                 strategy.strategy_type,
             )
             if key in seen:

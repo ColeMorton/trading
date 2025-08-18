@@ -18,8 +18,8 @@ config:
   # Strategy-specific configuration
   strategies:
     - ticker: SOL-USD
-      short_window: 14
-      long_window: 32
+      fast_period: 14
+      slow_period: 32
       strategy_type: SMA
 
   # Custom plot directory

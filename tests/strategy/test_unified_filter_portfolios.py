@@ -33,7 +33,7 @@ class TestPortfolioFilterConfig:
         config = PortfolioFilterConfig("SMA")
 
         assert config.strategy_type == "SMA"
-        assert config.get_window_parameters() == ["Short Window", "Long Window"]
+        assert config.get_window_parameters() == ["Fast Period", "Slow Period"]
 
         display_prefs = config.get_display_preferences()
         assert display_prefs["sort_by"] == "Total Return [%]"
@@ -45,9 +45,9 @@ class TestPortfolioFilterConfig:
 
         assert config.strategy_type == "MACD"
         assert config.get_window_parameters() == [
-            "Short Window",
-            "Long Window",
-            "Signal Window",
+            "Fast Period",
+            "Slow Period",
+            "Signal Period",
         ]
 
     def test_mean_reversion_configuration(self):
@@ -70,7 +70,7 @@ class TestPortfolioFilterConfig:
         config = PortfolioFilterConfig("UNKNOWN")
 
         # Should fallback to default window parameters
-        assert config.get_window_parameters() == ["Short Window", "Long Window"]
+        assert config.get_window_parameters() == ["Fast Period", "Slow Period"]
 
 
 class TestCreateMetricResult:
@@ -80,8 +80,8 @@ class TestCreateMetricResult:
         """Test creating metric result for SMA strategy."""
         df = pl.DataFrame(
             {
-                "Short Window": [10, 20],
-                "Long Window": [50, 100],
+                "Fast Period": [10, 20],
+                "Slow Period": [50, 100],
                 "Total Return [%]": [5.0, 8.0],
                 "Win Rate [%]": [60.0, 70.0],
             }
@@ -92,12 +92,12 @@ class TestCreateMetricResult:
             row_idx=1,
             df=df,
             label="Most",
-            window_params=["Short Window", "Long Window"],
+            window_params=["Fast Period", "Slow Period"],
         )
 
         assert result["Metric Type"] == "Most Total Return [%]"
-        assert result["Short Window"] == 20
-        assert result["Long Window"] == 100
+        assert result["Fast Period"] == 20
+        assert result["Slow Period"] == 100
         assert result["Total Return [%]"] == 8.0
         assert result["Win Rate [%]"] == 70.0
 
@@ -105,9 +105,9 @@ class TestCreateMetricResult:
         """Test creating metric result for MACD strategy."""
         df = pl.DataFrame(
             {
-                "Short Window": [12, 15],
-                "Long Window": [26, 30],
-                "Signal Window": [9, 12],
+                "Fast Period": [12, 15],
+                "Slow Period": [26, 30],
+                "Signal Period": [9, 12],
                 "Total Return [%]": [6.0, 9.0],
             }
         )
@@ -117,30 +117,30 @@ class TestCreateMetricResult:
             row_idx=0,
             df=df,
             label="Least",
-            window_params=["Short Window", "Long Window", "Signal Window"],
+            window_params=["Fast Period", "Slow Period", "Signal Period"],
         )
 
         assert result["Metric Type"] == "Least Total Return [%]"
-        assert result["Short Window"] == 12
-        assert result["Long Window"] == 26
-        assert result["Signal Window"] == 9
+        assert result["Fast Period"] == 12
+        assert result["Slow Period"] == 26
+        assert result["Signal Period"] == 9
         assert result["Total Return [%]"] == 6.0
 
     def test_create_metric_result_missing_params(self):
         """Test creating metric result with missing parameters."""
-        df = pl.DataFrame({"Short Window": [10], "Total Return [%]": [5.0]})
+        df = pl.DataFrame({"Fast Period": [10], "Total Return [%]": [5.0]})
 
         result = create_metric_result(
             metric="Total Return [%]",
             row_idx=0,
             df=df,
             label="Mean",
-            window_params=["Short Window", "Long Window", "Signal Window"],
+            window_params=["Fast Period", "Slow Period", "Signal Period"],
         )
 
-        assert result["Short Window"] == 10
-        assert result["Long Window"] == 0  # Default value
-        assert result["Signal Window"] == 0  # Default value
+        assert result["Fast Period"] == 10
+        assert result["Slow Period"] == 0  # Default value
+        assert result["Signal Period"] == 0  # Default value
 
 
 class TestGetMetricRows:
@@ -193,8 +193,8 @@ class TestCreateMetricResultFromRows:
         """Test creating metric results from row indices."""
         df = pl.DataFrame(
             {
-                "Short Window": [10, 20, 15],
-                "Long Window": [50, 100, 75],
+                "Fast Period": [10, 20, 15],
+                "Slow Period": [50, 100, 75],
                 "Total Return [%]": [5.0, 10.0, 7.5],
             }
         )
@@ -205,7 +205,7 @@ class TestCreateMetricResultFromRows:
             metric="Total Return [%]",
             rows=rows,
             df=df,
-            window_params=["Short Window", "Long Window"],
+            window_params=["Fast Period", "Slow Period"],
         )
 
         assert len(results) == 3
@@ -214,14 +214,14 @@ class TestCreateMetricResultFromRows:
         most_result = next(
             r for r in results if r["Metric Type"] == "Most Total Return [%]"
         )
-        assert most_result["Short Window"] == 20
+        assert most_result["Fast Period"] == 20
         assert most_result["Total Return [%]"] == 10.0
 
         # Check least result
         least_result = next(
             r for r in results if r["Metric Type"] == "Least Total Return [%]"
         )
-        assert least_result["Short Window"] == 10
+        assert least_result["Fast Period"] == 10
         assert least_result["Total Return [%]"] == 5.0
 
     def test_create_metric_result_from_rows_none_values(self):
@@ -247,15 +247,15 @@ class TestProcessMetrics:
         """Test processing multiple metrics."""
         df = pl.DataFrame(
             {
-                "Short Window": [10, 20, 15],
-                "Long Window": [50, 100, 75],
+                "Fast Period": [10, 20, 15],
+                "Slow Period": [50, 100, 75],
                 "Total Return [%]": [5.0, 10.0, 7.5],
                 "Win Rate [%]": [60.0, 80.0, 70.0],
             }
         )
 
         metrics = ["Total Return [%]", "Win Rate [%]"]
-        window_params = ["Short Window", "Long Window"]
+        window_params = ["Fast Period", "Slow Period"]
 
         results = _process_metrics(df, metrics, window_params)
 
@@ -305,8 +305,8 @@ class TestFilterPortfolios:
         """Test filtering portfolios for SMA strategy."""
         df = pl.DataFrame(
             {
-                "Short Window": [10, 20, 15],
-                "Long Window": [50, 100, 75],
+                "Fast Period": [10, 20, 15],
+                "Slow Period": [50, 100, 75],
                 "Total Return [%]": [5.0, 10.0, 7.5],
                 "Win Rate [%]": [60.0, 80.0, 70.0],
                 "Profit Factor": [1.2, 1.5, 1.3],
@@ -343,9 +343,9 @@ class TestFilterPortfolios:
         """Test filtering with auto-detected strategy type."""
         df = pl.DataFrame(
             {
-                "Short Window": [12, 15],
-                "Long Window": [26, 30],
-                "Signal Window": [9, 12],
+                "Fast Period": [12, 15],
+                "Slow Period": [26, 30],
+                "Signal Period": [9, 12],
                 "Total Return [%]": [6.0, 9.0],
             }
         )
@@ -360,8 +360,8 @@ class TestFilterPortfolios:
         """Test filtering with no strategy type (should default to SMA)."""
         df = pl.DataFrame(
             {
-                "Short Window": [10, 20],
-                "Long Window": [50, 100],
+                "Fast Period": [10, 20],
+                "Slow Period": [50, 100],
                 "Total Return [%]": [5.0, 10.0],
             }
         )
@@ -381,8 +381,8 @@ class TestFilterAndExportPortfolios:
         """Test successful filtering and export."""
         df = pl.DataFrame(
             {
-                "Short Window": [10, 20],
-                "Long Window": [50, 100],
+                "Fast Period": [10, 20],
+                "Slow Period": [50, 100],
                 "Total Return [%]": [5.0, 10.0],
             }
         )
@@ -440,8 +440,8 @@ class TestConvenienceFunctions:
         """Test create_metric_summary convenience function."""
         df = pl.DataFrame(
             {
-                "Short Window": [10, 20, 15],
-                "Long Window": [50, 100, 75],
+                "Fast Period": [10, 20, 15],
+                "Slow Period": [50, 100, 75],
                 "Total Return [%]": [5.0, 10.0, 7.5],
             }
         )
@@ -450,15 +450,15 @@ class TestConvenienceFunctions:
 
         assert len(summary) == 4  # most, least, mean, median
         assert all("Total Return" in s["Metric Type"] for s in summary)
-        assert all("Short Window" in s for s in summary)
-        assert all("Long Window" in s for s in summary)
+        assert all("Fast Period" in s for s in summary)
+        assert all("Slow Period" in s for s in summary)
 
     def test_get_extreme_values_default_metrics(self):
         """Test get_extreme_values with default metrics."""
         df = pl.DataFrame(
             {
-                "Short Window": [10, 20],
-                "Long Window": [50, 100],
+                "Fast Period": [10, 20],
+                "Slow Period": [50, 100],
                 "Total Return [%]": [5.0, 10.0],
                 "Win Rate [%]": [60.0, 80.0],
             }
@@ -473,8 +473,8 @@ class TestConvenienceFunctions:
         """Test get_extreme_values with specific metrics."""
         df = pl.DataFrame(
             {
-                "Short Window": [10, 20],
-                "Long Window": [50, 100],
+                "Fast Period": [10, 20],
+                "Slow Period": [50, 100],
                 "Total Return [%]": [5.0, 10.0],
                 "Win Rate [%]": [60.0, 80.0],
             }
@@ -498,12 +498,12 @@ class TestPrepareResultDf:
             {
                 "Metric Type": "Most Total Return [%]",
                 "Total Return [%]": 10.0,
-                "Short Window": 20,
+                "Fast Period": 20,
             },
             {
                 "Metric Type": "Least Total Return [%]",
                 "Total Return [%]": 5.0,
-                "Short Window": 10,
+                "Fast Period": 10,
             },
         ]
 

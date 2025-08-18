@@ -115,8 +115,8 @@ class BootstrapSampler:
         """Add small random variations to parameters for robustness testing.
 
         Args:
-            short: Short window parameter
-            long: Long window parameter
+            short: Fast period parameter
+            long: Slow period parameter
             noise_std: Standard deviation for parameter perturbation
 
         Returns:

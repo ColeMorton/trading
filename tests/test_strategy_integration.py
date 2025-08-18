@@ -89,8 +89,8 @@ class TestFactoryIntegrationWithExistingCode:
         """Test execute_single_strategy works with factory pattern."""
         config = {
             "STRATEGY_TYPE": "SMA",
-            "SHORT_WINDOW": 10,
-            "LONG_WINDOW": 20,
+            "FAST_PERIOD": 10,
+            "SLOW_PERIOD": 20,
             "DIRECTION": "Long",
             "BASE_DIR": ".",
             "USE_YEARS": False,

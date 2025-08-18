@@ -108,8 +108,8 @@ class TestMAcrossSmokeTest:
         """Test execute_single_strategy basic functionality."""
         config = {
             "STRATEGY_TYPE": "SMA",
-            "SHORT_WINDOW": 20,
-            "LONG_WINDOW": 50,
+            "FAST_PERIOD": 20,
+            "SLOW_PERIOD": 50,
             "DIRECTION": "Long",
             "BASE_DIR": ".",
             "USE_YEARS": False,
@@ -172,8 +172,8 @@ class TestMAcrossSmokeTest:
             # Verify calculate_ma_and_signals was called
             mock_calc.assert_called_once()
             args = mock_calc.call_args[0]
-            assert args[1] == 20  # short_window
-            assert args[2] == 50  # long_window
+            assert args[1] == 20  # fast_period
+            assert args[2] == 50  # slow_period
 
     def test_strategy_type_selection(self):
         """Test that strategy type is correctly selected from config."""

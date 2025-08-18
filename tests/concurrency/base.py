@@ -86,9 +86,9 @@ class ConcurrencyTestCase(unittest.TestCase):
                         csv_strategy = {
                             "Ticker": s.get("ticker", ""),
                             "Use SMA": s.get("type", "") == "SMA",
-                            "Short Window": s.get("short_window", 0),
-                            "Long Window": s.get("long_window", 0),
-                            "Signal Window": s.get("signal_window", 0),
+                            "Fast Period": s.get("fast_period", 0),
+                            "Slow Period": s.get("slow_period", 0),
+                            "Signal Period": s.get("signal_period", 0),
                             "Allocation [%]": s.get("allocation", 0),
                             "Stop Loss [%]": s.get("stop_loss", 0),
                         }
@@ -175,8 +175,8 @@ class MockDataMixin:
     def create_ma_strategy(
         ticker: str = "BTC-USD",
         strategy_type: str = "SMA",
-        short_window: int = 10,
-        long_window: int = 30,
+        fast_period: int = 10,
+        slow_period: int = 30,
         allocation: float = 100.0,
     ) -> Dict[str, Any]:
         """Create a mock MA strategy configuration."""
@@ -185,17 +185,17 @@ class MockDataMixin:
             "timeframe": "D",
             "type": strategy_type,
             "direction": "long",
-            "short_window": short_window,
-            "long_window": long_window,
+            "fast_period": fast_period,
+            "slow_period": slow_period,
             "allocation": allocation,
         }
 
     @staticmethod
     def create_macd_strategy(
         ticker: str = "BTC-USD",
-        short_window: int = 12,
-        long_window: int = 26,
-        signal_window: int = 9,
+        fast_period: int = 12,
+        slow_period: int = 26,
+        signal_period: int = 9,
         allocation: float = 100.0,
     ) -> Dict[str, Any]:
         """Create a mock MACD strategy configuration."""
@@ -204,9 +204,9 @@ class MockDataMixin:
             "timeframe": "D",
             "type": "MACD",
             "direction": "long",
-            "short_window": short_window,
-            "long_window": long_window,
-            "signal_window": signal_window,
+            "fast_period": fast_period,
+            "slow_period": slow_period,
+            "signal_period": signal_period,
             "allocation": allocation,
         }
 
@@ -238,8 +238,8 @@ class MockDataMixin:
                 "timeframe": "D",
                 "type": "SMA" if i % 2 == 0 else "EMA",
                 "direction": "long",
-                "short_window": 10 + i * 5,
-                "long_window": 30 + i * 10,
+                "fast_period": 10 + i * 5,
+                "slow_period": 30 + i * 10,
                 "allocation": allocation_per_strategy,
             }
             strategies.append(strategy)

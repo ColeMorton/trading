@@ -96,9 +96,9 @@ class ConcurrencyConfig(TypedDict):
 class StrategyConfig(TypedDict):
     ticker: str
     strategy_type: str
-    short_window: int
-    long_window: int
-    signal_window: int
+    fast_period: int
+    slow_period: int
+    signal_period: int
     allocation: float
     stop_loss: Optional[float]
 
@@ -546,7 +546,7 @@ def parse_csv_portfolio(data: pd.DataFrame, schema: str, config: ConcurrencyConf
     Parse CSV portfolio data into strategy configurations.
 
     Handles:
-    - Base schema: ticker, strategy_type, short_window, long_window
+    - Base schema: ticker, strategy_type, fast_period, slow_period
     - Extended schema: + allocation, stop_loss, expectancy
     """
     strategies = []
@@ -555,9 +555,9 @@ def parse_csv_portfolio(data: pd.DataFrame, schema: str, config: ConcurrencyConf
         strategy = StrategyConfig(
             ticker=row['ticker'],
             strategy_type=row.get('strategy_type', 'SMA'),
-            short_window=int(row['short_window']),
-            long_window=int(row['long_window']),
-            signal_window=int(row.get('signal_window', 0))
+            fast_period=int(row['fast_period']),
+            slow_period=int(row['slow_period']),
+            signal_period=int(row.get('signal_period', 0))
         )
 
         # Extended schema fields
@@ -697,19 +697,19 @@ class MAStrategyProcessor(BaseStrategyProcessor):
 
     def calculate_indicators(self, data: pl.DataFrame) -> pl.DataFrame:
         """Calculate moving averages."""
-        short_window = self.config['short_window']
-        long_window = self.config['long_window']
+        fast_period = self.config['fast_period']
+        slow_period = self.config['slow_period']
         ma_type = self.config['strategy_type']
 
         if ma_type == 'SMA':
             data = data.with_columns([
-                pl.col('close').rolling_mean(short_window).alias('short_ma'),
-                pl.col('close').rolling_mean(long_window).alias('long_ma')
+                pl.col('close').rolling_mean(fast_period).alias('short_ma'),
+                pl.col('close').rolling_mean(slow_period).alias('long_ma')
             ])
         elif ma_type == 'EMA':
             data = data.with_columns([
-                pl.col('close').ewm_mean(span=short_window).alias('short_ma'),
-                pl.col('close').ewm_mean(span=long_window).alias('long_ma')
+                pl.col('close').ewm_mean(span=fast_period).alias('short_ma'),
+                pl.col('close').ewm_mean(span=slow_period).alias('long_ma')
             ])
 
         return data

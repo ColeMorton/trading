@@ -135,10 +135,10 @@ class PortfolioProcessingService:
         timeframe = portfolio_dict.get("timeframe", "unknown")
 
         # Include key parameters that make portfolios unique
-        short_window = portfolio_dict.get("short_window", "")
-        long_window = portfolio_dict.get("long_window", "")
+        fast_period = portfolio_dict.get("fast_period", "")
+        slow_period = portfolio_dict.get("slow_period", "")
 
-        return f"{ticker}_{strategy_type}_{timeframe}_{short_window}_{long_window}"
+        return f"{ticker}_{strategy_type}_{timeframe}_{fast_period}_{slow_period}"
 
     def collect_export_paths(
         self, config: Dict[str, Any], strategy_types: List[str], log

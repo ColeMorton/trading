@@ -74,8 +74,8 @@ def assert_signals_valid(result_df: pd.DataFrame) -> None:
 def assert_ma_calculations_accurate(
     result_df: pd.DataFrame,
     price_data: pd.DataFrame,
-    short_window: int,
-    long_window: int,
+    fast_period: int,
+    slow_period: int,
     ma_type: str,
 ) -> None:
     """
@@ -84,8 +84,8 @@ def assert_ma_calculations_accurate(
     Args:
         result_df: DataFrame with calculated MAs
         price_data: Original price data
-        short_window: Short MA window
-        long_window: Long MA window
+        fast_period: Short MA window
+        slow_period: Long MA window
         ma_type: "SMA" or "EMA"
     """
     # Map expected column names to actual implementation column names
@@ -134,13 +134,13 @@ def assert_ma_calculations_accurate(
         else:
             price_pandas = price_data
 
-        for i in range(long_window, len(result_pandas)):
+        for i in range(slow_period, len(result_pandas)):
             # Calculate expected SMA values
             expected_short = (
-                price_pandas["Close"].iloc[i - short_window + 1 : i + 1].mean()
+                price_pandas["Close"].iloc[i - fast_period + 1 : i + 1].mean()
             )
             expected_long = (
-                price_pandas["Close"].iloc[i - long_window + 1 : i + 1].mean()
+                price_pandas["Close"].iloc[i - slow_period + 1 : i + 1].mean()
             )
 
             actual_short = result_pandas.iloc[i][short_col]

@@ -95,7 +95,7 @@ graph TD
 **Position UUID Schema**:
 
 ```
-{Ticker}_{Strategy_Type}_{Short_Window}_{Long_Window}_{Signal_Window}_{Entry_Date}
+{Ticker}_{Strategy_Type}_{Fast_Period}_{Slow_Period}_{Signal_Period}_{Entry_Date}
 ```
 
 **Example**: `AAPL_SMA_13_37_0_2025-05-14`
@@ -217,7 +217,7 @@ exit_efficiency = final_return / mfe if mfe > 0 else None
 #### Core Position Fields
 
 ```csv
-Position_UUID,Ticker,Strategy_Type,Short_Window,Long_Window,Signal_Window,
+Position_UUID,Ticker,Strategy_Type,Fast_Period,Slow_Period,Signal_Period,
 Entry_Timestamp,Exit_Timestamp,Avg_Entry_Price,Avg_Exit_Price,Position_Size,
 Direction,PnL,Return,Duration_Days,Trade_Type,Status
 ```
@@ -704,8 +704,8 @@ set_config(config)
 position_uuid = add_position_to_portfolio(
     ticker="AAPL",
     strategy_type="SMA",
-    short_window=20,
-    long_window=50,
+    fast_period=20,
+    slow_period=50,
     portfolio_name="my_portfolio"
 )
 print(f"Added position: {position_uuid}")
@@ -859,7 +859,7 @@ python app/tools/trade_history_utils.py --remove-duplicates --portfolio live_sig
 Each position includes comprehensive data accessible via CLI:
 
 ```csv
-Position_UUID,Ticker,Strategy_Type,Short_Window,Long_Window,Signal_Window,
+Position_UUID,Ticker,Strategy_Type,Fast_Period,Slow_Period,Signal_Period,
 Entry_Timestamp,Exit_Timestamp,Avg_Entry_Price,Avg_Exit_Price,Position_Size,
 Direction,PnL,Return,Duration_Days,Trade_Type,Status,
 Max_Favourable_Excursion,Max_Adverse_Excursion,MFE_MAE_Ratio,Exit_Efficiency,
@@ -869,7 +869,7 @@ Exit_Efficiency_Fixed,Trade_Quality
 
 ### **UUID Format**
 
-`{TICKER}_{STRATEGY_TYPE}_{SHORT_WINDOW}_{LONG_WINDOW}_{SIGNAL_WINDOW}_{ENTRY_DATE}`
+`{TICKER}_{STRATEGY_TYPE}_{FAST_PERIOD}_{SLOW_PERIOD}_{SIGNAL_PERIOD}_{ENTRY_DATE}`
 
 **Example**: `QCOM_SMA_49_66_0_2025-06-24`
 

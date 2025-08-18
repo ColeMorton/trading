@@ -78,8 +78,8 @@ def comprehensive_config():
     """Create comprehensive configuration for integration testing."""
     return {
         "TICKER": "AAPL",
-        "SHORT_WINDOW": 10,
-        "LONG_WINDOW": 20,
+        "FAST_PERIOD": 10,
+        "SLOW_PERIOD": 20,
         "USE_SMA": True,
         "BASE_DIR": "/tmp/atr_test",
         "REFRESH": True,
@@ -128,8 +128,8 @@ def sample_atr_portfolios():
         portfolio = {
             "Ticker": "AAPL",
             "Strategy Type": "SMA",
-            "Short Window": 10,
-            "Long Window": 20,
+            "Fast Period": 10,
+            "Slow Period": 20,
             "ATR Stop Length": length,
             "ATR Stop Multiplier": multiplier,
             "Total Return": 15.0 + i * 2,  # Varying returns
@@ -553,7 +553,7 @@ class TestATRErrorHandlingIntegration:
         # Invalid configuration with missing required fields
         invalid_config = {
             "TICKER": "TEST",
-            # Missing SHORT_WINDOW, LONG_WINDOW, etc.
+            # Missing FAST_PERIOD, SLOW_PERIOD, etc.
         }
 
         # Should handle gracefully without crashing
@@ -571,8 +571,8 @@ class TestATRErrorHandlingIntegration:
         """Test handling of file permission errors during export."""
         config = {
             "BASE_DIR": "/root/readonly",  # Directory that shouldn't be writable
-            "SHORT_WINDOW": 10,
-            "LONG_WINDOW": 20,
+            "FAST_PERIOD": 10,
+            "SLOW_PERIOD": 20,
             "USE_SMA": True,
             "MINIMUMS": {},
             "SORT_BY": "Score",
@@ -649,8 +649,9 @@ class TestATREndToEndScenarios:
         engine = create_atr_sweep_engine(large_config)
         combinations = engine.generate_atr_parameter_combinations()
 
-        # Expected combinations: 9 lengths × 21 multipliers = 189
-        expected_total = 9 * 21
+        # Expected combinations: 9 lengths × 20 multipliers = 180
+        # Multiplier range 1.0-3.0 with step 0.1 gives: 1.0, 1.1, ..., 2.9 (20 values, not 21)
+        expected_total = 9 * 20
         assert len(combinations) == expected_total
 
         # Verify chunking would be effective

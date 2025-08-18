@@ -355,6 +355,12 @@ def export_csv(
         if isinstance(data, list):
             data = pl.DataFrame(data)
         # Create export directory
+        # Debug logging to track export path construction
+        if log:
+            log(
+                f"Export path: feature1='{feature1}', feature2='{feature2}', base='{config.get('BASE_DIR', 'MISSING')}'",
+                "debug",
+            )
         export_path = _get_export_path(feature1, config, feature2)
         try:
             os.makedirs(export_path, exist_ok=True)
@@ -377,21 +383,36 @@ def export_csv(
         )
         full_path = os.path.join(export_path, final_filename)
 
-        # Log path and permission information
+        # Log path and permission information (debug only)
         if log:
-            log(f"Attempting to write to: {full_path}", "info")
+            log(f"Writing to: {full_path}", "debug")
             log(
                 f"Directory exists: {os.path.exists(os.path.dirname(full_path))}",
-                "info",
+                "debug",
             )
             log(
-                f"Directory is writable: {os.access(os.path.dirname(full_path), os.W_OK)}",
-                "info",
+                f"Directory writable: {os.access(os.path.dirname(full_path), os.W_OK)}",
+                "debug",
             )
 
-        # Remove existing file if it exists
+        # Remove existing file if it exists to ensure overwrite
         if os.path.exists(full_path):
-            os.remove(full_path)
+            try:
+                os.remove(full_path)
+                if log:
+                    log(f"Removed existing file: {full_path}", "debug")
+            except PermissionError as e:
+                error_msg = (
+                    f"Permission denied removing existing file {full_path}: {str(e)}"
+                )
+                if log:
+                    log(error_msg, "error")
+                return pl.DataFrame(), False
+            except Exception as e:
+                error_msg = f"Failed to remove existing file {full_path}: {str(e)}"
+                if log:
+                    log(error_msg, "error")
+                return pl.DataFrame(), False
 
         # Only validate schema compliance for portfolio data, not price data
         if feature1 in [
@@ -445,8 +466,10 @@ def export_csv(
                             "warning",
                         )
 
-            # Export the DataFrame
+            # Export the DataFrame with explicit overwrite
             data.write_csv(full_path, separator=",")
+            if log:
+                log(f"Exported to: {os.path.basename(full_path)}", "info")
 
         elif isinstance(data, pd.DataFrame):
             # Check which metrics are present in the DataFrame
@@ -472,16 +495,15 @@ def export_csv(
                             "warning",
                         )
 
-            # Export the DataFrame
+            # Export the DataFrame with explicit overwrite
             data.to_csv(full_path, index=False)
+            if log:
+                log(f"Exported to: {os.path.basename(full_path)}", "info")
         else:
             raise TypeError("Data must be either a DataFrame or list of dictionaries")
 
-        # Log success
-        message = f"{len(data)} rows exported to {full_path}"
-        if log:
-            log(f"Successfully exported results to {full_path}")
-        logging.info(message)
+        # Simple success message (avoid duplication with earlier logs)
+        message = f"{len(data)} rows exported to {os.path.basename(full_path)}"
         print(message)
 
         return data if isinstance(data, pl.DataFrame) else pl.DataFrame(data), True
@@ -719,9 +741,13 @@ def _get_default_column_value(
         "Ticker": "UNKNOWN",
         "Allocation [%]": None,
         "Strategy Type": "SMA",
-        "Short Window": 20,
-        "Long Window": 50,
-        "Signal Window": 0,
+        "Fast Period": 20,
+        "Slow Period": 50,
+        "Signal Period": 0,
+        # Legacy column names for backwards compatibility
+        "Fast Period": 20,
+        "Slow Period": 50,
+        "Signal Period": 0,
         "Stop Loss [%]": None,
         "Signal Entry": False,
         "Signal Exit": False,

@@ -255,12 +255,12 @@ def add(
         "-s",
         help="Strategy type: SMA, EMA, MACD (auto-selected if not specified)",
     ),
-    short_window: Optional[int] = typer.Option(
+    fast_period: Optional[int] = typer.Option(
         None,
         "--short-window",
         help="Short period window (auto-selected if not specified)",
     ),
-    long_window: Optional[int] = typer.Option(
+    slow_period: Optional[int] = typer.Option(
         None,
         "--long-window",
         help="Long period window (auto-selected if not specified)",
@@ -341,7 +341,7 @@ def add(
             raise typer.Exit(1)
 
         # Auto-select best strategy if not manually specified
-        if strategy_type is None or short_window is None or long_window is None:
+        if strategy_type is None or fast_period is None or slow_period is None:
             if verbose:
                 rprint(f"[dim]Auto-selecting best strategy for {ticker}...[/dim]")
 
@@ -379,14 +379,14 @@ def add(
                 # Use auto-selected values if not manually specified
                 if strategy_type is None:
                     strategy_type = best_strategy["Strategy Type"]
-                if short_window is None:
-                    short_window = int(best_strategy["Short Window"])
-                if long_window is None:
-                    long_window = int(best_strategy["Long Window"])
+                if fast_period is None:
+                    fast_period = int(best_strategy["Fast Period"])
+                if slow_period is None:
+                    slow_period = int(best_strategy["Slow Period"])
 
                 if verbose:
                     rprint(
-                        f"[green]✅ Auto-selected: {strategy_type} {short_window}/{long_window} (Score: {best_strategy['Score']:.4f})[/green]"
+                        f"[green]✅ Auto-selected: {strategy_type} {fast_period}/{slow_period} (Score: {best_strategy['Score']:.4f})[/green]"
                     )
 
             except Exception as e:
@@ -394,7 +394,7 @@ def add(
                 raise typer.Exit(1)
 
         strategy_name = (
-            f"{ticker}_{timeframe}_{strategy_type}_{short_window}_{long_window}"
+            f"{ticker}_{timeframe}_{strategy_type}_{fast_period}_{slow_period}"
         )
 
         rprint(f"➕ Adding Position to Portfolio: [cyan]{portfolio}[/cyan]")
@@ -411,8 +411,8 @@ def add(
         table.add_row("Ticker", ticker)
         table.add_row("Portfolio", portfolio)
         table.add_row("Strategy Type", strategy_type)
-        table.add_row("Short Window", str(short_window))
-        table.add_row("Long Window", str(long_window))
+        table.add_row("Fast Period", str(fast_period))
+        table.add_row("Slow Period", str(slow_period))
         table.add_row("Timeframe", timeframe)
         table.add_row(
             "Entry Price", str(entry_price) if entry_price else "Market Price"
@@ -446,9 +446,9 @@ def add(
                 position_uuid = position_service.add_position_to_portfolio(
                     ticker=ticker,
                     strategy_type=strategy_type,
-                    short_window=short_window,
-                    long_window=long_window,
-                    signal_window=0,  # Default value
+                    fast_period=fast_period,
+                    slow_period=slow_period,
+                    signal_period=0,  # Default value
                     entry_date=entry_date,
                     entry_price=entry_price,
                     position_size=quantity or 1.0,

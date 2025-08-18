@@ -33,8 +33,8 @@ def prepare_data(
     # Calculate moving averages
     data = calculate_mas(
         data,
-        config["SHORT_WINDOW"],
-        config["LONG_WINDOW"],
+        config["FAST_PERIOD"],
+        config["SLOW_PERIOD"],
         config.get("USE_SMA", False),
         log,
     )

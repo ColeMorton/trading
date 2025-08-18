@@ -241,13 +241,19 @@ def _transform_to_canonical_schema(
     canonical_data = []
 
     # Column name mappings from standardized to canonical
+    # Updated to use new parameter naming convention
     column_mappings = {
         "TICKER": "Ticker",
         "ALLOCATION": "Allocation [%]",
         "STRATEGY_TYPE": "Strategy Type",
-        "SHORT_WINDOW": "Short Window",
-        "LONG_WINDOW": "Long Window",
-        "SIGNAL_WINDOW": "Signal Window",
+        # New parameter names
+        "FAST_PERIOD": "Fast Period",
+        "SLOW_PERIOD": "Slow Period",
+        "SIGNAL_PERIOD": "Signal Period",
+        # Legacy parameter names for backwards compatibility
+        "FAST_PERIOD": "Fast Period",
+        "SLOW_PERIOD": "Slow Period",
+        "SIGNAL_PERIOD": "Signal Period",
         "STOP_LOSS": "Stop Loss [%]",
         "SIGNAL_ENTRY": "Signal Entry",
         "SIGNAL_EXIT": "Signal Exit",
@@ -317,9 +323,13 @@ def _get_canonical_default_value(
         "Ticker": source_row.get("Ticker") or source_row.get("TICKER") or "UNKNOWN",
         "Allocation [%]": None,
         "Strategy Type": "SMA",
-        "Short Window": 20,
-        "Long Window": 50,
-        "Signal Window": 0,
+        "Fast Period": 20,
+        "Slow Period": 50,
+        "Signal Period": 0,
+        # Legacy column names for backwards compatibility during import
+        "Fast Period": 20,
+        "Slow Period": 50,
+        "Signal Period": 0,
         "Stop Loss [%]": None,
         "Signal Entry": False,
         "Signal Exit": False,
@@ -365,8 +375,6 @@ def _get_canonical_default_value(
         "Tail Ratio": 1.0,
         "Common Sense Ratio": 1.0,
         "Value at Risk": 0.0,
-        "Alpha": None,
-        "Beta": None,
         "Daily Returns": 0.0,
         "Annual Returns": 0.0,
         "Cumulative Returns": 0.0,

@@ -2,7 +2,7 @@
 Portfolio Selection Module for MACD Strategy
 
 This module handles the selection of the best portfolio based on consistent
-Short Window/Long Window/Signal Window combinations in top performing portfolios.
+Fast Period/Slow Period/Signal Period combinations in top performing portfolios.
 """
 
 from typing import Any, Dict, Optional
@@ -20,7 +20,7 @@ def get_best_portfolio(
     Get the best portfolio based on window parameter combination frequency in top performers.
 
     The function analyzes the top performing portfolios to find the most consistent
-    Short Window/Long Window/Signal Window combination using four criteria:
+    Fast Period/Slow Period/Signal Period combination using four criteria:
     1. If the top 3 portfolios have the same combination
     2. If 3 out of top 5 portfolios have the same combination
     3. If 5 out of top 8 portfolios have the same combination
@@ -63,7 +63,7 @@ def get_best_portfolio(
             log("Added Strategy Type column with default value 'MACD'", "info")
 
         # Check other required columns
-        required_cols = ["Short Window", "Long Window", "Signal Window", sort_by]
+        required_cols = ["Fast Period", "Slow Period", "Signal Period", sort_by]
         if not all(col in portfolios.columns for col in required_cols):
             log("Missing required columns in portfolios DataFrame", "error")
             log(f"Required columns: {', '.join(required_cols)}", "info")
@@ -83,14 +83,14 @@ def get_best_portfolio(
             df: pl.DataFrame, required_count: int
         ) -> Optional[tuple]:
             combinations = df.select(
-                ["Short Window", "Long Window", "Signal Window"]
+                ["Fast Period", "Slow Period", "Signal Period"]
             ).to_dicts()
             combo_count = {}
             for combo in combinations:
                 key = (
-                    combo["Short Window"],
-                    combo["Long Window"],
-                    combo["Signal Window"],
+                    combo["Fast Period"],
+                    combo["Slow Period"],
+                    combo["Signal Period"],
                 )
                 combo_count[key] = combo_count.get(key, 0) + 1
                 if combo_count[key] >= required_count:
@@ -101,13 +101,13 @@ def get_best_portfolio(
         # 1. All top 3 have same combination
         if result := check_combination_frequency(top_3, 3):
             log(
-                f"Found matching combination in top 3: Short Window={result[0]}, Long Window={result[1]}, Signal Window={result[2]}"
+                f"Found matching combination in top 3: Fast Period={result[0]}, Slow Period={result[1]}, Signal Period={result[2]}"
             )
             portfolio = (
                 sorted_portfolios.filter(
-                    (pl.col("Short Window") == result[0])
-                    & (pl.col("Long Window") == result[1])
-                    & (pl.col("Signal Window") == result[2])
+                    (pl.col("Fast Period") == result[0])
+                    & (pl.col("Slow Period") == result[1])
+                    & (pl.col("Signal Period") == result[2])
                 )
                 .head(1)
                 .to_dicts()[0]
@@ -118,13 +118,13 @@ def get_best_portfolio(
         # 2. 3 out of top 5 have same combination
         if result := check_combination_frequency(top_5, 3):
             log(
-                f"Found matching combination in top 5: Short Window={result[0]}, Long Window={result[1]}, Signal Window={result[2]}"
+                f"Found matching combination in top 5: Fast Period={result[0]}, Slow Period={result[1]}, Signal Period={result[2]}"
             )
             portfolio = (
                 sorted_portfolios.filter(
-                    (pl.col("Short Window") == result[0])
-                    & (pl.col("Long Window") == result[1])
-                    & (pl.col("Signal Window") == result[2])
+                    (pl.col("Fast Period") == result[0])
+                    & (pl.col("Slow Period") == result[1])
+                    & (pl.col("Signal Period") == result[2])
                 )
                 .head(1)
                 .to_dicts()[0]
@@ -135,13 +135,13 @@ def get_best_portfolio(
         # 3. 5 out of top 8 have same combination
         if result := check_combination_frequency(top_8, 5):
             log(
-                f"Found matching combination in top 8: Short Window={result[0]}, Long Window={result[1]}, Signal Window={result[2]}"
+                f"Found matching combination in top 8: Fast Period={result[0]}, Slow Period={result[1]}, Signal Period={result[2]}"
             )
             portfolio = (
                 sorted_portfolios.filter(
-                    (pl.col("Short Window") == result[0])
-                    & (pl.col("Long Window") == result[1])
-                    & (pl.col("Signal Window") == result[2])
+                    (pl.col("Fast Period") == result[0])
+                    & (pl.col("Slow Period") == result[1])
+                    & (pl.col("Signal Period") == result[2])
                 )
                 .head(1)
                 .to_dicts()[0]
@@ -153,13 +153,13 @@ def get_best_portfolio(
         top_2 = sorted_portfolios.head(2)
         if result := check_combination_frequency(top_2, 2):
             log(
-                f"Found matching combination in top 2: Short Window={result[0]}, Long Window={result[1]}, Signal Window={result[2]}"
+                f"Found matching combination in top 2: Fast Period={result[0]}, Slow Period={result[1]}, Signal Period={result[2]}"
             )
             portfolio = (
                 sorted_portfolios.filter(
-                    (pl.col("Short Window") == result[0])
-                    & (pl.col("Long Window") == result[1])
-                    & (pl.col("Signal Window") == result[2])
+                    (pl.col("Fast Period") == result[0])
+                    & (pl.col("Slow Period") == result[1])
+                    & (pl.col("Signal Period") == result[2])
                 )
                 .head(1)
                 .to_dicts()[0]

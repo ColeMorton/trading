@@ -436,35 +436,35 @@ def _extract_strategy_parameters(
 
     if strategy_type.upper() in ["SMA", "EMA"]:
         # MA Cross parameters
-        if "short_window" in config and "long_window" in config:
-            params.extend([str(config["short_window"]), str(config["long_window"])])
-        elif "SHORT_WINDOW" in config and "LONG_WINDOW" in config:
-            params.extend([str(config["SHORT_WINDOW"]), str(config["LONG_WINDOW"])])
+        if "fast_period" in config and "slow_period" in config:
+            params.extend([str(config["fast_period"]), str(config["slow_period"])])
+        elif "FAST_PERIOD" in config and "SLOW_PERIOD" in config:
+            params.extend([str(config["FAST_PERIOD"]), str(config["SLOW_PERIOD"])])
 
     elif strategy_type.upper() == "MACD":
         # MACD parameters
         if (
             "fast_window" in config
             and "slow_window" in config
-            and "signal_window" in config
+            and "signal_period" in config
         ):
             params.extend(
                 [
                     str(config["fast_window"]),
                     str(config["slow_window"]),
-                    str(config["signal_window"]),
+                    str(config["signal_period"]),
                 ]
             )
         elif (
             "FAST_WINDOW" in config
             and "SLOW_WINDOW" in config
-            and "SIGNAL_WINDOW" in config
+            and "SIGNAL_PERIOD" in config
         ):
             params.extend(
                 [
                     str(config["FAST_WINDOW"]),
                     str(config["SLOW_WINDOW"]),
-                    str(config["SIGNAL_WINDOW"]),
+                    str(config["SIGNAL_PERIOD"]),
                 ]
             )
 
@@ -596,16 +596,16 @@ def _extract_all_strategy_parameters(config: Dict[str, Any]) -> Dict[str, Any]:
 
     # Common parameters
     for key in [
-        "short_window",
-        "long_window",
-        "SHORT_WINDOW",
-        "LONG_WINDOW",
+        "fast_period",
+        "slow_period",
+        "FAST_PERIOD",
+        "SLOW_PERIOD",
         "fast_window",
         "slow_window",
-        "signal_window",
+        "signal_period",
         "FAST_WINDOW",
         "SLOW_WINDOW",
-        "SIGNAL_WINDOW",
+        "SIGNAL_PERIOD",
         "RSI_WINDOW",
         "RSI_THRESHOLD",
         "STOP_LOSS",

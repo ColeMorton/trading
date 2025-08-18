@@ -19,8 +19,8 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from app.strategies.tools.summary_processing import (
-    export_summary_results,
     process_ticker_portfolios,
+    update_strategy_files,
 )
 from app.tools.config_management import normalize_config, resolve_portfolio_filename
 from app.tools.entry_point import run_from_command_line
@@ -56,6 +56,7 @@ from app.tools.portfolio.stop_loss import (
 )
 from app.tools.portfolio_results import (
     calculate_breadth_metrics,
+    display_portfolio_summary,
     filter_open_trades,
     filter_signal_entries,
     sort_portfolios,
@@ -145,6 +146,9 @@ def run(portfolio: str) -> bool:
     with logging_context(
         module_name="strategies", log_file="update_portfolios.log"
     ) as log:
+        import time
+        start_time = time.time()
+        
         # Get a normalized copy of the global config
         local_config = normalize_config(config.copy())
 
@@ -458,7 +462,7 @@ def run(portfolio: str) -> bool:
                 local_config["USE_EXTENDED_SCHEMA"] = True
                 log("Explicitly setting USE_EXTENDED_SCHEMA=True for export", "info")
 
-            success = export_summary_results(portfolios, portfolio, log, local_config)
+            success = update_strategy_files(portfolios, portfolio, log, local_config)
             # Display strategy data as requested
             if success and portfolios:
                 log("=== Strategy Summary ===")
@@ -528,6 +532,10 @@ def run(portfolio: str) -> bool:
                         f"{stop_loss_summary['strategies_with_stop_loss']} strategies",
                         "info",
                     )
+
+                # Display rich portfolio summary with execution time
+                execution_time = time.time() - start_time
+                display_portfolio_summary(sorted_portfolios, execution_time, log)
 
         return success
 

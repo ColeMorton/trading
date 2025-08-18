@@ -14,23 +14,23 @@ from app.tools.strategy.types import StrategyConfig as Config
 
 def get_current_signals(
     data: pl.DataFrame,
-    short_windows: List[int],
-    long_windows: List[int],
+    fast_periods: List[int],
+    slow_periods: List[int],
     config: Dict,
     log: Callable,
 ) -> pl.DataFrame:
     """
-    Get current signals for all window combinations.
+    Get current signals for all period combinations.
 
     Args:
         data: Price data DataFrame
-        short_windows: List of short window periods
-        long_windows: List of long window periods
+        fast_periods: List of fast period values
+        slow_periods: List of slow period values
         config: Configuration dictionary
         log: Logging function for recording events and errors
 
     Returns:
-        DataFrame containing window combinations with current signals
+        DataFrame containing period combinations with current signals
     """
     try:
         signals = []
@@ -38,30 +38,30 @@ def get_current_signals(
         # Get strategy type from config or default to SMA
         strategy_type = config.get("STRATEGY_TYPE", "SMA")
 
-        for short in short_windows:
-            for long in long_windows:
-                if short < long:  # Ensure short window is always less than long window
+        for fast in fast_periods:
+            for slow in slow_periods:
+                if fast < slow:  # Ensure fast period is always less than slow period
                     temp_data = data.clone()
                     temp_data = calculate_ma_and_signals(
-                        temp_data, short, long, config, log, strategy_type
+                        temp_data, fast, slow, config, log, strategy_type
                     )
 
                     if temp_data is not None and len(temp_data) > 0:
                         current = is_signal_current(temp_data, config)
                         if current:
                             signals.append(
-                                {"Short Window": int(short), "Long Window": int(long)}
+                                {"Fast Period": int(fast), "Slow Period": int(slow)}
                             )
 
         # Create DataFrame with explicit schema
         if signals:
             return pl.DataFrame(
-                signals, schema={"Short Window": pl.Int32, "Long Window": pl.Int32}
+                signals, schema={"Fast Period": pl.Int32, "Slow Period": pl.Int32}
             )
-        return pl.DataFrame(schema={"Short Window": pl.Int32, "Long Window": pl.Int32})
+        return pl.DataFrame(schema={"Fast Period": pl.Int32, "Slow Period": pl.Int32})
     except Exception as e:
         log(f"Failed to get current signals: {e}", "error")
-        return pl.DataFrame(schema={"Short Window": pl.Int32, "Long Window": pl.Int32})
+        return pl.DataFrame(schema={"Fast Period": pl.Int32, "Slow Period": pl.Int32})
 
 
 def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
@@ -110,7 +110,7 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
         if data is None:
             log("Failed to get price data", "error")
             return pl.DataFrame(
-                schema={"Short Window": pl.Int32, "Long Window": pl.Int32}
+                schema={"Fast Period": pl.Int32, "Slow Period": pl.Int32}
             )
 
         # Set the last trading day from the data
@@ -133,13 +133,13 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
         set_last_trading_day(last_date)
 
         # Check if specific windows are provided
-        short_window = config.get("SHORT_WINDOW")
-        long_window = config.get("LONG_WINDOW")
+        fast_period = config.get("FAST_PERIOD")
+        slow_period = config.get("SLOW_PERIOD")
 
-        if short_window is not None and long_window is not None:
+        if fast_period is not None and slow_period is not None:
             # Use specific windows from config
             current_signals = get_current_signals(
-                data, [short_window], [long_window], config, log
+                data, [fast_period], [slow_period], config, log
             )
         else:
             # Use window permutations from explicit ranges for full analysis
@@ -160,26 +160,26 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
                     if windows is None or windows < 2:
                         log("Missing or invalid WINDOWS parameter", "error")
                         return pl.DataFrame(
-                            schema={"Short Window": pl.Int32, "Long Window": pl.Int32}
+                            schema={"Fast Period": pl.Int32, "Slow Period": pl.Int32}
                         )
                     # Legacy behavior
-                    short_windows = list(np.arange(2, windows))
-                    long_windows = list(np.arange(2, windows))
+                    fast_periods = list(np.arange(2, windows))
+                    slow_periods = list(np.arange(2, windows))
                 else:
                     # Default ranges
                     log(
                         "No parameter ranges specified. Using defaults: FAST=[5,89], SLOW=[8,89]",
                         "warning",
                     )
-                    short_windows = list(np.arange(5, 90))  # [5, 6, ..., 89]
-                    long_windows = list(np.arange(8, 90))  # [8, 9, ..., 89]
+                    fast_periods = list(np.arange(5, 90))  # [5, 6, ..., 89]
+                    slow_periods = list(np.arange(8, 90))  # [8, 9, ..., 89]
             else:
                 # Use explicit ranges
-                short_windows = list(np.arange(fast_range[0], fast_range[1] + 1))
-                long_windows = list(np.arange(slow_range[0], slow_range[1] + 1))
+                fast_periods = list(np.arange(fast_range[0], fast_range[1] + 1))
+                slow_periods = list(np.arange(slow_range[0], slow_range[1] + 1))
 
             current_signals = get_current_signals(
-                data, short_windows, long_windows, config, log
+                data, fast_periods, slow_periods, config, log
             )
 
         if not config.get("USE_SCANNER", False):
@@ -192,15 +192,15 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
 
     except Exception as e:
         log(f"Failed to generate current signals: {e}", "error")
-        return pl.DataFrame(schema={"Short Window": pl.Int32, "Long Window": pl.Int32})
+        return pl.DataFrame(schema={"Fast Period": pl.Int32, "Slow Period": pl.Int32})
 
 
 def process_ma_signals(
     ticker: str,
     ma_type: str,
     config: Config,
-    fast_window: int,
-    slow_window: int,
+    fast_period: int,
+    slow_period: int,
     log: Callable,
 ) -> bool:
     """
@@ -210,8 +210,8 @@ def process_ma_signals(
         ticker: The ticker symbol to process
         ma_type: Type of moving average ('SMA' or 'EMA')
         config: Configuration dictionary
-        fast_window: Fast window value from scanner
-        slow_window: Slow window value from scanner
+        fast_period: Fast period value from scanner
+        slow_period: Slow period value from scanner
         log: Logging function for recording events and errors
 
     Returns:
@@ -222,15 +222,15 @@ def process_ma_signals(
         {
             "TICKER": ticker,
             "USE_SMA": ma_type == "SMA",
-            "SHORT_WINDOW": fast_window,
-            "LONG_WINDOW": slow_window,
+            "FAST_PERIOD": fast_period,
+            "SLOW_PERIOD": slow_period,
         }
     )
 
     signals = generate_current_signals(ma_config, log)
 
     is_current = check_signal_match(
-        signals.to_dicts() if len(signals) > 0 else [], fast_window, slow_window
+        signals.to_dicts() if len(signals) > 0 else [], fast_period, slow_period
     )
 
     return is_current

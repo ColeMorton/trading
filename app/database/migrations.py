@@ -304,9 +304,9 @@ class DataMigrator:
                 "strategyId": strategy.id,
                 "tickerId": ticker.id,
                 "timeframe": timeframe_mapped,
-                "shortWindow": config.get("short", config.get("short_window")),
-                "longWindow": config.get("long", config.get("long_window")),
-                "signalWindow": config.get("signal", config.get("signal_window")),
+                "shortWindow": config.get("short", config.get("fast_period")),
+                "longWindow": config.get("long", config.get("slow_period")),
+                "signalWindow": config.get("signal", config.get("signal_period")),
                 "stopLossPct": (
                     Decimal(str(config["stop_loss"]))
                     if config.get("stop_loss")

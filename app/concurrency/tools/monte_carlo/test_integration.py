@@ -97,13 +97,13 @@ class TestMonteCarloIntegration(unittest.TestCase):
         strategies = [
             {
                 "ticker": "AAPL",
-                "short_window": 10,
-                "long_window": 20,
+                "fast_period": 10,
+                "slow_period": 20,
             },
             {
                 "ticker": "MSFT",
-                "SHORT_WINDOW": 15,  # Alternative key format
-                "LONG_WINDOW": 30,
+                "FAST_PERIOD": 15,  # Alternative key format
+                "SLOW_PERIOD": 30,
             },
             {
                 # Missing ticker and parameters - should be filtered out

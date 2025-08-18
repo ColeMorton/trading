@@ -472,12 +472,12 @@ Remember that efficiency metrics should be part of a broader evaluation framewor
 Strategy IDs provide a standardized way to uniquely identify trading strategies across the system. The format is:
 
 ```
-{ticker}_{strategy_type}_{short_window}_{long_window}_{signal_window}
+{ticker}_{strategy_type}_{fast_period}_{slow_period}_{signal_period}
 ```
 
 For example:
 
-- `BTC-USD_SMA_80_85_0`: Bitcoin SMA strategy with 80/85 windows and no signal window
+- `BTC-USD_SMA_80_85_0`: Bitcoin SMA strategy with 80/85 windows and no signal period
 - `AAPL_EMA_19_21_0`: Apple EMA strategy with 19/21 windows
 - `MSTR_MACD_12_26_9`: MicroStrategy MACD strategy with 12/26/9 parameters
 - `ETH-USD_ATR_14_2.5_0`: Ethereum ATR strategy with length 14 and multiplier 2.5

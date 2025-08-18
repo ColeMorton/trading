@@ -83,9 +83,9 @@ class StrategyConfig(TypedDict, total=False):
         TICKER_1 (NotRequired[str]): First ticker for synthetic pair
         TICKER_2 (NotRequired[str]): Second ticker for synthetic pair
         USE_SCANNER (NotRequired[bool]): Whether to use scanner mode
-        SHORT_WINDOW (NotRequired[int]): Short window period
-        LONG_WINDOW (NotRequired[int]): Long window period
-        SIGNAL_WINDOW (NotRequired[int]): Signal window period for MACD
+        FAST_PERIOD (NotRequired[int]): Fast period
+        SLOW_PERIOD (NotRequired[int]): Slow period
+        SIGNAL_PERIOD (NotRequired[int]): Signal period for MACD
         SCANNER_LIST (NotRequired[str]): Name of the scanner list file
         BASE_DIR (NotRequired[str]): Base directory for file operations
         REFRESH (NotRequired[bool]): Whether to refresh existing results
@@ -109,9 +109,9 @@ class StrategyConfig(TypedDict, total=False):
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
     USE_SCANNER: NotRequired[bool]
-    SHORT_WINDOW: NotRequired[int]
-    LONG_WINDOW: NotRequired[int]
-    SIGNAL_WINDOW: NotRequired[int]
+    FAST_PERIOD: NotRequired[int]
+    SLOW_PERIOD: NotRequired[int]
+    SIGNAL_PERIOD: NotRequired[int]
     SCANNER_LIST: NotRequired[str]
     BASE_DIR: NotRequired[str]
     REFRESH: NotRequired[bool]

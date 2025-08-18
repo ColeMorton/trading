@@ -278,10 +278,10 @@ class TestMonteCarloErrorHandling:
             }
         )
 
-        # Test MACD without signal window
+        # Test MACD without signal period
         invalid_macd_config = {
             "STRATEGY_TYPE": "MACD"
-            # Missing SIGNAL_WINDOW
+            # Missing SIGNAL_PERIOD
         }
 
         # Should either handle gracefully or raise appropriate error

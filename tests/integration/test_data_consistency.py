@@ -119,8 +119,8 @@ class TestDataConsistencyValidation(unittest.TestCase):
         position_uuid = self.service.add_position_to_portfolio(
             ticker="AAPL",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
+            fast_period=20,
+            slow_period=50,
             entry_date="2025-01-15",
             entry_price=150.00,
             position_size=100.0,
@@ -168,8 +168,8 @@ class TestDataConsistencyValidation(unittest.TestCase):
         position_uuid = self.service.add_position_to_portfolio(
             ticker="AAPL",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
+            fast_period=20,
+            slow_period=50,
             entry_date="2025-01-10",  # Day 9 in our data
             entry_price=148.00,  # Known price from our pattern
             position_size=100.0,
@@ -207,8 +207,8 @@ class TestDataConsistencyValidation(unittest.TestCase):
         short_uuid = self.service.add_position_to_portfolio(
             ticker="TSLA",
             strategy_type="EMA",
-            short_window=12,
-            long_window=26,
+            fast_period=12,
+            slow_period=26,
             entry_date="2025-01-10",
             entry_price=198.00,
             position_size=50.0,
@@ -254,8 +254,8 @@ class TestDataConsistencyValidation(unittest.TestCase):
             uuid = self.service.add_position_to_portfolio(
                 ticker=ticker,
                 strategy_type=strategy,
-                short_window=short,
-                long_window=long,
+                fast_period=short,
+                slow_period=long,
                 entry_date=date,
                 entry_price=price,
                 position_size=size,
@@ -303,8 +303,8 @@ class TestDataConsistencyValidation(unittest.TestCase):
         position_uuid = self.service.add_position_to_portfolio(
             ticker="AAPL",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
+            fast_period=20,
+            slow_period=50,
             entry_date="2025-01-15",
             entry_price=150.00,
             position_size=100.0,
@@ -375,8 +375,8 @@ class TestDataConsistencyValidation(unittest.TestCase):
         position_uuid = self.service.add_position_to_portfolio(
             ticker="AAPL",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
+            fast_period=20,
+            slow_period=50,
             entry_date="2025-01-15",
             entry_price=150.00,
             position_size=100.0,
@@ -398,8 +398,8 @@ class TestDataConsistencyValidation(unittest.TestCase):
             "Position_UUID",
             "Ticker",
             "Strategy_Type",
-            "Short_Window",
-            "Long_Window",
+            "Fast_Period",
+            "Slow_Period",
             "Entry_Timestamp",
             "Avg_Entry_Price",
             "Position_Size",
@@ -433,8 +433,8 @@ class TestDataConsistencyValidation(unittest.TestCase):
             invalid_uuid = self.service.add_position_to_portfolio(
                 ticker="INVALID",
                 strategy_type="SMA",
-                short_window=20,
-                long_window=50,
+                fast_period=20,
+                slow_period=50,
                 entry_date="2025-01-15",
                 entry_price=150.00,
                 position_size=100.0,
@@ -472,8 +472,8 @@ class TestDataConsistencyValidation(unittest.TestCase):
         valid_uuid = self.service.add_position_to_portfolio(
             ticker="AAPL",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
+            fast_period=20,
+            slow_period=50,
             entry_date="2025-01-15",
             entry_price=150.00,
             position_size=100.0,
@@ -495,8 +495,8 @@ class TestDataConsistencyValidation(unittest.TestCase):
         position_uuid = self.service.add_position_to_portfolio(
             ticker="AAPL",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
+            fast_period=20,
+            slow_period=50,
             entry_date="2025-01-15",
             entry_price=150.123456,  # High precision entry
             position_size=1.0,  # Single share
@@ -526,8 +526,8 @@ class TestDataConsistencyValidation(unittest.TestCase):
         large_uuid = self.service.add_position_to_portfolio(
             ticker="TSLA",
             strategy_type="EMA",
-            short_window=12,
-            long_window=26,
+            fast_period=12,
+            slow_period=26,
             entry_date="2025-01-20",
             entry_price=200.00,
             position_size=1000000.0,  # 1 million shares
@@ -558,8 +558,8 @@ class TestDataConsistencyValidation(unittest.TestCase):
             uuid = self.service.add_position_to_portfolio(
                 ticker="AAPL" if i % 2 == 0 else "TSLA",
                 strategy_type="SMA",
-                short_window=20 + i,
-                long_window=50 + i,
+                fast_period=20 + i,
+                slow_period=50 + i,
                 entry_date=f"2025-01-{15 + i:02d}",
                 entry_price=150.00 + i,
                 position_size=100.0 + i * 10,

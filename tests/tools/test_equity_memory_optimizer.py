@@ -203,9 +203,9 @@ class TestStreamingEquityExporter:
             portfolio = {
                 "Ticker": f"TEST{i:03d}",
                 "Strategy Type": "SMA",
-                "Short Window": 20,
-                "Long Window": 50,
-                "Signal Window": None,
+                "Fast Period": 20,
+                "Slow Period": 50,
+                "Signal Period": None,
                 "_equity_data": equity_data,
             }
             portfolios.append(portfolio)

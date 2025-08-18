@@ -36,14 +36,14 @@ def convert_csv_strategy(row: CsvStrategyRow) -> UnifiedStrategy:
         "timeframe": "Daily",  # CSV format assumes daily
         "type": "SMA" if row["Use_SMA"] else "EMA",
         "direction": "Long",  # CSV format assumes long
-        "short_window": row["Short_Window"],
-        "long_window": row["Long_Window"],
+        "fast_period": row["Fast_Period"],
+        "slow_period": row["Slow_Period"],
     }
 
-    # Add signal window for MACD if present
-    if "Signal_Window" in row and row["Signal_Window"] > 0:
+    # Add signal period for MACD if present
+    if "Signal_Period" in row and row["Signal_Period"] > 0:
         strategy["type"] = "MACD"
-        strategy["signal_window"] = row["Signal_Window"]
+        strategy["signal_period"] = row["Signal_Period"]
 
     # Add optional parameters if present
     optional_fields = {
@@ -73,8 +73,8 @@ def convert_ma_strategy(strategy: JsonMaStrategy) -> UnifiedStrategy:
         "timeframe": strategy["timeframe"],
         "type": strategy["type"],
         "direction": strategy["direction"],
-        "short_window": strategy["short_window"],
-        "long_window": strategy["long_window"],
+        "fast_period": strategy["fast_period"],
+        "slow_period": strategy["slow_period"],
     }
 
     # Add optional parameters if present
@@ -100,9 +100,9 @@ def convert_macd_strategy(strategy: JsonMacdStrategy) -> UnifiedStrategy:
         "timeframe": strategy["timeframe"],
         "type": strategy["type"],
         "direction": strategy["direction"],
-        "short_window": strategy["short_window"],
-        "long_window": strategy["long_window"],
-        "signal_window": strategy["signal_window"],
+        "fast_period": strategy["fast_period"],
+        "slow_period": strategy["slow_period"],
+        "signal_period": strategy["signal_period"],
     }
 
     # Add optional parameters if present
@@ -174,9 +174,9 @@ def save_portfolio(strategies: List[UnifiedStrategy], file_path: str) -> None:
         fieldnames = [
             "Ticker",
             "Use SMA",
-            "Short Window",
-            "Long Window",
-            "Signal Window",
+            "Fast Period",
+            "Slow Period",
+            "Signal Period",
             "Stop Loss",
             "RSI Window",
             "RSI Threshold",
@@ -190,9 +190,9 @@ def save_portfolio(strategies: List[UnifiedStrategy], file_path: str) -> None:
                 row = {
                     "Ticker": strategy["ticker"],
                     "Use SMA": strategy["type"] == "SMA",
-                    "Short Window": strategy["short_window"],
-                    "Long Window": strategy["long_window"],
-                    "Signal Window": strategy.get("signal_window", 0),
+                    "Fast Period": strategy["fast_period"],
+                    "Slow Period": strategy["slow_period"],
+                    "Signal Period": strategy.get("signal_period", 0),
                     "Stop Loss": strategy.get("stop_loss", ""),
                     "RSI Window": strategy.get("rsi_window", ""),
                     "RSI Threshold": strategy.get("rsi_threshold", ""),

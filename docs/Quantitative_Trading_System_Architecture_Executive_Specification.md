@@ -269,7 +269,7 @@ graph TB
 #### **Base Portfolio Schema**
 
 ```
-Ticker, Strategy_Type, Short_Window, Long_Window, Signal_Window,
+Ticker, Strategy_Type, Fast_Period, Slow_Period, Signal_Period,
 Total_Trades, Win_Rate, Profit_Factor, Sharpe_Ratio, Max_Drawdown,
 Total_Return, Annualized_Return, Volatility, Allocation
 ```

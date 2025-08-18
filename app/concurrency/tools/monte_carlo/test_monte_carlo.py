@@ -152,7 +152,7 @@ class TestBootstrapSampler(unittest.TestCase):
 
         # Check constraints are maintained
         for noisy_short, noisy_long in results:
-            self.assertGreaterEqual(noisy_short, 2)  # Minimum short window
+            self.assertGreaterEqual(noisy_short, 2)  # Minimum fast period
             self.assertGreater(noisy_long, noisy_short)  # Long > short
 
     def test_short_time_series_handling(self):

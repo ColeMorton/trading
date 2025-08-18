@@ -17,8 +17,8 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
 
     Args:
         data (pl.DataFrame): Raw portfolio data with columns:
-            - Short Window
-            - Long Window
+            - Fast Period
+            - Slow Period
             - Total Return [%]
             - Total Trades
             - Sortino Ratio
@@ -52,8 +52,8 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
                     if column_name == "Total Trades"
                     else data[column_name]
                 ),
-                "fast_window": data["Short Window"],
-                "slow_window": data["Long Window"],
+                "fast_window": data["Fast Period"],
+                "slow_window": data["Slow Period"],
             }
         )
         transformed_data.append(metric_data)

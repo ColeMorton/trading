@@ -69,12 +69,12 @@ def generate_signals(
 
             if strategy_type == "MACD":
                 # Use MACD signal calculation
-                signal_window = strategy.get("signal_window", 9)
+                signal_period = strategy.get("signal_period", 9)
                 ma_signals = calculate_macd_and_signals(
                     price_df,
-                    strategy["short_window"],
-                    strategy["long_window"],
-                    signal_window,
+                    strategy["fast_period"],
+                    strategy["slow_period"],
+                    signal_period,
                     strategy_config,
                     log,
                 )
@@ -82,8 +82,8 @@ def generate_signals(
                 # Use MA signal calculation for SMA/EMA strategies
                 ma_signals = calculate_ma_and_signals(
                     price_df,
-                    strategy["short_window"],
-                    strategy["long_window"],
+                    strategy["fast_period"],
+                    strategy["slow_period"],
                     strategy_config,
                     log,
                 )

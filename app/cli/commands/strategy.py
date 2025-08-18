@@ -15,7 +15,14 @@ from rich.console import Console
 from rich.table import Table
 
 from ..config import ConfigLoader
-from ..models.strategy import MACDConfig, MACrossConfig, MarketType, StrategyConfig
+from ..models.strategy import (
+    MACDConfig,
+    MACrossConfig,
+    MarketType,
+    StrategyConfig,
+    StrategyExecutionSummary,
+    StrategyPortfolioResults,
+)
 from ..services import StrategyDispatcher
 from .strategy_utils import (
     build_configuration_overrides,
@@ -94,6 +101,30 @@ def run(
         "--skip-analysis",
         help="Skip data download and analysis, assume portfolio files exist in data/raw/portfolios/",
     ),
+    fast_min: Optional[int] = typer.Option(
+        None, "--fast-min", help="Minimum fast period for analysis"
+    ),
+    fast_max: Optional[int] = typer.Option(
+        None, "--fast-max", help="Maximum fast period for analysis"
+    ),
+    slow_min: Optional[int] = typer.Option(
+        None, "--slow-min", help="Minimum slow period for analysis"
+    ),
+    slow_max: Optional[int] = typer.Option(
+        None, "--slow-max", help="Maximum slow period for analysis"
+    ),
+    signal_min: Optional[int] = typer.Option(
+        None, "--signal-min", help="Minimum signal period for analysis"
+    ),
+    signal_max: Optional[int] = typer.Option(
+        None, "--signal-max", help="Maximum signal period for analysis"
+    ),
+    date: Optional[str] = typer.Option(
+        None,
+        "--date",
+        "-d",
+        help="Filter by entry signals triggered on specific date (YYYYMMDD format, e.g., 20250811). Overrides --current if both specified.",
+    ),
 ):
     """
     Execute strategy analysis with specified parameters.
@@ -108,8 +139,21 @@ def run(
         trading-cli strategy run --ticker BTC-USD --min-trades 20
         trading-cli strategy run --ticker BTC-USD,ETH-USD --use-4hour
         trading-cli strategy run --profile ma_cross_crypto --skip-analysis
+        trading-cli strategy run --ticker IREN --date 20250811
+        trading-cli strategy run --ticker AAPL,MSFT --date 20250815 --strategy SMA
     """
     try:
+        # Validate date parameter if provided
+        if date:
+            import re
+            
+            # Validate YYYYMMDD format
+            if not re.match(r"^\d{8}$", date):
+                rprint(
+                    "[red]Error: Date must be in YYYYMMDD format (e.g., 20250811)[/red]"
+                )
+                raise typer.Exit(1)
+        
         # Load configuration
         loader = ConfigLoader()
 
@@ -125,6 +169,14 @@ def run(
             dry_run=dry_run,
             use_4hour=use_4hour,
             skip_analysis=skip_analysis,
+            fast_min=fast_min,
+            fast_max=fast_max,
+            slow_min=slow_min,
+            slow_max=slow_max,
+            signal_min=signal_min,
+            signal_max=signal_max,
+            date=date,
+            verbose=verbose,
         )
 
         # Load configuration
@@ -202,14 +254,10 @@ def run(
 
         # Execute using strategy dispatcher
         # This routes to the appropriate strategy service based on configuration
-        success = dispatcher.execute_strategy(config)
+        execution_summary = dispatcher.execute_strategy(config)
 
-        if success:
-            rprint(f"[green]Strategy analysis completed successfully![/green]")
-        else:
-            rprint(
-                "[yellow]No strategies found matching the specified criteria[/yellow]"
-            )
+        # Display rich execution summary instead of simple success message
+        _display_strategy_summary(execution_summary)
 
     except Exception as e:
         handle_command_error(e, "strategy run", verbose)
@@ -237,6 +285,12 @@ def sweep(
     ),
     slow_max: Optional[int] = typer.Option(
         None, "--slow-max", help="Maximum slow period for sweep"
+    ),
+    signal_min: Optional[int] = typer.Option(
+        None, "--signal-min", help="Minimum signal period for sweep"
+    ),
+    signal_max: Optional[int] = typer.Option(
+        None, "--signal-max", help="Maximum signal period for sweep"
     ),
     max_results: int = typer.Option(
         50, "--max-results", help="Maximum number of results to display"
@@ -267,6 +321,8 @@ def sweep(
             fast_max=fast_max,
             slow_min=slow_min,
             slow_max=slow_max,
+            signal_min=signal_min,
+            signal_max=signal_max,
             dry_run=dry_run,
         )
 
@@ -431,6 +487,11 @@ def analyze(
         "--current",
         help="Analyze current day signals from date-specific directory",
     ),
+    date: Optional[str] = typer.Option(
+        None,
+        "--date",
+        help="Analyze signals from specific date directory (YYYYMMDD format, e.g., 20250816). Overrides --current flag.",
+    ),
     top_n: int = typer.Option(
         50, "--top-n", "-n", help="Number of top results to display in table"
     ),
@@ -457,13 +518,44 @@ def analyze(
     Examples:
         trading-cli strategy analyze --profile asia_top_50 --best
         trading-cli strategy analyze --profile asia_top_50 --best --current
-        trading-cli strategy analyze --profile asia_top_50 --best --current --top-n 25
+        trading-cli strategy analyze --profile asia_top_50 --best --date 20250816
+        trading-cli strategy analyze --profile asia_top_50 --best --date 20250816 --top-n 25
         trading-cli strategy analyze --profile asia_top_50 --best --output-format raw
         trading-cli strategy analyze --profile asia_top_50 --best --sort-by "Total Return [%]"
         trading-cli strategy analyze --best --current --ticker AAPL,MSFT,GOOGL
+        trading-cli strategy analyze --best --date 20250816 --ticker AAPL,MSFT,GOOGL
         trading-cli strategy analyze --profile asia_top_50 --best --ticker TAL,META,SYF
     """
     try:
+        # Validate date parameter if provided
+        if date:
+            import re
+            from pathlib import Path
+
+            # Validate YYYYMMDD format
+            if not re.match(r"^\d{8}$", date):
+                rprint(
+                    "[red]Error: Date must be in YYYYMMDD format (e.g., 20250816)[/red]"
+                )
+                raise typer.Exit(1)
+
+            # Check if date directory exists
+            date_dir = (
+                Path("/Users/colemorton/Projects/trading/data/raw/portfolios_best")
+                / date
+            )
+            if not date_dir.exists():
+                rprint(f"[red]Error: Date directory not found: {date_dir}[/red]")
+                rprint(
+                    f"[dim]Available date directories can be found in data/raw/portfolios_best/[/dim]"
+                )
+                raise typer.Exit(1)
+
+            # Override current flag if date is specified
+            if current and verbose:
+                rprint("[dim]Date parameter specified, overriding --current flag[/dim]")
+            current = True  # Enable date-specific search
+
         # Process ticker input if provided
         if ticker:
             from .strategy_utils import process_ticker_input
@@ -554,22 +646,25 @@ def analyze(
         else:
             rprint(f"📋 [white]Mode: Auto-Discovery[/white]")
 
-        # Show analysis type with current date if applicable
+        # Show analysis type with date if applicable
         from datetime import datetime
 
         if current:
-            current_date = datetime.now().strftime("%Y%m%d")
+            # Use custom date if specified, otherwise current date
+            display_date = date if date else datetime.now().strftime("%Y%m%d")
+            date_label = f"date: {display_date}" if date else f"current: {display_date}"
+
             if ticker_filtering_active:
                 rprint(
-                    f"📊 [white]Analysis Type: portfolios_best (current: {current_date}, filtered)[/white]"
+                    f"📊 [white]Analysis Type: portfolios_best ({date_label}, filtered)[/white]"
                 )
             elif profile:
                 rprint(
-                    f"📊 [white]Analysis Type: portfolios_best (current: {current_date})[/white]"
+                    f"📊 [white]Analysis Type: portfolios_best ({date_label})[/white]"
                 )
             else:
                 rprint(
-                    f"📊 [white]Analysis Type: portfolios_best (current: {current_date}, auto-discovery)[/white]"
+                    f"📊 [white]Analysis Type: portfolios_best ({date_label}, auto-discovery)[/white]"
                 )
         else:
             rprint(f"📊 [white]Analysis Type: portfolios_best[/white]")
@@ -591,7 +686,9 @@ def analyze(
         # Initialize analysis service
         from ..services.portfolio_analysis_service import PortfolioAnalysisService
 
-        analysis_service = PortfolioAnalysisService(use_current=current)
+        analysis_service = PortfolioAnalysisService(
+            use_current=current, custom_date=date
+        )
 
         # Aggregate portfolio data
         rprint("[bold]🔍 Searching for portfolio files...[/bold]")
@@ -745,3 +842,143 @@ def _display_portfolio_table(df, display_columns):
         table.add_row(*row_data)
 
     console.print(table)
+
+
+def _display_strategy_summary(summary: StrategyExecutionSummary) -> None:
+    """Display rich strategy execution summary similar to seasonality command."""
+    # Main success header
+    rprint("\n[bold green]✨ Strategy Analysis Complete![/bold green]")
+
+    # Basic execution statistics
+    ticker_count = len(summary.tickers_processed)
+    strategy_types_str = ", ".join(summary.strategy_types)
+
+    if ticker_count == 1:
+        rprint(
+            f"📈 [cyan]{ticker_count} ticker analyzed successfully ({', '.join(summary.tickers_processed)})[/cyan]"
+        )
+    else:
+        rprint(f"📈 [cyan]{ticker_count} tickers analyzed successfully[/cyan]")
+
+    if len(summary.strategy_types) > 1:
+        rprint(f"⚡ [white]Strategies: {strategy_types_str}[/white]")
+
+    # Portfolio Analysis Results section
+    if summary.portfolio_results:
+        rprint(f"\n[bold cyan]📊 Portfolio Analysis Results:[/bold cyan]")
+
+        # Show aggregated statistics
+        rprint(
+            f"  🔍 [white]Generated: {summary.total_portfolios_generated:,} portfolios[/white]"
+        )
+
+        if summary.total_filtered_portfolios > 0:
+            pass_rate = summary.filter_pass_rate * 100
+            rprint(
+                f"  🎯 [white]Filtered: {summary.total_filtered_portfolios:,} portfolios ({pass_rate:.1f}% pass rate)[/white]"
+            )
+
+        # Show best configuration if available
+        if summary.best_opportunity:
+            best = summary.best_opportunity
+            if best.best_config:
+                rprint(
+                    f"  🏆 [white]Optimal: {best.strategy_type} {best.best_config}[/white]",
+                    end="",
+                )
+                if best.best_score:
+                    rprint(f" [green](Score: {best.best_score:.3f})[/green]")
+                else:
+                    rprint("")
+
+    # Files Generated section
+    if summary.total_files_exported > 0:
+        rprint(f"\n[bold cyan]📁 Files Generated:[/bold cyan]")
+
+        # Group files by type for better display
+        file_types = {
+            "portfolios": [],
+            "portfolios_filtered": [],
+            "portfolios_metrics": [],
+            "portfolios_best": [],
+        }
+
+        for result in summary.portfolio_results:
+            for file_path in result.files_exported:
+                file_name = file_path.split("/")[-1]  # Get just the filename
+
+                if "/portfolios_filtered/" in file_path:
+                    file_types["portfolios_filtered"].append(
+                        f"{file_name} ({result.filtered_portfolios} rows)"
+                    )
+                elif "/portfolios_metrics/" in file_path:
+                    file_types["portfolios_metrics"].append(f"{file_name} (metrics)")
+                elif "/portfolios_best/" in file_path:
+                    file_types["portfolios_best"].append(f"{file_name} (best)")
+                elif "/portfolios/" in file_path:
+                    file_types["portfolios"].append(
+                        f"{file_name} ({result.total_portfolios} rows)"
+                    )
+
+        # Display files by type with appropriate emojis
+        if file_types["portfolios"]:
+            rprint(
+                f"  📋 [green]Raw portfolios: {', '.join(file_types['portfolios'])}[/green]"
+            )
+        if file_types["portfolios_filtered"]:
+            rprint(
+                f"  🎯 [green]Filtered: {', '.join(file_types['portfolios_filtered'])}[/green]"
+            )
+        if file_types["portfolios_metrics"]:
+            rprint(
+                f"  📊 [green]Metrics: {', '.join(file_types['portfolios_metrics'])}[/green]"
+            )
+        if file_types["portfolios_best"]:
+            rprint(
+                f"  🏆 [green]Best: {', '.join(file_types['portfolios_best'])}[/green]"
+            )
+
+    # Key Insights section
+    rprint(f"\n[bold yellow]💡 Key Insights:[/bold yellow]")
+
+    if summary.best_opportunity:
+        best = summary.best_opportunity
+        strategy_display = f"{best.strategy_type}"
+        if best.best_config:
+            strategy_display += f" {best.best_config}"
+
+        rprint(f"  🏆 [white]Best Strategy: {strategy_display}[/white]", end="")
+
+        # Add performance metrics if available
+        performance_parts = []
+        if best.win_rate:
+            performance_parts.append(f"Win Rate: {best.win_rate:.1%}")
+        if best.best_score:
+            performance_parts.append(f"Score: {best.best_score:.3f}")
+
+        if performance_parts:
+            rprint(f" [green]({', '.join(performance_parts)})[/green]")
+        else:
+            rprint("")
+
+        # Show trade performance if available
+        if best.avg_win and best.avg_loss:
+            rprint(
+                f"  📈 [white]Trade Performance: +{best.avg_win:.2f}% avg win vs -{abs(best.avg_loss):.2f}% avg loss[/white]"
+            )
+
+    # Execution performance
+    if summary.execution_time > 60:
+        time_display = f"{summary.execution_time/60:.1f} minutes"
+    else:
+        time_display = f"{summary.execution_time:.1f} seconds"
+
+    rprint(f"  ⚡ [white]Execution Time: {time_display}[/white]")
+
+    if summary.total_strategies > 1:
+        success_rate_pct = summary.success_rate * 100
+        rprint(
+            f"  🎯 [white]Success Rate: {success_rate_pct:.0f}% ({summary.successful_strategies}/{summary.total_strategies} strategies)[/white]"
+        )
+
+    rprint()  # Add final blank line for spacing

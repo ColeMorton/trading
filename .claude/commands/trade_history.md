@@ -38,9 +38,9 @@ This command uses **sub-commands** following the modern CLI pattern:
 
 - **ticker** (required for add): Ticker symbol (e.g., AAPL, BTC-USD, ETH-USD)
 - **strategy_type** (required for add): Strategy type (SMA, EMA, MACD, RSI, BOLLINGER, STOCHASTIC)
-- **short_window** (required for add): Short window period (positive integer)
-- **long_window** (required for add): Long window period (positive integer, must be > short_window)
-- **signal_window** (optional): Signal window period (default: 0)
+- **fast_period** (required for add): Fast period (positive integer)
+- **slow_period** (required for add): Slow period (positive integer, must be > fast_period)
+- **signal_period** (optional): Signal period (default: 0)
 - **entry_date** (optional): Entry date in YYYY-MM-DD format (auto-detected if not provided)
 - **entry_price** (optional): Entry price (market price if not provided)
 
@@ -193,15 +193,15 @@ print(len(open_positions))
         echo "➕ ADDING POSITION TO PORTFOLIO: ${Portfolio}"
 
         # Validate required parameters
-        if [[ -z "$ticker" || -z "$strategy_type" || -z "$short_window" || -z "$long_window" ]]; then
+        if [[ -z "$ticker" || -z "$strategy_type" || -z "$fast_period" || -z "$slow_period" ]]; then
             echo "❌ MISSING REQUIRED PARAMETERS for add sub-command"
-            echo "Required: ticker, strategy_type, short_window, long_window"
+            echo "Required: ticker, strategy_type, fast_period, slow_period"
             exit 1
         fi
 
         echo "📊 Position Details:"
         echo "   Ticker: ${ticker}"
-        echo "   Strategy: ${strategy_type} ${short_window}/${long_window}"
+        echo "   Strategy: ${strategy_type} ${fast_period}/${slow_period}"
         echo "   Portfolio: ${Portfolio}"
         ;;
 
@@ -264,9 +264,9 @@ case "$SUBCOMMAND" in
         python app/tools/generalized_trade_history_exporter.py --add-position \
             --ticker "$ticker" \
             --strategy "$strategy_type" \
-            --short-window "$short_window" \
-            --long-window "$long_window" \
-            --signal-window "${signal_window:-0}" \
+            --short-window "$fast_period" \
+            --long-window "$slow_period" \
+            --signal-window "${signal_period:-0}" \
             --entry-date "${entry_date:-}" \
             --entry-price "${entry_price:-}" \
             --portfolio "$Portfolio" \
@@ -274,7 +274,7 @@ case "$SUBCOMMAND" in
 
         if [ $? -eq 0 ]; then
             echo "✅ POSITION ADDED SUCCESSFULLY"
-            Position_UUID="${ticker}_${strategy_type}_${short_window}_${long_window}_${signal_window:-0}_${entry_date:-$(date +%Y-%m-%d)}"
+            Position_UUID="${ticker}_${strategy_type}_${fast_period}_${slow_period}_${signal_period:-0}_${entry_date:-$(date +%Y-%m-%d)}"
             echo "📊 Position UUID: $Position_UUID"
         else
             echo "❌ POSITION CREATION FAILED"
@@ -597,7 +597,7 @@ Max_Favourable_Excursion,Max_Adverse_Excursion,MFE_MAE_Ratio,Trade_Quality
 ### **Protected Fields (Never Changed)**
 
 ```csv
-Position_UUID,Ticker,Strategy_Type,Short_Window,Long_Window,Signal_Window,
+Position_UUID,Ticker,Strategy_Type,Fast_Period,Slow_Period,Signal_Period,
 Entry_Timestamp,Exit_Timestamp,Avg_Entry_Price,Avg_Exit_Price,Position_Size,
 Direction,PnL,Return,Duration_Days,Trade_Type,Status
 ```

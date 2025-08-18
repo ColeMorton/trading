@@ -33,7 +33,7 @@ def generate_hybrid_ma_atr_signals(
 
     Args:
         data: Price data DataFrame with OHLCV columns
-        ma_config: MA configuration with SHORT_WINDOW, LONG_WINDOW, USE_SMA
+        ma_config: MA configuration with FAST_PERIOD, SLOW_PERIOD, USE_SMA
         atr_length: ATR calculation period (2-21)
         atr_multiplier: ATR multiplier for stop distance (1.5-10.0)
         log: Logging function
@@ -42,7 +42,7 @@ def generate_hybrid_ma_atr_signals(
         DataFrame with hybrid signals and ATR trailing stop levels
     """
     log(
-        f"Generating hybrid MA+ATR signals: MA({ma_config['SHORT_WINDOW']}/{ma_config['LONG_WINDOW']}) + ATR({atr_length}, {atr_multiplier})"
+        f"Generating hybrid MA+ATR signals: MA({ma_config['FAST_PERIOD']}/{ma_config['SLOW_PERIOD']}) + ATR({atr_length}, {atr_multiplier})"
     )
 
     # Validate input data
@@ -74,8 +74,8 @@ def generate_hybrid_ma_atr_signals(
     # Calculate MA signals
     data_pl = calculate_ma_and_signals(
         data_pl,
-        ma_config["SHORT_WINDOW"],
-        ma_config["LONG_WINDOW"],
+        ma_config["FAST_PERIOD"],
+        ma_config["SLOW_PERIOD"],
         ma_config,
         log,
         strategy_type,

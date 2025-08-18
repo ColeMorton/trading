@@ -5,11 +5,17 @@ This module provides unified strategy dispatch functionality, routing
 CLI commands to appropriate strategy services based on configuration.
 """
 
+import time
 from typing import Any, Dict, List, Type, Union
 
 from rich import print as rprint
 
-from ..models.strategy import StrategyConfig, StrategyType
+from ..models.strategy import (
+    StrategyConfig,
+    StrategyExecutionSummary,
+    StrategyPortfolioResults,
+    StrategyType,
+)
 from .strategy_services import (
     BaseStrategyService,
     MACDStrategyService,
@@ -32,7 +38,7 @@ class StrategyDispatcher:
             "MACD": MACDStrategyService(),
         }
 
-    def execute_strategy(self, config: StrategyConfig) -> bool:
+    def execute_strategy(self, config: StrategyConfig) -> StrategyExecutionSummary:
         """
         Execute strategy analysis using appropriate service.
 
@@ -43,30 +49,88 @@ class StrategyDispatcher:
             config: Strategy configuration model
 
         Returns:
-            True if all strategy executions successful, False otherwise
+            StrategyExecutionSummary with comprehensive execution results
         """
+        start_time = time.time()
+
+        # Initialize execution summary
+        summary = StrategyExecutionSummary(
+            execution_time=0.0,
+            success_rate=0.0,
+            successful_strategies=0,
+            total_strategies=0,
+            tickers_processed=[],
+            strategy_types=[],
+        )
         # Check if we should skip analysis and run portfolio processing only
         if config.skip_analysis:
             rprint(
                 "[blue]Skip analysis mode enabled - processing existing portfolios[/blue]"
             )
-            return self._execute_skip_analysis_mode(config)
+            success = self._execute_skip_analysis_mode(config)
+            summary.execution_time = time.time() - start_time
+            summary.success_rate = 1.0 if success else 0.0
+            summary.successful_strategies = 1 if success else 0
+            summary.total_strategies = 1
+            return summary
 
         # Handle mixed strategy types by executing each strategy individually
         if len(config.strategy_types) > 1:
-            return self._execute_mixed_strategies(config)
+            return self._execute_mixed_strategies(config, summary, start_time)
 
         # Single strategy: use original logic
         strategy_service = self._determine_single_service(config.strategy_types[0])
 
         if not strategy_service:
             rprint("[red]No compatible service found for specified strategy type[/red]")
-            return False
+            summary.execution_time = time.time() - start_time
+            summary.success_rate = 0.0
+            summary.total_strategies = 1
+            return summary
 
-        # Execute using the determined service
-        return strategy_service.execute_strategy(config)
+        # Execute using the determined service and collect results
+        success = strategy_service.execute_strategy(config)
 
-    def _execute_mixed_strategies(self, config: StrategyConfig) -> bool:
+        # Populate summary for single strategy execution
+        summary.execution_time = time.time() - start_time
+        summary.success_rate = 1.0 if success else 0.0
+        summary.successful_strategies = 1 if success else 0
+        summary.total_strategies = 1
+        summary.strategy_types = [
+            config.strategy_types[0].value
+            if hasattr(config.strategy_types[0], "value")
+            else str(config.strategy_types[0])
+        ]
+
+        # Process tickers
+        if isinstance(config.ticker, list):
+            summary.tickers_processed = config.ticker
+        else:
+            summary.tickers_processed = [config.ticker]
+
+        # For single strategy, we can't easily extract detailed portfolio results without
+        # modifying the strategy services themselves, so we'll create a basic result
+        if success:
+            portfolio_result = StrategyPortfolioResults(
+                ticker=summary.tickers_processed[0]
+                if summary.tickers_processed
+                else "Unknown",
+                strategy_type=summary.strategy_types[0],
+                total_portfolios=0,  # Would need service modification to get actual count
+                filtered_portfolios=0,
+                extreme_value_portfolios=0,
+                files_exported=[],
+            )
+            summary.add_portfolio_result(portfolio_result)
+
+        return summary
+
+    def _execute_mixed_strategies(
+        self,
+        config: StrategyConfig,
+        summary: StrategyExecutionSummary,
+        start_time: float,
+    ) -> StrategyExecutionSummary:
         """
         Execute multiple strategy types sequentially.
 
@@ -75,11 +139,24 @@ class StrategyDispatcher:
 
         Args:
             config: Strategy configuration with multiple strategy types
+            summary: StrategyExecutionSummary object to populate
+            start_time: Execution start time for timing calculations
 
         Returns:
-            True if all strategies executed successfully, False otherwise
+            StrategyExecutionSummary with comprehensive execution results
         """
         results = []
+        summary.total_strategies = len(config.strategy_types)
+        summary.strategy_types = [
+            st.value if hasattr(st, "value") else str(st)
+            for st in config.strategy_types
+        ]
+
+        # Process tickers
+        if isinstance(config.ticker, list):
+            summary.tickers_processed = config.ticker
+        else:
+            summary.tickers_processed = [config.ticker]
 
         rprint(
             f"[blue]Executing {len(config.strategy_types)} strategies sequentially...[/blue]"
@@ -105,7 +182,22 @@ class StrategyDispatcher:
             success = service.execute_strategy(single_config)
             results.append(success)
 
+            # Create portfolio result for this strategy execution
             if success:
+                portfolio_result = StrategyPortfolioResults(
+                    ticker=summary.tickers_processed[0]
+                    if summary.tickers_processed
+                    else "Unknown",
+                    strategy_type=strategy_type.value
+                    if hasattr(strategy_type, "value")
+                    else str(strategy_type),
+                    total_portfolios=0,  # Would need service modification to get actual count
+                    filtered_portfolios=0,
+                    extreme_value_portfolios=0,
+                    files_exported=[],
+                )
+                summary.add_portfolio_result(portfolio_result)
+
                 rprint(
                     f"[green]✓ {strategy_type} strategy completed successfully[/green]"
                 )
@@ -115,11 +207,16 @@ class StrategyDispatcher:
         total_success = all(results)
         successful_count = sum(results)
 
+        # Update summary with final statistics
+        summary.successful_strategies = successful_count
+        summary.success_rate = successful_count / len(results) if results else 0.0
+        summary.execution_time = time.time() - start_time
+
         rprint(
             f"[blue]Mixed strategy execution complete: {successful_count}/{len(results)} successful[/blue]"
         )
 
-        return total_success
+        return summary
 
     def _create_single_strategy_config(
         self, original_config: StrategyConfig, strategy_type: Union[StrategyType, str]

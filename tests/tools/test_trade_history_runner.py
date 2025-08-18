@@ -167,8 +167,8 @@ def run_quick_smoke_test():
         config = {
             "TICKER": "BTC-USD",
             "STRATEGY_TYPE": "SMA",
-            "short_window": 20,
-            "long_window": 50,
+            "fast_period": 20,
+            "slow_period": 50,
         }
         filename = generate_trade_filename(config, "json")
         expected = "BTC-USD_D_SMA_20_50.json"

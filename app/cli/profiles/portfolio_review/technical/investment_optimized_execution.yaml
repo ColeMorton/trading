@@ -25,8 +25,8 @@ config:
     # BTC-USD CORE TIER - Maximum Efficiency Focus
     - ticker: BTC-USD
       strategy_type: SMA
-      short_window: 26
-      long_window: 38
+      fast_period: 26
+      slow_period: 38
       execution_method: limit_order
       position_sizing: efficiency_weighted
       tier: core_primary
@@ -36,8 +36,8 @@ config:
 
     - ticker: BTC-USD
       strategy_type: SMA
-      short_window: 76
-      long_window: 78
+      fast_period: 76
+      slow_period: 78
       execution_method: market_order  # Tight window needs quick execution
       position_sizing: efficiency_weighted
       tier: core_primary
@@ -47,9 +47,9 @@ config:
 
     - ticker: BTC-USD
       strategy_type: MACD
-      short_window: 14
-      long_window: 23
-      signal_window: 13
+      fast_period: 14
+      slow_period: 23
+      signal_period: 13
       execution_method: limit_order
       position_sizing: efficiency_weighted
       tier: core_secondary
@@ -60,8 +60,8 @@ config:
     # BTC-USD DIVERSIFICATION TIER - Independence Maximization
     - ticker: BTC-USD
       strategy_type: SMA
-      short_window: 104
-      long_window: 105
+      fast_period: 104
+      slow_period: 105
       execution_method: market_order  # Ultra-tight window
       position_sizing: equal_weight
       tier: diversification
@@ -71,8 +71,8 @@ config:
 
     - ticker: BTC-USD
       strategy_type: SMA
-      short_window: 8
-      long_window: 44
+      fast_period: 8
+      slow_period: 44
       execution_method: limit_order
       position_sizing: volatility_adjusted
       tier: diversification
@@ -83,8 +83,8 @@ config:
     # BTC-USD OPPORTUNISTIC TIER - Specialized Alpha
     - ticker: BTC-USD
       strategy_type: SMA
-      short_window: 3
-      long_window: 47
+      fast_period: 3
+      slow_period: 47
       execution_method: limit_order  # Early trend detection needs precision
       position_sizing: momentum_weighted
       tier: opportunistic
@@ -95,8 +95,8 @@ config:
     # MSTR CORE TIER - Asset Diversification
     - ticker: MSTR
       strategy_type: SMA
-      short_window: 52
-      long_window: 90
+      fast_period: 52
+      slow_period: 90
       execution_method: market_order
       position_sizing: efficiency_weighted
       tier: core_secondary
@@ -107,9 +107,9 @@ config:
     # MSTR DIVERSIFICATION TIER - Independence Maximization
     - ticker: MSTR
       strategy_type: MACD
-      short_window: 9
-      long_window: 13
-      signal_window: 5
+      fast_period: 9
+      slow_period: 13
+      signal_period: 5
       execution_method: market_order
       position_sizing: hedge_weighted
       tier: diversification
@@ -119,9 +119,9 @@ config:
 
     - ticker: MSTR
       strategy_type: MACD
-      short_window: 13
-      long_window: 31
-      signal_window: 11
+      fast_period: 13
+      slow_period: 31
+      signal_period: 11
       execution_method: market_order
       position_sizing: equal_weight
       tier: diversification
@@ -132,8 +132,8 @@ config:
     # MSTR OPPORTUNISTIC TIER - Specialized Alpha
     - ticker: MSTR
       strategy_type: SMA
-      short_window: 16
-      long_window: 82
+      fast_period: 16
+      slow_period: 82
       execution_method: limit_order  # Extreme asymmetry needs careful execution
       position_sizing: volatility_adjusted
       tier: opportunistic
@@ -144,11 +144,11 @@ config:
   # Mixed crypto-equity execution parameters
   default_parameters:
     commission:
-      crypto: $ref: "data/config/trading/market_parameters.yaml#trading_costs.commissions.crypto.per_trade"
-      equity: $ref: "data/config/trading/market_parameters.yaml#trading_costs.commissions.equities.per_trade"
+    # TODO: Configure actual values instead of references
+    # TODO: Configure actual values instead of references
     slippage:
-      crypto: $ref: "data/config/trading/market_parameters.yaml#trading_costs.slippage.crypto.market_orders"
-      equity: $ref: "data/config/trading/market_parameters.yaml#trading_costs.slippage.equities.market_orders"
+    # TODO: Configure actual values instead of references
+    # TODO: Configure actual values instead of references
 
   # Optimization-focused risk execution
   risk_execution:
@@ -172,7 +172,7 @@ config:
     benchmark_type: 'buy_and_hold'
     init_cash: 10000.0
     fees:
-      default: $ref: "data/config/trading/market_parameters.yaml#trading_costs.commissions.crypto.per_trade"
+    # TODO: Configure actual values instead of references
     calculate_risk_metrics: true
     export_equity_curve: true
     enable_plotting: true

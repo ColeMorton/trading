@@ -18,8 +18,8 @@ config:
   # Strategy-specific configuration
   strategies:
     - ticker: BTC-USD
-      short_window: 11
-      long_window: 17
+      fast_period: 11
+      slow_period: 17
       strategy_type: EMA
       stop_loss: 3.62
 

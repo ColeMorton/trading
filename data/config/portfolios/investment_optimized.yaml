@@ -25,8 +25,8 @@ strategies:
 
   # Primary Core - Elite Efficiency Strategies
   - ticker: BTC-USD
-    short_window: 26
-    long_window: 38
+    fast_period: 26
+    slow_period: 38
     strategy_type: SMA
     allocation_weight: 0.20
     tier: core_primary
@@ -38,8 +38,8 @@ strategies:
     rationale: 'Highest efficiency strategy with superior signal quality'
 
   - ticker: BTC-USD
-    short_window: 76
-    long_window: 78
+    fast_period: 76
+    slow_period: 78
     strategy_type: SMA
     allocation_weight: 0.15
     tier: core_primary
@@ -52,8 +52,8 @@ strategies:
 
   # Secondary Core - High Efficiency with Diversification
   - ticker: MSTR
-    short_window: 52
-    long_window: 90
+    fast_period: 52
+    slow_period: 90
     strategy_type: SMA
     allocation_weight: 0.15
     tier: core_secondary
@@ -65,9 +65,9 @@ strategies:
     rationale: 'Highest alpha contributor with asset class diversification'
 
   - ticker: BTC-USD
-    short_window: 14
-    long_window: 23
-    signal_window: 13
+    fast_period: 14
+    slow_period: 23
+    signal_period: 13
     strategy_type: MACD
     allocation_weight: 0.10
     tier: core_secondary
@@ -81,9 +81,9 @@ strategies:
   # DIVERSIFICATION TIER (25% allocation) - Independence Maximization
 
   - ticker: MSTR
-    short_window: 9
-    long_window: 13
-    signal_window: 5
+    fast_period: 9
+    slow_period: 13
+    signal_period: 5
     strategy_type: MACD
     allocation_weight: 0.08
     tier: diversification
@@ -95,8 +95,8 @@ strategies:
     rationale: 'Highest independence factor with hedge characteristics'
 
   - ticker: BTC-USD
-    short_window: 8
-    long_window: 44
+    fast_period: 8
+    slow_period: 44
     strategy_type: SMA
     allocation_weight: 0.05
     tier: diversification
@@ -108,9 +108,9 @@ strategies:
     rationale: 'Strong profit factor with asymmetric windows'
 
   - ticker: MSTR
-    short_window: 13
-    long_window: 31
-    signal_window: 11
+    fast_period: 13
+    slow_period: 31
+    signal_period: 11
     strategy_type: MACD
     allocation_weight: 0.05
     tier: diversification
@@ -124,8 +124,8 @@ strategies:
   # OPPORTUNISTIC TIER (15% allocation) - Specialized Alpha
 
   - ticker: MSTR
-    short_window: 16
-    long_window: 82
+    fast_period: 16
+    slow_period: 82
     strategy_type: SMA
     allocation_weight: 0.08
     tier: opportunistic
@@ -137,8 +137,8 @@ strategies:
     rationale: 'Extreme asymmetry for volatility capture'
 
   - ticker: BTC-USD
-    short_window: 3
-    long_window: 47
+    fast_period: 3
+    slow_period: 47
     strategy_type: SMA
     allocation_weight: 0.07
     tier: opportunistic

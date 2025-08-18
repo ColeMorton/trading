@@ -39,8 +39,8 @@ class TestExportIntegration:
             {
                 "Ticker": "BTC-USD",
                 "Strategy Type": "SMA",
-                "Short Window": 10,
-                "Long Window": 20,
+                "Fast Period": 10,
+                "Slow Period": 20,
                 "Total Trades": 100,
                 "Win Rate [%]": 55.5,
                 "Total Return [%]": 125.5,
@@ -49,8 +49,8 @@ class TestExportIntegration:
             {
                 "Ticker": "BTC-USD",
                 "Strategy Type": "SMA",
-                "Short Window": 20,
-                "Long Window": 50,
+                "Fast Period": 20,
+                "Slow Period": 50,
                 "Total Trades": 50,
                 "Win Rate [%]": 62.0,
                 "Total Return [%]": 189.3,

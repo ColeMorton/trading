@@ -14,28 +14,28 @@ from app.tools.get_data import get_data
 
 
 def calculate_macd(
-    data: pl.DataFrame, short_window: int, long_window: int, signal_window: int
+    data: pl.DataFrame, fast_period: int, slow_period: int, signal_period: int
 ) -> pl.DataFrame:
     """Calculate MACD and Signal line values.
 
     Args:
         data: Price data DataFrame
-        short_window: Short-term EMA period
-        long_window: Long-term EMA period
-        signal_window: Signal line EMA period
+        fast_period: Fast-term EMA period
+        slow_period: Slow-term EMA period
+        signal_period: Signal line EMA period
 
     Returns:
         DataFrame with MACD indicators added
     """
     print(
-        f"Calculating MACD with short EMA {short_window}, long EMA {long_window}, signal EMA {signal_window}"
+        f"Calculating MACD with fast EMA {fast_period}, slow EMA {slow_period}, signal EMA {signal_period}"
     )
 
     # Calculate EMAs
     data = data.with_columns(
         [
-            pl.col("Close").ewm_mean(span=short_window).alias("EMA_short"),
-            pl.col("Close").ewm_mean(span=long_window).alias("EMA_long"),
+            pl.col("Close").ewm_mean(span=fast_period).alias("EMA_short"),
+            pl.col("Close").ewm_mean(span=slow_period).alias("EMA_long"),
         ]
     )
 
@@ -49,7 +49,7 @@ def calculate_macd(
 
     # Calculate Signal line
     data = data.with_columns(
-        [pl.col("MACD").ewm_mean(span=signal_window).alias("Signal_Line")]
+        [pl.col("MACD").ewm_mean(span=signal_period).alias("Signal_Line")]
     )
 
     # Count valid MACD and Signal Line points
@@ -74,25 +74,25 @@ def generate_macd_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataF
         if data is None or len(data) == 0:
             return None
 
-        short_window = config.get("short_window", 12)
-        long_window = config.get("long_window", 26)
-        signal_window = config.get("signal_window", 9)
+        fast_period = config.get("fast_period", config.get("fast_period", 12))
+        slow_period = config.get("slow_period", config.get("slow_period", 26))
+        signal_period = config.get("signal_period", config.get("signal_period", 9))
         direction = config.get("DIRECTION", "Long").lower()
 
         # Log analysis parameters
         print(
-            f"Analyzing windows - Short: {short_window}, Long: {long_window}, Signal: {signal_window}"
+            f"Analyzing periods - Fast: {fast_period}, Slow: {slow_period}, Signal: {signal_period}"
         )
         print(
-            f"Data length: {len(data)}, Required length: {max(short_window, long_window, signal_window)}"
+            f"Data length: {len(data)}, Required length: {max(fast_period, slow_period, signal_period)}"
         )
         print(
-            f"Calculating {direction.capitalize()} MACD signals with short window {short_window}, long window {long_window}, and signal window {signal_window}"
+            f"Calculating {direction.capitalize()} MACD signals with fast period {fast_period}, slow period {slow_period}, and signal period {signal_period}"
         )
         print(f"Input data shape: {data.shape}")
 
         # Calculate MACD indicators
-        data = calculate_macd(data, short_window, long_window, signal_window)
+        data = calculate_macd(data, fast_period, slow_period, signal_period)
 
         # Initialize Signal column
         data = data.with_columns([pl.lit(0).cast(pl.Int32).alias("Signal")])
@@ -143,7 +143,7 @@ def generate_macd_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataF
         # Log signal conversion statistics
         non_zero_signals = data.filter(pl.col("Signal") != 0).height
         print(
-            f"Windows {short_window}, {long_window}, {signal_window}: {non_zero_signals} signals generated"
+            f"Windows {fast_period}, {slow_period}, {signal_period}: {non_zero_signals} signals generated"
         )
 
         # Check if there's a current entry or exit signal
@@ -166,7 +166,7 @@ def generate_macd_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataF
             )
 
         print(
-            f"Windows {short_window}, {long_window}, {signal_window}: Entry signal: {current_signal}, Exit signal: {exit_signal}"
+            f"Windows {fast_period}, {slow_period}, {signal_period}: Entry signal: {current_signal}, Exit signal: {exit_signal}"
         )
 
         # Convert signals to positions using the standardized function
@@ -202,9 +202,9 @@ def get_current_signals(
         signals = []
 
         # Check if specific windows are provided
-        specific_short = config.get("short_window")
-        specific_long = config.get("long_window")
-        specific_signal = config.get("signal_window")
+        specific_short = config.get("fast_period")
+        specific_long = config.get("slow_period")
+        specific_signal = config.get("signal_period")
 
         if (
             specific_short is not None
@@ -226,25 +226,25 @@ def get_current_signals(
             signal_window_end = config.get("SIGNAL_WINDOW_END", 9)
 
             parameter_combinations = []
-            for short_window in range(short_window_start, short_window_end + 1, step):
-                for long_window in range(long_window_start, long_window_end + 1, step):
-                    if long_window <= short_window:
+            for fast_period in range(short_window_start, short_window_end + 1, step):
+                for slow_period in range(long_window_start, long_window_end + 1, step):
+                    if slow_period <= fast_period:
                         continue
-                    for signal_window in range(
+                    for signal_period in range(
                         signal_window_start, signal_window_end + 1, step
                     ):
                         parameter_combinations.append(
-                            (short_window, long_window, signal_window)
+                            (fast_period, slow_period, signal_period)
                         )
 
-        for short_window, long_window, signal_window in parameter_combinations:
+        for fast_period, slow_period, signal_period in parameter_combinations:
             try:
                 temp_config = config.copy()
                 temp_config.update(
                     {
-                        "short_window": short_window,
-                        "long_window": long_window,
-                        "signal_window": signal_window,
+                        "fast_period": fast_period,
+                        "slow_period": slow_period,
+                        "signal_period": signal_period,
                     }
                 )
 
@@ -255,16 +255,16 @@ def get_current_signals(
                     if last_signal != 0:  # If there's an active signal
                         signals.append(
                             {
-                                "Short Window": short_window,
-                                "Long Window": long_window,
-                                "Signal Window": signal_window,
+                                "Fast Period": fast_period,
+                                "Slow Period": slow_period,
+                                "Signal Period": signal_period,
                                 "Signal": last_signal,
                             }
                         )
 
             except Exception as e:
                 log(
-                    f"Failed to process parameters {short_window}/{long_window}/{signal_window}: {str(e)}",
+                    f"Failed to process parameters {fast_period}/{slow_period}/{signal_period}: {str(e)}",
                     "warning",
                 )
                 continue
@@ -274,9 +274,9 @@ def get_current_signals(
             return pl.DataFrame(signals)
         return pl.DataFrame(
             schema={
-                "Short Window": pl.Int32,
-                "Long Window": pl.Int32,
-                "Signal Window": pl.Int32,
+                "Fast Period": pl.Int32,
+                "Slow Period": pl.Int32,
+                "Signal Period": pl.Int32,
                 "Signal": pl.Int32,
             }
         )
@@ -285,9 +285,9 @@ def get_current_signals(
         log(f"Failed to get current signals: {str(e)}", "error")
         return pl.DataFrame(
             schema={
-                "Short Window": pl.Int32,
-                "Long Window": pl.Int32,
-                "Signal Window": pl.Int32,
+                "Fast Period": pl.Int32,
+                "Slow Period": pl.Int32,
+                "Signal Period": pl.Int32,
                 "Signal": pl.Int32,
             }
         )
@@ -314,9 +314,9 @@ def generate_current_signals(config: Dict, log: Callable) -> pl.DataFrame:
             log("Failed to get price data", "error")
             return pl.DataFrame(
                 schema={
-                    "Short Window": pl.Int32,
-                    "Long Window": pl.Int32,
-                    "Signal Window": pl.Int32,
+                    "Fast Period": pl.Int32,
+                    "Slow Period": pl.Int32,
+                    "Signal Period": pl.Int32,
                     "Signal": pl.Int32,
                 }
             )
@@ -335,9 +335,9 @@ def generate_current_signals(config: Dict, log: Callable) -> pl.DataFrame:
         log(f"Failed to generate current signals: {str(e)}", "error")
         return pl.DataFrame(
             schema={
-                "Short Window": pl.Int32,
-                "Long Window": pl.Int32,
-                "Signal Window": pl.Int32,
+                "Fast Period": pl.Int32,
+                "Slow Period": pl.Int32,
+                "Signal Period": pl.Int32,
                 "Signal": pl.Int32,
             }
         )

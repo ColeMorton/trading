@@ -73,7 +73,7 @@ The module is designed to integrate seamlessly with both signal generation and t
 
 ```python
 # After generating signals
-signals_df = calculate_ma_and_signals(data, short_window, long_window, config, log)
+signals_df = calculate_ma_and_signals(data, fast_period, slow_period, config, log)
 
 # Convert signals to positions with audit trail
 positions_df, audit = convert_signals_to_positions(signals_df, config, log)

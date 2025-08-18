@@ -56,7 +56,7 @@ def debug_aggregation():
                             f"Result {i+1} Strategy Type: {result.get('Strategy Type', 'UNKNOWN')}"
                         )
                         log(
-                            f"Result {i+1} Windows: {result.get('Short Window', '?')}/{result.get('Long Window', '?')}/{result.get('Signal Window', '?')}"
+                            f"Result {i+1} Windows: {result.get('Fast Period', '?')}/{result.get('Slow Period', '?')}/{result.get('Signal Period', '?')}"
                         )
         else:
             log("Aggregation returned None")

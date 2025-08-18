@@ -186,7 +186,7 @@ class ExportValidator:
         for _, pos in open_positions.iterrows():
             ticker = pos["Ticker"]
             strategy = (
-                f"{pos['Strategy_Type']}_{pos['Short_Window']}_{pos['Long_Window']}"
+                f"{pos['Strategy_Type']}_{pos['Fast_Period']}_{pos['Slow_Period']}"
             )
             current_pnl = pos["Current_Unrealized_PnL"]
             mfe = pos["Max_Favourable_Excursion"]
@@ -237,9 +237,9 @@ class ExportValidator:
             param = {
                 "ticker": ticker,
                 "strategy_type": pos["Strategy_Type"],
-                "short_window": int(pos["Short_Window"]),
-                "long_window": int(pos["Long_Window"]),
-                "signal_window": int(pos["Signal_Window"]),
+                "fast_period": int(pos["Fast_Period"]),
+                "slow_period": int(pos["Slow_Period"]),
+                "signal_period": int(pos["Signal_Period"]),
                 "exit_threshold_pct": float(p80),
                 "stop_loss_pct": -0.10,
                 "take_profit_pct": float(p95),

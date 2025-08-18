@@ -454,8 +454,8 @@ def create_portfolio_generator(portfolio_analyzer):
                     ticker=ticker,
                     strategy=strategy,
                     timeframe=timeframe,
-                    short_window=window1,
-                    long_window=window2,
+                    fast_period=window1,
+                    slow_period=window2,
                 )
         except Exception as e:
             logger.debug(f"Failed to generate portfolio for {cache_key}: {e}")

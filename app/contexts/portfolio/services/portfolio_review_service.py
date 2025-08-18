@@ -43,8 +43,8 @@ class StrategyConfig:
     """Configuration for a single strategy."""
 
     ticker: str
-    short_window: int
-    long_window: int
+    fast_period: int
+    slow_period: int
     strategy_type: str = "SMA"
     direction: str = "long"
     stop_loss: Optional[float] = None
@@ -53,7 +53,7 @@ class StrategyConfig:
     use_hourly: bool = False
     rsi_window: Optional[int] = None
     rsi_threshold: Optional[int] = None
-    signal_window: int = 9  # For MACD
+    signal_period: int = 9  # For MACD
 
 
 @dataclass
@@ -156,9 +156,9 @@ class PortfolioReviewService:
             if strategy_config.strategy_type == "MACD":
                 data = calculate_macd_and_signals(
                     data,
-                    strategy_config.short_window,
-                    strategy_config.long_window,
-                    strategy_config.signal_window,
+                    strategy_config.fast_period,
+                    strategy_config.slow_period,
+                    strategy_config.signal_period,
                     data_config,
                     self._log,
                 )
@@ -166,8 +166,8 @@ class PortfolioReviewService:
                 # Default to MA strategy
                 data = calculate_ma_and_signals(
                     data,
-                    strategy_config.short_window,
-                    strategy_config.long_window,
+                    strategy_config.fast_period,
+                    strategy_config.slow_period,
                     data_config,
                     self._log,
                 )
@@ -246,7 +246,7 @@ class PortfolioReviewService:
             # Export raw data if enabled
             export_results = None
             if self.data_export_service:
-                portfolio_name = f"{strategy_config.ticker}_{strategy_config.strategy_type}_{strategy_config.short_window}_{strategy_config.long_window}"
+                portfolio_name = f"{strategy_config.ticker}_{strategy_config.strategy_type}_{strategy_config.fast_period}_{strategy_config.slow_period}"
                 export_results = self.data_export_service.export_portfolio_data(
                     portfolio, portfolio_name, benchmark_portfolio
                 )
@@ -338,17 +338,17 @@ class PortfolioReviewService:
             self._log("Generating trading signals")
             self._log(f"Processing {len(self.config.strategies)} strategies:")
             for i, strategy in enumerate(self.config.strategies, 1):
-                strategy_name = f"{strategy.ticker}_{strategy.short_window}_{strategy.long_window}_Strategy"
+                strategy_name = f"{strategy.ticker}_{strategy.fast_period}_{strategy.slow_period}_Strategy"
                 self._log(
-                    f"  {i}. {strategy_name} - Windows: {strategy.short_window}/{strategy.long_window}"
+                    f"  {i}. {strategy_name} - Windows: {strategy.fast_period}/{strategy.slow_period}"
                 )
 
             signal_config = {
                 "strategies": {
-                    f"{strategy.ticker}_{strategy.short_window}_{strategy.long_window}_Strategy": {
+                    f"{strategy.ticker}_{strategy.fast_period}_{strategy.slow_period}_Strategy": {
                         "symbol": strategy.ticker,
-                        "short_window": strategy.short_window,
-                        "long_window": strategy.long_window,
+                        "fast_period": strategy.fast_period,
+                        "slow_period": strategy.slow_period,
                         "position_size": strategy.position_size,
                         "use_sma": derive_use_sma(
                             strategy.strategy_type.value
@@ -356,7 +356,7 @@ class PortfolioReviewService:
                             else strategy.strategy_type
                         ),
                         "strategy_type": strategy.strategy_type,
-                        "signal_window": strategy.signal_window,
+                        "signal_period": strategy.signal_period,
                         # Only include stop_loss if it's not None
                         **(
                             {"stop_loss": strategy.stop_loss}
@@ -513,8 +513,8 @@ class PortfolioReviewService:
         """Create portfolio configuration for backtesting."""
         return {
             "TICKER": strategy_config.ticker,
-            "SHORT_WINDOW": strategy_config.short_window,
-            "LONG_WINDOW": strategy_config.long_window,
+            "FAST_PERIOD": strategy_config.fast_period,
+            "SLOW_PERIOD": strategy_config.slow_period,
             "STRATEGY_TYPE": strategy_config.strategy_type,
             "USE_SMA": derive_use_sma(
                 strategy_config.strategy_type.value
@@ -524,7 +524,7 @@ class PortfolioReviewService:
             "USE_HOURLY": strategy_config.use_hourly,
             "STOP_LOSS": strategy_config.stop_loss,
             "DIRECTION": strategy_config.direction,
-            "SIGNAL_WINDOW": strategy_config.signal_window,
+            "SIGNAL_PERIOD": strategy_config.signal_period,
             "RSI_WINDOW": strategy_config.rsi_window,
             "RSI_THRESHOLD": strategy_config.rsi_threshold,
         }
@@ -582,10 +582,10 @@ class PortfolioReviewService:
         """Convert modern config to legacy format for existing functions."""
         return {
             "strategies": {
-                f"{strategy.ticker}_{strategy.short_window}_{strategy.long_window}_Strategy": {
+                f"{strategy.ticker}_{strategy.fast_period}_{strategy.slow_period}_Strategy": {
                     "symbol": strategy.ticker,
-                    "short_window": strategy.short_window,
-                    "long_window": strategy.long_window,
+                    "fast_period": strategy.fast_period,
+                    "slow_period": strategy.slow_period,
                     "stop_loss": strategy.stop_loss,
                     "position_size": strategy.position_size,
                     "use_sma": derive_use_sma(
@@ -668,17 +668,17 @@ class PortfolioReviewService:
             if strategy_config.strategy_type == "MACD":
                 data = calculate_macd_and_signals(
                     data,
-                    strategy_config.short_window,
-                    strategy_config.long_window,
-                    strategy_config.signal_window,
+                    strategy_config.fast_period,
+                    strategy_config.slow_period,
+                    strategy_config.signal_period,
                     data_config,
                     self._log,
                 )
             else:
                 data = calculate_ma_and_signals(
                     data,
-                    strategy_config.short_window,
-                    strategy_config.long_window,
+                    strategy_config.fast_period,
+                    strategy_config.slow_period,
                     data_config,
                     self._log,
                 )
@@ -884,7 +884,7 @@ class PortfolioReviewService:
         # Get strategy names
         strategy_names = []
         for strategy in strategies:
-            strategy_name = f"{strategy.ticker}_{strategy.short_window}_{strategy.long_window}_Strategy"
+            strategy_name = f"{strategy.ticker}_{strategy.fast_period}_{strategy.slow_period}_Strategy"
             strategy_names.append(strategy_name)
             sizes_pd[strategy_name] = 0.0
 
@@ -982,11 +982,11 @@ class PortfolioReviewService:
         for strategy in strategies:
             # For SMA strategies, we need the longer window
             if strategy.strategy_type.upper() in ["SMA", "EMA"]:
-                max_window = max(max_window, strategy.long_window)
+                max_window = max(max_window, strategy.slow_period)
             elif strategy.strategy_type.upper() == "MACD":
                 # For MACD, we typically need the slow period + signal line
                 max_window = max(
-                    max_window, strategy.long_window + (strategy.signal_window or 9)
+                    max_window, strategy.slow_period + (strategy.signal_period or 9)
                 )
 
         if max_window <= 1:

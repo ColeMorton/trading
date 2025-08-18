@@ -244,19 +244,19 @@ def run_analysis(
                     portfolio_strategy = {
                         "ticker": strategy.get("ticker") or strategy.get("TICKER"),
                         "Strategy Type": strategy_type,  # Use actual strategy type
-                        "Window Short": strategy.get("short_window")
-                        or strategy.get("SHORT_WINDOW"),
-                        "Window Long": strategy.get("long_window")
-                        or strategy.get("LONG_WINDOW"),
+                        "Window Short": strategy.get("fast_period")
+                        or strategy.get("FAST_PERIOD"),
+                        "Window Long": strategy.get("slow_period")
+                        or strategy.get("SLOW_PERIOD"),
                     }
 
-                    # Add signal window for MACD strategies
+                    # Add signal period for MACD strategies
                     if strategy_type == "MACD":
-                        signal_window = strategy.get("signal_window") or strategy.get(
-                            "SIGNAL_WINDOW"
+                        signal_period = strategy.get("signal_period") or strategy.get(
+                            "SIGNAL_PERIOD"
                         )
-                        if signal_window:
-                            portfolio_strategy["Signal Window"] = signal_window
+                        if signal_period:
+                            portfolio_strategy["Signal Period"] = signal_period
 
                     # Only include strategies with valid parameters
                     if all(

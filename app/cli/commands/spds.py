@@ -823,7 +823,7 @@ async def _analyze_enhanced_parameter_mode(
         )
     elif parameter_type == ParameterType.STRATEGY_SPEC:
         rprint(
-            f"   Strategy: [yellow]{parsed_param.ticker} {parsed_param.strategy_type} {parsed_param.short_window}/{parsed_param.long_window}[/yellow]"
+            f"   Strategy: [yellow]{parsed_param.ticker} {parsed_param.strategy_type} {parsed_param.fast_period}/{parsed_param.slow_period}[/yellow]"
         )
         rprint(
             "[dim]ℹ️  Analyzing strategy-specific performance and equity curves[/dim]"
@@ -831,7 +831,7 @@ async def _analyze_enhanced_parameter_mode(
     elif parameter_type == ParameterType.MULTI_STRATEGY_SPEC:
         strategy_count = len(parsed_param.strategies)
         strategy_list = [
-            f"{s['ticker']}_{s['strategy_type']}_{s['short_window']}_{s['long_window']}"
+            f"{s['ticker']}_{s['strategy_type']}_{s['fast_period']}_{s['slow_period']}"
             for s in parsed_param.strategies[:3]
         ]
         if strategy_count > 3:
@@ -848,7 +848,7 @@ async def _analyze_enhanced_parameter_mode(
         )
     elif parameter_type == ParameterType.POSITION_UUID:
         rprint(
-            f"   Position: [yellow]{parsed_param.ticker} {parsed_param.strategy_type} {parsed_param.short_window}/{parsed_param.long_window} ({parsed_param.entry_date})[/yellow]"
+            f"   Position: [yellow]{parsed_param.ticker} {parsed_param.strategy_type} {parsed_param.fast_period}/{parsed_param.slow_period} ({parsed_param.entry_date})[/yellow]"
         )
         rprint(
             "[dim]ℹ️  Analyzing individual position with trade history and metrics[/dim]"
@@ -856,7 +856,7 @@ async def _analyze_enhanced_parameter_mode(
     elif parameter_type == ParameterType.MULTI_POSITION_UUID:
         position_count = len(parsed_param.positions)
         position_list = [
-            f"{p['ticker']}_{p['strategy_type']}_{p['short_window']}_{p['long_window']}_{p['entry_date'].replace('-', '')}"
+            f"{p['ticker']}_{p['strategy_type']}_{p['fast_period']}_{p['slow_period']}_{p['entry_date'].replace('-', '')}"
             for p in parsed_param.positions[:3]
         ]
         if position_count > 3:
@@ -1513,9 +1513,9 @@ def _parse_uuid_for_validation(position_uuid: str, ticker: str) -> str:
         date_pattern = r"_\d{8}$"
         remaining = re.sub(date_pattern, "", remaining)
 
-        # Remove any trailing numeric signal window (often 0)
+        # Remove any trailing numeric signal period (often 0)
         signal_pattern = r"_\d+$"
-        # Only remove if it's a single digit (likely signal window, not strategy parameter)
+        # Only remove if it's a single digit (likely signal period, not strategy parameter)
         if re.search(r"_\d{1}$", remaining):
             remaining = re.sub(signal_pattern, "", remaining)
 

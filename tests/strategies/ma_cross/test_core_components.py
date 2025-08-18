@@ -29,8 +29,8 @@ def sample_config():
     return AnalysisConfig(
         ticker="AAPL",
         use_sma=True,
-        short_window=20,
-        long_window=50,
+        fast_period=20,
+        slow_period=50,
         direction="Long",
         windows=89,
         use_hourly=False,
@@ -70,8 +70,8 @@ class TestMACrossConfig:
         """Test configuration creation."""
         assert sample_config.ticker == "AAPL"
         assert sample_config.use_sma == True
-        assert sample_config.short_window == 20
-        assert sample_config.long_window == 50
+        assert sample_config.fast_period == 20
+        assert sample_config.slow_period == 50
         assert sample_config.direction == "Long"
         assert sample_config.windows == 89
 
@@ -80,12 +80,12 @@ class TestMACrossConfig:
         # Test that config accepts valid MA periods
         config1 = AnalysisConfig(
             ticker="AAPL",
-            short_window=20,
-            long_window=50,  # Long > Short is valid
+            fast_period=20,
+            slow_period=50,  # Long > Short is valid
             use_sma=True,
         )
-        assert config1.short_window == 20
-        assert config1.long_window == 50
+        assert config1.fast_period == 20
+        assert config1.slow_period == 50
 
         # Test different direction values (both should work since no validation)
         config2 = AnalysisConfig(ticker="AAPL", direction="Short", use_sma=True)
@@ -169,7 +169,7 @@ class TestMACrossAnalyzer:
             pass
 
         config = AnalysisConfig(
-            ticker="AAPL", use_sma=True, short_window=20, long_window=50
+            ticker="AAPL", use_sma=True, fast_period=20, slow_period=50
         )
 
         analyzer = MACrossAnalyzer(log=mock_log)
@@ -179,8 +179,8 @@ class TestMACrossAnalyzer:
         assert isinstance(result, TickerResult)
         assert result.ticker == "AAPL"
         assert result.strategy_type == "SMA"
-        assert result.short_window == 20
-        assert result.long_window == 50
+        assert result.fast_period == 20
+        assert result.slow_period == 50
 
     @patch("app.strategies.ma_cross.core.analyzer.execute_single_strategy")
     def test_ema_analysis_behavior(self, mock_execute, sample_price_data):
@@ -201,7 +201,7 @@ class TestMACrossAnalyzer:
             pass
 
         config = AnalysisConfig(
-            ticker="AAPL", use_sma=False, short_window=12, long_window=26  # Use EMA
+            ticker="AAPL", use_sma=False, fast_period=12, slow_period=26  # Use EMA
         )
 
         analyzer = MACrossAnalyzer(log=mock_log)
@@ -211,8 +211,8 @@ class TestMACrossAnalyzer:
         assert isinstance(result, TickerResult)
         assert result.ticker == "AAPL"
         assert result.strategy_type == "EMA"
-        assert result.short_window == 12
-        assert result.long_window == 26
+        assert result.fast_period == 12
+        assert result.slow_period == 26
 
     @patch("app.strategies.ma_cross.core.analyzer.execute_single_strategy")
     def test_signal_generation_behavior(self, mock_execute, sample_price_data):
@@ -235,8 +235,8 @@ class TestMACrossAnalyzer:
         config = AnalysisConfig(
             ticker="AAPL",
             use_sma=True,
-            short_window=5,
-            long_window=15,  # Shorter windows for more signals
+            fast_period=5,
+            slow_period=15,  # Shorter windows for more signals
         )
 
         analyzer = MACrossAnalyzer(log=mock_log)
@@ -265,7 +265,7 @@ class TestMACrossAnalyzer:
             pass
 
         config = AnalysisConfig(
-            ticker="AAPL", use_sma=True, short_window=10, long_window=20
+            ticker="AAPL", use_sma=True, fast_period=10, slow_period=20
         )
 
         analyzer = MACrossAnalyzer(log=mock_log)
@@ -318,8 +318,8 @@ class TestMACrossAnalyzer:
         base_config = AnalysisConfig(
             ticker="AAPL",  # Will be overridden per ticker
             use_sma=True,
-            short_window=20,
-            long_window=50,
+            fast_period=20,
+            slow_period=50,
         )
 
         tickers = ["AAPL", "MSFT"]
@@ -352,8 +352,8 @@ class TestMACrossAnalyzer:
         config = AnalysisConfig(
             ticker="AAPL",
             use_sma=True,
-            short_window=20,
-            long_window=50,
+            fast_period=20,
+            slow_period=50,
             direction="Long",
         )
 
@@ -362,8 +362,8 @@ class TestMACrossAnalyzer:
         assert isinstance(config_dict, dict)
         assert config_dict["TICKER"] == "AAPL"
         assert config_dict["USE_SMA"] == True
-        assert config_dict["SHORT_WINDOW"] == 20
-        assert config_dict["LONG_WINDOW"] == 50
+        assert config_dict["FAST_PERIOD"] == 20
+        assert config_dict["SLOW_PERIOD"] == 50
         assert config_dict["DIRECTION"] == "Long"
 
 
@@ -393,8 +393,8 @@ class TestScannerAdapter:
         assert isinstance(config, AnalysisConfig)
         assert config.ticker == "AAPL"  # Should convert to single ticker
         assert config.use_sma == True
-        assert config.short_window == 20
-        assert config.long_window == 50
+        assert config.fast_period == 20
+        assert config.slow_period == 50
 
     @patch("app.tools.download_data.download_data")
     def test_scan_portfolio(self, mock_download, sample_price_data):
@@ -436,8 +436,8 @@ class TestScannerAdapter:
         portfolio_result = TickerResult(
             ticker="AAPL",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
+            fast_period=20,
+            slow_period=50,
             total_trades=10,
             total_return_pct=25.0,
             sharpe_ratio=1.5,

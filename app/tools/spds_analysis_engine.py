@@ -300,11 +300,11 @@ class SPDSAnalysisEngine:
 
         ticker = parts[0]
         strategy_type = parts[1]
-        short_window = int(parts[2])
-        long_window = int(parts[3])
+        fast_period = int(parts[2])
+        slow_period = int(parts[3])
 
         self.logger.info(
-            f"Analyzing strategy: {ticker} {strategy_type} {short_window}/{long_window}"
+            f"Analyzing strategy: {ticker} {strategy_type} {fast_period}/{slow_period}"
         )
 
         # Create synthetic position data for analysis
@@ -313,8 +313,8 @@ class SPDSAnalysisEngine:
                 "Position_UUID": strategy_spec,
                 "Ticker": ticker,
                 "Strategy": strategy_type,
-                "Short_Window": short_window,
-                "Long_Window": long_window,
+                "Fast_Period": fast_period,
+                "Slow_Period": slow_period,
                 "Win_Rate": 0.0,  # Will be calculated from trade history
                 "Total_Return": 0.0,  # Will be calculated from trade history
                 "Total_Trades": 0,  # Will be calculated from trade history

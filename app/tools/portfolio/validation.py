@@ -75,37 +75,61 @@ def validate_strategy_config(
                     f"Missing required field: {field_pair[0]} or {field_pair[1]}"
                 )
     elif strategy_type == "MACD":
-        # MACD strategies require SHORT_WINDOW, LONG_WINDOW, and SIGNAL_WINDOW
-        required_fields = ["SHORT_WINDOW", "LONG_WINDOW", "SIGNAL_WINDOW"]
-        for field in required_fields:
-            if field not in strategy:
+        # MACD strategies require FAST_PERIOD, SLOW_PERIOD, and SIGNAL_PERIOD
+        # (with fallback support for legacy FAST_PERIOD, SLOW_PERIOD, SIGNAL_PERIOD)
+        required_field_pairs = [
+            (["FAST_PERIOD", "FAST_PERIOD"], "FAST_PERIOD/FAST_PERIOD"),
+            (["SLOW_PERIOD", "SLOW_PERIOD"], "SLOW_PERIOD/SLOW_PERIOD"),
+            (["SIGNAL_PERIOD", "SIGNAL_PERIOD"], "SIGNAL_PERIOD/SIGNAL_PERIOD"),
+        ]
+
+        for field_options, field_name in required_field_pairs:
+            field_found = False
+            for field in field_options:
+                if field in strategy and strategy[field] is not None:
+                    field_found = True
+                    break
+
+            if not field_found:
                 errors.append(
-                    f"Missing required field for MACD strategy {ticker}: {field}"
+                    f"Missing required field for MACD strategy {ticker}: {field_name}"
                 )
-            elif strategy[field] is None:
+            elif any(
+                field in strategy and strategy[field] is None for field in field_options
+            ):
                 errors.append(
-                    f"Field {field} cannot be null for MACD strategy {ticker}"
+                    f"Field {field_name} cannot be null for MACD strategy {ticker}"
                 )
 
         # Validate window relationships for MACD
+        # Use new field names first, fallback to legacy names
+        fast_period = strategy.get("FAST_PERIOD") or strategy.get("FAST_PERIOD")
+        slow_period = strategy.get("SLOW_PERIOD") or strategy.get("SLOW_PERIOD")
+        signal_period = strategy.get("SIGNAL_PERIOD") or strategy.get("SIGNAL_PERIOD")
+
         if all(
-            field in strategy and strategy[field] is not None
-            for field in ["SHORT_WINDOW", "LONG_WINDOW", "SIGNAL_WINDOW"]
+            param is not None for param in [fast_period, slow_period, signal_period]
         ):
-            if strategy["SHORT_WINDOW"] >= strategy["LONG_WINDOW"]:
+            if fast_period >= slow_period:
                 errors.append(
-                    f"SHORT_WINDOW ({strategy['SHORT_WINDOW']}) must be less than LONG_WINDOW ({strategy['LONG_WINDOW']}) for MACD strategy {ticker}"
+                    f"FAST_PERIOD ({fast_period}) must be less than SLOW_PERIOD ({slow_period}) for MACD strategy {ticker}"
                 )
-            if strategy["SIGNAL_WINDOW"] <= 0:
+            if signal_period <= 0:
                 errors.append(
-                    f"SIGNAL_WINDOW ({strategy['SIGNAL_WINDOW']}) must be greater than 0 for MACD strategy {ticker}"
+                    f"SIGNAL_PERIOD ({signal_period}) must be greater than 0 for MACD strategy {ticker}"
                 )
     else:
-        # MA strategies require SHORT_WINDOW and LONG_WINDOW
-        required_fields = ["SHORT_WINDOW", "LONG_WINDOW"]
-        for field in required_fields:
-            if field not in strategy:
-                errors.append(f"Missing required field: {field}")
+        # MA strategies require FAST_PERIOD and SLOW_PERIOD
+        # (with fallback support for legacy FAST_PERIOD and SLOW_PERIOD)
+        required_field_pairs = [
+            (["FAST_PERIOD", "FAST_PERIOD"], "FAST_PERIOD/FAST_PERIOD"),
+            (["SLOW_PERIOD", "SLOW_PERIOD"], "SLOW_PERIOD/SLOW_PERIOD"),
+        ]
+
+        for field_options, field_name in required_field_pairs:
+            field_found = any(field in strategy for field in field_options)
+            if not field_found:
+                errors.append(f"Missing required field: {field_name}")
 
     if errors:
         for error in errors:
@@ -114,13 +138,19 @@ def validate_strategy_config(
 
     # Validate numeric fields
     numeric_fields = {
-        "SHORT_WINDOW": int,
-        "LONG_WINDOW": int,
+        # New parameter names
+        "FAST_PERIOD": int,
+        "SLOW_PERIOD": int,
+        "SIGNAL_PERIOD": int,
+        # Legacy parameter names (for backward compatibility)
+        "FAST_PERIOD": int,
+        "SLOW_PERIOD": int,
+        "SIGNAL_PERIOD": int,
+        # Other fields
         "STOP_LOSS": float,
         "POSITION_SIZE": float,
         "RSI_WINDOW": int,
         "RSI_THRESHOLD": int,
-        "SIGNAL_WINDOW": int,
         "length": int,
         "LENGTH": int,
         "multiplier": float,
@@ -140,10 +170,14 @@ def validate_strategy_config(
                 errors.append(f"Invalid {field} value: {strategy[field]}")
 
     # Validate window relationships
-    if "SHORT_WINDOW" in strategy and "LONG_WINDOW" in strategy:
-        if strategy["SHORT_WINDOW"] >= strategy["LONG_WINDOW"]:
+    # Use new field names first, fallback to legacy names
+    fast_period = strategy.get("FAST_PERIOD") or strategy.get("FAST_PERIOD")
+    slow_period = strategy.get("SLOW_PERIOD") or strategy.get("SLOW_PERIOD")
+
+    if fast_period is not None and slow_period is not None:
+        if fast_period >= slow_period:
             errors.append(
-                f"SHORT_WINDOW ({strategy['SHORT_WINDOW']}) must be less than LONG_WINDOW ({strategy['LONG_WINDOW']})"
+                f"FAST_PERIOD ({fast_period}) must be less than SLOW_PERIOD ({slow_period})"
             )
 
     # Validate stop loss range
@@ -184,10 +218,16 @@ def validate_portfolio_configs(
     all_valid = True
 
     for strategy in strategies:
-        is_valid, _ = validate_strategy_config(strategy, log)
+        ticker = strategy.get("TICKER", "Unknown")
+        is_valid, errors = validate_strategy_config(strategy, log)
         if is_valid:
+            log(f"VALIDATION PASS: {ticker} strategy accepted", "info")
             valid_strategies.append(strategy)
         else:
+            log(
+                f"VALIDATION FAIL: {ticker} strategy rejected - errors: {errors}",
+                "warning",
+            )
             all_valid = False
 
     return all_valid, valid_strategies

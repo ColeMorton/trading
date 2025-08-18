@@ -61,10 +61,10 @@ def export_stop_loss_sensitivity_csv(
 
     timeframe = "H" if config.get("USE_HOURLY", False) else "D"
     strategy_type = "SMA" if config.get("USE_SMA", False) else "EMA"
-    short_window = config.get("SHORT_WINDOW", 0)
-    long_window = config.get("LONG_WINDOW", 0)
+    fast_period = config.get("FAST_PERIOD", 0)
+    slow_period = config.get("SLOW_PERIOD", 0)
 
-    filename = f"{ticker}_{timeframe}_{strategy_type}_{short_window}_{long_window}.csv"
+    filename = f"{ticker}_{timeframe}_{strategy_type}_{fast_period}_{slow_period}.csv"
     filepath = os.path.join(output_dir, filename)
 
     # Create comprehensive DataFrame with core metrics only
@@ -113,8 +113,8 @@ def export_stop_loss_sensitivity_csv(
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
     "TICKER": "AMZN",
-    "SHORT_WINDOW": 51,
-    "LONG_WINDOW": 69,
+    "FAST_PERIOD": 51,
+    "SLOW_PERIOD": 69,
     "BASE_DIR": ".",
     "USE_SMA": True,
     "REFRESH": True,
@@ -152,7 +152,7 @@ def run(config: CacheConfig) -> bool:
 
     CSV Export:
         Exports sensitivity analysis to ./data/raw/stop_loss/ with naming convention:
-        [TICKER]_[TIMEFRAME]_[STRATEGY_TYPE]_[SHORT_WINDOW]_[LONG_WINDOW].csv
+        [TICKER]_[TIMEFRAME]_[STRATEGY_TYPE]_[FAST_PERIOD]_[SLOW_PERIOD].csv
 
         Contains 300 rows of optimized stop loss analysis (0.01% to 15.0%) with metrics:
         - Stop Loss Percentage

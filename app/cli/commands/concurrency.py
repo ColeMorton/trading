@@ -1378,20 +1378,20 @@ def _generate_demo_portfolio(n_strategies: int) -> dict:
         strategy_type = random.choice(strategy_types)
 
         if strategy_type in ["SMA", "EMA"]:
-            short_window = random.choice([10, 20, 50])
-            long_window = short_window + random.choice([20, 50, 100])
-            signal_window = 0
+            fast_period = random.choice([10, 20, 50])
+            slow_period = fast_period + random.choice([20, 50, 100])
+            signal_period = 0
         else:  # MACD
-            short_window = 12
-            long_window = 26
-            signal_window = 9
+            fast_period = 12
+            slow_period = 26
+            signal_period = 9
 
         strategy = {
             "ticker": ticker,
             "strategy_type": strategy_type,
-            "short_window": short_window,
-            "long_window": long_window,
-            "signal_window": signal_window,
+            "fast_period": fast_period,
+            "slow_period": slow_period,
+            "signal_period": signal_period,
             "allocation": round(100 / n_strategies, 2),
             "stop_loss": random.choice([None, 2.0, 5.0, 10.0]),
         }

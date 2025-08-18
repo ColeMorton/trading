@@ -29,9 +29,9 @@ class TestSystemIntegration:
             {
                 "Ticker": "AAPL",
                 "Strategy Type": "SMA",
-                "Short Window": 10,
-                "Long Window": 50,
-                "Signal Window": 0,
+                "Fast Period": 10,
+                "Slow Period": 50,
+                "Signal Period": 0,
                 "Score": 1.25,
                 "Win Rate [%]": 65.0,
                 "Total Return [%]": 12.5,
@@ -42,9 +42,9 @@ class TestSystemIntegration:
             {
                 "Ticker": "MSFT",
                 "Strategy Type": "EMA",
-                "Short Window": 12,
-                "Long Window": 26,
-                "Signal Window": 9,
+                "Fast Period": 12,
+                "Slow Period": 26,
+                "Signal Period": 9,
                 "Score": 1.15,
                 "Win Rate [%]": 55.0,
                 "Total Return [%]": 8.3,
@@ -55,7 +55,7 @@ class TestSystemIntegration:
         ]
 
         # Create mock positions data
-        positions_data = """Position_UUID,Ticker,Strategy_Type,Short_Window,Long_Window,Signal_Window,Entry_Timestamp,Exit_Timestamp,Status
+        positions_data = """Position_UUID,Ticker,Strategy_Type,Fast_Period,Slow_Period,Signal_Period,Entry_Timestamp,Exit_Timestamp,Status
 AAPL_SMA_10_50_0_20250101,AAPL,SMA,10,50,0,2025-01-01 00:00:00,,Open
 MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:00,Closed"""
 
@@ -81,9 +81,9 @@ MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:
                                 "Position_UUID": "AAPL_SMA_10_50_0_20250101",
                                 "Ticker": "AAPL",
                                 "Strategy_Type": "SMA",
-                                "Short_Window": 10,
-                                "Long_Window": 50,
-                                "Signal_Window": 0,
+                                "Fast_Period": 10,
+                                "Slow_Period": 50,
+                                "Signal_Period": 0,
                                 "Entry_Timestamp": "2025-01-01 00:00:00",
                                 "Exit_Timestamp": "",
                                 "Status": "Open",
@@ -92,9 +92,9 @@ MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:
                                 "Position_UUID": "MSFT_EMA_12_26_9_20250102",
                                 "Ticker": "MSFT",
                                 "Strategy_Type": "EMA",
-                                "Short_Window": 12,
-                                "Long_Window": 26,
-                                "Signal_Window": 9,
+                                "Fast_Period": 12,
+                                "Slow_Period": 26,
+                                "Signal_Period": 9,
                                 "Entry_Timestamp": "2025-01-02 00:00:00",
                                 "Exit_Timestamp": "2025-01-15 00:00:00",
                                 "Status": "Closed",
@@ -148,9 +148,9 @@ MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:
         extended_columns = [
             "Ticker",
             "Strategy Type",
-            "Short Window",
-            "Long Window",
-            "Signal Window",
+            "Fast Period",
+            "Slow Period",
+            "Signal Period",
             "Signal Entry",
             "Signal Exit",
             "Total Open Trades",
@@ -325,9 +325,9 @@ MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:
         portfolio_data = {
             "Ticker": ["AAPL", "MSFT"],
             "Strategy Type": ["SMA", "EMA"],
-            "Short Window": [10, 12],
-            "Long Window": [50, 26],
-            "Signal Window": [0, 9],
+            "Fast Period": [10, 12],
+            "Slow Period": [50, 26],
+            "Signal Period": [0, 9],
             "Score": [1.25, 1.15],
             "Win Rate [%]": [65.0, 55.0],
             "Total Return [%]": [12.5, 8.3],
@@ -404,7 +404,7 @@ MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:
         assert abs(total_allocation - 100.0) < 0.01  # Should sum to 100%
 
         # Test that the data structure is compatible with SPDS expectations
-        required_fields = ["Ticker", "Strategy Type", "Short Window", "Long Window"]
+        required_fields = ["Ticker", "Strategy Type", "Fast Period", "Slow Period"]
         for field in required_fields:
             assert field in df.columns
             assert not df[field].isna().any()

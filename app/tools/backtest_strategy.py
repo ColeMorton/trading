@@ -26,9 +26,9 @@ def backtest_strategy(
             - STOP_LOSS (float, optional): Stop loss as decimal (0-1). If not provided, no stop loss is used.
             - RSI_WINDOW (int, optional): Period for RSI calculation
             - RSI_THRESHOLD (int, optional): RSI threshold for signal filtering
-            - short_window (int, optional): Short-term window size
-            - long_window (int, optional): Long-term window size
-            - signal_window (int, optional): Signal line window size
+            - fast_period (int, optional): Short-term window size
+            - slow_period (int, optional): Long-term window size
+            - signal_period (int, optional): Signal line window size
             - EXPORT_TRADE_HISTORY (bool, optional): Whether to export trade history to CSV
         log: Logging function for recording events and errors
         export_trade_history: Whether to export trade history to CSV (overrides config setting)
@@ -125,10 +125,22 @@ def backtest_strategy(
             original_stats = super(type(self), self).stats()
             stats_dict = {k: v for k, v in original_stats.items()}
 
-            # Add window parameters
-            stats_dict["Short Window"] = config_obj.get("short_window", 0)
-            stats_dict["Long Window"] = config_obj.get("long_window", 0)
-            stats_dict["Signal Window"] = config_obj.get("signal_window", 0)
+            # Add period parameters with new naming convention
+            # Support both new and legacy parameter names
+            fast_period = config_obj.get(
+                "fast_period", config_obj.get("fast_period", 0)
+            )
+            slow_period = config_obj.get(
+                "slow_period", config_obj.get("slow_period", 0)
+            )
+            signal_period = config_obj.get(
+                "signal_period", config_obj.get("signal_period", 0)
+            )
+
+            # Export with new column names
+            stats_dict["Fast Period"] = fast_period
+            stats_dict["Slow Period"] = slow_period
+            stats_dict["Signal Period"] = signal_period
 
             # Add optional parameters
             if "STOP_LOSS" in config_obj and config_obj["STOP_LOSS"] is not None:

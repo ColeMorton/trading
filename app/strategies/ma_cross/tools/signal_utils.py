@@ -87,6 +87,6 @@ def check_signal_match(signals: List[Dict], fast_window: int, slow_window: int) 
         return False
 
     return any(
-        signal["Short Window"] == fast_window and signal["Long Window"] == slow_window
+        signal["Fast Period"] == fast_window and signal["Slow Period"] == slow_window
         for signal in signals
     )

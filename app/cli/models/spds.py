@@ -256,9 +256,9 @@ class SPDSStrategyConfig(BaseModel):
 
     ticker: str = Field(..., description="Ticker symbol")
     strategy_type: str = Field(..., description="Strategy type (SMA, EMA, MACD)")
-    short_window: int = Field(..., ge=1, description="Short window parameter")
-    long_window: int = Field(..., ge=1, description="Long window parameter")
-    signal_window: int = Field(default=0, ge=0, description="Signal window parameter")
+    fast_period: int = Field(..., ge=1, description="Fast period parameter")
+    slow_period: int = Field(..., ge=1, description="Slow period parameter")
+    signal_period: int = Field(default=0, ge=0, description="Signal period parameter")
 
     # Strategy analysis options
     include_backtest_metrics: bool = Field(
@@ -268,11 +268,11 @@ class SPDSStrategyConfig(BaseModel):
         default=True, description="Compare strategy performance with buy-and-hold"
     )
 
-    @validator("long_window")
+    @validator("slow_period")
     def validate_windows(cls, v, values):
-        """Ensure long window > short window."""
-        if "short_window" in values and v <= values["short_window"]:
-            raise ValueError("Long window must be greater than short window")
+        """Ensure slow period > fast period."""
+        if "fast_period" in values and v <= values["fast_period"]:
+            raise ValueError("Slow period must be greater than fast period")
         return v
 
 
@@ -281,9 +281,9 @@ class SPDSPositionConfig(BaseModel):
 
     ticker: str = Field(..., description="Ticker symbol")
     strategy_type: str = Field(..., description="Strategy type (SMA, EMA, MACD)")
-    short_window: int = Field(..., ge=1, description="Short window parameter")
-    long_window: int = Field(..., ge=1, description="Long window parameter")
-    signal_window: int = Field(default=0, ge=0, description="Signal window parameter")
+    fast_period: int = Field(..., ge=1, description="Fast period parameter")
+    slow_period: int = Field(..., ge=1, description="Slow period parameter")
+    signal_period: int = Field(default=0, ge=0, description="Signal period parameter")
     entry_date: str = Field(..., description="Position entry date (YYYY-MM-DD)")
 
     # Position analysis options
@@ -430,10 +430,10 @@ class SPDSConfig(BaseConfig):
         cls,
         ticker: str,
         strategy_type: str,
-        short_window: int,
-        long_window: int,
+        fast_period: int,
+        slow_period: int,
         parsed_param: ParsedParameter,
-        signal_window: int = 0,
+        signal_period: int = 0,
         **kwargs,
     ) -> "SPDSConfig":
         """Create configuration for strategy-specific analysis."""
@@ -448,7 +448,7 @@ class SPDSConfig(BaseConfig):
         )
 
         return cls(
-            portfolio=f"{ticker}_{strategy_type}_{short_window}_{long_window}_strategy.csv",
+            portfolio=f"{ticker}_{strategy_type}_{fast_period}_{slow_period}_strategy.csv",
             parameter_config=parameter_config,
             **kwargs,
         )
@@ -458,11 +458,11 @@ class SPDSConfig(BaseConfig):
         cls,
         ticker: str,
         strategy_type: str,
-        short_window: int,
-        long_window: int,
+        fast_period: int,
+        slow_period: int,
         entry_date: str,
         parsed_param: ParsedParameter,
-        signal_window: int = 0,
+        signal_period: int = 0,
         **kwargs,
     ) -> "SPDSConfig":
         """Create configuration for position UUID analysis."""
@@ -477,7 +477,7 @@ class SPDSConfig(BaseConfig):
         )
 
         return cls(
-            portfolio=f"{ticker}_{strategy_type}_{short_window}_{long_window}_{entry_date}_position.csv",
+            portfolio=f"{ticker}_{strategy_type}_{fast_period}_{slow_period}_{entry_date}_position.csv",
             parameter_config=parameter_config,
             **kwargs,
         )

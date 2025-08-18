@@ -394,8 +394,8 @@ class PositionSizingPortfolioRow(TypedDict):
     # Base portfolio fields (from existing schema)
     ticker: str
     strategy_type: str
-    short_window: int
-    long_window: int
+    fast_period: int
+    slow_period: int
 
     # Account balance fields
     IBKR_Balance: float

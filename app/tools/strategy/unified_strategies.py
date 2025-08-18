@@ -56,8 +56,8 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
     def calculate(
         self,
         data: pl.DataFrame,
-        short_window: int,
-        long_window: int,
+        fast_period: int,
+        slow_period: int,
         config: Dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
@@ -66,8 +66,8 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
 
         Args:
             data: Input price data
-            short_window: Short MA period
-            long_window: Long MA period
+            fast_period: Short MA period
+            slow_period: Long MA period
             config: Configuration dictionary
             log: Logging function
 
@@ -75,7 +75,7 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
             DataFrame with MA signals and positions
         """
         # Validate inputs
-        if not self.validate_windows(short_window, long_window, log):
+        if not self.validate_windows(fast_period, slow_period, log):
             raise ValueError("Invalid window parameters")
 
         if not self.validate_data(data, log):
@@ -85,12 +85,12 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
         use_sma = self.ma_type == "SMA"
 
         log(
-            f"Calculating {direction} {self.ma_type}s and signals with short window {short_window} and long window {long_window}"
+            f"Calculating {direction} {self.ma_type}s and signals with fast period {fast_period} and slow period {slow_period}"
         )
 
         try:
             # Calculate moving averages
-            data = calculate_mas(data, short_window, long_window, use_sma, log)
+            data = calculate_mas(data, fast_period, slow_period, use_sma, log)
 
             # Calculate RSI if enabled
             if config.get("USE_RSI", False):
@@ -114,8 +114,8 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
             # Convert signals to positions with audit trail
             strategy_config = config.copy()
             strategy_config["STRATEGY_TYPE"] = self.ma_type
-            strategy_config["SHORT_WINDOW"] = short_window
-            strategy_config["LONG_WINDOW"] = long_window
+            strategy_config["FAST_PERIOD"] = fast_period
+            strategy_config["SLOW_PERIOD"] = slow_period
 
             data = convert_signals_to_positions(
                 data=data, config=strategy_config, log=log
@@ -137,13 +137,13 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
             return validation_result["is_valid"]
         except Exception:
             # Fallback to basic validation if unified config validation fails
-            required_params = ["SHORT_WINDOW", "LONG_WINDOW"]
+            required_params = ["FAST_PERIOD", "SLOW_PERIOD"]
             for param in required_params:
                 if param not in config:
                     return False
                 if not isinstance(config[param], int) or config[param] <= 0:
                     return False
-            if config.get("SHORT_WINDOW", 0) >= config.get("LONG_WINDOW", 0):
+            if config.get("FAST_PERIOD", 0) >= config.get("SLOW_PERIOD", 0):
                 return False
             return True
 
@@ -167,15 +167,15 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
             defaults = ConfigFactory.get_default_config(self.ma_type)
             # Convert defaults to parameter ranges format
             ranges = {
-                "SHORT_WINDOW": {
+                "FAST_PERIOD": {
                     "min": 5,
                     "max": 50,
-                    "default": defaults.get("SHORT_WINDOW", 10),
+                    "default": defaults.get("FAST_PERIOD", 10),
                 },
-                "LONG_WINDOW": {
+                "SLOW_PERIOD": {
                     "min": 20,
                     "max": 200,
-                    "default": defaults.get("LONG_WINDOW", 50),
+                    "default": defaults.get("SLOW_PERIOD", 50),
                 },
                 "DIRECTION": {
                     "options": ["Long", "Short"],
@@ -197,8 +197,8 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
         except Exception:
             # Fallback to hardcoded ranges if unified config fails
             return {
-                "SHORT_WINDOW": {"min": 5, "max": 50, "default": 10},
-                "LONG_WINDOW": {"min": 20, "max": 200, "default": 50},
+                "FAST_PERIOD": {"min": 5, "max": 50, "default": 10},
+                "SLOW_PERIOD": {"min": 20, "max": 200, "default": 50},
                 "DIRECTION": {"options": ["Long", "Short"], "default": "Long"},
                 "USE_RSI": {"type": "bool", "default": False},
                 "RSI_WINDOW": {"min": 10, "max": 30, "default": 14},
@@ -221,8 +221,8 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
     def calculate(
         self,
         data: pl.DataFrame,
-        short_window: int,
-        long_window: int,
+        fast_period: int,
+        slow_period: int,
         config: Dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
@@ -231,37 +231,37 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
 
         Args:
             data: Input price data
-            short_window: Fast EMA period for MACD calculation
-            long_window: Slow EMA period for MACD calculation
-            config: Configuration dictionary (must include SIGNAL_WINDOW)
+            fast_period: Fast EMA period for MACD calculation
+            slow_period: Slow EMA period for MACD calculation
+            config: Configuration dictionary (must include SIGNAL_PERIOD)
             log: Logging function
 
         Returns:
             DataFrame with MACD signals and positions
         """
         # Validate inputs
-        if not self.validate_windows(short_window, long_window, log):
+        if not self.validate_windows(fast_period, slow_period, log):
             raise ValueError("Invalid window parameters")
 
         if not self.validate_data(data, log):
             raise ValueError("Invalid data")
 
-        # Get signal window from config
-        signal_window = config.get("SIGNAL_WINDOW")
-        if signal_window is None or signal_window <= 0:
+        # Get signal period from config
+        signal_period = config.get("SIGNAL_PERIOD")
+        if signal_period is None or signal_period <= 0:
             raise ValueError(
-                f"MACD strategy requires valid SIGNAL_WINDOW, got: {signal_window}"
+                f"MACD strategy requires valid SIGNAL_PERIOD, got: {signal_period}"
             )
 
         direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
         log(
-            f"Calculating {direction} MACD signals with fast={short_window}, slow={long_window}, signal={signal_window}"
+            f"Calculating {direction} MACD signals with fast={fast_period}, slow={slow_period}, signal={signal_period}"
         )
 
         try:
             # Calculate MACD components
             data = self._calculate_macd_components(
-                data, short_window, long_window, signal_window, log
+                data, fast_period, slow_period, signal_period, log
             )
 
             # Calculate RSI if enabled
@@ -286,9 +286,9 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
             # Convert signals to positions
             strategy_config = config.copy()
             strategy_config["STRATEGY_TYPE"] = "MACD"
-            strategy_config["SHORT_WINDOW"] = short_window
-            strategy_config["LONG_WINDOW"] = long_window
-            strategy_config["SIGNAL_WINDOW"] = signal_window
+            strategy_config["FAST_PERIOD"] = fast_period
+            strategy_config["SLOW_PERIOD"] = slow_period
+            strategy_config["SIGNAL_PERIOD"] = signal_period
 
             data = convert_signals_to_positions(
                 data=data, config=strategy_config, log=log
@@ -369,13 +369,13 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
             return validation_result["is_valid"]
         except Exception:
             # Fallback to basic validation if unified config validation fails
-            required_params = ["SHORT_WINDOW", "LONG_WINDOW", "SIGNAL_WINDOW"]
+            required_params = ["FAST_PERIOD", "SLOW_PERIOD", "SIGNAL_PERIOD"]
             for param in required_params:
                 if param not in config:
                     return False
                 if not isinstance(config[param], int) or config[param] <= 0:
                     return False
-            if config.get("SHORT_WINDOW", 0) >= config.get("LONG_WINDOW", 0):
+            if config.get("FAST_PERIOD", 0) >= config.get("SLOW_PERIOD", 0):
                 return False
             return True
 
@@ -394,20 +394,20 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
         try:
             defaults = ConfigFactory.get_default_config("MACD")
             ranges = {
-                "SHORT_WINDOW": {
+                "FAST_PERIOD": {
                     "min": 8,
                     "max": 21,
-                    "default": defaults.get("SHORT_WINDOW", 12),
+                    "default": defaults.get("FAST_PERIOD", 12),
                 },
-                "LONG_WINDOW": {
+                "SLOW_PERIOD": {
                     "min": 21,
                     "max": 35,
-                    "default": defaults.get("LONG_WINDOW", 26),
+                    "default": defaults.get("SLOW_PERIOD", 26),
                 },
-                "SIGNAL_WINDOW": {
+                "SIGNAL_PERIOD": {
                     "min": 5,
                     "max": 15,
-                    "default": defaults.get("SIGNAL_WINDOW", 9),
+                    "default": defaults.get("SIGNAL_PERIOD", 9),
                 },
                 "DIRECTION": {
                     "options": ["Long", "Short"],
@@ -429,9 +429,9 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
         except Exception:
             # Fallback to hardcoded ranges if unified config fails
             return {
-                "SHORT_WINDOW": {"min": 8, "max": 21, "default": 12},
-                "LONG_WINDOW": {"min": 21, "max": 35, "default": 26},
-                "SIGNAL_WINDOW": {"min": 5, "max": 15, "default": 9},
+                "FAST_PERIOD": {"min": 8, "max": 21, "default": 12},
+                "SLOW_PERIOD": {"min": 21, "max": 35, "default": 26},
+                "SIGNAL_PERIOD": {"min": 5, "max": 15, "default": 9},
                 "DIRECTION": {"options": ["Long", "Short"], "default": "Long"},
                 "USE_RSI": {"type": "bool", "default": False},
                 "RSI_WINDOW": {"min": 10, "max": 30, "default": 14},
@@ -454,8 +454,8 @@ class UnifiedMeanReversionStrategy(BaseStrategy, StrategyInterface):
     def calculate(
         self,
         data: pl.DataFrame,
-        short_window: int,
-        long_window: int,
+        fast_period: int,
+        slow_period: int,
         config: Dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
@@ -464,8 +464,8 @@ class UnifiedMeanReversionStrategy(BaseStrategy, StrategyInterface):
 
         Args:
             data: Input price data
-            short_window: Short period for mean reversion calculation
-            long_window: Long period for mean reversion calculation
+            fast_period: Short period for mean reversion calculation
+            slow_period: Long period for mean reversion calculation
             config: Configuration dictionary
             log: Logging function
 
@@ -473,7 +473,7 @@ class UnifiedMeanReversionStrategy(BaseStrategy, StrategyInterface):
             DataFrame with mean reversion signals and positions
         """
         # Validate inputs
-        if not self.validate_windows(short_window, long_window, log):
+        if not self.validate_windows(fast_period, slow_period, log):
             raise ValueError("Invalid window parameters")
 
         if not self.validate_data(data, log):
@@ -491,8 +491,8 @@ class UnifiedMeanReversionStrategy(BaseStrategy, StrategyInterface):
             # Execute using existing logic and adapt to unified interface
             strategy_config = config.copy()
             strategy_config["STRATEGY_TYPE"] = "MEAN_REVERSION"
-            strategy_config["SHORT_WINDOW"] = short_window
-            strategy_config["LONG_WINDOW"] = long_window
+            strategy_config["FAST_PERIOD"] = fast_period
+            strategy_config["SLOW_PERIOD"] = slow_period
 
             # For now, delegate to existing implementation
             # This will be further refined in Phase 3 (Tool Consolidation)
@@ -514,7 +514,7 @@ class UnifiedMeanReversionStrategy(BaseStrategy, StrategyInterface):
 
     def validate_parameters(self, config: Dict[str, Any]) -> bool:
         """Validate strategy-specific parameters."""
-        required_params = ["SHORT_WINDOW", "LONG_WINDOW"]
+        required_params = ["FAST_PERIOD", "SLOW_PERIOD"]
 
         for param in required_params:
             if param not in config:
@@ -538,8 +538,8 @@ class UnifiedMeanReversionStrategy(BaseStrategy, StrategyInterface):
     def get_parameter_ranges(self) -> Dict[str, Any]:
         """Get strategy-specific parameter ranges and defaults."""
         return {
-            "SHORT_WINDOW": {"min": 10, "max": 30, "default": 20},
-            "LONG_WINDOW": {"min": 30, "max": 100, "default": 50},
+            "FAST_PERIOD": {"min": 10, "max": 30, "default": 20},
+            "SLOW_PERIOD": {"min": 30, "max": 100, "default": 50},
             "DIRECTION": {"options": ["Long", "Short"], "default": "Long"},
             "RSI_WINDOW": {"min": 10, "max": 30, "default": 14},
             "RSI_OVERSOLD": {"min": 20, "max": 40, "default": 30},
@@ -561,14 +561,14 @@ class UnifiedRangeStrategy(BaseStrategy, StrategyInterface):
     def calculate(
         self,
         data: pl.DataFrame,
-        short_window: int,
-        long_window: int,
+        fast_period: int,
+        slow_period: int,
         config: Dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
         """Calculate range trading signals and positions."""
         # Validate inputs
-        if not self.validate_windows(short_window, long_window, log):
+        if not self.validate_windows(fast_period, slow_period, log):
             raise ValueError("Invalid window parameters")
 
         if not self.validate_data(data, log):
@@ -588,7 +588,7 @@ class UnifiedRangeStrategy(BaseStrategy, StrategyInterface):
 
     def validate_parameters(self, config: Dict[str, Any]) -> bool:
         """Validate strategy-specific parameters."""
-        required_params = ["SHORT_WINDOW", "LONG_WINDOW"]
+        required_params = ["FAST_PERIOD", "SLOW_PERIOD"]
 
         for param in required_params:
             if param not in config:
@@ -610,8 +610,8 @@ class UnifiedRangeStrategy(BaseStrategy, StrategyInterface):
     def get_parameter_ranges(self) -> Dict[str, Any]:
         """Get strategy-specific parameter ranges and defaults."""
         return {
-            "SHORT_WINDOW": {"min": 10, "max": 30, "default": 20},
-            "LONG_WINDOW": {"min": 30, "max": 100, "default": 50},
+            "FAST_PERIOD": {"min": 10, "max": 30, "default": 20},
+            "SLOW_PERIOD": {"min": 30, "max": 100, "default": 50},
             "DIRECTION": {"options": ["Long", "Short"], "default": "Long"},
         }
 

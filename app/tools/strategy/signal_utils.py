@@ -124,6 +124,84 @@ def check_signal_match(signals: List[Dict], fast_window: int, slow_window: int) 
         return False
 
     return any(
-        signal["Short Window"] == fast_window and signal["Long Window"] == slow_window
+        # Support both new and legacy column names
+        (
+            signal.get("Fast Period", signal.get("Fast Period")) == fast_window
+            and signal.get("Slow Period", signal.get("Slow Period")) == slow_window
+        )
         for signal in signals
     )
+
+
+def calculate_signal_unconfirmed(signals: pl.DataFrame, config: dict | None = None) -> str:
+    """
+    Calculate what signal would be produced if the current price bar closes at the current price.
+    
+    This function analyzes the current moving average positions and determines if a crossover
+    signal would be triggered if the current bar closed at the current price.
+    
+    Args:
+        signals: DataFrame containing MA_FAST, MA_SLOW, Position, and signal data
+        config: Configuration dictionary containing direction information
+        
+    Returns:
+        str: "Entry" if entry signal would be produced, "Exit" if exit signal would be produced, "None" otherwise
+    """
+    if len(signals) == 0:
+        return "None"
+    
+    # Get the last row
+    last_row = signals.tail(1)
+    
+    # Check if we have the required columns
+    required_columns = ["MA_FAST", "MA_SLOW", "Position"]
+    for col in required_columns:
+        if col not in signals.columns:
+            return "None"
+    
+    try:
+        # Check if signals are already confirmed - if so, return None
+        if "Signal Entry" in signals.columns:
+            signal_entry = last_row.get_column("Signal Entry").item()
+            if signal_entry is True:
+                return "None"
+                
+        if "Signal Exit" in signals.columns:
+            signal_exit = last_row.get_column("Signal Exit").item()
+            if signal_exit is True:
+                return "None"
+        
+        # Get current values
+        fast_ma = last_row.get_column("MA_FAST").item()
+        slow_ma = last_row.get_column("MA_SLOW").item()
+        position = last_row.get_column("Position").item()
+        
+        # Check for valid MA values
+        if fast_ma is None or slow_ma is None:
+            return "None"
+            
+        # Get direction (default to Long)
+        direction = config.get("DIRECTION", "Long") if config else "Long"
+        
+        # For Long positions
+        if direction == "Long":
+            # Entry signal: fast MA crosses above slow MA and no current position
+            if fast_ma > slow_ma and position == 0:
+                return "Entry"
+            # Exit signal: fast MA crosses below slow MA and currently in position
+            elif fast_ma < slow_ma and position == 1:
+                return "Exit"
+        # For Short positions  
+        else:
+            # Entry signal: fast MA crosses below slow MA and no current position
+            if fast_ma < slow_ma and position == 0:
+                return "Entry"
+            # Exit signal: fast MA crosses above slow MA and currently in position
+            elif fast_ma > slow_ma and position == -1:
+                return "Exit"
+                
+        return "None"
+        
+    except Exception:
+        # If any error occurs, return None
+        return "None"

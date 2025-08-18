@@ -23,55 +23,55 @@ config:
     # Financial Services - Mastercard
     - ticker: MA
       strategy_type: SMA
-      short_window: 78
-      long_window: 82
+      fast_period: 78
+      slow_period: 82
       execution_method: market_order
       position_sizing: signal_weighted
 
     # Healthcare REIT - Welltower
     - ticker: WELL
       strategy_type: SMA
-      short_window: 67
-      long_window: 88
+      fast_period: 67
+      slow_period: 88
       execution_method: market_order
       position_sizing: signal_weighted
 
     # Technology Hardware - Super Micro Computer
     - ticker: SMCI
       strategy_type: SMA
-      short_window: 58
-      long_window: 60
+      fast_period: 58
+      slow_period: 60
       execution_method: limit_order  # High volatility requires careful execution
       position_sizing: volatility_adjusted
 
     # Technology - Alphabet/Google
     - ticker: GOOGL
       strategy_type: EMA  # More responsive for active signals
-      short_window: 9
-      long_window: 46
+      fast_period: 9
+      slow_period: 46
       execution_method: market_order
       position_sizing: momentum_weighted
 
     # Industrial - Dover Corporation
     - ticker: DOV
       strategy_type: SMA
-      short_window: 45
-      long_window: 86
+      fast_period: 45
+      slow_period: 86
       execution_method: market_order
       position_sizing: equal_weight
 
     # E-commerce - Amazon
     - ticker: AMZN
       strategy_type: SMA
-      short_window: 10
-      long_window: 27
+      fast_period: 10
+      slow_period: 27
       execution_method: market_order
       position_sizing: momentum_weighted
 
   # Active trading execution parameters
   default_parameters:
-    commission: $ref: "data/config/trading/market_parameters.yaml#trading_costs.commissions.equities.per_trade"
-    slippage: $ref: "data/config/trading/market_parameters.yaml#trading_costs.slippage.equities.market_orders"
+    # TODO: Configure actual values instead of references
+    # TODO: Configure actual values instead of references
 
   # Active trading risk management execution
   risk_execution:
@@ -94,7 +94,7 @@ config:
     benchmark: 'SPY'
     benchmark_type: 'buy_and_hold'
     init_cash: 10000.0
-    fees: $ref: "data/config/trading/market_parameters.yaml#trading_costs.commissions.equities.per_trade"
+    # TODO: Configure actual values instead of references
     calculate_risk_metrics: true
     export_equity_curve: true
     enable_plotting: true

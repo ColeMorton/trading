@@ -47,9 +47,9 @@ class TestMultiTickerExport(unittest.TestCase):
             portfolio = {
                 "Ticker": ticker,
                 "Strategy Type": "SMA",
-                "Short Window": 50 + i * 10,
-                "Long Window": 200 + i * 10,
-                "Signal Window": 0,
+                "Fast Period": 50 + i * 10,
+                "Slow Period": 200 + i * 10,
+                "Signal Period": 0,
                 "Total Return [%]": 100.0 + i * 50,
                 "Win Rate [%]": 60.0 + i * 5,
                 "Total Trades": 100 + i * 20,
@@ -221,9 +221,9 @@ class TestMultiTickerExport(unittest.TestCase):
                 portfolio = {
                     "Ticker": ticker,
                     "Strategy Type": "SMA",
-                    "Short Window": 50,
-                    "Long Window": 200,
-                    "Signal Window": 0,
+                    "Fast Period": 50,
+                    "Slow Period": 200,
+                    "Signal Period": 0,
                     "Total Return [%]": 100.0,
                     "Win Rate [%]": 60.0,
                     "Total Trades": 100,
@@ -312,16 +312,16 @@ class TestMultiTickerExport(unittest.TestCase):
 
         for ticker in self.test_tickers:
             for strategy in ["SMA", "EMA"]:
-                for config_idx, (short, long_window) in enumerate(
+                for config_idx, (short, slow_period) in enumerate(
                     [(10, 20), (15, 30), (20, 40)]
                 ):
                     for metric in ["Most Total Return [%]", "Most Sharpe Ratio"]:
                         portfolio = {
                             "Ticker": ticker,
                             "Strategy Type": strategy,
-                            "Short Window": short,
-                            "Long Window": long_window,
-                            "Signal Window": 0,
+                            "Fast Period": short,
+                            "Slow Period": slow_period,
+                            "Signal Period": 0,
                             "Total Return [%]": 100.0
                             + config_idx * 10,  # Make middle config best
                             "Win Rate [%]": 60.0,
@@ -388,10 +388,10 @@ class TestMultiTickerExport(unittest.TestCase):
                 # Verify each row has the best configuration (20/40 - highest score) and
                 # aggregated metric types
                 self.assertEqual(
-                    row["Short Window"], 20, f"Expected best config 20/40 for {combo}"
+                    row["Fast Period"], 20, f"Expected best config 20/40 for {combo}"
                 )
                 self.assertEqual(
-                    row["Long Window"], 40, f"Expected best config 20/40 for {combo}"
+                    row["Slow Period"], 40, f"Expected best config 20/40 for {combo}"
                 )
 
                 metric_type = row["Metric Type"]

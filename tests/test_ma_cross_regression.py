@@ -39,8 +39,8 @@ class TestMACrossRegression:
             yield {
                 "TICKER": ["BTC-USD"],
                 "STRATEGY_TYPE": "SMA",
-                "SHORT_WINDOW": 10,
-                "LONG_WINDOW": 20,
+                "FAST_PERIOD": 10,
+                "SLOW_PERIOD": 20,
                 "WINDOWS": [[10, 20], [5, 15], [15, 30]],
                 "DIRECTION": "BOTH",
                 "TIMEFRAME": "D",
@@ -181,8 +181,8 @@ class TestConfigurationRegression(TestMACrossRegression):
         old_config = {
             "TICKER": "BTC-USD",  # String instead of list
             "STRATEGY_TYPE": "SMA",
-            "SHORT_WINDOW": 10,
-            "LONG_WINDOW": 20,
+            "FAST_PERIOD": 10,
+            "SLOW_PERIOD": 20,
         }
 
         processed = ConfigService.process_config(old_config)

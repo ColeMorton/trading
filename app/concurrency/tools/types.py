@@ -12,9 +12,9 @@ class StrategyParameters(TypedDict):
     timeframe: Dict[str, Union[str, Any]]
     type: Dict[str, Union[str, Any]]
     direction: Dict[str, Union[str, Any]]
-    short_window: Dict[str, Union[int, str]]
-    long_window: Dict[str, Union[int, str]]
-    signal_window: NotRequired[Dict[str, Union[int, str]]]  # Required for MACD
+    fast_period: Dict[str, Union[int, str]]
+    slow_period: Dict[str, Union[int, str]]
+    signal_period: NotRequired[Dict[str, Union[int, str]]]  # Required for MACD
     length: NotRequired[Dict[str, Union[int, str]]]  # Required for ATR
     multiplier: NotRequired[Dict[str, Union[float, str]]]  # Required for ATR
     rsi_period: NotRequired[Dict[str, Union[int, str]]]
@@ -214,15 +214,15 @@ class StrategyConfig(TypedDict):
 
     Required Fields:
         TICKER (str): Ticker symbol to analyze
-        SHORT_WINDOW (int): Period for short moving average or MACD fast line
-        LONG_WINDOW (int): Period for long moving average or MACD slow line
+        FAST_PERIOD (int): Period for short moving average or MACD fast line
+        SLOW_PERIOD (int): Period for long moving average or MACD slow line
         USE_RSI (bool): Whether to enable RSI filtering
         STOP_LOSS (float): Stop loss percentage
 
     Optional Fields:
         RSI_WINDOW (NotRequired[int]): Period for RSI calculation (required if USE_RSI is True)
         RSI_THRESHOLD (NotRequired[int]): RSI threshold for signal filtering (required if USE_RSI is True)
-        SIGNAL_WINDOW (NotRequired[int]): Period for MACD signal line (makes it a MACD strategy)
+        SIGNAL_PERIOD (NotRequired[int]): Period for MACD signal line (makes it a MACD strategy)
         USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
         USE_HOURLY (NotRequired[bool]): Whether to use hourly timeframe instead of daily
         EXPECTANCY_PER_MONTH (NotRequired[float]): Expected monthly return
@@ -232,14 +232,14 @@ class StrategyConfig(TypedDict):
     """
 
     TICKER: str
-    SHORT_WINDOW: int
-    LONG_WINDOW: int
+    FAST_PERIOD: int
+    SLOW_PERIOD: int
     USE_RSI: bool
     STOP_LOSS: NotRequired[float]  # Made optional to match actual implementation
     ALLOCATION: NotRequired[float]  # Allocation percentage
     RSI_WINDOW: NotRequired[int]
     RSI_THRESHOLD: NotRequired[int]
-    SIGNAL_WINDOW: NotRequired[int]
+    SIGNAL_PERIOD: NotRequired[int]
     USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
     EXPECTANCY_PER_MONTH: NotRequired[float]

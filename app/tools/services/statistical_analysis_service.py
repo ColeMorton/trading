@@ -236,14 +236,14 @@ class StatisticalAnalysisService:
         try:
             ticker = position_data.get("Ticker", "")
             strategy_type = position_data.get("Strategy_Type", "")
-            short_window = position_data.get("Short_Window", "")
-            long_window = position_data.get("Long_Window", "")
-            signal_window = position_data.get("Signal_Window", 0)
+            fast_period = position_data.get("Fast_Period", "")
+            slow_period = position_data.get("Slow_Period", "")
+            signal_period = position_data.get("Signal_Period", 0)
 
-            if signal_window and signal_window != 0:
-                return f"{ticker}_{strategy_type}_{short_window}_{long_window}_{signal_window}"
+            if signal_period and signal_period != 0:
+                return f"{ticker}_{strategy_type}_{fast_period}_{slow_period}_{signal_period}"
             else:
-                return f"{ticker}_{strategy_type}_{short_window}_{long_window}"
+                return f"{ticker}_{strategy_type}_{fast_period}_{slow_period}"
         except Exception:
             return None
 

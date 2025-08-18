@@ -10,7 +10,7 @@ Sharpe Ratio
 Calmar Ratio
 Comparative Analysis:
 Compare strategies based on the following criteria:
-Short Window vs. Long Window performance
+Fast Period vs. Slow Period performance
 Use of SMA vs. EMA (highlight differences in returns and risk metrics)
 Identify which strategy performed better overall and under what market conditions.
 Risk Assessment:

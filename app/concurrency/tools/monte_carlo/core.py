@@ -30,7 +30,7 @@ from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 class ParameterStabilityResult:
     """Results of parameter stability analysis for a single parameter combination."""
 
-    parameter_combination: Tuple[int, int]  # (short_window, long_window)
+    parameter_combination: Tuple[int, int]  # (fast_period, slow_period)
     base_performance: Dict[str, float]  # Performance on original data
     monte_carlo_results: List[Dict[str, Any]]  # Results from all simulations
 
@@ -113,7 +113,7 @@ class MonteCarloAnalyzer:
         Args:
             ticker: Ticker symbol
             data: Price data DataFrame with Date, Open, High, Low, Close columns
-            parameter_combinations: List of (short_window, long_window) tuples to test
+            parameter_combinations: List of (fast_period, slow_period) tuples to test
             strategy_type: Strategy type (EMA, SMA, MACD, etc.)
             strategy_config: Strategy configuration dictionary (required for MACD strategies)
 
@@ -134,11 +134,11 @@ class MonteCarloAnalyzer:
 
         parameter_results = []
 
-        for short_window, long_window in parameter_combinations:
-            self.log(f"Analyzing parameters: {short_window}/{long_window}", "debug")
+        for fast_period, slow_period in parameter_combinations:
+            self.log(f"Analyzing parameters: {fast_period}/{slow_period}", "debug")
 
             stability_result = self._analyze_single_parameter_combination(
-                data, short_window, long_window, strategy_type, strategy_config
+                data, fast_period, slow_period, strategy_type, strategy_config
             )
             parameter_results.append(stability_result)
 
@@ -167,8 +167,8 @@ class MonteCarloAnalyzer:
     def _analyze_single_parameter_combination(
         self,
         data: pl.DataFrame,
-        short_window: int,
-        long_window: int,
+        fast_period: int,
+        slow_period: int,
         strategy_type: str = "EMA",
         strategy_config: Dict[str, Any] = None,
     ) -> ParameterStabilityResult:
@@ -176,7 +176,7 @@ class MonteCarloAnalyzer:
 
         # Calculate base performance on original data
         base_performance = self._calculate_strategy_performance(
-            data, short_window, long_window, strategy_type, strategy_config
+            data, fast_period, slow_period, strategy_type, strategy_config
         )
 
         # Run Monte Carlo simulations
@@ -190,7 +190,7 @@ class MonteCarloAnalyzer:
 
             # Add parameter noise
             noisy_short, noisy_long = self.bootstrap_sampler.parameter_noise_injection(
-                short_window, long_window, noise_std=0.1
+                fast_period, slow_period, noise_std=0.1
             )
 
             # Calculate performance on bootstrap sample with noisy parameters
@@ -208,7 +208,7 @@ class MonteCarloAnalyzer:
 
         # Calculate stability metrics
         stability_result = ParameterStabilityResult(
-            parameter_combination=(short_window, long_window),
+            parameter_combination=(fast_period, slow_period),
             base_performance=base_performance,
             monte_carlo_results=monte_carlo_results,
         )
@@ -223,9 +223,9 @@ class MonteCarloAnalyzer:
         """Standardize field names from CSV format to internal format."""
         field_mapping = {
             # CSV header -> Internal field name
-            "Signal Window": "SIGNAL_WINDOW",
-            "Short Window": "SHORT_WINDOW",
-            "Long Window": "LONG_WINDOW",
+            "Signal Period": "SIGNAL_PERIOD",
+            "Fast Period": "FAST_PERIOD",
+            "Slow Period": "SLOW_PERIOD",
             "Strategy Type": "STRATEGY_TYPE",
             "Ticker": "TICKER",
             "Stop Loss [%]": "STOP_LOSS",
@@ -248,8 +248,8 @@ class MonteCarloAnalyzer:
     def _calculate_strategy_performance(
         self,
         data: pl.DataFrame,
-        short_window: int,
-        long_window: int,
+        fast_period: int,
+        slow_period: int,
         strategy_type: str = "EMA",
         strategy_config: Dict[str, Any] = None,
     ) -> Dict[str, float]:
@@ -266,8 +266,8 @@ class MonteCarloAnalyzer:
             config["STRATEGY_TYPE"] = strategy_type
             signals_data = calculate_ma_and_signals(
                 data,
-                short_window,
-                long_window,
+                fast_period,
+                slow_period,
                 config,
                 self.log,
                 strategy_type=strategy_type,

@@ -71,8 +71,8 @@ class ScannerAdapter:
                     "Profit Factor": pl.Float64,
                     "Common Sense Ratio": pl.Float64,
                     "Win Rate": pl.Float64,
-                    "Short Window": pl.Int64,
-                    "Long Window": pl.Int64,
+                    "Fast Period": pl.Int64,
+                    "Slow Period": pl.Int64,
                 },
             )
 
@@ -120,8 +120,8 @@ class ScannerAdapter:
                     sma_result.signals.append(
                         SignalInfo(
                             ma_type="SMA",
-                            short_window=result.get("SMA_FAST", 0),
-                            long_window=result.get("SMA_SLOW", 0),
+                            fast_period=result.get("SMA_FAST", 0),
+                            slow_period=result.get("SMA_SLOW", 0),
                             signal_date=datetime.now(),
                             signal_type="BUY",  # Would need to determine from actual data
                             current=True,
@@ -135,8 +135,8 @@ class ScannerAdapter:
                     ema_result.signals.append(
                         SignalInfo(
                             ma_type="EMA",
-                            short_window=result.get("EMA_FAST", 0),
-                            long_window=result.get("EMA_SLOW", 0),
+                            fast_period=result.get("EMA_FAST", 0),
+                            slow_period=result.get("EMA_SLOW", 0),
                             signal_date=datetime.now(),
                             signal_type="BUY",  # Would need to determine from actual data
                             current=True,
@@ -185,8 +185,8 @@ class ScannerAdapter:
         return AnalysisConfig(
             ticker=ticker,
             use_sma=use_sma,
-            short_window=fast_periods[0] if fast_periods else 20,
-            long_window=slow_periods[0] if slow_periods else 50,
+            fast_period=fast_periods[0] if fast_periods else 20,
+            slow_period=slow_periods[0] if slow_periods else 50,
             use_hourly=use_hourly,
             direction="Long",  # Default to Long
         )
@@ -227,8 +227,8 @@ class ScannerAdapter:
                     "win_rate": getattr(ticker_result, "win_rate_pct", 0.0),
                     "total_trades": getattr(ticker_result, "total_trades", 0),
                     "strategy_type": getattr(ticker_result, "strategy_type", "SMA"),
-                    "short_window": config.short_window,
-                    "long_window": config.long_window,
+                    "fast_period": config.fast_period,
+                    "slow_period": config.slow_period,
                 }
 
                 results.append(result_dict)
@@ -279,8 +279,8 @@ class ScannerAdapter:
             "profit_factor": getattr(portfolio_result, "profit_factor", 0.0),
             "sortino_ratio": getattr(portfolio_result, "sortino_ratio", 0.0),
             "strategy_type": getattr(portfolio_result, "strategy_type", "SMA"),
-            "short_window": getattr(portfolio_result, "short_window", 0),
-            "long_window": getattr(portfolio_result, "long_window", 0),
+            "fast_period": getattr(portfolio_result, "fast_period", 0),
+            "slow_period": getattr(portfolio_result, "slow_period", 0),
             "beats_bnh_pct": getattr(portfolio_result, "beats_bnh_pct", 0.0),
             "expectancy_per_trade": getattr(
                 portfolio_result, "expectancy_per_trade", 0.0
@@ -314,8 +314,8 @@ def run_scanner_with_config(config: Dict[str, Any]) -> List[Dict[str, Any]]:
                         {
                             "ticker": ticker_result.ticker,
                             "ma_type": signal.ma_type,
-                            "short_window": signal.short_window,
-                            "long_window": signal.long_window,
+                            "fast_period": signal.fast_period,
+                            "slow_period": signal.slow_period,
                             "signal_date": signal.signal_date.isoformat(),
                             "signal_type": signal.signal_type,
                             "current": signal.current,

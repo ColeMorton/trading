@@ -13,7 +13,7 @@ This is the primary CSV schema used across all three files, with columns for str
 **Header Fields:**
 
 ```
-Ticker,Strategy Type,Short Window,Long Window,Signal Window,Signal Entry,Signal Exit,Total Open Trades,Total Trades,Score,Win Rate [%],Profit Factor,Expectancy per Trade,Sortino Ratio,Beats BNH [%],Avg Trade Duration,Trades Per Day,Trades per Month,Signals per Month,Expectancy per Month,Start,End,Period,Start Value,End Value,Total Return [%],Benchmark Return [%],Max Gross Exposure [%],Total Fees Paid,Max Drawdown [%],Max Drawdown Duration,Total Closed Trades,Open Trade PnL,Best Trade [%],Worst Trade [%],Avg Winning Trade [%],Avg Losing Trade [%],Avg Winning Trade Duration,Avg Losing Trade Duration,Expectancy,Sharpe Ratio,Calmar Ratio,Omega Ratio,Skew,Kurtosis,Tail Ratio,Common Sense Ratio,Value at Risk,Daily Returns,Annual Returns,Cumulative Returns,Annualized Return,Annualized Volatility,Signal Count,Position Count,Total Period
+Ticker,Strategy Type,Fast Period,Slow Period,Signal Period,Signal Entry,Signal Exit,Total Open Trades,Total Trades,Score,Win Rate [%],Profit Factor,Expectancy per Trade,Sortino Ratio,Beats BNH [%],Avg Trade Duration,Trades Per Day,Trades per Month,Signals per Month,Expectancy per Month,Start,End,Period,Start Value,End Value,Total Return [%],Benchmark Return [%],Max Gross Exposure [%],Total Fees Paid,Max Drawdown [%],Max Drawdown Duration,Total Closed Trades,Open Trade PnL,Best Trade [%],Worst Trade [%],Avg Winning Trade [%],Avg Losing Trade [%],Avg Winning Trade Duration,Avg Losing Trade Duration,Expectancy,Sharpe Ratio,Calmar Ratio,Omega Ratio,Skew,Kurtosis,Tail Ratio,Common Sense Ratio,Value at Risk,Daily Returns,Annual Returns,Cumulative Returns,Annualized Return,Annualized Volatility,Signal Count,Position Count,Total Period
 ```
 
 **Used By:**
@@ -29,7 +29,7 @@ An extended version of the Strategy Portfolio schema that includes allocation pe
 **Header Fields:**
 
 ```
-Ticker,Allocation [%],Strategy Type,Short Window,Long Window,Signal Window,Stop Loss [%],Signal Entry,Signal Exit,Total Open Trades,Total Trades,Score,Win Rate [%],Profit Factor,Expectancy per Trade,Sortino Ratio,Beats BNH [%],...,Last Position Open Date,Last Position Close Date
+Ticker,Allocation [%],Strategy Type,Fast Period,Slow Period,Signal Period,Stop Loss [%],Signal Entry,Signal Exit,Total Open Trades,Total Trades,Score,Win Rate [%],Profit Factor,Expectancy per Trade,Sortino Ratio,Beats BNH [%],...,Last Position Open Date,Last Position Close Date
 ```
 
 **Key Differences from Base Schema:**
@@ -167,9 +167,9 @@ Some of the most important fields in the CSV schemas:
 | Ticker                   | Asset symbol (e.g., "BTC-USD", "AAPL")                            |
 | Allocation [%]           | Percentage of portfolio allocated to this strategy (0-100%)       |
 | Strategy Type            | Trading strategy type (e.g., "SMA", "EMA")                        |
-| Short Window             | Short-term moving average period                                  |
-| Long Window              | Long-term moving average period                                   |
-| Signal Window            | Additional parameter for signal generation                        |
+| Fast Period              | Short-term moving average period                                  |
+| Slow Period              | Long-term moving average period                                   |
+| Signal Period            | Additional parameter for signal generation                        |
 | Stop Loss [%]            | Percentage-based stop loss level (0-100%)                         |
 | Last Position Open Date  | Date when the last position was opened (YYYY-MM-DD format)        |
 | Last Position Close Date | Date when the last position was closed (YYYY-MM-DD format)        |

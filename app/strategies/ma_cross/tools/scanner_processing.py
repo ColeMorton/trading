@@ -131,8 +131,8 @@ def export_results(
                 {
                     "ticker": ticker,
                     "use_sma": True,
-                    "short_window": result["SMA_FAST"],
-                    "long_window": result["SMA_SLOW"],
+                    "fast_period": result["SMA_FAST"],
+                    "slow_period": result["SMA_SLOW"],
                 }
             )
 
@@ -145,8 +145,8 @@ def export_results(
                 {
                     "ticker": ticker,
                     "use_sma": False,
-                    "short_window": result["EMA_FAST"],
-                    "long_window": result["EMA_SLOW"],
+                    "fast_period": result["EMA_FAST"],
+                    "slow_period": result["EMA_SLOW"],
                 }
             )
 
@@ -175,8 +175,8 @@ def export_results(
                 "Profit Factor": pl.Float64,
                 "Common Sense Ratio": pl.Float64,
                 "Win Rate": pl.Float64,
-                "Short Window": pl.Int64,
-                "Long Window": pl.Int64,
+                "Fast Period": pl.Int64,
+                "Slow Period": pl.Int64,
             },
         )
         log(f"Read original portfolio file: {portfolio_path}")
@@ -198,24 +198,24 @@ def export_results(
     )
 
     has_short_window = any(
-        col in portfolio_df.columns for col in ["Short Window", "SHORT_WINDOW"]
+        col in portfolio_df.columns for col in ["Fast Period", "FAST_PERIOD"]
     )
     short_window_col = (
-        "Short Window"
-        if "Short Window" in portfolio_df.columns
-        else "SHORT_WINDOW"
-        if "SHORT_WINDOW" in portfolio_df.columns
+        "Fast Period"
+        if "Fast Period" in portfolio_df.columns
+        else "FAST_PERIOD"
+        if "FAST_PERIOD" in portfolio_df.columns
         else None
     )
 
     has_long_window = any(
-        col in portfolio_df.columns for col in ["Long Window", "LONG_WINDOW"]
+        col in portfolio_df.columns for col in ["Slow Period", "SLOW_PERIOD"]
     )
     long_window_col = (
-        "Long Window"
-        if "Long Window" in portfolio_df.columns
-        else "LONG_WINDOW"
-        if "LONG_WINDOW" in portfolio_df.columns
+        "Slow Period"
+        if "Slow Period" in portfolio_df.columns
+        else "SLOW_PERIOD"
+        if "SLOW_PERIOD" in portfolio_df.columns
         else None
     )
 
@@ -255,7 +255,7 @@ def export_results(
 
         # Build filter conditions based on schema
         if has_new_schema:
-            # New schema with Short Window and Long Window
+            # New schema with Fast Period and Slow Period
             filter_conditions = [ticker_match]
 
             # Add Use SMA condition if column exists
@@ -265,13 +265,13 @@ def export_results(
             # Add window matching conditions if columns exist
             if has_short_window and short_window_col in portfolio_df.columns:
                 short_window_match = (
-                    pl.col(short_window_col) == signal_config["short_window"]
+                    pl.col(short_window_col) == signal_config["fast_period"]
                 )
                 filter_conditions.append(short_window_match)
 
             if has_long_window and long_window_col in portfolio_df.columns:
                 long_window_match = (
-                    pl.col(long_window_col) == signal_config["long_window"]
+                    pl.col(long_window_col) == signal_config["slow_period"]
                 )
                 filter_conditions.append(long_window_match)
         else:
@@ -285,10 +285,10 @@ def export_results(
                     and "SMA_SLOW" in portfolio_df.columns
                 ):
                     filter_conditions.append(
-                        pl.col("SMA_FAST") == signal_config["short_window"]
+                        pl.col("SMA_FAST") == signal_config["fast_period"]
                     )
                     filter_conditions.append(
-                        pl.col("SMA_SLOW") == signal_config["long_window"]
+                        pl.col("SMA_SLOW") == signal_config["slow_period"]
                     )
             else:
                 # For EMA, check EMA_FAST and EMA_SLOW
@@ -297,10 +297,10 @@ def export_results(
                     and "EMA_SLOW" in portfolio_df.columns
                 ):
                     filter_conditions.append(
-                        pl.col("EMA_FAST") == signal_config["short_window"]
+                        pl.col("EMA_FAST") == signal_config["fast_period"]
                     )
                     filter_conditions.append(
-                        pl.col("EMA_SLOW") == signal_config["long_window"]
+                        pl.col("EMA_SLOW") == signal_config["slow_period"]
                     )
 
         # Combine all filter conditions
@@ -317,7 +317,7 @@ def export_results(
             log(
                 f"Warning: No matching row found for {signal_config['ticker']} with "
                 f"{'SMA' if signal_config['use_sma'] else 'EMA'} "
-                f"{signal_config['short_window']}/{signal_config['long_window']}"
+                f"{signal_config['fast_period']}/{signal_config['slow_period']}"
             )
 
     # Combine all matching rows

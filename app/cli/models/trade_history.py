@@ -144,10 +144,10 @@ class TradeHistoryPositionConfig(BaseModel):
     strategy_type: Optional[StrategyType] = Field(
         default=None, description="Strategy type"
     )
-    short_window: Optional[int] = Field(
+    fast_period: Optional[int] = Field(
         default=None, ge=1, description="Short period window"
     )
-    long_window: Optional[int] = Field(
+    slow_period: Optional[int] = Field(
         default=None, ge=1, description="Long period window"
     )
     timeframe: Timeframe = Field(
@@ -173,16 +173,16 @@ class TradeHistoryPositionConfig(BaseModel):
         default=0.02, ge=0.001, le=0.1, description="Risk percentage per trade"
     )
 
-    @validator("long_window")
+    @validator("slow_period")
     def validate_long_vs_short(cls, v, values):
-        """Ensure long window > short window."""
+        """Ensure slow period > fast period."""
         if (
             v is not None
-            and "short_window" in values
-            and values["short_window"] is not None
+            and "fast_period" in values
+            and values["fast_period"] is not None
         ):
-            if v <= values["short_window"]:
-                raise ValueError("Long window must be greater than short window")
+            if v <= values["fast_period"]:
+                raise ValueError("Slow period must be greater than fast period")
         return v
 
 
@@ -343,11 +343,11 @@ class TradeHistoryConfig(BaseConfig):
                 pos.ticker,
                 pos.timeframe,
                 pos.strategy_type,
-                pos.short_window,
-                pos.long_window,
+                pos.fast_period,
+                pos.slow_period,
             ]
         ):
-            return f"{pos.ticker}_{pos.timeframe.value}_{pos.strategy_type.value}_{pos.short_window}_{pos.long_window}"
+            return f"{pos.ticker}_{pos.timeframe.value}_{pos.strategy_type.value}_{pos.fast_period}_{pos.slow_period}"
         return None
 
     def to_legacy_args_dict(self) -> Dict:

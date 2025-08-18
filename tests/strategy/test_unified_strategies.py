@@ -58,19 +58,19 @@ class TestUnifiedMAStrategy:
         strategy = UnifiedMAStrategy("SMA")
 
         # Valid parameters
-        valid_config = {"SHORT_WINDOW": 10, "LONG_WINDOW": 50}
+        valid_config = {"FAST_PERIOD": 10, "SLOW_PERIOD": 50}
         assert strategy.validate_parameters(valid_config) is True
 
         # Missing parameters
-        invalid_config1 = {"SHORT_WINDOW": 10}
+        invalid_config1 = {"FAST_PERIOD": 10}
         assert strategy.validate_parameters(invalid_config1) is False
 
         # Invalid window relationship
-        invalid_config2 = {"SHORT_WINDOW": 50, "LONG_WINDOW": 10}
+        invalid_config2 = {"FAST_PERIOD": 50, "SLOW_PERIOD": 10}
         assert strategy.validate_parameters(invalid_config2) is False
 
         # Invalid types
-        invalid_config3 = {"SHORT_WINDOW": "10", "LONG_WINDOW": 50}
+        invalid_config3 = {"FAST_PERIOD": "10", "SLOW_PERIOD": 50}
         assert strategy.validate_parameters(invalid_config3) is False
 
     def test_parameter_ranges(self):
@@ -78,10 +78,10 @@ class TestUnifiedMAStrategy:
         strategy = UnifiedMAStrategy("SMA")
         ranges = strategy.get_parameter_ranges()
 
-        assert "SHORT_WINDOW" in ranges
-        assert "LONG_WINDOW" in ranges
-        assert ranges["SHORT_WINDOW"]["min"] > 0
-        assert ranges["LONG_WINDOW"]["min"] > ranges["SHORT_WINDOW"]["min"]
+        assert "FAST_PERIOD" in ranges
+        assert "SLOW_PERIOD" in ranges
+        assert ranges["FAST_PERIOD"]["min"] > 0
+        assert ranges["SLOW_PERIOD"]["min"] > ranges["FAST_PERIOD"]["min"]
 
     @patch("app.tools.strategy.unified_strategies.calculate_mas")
     @patch("app.tools.strategy.unified_strategies.calculate_ma_signals")
@@ -114,7 +114,7 @@ class TestUnifiedMAStrategy:
         # Mock logger
         mock_log = Mock()
 
-        config = {"SHORT_WINDOW": 10, "LONG_WINDOW": 50, "DIRECTION": "Long"}
+        config = {"FAST_PERIOD": 10, "SLOW_PERIOD": 50, "DIRECTION": "Long"}
 
         result = strategy.calculate(test_data, 10, 50, config, mock_log)
 
@@ -170,11 +170,11 @@ class TestUnifiedMACDStrategy:
         strategy = UnifiedMACDStrategy()
 
         # Valid parameters
-        valid_config = {"SHORT_WINDOW": 12, "LONG_WINDOW": 26, "SIGNAL_WINDOW": 9}
+        valid_config = {"FAST_PERIOD": 12, "SLOW_PERIOD": 26, "SIGNAL_PERIOD": 9}
         assert strategy.validate_parameters(valid_config) is True
 
-        # Missing SIGNAL_WINDOW
-        invalid_config = {"SHORT_WINDOW": 12, "LONG_WINDOW": 26}
+        # Missing SIGNAL_PERIOD
+        invalid_config = {"FAST_PERIOD": 12, "SLOW_PERIOD": 26}
         assert strategy.validate_parameters(invalid_config) is False
 
     def test_parameter_ranges(self):
@@ -182,22 +182,22 @@ class TestUnifiedMACDStrategy:
         strategy = UnifiedMACDStrategy()
         ranges = strategy.get_parameter_ranges()
 
-        assert "SIGNAL_WINDOW" in ranges
-        assert "SHORT_WINDOW" in ranges
-        assert "LONG_WINDOW" in ranges
+        assert "SIGNAL_PERIOD" in ranges
+        assert "FAST_PERIOD" in ranges
+        assert "SLOW_PERIOD" in ranges
 
     @patch("app.tools.strategy.unified_strategies.convert_signals_to_positions")
     def test_calculate_requires_signal_window(self, mock_convert):
-        """Test that MACD calculation requires SIGNAL_WINDOW."""
+        """Test that MACD calculation requires SIGNAL_PERIOD."""
         strategy = UnifiedMACDStrategy()
         mock_log = Mock()
 
         test_data = pl.DataFrame({"Close": [100.0, 101.0, 102.0, 101.5, 103.0]})
 
-        config = {"DIRECTION": "Long"}  # Missing SIGNAL_WINDOW
+        config = {"DIRECTION": "Long"}  # Missing SIGNAL_PERIOD
 
         with pytest.raises(
-            ValueError, match="MACD strategy requires valid SIGNAL_WINDOW"
+            ValueError, match="MACD strategy requires valid SIGNAL_PERIOD"
         ):
             strategy.calculate(test_data, 12, 26, config, mock_log)
 
@@ -220,7 +220,7 @@ class TestUnifiedMeanReversionStrategy:
         """Test parameter validation."""
         strategy = UnifiedMeanReversionStrategy()
 
-        valid_config = {"SHORT_WINDOW": 20, "LONG_WINDOW": 50}
+        valid_config = {"FAST_PERIOD": 20, "SLOW_PERIOD": 50}
         assert strategy.validate_parameters(valid_config) is True
 
     def test_parameter_ranges(self):
@@ -324,11 +324,11 @@ class TestStrategyAdapter:
 
         adapter = StrategyAdapter()
 
-        valid_config = {"SHORT_WINDOW": 10, "LONG_WINDOW": 50}
+        valid_config = {"FAST_PERIOD": 10, "SLOW_PERIOD": 50}
 
         assert adapter.validate_strategy_parameters("SMA", valid_config) is True
 
-        invalid_config = {"SHORT_WINDOW": 50, "LONG_WINDOW": 10}
+        invalid_config = {"FAST_PERIOD": 50, "SLOW_PERIOD": 10}
 
         assert adapter.validate_strategy_parameters("SMA", invalid_config) is False
 
@@ -339,8 +339,8 @@ class TestStrategyAdapter:
         adapter = StrategyAdapter()
         ranges = adapter.get_strategy_parameter_ranges("SMA")
 
-        assert "SHORT_WINDOW" in ranges
-        assert "LONG_WINDOW" in ranges
+        assert "FAST_PERIOD" in ranges
+        assert "SLOW_PERIOD" in ranges
 
 
 @pytest.fixture

@@ -62,7 +62,7 @@ class MonteCarloConfig:
 class ParameterStabilityResult:
     """Results of parameter stability analysis."""
 
-    parameter_combination: Tuple[int, int]  # (short_window, long_window)
+    parameter_combination: Tuple[int, int]  # (fast_period, slow_period)
     base_performance: Dict[str, float]  # Performance on original data
     monte_carlo_results: List[Dict[str, Any]]  # Results from all simulations
 
@@ -165,8 +165,8 @@ class ParameterRobustnessAnalyzer:
         Add small random variations to parameters for robustness testing.
 
         Args:
-            short: Short window parameter
-            long: Long window parameter
+            short: Fast period parameter
+            long: Slow period parameter
 
         Returns:
             Perturbed parameter values
@@ -282,29 +282,29 @@ class ParameterRobustnessAnalyzer:
         }
 
     def analyze_parameter_robustness(
-        self, ticker: str, short_window: int, long_window: int, config: Dict[str, Any]
+        self, ticker: str, fast_period: int, slow_period: int, config: Dict[str, Any]
     ) -> ParameterStabilityResult:
         """
         Perform Monte Carlo robustness analysis for a specific parameter combination.
 
         Args:
             ticker: Ticker symbol
-            short_window: Short MA window
-            long_window: Long MA window
+            fast_period: Short MA window
+            slow_period: Long MA window
             config: Strategy configuration
 
         Returns:
             Parameter stability analysis results
         """
         self.log(
-            f"Analyzing parameter robustness for {ticker}: {short_window}/{long_window}"
+            f"Analyzing parameter robustness for {ticker}: {fast_period}/{slow_period}"
         )
 
         # Download original data
         original_data = download_data(ticker, config, self.log)
         if original_data is None or len(original_data) == 0:
             self.log(f"No data available for {ticker}", "error")
-            return ParameterStabilityResult((short_window, long_window), {}, [])
+            return ParameterStabilityResult((fast_period, slow_period), {}, [])
 
         # Add market regime detection if enabled
         if self.mc_config.enable_regime_analysis:
@@ -312,15 +312,15 @@ class ParameterRobustnessAnalyzer:
 
         # Calculate base performance on original data
         base_result = analyze_window_combination(
-            original_data, short_window, long_window, config, self.log
+            original_data, fast_period, slow_period, config, self.log
         )
 
         if base_result is None:
             self.log(
-                f"Base analysis failed for {ticker}: {short_window}/{long_window}",
+                f"Base analysis failed for {ticker}: {fast_period}/{slow_period}",
                 "error",
             )
-            return ParameterStabilityResult((short_window, long_window), {}, [])
+            return ParameterStabilityResult((fast_period, slow_period), {}, [])
 
         # Monte Carlo simulations
         monte_carlo_results = []
@@ -333,7 +333,7 @@ class ParameterRobustnessAnalyzer:
 
                 # Add parameter noise
                 noisy_short, noisy_long = self.add_parameter_noise(
-                    short_window, long_window
+                    fast_period, slow_period
                 )
 
                 # Analyze with noisy parameters on bootstrap data
@@ -344,8 +344,8 @@ class ParameterRobustnessAnalyzer:
                 if result is not None:
                     result["simulation_id"] = simulation
                     result["bootstrap_periods"] = len(bootstrap_data)
-                    result["parameter_noise_short"] = noisy_short - short_window
-                    result["parameter_noise_long"] = noisy_long - long_window
+                    result["parameter_noise_short"] = noisy_short - fast_period
+                    result["parameter_noise_long"] = noisy_long - slow_period
 
                     if self.mc_config.enable_regime_analysis:
                         # Analyze regime-specific performance
@@ -378,7 +378,7 @@ class ParameterRobustnessAnalyzer:
 
         # Create result object
         result = ParameterStabilityResult(
-            parameter_combination=(short_window, long_window),
+            parameter_combination=(fast_period, slow_period),
             base_performance=base_result,
             monte_carlo_results=monte_carlo_results,
             **performance_stats,
@@ -482,8 +482,8 @@ class ParameterRobustnessAnalyzer:
             short, long = result.parameter_combination
             summary_data.append(
                 {
-                    "Short_Window": short,
-                    "Long_Window": long,
+                    "Fast_Period": short,
+                    "Slow_Period": long,
                     "Stability_Score": result.stability_score,
                     "Parameter_Robustness": result.parameter_robustness,
                     "Regime_Consistency": result.regime_consistency,
@@ -512,7 +512,7 @@ class ParameterRobustnessAnalyzer:
                 short, long = result.parameter_combination
                 for mc_result in result.monte_carlo_results:
                     detailed_results.append(
-                        {"Short_Window": short, "Long_Window": long, **mc_result}
+                        {"Fast_Period": short, "Slow_Period": long, **mc_result}
                     )
 
             if detailed_results:

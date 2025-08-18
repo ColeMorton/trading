@@ -21,8 +21,8 @@ CONFIG_BTC = {
     "USE_SYNTHETIC": False,
     "TICKER_1": "BTC-USD",
     "TICKER_2": "SPY",
-    "SHORT_WINDOW": 11,
-    "LONG_WINDOW": 17,
+    "FAST_PERIOD": 11,
+    "SLOW_PERIOD": 17,
     "STOP_LOSS": 3.62,
     "SHORT": False,
     "USE_GBM": False,
@@ -40,8 +40,8 @@ CONFIG_SOL = {
     "USE_SYNTHETIC": False,
     "TICKER_1": "BTC-USD",
     "TICKER_2": "SPY",
-    "SHORT_WINDOW": 14,
-    "LONG_WINDOW": 32,
+    "FAST_PERIOD": 14,
+    "SLOW_PERIOD": 32,
     "STOP_LOSS": None,
     "SHORT": False,
     "USE_GBM": False,
@@ -59,8 +59,8 @@ CONFIG_SUI = {
     "USE_SYNTHETIC": False,
     "TICKER_1": "BTC-USD",
     "TICKER_2": "SPY",
-    "SHORT_WINDOW": 38,
-    "LONG_WINDOW": 59,
+    "FAST_PERIOD": 38,
+    "SLOW_PERIOD": 59,
     "STOP_LOSS": None,
     "SHORT": False,
     "USE_GBM": False,
@@ -78,8 +78,8 @@ CONFIG_SPY = {
     "USE_SYNTHETIC": False,
     "TICKER_1": "BTC-USD",
     "TICKER_2": "SPY",
-    "SHORT_WINDOW": 10,
-    "LONG_WINDOW": 30,
+    "FAST_PERIOD": 10,
+    "SLOW_PERIOD": 30,
     "SHORT": False,
     "USE_GBM": False,
     "USE_SMA": False,
@@ -96,8 +96,8 @@ CONFIG_OP = {
     "USE_SYNTHETIC": False,
     "TICKER_1": "BTC-USD",
     "TICKER_2": "SPY",
-    "SHORT_WINDOW": 81,
-    "LONG_WINDOW": 83,
+    "FAST_PERIOD": 81,
+    "SLOW_PERIOD": 83,
     "SHORT": False,
     "USE_GBM": False,
     "USE_SMA": True,
@@ -134,22 +134,22 @@ def process_strategy(config, log):
 
         # Handle different strategy types
         if config.get("STRATEGY_TYPE") == "MACD":
-            # For MACD strategies, we need the signal window
-            signal_window = config.get(
-                "SIGNAL_WINDOW", 9
+            # For MACD strategies, we need the signal period
+            signal_period = config.get(
+                "SIGNAL_PERIOD", 9
             )  # Default to 9 if not specified
             data = calculate_macd_and_signals(
                 data,
-                config["SHORT_WINDOW"],  # Fast EMA
-                config["LONG_WINDOW"],  # Slow EMA
-                signal_window,  # Signal line EMA
+                config["FAST_PERIOD"],  # Fast EMA
+                config["SLOW_PERIOD"],  # Slow EMA
+                signal_period,  # Signal line EMA
                 config,
                 log,
             )
         else:
             # Default to MA strategy
             data = calculate_ma_and_signals(
-                data, config["SHORT_WINDOW"], config["LONG_WINDOW"], config, log
+                data, config["FAST_PERIOD"], config["SLOW_PERIOD"], config, log
             )
 
         portfolio = backtest_strategy(data, config, log)
@@ -189,8 +189,8 @@ def run(config_dict=None, portfolio_file=None):
                 config = {
                     "TICKER": strategy["ticker"],
                     "USE_HOURLY": strategy["timeframe"].lower() == "hourly",
-                    "SHORT_WINDOW": strategy["short_window"],
-                    "LONG_WINDOW": strategy["long_window"],
+                    "FAST_PERIOD": strategy["fast_period"],
+                    "SLOW_PERIOD": strategy["slow_period"],
                     "DIRECTION": strategy["direction"],
                     "USE_SMA": strategy["type"] == "SMA",
                     "STRATEGY_TYPE": strategy["type"],
@@ -202,9 +202,9 @@ def run(config_dict=None, portfolio_file=None):
                 if "rsi_threshold" in strategy:
                     config["RSI_THRESHOLD"] = strategy["rsi_threshold"]
 
-                # Add signal window for MACD if present
-                if "signal_window" in strategy:
-                    config["SIGNAL_WINDOW"] = strategy["signal_window"]
+                # Add signal period for MACD if present
+                if "signal_period" in strategy:
+                    config["SIGNAL_PERIOD"] = strategy["signal_period"]
 
                 # Process individual strategy
                 portfolio = process_strategy(config, log)
@@ -226,22 +226,22 @@ def run(config_dict=None, portfolio_file=None):
             strategy_type = config.get("STRATEGY_TYPE", DEFAULT_STRATEGY_TYPE)
 
             if strategy_type == "MACD":
-                # For MACD strategies, we need the signal window
-                signal_window = config.get(
-                    "SIGNAL_WINDOW", 9
+                # For MACD strategies, we need the signal period
+                signal_period = config.get(
+                    "SIGNAL_PERIOD", 9
                 )  # Default to 9 if not specified
                 data = calculate_macd_and_signals(
                     data,
-                    config["SHORT_WINDOW"],  # Fast EMA
-                    config["LONG_WINDOW"],  # Slow EMA
-                    signal_window,  # Signal line EMA
+                    config["FAST_PERIOD"],  # Fast EMA
+                    config["SLOW_PERIOD"],  # Slow EMA
+                    signal_period,  # Signal line EMA
                     config,
                     log,
                 )
             else:
                 # Default to MA strategy
                 data = calculate_ma_and_signals(
-                    data, config["SHORT_WINDOW"], config["LONG_WINDOW"], config, log
+                    data, config["FAST_PERIOD"], config["SLOW_PERIOD"], config, log
                 )
 
             portfolio = backtest_strategy(data, config, log)

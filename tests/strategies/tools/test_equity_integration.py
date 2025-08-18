@@ -101,9 +101,9 @@ class TestEquityIntegration:
         config = {"EQUITY_DATA": {"EXPORT": True, "METRIC": "mean"}}
 
         row = {
-            "SHORT_WINDOW": 12,
-            "LONG_WINDOW": 26,
-            "SIGNAL_WINDOW": 9,
+            "FAST_PERIOD": 12,
+            "SLOW_PERIOD": 26,
+            "SIGNAL_PERIOD": 9,
             "STRATEGY_TYPE": "MACD",
         }
 
@@ -118,9 +118,9 @@ class TestEquityIntegration:
         mock_process_macd.assert_called_once()
         call_args = mock_process_macd.call_args
         assert call_args[1]["ticker"] == "AAPL"
-        assert call_args[1]["short_window"] == 12
-        assert call_args[1]["long_window"] == 26
-        assert call_args[1]["signal_window"] == 9
+        assert call_args[1]["fast_period"] == 12
+        assert call_args[1]["slow_period"] == 26
+        assert call_args[1]["signal_period"] == 9
 
         # Verify equity extraction was attempted
         info_messages = [msg for msg, level in self.log_messages if level == "info"]
@@ -159,7 +159,7 @@ class TestEquityIntegration:
         # Test configuration with equity export enabled
         config = {"EQUITY_DATA": {"EXPORT": True, "METRIC": "best"}}
 
-        row = {"SHORT_WINDOW": 20, "LONG_WINDOW": 50, "STRATEGY_TYPE": "SMA"}
+        row = {"FAST_PERIOD": 20, "SLOW_PERIOD": 50, "STRATEGY_TYPE": "SMA"}
 
         # Execute test
         result = process_ticker_portfolios("MSFT", row, config, self.mock_log)
@@ -214,7 +214,7 @@ class TestEquityIntegration:
         # Test configuration with equity export enabled
         config = {"EQUITY_DATA": {"EXPORT": True, "METRIC": "median"}}
 
-        row = {"SHORT_WINDOW": 12, "LONG_WINDOW": 26, "STRATEGY_TYPE": "EMA"}
+        row = {"FAST_PERIOD": 12, "SLOW_PERIOD": 26, "STRATEGY_TYPE": "EMA"}
 
         # Execute test
         result = process_ticker_portfolios("GOOGL", row, config, self.mock_log)
@@ -248,9 +248,9 @@ class TestEquityIntegration:
             portfolio=mock_portfolio,
             ticker="TEST",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
-            signal_window=None,
+            fast_period=20,
+            slow_period=50,
+            signal_period=None,
             config=config,
             log=self.mock_log,
         )
@@ -269,9 +269,9 @@ class TestEquityIntegration:
             portfolio=mock_portfolio,
             ticker="TEST",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
-            signal_window=None,
+            fast_period=20,
+            slow_period=50,
+            signal_period=None,
             config=config,
             log=self.mock_log,
         )
@@ -298,9 +298,9 @@ class TestEquityIntegration:
                 portfolio=mock_portfolio,
                 ticker="TEST",
                 strategy_type="SMA",
-                short_window=20,
-                long_window=50,
-                signal_window=None,
+                fast_period=20,
+                slow_period=50,
+                signal_period=None,
                 config=config,
                 log=self.mock_log,
             )
@@ -330,9 +330,9 @@ class TestEquityIntegration:
             portfolio=mock_portfolio,
             ticker="TEST",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
-            signal_window=None,
+            fast_period=20,
+            slow_period=50,
+            signal_period=None,
             config=config,
             log=self.mock_log,
         )
@@ -365,9 +365,9 @@ class TestEquityIntegration:
             portfolio=mock_portfolio,
             ticker="TEST",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
-            signal_window=None,
+            fast_period=20,
+            slow_period=50,
+            signal_period=None,
             config=config,
             log=self.mock_log,
         )
@@ -412,9 +412,9 @@ class TestEquityIntegration:
 
                         config = {"EQUITY_DATA": {"EXPORT": False}}  # Disabled
                         row = {
-                            "SHORT_WINDOW": 12,
-                            "LONG_WINDOW": 26,
-                            "SIGNAL_WINDOW": 9,
+                            "FAST_PERIOD": 12,
+                            "SLOW_PERIOD": 26,
+                            "SIGNAL_PERIOD": 9,
                             "STRATEGY_TYPE": "MACD",
                         }
 

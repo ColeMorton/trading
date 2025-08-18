@@ -44,34 +44,34 @@ def generate_hardcoded_strategies(csv_path, ticker_filter=None):
                 continue
 
             strategy_type = row.get("Strategy Type", "")
-            short_window = row.get("Short Window", "")
-            long_window = row.get("Long Window", "")
-            signal_window = row.get("Signal Window", "0")
+            fast_period = row.get("Fast Period", "")
+            slow_period = row.get("Slow Period", "")
+            signal_period = row.get("Signal Period", "0")
 
             # Skip rows with missing data
-            if not all([strategy_type, short_window, long_window]):
+            if not all([strategy_type, fast_period, slow_period]):
                 continue
 
             # Create hardcoded strategy block
             if strategy_type == "SMA":
                 strategy_block = f"""
-    // Strategy {i}: SMA({short_window}, {long_window})
+    // Strategy {i}: SMA({fast_period}, {slow_period})
     totalApplicableStrategies += 1
-    if smaCrossSignal({short_window}, {long_window})
+    if smaCrossSignal({fast_period}, {slow_period})
         strategiesInPosition += 1
 """
             elif strategy_type == "EMA":
                 strategy_block = f"""
-    // Strategy {i}: EMA({short_window}, {long_window})
+    // Strategy {i}: EMA({fast_period}, {slow_period})
     totalApplicableStrategies += 1
-    if emaCrossSignal({short_window}, {long_window})
+    if emaCrossSignal({fast_period}, {slow_period})
         strategiesInPosition += 1
 """
             elif strategy_type == "MACD":
                 strategy_block = f"""
-    // Strategy {i}: MACD({short_window}, {long_window}, {signal_window})
+    // Strategy {i}: MACD({fast_period}, {slow_period}, {signal_period})
     totalApplicableStrategies += 1
-    if macdSignal({short_window}, {long_window}, {signal_window})
+    if macdSignal({fast_period}, {slow_period}, {signal_period})
         strategiesInPosition += 1
 """
             else:

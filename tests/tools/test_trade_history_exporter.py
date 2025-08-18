@@ -45,8 +45,8 @@ class TestTradeHistoryExporter(unittest.TestCase):
             "sma_config": {
                 "TICKER": "BTC-USD",
                 "STRATEGY_TYPE": "SMA",
-                "short_window": 20,
-                "long_window": 50,
+                "fast_period": 20,
+                "slow_period": 50,
                 "BASE_DIR": ".",
             },
             "macd_config": {
@@ -54,7 +54,7 @@ class TestTradeHistoryExporter(unittest.TestCase):
                 "STRATEGY_TYPE": "MACD",
                 "fast_window": 12,
                 "slow_window": 26,
-                "signal_window": 9,
+                "signal_period": 9,
                 "STOP_LOSS": 0.05,
                 "BASE_DIR": ".",
             },
@@ -62,8 +62,8 @@ class TestTradeHistoryExporter(unittest.TestCase):
                 "TICKER": "ETH-USD",
                 "USE_HOURLY": True,
                 "STRATEGY_TYPE": "EMA",
-                "SHORT_WINDOW": 12,
-                "LONG_WINDOW": 26,
+                "FAST_PERIOD": 12,
+                "SLOW_PERIOD": 26,
                 "DIRECTION": "Short",
                 "BASE_DIR": ".",
             },
@@ -173,8 +173,8 @@ class TestTradeHistoryExporter(unittest.TestCase):
         config = {
             "TICKER": "STRK/MSTR",
             "STRATEGY_TYPE": "SMA",
-            "short_window": 10,
-            "long_window": 20,
+            "fast_period": 10,
+            "slow_period": 20,
         }
         expected = "STRK_MSTR_D_SMA_10_20.json"
         actual = generate_trade_filename(config, "json")
@@ -185,8 +185,8 @@ class TestTradeHistoryExporter(unittest.TestCase):
         config = {
             "TICKER": ["BTC-USD"],
             "STRATEGY_TYPE": "EMA",
-            "SHORT_WINDOW": 5,
-            "LONG_WINDOW": 15,
+            "FAST_PERIOD": 5,
+            "SLOW_PERIOD": 15,
         }
         expected = "BTC-USD_D_EMA_5_15.json"
         actual = generate_trade_filename(config, "json")
@@ -302,8 +302,8 @@ class TestTradeHistoryExporter(unittest.TestCase):
     def test_extract_all_strategy_parameters(self):
         """Test extraction of all strategy parameters."""
         config = {
-            "short_window": 20,
-            "long_window": 50,
+            "fast_period": 20,
+            "slow_period": 50,
             "STOP_LOSS": 0.05,
             "RSI_WINDOW": 14,
             "OTHER_PARAM": "ignored",
@@ -311,8 +311,8 @@ class TestTradeHistoryExporter(unittest.TestCase):
 
         params = _extract_all_strategy_parameters(config)
         expected = {
-            "short_window": 20,
-            "long_window": 50,
+            "fast_period": 20,
+            "slow_period": 50,
             "stop_loss": 0.05,
             "rsi_window": 14,
         }
@@ -673,8 +673,8 @@ class TestTradeHistoryExporter(unittest.TestCase):
                 "BASE_DIR": temp_dir,
                 "TICKER": "BTC-USD",
                 "STRATEGY_TYPE": "SMA",
-                "short_window": 10,
-                "long_window": 20,
+                "fast_period": 10,
+                "slow_period": 20,
             }
 
             # Export first strategy
@@ -692,8 +692,8 @@ class TestTradeHistoryExporter(unittest.TestCase):
                 "BASE_DIR": temp_dir,
                 "TICKER": "ETH-USD",  # Different ticker
                 "STRATEGY_TYPE": "SMA",
-                "short_window": 10,
-                "long_window": 20,
+                "fast_period": 10,
+                "slow_period": 20,
             }
 
             # Export second strategy (should create new file, not skip)
@@ -768,8 +768,8 @@ class TestTradeHistoryExporterIntegration(unittest.TestCase):
                 "BASE_DIR": temp_dir,
                 "TICKER": "TEST",
                 "STRATEGY_TYPE": "SMA",
-                "short_window": 10,
-                "long_window": 20,
+                "fast_period": 10,
+                "slow_period": 20,
             }
 
             # Create mock portfolio

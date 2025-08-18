@@ -42,9 +42,9 @@ class ParsedParameter(BaseModel):
 
     # Strategy-specific fields
     strategy_type: Optional[str] = None
-    short_window: Optional[int] = None
-    long_window: Optional[int] = None
-    signal_window: Optional[int] = None
+    fast_period: Optional[int] = None
+    slow_period: Optional[int] = None
+    signal_period: Optional[int] = None
     strategies: Optional[
         List[Dict[str, Union[str, int]]]
     ] = None  # For multi-strategy analysis
@@ -218,18 +218,18 @@ class SPDSParameterParser:
 
         ticker = match.group(1)
         strategy_type = match.group(3)
-        short_window = int(match.group(4))
-        long_window = int(match.group(5))
-        signal_window = int(match.group(7)) if match.group(7) else 0
+        fast_period = int(match.group(4))
+        slow_period = int(match.group(5))
+        signal_period = int(match.group(7)) if match.group(7) else 0
 
         return ParsedParameter(
             parameter_type=ParameterType.STRATEGY_SPEC,
             original_input=param,
             ticker=ticker,
             strategy_type=strategy_type,
-            short_window=short_window,
-            long_window=long_window,
-            signal_window=signal_window,
+            fast_period=fast_period,
+            slow_period=slow_period,
+            signal_period=signal_period,
         )
 
     def _parse_position_uuid(self, param: str) -> ParsedParameter:
@@ -240,9 +240,9 @@ class SPDSParameterParser:
 
         ticker = match.group(1)
         strategy_type = match.group(3)
-        short_window = int(match.group(4))
-        long_window = int(match.group(5))
-        signal_window = int(match.group(7)) if match.group(7) else 0
+        fast_period = int(match.group(4))
+        slow_period = int(match.group(5))
+        signal_period = int(match.group(7)) if match.group(7) else 0
         entry_date = match.group(8)
 
         # Normalize date format to YYYY-MM-DD
@@ -254,9 +254,9 @@ class SPDSParameterParser:
             original_input=param,
             ticker=ticker,
             strategy_type=strategy_type,
-            short_window=short_window,
-            long_window=long_window,
-            signal_window=signal_window,
+            fast_period=fast_period,
+            slow_period=slow_period,
+            signal_period=signal_period,
             entry_date=entry_date,
         )
 
@@ -287,9 +287,9 @@ class SPDSParameterParser:
 
             ticker = strategy_match.group(1)
             strategy_type = strategy_match.group(3)
-            short_window = int(strategy_match.group(4))
-            long_window = int(strategy_match.group(5))
-            signal_window = (
+            fast_period = int(strategy_match.group(4))
+            slow_period = int(strategy_match.group(5))
+            signal_period = (
                 int(strategy_match.group(7)) if strategy_match.group(7) else 0
             )
 
@@ -297,9 +297,9 @@ class SPDSParameterParser:
                 {
                     "ticker": ticker,
                     "strategy_type": strategy_type,
-                    "short_window": short_window,
-                    "long_window": long_window,
-                    "signal_window": signal_window,
+                    "fast_period": fast_period,
+                    "slow_period": slow_period,
+                    "signal_period": signal_period,
                 }
             )
 
@@ -326,9 +326,9 @@ class SPDSParameterParser:
 
             ticker = position_match.group(1)
             strategy_type = position_match.group(3)
-            short_window = int(position_match.group(4))
-            long_window = int(position_match.group(5))
-            signal_window = (
+            fast_period = int(position_match.group(4))
+            slow_period = int(position_match.group(5))
+            signal_period = (
                 int(position_match.group(7)) if position_match.group(7) else 0
             )
             entry_date = position_match.group(8)
@@ -341,9 +341,9 @@ class SPDSParameterParser:
                 {
                     "ticker": ticker,
                     "strategy_type": strategy_type,
-                    "short_window": short_window,
-                    "long_window": long_window,
-                    "signal_window": signal_window,
+                    "fast_period": fast_period,
+                    "slow_period": slow_period,
+                    "signal_period": signal_period,
                     "entry_date": entry_date,
                 }
             )
@@ -477,14 +477,14 @@ class SPDSParameterParser:
                 [
                     parsed.ticker,
                     parsed.strategy_type,
-                    parsed.short_window,
-                    parsed.long_window,
+                    parsed.fast_period,
+                    parsed.slow_period,
                 ]
             ):
                 return False, "Strategy must have ticker, type, and windows"
 
-            if parsed.short_window >= parsed.long_window:
-                return False, "Short window must be less than long window"
+            if parsed.fast_period >= parsed.slow_period:
+                return False, "Fast period must be less than slow period"
 
             if parsed.strategy_type not in ["SMA", "EMA", "MACD"]:
                 return False, f"Unsupported strategy type: {parsed.strategy_type}"
@@ -498,22 +498,22 @@ class SPDSParameterParser:
                     [
                         strategy.get("ticker"),
                         strategy.get("strategy_type"),
-                        strategy.get("short_window"),
-                        strategy.get("long_window"),
+                        strategy.get("fast_period"),
+                        strategy.get("slow_period"),
                     ]
                 ):
                     return False, "All strategies must have ticker, type, and windows"
 
-                short_window = strategy.get("short_window", 0)
-                long_window = strategy.get("long_window", 1)
+                fast_period = strategy.get("fast_period", 0)
+                slow_period = strategy.get("slow_period", 1)
                 if (
-                    isinstance(short_window, int)
-                    and isinstance(long_window, int)
-                    and short_window >= long_window
+                    isinstance(fast_period, int)
+                    and isinstance(slow_period, int)
+                    and fast_period >= slow_period
                 ):
                     return (
                         False,
-                        "Short window must be less than long window for all strategies",
+                        "Fast period must be less than slow period for all strategies",
                     )
 
                 if strategy.get("strategy_type") not in ["SMA", "EMA", "MACD"]:
@@ -531,8 +531,8 @@ class SPDSParameterParser:
                     [
                         position.get("ticker"),
                         position.get("strategy_type"),
-                        position.get("short_window"),
-                        position.get("long_window"),
+                        position.get("fast_period"),
+                        position.get("slow_period"),
                         position.get("entry_date"),
                     ]
                 ):
@@ -541,16 +541,16 @@ class SPDSParameterParser:
                         "All positions must have ticker, type, windows, and entry date",
                     )
 
-                short_window = position.get("short_window", 0)
-                long_window = position.get("long_window", 1)
+                fast_period = position.get("fast_period", 0)
+                slow_period = position.get("slow_period", 1)
                 if (
-                    isinstance(short_window, int)
-                    and isinstance(long_window, int)
-                    and short_window >= long_window
+                    isinstance(fast_period, int)
+                    and isinstance(slow_period, int)
+                    and fast_period >= slow_period
                 ):
                     return (
                         False,
-                        "Short window must be less than long window for all positions",
+                        "Fast period must be less than slow period for all positions",
                     )
 
                 if position.get("strategy_type") not in ["SMA", "EMA", "MACD"]:

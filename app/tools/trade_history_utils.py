@@ -47,8 +47,8 @@ def validate_position_data(position: Dict[str, Any]) -> List[str]:
         "Position_UUID",
         "Ticker",
         "Strategy_Type",
-        "Short_Window",
-        "Long_Window",
+        "Fast_Period",
+        "Slow_Period",
         "Entry_Timestamp",
         "Avg_Entry_Price",
         "Direction",
@@ -69,12 +69,12 @@ def validate_position_data(position: Dict[str, Any]) -> List[str]:
         errors.append(f"Invalid strategy type: {position['Strategy_Type']}")
 
     # Validate numeric fields
-    numeric_fields = ["Short_Window", "Long_Window", "Avg_Entry_Price", "Position_Size"]
+    numeric_fields = ["Fast_Period", "Slow_Period", "Avg_Entry_Price", "Position_Size"]
     for field in numeric_fields:
         if field in position and position[field] is not None:
             try:
                 float(position[field])
-                if field in ["Short_Window", "Long_Window"] and position[field] <= 0:
+                if field in ["Fast_Period", "Slow_Period"] and position[field] <= 0:
                     errors.append(f"{field} must be positive")
                 if field == "Avg_Entry_Price" and position[field] <= 0:
                     errors.append(f"{field} must be positive")
@@ -108,9 +108,9 @@ def normalize_position_data(position: Dict[str, Any]) -> Dict[str, Any]:
 
     # Convert numeric fields
     numeric_fields = [
-        "Short_Window",
-        "Long_Window",
-        "Signal_Window",
+        "Fast_Period",
+        "Slow_Period",
+        "Signal_Period",
         "Avg_Entry_Price",
         "Avg_Exit_Price",
         "Position_Size",
@@ -134,9 +134,9 @@ def normalize_position_data(position: Dict[str, Any]) -> Dict[str, Any]:
 
     # Convert integer fields
     integer_fields = [
-        "Short_Window",
-        "Long_Window",
-        "Signal_Window",
+        "Fast_Period",
+        "Slow_Period",
+        "Signal_Period",
         "Days_Since_Entry",
     ]
     for field in integer_fields:
@@ -426,8 +426,8 @@ def quick_add_position(
     return add_position_to_portfolio(
         ticker=ticker,
         strategy_type=strategy,
-        short_window=short,
-        long_window=long,
+        fast_period=short,
+        slow_period=long,
         portfolio_name=portfolio,
     )
 

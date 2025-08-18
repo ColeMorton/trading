@@ -16,20 +16,20 @@ metadata:
 strategies:
   # RJF Strategy
   - ticker: RJF
-    short_window: 68
-    long_window: 77
+    fast_period: 68
+    slow_period: 77
     strategy_type: SMA
 
   # HWM Strategy
   - ticker: HWM
-    short_window: 7
-    long_window: 9
+    fast_period: 7
+    slow_period: 9
     strategy_type: SMA
 
   # DOV Strategy
   - ticker: DOV
-    short_window: 45
-    long_window: 86
+    fast_period: 45
+    slow_period: 86
     strategy_type: SMA
 
 allocation:

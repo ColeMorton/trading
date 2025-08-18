@@ -341,8 +341,8 @@ class TestConcurrentStrategyExecution:
         return {
             "TICKER": ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA"],
             "STRATEGY_TYPE": "SMA",
-            "SHORT_WINDOW": 10,
-            "LONG_WINDOW": 20,
+            "FAST_PERIOD": 10,
+            "SLOW_PERIOD": 20,
             "USE_HOURLY": False,
             "BASE_DIR": "/Users/colemorton/Projects/trading",
             "REFRESH": True,

@@ -67,15 +67,15 @@ class TestMockDataMixin(unittest.TestCase, MockDataMixin):
         strategy = self.create_ma_strategy(
             ticker="TEST",
             strategy_type="EMA",
-            short_window=12,
-            long_window=26,
+            fast_period=12,
+            slow_period=26,
             allocation=50.0,
         )
 
         self.assertEqual(strategy["ticker"], "TEST")
         self.assertEqual(strategy["type"], "EMA")
-        self.assertEqual(strategy["short_window"], 12)
-        self.assertEqual(strategy["long_window"], 26)
+        self.assertEqual(strategy["fast_period"], 12)
+        self.assertEqual(strategy["slow_period"], 26)
         self.assertEqual(strategy["allocation"], 50.0)
 
     def test_create_macd_strategy(self):
@@ -84,7 +84,7 @@ class TestMockDataMixin(unittest.TestCase, MockDataMixin):
 
         self.assertEqual(strategy["ticker"], "TEST")
         self.assertEqual(strategy["type"], "MACD")
-        self.assertEqual(strategy["signal_window"], 9)
+        self.assertEqual(strategy["signal_period"], 9)
         self.assertEqual(strategy["allocation"], 25.0)
 
     def test_create_mock_signals(self):

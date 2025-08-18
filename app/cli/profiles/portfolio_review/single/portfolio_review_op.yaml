@@ -19,8 +19,8 @@ config:
   # Strategy-specific configuration
   strategies:
     - ticker: OP-USD
-      short_window: 81
-      long_window: 83
+      fast_period: 81
+      slow_period: 83
       strategy_type: SMA
 
   # Custom benchmark for OP analysis

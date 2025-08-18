@@ -109,8 +109,8 @@ class TestEnhancedParameterIntegration:
             original_input="TSLA_SMA_15_25",
             ticker="TSLA",
             strategy_type="SMA",
-            short_window=15,
-            long_window=25,
+            fast_period=15,
+            slow_period=25,
         )
 
         # Create strategy analyzer
@@ -144,8 +144,8 @@ class TestEnhancedParameterIntegration:
             original_input="NVDA_SMA_10_20_20250712",
             ticker="NVDA",
             strategy_type="SMA",
-            short_window=10,
-            long_window=20,
+            fast_period=10,
+            slow_period=20,
             entry_date="2025-07-12",
         )
 
@@ -300,8 +300,8 @@ class TestMarketDataAnalyzerFactoryIntegration:
             original_input="GOOGL_EMA_12_26",
             ticker="GOOGL",
             strategy_type="EMA",
-            short_window=12,
-            long_window=26,
+            fast_period=12,
+            slow_period=26,
         )
 
         # Test factory function
@@ -330,8 +330,8 @@ class TestMarketDataAnalyzerFactoryIntegration:
             original_input="SPY_SMA_50_200_20241225",
             ticker="SPY",
             strategy_type="SMA",
-            short_window=50,
-            long_window=200,
+            fast_period=50,
+            slow_period=200,
             entry_date="2024-12-25",
         )
 
@@ -510,8 +510,8 @@ class TestExportCompatibility:
             original_input="AAPL_SMA_20_50",
             ticker="AAPL",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
+            fast_period=20,
+            slow_period=50,
         )
 
         analyzer = StrategyAnalyzer(parsed_param, Mock())

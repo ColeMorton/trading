@@ -69,7 +69,7 @@ class TestPortfolioMonteCarloManager:
                 "Strategy Type": "MACD",
                 "Window Short": 12,
                 "Window Long": 26,
-                "Signal Window": 9,
+                "Signal Period": 9,
             },
         ]
 
@@ -81,7 +81,7 @@ class TestPortfolioMonteCarloManager:
         assert manager.progress_tracker is not None
 
     def test_strategy_id_assignment(self, manager, sample_portfolio):
-        """Test strategy ID assignment including signal window for MACD."""
+        """Test strategy ID assignment including signal period for MACD."""
         strategies_with_ids = manager._assign_strategy_ids(sample_portfolio)
 
         assert len(strategies_with_ids) == 3
@@ -89,10 +89,10 @@ class TestPortfolioMonteCarloManager:
         # Check strategy IDs
         strategy_ids = list(strategies_with_ids.keys())
 
-        # Should include signal window for MACD
+        # Should include signal period for MACD
         macd_ids = [sid for sid in strategy_ids if "MACD" in sid]
         assert len(macd_ids) == 1
-        assert "_9" in macd_ids[0]  # Signal window should be included
+        assert "_9" in macd_ids[0]  # Signal period should be included
 
         # Should have proper format for all
         for strategy_id in strategy_ids:
@@ -246,7 +246,7 @@ class TestPortfolioMonteCarloManager:
         assert len(macd_results) == 1
 
         macd_id = list(macd_results.keys())[0]
-        assert "_9" in macd_id  # Should include signal window
+        assert "_9" in macd_id  # Should include signal period
 
     @patch("app.concurrency.tools.monte_carlo.manager.download_price_data")
     def test_analyze_portfolio_partial_failure(self, mock_download, manager, mock_log):
@@ -407,7 +407,7 @@ class TestPortfolioMonteCarloIntegration:
                 "Strategy Type": "MACD",
                 "Window Short": 12,
                 "Window Long": 26,
-                "Signal Window": 9,
+                "Signal Period": 9,
             },
             {
                 "ticker": "ETH-USD",
@@ -449,7 +449,7 @@ class TestPortfolioMonteCarloIntegration:
         assert len(ema_ids) == 1  # BTC EMA
         assert len(macd_ids) == 1  # BTC MACD
 
-        # MACD should include signal window
+        # MACD should include signal period
         assert any("_9" in mid for mid in macd_ids)
 
     @patch("app.concurrency.tools.monte_carlo.manager.download_price_data")
@@ -505,9 +505,9 @@ class TestPortfolioMonteCarloIntegration:
             {
                 "ticker": "BTC-USD",
                 "Strategy Type": "MACD",  # CSV format
-                "Short Window": 12,  # CSV format
-                "Long Window": 26,  # CSV format
-                "Signal Window": 9,  # CSV format
+                "Fast Period": 12,  # CSV format
+                "Slow Period": 26,  # CSV format
+                "Signal Period": 9,  # CSV format
             }
         ]
 
@@ -517,7 +517,7 @@ class TestPortfolioMonteCarloIntegration:
         assert len(strategies_with_ids) == 1
         strategy_id = list(strategies_with_ids.keys())[0]
 
-        # Should include all parameters including signal window
+        # Should include all parameters including signal period
         assert "BTC-USD_MACD_12_26_9" == strategy_id
 
     def test_error_aggregation(self):

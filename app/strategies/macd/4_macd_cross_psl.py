@@ -77,8 +77,8 @@ def main():
     SHORT = config.get("SHORT", False)
 
     SHORT_PERIOD = config.get("SHORT_WINDOW_START", 8)
-    LONG_WINDOW = config.get("LONG_WINDOW_START", 15)
-    SIGNAL_WINDOW = config.get("SIGNAL_WINDOW_START", 7)
+    SLOW_PERIOD = config.get("LONG_WINDOW_START", 15)
+    SIGNAL_PERIOD = config.get("SIGNAL_WINDOW_START", 7)
     RSI_WINDOW = config.get("RSI_WINDOW", 14)
 
     RSI_THRESHOLD = config.get("RSI_THRESHOLD", 48)
@@ -111,8 +111,8 @@ def main():
     macd_indicator = vbt.MACD.run(
         data["Close"],
         fast_window=SHORT_PERIOD,
-        slow_window=LONG_WINDOW,
-        signal_window=SIGNAL_WINDOW,
+        slow_window=SLOW_PERIOD,
+        signal_period=SIGNAL_PERIOD,
     )
 
     # Store the MACD and Signal lines in the dataframe

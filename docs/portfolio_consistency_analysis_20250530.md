@@ -73,7 +73,7 @@ Both files include the same strategy types:
 ### CSV Structure
 
 ```
-Ticker | Strategy Type | Short Window | Long Window | Signal Window | Performance Metrics...
+Ticker | Strategy Type | Fast Period | Slow Period | Signal Period | Performance Metrics...
 MSTR   | SMA          | 52          | 90         | 0            | Score: 1.70, Win Rate: 60.53%
 BTC-USD| SMA          | 11          | 36         | 0            | Score: 1.68, Win Rate: 52.83%
 QQQ    | SMA          | 69          | 77         | 0            | Score: 1.66, Win Rate: 69.84%
@@ -93,8 +93,8 @@ QQQ    | SMA          | 69          | 77         | 0            | Score: 1.66, W
       "parameters": {
         "ticker": "BTC-USD",
         "type": "SMA",
-        "short_window": 11,
-        "long_window": 36
+        "fast_period": 11,
+        "slow_period": 36
       }
     }
   ]
@@ -220,7 +220,7 @@ The analysis suggests potential portfolio improvements:
 JSON uses standardized strategy identification:
 
 ```
-{ticker}_{type}_{short_window}_{long_window}_{signal_window}
+{ticker}_{type}_{fast_period}_{slow_period}_{signal_period}
 ```
 
 ### Data Sources

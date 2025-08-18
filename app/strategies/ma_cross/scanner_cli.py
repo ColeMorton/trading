@@ -82,16 +82,16 @@ def process_scanner(config: Dict[str, Any]) -> bool:
                             "SMA": signal.ma_type == "SMA",
                             "EMA": signal.ma_type == "EMA",
                             "SMA_FAST": (
-                                signal.short_window if signal.ma_type == "SMA" else None
+                                signal.fast_period if signal.ma_type == "SMA" else None
                             ),
                             "SMA_SLOW": (
-                                signal.long_window if signal.ma_type == "SMA" else None
+                                signal.slow_period if signal.ma_type == "SMA" else None
                             ),
                             "EMA_FAST": (
-                                signal.short_window if signal.ma_type == "EMA" else None
+                                signal.fast_period if signal.ma_type == "EMA" else None
                             ),
                             "EMA_SLOW": (
-                                signal.long_window if signal.ma_type == "EMA" else None
+                                signal.slow_period if signal.ma_type == "EMA" else None
                             ),
                         }
                         results_data.append(result_dict)

@@ -38,16 +38,16 @@ from app.tools.get_config import get_config
 from app.tools.portfolio_transformation import reorder_columns
 from app.tools.project_utils import get_project_root
 from app.tools.stats_converter import convert_stats
-from app.tools.strategy.signal_utils import is_exit_signal_current, is_signal_current
+from app.tools.strategy.signal_utils import is_exit_signal_current, is_signal_current, calculate_signal_unconfirmed
 
 
 def _extract_equity_data_if_enabled(
     portfolio: any,
     ticker: str,
     strategy_type: str,
-    short_window: int,
-    long_window: int,
-    signal_window: Optional[int],
+    fast_period: int,
+    slow_period: int,
+    signal_period: Optional[int],
     config: Dict[str, Any],
     log: Callable[[str, str], None],
 ) -> Optional[EquityData]:
@@ -58,9 +58,9 @@ def _extract_equity_data_if_enabled(
         portfolio: VectorBT Portfolio object
         ticker: Ticker symbol
         strategy_type: Strategy type (SMA, EMA, MACD)
-        short_window: Short window parameter
-        long_window: Long window parameter
-        signal_window: Signal window parameter (optional)
+        fast_period: Fast period parameter
+        slow_period: Slow period parameter
+        signal_period: Signal period parameter (optional)
         config: Configuration dictionary
         log: Logging function
 
@@ -128,10 +128,77 @@ def process_ticker_portfolios(
         ]
         log(f"Date-related keys for {ticker}: {date_related_keys}", "info")
 
-        # Extract strategy parameters - try both uppercase and canonical names
-        short_window = row.get("SHORT_WINDOW") or row.get("Short Window")
-        long_window = row.get("LONG_WINDOW") or row.get("Long Window")
-        signal_window = row.get("SIGNAL_WINDOW") or row.get("Signal Window")
+        # Extract strategy parameters - check both top level and nested PORTFOLIO_STATS
+        portfolio_stats = row.get("PORTFOLIO_STATS", {})
+
+        # Debug: Log the actual data structure being processed
+        log(f"Row keys for {ticker}: {list(row.keys())[:10]}...", "info")
+        log(
+            f"PORTFOLIO_STATS keys for {ticker}: {list(portfolio_stats.keys())[:10] if portfolio_stats else 'None'}...",
+            "info",
+        )
+        log(
+            f"Direct access for {ticker}: FAST_PERIOD={row.get('FAST_PERIOD')}, SLOW_PERIOD={row.get('SLOW_PERIOD')}, SIGNAL_PERIOD={row.get('SIGNAL_PERIOD')}",
+            "info",
+        )
+        log(
+            f"Portfolio stats access for {ticker}: FAST_PERIOD={portfolio_stats.get('FAST_PERIOD')}, SLOW_PERIOD={portfolio_stats.get('SLOW_PERIOD')}, SIGNAL_PERIOD={portfolio_stats.get('SIGNAL_PERIOD')}",
+            "info",
+        )
+
+        # Try original column names first (what we actually have), then standardized/legacy names
+        # Enhanced debugging to track parameter extraction step by step
+        short_window_checks = [
+            ("Fast Period", row.get("Fast Period")),
+            ("FAST_PERIOD", row.get("FAST_PERIOD")),
+            (
+                "PORTFOLIO_STATS.FAST_PERIOD",
+                portfolio_stats.get("FAST_PERIOD") if portfolio_stats else None,
+            ),
+            ("FAST_PERIOD", row.get("FAST_PERIOD")),
+            (
+                "PORTFOLIO_STATS.FAST_PERIOD",
+                portfolio_stats.get("FAST_PERIOD") if portfolio_stats else None,
+            ),
+            ("Fast Period", row.get("Fast Period")),
+        ]
+
+        log(
+            f"DEBUG {ticker} fast_period extraction checks: {short_window_checks}",
+            "info",
+        )
+
+        fast_period = (
+            row.get("Fast Period")
+            or row.get("FAST_PERIOD")
+            or (portfolio_stats.get("FAST_PERIOD") if portfolio_stats else None)
+            or row.get("FAST_PERIOD")
+            or (portfolio_stats.get("FAST_PERIOD") if portfolio_stats else None)
+            or row.get("Fast Period")
+        )
+
+        slow_period = (
+            row.get("Slow Period")
+            or row.get("SLOW_PERIOD")
+            or (portfolio_stats.get("SLOW_PERIOD") if portfolio_stats else None)
+            or row.get("SLOW_PERIOD")
+            or (portfolio_stats.get("SLOW_PERIOD") if portfolio_stats else None)
+            or row.get("Slow Period")
+        )
+
+        signal_period = (
+            row.get("Signal Period")
+            or row.get("SIGNAL_PERIOD")
+            or (portfolio_stats.get("SIGNAL_PERIOD") if portfolio_stats else None)
+            or row.get("SIGNAL_PERIOD")
+            or (portfolio_stats.get("SIGNAL_PERIOD") if portfolio_stats else None)
+            or row.get("Signal Period")
+        )
+
+        log(
+            f"Final extracted values for {ticker}: fast_period={fast_period}, slow_period={slow_period}, signal_period={signal_period}",
+            "info",
+        )
 
         # Determine strategy type - try both uppercase and canonical names
         strategy_type = row.get("STRATEGY_TYPE") or row.get("Strategy Type")
@@ -151,38 +218,46 @@ def process_ticker_portfolios(
             )
 
         # Validate required parameters
-        has_windows = short_window is not None and long_window is not None
+        has_windows = fast_period is not None and slow_period is not None
         if not has_windows:
             log(f"Skipping {ticker}: No valid window combinations provided", "error")
             return None
 
         # Convert window values to integers
-        short_window = int(short_window)
-        long_window = int(long_window)
-        if signal_window is not None:
-            signal_window = int(signal_window)
+        fast_period = int(fast_period)
+        slow_period = int(slow_period)
+        if signal_period is not None:
+            signal_period = int(signal_period)
+
+        # Validate that window values are positive (skip corrupted data)
+        if fast_period <= 0 or slow_period <= 0:
+            log(
+                f"Skipping {ticker}: Invalid window values (short={fast_period}, long={slow_period})",
+                "warning",
+            )
+            return None
 
         # Process based on strategy type
         result = None
 
         if strategy_type == "MACD":
             # Validate MACD-specific parameters
-            if signal_window is None:
+            if signal_period is None or signal_period <= 0:
                 log(
-                    f"Skipping MACD strategy for {ticker}: Missing signal window parameter",
-                    "error",
+                    f"Skipping MACD strategy for {ticker}: Invalid signal period parameter (value={signal_period})",
+                    "warning",
                 )
                 return None
 
             log(
-                f"Processing MACD strategy for {ticker} with parameters {short_window}/{long_window}/{signal_window}"
+                f"Processing MACD strategy for {ticker} with parameters {fast_period}/{slow_period}/{signal_period}"
             )
             try:
                 result = process_macd_strategy(
                     ticker=ticker,
-                    short_window=short_window,
-                    long_window=long_window,
-                    signal_window=signal_window,
+                    fast_period=fast_period,
+                    slow_period=slow_period,
+                    signal_period=signal_period,
                     config=config,
                     log=log,
                 )
@@ -224,12 +299,19 @@ def process_ticker_portfolios(
                             "info",
                         )
 
+                        # Calculate unconfirmed signal
+                        signal_unconfirmed = calculate_signal_unconfirmed(signal_data, config)
+                        log(
+                            f"Signal Unconfirmed for {ticker}: {signal_unconfirmed}",
+                            "info",
+                        )
+
                         stats = portfolio.stats()
                         stats["Ticker"] = ticker
                         stats["Strategy Type"] = "MACD"
-                        stats["Short Window"] = short_window
-                        stats["Long Window"] = long_window
-                        stats["Signal Window"] = signal_window
+                        stats["Fast Period"] = fast_period
+                        stats["Slow Period"] = slow_period
+                        stats["Signal Period"] = signal_period
 
                         # Add Allocation [%] and Stop Loss [%] columns
                         # Get allocation and stop loss values, checking both naming
@@ -314,9 +396,9 @@ def process_ticker_portfolios(
                                 portfolio=portfolio,
                                 ticker=ticker,
                                 strategy_type="MACD",
-                                short_window=short_window,
-                                long_window=long_window,
-                                signal_window=signal_window,
+                                fast_period=fast_period,
+                                slow_period=slow_period,
+                                signal_period=signal_period,
                                 config=config,
                                 log=log,
                             )
@@ -325,9 +407,9 @@ def process_ticker_portfolios(
                             has_vectorbt_portfolio,
                             ticker=ticker,
                             strategy_type="MACD",
-                            short_window=short_window,
-                            long_window=long_window,
-                            signal_window=signal_window,
+                            fast_period=fast_period,
+                            slow_period=slow_period,
+                            signal_period=signal_period,
                         ):
                             log(
                                 f"Triggering fresh MACD analysis for {ticker} to enable equity export",
@@ -337,9 +419,9 @@ def process_ticker_portfolios(
                             fresh_portfolio = dispatch_fresh_analysis(
                                 ticker=ticker,
                                 strategy_type="MACD",
-                                short_window=short_window,
-                                long_window=long_window,
-                                signal_window=signal_window,
+                                fast_period=fast_period,
+                                slow_period=slow_period,
+                                signal_period=signal_period,
                                 config=config,
                                 log=log,
                             )
@@ -349,9 +431,9 @@ def process_ticker_portfolios(
                                     portfolio=fresh_portfolio,
                                     ticker=ticker,
                                     strategy_type="MACD",
-                                    short_window=short_window,
-                                    long_window=long_window,
-                                    signal_window=signal_window,
+                                    fast_period=fast_period,
+                                    slow_period=slow_period,
+                                    signal_period=signal_period,
                                     config=config,
                                     log=log,
                                 )
@@ -375,17 +457,17 @@ def process_ticker_portfolios(
                                     file_exists = equity_file_exists(
                                         ticker=ticker,
                                         strategy_type="MACD",
-                                        short_window=short_window,
-                                        long_window=long_window,
-                                        signal_window=signal_window,
+                                        fast_period=fast_period,
+                                        slow_period=slow_period,
+                                        signal_period=signal_period,
                                     )
                                     if file_exists:
                                         file_path = get_equity_file_path(
                                             ticker=ticker,
                                             strategy_type="MACD",
-                                            short_window=short_window,
-                                            long_window=long_window,
-                                            signal_window=signal_window,
+                                            fast_period=fast_period,
+                                            slow_period=slow_period,
+                                            signal_period=signal_period,
                                         )
                                         log(
                                             f"Skipping equity export for {ticker} MACD: file already exists at {file_path}",
@@ -413,7 +495,7 @@ def process_ticker_portfolios(
 
                         # Convert stats with current signal status
                         converted_stats = convert_stats(
-                            stats, log, config, current_signal, exit_signal
+                            stats, log, config, current_signal, exit_signal, signal_unconfirmed
                         )
                         portfolios.append(converted_stats)
                     except Exception as e:
@@ -427,10 +509,10 @@ def process_ticker_portfolios(
             # function
             try:
                 # Set SMA or EMA values based on strategy type
-                sma_fast = short_window if strategy_type == "SMA" else None
-                sma_slow = long_window if strategy_type == "SMA" else None
-                ema_fast = short_window if strategy_type == "EMA" else None
-                ema_slow = long_window if strategy_type == "EMA" else None
+                sma_fast = fast_period if strategy_type == "SMA" else None
+                sma_slow = slow_period if strategy_type == "SMA" else None
+                ema_fast = fast_period if strategy_type == "EMA" else None
+                ema_slow = slow_period if strategy_type == "EMA" else None
 
                 legacy_result = process_ma_portfolios(
                     ticker=ticker,
@@ -479,11 +561,18 @@ def process_ticker_portfolios(
                             "info",
                         )
 
+                        # Calculate unconfirmed signal
+                        signal_unconfirmed = calculate_signal_unconfirmed(sma_data, config)
+                        log(
+                            f"Signal Unconfirmed for {ticker} SMA: {signal_unconfirmed}",
+                            "info",
+                        )
+
                         sma_stats = sma_portfolio.stats()
                         sma_stats["Ticker"] = ticker
                         sma_stats["Strategy Type"] = "SMA"
-                        sma_stats["Short Window"] = short_window
-                        sma_stats["Long Window"] = long_window
+                        sma_stats["Fast Period"] = fast_period
+                        sma_stats["Slow Period"] = slow_period
 
                         # Add Allocation [%] and Stop Loss [%] columns
                         # Get allocation and stop loss values, checking both naming
@@ -571,9 +660,9 @@ def process_ticker_portfolios(
                                 portfolio=sma_portfolio,
                                 ticker=ticker,
                                 strategy_type="SMA",
-                                short_window=short_window,
-                                long_window=long_window,
-                                signal_window=None,
+                                fast_period=fast_period,
+                                slow_period=slow_period,
+                                signal_period=None,
                                 config=config,
                                 log=log,
                             )
@@ -582,9 +671,9 @@ def process_ticker_portfolios(
                             has_sma_vectorbt_portfolio,
                             ticker=ticker,
                             strategy_type="SMA",
-                            short_window=short_window,
-                            long_window=long_window,
-                            signal_window=None,
+                            fast_period=fast_period,
+                            slow_period=slow_period,
+                            signal_period=None,
                         ):
                             log(
                                 f"Triggering fresh SMA analysis for {ticker} to enable equity export",
@@ -594,9 +683,9 @@ def process_ticker_portfolios(
                             fresh_portfolio = dispatch_fresh_analysis(
                                 ticker=ticker,
                                 strategy_type="SMA",
-                                short_window=short_window,
-                                long_window=long_window,
-                                signal_window=None,
+                                fast_period=fast_period,
+                                slow_period=slow_period,
+                                signal_period=None,
                                 config=config,
                                 log=log,
                             )
@@ -606,9 +695,9 @@ def process_ticker_portfolios(
                                     portfolio=fresh_portfolio,
                                     ticker=ticker,
                                     strategy_type="SMA",
-                                    short_window=short_window,
-                                    long_window=long_window,
-                                    signal_window=None,
+                                    fast_period=fast_period,
+                                    slow_period=slow_period,
+                                    signal_period=None,
                                     config=config,
                                     log=log,
                                 )
@@ -632,17 +721,17 @@ def process_ticker_portfolios(
                                     file_exists = equity_file_exists(
                                         ticker=ticker,
                                         strategy_type="SMA",
-                                        short_window=short_window,
-                                        long_window=long_window,
-                                        signal_window=None,
+                                        fast_period=fast_period,
+                                        slow_period=slow_period,
+                                        signal_period=None,
                                     )
                                     if file_exists:
                                         file_path = get_equity_file_path(
                                             ticker=ticker,
                                             strategy_type="SMA",
-                                            short_window=short_window,
-                                            long_window=long_window,
-                                            signal_window=None,
+                                            fast_period=fast_period,
+                                            slow_period=slow_period,
+                                            signal_period=None,
                                         )
                                         log(
                                             f"Skipping equity export for {ticker} SMA: file already exists at {file_path}",
@@ -674,7 +763,7 @@ def process_ticker_portfolios(
 
                         # Convert stats with current signal status
                         sma_converted_stats = convert_stats(
-                            sma_stats, log, config, current_signal, exit_signal
+                            sma_stats, log, config, current_signal, exit_signal, signal_unconfirmed
                         )
 
                         # Debug: Check if equity data survived conversion
@@ -710,11 +799,18 @@ def process_ticker_portfolios(
                             "info",
                         )
 
+                        # Calculate unconfirmed signal
+                        signal_unconfirmed = calculate_signal_unconfirmed(ema_data, config)
+                        log(
+                            f"Signal Unconfirmed for {ticker} EMA: {signal_unconfirmed}",
+                            "info",
+                        )
+
                         ema_stats = ema_portfolio.stats()
                         ema_stats["Ticker"] = ticker
                         ema_stats["Strategy Type"] = "EMA"
-                        ema_stats["Short Window"] = short_window
-                        ema_stats["Long Window"] = long_window
+                        ema_stats["Fast Period"] = fast_period
+                        ema_stats["Slow Period"] = slow_period
 
                         # Add Allocation [%] and Stop Loss [%] columns
                         # Get allocation and stop loss values, checking both naming
@@ -802,9 +898,9 @@ def process_ticker_portfolios(
                                 portfolio=ema_portfolio,
                                 ticker=ticker,
                                 strategy_type="EMA",
-                                short_window=short_window,
-                                long_window=long_window,
-                                signal_window=None,
+                                fast_period=fast_period,
+                                slow_period=slow_period,
+                                signal_period=None,
                                 config=config,
                                 log=log,
                             )
@@ -813,9 +909,9 @@ def process_ticker_portfolios(
                             has_ema_vectorbt_portfolio,
                             ticker=ticker,
                             strategy_type="EMA",
-                            short_window=short_window,
-                            long_window=long_window,
-                            signal_window=None,
+                            fast_period=fast_period,
+                            slow_period=slow_period,
+                            signal_period=None,
                         ):
                             log(
                                 f"Triggering fresh EMA analysis for {ticker} to enable equity export",
@@ -825,9 +921,9 @@ def process_ticker_portfolios(
                             fresh_portfolio = dispatch_fresh_analysis(
                                 ticker=ticker,
                                 strategy_type="EMA",
-                                short_window=short_window,
-                                long_window=long_window,
-                                signal_window=None,
+                                fast_period=fast_period,
+                                slow_period=slow_period,
+                                signal_period=None,
                                 config=config,
                                 log=log,
                             )
@@ -837,9 +933,9 @@ def process_ticker_portfolios(
                                     portfolio=fresh_portfolio,
                                     ticker=ticker,
                                     strategy_type="EMA",
-                                    short_window=short_window,
-                                    long_window=long_window,
-                                    signal_window=None,
+                                    fast_period=fast_period,
+                                    slow_period=slow_period,
+                                    signal_period=None,
                                     config=config,
                                     log=log,
                                 )
@@ -863,17 +959,17 @@ def process_ticker_portfolios(
                                     file_exists = equity_file_exists(
                                         ticker=ticker,
                                         strategy_type="EMA",
-                                        short_window=short_window,
-                                        long_window=long_window,
-                                        signal_window=None,
+                                        fast_period=fast_period,
+                                        slow_period=slow_period,
+                                        signal_period=None,
                                     )
                                     if file_exists:
                                         file_path = get_equity_file_path(
                                             ticker=ticker,
                                             strategy_type="EMA",
-                                            short_window=short_window,
-                                            long_window=long_window,
-                                            signal_window=None,
+                                            fast_period=fast_period,
+                                            slow_period=slow_period,
+                                            signal_period=None,
                                         )
                                         log(
                                             f"Skipping equity export for {ticker} EMA: file already exists at {file_path}",
@@ -901,7 +997,7 @@ def process_ticker_portfolios(
 
                         # Convert stats with current signal status
                         ema_converted_stats = convert_stats(
-                            ema_stats, log, config, current_signal, exit_signal
+                            ema_stats, log, config, current_signal, exit_signal, signal_unconfirmed
                         )
                         portfolios.append(ema_converted_stats)
                     except Exception as e:
@@ -970,9 +1066,9 @@ def _generate_spds_compatible_entries(
             position_uuid = row.get("Position_UUID", "")
             ticker = row.get("Ticker", "")
             strategy_type = row.get("Strategy_Type", "")
-            short_window = row.get("Short_Window", 0)
-            long_window = row.get("Long_Window", 0)
-            signal_window = row.get("Signal_Window", 0)
+            fast_period = row.get("Fast_Period", 0)
+            slow_period = row.get("Slow_Period", 0)
+            signal_period = row.get("Signal_Period", 0)
             status = row.get("Status", "")
 
             # Find matching aggregated data for this strategy
@@ -981,8 +1077,8 @@ def _generate_spds_compatible_entries(
                 if (
                     agg_entry.get("Ticker") == ticker
                     and agg_entry.get("Strategy Type") == strategy_type
-                    and agg_entry.get("Short Window") == short_window
-                    and agg_entry.get("Long Window") == long_window
+                    and agg_entry.get("Fast Period") == fast_period
+                    and agg_entry.get("Slow Period") == slow_period
                 ):
                     matching_aggregated = agg_entry
                     break
@@ -995,9 +1091,9 @@ def _generate_spds_compatible_entries(
                 # Override key fields for SPDS compatibility
                 individual_entry["Ticker"] = ticker
                 individual_entry["Strategy Type"] = strategy_type
-                individual_entry["Short Window"] = short_window
-                individual_entry["Long Window"] = long_window
-                individual_entry["Signal Window"] = signal_window
+                individual_entry["Fast Period"] = fast_period
+                individual_entry["Slow Period"] = slow_period
+                individual_entry["Signal Period"] = signal_period
 
                 # Set signal status based on position status
                 individual_entry["Signal Entry"] = status == "Open"
@@ -1016,7 +1112,7 @@ def _generate_spds_compatible_entries(
 
             else:
                 log(
-                    f"No matching aggregated data found for {ticker} {strategy_type} {short_window}/{long_window}",
+                    f"No matching aggregated data found for {ticker} {strategy_type} {fast_period}/{slow_period}",
                     "warning",
                 )
 
@@ -1037,6 +1133,334 @@ def _generate_spds_compatible_entries(
         log(f"Error generating SPDS-compatible entries: {str(e)}", "error")
         log("Falling back to aggregated data", "warning")
         return aggregated_portfolios
+
+
+def update_strategy_files(
+    portfolios: List[Dict],
+    portfolio_name: str,
+    log: Callable[[str, str], None],
+    config: Optional[Dict] | None = None,
+) -> bool:
+    """
+    Update existing strategy files with processed portfolio data.
+
+    This function updates strategy files in /data/raw/strategies/ directory,
+    NOT creating new exports in portfolios directories.
+
+    Args:
+        portfolios (List[Dict]): List of portfolio statistics
+        portfolio_name (str): Name of the portfolio file
+        log (Callable): Logging function
+        config (Optional[Dict]): Configuration dictionary
+
+    Returns:
+        bool: True if update successful, False otherwise
+    """
+    try:
+        # Phase 4: Validate and log configuration before processing
+        if config:
+            try:
+                validated_config = log_configuration_validation(config, log)
+                config.update(validated_config)
+                log("Configuration validation completed successfully", "info")
+            except Exception as e:
+                log(f"Configuration validation failed: {str(e)}", "error")
+        else:
+            log("No configuration provided - using default settings", "warning")
+
+        if not portfolios:
+            log("No portfolios data provided for strategy file update", "warning")
+            return False
+
+        log(
+            f"📊 STRATEGY UPDATE: Updating strategy files with {len(portfolios)} portfolios",
+            "info",
+        )
+
+        # DIRECTORY VALIDATION: Ensure we're NOT exporting to portfolios directories
+        from pathlib import Path
+
+        project_root = get_project_root()
+
+        # Check that we're targeting strategies directory, not portfolios
+        expected_strategies_dir = Path(project_root) / "data" / "raw" / "strategies"
+        portfolios_dirs = [
+            Path(project_root) / "data" / "raw" / "portfolios",
+            Path(project_root) / "data" / "raw" / "portfolios_best",
+            Path(project_root) / "data" / "raw" / "portfolios_filtered",
+            Path(project_root) / "data" / "raw" / "portfolios_metrics",
+        ]
+
+        # Fail fast if any portfolios directory would be targeted
+        for portfolio_dir in portfolios_dirs:
+            if portfolio_dir.exists():
+                log(
+                    f"🔒 VALIDATION: Portfolios directory exists at {portfolio_dir} - ensuring no exports there",
+                    "info",
+                )
+
+        # Ensure strategies directory exists
+        if not expected_strategies_dir.exists():
+            log(
+                f"❌ VALIDATION FAILED: Strategies directory does not exist at {expected_strategies_dir}",
+                "error",
+            )
+            return False
+
+        log(
+            f"✅ VALIDATION PASSED: Will update strategy files in {expected_strategies_dir}",
+            "info",
+        )
+
+        # PHASE 1: Pre-processing validation of strategy parameters
+        log(f"🔍 PHASE 1: Validating {len(portfolios)} input portfolios", "info")
+        for i, portfolio in enumerate(portfolios):
+            ticker = portfolio.get("Ticker", "Unknown")
+            strategy_type = portfolio.get("Strategy Type", "Unknown")
+
+            # Check for strategy parameter integrity
+            fast_period = (
+                portfolio.get("Fast Period")
+                or portfolio.get("Fast Period")
+                or portfolio.get("FAST_PERIOD")
+            )
+            slow_period = (
+                portfolio.get("Slow Period")
+                or portfolio.get("Slow Period")
+                or portfolio.get("SLOW_PERIOD")
+            )
+            signal_period = (
+                portfolio.get("Signal Period")
+                or portfolio.get("Signal Period")
+                or portfolio.get("SIGNAL_PERIOD")
+            )
+
+            log(
+                f"📋 Portfolio {i+1}: {ticker} {strategy_type} - Fast: {fast_period}, Slow: {slow_period}, Signal: {signal_period}",
+                "info",
+            )
+
+            # Fail fast on invalid strategy parameters
+            if fast_period is None or slow_period is None:
+                log(
+                    f"❌ CRITICAL: Portfolio {i+1} ({ticker} {strategy_type}) has None parameters",
+                    "error",
+                )
+                return False
+            if fast_period <= 0 or slow_period <= 0:
+                log(
+                    f"❌ CRITICAL: Portfolio {i+1} ({ticker} {strategy_type}) has invalid parameters (fast={fast_period}, slow={slow_period})",
+                    "error",
+                )
+                return False
+
+        # Apply same data processing as export_summary_results
+        log(
+            f"🔄 PHASE 2: Applying column reordering to {len(portfolios)} portfolios",
+            "info",
+        )
+        reordered_portfolios = [reorder_columns(p) for p in portfolios]
+        export_config = config if config is not None else get_config({})
+        export_config["TICKER"] = None
+
+        # PHASE 2: Post-reordering validation
+        log(
+            f"🔍 PHASE 2: Validating {len(reordered_portfolios)} reordered portfolios",
+            "info",
+        )
+        for i, portfolio in enumerate(reordered_portfolios):
+            ticker = portfolio.get("Ticker", "Unknown")
+            strategy_type = portfolio.get("Strategy Type", "Unknown")
+            fast_period = portfolio.get("Fast Period")
+            slow_period = portfolio.get("Slow Period")
+            signal_period = portfolio.get("Signal Period")
+
+            log(
+                f"📋 Reordered Portfolio {i+1}: {ticker} {strategy_type} - Fast: {fast_period}, Slow: {slow_period}, Signal: {signal_period}",
+                "info",
+            )
+
+            # Detect corruption after reordering
+            if fast_period == 0 or slow_period == 0:
+                log(
+                    f"❌ CRITICAL: Column reordering corrupted Portfolio {i+1} ({ticker} {strategy_type}) - parameters became 0,0,0",
+                    "error",
+                )
+                return False
+
+        # Remove duplicates and apply filtering with enhanced logging
+        try:
+            df = pl.DataFrame(reordered_portfolios)
+            log(f"📊 BEFORE DEDUPLICATION: {len(df)} portfolios in DataFrame", "info")
+            log(f"📊 DataFrame columns: {df.columns}", "info")
+
+            # Dynamic column detection for robustness
+            available_columns = df.columns
+            uniqueness_columns = []
+
+            # Map standard deduplication columns to available columns
+            column_mapping = {
+                "Ticker": ["Ticker", "TICKER"],
+                "Strategy Type": ["Strategy Type", "STRATEGY_TYPE"],
+                "Fast Period": ["Fast Period", "Fast Period", "FAST_PERIOD"],
+                "Slow Period": ["Slow Period", "Slow Period", "SLOW_PERIOD"],
+            }
+
+            for standard_name, possible_names in column_mapping.items():
+                found_column = None
+                for possible_name in possible_names:
+                    if possible_name in available_columns:
+                        found_column = possible_name
+                        break
+
+                if found_column:
+                    uniqueness_columns.append(found_column)
+                    log(
+                        f"📊 Mapped '{standard_name}' to column '{found_column}'", "info"
+                    )
+                else:
+                    log(
+                        f"⚠️ WARNING: Could not find column for '{standard_name}' in {available_columns}",
+                        "warning",
+                    )
+
+            if "Metric Type" in df.columns:
+                uniqueness_columns.append("Metric Type")
+
+            log(f"📊 Using uniqueness columns: {uniqueness_columns}", "info")
+
+            # Log actual data before deduplication for debugging
+            for i, row in enumerate(df.iter_rows(named=True)):
+                if i < 3:  # Log first 3 rows for debugging
+                    log(f"📊 Row {i+1} data: {dict(row)}", "info")
+
+            duplicate_count = len(df) - df.unique(subset=uniqueness_columns).height
+            if duplicate_count > 0:
+                log(
+                    f"🔧 Found {duplicate_count} duplicate entries using columns: {uniqueness_columns}",
+                    "info",
+                )
+
+                # Before removing duplicates, check if this seems wrong
+                if (
+                    duplicate_count >= len(df) * 0.7
+                ):  # More than 70% duplicates seems suspicious
+                    log(
+                        f"⚠️ WARNING: Suspiciously high duplicate count ({duplicate_count}/{len(df)})",
+                        "warning",
+                    )
+
+                df = df.unique(subset=uniqueness_columns, keep="first")
+                log(f"📊 AFTER DEDUPLICATION: {len(df)} unique combinations", "info")
+
+                # Log remaining data after deduplication
+                for i, row in enumerate(df.iter_rows(named=True)):
+                    log(f"📊 Remaining Row {i+1}: {dict(row)}", "info")
+
+            reordered_portfolios = df.to_dicts()
+        except Exception as e:
+            log(f"Error during deduplication: {str(e)}", "warning")
+
+        # Filter out portfolios with invalid metrics
+        try:
+            from app.tools.portfolio.filters import filter_invalid_metrics
+
+            filtered_portfolios = filter_invalid_metrics(reordered_portfolios, log)
+            reordered_portfolios = filtered_portfolios
+            log(
+                f"After filtering invalid metrics: {len(reordered_portfolios)} portfolios remain"
+            )
+        except Exception as e:
+            log(f"Error during invalid metrics filtering: {str(e)}", "warning")
+
+        if not reordered_portfolios:
+            log("No portfolios remain after filtering", "warning")
+            return False
+
+        # Import export_csv for direct strategy file updates
+        from pathlib import Path
+
+        from app.tools.export_csv import export_csv
+
+        # Update strategy files directly in /data/raw/strategies/ directory
+        strategies_dir = Path(export_config["BASE_DIR"]) / "data" / "raw" / "strategies"
+        strategies_dir.mkdir(parents=True, exist_ok=True)
+
+        # Clean data for CSV export - remove non-serializable columns
+        csv_ready_portfolios = []
+        for portfolio in reordered_portfolios:
+            # Create a copy without non-serializable columns
+            clean_portfolio = {}
+            for key, value in portfolio.items():
+                # Skip non-serializable data like EquityData objects
+                if key.startswith("_") or key in ["_equity_data"]:
+                    continue
+                # Convert complex objects to strings for CSV compatibility
+                if value is not None and not isinstance(value, (str, int, float, bool)):
+                    try:
+                        clean_portfolio[key] = str(value)
+                    except:
+                        log(
+                            f"Skipping non-serializable field {key} for CSV export",
+                            "debug",
+                        )
+                        continue
+                else:
+                    clean_portfolio[key] = value
+            csv_ready_portfolios.append(clean_portfolio)
+
+        # Convert to DataFrame for export
+        df = pl.DataFrame(csv_ready_portfolios)
+
+        # Export directly to strategies directory using the original portfolio filename
+        output_path = strategies_dir / portfolio_name
+        log(f"📊 UPDATING STRATEGY FILE: {output_path}", "info")
+
+        # Write CSV directly to strategy file location
+        try:
+            df.write_csv(str(output_path), separator=",")
+            success = True
+            log(f"✅ STRATEGY FILE UPDATED: {output_path}", "info")
+        except Exception as e:
+            log(f"❌ FAILED TO UPDATE STRATEGY FILE: {str(e)}", "error")
+            success = False
+
+        if not success:
+            log("Failed to update strategy files", "error")
+            return False
+
+        # POST-EXECUTION VALIDATION: Verify no files were created in portfolios directories
+        portfolios_files_created = []
+        for portfolio_dir in portfolios_dirs:
+            if portfolio_dir.exists():
+                # Check for any recently created files in portfolios directories
+                import time
+
+                current_time = time.time()
+                recent_threshold = 60  # Files created in last 60 seconds
+
+                for file_path in portfolio_dir.rglob("*.csv"):
+                    if current_time - file_path.stat().st_mtime < recent_threshold:
+                        portfolios_files_created.append(str(file_path))
+
+        if portfolios_files_created:
+            log(
+                f"❌ VALIDATION FAILED: Files were created in portfolios directories: {portfolios_files_created}",
+                "error",
+            )
+            log("❌ This indicates the export routing is still broken", "error")
+            return False
+
+        log(
+            "✅ POST-EXECUTION VALIDATION PASSED: No files created in portfolios directories",
+            "info",
+        )
+        log("Strategy files updated successfully", "info")
+        return True
+
+    except Exception as e:
+        log(f"Error updating strategy files: {str(e)}", "error")
+        return False
 
 
 def export_summary_results(
@@ -1085,7 +1509,7 @@ def export_summary_results(
             metric_type_counts[metric_type] = metric_type_counts.get(metric_type, 0) + 1
 
             # Track configurations per ticker+strategy
-            key = f"{p.get('Ticker', 'N/A')},{p.get('Strategy Type', 'N/A')},{p.get('Short Window', 'N/A')},{p.get('Long Window', 'N/A')}"
+            key = f"{p.get('Ticker', 'N/A')},{p.get('Strategy Type', 'N/A')},{p.get('Fast Period', 'N/A')},{p.get('Slow Period', 'N/A')}"
             if key not in ticker_strategy_configs:
                 ticker_strategy_configs[key] = []
             ticker_strategy_configs[key].append(metric_type)
@@ -1102,6 +1526,62 @@ def export_summary_results(
         }
         if cbre_configs:
             log(f"📊 CBRE CONFIGURATIONS: {cbre_configs}", "info")
+        # SAFETY GUARD: Validate portfolios have meaningful data before export
+        valid_portfolios = []
+        for i, portfolio in enumerate(portfolios):
+            # Check if portfolio has valid window parameters
+            # Look for values in the correct columns where they're actually stored
+            fast_period = (
+                portfolio.get("Fast Period")
+                or portfolio.get("Fast Period")
+                or portfolio.get("FAST_PERIOD")
+                or 0
+            )
+            slow_period = (
+                portfolio.get("Slow Period")
+                or portfolio.get("Slow Period")
+                or portfolio.get("SLOW_PERIOD")
+                or 0
+            )
+
+            # Debug: Show all available keys and their values for the first few portfolios
+            if i < 3:
+                ticker = portfolio.get("Ticker", "Unknown")
+                strategy_type = portfolio.get("Strategy Type", "Unknown")
+                log(
+                    f"DEBUG MAIN PORTFOLIO {i+1} ({ticker} {strategy_type}): Keys available: {list(portfolio.keys())[:15]}...",
+                    "info",
+                )
+                log(
+                    f"DEBUG MAIN PORTFOLIO {i+1}: Fast Period={portfolio.get('Fast Period')}, FAST_PERIOD={portfolio.get('FAST_PERIOD')}, Fast Period={portfolio.get('Fast Period')}, FAST_PERIOD={portfolio.get('FAST_PERIOD')}",
+                    "info",
+                )
+
+            # For strategies without signal period (SMA/EMA), check if window values are valid
+            if fast_period > 0 and slow_period > 0:
+                valid_portfolios.append(portfolio)
+            else:
+                ticker = portfolio.get("Ticker", "Unknown")
+                strategy_type = portfolio.get("Strategy Type", "Unknown")
+                log(
+                    f"SAFETY GUARD: Skipping invalid portfolio {ticker} {strategy_type} "
+                    f"(fast={fast_period}, slow={slow_period})",
+                    "warning",
+                )
+
+        # Prevent export if no valid portfolios found
+        if not valid_portfolios:
+            log(
+                "SAFETY GUARD: Aborting export - no valid portfolios found. "
+                "This prevents corruption of input files with invalid data.",
+                "error",
+            )
+            return False
+
+        # Use only valid portfolios for export
+        portfolios = valid_portfolios
+        log(f"SAFETY GUARD: Proceeding with {len(portfolios)} valid portfolios", "info")
+
         # Reorder columns for each portfolio
         reordered_portfolios = [reorder_columns(p) for p in portfolios]
 
@@ -1109,7 +1589,7 @@ def export_summary_results(
         export_config = config if config is not None else get_config({})
         export_config["TICKER"] = None
 
-        # Remove duplicates based on Ticker, Use SMA, Short Window, Long Window
+        # Remove duplicates based on Ticker, Use SMA, Fast Period, Slow Period
         try:
             # Convert to Polars DataFrame for deduplication
             df = pl.DataFrame(reordered_portfolios)
@@ -1134,18 +1614,19 @@ def export_summary_results(
                     cbre_metrics = cbre_data.select(
                         "Ticker",
                         "Strategy Type",
-                        "Short Window",
-                        "Long Window",
+                        "Fast Period",
+                        "Slow Period",
                         "Metric Type",
                     ).to_dicts()
                     log(f"📊 CBRE METRICS BEFORE: {cbre_metrics}", "info")
 
             # Phase 2 Fix: Include Metric Type in uniqueness check to preserve all metric types
+            # Use correct column names: Fast Period and Slow Period (not Short/Slow Period)
             uniqueness_columns = [
                 "Ticker",
                 "Strategy Type",
-                "Short Window",
-                "Long Window",
+                "Fast Period",
+                "Slow Period",
             ]
 
             # If Metric Type column exists, include it in uniqueness check to preserve different metric types
@@ -1199,8 +1680,8 @@ def export_summary_results(
                         cbre_metrics_after = cbre_data_after.select(
                             "Ticker",
                             "Strategy Type",
-                            "Short Window",
-                            "Long Window",
+                            "Fast Period",
+                            "Slow Period",
                             "Metric Type",
                         ).to_dicts()
                         log(f"📊 CBRE METRICS AFTER: {cbre_metrics_after}", "info")
@@ -1208,7 +1689,7 @@ def export_summary_results(
                         # Phase 2 Validation: Check if multiple metric types are preserved for same configuration
                         cbre_configs = {}
                         for row in cbre_metrics_after:
-                            config_key = f"{row['Ticker']},{row['Strategy Type']},{row['Short Window']},{row['Long Window']}"
+                            config_key = f"{row['Ticker']},{row['Strategy Type']},{row['Fast Period']},{row['Slow Period']}"
                             if config_key not in cbre_configs:
                                 cbre_configs[config_key] = []
                             cbre_configs[config_key].append(row["Metric Type"])
@@ -1347,8 +1828,8 @@ def export_summary_results(
                     {
                         "Ticker": p.get("Ticker"),
                         "Strategy": p.get("Strategy Type"),
-                        "Short": p.get("Short Window"),
-                        "Long": p.get("Long Window"),
+                        "Short": p.get("Fast Period"),
+                        "Long": p.get("Slow Period"),
                         "Metric": p.get("Metric Type"),
                     }
                 )
@@ -1365,15 +1846,15 @@ def export_summary_results(
             reordered_portfolios, portfolio_name, log
         )
 
-        # Change feature_dir to "strategies" to export to /data/raw/strategies instead
-        # of legacy /data/raw/portfolios
+        # Export to /data/raw/portfolios to avoid overwriting input strategy files
+        # Input strategy definitions remain safe in /data/raw/strategies/
         _, success = export_portfolios(
             spds_compatible_portfolios,
             export_config,
             "portfolios",
             portfolio_name,
             log,
-            feature_dir="strategies",
+            feature_dir="portfolios",
         )
         if not success:
             log("Failed to export portfolios", "error")

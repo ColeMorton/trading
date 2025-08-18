@@ -135,10 +135,14 @@ class SensitivityAnalyzerBase(ABC):
 
             # Add strategy-specific parameters to stats with proper column name mapping
             parameter_mapping = {
-                "short_window": "Short Window",
-                "long_window": "Long Window",
-                "signal_window": "Signal Window",
+                "fast_period": "Fast Period",
+                "slow_period": "Slow Period",
+                "signal_period": "Signal Period",
                 "change_pct": "Change PCT",
+                # Legacy mappings for backwards compatibility
+                "fast_period": "Fast Period",
+                "slow_period": "Slow Period",
+                "signal_period": "Signal Period",
             }
 
             for param, value in strategy_params.items():
@@ -239,8 +243,8 @@ class MASensitivityAnalyzer(SensitivityAnalyzerBase):
 
             return calculate_ma_and_signals(
                 data=data,
-                short_window=strategy_config.get("short_window"),
-                long_window=strategy_config.get("long_window"),
+                fast_period=strategy_config.get("fast_period"),
+                slow_period=strategy_config.get("slow_period"),
                 config=strategy_config,
                 log=log,
                 strategy_type=self.ma_type,
@@ -259,35 +263,56 @@ class MASensitivityAnalyzer(SensitivityAnalyzerBase):
 
     def _extract_strategy_parameters(self, **kwargs) -> Dict[str, Any]:
         """Extract MA-specific parameters."""
-        short_window = kwargs.get("short_window") or kwargs.get("short")
-        long_window = kwargs.get("long_window") or kwargs.get("long")
+        # Support both new and legacy parameter names
+        fast_period = (
+            kwargs.get("fast_period")
+            or kwargs.get("fast_period")
+            or kwargs.get("short")
+        )
+        slow_period = (
+            kwargs.get("slow_period") or kwargs.get("slow_period") or kwargs.get("long")
+        )
 
-        if short_window is None or long_window is None:
+        if fast_period is None or slow_period is None:
             raise ValueError(
-                "MA strategy requires short_window and long_window parameters"
+                "MA strategy requires fast_period and slow_period parameters"
             )
 
         return {
-            "short_window": short_window,
-            "long_window": long_window,
+            "fast_period": fast_period,
+            "slow_period": slow_period,
             "USE_SMA": self.ma_type == "SMA",
         }
 
     def _check_data_sufficiency(self, data: pl.DataFrame, **strategy_params) -> bool:
-        """Check if data is sufficient for MA windows."""
-        short_window = strategy_params.get("short_window") or strategy_params.get(
-            "short"
+        """Check if data is sufficient for MA periods."""
+        fast_period = (
+            strategy_params.get("fast_period")
+            or strategy_params.get("fast_period")
+            or strategy_params.get("short")
         )
-        long_window = strategy_params.get("long_window") or strategy_params.get("long")
+        slow_period = (
+            strategy_params.get("slow_period")
+            or strategy_params.get("slow_period")
+            or strategy_params.get("long")
+        )
 
-        max_window = max(short_window or 0, long_window or 0)
-        return len(data) >= max_window
+        max_period = max(fast_period or 0, slow_period or 0)
+        return len(data) >= max_period
 
     def _format_parameters(self, **strategy_params) -> str:
         """Format MA parameters for logging."""
-        short = strategy_params.get("short_window") or strategy_params.get("short")
-        long = strategy_params.get("long_window") or strategy_params.get("long")
-        return f"Short: {short}, Long: {long}"
+        fast = (
+            strategy_params.get("fast_period")
+            or strategy_params.get("fast")
+            or strategy_params.get("short")
+        )
+        slow = (
+            strategy_params.get("slow_period")
+            or strategy_params.get("slow")
+            or strategy_params.get("long")
+        )
+        return f"Short: {fast}, Long: {slow}"
 
 
 class MACDSensitivityAnalyzer(SensitivityAnalyzerBase):
@@ -320,36 +345,51 @@ class MACDSensitivityAnalyzer(SensitivityAnalyzerBase):
 
     def _extract_strategy_parameters(self, **kwargs) -> Dict[str, Any]:
         """Extract MACD-specific parameters."""
-        short_window = kwargs.get("short_window")
-        long_window = kwargs.get("long_window")
-        signal_window = kwargs.get("signal_window")
+        # Support both new and legacy parameter names
+        fast_period = kwargs.get("fast_period") or kwargs.get("fast_period")
+        slow_period = kwargs.get("slow_period") or kwargs.get("slow_period")
+        signal_period = kwargs.get("signal_period") or kwargs.get("signal_period")
 
-        if short_window is None or long_window is None or signal_window is None:
+        if fast_period is None or slow_period is None or signal_period is None:
             raise ValueError(
-                "MACD strategy requires short_window, long_window, and signal_window parameters"
+                "MACD strategy requires fast_period, slow_period, and signal_period parameters"
             )
 
         return {
-            "short_window": short_window,
-            "long_window": long_window,
-            "signal_window": signal_window,
+            "fast_period": fast_period,
+            "slow_period": slow_period,
+            "signal_period": signal_period,
         }
 
     def _check_data_sufficiency(self, data: pl.DataFrame, **strategy_params) -> bool:
-        """Check if data is sufficient for MACD windows."""
-        short_window = strategy_params.get("short_window", 0)
-        long_window = strategy_params.get("long_window", 0)
-        signal_window = strategy_params.get("signal_window", 0)
+        """Check if data is sufficient for MACD periods."""
+        fast_period = strategy_params.get("fast_period") or strategy_params.get(
+            "fast_period", 0
+        )
+        slow_period = strategy_params.get("slow_period") or strategy_params.get(
+            "slow_period", 0
+        )
+        signal_period = strategy_params.get("signal_period") or strategy_params.get(
+            "signal_period", 0
+        )
 
-        max_window = max(short_window, long_window, signal_window)
-        return len(data) >= max_window
+        max_period = max(fast_period, slow_period, signal_period)
+        return len(data) >= max_period
 
     def _format_parameters(self, **strategy_params) -> str:
         """Format MACD parameters for logging."""
-        short = strategy_params.get("short_window")
-        long = strategy_params.get("long_window")
-        signal = strategy_params.get("signal_window")
-        return f"Short: {short}, Long: {long}, Signal: {signal}"
+        fast = (
+            strategy_params.get("fast_period")
+            or strategy_params.get("fast")
+            or strategy_params.get("short")
+        )
+        slow = (
+            strategy_params.get("slow_period")
+            or strategy_params.get("slow")
+            or strategy_params.get("long")
+        )
+        signal = strategy_params.get("signal_period") or strategy_params.get("signal")
+        return f"Short: {fast}, Long: {slow}, Signal: {signal}"
 
 
 class MeanReversionSensitivityAnalyzer(SensitivityAnalyzerBase):
@@ -496,56 +536,86 @@ def analyze_parameter_combinations(
 
 # Strategy-specific convenience functions for backward compatibility
 def analyze_window_combination(
-    data: pl.DataFrame, short: int, long: int, config: Dict[str, Any], log: Callable
+    data: pl.DataFrame,
+    fast_period: int = None,
+    slow_period: int = None,
+    short: int = None,
+    long: int = None,
+    config: Dict[str, Any] = None,
+    log: Callable = None,
 ) -> Optional[Dict[str, Any]]:
-    """Analyze MA window combination (backward compatibility function).
+    """Analyze MA window combination (supports both new and legacy parameter names).
 
     Args:
         data: Price data DataFrame
-        short: Short window period
-        long: Long window period
+        fast_period: Fast period (new parameter name)
+        slow_period: Slow period (new parameter name)
+        short: Fast period (legacy parameter name)
+        long: Slow period (legacy parameter name)
         config: Configuration dictionary
         log: Logging function
 
     Returns:
         Portfolio statistics if successful, None if failed
     """
+    # Handle both new and legacy parameter names
+    fast = fast_period or short
+    slow = slow_period or long
+
+    if fast is None or slow is None:
+        raise ValueError(
+            "Must provide either fast_period/slow_period or short/long parameters"
+        )
+
     strategy_type = config.get("STRATEGY_TYPE", "SMA")
     analyzer = SensitivityAnalyzerFactory.create_analyzer(strategy_type)
     return analyzer.analyze_parameter_combination(
-        data, config, log, short_window=short, long_window=long
+        data, config, log, fast_period=fast, slow_period=slow
     )
 
 
 def analyze_macd_combination(
     data: pl.DataFrame,
-    short_window: int,
-    long_window: int,
-    signal_window: int,
-    config: Dict[str, Any],
-    log: Callable,
+    fast_period: int = None,
+    slow_period: int = None,
+    signal_period: int = None,
+    config: Dict[str, Any] = None,
+    log: Callable = None,
 ) -> Optional[Dict[str, Any]]:
-    """Analyze MACD parameter combination (convenience function).
+    """Analyze MACD parameter combination (supports both new and legacy parameter names).
 
     Args:
         data: Price data DataFrame
-        short_window: Short-term EMA period
-        long_window: Long-term EMA period
-        signal_window: Signal line EMA period
+        fast_period: Fast EMA period (new parameter name)
+        slow_period: Slow EMA period (new parameter name)
+        signal_period: Signal line EMA period (new parameter name)
+        fast_period: Short-term EMA period (legacy parameter name)
+        slow_period: Long-term EMA period (legacy parameter name)
+        signal_period: Signal line EMA period (legacy parameter name)
         config: Configuration dictionary
         log: Logging function
 
     Returns:
         Portfolio statistics if successful, None if failed
     """
+    # Handle both new and legacy parameter names
+    fast = fast_period or fast_period
+    slow = slow_period or slow_period
+    signal = signal_period or signal_period
+
+    if fast is None or slow is None or signal is None:
+        raise ValueError(
+            "Must provide either fast_period/slow_period/signal_period or fast_period/slow_period/signal_period parameters"
+        )
+
     analyzer = SensitivityAnalyzerFactory.create_analyzer("MACD")
     return analyzer.analyze_parameter_combination(
         data,
         config,
         log,
-        short_window=short_window,
-        long_window=long_window,
-        signal_window=signal_window,
+        fast_period=fast,
+        slow_period=slow,
+        signal_period=signal,
     )
 
 

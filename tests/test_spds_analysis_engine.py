@@ -45,8 +45,8 @@ class TestSPDSAnalysisEngine:
                     "Position_UUID": f"AAPL_SMA_20_50_{20250101 + i:08d}",
                     "Ticker": "AAPL",
                     "Strategy": "SMA",
-                    "Short_Window": 20,
-                    "Long_Window": 50,
+                    "Fast_Period": 20,
+                    "Slow_Period": 50,
                     "Win_Rate": 0.6 + (i * 0.01),
                     "Total_Return": 0.15 + (i * 0.02),
                     "Sharpe_Ratio": 1.2 + (i * 0.1),
@@ -297,8 +297,8 @@ class TestSPDSAnalysisEnginePerformance:
                     "Position_UUID": f"{ticker}_{strategy}_{20 + i % 30}_{50 + i % 100}_{20250101 + i:08d}",
                     "Ticker": ticker,
                     "Strategy": strategy,
-                    "Short_Window": 20 + (i % 30),
-                    "Long_Window": 50 + (i % 100),
+                    "Fast_Period": 20 + (i % 30),
+                    "Slow_Period": 50 + (i % 100),
                     "Win_Rate": 0.4 + (i % 41) / 100,  # 0.4 to 0.8
                     "Total_Return": -0.2 + (i % 121) / 100,  # -0.2 to 1.0
                     "Sharpe_Ratio": -0.5 + (i % 201) / 100,  # -0.5 to 1.5

@@ -16,7 +16,7 @@ defaults:
   # Strategy parameters optimized for equity markets
   strategy_parameters:
     stop_loss: 2.5 # Conservative stop loss for equities
-    windows: 50 # Standard window for equity analysis
+    slow_period_max: 50 # Standard maximum slow period for equity analysis
     volatility_multiplier: 1.0 # Normal volatility adjustment
 
   # Data collection defaults
@@ -80,8 +80,8 @@ sectors:
     correlation_within_sector: 0.70
     benchmark: 'XLK'
     strategy_defaults:
-      short_window: 15
-      long_window: 45
+      fast_period: 15
+      slow_period: 45
       stop_loss: 3.0
     risk_factors: ['tech_selloffs', 'interest_rate_sensitivity']
 
@@ -90,8 +90,8 @@ sectors:
     correlation_within_sector: 0.50
     benchmark: 'XLV'
     strategy_defaults:
-      short_window: 20
-      long_window: 60
+      fast_period: 20
+      slow_period: 60
       stop_loss: 2.5
     risk_factors: ['regulatory_risk', 'clinical_trial_risk']
 
@@ -100,8 +100,8 @@ sectors:
     correlation_within_sector: 0.75
     benchmark: 'XLF'
     strategy_defaults:
-      short_window: 25
-      long_window: 75
+      fast_period: 25
+      slow_period: 75
       stop_loss: 3.5
     risk_factors: ['interest_rate_risk', 'credit_risk', 'regulatory_risk']
 
@@ -110,8 +110,8 @@ sectors:
     correlation_within_sector: 0.80
     benchmark: 'XLE'
     strategy_defaults:
-      short_window: 10
-      long_window: 30
+      fast_period: 10
+      slow_period: 30
       stop_loss: 4.0
     risk_factors: ['commodity_price_risk', 'geopolitical_risk']
 
@@ -120,8 +120,8 @@ sectors:
     correlation_within_sector: 0.60
     benchmark: 'XLU'
     strategy_defaults:
-      short_window: 30
-      long_window: 90
+      fast_period: 30
+      slow_period: 90
       stop_loss: 2.0
     risk_factors: ['interest_rate_sensitivity', 'regulatory_risk']
 

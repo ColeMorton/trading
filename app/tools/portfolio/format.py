@@ -36,11 +36,16 @@ def standardize_portfolio_columns(
         "ticker": "TICKER",
         "Symbol": "TICKER",
         "symbol": "TICKER",
-        # Window columns
-        "Short Window": "SHORT_WINDOW",
-        "short_window": "SHORT_WINDOW",
-        "Long Window": "LONG_WINDOW",
-        "long_window": "LONG_WINDOW",
+        # Period columns (new naming convention)
+        "Fast Period": "FAST_PERIOD",
+        "fast_period": "FAST_PERIOD",
+        "Slow Period": "SLOW_PERIOD",
+        "slow_period": "SLOW_PERIOD",
+        # Legacy window columns (backwards compatibility)
+        "Fast Period": "FAST_PERIOD",
+        "fast_period": "FAST_PERIOD",
+        "Slow Period": "SLOW_PERIOD",
+        "slow_period": "SLOW_PERIOD",
         # Strategy type columns
         "Use SMA": "USE_SMA",
         "use_sma": "USE_SMA",
@@ -67,10 +72,12 @@ def standardize_portfolio_columns(
         "rsi_period": "RSI_WINDOW",
         "RSI Threshold": "RSI_THRESHOLD",
         "rsi_threshold": "RSI_THRESHOLD",
-        # MACD columns
-        "Signal Window": "SIGNAL_WINDOW",
-        "signal_window": "SIGNAL_WINDOW",
-        "signal_period": "SIGNAL_WINDOW",  # For backward compatibility
+        # MACD columns (new naming convention)
+        "Signal Period": "SIGNAL_PERIOD",
+        "signal_period": "SIGNAL_PERIOD",
+        # Legacy MACD columns (backwards compatibility)
+        "Signal Period": "SIGNAL_PERIOD",
+        "signal_period": "SIGNAL_PERIOD",
         # Signal entry/exit columns
         "Signal Entry": "SIGNAL_ENTRY",
         "signal_entry": "SIGNAL_ENTRY",
@@ -144,7 +151,7 @@ def convert_csv_to_strategy_config(
         direction = row.get("DIRECTION", "Long")
 
         # Determine if this is a MACD strategy
-        is_macd = strategy_type == "MACD" or "SIGNAL_WINDOW" in row
+        is_macd = strategy_type == "MACD" or "SIGNAL_PERIOD" in row
 
         # Create strategy configuration with consistent type fields
         strategy_config = {
@@ -181,19 +188,36 @@ def convert_csv_to_strategy_config(
             use_sma = True  # Default to SMA
 
         # Add window parameters if available
-        if "SHORT_WINDOW" in row and row["SHORT_WINDOW"] is not None:
-            strategy_config["SHORT_WINDOW"] = int(row["SHORT_WINDOW"])
+        # Check new standardized names first, then legacy names for backward compatibility
+        if "FAST_PERIOD" in row and row["FAST_PERIOD"] is not None:
+            strategy_config["FAST_PERIOD"] = int(row["FAST_PERIOD"])
+        elif "FAST_PERIOD" in row and row["FAST_PERIOD"] is not None:
+            strategy_config["FAST_PERIOD"] = int(row["FAST_PERIOD"])
         elif "SMA_FAST" in row and row["SMA_FAST"] is not None and use_sma:
-            strategy_config["SHORT_WINDOW"] = int(row["SMA_FAST"])
+            strategy_config["FAST_PERIOD"] = int(row["SMA_FAST"])
         elif "EMA_FAST" in row and row["EMA_FAST"] is not None and not use_sma:
-            strategy_config["SHORT_WINDOW"] = int(row["EMA_FAST"])
+            strategy_config["FAST_PERIOD"] = int(row["EMA_FAST"])
 
-        if "LONG_WINDOW" in row and row["LONG_WINDOW"] is not None:
-            strategy_config["LONG_WINDOW"] = int(row["LONG_WINDOW"])
+        if "SLOW_PERIOD" in row and row["SLOW_PERIOD"] is not None:
+            strategy_config["SLOW_PERIOD"] = int(row["SLOW_PERIOD"])
+        elif "SLOW_PERIOD" in row and row["SLOW_PERIOD"] is not None:
+            strategy_config["SLOW_PERIOD"] = int(row["SLOW_PERIOD"])
         elif "SMA_SLOW" in row and row["SMA_SLOW"] is not None and use_sma:
-            strategy_config["LONG_WINDOW"] = int(row["SMA_SLOW"])
+            strategy_config["SLOW_PERIOD"] = int(row["SMA_SLOW"])
         elif "EMA_SLOW" in row and row["EMA_SLOW"] is not None and not use_sma:
-            strategy_config["LONG_WINDOW"] = int(row["EMA_SLOW"])
+            strategy_config["SLOW_PERIOD"] = int(row["EMA_SLOW"])
+
+        # Validate window values are positive (skip corrupted data)
+        fast_period = strategy_config.get("FAST_PERIOD")
+        slow_period = strategy_config.get("SLOW_PERIOD")
+        if (fast_period is not None and fast_period <= 0) or (
+            slow_period is not None and slow_period <= 0
+        ):
+            log(
+                f"Skipping {ticker}: Invalid window values (short={fast_period}, long={slow_period})",
+                "warning",
+            )
+            continue  # Skip to next strategy in the loop
 
         # Add allocation if available
         if "ALLOCATION" in row and row["ALLOCATION"] is not None:
@@ -316,30 +340,35 @@ def convert_csv_to_strategy_config(
                     "info",
                 )
 
-        # Add MACD signal window if available
+        # Add MACD signal period if available
         if strategy_type == "MACD":
-            # Check both signal_window and signal_period for backward compatibility
-            signal = row.get("SIGNAL_WINDOW")
+            # Check new standardized name first, then legacy names for backward compatibility
+            signal = row.get("SIGNAL_PERIOD")
             if signal is None:
-                signal = row.get("signal_window") or row.get("signal_period")
+                signal = (
+                    row.get("SIGNAL_PERIOD")
+                    or row.get("signal_period")
+                    or row.get("signal_period")
+                )
 
-            if (
-                signal is not None and signal != 0
-            ):  # Allow zero for backward compatibility with non-MACD strategies
+            if signal is not None and signal != 0:
                 try:
-                    strategy_config["SIGNAL_WINDOW"] = int(signal)
+                    strategy_config["SIGNAL_PERIOD"] = int(signal)
                     log(
-                        f"Using signal window: {strategy_config['SIGNAL_WINDOW']} for {ticker}",
+                        f"Using signal period: {strategy_config['SIGNAL_PERIOD']} for {ticker}",
                         "info",
                     )
                 except (ValueError, TypeError):
-                    error_msg = f"Invalid signal window value for {ticker}: {signal}. Must be an integer."
+                    error_msg = f"Invalid signal period value for {ticker}: {signal}. Must be an integer."
                     log(error_msg, "error")
                     raise ValueError(error_msg)
             else:
-                error_msg = f"Missing required Signal Window parameter for MACD strategy: {ticker}"
-                log(error_msg, "error")
-                raise ValueError(error_msg)
+                # Skip this strategy instead of raising an error for corrupted data
+                log(
+                    f"Skipping MACD strategy for {ticker}: Invalid signal period parameter (value={signal})",
+                    "warning",
+                )
+                continue  # Skip to next strategy in the loop
         # Create a dictionary to store all CSV columns that aren't already in
         # strategy_config
         portfolio_stats = {}
@@ -348,9 +377,9 @@ def convert_csv_to_strategy_config(
         strategy_config_keys = [
             "TICKER",
             "DIRECTION",
-            "SHORT_WINDOW",
-            "LONG_WINDOW",
-            "SIGNAL_WINDOW",
+            "FAST_PERIOD",
+            "SLOW_PERIOD",
+            "SIGNAL_PERIOD",
             "USE_HOURLY",
             "USE_RSI",
             "RSI_WINDOW",

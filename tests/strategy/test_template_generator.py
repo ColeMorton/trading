@@ -78,8 +78,8 @@ class TestTemplateConfig:
 
         assert "class TestStrategyConfig(TypedDict):" in typedef
         assert "TICKER: List[str]" in typedef
-        assert "SHORT_WINDOW: int" in typedef
-        assert "LONG_WINDOW: int" in typedef
+        assert "FAST_PERIOD: int" in typedef
+        assert "SLOW_PERIOD: int" in typedef
 
     def test_default_config_instance_generation(self):
         """Test default configuration instance generation."""

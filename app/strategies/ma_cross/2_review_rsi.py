@@ -20,8 +20,8 @@ from app.tools.setup_logging import setup_logging
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
     "TICKER": "BALL",
-    "SHORT_WINDOW": 30,
-    "LONG_WINDOW": 35,
+    "FAST_PERIOD": 30,
+    "SLOW_PERIOD": 35,
     "BASE_DIR": ".",
     "USE_SMA": True,
     "REFRESH": False,

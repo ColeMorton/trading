@@ -19,9 +19,9 @@ from app.tools.project_utils import get_project_root
 def generate_equity_filename(
     ticker: str,
     strategy_type: str,
-    short_window: int,
-    long_window: int,
-    signal_window: Optional[int] = None,
+    fast_period: int,
+    slow_period: int,
+    signal_period: Optional[int] = None,
 ) -> str:
     """
     Generate equity data filename according to specification.
@@ -29,9 +29,9 @@ def generate_equity_filename(
     Args:
         ticker: Trading symbol (e.g., "AAPL", "BTC-USD")
         strategy_type: Strategy type ("SMA", "EMA", "MACD")
-        short_window: Short period parameter
-        long_window: Long period parameter
-        signal_window: Signal period (optional, defaults to 0)
+        fast_period: Short period parameter
+        slow_period: Long period parameter
+        signal_period: Signal period (optional, defaults to 0)
 
     Returns:
         Filename string in format:
@@ -42,14 +42,14 @@ def generate_equity_filename(
     clean_ticker = ticker.replace("/", "-").replace("\\", "-").replace(":", "-")
 
     if strategy_type == "MACD":
-        # MACD strategies require signal window
-        signal = signal_window if signal_window is not None else 0
+        # MACD strategies require signal period
+        signal = signal_period if signal_period is not None else 0
         filename = (
-            f"{clean_ticker}_{strategy_type}_{short_window}_{long_window}_{signal}.csv"
+            f"{clean_ticker}_{strategy_type}_{fast_period}_{slow_period}_{signal}.csv"
         )
     else:
-        # SMA/EMA strategies don't use signal window
-        filename = f"{clean_ticker}_{strategy_type}_{short_window}_{long_window}.csv"
+        # SMA/EMA strategies don't use signal period
+        filename = f"{clean_ticker}_{strategy_type}_{fast_period}_{slow_period}.csv"
 
     return filename
 
@@ -57,9 +57,9 @@ def generate_equity_filename(
 def get_equity_file_path(
     ticker: str,
     strategy_type: str,
-    short_window: int,
-    long_window: int,
-    signal_window: Optional[int] = None,
+    fast_period: int,
+    slow_period: int,
+    signal_period: Optional[int] = None,
 ) -> Path:
     """
     Get the full file path for equity data export.
@@ -67,16 +67,16 @@ def get_equity_file_path(
     Args:
         ticker: Trading symbol (e.g., "AAPL", "BTC-USD")
         strategy_type: Strategy type ("SMA", "EMA", "MACD")
-        short_window: Short period parameter
-        long_window: Long period parameter
-        signal_window: Signal period (optional, defaults to 0)
+        fast_period: Short period parameter
+        slow_period: Long period parameter
+        signal_period: Signal period (optional, defaults to 0)
 
     Returns:
         Path object for the equity data file
     """
     export_dir = get_equity_export_directory(strategy_type)
     filename = generate_equity_filename(
-        ticker, strategy_type, short_window, long_window, signal_window
+        ticker, strategy_type, fast_period, slow_period, signal_period
     )
     return export_dir / filename
 
@@ -84,9 +84,9 @@ def get_equity_file_path(
 def equity_file_exists(
     ticker: str,
     strategy_type: str,
-    short_window: int,
-    long_window: int,
-    signal_window: Optional[int] = None,
+    fast_period: int,
+    slow_period: int,
+    signal_period: Optional[int] = None,
 ) -> bool:
     """
     Check if equity data file already exists for the given strategy.
@@ -94,16 +94,16 @@ def equity_file_exists(
     Args:
         ticker: Trading symbol (e.g., "AAPL", "BTC-USD")
         strategy_type: Strategy type ("SMA", "EMA", "MACD")
-        short_window: Short period parameter
-        long_window: Long period parameter
-        signal_window: Signal period (optional, defaults to 0)
+        fast_period: Short period parameter
+        slow_period: Long period parameter
+        signal_period: Signal period (optional, defaults to 0)
 
     Returns:
         True if equity file exists, False otherwise
     """
     try:
         file_path = get_equity_file_path(
-            ticker, strategy_type, short_window, long_window, signal_window
+            ticker, strategy_type, fast_period, slow_period, signal_period
         )
         return file_path.exists() and file_path.is_file()
     except Exception:
@@ -165,9 +165,9 @@ def export_equity_data_to_csv(
     equity_data: EquityData,
     ticker: str,
     strategy_type: str,
-    short_window: int,
-    long_window: int,
-    signal_window: Optional[int],
+    fast_period: int,
+    slow_period: int,
+    signal_period: Optional[int],
     log: Callable[[str, str], None],
     overwrite: bool = True,
 ) -> bool:
@@ -178,9 +178,9 @@ def export_equity_data_to_csv(
         equity_data: EquityData object containing equity metrics
         ticker: Trading symbol
         strategy_type: Strategy type ("SMA", "EMA", "MACD")
-        short_window: Short period parameter
-        long_window: Long period parameter
-        signal_window: Signal period parameter (optional)
+        fast_period: Short period parameter
+        slow_period: Long period parameter
+        signal_period: Signal period parameter (optional)
         log: Logging function
         overwrite: Whether to overwrite existing files (default: True)
 
@@ -193,7 +193,7 @@ def export_equity_data_to_csv(
     try:
         # Generate filename and directory
         filename = generate_equity_filename(
-            ticker, strategy_type, short_window, long_window, signal_window
+            ticker, strategy_type, fast_period, slow_period, signal_period
         )
         export_dir = get_equity_export_directory(strategy_type)
         file_path = export_dir / filename
@@ -274,17 +274,27 @@ def export_equity_data_batch(
             # Extract strategy parameters
             ticker = portfolio.get("Ticker")
             strategy_type = portfolio.get("Strategy Type")
-            short_window = portfolio.get("Short Window")
-            long_window = portfolio.get("Long Window")
-            signal_window = portfolio.get("Signal Window")
+            # Handle both old (Fast Period) and new (Fast Period) column names
+            # Use explicit None checks since 0 is a valid value
+            fast_period = portfolio.get("Fast Period")
+            if fast_period is None:
+                fast_period = portfolio.get("Fast Period")
+
+            slow_period = portfolio.get("Slow Period")
+            if slow_period is None:
+                slow_period = portfolio.get("Slow Period")
+
+            signal_period = portfolio.get("Signal Period")
+            if signal_period is None:
+                signal_period = portfolio.get("Signal Period")
 
             # Validate required parameters
             if not all(
                 [
                     ticker,
                     strategy_type,
-                    short_window is not None,
-                    long_window is not None,
+                    fast_period is not None,
+                    slow_period is not None,
                 ]
             ):
                 log(
@@ -299,9 +309,9 @@ def export_equity_data_batch(
                 equity_data=equity_data,
                 ticker=ticker,
                 strategy_type=strategy_type,
-                short_window=int(short_window),
-                long_window=int(long_window),
-                signal_window=int(signal_window) if signal_window is not None else None,
+                fast_period=int(fast_period),
+                slow_period=int(slow_period),
+                signal_period=int(signal_period) if signal_period is not None else None,
                 log=log,
                 overwrite=True,
             )
@@ -330,9 +340,9 @@ def export_equity_data_batch(
 def validate_equity_export_requirements(
     ticker: str,
     strategy_type: str,
-    short_window: Any,
-    long_window: Any,
-    signal_window: Any = None,
+    fast_period: Any,
+    slow_period: Any,
+    signal_period: Any = None,
 ) -> bool:
     """
     Validate that all required parameters for equity export are present and valid.
@@ -340,9 +350,9 @@ def validate_equity_export_requirements(
     Args:
         ticker: Trading symbol
         strategy_type: Strategy type
-        short_window: Short window parameter
-        long_window: Long window parameter
-        signal_window: Signal window parameter (optional)
+        fast_period: Fast period parameter
+        slow_period: Slow period parameter
+        signal_period: Signal period parameter (optional)
 
     Returns:
         True if all requirements are met, False otherwise
@@ -357,8 +367,8 @@ def validate_equity_export_requirements(
 
     # Check window parameters
     try:
-        short_val = int(short_window) if short_window is not None else None
-        long_val = int(long_window) if long_window is not None else None
+        short_val = int(fast_period) if fast_period is not None else None
+        long_val = int(slow_period) if slow_period is not None else None
 
         if short_val is None or long_val is None:
             return False
@@ -366,11 +376,11 @@ def validate_equity_export_requirements(
         if short_val <= 0 or long_val <= 0:
             return False
 
-        # For MACD, signal window is required
+        # For MACD, signal period is required
         if strategy_type == "MACD":
-            if signal_window is None:
+            if signal_period is None:
                 return False
-            signal_val = int(signal_window)
+            signal_val = int(signal_period)
             if signal_val <= 0:
                 return False
 
@@ -383,9 +393,9 @@ def validate_equity_export_requirements(
 def get_equity_export_file_path(
     ticker: str,
     strategy_type: str,
-    short_window: int,
-    long_window: int,
-    signal_window: Optional[int] = None,
+    fast_period: int,
+    slow_period: int,
+    signal_period: Optional[int] = None,
 ) -> Path:
     """
     Get the full file path for equity data export.
@@ -393,15 +403,15 @@ def get_equity_export_file_path(
     Args:
         ticker: Trading symbol
         strategy_type: Strategy type
-        short_window: Short window parameter
-        long_window: Long window parameter
-        signal_window: Signal window parameter (optional)
+        fast_period: Fast period parameter
+        slow_period: Slow period parameter
+        signal_period: Signal period parameter (optional)
 
     Returns:
         Path object for the export file
     """
     filename = generate_equity_filename(
-        ticker, strategy_type, short_window, long_window, signal_window
+        ticker, strategy_type, fast_period, slow_period, signal_period
     )
     export_dir = get_equity_export_directory(strategy_type)
     return export_dir / filename

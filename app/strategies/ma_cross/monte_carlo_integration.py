@@ -331,7 +331,7 @@ class MonteCarloEnhancedAnalyzer:
             top_percentage: Percentage of top-performing combinations to test
 
         Returns:
-            List of (ticker, short_window, long_window) tuples
+            List of (ticker, fast_period, slow_period) tuples
         """
         if not standard_results:
             return []
@@ -357,8 +357,8 @@ class MonteCarloEnhancedAnalyzer:
             (calculate_composite_score(result), result)
             for result in standard_results
             if result.get("Ticker")
-            and result.get("Short Window")
-            and result.get("Long Window")
+            and result.get("Fast Period")
+            and result.get("Slow Period")
         ]
 
         scored_results.sort(key=lambda x: x[0], reverse=True)
@@ -369,7 +369,7 @@ class MonteCarloEnhancedAnalyzer:
 
         # Extract parameter combinations
         promising_params = [
-            (result["Ticker"], int(result["Short Window"]), int(result["Long Window"]))
+            (result["Ticker"], int(result["Fast Period"]), int(result["Slow Period"]))
             for score, result in selected_results
         ]
 
@@ -386,7 +386,7 @@ class MonteCarloEnhancedAnalyzer:
         Run Monte Carlo robustness analysis on promising parameters.
 
         Args:
-            promising_params: List of (ticker, short_window, long_window) tuples
+            promising_params: List of (ticker, fast_period, slow_period) tuples
 
         Returns:
             Dictionary with robustness analysis results
@@ -465,8 +465,8 @@ class MonteCarloEnhancedAnalyzer:
         for result in standard_results:
             key = (
                 result.get("Ticker"),
-                result.get("Short Window"),
-                result.get("Long Window"),
+                result.get("Fast Period"),
+                result.get("Slow Period"),
             )
             standard_lookup[key] = result
 
@@ -482,8 +482,8 @@ class MonteCarloEnhancedAnalyzer:
                 # Create recommendation
                 recommendation = {
                     "Ticker": ticker,
-                    "Short_Window": short,
-                    "Long_Window": long,
+                    "Fast_Period": short,
+                    "Slow_Period": long,
                     # Standard metrics
                     "Standard_Sharpe": standard_result.get("Sharpe Ratio", 0),
                     "Standard_Return": standard_result.get("Total Return [%]", 0),
@@ -673,8 +673,8 @@ class MonteCarloEnhancedAnalyzer:
             enhanced_result = result.copy()
             key = (
                 result.get("Ticker"),
-                result.get("Short Window"),
-                result.get("Long Window"),
+                result.get("Fast Period"),
+                result.get("Slow Period"),
             )
 
             if key in robustness_lookup:

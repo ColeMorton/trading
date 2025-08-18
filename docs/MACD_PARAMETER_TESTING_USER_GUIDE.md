@@ -15,7 +15,7 @@ MACD is a trend-following momentum indicator that uses three exponential moving 
 ### MACD Calculation
 
 1. **MACD Line** = Short EMA - Long EMA
-2. **Signal Line** = EMA of MACD Line (using Signal window)
+2. **Signal Line** = EMA of MACD Line (using Signal period)
 3. **Entry Signal** = MACD Line crosses above Signal Line
 4. **Exit Signal** = MACD Line crosses below Signal Line
 
@@ -33,23 +33,23 @@ When MACD is selected, you'll see a dedicated parameter card with the following 
 
 #### Short EMA Window Range
 
-- **Start**: Minimum short window (default: 6)
-- **End**: Maximum short window (default: 15)
+- **Start**: Minimum fast period (default: 6)
+- **End**: Maximum fast period (default: 15)
 - **Typical Range**: 6-15 periods
 - **Description**: Fast-moving average for trend detection
 
 #### Long EMA Window Range
 
-- **Start**: Minimum long window (default: 12)
-- **End**: Maximum long window (default: 35)
+- **Start**: Minimum slow period (default: 12)
+- **End**: Maximum slow period (default: 35)
 - **Typical Range**: 12-35 periods
-- **Constraint**: Must be greater than short window end
+- **Constraint**: Must be greater than fast period end
 - **Description**: Slow-moving average for trend confirmation
 
 #### Signal EMA Window Range
 
-- **Start**: Minimum signal window (default: 5)
-- **End**: Maximum signal window (default: 12)
+- **Start**: Minimum signal period (default: 5)
+- **End**: Maximum signal period (default: 12)
 - **Typical Range**: 5-12 periods
 - **Description**: Signal line smoothing for entry/exit timing
 
@@ -63,10 +63,10 @@ When MACD is selected, you'll see a dedicated parameter card with the following 
 
 The system enforces these validation rules:
 
-- Short window end > Short window start
-- Long window start > Short window end
-- Long window end > Long window start
-- Signal window end > Signal window start
+- Fast period end > Fast period start
+- Slow period start > Fast period end
+- Slow period end > Slow period start
+- Signal period end > Signal period start
 - All windows > 0
 - Step size between 1-10
 
@@ -178,9 +178,9 @@ The system automatically applies optimizations for large parameter spaces:
 
 When viewing MACD results, you'll see these specific columns:
 
-- **Signal Window**: Shows MACD signal window (blank for SMA/EMA)
+- **Signal Period**: Shows MACD signal period (blank for SMA/EMA)
 - **Strategy Type**: Displays "MACD"
-- **Short/Long Window**: MACD EMA periods
+- **Short/Slow Period**: MACD EMA periods
 - **Standard Metrics**: Win rate, profit factor, Sortino ratio, etc.
 
 ### MACD-Specific Metrics
@@ -228,7 +228,7 @@ MACD strategies include additional context:
 ❌ **Avoid These Mistakes:**
 
 - Using identical short and long windows
-- Setting signal window larger than short window
+- Setting signal period larger than fast period
 - Testing too many combinations without focus
 - Ignoring parameter validation warnings
 - Over-optimizing on limited data

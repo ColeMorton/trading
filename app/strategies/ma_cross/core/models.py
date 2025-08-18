@@ -20,8 +20,8 @@ class AnalysisConfig:
     direction: str = "Long"
 
     # Window parameters
-    short_window: Optional[int] | None = None
-    long_window: Optional[int] | None = None
+    fast_period: Optional[int] | None = None
+    slow_period: Optional[int] | None = None
     windows: Optional[int] | None = None  # For permutation scanning
 
     # Data parameters
@@ -52,10 +52,10 @@ class AnalysisConfig:
             "USE_GBM": self.use_gbm,
         }
 
-        if self.short_window is not None:
-            config["SHORT_WINDOW"] = self.short_window
-        if self.long_window is not None:
-            config["LONG_WINDOW"] = self.long_window
+        if self.fast_period is not None:
+            config["FAST_PERIOD"] = self.fast_period
+        if self.slow_period is not None:
+            config["SLOW_PERIOD"] = self.slow_period
         if self.windows is not None:
             config["WINDOWS"] = self.windows
         if self.ticker_1 is not None:
@@ -72,8 +72,8 @@ class SignalInfo:
 
     # Support both old and new field names
     ma_type: Optional[str] | None = None  # "SMA" or "EMA"
-    short_window: Optional[int] | None = None
-    long_window: Optional[int] | None = None
+    fast_period: Optional[int] | None = None
+    slow_period: Optional[int] | None = None
     signal_date: Optional[datetime] | None = None
     signal_type: Optional[str] | None = None  # "BUY" or "SELL"
     current: bool = False
@@ -91,8 +91,8 @@ class SignalInfo:
         if self.ma_type is not None:
             return {
                 "ma_type": self.ma_type,
-                "short_window": self.short_window,
-                "long_window": self.long_window,
+                "fast_period": self.fast_period,
+                "slow_period": self.slow_period,
                 "signal_date": self.signal_date.isoformat()
                 if self.signal_date
                 else None,
@@ -121,8 +121,8 @@ class TickerResult:
 
     # Portfolio metrics (optional, for backtesting results)
     strategy_type: Optional[str] | None = None
-    short_window: Optional[int] | None = None
-    long_window: Optional[int] | None = None
+    fast_period: Optional[int] | None = None
+    slow_period: Optional[int] | None = None
     total_trades: int = 0
     total_return_pct: float = 0.0
     sharpe_ratio: float = 0.0
@@ -158,8 +158,8 @@ class TickerResult:
             result.update(
                 {
                     "strategy_type": self.strategy_type,
-                    "short_window": self.short_window,
-                    "long_window": self.long_window,
+                    "fast_period": self.fast_period,
+                    "slow_period": self.slow_period,
                     "total_trades": self.total_trades,
                     "total_return_pct": self.total_return_pct,
                     "sharpe_ratio": self.sharpe_ratio,

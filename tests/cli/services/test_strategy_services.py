@@ -282,7 +282,7 @@ class TestMACDStrategyService:
         assert legacy_config["LONG_WINDOW_END"] == 30
         assert legacy_config["SIGNAL_WINDOW_START"] == 5
         assert legacy_config["SIGNAL_WINDOW_END"] == 15
-        assert legacy_config["SIGNAL_WINDOW"] == 5  # Fallback value
+        assert legacy_config["SIGNAL_PERIOD"] == 5  # Fallback value
         assert legacy_config["STEP"] == 2
         assert legacy_config["DIRECTION"] == "Long"
         assert legacy_config["USE_CURRENT"] == False

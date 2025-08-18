@@ -48,12 +48,12 @@ These fields are appropriate for the trade_history CSV:
 
 ### Position Identification
 
-- `Position_UUID` - Unique identifier: `{Ticker}_{Strategy_Type}_{Short_Window}_{Long_Window}_{Signal_Window}_{Last_Position_Open_Date}`
+- `Position_UUID` - Unique identifier: `{Ticker}_{Strategy_Type}_{Fast_Period}_{Slow_Period}_{Signal_Period}_{Last_Position_Open_Date}`
 - `Ticker` - Asset symbol
 - `Strategy_Type` - SMA/EMA/MACD
-- `Short_Window` - Strategy parameter
-- `Long_Window` - Strategy parameter
-- `Signal_Window` - Strategy parameter (0 for SMA/EMA)
+- `Fast_Period` - Strategy parameter
+- `Slow_Period` - Strategy parameter
+- `Signal_Period` - Strategy parameter (0 for SMA/EMA)
 
 ### Position Execution
 
@@ -98,7 +98,7 @@ Create separate schema for strategy-level aggregates, enabling strategy comparis
 ### Data Relationship
 
 - One strategy can have many positions (1:N relationship)
-- Strategy UUID: `{Ticker}_{Strategy_Type}_{Short_Window}_{Long_Window}_{Signal_Window}`
+- Strategy UUID: `{Ticker}_{Strategy_Type}_{Fast_Period}_{Slow_Period}_{Signal_Period}`
 - Position UUID: `{Strategy_UUID}_{Entry_Date}`
 
 This separation enables both position-level risk management and strategy-level performance evaluation while maintaining data integrity and avoiding redundancy.

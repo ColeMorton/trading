@@ -14,6 +14,45 @@ from app.strategies.ma_cross.config_types import Config
 from app.tools.portfolio.base_extended_schemas import SchemaTransformer, SchemaType
 
 
+def detect_column_names(df: pl.DataFrame) -> Dict[str, str]:
+    """
+    Detect which column naming convention is used in the DataFrame.
+
+    Args:
+        df: DataFrame to analyze
+
+    Returns:
+        Dictionary mapping standard names to actual column names found in data
+    """
+    column_mapping = {}
+
+    # Check for fast period column
+    if "Fast Period" in df.columns:
+        column_mapping["fast_period"] = "Fast Period"
+    elif "Fast Period" in df.columns:
+        column_mapping["fast_period"] = "Fast Period"
+    else:
+        column_mapping["fast_period"] = None
+
+    # Check for slow period column
+    if "Slow Period" in df.columns:
+        column_mapping["slow_period"] = "Slow Period"
+    elif "Slow Period" in df.columns:
+        column_mapping["slow_period"] = "Slow Period"
+    else:
+        column_mapping["slow_period"] = None
+
+    # Check for signal period column
+    if "Signal Period" in df.columns:
+        column_mapping["signal_period"] = "Signal Period"
+    elif "Signal Period" in df.columns:
+        column_mapping["signal_period"] = "Signal Period"
+    else:
+        column_mapping["signal_period"] = None
+
+    return column_mapping
+
+
 # Define our own error class to avoid circular imports
 class PortfolioExportError(Exception):
     """Custom exception for portfolio export errors."""
@@ -42,6 +81,22 @@ def sort_portfolios(
     # Sort using consistent logic with proper direction handling
     sort_by = config.get("SORT_BY", "Total Return [%]")
     sort_asc = config.get("SORT_ASC", False)
+
+    # Ensure sort column exists - if sorting by Score but column doesn't exist, use Total Return [%] as fallback
+    if sort_by == "Score" and "Score" not in df.columns:
+        if "Total Return [%]" in df.columns:
+            # Create Score column from Total Return [%]
+            df = df.with_columns(
+                pl.col("Total Return [%]").cast(pl.Float64).alias("Score")
+            )
+        else:
+            # Fall back to a different sort column
+            sort_by = (
+                "Total Return [%]"
+                if "Total Return [%]" in df.columns
+                else df.columns[0]
+            )
+
     sorted_df = df.sort(sort_by, descending=not sort_asc)
 
     # Return in original format
@@ -74,7 +129,7 @@ def deduplicate_and_aggregate_portfolios(
 
     # Phase 3: Enhanced pre-aggregation validation with fail-fast error handling
     if log:
-        log("🔧 PHASE 3: Starting aggregation with enhanced validation", "info")
+        log("Starting portfolio aggregation", "debug")
 
     # Validate input data completeness
     if len(df) == 0:
@@ -83,20 +138,52 @@ def deduplicate_and_aggregate_portfolios(
             log(f"❌ AGGREGATION ERROR: {error_msg}", "error")
         raise ValueError(error_msg)
 
-    # Validate required columns for aggregation
-    required_columns = ["Ticker", "Strategy Type", "Short Window", "Long Window"]
-    missing_columns = [col for col in required_columns if col not in df.columns]
-    if missing_columns:
-        error_msg = f"Missing required columns for aggregation: {missing_columns}"
+    # Detect column naming convention and validate required columns
+    column_mapping = detect_column_names(df)
+    fast_period_col = column_mapping["fast_period"]
+    slow_period_col = column_mapping["slow_period"]
+    signal_period_col = column_mapping.get("signal_period", "Signal Period")
+
+    # Validate required columns for aggregation (with backwards compatibility)
+    required_base_columns = ["Ticker", "Strategy Type"]
+    missing_base_columns = [
+        col for col in required_base_columns if col not in df.columns
+    ]
+
+    if missing_base_columns:
+        error_msg = (
+            f"Missing required base columns for aggregation: {missing_base_columns}"
+        )
         if log:
             log(f"❌ AGGREGATION ERROR: {error_msg}", "error")
         raise ValueError(error_msg)
+
+    if not fast_period_col or not slow_period_col:
+        missing_period_columns = []
+        if not fast_period_col:
+            missing_period_columns.append("Fast Period (or Fast Period)")
+        if not slow_period_col:
+            missing_period_columns.append("Slow Period (or Slow Period)")
+
+        error_msg = (
+            f"Missing required period columns for aggregation: {missing_period_columns}"
+        )
+        if log:
+            log(f"❌ AGGREGATION ERROR: {error_msg}", "error")
+            log(f"Available columns: {df.columns}", "debug")
+        raise ValueError(error_msg)
+
+    if log:
+        log(
+            f"✅ Using column mapping: Fast Period='{fast_period_col}', Slow Period='{slow_period_col}'",
+            "info",
+        )
 
     # Phase 3: Validate data completeness for metric type aggregation
     if "Metric Type" in df.columns:
         # Group by configuration to validate metric type completeness
         config_groups_df = df.group_by(
-            ["Ticker", "Strategy Type", "Short Window", "Long Window"]
+            ["Ticker", "Strategy Type", fast_period_col, slow_period_col]
         ).agg(
             [
                 pl.col("Metric Type").unique().alias("metric_types"),
@@ -110,8 +197,8 @@ def deduplicate_and_aggregate_portfolios(
         for row in config_groups_df.to_dicts():
             ticker = row["Ticker"]
             strategy = row["Strategy Type"]
-            short = row["Short Window"]
-            long = row["Long Window"]
+            fast_period = row[fast_period_col]
+            slow_period = row[slow_period_col]
             metric_types = row["metric_types"]
             metric_count = len(metric_types) if metric_types else 0
 
@@ -119,20 +206,20 @@ def deduplicate_and_aggregate_portfolios(
                 configs_with_multiple_metrics += 1
                 if log:
                     log(
-                        f"✅ Config {ticker},{strategy},{short},{long}: {metric_count} metric types - {metric_types[:3]}{'...' if metric_count > 3 else ''}",
+                        f"✅ Config {ticker},{strategy},{fast_period},{slow_period}: {metric_count} metric types - {metric_types[:3]}{'...' if metric_count > 3 else ''}",
                         "debug",
                     )
             elif metric_count == 1:
                 if log:
                     log(
-                        f"⚠️ Config {ticker},{strategy},{short},{long}: Only {metric_count} metric type - {metric_types}",
-                        "warning",
+                        f"Config {ticker},{strategy},{fast_period},{slow_period}: {metric_count} metric type",
+                        "debug",
                     )
 
         if log:
             log(
-                f"📊 AGGREGATION VALIDATION: {configs_with_multiple_metrics}/{total_configs} configurations have multiple metric types",
-                "info",
+                f"Aggregation validation: {configs_with_multiple_metrics}/{total_configs} configs have multiple metrics",
+                "debug",
             )
             if configs_with_multiple_metrics == 0:
                 log(
@@ -240,14 +327,26 @@ def deduplicate_and_aggregate_portfolios(
             best_row = (
                 ticker_strategy_df.sort("Score", descending=True).head(1).to_dicts()[0]
             )
-            best_short = best_row["Short Window"]
-            best_long = best_row["Long Window"]
-            best_signal = best_row.get("Signal Window", 0)
+            best_fast_period = best_row[fast_period_col]
+            best_slow_period = best_row[slow_period_col]
+            best_signal_period = (
+                best_row.get(signal_period_col, 0) if signal_period_col else 0
+            )
         else:
-            # get_best_portfolio returns consistent column names
-            best_short = best_portfolio["Short Window"]
-            best_long = best_portfolio["Long Window"]
-            best_signal = best_portfolio.get("Signal Window", 0)
+            # get_best_portfolio returns data - detect its column names
+            best_portfolio_mapping = detect_column_names(pl.DataFrame([best_portfolio]))
+            best_fast_col = best_portfolio_mapping["fast_period"]
+            best_slow_col = best_portfolio_mapping["slow_period"]
+            best_signal_col = best_portfolio_mapping.get(
+                "signal_period", "Signal Period"
+            )
+
+            # Extract values using the correct column names from best_portfolio
+            best_fast_period = best_portfolio[best_fast_col] if best_fast_col else 0
+            best_slow_period = best_portfolio[best_slow_col] if best_slow_col else 0
+            best_signal_period = (
+                best_portfolio.get(best_signal_col, 0) if best_signal_col else 0
+            )
 
         # Phase 3: Optimized filtering with performance monitoring and enhanced error handling
         import time
@@ -255,13 +354,23 @@ def deduplicate_and_aggregate_portfolios(
         filter_start_time = time.time()
 
         # Find ALL metric types for this exact best configuration
-        # Use optimized filtering with type-safe comparisons
+        # Use optimized filtering with type-safe comparisons and detected column names
         try:
+            # Build filter conditions using detected column names
+            filter_conditions = [
+                (pl.col(fast_period_col) == best_fast_period),
+                (pl.col(slow_period_col) == best_slow_period),
+            ]
+
+            # Add signal period condition if column exists
+            if signal_period_col and signal_period_col in ticker_strategy_df.columns:
+                filter_conditions.append(
+                    pl.col(signal_period_col) == best_signal_period
+                )
+
             # First try direct comparison for performance
             best_config_df = ticker_strategy_df.filter(
-                (pl.col("Short Window") == best_short)
-                & (pl.col("Long Window") == best_long)
-                & (pl.col("Signal Window") == best_signal)
+                pl.all_horizontal(filter_conditions)
             )
 
             # If no results, fall back to string conversion for data type compatibility
@@ -271,10 +380,24 @@ def deduplicate_and_aggregate_portfolios(
                         f"🔧 PHASE 3: Using string conversion fallback for {ticker} {strategy_type}",
                         "debug",
                     )
+
+                # Build string conversion filter conditions
+                string_filter_conditions = [
+                    (pl.col(fast_period_col).cast(pl.Utf8) == str(best_fast_period)),
+                    (pl.col(slow_period_col).cast(pl.Utf8) == str(best_slow_period)),
+                ]
+
+                if (
+                    signal_period_col
+                    and signal_period_col in ticker_strategy_df.columns
+                ):
+                    string_filter_conditions.append(
+                        pl.col(signal_period_col).cast(pl.Utf8)
+                        == str(best_signal_period)
+                    )
+
                 best_config_df = ticker_strategy_df.filter(
-                    (pl.col("Short Window").cast(pl.Utf8) == str(best_short))
-                    & (pl.col("Long Window").cast(pl.Utf8) == str(best_long))
-                    & (pl.col("Signal Window").cast(pl.Utf8) == str(best_signal))
+                    pl.all_horizontal(string_filter_conditions)
                 )
 
         except Exception as e:
@@ -283,19 +406,39 @@ def deduplicate_and_aggregate_portfolios(
                     f"⚠️ PHASE 3: Filtering error for {ticker} {strategy_type}, using string conversion: {str(e)}",
                     "warning",
                 )
-            # Fallback to string conversion
-            best_config_df = ticker_strategy_df.filter(
-                (pl.col("Short Window").cast(pl.Utf8) == str(best_short))
-                & (pl.col("Long Window").cast(pl.Utf8) == str(best_long))
-                & (pl.col("Signal Window").cast(pl.Utf8) == str(best_signal))
-            )
+            # Fallback to string conversion with error handling
+            try:
+                fallback_conditions = [
+                    (pl.col(fast_period_col).cast(pl.Utf8) == str(best_fast_period)),
+                    (pl.col(slow_period_col).cast(pl.Utf8) == str(best_slow_period)),
+                ]
+
+                if (
+                    signal_period_col
+                    and signal_period_col in ticker_strategy_df.columns
+                ):
+                    fallback_conditions.append(
+                        pl.col(signal_period_col).cast(pl.Utf8)
+                        == str(best_signal_period)
+                    )
+
+                best_config_df = ticker_strategy_df.filter(
+                    pl.all_horizontal(fallback_conditions)
+                )
+            except Exception as fallback_error:
+                if log:
+                    log(
+                        f"❌ CRITICAL: Fallback filtering also failed: {str(fallback_error)}",
+                        "error",
+                    )
+                continue
 
         filter_time = time.time() - filter_start_time
 
         # Phase 3: Enhanced debug logging with performance metrics
         if log:
             log(
-                f"🔧 PHASE 3: Filtering for {ticker} {strategy_type} with {best_short}/{best_long}/{best_signal} completed in {filter_time:.4f}s",
+                f"🔧 PHASE 3: Filtering for {ticker} {strategy_type} with {best_fast_period}/{best_slow_period}/{best_signal_period} completed in {filter_time:.4f}s",
                 "debug",
             )
             log(
@@ -306,7 +449,7 @@ def deduplicate_and_aggregate_portfolios(
         if len(best_config_df) == 0:
             if log:
                 log(
-                    f"No portfolios found for best config {ticker} {strategy_type} {best_short}/{best_long}",
+                    f"No portfolios found for best config {ticker} {strategy_type} {best_fast_period}/{best_slow_period}",
                     "warning",
                 )
             continue
@@ -319,7 +462,7 @@ def deduplicate_and_aggregate_portfolios(
         # Phase 4: Enhanced debug logging for metric type aggregation
         if log:
             log(
-                f"Debug: Found {len(metric_types)} metric types for {ticker} {strategy_type} config {best_short}/{best_long}/{best_signal}",
+                f"Debug: Found {len(metric_types)} metric types for {ticker} {strategy_type} config {best_fast_period}/{best_slow_period}/{best_signal_period}",
                 "debug",
             )
             log(f"Debug: Raw metric types: {metric_types}", "debug")
@@ -361,8 +504,8 @@ def deduplicate_and_aggregate_portfolios(
             required_fields = [
                 "Ticker",
                 "Strategy Type",
-                "Short Window",
-                "Long Window",
+                fast_period_col,
+                slow_period_col,
                 "Score",
             ]
             missing_fields = [
@@ -476,7 +619,7 @@ def deduplicate_and_aggregate_portfolios(
 
         if log:
             log(
-                f"Best config for {ticker} {strategy_type}: {best_short}/{best_long}, {len(metric_types)} metric types",
+                f"Best config for {ticker} {strategy_type}: {best_fast_period}/{best_slow_period}, {len(metric_types)} metric types",
                 "info",
             )
 
@@ -495,10 +638,10 @@ def deduplicate_and_aggregate_portfolios(
 
     # Phase 3: Comprehensive validation and performance reporting
     if log:
-        log(f"🔧 PHASE 3: Aggregation completed successfully", "info")
+        log(f"Aggregation completed successfully", "debug")
         log(
-            f"📊 Portfolio reduction: {len(df)} → {len(result_df)} rows (one per ticker+strategy)",
-            "info",
+            f"Portfolio reduction: {len(df)} → {len(result_df)} rows",
+            "debug",
         )
 
         # Validate schema compliance across all results
@@ -508,8 +651,8 @@ def deduplicate_and_aggregate_portfolios(
                 schema_compliant_count += 1
 
         log(
-            f"📊 Schema compliance: {schema_compliant_count}/{len(result_df)} aggregated portfolios have valid Metric Types",
-            "info",
+            f"Schema compliance: {schema_compliant_count}/{len(result_df)} portfolios valid",
+            "debug",
         )
 
         # Performance and quality metrics
@@ -522,44 +665,41 @@ def deduplicate_and_aggregate_portfolios(
         )
 
         log(
-            f"📊 Quality metrics: Average {avg_metric_types:.1f} metric types per aggregated portfolio",
-            "info",
+            f"Average {avg_metric_types:.1f} metric types per portfolio",
+            "debug",
         )
 
-        # Log detailed sample of results
+        # Log sample results (debug only)
         sample_count = min(3, len(result_df))
-        log(f"📊 Sample results (showing {sample_count} of {len(result_df)}):", "info")
+        log(f"Sample results: {sample_count} of {len(result_df)}", "debug")
 
         for i, row in enumerate(result_df.head(sample_count).to_dicts()):
             ticker = row.get("Ticker", "N/A")
             strategy = row.get("Strategy Type", "N/A")
-            short_window = row.get("Short Window", "N/A")
-            long_window = row.get("Long Window", "N/A")
+            # Use the detected column names for period access
+            fast_period = row.get(fast_period_col, "N/A")
+            slow_period = row.get(slow_period_col, "N/A")
             metric_type = row.get("Metric Type", "")
             metric_count = len(metric_type.split(", ")) if metric_type else 0
             score = row.get("Score", "N/A")
 
             log(
-                f"  {i+1}. {ticker} {strategy} {short_window}/{long_window} - Score: {score}, Metrics: {metric_count} types",
-                "info",
+                f"  {i+1}. {ticker} {strategy} {fast_period}/{slow_period} - Score: {score}, {metric_count} types",
+                "debug",
             )
-            if metric_type and len(metric_type) < 100:  # Only log short metric types
-                log(f"     └─ '{metric_type}'", "info")
-            elif metric_type:
-                log(f"     └─ '{metric_type[:97]}...'", "info")
 
         # Final validation check
         if len(result_df) == 0:
-            log("⚠️ PHASE 3: WARNING - No portfolios in final result", "warning")
+            log("WARNING: No portfolios in final result", "warning")
         elif schema_compliant_count / len(result_df) < 0.8:
             log(
-                f"⚠️ PHASE 3: WARNING - Low schema compliance rate: {schema_compliant_count}/{len(result_df)} ({schema_compliant_count/len(result_df)*100:.1f}%)",
+                f"WARNING: Low schema compliance: {schema_compliant_count}/{len(result_df)} valid",
                 "warning",
             )
         else:
             log(
-                f"✅ PHASE 3: Aggregation validation passed - {schema_compliant_count}/{len(result_df)} portfolios schema compliant",
-                "info",
+                f"Aggregation validation passed: {schema_compliant_count}/{len(result_df)} valid",
+                "debug",
             )
 
     return result_df.to_dicts() if input_is_list else result_df
@@ -581,14 +721,14 @@ def test_bkng_metric_aggregation(log: Optional[Callable] = None) -> bool:
     if log:
         log("Testing BKNG metric type aggregation through unified pipeline", "info")
 
-    # Sample BKNG data based on the CSV structure
+    # Sample BKNG data based on the CSV structure (using new column names)
     bkng_portfolios = [
         {
             "Ticker": "BKNG",
             "Strategy Type": "SMA",
-            "Short Window": 60,
-            "Long Window": 77,
-            "Signal Window": 0,
+            "Fast Period": 60,
+            "Slow Period": 77,
+            "Signal Period": 0,
             "Metric Type": "Mean Win Rate [%]",
             "Score": 1.458,
             "Win Rate [%]": 50.9,
@@ -598,9 +738,9 @@ def test_bkng_metric_aggregation(log: Optional[Callable] = None) -> bool:
         {
             "Ticker": "BKNG",
             "Strategy Type": "SMA",
-            "Short Window": 60,
-            "Long Window": 77,
-            "Signal Window": 0,
+            "Fast Period": 60,
+            "Slow Period": 77,
+            "Signal Period": 0,
             "Metric Type": "Most Profit Factor",
             "Score": 1.458,
             "Win Rate [%]": 50.9,
@@ -610,9 +750,9 @@ def test_bkng_metric_aggregation(log: Optional[Callable] = None) -> bool:
         {
             "Ticker": "BKNG",
             "Strategy Type": "SMA",
-            "Short Window": 60,
-            "Long Window": 77,
-            "Signal Window": 0,
+            "Fast Period": 60,
+            "Slow Period": 77,
+            "Signal Period": 0,
             "Metric Type": "Most Expectancy",
             "Score": 1.458,
             "Win Rate [%]": 50.9,
@@ -622,9 +762,9 @@ def test_bkng_metric_aggregation(log: Optional[Callable] = None) -> bool:
         {
             "Ticker": "BKNG",
             "Strategy Type": "SMA",
-            "Short Window": 60,
-            "Long Window": 77,
-            "Signal Window": 0,
+            "Fast Period": 60,
+            "Slow Period": 77,
+            "Signal Period": 0,
             "Metric Type": "Most Avg Winning Trade Duration",
             "Score": 1.458,
             "Win Rate [%]": 50.9,
@@ -696,8 +836,7 @@ def export_best_portfolios(
         bool: True if export successful, False otherwise
     """
     if not portfolios:
-        log("No portfolios to export", "warning")
-        return False
+        log("No portfolios to export - creating headers-only CSV file", "info")
 
     try:
         # Log configuration for debugging
@@ -713,89 +852,93 @@ def export_best_portfolios(
         original_sort_by = config.get("SORT_BY", "Total Return [%]")
         config["SORT_BY"] = "Score"
 
-        # Sort portfolios
-        sorted_portfolios = sort_portfolios(portfolios, config)
+        # Handle empty portfolios case - skip deduplication and proceed to export
+        if not portfolios:
+            deduplicated_portfolios = []
+        else:
+            # Sort portfolios
+            sorted_portfolios = sort_portfolios(portfolios, config)
 
-        # Use desired metric types from config if provided, otherwise use defaults
-        desired_metric_types = config.get(
-            "DESIRED_METRIC_TYPES",
-            [
-                # Total Return [%] variants
-                "Most Total Return [%]",
-                "Mean Total Return [%]",
-                "Median Total Return [%]",
-                # Total Trades variants
-                "Most Total Trades",
-                # Avg Winning Trade [%] variants
-                "Most Avg Winning Trade [%]",
-                "Mean Avg Winning Trade [%]",
-                "Median Avg Winning Trade [%]",
-                # Avg Winning Trade Duration variants
-                "Most Avg Winning Trade Duration",
-                "Mean Avg Winning Trade Duration",
-                "Median Avg Winning Trade Duration"
-                # Avg Losing Trade [%] variants
-                "Least Avg Losing Trade [%]",
-                # Avg Losing Trade Duration variants
-                "Least Avg Losing Trade Duration",
-                # Sharpe Ratio variants
-                "Most Sharpe Ratio",
-                "Mean Sharpe Ratio",
-                "Median Sharpe Ratio",
-                # Omega Ratio variants
-                "Most Omega Ratio",
-                "Mean Omega Ratio",
-                "Median Omega Ratio",
-                # Sortino Ratio variants
-                "Most Sortino Ratio",
-                "Mean Sortino Ratio",
-                "Median Sortino Ratio",
-                # Win Rate [%] variants
-                "Most Win Rate [%]",
-                "Mean Win Rate [%]",
-                "Median Win Rate [%]",
-                # Score variants
-                "Most Score",
-                "Mean Score",
-                "Median Score",
-                # Profit Factor variants
-                "Most Profit Factor",
-                "Mean Profit Factor",
-                "Median Profit Factor",
-                # Expectancy variants (both per Trade and standalone)
-                "Most Expectancy per Trade",
-                "Mean Expectancy per Trade",
-                "Median Expectancy per Trade",
-                "Most Expectancy",
-                "Mean Expectancy",
-                "Median Expectancy"
-                # Beats BNH [%] variants
-                "Most Beats BNH [%]",
-                "Mean Beats BNH [%]",
-                "Median Beats BNH [%]",
-                # Calmar Ratio variants
-                "Most Calmar Ratio",
-                "Mean Calmar Ratio",
-                "Median Calmar Ratio",
-                # Max Drawdown [%] variants
-                "Least Max Drawdown [%]",
-                # Max Drawdown Duration variants
-                "Least Max Drawdown Duration",
-                # Best Trade [%] variants
-                "Most Best Trade [%]",
-                "Mean Best Trade [%]",
-                "Median Best Trade [%]",
-                # Worst Trade [%] variants
-                "Least Worst Trade [%]",
-                # Total Fees Paid variants
-                "Least Total Fees Paid",
-            ],
-        )
+            # Use desired metric types from config if provided, otherwise use defaults
+            desired_metric_types = config.get(
+                "DESIRED_METRIC_TYPES",
+                [
+                    # Total Return [%] variants
+                    "Most Total Return [%]",
+                    "Mean Total Return [%]",
+                    "Median Total Return [%]",
+                    # Total Trades variants
+                    "Most Total Trades",
+                    # Avg Winning Trade [%] variants
+                    "Most Avg Winning Trade [%]",
+                    "Mean Avg Winning Trade [%]",
+                    "Median Avg Winning Trade [%]",
+                    # Avg Winning Trade Duration variants
+                    "Most Avg Winning Trade Duration",
+                    "Mean Avg Winning Trade Duration",
+                    "Median Avg Winning Trade Duration"
+                    # Avg Losing Trade [%] variants
+                    "Least Avg Losing Trade [%]",
+                    # Avg Losing Trade Duration variants
+                    "Least Avg Losing Trade Duration",
+                    # Sharpe Ratio variants
+                    "Most Sharpe Ratio",
+                    "Mean Sharpe Ratio",
+                    "Median Sharpe Ratio",
+                    # Omega Ratio variants
+                    "Most Omega Ratio",
+                    "Mean Omega Ratio",
+                    "Median Omega Ratio",
+                    # Sortino Ratio variants
+                    "Most Sortino Ratio",
+                    "Mean Sortino Ratio",
+                    "Median Sortino Ratio",
+                    # Win Rate [%] variants
+                    "Most Win Rate [%]",
+                    "Mean Win Rate [%]",
+                    "Median Win Rate [%]",
+                    # Score variants
+                    "Most Score",
+                    "Mean Score",
+                    "Median Score",
+                    # Profit Factor variants
+                    "Most Profit Factor",
+                    "Mean Profit Factor",
+                    "Median Profit Factor",
+                    # Expectancy variants (both per Trade and standalone)
+                    "Most Expectancy per Trade",
+                    "Mean Expectancy per Trade",
+                    "Median Expectancy per Trade",
+                    "Most Expectancy",
+                    "Mean Expectancy",
+                    "Median Expectancy"
+                    # Beats BNH [%] variants
+                    "Most Beats BNH [%]",
+                    "Mean Beats BNH [%]",
+                    "Median Beats BNH [%]",
+                    # Calmar Ratio variants
+                    "Most Calmar Ratio",
+                    "Mean Calmar Ratio",
+                    "Median Calmar Ratio",
+                    # Max Drawdown [%] variants
+                    "Least Max Drawdown [%]",
+                    # Max Drawdown Duration variants
+                    "Least Max Drawdown Duration",
+                    # Best Trade [%] variants
+                    "Most Best Trade [%]",
+                    "Mean Best Trade [%]",
+                    "Median Best Trade [%]",
+                    # Worst Trade [%] variants
+                    "Least Worst Trade [%]",
+                    # Total Fees Paid variants
+                    "Least Total Fees Paid",
+                ],
+            )
 
-        # Apply deduplication and metric type aggregation
-        deduplicated_portfolios = deduplicate_and_aggregate_portfolios(
-            sorted_portfolios, log, desired_metric_types
-        )
+            # Apply deduplication and metric type aggregation
+            deduplicated_portfolios = deduplicate_and_aggregate_portfolios(
+                sorted_portfolios, log, desired_metric_types
+            )
 
         # Restore original sort configuration
         config["SORT_BY"] = original_sort_by
@@ -842,7 +985,20 @@ def combine_strategy_portfolios(
         List[Dict[str, Any]]: Combined list of portfolios with all required columns
     """
     # Ensure all required columns are present in both sets of portfolios
-    required_columns = ["Short Window", "Long Window", "Strategy Type"]
+    # Use backwards compatible column detection
+    all_portfolios = ema_portfolios + sma_portfolios
+    if all_portfolios:
+        # Detect column names from first portfolio
+        sample_df = pl.DataFrame([all_portfolios[0]])
+        column_mapping = detect_column_names(sample_df)
+        fast_period_col = column_mapping["fast_period"] or "Fast Period"
+        slow_period_col = column_mapping["slow_period"] or "Slow Period"
+    else:
+        # Default to new naming convention
+        fast_period_col = "Fast Period"
+        slow_period_col = "Slow Period"
+
+    required_columns = [fast_period_col, slow_period_col, "Strategy Type"]
 
     for portfolio in ema_portfolios:
         for col in required_columns:
@@ -1001,14 +1157,20 @@ def collect_filtered_portfolios_for_export(
         if len(all_portfolios) > 0:
             # Verify we have multiple metric types per configuration
             sample_config_groups = {}
+            # Detect column names from sample portfolios
+            sample_df = pl.DataFrame(all_portfolios[:1])
+            column_mapping = detect_column_names(sample_df)
+            fast_period_col = column_mapping["fast_period"] or "Fast Period"
+            slow_period_col = column_mapping["slow_period"] or "Slow Period"
+
             for portfolio in all_portfolios[:10]:  # Sample first 10
                 ticker = portfolio.get("Ticker", "")
                 strategy = portfolio.get("Strategy Type", "")
-                short_window = portfolio.get("Short Window", "")
-                long_window = portfolio.get("Long Window", "")
+                fast_period = portfolio.get(fast_period_col, "")
+                slow_period = portfolio.get(slow_period_col, "")
                 metric_type = portfolio.get("Metric Type", "")
 
-                config_key = f"{ticker},{strategy},{short_window},{long_window}"
+                config_key = f"{ticker},{strategy},{fast_period},{slow_period}"
                 if config_key not in sample_config_groups:
                     sample_config_groups[config_key] = []
                 sample_config_groups[config_key].append(metric_type)

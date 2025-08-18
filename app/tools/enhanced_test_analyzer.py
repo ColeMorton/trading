@@ -49,14 +49,14 @@ class TestStrategyAnalyzer:
         self.parsed_param = parsed_param
         self.ticker = parsed_param.ticker
         self.strategy_type = parsed_param.strategy_type
-        self.short_window = parsed_param.short_window
-        self.long_window = parsed_param.long_window
+        self.fast_period = parsed_param.fast_period
+        self.slow_period = parsed_param.slow_period
         self.logger = logger or logging.getLogger(__name__)
 
     async def analyze(self) -> Dict[str, Any]:
         """Test analysis that always works."""
         strategy_name = (
-            f"{self.ticker}_{self.strategy_type}_{self.short_window}_{self.long_window}"
+            f"{self.ticker}_{self.strategy_type}_{self.fast_period}_{self.slow_period}"
         )
 
         # Create a simple test result
@@ -71,8 +71,8 @@ class TestStrategyAnalyzer:
             analysis_mode="STRATEGY_SPECIFIC",
             test_mode=True,
             strategy_type=self.strategy_type,
-            short_window=self.short_window,
-            long_window=self.long_window,
+            fast_period=self.fast_period,
+            slow_period=self.slow_period,
         )
 
         # Convert to standard format
@@ -88,14 +88,14 @@ class TestPositionAnalyzer:
         self.parsed_param = parsed_param
         self.ticker = parsed_param.ticker
         self.strategy_type = parsed_param.strategy_type
-        self.short_window = parsed_param.short_window
-        self.long_window = parsed_param.long_window
+        self.fast_period = parsed_param.fast_period
+        self.slow_period = parsed_param.slow_period
         self.entry_date = parsed_param.entry_date
         self.logger = logger or logging.getLogger(__name__)
 
     async def analyze(self) -> Dict[str, Any]:
         """Test analysis that always works."""
-        position_uuid = f"{self.ticker}_{self.strategy_type}_{self.short_window}_{self.long_window}_{self.entry_date.replace('-', '')}"
+        position_uuid = f"{self.ticker}_{self.strategy_type}_{self.fast_period}_{self.slow_period}_{self.entry_date.replace('-', '')}"
 
         # Create a simple test result
         simple_result = create_simple_result(

@@ -16,89 +16,89 @@ metadata:
 strategies:
   # BTC Strategies
   - ticker: BTC-USD
-    short_window: 11
-    long_window: 36
+    fast_period: 11
+    slow_period: 36
     strategy_type: SMA
 
   - ticker: BTC-USD
-    short_window: 26
-    long_window: 38
+    fast_period: 26
+    slow_period: 38
     strategy_type: SMA
 
   - ticker: BTC-USD
-    short_window: 14
-    long_window: 23
-    signal_window: 13
+    fast_period: 14
+    slow_period: 23
+    signal_period: 13
     strategy_type: MACD
 
   - ticker: BTC-USD
-    short_window: 18
-    long_window: 29
-    signal_window: 18
+    fast_period: 18
+    slow_period: 29
+    signal_period: 18
     strategy_type: MACD
 
   - ticker: BTC-USD
-    short_window: 27
-    long_window: 29
+    fast_period: 27
+    slow_period: 29
     strategy_type: SMA
 
   - ticker: BTC-USD
-    short_window: 76
-    long_window: 78
+    fast_period: 76
+    slow_period: 78
     strategy_type: SMA
 
   - ticker: BTC-USD
-    short_window: 8
-    long_window: 44
+    fast_period: 8
+    slow_period: 44
     strategy_type: SMA
 
   - ticker: BTC-USD
-    short_window: 3
-    long_window: 47
+    fast_period: 3
+    slow_period: 47
     strategy_type: EMA
 
   # MSTR Strategies
   - ticker: MSTR
-    short_window: 52
-    long_window: 90
+    fast_period: 52
+    slow_period: 90
     strategy_type: SMA
 
   - ticker: MSTR
-    short_window: 16
-    long_window: 82
+    fast_period: 16
+    slow_period: 82
     strategy_type: SMA
 
   - ticker: MSTR
-    short_window: 6
-    long_window: 84
+    fast_period: 6
+    slow_period: 84
     strategy_type: SMA
 
   - ticker: MSTR
-    short_window: 13
-    long_window: 21
-    signal_window: 32
+    fast_period: 13
+    slow_period: 21
+    signal_period: 32
     strategy_type: MACD
 
   - ticker: MSTR
-    short_window: 18
-    long_window: 21
+    fast_period: 18
+    slow_period: 21
     strategy_type: SMA
 
   - ticker: MSTR
-    short_window: 6
-    long_window: 27
+    fast_period: 6
+    slow_period: 27
     strategy_type: SMA
 
   - ticker: MSTR
-    short_window: 13
-    long_window: 31
-    signal_window: 11
+    fast_period: 13
+    slow_period: 31
+    signal_period: 11
     strategy_type: MACD
 
   - ticker: MSTR
-    short_window: 9
-    long_window: 13
-    signal_window: 5
+    fast_period: 9
+    slow_period: 13
+    signal_period: 5
     strategy_type: MACD
 
 allocation:

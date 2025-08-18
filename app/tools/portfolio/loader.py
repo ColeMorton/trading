@@ -7,11 +7,11 @@ with appropriate type conversion.
 CSV files must contain the following columns:
 - Ticker: Asset symbol
 - Strategy Type: Strategy type (SMA, EMA, MACD, ATR) or Use SMA (boolean) for backward compatibility
-- Short Window: Period for short moving average
-- Long Window: Period for long moving average
+- Fast Period: Period for short moving average
+- Slow Period: Period for long moving average
 
 Strategy-specific required columns:
-- MACD: Signal Window (period for signal line EMA)
+- MACD: Signal Period (period for signal line EMA)
 - ATR: Length and Multiplier
 
 Optional columns:
@@ -100,9 +100,9 @@ def load_portfolio_from_csv(
             "Profit Factor": pl.Float64,
             "Common Sense Ratio": pl.Float64,
             "Win Rate": pl.Float64,
-            "Short Window": pl.Int64,
-            "Long Window": pl.Int64,
-            "Signal Window": pl.Int64,  # Add Signal Window as Int64
+            "Fast Period": pl.Int64,
+            "Slow Period": pl.Int64,
+            "Signal Period": pl.Int64,  # Add Signal Period as Int64
             "Allocation [%]": pl.Float64,  # Add Allocation [%] as Float64
             "Stop Loss [%]": pl.Float64,  # Add Stop Loss [%] as Float64
         },
@@ -147,10 +147,30 @@ def load_portfolio_from_csv(
         )
 
     # Define required columns based on strategy types
-    required_columns = ["TICKER", "SHORT_WINDOW", "LONG_WINDOW"]
+    # Use new parameter names (FAST_PERIOD, SLOW_PERIOD, SIGNAL_PERIOD)
+    # with fallback support for legacy names (FAST_PERIOD, SLOW_PERIOD, SIGNAL_PERIOD)
+    required_columns = ["TICKER"]
+
+    # Check for both new and legacy column names
+    fast_period_available = any(
+        col in df.columns for col in ["FAST_PERIOD", "FAST_PERIOD"]
+    )
+    slow_period_available = any(
+        col in df.columns for col in ["SLOW_PERIOD", "SLOW_PERIOD"]
+    )
+
+    if not fast_period_available:
+        required_columns.append("FAST_PERIOD/FAST_PERIOD")
+    if not slow_period_available:
+        required_columns.append("SLOW_PERIOD/SLOW_PERIOD")
+
     if has_macd:
-        # Add Signal Window as a required column if MACD strategies are present
-        required_columns.append("SIGNAL_WINDOW")
+        # Check for signal period/window availability
+        signal_period_available = any(
+            col in df.columns for col in ["SIGNAL_PERIOD", "SIGNAL_PERIOD"]
+        )
+        if not signal_period_available:
+            required_columns.append("SIGNAL_PERIOD/SIGNAL_PERIOD")
 
     # Validate required columns
     is_valid, errors = validate_portfolio_schema(
@@ -164,9 +184,18 @@ def load_portfolio_from_csv(
 
     # Convert to strategy configurations
     strategies = convert_csv_to_strategy_config(df, log, config)
+    log(
+        f"DEBUG: convert_csv_to_strategy_config returned {len(strategies)} strategies",
+        "info",
+    )
 
     # Validate strategy configurations
+    log(f"DEBUG: Starting validation of {len(strategies)} strategies", "info")
     _, valid_strategies = validate_portfolio_configs(strategies, log)
+    log(
+        f"DEBUG: Validation completed - {len(valid_strategies)} valid strategies out of {len(strategies)}",
+        "info",
+    )
 
     log(f"Successfully loaded {len(valid_strategies)} strategy configurations", "info")
     return valid_strategies
@@ -267,7 +296,7 @@ def load_portfolio_from_yaml(
         log(f"Processing strategy definition {i+1}", "info")
 
         # Validate required fields
-        required_fields = ["ticker", "short_window", "long_window", "strategy_type"]
+        required_fields = ["ticker", "fast_period", "slow_period", "strategy_type"]
         for field in required_fields:
             if field not in strategy_def:
                 error_msg = f"Strategy {i+1} missing required field: {field}"
@@ -277,8 +306,8 @@ def load_portfolio_from_yaml(
         # Create StrategyConfig with required fields from config
         strategy_config: StrategyConfig = {
             "TICKER": strategy_def["ticker"],
-            "SHORT_WINDOW": strategy_def["short_window"],
-            "LONG_WINDOW": strategy_def["long_window"],
+            "FAST_PERIOD": strategy_def["fast_period"],
+            "SLOW_PERIOD": strategy_def["slow_period"],
             "STRATEGY_TYPE": strategy_def["strategy_type"].upper(),
             # Required fields from config
             "BASE_DIR": config.get("BASE_DIR", ""),
@@ -290,8 +319,8 @@ def load_portfolio_from_yaml(
         }
 
         # Add optional fields if present
-        if "signal_window" in strategy_def:
-            strategy_config["SIGNAL_WINDOW"] = strategy_def["signal_window"]
+        if "signal_period" in strategy_def:
+            strategy_config["SIGNAL_PERIOD"] = strategy_def["signal_period"]
 
         if "allocation" in strategy_def:
             strategy_config["ALLOCATION"] = strategy_def["allocation"]
@@ -308,7 +337,7 @@ def load_portfolio_from_yaml(
 
         strategies.append(strategy_config)
         log(
-            f"Added strategy: {strategy_config['TICKER']} {strategy_config['STRATEGY_TYPE']} {strategy_config['SHORT_WINDOW']}/{strategy_config['LONG_WINDOW']}",
+            f"Added strategy: {strategy_config['TICKER']} {strategy_config['STRATEGY_TYPE']} {strategy_config['FAST_PERIOD']}/{strategy_config['SLOW_PERIOD']}",
             "info",
         )
 

@@ -42,8 +42,8 @@ class TestExportTypeMatrix:
             {
                 "Ticker": "AAPL",
                 "Strategy Type": "SMA",
-                "Short Window": 10,
-                "Long Window": 20,
+                "Fast Period": 10,
+                "Slow Period": 20,
                 "Total Trades": 50,
                 "Win Rate [%]": 55.0,
                 "Total Return [%]": 25.5,
@@ -54,8 +54,8 @@ class TestExportTypeMatrix:
             {
                 "Ticker": "AAPL",
                 "Strategy Type": "SMA",
-                "Short Window": 5,
-                "Long Window": 15,
+                "Fast Period": 5,
+                "Slow Period": 15,
                 "Total Trades": 75,
                 "Win Rate [%]": 60.0,
                 "Total Return [%]": 35.2,
@@ -72,8 +72,8 @@ class TestExportTypeMatrix:
             {
                 "Ticker": "MSFT",
                 "Strategy Type": "EMA",
-                "Short Window": 12,
-                "Long Window": 26,
+                "Fast Period": 12,
+                "Slow Period": 26,
                 "Total Trades": 45,
                 "Win Rate [%]": 58.0,
                 "Total Return [%]": 28.7,
@@ -84,8 +84,8 @@ class TestExportTypeMatrix:
             {
                 "Ticker": "MSFT",
                 "Strategy Type": "EMA",
-                "Short Window": 8,
-                "Long Window": 21,
+                "Fast Period": 8,
+                "Slow Period": 21,
                 "Total Trades": 65,
                 "Win Rate [%]": 62.0,
                 "Total Return [%]": 32.1,
@@ -102,9 +102,9 @@ class TestExportTypeMatrix:
             {
                 "Ticker": "GOOGL",
                 "Strategy Type": "MACD",
-                "Short Window": 12,
-                "Long Window": 26,
-                "Signal Window": 9,
+                "Fast Period": 12,
+                "Slow Period": 26,
+                "Signal Period": 9,
                 "Total Trades": 40,
                 "Win Rate [%]": 65.0,
                 "Total Return [%]": 42.3,
@@ -115,9 +115,9 @@ class TestExportTypeMatrix:
             {
                 "Ticker": "GOOGL",
                 "Strategy Type": "MACD",
-                "Short Window": 8,
-                "Long Window": 21,
-                "Signal Window": 7,
+                "Fast Period": 8,
+                "Slow Period": 21,
+                "Signal Period": 7,
                 "Total Trades": 55,
                 "Win Rate [%]": 58.0,
                 "Total Return [%]": 31.8,
@@ -348,8 +348,8 @@ class TestExportTypeMatrix:
 
         # Verify MACD-specific columns are handled
         assert (
-            "Signal Window" in df.columns
-            or "Signal Window" in sample_portfolios_macd[0]
+            "Signal Period" in df.columns
+            or "Signal Period" in sample_portfolios_macd[0]
         )
 
         # Verify file location and naming
@@ -542,13 +542,19 @@ class TestExportTypeMatrix:
         assert "STRK_MSTR" in filename  # Should convert / to _
 
     def test_empty_portfolios_export(self, base_config, temp_export_dir):
-        """Test export behavior with empty portfolio list."""
+        """Test export behavior with empty portfolio list - should create headers-only CSV."""
         config = base_config.copy()
 
-        with pytest.raises(ValueError, match="Cannot export empty portfolio list"):
-            export_portfolios(
-                portfolios=[], config=config, export_type="portfolios", log=Mock()
-            )
+        # Empty portfolios should now succeed and create headers-only CSV
+        df, success = export_portfolios(
+            portfolios=[], config=config, export_type="portfolios", log=Mock()
+        )
+
+        # Verify export succeeded
+        assert success is True
+        assert isinstance(df, pl.DataFrame)
+        assert len(df) == 0  # No data rows
+        assert len(df.columns) > 0  # Has header columns
 
     def test_invalid_export_type(
         self, sample_portfolios_sma, base_config, temp_export_dir
@@ -588,9 +594,9 @@ class TestExportTypeMatrix:
                 {
                     "Ticker": "TEST",
                     "Strategy Type": strategy_type,
-                    "Short Window": 12,
-                    "Long Window": 26,
-                    "Signal Window": 9,
+                    "Fast Period": 12,
+                    "Slow Period": 26,
+                    "Signal Period": 9,
                     "Total Trades": 40,
                     "Win Rate [%]": 60.0,
                     "Total Return [%]": 30.0,
@@ -604,8 +610,8 @@ class TestExportTypeMatrix:
                 {
                     "Ticker": "TEST",
                     "Strategy Type": strategy_type,
-                    "Short Window": 10,
-                    "Long Window": 20,
+                    "Fast Period": 10,
+                    "Slow Period": 20,
                     "Total Trades": 50,
                     "Win Rate [%]": 55.0,
                     "Total Return [%]": 25.0,
@@ -659,9 +665,9 @@ class TestExportSchemaConsistency:
         return {
             "Ticker": "AAPL",
             "Strategy Type": "SMA",
-            "Short Window": 10,
-            "Long Window": 20,
-            "Signal Window": 0,
+            "Fast Period": 10,
+            "Slow Period": 20,
+            "Signal Period": 0,
             "Stop Loss [%]": None,
             "Signal Entry": False,
             "Signal Exit": False,
@@ -751,8 +757,8 @@ class TestExportSchemaConsistency:
         expected_columns = [
             "Ticker",
             "Strategy Type",
-            "Short Window",
-            "Long Window",
+            "Fast Period",
+            "Slow Period",
             "Total Trades",
             "Win Rate [%]",
             "Total Return [%]",
@@ -787,8 +793,8 @@ class TestExportSchemaConsistency:
         expected_columns = [
             "Ticker",
             "Strategy Type",
-            "Short Window",
-            "Long Window",
+            "Fast Period",
+            "Slow Period",
             "Total Trades",
             "Win Rate [%]",
             "Total Return [%]",
@@ -827,8 +833,8 @@ class TestExportSchemaConsistency:
         expected_columns = [
             "Ticker",
             "Strategy Type",
-            "Short Window",
-            "Long Window",
+            "Fast Period",
+            "Slow Period",
             "Total Trades",
             "Win Rate [%]",
             "Total Return [%]",

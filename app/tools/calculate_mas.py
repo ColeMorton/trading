@@ -4,21 +4,21 @@ import polars as pl
 
 
 def calculate_mas(
-    data: pl.DataFrame, fast_window: int, slow_window: int, use_sma: bool, log: Callable
+    data: pl.DataFrame, fast_period: int, slow_period: int, use_sma: bool, log: Callable
 ) -> pl.DataFrame:
     """Calculate Moving Averages (SMA or EMA).
 
     Args:
         data: Price data DataFrame
-        fast_window: Fast MA window size
-        slow_window: Slow MA window size
+        fast_period: Fast MA period
+        slow_period: Slow MA period
         use_sma: If True, use Simple Moving Average, otherwise use Exponential Moving Average
 
     Returns:
         DataFrame with MA columns added
     """
     log(
-        f"Calculating {'SMA' if use_sma else 'EMA'} with windows {fast_window}, {slow_window}"
+        f"Calculating {'SMA' if use_sma else 'EMA'} with periods {fast_period}, {slow_period}"
     )
     log(f"Input data shape: {data.shape}")
 
@@ -27,11 +27,11 @@ def calculate_mas(
             [
                 pl.col("Close")
                 .cast(pl.Float64)
-                .rolling_mean(window_size=fast_window)
+                .rolling_mean(window_size=fast_period)
                 .alias("MA_FAST"),
                 pl.col("Close")
                 .cast(pl.Float64)
-                .rolling_mean(window_size=slow_window)
+                .rolling_mean(window_size=slow_period)
                 .alias("MA_SLOW"),
             ]
         )
@@ -40,11 +40,11 @@ def calculate_mas(
             [
                 pl.col("Close")
                 .cast(pl.Float64)
-                .ewm_mean(span=fast_window, adjust=False)
+                .ewm_mean(span=fast_period, adjust=False)
                 .alias("MA_FAST"),
                 pl.col("Close")
                 .cast(pl.Float64)
-                .ewm_mean(span=slow_window, adjust=False)
+                .ewm_mean(span=slow_period, adjust=False)
                 .alias("MA_SLOW"),
             ]
         )

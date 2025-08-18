@@ -66,7 +66,7 @@ def demo_parameter_validation():
     adapter = StrategyAdapter()
 
     # Valid SMA configuration
-    sma_config = {"SHORT_WINDOW": 10, "LONG_WINDOW": 50, "DIRECTION": "Long"}
+    sma_config = {"FAST_PERIOD": 10, "SLOW_PERIOD": 50, "DIRECTION": "Long"}
 
     print("Validating SMA configuration:")
     print(f"Config: {sma_config}")
@@ -79,7 +79,7 @@ def demo_parameter_validation():
     print()
 
     # Invalid configuration (windows reversed)
-    invalid_config = {"SHORT_WINDOW": 50, "LONG_WINDOW": 10, "DIRECTION": "Long"}
+    invalid_config = {"FAST_PERIOD": 50, "SLOW_PERIOD": 10, "DIRECTION": "Long"}
 
     print("Validating invalid configuration:")
     print(f"Config: {invalid_config}")
@@ -116,10 +116,10 @@ def demo_strategy_interfaces():
         print(f"  ✓ Parameter ranges available: {len(ranges)} parameters")
 
         # Test parameter validation
-        test_config = {"SHORT_WINDOW": 10, "LONG_WINDOW": 50}
+        test_config = {"FAST_PERIOD": 10, "SLOW_PERIOD": 50}
 
         if strategy_type == "UNIFIED_MACD":
-            test_config["SIGNAL_WINDOW"] = 9
+            test_config["SIGNAL_PERIOD"] = 9
 
         is_valid = strategy.validate_parameters(test_config)
         print(f"  ✓ Parameter validation works: {is_valid}")
@@ -133,9 +133,9 @@ def demo_migration_capabilities():
     print("Testing MACD configuration validation:")
 
     macd_config = {
-        "SHORT_WINDOW": 12,
-        "LONG_WINDOW": 26,
-        "SIGNAL_WINDOW": 9,
+        "FAST_PERIOD": 12,
+        "SLOW_PERIOD": 26,
+        "SIGNAL_PERIOD": 9,
         "DIRECTION": "Long",
     }
 
@@ -149,9 +149,9 @@ def demo_migration_capabilities():
     # Test incomplete configuration
     print("\nTesting incomplete MACD configuration:")
     incomplete_config = {
-        "SHORT_WINDOW": 12,
-        "LONG_WINDOW": 26
-        # Missing SIGNAL_WINDOW
+        "FAST_PERIOD": 12,
+        "SLOW_PERIOD": 26
+        # Missing SIGNAL_PERIOD
     }
 
     validation_result = validate_unified_parameters("MACD", incomplete_config)

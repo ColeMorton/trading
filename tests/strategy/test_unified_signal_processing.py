@@ -47,12 +47,12 @@ class TestMASignalProcessor:
     def test_extract_strategy_parameters(self):
         """Test extraction of MA-specific parameters."""
         processor = MASignalProcessor("SMA")
-        row = {"Short Window": 10, "Long Window": 50}
+        row = {"Fast Period": 10, "Slow Period": 50}
 
         params = processor._extract_strategy_parameters(row)
 
-        assert params["short_window"] == 10
-        assert params["long_window"] == 50
+        assert params["fast_period"] == 10
+        assert params["slow_period"] == 50
 
     @patch("app.strategies.ma_cross.tools.signal_generation.generate_current_signals")
     def test_generate_current_signals_success(self, mock_generate):
@@ -61,7 +61,7 @@ class TestMASignalProcessor:
         mock_log = Mock()
         config = {"TICKER": "AAPL", "STRATEGY_TYPE": "SMA"}
 
-        mock_df = pl.DataFrame({"Short Window": [10], "Long Window": [50]})
+        mock_df = pl.DataFrame({"Fast Period": [10], "Slow Period": [50]})
         mock_generate.return_value = mock_df
 
         result = processor.generate_current_signals(config, mock_log)
@@ -100,12 +100,12 @@ class TestMASignalProcessor:
         mock_analyze.return_value = expected_result
 
         result = processor.analyze_parameter_combination(
-            data, config, mock_log, short_window=10, long_window=50
+            data, config, mock_log, fast_period=10, slow_period=50
         )
 
         assert result == expected_result
         mock_analyze.assert_called_once_with(
-            data=data, short_window=10, long_window=50, config=config, log=mock_log
+            data=data, fast_period=10, slow_period=50, config=config, log=mock_log
         )
 
 
@@ -120,13 +120,13 @@ class TestMACDSignalProcessor:
     def test_extract_strategy_parameters(self):
         """Test extraction of MACD-specific parameters."""
         processor = MACDSignalProcessor()
-        row = {"Short Window": 12, "Long Window": 26, "Signal Window": 9}
+        row = {"Fast Period": 12, "Slow Period": 26, "Signal Period": 9}
 
         params = processor._extract_strategy_parameters(row)
 
-        assert params["short_window"] == 12
-        assert params["long_window"] == 26
-        assert params["signal_window"] == 9
+        assert params["fast_period"] == 12
+        assert params["slow_period"] == 26
+        assert params["signal_period"] == 9
 
     @patch("app.strategies.macd.tools.signal_generation.generate_current_signals")
     def test_generate_current_signals_success(self, mock_generate):
@@ -136,7 +136,7 @@ class TestMACDSignalProcessor:
         config = {"TICKER": "AAPL", "STRATEGY_TYPE": "MACD"}
 
         mock_df = pl.DataFrame(
-            {"Short Window": [12], "Long Window": [26], "Signal Window": [9]}
+            {"Fast Period": [12], "Slow Period": [26], "Signal Period": [9]}
         )
         mock_generate.return_value = mock_df
 
@@ -343,7 +343,7 @@ class TestProcessCurrentSignalsIntegration:
         # Mock successful validation and signals but data fetch failure
         mock_validate.return_value = {"is_valid": True, "errors": []}
         mock_generate.return_value = pl.DataFrame(
-            {"Short Window": [10], "Long Window": [50]}
+            {"Fast Period": [10], "Slow Period": [50]}
         )
         mock_get_data.return_value = None
 

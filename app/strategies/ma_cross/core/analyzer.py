@@ -63,7 +63,7 @@ class MACrossAnalyzer:
             self._log(f"Analyzing {config.ticker}")
 
             # If we need portfolio metrics and have specific windows, use strategy execution
-            if calculate_metrics and config.short_window and config.long_window:
+            if calculate_metrics and config.fast_period and config.slow_period:
                 # Convert to strategy execution config format
                 exec_config = config.to_dict()
                 exec_config["STRATEGY_TYPE"] = "SMA" if config.use_sma else "EMA"
@@ -79,8 +79,8 @@ class MACrossAnalyzer:
                         ticker=config.ticker,
                         processing_time=time.time() - start_time,
                         strategy_type="SMA" if config.use_sma else "EMA",
-                        short_window=config.short_window,
-                        long_window=config.long_window,
+                        fast_period=config.fast_period,
+                        slow_period=config.slow_period,
                         total_trades=int(portfolio_stats.get("Total Trades", 0)),
                         total_return_pct=float(portfolio_stats.get("Total Return", 0)),
                         sharpe_ratio=float(portfolio_stats.get("Sharpe Ratio", 0)),
@@ -171,8 +171,8 @@ class MACrossAnalyzer:
                 strategy_type=base_config.strategy_type,
                 use_hourly=base_config.use_hourly,
                 direction=base_config.direction,
-                short_window=base_config.short_window,
-                long_window=base_config.long_window,
+                fast_period=base_config.fast_period,
+                slow_period=base_config.slow_period,
                 windows=base_config.windows,
                 use_years=base_config.use_years,
                 years=base_config.years,
@@ -207,9 +207,9 @@ class MACrossAnalyzer:
 
         try:
             # If specific windows are provided, analyze just those
-            if config.short_window and config.long_window:
+            if config.fast_period and config.slow_period:
                 signal = self._check_single_window(
-                    data, config.short_window, config.long_window, config
+                    data, config.fast_period, config.slow_period, config
                 )
                 if signal:
                     signals.append(signal)
@@ -225,7 +225,7 @@ class MACrossAnalyzer:
             return []
 
     def _check_single_window(
-        self, data: Any, short_window: int, long_window: int, config: AnalysisConfig
+        self, data: Any, fast_period: int, slow_period: int, config: AnalysisConfig
     ) -> Optional[SignalInfo]:
         """Check for signal with specific window combination."""
         try:
@@ -241,8 +241,8 @@ class MACrossAnalyzer:
             ma_type = "SMA" if config.use_sma else "EMA"
             temp_data = calculate_ma_and_signals(
                 temp_data,
-                short_window,
-                long_window,
+                fast_period,
+                slow_period,
                 config.to_dict(),
                 self._log,
                 ma_type,
@@ -271,8 +271,8 @@ class MACrossAnalyzer:
 
                 return SignalInfo(
                     ma_type=ma_type,
-                    short_window=short_window,
-                    long_window=long_window,
+                    fast_period=fast_period,
+                    slow_period=slow_period,
                     signal_date=signal_date,
                     signal_type=signal_type,
                     current=True,
@@ -282,7 +282,7 @@ class MACrossAnalyzer:
 
         except Exception as e:
             self._log(
-                f"Error checking window {short_window}/{long_window}: {str(e)}", "error"
+                f"Error checking window {fast_period}/{slow_period}: {str(e)}", "error"
             )
             return None
 

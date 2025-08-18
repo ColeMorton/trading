@@ -22,55 +22,55 @@ config:
     # Financial Services - Mastercard
     - ticker: MA
       strategy_type: SMA
-      short_window: 78
-      long_window: 82
+      fast_period: 78
+      slow_period: 82
       execution_method: market_order
       position_sizing: risk_weighted
 
     # Semiconductor - ASML
     - ticker: ASML
       strategy_type: SMA
-      short_window: 71
-      long_window: 80
+      fast_period: 71
+      slow_period: 80
       execution_method: market_order
       position_sizing: risk_weighted
 
     # Technology - Apple
     - ticker: AAPL
       strategy_type: SMA
-      short_window: 46
-      long_window: 56
+      fast_period: 46
+      slow_period: 56
       execution_method: market_order
       position_sizing: risk_weighted
 
     # Electric Vehicles - Tesla
     - ticker: TSLA
       strategy_type: SMA
-      short_window: 23
-      long_window: 31
+      fast_period: 23
+      slow_period: 31
       execution_method: limit_order  # More volatile, use limit orders
       position_sizing: risk_weighted
 
     # Industrial - National Instruments
     - ticker: NI
       strategy_type: SMA
-      short_window: 66
-      long_window: 81
+      fast_period: 66
+      slow_period: 81
       execution_method: market_order
       position_sizing: risk_weighted
 
     # Software - AppLovin
     - ticker: APP
       strategy_type: SMA
-      short_window: 14
-      long_window: 15
+      fast_period: 14
+      slow_period: 15
       execution_method: limit_order  # High volatility, use limit orders
       position_sizing: risk_weighted
 
   # Default execution parameters from business configuration
   default_parameters:
-    commission: $ref: "data/config/trading/market_parameters.yaml#trading_costs.commissions.equities.per_trade"
-    slippage: $ref: "data/config/trading/market_parameters.yaml#trading_costs.slippage.equities.market_orders"
+    # TODO: Configure actual values instead of references
+    # TODO: Configure actual values instead of references
 
   # Risk management execution parameters
   risk_execution:
@@ -84,7 +84,7 @@ config:
     benchmark: 'SPY'
     benchmark_type: 'buy_and_hold'
     init_cash: 10000.0
-    fees: $ref: "data/config/trading/market_parameters.yaml#trading_costs.commissions.equities.per_trade"
+    # TODO: Configure actual values instead of references
     calculate_risk_metrics: true
     export_equity_curve: true
     enable_plotting: true

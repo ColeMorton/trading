@@ -92,8 +92,8 @@ class TemplateConfig:
         if self.strategy_type == StrategyType.MOVING_AVERAGE:
             base_config.update(
                 {
-                    "SHORT_WINDOW": 20,
-                    "LONG_WINDOW": 50,
+                    "FAST_PERIOD": 20,
+                    "SLOW_PERIOD": 50,
                     "STRATEGY_TYPES": ["SMA", "EMA"],
                 }
             )

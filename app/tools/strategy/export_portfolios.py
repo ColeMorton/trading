@@ -146,15 +146,27 @@ class ExportTypeRouter:
 
     # Schema routing configuration with additional metadata
     EXPORT_SCHEMA_CONFIG = {
+        "portfolios": {
+            "schema": SchemaType.EXTENDED,
+            "description": "62 columns, canonical format for raw portfolios",
+            "allocation_handling": "none",
+            "validation_level": "strict",
+        },
         "portfolios_best": {
             "schema": SchemaType.FILTERED,
             "description": "63 columns, Metric Type + Extended for best portfolios with aggregated metrics",
             "allocation_handling": "none",  # No allocation values for analysis
             "validation_level": "strict",
         },
-        "portfolios_filtered": {
+        "portfolios_metrics": {
             "schema": SchemaType.FILTERED,
-            "description": "63 columns, Metric Type + Extended for filtered results",
+            "description": "63 columns, Metric Type + Extended for extreme metric analysis",
+            "allocation_handling": "none",
+            "validation_level": "strict",
+        },
+        "portfolios_filtered": {
+            "schema": SchemaType.EXTENDED,
+            "description": "62 columns, canonical format for minimums-filtered results",
             "allocation_handling": "none",
             "validation_level": "strict",
         },
@@ -263,6 +275,7 @@ VALID_EXPORT_TYPES = {
     "portfolios",
     "portfolios_scanner",
     "portfolios_filtered",
+    "portfolios_metrics",
     "portfolios_best",
 }
 
@@ -280,7 +293,7 @@ def export_portfolios(
     Args:
         portfolios (List[Dict]): List of portfolio dictionaries to export
         config (ExportConfig): Export configuration dictionary
-        export_type (str): Type of export (must be one of: portfolios, portfolios_scanner, portfolios_filtered, portfolios_best)
+        export_type (str): Type of export (must be one of: portfolios, portfolios_scanner, portfolios_filtered, portfolios_metrics, portfolios_best)
         csv_filename (Optional[str]): Optional custom filename for the CSV
         log (Optional[Callable]): Optional logging function
         feature_dir (str): Directory to export to (default: "" for direct export to data/raw/strategies/)
@@ -324,7 +337,7 @@ def export_portfolios(
         export_feature1 = feature_dir if feature_dir else export_type
 
         # Export the empty DataFrame to create a file with headers only
-        success = export_csv(
+        result_df, success = export_csv(
             empty_df,
             export_feature1,
             config,
@@ -334,50 +347,33 @@ def export_portfolios(
             target_schema=target_schema_type,
         )
 
-        return empty_df, success
+        return result_df, success
 
     # Get export configuration with schema routing details
     export_config = ExportTypeRouter.get_export_config(export_type)
     if log:
-        log(f"Export configuration: {export_config['description']}", "info")
+        log(f"Export configuration: {export_config['description']}", "debug")
 
-    # Phase 1 Data Flow Audit: Log incoming portfolio data to export_portfolios
-    log(
-        f"📊 PHASE 1 AUDIT: export_portfolios() entry with {len(portfolios)} portfolios, export_type='{export_type}'",
-        "info",
-    )
-
-    # Log metric type distribution in incoming data
-    incoming_metric_counts = {}
-    incoming_cbre_data = []
-    for p in portfolios:
-        metric_type = p.get("Metric Type", "Unknown")
-        incoming_metric_counts[metric_type] = (
-            incoming_metric_counts.get(metric_type, 0) + 1
-        )
-
-        if p.get("Ticker") == "CBRE":
-            incoming_cbre_data.append(
-                {
-                    "Ticker": p.get("Ticker"),
-                    "Strategy": p.get("Strategy Type"),
-                    "Short": p.get("Short Window"),
-                    "Long": p.get("Long Window"),
-                    "Metric": p.get("Metric Type"),
-                }
-            )
-
-    log(
-        f"📊 INCOMING METRIC TYPES TO export_portfolios(): {dict(incoming_metric_counts)}",
-        "info",
-    )
-    if incoming_cbre_data:
-        log(
-            f"📊 INCOMING CBRE DATA TO export_portfolios(): {incoming_cbre_data}", "info"
-        )
-
+    # Phase 1 Data Flow Audit: Log incoming portfolio data to export_portfolios (debug only)
     if log:
-        log(f"Exporting {len(portfolios)} portfolios as {export_type}...", "info")
+        log(
+            f"Processing {len(portfolios)} portfolios for {export_type} export",
+            "debug",
+        )
+
+    # Log metric type distribution in incoming data (debug only)
+    if log:
+        incoming_metric_counts = {}
+        for p in portfolios:
+            metric_type = p.get("Metric Type", "Unknown")
+            incoming_metric_counts[metric_type] = (
+                incoming_metric_counts.get(metric_type, 0) + 1
+            )
+        log(f"Metric type distribution: {dict(incoming_metric_counts)}", "debug")
+
+    # Simple user-facing log for export start
+    if log:
+        log(f"Exporting {len(portfolios)} portfolios...", "info")
 
     # Determine strategy type from STRATEGY_TYPES list for filename generation
     strategy_types = config.get("STRATEGY_TYPES", ["SMA"])
@@ -399,7 +395,7 @@ def export_portfolios(
             # Use the pre-sorted portfolios
             portfolios = config["_SORTED_PORTFOLIOS"]
             if log:
-                log("Using pre-sorted portfolios from config", "info")
+                log("Using pre-sorted portfolios from config", "debug")
             # Remove from config to avoid confusion
             del config["_SORTED_PORTFOLIOS"]
 
@@ -416,7 +412,7 @@ def export_portfolios(
         if log:
             log(
                 f"Using schema type {target_schema_type.name} for export type {export_type}",
-                "info",
+                "debug",
             )
 
         # Phase 4: Special handling for portfolios_best with metric type aggregation or multiple strategy types
@@ -426,8 +422,9 @@ def export_portfolios(
             and len(df.select("Strategy Type").unique()) > 1
         )
 
-        # Apply minimum filtering for portfolios_best before any aggregation
-        if export_type == "portfolios_best":
+        # Apply minimum filtering for portfolios_best, portfolios_metrics, AND portfolios before any aggregation
+        # Note: portfolios_filtered should already have minimums applied, so it's excluded
+        if export_type in ["portfolios_best", "portfolios_metrics", "portfolios"]:
             from app.tools.portfolio.filtering_service import PortfolioFilterService
 
             # Apply MinimumsFilter to ensure YAML config criteria are enforced
@@ -437,17 +434,14 @@ def export_portfolios(
             if filtered_df is None or len(filtered_df) == 0:
                 if log:
                     log(
-                        "No portfolios remain after applying MINIMUMS filtering for portfolios_best",
+                        f"No portfolios remain after applying MINIMUMS filtering for {export_type}",
                         "warning",
                     )
                 return pl.DataFrame(), False
 
             df = filtered_df
             if log:
-                log(
-                    f"Applied MINIMUMS filtering for portfolios_best: {len(df)} portfolios remain",
-                    "info",
-                )
+                log(f"Applied filters: {len(df)} portfolios remain", "info")
 
         # Check if portfolios already have compound metric types (indicating prior aggregation)
         has_compound_metric_types = False
@@ -458,12 +452,12 @@ def export_portfolios(
 
             if log and has_compound_metric_types:
                 log(
-                    f"📊 DETECTED compound metric types: {compound_types[:3]}{'...' if len(compound_types) > 3 else ''}",
-                    "info",
+                    f"Found compound metric types: {len(compound_types)} configurations",
+                    "debug",
                 )
 
         if (
-            export_type == "portfolios_best"
+            export_type in ["portfolios_best", "portfolios_metrics"]
             and (has_metric_type or has_multiple_strategy_types)
             and not has_compound_metric_types
         ):
@@ -473,45 +467,23 @@ def export_portfolios(
 
             if log:
                 if has_metric_type and has_multiple_strategy_types:
-                    log(
-                        "📊 DETECTED Metric Type column AND multiple strategy types - applying aggregation for portfolios_best export",
-                        "info",
-                    )
+                    log("Aggregating portfolios by metric type and strategy", "debug")
                 elif has_metric_type:
-                    log(
-                        "📊 DETECTED Metric Type column - applying aggregation for portfolios_best export",
-                        "info",
-                    )
+                    log("Aggregating portfolios by metric type", "debug")
                 elif has_multiple_strategy_types:
-                    log(
-                        "📊 DETECTED multiple strategy types - applying aggregation for portfolios_best export",
-                        "info",
-                    )
+                    log("Aggregating portfolios by strategy type", "debug")
 
-                # Log detailed pre-aggregation data
-                pre_agg_cbre = df.filter(pl.col("Ticker") == "CBRE")
-                if len(pre_agg_cbre) > 0:
-                    log(
-                        f"📊 PRE-AGGREGATION CBRE DATA: {len(pre_agg_cbre)} rows", "info"
-                    )
-                    cbre_details = pre_agg_cbre.select(
-                        "Ticker",
-                        "Strategy Type",
-                        "Short Window",
-                        "Long Window",
-                        "Metric Type",
-                    ).to_dicts()
-                    log(f"📊 PRE-AGGREGATION CBRE DETAILS: {cbre_details}", "info")
+                # Log detailed pre-aggregation data (debug only)
+                if log:
+                    log(f"Starting aggregation of {len(df)} portfolios", "debug")
 
             # Apply metric type aggregation before schema transformation
             pre_aggregation_count = len(df)
 
             # Convert to dict for aggregation function
             pre_agg_portfolios = df.to_dicts()
-            log(
-                f"📊 CALLING deduplicate_and_aggregate_portfolios() with {len(pre_agg_portfolios)} portfolios",
-                "info",
-            )
+            if log:
+                log(f"Aggregating {len(pre_agg_portfolios)} portfolios", "debug")
 
             aggregated_portfolios = deduplicate_and_aggregate_portfolios(
                 pre_agg_portfolios, log
@@ -520,45 +492,29 @@ def export_portfolios(
 
             if log:
                 log(
-                    f"📊 AGGREGATION RESULT: {pre_aggregation_count} → {len(df)} portfolios",
+                    f"Aggregation complete: {pre_aggregation_count} → {len(df)} portfolios",
                     "info",
                 )
-
-                # Log post-aggregation CBRE data
-                post_agg_cbre = df.filter(pl.col("Ticker") == "CBRE")
-                if len(post_agg_cbre) > 0:
-                    log(
-                        f"📊 POST-AGGREGATION CBRE DATA: {len(post_agg_cbre)} rows",
-                        "info",
-                    )
-                    cbre_post_details = post_agg_cbre.select(
-                        "Ticker",
-                        "Strategy Type",
-                        "Short Window",
-                        "Long Window",
-                        "Metric Type",
-                    ).to_dicts()
-                    log(f"📊 POST-AGGREGATION CBRE DETAILS: {cbre_post_details}", "info")
-        elif export_type == "portfolios_best" and has_compound_metric_types:
+        elif (
+            export_type in ["portfolios_best", "portfolios_metrics"]
+            and has_compound_metric_types
+        ):
             if log:
-                log(
-                    "📊 SKIPPING aggregation - portfolios already have compound metric types (previously aggregated)",
-                    "info",
-                )
+                log("Skipping aggregation - portfolios already aggregated", "debug")
 
-        # Special handling for portfolios_best export type
-        if export_type == "portfolios_best":
+        # Special handling for portfolios_best and portfolios_metrics export types
+        if export_type in ["portfolios_best", "portfolios_metrics"]:
             # Ensure required columns exist
-            required_columns = ["Short Window", "Long Window"]
+            required_columns = ["Fast Period", "Slow Period"]
             for col in required_columns:
                 if col not in df.columns:
                     df = df.with_columns(pl.lit(None).alias(col))
 
-            # Check if we need to rename SMA/EMA columns to Short/Long Window
-            if "Short Window" not in df.columns or df.get_column(
-                "Short Window"
+            # Check if we need to rename SMA/EMA columns to Short/Slow Period
+            if "Fast Period" not in df.columns or df.get_column(
+                "Fast Period"
             ).null_count() == len(df):
-                # Create Short Window and Long Window columns based on available data
+                # Create Fast Period and Slow Period columns based on available data
                 expressions = []
 
                 # Check if we have SMA columns
@@ -569,7 +525,7 @@ def export_portfolios(
                 has_ema_fast = "EMA_FAST" in df.columns
                 has_ema_slow = "EMA_SLOW" in df.columns
 
-                # Create Short Window expression based on available columns
+                # Create Fast Period expression based on available columns
                 if has_sma_fast and has_ema_fast:
                     # If both SMA_FAST and EMA_FAST exist, use conditional based on
                     # Strategy Type
@@ -578,27 +534,27 @@ def export_portfolios(
                             pl.when(pl.col("Strategy Type").eq("SMA"))
                             .then(pl.col("SMA_FAST"))
                             .otherwise(pl.col("EMA_FAST"))
-                            .alias("Short Window")
+                            .alias("Fast Period")
                         )
                     else:
                         # Default to EMA if no strategy type information
-                        expressions.append(pl.col("EMA_FAST").alias("Short Window"))
+                        expressions.append(pl.col("EMA_FAST").alias("Fast Period"))
                         if log:
                             log(
-                                "No strategy type information found, defaulting to EMA for Short Window",
+                                "No strategy type information found, defaulting to EMA for Fast Period",
                                 "warning",
                             )
                 elif has_sma_fast:
                     # If only SMA_FAST exists
-                    expressions.append(pl.col("SMA_FAST").alias("Short Window"))
+                    expressions.append(pl.col("SMA_FAST").alias("Fast Period"))
                 elif has_ema_fast:
                     # If only EMA_FAST exists
-                    expressions.append(pl.col("EMA_FAST").alias("Short Window"))
+                    expressions.append(pl.col("EMA_FAST").alias("Fast Period"))
                 else:
                     # If neither exists, create empty column
-                    expressions.append(pl.lit(None).alias("Short Window"))
+                    expressions.append(pl.lit(None).alias("Fast Period"))
 
-                # Create Long Window expression based on available columns
+                # Create Slow Period expression based on available columns
                 if has_sma_slow and has_ema_slow:
                     # If both SMA_SLOW and EMA_SLOW exist, use conditional based on
                     # Strategy Type
@@ -607,25 +563,25 @@ def export_portfolios(
                             pl.when(pl.col("Strategy Type").eq("SMA"))
                             .then(pl.col("SMA_SLOW"))
                             .otherwise(pl.col("EMA_SLOW"))
-                            .alias("Long Window")
+                            .alias("Slow Period")
                         )
                     else:
                         # Default to EMA if no strategy type information
-                        expressions.append(pl.col("EMA_SLOW").alias("Long Window"))
+                        expressions.append(pl.col("EMA_SLOW").alias("Slow Period"))
                         if log:
                             log(
-                                "No strategy type information found, defaulting to EMA for Long Window",
+                                "No strategy type information found, defaulting to EMA for Slow Period",
                                 "warning",
                             )
                 elif has_sma_slow:
                     # If only SMA_SLOW exists
-                    expressions.append(pl.col("SMA_SLOW").alias("Long Window"))
+                    expressions.append(pl.col("SMA_SLOW").alias("Slow Period"))
                 elif has_ema_slow:
                     # If only EMA_SLOW exists
-                    expressions.append(pl.col("EMA_SLOW").alias("Long Window"))
+                    expressions.append(pl.col("EMA_SLOW").alias("Slow Period"))
                 else:
                     # If neither exists, create empty column
-                    expressions.append(pl.lit(None).alias("Long Window"))
+                    expressions.append(pl.lit(None).alias("Slow Period"))
 
                 # Apply the expressions if we have any
                 if expressions:
@@ -690,9 +646,10 @@ def export_portfolios(
             for portfolio_dict in df.to_dicts():
                 try:
                     # Step 1: Normalize each portfolio to target schema with canonical ordering
-                    # For analysis exports (portfolios_best, portfolios_filtered), force allocation/stop loss to None
+                    # For analysis exports (portfolios_best, portfolios_metrics, portfolios_filtered), force allocation/stop loss to None
                     force_analysis_defaults = export_type in [
                         "portfolios_best",
+                        "portfolios_metrics",
                         "portfolios_filtered",
                     ]
 
@@ -763,17 +720,17 @@ def export_portfolios(
                     else 0
                 )
                 log(
-                    f"Schema compliance report: {len(portfolios_normalized)}/{total_portfolios} portfolios processed",
-                    "info",
+                    f"Schema validation: {len(portfolios_normalized)}/{total_portfolios} processed",
+                    "debug",
                 )
-                log(f"Schema validation success rate: {success_rate:.1f}%", "info")
+                log(f"Validation success rate: {success_rate:.1f}%", "debug")
                 log(
-                    f"Applied SchemaTransformer normalization with {target_schema_type.name} schema",
-                    "info",
+                    f"Applied {target_schema_type.name} schema normalization",
+                    "debug",
                 )
                 log(
-                    f"Canonical ordering validation: {'PASSED' if ordering_valid else 'FAILED'}",
-                    "info",
+                    f"Ordering validation: {'PASSED' if ordering_valid else 'FAILED'}",
+                    "debug",
                 )
 
                 if validation_failures > 0:
@@ -786,6 +743,13 @@ def export_portfolios(
         # This allows different scripts to export to different directories
         # If feature_dir is empty, use export_type to ensure correct directory structure
         feature1 = feature_dir if feature_dir else export_type
+
+        # Debug logging to track path construction
+        if log:
+            log(
+                f"Export path: feature_dir='{feature_dir}', export_type='{export_type}', target='{feature1}'",
+                "debug",
+            )
 
         # Ensure all return metrics are included in the export
         # List of metrics that should be included in the export
@@ -806,11 +770,11 @@ def export_portfolios(
         if "RSI Window" in df.columns:
             df = df.drop("RSI Window")
             if log:
-                log("Removed 'RSI Window' column from export data", "info")
+                log("Removed 'RSI Window' column from export data", "debug")
 
         # Ensure columns have the expected data types
         # Convert integer columns
-        integer_columns = ["Short Window", "Long Window", "Total Trades"]
+        integer_columns = ["Fast Period", "Slow Period", "Total Trades"]
         for col in integer_columns:
             if col in df.columns:
                 try:
@@ -851,7 +815,7 @@ def export_portfolios(
                     if log:
                         log(
                             f"Successfully converted column '{col}' to Float64 with None values",
-                            "info",
+                            "debug",
                         )
                 except Exception as e:
                     if log:

@@ -79,8 +79,8 @@ class TestMACrossStrategyPipeline(unittest.TestCase):
         for portfolio in portfolios:
             self.assertEqual(portfolio["Strategy Type"], "SMA")
             self.assertEqual(portfolio["Ticker"], "AAPL")
-            self.assertIn("Short Window", portfolio)
-            self.assertIn("Long Window", portfolio)
+            self.assertIn("Fast Period", portfolio)
+            self.assertIn("Slow Period", portfolio)
 
     @patch("app.tools.download_data.download_data")
     def test_multi_strategy_orchestration(self, mock_fetch):

@@ -49,8 +49,17 @@ def filter_invalid_metrics(
     try:
         import pandas as pd
 
+        # Exclude non-serializable columns before pandas conversion
+        serializable_df = df
+        if "_equity_data" in df.columns:
+            # Store equity data column for later re-addition
+            equity_data_col = df.select("_equity_data")
+            serializable_df = df.drop("_equity_data")
+        else:
+            equity_data_col = None
+
         # Convert to pandas for safer filtering operations
-        pandas_df = df.to_pandas()
+        pandas_df = serializable_df.to_pandas()
         original_pandas_count = len(pandas_df)
 
         # Apply filters using pandas (more robust)
@@ -88,6 +97,21 @@ def filter_invalid_metrics(
 
         # Convert back to Polars
         filtered_df = pl.from_pandas(pandas_df)
+        
+        # Re-add equity data column if it existed
+        if equity_data_col is not None:
+            # Only add back equity data for rows that passed filtering
+            # Use row indices to align equity data with filtered results
+            if len(filtered_df) < len(equity_data_col):
+                # Filter equity data to match filtered rows
+                filtered_indices = pandas_df.index.tolist()
+                filtered_equity_data = equity_data_col.with_row_index().filter(
+                    pl.col("row_nr").is_in(filtered_indices)
+                ).drop("row_nr")
+                filtered_df = filtered_df.with_columns(filtered_equity_data)
+            else:
+                # All rows kept, add back original equity data
+                filtered_df = filtered_df.with_columns(equity_data_col)
 
         if log:
             filtered_count = original_pandas_count - len(pandas_df)

@@ -14,28 +14,27 @@ metadata:
 defaults:
   # Moving average strategy parameters
   moving_average:
-    windows:
-      short_min: 5
-      short_max: 50
-      long_min: 20
-      long_max: 200
-      default_short: 20
-      default_long: 50
+    fast_period_min: 5
+    fast_period_max: 50
+    slow_period_min: 20
+    slow_period_max: 200
+    default_fast_period: 20
+    default_slow_period: 50
 
-  # MACD strategy parameters (reduced ranges for testing)
-  # macd:
-  #   fast_period:
-  #     min: 3
-  #     max: 21
-  #     default: 12
-  #   slow_period:
-  #     min: 5
-  #     max: 34
-  #     default: 26
-  #   signal_period:
-  #     min: 5
-  #     max: 21
-  #     default: 9
+    # MACD strategy parameters (reduced ranges for testing)
+    # macd:
+    #   fast_period:
+    #     min: 3
+    #     max: 21
+    #     default: 12
+    #   slow_period:
+    #     min: 5
+    #     max: 34
+    #     default: 26
+    #   signal_period:
+    #     min: 5
+    #     max: 21
+    #     default: 9
     macd:
       fast_period:
         min: 3
@@ -65,13 +64,12 @@ defaults:
 asset_classes:
   crypto:
     moving_average:
-      windows:
-        short_min: 3
-        short_max: 50
-        long_min: 15
-        long_max: 200
-        default_short: 11
-        default_long: 36
+      fast_period_min: 3
+      fast_period_max: 50
+      slow_period_min: 15
+      slow_period_max: 200
+      default_fast_period: 11
+      default_slow_period: 36
     performance_thresholds:
       min_win_rate: 0.45 # More lenient for crypto volatility
       min_trades: 30
@@ -83,13 +81,12 @@ asset_classes:
 
   equities:
     moving_average:
-      windows:
-        short_min: 5
-        short_max: 50
-        long_min: 20
-        long_max: 200
-        default_short: 20
-        default_long: 50
+      fast_period_min: 5
+      fast_period_max: 50
+      slow_period_min: 20
+      slow_period_max: 200
+      default_fast_period: 20
+      default_slow_period: 50
     performance_thresholds:
       min_win_rate: 0.50
       min_trades: 44
@@ -101,13 +98,12 @@ asset_classes:
 
   commodities:
     moving_average:
-      windows:
-        short_min: 10
-        short_max: 60
-        long_min: 30
-        long_max: 250
-        default_short: 25
-        default_long: 75
+      fast_period_min: 10
+      fast_period_max: 60
+      slow_period_min: 30
+      slow_period_max: 250
+      default_fast_period: 25
+      default_slow_period: 75
     performance_thresholds:
       min_win_rate: 0.48
       min_trades: 40

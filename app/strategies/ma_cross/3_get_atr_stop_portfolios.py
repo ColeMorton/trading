@@ -30,8 +30,8 @@ from app.tools.project_utils import get_project_root
 # ATR-specific configuration based on proven MA Cross settings
 default_config: CacheConfig = {
     "TICKER": "NVDA",
-    "SHORT_WINDOW": 53,  # Proven MA Cross entry configuration
-    "LONG_WINDOW": 64,  # Proven MA Cross entry configuration
+    "FAST_PERIOD": 53,  # Proven MA Cross entry configuration
+    "SLOW_PERIOD": 64,  # Proven MA Cross entry configuration
     "BASE_DIR": get_project_root(),
     "USE_SMA": True,
     "REFRESH": True,
@@ -98,8 +98,8 @@ def execute_atr_analysis_for_ticker(
         # Prepare MA Cross configuration for fixed entry parameters
         ma_config = {
             "TICKER": ticker,
-            "SHORT_WINDOW": config["SHORT_WINDOW"],
-            "LONG_WINDOW": config["LONG_WINDOW"],
+            "FAST_PERIOD": config["FAST_PERIOD"],
+            "SLOW_PERIOD": config["SLOW_PERIOD"],
             "USE_SMA": config["USE_SMA"],
             "BASE_DIR": config["BASE_DIR"],
             "REFRESH": config["REFRESH"],
@@ -109,7 +109,7 @@ def execute_atr_analysis_for_ticker(
         }
 
         log(
-            f"MA Cross entry configuration: SMA({config['SHORT_WINDOW']}/{config['LONG_WINDOW']})",
+            f"MA Cross entry configuration: SMA({config['FAST_PERIOD']}/{config['SLOW_PERIOD']})",
             "info",
         )
 
@@ -233,11 +233,11 @@ def export_atr_portfolios(
             f"Sorting {len(filtered_portfolios)} portfolios by '{sort_by}' (ascending: {sort_asc})",
             "info",
         )
-        sorted_portfolios = sort_portfolios(filtered_portfolios, sort_by, sort_asc)
+        sorted_portfolios = sort_portfolios(filtered_portfolios, config)
 
         # Create filename with _ATR suffix
         strategy_type = "SMA" if config.get("USE_SMA", True) else "EMA"
-        filename = f"{ticker}_D_{strategy_type}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}_ATR.csv"
+        filename = f"{ticker}_D_{strategy_type}_{config['FAST_PERIOD']}_{config['SLOW_PERIOD']}_ATR.csv"
 
         # Determine export directory
         base_dir = config.get("BASE_DIR", ".")
@@ -313,7 +313,7 @@ def run_atr_analysis(config: CacheConfig = None) -> bool:
     ) as log:
         log("=== ATR Trailing Stop Parameter Sensitivity Analysis ===", "info")
         log(
-            f"Configuration: MA Cross SMA({config['SHORT_WINDOW']}/{config['LONG_WINDOW']}) + ATR Trailing Stops",
+            f"Configuration: MA Cross SMA({config['FAST_PERIOD']}/{config['SLOW_PERIOD']}) + ATR Trailing Stops",
             "info",
         )
 

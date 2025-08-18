@@ -3,7 +3,7 @@ Comprehensive tests for Monte Carlo analysis with different strategy types.
 
 This test suite verifies that Monte Carlo analysis works correctly with
 SMA, EMA, and MACD strategies, including proper parameter handling and
-signal window support for MACD.
+signal period support for MACD.
 """
 
 import sys
@@ -146,8 +146,8 @@ class TestMonteCarloStrategies:
                 assert "max_drawdown" in performance
 
     def test_macd_strategy_monte_carlo(self, analyzer, test_data):
-        """Test Monte Carlo analysis with MACD strategy including signal window."""
-        macd_config = {"STRATEGY_TYPE": "MACD", "SIGNAL_WINDOW": 9, "BASE_DIR": "."}
+        """Test Monte Carlo analysis with MACD strategy including signal period."""
+        macd_config = {"STRATEGY_TYPE": "MACD", "SIGNAL_PERIOD": 9, "BASE_DIR": "."}
 
         result = analyzer.analyze_parameter_stability(
             ticker="BTC-USD",
@@ -164,7 +164,7 @@ class TestMonteCarloStrategies:
 
         # Verify MACD-specific behavior
         for param_result in result.parameter_results:
-            # Check that signal window is being used in calculations
+            # Check that signal period is being used in calculations
             # This is verified by ensuring the base performance is calculated correctly
             base_perf = param_result.base_performance
             assert isinstance(base_perf["total_return"], (int, float))
@@ -179,14 +179,14 @@ class TestMonteCarloStrategies:
                         assert lower <= upper
 
     def test_macd_signal_window_variations(self, analyzer, test_data):
-        """Test MACD with different signal window values."""
+        """Test MACD with different signal period values."""
         signal_windows = [7, 9, 12]
 
         results = []
-        for signal_window in signal_windows:
+        for signal_period in signal_windows:
             macd_config = {
                 "STRATEGY_TYPE": "MACD",
-                "SIGNAL_WINDOW": signal_window,
+                "SIGNAL_PERIOD": signal_period,
                 "BASE_DIR": ".",
             }
 
@@ -198,15 +198,15 @@ class TestMonteCarloStrategies:
                 strategy_config=macd_config,
             )
 
-            results.append((signal_window, result))
+            results.append((signal_period, result))
 
         # Verify all results are valid and potentially different
-        for signal_window, result in results:
+        for signal_period, result in results:
             assert result.ticker == "TEST-MACD"
             assert len(result.parameter_results) == 1
             assert result.portfolio_stability_score >= 0.0
 
-            # Performance should be calculated (may vary with signal window)
+            # Performance should be calculated (may vary with signal period)
             param_result = result.parameter_results[0]
             assert param_result.parameter_combination == (12, 26)
             assert "total_return" in param_result.base_performance
@@ -237,7 +237,7 @@ class TestMonteCarloStrategies:
             data=test_data,
             parameter_combinations=parameter_combinations,
             strategy_type="MACD",
-            strategy_config={"STRATEGY_TYPE": "MACD", "SIGNAL_WINDOW": 9},
+            strategy_config={"STRATEGY_TYPE": "MACD", "SIGNAL_PERIOD": 9},
         )
 
         # Extract base performance values
@@ -277,14 +277,14 @@ class TestMonteCarloStrategies:
         assert param_result.base_performance["max_drawdown"] == 1.0
 
     def test_missing_macd_signal_window(self, analyzer, test_data):
-        """Test MACD without signal window configuration."""
-        # MACD should still work with default signal window or handle missing gracefully
+        """Test MACD without signal period configuration."""
+        # MACD should still work with default signal period or handle missing gracefully
         result = analyzer.analyze_parameter_stability(
             ticker="TEST-MACD",
             data=test_data,
             parameter_combinations=[(12, 26)],
             strategy_type="MACD",
-            strategy_config={"STRATEGY_TYPE": "MACD"},  # No SIGNAL_WINDOW specified
+            strategy_config={"STRATEGY_TYPE": "MACD"},  # No SIGNAL_PERIOD specified
         )
 
         # Should either work with default or handle gracefully
@@ -391,7 +391,7 @@ class TestStrategySpecificBehavior:
         result = analyzer.analyze_parameter_stability(
             ticker="TREND-SMA",
             data=trend_data,
-            parameter_combinations=[(5, 15)],  # Short vs long window
+            parameter_combinations=[(5, 15)],  # Short vs slow period
             strategy_type="SMA",
         )
 
@@ -411,7 +411,7 @@ class TestStrategySpecificBehavior:
 
         macd_config = {
             "STRATEGY_TYPE": "MACD",
-            "SIGNAL_WINDOW": 5,  # Short signal window for testing
+            "SIGNAL_PERIOD": 5,  # Short signal period for testing
         }
 
         result = analyzer.analyze_parameter_stability(

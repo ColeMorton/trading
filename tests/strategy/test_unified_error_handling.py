@@ -541,41 +541,35 @@ class TestValidationFunctions:
 
     def test_validate_parameters_success(self):
         """Test successful parameter validation."""
-        parameters = {"short_window": 10, "long_window": 20, "signal_window": 9}
+        parameters = {"fast_period": 10, "slow_period": 20, "signal_period": 9}
 
-        result = validate_parameters(
-            parameters, ["short_window", "long_window"], "MACD"
-        )
+        result = validate_parameters(parameters, ["fast_period", "slow_period"], "MACD")
 
         assert result == True
 
     def test_validate_parameters_missing_required(self):
         """Test parameter validation with missing required parameters."""
-        parameters = {"short_window": 10}
+        parameters = {"fast_period": 10}
 
-        result = validate_parameters(
-            parameters, ["short_window", "long_window"], "MACD"
-        )
+        result = validate_parameters(parameters, ["fast_period", "slow_period"], "MACD")
 
         assert result == False
 
     def test_validate_parameters_none_values(self):
         """Test parameter validation with None values."""
-        parameters = {"short_window": 10, "long_window": None}
+        parameters = {"fast_period": 10, "slow_period": None}
 
-        result = validate_parameters(
-            parameters, ["short_window", "long_window"], "MACD"
-        )
+        result = validate_parameters(parameters, ["fast_period", "slow_period"], "MACD")
 
         assert result == False
 
     def test_validate_parameters_with_error_handler(self):
         """Test parameter validation with error handler."""
-        parameters = {"short_window": 10}
+        parameters = {"fast_period": 10}
         handler = StandardErrorHandler("MACD", fail_fast=False)
 
         result = validate_parameters(
-            parameters, ["short_window", "long_window"], "MACD", handler
+            parameters, ["fast_period", "slow_period"], "MACD", handler
         )
 
         assert result == False

@@ -19,9 +19,9 @@ from app.tools.get_data import get_data
 def process_strategy_portfolios(
     ticker: str,
     strategy_type: str,
-    short_window: int,
-    long_window: int,
-    signal_window: Optional[int] | None = None,
+    fast_period: int,
+    slow_period: int,
+    signal_period: Optional[int] | None = None,
     config: Dict[str, Any] = None,
     log: Callable | None = None,
 ) -> Optional[Tuple[Optional[pl.DataFrame], dict, Optional[pl.DataFrame]]]:
@@ -31,9 +31,9 @@ def process_strategy_portfolios(
     Args:
         ticker: Ticker symbol
         strategy_type: Strategy type (SMA, EMA, MACD)
-        short_window: Short/fast window period
-        long_window: Long/slow window period
-        signal_window: Signal window period (required for MACD)
+        fast_period: Short/fast window period
+        slow_period: Long/slow window period
+        signal_period: Signal period (required for MACD)
         config: Configuration dictionary
         log: Logging function
 
@@ -52,10 +52,10 @@ def process_strategy_portfolios(
             )
             return None
 
-        # Validate MACD signal window
-        if strategy_type == "MACD" and signal_window is None:
+        # Validate MACD signal period
+        if strategy_type == "MACD" and signal_period is None:
             log(
-                f"MACD strategy requires signal_window parameter for {current_ticker}",
+                f"MACD strategy requires signal_period parameter for {current_ticker}",
                 "error",
             )
             return None
@@ -82,31 +82,31 @@ def process_strategy_portfolios(
         # Process based on strategy type
         if strategy_type == "SMA":
             log(
-                f"Processing SMA strategy for {current_ticker} with windows {short_window}/{long_window}"
+                f"Processing SMA strategy for {current_ticker} with windows {fast_period}/{slow_period}"
             )
             strategy_config["USE_SMA"] = True
             signal_data = calculate_ma_and_signals(
-                data.clone(), short_window, long_window, strategy_config, log
+                data.clone(), fast_period, slow_period, strategy_config, log
             )
 
         elif strategy_type == "EMA":
             log(
-                f"Processing EMA strategy for {current_ticker} with windows {short_window}/{long_window}"
+                f"Processing EMA strategy for {current_ticker} with windows {fast_period}/{slow_period}"
             )
             strategy_config["USE_SMA"] = False
             signal_data = calculate_ma_and_signals(
-                data.clone(), short_window, long_window, strategy_config, log
+                data.clone(), fast_period, slow_period, strategy_config, log
             )
 
         elif strategy_type == "MACD":
             log(
-                f"Processing MACD strategy for {current_ticker} with parameters {short_window}/{long_window}/{signal_window}"
+                f"Processing MACD strategy for {current_ticker} with parameters {fast_period}/{slow_period}/{signal_period}"
             )
             signal_data = calculate_macd_and_signals(
                 data.clone(),
-                short_window,
-                long_window,
-                signal_window,
+                fast_period,
+                slow_period,
+                signal_period,
                 strategy_config,
                 log,
             )
@@ -145,8 +145,8 @@ def process_strategy_portfolios(
 
 def process_sma_strategy(
     ticker: str,
-    short_window: int,
-    long_window: int,
+    fast_period: int,
+    slow_period: int,
     config: Dict[str, Any] = None,
     log: Callable | None = None,
 ) -> Optional[Tuple[Optional[pl.DataFrame], dict, Optional[pl.DataFrame]]]:
@@ -155,8 +155,8 @@ def process_sma_strategy(
 
     Args:
         ticker: Ticker symbol
-        short_window: Short window period
-        long_window: Long window period
+        fast_period: Fast period
+        slow_period: Slow period
         config: Configuration dictionary
         log: Logging function
 
@@ -166,8 +166,8 @@ def process_sma_strategy(
     return process_strategy_portfolios(
         ticker=ticker,
         strategy_type="SMA",
-        short_window=short_window,
-        long_window=long_window,
+        fast_period=fast_period,
+        slow_period=slow_period,
         config=config,
         log=log,
     )
@@ -175,8 +175,8 @@ def process_sma_strategy(
 
 def process_ema_strategy(
     ticker: str,
-    short_window: int,
-    long_window: int,
+    fast_period: int,
+    slow_period: int,
     config: Dict[str, Any] = None,
     log: Callable | None = None,
 ) -> Optional[Tuple[Optional[pl.DataFrame], dict, Optional[pl.DataFrame]]]:
@@ -185,8 +185,8 @@ def process_ema_strategy(
 
     Args:
         ticker: Ticker symbol
-        short_window: Short window period
-        long_window: Long window period
+        fast_period: Fast period
+        slow_period: Slow period
         config: Configuration dictionary
         log: Logging function
 
@@ -196,8 +196,8 @@ def process_ema_strategy(
     return process_strategy_portfolios(
         ticker=ticker,
         strategy_type="EMA",
-        short_window=short_window,
-        long_window=long_window,
+        fast_period=fast_period,
+        slow_period=slow_period,
         config=config,
         log=log,
     )
@@ -205,9 +205,9 @@ def process_ema_strategy(
 
 def process_macd_strategy(
     ticker: str,
-    short_window: int,
-    long_window: int,
-    signal_window: int,
+    fast_period: int,
+    slow_period: int,
+    signal_period: int,
     config: Dict[str, Any] = None,
     log: Callable | None = None,
 ) -> Optional[Tuple[Optional[pl.DataFrame], dict, Optional[pl.DataFrame]]]:
@@ -216,9 +216,9 @@ def process_macd_strategy(
 
     Args:
         ticker: Ticker symbol
-        short_window: Fast EMA period
-        long_window: Slow EMA period
-        signal_window: Signal line EMA period
+        fast_period: Fast EMA period
+        slow_period: Slow EMA period
+        signal_period: Signal line EMA period
         config: Configuration dictionary
         log: Logging function
 
@@ -228,9 +228,9 @@ def process_macd_strategy(
     return process_strategy_portfolios(
         ticker=ticker,
         strategy_type="MACD",
-        short_window=short_window,
-        long_window=long_window,
-        signal_window=signal_window,
+        fast_period=fast_period,
+        slow_period=slow_period,
+        signal_period=signal_period,
         config=config,
         log=log,
     )

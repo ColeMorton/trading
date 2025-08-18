@@ -14,8 +14,8 @@ class CacheConfig(TypedDict):
     Required Fields:
         BASE_DIR (str): Base directory for cache storage
         TICKER (Union[str, List[str]]): Ticker symbol or list of symbols
-        SHORT_WINDOW (int): Short moving average window
-        LONG_WINDOW (int): Long moving average window
+        FAST_PERIOD (int): Short moving average window
+        SLOW_PERIOD (int): Long moving average window
 
     Optional Fields:
         USE_SMA (NotRequired[bool]): Whether to use SMA instead of EMA
@@ -29,8 +29,8 @@ class CacheConfig(TypedDict):
 
     BASE_DIR: str
     TICKER: Union[str, List[str]]
-    SHORT_WINDOW: int
-    LONG_WINDOW: int
+    FAST_PERIOD: int
+    SLOW_PERIOD: int
     USE_SMA: bool
     USE_RSI: bool
     RSI_WINDOW: int
@@ -99,7 +99,7 @@ def get_cache_filepath(config: CacheConfig, analysis_type: str) -> Tuple[str, st
     )
 
     # Base filename components
-    base_name = f"{ticker_prefix}_D_{'SMA' if config.get('USE_SMA', False) else 'EMA'}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}"
+    base_name = f"{ticker_prefix}_D_{'SMA' if config.get('USE_SMA', False) else 'EMA'}_{config['FAST_PERIOD']}_{config['SLOW_PERIOD']}"
 
     # Add appropriate suffixes based on analysis type
     if analysis_type == "rsi":

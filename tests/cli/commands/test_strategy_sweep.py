@@ -82,8 +82,8 @@ config:
             {
                 "Ticker": ["AAPL"] * 4,
                 "Strategy Type": ["SMA"] * 4,
-                "Short Window": [5, 10, 5, 10],
-                "Long Window": [20, 30, 25, 35],
+                "Fast Period": [5, 10, 5, 10],
+                "Slow Period": [20, 30, 25, 35],
                 "Total Trades": [50, 45, 55, 40],
                 "Win Rate [%]": [55.0, 60.0, 52.0, 58.0],
                 "Total Return [%]": [25.5, 35.2, 18.7, 28.9],

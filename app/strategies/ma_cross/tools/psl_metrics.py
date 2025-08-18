@@ -99,6 +99,6 @@ def create_filename(config: Dict) -> str:
     return (
         f"{ticker_prefix}_D_"
         f"{'SMA' if config.get('USE_SMA', False) else 'EMA'}_"
-        f"{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}"
+        f"{config['FAST_PERIOD']}_{config['SLOW_PERIOD']}"
         f"{rsi_suffix}{stop_loss_suffix}.csv"
     )

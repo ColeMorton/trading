@@ -119,8 +119,8 @@ def create_test_strategies(
                 "timeframe": "D",
                 "type": strategy_type,
                 "direction": "long",
-                "short_window": 10 + i * 5,
-                "long_window": 30 + i * 10,
+                "fast_period": 10 + i * 5,
+                "slow_period": 30 + i * 10,
                 "allocation": (100 / count) if count > 0 else 0,
             }
         else:  # MACD
@@ -129,9 +129,9 @@ def create_test_strategies(
                 "timeframe": "D",
                 "type": "MACD",
                 "direction": "long",
-                "short_window": 12,
-                "long_window": 26,
-                "signal_window": 9,
+                "fast_period": 12,
+                "slow_period": 26,
+                "signal_period": 9,
                 "allocation": (100 / count) if count > 0 else 0,
             }
 

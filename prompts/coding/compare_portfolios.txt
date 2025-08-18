@@ -5,7 +5,7 @@
 
 CSV Column Headings:
 
-Moving Average Type,Short Window,Long Window,Start,End,Period,Start Value,End Value,Total Return [%],Benchmark Return [%],Max Gross Exposure [%],Total Fees Paid,Max Drawdown [%],Max Drawdown Duration,Total Trades,Total Closed Trades,Total Open Trades,Open Trade PnL,Win Rate [%],Best Trade [%],Worst Trade [%],Avg Winning Trade [%],Avg Losing Trade [%],Avg Winning Trade Duration,Avg Losing Trade Duration,Profit Factor,Expectancy,Sharpe Ratio,Calmar Ratio,Omega Ratio,Sortino Ratio
+Moving Average Type,Fast Period,Slow Period,Start,End,Period,Start Value,End Value,Total Return [%],Benchmark Return [%],Max Gross Exposure [%],Total Fees Paid,Max Drawdown [%],Max Drawdown Duration,Total Trades,Total Closed Trades,Total Open Trades,Open Trade PnL,Win Rate [%],Best Trade [%],Worst Trade [%],Avg Winning Trade [%],Avg Losing Trade [%],Avg Winning Trade Duration,Avg Losing Trade Duration,Profit Factor,Expectancy,Sharpe Ratio,Calmar Ratio,Omega Ratio,Sortino Ratio
 
 Row 1 (EMA Strategy)
 EMA,18,63,0,17434,726 days 11:00:00,1000.0,17904.280754377338,1690.428075437734,1647.774447250802,100.0,1604.851108571957,35.32538885010186,143 days 11:00:00,132,132,0,0.0,37.121212121212125,126.49884498608903,-8.054869060420517,12.284162449050644,-2.6885985421685383,5 days 16:00:00,1 days 06:39:45.542168674,2.343703406902088,128.06273298770708,2.421728431832542,9.231908188820936,1.1138247596756985,3.7094616102650027

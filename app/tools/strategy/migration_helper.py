@@ -156,9 +156,9 @@ def _generate_validation_errors(
                 )
 
     # Check window relationships
-    if "SHORT_WINDOW" in config and "LONG_WINDOW" in config:
-        if config["SHORT_WINDOW"] >= config["LONG_WINDOW"]:
-            errors.append("SHORT_WINDOW must be less than LONG_WINDOW")
+    if "FAST_PERIOD" in config and "SLOW_PERIOD" in config:
+        if config["FAST_PERIOD"] >= config["SLOW_PERIOD"]:
+            errors.append("FAST_PERIOD must be less than SLOW_PERIOD")
 
     return errors
 

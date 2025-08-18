@@ -20,26 +20,26 @@ config:
   strategies:
     # Strategy 1: Conservative approach
     - ticker: '{{TICKER_1}}'
-      short_window: 20
-      long_window: 50
+      fast_period: 20
+      slow_period: 50
       strategy_type: SMA
 
     # Strategy 2: Aggressive approach
     - ticker: '{{TICKER_1}}'
-      short_window: 5
-      long_window: 15
+      fast_period: 5
+      slow_period: 15
       strategy_type: EMA
 
     # Strategy 3: Different asset, conservative
     - ticker: '{{TICKER_2}}'
-      short_window: 20
-      long_window: 50
+      fast_period: 20
+      slow_period: 50
       strategy_type: SMA
 
     # Strategy 4: Different asset, aggressive
     - ticker: '{{TICKER_2}}'
-      short_window: 5
-      long_window: 15
+      fast_period: 5
+      slow_period: 15
       strategy_type: EMA
 
   # Comparison-focused settings

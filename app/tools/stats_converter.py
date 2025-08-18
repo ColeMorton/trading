@@ -316,6 +316,8 @@ def convert_stats(
     config: StatsConfig | None = None,
     current: Any | None = None,
     exit_signal: Any | None = None,
+    signal_unconfirmed: str | None = None,
+    verbose: bool = False,
 ) -> Dict[str, Any]:
     """Convert portfolio statistics to a standardized format with proper type handling.
 
@@ -699,7 +701,7 @@ def convert_stats(
         converted = {}
 
         # Handle window values first, ensuring they remain integers
-        window_params = ["Short Window", "Long Window", "Signal Window"]
+        window_params = ["Fast Period", "Slow Period", "Signal Period"]
         for param in window_params:
             if param in stats:
                 converted[param] = int(stats[param])
@@ -766,8 +768,13 @@ def convert_stats(
             converted["Signal Exit"] = exit_signal
             log(f"Added Signal Exit: {exit_signal} for {ticker}", "info")
 
+        # Add Signal Unconfirmed if provided
+        if signal_unconfirmed is not None:
+            converted["Signal Unconfirmed"] = signal_unconfirmed
+            log(f"Added Signal Unconfirmed: {signal_unconfirmed} for {ticker}", "info")
+
         # Ensure canonical schema compliance
-        converted = _ensure_canonical_schema_compliance(converted, log)
+        converted = _ensure_canonical_schema_compliance(converted, log, verbose)
 
         log(f"Successfully converted stats for {ticker}", "info")
         return converted
@@ -778,7 +785,7 @@ def convert_stats(
 
 
 def _ensure_canonical_schema_compliance(
-    stats: Dict[str, Any], log: Callable[[str, str], None]
+    stats: Dict[str, Any], log: Callable[[str, str], None], verbose: bool = False
 ) -> Dict[str, Any]:
     """
     Ensure the stats dictionary conforms to the canonical 59-column schema.
@@ -812,7 +819,7 @@ def _ensure_canonical_schema_compliance(
         else:
             # Set default values for missing columns
             canonical_stats[column_name] = _get_default_value_for_column(
-                column_name, stats, log
+                column_name, stats, log, verbose
             )
 
     # Preserve non-canonical fields (like _equity_data for equity export)
@@ -829,7 +836,10 @@ def _ensure_canonical_schema_compliance(
 
 
 def _get_default_value_for_column(
-    column_name: str, stats: Dict[str, Any], log: Callable[[str, str], None]
+    column_name: str,
+    stats: Dict[str, Any],
+    log: Callable[[str, str], None],
+    verbose: bool = False,
 ) -> Any:
     """
     Get appropriate default value for a missing column.
@@ -847,9 +857,9 @@ def _get_default_value_for_column(
         "Ticker": stats.get("Ticker", "UNKNOWN"),
         "Allocation [%]": None,  # Optional allocation
         "Strategy Type": "SMA",  # Default strategy type
-        "Short Window": 20,  # Default short window
-        "Long Window": 50,  # Default long window
-        "Signal Window": 0,  # Default signal window
+        "Fast Period": 20,  # Default fast period
+        "Slow Period": 50,  # Default slow period
+        "Signal Period": 0,  # Default signal period
         "Stop Loss [%]": None,  # Optional stop loss
         "Signal Entry": False,  # Default signal state
         "Signal Exit": False,  # Default signal state
@@ -922,16 +932,20 @@ def _get_default_value_for_column(
     }
 
     if default_value is None:
-        # Use debug level for commonly missing columns to reduce noise
-        log_level = "debug" if column_name in commonly_missing else "warning"
-        log(
-            f"No default value defined for column '{column_name}', using None",
-            log_level,
-        )
+        # Only show warnings if verbose mode is enabled
+        if verbose:
+            # Use debug level for commonly missing columns to reduce noise
+            log_level = "debug" if column_name in commonly_missing else "warning"
+            log(
+                f"No default value defined for column '{column_name}', using None",
+                log_level,
+            )
     else:
-        log(
-            f"Using default value for missing column '{column_name}': {default_value}",
-            "debug",
-        )
+        # Only show debug messages if verbose mode is enabled
+        if verbose:
+            log(
+                f"Using default value for missing column '{column_name}': {default_value}",
+                "debug",
+            )
 
     return default_value

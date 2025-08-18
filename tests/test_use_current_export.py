@@ -39,9 +39,9 @@ class TestUseCurrentExport(unittest.TestCase):
         self.test_portfolio = {
             "Ticker": self.test_ticker,
             "Strategy Type": "SMA",
-            "Short Window": 50,
-            "Long Window": 200,
-            "Signal Window": 0,
+            "Fast Period": 50,
+            "Slow Period": 200,
+            "Signal Period": 0,
             "Total Return [%]": 100.0,
             "Win Rate [%]": 60.0,
             "Total Trades": 100,

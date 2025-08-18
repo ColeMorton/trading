@@ -30,8 +30,8 @@ class Config(TypedDict):
 
     Required Fields:
         TICKER (str): Ticker symbol to analyze
-        SHORT_WINDOW (int): Period for short moving average
-        LONG_WINDOW (int): Period for long moving average
+        FAST_PERIOD (int): Period for short moving average
+        SLOW_PERIOD (int): Period for long moving average
         USE_RSI (bool): Whether to enable RSI filtering
         RSI_WINDOW (int): Period for RSI calculation
         RSI_THRESHOLD (int): RSI threshold for signal filtering
@@ -49,8 +49,8 @@ class Config(TypedDict):
     """
 
     TICKER: str
-    SHORT_WINDOW: int
-    LONG_WINDOW: int
+    FAST_PERIOD: int
+    SLOW_PERIOD: int
     USE_RSI: bool
     RSI_WINDOW: int
     RSI_THRESHOLD: int
@@ -69,8 +69,8 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "TICKER": "XYZ",
-    "SHORT_WINDOW": 7,
-    "LONG_WINDOW": 27,
+    "FAST_PERIOD": 7,
+    "SLOW_PERIOD": 27,
     "BASE_DIR": ".",
     "USE_SMA": True,
     "REFRESH": False,
@@ -122,8 +122,8 @@ def run(config: Config = config) -> bool:
         data = get_data(config["TICKER"], config, log)
         data = calculate_mas(
             data,
-            config["SHORT_WINDOW"],
-            config["LONG_WINDOW"],
+            config["FAST_PERIOD"],
+            config["SLOW_PERIOD"],
             config.get("USE_SMA", False),
             log,
         )

@@ -19,8 +19,8 @@ def analyze_parameter_sensitivity(
 
     Args:
         data: Price data DataFrame
-        short_windows: List of short window periods
-        long_windows: List of long window periods
+        short_windows: List of fast period periods
+        long_windows: List of slow period periods
         config: Configuration dictionary
         log: Logging function for recording events and errors
 
@@ -32,11 +32,11 @@ def analyze_parameter_sensitivity(
 
         # Convert window lists to parameter sets format for unified framework
         parameter_sets = []
-        for short_window in short_windows:
-            for long_window in long_windows:
-                if short_window < long_window:  # Ensure short < long
+        for fast_period in short_windows:
+            for slow_period in long_windows:
+                if fast_period < slow_period:  # Ensure short < long
                     parameter_sets.append(
-                        {"short_window": short_window, "long_window": long_window}
+                        {"fast_period": fast_period, "slow_period": slow_period}
                     )
 
         # Handle multiple strategy types

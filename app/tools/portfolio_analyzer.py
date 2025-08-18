@@ -284,12 +284,12 @@ class PortfolioStatisticalAnalyzer:
                     parsed = parse_strategy_uuid(position_uuid)
                     ticker = parsed.get("ticker", "UNKNOWN")
                     strategy_type = parsed.get("strategy_type", "SMA")
-                    short_window = parsed.get("short_window", "")
-                    long_window = parsed.get("long_window", "")
+                    fast_period = parsed.get("fast_period", "")
+                    slow_period = parsed.get("slow_period", "")
 
                     # Strategy name should include ticker to match Position_UUID pattern
-                    if str(short_window) and str(long_window):
-                        strategy_name = f"{ticker}_{strategy_type}_{short_window}_{long_window}"  # e.g. "MA_SMA_78_82"
+                    if str(fast_period) and str(slow_period):
+                        strategy_name = f"{ticker}_{strategy_type}_{fast_period}_{slow_period}"  # e.g. "MA_SMA_78_82"
                     else:
                         strategy_name = f"{ticker}_{strategy_type}"
 
@@ -304,11 +304,11 @@ class PortfolioStatisticalAnalyzer:
                     strategy_type = row.get(
                         "Strategy Type", row.get("strategy_type", "SMA")
                     )
-                    short_window = row.get("Short Window", row.get("short_window", ""))
-                    long_window = row.get("Long Window", row.get("long_window", ""))
+                    fast_period = row.get("Fast Period", row.get("fast_period", ""))
+                    slow_period = row.get("Slow Period", row.get("slow_period", ""))
                     strategy_name = (
-                        f"{strategy_type}_{short_window}_{long_window}"
-                        if str(short_window) and str(long_window)
+                        f"{strategy_type}_{fast_period}_{slow_period}"
+                        if str(fast_period) and str(slow_period)
                         else strategy_type
                     )
             else:
@@ -319,12 +319,12 @@ class PortfolioStatisticalAnalyzer:
                 strategy_type = row.get(
                     "Strategy Type", row.get("strategy_type", "SMA")
                 )
-                short_window = row.get("Short Window", row.get("short_window", ""))
-                long_window = row.get("Long Window", row.get("long_window", ""))
+                fast_period = row.get("Fast Period", row.get("fast_period", ""))
+                slow_period = row.get("Slow Period", row.get("slow_period", ""))
 
                 # Strategy name should include ticker to match Position_UUID pattern
-                if ticker != "UNKNOWN" and str(short_window) and str(long_window):
-                    strategy_name = f"{ticker}_{strategy_type}_{short_window}_{long_window}"  # e.g. "MA_SMA_78_82"
+                if ticker != "UNKNOWN" and str(fast_period) and str(slow_period):
+                    strategy_name = f"{ticker}_{strategy_type}_{fast_period}_{slow_period}"  # e.g. "MA_SMA_78_82"
                 else:
                     # Fallback to existing logic for other formats
                     strategy_name = row.get(
@@ -336,8 +336,8 @@ class PortfolioStatisticalAnalyzer:
                 "ticker": ticker,
                 "allocation": row.get("allocation", row.get("Allocation", 0.0)),
                 "strategy_type": strategy_type,
-                "short_window": short_window,
-                "long_window": long_window,
+                "fast_period": fast_period,
+                "slow_period": slow_period,
             }
 
             # Add any additional columns as metadata
@@ -351,8 +351,8 @@ class PortfolioStatisticalAnalyzer:
                     "Symbol",
                     "Allocation",
                     "Strategy Type",
-                    "Short Window",
-                    "Long Window",
+                    "Fast Period",
+                    "Slow Period",
                 ]:
                     strategy_info[col.lower().replace(" ", "_")] = row[col]
 
@@ -408,12 +408,12 @@ class PortfolioStatisticalAnalyzer:
                             == strategy_info.get("strategy_type", "SMA")
                         )
                         & (
-                            trade_history_data["Short_Window"].astype(str)
-                            == str(strategy_info.get("short_window", ""))
+                            trade_history_data["Fast_Period"].astype(str)
+                            == str(strategy_info.get("fast_period", ""))
                         )
                         & (
-                            trade_history_data["Long_Window"].astype(str)
-                            == str(strategy_info.get("long_window", ""))
+                            trade_history_data["Slow_Period"].astype(str)
+                            == str(strategy_info.get("slow_period", ""))
                         )
                     ]
 
@@ -580,11 +580,11 @@ class PortfolioStatisticalAnalyzer:
 
         # Extract strategy components for fuzzy matching
         strategy_type = strategy_info.get("strategy_type", "SMA")
-        short_window = str(strategy_info.get("short_window", ""))
-        long_window = str(strategy_info.get("long_window", ""))
+        fast_period = str(strategy_info.get("fast_period", ""))
+        slow_period = str(strategy_info.get("slow_period", ""))
 
         # Create expected strategy prefix pattern
-        expected_prefix = f"{ticker}_{strategy_type}_{short_window}_{long_window}"
+        expected_prefix = f"{ticker}_{strategy_type}_{fast_period}_{slow_period}"
 
         self.logger.info(
             f"Fuzzy matching for {strategy_name}: expected_prefix={expected_prefix}"

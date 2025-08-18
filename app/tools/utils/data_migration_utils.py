@@ -223,7 +223,7 @@ class DataMigrationManager:
         if "Strategy_Type" not in df.columns or "Position_UUID" not in df.columns:
             return fixes
 
-        # Fix SMA/EMA UUIDs that incorrectly include signal window
+        # Fix SMA/EMA UUIDs that incorrectly include signal period
         sma_ema_mask = df["Strategy_Type"].isin(["SMA", "EMA"])
         incorrect_uuid_mask = df["Position_UUID"].str.contains("_0_", na=False)
 
@@ -252,9 +252,9 @@ class DataMigrationManager:
                     new_uuid = generate_position_uuid(
                         ticker=str(row["Ticker"]),
                         strategy_type=str(row["Strategy_Type"]),
-                        short_window=int(row["Short_Window"]),
-                        long_window=int(row["Long_Window"]),
-                        signal_window=0,  # Will be omitted for SMA/EMA
+                        fast_period=int(row["Fast_Period"]),
+                        slow_period=int(row["Slow_Period"]),
+                        signal_period=0,  # Will be omitted for SMA/EMA
                         entry_date=entry_date,
                     )
                     df.loc[idx, "Position_UUID"] = new_uuid
@@ -339,7 +339,7 @@ class DataMigrationManager:
         fixes = []
 
         # Integer columns
-        int_columns = ["Short_Window", "Long_Window", "Signal_Window"]
+        int_columns = ["Fast_Period", "Slow_Period", "Signal_Period"]
         for col in int_columns:
             if col in df.columns:
                 try:

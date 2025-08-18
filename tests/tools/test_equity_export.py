@@ -55,7 +55,7 @@ class TestEquityExportFilenames:
         assert filename == "EUR-USD_EMA_10_20_0.csv"
 
     def test_generate_equity_filename_signal_window_none(self):
-        """Test filename generation with None signal window."""
+        """Test filename generation with None signal period."""
         filename = generate_equity_filename("TESLA", "SMA", 15, 30, None)
         assert filename == "TESLA_SMA_15_30_0.csv"
 
@@ -169,9 +169,9 @@ class TestEquityDataExport:
                 equity_data=equity_data,
                 ticker="AAPL",
                 strategy_type="SMA",
-                short_window=20,
-                long_window=50,
-                signal_window=None,
+                fast_period=20,
+                slow_period=50,
+                signal_period=None,
                 log=mock_log,
                 overwrite=True,
             )
@@ -224,9 +224,9 @@ class TestEquityDataExport:
                 equity_data=empty_equity_data,
                 ticker="EMPTY",
                 strategy_type="SMA",
-                short_window=20,
-                long_window=50,
-                signal_window=None,
+                fast_period=20,
+                slow_period=50,
+                signal_period=None,
                 log=mock_log,
                 overwrite=True,
             )
@@ -261,9 +261,9 @@ class TestEquityDataExport:
                 equity_data=equity_data,
                 ticker="TEST",
                 strategy_type="SMA",
-                short_window=20,
-                long_window=50,
-                signal_window=None,
+                fast_period=20,
+                slow_period=50,
+                signal_period=None,
                 log=mock_log,
                 overwrite=False,
             )
@@ -302,25 +302,25 @@ class TestEquityBatchExport:
             {
                 "Ticker": "AAPL",
                 "Strategy Type": "SMA",
-                "Short Window": 20,
-                "Long Window": 50,
-                "Signal Window": None,
+                "Fast Period": 20,
+                "Slow Period": 50,
+                "Signal Period": None,
                 "_equity_data": equity_data,
             },
             {
                 "Ticker": "MSFT",
                 "Strategy Type": "MACD",
-                "Short Window": 12,
-                "Long Window": 26,
-                "Signal Window": 9,
+                "Fast Period": 12,
+                "Slow Period": 26,
+                "Signal Period": 9,
                 "_equity_data": equity_data,
             },
             {
                 "Ticker": "GOOGL",
                 "Strategy Type": "EMA",
-                "Short Window": 15,
-                "Long Window": 30,
-                "Signal Window": None,
+                "Fast Period": 15,
+                "Slow Period": 30,
+                "Signal Period": None,
                 # No equity data for this one
             },
         ]
@@ -448,7 +448,7 @@ class TestEquityExportValidation:
         assert result is False
 
     def test_validate_equity_export_requirements_macd_missing_signal(self):
-        """Test validation for MACD without signal window."""
+        """Test validation for MACD without signal period."""
         result = validate_equity_export_requirements("AAPL", "MACD", 12, 26, None)
         assert result is False
 

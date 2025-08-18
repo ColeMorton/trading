@@ -68,8 +68,8 @@ class PositionSizingPortfolioIntegration:
         self,
         ticker: str,
         strategy_type: str = "SMA",
-        short_window: int = 20,
-        long_window: int = 50,
+        fast_period: int = 20,
+        slow_period: int = 50,
         manual_data: Optional[Dict[str, Any]] = None,
     ) -> PositionSizingPortfolioRow:
         """Create a complete position sizing portfolio row.
@@ -77,8 +77,8 @@ class PositionSizingPortfolioIntegration:
         Args:
             ticker: Ticker symbol
             strategy_type: Strategy type (SMA, EMA, MACD)
-            short_window: Short window period
-            long_window: Long window period
+            fast_period: Fast period
+            slow_period: Slow period
             manual_data: Dictionary containing manual entry data
 
         Returns:
@@ -178,8 +178,8 @@ class PositionSizingPortfolioIntegration:
             # Base portfolio fields
             ticker=ticker,
             strategy_type=strategy_type,
-            short_window=short_window,
-            long_window=long_window,
+            fast_period=fast_period,
+            slow_period=slow_period,
             # Account balance fields
             IBKR_Balance=net_worth_calc.ibkr_balance,
             Bybit_Balance=net_worth_calc.bybit_balance,

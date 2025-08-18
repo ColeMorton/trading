@@ -54,16 +54,16 @@ class NewArchitectureTest:
             ticker = np.random.choice(tickers)
             strategy = np.random.choice(strategies)
 
-            short_window = np.random.randint(5, 50)
-            long_window = np.random.randint(50, 200)
+            fast_period = np.random.randint(5, 50)
+            slow_period = np.random.randint(50, 200)
 
             data.append(
                 {
-                    "Position_UUID": f"{ticker}_{strategy}_{short_window}_{long_window}_{20250101 + i:08d}",
+                    "Position_UUID": f"{ticker}_{strategy}_{fast_period}_{slow_period}_{20250101 + i:08d}",
                     "Ticker": ticker,
                     "Strategy": strategy,
-                    "Short_Window": short_window,
-                    "Long_Window": long_window,
+                    "Fast_Period": fast_period,
+                    "Slow_Period": slow_period,
                     "Win_Rate": np.random.uniform(0.3, 0.8),
                     "Total_Return": np.random.uniform(-0.5, 2.0),
                     "Sharpe_Ratio": np.random.uniform(-1.0, 3.0),

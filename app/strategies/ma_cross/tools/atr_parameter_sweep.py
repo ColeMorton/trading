@@ -160,6 +160,7 @@ class ATRParameterSweepEngine:
                     f"Invalid ATR parameters ({atr_length}, {atr_multiplier}): {error_msg}",
                     "error",
                 )
+                self.sweep_stats["failed_combinations"] += 1
                 return None
 
             # Convert to pandas for signal processing
@@ -175,6 +176,7 @@ class ATRParameterSweepEngine:
                     f"Failed to generate signals for ATR({atr_length}, {atr_multiplier})",
                     "error",
                 )
+                self.sweep_stats["failed_combinations"] += 1
                 return None
 
             # Convert back to polars for backtesting
@@ -183,9 +185,9 @@ class ATRParameterSweepEngine:
             # Prepare backtest config with both lowercase and uppercase keys for compatibility
             backtest_config = {
                 # Core VectorBT configuration (lowercase keys for stats method)
-                "short_window": ma_config.get("SHORT_WINDOW", 20),
-                "long_window": ma_config.get("LONG_WINDOW", 50),
-                "signal_window": ma_config.get("SIGNAL_WINDOW", 0),
+                "fast_period": ma_config.get("FAST_PERIOD", 20),
+                "slow_period": ma_config.get("SLOW_PERIOD", 50),
+                "signal_period": ma_config.get("SIGNAL_PERIOD", 0),
                 "ticker": ticker,  # Use actual ticker parameter
                 # Preserve uppercase keys for compatibility with other systems
                 "USE_HOURLY": ma_config.get("USE_HOURLY", False),
@@ -201,6 +203,7 @@ class ATRParameterSweepEngine:
             portfolio = backtest_strategy(signal_data_pl, backtest_config, log)
             if portfolio is None:
                 log(f"Backtest failed for ATR({atr_length}, {atr_multiplier})", "error")
+                self.sweep_stats["failed_combinations"] += 1
                 return None
 
             # Get stats from VectorBT portfolio
@@ -212,12 +215,14 @@ class ATRParameterSweepEngine:
                         f"Failed to get portfolio stats for ATR({atr_length}, {atr_multiplier}): {str(e)}",
                         "error",
                     )
+                    self.sweep_stats["failed_combinations"] += 1
                     return None
             else:
                 log(
                     f"Portfolio object missing stats method for ATR({atr_length}, {atr_multiplier})",
                     "error",
                 )
+                self.sweep_stats["failed_combinations"] += 1
                 return None
 
             if not stats_dict:
@@ -225,6 +230,7 @@ class ATRParameterSweepEngine:
                     f"Stats conversion failed for ATR({atr_length}, {atr_multiplier})",
                     "error",
                 )
+                self.sweep_stats["failed_combinations"] += 1
                 return None
 
             # Convert to dict if needed
@@ -235,6 +241,7 @@ class ATRParameterSweepEngine:
                     f"Stats are not in dictionary format for ATR({atr_length}, {atr_multiplier})",
                     "error",
                 )
+                self.sweep_stats["failed_combinations"] += 1
                 return None
 
             # Add ATR-specific fields and ensure ticker is set
@@ -356,7 +363,7 @@ class ATRParameterSweepEngine:
 
         Args:
             ticker: Ticker symbol to analyze
-            ma_config: MA Cross configuration with SHORT_WINDOW, LONG_WINDOW, USE_SMA
+            ma_config: MA Cross configuration with FAST_PERIOD, SLOW_PERIOD, USE_SMA
             log: Logging function
             use_concurrent: Enable concurrent processing of chunks
 
@@ -373,9 +380,9 @@ class ATRParameterSweepEngine:
                 price_data, synthetic_ticker = data_result
                 ma_config["TICKER"] = synthetic_ticker
             else:
-                prices = data_result
+                price_data = data_result
 
-            if prices is None or len(price_data) == 0:
+            if price_data is None or len(price_data) == 0:
                 raise ValueError(f"Failed to get price data for {ticker}")
 
             log(f"Retrieved {len(price_data)} data points for {ticker}", "info")
@@ -451,7 +458,7 @@ class ATRParameterSweepEngine:
                 log("Starting sequential processing", "info")
                 for i, chunk in enumerate(parameter_chunks):
                     chunk_results = self.process_atr_parameter_chunk(
-                        ticker, ma_config, chunk, prices, log, i
+                        ticker, ma_config, chunk, price_data, log, i
                     )
                     all_results.extend(chunk_results)
 

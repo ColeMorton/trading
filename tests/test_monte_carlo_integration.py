@@ -39,16 +39,16 @@ class TestMonteCarloReportIntegration:
             {
                 "TICKER": "BTC-USD",
                 "STRATEGY_TYPE": "SMA",
-                "SHORT_WINDOW": 10,
-                "LONG_WINDOW": 20,
+                "FAST_PERIOD": 10,
+                "SLOW_PERIOD": 20,
                 "strategy_id": "BTC-USD_SMA_10_20_0",
             },
             {
                 "TICKER": "ETH-USD",
                 "STRATEGY_TYPE": "MACD",
-                "SHORT_WINDOW": 12,
-                "LONG_WINDOW": 26,
-                "SIGNAL_WINDOW": 9,
+                "FAST_PERIOD": 12,
+                "SLOW_PERIOD": 26,
+                "SIGNAL_PERIOD": 9,
                 "strategy_id": "ETH-USD_MACD_12_26_9",
             },
         ]
@@ -191,16 +191,16 @@ class TestMonteCarloRunnerIntegration:
             {
                 "ticker": "BTC-USD",
                 "STRATEGY_TYPE": "SMA",
-                "SHORT_WINDOW": 10,
-                "LONG_WINDOW": 20,
+                "FAST_PERIOD": 10,
+                "SLOW_PERIOD": 20,
                 "strategy_id": "BTC-USD_SMA_10_20_0",
             },
             {
                 "ticker": "ETH-USD",
                 "STRATEGY_TYPE": "MACD",
-                "SHORT_WINDOW": 12,
-                "LONG_WINDOW": 26,
-                "SIGNAL_WINDOW": 9,
+                "FAST_PERIOD": 12,
+                "SLOW_PERIOD": 26,
+                "SIGNAL_PERIOD": 9,
                 "strategy_id": "ETH-USD_MACD_12_26_9",
             },
         ]
@@ -283,15 +283,15 @@ class TestMonteCarloRunnerIntegration:
             {
                 "ticker": "BTC-USD",
                 "type": "SMA",  # Runner format
-                "short_window": 10,
-                "long_window": 20,
+                "fast_period": 10,
+                "slow_period": 20,
             },
             {
                 "ticker": "ETH-USD",
                 "STRATEGY_TYPE": "MACD",  # CSV format
-                "SHORT_WINDOW": 12,
-                "LONG_WINDOW": 26,
-                "SIGNAL_WINDOW": 9,
+                "FAST_PERIOD": 12,
+                "SLOW_PERIOD": 26,
+                "SIGNAL_PERIOD": 9,
             },
         ]
 
@@ -313,18 +313,18 @@ class TestMonteCarloRunnerIntegration:
             portfolio_strategy = {
                 "ticker": strategy.get("ticker"),
                 "Strategy Type": strategy_type,
-                "Window Short": strategy.get("short_window")
-                or strategy.get("SHORT_WINDOW"),
-                "Window Long": strategy.get("long_window")
-                or strategy.get("LONG_WINDOW"),
+                "Window Short": strategy.get("fast_period")
+                or strategy.get("FAST_PERIOD"),
+                "Window Long": strategy.get("slow_period")
+                or strategy.get("SLOW_PERIOD"),
             }
 
             if strategy_type == "MACD":
-                signal_window = strategy.get("signal_window") or strategy.get(
-                    "SIGNAL_WINDOW"
+                signal_period = strategy.get("signal_period") or strategy.get(
+                    "SIGNAL_PERIOD"
                 )
-                if signal_window:
-                    portfolio_strategy["Signal Window"] = signal_window
+                if signal_period:
+                    portfolio_strategy["Signal Period"] = signal_period
 
             portfolio_strategies.append(portfolio_strategy)
 
@@ -341,7 +341,7 @@ class TestMonteCarloCSVPortfolioIntegration:
     def test_csv_field_name_handling(self):
         """Test that CSV field names are properly handled in Monte Carlo."""
         # Create temporary CSV content
-        csv_content = """Ticker,Strategy Type,Short Window,Long Window,Signal Window
+        csv_content = """Ticker,Strategy Type,Fast Period,Slow Period,Signal Period
 BTC-USD,SMA,10,20,
 ETH-USD,MACD,12,26,9
 BTC-USD,EMA,14,28,"""
@@ -351,23 +351,23 @@ BTC-USD,EMA,14,28,"""
             {
                 "Ticker": "BTC-USD",
                 "Strategy Type": "SMA",
-                "Short Window": 10,
-                "Long Window": 20,
-                "Signal Window": None,
+                "Fast Period": 10,
+                "Slow Period": 20,
+                "Signal Period": None,
             },
             {
                 "Ticker": "ETH-USD",
                 "Strategy Type": "MACD",
-                "Short Window": 12,
-                "Long Window": 26,
-                "Signal Window": 9,
+                "Fast Period": 12,
+                "Slow Period": 26,
+                "Signal Period": 9,
             },
             {
                 "Ticker": "BTC-USD",
                 "Strategy Type": "EMA",
-                "Short Window": 14,
-                "Long Window": 28,
-                "Signal Window": None,
+                "Fast Period": 14,
+                "Slow Period": 28,
+                "Signal Period": None,
             },
         ]
 
@@ -381,12 +381,12 @@ BTC-USD,EMA,14,28,"""
 
         strategy_ids = list(strategies_with_ids.keys())
 
-        # Check that MACD includes signal window
+        # Check that MACD includes signal period
         macd_ids = [sid for sid in strategy_ids if "MACD" in sid]
         assert len(macd_ids) == 1
         assert "_9" in macd_ids[0]
 
-        # Check that SMA and EMA have 0 signal window
+        # Check that SMA and EMA have 0 signal period
         sma_ids = [sid for sid in strategy_ids if "SMA" in sid]
         ema_ids = [sid for sid in strategy_ids if "EMA" in sid]
         assert len(sma_ids) == 1
@@ -395,14 +395,14 @@ BTC-USD,EMA,14,28,"""
         assert "_0" in ema_ids[0]
 
     def test_missing_signal_window_handling(self):
-        """Test handling of missing signal window values."""
+        """Test handling of missing signal period values."""
         strategies = [
             {
                 "Ticker": "BTC-USD",
                 "Strategy Type": "MACD",
-                "Short Window": 12,
-                "Long Window": 26
-                # Missing Signal Window
+                "Fast Period": 12,
+                "Slow Period": 26
+                # Missing Signal Period
             }
         ]
 
@@ -411,7 +411,7 @@ BTC-USD,EMA,14,28,"""
 
         strategies_with_ids = manager._assign_strategy_ids(strategies)
 
-        # Should default to 0 for missing signal window
+        # Should default to 0 for missing signal period
         strategy_id = list(strategies_with_ids.keys())[0]
         assert "_0" in strategy_id
 
@@ -421,7 +421,7 @@ class TestMonteCarloEndToEndWorkflow:
 
     def create_test_portfolio_csv(self, temp_dir):
         """Create a temporary test portfolio CSV file."""
-        csv_content = """Ticker,Strategy Type,Short Window,Long Window,Signal Window
+        csv_content = """Ticker,Strategy Type,Fast Period,Slow Period,Signal Period
 BTC-USD,SMA,10,20,
 BTC-USD,MACD,12,26,9
 ETH-USD,EMA,15,30,"""
@@ -442,15 +442,15 @@ ETH-USD,EMA,15,30,"""
                 {
                     "TICKER": "BTC-USD",
                     "STRATEGY_TYPE": "SMA",
-                    "SHORT_WINDOW": 10,
-                    "LONG_WINDOW": 20,
+                    "FAST_PERIOD": 10,
+                    "SLOW_PERIOD": 20,
                 },
                 {
                     "TICKER": "BTC-USD",
                     "STRATEGY_TYPE": "MACD",
-                    "SHORT_WINDOW": 12,
-                    "LONG_WINDOW": 26,
-                    "SIGNAL_WINDOW": 9,
+                    "FAST_PERIOD": 12,
+                    "SLOW_PERIOD": 26,
+                    "SIGNAL_PERIOD": 9,
                 },
             ]
             mock_load_portfolio.return_value = mock_strategies
@@ -529,7 +529,7 @@ ETH-USD,EMA,15,30,"""
             "Strategy Type": "MACD",
             "Window Short": 14,
             "Window Long": 23,
-            "Signal Window": 13,
+            "Signal Period": 13,
         }
 
         config = create_monte_carlo_config({"MC_NUM_SIMULATIONS": 1})

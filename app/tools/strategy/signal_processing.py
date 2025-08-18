@@ -255,17 +255,17 @@ class MASignalProcessor(SignalProcessorBase):
                 analyze_window_combination,
             )
 
-            short_window = strategy_params.get("short_window") or config.get(
-                "SHORT_WINDOW"
+            fast_period = strategy_params.get("fast_period") or config.get(
+                "FAST_PERIOD"
             )
-            long_window = strategy_params.get("long_window") or config.get(
-                "LONG_WINDOW"
+            slow_period = strategy_params.get("slow_period") or config.get(
+                "SLOW_PERIOD"
             )
 
             return analyze_window_combination(
                 data=data,
-                short=short_window,
-                long=long_window,
+                fast_period=fast_period,
+                slow_period=slow_period,
                 config=config,
                 log=log,
             )
@@ -276,8 +276,8 @@ class MASignalProcessor(SignalProcessorBase):
     def _extract_strategy_parameters(self, row: Dict[str, Any]) -> Dict[str, Any]:
         """Extract MA-specific parameters."""
         return {
-            "short_window": row.get("Short Window"),
-            "long_window": row.get("Long Window"),
+            "fast_period": row.get("Fast Period"),
+            "slow_period": row.get("Slow Period"),
         }
 
     def _process_full_ticker_analysis(
@@ -326,21 +326,21 @@ class MACDSignalProcessor(SignalProcessorBase):
                 analyze_parameter_combination,
             )
 
-            short_window = strategy_params.get("short_window") or config.get(
-                "SHORT_WINDOW"
+            fast_period = strategy_params.get("fast_period") or config.get(
+                "FAST_PERIOD"
             )
-            long_window = strategy_params.get("long_window") or config.get(
-                "LONG_WINDOW"
+            slow_period = strategy_params.get("slow_period") or config.get(
+                "SLOW_PERIOD"
             )
-            signal_window = strategy_params.get("signal_window") or config.get(
-                "SIGNAL_WINDOW"
+            signal_period = strategy_params.get("signal_period") or config.get(
+                "SIGNAL_PERIOD"
             )
 
             return analyze_parameter_combination(
                 data=data,
-                short_window=short_window,
-                long_window=long_window,
-                signal_window=signal_window,
+                fast_period=fast_period,
+                slow_period=slow_period,
+                signal_period=signal_period,
                 config=config,
                 log=log,
             )
@@ -351,9 +351,9 @@ class MACDSignalProcessor(SignalProcessorBase):
     def _extract_strategy_parameters(self, row: Dict[str, Any]) -> Dict[str, Any]:
         """Extract MACD-specific parameters."""
         return {
-            "short_window": row.get("Short Window"),
-            "long_window": row.get("Long Window"),
-            "signal_window": row.get("Signal Window"),
+            "fast_period": row.get("Fast Period"),
+            "slow_period": row.get("Slow Period"),
+            "signal_period": row.get("Signal Period"),
         }
 
     def _process_full_ticker_analysis(
@@ -485,7 +485,7 @@ def _detect_strategy_type(config: Dict[str, Any]) -> str:
     if "STRATEGY_TYPE" in config and config["STRATEGY_TYPE"]:
         return config["STRATEGY_TYPE"]
 
-    # Detect MACD by presence of signal window parameters
+    # Detect MACD by presence of signal period parameters
     has_signal_window = any(
         key in config
         for key in ["SIGNAL_WINDOW_START", "SIGNAL_WINDOW_END", "signal_period"]

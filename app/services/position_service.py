@@ -238,8 +238,8 @@ class PositionService:
         self,
         ticker: str,
         strategy_type: str,
-        short_window: int,
-        long_window: int,
+        fast_period: int,
+        slow_period: int,
         entry_date: str,
         direction: str = "Long",
         timeframe: str = "D",
@@ -250,8 +250,8 @@ class PositionService:
         Args:
             ticker: Stock/asset ticker symbol
             strategy_type: Strategy type ('SMA', 'EMA', etc.)
-            short_window: Short period window
-            long_window: Long period window
+            fast_period: Short period window
+            slow_period: Long period window
             entry_date: Entry date to verify
             direction: Position direction
             timeframe: Price data timeframe
@@ -276,13 +276,11 @@ class PositionService:
 
             # Calculate moving averages
             if strategy_type.upper() == "SMA":
-                df[f"MA_{short_window}"] = (
-                    df["Close"].rolling(window=short_window).mean()
-                )
-                df[f"MA_{long_window}"] = df["Close"].rolling(window=long_window).mean()
+                df[f"MA_{fast_period}"] = df["Close"].rolling(window=fast_period).mean()
+                df[f"MA_{slow_period}"] = df["Close"].rolling(window=slow_period).mean()
             elif strategy_type.upper() == "EMA":
-                df[f"MA_{short_window}"] = df["Close"].ewm(span=short_window).mean()
-                df[f"MA_{long_window}"] = df["Close"].ewm(span=long_window).mean()
+                df[f"MA_{fast_period}"] = df["Close"].ewm(span=fast_period).mean()
+                df[f"MA_{slow_period}"] = df["Close"].ewm(span=slow_period).mean()
             else:
                 raise ValidationError(
                     f"Signal verification not implemented for {strategy_type}"
@@ -309,10 +307,10 @@ class PositionService:
             prev_dt = prev_dates[-1]
             prev_row = df.loc[prev_dt]
 
-            current_short = entry_row[f"MA_{short_window}"]
-            current_long = entry_row[f"MA_{long_window}"]
-            prev_short = prev_row[f"MA_{short_window}"]
-            prev_long = prev_row[f"MA_{long_window}"]
+            current_short = entry_row[f"MA_{fast_period}"]
+            current_long = entry_row[f"MA_{slow_period}"]
+            prev_short = prev_row[f"MA_{fast_period}"]
+            prev_long = prev_row[f"MA_{slow_period}"]
 
             # Check crossover conditions
             bullish_crossover = (current_short > current_long) and (
@@ -353,9 +351,9 @@ class PositionService:
         self,
         ticker: str,
         strategy_type: str,
-        short_window: int,
-        long_window: int,
-        signal_window: int = 0,
+        fast_period: int,
+        slow_period: int,
+        signal_period: int = 0,
         entry_date: str = None,
         entry_price: float = None,
         exit_date: str = None,
@@ -369,9 +367,9 @@ class PositionService:
         Args:
             ticker: Stock/asset ticker symbol
             strategy_type: Strategy type
-            short_window: Short period window
-            long_window: Long period window
-            signal_window: Signal window (default 0)
+            fast_period: Short period window
+            slow_period: Long period window
+            signal_period: Signal period (default 0)
             entry_date: Entry date
             entry_price: Entry price
             exit_date: Exit date (None for open positions)
@@ -386,9 +384,9 @@ class PositionService:
         position_uuid = generate_position_uuid(
             ticker=ticker,
             strategy_type=strategy_type,
-            short_window=short_window,
-            long_window=long_window,
-            signal_window=signal_window,
+            fast_period=fast_period,
+            slow_period=slow_period,
+            signal_period=signal_period,
             entry_date=entry_date,
         )
 
@@ -397,9 +395,9 @@ class PositionService:
             "Position_UUID": position_uuid,
             "Ticker": ticker,
             "Strategy_Type": strategy_type,
-            "Short_Window": short_window,
-            "Long_Window": long_window,
-            "Signal_Window": signal_window,
+            "Fast_Period": fast_period,
+            "Slow_Period": slow_period,
+            "Signal_Period": signal_period,
             "Entry_Timestamp": entry_date,
             "Exit_Timestamp": exit_date,
             "Avg_Entry_Price": entry_price,
@@ -464,9 +462,9 @@ class PositionService:
         self,
         ticker: str,
         strategy_type: str,
-        short_window: int,
-        long_window: int,
-        signal_window: int = 0,
+        fast_period: int,
+        slow_period: int,
+        signal_period: int = 0,
         entry_date: str = None,
         entry_price: float = None,
         exit_date: str = None,
@@ -482,9 +480,9 @@ class PositionService:
         Args:
             ticker: Stock/asset ticker symbol
             strategy_type: Strategy type
-            short_window: Short period window
-            long_window: Long period window
-            signal_window: Signal window (default 0)
+            fast_period: Short period window
+            slow_period: Long period window
+            signal_period: Signal period (default 0)
             entry_date: Entry date
             entry_price: Entry price
             exit_date: Exit date (None for open)
@@ -513,8 +511,8 @@ class PositionService:
                 verification = self.verify_entry_signal(
                     ticker,
                     strategy_type,
-                    short_window,
-                    long_window,
+                    fast_period,
+                    slow_period,
                     entry_date,
                     direction,
                 )
@@ -530,9 +528,9 @@ class PositionService:
         position_data = self.create_position_record(
             ticker=ticker,
             strategy_type=strategy_type,
-            short_window=short_window,
-            long_window=long_window,
-            signal_window=signal_window,
+            fast_period=fast_period,
+            slow_period=slow_period,
+            signal_period=signal_period,
             entry_date=entry_date,
             entry_price=entry_price,
             exit_date=exit_date,

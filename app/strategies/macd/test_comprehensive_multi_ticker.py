@@ -61,9 +61,9 @@ def verify_portfolio_structure(df: pl.DataFrame) -> bool:
     required_columns = [
         "Ticker",
         "Strategy Type",
-        "Short Window",
-        "Long Window",
-        "Signal Window",
+        "Fast Period",
+        "Slow Period",
+        "Signal Period",
         "Total Return [%]",
         "Win Rate [%]",
         "Total Trades",
@@ -119,7 +119,7 @@ def test_comprehensive_macd_functionality():
             export_portfolios(
                 portfolios=result.to_dicts(),
                 config=config,
-                export_type="portfolios",
+                export_type="strategies",
                 log=log,
             )
             # Check both standard directory and dated subdirectory
@@ -186,7 +186,7 @@ def test_comprehensive_macd_functionality():
                     export_portfolios(
                         portfolios=filtered.to_dicts(),
                         config=filter_config,
-                        export_type="portfolios_filtered",
+                        export_type="strategies",
                         log=log,
                     )
 
@@ -243,7 +243,7 @@ def test_comprehensive_macd_functionality():
                     export_portfolios(
                         portfolios=best_portfolios,
                         config=config,
-                        export_type="portfolios_best",
+                        export_type="strategies",
                         log=log,
                     )
 

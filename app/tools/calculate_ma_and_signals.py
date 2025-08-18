@@ -7,8 +7,8 @@ from app.tools.strategy.factory import factory
 
 def calculate_ma_and_signals(
     data: pl.DataFrame,
-    short_window: int,
-    long_window: int,
+    fast_period: int,
+    slow_period: int,
     config: dict,
     log: Callable,
     strategy_type: str = "EMA",
@@ -21,8 +21,8 @@ def calculate_ma_and_signals(
 
     Args:
         data (pl.DataFrame): Input price data
-        short_window (int): Short moving average window
-        long_window (int): Long moving average window
+        fast_period (int): Fast moving average period
+        slow_period (int): Slow moving average period
         config (dict): Configuration dictionary
         log (Callable): Logging function
         strategy_type (str, optional): Strategy type to use (SMA or EMA). Defaults to "EMA".
@@ -38,7 +38,7 @@ def calculate_ma_and_signals(
         strategy = factory.create_strategy(strategy_type)
 
         # Execute strategy calculation
-        result = strategy.calculate(data, short_window, long_window, config, log)
+        result = strategy.calculate(data, fast_period, slow_period, config, log)
 
         return result
 

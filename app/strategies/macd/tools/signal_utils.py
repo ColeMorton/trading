@@ -26,48 +26,48 @@ def is_signal_current(data: pl.DataFrame) -> bool:
 
 
 def check_signal_match(
-    signals: List[Dict], short_window: int, long_window: int, signal_window: int
+    signals: List[Dict], fast_period: int, slow_period: int, signal_period: int
 ) -> bool:
     """Check if a specific parameter combination exists in current signals.
 
     Args:
         signals: List of dictionaries containing signal parameters
-        short_window: Short-term EMA period to match
-        long_window: Long-term EMA period to match
-        signal_window: Signal line EMA period to match
+        fast_period: Short-term EMA period to match
+        slow_period: Long-term EMA period to match
+        signal_period: Signal line EMA period to match
 
     Returns:
         bool: True if parameter combination exists in signals
     """
     for signal in signals:
         if (
-            signal["Short Window"] == short_window
-            and signal["Long Window"] == long_window
-            and signal["Signal Window"] == signal_window
+            signal["Fast Period"] == fast_period
+            and signal["Slow Period"] == slow_period
+            and signal["Signal Period"] == signal_period
         ):
             return True
     return False
 
 
 def validate_window_combination(
-    short_window: int, long_window: int, signal_window: int
+    fast_period: int, slow_period: int, signal_period: int
 ) -> bool:
     """Validate MACD window parameter combination.
 
     Args:
-        short_window: Short-term EMA period
-        long_window: Long-term EMA period
-        signal_window: Signal line EMA period
+        fast_period: Short-term EMA period
+        slow_period: Long-term EMA period
+        signal_period: Signal line EMA period
 
     Returns:
         bool: True if parameter combination is valid
     """
-    # Long window must be greater than short window
-    if long_window <= short_window:
+    # Slow period must be greater than fast period
+    if slow_period <= fast_period:
         return False
 
-    # Signal window should be less than both
-    if signal_window >= short_window or signal_window >= long_window:
+    # Signal period should be less than both
+    if signal_period >= fast_period or signal_period >= slow_period:
         return False
 
     return True

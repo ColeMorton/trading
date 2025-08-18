@@ -20,23 +20,39 @@ config:
     - EMA
     - MACD
 
-  windows: 89
+  # Strategy-specific parameter configurations
+  strategy_params:
+    SMA:
+      # Parameter ranges for Simple Moving Average strategy
+      fast_period_min: 5
+      fast_period_max: 88
+      slow_period_min: 8
+      slow_period_max: 89
 
-  fast_period_range:
-    - 5
-    - 88
+    EMA:
+      # Parameter ranges for Exponential Moving Average strategy
+      fast_period_min: 5
+      fast_period_max: 88
+      slow_period_min: 8
+      slow_period_max: 89
 
-  slow_period_range:
-    - 8
-    - 89
+    MACD:
+      # Parameter ranges for MACD strategy
+      fast_period_min: 5
+      fast_period_max: 21
+      slow_period_min: 8
+      slow_period_max: 34
+      signal_period_min: 5
+      signal_period_max: 21
+      step: 1
 
-  # MACD Core Parameters (single source of truth)
-  short_window_start: 5
-  short_window_end: 21
-  long_window_start: 8
-  long_window_end: 34
-  signal_window_start: 5
-  signal_window_end: 21
+  # Global fallback parameter ranges (for backwards compatibility)
+  fast_period_min: 5
+  fast_period_max: 88
+  slow_period_min: 8
+  slow_period_max: 89
+  signal_period_min: 5
+  signal_period_max: 21
   step: 1
 
   # Strategy Configuration

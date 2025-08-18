@@ -103,8 +103,8 @@ class SPDSPerformanceBenchmark:
             strategy = np.random.choice(strategies)
 
             # Generate realistic parameters
-            short_window = np.random.randint(5, 50)
-            long_window = np.random.randint(50, 200)
+            fast_period = np.random.randint(5, 50)
+            slow_period = np.random.randint(50, 200)
 
             # Generate realistic performance metrics
             win_rate = np.random.uniform(0.3, 0.8)
@@ -115,15 +115,15 @@ class SPDSPerformanceBenchmark:
 
             # Create Position_UUID
             position_uuid = (
-                f"{ticker}_{strategy}_{short_window}_{long_window}_{20250101 + i:08d}"
+                f"{ticker}_{strategy}_{fast_period}_{slow_period}_{20250101 + i:08d}"
             )
 
             data.append(
                 {
                     "Ticker": ticker,
                     "Strategy": strategy,
-                    "Short_Window": short_window,
-                    "Long_Window": long_window,
+                    "Fast_Period": fast_period,
+                    "Slow_Period": slow_period,
                     "Win_Rate": win_rate,
                     "Total_Return": total_return,
                     "Sharpe_Ratio": sharpe_ratio,

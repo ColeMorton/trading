@@ -301,9 +301,9 @@
     - Created `MACDStrategy` class implementing `StrategyInterface` in `/app/core/strategies/macd_strategy.py`
     - Integrated with existing MACD Next logic through configuration conversion
     - Implemented comprehensive parameter validation for 3-dimensional MACD parameter space:
-      - Short window validation (2-50 range)
-      - Long window validation (4-100 range, must be > short window)
-      - Signal window validation (2-50 range)
+      - Fast period validation (2-50 range)
+      - Slow period validation (4-100 range, must be > fast period)
+      - Signal period validation (2-50 range)
       - Step size validation (1-10 range)
     - Added intelligent parameter relationship validation to ensure proper MACD calculations
     - Strategy provides default parameter ranges with sensible MACD defaults
@@ -428,7 +428,7 @@
     <step>
       **3.4 Enhance Results Display**
       - Update `ResultsTable.tsx` to display MACD-specific columns
-      - Add signal window information to results
+      - Add signal period information to results
       - Ensure consistent formatting across strategy types
     </step>
 
@@ -474,10 +474,10 @@
       - Added 3-dimensional parameter inputs (short, long, signal windows) with range controls
       - Enhanced `handleStrategyTypeChange` to support MACD strategy type
       - Implemented intelligent parameter validation for MACD relationships:
-        - Short window end > start validation
-        - Long window end > start validation
-        - Signal window end > start validation
-        - Long window start > short window end validation
+        - Fast period end > start validation
+        - Slow period end > start validation
+        - Signal period end > start validation
+        - Slow period start > fast period end validation
       - Added step size input with proper validation (1-10 range)
       - Integrated MACD validation into form validation system
       - Added helpful guidance text for each parameter range
@@ -494,9 +494,9 @@
 
     **3.4 Enhance Results Display ✅**
     - Updated `ResultsTable.tsx` for MACD-specific presentation:
-      - Enhanced Signal Window column to show values only for MACD strategies
+      - Enhanced Signal Period column to show values only for MACD strategies
       - Added conditional rendering ('-' for non-MACD, actual value for MACD)
-      - Updated CSV export to properly handle MACD signal window values
+      - Updated CSV export to properly handle MACD signal period values
       - Maintained existing table functionality and performance
       - Preserved sorting and filtering capabilities across all strategy types
 
@@ -505,7 +505,7 @@
       - `/src/services/__tests__/maCrossApi.macd.test.ts` - API service MACD tests:
         - MACD parameter inclusion in requests
         - Cache key generation with MACD parameters
-        - Signal window handling for MACD results
+        - Signal period handling for MACD results
         - Mixed strategy type support
         - Parameter validation and conversion
       - `/src/components/__tests__/AnalysisConfiguration.macd.test.tsx` - Component tests:
@@ -756,8 +756,8 @@ class MACrossRequest(BaseModel):
     short_window_end: Optional[int] = Field(None, description="MACD short EMA window end")
     long_window_start: Optional[int] = Field(None, description="MACD long EMA window start")
     long_window_end: Optional[int] = Field(None, description="MACD long EMA window end")
-    signal_window_start: Optional[int] = Field(None, description="MACD signal window start")
-    signal_window_end: Optional[int] = Field(None, description="MACD signal window end")
+    signal_window_start: Optional[int] = Field(None, description="MACD signal period start")
+    signal_window_end: Optional[int] = Field(None, description="MACD signal period end")
     step: Optional[int] = Field(1, description="Parameter increment step")
 ```
 

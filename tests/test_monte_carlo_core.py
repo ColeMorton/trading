@@ -155,28 +155,28 @@ class TestMonteCarloAnalyzer:
     def test_field_name_standardization(self, analyzer):
         """Test field name standardization."""
         csv_config = {
-            "Signal Window": 9,
-            "Short Window": 12,
-            "Long Window": 26,
+            "Signal Period": 9,
+            "Fast Period": 12,
+            "Slow Period": 26,
             "Strategy Type": "MACD",
         }
 
         standardized = analyzer._standardize_field_names(csv_config)
 
-        assert standardized["SIGNAL_WINDOW"] == 9
-        assert standardized["SHORT_WINDOW"] == 12
-        assert standardized["LONG_WINDOW"] == 26
+        assert standardized["SIGNAL_PERIOD"] == 9
+        assert standardized["FAST_PERIOD"] == 12
+        assert standardized["SLOW_PERIOD"] == 26
         assert standardized["STRATEGY_TYPE"] == "MACD"
 
         # Original keys should also be preserved
-        assert standardized["Signal Window"] == 9
+        assert standardized["Signal Period"] == 9
 
     def test_calculate_strategy_performance_sma(self, analyzer, test_data):
         """Test strategy performance calculation for SMA."""
         performance = analyzer._calculate_strategy_performance(
             test_data,
-            short_window=10,
-            long_window=20,
+            fast_period=10,
+            slow_period=20,
             strategy_type="SMA",
             strategy_config={"STRATEGY_TYPE": "SMA"},
         )
@@ -195,8 +195,8 @@ class TestMonteCarloAnalyzer:
         """Test strategy performance calculation for EMA."""
         performance = analyzer._calculate_strategy_performance(
             test_data,
-            short_window=12,
-            long_window=26,
+            fast_period=12,
+            slow_period=26,
             strategy_type="EMA",
             strategy_config={"STRATEGY_TYPE": "EMA"},
         )
@@ -208,12 +208,12 @@ class TestMonteCarloAnalyzer:
 
     def test_calculate_strategy_performance_macd(self, analyzer, test_data):
         """Test strategy performance calculation for MACD."""
-        macd_config = {"STRATEGY_TYPE": "MACD", "SIGNAL_WINDOW": 9}
+        macd_config = {"STRATEGY_TYPE": "MACD", "SIGNAL_PERIOD": 9}
 
         performance = analyzer._calculate_strategy_performance(
             test_data,
-            short_window=12,
-            long_window=26,
+            fast_period=12,
+            slow_period=26,
             strategy_type="MACD",
             strategy_config=macd_config,
         )
@@ -229,7 +229,7 @@ class TestMonteCarloAnalyzer:
         invalid_data = pl.DataFrame({"Close": []})
 
         performance = analyzer._calculate_strategy_performance(
-            invalid_data, short_window=10, long_window=20, strategy_type="SMA"
+            invalid_data, fast_period=10, slow_period=20, strategy_type="SMA"
         )
 
         # Should return default values on error
@@ -258,8 +258,8 @@ class TestMonteCarloAnalyzer:
         """Test analysis of a single parameter combination."""
         result = analyzer._analyze_single_parameter_combination(
             test_data,
-            short_window=10,
-            long_window=20,
+            fast_period=10,
+            slow_period=20,
             strategy_type="SMA",
             strategy_config={"STRATEGY_TYPE": "SMA"},
         )
@@ -295,7 +295,7 @@ class TestMonteCarloAnalyzer:
     def test_analyze_parameter_stability_macd(self, analyzer, test_data):
         """Test full parameter stability analysis for MACD."""
         parameter_combinations = [(12, 26), (14, 28)]
-        macd_config = {"STRATEGY_TYPE": "MACD", "SIGNAL_WINDOW": 9}
+        macd_config = {"STRATEGY_TYPE": "MACD", "SIGNAL_PERIOD": 9}
 
         result = analyzer.analyze_parameter_stability(
             ticker="BTC-USD",
@@ -386,7 +386,7 @@ class TestMonteCarloIntegration:
         for strategy_type in ["SMA", "EMA", "MACD"]:
             strategy_config = {"STRATEGY_TYPE": strategy_type}
             if strategy_type == "MACD":
-                strategy_config["SIGNAL_WINDOW"] = 9
+                strategy_config["SIGNAL_PERIOD"] = 9
 
             result = analyzer.analyze_parameter_stability(
                 ticker=f"TEST-{strategy_type}",

@@ -32,8 +32,8 @@ class TestTradeHistoryPerformance(unittest.TestCase):
         self.config = {
             "TICKER": "BTC-USD",
             "STRATEGY_TYPE": "SMA",
-            "short_window": 20,
-            "long_window": 50,
+            "fast_period": 20,
+            "slow_period": 50,
             "BASE_DIR": ".",
         }
 
@@ -304,8 +304,8 @@ class TestTradeHistoryPerformance(unittest.TestCase):
                 {
                     "TICKER": f"TEST-{i}",
                     "STRATEGY_TYPE": ["SMA", "EMA", "MACD"][i % 3],
-                    "short_window": 10 + (i % 20),
-                    "long_window": 30 + (i % 20),
+                    "fast_period": 10 + (i % 20),
+                    "slow_period": 30 + (i % 20),
                     "USE_HOURLY": i % 2 == 0,
                     "DIRECTION": ["Long", "Short"][i % 2],
                     "STOP_LOSS": 0.05 if i % 3 == 0 else None,
@@ -371,8 +371,8 @@ class TestTradeHistoryDataValidation(unittest.TestCase):
         config = {
             "TICKER": "BTC-USD",
             "STRATEGY_TYPE": "SMA",
-            "short_window": 20,
-            "long_window": 50,
+            "fast_period": 20,
+            "slow_period": 50,
         }
 
         # Create comprehensive trade history
@@ -477,8 +477,8 @@ class TestTradeHistoryDataValidation(unittest.TestCase):
         config = {
             "TICKER": "TEST",
             "STRATEGY_TYPE": "SMA",
-            "short_window": 10,
-            "long_window": 20,
+            "fast_period": 10,
+            "slow_period": 20,
         }
 
         trade_history = create_comprehensive_trade_history(mock_portfolio, config)

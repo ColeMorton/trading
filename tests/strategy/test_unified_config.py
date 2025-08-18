@@ -45,8 +45,8 @@ class TestBasePortfolioConfig:
             "USE_CURRENT": True,
             "USE_HOURLY": False,
             "DIRECTION": "Long",
-            "SHORT_WINDOW": 10,
-            "LONG_WINDOW": 50,
+            "FAST_PERIOD": 10,
+            "SLOW_PERIOD": 50,
             "SORT_BY": "Total Return [%]",
             "DISPLAY_RESULTS": True,
             "USE_RSI": False,
@@ -55,7 +55,7 @@ class TestBasePortfolioConfig:
 
         assert config["TICKER"] == ["AAPL", "MSFT"]
         assert config["DIRECTION"] == "Long"
-        assert config["SHORT_WINDOW"] == 10
+        assert config["FAST_PERIOD"] == 10
         assert config["USE_RSI"] == False
 
 
@@ -67,14 +67,14 @@ class TestStrategySpecificConfigs:
         config: MAConfig = {
             "TICKER": "TSLA",
             "BASE_DIR": "/tmp",
-            "SHORT_WINDOW": 5,
-            "LONG_WINDOW": 20,
+            "FAST_PERIOD": 5,
+            "SLOW_PERIOD": 20,
             "USE_SMA": True,
         }
 
         # Test base fields
         assert config["TICKER"] == "TSLA"
-        assert config["SHORT_WINDOW"] == 5
+        assert config["FAST_PERIOD"] == 5
 
         # Test MA-specific fields
         assert config["USE_SMA"] == True
@@ -84,17 +84,17 @@ class TestStrategySpecificConfigs:
         config: MACDConfig = {
             "TICKER": "NVDA",
             "BASE_DIR": "/tmp",
-            "SHORT_WINDOW": 12,
-            "LONG_WINDOW": 26,
-            "SIGNAL_WINDOW": 9,
+            "FAST_PERIOD": 12,
+            "SLOW_PERIOD": 26,
+            "SIGNAL_PERIOD": 9,
         }
 
         # Test base fields
         assert config["TICKER"] == "NVDA"
-        assert config["SHORT_WINDOW"] == 12
+        assert config["FAST_PERIOD"] == 12
 
         # Test MACD-specific fields
-        assert config["SIGNAL_WINDOW"] == 9
+        assert config["SIGNAL_PERIOD"] == 9
 
     def test_mean_reversion_config_inheritance(self):
         """Test that MeanReversionConfig properly inherits from BasePortfolioConfig."""
@@ -122,8 +122,8 @@ class TestConfigValidator:
         config = {
             "TICKER": "AAPL",
             "BASE_DIR": "/tmp",
-            "SHORT_WINDOW": 10,
-            "LONG_WINDOW": 50,
+            "FAST_PERIOD": 10,
+            "SLOW_PERIOD": 50,
             "DIRECTION": "Long",
         }
 
@@ -149,15 +149,15 @@ class TestConfigValidator:
         config = {
             "TICKER": "AAPL",
             "BASE_DIR": "/tmp",
-            "SHORT_WINDOW": 50,
-            "LONG_WINDOW": 10,  # Invalid: long < short
+            "FAST_PERIOD": 50,
+            "SLOW_PERIOD": 10,  # Invalid: long < short
         }
 
         result = ConfigValidator.validate_base_config(config)
 
         assert result["is_valid"] == False
-        assert "SHORT_WINDOW must be less than LONG_WINDOW" in result["errors"]
-        assert "LONG_WINDOW" in result["suggestions"]
+        assert "FAST_PERIOD must be less than SLOW_PERIOD" in result["errors"]
+        assert "SLOW_PERIOD" in result["suggestions"]
 
     def test_validate_base_config_invalid_direction(self):
         """Test validation fails for invalid direction."""
@@ -174,8 +174,8 @@ class TestConfigValidator:
         config = {
             "TICKER": "AAPL",
             "BASE_DIR": "/tmp",
-            "SHORT_WINDOW": 10,
-            "LONG_WINDOW": 50,
+            "FAST_PERIOD": 10,
+            "SLOW_PERIOD": 50,
             "USE_SMA": True,
         }
 
@@ -188,9 +188,9 @@ class TestConfigValidator:
         config = {
             "TICKER": "AAPL",
             "BASE_DIR": "/tmp",
-            "SHORT_WINDOW": 12,
-            "LONG_WINDOW": 26,
-            "SIGNAL_WINDOW": 9,
+            "FAST_PERIOD": 12,
+            "SLOW_PERIOD": 26,
+            "SIGNAL_PERIOD": 9,
         }
 
         result = ConfigValidator.validate_macd_config(config)
@@ -198,23 +198,23 @@ class TestConfigValidator:
         assert result["is_valid"] == True
 
     def test_validate_macd_config_missing_signal_window(self):
-        """Test MACD validation fails without SIGNAL_WINDOW."""
+        """Test MACD validation fails without SIGNAL_PERIOD."""
         config = {
             "TICKER": "AAPL",
             "BASE_DIR": "/tmp",
-            "SHORT_WINDOW": 12,
-            "LONG_WINDOW": 26
-            # Missing SIGNAL_WINDOW
+            "FAST_PERIOD": 12,
+            "SLOW_PERIOD": 26
+            # Missing SIGNAL_PERIOD
         }
 
         result = ConfigValidator.validate_macd_config(config)
 
         assert result["is_valid"] == False
         assert any(
-            "MACD strategy requires SIGNAL_WINDOW" in error
+            "MACD strategy requires SIGNAL_PERIOD" in error
             for error in result["errors"]
         )
-        assert result["suggestions"]["SIGNAL_WINDOW"] == 9
+        assert result["suggestions"]["SIGNAL_PERIOD"] == 9
 
     def test_validate_numeric_ranges(self):
         """Test validation of numeric parameter ranges."""
@@ -247,11 +247,11 @@ class TestConfigFactory:
     def test_create_macd_config(self):
         """Test creating MACD configuration."""
         config = ConfigFactory.create_config(
-            "MACD", TICKER="MSFT", BASE_DIR="/tmp", SIGNAL_WINDOW=9
+            "MACD", TICKER="MSFT", BASE_DIR="/tmp", SIGNAL_PERIOD=9
         )
 
         assert config["TICKER"] == "MSFT"
-        assert config["SIGNAL_WINDOW"] == 9
+        assert config["SIGNAL_PERIOD"] == 9
 
     def test_create_config_invalid_strategy(self):
         """Test creating config for invalid strategy type."""
@@ -263,27 +263,27 @@ class TestConfigFactory:
         config = {
             "TICKER": "AAPL",
             "BASE_DIR": "/tmp",
-            "SHORT_WINDOW": 10,
-            "LONG_WINDOW": 50,
+            "FAST_PERIOD": 10,
+            "SLOW_PERIOD": 50,
         }
 
         result = ConfigFactory.validate_config("SMA", config)
         assert result["is_valid"] == True
 
         result = ConfigFactory.validate_config("MACD", config)
-        assert result["is_valid"] == False  # Missing SIGNAL_WINDOW
+        assert result["is_valid"] == False  # Missing SIGNAL_PERIOD
 
     def test_get_default_config(self):
         """Test getting default configurations."""
         sma_defaults = ConfigFactory.get_default_config("SMA")
         assert sma_defaults["USE_SMA"] == True
-        assert sma_defaults["SHORT_WINDOW"] == 10
+        assert sma_defaults["FAST_PERIOD"] == 10
         assert sma_defaults["DIRECTION"] == "Long"
 
         macd_defaults = ConfigFactory.get_default_config("MACD")
-        assert macd_defaults["SHORT_WINDOW"] == 12
-        assert macd_defaults["LONG_WINDOW"] == 26
-        assert macd_defaults["SIGNAL_WINDOW"] == 9
+        assert macd_defaults["FAST_PERIOD"] == 12
+        assert macd_defaults["SLOW_PERIOD"] == 26
+        assert macd_defaults["SIGNAL_PERIOD"] == 9
 
     def test_get_supported_strategies(self):
         """Test getting list of supported strategies."""
@@ -307,18 +307,18 @@ class TestConvenienceFunctions:
 
     def test_create_macd_config_convenience(self):
         """Test convenience function for creating MACD config."""
-        config = create_macd_config(TICKER="MSFT", BASE_DIR="/tmp", SIGNAL_WINDOW=12)
+        config = create_macd_config(TICKER="MSFT", BASE_DIR="/tmp", SIGNAL_PERIOD=12)
 
         assert config["TICKER"] == "MSFT"
-        assert config["SIGNAL_WINDOW"] == 12
+        assert config["SIGNAL_PERIOD"] == 12
 
     def test_validate_strategy_config_convenience(self):
         """Test convenience function for config validation."""
         config = {
             "TICKER": "AAPL",
             "BASE_DIR": "/tmp",
-            "SHORT_WINDOW": 10,
-            "LONG_WINDOW": 50,
+            "FAST_PERIOD": 10,
+            "SLOW_PERIOD": 50,
         }
 
         result = validate_strategy_config("SMA", config)
@@ -328,7 +328,7 @@ class TestConvenienceFunctions:
         """Test convenience function for getting defaults."""
         defaults = get_default_strategy_config("MACD")
 
-        assert defaults["SIGNAL_WINDOW"] == 9
+        assert defaults["SIGNAL_PERIOD"] == 9
         assert defaults["DIRECTION"] == "Long"
 
 
@@ -395,8 +395,8 @@ class TestConfigurationDeduplication:
             "USE_HOURLY",
             "REFRESH",
             "DIRECTION",
-            "SHORT_WINDOW",
-            "LONG_WINDOW",
+            "FAST_PERIOD",
+            "SLOW_PERIOD",
             "SORT_BY",
             "DISPLAY_RESULTS",
         ]
@@ -413,7 +413,7 @@ class TestConfigurationDeduplication:
     def test_strategy_specific_extensions(self):
         """Test that strategy-specific configs add appropriate fields."""
         macd_defaults = ConfigFactory.get_default_config("MACD")
-        assert "SIGNAL_WINDOW" in macd_defaults
+        assert "SIGNAL_PERIOD" in macd_defaults
 
         mean_reversion_defaults = ConfigFactory.get_default_config("MEAN_REVERSION")
         assert "CHANGE_PCT_START" in mean_reversion_defaults
@@ -423,8 +423,8 @@ class TestConfigurationDeduplication:
         base_config = {
             "TICKER": "AAPL",
             "BASE_DIR": "/tmp",
-            "SHORT_WINDOW": 10,
-            "LONG_WINDOW": 50,
+            "FAST_PERIOD": 10,
+            "SLOW_PERIOD": 50,
         }
 
         # All strategies should validate the base configuration consistently
@@ -432,7 +432,7 @@ class TestConfigurationDeduplication:
             result = ConfigFactory.validate_config(strategy_type, base_config)
             assert result["is_valid"] == True
 
-        # MACD should fail because it needs SIGNAL_WINDOW
+        # MACD should fail because it needs SIGNAL_PERIOD
         macd_result = ConfigFactory.validate_config("MACD", base_config)
         assert macd_result["is_valid"] == False
 

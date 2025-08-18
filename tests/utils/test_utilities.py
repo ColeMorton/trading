@@ -100,8 +100,8 @@ class MockDataFactory:
         results = []
 
         for i in range(num_results):
-            short_window = 5 + (i * 2)
-            long_window = short_window + 15 + (i * 3)
+            fast_period = 5 + (i * 2)
+            slow_period = fast_period + 15 + (i * 3)
 
             # Generate correlated metrics
             win_rate = 50.0 + (i * 2) + (i % 3)
@@ -112,8 +112,8 @@ class MockDataFactory:
             result = {
                 "Ticker": ticker,
                 "Strategy Type": strategy_type,
-                "Short Window": short_window,
-                "Long Window": long_window,
+                "Fast Period": fast_period,
+                "Slow Period": slow_period,
                 "Total Trades": 40 + i * 2,
                 "Win Rate [%]": min(win_rate, 85.0),
                 "Total Return [%]": total_return,
@@ -128,7 +128,7 @@ class MockDataFactory:
 
             # Add MACD-specific columns if needed
             if strategy_type == "MACD":
-                result["Signal Window"] = 5 + (i % 10)
+                result["Signal Period"] = 5 + (i % 10)
 
             results.append(result)
 
@@ -165,8 +165,8 @@ class MockDataFactory:
             {
                 "Ticker": [ticker],
                 "Strategy Type": ["SMA"],
-                "Short Window": [10],
-                "Long Window": [20],
+                "Fast Period": [10],
+                "Slow Period": [20],
                 "Total Trades": [25],
                 "Win Rate [%]": [55.0],
                 "Total Return [%]": [15.5],

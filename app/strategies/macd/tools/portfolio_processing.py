@@ -106,7 +106,7 @@ def process_single_ticker(
             config.get("SIGNAL_WINDOW_END", 18) - config.get("SIGNAL_WINDOW_START", 2)
         ) // step + 1
 
-        # Calculate valid combinations (where long_window > short_window)
+        # Calculate valid combinations (where slow_period > fast_period)
         valid_combinations = 0
         for sw in range(
             config.get("SHORT_WINDOW_START", 2),

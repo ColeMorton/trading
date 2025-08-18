@@ -92,8 +92,8 @@ class TestCompleteStrategyWorkflows:
             {
                 "Ticker": ["AAPL"] * 3,
                 "Strategy Type": ["SMA"] * 3,
-                "Short Window": [5, 10, 15],
-                "Long Window": [20, 30, 40],
+                "Fast Period": [5, 10, 15],
+                "Slow Period": [20, 30, 40],
                 "Total Trades": [48, 52, 45],
                 "Win Rate [%]": [58.3, 61.5, 55.6],
                 "Total Return [%]": [24.7, 31.2, 19.8],
@@ -240,8 +240,8 @@ config:
             {
                 "Ticker": ["AAPL"] * 12,
                 "Strategy Type": ["SMA"] * 12,
-                "Short Window": [5, 5, 5, 10, 10, 10, 15, 15, 15, 5, 10, 15],
-                "Long Window": [20, 25, 30, 20, 25, 30, 20, 25, 30, 35, 35, 35],
+                "Fast Period": [5, 5, 5, 10, 10, 10, 15, 15, 15, 5, 10, 15],
+                "Slow Period": [20, 25, 30, 20, 25, 30, 20, 25, 30, 35, 35, 35],
                 "Total Trades": [45, 43, 41, 42, 40, 38, 39, 37, 35, 48, 46, 44],
                 "Win Rate [%]": [
                     58.3,
@@ -788,8 +788,8 @@ class TestRealisticDataProcessingWorkflows:
             {
                 "Ticker": ["AAPL"] * n_results,
                 "Strategy Type": ["SMA"] * n_results,
-                "Short Window": list(range(5, 55)) + list(range(5, 55)),
-                "Long Window": list(range(20, 120)) + list(range(120, 220)),
+                "Fast Period": list(range(5, 55)) + list(range(5, 55)),
+                "Slow Period": list(range(20, 120)) + list(range(120, 220)),
                 "Total Trades": [45 + i for i in range(n_results)],
                 "Win Rate [%]": [50.0 + (i % 30) for i in range(n_results)],
                 "Total Return [%]": [10.0 + (i % 50) for i in range(n_results)],

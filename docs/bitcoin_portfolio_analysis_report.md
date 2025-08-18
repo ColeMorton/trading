@@ -78,7 +78,7 @@ To overcome cash drag, active strategies must generate returns significantly abo
 def _calculate_strategy_ready_date(self, common_dates: List, strategies: List[StrategyConfig]) -> Optional[any]:
     max_window = 0
     for strategy in strategies:
-        max_window = max(max_window, strategy.long_window)
+        max_window = max(max_window, strategy.slow_period)
 
     if max_window > 0 and len(common_dates) > max_window:
         ready_date = common_dates[max_window - 1]

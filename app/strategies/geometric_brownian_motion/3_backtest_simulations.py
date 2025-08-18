@@ -29,8 +29,8 @@ CONFIG = {
     "USE_SYNTHETIC": False,
     "TICKER_1": "BTC-USD",
     "TICKER_2": "SPY",
-    "SHORT_WINDOW": 38,
-    "LONG_WINDOW": 59,
+    "FAST_PERIOD": 38,
+    "SLOW_PERIOD": 59,
     "SHORT": False,
     "USE_GBM": True,
     "USE_SMA": False,
@@ -65,8 +65,8 @@ for column in df.columns:
     print(f"Price series shape: {price.shape}")
 
     # Calculate EMAs
-    ema_fast_series = vbt.MA.run(price, window=config["SHORT_WINDOW"], ewm=True).ma
-    ema_slow_series = vbt.MA.run(price, window=config["LONG_WINDOW"], ewm=True).ma
+    ema_fast_series = vbt.MA.run(price, window=config["FAST_PERIOD"], ewm=True).ma
+    ema_slow_series = vbt.MA.run(price, window=config["SLOW_PERIOD"], ewm=True).ma
 
     # Generate entry and exit signals
     entries = (ema_fast_series > ema_slow_series) & (

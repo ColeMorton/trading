@@ -90,7 +90,7 @@ class UnifiedStrategyConfig(BaseModel):
         """Validate configuration for specific strategy type."""
         # Strategy-specific validation logic
         if strategy_type == "MA_CROSS":
-            required_params = ["short_window", "long_window"]
+            required_params = ["fast_period", "slow_period"]
             return all(param in self.parameters for param in required_params)
         elif strategy_type == "MACD":
             required_params = ["short_period", "long_period", "signal_period"]

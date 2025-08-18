@@ -84,9 +84,9 @@ class TestMACDMultiTicker:
         expected_columns = [
             "Ticker",
             "Strategy Type",  # Changed from "Strategy"
-            "Short Window",  # Changed from "Short_Window"
-            "Long Window",  # Changed from "Long_Window"
-            "Signal Window",  # Changed from "Signal_Window"
+            "Fast Period",  # Changed from "Fast_Period"
+            "Slow Period",  # Changed from "Slow_Period"
+            "Signal Period",  # Changed from "Signal_Period"
             "Total Return [%]",
             "Win Rate [%]",
             "Total Trades",

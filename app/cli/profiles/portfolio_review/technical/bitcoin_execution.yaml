@@ -25,24 +25,24 @@ config:
     # Short-term momentum strategies
     - ticker: BTC-USD
       strategy_type: SMA
-      short_window: 11
-      long_window: 36
+      fast_period: 11
+      slow_period: 36
       execution_method: limit_order  # Crypto requires careful execution
       position_sizing: volatility_adjusted
       weight: 0.11
 
     - ticker: BTC-USD
       strategy_type: SMA
-      short_window: 26
-      long_window: 38
+      fast_period: 26
+      slow_period: 38
       execution_method: limit_order
       position_sizing: volatility_adjusted
       weight: 0.11
 
     - ticker: BTC-USD
       strategy_type: SMA
-      short_window: 27
-      long_window: 29
+      fast_period: 27
+      slow_period: 29
       execution_method: limit_order
       position_sizing: volatility_adjusted
       weight: 0.11
@@ -50,16 +50,16 @@ config:
     # Fast responsive strategies
     - ticker: BTC-USD
       strategy_type: SMA
-      short_window: 8
-      long_window: 44
+      fast_period: 8
+      slow_period: 44
       execution_method: limit_order
       position_sizing: volatility_adjusted
       weight: 0.11
 
     - ticker: BTC-USD
       strategy_type: EMA
-      short_window: 3
-      long_window: 47
+      fast_period: 3
+      slow_period: 47
       execution_method: limit_order  # EMA more sensitive
       position_sizing: volatility_adjusted
       weight: 0.11
@@ -67,8 +67,8 @@ config:
     # Medium-term trend strategies
     - ticker: BTC-USD
       strategy_type: SMA
-      short_window: 76
-      long_window: 78
+      fast_period: 76
+      slow_period: 78
       execution_method: market_order  # Tight window, quick execution
       position_sizing: equal_weight
       weight: 0.11
@@ -76,8 +76,8 @@ config:
     # Long-term position strategies
     - ticker: BTC-USD
       strategy_type: SMA
-      short_window: 104
-      long_window: 105
+      fast_period: 104
+      slow_period: 105
       execution_method: market_order  # Ultra-tight window
       position_sizing: equal_weight
       weight: 0.11
@@ -85,31 +85,31 @@ config:
     # MACD momentum strategies
     - ticker: BTC-USD
       strategy_type: MACD
-      short_window: 14
-      long_window: 23
-      signal_window: 13
+      fast_period: 14
+      slow_period: 23
+      signal_period: 13
       execution_method: limit_order
       position_sizing: momentum_weighted
       weight: 0.11
 
     - ticker: BTC-USD
       strategy_type: MACD
-      short_window: 18
-      long_window: 29
-      signal_window: 18
+      fast_period: 18
+      slow_period: 29
+      signal_period: 18
       execution_method: limit_order
       position_sizing: momentum_weighted
       weight: 0.12
 
   # Crypto-specific execution parameters
   default_parameters:
-    commission: $ref: "data/config/trading/market_parameters.yaml#trading_costs.commissions.crypto.per_trade"
-    slippage: $ref: "data/config/trading/market_parameters.yaml#trading_costs.slippage.crypto.market_orders"
+    # TODO: Configure actual values instead of references
+    # TODO: Configure actual values instead of references
 
   # High-risk crypto execution parameters
   risk_execution:
     stop_loss_method: trailing
-    stop_loss_percentage: $ref: "data/config/trading/risk_management.yaml#asset_classes.crypto.stop_loss.default_percentage"
+    # TODO: Configure actual values instead of references
     position_sizing_method: volatility_adjusted
     rebalancing_trigger: volatility_based
     max_deviation_threshold: 0.12  # Higher tolerance for crypto volatility
@@ -120,7 +120,7 @@ config:
     benchmark: 'BTC-USD'  # Use Bitcoin itself as benchmark
     benchmark_type: 'buy_and_hold'
     init_cash: 10000.0
-    fees: $ref: "data/config/trading/market_parameters.yaml#trading_costs.commissions.crypto.per_trade"
+    # TODO: Configure actual values instead of references
     calculate_risk_metrics: true
     export_equity_curve: true
     enable_plotting: true

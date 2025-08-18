@@ -16,38 +16,38 @@ metadata:
 strategies:
   # MA Strategy
   - ticker: MA
-    short_window: 78
-    long_window: 82
+    fast_period: 78
+    slow_period: 82
     strategy_type: SMA
 
   # ASML Strategy
   - ticker: ASML
-    short_window: 71
-    long_window: 80
+    fast_period: 71
+    slow_period: 80
     strategy_type: SMA
 
   # AAPL Strategy
   - ticker: AAPL
-    short_window: 46
-    long_window: 56
+    fast_period: 46
+    slow_period: 56
     strategy_type: SMA
 
   # TSLA Strategy
   - ticker: TSLA
-    short_window: 23
-    long_window: 31
+    fast_period: 23
+    slow_period: 31
     strategy_type: SMA
 
   # NI Strategy
   - ticker: NI
-    short_window: 66
-    long_window: 81
+    fast_period: 66
+    slow_period: 81
     strategy_type: SMA
 
   # APP Strategy
   - ticker: APP
-    short_window: 14
-    long_window: 15
+    fast_period: 14
+    slow_period: 15
     strategy_type: SMA
 
 allocation:

@@ -193,7 +193,7 @@ class TestPortfolioValidation(ConcurrencyTestCase):
     def test_validate_csv_portfolio_valid(self):
         """Test validation of valid CSV portfolio."""
         # Create valid CSV
-        csv_content = """Ticker,Use SMA,Short Window,Long Window,Signal Window
+        csv_content = """Ticker,Use SMA,Fast Period,Slow Period,Signal Period
 BTC-USD,True,10,30,0
 ETH-USD,False,12,26,9"""
 
@@ -206,7 +206,7 @@ ETH-USD,False,12,26,9"""
     def test_validate_csv_portfolio_missing_fields(self):
         """Test validation of CSV with missing required fields."""
         # Missing 'Use SMA' field
-        csv_content = """Ticker,Short Window,Long Window
+        csv_content = """Ticker,Fast Period,Slow Period
 BTC-USD,10,30"""
 
         csv_file = self.test_dir / "invalid.csv"
@@ -219,7 +219,7 @@ BTC-USD,10,30"""
 
     def test_validate_csv_portfolio_empty(self):
         """Test validation of empty CSV file."""
-        csv_content = """Ticker,Use SMA,Short Window,Long Window
+        csv_content = """Ticker,Use SMA,Fast Period,Slow Period
 """
 
         csv_file = self.test_dir / "empty.csv"
@@ -238,17 +238,17 @@ BTC-USD,10,30"""
                 "timeframe": "D",
                 "type": "SMA",
                 "direction": "long",
-                "short_window": 10,
-                "long_window": 30,
+                "fast_period": 10,
+                "slow_period": 30,
             },
             {
                 "ticker": "ETH-USD",
                 "timeframe": "D",
                 "type": "MACD",
                 "direction": "long",
-                "short_window": 12,
-                "long_window": 26,
-                "signal_window": 9,
+                "fast_period": 12,
+                "slow_period": 26,
+                "signal_period": 9,
             },
         ]
 
@@ -265,8 +265,8 @@ BTC-USD,10,30"""
                 "timeframe": "D",
                 # Missing 'type' field
                 "direction": "long",
-                "short_window": 10,
-                "long_window": 30,
+                "fast_period": 10,
+                "slow_period": 30,
             }
         ]
 
@@ -285,8 +285,8 @@ BTC-USD,10,30"""
                 "timeframe": "D",
                 "type": "INVALID",  # Invalid type
                 "direction": "long",
-                "short_window": 10,
-                "long_window": 30,
+                "fast_period": 10,
+                "slow_period": 30,
             }
         ]
 
@@ -298,16 +298,16 @@ BTC-USD,10,30"""
         self.assertIn("Invalid strategy type", str(cm.exception))
 
     def test_validate_ma_portfolio_macd_missing_signal(self):
-        """Test validation of MACD strategy missing signal window."""
+        """Test validation of MACD strategy missing signal period."""
         strategies = [
             {
                 "ticker": "BTC-USD",
                 "timeframe": "D",
                 "type": "MACD",
                 "direction": "long",
-                "short_window": 12,
-                "long_window": 26,
-                # Missing signal_window
+                "fast_period": 12,
+                "slow_period": 26,
+                # Missing signal_period
             }
         ]
 

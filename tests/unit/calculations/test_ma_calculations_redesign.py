@@ -41,15 +41,15 @@ class TestMACalculationsBehavior(unittest.TestCase):
 
     def test_sma_calculation_accuracy(self):
         """Test SMA calculation produces mathematically correct results."""
-        short_window, long_window = 10, 20
+        fast_period, slow_period = 10, 20
 
         result = calculate_ma_and_signals(
-            self.price_data, short_window, long_window, self.config, self.log
+            self.price_data, fast_period, slow_period, self.config, self.log
         )
 
         # Verify SMA calculations are mathematically correct
         assert_ma_calculations_accurate(
-            result, self.price_data, short_window, long_window, "SMA"
+            result, self.price_data, fast_period, slow_period, "SMA"
         )
 
         # Verify required columns exist
@@ -67,23 +67,23 @@ class TestMACalculationsBehavior(unittest.TestCase):
     def test_ema_calculation_accuracy(self):
         """Test EMA calculation produces mathematically correct results."""
         self.config["STRATEGY_TYPE"] = "EMA"
-        short_window, long_window = 12, 26
+        fast_period, slow_period = 12, 26
 
         result = calculate_ma_and_signals(
-            self.price_data, short_window, long_window, self.config, self.log
+            self.price_data, fast_period, slow_period, self.config, self.log
         )
 
         # Verify EMA calculations use correct smoothing
         assert_ma_calculations_accurate(
-            result, self.price_data, short_window, long_window, "EMA"
+            result, self.price_data, fast_period, slow_period, "EMA"
         )
 
     def test_signal_generation_logic(self):
         """Test buy/sell signal generation at crossover points."""
-        short_window, long_window = 5, 15
+        fast_period, slow_period = 5, 15
 
         result = calculate_ma_and_signals(
-            self.price_data, short_window, long_window, self.config, self.log
+            self.price_data, fast_period, slow_period, self.config, self.log
         )
 
         # Verify signal logic is correct

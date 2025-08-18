@@ -63,16 +63,16 @@ class TestPositionSizingPortfolioIntegration:
         row = self.integration.create_position_sizing_row(
             ticker="AAPL",
             strategy_type="SMA",
-            short_window=20,
-            long_window=50,
+            fast_period=20,
+            slow_period=50,
             manual_data=manual_data,
         )
 
         # Verify basic fields
         assert row["ticker"] == "AAPL"
         assert row["strategy_type"] == "SMA"
-        assert row["short_window"] == 20
-        assert row["long_window"] == 50
+        assert row["fast_period"] == 20
+        assert row["slow_period"] == 50
 
         # Verify account balances
         assert row["IBKR_Balance"] == 50000.0

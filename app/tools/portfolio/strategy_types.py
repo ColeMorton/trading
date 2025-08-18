@@ -33,9 +33,9 @@ class StrategyConfig(TypedDict):
         strategy_type: Strategy type (SMA, EMA, MACD, ATR)
 
     Optional Fields:
-        SHORT_WINDOW: Short moving average window
-        LONG_WINDOW: Long moving average window
-        SIGNAL_WINDOW: Signal line window for MACD
+        FAST_PERIOD: Short moving average window
+        SLOW_PERIOD: Long moving average window
+        SIGNAL_PERIOD: Signal line window for MACD
         DIRECTION: Trading direction (Long/Short)
         USE_HOURLY: Whether to use hourly data
         USE_RSI: Whether to use RSI filter
@@ -46,9 +46,9 @@ class StrategyConfig(TypedDict):
 
     TICKER: str
     strategy_type: StrategyTypeLiteral
-    SHORT_WINDOW: NotRequired[int]
-    LONG_WINDOW: NotRequired[int]
-    SIGNAL_WINDOW: NotRequired[int]
+    FAST_PERIOD: NotRequired[int]
+    SLOW_PERIOD: NotRequired[int]
+    SIGNAL_PERIOD: NotRequired[int]
     DIRECTION: NotRequired[str]
     USE_HOURLY: NotRequired[bool]
     USE_RSI: NotRequired[bool]
@@ -79,7 +79,7 @@ DEFAULT_VALUES = {
     "RSI_WINDOW": 14,
     "RSI_THRESHOLD_LONG": 70,
     "RSI_THRESHOLD_SHORT": 30,
-    "SIGNAL_WINDOW": 9,
+    "SIGNAL_PERIOD": 9,
     "DIRECTION": "Long",
 }
 

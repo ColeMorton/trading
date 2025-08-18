@@ -54,8 +54,8 @@ def create_strategy_object(
     # legacy auto-detection for configurations without explicit types
     if (
         strategy_type == "EMA"
-        and "SIGNAL_WINDOW" in config
-        and config["SIGNAL_WINDOW"] > 0
+        and "SIGNAL_PERIOD" in config
+        and config["SIGNAL_PERIOD"] > 0
     ):
         strategy_type = "MACD"
 
@@ -106,21 +106,21 @@ def create_strategy_object(
             }
     else:
         # MA and MACD strategy parameters
-        if "SHORT_WINDOW" in config:
-            parameters["short_window"] = {
-                "value": config["SHORT_WINDOW"],
+        if "FAST_PERIOD" in config:
+            parameters["fast_period"] = {
+                "value": config["FAST_PERIOD"],
                 "description": "Period for short moving average or MACD fast line",
             }
-        if "LONG_WINDOW" in config:
-            parameters["long_window"] = {
-                "value": config["LONG_WINDOW"],
+        if "SLOW_PERIOD" in config:
+            parameters["slow_period"] = {
+                "value": config["SLOW_PERIOD"],
                 "description": "Period for long moving average or MACD slow line",
             }
 
-        # Add signal_window for MACD strategies
-        if strategy_type == "MACD" and "SIGNAL_WINDOW" in config:
-            parameters["signal_window"] = {
-                "value": config["SIGNAL_WINDOW"],
+        # Add signal_period for MACD strategies
+        if strategy_type == "MACD" and "SIGNAL_PERIOD" in config:
+            parameters["signal_period"] = {
+                "value": config["SIGNAL_PERIOD"],
                 "description": "Period for MACD signal line",
             }
 

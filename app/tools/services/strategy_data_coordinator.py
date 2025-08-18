@@ -284,10 +284,10 @@ class StrategyDataCoordinator:
                 # Construct strategy_name if not present (backup safety check)
                 ticker = strategy_row.get("ticker", "UNKNOWN")
                 strategy_type = strategy_row.get("strategy_type", "UNKNOWN")
-                short_window = strategy_row.get("short_window", 0)
-                long_window = strategy_row.get("long_window", 0)
+                fast_period = strategy_row.get("fast_period", 0)
+                slow_period = strategy_row.get("slow_period", 0)
                 strategy_name = (
-                    f"{ticker}_{strategy_type}_{int(short_window)}_{int(long_window)}"
+                    f"{ticker}_{strategy_type}_{int(fast_period)}_{int(slow_period)}"
                 )
                 strategy_row[
                     "strategy_name"
@@ -665,7 +665,7 @@ class StrategyDataCoordinator:
             # Handle CSV files without strategy_name column (legacy format)
             elif all(
                 col in df.columns
-                for col in ["ticker", "strategy_type", "short_window", "long_window"]
+                for col in ["ticker", "strategy_type", "fast_period", "slow_period"]
             ):
                 # Show warning only once per file
                 warning_key = f"backtesting_csv_no_strategy_name_{file_path}"
@@ -680,8 +680,8 @@ class StrategyDataCoordinator:
                     parts = strategy_name.split("_")
                     if len(parts) >= 3:
                         strategy_type = parts[0]  # e.g., "SMA"
-                        short_window = parts[1]  # e.g., "78"
-                        long_window = parts[2]  # e.g., "82"
+                        fast_period = parts[1]  # e.g., "78"
+                        slow_period = parts[2]  # e.g., "82"
 
                         # Extract ticker from strategy_data
                         ticker = (
@@ -695,8 +695,8 @@ class StrategyDataCoordinator:
                             matches = df[
                                 (df["ticker"] == ticker)
                                 & (df["strategy_type"] == strategy_type)
-                                & (df["short_window"].astype(str) == short_window)
-                                & (df["long_window"].astype(str) == long_window)
+                                & (df["fast_period"].astype(str) == fast_period)
+                                & (df["slow_period"].astype(str) == slow_period)
                             ]
             else:
                 # Unknown CSV format
@@ -1129,13 +1129,13 @@ class StrategyDataCoordinator:
                 if parsed_components:
                     ticker = parsed_components.get("ticker")
                     strategy_type = parsed_components.get("strategy_type")
-                    short_window = parsed_components.get("short_window")
-                    long_window = parsed_components.get("long_window")
+                    fast_period = parsed_components.get("fast_period")
+                    slow_period = parsed_components.get("slow_period")
 
-                    if ticker and strategy_type and short_window and long_window:
+                    if ticker and strategy_type and fast_period and slow_period:
                         # Look for matching strategy by components
                         expected_strategy_name = (
-                            f"{strategy_type}_{short_window}_{long_window}"
+                            f"{strategy_type}_{fast_period}_{slow_period}"
                         )
 
                         # Match by strategy_name and ticker
@@ -1151,10 +1151,10 @@ class StrategyDataCoordinator:
 
                         # Try partial matching with different patterns
                         for pattern in [
-                            f"{strategy_type}_{short_window}_{long_window}",
-                            f"{short_window}_{long_window}",
-                            f"{strategy_type}_{short_window}",
-                            f"{strategy_type}_{long_window}",
+                            f"{strategy_type}_{fast_period}_{slow_period}",
+                            f"{fast_period}_{slow_period}",
+                            f"{strategy_type}_{fast_period}",
+                            f"{strategy_type}_{slow_period}",
                         ]:
                             matches = df[
                                 (
@@ -1189,7 +1189,7 @@ class StrategyDataCoordinator:
                             return matches.iloc[0].to_dict()
             else:
                 # Handle CSV files without strategy_name column
-                # Generate strategy_name from available columns: ticker, strategy_type, short_window, long_window
+                # Generate strategy_name from available columns: ticker, strategy_type, fast_period, slow_period
                 return self._find_strategy_by_constructed_name(df, identifier)
 
             return None
@@ -1220,16 +1220,16 @@ class StrategyDataCoordinator:
 
                 # Try to extract numeric parameters
                 try:
-                    short_window = int(parts[2])
-                    long_window = int(parts[3])
+                    fast_period = int(parts[2])
+                    slow_period = int(parts[3])
 
-                    # Extract signal window and date if present
-                    signal_window = None
+                    # Extract signal period and date if present
+                    signal_period = None
                     entry_date = None
 
                     if len(parts) >= 5:
                         try:
-                            signal_window = int(parts[4])
+                            signal_period = int(parts[4])
                         except ValueError:
                             pass
 
@@ -1246,9 +1246,9 @@ class StrategyDataCoordinator:
                     return {
                         "ticker": ticker,
                         "strategy_type": strategy_type,
-                        "short_window": short_window,
-                        "long_window": long_window,
-                        "signal_window": signal_window,
+                        "fast_period": fast_period,
+                        "slow_period": slow_period,
+                        "signal_period": signal_period,
                         "entry_date": entry_date,
                         "format": "position_uuid",
                     }
@@ -1259,13 +1259,13 @@ class StrategyDataCoordinator:
             if len(parts) >= 3:
                 strategy_type = parts[0]
                 try:
-                    short_window = int(parts[1])
-                    long_window = int(parts[2])
+                    fast_period = int(parts[1])
+                    slow_period = int(parts[2])
 
                     return {
                         "strategy_type": strategy_type,
-                        "short_window": short_window,
-                        "long_window": long_window,
+                        "fast_period": fast_period,
+                        "slow_period": slow_period,
                         "format": "strategy_name",
                     }
                 except (ValueError, IndexError):
@@ -1289,7 +1289,7 @@ class StrategyDataCoordinator:
         """Find strategy in CSV by constructing strategy names from ticker, strategy_type, and window parameters"""
         try:
             # Required columns for constructing strategy name
-            required_cols = ["ticker", "strategy_type", "short_window", "long_window"]
+            required_cols = ["ticker", "strategy_type", "fast_period", "slow_period"]
 
             # Check if we have the required columns
             missing_cols = [col for col in required_cols if col not in df.columns]
@@ -1302,7 +1302,7 @@ class StrategyDataCoordinator:
             # Add constructed strategy_name column to dataframe for searching
             df_with_strategy_name = df.copy()
             df_with_strategy_name["strategy_name"] = df_with_strategy_name.apply(
-                lambda row: f"{row['ticker']}_{row['strategy_type']}_{int(row['short_window'])}_{int(row['long_window'])}",
+                lambda row: f"{row['ticker']}_{row['strategy_type']}_{int(row['fast_period'])}_{int(row['slow_period'])}",
                 axis=1,
             )
 
@@ -1544,12 +1544,12 @@ class StrategyDataCoordinator:
                     # Position UUID format - suggest checking ticker and strategy availability
                     ticker = parsed_components.get("ticker")
                     strategy_type = parsed_components.get("strategy_type")
-                    short_window = parsed_components.get("short_window")
-                    long_window = parsed_components.get("long_window")
+                    fast_period = parsed_components.get("fast_period")
+                    slow_period = parsed_components.get("slow_period")
 
                     logger.info(
                         f"Parsed Position_UUID format: ticker={ticker}, strategy_type={strategy_type}, "
-                        f"short_window={short_window}, long_window={long_window}"
+                        f"fast_period={fast_period}, slow_period={slow_period}"
                     ) if self.logger else None
 
                     # Check if ticker exists in CSV
@@ -1573,7 +1573,7 @@ class StrategyDataCoordinator:
 
                                     # Suggest closest match
                                     expected_strategy = (
-                                        f"{strategy_type}_{short_window}_{long_window}"
+                                        f"{strategy_type}_{fast_period}_{slow_period}"
                                     )
                                     closest_match = self._find_closest_strategy_match(
                                         expected_strategy, available_strategies
@@ -1590,12 +1590,12 @@ class StrategyDataCoordinator:
                 elif parsed_components.get("format") == "strategy_name":
                     # Strategy name format - suggest checking available strategies
                     strategy_type = parsed_components.get("strategy_type")
-                    short_window = parsed_components.get("short_window")
-                    long_window = parsed_components.get("long_window")
+                    fast_period = parsed_components.get("fast_period")
+                    slow_period = parsed_components.get("slow_period")
 
                     logger.info(
                         f"Parsed strategy_name format: strategy_type={strategy_type}, "
-                        f"short_window={short_window}, long_window={long_window}"
+                        f"fast_period={fast_period}, slow_period={slow_period}"
                     ) if self.logger else None
 
                     # Show available strategies
@@ -1844,11 +1844,11 @@ class StrategyDataCoordinator:
             if parsed_components.get("format") == "position_uuid":
                 ticker = parsed_components.get("ticker")
                 strategy_type = parsed_components.get("strategy_type")
-                short_window = parsed_components.get("short_window")
-                long_window = parsed_components.get("long_window")
+                fast_period = parsed_components.get("fast_period")
+                slow_period = parsed_components.get("slow_period")
 
                 suggestions.append(
-                    f"Try searching for: {strategy_type}_{short_window}_{long_window} with ticker {ticker}"
+                    f"Try searching for: {strategy_type}_{fast_period}_{slow_period} with ticker {ticker}"
                 )
 
         return suggestions

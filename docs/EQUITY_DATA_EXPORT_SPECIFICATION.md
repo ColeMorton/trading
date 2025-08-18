@@ -46,16 +46,16 @@ Each exported equity data file will contain the following columns:
 Files are named using the strategy UUID pattern:
 
 ```
-${Ticker}_${Strategy_Type}_${Short_Window}_${Long_Window}_${Signal_Window:-0}.csv
+${Ticker}_${Strategy_Type}_${Fast_Period}_${Slow_Period}_${Signal_Period:-0}.csv
 ```
 
 Where:
 
 - **Ticker**: Trading symbol (e.g., "AAPL", "BTC-USD")
 - **Strategy_Type**: Strategy type identifier ("SMA", "EMA", "MACD")
-- **Short_Window**: Short period parameter
-- **Long_Window**: Long period parameter
-- **Signal_Window**: Signal period (optional, defaults to 0 if not applicable)
+- **Fast_Period**: Short period parameter
+- **Slow_Period**: Long period parameter
+- **Signal_Period**: Signal period (optional, defaults to 0 if not applicable)
 
 Examples:
 

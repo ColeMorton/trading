@@ -105,24 +105,31 @@ class PortfolioOrchestrator:
                 # Step 4: Execute strategies
                 all_portfolios = self._execute_strategies(config, strategies)
 
-                # Export raw portfolios first
-                if all_portfolios:
-                    self._export_raw_portfolios(all_portfolios, config)
+                # Export raw portfolios first - always export to ensure files are created even when empty
+                self._export_raw_portfolios(all_portfolios or [], config)
 
-            # Step 5: Process results - always export to ensure empty files are created
-            if all_portfolios:
-                # Filter and process portfolios
-                filtered_portfolios = self._filter_and_process_portfolios(
-                    all_portfolios, config
+            # Step 5: Export minimums-filtered portfolios
+            # Apply minimums filtering and export to portfolios_filtered
+            minimums_filtered_portfolios = self._export_minimums_filtered_portfolios(
+                all_portfolios or [], config
+            )
+
+            # Step 6: Apply extreme filtering and export to portfolios_metrics
+            # Apply extreme value analysis to minimums-filtered portfolios
+            extreme_filtered_portfolios = (
+                self._apply_extreme_filtering_and_process_portfolios(
+                    minimums_filtered_portfolios or [], config
                 )
+            )
 
-                # Always export, even if filtered_portfolios is empty, to ensure all configured
-                # ticker+strategy combinations get files (header-only when no qualifying portfolios)
-                self._export_filtered_portfolios(filtered_portfolios or [], config)
-                self._export_results(filtered_portfolios or [], config)
-            else:
-                # Even when no portfolios are generated, create empty files for all configured combinations
-                # This handles USE_CURRENT mode where no current signals exist for today
+            # Export portfolios with extreme value analysis to portfolios_metrics
+            self._export_portfolios_metrics(extreme_filtered_portfolios or [], config)
+
+            # Step 7: Export best portfolios based on portfolios_metrics data
+            self._export_results(extreme_filtered_portfolios or [], config)
+
+            # Log appropriate messages for empty results
+            if not all_portfolios:
                 if config.get("skip_analysis", False):
                     self.log(
                         "No existing portfolio files found in data/raw/portfolios/",
@@ -130,17 +137,10 @@ class PortfolioOrchestrator:
                     )
                 else:
                     self.log("No portfolios returned from strategies", "warning")
-
-                # Create empty files for all configured ticker+strategy combinations
-                use_current = config.get("USE_CURRENT", False)
-                if use_current:
-                    self.log(
-                        "USE_CURRENT mode: Creating empty files for all configured ticker+strategy combinations",
-                        "info",
-                    )
-                    # Export empty portfolios to create header-only files
-                    self._export_filtered_portfolios([], config)
-                    self._export_results([], config)
+                self.log(
+                    "Created empty CSV files with headers for configured ticker+strategy combinations",
+                    "info",
+                )
 
             return True
 
@@ -258,24 +258,26 @@ class PortfolioOrchestrator:
 
         return all_portfolios
 
-    def _filter_and_process_portfolios(
+    def _apply_extreme_filtering_and_process_portfolios(
         self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
         """
-        Filter and process portfolios including schema detection and normalization.
+        Apply extreme value filtering and process portfolios for portfolios_metrics export.
+
+        Note: This assumes portfolios have already been filtered by minimums criteria.
 
         Args:
-            portfolios: List of portfolio dictionaries
+            portfolios: List of portfolio dictionaries (already minimums-filtered)
             config: Configuration dictionary
 
         Returns:
-            Filtered and processed portfolios
+            Portfolios with extreme value analysis applied
 
         Raises:
             MACrossPortfolioError: If portfolio processing fails
         """
         with error_context(
-            "Processing portfolios",
+            "Processing portfolios for extreme value analysis",
             self.log,
             {Exception: MACrossPortfolioError},
             reraise=True,
@@ -283,48 +285,36 @@ class PortfolioOrchestrator:
             # Detect schema version
             schema_version = detect_schema_version(portfolios)
             self.log(
-                f"Detected schema version for export: {schema_version.name}", "info"
+                f"Detected schema version for extreme value analysis: {schema_version.name}",
+                "info",
             )
 
-            # Convert portfolios list to DataFrame for filtering
+            # Convert portfolios list to DataFrame for extreme value filtering
             import polars as pl
 
-            # Apply MINIMUMS filtering first using PortfolioFilterService
-            filtered_portfolios_list = portfolios
-            if portfolios and "MINIMUMS" in config:
-                self.log(
-                    "Applying MINIMUMS filtering during portfolio processing", "info"
-                )
-                from app.tools.portfolio.filtering_service import PortfolioFilterService
-
-                filter_service = PortfolioFilterService()
-                filtered_portfolios_list = filter_service.filter_portfolios_list(
-                    portfolios, config, self.log
-                )
-
-                if filtered_portfolios_list:
-                    self.log(
-                        f"MINIMUMS filtering: {len(portfolios)} -> {len(filtered_portfolios_list)} portfolios remain",
-                        "info",
-                    )
-                else:
-                    self.log("No portfolios remain after MINIMUMS filtering", "warning")
-                    filtered_portfolios_list = []
-
-            # Convert filtered portfolios to DataFrame for extreme value analysis
-            if filtered_portfolios_list:
-                portfolios_df = pl.DataFrame(filtered_portfolios_list)
+            if portfolios:
+                portfolios_df = pl.DataFrame(portfolios)
             else:
                 portfolios_df = pl.DataFrame()
 
-            # Apply extreme value filtering to MINIMUMS-filtered portfolios
+            # Apply extreme value filtering (this adds Metric Type column and performs extreme value analysis)
+            self.log(
+                "Applying extreme value filtering for portfolios_metrics export", "info"
+            )
             filtered_portfolios_df = filter_portfolios(portfolios_df, config, self.log)
 
             # Convert DataFrame back to list of dictionaries
             if len(filtered_portfolios_df) > 0:
                 filtered_portfolios = filtered_portfolios_df.to_dicts()
+                self.log(
+                    f"Extreme value filtering: {len(portfolios)} -> {len(filtered_portfolios)} portfolios",
+                    "info",
+                )
             else:
                 filtered_portfolios = []
+                self.log(
+                    "No portfolios remain after extreme value filtering", "warning"
+                )
 
             # Log extended schema information if available
             if schema_version == SchemaVersion.EXTENDED and filtered_portfolios:
@@ -383,21 +373,117 @@ class PortfolioOrchestrator:
                 self.log(f"Error exporting raw portfolios: {str(e)}", "error")
                 raise ExportError(f"Raw portfolio export failed: {str(e)}")
 
-    def _export_filtered_portfolios(
+    def _export_minimums_filtered_portfolios(
+        self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """
+        Apply minimums filtering and export to portfolios_filtered directory.
+
+        Args:
+            portfolios: List of raw portfolios to filter
+            config: Configuration dictionary
+
+        Returns:
+            List of portfolios that passed minimums filtering
+
+        Raises:
+            ExportError: If export fails
+        """
+        with error_context(
+            "Exporting minimums-filtered portfolios", self.log, {Exception: ExportError}
+        ):
+            from app.tools.strategy.export_portfolios import export_portfolios
+
+            try:
+                # Apply only minimums filtering (no extreme value analysis)
+                minimums_filtered = portfolios
+                if portfolios and "MINIMUMS" in config:
+                    self.log(
+                        "Applying MINIMUMS filtering for portfolios_filtered export",
+                        "info",
+                    )
+                    from app.tools.portfolio.filtering_service import (
+                        PortfolioFilterService,
+                    )
+
+                    filter_service = PortfolioFilterService()
+                    minimums_filtered = filter_service.filter_portfolios_list(
+                        portfolios, config, self.log
+                    )
+
+                    if minimums_filtered:
+                        self.log(
+                            f"MINIMUMS filtering: {len(portfolios)} -> {len(minimums_filtered)} portfolios",
+                            "info",
+                        )
+                    else:
+                        self.log(
+                            "No portfolios remain after MINIMUMS filtering", "warning"
+                        )
+                        minimums_filtered = []
+
+                # Export to portfolios_filtered directory
+                skip_analysis = config.get("skip_analysis", False)
+                has_multiple_tickers = self._has_multiple_tickers(minimums_filtered)
+
+                if skip_analysis or config.get("USE_CURRENT", False):
+                    mode_reason = (
+                        "skip analysis mode" if skip_analysis else "USE_CURRENT mode"
+                    )
+                    self.log(
+                        f"Using grouped export for portfolios_filtered ({mode_reason})",
+                        "info",
+                    )
+                    # Group portfolios by ticker+strategy and export individually
+                    self._export_grouped_portfolios(
+                        minimums_filtered, config, "portfolios_filtered"
+                    )
+                else:
+                    self.log(
+                        "Using normal export for portfolios_filtered (minimums only)",
+                        "info",
+                    )
+                    # Normal export for minimums-filtered portfolios
+                    _, success = export_portfolios(
+                        portfolios=minimums_filtered,
+                        config=config,
+                        export_type="portfolios_filtered",
+                        log=self.log,
+                    )
+                    if success:
+                        self.log(
+                            f"Successfully exported {len(minimums_filtered)} minimums-filtered portfolios"
+                        )
+                    else:
+                        self.log(
+                            "Failed to export minimums-filtered portfolios", "warning"
+                        )
+
+                return minimums_filtered
+
+            except Exception as e:
+                self.log(
+                    f"Error exporting minimums-filtered portfolios: {str(e)}", "error"
+                )
+                raise ExportError(
+                    f"Minimums-filtered portfolio export failed: {str(e)}"
+                )
+
+    def _export_portfolios_metrics(
         self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
     ) -> None:
         """
-        Export filtered portfolios after processing.
+        Export portfolios with extreme value analysis to portfolios_metrics directory.
 
         Args:
-            portfolios: List of filtered portfolios to export
+            portfolios: List of portfolios with extreme value analysis applied
             config: Configuration dictionary
 
         Raises:
             ExportError: If export fails
         """
         with error_context(
-            "Exporting filtered portfolios", self.log, {Exception: ExportError}
+            "Exporting portfolios_metrics", self.log, {Exception: ExportError}
         ):
             from app.tools.strategy.export_portfolios import export_portfolios
 
@@ -417,34 +503,34 @@ class PortfolioOrchestrator:
                         "skip analysis mode" if skip_analysis else "USE_CURRENT mode"
                     )
                     self.log(
-                        f"Using grouped export for portfolios_filtered ({mode_reason})",
+                        f"Using grouped export for portfolios_metrics ({mode_reason})",
                         "info",
                     )
                     # Group portfolios by ticker+strategy and export individually
                     self._export_grouped_portfolios(
-                        portfolios, config, "portfolios_filtered"
+                        portfolios, config, "portfolios_metrics"
                     )
                 else:
                     self.log(
-                        "Using normal export for portfolios_filtered (standard mode)",
+                        "Using normal export for portfolios_metrics (extreme value analysis)",
                         "info",
                     )
-                    # Normal export for single ticker or non-skip mode
+                    # Normal export for extreme value portfolios
                     _, success = export_portfolios(
                         portfolios=portfolios,
                         config=config,
-                        export_type="portfolios_filtered",
+                        export_type="portfolios_metrics",
                         log=self.log,
                     )
                     if success:
                         self.log(
-                            f"Successfully exported {len(portfolios)} filtered portfolios"
+                            f"Successfully exported {len(portfolios)} portfolios with extreme value analysis"
                         )
                     else:
-                        self.log("Failed to export filtered portfolios", "warning")
+                        self.log("Failed to export portfolios_metrics", "warning")
             except Exception as e:
-                self.log(f"Error exporting filtered portfolios: {str(e)}", "error")
-                raise ExportError(f"Filtered portfolio export failed: {str(e)}")
+                self.log(f"Error exporting portfolios_metrics: {str(e)}", "error")
+                raise ExportError(f"Portfolios_metrics export failed: {str(e)}")
 
     def _export_results(
         self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]

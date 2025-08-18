@@ -52,8 +52,8 @@ def execute_single_strategy(
         ticker: The ticker symbol
         config: Configuration containing:
             - STRATEGY_TYPE: str (Strategy type, e.g., "SMA" or "EMA")
-            - SHORT_WINDOW: int (Fast MA period)
-            - LONG_WINDOW: int (Slow MA period)
+            - FAST_PERIOD: int (Fast MA period)
+            - SLOW_PERIOD: int (Slow MA period)
             - Other standard config parameters
         log: Logging function
 
@@ -79,8 +79,8 @@ def execute_single_strategy(
         # Calculate MA and signals
         data = calculate_ma_and_signals(
             data,
-            config["SHORT_WINDOW"],
-            config["LONG_WINDOW"],
+            config["FAST_PERIOD"],
+            config["SLOW_PERIOD"],
             config,
             log,
             strategy_type,
@@ -111,7 +111,7 @@ def execute_single_strategy(
         valid_stats = check_invalid_metrics(stats, log)
         if valid_stats is None:
             log(
-                f"Portfolio for {ticker} with {strategy_type} strategy (short window: {config['SHORT_WINDOW']}, long window: {config['LONG_WINDOW']}) has invalid metrics - skipping",
+                f"Portfolio for {ticker} with {strategy_type} strategy (fast period: {config['FAST_PERIOD']}, slow period: {config['SLOW_PERIOD']}) has invalid metrics - skipping",
                 "info",
             )
             return None
@@ -127,8 +127,8 @@ def execute_single_strategy(
             {
                 "TICKER": ticker,  # Use uppercase TICKER
                 "Strategy Type": strategy_type,
-                "Short Window": config["SHORT_WINDOW"],  # Always use Short Window
-                "Long Window": config["LONG_WINDOW"],  # Always use Long Window
+                "Fast Period": config["FAST_PERIOD"],  # Always use Fast Period
+                "Slow Period": config["SLOW_PERIOD"],  # Always use Slow Period
                 # Add Allocation [%] and Stop Loss [%] fields if they exist in config
                 "Allocation [%]": config.get("ALLOCATION", None),
                 "Stop Loss [%]": config.get("STOP_LOSS", None),
@@ -223,7 +223,7 @@ def process_single_ticker(
         export_portfolios(
             portfolios=normalized_portfolios,
             config=ticker_config,
-            export_type="portfolios",
+            export_type="strategies",
             log=log,
         )
     except (ValueError, PortfolioExportError) as e:
@@ -265,7 +265,7 @@ def process_single_ticker(
         export_portfolios(
             portfolios=normalized_filtered,
             config=ticker_config,
-            export_type="portfolios_filtered",
+            export_type="strategies",
             log=log,
         )
     except (ValueError, PortfolioExportError) as e:

@@ -17,8 +17,14 @@ config:
     - 'MSFT'
     - 'GOOGL'
 
-  # Fast parameters for development
-  windows: 55
+  # Fast parameters for development - smaller ranges for quick testing
+  fast_period_min: 5
+  fast_period_max: 25
+  slow_period_min: 10
+  slow_period_max: 55
+  signal_period_min: 5
+  signal_period_max: 15
+
   strategy_types:
     - 'SMA'
   direction: 'Long'

@@ -279,18 +279,18 @@ class StreamingEquityExporter:
                 # Extract portfolio parameters
                 ticker = portfolio.get("Ticker", "UNKNOWN")
                 strategy_type = portfolio.get("Strategy Type", "UNKNOWN")
-                short_window = portfolio.get("Short Window", 0)
-                long_window = portfolio.get("Long Window", 0)
-                signal_window = portfolio.get("Signal Window")
+                fast_period = portfolio.get("Fast Period", 0)
+                slow_period = portfolio.get("Slow Period", 0)
+                signal_period = portfolio.get("Signal Period")
 
                 # Export equity data
                 success = export_equity_data_to_csv(
                     equity_data=equity_data,
                     ticker=ticker,
                     strategy_type=strategy_type,
-                    short_window=short_window,
-                    long_window=long_window,
-                    signal_window=signal_window,
+                    fast_period=fast_period,
+                    slow_period=slow_period,
+                    signal_period=signal_period,
                     log=log,
                     overwrite=True,
                 )
