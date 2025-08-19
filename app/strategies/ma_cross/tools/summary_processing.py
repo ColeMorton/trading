@@ -162,7 +162,7 @@ def process_ticker_portfolios(
                         # Get total open trades from portfolio stats
                         portfolio_stats = portfolio.stats()
                         total_open_trades = portfolio_stats.get("Total Open Trades", 0)
-                        
+
                         # Calculate unconfirmed signal using real-time data
                         signal_unconfirmed = calculate_signal_unconfirmed_realtime(
                             ticker=ticker,
@@ -251,8 +251,10 @@ def process_ticker_portfolios(
 
                         # Get total open trades from portfolio stats
                         sma_portfolio_stats = sma_portfolio.stats()
-                        total_open_trades = sma_portfolio_stats.get("Total Open Trades", 0)
-                        
+                        total_open_trades = sma_portfolio_stats.get(
+                            "Total Open Trades", 0
+                        )
+
                         # Calculate unconfirmed signal using real-time data
                         signal_unconfirmed = calculate_signal_unconfirmed_realtime(
                             ticker=ticker,
@@ -314,8 +316,10 @@ def process_ticker_portfolios(
 
                         # Get total open trades from portfolio stats
                         ema_portfolio_stats = ema_portfolio.stats()
-                        total_open_trades = ema_portfolio_stats.get("Total Open Trades", 0)
-                        
+                        total_open_trades = ema_portfolio_stats.get(
+                            "Total Open Trades", 0
+                        )
+
                         # Calculate unconfirmed signal using real-time data
                         signal_unconfirmed = calculate_signal_unconfirmed_realtime(
                             ticker=ticker,

@@ -468,10 +468,65 @@ def run(portfolio: str) -> bool:
             if success and portfolios:
                 log("=== Strategy Summary ===")
 
-                # Sort portfolios by Score (descending) for main display
-                sorted_portfolios = sort_portfolios(
-                    portfolios, {"SORT_BY": "Score", "SORT_ASC": False}
-                )
+                # Clean portfolios before summary display (remove only EquityData objects)
+                clean_portfolios = []
+                for portfolio_data in portfolios:
+                    clean_portfolio = {}
+                    for key, value in portfolio_data.items():
+                        # Only skip EquityData objects and internal fields, preserve all other data
+                        if key == "_equity_data":
+                            continue
+                        # Convert complex objects to strings for DataFrame compatibility
+                        if value is not None and not isinstance(
+                            value, (str, int, float, bool)
+                        ):
+                            # Check if it's an EquityData object specifically
+                            if hasattr(value, "__class__") and "EquityData" in str(
+                                type(value)
+                            ):
+                                continue
+                            try:
+                                clean_portfolio[key] = str(value)
+                            except Exception:
+                                continue
+                        else:
+                            clean_portfolio[key] = value
+                    clean_portfolios.append(clean_portfolio)
+
+                # Defensive check: ensure we have data and columns for DataFrame creation
+                if not clean_portfolios:
+                    log(
+                        "ERROR: No portfolios available for summary display after cleaning",
+                        "error",
+                    )
+                    return
+
+                # Verify we have essential columns for sorting
+                sample_portfolio = clean_portfolios[0]
+                essential_columns = [
+                    "Score",
+                    "Total Return [%]",
+                    "Ticker",
+                    "Strategy Type",
+                ]
+                available_columns = list(sample_portfolio.keys())
+
+                # If no essential columns are present, log error and skip summary display
+                if not any(col in available_columns for col in essential_columns):
+                    log(
+                        f"ERROR: No essential columns found for sorting. Available: {available_columns[:10]}...",
+                        "error",
+                    )
+                    return
+
+                # Sort cleaned portfolios by Score (descending) for main display
+                try:
+                    sorted_portfolios = sort_portfolios(
+                        clean_portfolios, {"SORT_BY": "Score", "SORT_ASC": False}
+                    )
+                except Exception as e:
+                    log(f"ERROR: Failed to sort portfolios: {str(e)}", "error")
+                    return
 
                 # Use standardized utility to filter and display open trades
                 open_trades_strategies = filter_open_trades(sorted_portfolios, log)

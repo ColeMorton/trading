@@ -307,7 +307,7 @@ def process_ticker_portfolios(
                         # Get total open trades from portfolio stats
                         portfolio_stats = portfolio.stats()
                         total_open_trades = portfolio_stats.get("Total Open Trades", 0)
-                        
+
                         # Calculate unconfirmed signal using real-time data
                         signal_unconfirmed = calculate_signal_unconfirmed_realtime(
                             ticker=ticker,
@@ -587,8 +587,10 @@ def process_ticker_portfolios(
 
                         # Get total open trades from portfolio stats
                         sma_portfolio_stats = sma_portfolio.stats()
-                        total_open_trades = sma_portfolio_stats.get("Total Open Trades", 0)
-                        
+                        total_open_trades = sma_portfolio_stats.get(
+                            "Total Open Trades", 0
+                        )
+
                         # Calculate unconfirmed signal using real-time data
                         signal_unconfirmed = calculate_signal_unconfirmed_realtime(
                             ticker=ticker,
@@ -844,8 +846,10 @@ def process_ticker_portfolios(
 
                         # Get total open trades from portfolio stats
                         ema_portfolio_stats = ema_portfolio.stats()
-                        total_open_trades = ema_portfolio_stats.get("Total Open Trades", 0)
-                        
+                        total_open_trades = ema_portfolio_stats.get(
+                            "Total Open Trades", 0
+                        )
+
                         # Calculate unconfirmed signal using real-time data
                         signal_unconfirmed = calculate_signal_unconfirmed_realtime(
                             ticker=ticker,
@@ -1354,7 +1358,7 @@ def update_strategy_files(
         try:
             df = pl.DataFrame(reordered_portfolios)
             log(f"📊 BEFORE DEDUPLICATION: {len(df)} portfolios in DataFrame", "info")
-            log(f"📊 DataFrame columns: {df.columns}", "info")
+            log(f"📊 DataFrame columns: {df.columns}", "debug")
 
             # Dynamic column detection for robustness
             available_columns = df.columns
@@ -1394,7 +1398,7 @@ def update_strategy_files(
             # Log actual data before deduplication for debugging
             for i, row in enumerate(df.iter_rows(named=True)):
                 if i < 3:  # Log first 3 rows for debugging
-                    log(f"📊 Row {i+1} data: {dict(row)}", "info")
+                    log(f"📊 Row {i+1} data: {dict(row)}", "debug")
 
             duplicate_count = len(df) - df.unique(subset=uniqueness_columns).height
             if duplicate_count > 0:
@@ -1417,7 +1421,7 @@ def update_strategy_files(
 
                 # Log remaining data after deduplication
                 for i, row in enumerate(df.iter_rows(named=True)):
-                    log(f"📊 Remaining Row {i+1}: {dict(row)}", "info")
+                    log(f"📊 Remaining Row {i+1}: {dict(row)}", "debug")
 
             reordered_portfolios = df.to_dicts()
         except Exception as e:

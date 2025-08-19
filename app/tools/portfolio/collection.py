@@ -76,7 +76,17 @@ def sort_portfolios(
     """
     # Convert to DataFrame if necessary
     input_is_list = isinstance(portfolios, list)
-    df = pl.DataFrame(portfolios) if input_is_list else portfolios
+    if input_is_list:
+        if not portfolios:
+            return []  # Return empty list for empty input
+        try:
+            df = pl.DataFrame(portfolios)
+        except Exception as e:
+            raise ValueError(f"Failed to create DataFrame from portfolios: {e}")
+    else:
+        df = portfolios
+        if len(df) == 0:
+            return df  # Return empty DataFrame for empty input
 
     # Sort using consistent logic with proper direction handling
     sort_by = config.get("SORT_BY", "Total Return [%]")
@@ -85,12 +95,19 @@ def sort_portfolios(
     # Ensure sort column exists - if sorting by Score but column doesn't exist, use Total Return [%] as fallback
     if sort_by == "Score" and "Score" not in df.columns:
         if "Total Return [%]" in df.columns:
-            # Create Score column from Total Return [%]
-            df = df.with_columns(
-                pl.col("Total Return [%]").cast(pl.Float64).alias("Score")
-            )
+            try:
+                # Create Score column from Total Return [%]
+                df = df.with_columns(
+                    pl.col("Total Return [%]").cast(pl.Float64).alias("Score")
+                )
+            except Exception:
+                # Use the original Total Return [%] column
+                sort_by = "Total Return [%]"
         else:
-            # Fall back to a different sort column
+            # Fall back to a different sort column with safety check
+            if len(df.columns) == 0:
+                raise ValueError("Cannot sort empty DataFrame - no columns available")
+
             sort_by = (
                 "Total Return [%]"
                 if "Total Return [%]" in df.columns

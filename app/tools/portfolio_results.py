@@ -916,10 +916,13 @@ def display_portfolio_summary(
         )
 
     # Strategy-specific insights
-    best_strategy = max(strategy_types.items(), key=lambda x: x[1])
-    rprint(
-        f"   📊 [blue]Most used strategy: {best_strategy[0]} ({best_strategy[1]} strategies)[/blue]"
-    )
+    if strategy_types:
+        best_strategy = max(strategy_types.items(), key=lambda x: x[1])
+        rprint(
+            f"   📊 [blue]Most used strategy: {best_strategy[0]} ({best_strategy[1]} strategies)[/blue]"
+        )
+    else:
+        rprint("   ⚠️ [yellow]No strategy types detected in portfolio data[/yellow]")
 
     # Risk and opportunity assessment
     signal_entries = [
