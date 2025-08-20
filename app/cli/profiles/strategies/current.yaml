@@ -20,8 +20,8 @@ config:
 
   # Performance filters
   minimums:
-    win_rate: 0.5
-    trades: 54
+    win_rate: 0.45
+    trades: 55
     expectancy_per_trade: 0.5
     profit_factor: 1.236
     sortino_ratio: 0.678

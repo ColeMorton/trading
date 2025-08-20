@@ -349,26 +349,8 @@ class PortfolioOrchestrator:
             from app.tools.strategy.export_portfolios import export_portfolios
 
             try:
-                # Check if we're in skip analysis mode and have multiple tickers
-                if config.get("skip_analysis", False) and self._has_multiple_tickers(
-                    portfolios
-                ):
-                    # Group portfolios by ticker+strategy and export individually
-                    self._export_grouped_portfolios(portfolios, config, "portfolios")
-                else:
-                    # Normal export for single ticker or non-skip mode
-                    _, success = export_portfolios(
-                        portfolios=portfolios,
-                        config=config,
-                        export_type="portfolios",
-                        log=self.log,
-                    )
-                    if success:
-                        self.log(
-                            f"Successfully exported {len(portfolios)} raw portfolios"
-                        )
-                    else:
-                        self.log("Failed to export raw portfolios", "warning")
+                # Always use grouped export for single-ticker-per-file behavior
+                self._export_grouped_portfolios(portfolios, config, "portfolios")
             except Exception as e:
                 self.log(f"Error exporting raw portfolios: {str(e)}", "error")
                 raise ExportError(f"Raw portfolio export failed: {str(e)}")
@@ -422,42 +404,11 @@ class PortfolioOrchestrator:
                         )
                         minimums_filtered = []
 
-                # Export to portfolios_filtered directory
-                skip_analysis = config.get("skip_analysis", False)
-                has_multiple_tickers = self._has_multiple_tickers(minimums_filtered)
-
-                if skip_analysis or config.get("USE_CURRENT", False):
-                    mode_reason = (
-                        "skip analysis mode" if skip_analysis else "USE_CURRENT mode"
-                    )
-                    self.log(
-                        f"Using grouped export for portfolios_filtered ({mode_reason})",
-                        "info",
-                    )
-                    # Group portfolios by ticker+strategy and export individually
-                    self._export_grouped_portfolios(
-                        minimums_filtered, config, "portfolios_filtered"
-                    )
-                else:
-                    self.log(
-                        "Using normal export for portfolios_filtered (minimums only)",
-                        "info",
-                    )
-                    # Normal export for minimums-filtered portfolios
-                    _, success = export_portfolios(
-                        portfolios=minimums_filtered,
-                        config=config,
-                        export_type="portfolios_filtered",
-                        log=self.log,
-                    )
-                    if success:
-                        self.log(
-                            f"Successfully exported {len(minimums_filtered)} minimums-filtered portfolios"
-                        )
-                    else:
-                        self.log(
-                            "Failed to export minimums-filtered portfolios", "warning"
-                        )
+                # Export to portfolios_filtered directory - always use grouped export
+                self.log("Using grouped export for portfolios_filtered", "info")
+                self._export_grouped_portfolios(
+                    minimums_filtered, config, "portfolios_filtered"
+                )
 
                 return minimums_filtered
 
@@ -488,46 +439,11 @@ class PortfolioOrchestrator:
             from app.tools.strategy.export_portfolios import export_portfolios
 
             try:
-                skip_analysis = config.get("skip_analysis", False)
-                has_multiple_tickers = self._has_multiple_tickers(portfolios)
-
-                self.log(
-                    f"Export conditions - skip_analysis: {skip_analysis}, has_multiple_tickers: {has_multiple_tickers}",
-                    "debug",
+                # Always use grouped export for portfolios_metrics
+                self.log("Using grouped export for portfolios_metrics", "info")
+                self._export_grouped_portfolios(
+                    portfolios, config, "portfolios_metrics"
                 )
-
-                # Use grouped export for skip analysis mode OR USE_CURRENT mode for individual ticker+strategy files
-                use_current = config.get("USE_CURRENT", False)
-                if skip_analysis or use_current:
-                    mode_reason = (
-                        "skip analysis mode" if skip_analysis else "USE_CURRENT mode"
-                    )
-                    self.log(
-                        f"Using grouped export for portfolios_metrics ({mode_reason})",
-                        "info",
-                    )
-                    # Group portfolios by ticker+strategy and export individually
-                    self._export_grouped_portfolios(
-                        portfolios, config, "portfolios_metrics"
-                    )
-                else:
-                    self.log(
-                        "Using normal export for portfolios_metrics (extreme value analysis)",
-                        "info",
-                    )
-                    # Normal export for extreme value portfolios
-                    _, success = export_portfolios(
-                        portfolios=portfolios,
-                        config=config,
-                        export_type="portfolios_metrics",
-                        log=self.log,
-                    )
-                    if success:
-                        self.log(
-                            f"Successfully exported {len(portfolios)} portfolios with extreme value analysis"
-                        )
-                    else:
-                        self.log("Failed to export portfolios_metrics", "warning")
             except Exception as e:
                 self.log(f"Error exporting portfolios_metrics: {str(e)}", "error")
                 raise ExportError(f"Portfolios_metrics export failed: {str(e)}")
@@ -552,35 +468,9 @@ class PortfolioOrchestrator:
                 # Use new export system
                 self._export_with_manager(portfolios, config)
             else:
-                skip_analysis = config.get("skip_analysis", False)
-                has_multiple_tickers = self._has_multiple_tickers(portfolios)
-
-                self.log(
-                    f"Export results conditions - skip_analysis: {skip_analysis}, has_multiple_tickers: {has_multiple_tickers}",
-                    "debug",
-                )
-
-                # Use grouped export for skip analysis mode OR USE_CURRENT mode for individual ticker+strategy files
-                use_current = config.get("USE_CURRENT", False)
-                if skip_analysis or use_current:
-                    mode_reason = (
-                        "skip analysis mode" if skip_analysis else "USE_CURRENT mode"
-                    )
-                    self.log(
-                        f"Using grouped export for portfolios_best ({mode_reason})",
-                        "info",
-                    )
-                    # Group portfolios by ticker+strategy and export individually
-                    self._export_grouped_portfolios(
-                        portfolios, config, "portfolios_best"
-                    )
-                else:
-                    self.log(
-                        "Using legacy export for portfolios_best (standard mode)",
-                        "info",
-                    )
-                    # Use legacy export system for normal mode
-                    export_best_portfolios(portfolios, config, self.log)
+                # Always use grouped export for portfolios_best
+                self.log("Using grouped export for portfolios_best", "info")
+                self._export_grouped_portfolios(portfolios, config, "portfolios_best")
 
     def _export_with_manager(
         self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
