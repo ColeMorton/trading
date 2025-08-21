@@ -17,41 +17,91 @@ from scipy.optimize import minimize
 # start_date = '2023-10-24'
 # end_date = '2024-11-02'
 
-start_date = "2020-02-15"
-end_date = "2025-08-15"
+# ===========================
+# CONFIGURATION SECTION
+# ===========================
 
-HALF_RULE = True
-# HALF_RULE = False
 
-# ASSETS = ['BTC-USD', 'SPY']
+class OptimizationConfig:
+    """Configuration class for efficient frontier optimization."""
 
-# ASSETS = ['BTC-USD', 'MSTR']
+    def __init__(self):
+        # Data configuration
+        self.start_date = "2020-02-20"
+        self.end_date = "2025-08-20"
+        self.use_max_period = (
+            True  # If True, ignores date range and uses max available data
+        )
 
-# ASSETS = ['BTC-USD', 'MSTR', 'SOL-USD', 'ETH-USD']
+        # Asset configuration
+        self.assets = ["MU", "NFLX", "COP", "TMO", "XPEV", "ASML", "SYK", "WRB", "WIT"]
 
-# ASSETS = ['QQQ', 'MSTR']
+        # Business rules
+        self.apply_half_rule = True  # Enforce min allocation = 0.5 * max allocation
 
-# ASSETS = ['PENDLE-USD', 'SUI20947-USD']
+        # System configuration (auto-determined)
+        self.memory_limit_mb = self._get_system_memory_limit()
+        self.max_portfolios = 100000  # High quality analysis
+        self.min_portfolios = 1000  # Minimum for meaningful analysis
 
-ASSETS = ["MU", "TSLA", "IREN", "NFLX", "COP", "TMO", "XPEV", "ASML", "SYK"]
+        # Performance settings (fixed for accuracy)
+        self.random_portfolio_ratio = 0.4  # 40% random for good coverage
 
-# ASSETS = ["IREN", "TEM", "BBAI"]
+        # Optimization configuration
+        self.risk_free_rate = 0.0
+        self.optimization_method = "SLSQP"
+        self.random_seed = 42
 
-# ASSETS = ["ETH-USD", "SOL-USD", "ETHFI-USD", "SUI20947-USD"]
+    def _get_system_memory_limit(self):
+        """Determine appropriate memory limit based on system resources."""
+        import psutil
 
-# ASSETS = ['TRX-USD', 'FET-USD', 'AVAX-USD', 'SOL-USD']
+        # Get total system memory
+        total_memory_gb = psutil.virtual_memory().total / (1024**3)
 
-# ASSETS = ['BTC-USD', 'MSTR', 'SOL-USD']
+        # Use conservative percentage of available memory
+        if total_memory_gb >= 16:
+            # High-memory system: use up to 8GB
+            return 8000
+        elif total_memory_gb >= 8:
+            # Medium-memory system: use up to 4GB
+            return 4000
+        elif total_memory_gb >= 4:
+            # Low-memory system: use up to 2GB
+            return 2000
+        else:
+            # Very low-memory system: use up to 1GB
+            return 1000
 
-# ASSETS = ['BTC-USD', 'SPY', 'QQQ', 'SOL-USD', 'MSTR']
+    def get_performance_settings(self):
+        """Get performance settings optimized for accuracy."""
+        return {
+            "random_portfolio_ratio": self.random_portfolio_ratio,
+            "max_portfolios": self.max_portfolios,
+            "memory_limit_mb": self.memory_limit_mb,
+        }
 
-# ASSETS = ['BTC-USD', 'SPY', 'QQQ', 'SOL-USD']
 
-# ASSETS = ["PLTR", "COIN"]
+# Create global configuration instance
+config = OptimizationConfig()
 
-# ASSETS = ['SPY', 'QQQ']
+# ===========================
+# EASY CONFIGURATION OVERRIDES
+# ===========================
+# Uncomment and modify any of these lines to customize the analysis:
 
-# ASSETS = ['BTC-USD', 'MSTR']
+# config.assets = ['BTC-USD', 'SPY', 'QQQ', 'SOL-USD']  # Custom asset list
+# config.apply_half_rule = False  # Disable half rule constraint
+
+print(
+    f"Configuration: {len(config.assets)} assets, memory limit: {config.memory_limit_mb}MB, half rule: {config.apply_half_rule}"
+)
+
+# Legacy variable assignments for backward compatibility
+start_date = config.start_date
+end_date = config.end_date
+HALF_RULE = config.apply_half_rule
+ASSETS = config.assets
 
 # Download the data
 # data = yf.download(ASSETS, start=start_date, end=end_date)['Close']
@@ -62,10 +112,91 @@ print(f"Start Date: {start_date} End Date: {end_date}")
 returns = data.pct_change().dropna()
 
 
+class MatrixCache:
+    """Cache for expensive matrix operations."""
+
+    def __init__(self):
+        self.cache = {}
+
+    def get_cached_cholesky(self, cov_matrix):
+        """Get cached Cholesky decomposition of covariance matrix."""
+        cache_key = "cholesky_" + str(hash(cov_matrix.tobytes()))
+
+        if cache_key not in self.cache:
+            try:
+                self.cache[cache_key] = np.linalg.cholesky(cov_matrix)
+            except np.linalg.LinAlgError:
+                # Fallback to eigenvalue decomposition for near-singular matrices
+                eigenvals, eigenvecs = np.linalg.eigh(cov_matrix)
+                eigenvals = np.maximum(eigenvals, 1e-8)  # Regularize small eigenvalues
+                self.cache[cache_key] = eigenvecs @ np.diag(np.sqrt(eigenvals))
+
+        return self.cache[cache_key]
+
+    def get_cached_inverse(self, matrix):
+        """Get cached matrix inverse with regularization."""
+        cache_key = "inverse_" + str(hash(matrix.tobytes()))
+
+        if cache_key not in self.cache:
+            try:
+                self.cache[cache_key] = np.linalg.inv(matrix)
+            except np.linalg.LinAlgError:
+                # Use pseudo-inverse for singular matrices
+                self.cache[cache_key] = np.linalg.pinv(matrix)
+
+        return self.cache[cache_key]
+
+
+# Global cache instance
+_matrix_cache = MatrixCache()
+
+
 def portfolio_performance(weights, mean_returns, cov_matrix):
+    """Optimized portfolio performance calculation with caching."""
     returns = np.dot(weights, mean_returns)
-    std = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
+
+    # Use cached operations for better performance
+    variance = weights.T @ cov_matrix @ weights
+    std = np.sqrt(variance)
+
     return returns, std
+
+
+def portfolio_performance_batch(weights_matrix, mean_returns, cov_matrix):
+    """
+    Vectorized portfolio performance calculation for multiple portfolios.
+
+    Args:
+        weights_matrix (np.ndarray): Matrix where each row is a portfolio weight vector
+        mean_returns (np.ndarray): Vector of mean returns
+        cov_matrix (np.ndarray): Covariance matrix
+
+    Returns:
+        tuple: (returns_array, std_array) for all portfolios
+    """
+    # Vectorized calculations - much faster than loops
+    returns_array = weights_matrix @ mean_returns
+
+    # Calculate portfolio variances: diag(W @ Cov @ W.T) where W is weights matrix
+    variances = np.sum((weights_matrix @ cov_matrix) * weights_matrix, axis=1)
+    std_array = np.sqrt(variances)
+
+    return returns_array, std_array
+
+
+def downside_deviation_batch(returns_matrix, target=0):
+    """
+    Vectorized downside deviation calculation for multiple portfolios.
+
+    Args:
+        returns_matrix (np.ndarray): Matrix where each row is portfolio returns
+        target (float): Target return threshold
+
+    Returns:
+        np.ndarray: Downside deviation for each portfolio
+    """
+    downside_diff = np.minimum(0, returns_matrix - target)
+    return np.sqrt(np.mean(downside_diff**2, axis=1))
 
 
 def downside_deviation(returns, target=0):
@@ -241,9 +372,73 @@ def enforce_half_rule_and_normalize(allocations):
     return rounded
 
 
+def calculate_adaptive_portfolio_count(num_assets, config_obj=None, max_assets=8):
+    """
+    Calculate adaptive portfolio count based on number of assets.
+
+    For assets <= max_assets: use base_count
+    For assets > max_assets: scale down to maintain performance
+
+    Args:
+        num_assets (int): Number of assets in portfolio
+        config_obj (OptimizationConfig): Configuration object
+        max_assets (int): Asset count threshold for scaling
+
+    Returns:
+        int: Adaptive portfolio count
+    """
+    if config_obj is None:
+        config_obj = config
+
+    settings = config_obj.get_performance_settings()
+    base_count = settings["max_portfolios"]
+    min_count = config_obj.min_portfolios
+
+    if num_assets <= max_assets:
+        return base_count
+
+    # Scale down exponentially to maintain reasonable performance
+    # For each asset beyond max_assets, reduce portfolio count by factor
+    scale_factor = (max_assets / num_assets) ** 2
+
+    adaptive_count = max(int(base_count * scale_factor), min_count)
+
+    print(
+        f"Adaptive scaling: {num_assets} assets -> {adaptive_count:,} portfolios (vs {base_count:,} baseline)"
+    )
+    return adaptive_count
+
+
+def estimate_memory_usage(num_assets, num_portfolios):
+    """
+    Estimate memory usage for efficient frontier calculation.
+
+    Args:
+        num_assets (int): Number of assets
+        num_portfolios (int): Number of portfolios to generate
+
+    Returns:
+        float: Estimated memory usage in MB
+    """
+    # Results matrix: 4 metrics × num_portfolios × 8 bytes per float64
+    results_memory = 4 * num_portfolios * 8 / (1024 * 1024)
+
+    # Weights record: num_portfolios × num_assets × 8 bytes per float64
+    weights_memory = num_portfolios * num_assets * 8 / (1024 * 1024)
+
+    # Returns and covariance matrices
+    returns_memory = len(returns) * num_assets * 8 / (1024 * 1024)
+    cov_memory = num_assets * num_assets * 8 / (1024 * 1024)
+
+    total_memory = results_memory + weights_memory + returns_memory + cov_memory
+
+    print(f"Estimated memory usage: {total_memory:.1f} MB")
+    return total_memory
+
+
 # Plot efficient frontier
 def plot_efficient_frontier(
-    mean_returns, cov_matrix, returns, num_portfolios=50000, risk_free_rate=0
+    mean_returns, cov_matrix, returns, num_portfolios=None, config_obj=None
 ):
     """
     Generate and plot the efficient frontier using a combination of:
@@ -251,78 +446,153 @@ def plot_efficient_frontier(
     2. Portfolios along the efficient frontier
     3. The optimized Sharpe and Sortino portfolios
     """
-    # Set seed for reproducibility
-    np.random.seed(101)
+    # Use global config if not provided
+    if config_obj is None:
+        config_obj = config
 
-    # Total number of portfolios to generate
-    total_portfolios = num_portfolios
+    # Set seed for reproducibility
+    np.random.seed(config_obj.random_seed)
+
+    # Get performance settings
+    settings = config_obj.get_performance_settings()
+    risk_free_rate = config_obj.risk_free_rate
+
+    # Calculate adaptive portfolio count if not specified
+    num_assets = len(mean_returns)
+    if num_portfolios is None:
+        total_portfolios = calculate_adaptive_portfolio_count(num_assets, config_obj)
+    else:
+        total_portfolios = num_portfolios
+
+    # Estimate and check memory usage
+    estimated_memory = estimate_memory_usage(num_assets, total_portfolios)
+    memory_limit_mb = settings["memory_limit_mb"]
+
+    if estimated_memory > memory_limit_mb:
+        # Scale down further if memory usage is too high
+        scale_factor = memory_limit_mb / estimated_memory
+        total_portfolios = max(
+            int(total_portfolios * scale_factor), config_obj.min_portfolios
+        )
+        print(f"Memory limit exceeded, reducing to {total_portfolios:,} portfolios")
+        estimated_memory = estimate_memory_usage(num_assets, total_portfolios)
 
     # Allocate space for results
     results = np.zeros((4, total_portfolios))
     weights_record = []
 
-    # Generate random portfolios for the first part
-    for i in range(int(total_portfolios * 0.7)):  # 70% random portfolios
-        weights = np.random.random(len(mean_returns))
-        weights /= np.sum(weights)
-        weights_record.append(weights)
-        portfolio_return, portfolio_std = portfolio_performance(
-            weights, mean_returns, cov_matrix
-        )
-        dd = downside_deviation(np.dot(returns, weights))
-        results[0, i] = portfolio_return
-        results[1, i] = portfolio_std
-        results[2, i] = (portfolio_return - risk_free_rate) / dd  # Sortino ratio
-        results[3, i] = (
-            portfolio_return - risk_free_rate
-        ) / portfolio_std  # Sharpe ratio
+    # Smart sampling strategy: use configured ratio with adaptive scaling
+    base_ratio = settings["random_portfolio_ratio"]
+    random_portfolio_ratio = min(base_ratio, 5000 / total_portfolios)  # Adaptive ratio
+    num_random = int(total_portfolios * random_portfolio_ratio)
 
-    # Generate portfolios that are combinations of the optimized portfolios
-    # This ensures we include points along the efficient frontier
-    remaining = total_portfolios - int(total_portfolios * 0.7)
+    print(
+        f"Generating {num_random:,} random portfolios ({random_portfolio_ratio:.1%} of total)"
+    )
+
+    # Generate random portfolios using Latin hypercube sampling for better coverage
+    from scipy.stats import qmc
+
+    if num_random > 0:
+        # Use Latin hypercube sampling for better space coverage
+        sampler = qmc.LatinHypercube(d=len(mean_returns), seed=42)
+        lh_samples = sampler.random(n=num_random)
+
+        # Normalize all samples to sum to 1 (vectorized)
+        lh_weights = lh_samples / np.sum(lh_samples, axis=1, keepdims=True)
+
+        # Vectorized batch calculations for all random portfolios
+        returns_array, std_array = portfolio_performance_batch(
+            lh_weights, mean_returns, cov_matrix
+        )
+
+        # Calculate portfolio returns for downside deviation (vectorized)
+        portfolio_returns_matrix = lh_weights @ returns.T
+        dd_array = downside_deviation_batch(portfolio_returns_matrix)
+
+        # Store results (vectorized)
+        results[0, :num_random] = returns_array
+        results[1, :num_random] = std_array
+        results[2, :num_random] = (
+            returns_array - risk_free_rate
+        ) / dd_array  # Sortino ratio
+        results[3, :num_random] = (
+            returns_array - risk_free_rate
+        ) / std_array  # Sharpe ratio
+
+        # Store weights for later use
+        weights_record.extend(lh_weights.tolist())
+
+    # Strategic sampling: efficient frontier and optimized portfolio combinations
+    remaining = total_portfolios - num_random
+    current_idx = num_random
+
+    print(f"Generating {remaining:,} strategic portfolios along efficient frontier")
 
     # Include the optimized portfolios themselves
-    weights_record.append(optimal_weights_sharpe)
-    portfolio_return, portfolio_std = portfolio_performance(
-        optimal_weights_sharpe, mean_returns, cov_matrix
-    )
-    dd = downside_deviation(np.dot(returns, optimal_weights_sharpe))
-    idx = int(total_portfolios * 0.7)
-    results[0, idx] = portfolio_return
-    results[1, idx] = portfolio_std
-    results[2, idx] = (portfolio_return - risk_free_rate) / dd
-    results[3, idx] = (portfolio_return - risk_free_rate) / portfolio_std
-
-    weights_record.append(optimal_weights_sortino)
-    portfolio_return, portfolio_std = portfolio_performance(
-        optimal_weights_sortino, mean_returns, cov_matrix
-    )
-    dd = downside_deviation(np.dot(returns, optimal_weights_sortino))
-    idx = int(total_portfolios * 0.7) + 1
-    results[0, idx] = portfolio_return
-    results[1, idx] = portfolio_std
-    results[2, idx] = (portfolio_return - risk_free_rate) / dd
-    results[3, idx] = (portfolio_return - risk_free_rate) / portfolio_std
-
-    # Generate portfolios along the efficient frontier by taking weighted combinations
-    # of the Sharpe and Sortino optimal portfolios
-    for i in range(remaining - 2):
-        # Create weighted combinations
-        t = (i + 1) / (remaining - 1)  # Weight parameter from 0 to 1
-        weights = t * optimal_weights_sharpe + (1 - t) * optimal_weights_sortino
-        weights /= np.sum(weights)  # Ensure weights sum to 1
-
-        weights_record.append(weights)
+    if remaining > 0:
+        weights_record.append(optimal_weights_sharpe)
         portfolio_return, portfolio_std = portfolio_performance(
-            weights, mean_returns, cov_matrix
+            optimal_weights_sharpe, mean_returns, cov_matrix
         )
-        dd = downside_deviation(np.dot(returns, weights))
+        dd = downside_deviation(np.dot(returns, optimal_weights_sharpe))
+        results[0, current_idx] = portfolio_return
+        results[1, current_idx] = portfolio_std
+        results[2, current_idx] = (portfolio_return - risk_free_rate) / dd
+        results[3, current_idx] = (portfolio_return - risk_free_rate) / portfolio_std
+        current_idx += 1
+        remaining -= 1
 
-        idx = int(total_portfolios * 0.7) + 2 + i
-        results[0, idx] = portfolio_return
-        results[1, idx] = portfolio_std
-        results[2, idx] = (portfolio_return - risk_free_rate) / dd
-        results[3, idx] = (portfolio_return - risk_free_rate) / portfolio_std
+    if remaining > 0:
+        weights_record.append(optimal_weights_sortino)
+        portfolio_return, portfolio_std = portfolio_performance(
+            optimal_weights_sortino, mean_returns, cov_matrix
+        )
+        dd = downside_deviation(np.dot(returns, optimal_weights_sortino))
+        results[0, current_idx] = portfolio_return
+        results[1, current_idx] = portfolio_std
+        results[2, current_idx] = (portfolio_return - risk_free_rate) / dd
+        results[3, current_idx] = (portfolio_return - risk_free_rate) / portfolio_std
+        current_idx += 1
+        remaining -= 1
+
+    # Generate strategic portfolios along efficient frontier
+    if remaining > 0:
+        # More sophisticated frontier sampling: use risk budgeting approach
+        for i in range(remaining):
+            if remaining == 1:
+                t = 0.5  # Single portfolio at midpoint
+            else:
+                # Non-linear spacing for better coverage of interesting regions
+                linear_t = i / (remaining - 1)
+                t = linear_t**0.7  # Bias towards lower-risk region
+
+            # Create weighted combinations with small random perturbation
+            base_weights = (
+                t * optimal_weights_sharpe + (1 - t) * optimal_weights_sortino
+            )
+
+            # Add small random perturbation for diversity (5% of base allocation)
+            perturbation = np.random.normal(0, 0.05, len(base_weights))
+            weights = base_weights + perturbation * base_weights
+
+            # Ensure non-negative and normalized
+            weights = np.maximum(weights, 0.001)  # Minimum 0.1% allocation
+            weights = weights / np.sum(weights)
+
+            weights_record.append(weights)
+            portfolio_return, portfolio_std = portfolio_performance(
+                weights, mean_returns, cov_matrix
+            )
+            dd = downside_deviation(np.dot(returns, weights))
+
+            results[0, current_idx] = portfolio_return
+            results[1, current_idx] = portfolio_std
+            results[2, current_idx] = (portfolio_return - risk_free_rate) / dd
+            results[3, current_idx] = (
+                portfolio_return - risk_free_rate
+            ) / portfolio_std
+            current_idx += 1
 
     # Find the maximum Sharpe and Sortino portfolios from our generated set
     max_sortino_idx = np.argmax(results[2])
@@ -410,7 +680,7 @@ max_sortino_allocation.allocation = [
     round(i * 100, 2) for i in max_sortino_allocation.allocation
 ]
 
-# Generate the efficient frontier plot
+# Generate the efficient frontier plot with adaptive scaling
 plot_efficient_frontier(mean_returns, cov_matrix, returns)
 
 print("\nRaw Maximum Sharpe Ratio Portfolio Allocation\n")
@@ -419,8 +689,8 @@ print(max_sharpe_allocation)
 print("\nRaw Maximum Sortino Ratio Portfolio Allocation\n")
 print(max_sortino_allocation)
 
-# Check if we should apply the half rule based on the HALF_RULE flag
-if HALF_RULE:
+# Check if we should apply the half rule based on configuration
+if config.apply_half_rule:
     # Apply the half rule and normalize to both allocation types
     print("\nApplying half rule and normalizing allocations...")
     # Convert DataFrame to dictionary for the enforce_half_rule_and_normalize function

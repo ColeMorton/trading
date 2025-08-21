@@ -25,7 +25,8 @@ BODY_TEXT = "#444444"  # Dark gray
 MUTED_TEXT = "#717171"  # Medium gray
 
 # TICKERS = ["IREN", "TEM", "BBAI"]
-TICKERS = ["SOL-USD", "ETH-USD", "ETHFI-USD", "SUI20947-USD"]
+TICKERS = ["SOL-USD"]
+# TICKERS = ["SOL-USD", "ETH-USD", "ETHFI-USD", "SUI20947-USD"]
 # TICKERS = "risk_on.csv"
 # TICKERS = "live_signals.csv"
 # TICKERS = "risk_on.csv"
