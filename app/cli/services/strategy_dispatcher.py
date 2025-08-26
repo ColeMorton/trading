@@ -17,6 +17,7 @@ from ..models.strategy import (
     StrategyType,
 )
 from .strategy_services import (
+    ATRStrategyService,
     BaseStrategyService,
     MACDStrategyService,
     MAStrategyService,
@@ -36,6 +37,7 @@ class StrategyDispatcher:
         self._services: Dict[str, BaseStrategyService] = {
             "MA": MAStrategyService(),
             "MACD": MACDStrategyService(),
+            "ATR": ATRStrategyService(),
         }
 
     def execute_strategy(self, config: StrategyConfig) -> StrategyExecutionSummary:
@@ -134,7 +136,7 @@ class StrategyDispatcher:
         """
         Execute multiple strategy types sequentially.
 
-        This ensures that each strategy type (SMA, EMA, MACD) generates
+        This ensures that each strategy type (SMA, EMA, MACD, ATR) generates
         its own separate CSV files as required.
 
         Args:
@@ -272,6 +274,8 @@ class StrategyDispatcher:
             return self._services["MACD"]
         elif strategy_value in [StrategyType.SMA.value, StrategyType.EMA.value]:
             return self._services["MA"]
+        elif strategy_value == StrategyType.ATR.value:
+            return self._services["ATR"]
         else:
             rprint(f"[red]Unsupported strategy type: {strategy_value}[/red]")
             return None
@@ -309,9 +313,17 @@ class StrategyDispatcher:
         if any(st in strategy_type_values for st in ma_strategies):
             return self._services["MA"]
 
+        # Check for ATR strategy
+        if StrategyType.ATR.value in strategy_type_values:
+            if len(strategy_types) > 1:
+                rprint(
+                    "[yellow]Warning: Multiple strategy types specified with ATR. Using mixed strategy execution.[/yellow]"
+                )
+            return self._services["ATR"]
+
         # No compatible service found
         rprint(f"[red]Unsupported strategy types: {strategy_type_values}[/red]")
-        rprint(f"[dim]Supported: SMA, EMA, MACD[/dim]")
+        rprint(f"[dim]Supported: SMA, EMA, MACD, ATR[/dim]")
         return None
 
     def get_available_services(self) -> List[str]:

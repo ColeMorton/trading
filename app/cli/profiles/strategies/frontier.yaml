@@ -1,0 +1,74 @@
+# MA Cross Portfolio Analysis Profile
+# CLI profile for running MA Cross portfolio analysis via trading-cli
+
+metadata:
+  name: 'frontier'
+  description: 'MA Cross portfolio analysis with specific ticker list from 1_get_portfolios.py'
+  version: '1.0'
+  tags: ['ma_cross', 'portfolio', 'analysis', 'production']
+  author: 'trading-cli'
+
+inherits_from: 'current'
+
+config_type: 'strategy'
+
+config:
+  name: 'frontier'
+
+  ticker:
+    - ARQQ
+    - IONQ
+    - QUBT
+    - QBTS
+    - RGTI
+    - APLD
+    - BBAI
+    - CRWV
+    - TEM
+    - NBIS
+    - OKLO
+    - CCJ
+    - UEC
+    - UUUU
+    - SMR
+    - SNPS
+    - KLAC
+    - ASML
+    - MU
+    - AMAT
+    - AMD
+    - MP
+    - LYC
+    - WPM
+    - NEM
+    - AEM
+    - FCX
+    - SCCO
+    - ALNY
+    - HALO
+    - INSM
+    - INCY
+    - MRNA
+    - BEAM
+    - NVDA
+    - SYK
+    - MDT
+    - ABBNY
+    - ZBH
+    - SNN
+    - TER
+    - IRBT
+    - NEE
+    - ED
+    - FSLR
+    - BEP
+    - BE
+    - CWEN-A
+    - ENPH
+    - RUN
+    - RKLB
+    - ASTS
+    - SATS
+    - LHX
+    - LMT
+

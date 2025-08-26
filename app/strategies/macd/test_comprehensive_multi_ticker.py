@@ -119,7 +119,7 @@ def test_comprehensive_macd_functionality():
             export_portfolios(
                 portfolios=result.to_dicts(),
                 config=config,
-                export_type="strategies",
+                export_type="portfolios",
                 log=log,
             )
             # Check both standard directory and dated subdirectory
@@ -186,7 +186,7 @@ def test_comprehensive_macd_functionality():
                     export_portfolios(
                         portfolios=filtered.to_dicts(),
                         config=filter_config,
-                        export_type="strategies",
+                        export_type="portfolios",
                         log=log,
                     )
 
@@ -243,7 +243,7 @@ def test_comprehensive_macd_functionality():
                     export_portfolios(
                         portfolios=best_portfolios,
                         config=config,
-                        export_type="strategies",
+                        export_type="portfolios",
                         log=log,
                     )
 

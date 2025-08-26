@@ -1,0 +1,88 @@
+metadata:
+  name: atr_default
+  description: 'ATR Trailing Stop Strategy - Default Configuration'
+  version: '1.0.0'
+  author: 'Trading System'
+  created: '2025-08-25'
+  tags:
+    - atr
+    - trailing_stop
+    - volatility
+
+config_type: strategy
+config:
+  # Strategy configuration
+  ticker: BTC-USD  # Default ticker, can be overridden via CLI
+  strategy_types: [ATR]
+  
+  # ATR-specific parameters
+  atr_length_start: 2
+  atr_length_end: 14
+  atr_multiplier_start: 1.5
+  atr_multiplier_end: 8.0
+  atr_multiplier_step: 0.5
+  step: 1
+  
+  # Default parameter ranges that map to the CLI
+  atr_length_min: 2
+  atr_length_max: 14
+  atr_multiplier_min: 1.5
+  atr_multiplier_max: 8.0
+  
+  # Quality filters
+  # minimums:
+  #   win_rate: 0.5
+  #   trades: 10
+  #   expectancy_per_trade: 0.0
+  #   profit_factor: 1.0
+  #   beats_bnh: 0.0
+  
+  # Data configuration
+  use_years: false
+  years: null
+  use_hourly: false
+  use_4hour: false
+  refresh: true
+  market_type: auto
+  
+  # Output configuration
+  base_dir: './data'
+  verbose: false
+  
+  # Trading configuration
+  direction: Long  # Direction: "Long" for bullish trades, "Short" for bearish trades
+
+  use_current: false
+
+  # Filter configuration
+  filter:
+    use_current: false
+  
+# Profile usage examples
+examples:
+  - description: "Basic ATR analysis for Bitcoin"
+    command: "trading-cli strategy run --profile atr_default --ticker BTC-USD"
+  
+  - description: "ATR analysis with custom parameters"
+    command: "trading-cli strategy run --profile atr_default --ticker TSLA --atr-length-min 5 --atr-length-max 20"
+  
+  - description: "Multi-ticker ATR analysis"
+    command: "trading-cli strategy run --profile atr_default --ticker BTC-USD,ETH-USD,TSLA"
+  
+  - description: "ATR Short direction analysis for bearish markets"
+    command: "trading-cli strategy run --profile atr_default --ticker TSLA --direction Short"
+
+# Notes
+notes: |
+  This profile configures ATR Trailing Stop strategy analysis with default parameters:
+  - ATR Length range: 2-14 periods  
+  - ATR Multiplier range: 1.5-8.0 with 0.5 step increments
+  - Direction: Long (bullish) or Short (bearish) trading support
+  - Generates 13 × 14 = 182 parameter combinations for comprehensive analysis
+  - Minimum quality thresholds ensure only viable strategies are exported
+  
+  Direction Configuration:
+  - "Long": Traditional ATR trailing stop for uptrend trading
+  - "Short": Inverted ATR trailing stop for downtrend trading
+  - Long: Entry when price >= trailing stop, Exit when price < trailing stop
+  - Short: Entry when price <= trailing stop, Exit when price > trailing stop

@@ -115,7 +115,7 @@ def test_multi_ticker_execution():
                         export_portfolios(
                             portfolios=result.to_dicts(),
                             config=ticker_config,
-                            export_type="strategies",
+                            export_type="portfolios",
                             log=log,
                         )
 

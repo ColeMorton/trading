@@ -471,8 +471,11 @@ def export_csv(
                             "warning",
                         )
 
+            # Convert duration columns to string format before CSV export
+            data_for_export = _convert_duration_columns_for_csv(data, log)
+            
             # Export the DataFrame with explicit overwrite
-            data.write_csv(full_path, separator=",")
+            data_for_export.write_csv(full_path, separator=",")
             if log:
                 log(f"Exported to: {os.path.basename(full_path)}", "info")
 
@@ -810,3 +813,147 @@ def _get_default_column_value(
 
     default_value = defaults.get(column_name, None)
     return pd.Series([default_value] * num_rows, name=column_name)
+
+
+def _format_duration_seconds(total_seconds: int) -> str:
+    """
+    Format total seconds as a human-readable duration string.
+    
+    Args:
+        total_seconds: Total duration in seconds
+        
+    Returns:
+        Formatted duration string (e.g., "5 days 12:30:45")
+    """
+    if total_seconds is None or total_seconds < 0:
+        return "0 days 00:00:00"
+    
+    days = total_seconds // 86400  # 24 * 60 * 60
+    remaining_seconds = total_seconds % 86400
+    hours = remaining_seconds // 3600
+    minutes = (remaining_seconds % 3600) // 60
+    seconds = remaining_seconds % 60
+    
+    return f"{days} days {hours:02d}:{minutes:02d}:{seconds:02d}"
+
+
+def _format_duration_nanoseconds(total_nanoseconds: int) -> str:
+    """
+    Format duration from total nanoseconds to readable string format.
+    
+    Args:
+        total_nanoseconds: Duration in nanoseconds
+        
+    Returns:
+        str: Formatted duration string (e.g., "5 days 14:23:45")
+    """
+    if total_nanoseconds is None:
+        return "0 days 00:00:00"
+    
+    # Convert nanoseconds to seconds
+    total_seconds = int(total_nanoseconds // 1_000_000_000)
+    return _format_duration_seconds(total_seconds)
+
+
+def _format_duration_microseconds(total_microseconds: int) -> str:
+    """
+    Format duration from total microseconds to readable string format.
+    
+    Args:
+        total_microseconds: Duration in microseconds
+        
+    Returns:
+        str: Formatted duration string (e.g., "5 days 14:23:45")
+    """
+    if total_microseconds is None:
+        return "0 days 00:00:00"
+    
+    # Convert microseconds to seconds
+    total_seconds = int(total_microseconds // 1_000_000)
+    return _format_duration_seconds(total_seconds)
+
+
+def _convert_duration_columns_for_csv(data: pl.DataFrame, log: Optional[Callable] = None) -> pl.DataFrame:
+    """
+    Convert duration columns to string format for CSV export compatibility.
+    
+    Args:
+        data: Polars DataFrame with potential duration columns
+        log: Optional logging function
+        
+    Returns:
+        Polars DataFrame with duration columns converted to strings
+    """
+    try:
+        # Dynamically find ALL duration columns by checking dtypes
+        actual_duration_columns = []
+        for col in data.columns:
+            col_dtype = str(data[col].dtype)
+            if "duration" in col_dtype.lower():
+                actual_duration_columns.append((col, col_dtype))
+                    
+        if not actual_duration_columns:
+            # No duration columns found, return original DataFrame
+            return data
+            
+        if log:
+            log(f"Converting {len(actual_duration_columns)} duration columns to string format for CSV export", "info")
+            for col, dtype in actual_duration_columns:
+                log(f"  - {col}: {dtype}", "debug")
+            
+        # Create a copy of the DataFrame to avoid modifying the original
+        data_copy = data.clone()
+        
+        # Convert each duration column to string format
+        for col, dtype in actual_duration_columns:
+            try:
+                # Handle different duration types dynamically
+                if "duration[ns]" in dtype:
+                    # Nanoseconds duration
+                    data_copy = data_copy.with_columns([
+                        pl.col(col).dt.total_nanoseconds().cast(pl.Int64).map_elements(
+                            lambda nanoseconds: _format_duration_nanoseconds(nanoseconds), 
+                            return_dtype=pl.String
+                        ).alias(col)
+                    ])
+                elif "duration[μs]" in dtype or "duration[us]" in dtype:
+                    # Microseconds duration
+                    data_copy = data_copy.with_columns([
+                        pl.col(col).dt.total_microseconds().cast(pl.Int64).map_elements(
+                            lambda microseconds: _format_duration_microseconds(microseconds), 
+                            return_dtype=pl.String
+                        ).alias(col)
+                    ])
+                else:
+                    # Default: try total seconds approach
+                    data_copy = data_copy.with_columns([
+                        pl.col(col).dt.total_seconds().cast(pl.Int64).map_elements(
+                            lambda total_seconds: _format_duration_seconds(total_seconds), 
+                            return_dtype=pl.String
+                        ).alias(col)
+                    ])
+                
+                if log:
+                    log(f"Converted duration column '{col}' ({dtype}) to string format", "debug")
+                    
+            except Exception as e:
+                if log:
+                    log(f"Failed to convert duration column '{col}' ({dtype}): {str(e)}, using fallback", "warning")
+                
+                # Fallback: convert to simple string representation
+                try:
+                    data_copy = data_copy.with_columns([
+                        pl.col(col).cast(pl.String).alias(col)
+                    ])
+                    if log:
+                        log(f"Successfully used fallback conversion for '{col}'", "debug")
+                except Exception as fallback_e:
+                    if log:
+                        log(f"Fallback conversion also failed for '{col}': {str(fallback_e)}", "error")
+                    
+        return data_copy
+        
+    except Exception as e:
+        if log:
+            log(f"Duration column conversion failed: {str(e)}, returning original DataFrame", "error")
+        return data

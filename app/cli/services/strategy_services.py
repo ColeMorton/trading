@@ -204,6 +204,9 @@ class MAStrategyService(BaseStrategyService):
 
         # Add skip_analysis flag
         legacy_config["SKIP_ANALYSIS"] = getattr(config, "skip_analysis", False)
+        
+        # Add direction configuration
+        legacy_config["DIRECTION"] = getattr(config, "direction", "Long")
 
         return legacy_config
 
@@ -387,3 +390,103 @@ class MACDStrategyService(BaseStrategyService):
     def get_supported_strategy_types(self) -> List[str]:
         """Get supported strategy types for MACD."""
         return ["MACD"]
+
+
+class ATRStrategyService(BaseStrategyService):
+    """Service for ATR (Average True Range) Trailing Stop strategy execution."""
+
+    def execute_strategy(self, config: StrategyConfig) -> bool:
+        """Execute ATR strategy analysis."""
+        try:
+            # Import ATR module
+            atr_module = importlib.import_module(
+                "app.strategies.atr.1_get_portfolios"
+            )
+            run = atr_module.run
+
+            # Convert config to legacy format
+            legacy_config = self.convert_config_to_legacy(config)
+
+            # Execute strategy
+            result = run(legacy_config)
+
+            if result:
+                rprint("[green]ATR strategy execution completed successfully[/green]")
+            else:
+                rprint("[yellow]ATR strategy execution completed with warnings[/yellow]")
+
+            return result
+
+        except Exception as e:
+            rprint(f"[red]Error executing ATR strategy: {e}[/red]")
+            return False
+
+    def convert_config_to_legacy(self, config: StrategyConfig) -> Dict[str, Any]:
+        """Convert CLI configuration to ATR legacy format."""
+        try:
+            # Handle ticker list based on config type
+            ticker_list = config.ticker if isinstance(config.ticker, list) else [config.ticker]
+            
+            # Set ATR-specific parameters with defaults
+            legacy_config = {
+                "STRATEGY_TYPE": "ATR",
+                "STRATEGY_TYPES": ["ATR"],
+                "ATR_LENGTH_START": getattr(config, "atr_length_min", 2),
+                "ATR_LENGTH_END": getattr(config, "atr_length_max", 15),
+                "ATR_MULTIPLIER_START": getattr(config, "atr_multiplier_min", 1.5),
+                "ATR_MULTIPLIER_END": getattr(config, "atr_multiplier_max", 8.0),
+                "ATR_MULTIPLIER_STEP": getattr(config, "atr_multiplier_step", 0.5),
+                "STEP": getattr(config, "step", 1),
+                "DIRECTION": getattr(config, "direction", "Long"),
+                "USE_CURRENT": getattr(config.filter, "use_current", False) or False,
+                "USE_DATE": getattr(config.filter, "date_filter", None),
+                "USE_HOURLY": getattr(config, "use_hourly", False),
+                "USE_4HOUR": getattr(config, "use_4hour", False),
+                "USE_YEARS": getattr(config, "use_years", False),
+                "YEARS": getattr(config, "years", None),
+                "REFRESH": getattr(config, "refresh", True),
+                "MINIMUMS": {},
+                # Add sorting parameters from YAML config
+                "SORT_BY": getattr(config, "sort_by", "Score"),
+                "SORT_ASC": getattr(config, "sort_ascending", False),
+                # Add skip_analysis flag
+                "SKIP_ANALYSIS": getattr(config, "skip_analysis", False),
+                # Add base directory
+                "BASE_DIR": ".",
+            }
+
+            # Handle ticker configuration based on synthetic mode
+            if config.synthetic.use_synthetic:
+                # For synthetic mode, don't set TICKER here - let process_synthetic_config handle it
+                legacy_config["USE_SYNTHETIC"] = True
+                legacy_config["TICKER_1"] = config.synthetic.ticker_1
+                legacy_config["TICKER_2"] = config.synthetic.ticker_2
+                legacy_config["MULTI_TICKER"] = False  # Synthetic pairs are treated as single ticker
+            else:
+                # For normal mode, set TICKER as usual
+                legacy_config["TICKER"] = ticker_list
+                legacy_config["MULTI_TICKER"] = len(ticker_list) > 1
+
+        except AttributeError as e:
+            rprint(f"[red]Error accessing ATR parameters: {e}[/red]")
+            raise ValueError(f"ATR configuration error: {e}")
+
+        # Add minimum criteria
+        if config.minimums.win_rate is not None:
+            legacy_config["MINIMUMS"]["WIN_RATE"] = config.minimums.win_rate
+        if config.minimums.trades is not None:
+            legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
+        if config.minimums.expectancy_per_trade is not None:
+            legacy_config["MINIMUMS"]["EXPECTANCY_PER_TRADE"] = config.minimums.expectancy_per_trade
+        if config.minimums.profit_factor is not None:
+            legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
+        if config.minimums.sortino_ratio is not None:
+            legacy_config["MINIMUMS"]["SORTINO_RATIO"] = config.minimums.sortino_ratio
+        if config.minimums.beats_bnh is not None:
+            legacy_config["MINIMUMS"]["BEATS_BNH"] = config.minimums.beats_bnh
+
+        return legacy_config
+
+    def get_supported_strategy_types(self) -> List[str]:
+        """Get supported strategy types for ATR."""
+        return ["ATR"]

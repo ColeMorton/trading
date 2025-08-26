@@ -20,6 +20,7 @@ class StrategyType(str, Enum):
     SMA = "SMA"
     EMA = "EMA"
     MACD = "MACD"
+    ATR = "ATR"
 
 
 class Timeframe(str, Enum):

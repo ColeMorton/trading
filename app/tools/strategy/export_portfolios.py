@@ -502,119 +502,121 @@ def export_portfolios(
             if log:
                 log("Skipping aggregation - portfolios already aggregated", "debug")
 
-        # Special handling for portfolios_best and portfolios_metrics export types
-        if export_type in ["portfolios_best", "portfolios_metrics"]:
-            # Ensure required columns exist
-            required_columns = ["Fast Period", "Slow Period"]
-            for col in required_columns:
-                if col not in df.columns:
-                    df = df.with_columns(pl.lit(None).alias(col))
+        # Ensure Strategy Type column exists for all export types (moved outside conditional)
+        if STRATEGY_TYPE_FIELDS["CSV"] not in df.columns:
+            # Create a list of rows to process
+            rows = df.to_dicts()
+            strategy_types = []
 
-            # Check if we need to rename SMA/EMA columns to Short/Slow Period
-            if "Fast Period" not in df.columns or df.get_column(
-                "Fast Period"
-            ).null_count() == len(df):
-                # Create Fast Period and Slow Period columns based on available data
-                expressions = []
+            # Process each row to determine strategy type
+            for row in rows:
+                strategy_type = get_strategy_type_for_export(row, log)
+                strategy_types.append(strategy_type)
 
-                # Check if we have SMA columns
-                has_sma_fast = "SMA_FAST" in df.columns
-                has_sma_slow = "SMA_SLOW" in df.columns
+            # Add the strategy type column
+            df = df.with_columns(
+                pl.Series(STRATEGY_TYPE_FIELDS["CSV"], strategy_types)
+            )
 
-                # Check if we have EMA columns
-                has_ema_fast = "EMA_FAST" in df.columns
-                has_ema_slow = "EMA_SLOW" in df.columns
-
-                # Create Fast Period expression based on available columns
-                if has_sma_fast and has_ema_fast:
-                    # If both SMA_FAST and EMA_FAST exist, use conditional based on
-                    # Strategy Type
-                    if "Strategy Type" in df.columns:
-                        expressions.append(
-                            pl.when(pl.col("Strategy Type").eq("SMA"))
-                            .then(pl.col("SMA_FAST"))
-                            .otherwise(pl.col("EMA_FAST"))
-                            .alias("Fast Period")
-                        )
-                    else:
-                        # Default to EMA if no strategy type information
-                        expressions.append(pl.col("EMA_FAST").alias("Fast Period"))
-                        if log:
-                            log(
-                                "No strategy type information found, defaulting to EMA for Fast Period",
-                                "warning",
-                            )
-                elif has_sma_fast:
-                    # If only SMA_FAST exists
-                    expressions.append(pl.col("SMA_FAST").alias("Fast Period"))
-                elif has_ema_fast:
-                    # If only EMA_FAST exists
-                    expressions.append(pl.col("EMA_FAST").alias("Fast Period"))
-                else:
-                    # If neither exists, create empty column
-                    expressions.append(pl.lit(None).alias("Fast Period"))
-
-                # Create Slow Period expression based on available columns
-                if has_sma_slow and has_ema_slow:
-                    # If both SMA_SLOW and EMA_SLOW exist, use conditional based on
-                    # Strategy Type
-                    if "Strategy Type" in df.columns:
-                        expressions.append(
-                            pl.when(pl.col("Strategy Type").eq("SMA"))
-                            .then(pl.col("SMA_SLOW"))
-                            .otherwise(pl.col("EMA_SLOW"))
-                            .alias("Slow Period")
-                        )
-                    else:
-                        # Default to EMA if no strategy type information
-                        expressions.append(pl.col("EMA_SLOW").alias("Slow Period"))
-                        if log:
-                            log(
-                                "No strategy type information found, defaulting to EMA for Slow Period",
-                                "warning",
-                            )
-                elif has_sma_slow:
-                    # If only SMA_SLOW exists
-                    expressions.append(pl.col("SMA_SLOW").alias("Slow Period"))
-                elif has_ema_slow:
-                    # If only EMA_SLOW exists
-                    expressions.append(pl.col("EMA_SLOW").alias("Slow Period"))
-                else:
-                    # If neither exists, create empty column
-                    expressions.append(pl.lit(None).alias("Slow Period"))
-
-                # Apply the expressions if we have any
-                if expressions:
-                    df = df.with_columns(expressions)
-
-            # Remove redundant columns
-            redundant_columns = ["EMA_FAST", "EMA_SLOW", "SMA_FAST", "SMA_SLOW"]
-            for col in redundant_columns:
-                if col in df.columns:
-                    df = df.drop(col)
-
-            # Add Strategy Type column based on strategy type information
-            if STRATEGY_TYPE_FIELDS["CSV"] not in df.columns:
-                # Create a list of rows to process
-                rows = df.to_dicts()
-                strategy_types = []
-
-                # Process each row to determine strategy type
-                for row in rows:
-                    strategy_type = get_strategy_type_for_export(row, log)
-                    strategy_types.append(strategy_type)
-
-                # Add the strategy type column
-                df = df.with_columns(
-                    pl.Series(STRATEGY_TYPE_FIELDS["CSV"], strategy_types)
+            if log:
+                log(
+                    f"Added {STRATEGY_TYPE_FIELDS['CSV']} column with determined strategy types",
+                    "info",
                 )
 
-                if log:
-                    log(
-                        f"Added {STRATEGY_TYPE_FIELDS['CSV']} column with determined strategy types",
-                        "info",
-                    )
+        # Handle Fast Period and Slow Period columns for ALL export types (moved outside conditional)
+        # Ensure required columns exist
+        required_columns = ["Fast Period", "Slow Period"]
+        for col in required_columns:
+            if col not in df.columns:
+                df = df.with_columns(pl.lit(None).alias(col))
 
+        # Check if we need to rename SMA/EMA columns to Fast/Slow Period
+        # Only process if Fast Period doesn't exist or is all null
+        if "Fast Period" not in df.columns or df.get_column(
+            "Fast Period"
+        ).null_count() == len(df):
+            # Create Fast Period and Slow Period columns based on available data
+            expressions = []
+
+            # Check if we have SMA columns
+            has_sma_fast = "SMA_FAST" in df.columns
+            has_sma_slow = "SMA_SLOW" in df.columns
+
+            # Check if we have EMA columns
+            has_ema_fast = "EMA_FAST" in df.columns
+            has_ema_slow = "EMA_SLOW" in df.columns
+
+            # Create Fast Period expression based on available columns
+            if has_sma_fast and has_ema_fast:
+                # If both SMA_FAST and EMA_FAST exist, use conditional based on
+                # Strategy Type
+                if "Strategy Type" in df.columns:
+                    expressions.append(
+                        pl.when(pl.col("Strategy Type").eq("SMA"))
+                        .then(pl.col("SMA_FAST"))
+                        .otherwise(pl.col("EMA_FAST"))
+                        .alias("Fast Period")
+                    )
+                else:
+                    # Default to EMA if no strategy type information
+                    expressions.append(pl.col("EMA_FAST").alias("Fast Period"))
+                    if log:
+                        log(
+                            "No strategy type information found, defaulting to EMA for Fast Period",
+                            "warning",
+                        )
+            elif has_sma_fast:
+                # If only SMA_FAST exists
+                expressions.append(pl.col("SMA_FAST").alias("Fast Period"))
+            elif has_ema_fast:
+                # If only EMA_FAST exists
+                expressions.append(pl.col("EMA_FAST").alias("Fast Period"))
+            else:
+                # If neither exists, create empty column
+                expressions.append(pl.lit(None).alias("Fast Period"))
+
+            # Create Slow Period expression based on available columns
+            if has_sma_slow and has_ema_slow:
+                # If both SMA_SLOW and EMA_SLOW exist, use conditional based on
+                # Strategy Type
+                if "Strategy Type" in df.columns:
+                    expressions.append(
+                        pl.when(pl.col("Strategy Type").eq("SMA"))
+                        .then(pl.col("SMA_SLOW"))
+                        .otherwise(pl.col("EMA_SLOW"))
+                        .alias("Slow Period")
+                    )
+                else:
+                    # Default to EMA if no strategy type information
+                    expressions.append(pl.col("EMA_SLOW").alias("Slow Period"))
+                    if log:
+                        log(
+                            "No strategy type information found, defaulting to EMA for Slow Period",
+                            "warning",
+                        )
+            elif has_sma_slow:
+                # If only SMA_SLOW exists
+                expressions.append(pl.col("SMA_SLOW").alias("Slow Period"))
+            elif has_ema_slow:
+                # If only EMA_SLOW exists
+                expressions.append(pl.col("EMA_SLOW").alias("Slow Period"))
+            else:
+                # If neither exists, create empty column
+                expressions.append(pl.lit(None).alias("Slow Period"))
+
+            # Apply the expressions if we have any
+            if expressions:
+                df = df.with_columns(expressions)
+
+        # Remove redundant columns
+        redundant_columns = ["EMA_FAST", "EMA_SLOW", "SMA_FAST", "SMA_SLOW"]
+        for col in redundant_columns:
+            if col in df.columns:
+                df = df.drop(col)
+
+        # Special handling for portfolios_best and portfolios_metrics export types
+        if export_type in ["portfolios_best", "portfolios_metrics"]:
             # Use SMA field is no longer supported - all strategy types are equal
 
             # Get ticker from config

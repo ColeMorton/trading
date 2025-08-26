@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field, validator
 
-from .base import BaseConfig
+from .base import BaseConfig, Direction
 
 
 class StrategyType(str, Enum):
@@ -19,6 +19,7 @@ class StrategyType(str, Enum):
     SMA = "SMA"
     EMA = "EMA"
     MACD = "MACD"
+    ATR = "ATR"
 
 
 class MarketType(str, Enum):
@@ -105,6 +106,9 @@ class StrategyParamsCollection(BaseModel):
     MACD: Optional[StrategyParams] = Field(
         default=None, description="MACD strategy-specific parameters"
     )
+    ATR: Optional[StrategyParams] = Field(
+        default=None, description="ATR strategy-specific parameters"
+    )
 
 
 class SyntheticTickerConfig(BaseModel):
@@ -161,7 +165,7 @@ class StrategyConfig(BaseConfig):
     # Strategy-specific parameter configurations
     strategy_params: Optional[StrategyParamsCollection] = Field(
         default=None,
-        description="Strategy-specific parameter configurations for SMA, EMA, and MACD",
+        description="Strategy-specific parameter configurations for SMA, EMA, MACD, and ATR",
     )
 
     # Time configuration
@@ -204,6 +208,23 @@ class StrategyConfig(BaseConfig):
     )
     signal_period_max: Optional[int] = Field(
         default=None, gt=0, description="Maximum signal period for parameter sweep"
+    )
+    
+    # ATR-specific parameter configuration
+    atr_length_min: Optional[int] = Field(
+        default=None, gt=0, description="Minimum ATR length for parameter sweep"
+    )
+    atr_length_max: Optional[int] = Field(
+        default=None, gt=0, description="Maximum ATR length for parameter sweep"
+    )
+    atr_multiplier_min: Optional[float] = Field(
+        default=None, gt=0, description="Minimum ATR multiplier for parameter sweep"
+    )
+    atr_multiplier_max: Optional[float] = Field(
+        default=None, gt=0, description="Maximum ATR multiplier for parameter sweep"
+    )
+    atr_multiplier_step: Optional[float] = Field(
+        default=None, gt=0, description="ATR multiplier step increment for parameter sweep"
     )
 
     # Legacy range fields - kept for backwards compatibility during transition
@@ -280,7 +301,7 @@ class StrategyConfig(BaseConfig):
     step: Optional[int] = Field(
         default=None, gt=0, description="MACD parameter step increment"
     )
-    direction: Optional[str] = Field(
+    direction: Optional[Direction] = Field(
         default=None, description="Trading direction (Long/Short)"
     )
     use_current: Optional[bool] = Field(
@@ -374,6 +395,44 @@ class StrategyConfig(BaseConfig):
                 )
         return v
 
+    @validator("atr_length_max")
+    def validate_atr_length_range(cls, v, values):
+        """Ensure ATR length max is greater than ATR length min."""
+        if (
+            v is not None
+            and "atr_length_min" in values
+            and values["atr_length_min"] is not None
+        ):
+            if v <= values["atr_length_min"]:
+                raise ValueError("ATR length max must be greater than ATR length min")
+        return v
+
+    @validator("atr_multiplier_max")
+    def validate_atr_multiplier_range(cls, v, values):
+        """Ensure ATR multiplier max is greater than ATR multiplier min."""
+        if (
+            v is not None
+            and "atr_multiplier_min" in values
+            and values["atr_multiplier_min"] is not None
+        ):
+            if v <= values["atr_multiplier_min"]:
+                raise ValueError("ATR multiplier max must be greater than ATR multiplier min")
+        return v
+
+    @validator("direction", pre=True)
+    def normalize_direction(cls, v):
+        """Normalize direction to proper case (Long/Short)."""
+        if v is not None and isinstance(v, str):
+            # Handle case-insensitive input
+            normalized = v.lower()
+            if normalized == "long":
+                return Direction.LONG
+            elif normalized == "short":
+                return Direction.SHORT
+            else:
+                raise ValueError(f"Invalid direction: {v}. Must be 'Long' or 'Short'")
+        return v
+
     @validator("slow_period")
     def validate_periods(cls, v, values):
         """Ensure slow period is greater than fast period when both are specified."""
@@ -442,7 +501,7 @@ class StrategyPortfolioResults(BaseModel):
     """Portfolio analysis results for a specific ticker-strategy combination."""
 
     ticker: str = Field(description="Ticker symbol")
-    strategy_type: str = Field(description="Strategy type (SMA, EMA, MACD)")
+    strategy_type: str = Field(description="Strategy type (SMA, EMA, MACD, ATR)")
     total_portfolios: int = Field(description="Total portfolios generated")
     filtered_portfolios: int = Field(description="Portfolios after filtering")
     extreme_value_portfolios: int = Field(description="Extreme value portfolios")

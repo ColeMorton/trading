@@ -432,6 +432,58 @@ class MeanReversionSignalProcessor(SignalProcessorBase):
             return None
 
 
+class ATRSignalProcessor(SignalProcessorBase):
+    """Signal processor for ATR Trailing Stop strategies."""
+
+    def __init__(self):
+        super().__init__("ATR")
+
+    def generate_current_signals(
+        self, config: Dict[str, Any], log: Callable
+    ) -> pl.DataFrame:
+        """Generate current signals for ATR strategy."""
+        # For now, return empty DataFrame as ATR focuses on parameter sweep analysis
+        # This can be enhanced later to support current signal analysis
+        log("ATR current signals analysis not yet implemented", "warning")
+        return pl.DataFrame()
+
+    def analyze_parameter_combination(
+        self,
+        data: pl.DataFrame,
+        config: Dict[str, Any],
+        log: Callable,
+        **strategy_params,
+    ) -> Optional[Dict[str, Any]]:
+        """Analyze a specific ATR parameter combination."""
+        # This method is used for current signals analysis
+        # For ATR, we focus on full ticker analysis instead
+        return None
+
+    def _extract_strategy_parameters(self, row: Dict[str, Any]) -> Dict[str, Any]:
+        """Extract ATR-specific parameters from a signal row."""
+        return {
+            "ATR_LENGTH": row.get("ATR_Length", row.get("ATR Length", 14)),
+            "ATR_MULTIPLIER": row.get("ATR_Multiplier", row.get("ATR Multiplier", 2.0)),
+        }
+
+    def _process_full_ticker_analysis(
+        self, ticker: str, config: Dict[str, Any], log: Callable
+    ) -> Optional[Any]:
+        """Process full ATR ticker analysis."""
+        try:
+            from app.strategies.atr.tools.strategy_execution import execute_strategy
+
+            # Create ticker-specific config
+            ticker_config = config.copy()
+            ticker_config["TICKER"] = ticker
+
+            # Execute ATR strategy with parameter sweep
+            return execute_strategy(ticker_config, "ATR", log)
+        except ImportError:
+            log("Failed to import ATR strategy execution", "error")
+            return None
+
+
 class SignalProcessorFactory:
     """Factory for creating strategy-specific signal processors."""
 
@@ -441,6 +493,7 @@ class SignalProcessorFactory:
         "MACD": lambda: MACDSignalProcessor(),
         "MEAN_REVERSION": lambda: MeanReversionSignalProcessor(),
         "MA_CROSS": lambda: MASignalProcessor("SMA"),  # Default to SMA
+        "ATR": lambda: ATRSignalProcessor(),
     }
 
     @classmethod

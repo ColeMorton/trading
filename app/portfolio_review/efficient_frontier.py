@@ -27,14 +27,14 @@ class OptimizationConfig:
 
     def __init__(self):
         # Data configuration
-        self.start_date = "2020-02-20"
-        self.end_date = "2025-08-20"
+        self.start_date = "2020-02-25"
+        self.end_date = "2025-08-25"
         self.use_max_period = (
             True  # If True, ignores date range and uses max available data
         )
 
         # Asset configuration
-        self.assets = ["MU", "NFLX", "COP", "TMO", "XPEV", "ASML", "SYK", "WRB", "WIT"]
+        self.assets = ["MU", "COP", "TMO", "XPEV", "ASML", "SYK", "NTES", "WIT", "EDU", "AMZN", "TSLA", "RKLB", "BIDU", "SCCO"]
 
         # Business rules
         self.apply_half_rule = True  # Enforce min allocation = 0.5 * max allocation

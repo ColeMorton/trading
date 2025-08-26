@@ -253,7 +253,7 @@ def add(
         None,
         "--strategy-type",
         "-s",
-        help="Strategy type: SMA, EMA, MACD (auto-selected if not specified)",
+        help="Strategy type: SMA, EMA, MACD, ATR (auto-selected if not specified)",
     ),
     fast_period: Optional[int] = typer.Option(
         None,

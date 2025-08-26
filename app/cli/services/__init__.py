@@ -7,6 +7,7 @@ enabling strategy-agnostic execution and consistent interfaces.
 
 from .strategy_dispatcher import StrategyDispatcher
 from .strategy_services import (
+    ATRStrategyService,
     BaseStrategyService,
     MACDStrategyService,
     MAStrategyService,
@@ -17,4 +18,5 @@ __all__ = [
     "BaseStrategyService",
     "MAStrategyService",
     "MACDStrategyService",
+    "ATRStrategyService",
 ]

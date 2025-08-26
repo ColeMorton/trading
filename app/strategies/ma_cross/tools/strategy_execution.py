@@ -223,7 +223,7 @@ def process_single_ticker(
         export_portfolios(
             portfolios=normalized_portfolios,
             config=ticker_config,
-            export_type="strategies",
+            export_type="portfolios",
             log=log,
         )
     except (ValueError, PortfolioExportError) as e:
@@ -265,7 +265,7 @@ def process_single_ticker(
         export_portfolios(
             portfolios=normalized_filtered,
             config=ticker_config,
-            export_type="strategies",
+            export_type="portfolios_filtered",
             log=log,
         )
     except (ValueError, PortfolioExportError) as e:

@@ -66,7 +66,7 @@ def run(
         None,
         "--strategy",
         "-s",
-        help="Strategy types: SMA, EMA, MACD (can be used multiple times)",
+        help="Strategy types: SMA, EMA, MACD (default strategies), ATR (specialized - explicit only, can be used multiple times)",
     ),
     min_trades: Optional[int] = typer.Option(
         None, "--min-trades", help="Minimum number of trades filter"
@@ -95,6 +95,12 @@ def run(
     ),
     verbose: bool = typer.Option(
         False, "--verbose", "-v", help="Enable verbose output"
+    ),
+    direction: Optional[str] = typer.Option(
+        None,
+        "--direction",
+        "-d",
+        help="Trading direction: Long or Short (default: Long)"
     ),
     skip_analysis: Optional[bool] = typer.Option(
         None,
@@ -169,6 +175,7 @@ def run(
             dry_run=dry_run,
             use_4hour=use_4hour,
             skip_analysis=skip_analysis,
+            direction=direction,
             fast_min=fast_min,
             fast_max=fast_max,
             slow_min=slow_min,

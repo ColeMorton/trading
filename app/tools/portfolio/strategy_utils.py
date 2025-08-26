@@ -111,11 +111,8 @@ def get_strategy_type_for_export(
         log: Optional logging function
 
     Returns:
-        str: Strategy type (SMA, EMA, or MACD)
+        str: Strategy type (SMA, EMA, MACD, or ATR)
     """
-    if log:
-        log(f"Checking for strategy type fields in: {df.keys()}", "info")
-
     # Use the same priority order as determine_strategy_type
     field_priority = [
         STRATEGY_TYPE_FIELDS["INTERNAL"],  # STRATEGY_TYPE
@@ -125,13 +122,9 @@ def get_strategy_type_for_export(
     ]
 
     for field in field_priority:
-        if log:
-            log(
-                f"Field '{field}' present: {field in df}, value: {df.get(field)}",
-                "info",
-            )
         if field in df and df[field] is not None:
-            return df[field]
+            strategy_type = df[field]
+            return strategy_type
 
     # Check if this might be a MACD strategy based on presence of SIGNAL_PERIOD
     if "SIGNAL_PERIOD" in df and df["SIGNAL_PERIOD"] is not None:
@@ -139,7 +132,7 @@ def get_strategy_type_for_export(
             log("Detected MACD strategy based on presence of SIGNAL_PERIOD", "info")
         return "MACD"
 
-    # Default to MACD if no strategy type information is available (fail-fast approach)
+    # Default to DEFAULT_STRATEGY_TYPE if no strategy type information is available (fail-fast approach)
     if log:
         log(
             f"No explicit strategy type found, defaulting to {DEFAULT_STRATEGY_TYPE}",

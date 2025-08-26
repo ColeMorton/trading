@@ -66,6 +66,7 @@ def build_configuration_overrides(
     years: Optional[int] = None,
     market_type: Optional[str] = None,
     use_4hour: Optional[bool] = None,
+    direction: Optional[str] = None,
     date: Optional[str] = None,
     dry_run: bool = False,
     skip_analysis: bool = False,
@@ -182,6 +183,10 @@ def build_configuration_overrides(
     # Market type configuration
     if market_type:
         overrides["market_type"] = market_type
+
+    # Direction configuration
+    if direction:
+        overrides["direction"] = direction
 
     # Timeframe configuration
     if use_4hour is not None:

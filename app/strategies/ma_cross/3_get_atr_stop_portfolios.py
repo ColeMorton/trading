@@ -29,9 +29,9 @@ from app.tools.project_utils import get_project_root
 
 # ATR-specific configuration based on proven MA Cross settings
 default_config: CacheConfig = {
-    "TICKER": "NVDA",
-    "FAST_PERIOD": 53,  # Proven MA Cross entry configuration
-    "SLOW_PERIOD": 64,  # Proven MA Cross entry configuration
+    "TICKER": "TSLA",
+    "FAST_PERIOD": 10,  # Proven MA Cross entry configuration
+    "SLOW_PERIOD": 20,  # Proven MA Cross entry configuration
     "BASE_DIR": get_project_root(),
     "USE_SMA": True,
     "REFRESH": True,
@@ -44,10 +44,10 @@ default_config: CacheConfig = {
     "RSI_THRESHOLD": 52,
     # ATR Parameter Range Configuration
     "ATR_LENGTH_MIN": 2,  # Minimum ATR period length
-    "ATR_LENGTH_MAX": 21,  # Maximum ATR period length
+    "ATR_LENGTH_MAX": 14,  # Maximum ATR period length
     "ATR_MULTIPLIER_MIN": 1.5,  # Minimum ATR multiplier for stop distance
-    "ATR_MULTIPLIER_MAX": 10.0,  # Maximum ATR multiplier for stop distance
-    "ATR_MULTIPLIER_STEP": 0.2,  # Step size for ATR multiplier increments
+    "ATR_MULTIPLIER_MAX": 8,  # Maximum ATR multiplier for stop distance
+    "ATR_MULTIPLIER_STEP": 0.5,  # Step size for ATR multiplier increments
     # "ATR_LENGTH_MIN": 2,        # Minimum ATR period length
     # "ATR_LENGTH_MAX": 12,       # Maximum ATR period length
     # "ATR_MULTIPLIER_MIN": 1.5,  # Minimum ATR multiplier for stop distance
@@ -56,14 +56,9 @@ default_config: CacheConfig = {
     "MINIMUMS": {
         "WIN_RATE": 0.5,
         "TRADES": 44,
-        # "WIN_RATE": 0.50,
-        # "TRADES": 54,
-        # "WIN_RATE": 0.61,
         "EXPECTANCY_PER_TRADE": 0.5,
         "PROFIT_FACTOR": 1.236,
         "SORTINO_RATIO": 0.5,
-        # "BEATS_BNH": 0
-        # "BEATS_BNH": 0.13
     },
     "SORT_BY": "Score",
     "SORT_ASC": False,

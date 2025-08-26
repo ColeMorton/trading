@@ -1370,7 +1370,7 @@ def _generate_demo_portfolio(n_strategies: int) -> dict:
         "BTC-USD",
         "ETH-USD",
     ]
-    strategy_types = ["SMA", "EMA", "MACD"]
+    strategy_types = ["SMA", "EMA", "MACD", "ATR"]
 
     strategies = []
     for i in range(n_strategies):
@@ -1381,10 +1381,14 @@ def _generate_demo_portfolio(n_strategies: int) -> dict:
             fast_period = random.choice([10, 20, 50])
             slow_period = fast_period + random.choice([20, 50, 100])
             signal_period = 0
-        else:  # MACD
+        elif strategy_type == "MACD":
             fast_period = 12
             slow_period = 26
             signal_period = 9
+        else:  # ATR
+            fast_period = random.choice([5, 10, 14, 20])  # ATR length
+            slow_period = random.choice([15, 20, 25, 30]) * 10  # ATR multiplier * 10 for int representation
+            signal_period = 0
 
         strategy = {
             "ticker": ticker,

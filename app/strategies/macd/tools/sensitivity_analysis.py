@@ -212,7 +212,7 @@ def export_results(df: pl.DataFrame, config: Dict[str, Any], log: Callable) -> N
 
         # Export using centralized portfolio export functionality
         export_portfolios(
-            portfolios=df.to_dicts(), config=config, export_type="strategies", log=log
+            portfolios=df.to_dicts(), config=config, export_type="portfolios", log=log
         )
 
         log("MACD analysis results exported successfully")

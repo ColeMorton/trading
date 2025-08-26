@@ -35,7 +35,6 @@ config:
     - LI
     - BEKE
     - KB
-    - BGNE
     - CAJ
     - TTM
     - TME
