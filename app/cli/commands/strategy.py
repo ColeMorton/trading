@@ -100,7 +100,7 @@ def run(
         None,
         "--direction",
         "-d",
-        help="Trading direction: Long or Short (default: Long)"
+        help="Trading direction: Long or Short (default: Long)",
     ),
     skip_analysis: Optional[bool] = typer.Option(
         None,

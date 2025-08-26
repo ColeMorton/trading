@@ -209,7 +209,7 @@ class StrategyConfig(BaseConfig):
     signal_period_max: Optional[int] = Field(
         default=None, gt=0, description="Maximum signal period for parameter sweep"
     )
-    
+
     # ATR-specific parameter configuration
     atr_length_min: Optional[int] = Field(
         default=None, gt=0, description="Minimum ATR length for parameter sweep"
@@ -224,7 +224,9 @@ class StrategyConfig(BaseConfig):
         default=None, gt=0, description="Maximum ATR multiplier for parameter sweep"
     )
     atr_multiplier_step: Optional[float] = Field(
-        default=None, gt=0, description="ATR multiplier step increment for parameter sweep"
+        default=None,
+        gt=0,
+        description="ATR multiplier step increment for parameter sweep",
     )
 
     # Legacy range fields - kept for backwards compatibility during transition
@@ -416,7 +418,9 @@ class StrategyConfig(BaseConfig):
             and values["atr_multiplier_min"] is not None
         ):
             if v <= values["atr_multiplier_min"]:
-                raise ValueError("ATR multiplier max must be greater than ATR multiplier min")
+                raise ValueError(
+                    "ATR multiplier max must be greater than ATR multiplier min"
+                )
         return v
 
     @validator("direction", pre=True)

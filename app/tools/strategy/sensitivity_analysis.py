@@ -106,7 +106,9 @@ class SensitivityAnalyzerBase(ABC):
                 {
                     "USE_CURRENT": config.get("USE_CURRENT", False),
                     "STRATEGY_TYPE": self.strategy_type,
-                    "DIRECTION": config.get("DIRECTION", "Long"),  # Preserve direction parameter
+                    "DIRECTION": config.get(
+                        "DIRECTION", "Long"
+                    ),  # Preserve direction parameter
                 }
             )
 

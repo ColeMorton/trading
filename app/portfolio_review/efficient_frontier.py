@@ -34,7 +34,22 @@ class OptimizationConfig:
         )
 
         # Asset configuration
-        self.assets = ["MU", "COP", "TMO", "XPEV", "ASML", "SYK", "NTES", "WIT", "EDU", "AMZN", "TSLA", "RKLB", "BIDU", "SCCO"]
+        self.assets = [
+            "MU",
+            "COP",
+            "TMO",
+            "XPEV",
+            "ASML",
+            "SYK",
+            "NTES",
+            "WIT",
+            "EDU",
+            "AMZN",
+            "TSLA",
+            "RKLB",
+            "BIDU",
+            "SCCO",
+        ]
 
         # Business rules
         self.apply_half_rule = True  # Enforce min allocation = 0.5 * max allocation

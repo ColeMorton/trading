@@ -1387,7 +1387,9 @@ def _generate_demo_portfolio(n_strategies: int) -> dict:
             signal_period = 9
         else:  # ATR
             fast_period = random.choice([5, 10, 14, 20])  # ATR length
-            slow_period = random.choice([15, 20, 25, 30]) * 10  # ATR multiplier * 10 for int representation
+            slow_period = (
+                random.choice([15, 20, 25, 30]) * 10
+            )  # ATR multiplier * 10 for int representation
             signal_period = 0
 
         strategy = {

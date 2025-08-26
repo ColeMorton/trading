@@ -204,7 +204,7 @@ class MAStrategyService(BaseStrategyService):
 
         # Add skip_analysis flag
         legacy_config["SKIP_ANALYSIS"] = getattr(config, "skip_analysis", False)
-        
+
         # Add direction configuration
         legacy_config["DIRECTION"] = getattr(config, "direction", "Long")
 
@@ -399,9 +399,7 @@ class ATRStrategyService(BaseStrategyService):
         """Execute ATR strategy analysis."""
         try:
             # Import ATR module
-            atr_module = importlib.import_module(
-                "app.strategies.atr.1_get_portfolios"
-            )
+            atr_module = importlib.import_module("app.strategies.atr.1_get_portfolios")
             run = atr_module.run
 
             # Convert config to legacy format
@@ -413,7 +411,9 @@ class ATRStrategyService(BaseStrategyService):
             if result:
                 rprint("[green]ATR strategy execution completed successfully[/green]")
             else:
-                rprint("[yellow]ATR strategy execution completed with warnings[/yellow]")
+                rprint(
+                    "[yellow]ATR strategy execution completed with warnings[/yellow]"
+                )
 
             return result
 
@@ -425,8 +425,10 @@ class ATRStrategyService(BaseStrategyService):
         """Convert CLI configuration to ATR legacy format."""
         try:
             # Handle ticker list based on config type
-            ticker_list = config.ticker if isinstance(config.ticker, list) else [config.ticker]
-            
+            ticker_list = (
+                config.ticker if isinstance(config.ticker, list) else [config.ticker]
+            )
+
             # Set ATR-specific parameters with defaults
             legacy_config = {
                 "STRATEGY_TYPE": "ATR",
@@ -461,7 +463,9 @@ class ATRStrategyService(BaseStrategyService):
                 legacy_config["USE_SYNTHETIC"] = True
                 legacy_config["TICKER_1"] = config.synthetic.ticker_1
                 legacy_config["TICKER_2"] = config.synthetic.ticker_2
-                legacy_config["MULTI_TICKER"] = False  # Synthetic pairs are treated as single ticker
+                legacy_config[
+                    "MULTI_TICKER"
+                ] = False  # Synthetic pairs are treated as single ticker
             else:
                 # For normal mode, set TICKER as usual
                 legacy_config["TICKER"] = ticker_list
@@ -477,7 +481,9 @@ class ATRStrategyService(BaseStrategyService):
         if config.minimums.trades is not None:
             legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
         if config.minimums.expectancy_per_trade is not None:
-            legacy_config["MINIMUMS"]["EXPECTANCY_PER_TRADE"] = config.minimums.expectancy_per_trade
+            legacy_config["MINIMUMS"][
+                "EXPECTANCY_PER_TRADE"
+            ] = config.minimums.expectancy_per_trade
         if config.minimums.profit_factor is not None:
             legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
         if config.minimums.sortino_ratio is not None:

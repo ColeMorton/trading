@@ -514,9 +514,7 @@ def export_portfolios(
                 strategy_types.append(strategy_type)
 
             # Add the strategy type column
-            df = df.with_columns(
-                pl.Series(STRATEGY_TYPE_FIELDS["CSV"], strategy_types)
-            )
+            df = df.with_columns(pl.Series(STRATEGY_TYPE_FIELDS["CSV"], strategy_types))
 
             if log:
                 log(

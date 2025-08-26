@@ -29,7 +29,7 @@ PORTFOLIO = [
     "NTES",
     "TSLA",
     "AMZN",
-    "EDU"
+    "EDU",
 ]
 
 # PORTFOLIO = ["ETH-USD", "SOL-USD", "ETHFI-USD", "SUI20947-USD"]

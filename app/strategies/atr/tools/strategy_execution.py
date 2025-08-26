@@ -5,15 +5,16 @@ This module handles the execution of ATR trailing stop strategies, including por
 parameter sweeps, and portfolio generation for both single and multiple tickers.
 """
 
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
 import vectorbt as vbt
-from typing import Any, Dict, List, Optional, Tuple
 
 from app.strategies.atr.config_types import ATRConfig
+from app.tools.backtest_strategy import backtest_strategy
 from app.tools.get_data import get_data
 from app.tools.stats_converter import convert_stats
-from app.tools.backtest_strategy import backtest_strategy
 
 
 def calculate_atr(data: pd.DataFrame, length: int) -> pd.Series:
@@ -57,17 +58,17 @@ def generate_signals(
 ) -> pd.DataFrame:
     """
     Generate trading signals based on proper ATR Trailing Stop algorithm.
-    
+
     Implements standard ATR trailing stop behavior for both Long and Short directions:
-    
+
     Long Direction:
     - When not in position: trailing stop moves freely with price
     - When in position: trailing stop can only move up (never down)
     - Entry: close >= trailing stop (when not in position)
     - Exit: close < trailing stop (when in position)
-    
+
     Short Direction:
-    - When not in position: trailing stop moves freely with price  
+    - When not in position: trailing stop moves freely with price
     - When in position: trailing stop can only move down (never up)
     - Entry: close <= trailing stop (when not in position)
     - Exit: close > trailing stop (when in position)
@@ -106,23 +107,23 @@ def generate_signals(
     # Initialize columns
     data["Signal"] = pd.Series(np.zeros(len(data)), index=data.index)
     data["ATR_Trailing_Stop"] = pd.Series(np.full(len(data), np.nan), index=data.index)
-    
+
     # Track position state
     in_position = False
     trailing_stop = np.nan
 
     # Generate signals using proper ATR trailing stop logic
     is_long = direction.lower() == "long"
-    
+
     for i in range(1, len(data)):
         current_high = float(data["High"].iloc[i])
         current_low = float(data["Low"].iloc[i])
         current_close = float(data["Close"].iloc[i])
         current_atr = float(data["ATR"].iloc[i])
-        
+
         if pd.isna(current_atr):
             continue
-            
+
         # Calculate potential trailing stop for this period
         if is_long:
             # Long: trailing stop below price (high - atr * multiplier)
@@ -130,11 +131,11 @@ def generate_signals(
         else:
             # Short: trailing stop above price (low + atr * multiplier)
             potential_stop = current_low + (current_atr * atr_multiplier)
-        
+
         if not in_position:
             # When not in position, trailing stop moves freely with price
             trailing_stop = potential_stop
-            
+
             # Check for entry signal based on direction
             if is_long:
                 # Long entry: close >= trailing stop
@@ -150,14 +151,14 @@ def generate_signals(
                     in_position = True
                 else:
                     data.loc[data.index[i], "Signal"] = 0
-                
+
         else:
             # When in position, trailing stop moves in favorable direction only
             if is_long:
                 # Long: trailing stop can only move up (never down)
                 trailing_stop = max(trailing_stop, potential_stop)
-                
-                # Long exit: close < trailing stop  
+
+                # Long exit: close < trailing stop
                 if current_close < trailing_stop:
                     data.loc[data.index[i], "Signal"] = 0
                     in_position = False
@@ -166,14 +167,16 @@ def generate_signals(
             else:
                 # Short: trailing stop can only move down (never up)
                 trailing_stop = min(trailing_stop, potential_stop)
-                
+
                 # Short exit: close > trailing stop
                 if current_close > trailing_stop:
                     data.loc[data.index[i], "Signal"] = 0
                     in_position = False
                 else:
-                    data.loc[data.index[i], "Signal"] = -1  # Use -1 for short position hold
-        
+                    data.loc[
+                        data.index[i], "Signal"
+                    ] = -1  # Use -1 for short position hold
+
         # Store the trailing stop value for this period
         data.loc[data.index[i], "ATR_Trailing_Stop"] = trailing_stop
 
@@ -193,7 +196,7 @@ def generate_signals(
 def backtest_atr_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
     """
     Backtest the ATR Trailing Stop strategy using basic VectorBT implementation.
-    
+
     Note: This function is deprecated. Use the shared backtest_strategy from
     app.tools.backtest_strategy for consistent metrics across all strategies.
 
@@ -284,7 +287,12 @@ def backtest_atr_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
 
 
 def analyze_params(
-    data: pd.DataFrame, atr_length: int, atr_multiplier: float, ticker: str, log: callable, config: dict = None
+    data: pd.DataFrame,
+    atr_length: int,
+    atr_multiplier: float,
+    ticker: str,
+    log: callable,
+    config: dict = None,
 ) -> Dict[str, Any]:
     """
     Analyze parameters for ATR trailing stop strategy and return portfolio dict.
@@ -303,7 +311,7 @@ def analyze_params(
     try:
         # Get direction from config, default to Long for backward compatibility
         direction = "Long" if config is None else config.get("DIRECTION", "Long")
-        
+
         # Generate signals with optimized function
         data_with_signals: pd.DataFrame = generate_signals(
             data.copy(), atr_length, atr_multiplier, direction
@@ -315,28 +323,33 @@ def analyze_params(
             "USE_HOURLY": False,  # ATR uses daily data by default
             "DIRECTION": direction,  # Use direction from config (Long or Short)
             "fast_period": atr_length,  # Map ATR length to fast period
-            "slow_period": int(atr_multiplier * 10),  # Map ATR multiplier to slow period
+            "slow_period": int(
+                atr_multiplier * 10
+            ),  # Map ATR multiplier to slow period
             "signal_period": 0,  # ATR doesn't use signal period
         }
 
         # Convert pandas DataFrame to polars for shared backtest function
         import polars as pl
+
         data_polars = pl.from_pandas(data_with_signals)
 
         # Use shared backtest strategy for comprehensive metrics
         portfolio: "vbt.Portfolio" = backtest_strategy(
-            data_polars, 
-            backtest_config, 
-            log
+            data_polars, backtest_config, log
         )
 
         # Calculate signal information using proper ATR signal detection
-        from app.strategies.atr.tools.signal_utils import is_signal_current, is_exit_signal_current
-        
         # Convert pandas DataFrame to polars for signal detection
         import polars as pl
+
+        from app.strategies.atr.tools.signal_utils import (
+            is_exit_signal_current,
+            is_signal_current,
+        )
+
         data_polars = pl.from_pandas(data_with_signals)
-        
+
         # Use ATR-specific signal detection functions
         current_signal = is_signal_current(data_polars, backtest_config)
         exit_signal = is_exit_signal_current(data_polars, backtest_config)
@@ -351,23 +364,32 @@ def analyze_params(
 
         # Override with ATR-specific field mappings to maintain proper naming
         # Ensure numeric fields are properly typed
-        converted_stats.update({
-            "Ticker": ticker,
-            "Strategy Type": "ATR",
-            "Fast Period": int(atr_length),  # Use ATR length as Fast Period
-            "Slow Period": int(atr_multiplier * 10),  # Convert multiplier to int for Slow Period
-            "Signal Period": 0,  # ATR doesn't use signal period
-            # Ensure signal fields reflect our ATR-specific detection
-            "Signal Entry": current_signal,
-            "Signal Exit": exit_signal,
-        })
-        
+        converted_stats.update(
+            {
+                "Ticker": ticker,
+                "Strategy Type": "ATR",
+                "Fast Period": int(atr_length),  # Use ATR length as Fast Period
+                "Slow Period": int(
+                    atr_multiplier * 10
+                ),  # Convert multiplier to int for Slow Period
+                "Signal Period": 0,  # ATR doesn't use signal period
+                # Ensure signal fields reflect our ATR-specific detection
+                "Signal Entry": current_signal,
+                "Signal Exit": exit_signal,
+            }
+        )
+
         # Ensure critical numeric fields are proper types (fix string conversion issue)
         numeric_fields = [
-            "Total Trades", "Win Rate [%]", "Total Return [%]", "Score",
-            "Profit Factor", "Sortino Ratio", "Expectancy per Trade"
+            "Total Trades",
+            "Win Rate [%]",
+            "Total Return [%]",
+            "Score",
+            "Profit Factor",
+            "Sortino Ratio",
+            "Expectancy per Trade",
         ]
-        
+
         for field in numeric_fields:
             if field in converted_stats:
                 value = converted_stats[field]
@@ -386,8 +408,11 @@ def analyze_params(
         return converted_stats
 
     except Exception as e:
-        log(f"Error in analyze_params for {ticker} (ATR {atr_length}, Mult {atr_multiplier}): {str(e)}", "error")
-        
+        log(
+            f"Error in analyze_params for {ticker} (ATR {atr_length}, Mult {atr_multiplier}): {str(e)}",
+            "error",
+        )
+
         # Return a minimal portfolio dict on error
         return {
             "Ticker": ticker,
@@ -402,11 +427,13 @@ def analyze_params(
             "Total Return [%]": 0.0,
             "Score": 0.0,
             "Expectancy per Trade": 0.0,
-            "Profit Factor": 0.0
+            "Profit Factor": 0.0,
         }
 
 
-def execute_strategy(config: ATRConfig, strategy_type: str, log: callable) -> List[Dict[str, Any]]:
+def execute_strategy(
+    config: ATRConfig, strategy_type: str, log: callable
+) -> List[Dict[str, Any]]:
     """Execute ATR strategy with parameter sweep and return portfolio results.
 
     This function performs parameter sensitivity analysis by testing combinations
@@ -425,7 +452,7 @@ def execute_strategy(config: ATRConfig, strategy_type: str, log: callable) -> Li
         log(f"Warning: Expected strategy_type 'ATR', got '{strategy_type}'", "warning")
 
     all_portfolios = []
-    
+
     # Get list of tickers to analyze
     tickers = config.get("TICKER", [])
     if isinstance(tickers, str):
@@ -444,13 +471,21 @@ def execute_strategy(config: ATRConfig, strategy_type: str, log: callable) -> Li
     length_step = config.get("STEP") or 1
 
     atr_lengths = list(range(atr_length_start, atr_length_end + 1, length_step))
-    atr_multipliers = list(np.arange(atr_multiplier_start, atr_multiplier_end + atr_multiplier_step, atr_multiplier_step))
+    atr_multipliers = list(
+        np.arange(
+            atr_multiplier_start,
+            atr_multiplier_end + atr_multiplier_step,
+            atr_multiplier_step,
+        )
+    )
 
-    log(f"Testing {len(atr_lengths)} ATR lengths and {len(atr_multipliers)} multipliers across {len(tickers)} tickers")
+    log(
+        f"Testing {len(atr_lengths)} ATR lengths and {len(atr_multipliers)} multipliers across {len(tickers)} tickers"
+    )
 
     for ticker in tickers:
         log(f"Processing ticker: {ticker}")
-        
+
         try:
             # Get price data
             data_result = get_data(ticker, config, log)
@@ -465,21 +500,24 @@ def execute_strategy(config: ATRConfig, strategy_type: str, log: callable) -> Li
             if data is None:
                 log(f"Failed to get price data for {ticker} - data is None", "error")
                 continue
-                
+
             # Convert Polars DataFrame to pandas if needed
             if not isinstance(data, pd.DataFrame):
                 try:
                     # Check if it's a Polars DataFrame
-                    if hasattr(data, 'to_pandas'):
+                    if hasattr(data, "to_pandas"):
                         data = data.to_pandas()
                         log(f"Converted Polars DataFrame to pandas for {ticker}")
                     else:
-                        log(f"Failed to get price data for {ticker} - data is not a DataFrame, got {type(data)}", "error")
+                        log(
+                            f"Failed to get price data for {ticker} - data is not a DataFrame, got {type(data)}",
+                            "error",
+                        )
                         continue
                 except Exception as e:
                     log(f"Failed to convert data for {ticker}: {str(e)}", "error")
                     continue
-                
+
             if len(data) == 0:
                 log(f"Failed to get price data for {ticker} - data is empty", "error")
                 continue
@@ -489,12 +527,20 @@ def execute_strategy(config: ATRConfig, strategy_type: str, log: callable) -> Li
                 for atr_multiplier in atr_multipliers:
                     try:
                         portfolio_result = analyze_params(
-                            data.copy(), atr_length, atr_multiplier, ticker_name, log, config
+                            data.copy(),
+                            atr_length,
+                            atr_multiplier,
+                            ticker_name,
+                            log,
+                            config,
                         )
                         all_portfolios.append(portfolio_result)
-                        
+
                     except Exception as e:
-                        log(f"Error processing {ticker} with ATR({atr_length}, {atr_multiplier}): {str(e)}", "error")
+                        log(
+                            f"Error processing {ticker} with ATR({atr_length}, {atr_multiplier}): {str(e)}",
+                            "error",
+                        )
                         continue
 
         except Exception as e:

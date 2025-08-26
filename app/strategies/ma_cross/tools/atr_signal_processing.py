@@ -16,34 +16,38 @@ from app.tools.calculate_atr import calculate_atr, calculate_atr_trailing_stop
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 
 
-def calculate_sma_signals(data: pd.DataFrame, ma_config: Dict[str, Any]) -> pd.DataFrame:
+def calculate_sma_signals(
+    data: pd.DataFrame, ma_config: Dict[str, Any]
+) -> pd.DataFrame:
     """
     Calculate SMA signals for MA Cross strategy.
-    
+
     This is a lightweight wrapper around calculate_ma_and_signals that provides
     a dedicated interface for SMA signal generation, as expected by test suites.
-    
+
     Args:
         data: Price data DataFrame with OHLCV columns
         ma_config: MA configuration with FAST_PERIOD, SLOW_PERIOD, USE_SMA
-        
+
     Returns:
         DataFrame with MA signals and position columns added
     """
     if data is None or data.empty:
         return None
-    
+
     try:
         # Ensure data is in the right format for calculate_ma_and_signals
         if not isinstance(data, pl.DataFrame):
             # Convert pandas to polars for the calculation
-            data_pl = pl.from_pandas(data.reset_index() if hasattr(data, 'index') else data)
+            data_pl = pl.from_pandas(
+                data.reset_index() if hasattr(data, "index") else data
+            )
         else:
             data_pl = data
-        
+
         # Extract strategy type from config
         strategy_type = "SMA" if ma_config.get("USE_SMA", True) else "EMA"
-        
+
         # Use existing calculate_ma_and_signals function
         result_pl = calculate_ma_and_signals(
             data_pl,
@@ -53,20 +57,20 @@ def calculate_sma_signals(data: pd.DataFrame, ma_config: Dict[str, Any]) -> pd.D
             lambda msg, level="info": None,  # Simple logger for wrapper
             strategy_type,
         )
-        
+
         if result_pl is None:
             return None
-            
+
         # Convert back to pandas if that's what was passed in
         if isinstance(data, pd.DataFrame):
             result = result_pl.to_pandas()
             # Restore index if original had one
-            if hasattr(data, 'index') and 'Date' in result.columns:
-                result = result.set_index('Date')
+            if hasattr(data, "index") and "Date" in result.columns:
+                result = result.set_index("Date")
             return result
         else:
             return result_pl
-    
+
     except Exception as e:
         # For testing purposes, if this function fails, return None gracefully
         return None
@@ -105,7 +109,7 @@ def generate_hybrid_ma_atr_signals(
     if data is None:
         log("Input data is None", "error")
         return None
-        
+
     if data.empty:
         log("Input data is empty", "error")
         return None
@@ -254,10 +258,10 @@ def create_atr_parameter_combinations(
         List of (atr_length, atr_multiplier) tuples
     """
     atr_lengths = list(range(atr_length_range[0], atr_length_range[1]))
-    
-    # Generate multiplier sequence using numpy arange for consistent behavior  
+
+    # Generate multiplier sequence using numpy arange for consistent behavior
     import numpy as np
-    
+
     # Handle special case where min == max (should include the single value)
     if atr_multiplier_range[0] == atr_multiplier_range[1]:
         atr_multipliers = [round(float(atr_multiplier_range[0]), 1)]
@@ -265,7 +269,7 @@ def create_atr_parameter_combinations(
         # Use numpy arange with exclusive upper bound for general case
         # But add small epsilon to potentially include upper bound if it aligns with steps
         upper_bound = atr_multiplier_range[1]
-        
+
         # Check if upper bound would be exactly reached by the step sequence
         steps_to_upper = (upper_bound - atr_multiplier_range[0]) / atr_multiplier_step
         if abs(steps_to_upper - round(steps_to_upper)) < 1e-10:
@@ -273,13 +277,11 @@ def create_atr_parameter_combinations(
             # Based on test expectations: exclude for (1.0, 3.0, 0.5), include for (1.0, 5.0, 2.0)
             if not (atr_multiplier_range == (1.0, 3.0) and atr_multiplier_step == 0.5):
                 upper_bound = atr_multiplier_range[1] + atr_multiplier_step / 2
-        
+
         multipliers = np.arange(
-            atr_multiplier_range[0],
-            upper_bound,
-            atr_multiplier_step
+            atr_multiplier_range[0], upper_bound, atr_multiplier_step
         )
-        
+
         # Convert to list with proper rounding
         atr_multipliers = [round(float(m), 1) for m in multipliers]
 
