@@ -10,7 +10,7 @@ metadata:
 
 config_type: 'strategy'
 
-inherits_from: 'default_strategy_current'
+inherits_from: 'current'
 
 config:
   # Crypto-focused ticker list
@@ -27,10 +27,3 @@ config:
     - ETHFI-USD
     - HYPE32196-USD
     - AAVE-USD
-
-  # minimums:
-  #   win_rate: 0.45
-  #   trades: 13
-  #   expectancy_per_trade: 0.5
-  #   profit_factor: 1.236
-  #   sortino_ratio: 0.5

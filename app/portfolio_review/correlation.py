@@ -22,7 +22,6 @@ PORTFOLIO = [
     "GLD",
     "COP",
     "TMO",
-    "XPEV",
     "ASML",
     "SYK",
     "WIT",
@@ -36,7 +35,7 @@ PORTFOLIO = [
 
 # PORTFOLIO = ['SPY', 'QQQ']
 
-NEXT = ["RKLB", "BIDU", "V", "SCCO"]
+NEXT = ["RKLB", "V", "SCCO", "NFLX"]
 
 # NEXT = ["IREN", "TEM", "BBAI", "COPX"]
 
