@@ -29,10 +29,12 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
     try:
         log(f"Initiating data download for {ticker}")
 
+        use_2day = config.get("USE_2DAY", False)
         use_4hour = config.get("USE_4HOUR", False)
         use_hourly = config.get("USE_HOURLY", False)
 
         # For 4-hour data, we need to download 1-hour data first and then convert
+        # For 2-day data, we use daily data (default) and then convert
         if use_4hour:
             interval = "1h"
             log(f"Using {interval} interval for 4-hour data conversion")
@@ -41,7 +43,10 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
             log(f"Using {interval} interval for data download")
         else:
             interval = "1d"
-            log(f"Using {interval} interval for data download")
+            if use_2day:
+                log(f"Using {interval} interval for 2-day data conversion")
+            else:
+                log(f"Using {interval} interval for data download")
 
         # Calculate date range with market-aware adjustments
         end_date = datetime.now()
@@ -151,6 +156,20 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
             df = convert_hourly_to_4hour(df, ticker=ticker)
             log("Market-aware 4-hour conversion completed")
 
+        # Convert daily data to 2-day data if requested with market-aware logic
+        if use_2day:
+            log("Converting daily data to 2-day bars with market awareness")
+            from app.tools.data_processing import convert_daily_to_2day
+            from app.tools.market_hours import detect_market_type
+
+            # Detect market type for appropriate conversion
+            market_type = detect_market_type(ticker)
+            log(f"Detected market type: {market_type.value} for ticker {ticker}")
+
+            # Pass ticker for market-aware conversion
+            df = convert_daily_to_2day(df, ticker=ticker)
+            log("Market-aware 2-day conversion completed")
+
         # Log data statistics
         log(f"Data summary for {ticker}:")
         log(f"Date range: {df['Date'].min()} to {df['Date'].max()}")
@@ -158,7 +177,9 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
         log(f"Average volume: {df['Volume'].mean():.0f}")
 
         # Determine data frequency for logging
-        if use_4hour:
+        if use_2day:
+            frequency = "2-Day"
+        elif use_4hour:
             frequency = "4-Hour"
         elif use_hourly:
             frequency = "Hourly"
@@ -170,6 +191,7 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
         export_config: ExportConfig = {
             "BASE_DIR": config.get("BASE_DIR", "."),
             "TICKER": ticker,
+            "USE_2DAY": use_2day,  # Add 2-day flag for export config
             "USE_HOURLY": use_hourly,
             "USE_4HOUR": use_4hour,  # Add 4-hour flag for export config
             "USE_MA": False,  # Don't include MA suffix for raw price data

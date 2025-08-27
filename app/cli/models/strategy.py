@@ -316,6 +316,10 @@ class StrategyConfig(BaseConfig):
         default=None,
         description="Use 4-hour data instead of daily (converted from 1-hour data)",
     )
+    use_2day: Optional[bool] = Field(
+        default=None,
+        description="Use 2-day data instead of daily (converted from daily data)",
+    )
     refresh: Optional[bool] = Field(
         default=None, description="Force refresh of market data"
     )
@@ -450,12 +454,31 @@ class StrategyConfig(BaseConfig):
         return v
 
     @validator("use_4hour")
-    def validate_timeframe_exclusivity(cls, v, values):
-        """Ensure only one timeframe option is used at a time."""
-        if v is True and values.get("use_hourly") is True:
-            raise ValueError(
-                "Cannot use both use_hourly and use_4hour options simultaneously. Choose one timeframe."
-            )
+    def validate_use_4hour_exclusivity(cls, v, values):
+        """Ensure use_4hour is not used with other timeframe options."""
+        if v is True:
+            if values.get("use_hourly") is True:
+                raise ValueError(
+                    "Cannot use both use_hourly and use_4hour options simultaneously. Choose one timeframe."
+                )
+            if values.get("use_2day") is True:
+                raise ValueError(
+                    "Cannot use both use_2day and use_4hour options simultaneously. Choose one timeframe."
+                )
+        return v
+
+    @validator("use_2day")
+    def validate_use_2day_exclusivity(cls, v, values):
+        """Ensure use_2day is not used with other timeframe options."""
+        if v is True:
+            if values.get("use_hourly") is True:
+                raise ValueError(
+                    "Cannot use both use_hourly and use_2day options simultaneously. Choose one timeframe."
+                )
+            if values.get("use_4hour") is True:
+                raise ValueError(
+                    "Cannot use both use_4hour and use_2day options simultaneously. Choose one timeframe."
+                )
         return v
 
     @validator("market_type", pre=True)

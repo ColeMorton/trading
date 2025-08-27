@@ -1,22 +1,22 @@
 {
   "metadata": {
-    "export_timestamp": "2025-08-01T10:49:45.015582",
+    "export_timestamp": "2025-08-28T07:37:20.449593",
     "strategy_config": {
       "ticker": "MSTR",
       "timeframe": "D",
       "strategy_type": "MACD",
       "direction": "Long",
       "parameters": {
-        "short_window": 13,
-        "long_window": 21,
-        "signal_window": 32
+        "fast_period": 13,
+        "slow_period": 21,
+        "signal_period": 32
       }
     },
     "portfolio_summary": {
       "total_return": 654.2196233977779,
       "total_trades": "156",
       "win_rate": 0.4551282051282051,
-      "sharpe_ratio": 0.8470231520334169,
+      "sharpe_ratio": 0.84584480984455,
       "max_drawdown": -0.9038661507823631
     }
   },

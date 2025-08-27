@@ -418,6 +418,7 @@ class StrategyDispatcher:
             "YEARS": config.years,
             "USE_HOURLY": config.use_hourly,
             "USE_4HOUR": config.use_4hour,
+            "USE_2DAY": config.use_2day,
             "MINIMUMS": {},
             "SORT_BY": "Score",
             "SORT_ASC": False,

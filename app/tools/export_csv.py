@@ -39,6 +39,7 @@ class ExportConfig(TypedDict):
         TICKER (NotRequired[Union[str, list[str]]]): Ticker symbol(s)
         USE_HOURLY (NotRequired[bool]): Whether hourly data is used
         USE_4HOUR (NotRequired[bool]): Whether 4-hour data is used
+        USE_2DAY (NotRequired[bool]): Whether 2-day data is used
         STRATEGY_TYPE (NotRequired[str]): Strategy type (e.g., "SMA", "EMA")
         USE_MA (NotRequired[bool]): Whether to include MA suffix in filename
         USE_GBM (NotRequired[bool]): Whether GBM simulation is used
@@ -52,6 +53,7 @@ class ExportConfig(TypedDict):
     TICKER: NotRequired[Union[str, List[str]]]
     USE_HOURLY: NotRequired[bool]
     USE_4HOUR: NotRequired[bool]
+    USE_2DAY: NotRequired[bool]
     STRATEGY_TYPE: NotRequired[str]
     USE_MA: NotRequired[bool]
     USE_GBM: NotRequired[bool]
@@ -103,7 +105,9 @@ def _get_filename_components(
     # For current_signals directory, use simplified naming
     if feature1 == "ma_cross" and feature2 == "current_signals":
         # Determine timeframe suffix
-        if config.get("USE_4HOUR", False):
+        if config.get("USE_2DAY", False):
+            components.append("2D")
+        elif config.get("USE_4HOUR", False):
             components.append("4H")
         elif config.get("USE_HOURLY", False):
             components.append("H")
@@ -137,7 +141,9 @@ def _get_filename_components(
     if feature2 == "portfolios_best":
         timestamp = datetime.now().strftime("%Y%m%d_%H%M")
         # Determine timeframe suffix
-        if config.get("USE_4HOUR", False):
+        if config.get("USE_2DAY", False):
+            timeframe_suffix = "2D"
+        elif config.get("USE_4HOUR", False):
             timeframe_suffix = "4H"
         elif config.get("USE_HOURLY", False):
             timeframe_suffix = "H"
@@ -146,7 +152,9 @@ def _get_filename_components(
         components.append(f"{timestamp}_{timeframe_suffix}")
     else:
         # Determine timeframe suffix
-        if config.get("USE_4HOUR", False):
+        if config.get("USE_2DAY", False):
+            components.append("2D")
+        elif config.get("USE_4HOUR", False):
             components.append("4H")
         elif config.get("USE_HOURLY", False):
             components.append("H")

@@ -131,6 +131,9 @@ class BaseConfig(BaseModel):
     use_4hour: bool = Field(
         default=False, description="Use 4-hour timeframe for analysis"
     )
+    use_2day: bool = Field(
+        default=False, description="Use 2-day timeframe for analysis"
+    )
     use_extended_schema: Optional[bool] = Field(
         default=None,
         description="Use extended schema with allocation/stop loss columns",

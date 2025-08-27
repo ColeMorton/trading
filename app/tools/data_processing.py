@@ -831,6 +831,335 @@ class DataProcessor:
 
         return four_hour_data
 
+    def convert_daily_to_2day(
+        self, df: Union[pd.DataFrame, pl.DataFrame], ticker: Optional[str] = None
+    ) -> Union[pd.DataFrame, pl.DataFrame]:
+        """Convert daily OHLC data to 2-day OHLC bars with market-aware logic.
+
+        Args:
+            df: DataFrame with daily OHLC data containing Date, Open, High, Low, Close, Volume columns
+            ticker: Optional ticker symbol for market type detection
+
+        Returns:
+            Union[pd.DataFrame, pl.DataFrame]: DataFrame with 2-day OHLC bars of the same type as input
+        """
+        try:
+            # Use market-aware conversion if ticker is provided
+            if ticker:
+                from app.tools.market_hours import detect_market_type
+
+                market_type = detect_market_type(ticker)
+                return self.convert_daily_to_2day_market_aware(df, market_type)
+            else:
+                # Standard conversion
+                return self.process_in_native_format(
+                    df,
+                    lambda pandas_df: self._convert_pandas_daily_to_2day(pandas_df),
+                    lambda polars_df: self._convert_polars_daily_to_2day(polars_df),
+                )
+        except Exception as e:
+            self.log(f"Error converting daily to 2-day data: {str(e)}", "error")
+            # Return the original DataFrame on error
+            return df
+
+    def convert_daily_to_2day_market_aware(
+        self, df: Union[pd.DataFrame, pl.DataFrame], market_type
+    ) -> Union[pd.DataFrame, pl.DataFrame]:
+        """Convert daily OHLC data to 2-day OHLC bars with market-specific logic.
+
+        Args:
+            df: DataFrame with daily OHLC data containing Date, Open, High, Low, Close, Volume columns
+            market_type: MarketType enum indicating the market type
+
+        Returns:
+            Union[pd.DataFrame, pl.DataFrame]: DataFrame with market-appropriate 2-day OHLC bars
+        """
+        try:
+            from app.tools.market_hours import MarketType
+
+            if market_type == MarketType.US_STOCK:
+                # For stocks: use business day-aware 2-day conversion (skip weekends/holidays)
+                self.log(
+                    "Applying stock market business day logic for 2-day conversion",
+                    "info",
+                )
+                return self.process_in_native_format(
+                    df,
+                    lambda pandas_df: self._convert_pandas_stock_to_2day(pandas_df),
+                    lambda polars_df: self._convert_polars_stock_to_2day(polars_df),
+                )
+            else:  # CRYPTO or other 24/7 markets
+                # For crypto: use standard calendar day 2-day conversion
+                self.log("Using standard 2-day conversion for 24/7 market", "info")
+                return self.process_in_native_format(
+                    df,
+                    lambda pandas_df: self._convert_pandas_daily_to_2day(pandas_df),
+                    lambda polars_df: self._convert_polars_daily_to_2day(polars_df),
+                )
+        except Exception as e:
+            self.log(f"Error in market-aware 2-day conversion: {str(e)}", "error")
+            # Return the original DataFrame on error
+            return df
+
+    def _convert_pandas_daily_to_2day(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Convert pandas DataFrame from daily to 2-day OHLC bars.
+
+        Args:
+            df: Pandas DataFrame with daily OHLC data
+
+        Returns:
+            pd.DataFrame: DataFrame with 2-day OHLC bars
+        """
+        # Validate required columns
+        required_columns = ["Date", "Open", "High", "Low", "Close", "Volume"]
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            raise ValueError(f"Missing required columns: {missing_columns}")
+
+        # Create a copy to avoid modifying the original
+        result = df.copy()
+
+        # Ensure Date column is datetime
+        result["Date"] = pd.to_datetime(result["Date"])
+
+        # Set Date as index for resampling
+        result = result.set_index("Date")
+
+        # Resample to 2-day bars using OHLC aggregation
+        two_day_data = (
+            result.resample("2D")
+            .agg(
+                {
+                    "Open": "first",  # First value in the 2-day period
+                    "High": "max",  # Maximum value in the 2-day period
+                    "Low": "min",  # Minimum value in the 2-day period
+                    "Close": "last",  # Last value in the 2-day period
+                    "Volume": "sum",  # Sum of volume in the 2-day period
+                }
+            )
+            .dropna()
+        )  # Remove any rows with NaN values
+
+        # Reset index to make Date a column again
+        two_day_data = two_day_data.reset_index()
+
+        self.log(
+            f"Converted {len(df)} daily bars to {len(two_day_data)} 2-day bars",
+            "info",
+        )
+
+        return two_day_data
+
+    def _convert_polars_daily_to_2day(self, df: pl.DataFrame) -> pl.DataFrame:
+        """Convert polars DataFrame from daily to 2-day OHLC bars.
+
+        Args:
+            df: Polars DataFrame with daily OHLC data
+
+        Returns:
+            pl.DataFrame: DataFrame with 2-day OHLC bars
+        """
+        # Validate required columns
+        required_columns = ["Date", "Open", "High", "Low", "Close", "Volume"]
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            raise ValueError(f"Missing required columns: {missing_columns}")
+
+        # Ensure Date column is datetime (handle both string and existing datetime types)
+        try:
+            # Try to convert from string first
+            df_with_datetime = df.with_columns(
+                [pl.col("Date").str.to_datetime().alias("Date")]
+            )
+        except Exception:
+            # If that fails, assume it's already datetime and just use it as-is
+            df_with_datetime = df
+
+        # Create 2-day groups by truncating datetime to 2-day intervals
+        df_grouped = df_with_datetime.with_columns(
+            [pl.col("Date").dt.truncate("2d").alias("Date_2D")]
+        )
+
+        # Group by 2-day intervals and aggregate OHLC data
+        two_day_data = (
+            df_grouped.group_by("Date_2D")
+            .agg(
+                [
+                    pl.col("Open")
+                    .first()
+                    .alias("Open"),  # First value in the 2-day period
+                    pl.col("High")
+                    .max()
+                    .alias("High"),  # Maximum value in the 2-day period
+                    pl.col("Low")
+                    .min()
+                    .alias("Low"),  # Minimum value in the 2-day period
+                    pl.col("Close")
+                    .last()
+                    .alias("Close"),  # Last value in the 2-day period
+                    pl.col("Volume")
+                    .sum()
+                    .alias("Volume"),  # Sum of volume in the 2-day period
+                ]
+            )
+            .select(
+                [
+                    pl.col("Date_2D").alias("Date"),
+                    pl.col("Open"),
+                    pl.col("High"),
+                    pl.col("Low"),
+                    pl.col("Close"),
+                    pl.col("Volume"),
+                ]
+            )
+            .sort("Date")
+        )
+
+        # Remove any rows with null values
+        two_day_data = two_day_data.drop_nulls()
+
+        self.log(
+            f"Converted {len(df)} daily bars to {len(two_day_data)} 2-day bars",
+            "info",
+        )
+
+        return two_day_data
+
+    def _convert_pandas_stock_to_2day(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Convert pandas DataFrame from daily stock data to business-day-aware 2-day bars.
+
+        Args:
+            df: Pandas DataFrame with daily stock OHLC data
+
+        Returns:
+            pd.DataFrame: DataFrame with business-day-aware 2-day bars
+        """
+        # Validate required columns
+        required_columns = ["Date", "Open", "High", "Low", "Close", "Volume"]
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            raise ValueError(f"Missing required columns: {missing_columns}")
+
+        # Create a copy to avoid modifying the original
+        result = df.copy()
+
+        # Ensure Date column is datetime
+        result["Date"] = pd.to_datetime(result["Date"])
+
+        # Set Date as index for resampling
+        result = result.set_index("Date")
+
+        # Resample to 2 business days using OHLC aggregation
+        two_day_data = (
+            result.resample("2B")  # 2B = 2 business days
+            .agg(
+                {
+                    "Open": "first",  # First value in the 2-business-day period
+                    "High": "max",  # Maximum value in the 2-business-day period
+                    "Low": "min",  # Minimum value in the 2-business-day period
+                    "Close": "last",  # Last value in the 2-business-day period
+                    "Volume": "sum",  # Sum of volume in the 2-business-day period
+                }
+            )
+            .dropna()
+        )  # Remove any rows with NaN values
+
+        # Reset index to make Date a column again
+        two_day_data = two_day_data.reset_index()
+
+        self.log(
+            f"Converted {len(df)} daily stock bars to {len(two_day_data)} 2-business-day bars",
+            "info",
+        )
+
+        return two_day_data
+
+    def _convert_polars_stock_to_2day(self, df: pl.DataFrame) -> pl.DataFrame:
+        """Convert polars DataFrame from daily stock data to business-day-aware 2-day bars.
+
+        Args:
+            df: Polars DataFrame with daily stock OHLC data
+
+        Returns:
+            pl.DataFrame: DataFrame with business-day-aware 2-day bars
+        """
+        # Validate required columns
+        required_columns = ["Date", "Open", "High", "Low", "Close", "Volume"]
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            raise ValueError(f"Missing required columns: {missing_columns}")
+
+        # Ensure Date column is datetime
+        try:
+            df_with_datetime = df.with_columns(
+                [pl.col("Date").str.to_datetime().alias("Date")]
+            )
+        except Exception:
+            df_with_datetime = df
+
+        # For business-day grouping in polars, we need to filter out weekends first
+        # and then create 2-day groups based on business day sequence
+        df_weekdays = df_with_datetime.filter(
+            pl.col("Date").dt.weekday() < 6  # Monday=1, Sunday=7, so <6 excludes weekends
+        )
+
+        # Create groups of every 2 business days
+        # We'll use a custom grouping approach since polars doesn't have direct 2B support
+        df_with_business_day_rank = df_weekdays.with_columns(
+            [pl.col("Date").rank("ordinal").alias("business_day_rank")]
+        )
+
+        # Create groups of 2 business days
+        df_grouped = df_with_business_day_rank.with_columns(
+            [((pl.col("business_day_rank") - 1) // 2).alias("group_id")]
+        )
+
+        # Group by 2-business-day intervals and aggregate OHLC data
+        two_day_data = (
+            df_grouped.group_by("group_id")
+            .agg(
+                [
+                    pl.col("Date").min().alias("Date"),  # Use first date in the group
+                    pl.col("Open")
+                    .first()
+                    .alias("Open"),  # First value in the 2-business-day period
+                    pl.col("High")
+                    .max()
+                    .alias("High"),  # Maximum value in the 2-business-day period
+                    pl.col("Low")
+                    .min()
+                    .alias("Low"),  # Minimum value in the 2-business-day period
+                    pl.col("Close")
+                    .last()
+                    .alias("Close"),  # Last value in the 2-business-day period
+                    pl.col("Volume")
+                    .sum()
+                    .alias("Volume"),  # Sum of volume in the 2-business-day period
+                ]
+            )
+            .select(
+                [
+                    pl.col("Date"),
+                    pl.col("Open"),
+                    pl.col("High"),
+                    pl.col("Low"),
+                    pl.col("Close"),
+                    pl.col("Volume"),
+                ]
+            )
+            .sort("Date")
+        )
+
+        # Remove any rows with null values
+        two_day_data = two_day_data.drop_nulls()
+
+        self.log(
+            f"Converted {len(df)} daily stock bars to {len(two_day_data)} 2-business-day bars",
+            "info",
+        )
+
+        return two_day_data
+
     def time_operation(
         self, operation: Callable[..., T], *args, **kwargs
     ) -> Tuple[T, float]:
@@ -924,6 +1253,25 @@ def convert_hourly_to_4hour(
     """
     processor = DataProcessor(log)
     return processor.convert_hourly_to_4hour(df, ticker)
+
+
+def convert_daily_to_2day(
+    df: Union[pd.DataFrame, pl.DataFrame],
+    log: Optional[Callable] | None = None,
+    ticker: Optional[str] = None,
+) -> Union[pd.DataFrame, pl.DataFrame]:
+    """Convert daily OHLC data to 2-day OHLC bars with market-aware logic.
+
+    Args:
+        df: DataFrame with daily OHLC data containing Date, Open, High, Low, Close, Volume columns
+        log: Optional logging function
+        ticker: Optional ticker symbol for market type detection
+
+    Returns:
+        Union[pd.DataFrame, pl.DataFrame]: DataFrame with 2-day OHLC bars of the same type as input
+    """
+    processor = DataProcessor(log)
+    return processor.convert_daily_to_2day(df, ticker)
 
 
 @lru_cache(maxsize=128)

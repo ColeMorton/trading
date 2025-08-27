@@ -32,6 +32,7 @@ class Timeframe(str, Enum):
     MINUTE_30 = "30m"
     HOUR_1 = "1H"
     HOUR_4 = "4H"
+    TWO_DAY = "2D"
     DAILY = "D"
     WEEKLY = "W"
     MONTHLY = "M"

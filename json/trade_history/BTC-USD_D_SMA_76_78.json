@@ -1,21 +1,21 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-31T15:44:01.947843",
+    "export_timestamp": "2025-08-28T07:37:16.662921",
     "strategy_config": {
       "ticker": "BTC-USD",
       "timeframe": "D",
       "strategy_type": "SMA",
       "direction": "Long",
       "parameters": {
-        "short_window": 76,
-        "long_window": 78
+        "fast_period": 76,
+        "slow_period": 78
       }
     },
     "portfolio_summary": {
-      "total_return": 251.90636775423286,
-      "total_trades": "64",
-      "win_rate": 0.578125,
-      "sharpe_ratio": 1.1981957070722222,
+      "total_return": 232.357256441087,
+      "total_trades": "65",
+      "win_rate": 0.5692307692307692,
+      "sharpe_ratio": 1.179793088105468,
       "max_drawdown": -0.6432719295811572
     }
   },
@@ -1345,23 +1345,44 @@
     },
     {
       "Entry Timestamp": "2025-05-22 00:00:00",
-      "Exit Timestamp": null,
+      "Exit Timestamp": "2025-08-06 00:00:00",
       "Avg Entry Price": 111673.28125,
-      "Avg Exit Price": 118372.0,
+      "Avg Exit Price": 115028.0,
       "Size": 2.13653877398568,
-      "PnL": 14073.47804999107,
-      "Return": 0.05898497290505653,
+      "PnL": 6683.130607688941,
+      "Return": 0.028010437534717037,
+      "Direction": "Long",
+      "Status": "Closed",
+      "Duration": "76 days 00:00:00",
+      "Duration_Days": 76.0,
+      "Entry_Month": "2025-05",
+      "Entry_Year": 2025.0,
+      "Entry_Quarter": 2.0,
+      "Trade_Type": "Winner",
+      "Cumulative_PnL": 244516.0203119307,
+      "Trade_Number": 64,
+      "Rolling_Avg_Return": 0.006415320932750435,
+      "Rolling_Win_Rate": 0.6
+    },
+    {
+      "Entry Timestamp": "2025-08-07 00:00:00",
+      "Exit Timestamp": null,
+      "Avg Entry Price": 117496.8984375,
+      "Avg Exit Price": 111789.7421875,
+      "Size": 2.087465735896297,
+      "PnL": -12158.763870843744,
+      "Return": -0.049572824694907064,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
       "Duration_Days": null,
-      "Entry_Month": "2025-05",
+      "Entry_Month": "2025-08",
       "Entry_Year": 2025.0,
-      "Entry_Quarter": 2.0,
-      "Trade_Type": "Big Winner",
-      "Cumulative_PnL": 251906.36775423284,
-      "Trade_Number": 64,
-      "Rolling_Avg_Return": 0.012610228006818335,
+      "Entry_Quarter": 3.0,
+      "Trade_Type": "Loser",
+      "Cumulative_PnL": 232357.25644108697,
+      "Trade_Number": 65,
+      "Rolling_Avg_Return": 0.014578214211137724,
       "Rolling_Win_Rate": 0.6
     }
   ],
@@ -2508,6 +2529,24 @@
       "Price": 111673.28125,
       "Fees": 238.59429540880956,
       "Side": "Buy"
+    },
+    {
+      "Order Id": 127,
+      "Column": 0,
+      "Timestamp": 3976,
+      "Size": 2.13653877398568,
+      "Price": 115028.0,
+      "Fees": 245.7617820940248,
+      "Side": "Sell"
+    },
+    {
+      "Order Id": 128,
+      "Column": 0,
+      "Timestamp": 3977,
+      "Size": 2.087465735896297,
+      "Price": 117496.8984375,
+      "Fees": 245.27074956233264,
+      "Side": "Buy"
     }
   ],
   "positions": [
@@ -3652,35 +3691,53 @@
       "Entry Timestamp": "1970-01-01 00:00:00",
       "Avg Entry Price": 111673.28125,
       "Entry Fees": 238.59429540880956,
+      "Exit Timestamp": "1970-01-01 00:00:00",
+      "Avg Exit Price": 115028.0,
+      "Exit Fees": 245.7617820940248,
+      "PnL": 6683.130607688941,
+      "Return": 0.028010437534717037,
+      "Direction": "Long",
+      "Status": "Closed",
+      "Duration": "0 days 00:00:00.000000076",
+      "Duration_Days": 8.796296296296297e-13,
+      "Position_Type": "Winner"
+    },
+    {
+      "Position Id": 64,
+      "Column": 0,
+      "Size": 2.087465735896297,
+      "Entry Timestamp": "1970-01-01 00:00:00",
+      "Avg Entry Price": 117496.8984375,
+      "Entry Fees": 245.27074956233264,
       "Exit Timestamp": null,
-      "Avg Exit Price": 118372.0,
+      "Avg Exit Price": 111789.7421875,
       "Exit Fees": 0.0,
-      "PnL": 14073.47804999107,
-      "Return": 0.05898497290505653,
+      "PnL": -12158.763870843744,
+      "Return": -0.049572824694907064,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
       "Duration_Days": null,
-      "Position_Type": "Big Winner"
+      "Position_Type": "Loser"
     }
   ],
   "analytics": {
-    "total_trades": 64,
-    "closed_trades": 63,
+    "total_trades": 65,
+    "closed_trades": 64,
     "open_trades": 1,
-    "win_rate": 57.14285714285714,
-    "avg_return": 25.15436221720161,
-    "avg_winner": 48.97741697884685,
+    "win_rate": 57.8125,
+    "avg_return": 24.805091616205825,
+    "avg_winner": 47.72940689167454,
     "avg_loser": -6.6097107983253665,
     "best_trade": 996.8003042619595,
     "worst_trade": -33.28289019687436,
-    "total_pnl": 237832.8897042418,
-    "avg_trade_duration": 36.44444444444444,
-    "profit_factor": 2.2392518871545506,
+    "total_pnl": 244516.02031193074,
+    "avg_trade_duration": 37.0625,
+    "profit_factor": 2.2740750027798877,
     "trade_type_distribution": {
       "Big Winner": 16,
+      "Winner": 15,
       "Loser": 15,
-      "Winner": 14,
       "Breakeven": 9,
       "Big Loser": 9
     }

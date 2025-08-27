@@ -88,6 +88,11 @@ def run(
         "--use-4hour",
         help="Use 4-hour timeframe data (converted from 1-hour data)",
     ),
+    use_2day: Optional[bool] = typer.Option(
+        None,
+        "--use-2day",
+        help="Use 2-day timeframe data (converted from daily data)",
+    ),
     market_type: Optional[str] = typer.Option(
         None,
         "--market-type",
@@ -144,6 +149,7 @@ def run(
         trading-cli strategy run --ticker AAPL --ticker MSFT --strategy SMA
         trading-cli strategy run --ticker BTC-USD --min-trades 20
         trading-cli strategy run --ticker BTC-USD,ETH-USD --use-4hour
+        trading-cli strategy run --ticker ETH-USD --use-2day
         trading-cli strategy run --profile ma_cross_crypto --skip-analysis
         trading-cli strategy run --ticker IREN --date 20250811
         trading-cli strategy run --ticker AAPL,MSFT --date 20250815 --strategy SMA
@@ -174,6 +180,7 @@ def run(
             market_type=market_type,
             dry_run=dry_run,
             use_4hour=use_4hour,
+            use_2day=use_2day,
             skip_analysis=skip_analysis,
             direction=direction,
             fast_min=fast_min,

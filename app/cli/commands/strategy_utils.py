@@ -361,6 +361,7 @@ def convert_to_legacy_config(
             "DIRECTION": config.direction,
             "USE_HOURLY": config.use_hourly,
             "USE_4HOUR": config.use_4hour,
+            "USE_2DAY": config.use_2day,
             "USE_YEARS": config.use_years,
             "YEARS": config.years,
             "REFRESH": config.refresh,
@@ -451,6 +452,7 @@ def show_config_preview(
     table.add_row("Direction", config.direction)
     table.add_row("Use Hourly", str(config.use_hourly))
     table.add_row("Use 4-Hour", str(config.use_4hour))
+    table.add_row("Use 2-Day", str(config.use_2day))
     table.add_row("Skip Analysis", str(config.skip_analysis))
 
     if config.minimums.win_rate:

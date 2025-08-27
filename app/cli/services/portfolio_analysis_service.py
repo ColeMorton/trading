@@ -264,6 +264,8 @@ class PortfolioAnalysisService:
 
         # Pattern matching for ticker files
         patterns = [
+            f"{ticker}_2D_*.csv",  # {TICKER}_2D_{STRATEGY}.csv
+            f"{ticker}_2D.csv",  # {TICKER}_2D.csv
             f"{ticker}_D_*.csv",  # {TICKER}_D_{STRATEGY}.csv
             f"{ticker}_D.csv",  # {TICKER}_D.csv
             f"{ticker}_4H_*.csv",  # {TICKER}_4H_{STRATEGY}.csv
