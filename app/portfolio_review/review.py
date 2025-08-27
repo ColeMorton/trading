@@ -10,23 +10,35 @@ from app.tools.get_data import get_data
 from app.tools.setup_logging import setup_logging
 from app.utils import backtest_strategy
 
+# Verified conversions:
+# "hourly" → USE_HOURLY=True, USE_4HOUR=False, USE_2DAY=False
+# "4hour"  → USE_HOURLY=False, USE_4HOUR=True, USE_2DAY=False
+# "2day"   → USE_HOURLY=False, USE_4HOUR=False, USE_2DAY=True
+# "daily"  → USE_HOURLY=False, USE_4HOUR=False, USE_2DAY=False
+
+# "SMA"    → USE_SMA=True, STRATEGY_TYPE="SMA"
+# "EMA"    → USE_SMA=False, STRATEGY_TYPE="EMA"
+# "MACD"   → USE_SMA=False, STRATEGY_TYPE="MACD"
+# "ATR"    → USE_SMA=False, STRATEGY_TYPE="ATR"
+
 DEFAULT_STRATEGY_TYPE = "SMA"
 
 CONFIG_BTC = {
     "YEARS": 30,
     "USE_YEARS": False,
     "PERIOD": "max",
-    "USE_HOURLY": False,
+    "TIMEFRAME": "2day",
     "TICKER": "BTC-USD",
     "USE_SYNTHETIC": False,
     "TICKER_1": "BTC-USD",
     "TICKER_2": "SPY",
-    "FAST_PERIOD": 11,
-    "SLOW_PERIOD": 17,
-    "STOP_LOSS": 3.62,
+    "FAST_PERIOD": 14,
+    "SLOW_PERIOD": 16,
+    # "STOP_LOSS": 3.62,
     "SHORT": False,
     "USE_GBM": False,
-    "USE_SMA": False,
+    "STRATEGY_TYPE": "SMA",
+    "SIGNAL_PERIOD": 9,
     "BASE_DIR": "C:/Projects/trading",
     "WINDOWS": 89,
 }
@@ -35,7 +47,7 @@ CONFIG_SOL = {
     "YEARS": 30,
     "USE_YEARS": False,
     "PERIOD": "max",
-    "USE_HOURLY": False,
+    "TIMEFRAME": "daily",
     "TICKER": "SOL-USD",
     "USE_SYNTHETIC": False,
     "TICKER_1": "BTC-USD",
@@ -45,7 +57,8 @@ CONFIG_SOL = {
     "STOP_LOSS": None,
     "SHORT": False,
     "USE_GBM": False,
-    "USE_SMA": True,
+    "STRATEGY_TYPE": "SMA",
+    "SIGNAL_PERIOD": 9,
     "BASE_DIR": "C:/Projects/trading",
     "WINDOWS": 89,
 }
@@ -54,7 +67,7 @@ CONFIG_SUI = {
     "YEARS": 1.5369,
     "USE_YEARS": True,
     "PERIOD": "max",
-    "USE_HOURLY": False,
+    "TIMEFRAME": "daily",
     "TICKER": "SUI20947-USD",
     "USE_SYNTHETIC": False,
     "TICKER_1": "BTC-USD",
@@ -64,7 +77,8 @@ CONFIG_SUI = {
     "STOP_LOSS": None,
     "SHORT": False,
     "USE_GBM": False,
-    "USE_SMA": True,
+    "STRATEGY_TYPE": "SMA",
+    "SIGNAL_PERIOD": 9,
     "BASE_DIR": "C:/Projects/trading",
     "WINDOWS": 89,
 }
@@ -73,7 +87,7 @@ CONFIG_SPY = {
     "YEARS": 30,
     "USE_YEARS": False,
     "PERIOD": "max",
-    "USE_HOURLY": False,
+    "TIMEFRAME": "daily",
     "TICKER": "SPY",
     "USE_SYNTHETIC": False,
     "TICKER_1": "BTC-USD",
@@ -82,7 +96,8 @@ CONFIG_SPY = {
     "SLOW_PERIOD": 30,
     "SHORT": False,
     "USE_GBM": False,
-    "USE_SMA": False,
+    "STRATEGY_TYPE": "EMA",
+    "SIGNAL_PERIOD": 9,
     "BASE_DIR": "C:/Projects/trading",
     "WINDOWS": 89,
 }
@@ -91,7 +106,7 @@ CONFIG_OP = {
     "YEARS": 30,
     "USE_YEARS": False,
     "PERIOD": "max",
-    "USE_HOURLY": False,
+    "TIMEFRAME": "daily",
     "TICKER": "OP-USD",
     "USE_SYNTHETIC": False,
     "TICKER_1": "BTC-USD",
@@ -100,7 +115,8 @@ CONFIG_OP = {
     "SLOW_PERIOD": 83,
     "SHORT": False,
     "USE_GBM": False,
-    "USE_SMA": True,
+    "STRATEGY_TYPE": "SMA",
+    "SIGNAL_PERIOD": 9,
     "BASE_DIR": "C:/Projects/trading",
     "WINDOWS": 89,
 }
@@ -109,9 +125,11 @@ CONFIG = {
     "YEARS": 30,
     "USE_YEARS": False,
     "PERIOD": "max",
-    "USE_HOURLY": False,
+    "TIMEFRAME": "daily",
     "SHORT": False,
     "USE_GBM": False,
+    "STRATEGY_TYPE": "SMA",
+    "SIGNAL_PERIOD": 9,
     "BASE_DIR": "C:/Projects/trading",
     "WINDOWS": 89,
 }
@@ -159,13 +177,16 @@ def process_strategy(config, log):
         return None
 
 
-def run(config_dict=None, portfolio_file=None):
+def run(config_dict=None, portfolio_file=None, timeframe="daily", strategy_type="SMA", signal_period=9):
     """
     Run portfolio review analysis.
 
     Args:
         config_dict (dict, optional): Configuration dictionary
         portfolio_file (str, optional): Path to portfolio JSON file
+        timeframe (str, optional): Data timeframe - hourly, 4hour, daily (default), 2day
+        strategy_type (str, optional): Strategy type - SMA (default), EMA, MACD, ATR
+        signal_period (int, optional): Signal period for MACD strategy (default: 9)
 
     Returns:
         bool: True if analysis successful
@@ -173,6 +194,45 @@ def run(config_dict=None, portfolio_file=None):
     log, log_close, _, _ = setup_logging(
         module_name="portfolio_review", log_file="review.log"
     )
+
+    # Convert new parameters to legacy format for backward compatibility
+    def convert_parameters_to_legacy(timeframe, strategy_type, signal_period):
+        """Convert new parameter format to legacy config flags."""
+        legacy_params = {
+            "STRATEGY_TYPE": strategy_type,
+            "SIGNAL_PERIOD": signal_period,
+        }
+        
+        # Convert timeframe to legacy flags
+        if timeframe == "hourly":
+            legacy_params.update({
+                "USE_HOURLY": True,
+                "USE_4HOUR": False,
+                "USE_2DAY": False
+            })
+        elif timeframe == "4hour":
+            legacy_params.update({
+                "USE_HOURLY": False,
+                "USE_4HOUR": True,
+                "USE_2DAY": False
+            })
+        elif timeframe == "2day":
+            legacy_params.update({
+                "USE_HOURLY": False,
+                "USE_4HOUR": False,
+                "USE_2DAY": True
+            })
+        else:  # daily (default)
+            legacy_params.update({
+                "USE_HOURLY": False,
+                "USE_4HOUR": False,
+                "USE_2DAY": False
+            })
+        
+        # Convert strategy_type to legacy USE_SMA flag
+        legacy_params["USE_SMA"] = (strategy_type == "SMA")
+        
+        return legacy_params
 
     try:
         # Handle portfolio file if provided
@@ -217,24 +277,33 @@ def run(config_dict=None, portfolio_file=None):
 
         # Handle direct config dictionary
         elif config_dict:
-            config = get_config(config_dict)
+            # Extract parameters from config_dict if they exist, otherwise use function parameters
+            config_timeframe = config_dict.get("TIMEFRAME", timeframe)
+            config_strategy_type = config_dict.get("STRATEGY_TYPE", strategy_type) 
+            config_signal_period = config_dict.get("SIGNAL_PERIOD", signal_period)
+            
+            # Apply parameter conversion to config_dict
+            legacy_params = convert_parameters_to_legacy(config_timeframe, config_strategy_type, config_signal_period)
+            enhanced_config = {**config_dict, **legacy_params}
+            
+            config = get_config(enhanced_config)
             log(f"Starting portfolio review for {config['TICKER']}")
 
             data = get_data(config["TICKER"], config, log)
 
             # Determine strategy type
-            strategy_type = config.get("STRATEGY_TYPE", DEFAULT_STRATEGY_TYPE)
+            config_strategy_type = config.get("STRATEGY_TYPE", DEFAULT_STRATEGY_TYPE)
 
-            if strategy_type == "MACD":
+            if config_strategy_type == "MACD":
                 # For MACD strategies, we need the signal period
-                signal_period = config.get(
+                config_signal_period = config.get(
                     "SIGNAL_PERIOD", 9
                 )  # Default to 9 if not specified
                 data = calculate_macd_and_signals(
                     data,
                     config["FAST_PERIOD"],  # Fast EMA
                     config["SLOW_PERIOD"],  # Slow EMA
-                    signal_period,  # Signal line EMA
+                    config_signal_period,  # Signal line EMA
                     config,
                     log,
                 )
@@ -257,8 +326,8 @@ def run(config_dict=None, portfolio_file=None):
         )
 
         # Export to CSV - use appropriate directory based on strategy type
-        strategy_type = config.get("STRATEGY_TYPE", DEFAULT_STRATEGY_TYPE)
-        strategy_type_dir = "macd" if strategy_type == "MACD" else "ma_cross"
+        export_strategy_type = config.get("STRATEGY_TYPE", DEFAULT_STRATEGY_TYPE)
+        strategy_type_dir = "macd" if export_strategy_type == "MACD" else "ma_cross"
         csv_path = f'data/outputs/portfolio/{strategy_type_dir}/equity_curve/{config["TICKER"]}.csv'
 
         # Ensure directory exists
@@ -287,7 +356,7 @@ def run(config_dict=None, portfolio_file=None):
 
 if __name__ == "__main__":
     try:
-        result = run(CONFIG_OP)
+        result = run(CONFIG_BTC)
         if result:
             print("Portfolio review completed successfully!")
     except Exception as e:

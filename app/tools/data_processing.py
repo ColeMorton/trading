@@ -1100,7 +1100,8 @@ class DataProcessor:
         # For business-day grouping in polars, we need to filter out weekends first
         # and then create 2-day groups based on business day sequence
         df_weekdays = df_with_datetime.filter(
-            pl.col("Date").dt.weekday() < 6  # Monday=1, Sunday=7, so <6 excludes weekends
+            pl.col("Date").dt.weekday()
+            < 6  # Monday=1, Sunday=7, so <6 excludes weekends
         )
 
         # Create groups of every 2 business days
