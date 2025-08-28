@@ -249,22 +249,76 @@ def plot_concurrency(
         n_strategies = len(data_list)
         log(f"Creating visualization for {n_strategies} strategies", "info")
 
-        subplot_titles = [
-            f"Price and Positions ({c['TICKER']}) - {c.get('DIRECTION', 'Long')}"
-            for c in config_list
-        ] + ["Strategy Concurrency"]
+        def format_strategy_title(config):
+            ticker = config.get("TICKER", config.get("ticker", "Unknown"))
+            strategy_type = config.get(
+                "STRATEGY_TYPE",
+                config.get("Strategy Type", config.get("type", "Unknown")),
+            )
+            fast_period = config.get(
+                "FAST_PERIOD", config.get("Fast Period", config.get("fast_period", "?"))
+            )
+            slow_period = config.get(
+                "SLOW_PERIOD", config.get("Slow Period", config.get("slow_period", "?"))
+            )
+
+            # Score is stored in nested PORTFOLIO_STATS from CSV data
+            portfolio_stats = config.get("PORTFOLIO_STATS", {})
+            score = portfolio_stats.get("Score", 0.0)
+
+            # Fallback to top-level keys for other config formats
+            if score == 0.0 or score is None:
+                score = config.get(
+                    "SCORE", config.get("Score", config.get("score", 0.0))
+                )
+
+            if isinstance(score, (int, float)):
+                score_str = f"{score:.2f}"
+            else:
+                score_str = str(score)
+
+            return f"{ticker} {strategy_type} {fast_period}/{slow_period} | Score: {score_str}"
+
+        subplot_titles = [format_strategy_title(c) for c in config_list] + [
+            "Strategy Concurrency"
+        ]
 
         log("Creating subplot layout", "info")
 
-        # Use ultra-minimal fixed vertical spacing - consistent regardless of strategy count
-        vertical_spacing = 0.005
-        log(f"Using fixed vertical spacing: {vertical_spacing}", "info")
+        # Use adaptive vertical spacing based on strategy count to ensure total allocation ≤ 100%
+        if n_strategies <= 10:
+            vertical_spacing = 0.02  # 2% - comfortable spacing for small portfolios
+        elif n_strategies <= 25:
+            vertical_spacing = 0.01  # 1% - moderate spacing for medium portfolios
+        else:
+            vertical_spacing = 0.005  # 0.5% - minimal spacing for large portfolios
 
-        # Use fixed proportional heights for uniform visualization
-        strategy_row_height = (
-            0.88 / n_strategies
-        )  # Each strategy gets equal share of 88%
-        heatmap_row_height = 0.12  # Heatmap gets fixed 12%
+        log(
+            f"Using adaptive vertical spacing: {vertical_spacing} for {n_strategies} strategies",
+            "info",
+        )
+
+        # Calculate mathematically correct space allocation to ensure total = 100%
+        spacing_total = (
+            vertical_spacing * n_strategies
+        )  # Total space used by gaps between rows
+        available_space = 1.0 - spacing_total  # Space remaining after spacing
+
+        # Allocate remaining space proportionally (88% strategies, 12% heatmap)
+        strategy_space_total = available_space * 0.88
+        heatmap_space = available_space * 0.12
+        strategy_row_height = strategy_space_total / n_strategies
+        heatmap_row_height = heatmap_space
+
+        # Log the mathematically correct allocation
+        log(
+            f"Mathematically correct allocation - Spacing: {spacing_total*100:.1f}%, Available: {available_space*100:.1f}%, Strategy plots: {strategy_space_total*100:.1f}%, Heatmap: {heatmap_space*100:.1f}%",
+            "info",
+        )
+        log(
+            f"Per-strategy height: {strategy_row_height*100:.1f}%, Total: {(spacing_total + strategy_space_total + heatmap_space)*100:.1f}%",
+            "info",
+        )
 
         fig = make_subplots(
             rows=n_strategies + 1,
@@ -315,14 +369,27 @@ def plot_concurrency(
         # Calculate figure height: fixed 500px per strategy + 200px for heatmap + 50px overhead
         figure_height = (n_strategies * 500) + 200 + 50
 
-        # Simple title showing strategy count
-        title_text = f"Multi-Strategy Concurrency Analysis ({n_strategies} strategies)"
+        # Extract portfolio filename from config
+        portfolio_name = "portfolio"
+        if config and "PORTFOLIO" in config:
+            from pathlib import Path
+
+            portfolio_path = Path(config["PORTFOLIO"])
+            portfolio_name = portfolio_path.stem
+
+        # Title with portfolio name and strategy count
+        title_text = (
+            f"Concurrency Analysis: {portfolio_name} ({n_strategies} strategies)"
+        )
 
         fig.update_layout(
             height=figure_height,
             title_text=title_text,
             showlegend=True,
         )
+
+        # Use proper Plotly method to set subplot title font size
+        fig.for_each_annotation(lambda a: a.update(font_size=14))
 
         log(
             f"Layout updated with height={figure_height}px for {n_strategies} strategies",
