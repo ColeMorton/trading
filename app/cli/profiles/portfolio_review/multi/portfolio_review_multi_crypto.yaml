@@ -7,58 +7,15 @@ metadata:
   tags:
     - portfolio_review
     - multi_strategy
-    - crypto
-    - btc
-    - sol
   author: system
 
 inherits_from: multi_strategy_base
 config_type: portfolio_review
 
 config:
-  # Multiple strategies configuration (common fields inherited from multi_strategy_base)
-  strategies:
-    # BTC Strategies
-    - ticker: BTC-USD
-      fast_period: 27
-      slow_period: 29
-      strategy_type: SMA
-
-    - ticker: BTC-USD
-      fast_period: 8
-      slow_period: 44
-      strategy_type: SMA
-
-    - ticker: BTC-USD
-      fast_period: 3
-      slow_period: 11
-      strategy_type: EMA
-
-    - ticker: BTC-USD
-      fast_period: 11
-      slow_period: 17
-      strategy_type: EMA
-
-    # SOL Strategies
-    - ticker: SOL-USD
-      fast_period: 14
-      slow_period: 32
-      strategy_type: SMA
-
-    - ticker: SOL-USD
-      fast_period: 26
-      slow_period: 32
-      strategy_type: SMA
-
-    - ticker: SOL-USD
-      fast_period: 27
-      slow_period: 30
-      strategy_type: SMA
-
-    - ticker: SOL-USD
-      fast_period: 16
-      slow_period: 18
-      strategy_type: EMA
+  # Override inherited strategies with empty list when using raw_strategies
+  strategies: []
+  raw_strategies: portfolio
 
   # Custom plot directory
   plot_config:

@@ -5,8 +5,9 @@ This module provides test data for various parameter combinations,
 configurations, and scenarios used in portfolio review testing.
 """
 
+from typing import Any, Dict, List, Tuple
+
 import pytest
-from typing import Dict, Any, List, Tuple
 
 
 @pytest.fixture
@@ -15,7 +16,7 @@ def valid_timeframes():
     return ["hourly", "4hour", "daily", "2day"]
 
 
-@pytest.fixture 
+@pytest.fixture
 def valid_strategy_types():
     """Valid strategy type values for testing."""
     return ["SMA", "EMA", "MACD", "ATR"]
@@ -63,7 +64,7 @@ def strategy_conversion_matrix():
     return [
         # (strategy_type, expected_use_sma, expected_strategy_type)
         ("SMA", True, "SMA"),
-        ("EMA", False, "EMA"), 
+        ("EMA", False, "EMA"),
         ("MACD", False, "MACD"),
         ("ATR", False, "ATR"),
     ]
@@ -91,7 +92,7 @@ def base_config():
 def legacy_config_with_old_params():
     """Configuration with legacy USE_HOURLY and USE_SMA parameters."""
     return {
-        "TICKER": "LEGACY-USD", 
+        "TICKER": "LEGACY-USD",
         "FAST_PERIOD": 15,
         "SLOW_PERIOD": 30,
         "USE_HOURLY": True,
@@ -123,8 +124,8 @@ def mixed_config():
         "SLOW_PERIOD": 21,
         "USE_HOURLY": False,  # Legacy param
         "TIMEFRAME": "2day",  # New param
-        "USE_SMA": True,      # Legacy param  
-        "STRATEGY_TYPE": "EMA", # New param
+        "USE_SMA": True,  # Legacy param
+        "STRATEGY_TYPE": "EMA",  # New param
         "SIGNAL_PERIOD": 9,
         "BASE_DIR": "/tmp/trading",
     }
@@ -139,7 +140,7 @@ def parameter_precedence_test_cases():
             "config_dict": {
                 "TICKER": "TEST1",
                 "TIMEFRAME": "hourly",
-                "STRATEGY_TYPE": "MACD", 
+                "STRATEGY_TYPE": "MACD",
                 "SIGNAL_PERIOD": 21,
             },
             "function_params": {
@@ -161,9 +162,9 @@ def parameter_precedence_test_cases():
                 # Missing STRATEGY_TYPE and SIGNAL_PERIOD
             },
             "function_params": {
-                "timeframe": "daily", # Should be overridden
-                "strategy_type": "EMA", # Should be used
-                "signal_period": 14,   # Should be used
+                "timeframe": "daily",  # Should be overridden
+                "strategy_type": "EMA",  # Should be used
+                "signal_period": 14,  # Should be used
             },
             "expected": {
                 "timeframe": "4hour",
@@ -184,7 +185,7 @@ def parameter_precedence_test_cases():
             },
             "expected": {
                 "timeframe": "2day",
-                "strategy_type": "ATR", 
+                "strategy_type": "ATR",
                 "signal_period": 7,
             },
         },
@@ -272,7 +273,7 @@ def mock_portfolio_data():
             "signal_period": 9,
         },
         {
-            "ticker": "MOCK2-USD", 
+            "ticker": "MOCK2-USD",
             "timeframe": "daily",
             "fast_period": 12,
             "slow_period": 26,
@@ -296,7 +297,7 @@ def edge_case_configs():
             "config": {"TIMEFRAME": "daily"},  # Missing TICKER
         },
         {
-            "name": "zero_signal_period", 
+            "name": "zero_signal_period",
             "config": {
                 "TICKER": "ZERO",
                 "SIGNAL_PERIOD": 0,
@@ -319,6 +320,6 @@ def expected_conversion_calls():
         "get_config_called": True,
         "get_data_called": True,
         "calculate_ma_and_signals_called": False,  # Depends on strategy type
-        "calculate_macd_and_signals_called": False, # Depends on strategy type
+        "calculate_macd_and_signals_called": False,  # Depends on strategy type
         "backtest_strategy_called": True,
     }

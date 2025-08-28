@@ -7,7 +7,7 @@ and management operations.
 
 import os
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 import pandas as pd
 import typer
@@ -19,9 +19,12 @@ from app.tools.portfolio.strategy_types import derive_use_sma
 
 from ..config import ConfigLoader
 from ..models.portfolio import (
+    Direction,
     PortfolioConfig,
     PortfolioProcessingConfig,
     PortfolioReviewConfig,
+    ReviewStrategyConfig,
+    StrategyType,
 )
 from ..utils import resolve_portfolio_path
 
@@ -31,6 +34,95 @@ app = typer.Typer(
 )
 
 console = Console()
+
+
+def load_strategies_from_raw_csv(
+    raw_strategies_name: str,
+) -> List[ReviewStrategyConfig]:
+    """
+    Load strategy configurations from a CSV file in data/raw/strategies/.
+
+    Args:
+        raw_strategies_name: Name of the CSV file (without .csv extension)
+
+    Returns:
+        List of ReviewStrategyConfig objects
+
+    Raises:
+        ValueError: If CSV file doesn't exist or has invalid data
+    """
+    from pathlib import Path
+
+    import polars as pl
+
+    from app.tools.portfolio.format import convert_csv_to_strategy_config
+
+    # Construct CSV file path
+    csv_path = Path("data/raw/strategies") / f"{raw_strategies_name}.csv"
+
+    if not csv_path.exists():
+        raise ValueError(f"Raw strategies CSV file does not exist: {csv_path}")
+
+    try:
+        # Load CSV using polars
+        df = pl.read_csv(str(csv_path))
+
+        # Simple logging function for the conversion
+        def log(message: str, level: str = "info"):
+            if level == "error":
+                rprint(f"[red]ERROR: {message}[/red]")
+            elif level == "warning":
+                rprint(f"[yellow]WARNING: {message}[/yellow]")
+            else:
+                rprint(f"[dim]{message}[/dim]")
+
+        # Use existing CSV conversion system
+        config = {"BASE_DIR": ".", "REFRESH": True, "USE_HOURLY": False}
+        strategy_configs = convert_csv_to_strategy_config(df, log, config)
+
+        # Convert to ReviewStrategyConfig objects
+        review_strategies = []
+        for strategy_config in strategy_configs:
+            # Map strategy types
+            strategy_type_str = strategy_config.get("STRATEGY_TYPE", "SMA")
+            try:
+                strategy_type = StrategyType(strategy_type_str)
+            except ValueError:
+                # Default to SMA if unknown strategy type
+                strategy_type = StrategyType.SMA
+
+            # Map direction
+            direction_str = strategy_config.get("DIRECTION", "long").lower()
+            try:
+                direction = Direction(direction_str)
+            except ValueError:
+                # Default to long if unknown direction
+                direction = Direction.LONG
+
+            # Create ReviewStrategyConfig
+            review_strategy = ReviewStrategyConfig(
+                ticker=strategy_config["TICKER"],
+                fast_period=strategy_config.get("FAST_PERIOD", 20),
+                slow_period=strategy_config.get("SLOW_PERIOD", 50),
+                strategy_type=strategy_type,
+                direction=direction,
+                stop_loss=strategy_config.get("STOP_LOSS"),
+                position_size=strategy_config.get("POSITION_SIZE", 1.0),
+                use_hourly=strategy_config.get("USE_HOURLY", False),
+                rsi_window=strategy_config.get("RSI_WINDOW"),
+                rsi_threshold=strategy_config.get("RSI_THRESHOLD"),
+                signal_period=strategy_config.get("SIGNAL_PERIOD", 9),
+            )
+
+            review_strategies.append(review_strategy)
+
+        rprint(
+            f"[green]Successfully loaded {len(review_strategies)} strategies from {csv_path}[/green]"
+        )
+        return review_strategies
+
+    except Exception as e:
+        raise ValueError(f"Failed to load strategies from CSV {csv_path}: {e}")
 
 
 @app.command()
@@ -726,6 +818,56 @@ def review(
             }
             config = loader.load_from_dict(template, PortfolioReviewConfig, overrides)
 
+        # Handle raw_strategies CSV loading
+        if config.raw_strategies:
+            if not quiet:
+                rprint(
+                    f"[cyan]Loading strategies from CSV: {config.raw_strategies}.csv[/cyan]"
+                )
+
+            try:
+                # Load strategies from CSV using the utility function
+                csv_strategies = load_strategies_from_raw_csv(config.raw_strategies)
+
+                # Override the strategies in config
+                config.strategies = csv_strategies
+
+                # Modify output directories to include raw_strategies filename as subdirectory
+                base_plot_dir = config.plot_config.output_dir
+                config.plot_config.output_dir = base_plot_dir / config.raw_strategies
+
+                # Modify raw data export directory if enabled
+                if config.raw_data_export.enable:
+                    base_export_dir = config.raw_data_export.output_dir
+                    config.raw_data_export.output_dir = (
+                        base_export_dir / config.raw_strategies
+                    )
+
+                if not quiet:
+                    rprint(
+                        f"[green]Successfully loaded {len(csv_strategies)} strategies from CSV[/green]"
+                    )
+                    rprint(
+                        f"[dim]Modified output directories to include subdirectory: {config.raw_strategies}[/dim]"
+                    )
+
+            except Exception as e:
+                rprint(f"[red]Failed to load strategies from CSV: {e}[/red]")
+                raise typer.Exit(1)
+
+        # Validate that we have strategies after potential CSV loading
+        if not config.strategies and not config.raw_strategies:
+            rprint(
+                f"[red]Configuration error: Either 'strategies' must be provided or 'raw_strategies' must reference a valid CSV file[/red]"
+            )
+            raise typer.Exit(1)
+
+        if not config.strategies and config.raw_strategies:
+            rprint(
+                f"[red]Configuration error: No strategies were loaded from raw_strategies CSV file: {config.raw_strategies}[/red]"
+            )
+            raise typer.Exit(1)
+
         if dry_run:
             _show_portfolio_review_config_preview(config)
             return
@@ -820,6 +962,9 @@ def review(
             init_cash=config.init_cash,
             fees=config.fees,
             benchmark_symbol=config.benchmark.symbol if config.benchmark else None,
+            benchmark_type=config.benchmark.benchmark_type.value
+            if config.benchmark
+            else None,
             enable_plotting=config.enable_plotting,
             export_equity_curve=config.export_equity_curve,
             calculate_risk_metrics=config.calculate_risk_metrics,

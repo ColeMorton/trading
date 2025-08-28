@@ -10,7 +10,7 @@ This test suite provides comprehensive coverage for the modernized `app/portfoli
 tests/portfolio_review/
 ├── unit/
 │   ├── test_parameter_conversion.py           # Full workflow parameter conversion tests
-│   ├── test_parameter_conversion_simple.py    # Isolated parameter conversion tests  
+│   ├── test_parameter_conversion_simple.py    # Isolated parameter conversion tests
 │   ├── test_config_integration.py             # Config integration and precedence tests
 │   ├── test_function_signature.py             # Function interface validation tests
 │   └── test_edge_cases_and_errors.py          # Edge cases and error handling tests
@@ -25,30 +25,36 @@ tests/portfolio_review/
 ## Key Features Tested
 
 ### 1. Parameter Modernization ✅
+
 - **New Interface**: `run(config_dict=None, portfolio_file=None, timeframe="daily", strategy_type="SMA", signal_period=9)`
 - **Timeframe Options**: `hourly`, `4hour`, `daily` (default), `2day`
 - **Strategy Types**: `SMA` (default), `EMA`, `MACD`, `ATR`
 - **Signal Period**: Required for MACD strategy type (default: 9)
 
 ### 2. Parameter Conversion Logic ✅
+
 - **Timeframe Mapping**:
+
   - `"hourly"` → `USE_HOURLY=True, USE_4HOUR=False, USE_2DAY=False`
   - `"4hour"` → `USE_HOURLY=False, USE_4HOUR=True, USE_2DAY=False`
   - `"2day"` → `USE_HOURLY=False, USE_4HOUR=False, USE_2DAY=True`
   - `"daily"` → `USE_HOURLY=False, USE_4HOUR=False, USE_2DAY=False`
 
 - **Strategy Type Mapping**:
+
   - `"SMA"` → `USE_SMA=True, STRATEGY_TYPE="SMA"`
   - `"EMA", "MACD", "ATR"` → `USE_SMA=False, STRATEGY_TYPE=<type>`
 
 - **Signal Period**: Direct mapping to `SIGNAL_PERIOD` parameter
 
 ### 3. Parameter Precedence ✅
+
 - **Config Dict Priority**: Parameters in `config_dict` override function parameters
 - **Function Fallback**: Function parameters used when missing from `config_dict`
 - **Default Values**: Proper default handling when no parameters provided
 
 ### 4. Backward Compatibility ✅
+
 - **Legacy Configs**: Updated `CONFIG_*` dictionaries work correctly
 - **Function Signature**: Original `config_dict` and `portfolio_file` parameters preserved
 - **Internal Logic**: All existing strategy processing logic unchanged
@@ -56,12 +62,14 @@ tests/portfolio_review/
 ## Test Categories
 
 ### Unit Tests (95 test cases)
+
 - **Parameter Conversion**: Isolated testing of conversion logic
 - **Config Integration**: Parameter precedence and merging behavior
 - **Function Signature**: Interface validation and parameter binding
 - **Edge Cases**: Invalid inputs, boundary conditions, error scenarios
 
 ### Integration Tests (15 test cases)
+
 - **Complete Workflows**: End-to-end execution with mocking
 - **Strategy Processing**: SMA, EMA, MACD routing validation
 - **File Operations**: Portfolio file processing and CSV export
@@ -70,11 +78,13 @@ tests/portfolio_review/
 ## Running Tests
 
 ### Run All Tests
+
 ```bash
 python tests/portfolio_review/run_tests.py
 ```
 
 ### Run Specific Categories
+
 ```bash
 python tests/portfolio_review/run_tests.py unit           # All unit tests
 python tests/portfolio_review/run_tests.py integration   # All integration tests
@@ -83,6 +93,7 @@ python tests/portfolio_review/run_tests.py signature     # Function signature on
 ```
 
 ### Run Individual Test Files
+
 ```bash
 python -m pytest tests/portfolio_review/unit/test_function_signature.py -v
 python -m pytest tests/portfolio_review/unit/test_parameter_conversion_simple.py -v
@@ -92,18 +103,21 @@ python -m pytest tests/portfolio_review/integration/test_portfolio_review_flow.p
 ## Test Results Summary
 
 ### ✅ Passing Tests
+
 - **Function Signature**: All 10 tests passing
 - **Parameter Conversion (Simple)**: Core logic tests passing
 - **Config Integration**: Parameter precedence logic verified
 - **Edge Cases**: Error handling scenarios covered
 
 ### 🔧 Known Issues
+
 - Some complex workflow tests require mock refinement for full execution
 - Integration tests may need additional setup for complete end-to-end validation
 
 ## Test Coverage
 
 The test suite covers:
+
 - **Parameter Interface**: 100% of new parameter combinations
 - **Conversion Logic**: All timeframe and strategy type mappings
 - **Precedence Rules**: Config dict vs function parameter scenarios
@@ -113,11 +127,12 @@ The test suite covers:
 ## Key Test Fixtures
 
 ### Configuration Test Data
+
 ```python
 # Parameter conversion matrix
 timeframe_conversions = [
     ("hourly", True, False, False),
-    ("4hour", False, True, False), 
+    ("4hour", False, True, False),
     ("2day", False, False, True),
     ("daily", False, False, False),
 ]
@@ -132,6 +147,7 @@ strategy_conversions = [
 ```
 
 ### Mock Configurations
+
 - Base configurations for testing
 - Legacy and modern parameter combinations
 - Edge case scenarios (empty, invalid, boundary values)

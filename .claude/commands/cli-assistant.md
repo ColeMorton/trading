@@ -83,13 +83,14 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 ./trading-cli strategy run --profile ma_cross_crypto --min-win-rate 0.6 --min-profit-factor 1.5 --min-sortino 1.0
 ```
 
-#### **2. portfolio** - Portfolio Processing and Aggregation
+#### **2. portfolio** - Portfolio Processing, Aggregation, and Analysis
 
 **Available subcommands:**
 
 - `update` - Update and aggregate portfolio results
 - `process` - Process portfolio files with validation
 - `aggregate` - Aggregate multiple portfolios with advanced metrics
+- `review` - Comprehensive portfolio analysis with benchmarking and visualization (Advanced)
 
 ```bash
 # Portfolio update with validation
@@ -103,6 +104,22 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 
 # Batch processing with correlation analysis
 ./trading-cli portfolio aggregate --correlation-analysis --risk-metrics
+
+# Comprehensive portfolio review analysis (NEW)
+./trading-cli portfolio review --profile portfolio_review_multi_crypto
+
+# CSV-based strategy loading with raw_strategies
+./trading-cli portfolio review --profile portfolio_review_multi_crypto --benchmark SPY
+
+# Single strategy analysis with custom parameters
+./trading-cli portfolio review --ticker BTC-USD --benchmark QQQ --save-plots --export-stats
+
+# Raw data export for external analysis
+./trading-cli portfolio review --profile portfolio_review_multi_crypto \
+  --export-raw-data \
+  --raw-data-formats csv,json,parquet \
+  --raw-data-types portfolio_value,returns,trades,positions \
+  --include-vectorbt
 ```
 
 #### **3. spds** - Enhanced Statistical Performance Divergence System (v2.0)
@@ -633,6 +650,32 @@ def validate_minimums(cls, v):
   --validate \
   --convert-format \
   --backup
+
+# Comprehensive portfolio review analysis
+./trading-cli portfolio review --profile portfolio_review_multi_crypto --verbose
+
+# CSV-based multi-strategy analysis with benchmarking
+./trading-cli portfolio review --profile portfolio_review_multi_crypto \
+  --benchmark SPY \
+  --save-plots \
+  --export-stats \
+  --output-format detailed
+
+# Single strategy comprehensive analysis
+./trading-cli portfolio review \
+  --ticker BTC-USD \
+  --benchmark QQQ \
+  --save-plots \
+  --export-raw-data \
+  --raw-data-formats csv,json \
+  --raw-data-types all
+
+# Advanced raw data export with VectorBT objects
+./trading-cli portfolio review --profile portfolio_review_multi_crypto \
+  --export-raw-data \
+  --include-vectorbt \
+  --raw-data-output-dir ./advanced_analysis \
+  --raw-data-types portfolio_value,returns,trades,orders,positions,statistics
 
 # Advanced aggregation with risk metrics
 ./trading-cli portfolio aggregate \
@@ -1265,6 +1308,31 @@ Resolution:
 ./trading-cli config show profile_name --resolve-inheritance
 ```
 
+**Portfolio Review Configuration Errors:**
+
+```bash
+ERROR: Raw strategies CSV file does not exist: data/raw/strategies/invalid.csv
+
+# Diagnosis
+./trading-cli config show portfolio_review_multi_crypto --format json
+ls data/raw/strategies/
+
+# Resolution
+./trading-cli portfolio review --profile portfolio_review_multi_crypto --raw-strategies TSLA
+./trading-cli config validate portfolio_review_multi_crypto --detailed
+```
+
+```bash
+ERROR: Either 'strategies' must be provided or 'raw_strategies' must reference a valid CSV file
+
+# Diagnosis
+./trading-cli config show portfolio_review_profile --resolve-inheritance
+
+# Resolution
+./trading-cli config edit portfolio_review_profile  # Add strategies or raw_strategies
+./trading-cli portfolio review --ticker BTC-USD  # Use CLI override
+```
+
 #### **2. Runtime Errors**
 
 **Missing Dependencies:**
@@ -1319,6 +1387,44 @@ du -h data/raw/ && ./trading-cli tools health --memory-analysis
 # Resolution
 ./trading-cli portfolio process --streaming --chunk-size 5000
 ./trading-cli strategy run --memory-threshold-mb 500 --gc-optimization
+```
+
+**Portfolio Review Analysis Errors:**
+
+```bash
+ERROR: Could not create benchmark. Primary symbol 'SPY' and fallback symbols (QQQ, VTI, VTSMX) all failed
+
+# Diagnosis
+./trading-cli portfolio review --ticker BTC-USD --dry-run --verbose
+./trading-cli tools health --check-dependencies --check-network
+
+# Resolution
+./trading-cli portfolio review --ticker BTC-USD --benchmark QQQ  # Try different benchmark
+./trading-cli portfolio review --profile portfolio_review_multi_crypto  # Use equal_weighted_portfolio
+```
+
+```bash
+ERROR: No strategies defined in config
+
+# Diagnosis
+./trading-cli config show portfolio_review_profile --resolve-inheritance --verbose
+
+# Resolution
+./trading-cli portfolio review --ticker BTC-USD  # Add ticker via CLI
+./trading-cli config edit portfolio_review_profile  # Add strategies to profile
+./trading-cli portfolio review --raw-strategies crypto  # Use CSV loading
+```
+
+```bash
+ERROR: Failed to create VectorBT portfolio - insufficient data
+
+# Diagnosis
+./trading-cli portfolio review --ticker INVALID_TICKER --dry-run --verbose
+./trading-cli tools health --check-data-sources
+
+# Resolution
+./trading-cli portfolio review --ticker BTC-USD --start-date 2023-01-01  # Adjust date range
+./trading-cli portfolio review --profile portfolio_review_multi_crypto --verbose  # Use working profile
 ```
 
 #### **4. Position Equity Management Issues**
@@ -1573,6 +1679,105 @@ ERROR: Insufficient data for Monte Carlo analysis
 - **Batch Operations**: Optimized batch processing with configurable sizes
 - **Progress Tracking**: Real-time progress monitoring with ETA calculations
 
+#### **Raw Strategies CSV Loading (Portfolio Review Innovation)**
+
+The portfolio review system supports loading strategy configurations from CSV files in `data/raw/strategies/`, enabling dynamic strategy management and automated analysis workflows.
+
+**File Structure:**
+
+```
+data/raw/strategies/
+├── TSLA.csv         # Tesla-focused strategies
+├── crypto.csv       # Cryptocurrency strategies
+├── RKLB.csv         # Rocket Lab strategies
+├── protected.csv    # Conservative strategies
+└── risk_on.csv      # Aggressive strategies
+```
+
+**Configuration Usage:**
+
+```yaml
+# In profile configuration (e.g., portfolio_review_multi_crypto.yaml)
+metadata:
+  name: portfolio_review_multi_crypto
+  description: 'Multi-strategy analysis with CSV-based strategy loading'
+
+config:
+  raw_strategies: TSLA # Loads from data/raw/strategies/TSLA.csv
+  # This completely overrides any explicit strategies list
+
+  # Other configuration remains the same
+  init_cash: 10000.0
+  fees: 0.001
+  benchmark:
+    benchmark_type: equal_weighted_portfolio
+```
+
+**CLI Usage Examples:**
+
+```bash
+# Profile-based CSV strategy loading
+./trading-cli portfolio review --profile portfolio_review_multi_crypto
+
+# Override CSV file at runtime (loads from protected.csv instead)
+./trading-cli portfolio review --profile portfolio_review_multi_crypto --raw-strategies protected
+
+# Single strategy with CSV loading
+./trading-cli portfolio review --raw-strategies crypto --benchmark SPY --verbose
+```
+
+**CSV File Format:**
+
+The CSV files should contain strategy configurations with columns:
+
+- `TICKER` - Asset symbol (required)
+- `FAST_PERIOD` - Fast moving average period (default: 20)
+- `SLOW_PERIOD` - Slow moving average period (default: 50)
+- `STRATEGY_TYPE` - SMA, EMA, or MACD (default: SMA)
+- `DIRECTION` - long or short (default: long)
+- `POSITION_SIZE` - Position size multiplier (default: 1.0)
+- `STOP_LOSS` - Stop loss percentage (optional)
+- `USE_HOURLY` - Use hourly data (default: false)
+- `RSI_WINDOW` - RSI window for filtering (optional)
+- `RSI_THRESHOLD` - RSI threshold (optional)
+- `SIGNAL_PERIOD` - MACD signal period (default: 9)
+
+**Dynamic Output Organization:**
+
+When using `raw_strategies`, all outputs are automatically organized into subdirectories:
+
+```
+# With raw_strategies: TSLA
+data/outputs/portfolio/multi_crypto/TSLA/
+├── benchmark_comparison.html
+├── benchmark_comparison.png
+├── portfolio_value.html
+├── drawdowns.html
+└── risk_metrics.html
+
+# Raw data exports also organized
+data/raw/portfolio_exports/TSLA/
+├── portfolio_data.csv
+├── trades_data.json
+└── statistics.json
+```
+
+**Advanced Features:**
+
+- **Automatic Validation**: CSV files are validated for required columns and data types
+- **Error Recovery**: Graceful handling of missing or malformed CSV files
+- **Strategy Mapping**: Automatic conversion from CSV format to internal strategy configuration
+- **Profile Integration**: Full compatibility with profile inheritance and runtime overrides
+- **Benchmark Integration**: Equal-weighted portfolio benchmarks automatically created for multi-symbol strategies
+
+**Benefits:**
+
+- **Dynamic Strategy Management**: Update strategies without modifying code or profiles
+- **Workflow Automation**: Supports automated analysis pipelines and batch processing
+- **Organization**: Clear separation of strategy sets with organized output directories
+- **Flexibility**: Mix CSV-based and profile-based configurations as needed
+- **Version Control**: Strategy CSV files can be version controlled independently
+
 ## Integration with External Systems
 
 ### **API Server Integration**
@@ -1648,6 +1853,7 @@ ERROR: Insufficient data for Monte Carlo analysis
 
 # Portfolio operations
 ./trading-cli portfolio update --validate           # Update and aggregate portfolios
+./trading-cli portfolio review --profile portfolio_review_multi_crypto  # Comprehensive portfolio analysis
 
 # SPDS analysis with dual-source (v2.0)
 ./trading-cli spds analyze risk_on.csv --data-source auto  # Auto-detection analysis
@@ -1696,6 +1902,7 @@ ERROR: Insufficient data for Monte Carlo analysis
 # Memory optimization for large operations
 ./trading-cli strategy run --memory-optimization --streaming
 ./trading-cli portfolio process --streaming --chunk-size 5000
+./trading-cli portfolio review --profile portfolio_review_multi_crypto --export-raw-data --memory-optimization
 ./trading-cli positions equity --memory-optimization --parallel-processing
 ./trading-cli concurrency analyze --memory-optimization --streaming --memory-threshold 2000
 ./trading-cli concurrency optimize --parallel --max-workers 8
@@ -1705,9 +1912,12 @@ ERROR: Insufficient data for Monte Carlo analysis
 ## Notes
 
 - **System Status**: Production-ready enterprise-grade CLI with comprehensive testing and validation
+- **Portfolio Review Enhancement**: Comprehensive multi-strategy analysis with CSV-based strategy loading, dynamic output organization, and advanced benchmarking
+- **Raw Strategies Innovation**: Dynamic strategy loading from CSV files with automatic subdirectory organization and profile integration
 - **SPDS Enhancement**: v2.0 with revolutionary dual-source analysis and triple-layer convergence
 - **Position Equity Management**: Mathematical consistency validation with precision fee calculations and cash flow analysis
 - **Concurrency Analysis**: Advanced strategy interaction analysis with optimization, Monte Carlo risk analysis, and optimized profile inheritance (75% duplication reduction)
+- **Service Architecture**: Integrated portfolio review, visualization, benchmark comparison, and data export services
 - **Type Safety**: Complete Pydantic validation with business logic enforcement
 - **Performance**: Optimized for large-scale operations with memory efficiency and parallel processing
 - **Rich Terminal**: Beautiful formatted output with progress tracking and interactive features

@@ -66,6 +66,7 @@ class PortfolioReviewConfig:
     init_cash: float = 10000.0
     fees: float = 0.001
     benchmark_symbol: Optional[str] = None
+    benchmark_type: Optional[str] = None
     enable_plotting: bool = True
     export_equity_curve: bool = True
     calculate_risk_metrics: bool = True
@@ -418,7 +419,14 @@ class PortfolioReviewService:
 
             # Create benchmark portfolio
             benchmark_portfolio = None
-            if self.config.benchmark_symbol or len(symbols) > 1:
+            if (
+                self.config.benchmark_symbol
+                or len(symbols) > 1
+                or (
+                    self.config.benchmark_type
+                    and self.config.benchmark_type != "buy_and_hold"
+                )
+            ):
                 (
                     benchmark_close_pd,
                     benchmark_entries_pd,

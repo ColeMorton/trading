@@ -177,7 +177,13 @@ def process_strategy(config, log):
         return None
 
 
-def run(config_dict=None, portfolio_file=None, timeframe="daily", strategy_type="SMA", signal_period=9):
+def run(
+    config_dict=None,
+    portfolio_file=None,
+    timeframe="daily",
+    strategy_type="SMA",
+    signal_period=9,
+):
     """
     Run portfolio review analysis.
 
@@ -202,36 +208,28 @@ def run(config_dict=None, portfolio_file=None, timeframe="daily", strategy_type=
             "STRATEGY_TYPE": strategy_type,
             "SIGNAL_PERIOD": signal_period,
         }
-        
+
         # Convert timeframe to legacy flags
         if timeframe == "hourly":
-            legacy_params.update({
-                "USE_HOURLY": True,
-                "USE_4HOUR": False,
-                "USE_2DAY": False
-            })
+            legacy_params.update(
+                {"USE_HOURLY": True, "USE_4HOUR": False, "USE_2DAY": False}
+            )
         elif timeframe == "4hour":
-            legacy_params.update({
-                "USE_HOURLY": False,
-                "USE_4HOUR": True,
-                "USE_2DAY": False
-            })
+            legacy_params.update(
+                {"USE_HOURLY": False, "USE_4HOUR": True, "USE_2DAY": False}
+            )
         elif timeframe == "2day":
-            legacy_params.update({
-                "USE_HOURLY": False,
-                "USE_4HOUR": False,
-                "USE_2DAY": True
-            })
+            legacy_params.update(
+                {"USE_HOURLY": False, "USE_4HOUR": False, "USE_2DAY": True}
+            )
         else:  # daily (default)
-            legacy_params.update({
-                "USE_HOURLY": False,
-                "USE_4HOUR": False,
-                "USE_2DAY": False
-            })
-        
+            legacy_params.update(
+                {"USE_HOURLY": False, "USE_4HOUR": False, "USE_2DAY": False}
+            )
+
         # Convert strategy_type to legacy USE_SMA flag
-        legacy_params["USE_SMA"] = (strategy_type == "SMA")
-        
+        legacy_params["USE_SMA"] = strategy_type == "SMA"
+
         return legacy_params
 
     try:
@@ -279,13 +277,15 @@ def run(config_dict=None, portfolio_file=None, timeframe="daily", strategy_type=
         elif config_dict:
             # Extract parameters from config_dict if they exist, otherwise use function parameters
             config_timeframe = config_dict.get("TIMEFRAME", timeframe)
-            config_strategy_type = config_dict.get("STRATEGY_TYPE", strategy_type) 
+            config_strategy_type = config_dict.get("STRATEGY_TYPE", strategy_type)
             config_signal_period = config_dict.get("SIGNAL_PERIOD", signal_period)
-            
+
             # Apply parameter conversion to config_dict
-            legacy_params = convert_parameters_to_legacy(config_timeframe, config_strategy_type, config_signal_period)
+            legacy_params = convert_parameters_to_legacy(
+                config_timeframe, config_strategy_type, config_signal_period
+            )
             enhanced_config = {**config_dict, **legacy_params}
-            
+
             config = get_config(enhanced_config)
             log(f"Starting portfolio review for {config['TICKER']}")
 

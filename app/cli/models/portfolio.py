@@ -10,7 +10,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, model_validator, validator
 
 from .base import BaseConfig
 
@@ -280,7 +280,11 @@ class PortfolioReviewConfig(BaseConfig):
 
     # Strategy configuration
     strategies: List[ReviewStrategyConfig] = Field(
-        ..., min_items=1, description="List of strategies to analyze"
+        default_factory=list, description="List of strategies to analyze"
+    )
+    raw_strategies: Optional[str] = Field(
+        default=None,
+        description="CSV filename in data/raw/strategies/ to load strategies from",
     )
 
     # Date range (determined by data availability)
@@ -374,26 +378,29 @@ class PortfolioReviewConfig(BaseConfig):
                 raise ValueError("end_date must be after start_date")
         return v
 
-    @validator("strategies")
-    def validate_strategies(cls, v):
-        """Validate strategy configurations."""
-        if not v:
-            raise ValueError("At least one strategy must be defined")
-
-        # Check for duplicate tickers with same parameters
-        seen = set()
-        for strategy in v:
-            key = (
-                strategy.ticker,
-                strategy.fast_period,
-                strategy.slow_period,
-                strategy.strategy_type,
-            )
-            if key in seen:
-                raise ValueError(f"Duplicate strategy configuration found: {key}")
-            seen.add(key)
-
+    @validator("raw_strategies")
+    def validate_raw_strategies(cls, v):
+        """Validate raw_strategies CSV file path."""
+        if v is not None:
+            # Construct the full path to the CSV file
+            csv_path = Path("data/raw/strategies") / f"{v}.csv"
+            if not csv_path.exists():
+                raise ValueError(f"Raw strategies CSV file does not exist: {csv_path}")
         return v
+
+    def validate_final_strategies(self):
+        """Validate that we have strategies after CSV loading."""
+        if not self.strategies and not self.raw_strategies:
+            raise ValueError(
+                "Either 'strategies' must be provided or 'raw_strategies' must reference a valid CSV file"
+            )
+
+        if not self.strategies and self.raw_strategies:
+            raise ValueError(
+                f"No strategies were loaded from raw_strategies CSV file: {self.raw_strategies}"
+            )
+
+        return True
 
     @property
     def is_single_strategy(self) -> bool:
