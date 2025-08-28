@@ -1,6 +1,6 @@
 """Visualization utilities for concurrency analysis."""
 
-from typing import Callable, List
+from typing import Callable, Dict, List, Optional
 
 # Complete Color Palette Constants
 PRIMARY_DATA = "#26c6da"  # Cyan - Primary data
@@ -210,6 +210,7 @@ def plot_concurrency(
     stats: ConcurrencyStats,
     config_list: List[StrategyConfig],
     log: Callable[[str, str], None],
+    config: Optional[Dict] = None,
 ) -> go.Figure:
     """Create visualization of concurrent positions across multiple strategies.
 
@@ -218,6 +219,7 @@ def plot_concurrency(
         stats (ConcurrencyStats): Concurrency statistics
         config_list (List[StrategyConfig]): List of strategy configurations
         log (Callable[[str, str], None]): Logging function
+        config (Optional[Dict]): Configuration dictionary for pagination and layout options
 
     Returns:
         go.Figure: Plotly figure object containing the visualization
@@ -253,12 +255,23 @@ def plot_concurrency(
         ] + ["Strategy Concurrency"]
 
         log("Creating subplot layout", "info")
+
+        # Use ultra-minimal fixed vertical spacing - consistent regardless of strategy count
+        vertical_spacing = 0.005
+        log(f"Using fixed vertical spacing: {vertical_spacing}", "info")
+
+        # Use fixed proportional heights for uniform visualization
+        strategy_row_height = (
+            0.88 / n_strategies
+        )  # Each strategy gets equal share of 88%
+        heatmap_row_height = 0.12  # Heatmap gets fixed 12%
+
         fig = make_subplots(
             rows=n_strategies + 1,
             cols=1,
             subplot_titles=subplot_titles,
-            vertical_spacing=0.05,
-            row_heights=[0.8 / n_strategies] * n_strategies + [0.2],
+            vertical_spacing=vertical_spacing,
+            row_heights=[strategy_row_height] * n_strategies + [heatmap_row_height],
         )
 
         # Add strategy subplots
@@ -298,10 +311,22 @@ def plot_concurrency(
         fig.add_annotation(**create_stats_annotation(stats, log))
 
         log("Updating layout", "info")
+
+        # Calculate figure height: fixed 500px per strategy + 200px for heatmap + 50px overhead
+        figure_height = (n_strategies * 500) + 200 + 50
+
+        # Simple title showing strategy count
+        title_text = f"Multi-Strategy Concurrency Analysis ({n_strategies} strategies)"
+
         fig.update_layout(
-            height=300 * (n_strategies + 1),
-            title_text="Multi-Strategy Concurrency Analysis",
+            height=figure_height,
+            title_text=title_text,
             showlegend=True,
+        )
+
+        log(
+            f"Layout updated with height={figure_height}px for {n_strategies} strategies",
+            "info",
         )
 
         # Update axes

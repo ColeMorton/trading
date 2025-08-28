@@ -35,23 +35,23 @@ class OptimizationConfig:
 
         # Asset configuration
         self.assets = [
-            # "MU",
-            # "COP",
-            # "TMO",
-            # "ASML",
-            # "SYK",
-            # "NTES",
-            # "WIT",
-            # "EDU",
-            # "AMZN",
-            "TSLA",
-            # "RKLB",
-            # "SCCO",
-            # "NFLX"
+            "MU",
+            "COP",
+            "ASML",
+            "SYK",
+            "NTES",
+            "WIT",
+            "EDU",
+            "AMZN",
+            "RKLB",
+            "SCCO",
+            "NFLX",
+            "TSM",
+            "AAPL"
             # "BTC-USD",
-            "GLD",
-            "SOL-USD",
-            "MSTR",
+            # "GLD",
+            # "SOL-USD",
+            # "MSTR",
         ]
 
         # Business rules

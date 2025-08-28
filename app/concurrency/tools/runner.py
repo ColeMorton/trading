@@ -437,7 +437,9 @@ def run_analysis(
         # Create visualization if enabled (using all strategies results)
         if config["VISUALIZATION"]:
             log("Creating visualization", "info")
-            fig = plot_concurrency(all_aligned_data, all_stats, updated_strategies, log)
+            fig = plot_concurrency(
+                all_aligned_data, all_stats, updated_strategies, log, config
+            )
             fig.show()
             log("Visualization displayed", "info")
 
