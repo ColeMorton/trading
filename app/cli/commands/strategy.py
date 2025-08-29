@@ -66,7 +66,7 @@ def run(
         None,
         "--strategy",
         "-s",
-        help="Strategy types: SMA, EMA, MACD (default strategies), ATR (specialized - explicit only, can be used multiple times)",
+        help="Strategy types: SMA, MACD (default strategies), EMA, ATR (specialized - explicit only, can be used multiple times)",
     ),
     min_trades: Optional[int] = typer.Option(
         None, "--min-trades", help="Minimum number of trades filter"

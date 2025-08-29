@@ -1,0 +1,91 @@
+metadata:
+  name: ema_default
+  description: 'EMA (Exponential Moving Average) Crossover Strategy - Default Configuration'
+  version: '1.0.0'
+  author: 'Trading System'
+  created: '2025-08-28'
+  tags:
+    - ema
+    - exponential_moving_average
+    - crossover
+
+config_type: strategy
+config:
+  # Strategy configuration
+  ticker: BTC-USD # Default ticker, can be overridden via CLI
+  strategy_types: [EMA]
+
+  # EMA-specific parameters
+  fast_period_min: 5
+  fast_period_max: 88
+  slow_period_min: 8
+  slow_period_max: 89
+  step: 1
+
+  # Strategy-specific parameter configurations
+  strategy_params:
+    EMA:
+      # Parameter ranges for Exponential Moving Average strategy
+      fast_period_min: 5
+      fast_period_max: 88
+      slow_period_min: 8
+      slow_period_max: 89
+      step: 1
+
+  # Quality filters
+  # minimums:
+  #   win_rate: 0.5
+  #   trades: 10
+  #   expectancy_per_trade: 0.0
+  #   profit_factor: 1.0
+  #   beats_bnh: 0.0
+
+  # Data configuration
+  use_years: false
+  years: null
+  use_hourly: false
+  use_4hour: false
+  refresh: true
+  market_type: auto
+
+  # Output configuration
+  base_dir: './data'
+  verbose: false
+
+  # Trading configuration
+  direction: Long # Direction: "Long" for bullish trades, "Short" for bearish trades
+
+  use_current: false
+
+  # Filter configuration
+  filter:
+    use_current: false
+
+# Profile usage examples
+examples:
+  - description: 'Basic EMA crossover analysis for Bitcoin'
+    command: 'trading-cli strategy run --profile ema_default --ticker BTC-USD'
+
+  - description: 'EMA analysis with custom parameters'
+    command: 'trading-cli strategy run --profile ema_default --ticker TSLA --fast-period-min 10 --fast-period-max 50'
+
+  - description: 'Multi-ticker EMA analysis'
+    command: 'trading-cli strategy run --profile ema_default --ticker BTC-USD,ETH-USD,TSLA'
+
+  - description: 'EMA Short direction analysis for bearish markets'
+    command: 'trading-cli strategy run --profile ema_default --ticker TSLA --direction Short'
+
+# Notes
+notes: |
+  This profile configures EMA (Exponential Moving Average) crossover strategy analysis with default parameters:
+  - Fast EMA range: 5-88 periods
+  - Slow EMA range: 8-89 periods
+  - Direction: Long (bullish) or Short (bearish) trading support
+  - Generates 84 × 82 = 6,888 parameter combinations for comprehensive analysis
+  - Minimum quality thresholds ensure only viable strategies are exported
+
+  Direction Configuration:
+  - "Long": Traditional EMA crossover for uptrend trading
+  - "Short": Inverted EMA crossover for downtrend trading
+  - Long: Entry when fast EMA > slow EMA, Exit when fast EMA < slow EMA
+  - Short: Entry when fast EMA < slow EMA, Exit when fast EMA > slow EMA

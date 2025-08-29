@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-08-28T07:37:14.854380",
+    "export_timestamp": "2025-08-29T06:50:59.780448",
     "strategy_config": {
       "ticker": "BTC-USD",
       "timeframe": "D",
@@ -15,7 +15,7 @@
       "total_return": 640.0895723607698,
       "total_trades": "56",
       "win_rate": 0.5357142857142857,
-      "sharpe_ratio": 1.456679682763048,
+      "sharpe_ratio": 1.4564965275026696,
       "max_drawdown": -0.5686020362672906
     }
   },

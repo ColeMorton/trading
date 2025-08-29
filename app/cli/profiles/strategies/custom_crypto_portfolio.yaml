@@ -23,10 +23,9 @@ config:
     # - AAVE-USD
     # - HYPE32196-USD
 
-  # Strategy types to analyze
+  # Strategy types to analyze (EMA now requires explicit specification)
   strategy_types:
     - SMA
-    - EMA
     - MACD
 
   # use_4hour: true

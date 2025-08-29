@@ -11,7 +11,25 @@ from app.tools.use_synthetic import use_synthetic
 
 
 def valid_data(ticker: str, config: DataConfig, log: Callable):
-    if config.get("REFRESH", True) == False:
+    # Handle refresh logic - default to False for smart refresh behavior
+    refresh_setting = config.get("REFRESH", False)
+    if refresh_setting == False:
+        # Import market detection function
+        from app.tools.market_hours import MarketType, detect_market_type
+
+        # Detect market type for the ticker
+        market_type = detect_market_type(ticker)
+
+        # For crypto, always refresh due to 24/7 nature - ignore REFRESH=False
+        if market_type == MarketType.CRYPTO:
+            log(
+                f"Crypto market detected for {ticker}. Always refreshing due to 24/7 trading."
+            )
+            return download_data(ticker, config, log)
+
+        # For stocks, use existing smart refresh logic
+        log(f"Stock market detected for {ticker}. Using smart refresh logic.")
+
         # Determine file suffix based on timeframe
         if config.get("USE_2DAY", False):
             file_suffix = "_2D"
@@ -60,7 +78,7 @@ def valid_data(ticker: str, config: DataConfig, log: Callable):
         else:
             log("File doesn't exist. Downloading new data.")
     else:
-        log("REFRESH is True. Downloading new data.")
+        log(f"REFRESH is {refresh_setting}. Downloading new data.")
 
     # Only download if we haven't returned existing data
     return download_data(ticker, config, log)

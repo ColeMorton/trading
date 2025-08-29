@@ -158,7 +158,7 @@ class StrategyConfig(BaseConfig):
 
     # Strategy types
     strategy_types: List[StrategyType] = Field(
-        default=[StrategyType.SMA, StrategyType.EMA, StrategyType.MACD],
+        default=[StrategyType.SMA, StrategyType.MACD],
         description="List of strategy types to execute",
     )
 
@@ -321,7 +321,7 @@ class StrategyConfig(BaseConfig):
         description="Use 2-day data instead of daily (converted from daily data)",
     )
     refresh: Optional[bool] = Field(
-        default=None, description="Force refresh of market data"
+        default=False, description="Force refresh of market data"
     )
     market_type: MarketType = Field(
         default=MarketType.AUTO,

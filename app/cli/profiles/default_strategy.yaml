@@ -14,23 +14,15 @@ config:
   ticker:
     - BTC-USD
 
-  # Strategy types - include all available strategies by default
+  # Strategy types - include default strategies
   strategy_types:
     - SMA
-    - EMA
     - MACD
 
   # Strategy-specific parameter configurations
   strategy_params:
     SMA:
       # Parameter ranges for Simple Moving Average strategy
-      fast_period_min: 5
-      fast_period_max: 88
-      slow_period_min: 8
-      slow_period_max: 89
-
-    EMA:
-      # Parameter ranges for Exponential Moving Average strategy
       fast_period_min: 5
       fast_period_max: 88
       slow_period_min: 8
