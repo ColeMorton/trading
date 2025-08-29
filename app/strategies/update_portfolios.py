@@ -152,11 +152,11 @@ def run(portfolio: str) -> bool:
 
         # Get a normalized copy of the global config
         local_config = normalize_config(config.copy())
-        
+
         # CRITICAL: Set portfolio update mode to prevent batch analysis triggers
         # This prevents dispatch_fresh_analysis from triggering comprehensive MACD analysis
         local_config["_PORTFOLIO_UPDATE_MODE"] = True
-        
+
         # CRITICAL: Disable equity export during portfolio updates to prevent batch triggers
         # Portfolio updates should only process the input file, not trigger fresh analysis
         if "EQUITY_DATA" not in local_config:

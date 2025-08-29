@@ -85,11 +85,11 @@ def run(config: PortfolioConfig = None) -> bool:
             )
             log(
                 "This indicates the dual export architecture problem is still active",
-                "error", 
+                "error",
             )
             # Return success to avoid breaking the process, but don't execute batch analysis
             return True
-        
+
         # SAFEGUARD: Trade history export is not available for MACD strategy
         # to prevent generating thousands of JSON files due to parameter sweep combinations.
         # Trade history export is only available through app/concurrency/review.py
@@ -143,11 +143,11 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
             )
             log(
                 "This indicates the dual export architecture problem is still active",
-                "error", 
+                "error",
             )
             # Return success to avoid breaking the process, but don't execute batch analysis
             return True
-        
+
         # Prepare config
         config_copy[
             "USE_MA"

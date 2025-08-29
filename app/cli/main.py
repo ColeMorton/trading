@@ -211,7 +211,10 @@ def main(
         False, "--verbose", "-v", help="Enable verbose output with rich formatting"
     ),
     show_output: bool = typer.Option(
-        False, "--show-output", "-o", help="Enable rich terminal output (default: quiet mode)"
+        False,
+        "--show-output",
+        "-o",
+        help="Enable rich terminal output (default: quiet mode)",
     ),
     profiles_dir: Optional[Path] = typer.Option(
         None, "--profiles-dir", help="Custom profiles directory"
@@ -222,7 +225,7 @@ def main(
 
     A comprehensive system for strategy execution, portfolio management,
     and concurrency analysis with type-safe configuration management.
-    
+
     By default, the CLI runs in quiet mode suitable for automation.
     Use --show-output for rich terminal formatting or --verbose for debug info.
     """
@@ -230,7 +233,9 @@ def main(
     ctx.ensure_object(dict)
     ctx.obj["verbose"] = verbose
     ctx.obj["show_output"] = show_output
-    ctx.obj["quiet"] = not (verbose or show_output)  # Quiet unless verbose or show_output is enabled
+    ctx.obj["quiet"] = not (
+        verbose or show_output
+    )  # Quiet unless verbose or show_output is enabled
     ctx.obj["profiles_dir"] = profiles_dir
 
     # Configure console for verbose output

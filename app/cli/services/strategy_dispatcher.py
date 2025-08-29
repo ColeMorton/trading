@@ -37,7 +37,7 @@ class StrategyDispatcher:
     def __init__(self, console: ConsoleLogger = None):
         """
         Initialize dispatcher with available strategy services.
-        
+
         Args:
             console: Console logger for user-facing output
         """
@@ -74,7 +74,9 @@ class StrategyDispatcher:
         )
         # Check if we should skip analysis and run portfolio processing only
         if config.skip_analysis:
-            self.console.info("Skip analysis mode enabled - processing existing portfolios")
+            self.console.info(
+                "Skip analysis mode enabled - processing existing portfolios"
+            )
             success = self._execute_skip_analysis_mode(config)
             summary.execution_time = time.time() - start_time
             summary.success_rate = 1.0 if success else 0.0
@@ -90,7 +92,9 @@ class StrategyDispatcher:
         strategy_service = self._determine_single_service(config.strategy_types[0])
 
         if not strategy_service:
-            self.console.error("No compatible service found for specified strategy type")
+            self.console.error(
+                "No compatible service found for specified strategy type"
+            )
             summary.execution_time = time.time() - start_time
             summary.success_rate = 0.0
             summary.total_strategies = 1
@@ -166,26 +170,33 @@ class StrategyDispatcher:
         else:
             summary.tickers_processed = [config.ticker]
 
-        self.console.heading(f"Executing {len(config.strategy_types)} strategies", level=2)
-        
+        self.console.heading(
+            f"Executing {len(config.strategy_types)} strategies", level=2
+        )
+
         # Create progress context for multiple strategies
         with self.console.progress_context("Strategy Execution") as progress:
             strategy_task = progress.add_task(
-                "Processing strategies...", 
-                total=len(config.strategy_types)
+                "Processing strategies...", total=len(config.strategy_types)
             )
-            
+
             for i, strategy_type in enumerate(config.strategy_types):
-                progress.update(strategy_task, description=f"Running {strategy_type} strategy...")
+                progress.update(
+                    strategy_task, description=f"Running {strategy_type} strategy..."
+                )
 
                 # Create single-strategy config
-                single_config = self._create_single_strategy_config(config, strategy_type)
+                single_config = self._create_single_strategy_config(
+                    config, strategy_type
+                )
 
                 # Get appropriate service for this strategy type
                 service = self._determine_single_service(strategy_type)
 
                 if not service:
-                    self.console.error(f"No service found for strategy type: {strategy_type}")
+                    self.console.error(
+                        f"No service found for strategy type: {strategy_type}"
+                    )
                     results.append(False)
                     progress.update(strategy_task, advance=1)
                     continue
@@ -210,10 +221,12 @@ class StrategyDispatcher:
                     )
                     summary.add_portfolio_result(portfolio_result)
 
-                    self.console.success(f"{strategy_type} strategy completed successfully")
+                    self.console.success(
+                        f"{strategy_type} strategy completed successfully"
+                    )
                 else:
                     self.console.error(f"{strategy_type} strategy failed")
-                
+
                 progress.update(strategy_task, advance=1)
 
         total_success = all(results)
@@ -226,9 +239,13 @@ class StrategyDispatcher:
 
         # Show completion summary
         if successful_count == len(results):
-            self.console.success(f"All {len(results)} strategies completed successfully")
+            self.console.success(
+                f"All {len(results)} strategies completed successfully"
+            )
         else:
-            self.console.warning(f"Mixed results: {successful_count}/{len(results)} strategies successful")
+            self.console.warning(
+                f"Mixed results: {successful_count}/{len(results)} strategies successful"
+            )
 
         return summary
 
@@ -315,7 +332,9 @@ class StrategyDispatcher:
         # Check for MACD strategy
         if StrategyType.MACD.value in strategy_type_values:
             if len(strategy_types) > 1:
-                self.console.warning("Multiple strategy types specified with MACD. Using MACD service.")
+                self.console.warning(
+                    "Multiple strategy types specified with MACD. Using MACD service."
+                )
             return self._services["MACD"]
 
         # Check for MA strategies (SMA, EMA)
@@ -326,7 +345,9 @@ class StrategyDispatcher:
         # Check for ATR strategy
         if StrategyType.ATR.value in strategy_type_values:
             if len(strategy_types) > 1:
-                self.console.warning("Multiple strategy types specified with ATR. Using mixed strategy execution.")
+                self.console.warning(
+                    "Multiple strategy types specified with ATR. Using mixed strategy execution."
+                )
             return self._services["ATR"]
 
         # No compatible service found

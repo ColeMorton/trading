@@ -744,9 +744,9 @@ def show_execution_progress(
 
 def show_execution_progress_console(
     console: ConsoleLogger,
-    message: str, 
-    ticker_count: int = None, 
-    combination_count: int = None
+    message: str,
+    ticker_count: int = None,
+    combination_count: int = None,
 ) -> None:
     """
     Display consistent execution progress messages using console logger.

@@ -227,9 +227,11 @@ def should_trigger_fresh_analysis(
         # Log to help track when this protection is activated
         if ticker and strategy_type:
             # Use a simple print since we don't have access to log function here
-            print(f"[SAFEGUARD] Blocked fresh analysis for {ticker} {strategy_type} during portfolio update")
+            print(
+                f"[SAFEGUARD] Blocked fresh analysis for {ticker} {strategy_type} during portfolio update"
+            )
         return False
-    
+
     # Check if equity export is enabled
     if not config.get("EQUITY_DATA", {}).get("EXPORT", False):
         return False

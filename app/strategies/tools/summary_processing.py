@@ -1482,7 +1482,7 @@ def update_strategy_files(
         if config:
             sort_by = config.get("SORT_BY", "Score")
             sort_asc = config.get("SORT_ASC", False)
-            
+
             # Ensure sort column exists - if sorting by Score but column doesn't exist, use Total Return [%] as fallback
             if sort_by == "Score" and "Score" not in df.columns:
                 if "Total Return [%]" in df.columns:
@@ -1491,26 +1491,42 @@ def update_strategy_files(
                         df = df.with_columns(
                             pl.col("Total Return [%]").cast(pl.Float64).alias("Score")
                         )
-                        log(f"Created Score column from Total Return [%] for sorting", "info")
+                        log(
+                            f"Created Score column from Total Return [%] for sorting",
+                            "info",
+                        )
                     except Exception:
                         # Use the original Total Return [%] column
                         sort_by = "Total Return [%]"
-                        log(f"Using Total Return [%] for sorting instead of Score", "info")
+                        log(
+                            f"Using Total Return [%] for sorting instead of Score",
+                            "info",
+                        )
                 else:
                     # Fall back to first available numeric column
-                    numeric_cols = [col for col in df.columns if df[col].dtype in [pl.Float64, pl.Float32, pl.Int64, pl.Int32]]
+                    numeric_cols = [
+                        col
+                        for col in df.columns
+                        if df[col].dtype in [pl.Float64, pl.Float32, pl.Int64, pl.Int32]
+                    ]
                     sort_by = numeric_cols[0] if numeric_cols else df.columns[0]
                     log(f"Falling back to {sort_by} for sorting", "info")
-            
+
             # Apply sorting if column exists
             if sort_by in df.columns:
                 try:
                     df = df.sort(sort_by, descending=not sort_asc)
-                    log(f"Sorted CSV export by {sort_by} ({'ascending' if sort_asc else 'descending'})", "info")
+                    log(
+                        f"Sorted CSV export by {sort_by} ({'ascending' if sort_asc else 'descending'})",
+                        "info",
+                    )
                 except Exception as e:
                     log(f"Error sorting by {sort_by}: {str(e)}", "warning")
             else:
-                log(f"Warning: Sort column '{sort_by}' not found in DataFrame columns: {df.columns}", "warning")
+                log(
+                    f"Warning: Sort column '{sort_by}' not found in DataFrame columns: {df.columns}",
+                    "warning",
+                )
         else:
             log("No config provided - exporting without sorting", "warning")
 

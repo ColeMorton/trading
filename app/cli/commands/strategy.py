@@ -215,18 +215,17 @@ def run(
         # Get global options from context
         global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
         global_show_output = ctx.obj.get("show_output", False) if ctx.obj else False
-        global_quiet = ctx.obj.get("quiet", True) if ctx.obj else True  # Default to quiet
-        
+        global_quiet = (
+            ctx.obj.get("quiet", True) if ctx.obj else True
+        )  # Default to quiet
+
         # Initialize console logger with user preferences
         # Verbose or local verbose enables output, otherwise respect global quiet
         is_verbose = verbose or global_verbose
         is_quiet = global_quiet and not is_verbose and not global_show_output
-        
-        console = ConsoleLogger(
-            verbose=is_verbose,
-            quiet=is_quiet
-        )
-        
+
+        console = ConsoleLogger(verbose=is_verbose, quiet=is_quiet)
+
         if is_verbose:
             console.debug("Loading strategy execution module...")
 
@@ -245,16 +244,18 @@ def run(
                 f"{config.synthetic.ticker_1}_{config.synthetic.ticker_2}"
             )
             tickers_to_process = [synthetic_ticker]
-            
+
             console.heading("Strategy Analysis", level=1)
-            
+
             strategy_types_str = ", ".join(
                 [
                     st.value if hasattr(st, "value") else str(st)
                     for st in config.strategy_types
                 ]
             )
-            console.info(f"Processing synthetic pair with {strategy_types_str} strategies: {synthetic_ticker}")
+            console.info(
+                f"Processing synthetic pair with {strategy_types_str} strategies: {synthetic_ticker}"
+            )
         else:
             # Normal mode: show individual tickers
             if config.ticker is None or (
@@ -267,7 +268,7 @@ def run(
                     if isinstance(config.ticker, list)
                     else [config.ticker]
                 )
-            
+
             console.heading("Strategy Analysis", level=1)
 
             strategy_types_str = ", ".join(
@@ -276,8 +277,10 @@ def run(
                     for st in config.strategy_types
                 ]
             )
-            ticker_names = ', '.join(tickers_to_process)
-            console.info(f"Processing {len(tickers_to_process)} tickers with {strategy_types_str} strategies: {ticker_names}")
+            ticker_names = ", ".join(tickers_to_process)
+            console.info(
+                f"Processing {len(tickers_to_process)} tickers with {strategy_types_str} strategies: {ticker_names}"
+            )
 
         # Execute using strategy dispatcher
         # This routes to the appropriate strategy service based on configuration
@@ -289,7 +292,9 @@ def run(
     except Exception as e:
         # Create console logger for error handling if not already available
         # For errors, always show output (don't use quiet mode for errors)
-        error_console = locals().get('console') or ConsoleLogger(verbose=verbose, quiet=False)
+        error_console = locals().get("console") or ConsoleLogger(
+            verbose=verbose, quiet=False
+        )
         handle_command_error(e, "strategy run", verbose, console=error_console)
 
 
@@ -874,7 +879,9 @@ def _display_portfolio_table(df, display_columns):
     console.print(table)
 
 
-def _display_strategy_summary(summary: StrategyExecutionSummary, console: ConsoleLogger) -> None:
+def _display_strategy_summary(
+    summary: StrategyExecutionSummary, console: ConsoleLogger
+) -> None:
     """Display rich strategy execution summary similar to seasonality command."""
     # Main success header
     console.heading("Strategy Analysis Complete!", level=1)
@@ -884,7 +891,9 @@ def _display_strategy_summary(summary: StrategyExecutionSummary, console: Consol
     strategy_types_str = ", ".join(summary.strategy_types)
 
     if ticker_count == 1:
-        console.success(f"{ticker_count} ticker analyzed successfully ({', '.join(summary.tickers_processed)})")
+        console.success(
+            f"{ticker_count} ticker analyzed successfully ({', '.join(summary.tickers_processed)})"
+        )
     else:
         console.success(f"{ticker_count} tickers analyzed successfully")
 
@@ -900,7 +909,9 @@ def _display_strategy_summary(summary: StrategyExecutionSummary, console: Consol
 
         if summary.total_filtered_portfolios > 0:
             pass_rate = summary.filter_pass_rate * 100
-            console.info(f"Filtered: {summary.total_filtered_portfolios:,} portfolios ({pass_rate:.1f}% pass rate)")
+            console.info(
+                f"Filtered: {summary.total_filtered_portfolios:,} portfolios ({pass_rate:.1f}% pass rate)"
+            )
 
         # Show best configuration if available
         if summary.best_opportunity:
@@ -969,12 +980,14 @@ def _display_strategy_summary(summary: StrategyExecutionSummary, console: Consol
         best_info = f"Best Strategy: {strategy_display}"
         if performance_parts:
             best_info += f" ({', '.join(performance_parts)})"
-        
+
         console.success(best_info)
 
         # Show trade performance if available
         if best.avg_win and best.avg_loss:
-            console.info(f"Trade Performance: +{best.avg_win:.2f}% avg win vs -{abs(best.avg_loss):.2f}% avg loss")
+            console.info(
+                f"Trade Performance: +{best.avg_win:.2f}% avg win vs -{abs(best.avg_loss):.2f}% avg loss"
+            )
 
     # Execution performance
     if summary.execution_time > 60:
@@ -986,4 +999,6 @@ def _display_strategy_summary(summary: StrategyExecutionSummary, console: Consol
 
     if summary.total_strategies > 1:
         success_rate_pct = summary.success_rate * 100
-        console.info(f"Success Rate: {success_rate_pct:.0f}% ({summary.successful_strategies}/{summary.total_strategies} strategies)")
+        console.info(
+            f"Success Rate: {success_rate_pct:.0f}% ({summary.successful_strategies}/{summary.total_strategies} strategies)"
+        )
