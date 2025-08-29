@@ -10,6 +10,8 @@ from typing import Any, Dict, List, Type, Union
 
 from rich import print as rprint
 
+from app.tools.console_logging import ConsoleLogger
+
 from ..models.strategy import (
     StrategyConfig,
     StrategyExecutionSummary,
@@ -32,13 +34,19 @@ class StrategyDispatcher:
     routing to strategy-specific implementations based on configuration.
     """
 
-    def __init__(self):
-        """Initialize dispatcher with available strategy services."""
+    def __init__(self, console: ConsoleLogger = None):
+        """
+        Initialize dispatcher with available strategy services.
+        
+        Args:
+            console: Console logger for user-facing output
+        """
         self._services: Dict[str, BaseStrategyService] = {
             "MA": MAStrategyService(),
             "MACD": MACDStrategyService(),
             "ATR": ATRStrategyService(),
         }
+        self.console = console or ConsoleLogger()
 
     def execute_strategy(self, config: StrategyConfig) -> StrategyExecutionSummary:
         """
@@ -66,9 +74,7 @@ class StrategyDispatcher:
         )
         # Check if we should skip analysis and run portfolio processing only
         if config.skip_analysis:
-            rprint(
-                "[blue]Skip analysis mode enabled - processing existing portfolios[/blue]"
-            )
+            self.console.info("Skip analysis mode enabled - processing existing portfolios")
             success = self._execute_skip_analysis_mode(config)
             summary.execution_time = time.time() - start_time
             summary.success_rate = 1.0 if success else 0.0
@@ -84,7 +90,7 @@ class StrategyDispatcher:
         strategy_service = self._determine_single_service(config.strategy_types[0])
 
         if not strategy_service:
-            rprint("[red]No compatible service found for specified strategy type[/red]")
+            self.console.error("No compatible service found for specified strategy type")
             summary.execution_time = time.time() - start_time
             summary.success_rate = 0.0
             summary.total_strategies = 1
@@ -160,51 +166,55 @@ class StrategyDispatcher:
         else:
             summary.tickers_processed = [config.ticker]
 
-        rprint(
-            f"[blue]Executing {len(config.strategy_types)} strategies sequentially...[/blue]"
-        )
+        self.console.heading(f"Executing {len(config.strategy_types)} strategies", level=2)
+        
+        # Create progress context for multiple strategies
+        with self.console.progress_context("Strategy Execution") as progress:
+            strategy_task = progress.add_task(
+                "Processing strategies...", 
+                total=len(config.strategy_types)
+            )
+            
+            for i, strategy_type in enumerate(config.strategy_types):
+                progress.update(strategy_task, description=f"Running {strategy_type} strategy...")
 
-        for strategy_type in config.strategy_types:
-            rprint(f"[dim]Running {strategy_type} strategy...[/dim]")
+                # Create single-strategy config
+                single_config = self._create_single_strategy_config(config, strategy_type)
 
-            # Create single-strategy config
-            single_config = self._create_single_strategy_config(config, strategy_type)
+                # Get appropriate service for this strategy type
+                service = self._determine_single_service(strategy_type)
 
-            # Get appropriate service for this strategy type
-            service = self._determine_single_service(strategy_type)
+                if not service:
+                    self.console.error(f"No service found for strategy type: {strategy_type}")
+                    results.append(False)
+                    progress.update(strategy_task, advance=1)
+                    continue
 
-            if not service:
-                rprint(
-                    f"[red]No service found for strategy type: {strategy_type}[/red]"
-                )
-                results.append(False)
-                continue
+                # Execute strategy
+                success = service.execute_strategy(single_config)
+                results.append(success)
 
-            # Execute strategy
-            success = service.execute_strategy(single_config)
-            results.append(success)
+                # Create portfolio result for this strategy execution
+                if success:
+                    portfolio_result = StrategyPortfolioResults(
+                        ticker=summary.tickers_processed[0]
+                        if summary.tickers_processed
+                        else "Unknown",
+                        strategy_type=strategy_type.value
+                        if hasattr(strategy_type, "value")
+                        else str(strategy_type),
+                        total_portfolios=0,  # Would need service modification to get actual count
+                        filtered_portfolios=0,
+                        extreme_value_portfolios=0,
+                        files_exported=[],
+                    )
+                    summary.add_portfolio_result(portfolio_result)
 
-            # Create portfolio result for this strategy execution
-            if success:
-                portfolio_result = StrategyPortfolioResults(
-                    ticker=summary.tickers_processed[0]
-                    if summary.tickers_processed
-                    else "Unknown",
-                    strategy_type=strategy_type.value
-                    if hasattr(strategy_type, "value")
-                    else str(strategy_type),
-                    total_portfolios=0,  # Would need service modification to get actual count
-                    filtered_portfolios=0,
-                    extreme_value_portfolios=0,
-                    files_exported=[],
-                )
-                summary.add_portfolio_result(portfolio_result)
-
-                rprint(
-                    f"[green]✓ {strategy_type} strategy completed successfully[/green]"
-                )
-            else:
-                rprint(f"[red]✗ {strategy_type} strategy failed[/red]")
+                    self.console.success(f"{strategy_type} strategy completed successfully")
+                else:
+                    self.console.error(f"{strategy_type} strategy failed")
+                
+                progress.update(strategy_task, advance=1)
 
         total_success = all(results)
         successful_count = sum(results)
@@ -214,9 +224,11 @@ class StrategyDispatcher:
         summary.success_rate = successful_count / len(results) if results else 0.0
         summary.execution_time = time.time() - start_time
 
-        rprint(
-            f"[blue]Mixed strategy execution complete: {successful_count}/{len(results)} successful[/blue]"
-        )
+        # Show completion summary
+        if successful_count == len(results):
+            self.console.success(f"All {len(results)} strategies completed successfully")
+        else:
+            self.console.warning(f"Mixed results: {successful_count}/{len(results)} strategies successful")
 
         return summary
 
@@ -277,7 +289,7 @@ class StrategyDispatcher:
         elif strategy_value == StrategyType.ATR.value:
             return self._services["ATR"]
         else:
-            rprint(f"[red]Unsupported strategy type: {strategy_value}[/red]")
+            self.console.error(f"Unsupported strategy type: {strategy_value}")
             return None
 
     def _determine_service(
@@ -303,9 +315,7 @@ class StrategyDispatcher:
         # Check for MACD strategy
         if StrategyType.MACD.value in strategy_type_values:
             if len(strategy_types) > 1:
-                rprint(
-                    "[yellow]Warning: Multiple strategy types specified with MACD. Using MACD service.[/yellow]"
-                )
+                self.console.warning("Multiple strategy types specified with MACD. Using MACD service.")
             return self._services["MACD"]
 
         # Check for MA strategies (SMA, EMA)
@@ -316,14 +326,12 @@ class StrategyDispatcher:
         # Check for ATR strategy
         if StrategyType.ATR.value in strategy_type_values:
             if len(strategy_types) > 1:
-                rprint(
-                    "[yellow]Warning: Multiple strategy types specified with ATR. Using mixed strategy execution.[/yellow]"
-                )
+                self.console.warning("Multiple strategy types specified with ATR. Using mixed strategy execution.")
             return self._services["ATR"]
 
         # No compatible service found
-        rprint(f"[red]Unsupported strategy types: {strategy_type_values}[/red]")
-        rprint(f"[dim]Supported: SMA, EMA, MACD, ATR[/dim]")
+        self.console.error(f"Unsupported strategy types: {strategy_type_values}")
+        self.console.debug("Supported strategy types: SMA, EMA, MACD, ATR")
         return None
 
     def get_available_services(self) -> List[str]:
@@ -385,7 +393,7 @@ class StrategyDispatcher:
                 return orchestrator.run(legacy_config)
 
         except Exception as e:
-            rprint(f"[red]Error in skip analysis mode: {e}[/red]")
+            self.console.error(f"Error in skip analysis mode: {e}")
             return False
 
     def _convert_config_to_legacy_for_skip_mode(

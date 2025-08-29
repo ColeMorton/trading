@@ -152,6 +152,16 @@ def run(portfolio: str) -> bool:
 
         # Get a normalized copy of the global config
         local_config = normalize_config(config.copy())
+        
+        # CRITICAL: Set portfolio update mode to prevent batch analysis triggers
+        # This prevents dispatch_fresh_analysis from triggering comprehensive MACD analysis
+        local_config["_PORTFOLIO_UPDATE_MODE"] = True
+        
+        # CRITICAL: Disable equity export during portfolio updates to prevent batch triggers
+        # Portfolio updates should only process the input file, not trigger fresh analysis
+        if "EQUITY_DATA" not in local_config:
+            local_config["EQUITY_DATA"] = {}
+        local_config["EQUITY_DATA"]["EXPORT"] = False
 
         # Detect 2-day timeframe from portfolio filename
         if "2D" in portfolio.upper():
@@ -526,11 +536,9 @@ def run(portfolio: str) -> bool:
                     )
                     return
 
-                # Sort cleaned portfolios by Score (descending) for main display
+                # Sort cleaned portfolios using configuration for main display
                 try:
-                    sorted_portfolios = sort_portfolios(
-                        clean_portfolios, {"SORT_BY": "Score", "SORT_ASC": False}
-                    )
+                    sorted_portfolios = sort_portfolios(clean_portfolios, local_config)
                 except Exception as e:
                     log(f"ERROR: Failed to sort portfolios: {str(e)}", "error")
                     return

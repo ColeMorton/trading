@@ -13,6 +13,8 @@ from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
 
+from app.tools.console_logging import ConsoleLogger
+
 from ..models.strategy import StrategyConfig
 
 console = Console()
@@ -412,7 +414,7 @@ def convert_to_legacy_config(
 
 
 def handle_command_error(
-    error: Exception, command_name: str, verbose: bool = False
+    error: Exception, command_name: str, verbose: bool = False, console=None
 ) -> None:
     """
     Handle command errors consistently across all strategy sub-commands.
@@ -421,8 +423,14 @@ def handle_command_error(
         error: The exception that occurred
         command_name: Name of the command for error reporting
         verbose: Whether to show detailed error information
+        console: Console logger instance (optional)
     """
-    rprint(f"[red]Error executing {command_name}: {error}[/red]")
+    if console:
+        console.error(f"Error executing {command_name}: {error}")
+        if verbose:
+            console.debug("Full traceback available with --verbose flag")
+    else:
+        rprint(f"[red]Error executing {command_name}: {error}[/red]")
 
     if verbose:
         import traceback
@@ -732,6 +740,30 @@ def show_execution_progress(
 
     if combination_count:
         rprint(f"Analyzing {combination_count} parameter combinations...")
+
+
+def show_execution_progress_console(
+    console: ConsoleLogger,
+    message: str, 
+    ticker_count: int = None, 
+    combination_count: int = None
+) -> None:
+    """
+    Display consistent execution progress messages using console logger.
+
+    Args:
+        console: Console logger instance
+        message: Progress message to display
+        ticker_count: Number of tickers being processed
+        combination_count: Number of combinations being analyzed
+    """
+    console.progress(message)
+
+    if ticker_count:
+        console.info(f"Processing {ticker_count} ticker(s)...")
+
+    if combination_count:
+        console.info(f"Analyzing {combination_count} parameter combinations...")
 
 
 def validate_parameter_relationships(config: StrategyConfig) -> None:

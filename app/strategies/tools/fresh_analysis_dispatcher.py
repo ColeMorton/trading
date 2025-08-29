@@ -220,6 +220,16 @@ def should_trigger_fresh_analysis(
     Returns:
         True if fresh analysis should be triggered, False otherwise
     """
+    # CRITICAL: Prevent batch analysis during portfolio update operations
+    # If we're in a portfolio update context, disable fresh analysis to prevent
+    # triggering comprehensive MACD analysis across hundreds of tickers
+    if config.get("_PORTFOLIO_UPDATE_MODE", False):
+        # Log to help track when this protection is activated
+        if ticker and strategy_type:
+            # Use a simple print since we don't have access to log function here
+            print(f"[SAFEGUARD] Blocked fresh analysis for {ticker} {strategy_type} during portfolio update")
+        return False
+    
     # Check if equity export is enabled
     if not config.get("EQUITY_DATA", {}).get("EXPORT", False):
         return False

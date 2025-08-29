@@ -14,6 +14,8 @@ from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
 
+from app.tools.console_logging import ConsoleLogger
+
 from ..config import ConfigLoader
 from ..models.strategy import (
     MACDConfig,
@@ -45,6 +47,7 @@ console = Console()
 
 @app.command()
 def run(
+    ctx: typer.Context,
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
@@ -209,15 +212,30 @@ def run(
             show_config_preview(config, "Strategy Configuration Preview")
             return
 
-        if verbose:
-            rprint("[dim]Loading strategy execution module...[/dim]")
+        # Get global options from context
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+        global_show_output = ctx.obj.get("show_output", False) if ctx.obj else False
+        global_quiet = ctx.obj.get("quiet", True) if ctx.obj else True  # Default to quiet
+        
+        # Initialize console logger with user preferences
+        # Verbose or local verbose enables output, otherwise respect global quiet
+        is_verbose = verbose or global_verbose
+        is_quiet = global_quiet and not is_verbose and not global_show_output
+        
+        console = ConsoleLogger(
+            verbose=is_verbose,
+            quiet=is_quiet
+        )
+        
+        if is_verbose:
+            console.debug("Loading strategy execution module...")
 
-        # Initialize strategy dispatcher
-        dispatcher = StrategyDispatcher()
+        # Initialize strategy dispatcher with console logger
+        dispatcher = StrategyDispatcher(console=console)
 
         # Validate strategy compatibility
         if not dispatcher.validate_strategy_compatibility(config.strategy_types):
-            rprint("[red]Invalid strategy type configuration[/red]")
+            console.error("Invalid strategy type configuration")
             return
 
         # Show execution progress - handle synthetic mode differently
@@ -227,19 +245,16 @@ def run(
                 f"{config.synthetic.ticker_1}_{config.synthetic.ticker_2}"
             )
             tickers_to_process = [synthetic_ticker]
-            show_execution_progress(
-                "Executing synthetic ticker analysis", ticker_count=1
-            )
-
+            
+            console.heading("Strategy Analysis", level=1)
+            
             strategy_types_str = ", ".join(
                 [
                     st.value if hasattr(st, "value") else str(st)
                     for st in config.strategy_types
                 ]
             )
-            rprint(
-                f"[bold]Processing synthetic pair with {strategy_types_str} strategies:[/bold] {synthetic_ticker}"
-            )
+            console.info(f"Processing synthetic pair with {strategy_types_str} strategies: {synthetic_ticker}")
         else:
             # Normal mode: show individual tickers
             if config.ticker is None or (
@@ -252,9 +267,8 @@ def run(
                     if isinstance(config.ticker, list)
                     else [config.ticker]
                 )
-            show_execution_progress(
-                "Executing strategy analysis", ticker_count=len(tickers_to_process)
-            )
+            
+            console.heading("Strategy Analysis", level=1)
 
             strategy_types_str = ", ".join(
                 [
@@ -262,19 +276,21 @@ def run(
                     for st in config.strategy_types
                 ]
             )
-            rprint(
-                f"[bold]Processing {len(tickers_to_process)} tickers with {strategy_types_str} strategies:[/bold] {', '.join(tickers_to_process)}"
-            )
+            ticker_names = ', '.join(tickers_to_process)
+            console.info(f"Processing {len(tickers_to_process)} tickers with {strategy_types_str} strategies: {ticker_names}")
 
         # Execute using strategy dispatcher
         # This routes to the appropriate strategy service based on configuration
         execution_summary = dispatcher.execute_strategy(config)
 
         # Display rich execution summary instead of simple success message
-        _display_strategy_summary(execution_summary)
+        _display_strategy_summary(execution_summary, console)
 
     except Exception as e:
-        handle_command_error(e, "strategy run", verbose)
+        # Create console logger for error handling if not already available
+        # For errors, always show output (don't use quiet mode for errors)
+        error_console = locals().get('console') or ConsoleLogger(verbose=verbose, quiet=False)
+        handle_command_error(e, "strategy run", verbose, console=error_console)
 
 
 @app.command()
@@ -858,56 +874,46 @@ def _display_portfolio_table(df, display_columns):
     console.print(table)
 
 
-def _display_strategy_summary(summary: StrategyExecutionSummary) -> None:
+def _display_strategy_summary(summary: StrategyExecutionSummary, console: ConsoleLogger) -> None:
     """Display rich strategy execution summary similar to seasonality command."""
     # Main success header
-    rprint("\n[bold green]✨ Strategy Analysis Complete![/bold green]")
+    console.heading("Strategy Analysis Complete!", level=1)
 
     # Basic execution statistics
     ticker_count = len(summary.tickers_processed)
     strategy_types_str = ", ".join(summary.strategy_types)
 
     if ticker_count == 1:
-        rprint(
-            f"📈 [cyan]{ticker_count} ticker analyzed successfully ({', '.join(summary.tickers_processed)})[/cyan]"
-        )
+        console.success(f"{ticker_count} ticker analyzed successfully ({', '.join(summary.tickers_processed)})")
     else:
-        rprint(f"📈 [cyan]{ticker_count} tickers analyzed successfully[/cyan]")
+        console.success(f"{ticker_count} tickers analyzed successfully")
 
     if len(summary.strategy_types) > 1:
-        rprint(f"⚡ [white]Strategies: {strategy_types_str}[/white]")
+        console.info(f"Strategies: {strategy_types_str}")
 
     # Portfolio Analysis Results section
     if summary.portfolio_results:
-        rprint(f"\n[bold cyan]📊 Portfolio Analysis Results:[/bold cyan]")
+        console.heading("Portfolio Analysis Results", level=2)
 
         # Show aggregated statistics
-        rprint(
-            f"  🔍 [white]Generated: {summary.total_portfolios_generated:,} portfolios[/white]"
-        )
+        console.info(f"Generated: {summary.total_portfolios_generated:,} portfolios")
 
         if summary.total_filtered_portfolios > 0:
             pass_rate = summary.filter_pass_rate * 100
-            rprint(
-                f"  🎯 [white]Filtered: {summary.total_filtered_portfolios:,} portfolios ({pass_rate:.1f}% pass rate)[/white]"
-            )
+            console.info(f"Filtered: {summary.total_filtered_portfolios:,} portfolios ({pass_rate:.1f}% pass rate)")
 
         # Show best configuration if available
         if summary.best_opportunity:
             best = summary.best_opportunity
             if best.best_config:
-                rprint(
-                    f"  🏆 [white]Optimal: {best.strategy_type} {best.best_config}[/white]",
-                    end="",
-                )
+                config_info = f"Optimal: {best.strategy_type} {best.best_config}"
                 if best.best_score:
-                    rprint(f" [green](Score: {best.best_score:.3f})[/green]")
-                else:
-                    rprint("")
+                    config_info += f" (Score: {best.best_score:.3f})"
+                console.success(config_info)
 
     # Files Generated section
     if summary.total_files_exported > 0:
-        rprint(f"\n[bold cyan]📁 Files Generated:[/bold cyan]")
+        console.heading("Files Generated", level=2)
 
         # Group files by type for better display
         file_types = {
@@ -936,32 +942,22 @@ def _display_strategy_summary(summary: StrategyExecutionSummary) -> None:
 
         # Display files by type with appropriate emojis
         if file_types["portfolios"]:
-            rprint(
-                f"  📋 [green]Raw portfolios: {', '.join(file_types['portfolios'])}[/green]"
-            )
+            console.success(f"Raw portfolios: {', '.join(file_types['portfolios'])}")
         if file_types["portfolios_filtered"]:
-            rprint(
-                f"  🎯 [green]Filtered: {', '.join(file_types['portfolios_filtered'])}[/green]"
-            )
+            console.success(f"Filtered: {', '.join(file_types['portfolios_filtered'])}")
         if file_types["portfolios_metrics"]:
-            rprint(
-                f"  📊 [green]Metrics: {', '.join(file_types['portfolios_metrics'])}[/green]"
-            )
+            console.success(f"Metrics: {', '.join(file_types['portfolios_metrics'])}")
         if file_types["portfolios_best"]:
-            rprint(
-                f"  🏆 [green]Best: {', '.join(file_types['portfolios_best'])}[/green]"
-            )
+            console.success(f"Best: {', '.join(file_types['portfolios_best'])}")
 
     # Key Insights section
-    rprint(f"\n[bold yellow]💡 Key Insights:[/bold yellow]")
+    console.heading("Key Insights", level=3)
 
     if summary.best_opportunity:
         best = summary.best_opportunity
         strategy_display = f"{best.strategy_type}"
         if best.best_config:
             strategy_display += f" {best.best_config}"
-
-        rprint(f"  🏆 [white]Best Strategy: {strategy_display}[/white]", end="")
 
         # Add performance metrics if available
         performance_parts = []
@@ -970,16 +966,15 @@ def _display_strategy_summary(summary: StrategyExecutionSummary) -> None:
         if best.best_score:
             performance_parts.append(f"Score: {best.best_score:.3f}")
 
+        best_info = f"Best Strategy: {strategy_display}"
         if performance_parts:
-            rprint(f" [green]({', '.join(performance_parts)})[/green]")
-        else:
-            rprint("")
+            best_info += f" ({', '.join(performance_parts)})"
+        
+        console.success(best_info)
 
         # Show trade performance if available
         if best.avg_win and best.avg_loss:
-            rprint(
-                f"  📈 [white]Trade Performance: +{best.avg_win:.2f}% avg win vs -{abs(best.avg_loss):.2f}% avg loss[/white]"
-            )
+            console.info(f"Trade Performance: +{best.avg_win:.2f}% avg win vs -{abs(best.avg_loss):.2f}% avg loss")
 
     # Execution performance
     if summary.execution_time > 60:
@@ -987,12 +982,8 @@ def _display_strategy_summary(summary: StrategyExecutionSummary) -> None:
     else:
         time_display = f"{summary.execution_time:.1f} seconds"
 
-    rprint(f"  ⚡ [white]Execution Time: {time_display}[/white]")
+    console.info(f"Execution Time: {time_display}")
 
     if summary.total_strategies > 1:
         success_rate_pct = summary.success_rate * 100
-        rprint(
-            f"  🎯 [white]Success Rate: {success_rate_pct:.0f}% ({summary.successful_strategies}/{summary.total_strategies} strategies)[/white]"
-        )
-
-    rprint()  # Add final blank line for spacing
+        console.info(f"Success Rate: {success_rate_pct:.0f}% ({summary.successful_strategies}/{summary.total_strategies} strategies)")

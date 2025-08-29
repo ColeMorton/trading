@@ -28,7 +28,7 @@ def sample_config():
     """Create sample MA Cross configuration."""
     return AnalysisConfig(
         ticker="AAPL",
-        use_sma=True,
+        strategy_type="SMA",
         fast_period=20,
         slow_period=50,
         direction="Long",
@@ -82,13 +82,13 @@ class TestMACrossConfig:
             ticker="AAPL",
             fast_period=20,
             slow_period=50,  # Long > Short is valid
-            use_sma=True,
+            strategy_type="SMA",
         )
         assert config1.fast_period == 20
         assert config1.slow_period == 50
 
         # Test different direction values (both should work since no validation)
-        config2 = AnalysisConfig(ticker="AAPL", direction="Short", use_sma=True)
+        config2 = AnalysisConfig(ticker="AAPL", direction="Short", strategy_type="SMA")
         assert config2.direction == "Short"
 
         # Test with different ticker values
@@ -169,7 +169,7 @@ class TestMACrossAnalyzer:
             pass
 
         config = AnalysisConfig(
-            ticker="AAPL", use_sma=True, fast_period=20, slow_period=50
+            ticker="AAPL", strategy_type="SMA", fast_period=20, slow_period=50
         )
 
         analyzer = MACrossAnalyzer(log=mock_log)
@@ -201,7 +201,10 @@ class TestMACrossAnalyzer:
             pass
 
         config = AnalysisConfig(
-            ticker="AAPL", use_sma=False, fast_period=12, slow_period=26  # Use EMA
+            ticker="AAPL",
+            strategy_type="EMA",
+            fast_period=12,
+            slow_period=26,  # Use EMA
         )
 
         analyzer = MACrossAnalyzer(log=mock_log)
@@ -234,7 +237,7 @@ class TestMACrossAnalyzer:
 
         config = AnalysisConfig(
             ticker="AAPL",
-            use_sma=True,
+            strategy_type="SMA",
             fast_period=5,
             slow_period=15,  # Shorter windows for more signals
         )
@@ -265,7 +268,7 @@ class TestMACrossAnalyzer:
             pass
 
         config = AnalysisConfig(
-            ticker="AAPL", use_sma=True, fast_period=10, slow_period=20
+            ticker="AAPL", strategy_type="SMA", fast_period=10, slow_period=20
         )
 
         analyzer = MACrossAnalyzer(log=mock_log)
@@ -317,7 +320,7 @@ class TestMACrossAnalyzer:
 
         base_config = AnalysisConfig(
             ticker="AAPL",  # Will be overridden per ticker
-            use_sma=True,
+            strategy_type="SMA",
             fast_period=20,
             slow_period=50,
         )
@@ -351,7 +354,7 @@ class TestMACrossAnalyzer:
         """Test configuration dictionary conversion."""
         config = AnalysisConfig(
             ticker="AAPL",
-            use_sma=True,
+            strategy_type="SMA",
             fast_period=20,
             slow_period=50,
             direction="Long",
@@ -361,7 +364,7 @@ class TestMACrossAnalyzer:
 
         assert isinstance(config_dict, dict)
         assert config_dict["TICKER"] == "AAPL"
-        assert config_dict["USE_SMA"] == True
+        assert config_dict["STRATEGY_TYPE"] == "SMA"
         assert config_dict["FAST_PERIOD"] == 20
         assert config_dict["SLOW_PERIOD"] == 50
         assert config_dict["DIRECTION"] == "Long"

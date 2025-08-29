@@ -184,7 +184,7 @@ class ScannerAdapter:
 
         return AnalysisConfig(
             ticker=ticker,
-            use_sma=use_sma,
+            strategy_type="SMA" if use_sma else "EMA",
             fast_period=fast_periods[0] if fast_periods else 20,
             slow_period=slow_periods[0] if slow_periods else 50,
             use_hourly=use_hourly,
