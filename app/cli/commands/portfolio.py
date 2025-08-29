@@ -15,6 +15,7 @@ from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
 
+from app.tools.console_logging import ConsoleLogger
 from app.tools.portfolio.strategy_types import derive_use_sma
 
 from ..config import ConfigLoader
@@ -37,7 +38,7 @@ console = Console()
 
 
 def load_strategies_from_raw_csv(
-    raw_strategies_name: str,
+    raw_strategies_name: str, console: ConsoleLogger = None
 ) -> List[ReviewStrategyConfig]:
     """
     Load strategy configurations from a CSV file in data/raw/strategies/.
@@ -67,14 +68,18 @@ def load_strategies_from_raw_csv(
         # Load CSV using polars
         df = pl.read_csv(str(csv_path))
 
+        # Use console logger if provided, fallback to rprint for backward compatibility
+        if console is None:
+            console = ConsoleLogger()
+
         # Simple logging function for the conversion
         def log(message: str, level: str = "info"):
             if level == "error":
-                rprint(f"[red]ERROR: {message}[/red]")
+                console.error(message)
             elif level == "warning":
-                rprint(f"[yellow]WARNING: {message}[/yellow]")
+                console.warning(message)
             else:
-                rprint(f"[dim]{message}[/dim]")
+                console.debug(message)
 
         # Use existing CSV conversion system
         config = {"BASE_DIR": ".", "REFRESH": True, "USE_HOURLY": False}
@@ -116,8 +121,8 @@ def load_strategies_from_raw_csv(
 
             review_strategies.append(review_strategy)
 
-        rprint(
-            f"[green]Successfully loaded {len(review_strategies)} strategies from {csv_path}[/green]"
+        console.success(
+            f"Successfully loaded {len(review_strategies)} strategies from {csv_path}"
         )
         return review_strategies
 
@@ -127,6 +132,7 @@ def load_strategies_from_raw_csv(
 
 @app.command()
 def update(
+    ctx: typer.Context,
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
@@ -158,6 +164,15 @@ def update(
         trading-cli portfolio update --portfolio risk_on.csv --dry-run
     """
     try:
+        # Get global CLI options
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+        global_show_output = ctx.obj.get("show_output", False) if ctx.obj else False
+        global_quiet = ctx.obj.get("quiet", True) if ctx.obj else True
+
+        # Initialize console logger - portfolio commands default to rich output
+        is_verbose = verbose or global_verbose
+        is_quiet = False  # Portfolio commands always show rich output
+        console = ConsoleLogger(verbose=is_verbose, quiet=is_quiet)
         # Load configuration
         loader = ConfigLoader()
 
@@ -181,17 +196,16 @@ def update(
             )
 
         if dry_run:
-            _show_portfolio_config_preview(config)
+            _show_portfolio_config_preview(config, console)
             return
 
-        if verbose:
-            rprint("[dim]Loading portfolio processing module...[/dim]")
+        console.debug("Loading portfolio processing module...")
 
         # Import and execute portfolio update
         from ...strategies.update_portfolios import run as update_portfolios_run
         from ...tools.config_management import normalize_config
 
-        rprint("[bold]Updating portfolio results...[/bold]")
+        console.heading("Updating Portfolio Results", level=1)
 
         # Convert Pydantic model to dict for existing functions
         config_dict = config.dict()
@@ -219,24 +233,27 @@ def update(
         normalized_config = normalize_config(legacy_config)
 
         # Execute portfolio update
-        success = update_portfolios_run(resolve_portfolio_path(config.portfolio))
+        success = update_portfolios_run(
+            resolve_portfolio_path(config.portfolio), console
+        )
 
         if success:
-            rprint(f"[green]Portfolio update completed successfully![/green]")
-            rprint(f"Processed portfolio: {config.portfolio}")
+            console.success("Portfolio update completed successfully!")
+            console.info(f"Processed portfolio: {config.portfolio}")
         else:
-            rprint(f"[red]Portfolio update failed[/red]")
+            console.error("Portfolio update failed")
             raise typer.Exit(1)
 
     except Exception as e:
-        rprint(f"[red]Error updating portfolio: {e}[/red]")
-        if verbose:
+        console.error(f"Error updating portfolio: {e}")
+        if verbose or global_verbose:
             raise
         raise typer.Exit(1)
 
 
 @app.command()
 def process(
+    ctx: typer.Context,
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
@@ -265,6 +282,12 @@ def process(
         trading-cli portfolio process --profile portfolio_processing --format json
     """
     try:
+        # Get global CLI options
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
+        # Portfolio commands always show rich output
+        console = ConsoleLogger(verbose=global_verbose, quiet=False)
+
         # Load configuration
         loader = ConfigLoader()
 
@@ -290,10 +313,10 @@ def process(
             )
 
         if dry_run:
-            _show_processing_config_preview(config)
+            _show_processing_config_preview(config, console)
             return
 
-        rprint("[bold]Processing portfolio files...[/bold]")
+        console.heading("Processing Portfolio Files", level=1)
 
         # Import required modules for portfolio processing
         import json
@@ -307,16 +330,16 @@ def process(
         # Discover portfolio files in input directory
         input_path = Path(config.input_dir)
         if not input_path.exists():
-            rprint(f"[red]Input directory does not exist: {input_path}[/red]")
+            console.error(f"Input directory does not exist: {input_path}")
             raise typer.Exit(1)
 
         # Find CSV files
         csv_files = list(input_path.glob("*.csv"))
         if not csv_files:
-            rprint(f"[yellow]No CSV files found in {input_path}[/yellow]")
+            console.warning(f"No CSV files found in {input_path}")
             return
 
-        rprint(f"Found {len(csv_files)} portfolio CSV files to process")
+        console.info(f"Found {len(csv_files)} portfolio CSV files to process")
 
         # Create output directory
         output_path = Path(config.output_dir)
@@ -327,8 +350,13 @@ def process(
         processed_count = 0
         valid_count = 0
 
-        for csv_file in csv_files:
-            rprint(f"Processing: [cyan]{csv_file.name}[/cyan]")
+        # Create progress bar for file processing
+        with console.progress_context("File Processing") as progress:
+            file_task = progress.add_task("Processing files...", total=len(csv_files))
+
+            for csv_file in csv_files:
+                progress.update(file_task, description=f"Processing {csv_file.name}...")
+                console.progress(f"Processing: {csv_file.name}")
 
             try:
                 # Load and process the CSV file
@@ -353,13 +381,15 @@ def process(
                         file_results["validation"] = validation_result
 
                         if validation_result["is_valid"]:
-                            rprint(f"  ✅ Schema validation passed")
+                            console.success(
+                                f"Schema validation passed for {csv_file.name}"
+                            )
                             valid_count += 1
                         else:
                             violations = len(validation_result.get("violations", []))
                             warnings = len(validation_result.get("warnings", []))
-                            rprint(
-                                f"  ⚠️ Schema validation: {violations} violations, {warnings} warnings"
+                            console.warning(
+                                f"Schema validation for {csv_file.name}: {violations} violations, {warnings} warnings"
                             )
 
                             # Generate and save compliance report
@@ -370,10 +400,12 @@ def process(
                                 output_path / f"{csv_file.stem}_validation_report.txt"
                             )
                             report_file.write_text(report)
-                            rprint(f"  📋 Validation report saved: {report_file.name}")
+                            console.info(f"Validation report saved: {report_file.name}")
 
                     except Exception as e:
-                        rprint(f"  ❌ Schema validation failed: {e}")
+                        console.error(
+                            f"Schema validation failed for {csv_file.name}: {e}"
+                        )
                         file_results["validation"] = {
                             "is_valid": False,
                             "error": str(e),
@@ -388,8 +420,8 @@ def process(
                     # Remove completely empty columns
                     df = df.dropna(axis=1, how="all")
 
-                    rprint(
-                        f"  🔧 Data normalized: {len(df)} rows, {len(df.columns)} columns"
+                    console.info(
+                        f"Data normalized for {csv_file.name}: {len(df)} rows, {len(df.columns)} columns"
                     )
 
                 # Export in requested formats
@@ -399,23 +431,25 @@ def process(
                     csv_output = output_path / f"{output_name}.csv"
                     df.to_csv(csv_output, index=False)
                     file_results["exported_formats"].append("CSV")
-                    rprint(f"  💾 Exported CSV: {csv_output.name}")
+                    console.success(f"Exported CSV: {csv_output.name}")
 
                 if config.export_json:
                     json_output = output_path / f"{output_name}.json"
                     df.to_json(json_output, orient="records", indent=2)
                     file_results["exported_formats"].append("JSON")
-                    rprint(f"  💾 Exported JSON: {json_output.name}")
+                    console.success(f"Exported JSON: {json_output.name}")
 
                 processed_count += 1
+                progress.update(file_task, advance=1)
 
             except Exception as e:
-                rprint(f"  ❌ Processing failed: {e}")
+                console.error(f"Processing failed for {csv_file.name}: {e}")
                 file_results = {
                     "source_file": str(csv_file),
                     "processed": False,
                     "error": str(e),
                 }
+                progress.update(file_task, advance=1)
 
             results[str(csv_file)] = file_results
 
@@ -456,20 +490,21 @@ def process(
             json.dump(json_compatible_summary, f, indent=2)
 
         # Display final summary
-        _display_processing_summary(summary)
+        _display_processing_summary(summary, console)
 
-        rprint(f"\n[green]Portfolio processing completed![/green]")
-        rprint(f"Processed {processed_count}/{len(csv_files)} files successfully")
-        rprint(f"Results saved to: {output_path}")
-        rprint(f"Summary report: {summary_file.name}")
+        console.success("Portfolio processing completed!")
+        console.info(f"Processed {processed_count}/{len(csv_files)} files successfully")
+        console.info(f"Results saved to: {output_path}")
+        console.info(f"Summary report: {summary_file.name}")
 
     except Exception as e:
-        rprint(f"[red]Error processing portfolios: {e}[/red]")
+        console.error(f"Error processing portfolios: {e}")
         raise typer.Exit(1)
 
 
 @app.command()
 def aggregate(
+    ctx: typer.Context,
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
@@ -499,6 +534,12 @@ def aggregate(
         trading-cli portfolio aggregate --profile portfolio_processing --no-breadth
     """
     try:
+        # Get global CLI options
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
+        # Portfolio commands always show rich output
+        console = ConsoleLogger(verbose=global_verbose, quiet=False)
+
         loader = ConfigLoader()
 
         overrides = {
@@ -516,7 +557,7 @@ def aggregate(
                 "default_portfolio", PortfolioProcessingConfig, overrides
             )
 
-        rprint("[bold]Aggregating portfolio results...[/bold]")
+        console.heading("Aggregating Portfolio Results", level=1)
 
         # Show aggregation settings
         settings_table = Table(title="Aggregation Settings", show_header=True)
@@ -537,7 +578,7 @@ def aggregate(
             "Filter Signal Entries", "✓" if config.filter_signal_entries else "✗"
         )
 
-        console.print(settings_table)
+        console.table(settings_table)
 
         # Import required modules for portfolio aggregation
         import json
@@ -555,13 +596,13 @@ def aggregate(
             if portfolio_dir.exists():
                 csv_files = list(portfolio_dir.glob("*.csv"))
                 all_files.extend(csv_files)
-                rprint(f"Found {len(csv_files)} files in {portfolio_dir}")
+                console.info(f"Found {len(csv_files)} files in {portfolio_dir}")
 
         if not all_files:
-            rprint("[yellow]No portfolio files found to aggregate[/yellow]")
+            console.warning("No portfolio files found to aggregate")
             return
 
-        rprint(f"\n[bold]Aggregating {len(all_files)} portfolio files...[/bold]")
+        console.heading(f"Aggregating {len(all_files)} Portfolio Files", level=2)
 
         # Initialize aggregation data structures
         aggregation_results = {
@@ -606,14 +647,14 @@ def aggregate(
                     )
 
             except Exception as e:
-                rprint(f"  ❌ Error processing {csv_file.name}: {e}")
+                console.error(f"Error processing {csv_file.name}: {e}")
                 continue
 
         # Calculate final aggregated metrics
         _calculate_summary_stats(aggregation_results, processed_files, total_rows)
 
         # Display aggregation results
-        _display_aggregation_results(aggregation_results, config)
+        _display_aggregation_results(aggregation_results, config, console)
 
         # Save results if output file specified
         if output_file:
@@ -639,24 +680,25 @@ def aggregate(
             if output_path.suffix.lower() == ".json":
                 with open(output_path, "w") as f:
                     json.dump(json_results, f, indent=2)
-                rprint(f"📄 Results saved to JSON: {output_path}")
+                console.success(f"Results saved to JSON: {output_path}")
             else:
                 # Save as CSV (flattened format)
                 _save_aggregation_csv(aggregation_results, output_path)
-                rprint(f"📄 Results saved to CSV: {output_path}")
+                console.success(f"Results saved to CSV: {output_path}")
 
-        rprint(f"\n[green]Portfolio aggregation completed![/green]")
-        rprint(
+        console.success("Portfolio aggregation completed!")
+        console.info(
             f"Processed {processed_files}/{len(all_files)} files with {total_rows:,} total records"
         )
 
     except Exception as e:
-        rprint(f"[red]Error aggregating portfolios: {e}[/red]")
+        console.error(f"Error aggregating portfolios: {e}")
         raise typer.Exit(1)
 
 
 @app.command()
 def review(
+    ctx: typer.Context,
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
@@ -738,6 +780,12 @@ def review(
         trading-cli portfolio review --profile portfolio_review_multi_crypto --export-raw-data --include-vectorbt
     """
     try:
+        # Get global CLI options
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
+        # Portfolio commands always show rich output
+        console = ConsoleLogger(verbose=global_verbose, quiet=False)
+
         # Load configuration
         loader = ConfigLoader()
 
@@ -800,7 +848,7 @@ def review(
             config = loader.load_from_profile(profile, PortfolioReviewConfig, overrides)
         else:
             if not ticker:
-                rprint("[red]Either --profile or --ticker must be specified[/red]")
+                console.error("Either --profile or --ticker must be specified")
                 raise typer.Exit(1)
 
             # Create minimal config template for single ticker
@@ -820,14 +868,13 @@ def review(
 
         # Handle raw_strategies CSV loading
         if config.raw_strategies:
-            if not quiet:
-                rprint(
-                    f"[cyan]Loading strategies from CSV: {config.raw_strategies}.csv[/cyan]"
-                )
+            console.info(f"Loading strategies from CSV: {config.raw_strategies}.csv")
 
             try:
                 # Load strategies from CSV using the utility function
-                csv_strategies = load_strategies_from_raw_csv(config.raw_strategies)
+                csv_strategies = load_strategies_from_raw_csv(
+                    config.raw_strategies, console
+                )
 
                 # Override the strategies in config
                 config.strategies = csv_strategies
@@ -843,37 +890,36 @@ def review(
                         base_export_dir / config.raw_strategies
                     )
 
-                if not quiet:
-                    rprint(
-                        f"[green]Successfully loaded {len(csv_strategies)} strategies from CSV[/green]"
-                    )
-                    rprint(
-                        f"[dim]Modified output directories to include subdirectory: {config.raw_strategies}[/dim]"
-                    )
+                console.success(
+                    f"Successfully loaded {len(csv_strategies)} strategies from CSV"
+                )
+                console.debug(
+                    f"Modified output directories to include subdirectory: {config.raw_strategies}"
+                )
 
             except Exception as e:
-                rprint(f"[red]Failed to load strategies from CSV: {e}[/red]")
+                console.error(f"Failed to load strategies from CSV: {e}")
                 raise typer.Exit(1)
 
         # Validate that we have strategies after potential CSV loading
         if not config.strategies and not config.raw_strategies:
-            rprint(
-                f"[red]Configuration error: Either 'strategies' must be provided or 'raw_strategies' must reference a valid CSV file[/red]"
+            console.error(
+                "Configuration error: Either 'strategies' must be provided or 'raw_strategies' must reference a valid CSV file"
             )
             raise typer.Exit(1)
 
         if not config.strategies and config.raw_strategies:
-            rprint(
-                f"[red]Configuration error: No strategies were loaded from raw_strategies CSV file: {config.raw_strategies}[/red]"
+            console.error(
+                f"Configuration error: No strategies were loaded from raw_strategies CSV file: {config.raw_strategies}"
             )
             raise typer.Exit(1)
 
         if dry_run:
-            _show_portfolio_review_config_preview(config)
+            _show_portfolio_review_config_preview(config, console)
             return
 
         if verbose:
-            rprint("[dim]Loading portfolio review services...[/dim]")
+            console.debug("Loading portfolio review services...")
 
         # Import portfolio review services
         from ...contexts.portfolio.services.benchmark_comparison_service import (
@@ -975,30 +1021,24 @@ def review(
         # Initialize portfolio review service
         review_service = PortfolioReviewService(service_config)
 
-        if not quiet:
-            rprint("[bold]Running portfolio review analysis...[/bold]")
+        console.heading("Running Portfolio Review Analysis", level=2)
 
         # Run analysis based on strategy count
         if config.is_single_strategy:
-            if not quiet:
-                rprint(
-                    f"[cyan]Analyzing single strategy: {config.strategies[0].ticker}[/cyan]"
-                )
+            console.info(f"Analyzing single strategy: {config.strategies[0].ticker}")
             results = review_service.run_single_strategy_review(service_strategies[0])
         else:
-            if not quiet:
-                rprint(
-                    f"[cyan]Analyzing {len(config.strategies)} strategies across {len(config.unique_tickers)} tickers[/cyan]"
-                )
+            console.info(
+                f"Analyzing {len(config.strategies)} strategies across {len(config.unique_tickers)} tickers"
+            )
             results = review_service.run_multi_strategy_review()
 
         # Display results
-        _display_portfolio_review_results(results, config, output_format)
+        _display_portfolio_review_results(results, config, output_format, console)
 
         # Generate visualizations if enabled
         if config.enable_plotting and save_plots:
-            if not quiet:
-                rprint("\n[bold]Generating visualizations...[/bold]")
+            console.heading("Generating Visualizations", level=2)
 
             plot_config = ServicePlotConfig(
                 output_dir=str(config.plot_config.output_dir),
@@ -1030,40 +1070,36 @@ def review(
             )
 
             if viz_results.success:
-                if not quiet:
-                    rprint(
-                        f"[green]✓[/green] Generated {len(viz_results.plot_paths)} visualization files"
-                    )
-                if verbose:
+                console.success(
+                    f"Generated {len(viz_results.plot_paths)} visualization files"
+                )
+                if global_verbose:
                     for plot_path in viz_results.plot_paths:
-                        rprint(f"  📊 {plot_path}")
+                        console.debug(f"Plot saved: {plot_path}")
             else:
-                if not quiet:
-                    rprint(
-                        f"[yellow]⚠[/yellow] Visualization generation failed: {viz_results.error_message}"
-                    )
-
-        if not quiet:
-            rprint(f"\n[green]Portfolio review completed successfully![/green]")
-
-        if not quiet:
-            if config.is_single_strategy:
-                rprint(
-                    f"Analyzed strategy: {config.strategies[0].ticker} ({config.strategies[0].strategy_type.value})"
+                console.warning(
+                    f"Visualization generation failed: {viz_results.error_message}"
                 )
-            else:
-                rprint(
-                    f"Analyzed {len(config.strategies)} strategies across {len(config.unique_tickers)} tickers"
-                )
+
+        console.success("Portfolio review completed successfully!")
+
+        if config.is_single_strategy:
+            console.info(
+                f"Analyzed strategy: {config.strategies[0].ticker} ({config.strategies[0].strategy_type.value})"
+            )
+        else:
+            console.info(
+                f"Analyzed {len(config.strategies)} strategies across {len(config.unique_tickers)} tickers"
+            )
 
     except Exception as e:
-        rprint(f"[red]Error in portfolio review: {e}[/red]")
+        console.error(f"Error in portfolio review: {e}")
         if verbose:
             raise
         raise typer.Exit(1)
 
 
-def _show_portfolio_config_preview(config: PortfolioConfig):
+def _show_portfolio_config_preview(config: PortfolioConfig, console: ConsoleLogger):
     """Display portfolio configuration preview for dry run."""
     table = Table(title="Portfolio Configuration Preview", show_header=True)
     table.add_column("Parameter", style="cyan", no_wrap=True)
@@ -1083,11 +1119,13 @@ def _show_portfolio_config_preview(config: PortfolioConfig):
             "Force Fresh Analysis", str(config.equity_data.force_fresh_analysis)
         )
 
-    console.print(table)
-    rprint("\n[yellow]This is a dry run. Use --no-dry-run to execute.[/yellow]")
+    console.table(table)
+    console.warning("This is a dry run. Use --no-dry-run to execute.")
 
 
-def _show_processing_config_preview(config: PortfolioProcessingConfig):
+def _show_processing_config_preview(
+    config: PortfolioProcessingConfig, console: ConsoleLogger
+):
     """Display portfolio processing configuration preview."""
     table = Table(title="Portfolio Processing Configuration Preview", show_header=True)
     table.add_column("Parameter", style="cyan")
@@ -1101,11 +1139,11 @@ def _show_processing_config_preview(config: PortfolioProcessingConfig):
     table.add_row("Process Synthetic Tickers", str(config.process_synthetic_tickers))
     table.add_row("Normalize Data", str(config.normalize_data))
 
-    console.print(table)
-    rprint("\n[yellow]This is a dry run. Use --no-dry-run to execute.[/yellow]")
+    console.table(table)
+    console.warning("This is a dry run. Use --no-dry-run to execute.")
 
 
-def _display_processing_summary(summary: dict):
+def _display_processing_summary(summary: dict, console: ConsoleLogger):
     """Display portfolio processing summary results."""
 
     # Processing Summary Table
@@ -1120,7 +1158,7 @@ def _display_processing_summary(summary: dict):
     summary_table.add_row("Schema Valid Files", str(summary["schema_valid_files"]))
     summary_table.add_row("Processing Date", summary["processing_date"])
 
-    console.print(summary_table)
+    console.table(summary_table)
 
     # File Results Table
     if summary["file_results"]:
@@ -1156,7 +1194,7 @@ def _display_processing_summary(summary: dict):
 
             files_table.add_row(file_name, status, rows, columns, schema_valid, formats)
 
-        console.print(files_table)
+        console.table(files_table)
 
 
 def _extract_file_metadata(filename: str) -> dict:
@@ -1407,7 +1445,9 @@ def _calculate_summary_stats(
                 ) / len(breadth["average_metrics"]["return"])
 
 
-def _display_aggregation_results(aggregation_results: dict, config):
+def _display_aggregation_results(
+    aggregation_results: dict, config, console: ConsoleLogger
+):
     """Display comprehensive aggregation results."""
 
     # Summary Statistics
@@ -1436,11 +1476,11 @@ def _display_aggregation_results(aggregation_results: dict, config):
             "Overall Avg Return", f"{summary.get('overall_avg_return', 0):.1f}%"
         )
 
-    console.print(summary_table)
+    console.table(summary_table)
 
     # Top Tickers by Performance
     if config.aggregate_by_ticker and aggregation_results["by_ticker"]:
-        rprint("\n[bold]Top Performing Tickers:[/bold]")
+        console.heading("Top Performing Tickers", level=2)
         ticker_table = Table(show_header=True)
         ticker_table.add_column("Ticker", style="cyan", no_wrap=True)
         ticker_table.add_column("Strategies", style="yellow", justify="right")
@@ -1467,11 +1507,11 @@ def _display_aggregation_results(aggregation_results: dict, config):
                 best_strategy,
             )
 
-        console.print(ticker_table)
+        console.table(ticker_table)
 
     # Strategy Performance Comparison
     if config.aggregate_by_strategy and aggregation_results["by_strategy"]:
-        rprint("\n[bold]Strategy Performance Comparison:[/bold]")
+        console.heading("Strategy Performance Comparison", level=2)
         strategy_table = Table(show_header=True)
         strategy_table.add_column("Strategy", style="cyan", no_wrap=True)
         strategy_table.add_column("Files", style="yellow", justify="right")
@@ -1493,7 +1533,7 @@ def _display_aggregation_results(aggregation_results: dict, config):
                 best_ticker,
             )
 
-        console.print(strategy_table)
+        console.table(strategy_table)
 
 
 def _save_aggregation_csv(aggregation_results: dict, output_path: Path):
@@ -1545,7 +1585,9 @@ def _save_aggregation_csv(aggregation_results: dict, output_path: Path):
     df.to_csv(output_path, index=False)
 
 
-def _show_portfolio_review_config_preview(config: PortfolioReviewConfig):
+def _show_portfolio_review_config_preview(
+    config: PortfolioReviewConfig, console: ConsoleLogger
+):
     """Display portfolio review configuration preview for dry run."""
     table = Table(title="Portfolio Review Configuration Preview", show_header=True)
     table.add_column("Parameter", style="cyan", no_wrap=True)
@@ -1605,12 +1647,12 @@ def _show_portfolio_review_config_preview(config: PortfolioReviewConfig):
     else:
         table.add_row("Benchmark", "None")
 
-    console.print(table)
-    rprint("\n[yellow]This is a dry run. Use --no-dry-run to execute.[/yellow]")
+    console.console.print(table)
+    console.warning("This is a dry run. Use --no-dry-run to execute.")
 
 
 def _display_portfolio_review_results(
-    results, config: PortfolioReviewConfig, output_format: str
+    results, config: PortfolioReviewConfig, output_format: str, console: ConsoleLogger
 ):
     """Display portfolio review results in specified format."""
 
@@ -1642,8 +1684,8 @@ def _display_portfolio_review_results(
                 f"{strategy.position_size:.2f}",
             )
 
-        console.print(composition_table)
-        console.print()  # Add spacing
+        console.console.print(composition_table)
+        console.console.print()  # Add spacing
 
     # Statistics Table
     title = (
@@ -1671,7 +1713,7 @@ def _display_portfolio_review_results(
         else:
             stats_table.add_row(key, str(value))
 
-    console.print(stats_table)
+    console.console.print(stats_table)
 
     # Risk Metrics Table (if available)
     if results.risk_metrics and config.calculate_risk_metrics:
@@ -1696,7 +1738,7 @@ def _display_portfolio_review_results(
             risk_table.add_row("Sharpe Ratio", f"{risk_metrics.sharpe_ratio:.3f}")
             risk_table.add_row("Sortino Ratio", f"{risk_metrics.sortino_ratio:.3f}")
 
-        console.print(risk_table)
+        console.console.print(risk_table)
 
     # Open Positions (if any)
     if results.open_positions:
@@ -1707,7 +1749,7 @@ def _display_portfolio_review_results(
         for strategy_name, position_size in results.open_positions:
             positions_table.add_row(strategy_name, f"{position_size:.2f}")
 
-        console.print(positions_table)
+        console.console.print(positions_table)
 
     # Summary
     if output_format == "detailed":
@@ -1737,7 +1779,7 @@ def _display_portfolio_review_results(
         elif config.raw_data_export.enable:
             summary_table.add_row("Raw Data Export", "✗ Failed")
 
-        console.print(summary_table)
+        console.console.print(summary_table)
 
     # Raw Data Export Results (if available)
     if results.raw_data_export_results and results.raw_data_export_results.success:
@@ -1758,7 +1800,5 @@ def _display_portfolio_review_results(
                 ", ".join(filenames[:3]) + ("..." if len(filenames) > 3 else ""),
             )
 
-        console.print(export_table)
-        rprint(
-            f"\n[dim]Raw data exported to: {config.raw_data_export.output_dir}[/dim]"
-        )
+        console.console.print(export_table)
+        console.debug(f"Raw data exported to: {config.raw_data_export.output_dir}")

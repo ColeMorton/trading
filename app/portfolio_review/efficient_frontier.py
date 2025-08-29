@@ -41,7 +41,7 @@ class OptimizationConfig:
             "SYK",
             "NTES",
             "WIT",
-            "EDU",
+            "FANG",
             "AMZN",
             "RKLB",
             "SCCO",

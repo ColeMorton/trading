@@ -27,19 +27,18 @@ PORTFOLIO = [
     "NTES",
     "TSLA",
     "AMZN",
-    "EDU",
+    "TSM",
     "RKLB",
     "SCCO",
     "NFLX",
+    "AAPL",
 ]
 
 # PORTFOLIO = ["ETH-USD", "SOL-USD", "ETHFI-USD", "SUI20947-USD"]
 
 # PORTFOLIO = ['SPY', 'QQQ']
 
-NEXT = ["TSM", "AAPL"]
-
-# NEXT = ["IREN", "TEM", "BBAI", "COPX"]
+NEXT = ["FANG"]
 
 # NEXT = [
 #     'BTC-USD',
