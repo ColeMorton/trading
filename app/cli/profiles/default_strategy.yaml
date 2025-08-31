@@ -51,7 +51,7 @@ config:
   direction: Long
   use_hourly: false
   use_years: false
-  refresh: true
+  refresh: false
   skip_analysis: false
   years: 50
 

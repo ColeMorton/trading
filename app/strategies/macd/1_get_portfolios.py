@@ -48,7 +48,7 @@ from app.tools.orchestration import PortfolioOrchestrator
         Exception: MACDError,
     },
 )
-def run(config: PortfolioConfig = None) -> bool:
+def run(config: PortfolioConfig = None, external_log=None) -> bool:
     """Run portfolio analysis for single or multiple tickers using the MACD cross strategy.
 
     This function handles the main workflow of portfolio analysis:
@@ -64,6 +64,7 @@ def run(config: PortfolioConfig = None) -> bool:
 
     Args:
         config (PortfolioConfig): Configuration dictionary containing analysis parameters
+        external_log: Optional external logger (e.g., from CLI)
 
     Returns:
         bool: True if execution successful, False otherwise
@@ -75,35 +76,57 @@ def run(config: PortfolioConfig = None) -> bool:
         ExportError: If results cannot be exported
         MACDError: For other unexpected errors
     """
-    with logging_context(module_name="macd", log_file="1_get_portfolios.log") as log:
-        # CRITICAL SAFEGUARD: Detect inappropriate batch analysis during portfolio update
-        config_copy = config.copy() if config else {}
-        if config_copy.get("_PORTFOLIO_UPDATE_MODE", False):
-            log(
-                "ERROR: MACD batch analysis triggered during portfolio update mode - this should not happen!",
-                "error",
-            )
-            log(
-                "This indicates the dual export architecture problem is still active",
-                "error",
-            )
-            # Return success to avoid breaking the process, but don't execute batch analysis
-            return True
+    # Use external logger if provided, otherwise use default logging context
+    if external_log:
+        # Create callable wrapper for console logger
+        def log_wrapper(message, level="info"):
+            if hasattr(external_log, level):
+                getattr(external_log, level)(message)
+            elif hasattr(external_log, 'info'):
+                external_log.info(message)  # fallback to info level
+            else:
+                # Last resort - try to call it directly
+                external_log(message, level)
+        
+        # Store reference to original logger for enhanced progress display detection
+        log_wrapper.__self__ = external_log
+        
+        return _run_with_log(config, log_wrapper)
+    else:
+        with logging_context(module_name="macd", log_file="1_get_portfolios.log") as log:
+            return _run_with_log(config, log)
 
-        # SAFEGUARD: Trade history export is not available for MACD strategy
-        # to prevent generating thousands of JSON files due to parameter sweep combinations.
-        # Trade history export is only available through app/concurrency/review.py
-        if "EXPORT_TRADE_HISTORY" in config_copy:
-            del config_copy["EXPORT_TRADE_HISTORY"]
-        if config_copy.get("EXPORT_TRADE_HISTORY", False):
-            log(
-                "WARNING: Trade history export is not supported for MACD strategy. Use app/concurrency/review.py for trade history export.",
-                "warning",
-            )
 
-        # Use the PortfolioOrchestrator for clean workflow management
-        orchestrator = PortfolioOrchestrator(log)
-        return orchestrator.run(config_copy)
+def _run_with_log(config: PortfolioConfig, log) -> bool:
+    """Internal run function with logger provided."""
+    # CRITICAL SAFEGUARD: Detect inappropriate batch analysis during portfolio update
+    config_copy = config.copy() if config else {}
+    if config_copy.get("_PORTFOLIO_UPDATE_MODE", False):
+        log(
+            "ERROR: MACD batch analysis triggered during portfolio update mode - this should not happen!",
+            "error",
+        )
+        log(
+            "This indicates the dual export architecture problem is still active",
+            "error",
+        )
+        # Return success to avoid breaking the process, but don't execute batch analysis
+        return True
+
+    # SAFEGUARD: Trade history export is not available for MACD strategy
+    # to prevent generating thousands of JSON files due to parameter sweep combinations.
+    # Trade history export is only available through app/concurrency/review.py
+    if "EXPORT_TRADE_HISTORY" in config_copy:
+        del config_copy["EXPORT_TRADE_HISTORY"]
+    if config_copy.get("EXPORT_TRADE_HISTORY", False):
+        log(
+            "WARNING: Trade history export is not supported for MACD strategy. Use app/concurrency/review.py for trade history export.",
+            "warning",
+        )
+
+    # Use the PortfolioOrchestrator for clean workflow management
+    orchestrator = PortfolioOrchestrator(log)
+    return orchestrator.run(config_copy)
 
 
 @handle_errors(

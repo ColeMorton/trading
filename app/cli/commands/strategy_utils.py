@@ -76,6 +76,7 @@ def build_configuration_overrides(
     performance_mode: str = "minimal",
     show_resources: bool = False,
     profile_execution: bool = False,
+    enable_parallel: bool = True,
     **additional_overrides,
 ) -> Dict[str, Any]:
     """
@@ -103,6 +104,7 @@ def build_configuration_overrides(
         performance_mode: Performance monitoring level (minimal/standard/detailed/benchmark)
         show_resources: Display real-time CPU and memory usage during execution
         profile_execution: Enable detailed execution profiling with bottleneck identification
+        enable_parallel: Enable parallel processing for parameter sweeps
         **additional_overrides: Additional override parameters
 
     Returns:
@@ -218,6 +220,7 @@ def build_configuration_overrides(
     overrides["performance_mode"] = performance_mode
     overrides["show_resources"] = show_resources
     overrides["profile_execution"] = profile_execution
+    overrides["ENABLE_PARALLEL"] = enable_parallel
 
     # Add any additional overrides, but filter out None values for optional CLI parameters
     filtered_overrides = {

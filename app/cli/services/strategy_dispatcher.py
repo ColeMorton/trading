@@ -6,7 +6,7 @@ CLI commands to appropriate strategy services based on configuration.
 """
 
 import time
-from typing import Any, Dict, List, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 from rich import print as rprint
 
@@ -41,12 +41,172 @@ class StrategyDispatcher:
         Args:
             console: Console logger for user-facing output
         """
-        self._services: Dict[str, BaseStrategyService] = {
-            "MA": MAStrategyService(),
-            "MACD": MACDStrategyService(),
-            "ATR": ATRStrategyService(),
-        }
         self.console = console or ConsoleLogger()
+        # Initialize services with console logger
+        self._services: Dict[str, BaseStrategyService] = {
+            "MA": MAStrategyService(console=self.console),
+            "MACD": MACDStrategyService(console=self.console),
+            "ATR": ATRStrategyService(console=self.console),
+        }
+
+    def _extract_strategy_parameters(self, config: StrategyConfig, strategy_type: Union[StrategyType, str]) -> Dict[str, Optional[int]]:
+        """
+        Extract strategy-specific parameters from StrategyConfig with proper fallback hierarchy.
+        
+        Args:
+            config: Strategy configuration model
+            strategy_type: Strategy type to extract parameters for
+            
+        Returns:
+            Dictionary with parameter values (fast_min, fast_max, slow_min, slow_max, signal_min, signal_max)
+        """
+        # Convert to string value
+        if hasattr(strategy_type, "value"):
+            strategy_value = strategy_type.value
+        else:
+            strategy_value = str(strategy_type).upper()
+        
+        # Initialize with defaults
+        params = {
+            'fast_min': None, 'fast_max': None,
+            'slow_min': None, 'slow_max': None, 
+            'signal_min': None, 'signal_max': None
+        }
+        
+        # Priority 1: Strategy-specific parameters from strategy_params
+        if config.strategy_params:
+            strategy_specific = None
+            if strategy_value == "SMA" and config.strategy_params.SMA:
+                strategy_specific = config.strategy_params.SMA
+            elif strategy_value == "EMA" and config.strategy_params.EMA:
+                strategy_specific = config.strategy_params.EMA
+            elif strategy_value == "MACD" and config.strategy_params.MACD:
+                strategy_specific = config.strategy_params.MACD
+            elif strategy_value == "ATR" and config.strategy_params.ATR:
+                strategy_specific = config.strategy_params.ATR
+            
+            if strategy_specific:
+                params.update({
+                    'fast_min': strategy_specific.fast_period_min,
+                    'fast_max': strategy_specific.fast_period_max,
+                    'slow_min': strategy_specific.slow_period_min,
+                    'slow_max': strategy_specific.slow_period_max,
+                    'signal_min': strategy_specific.signal_period_min,
+                    'signal_max': strategy_specific.signal_period_max,
+                })
+        
+        # Priority 2: Global CLI parameters (override strategy-specific if provided)
+        if config.fast_period_min is not None:
+            params['fast_min'] = config.fast_period_min
+        if config.fast_period_max is not None:
+            params['fast_max'] = config.fast_period_max
+        if config.slow_period_min is not None:
+            params['slow_min'] = config.slow_period_min
+        if config.slow_period_max is not None:
+            params['slow_max'] = config.slow_period_max
+        if config.signal_period_min is not None:
+            params['signal_min'] = config.signal_period_min
+        if config.signal_period_max is not None:
+            params['signal_max'] = config.signal_period_max
+        
+        # Priority 3: Legacy parameters (for backward compatibility)
+        if params['fast_min'] is None and config.short_window_start is not None:
+            params['fast_min'] = config.short_window_start
+        if params['fast_max'] is None and config.short_window_end is not None:
+            params['fast_max'] = config.short_window_end
+        if params['slow_min'] is None and config.long_window_start is not None:
+            params['slow_min'] = config.long_window_start
+        if params['slow_max'] is None and config.long_window_end is not None:
+            params['slow_max'] = config.long_window_end
+        if params['signal_min'] is None and config.signal_window_start is not None:
+            params['signal_min'] = config.signal_window_start
+        if params['signal_max'] is None and config.signal_window_end is not None:
+            params['signal_max'] = config.signal_window_end
+        
+        # Priority 4: Hard-coded defaults per strategy type
+        defaults = {
+            'SMA': {'fast_min': 5, 'fast_max': 88, 'slow_min': 8, 'slow_max': 89},
+            'EMA': {'fast_min': 5, 'fast_max': 88, 'slow_min': 8, 'slow_max': 89},
+            'MACD': {'fast_min': 5, 'fast_max': 20, 'slow_min': 8, 'slow_max': 34, 'signal_min': 5, 'signal_max': 20},
+            'ATR': {'fast_min': 5, 'fast_max': 30, 'slow_min': 10, 'slow_max': 50},
+        }
+        
+        strategy_defaults = defaults.get(strategy_value, defaults['SMA'])
+        for key, default_value in strategy_defaults.items():
+            if params[key] is None:
+                params[key] = default_value
+        
+        return params
+
+    def _calculate_parameter_combinations(self, config: StrategyConfig, strategy_type: Union[StrategyType, str]) -> int:
+        """
+        Calculate expected parameter combinations for a strategy type.
+        
+        Args:
+            config: Strategy configuration model
+            strategy_type: Strategy type to calculate combinations for
+            
+        Returns:
+            Estimated number of parameter combinations
+        """
+        try:
+            # Convert to string value
+            if hasattr(strategy_type, "value"):
+                strategy_value = strategy_type.value
+            else:
+                strategy_value = str(strategy_type).upper()
+            
+            # Extract parameters using proper hierarchy
+            params = self._extract_strategy_parameters(config, strategy_type)
+            
+            if strategy_value in ["SMA", "EMA"]:
+                # MA strategies: fast_period × slow_period (with fast < slow constraint)
+                fast_min, fast_max = params['fast_min'], params['fast_max']
+                slow_min, slow_max = params['slow_min'], params['slow_max']
+                
+                # Calculate valid combinations where fast < slow
+                total_combinations = 0
+                for fast in range(fast_min, fast_max + 1):
+                    valid_slow_min = max(fast + 1, slow_min)
+                    if valid_slow_min <= slow_max:
+                        total_combinations += (slow_max - valid_slow_min + 1)
+                
+                return total_combinations
+                
+            elif strategy_value == "MACD":
+                # MACD strategy: fast_period × slow_period × signal_period (with slow > fast constraint)
+                fast_min, fast_max = params['fast_min'], params['fast_max']
+                slow_min, slow_max = params['slow_min'], params['slow_max']
+                signal_min, signal_max = params['signal_min'], params['signal_max']
+                
+                # Calculate valid fast/slow combinations where slow > fast
+                valid_fast_slow_pairs = 0
+                for fast in range(fast_min, fast_max + 1):
+                    valid_slow_min = max(fast + 1, slow_min)
+                    if valid_slow_min <= slow_max:
+                        valid_fast_slow_pairs += (slow_max - valid_slow_min + 1)
+                
+                # Multiply by signal period combinations
+                signal_combinations = signal_max - signal_min + 1
+                return valid_fast_slow_pairs * signal_combinations
+                
+            elif strategy_value == "ATR":
+                # ATR strategy: Based on ATR-specific parameters or conservative estimate
+                if config.atr_length_min and config.atr_length_max and config.atr_multiplier_min and config.atr_multiplier_max:
+                    length_combinations = config.atr_length_max - config.atr_length_min + 1
+                    multiplier_step = config.atr_multiplier_step or 0.1
+                    multiplier_combinations = int((config.atr_multiplier_max - config.atr_multiplier_min) / multiplier_step) + 1
+                    return length_combinations * multiplier_combinations
+                else:
+                    return 500  # Conservative estimate for ATR
+                
+            else:
+                # Unknown strategy type - return conservative estimate
+                return 100
+                
+        except Exception:
+            # If calculation fails, return conservative estimate
+            return 100
 
     def execute_strategy(self, config: StrategyConfig) -> StrategyExecutionSummary:
         """
@@ -120,21 +280,25 @@ class StrategyDispatcher:
             summary.total_strategies = 1
             return summary
 
-        # Execute using the determined service and collect results with performance tracking
+        # Execute using the determined service and collect results with enhanced parameter progress tracking
         if isinstance(self.console, PerformanceAwareConsoleLogger):
             strategy_name = (
                 config.strategy_types[0].value
                 if hasattr(config.strategy_types[0], "value")
                 else str(config.strategy_types[0])
             )
-            ticker_count = len(config.ticker) if isinstance(config.ticker, list) else 1
-
+            
+            # Calculate expected parameter combinations for enhanced progress display
+            total_combinations = self._calculate_parameter_combinations(config, config.strategy_types[0])
+            
+            # Use performance context with parameter combination information in description
             with self.console.performance_context(
-                "strategy_execution", f"Executing {strategy_name} strategy", 30.0
+                "strategy_execution", 
+                f"{strategy_name} strategy ({total_combinations:,} parameter combinations)"
             ) as phase:
                 success = strategy_service.execute_strategy(config)
                 phase.add_detail("strategy_type", strategy_name)
-                phase.add_detail("tickers", ticker_count)
+                phase.add_detail("parameter_combinations", total_combinations)
         else:
             success = strategy_service.execute_strategy(config)
 
@@ -209,9 +373,9 @@ class StrategyDispatcher:
             f"Executing {len(config.strategy_types)} strategies", level=2
         )
 
-        # Use performance monitoring for mixed strategies if available
+        # Use enhanced parameter progress monitoring for mixed strategies
         if isinstance(self.console, PerformanceAwareConsoleLogger):
-            # Execute with performance tracking for each strategy
+            # Execute with enhanced parameter progress tracking for each strategy
             for i, strategy_type in enumerate(config.strategy_types):
                 strategy_name = (
                     strategy_type.value
@@ -219,8 +383,13 @@ class StrategyDispatcher:
                     else str(strategy_type)
                 )
 
+                # Calculate parameter combinations for this specific strategy
+                strategy_combinations = self._calculate_parameter_combinations(config, strategy_type)
+
+                # Use performance context with parameter combination information in description
                 with self.console.performance_context(
-                    "strategy_execution", f"Executing {strategy_name} strategy", 20.0
+                    f"{strategy_name}_execution", 
+                    f"{strategy_name} strategy ({strategy_combinations:,} parameter combinations)"
                 ) as phase:
                     # Create single-strategy config
                     single_config = self._create_single_strategy_config(
@@ -240,11 +409,10 @@ class StrategyDispatcher:
                     # Execute strategy
                     success = service.execute_strategy(single_config)
                     results.append(success)
-
+                    
+                    # Add phase details for tracking
                     phase.add_detail("strategy_type", strategy_name)
-                    phase.add_detail(
-                        "execution_order", f"{i+1}/{len(config.strategy_types)}"
-                    )
+                    phase.add_detail("parameter_combinations", strategy_combinations)
 
                     # Create portfolio result for this strategy execution
                     if success:
@@ -267,63 +435,6 @@ class StrategyDispatcher:
                         )
                     else:
                         self.console.error(f"{strategy_type} strategy failed")
-        else:
-            # Original implementation for non-performance mode
-            # Create progress context for multiple strategies
-            with self.console.progress_context("Strategy Execution") as progress:
-                strategy_task = progress.add_task(
-                    "Processing strategies...", total=len(config.strategy_types)
-                )
-
-                for i, strategy_type in enumerate(config.strategy_types):
-                    progress.update(
-                        strategy_task,
-                        description=f"Running {strategy_type} strategy...",
-                    )
-
-                    # Create single-strategy config
-                    single_config = self._create_single_strategy_config(
-                        config, strategy_type
-                    )
-
-                    # Get appropriate service for this strategy type
-                    service = self._determine_single_service(strategy_type)
-
-                    if not service:
-                        self.console.error(
-                            f"No service found for strategy type: {strategy_type}"
-                        )
-                        results.append(False)
-                        progress.update(strategy_task, advance=1)
-                        continue
-
-                    # Execute strategy
-                    success = service.execute_strategy(single_config)
-                    results.append(success)
-
-                    # Create portfolio result for this strategy execution
-                    if success:
-                        portfolio_result = StrategyPortfolioResults(
-                            ticker=summary.tickers_processed[0]
-                            if summary.tickers_processed
-                            else "Unknown",
-                            strategy_type=strategy_type.value
-                            if hasattr(strategy_type, "value")
-                            else str(strategy_type),
-                            total_portfolios=0,  # Would need service modification to get actual count
-                            filtered_portfolios=0,
-                            extreme_value_portfolios=0,
-                            files_exported=[],
-                        )
-                        summary.add_portfolio_result(portfolio_result)
-
-                        self.console.success(
-                            f"{strategy_type} strategy completed successfully"
-                        )
-                    else:
-                        self.console.error(f"{strategy_type} strategy failed")
-
-                    progress.update(strategy_task, advance=1)
 
         total_success = all(results)
         successful_count = sum(results)

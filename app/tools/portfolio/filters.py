@@ -137,9 +137,9 @@ def filter_invalid_metrics(
         if filtered_count > 0:
             log(
                 f"Final result: Filtered out {filtered_count} portfolios with invalid metrics",
-                "info",
+                "debug",
             )
-        log(f"Remaining portfolios: {len(filtered_df)}", "info")
+        log(f"Remaining portfolios: {len(filtered_df)}", "debug")
 
     # Return in original format
     return filtered_df.to_dicts() if input_is_list else filtered_df

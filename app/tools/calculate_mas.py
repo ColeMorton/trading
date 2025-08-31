@@ -18,9 +18,10 @@ def calculate_mas(
         DataFrame with MA columns added
     """
     log(
-        f"Calculating {'SMA' if use_sma else 'EMA'} with periods {fast_period}, {slow_period}"
+        f"Calculating {'SMA' if use_sma else 'EMA'} with periods {fast_period}, {slow_period}",
+        "debug"
     )
-    log(f"Input data shape: {data.shape}")
+    log(f"Input data shape: {data.shape}", "debug")
 
     if use_sma:
         result = data.with_columns(
@@ -52,6 +53,6 @@ def calculate_mas(
     # Count non-null values in MA columns
     valid_fast = result.select(pl.col("MA_FAST").is_not_null()).sum().item()
     valid_slow = result.select(pl.col("MA_SLOW").is_not_null()).sum().item()
-    log(f"Valid MA points - Fast: {valid_fast}, Slow: {valid_slow}")
+    log(f"Valid MA points - Fast: {valid_fast}, Slow: {valid_slow}", "debug")
 
     return result

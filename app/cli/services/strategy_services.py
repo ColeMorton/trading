@@ -17,6 +17,10 @@ from ..models.strategy import StrategyConfig
 class BaseStrategyService(ABC):
     """Abstract base class for strategy services."""
 
+    def __init__(self, console=None):
+        """Initialize service with console logger."""
+        self.console = console
+
     @abstractmethod
     def execute_strategy(self, config: StrategyConfig) -> bool:
         """
@@ -64,8 +68,11 @@ class MAStrategyService(BaseStrategyService):
             # Convert config to legacy format
             legacy_config = self.convert_config_to_legacy(config)
 
-            # Execute strategy
-            return run(legacy_config)
+            # Execute strategy with console logger if available
+            if self.console:
+                return run(legacy_config, external_log=self.console)
+            else:
+                return run(legacy_config)
 
         except Exception as e:
             rprint(f"[red]Error executing MA Cross strategy: {e}[/red]")
@@ -231,8 +238,11 @@ class MACDStrategyService(BaseStrategyService):
             # Convert config to legacy format
             legacy_config = self.convert_config_to_legacy(config)
 
-            # Execute strategy
-            return run(legacy_config)
+            # Execute strategy with console logger if available
+            if self.console:
+                return run(legacy_config, external_log=self.console)
+            else:
+                return run(legacy_config)
 
         except Exception as e:
             rprint(f"[red]Error executing MACD strategy: {e}[/red]")
@@ -407,8 +417,11 @@ class ATRStrategyService(BaseStrategyService):
             # Convert config to legacy format
             legacy_config = self.convert_config_to_legacy(config)
 
-            # Execute strategy
-            result = run(legacy_config)
+            # Execute strategy with console logger if available
+            if self.console:
+                result = run(legacy_config, external_log=self.console)
+            else:
+                result = run(legacy_config)
 
             if result:
                 rprint("[green]ATR strategy execution completed successfully[/green]")

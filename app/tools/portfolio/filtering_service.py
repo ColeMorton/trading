@@ -171,9 +171,9 @@ class MinimumsFilter(PortfolioFilter):
         if filtered_count > 0:
             log(
                 f"Filtered out {filtered_count} portfolios based on MINIMUMS criteria",
-                "info",
+                "debug",
             )
-            log(f"Remaining portfolios after MINIMUMS filtering: {len(df)}", "info")
+            log(f"Remaining portfolios after MINIMUMS filtering: {len(df)}", "debug")
 
         # Convert back to original format
         if was_list:
@@ -200,11 +200,11 @@ class MinimumsFilter(PortfolioFilter):
         # Format the message based on the filter type
         if filter_config.message_prefix:
             if "win rate" in filter_config.message_prefix.lower():
-                log(f"{filter_config.message_prefix} >= {adjusted_value}%", "info")
+                log(f"{filter_config.message_prefix} >= {adjusted_value}%", "debug")
             elif "trades" in filter_config.message_prefix.lower():
-                log(f"{filter_config.message_prefix} >= {int(adjusted_value)}", "info")
+                log(f"{filter_config.message_prefix} >= {int(adjusted_value)}", "debug")
             else:
-                log(f"{filter_config.message_prefix} >= {adjusted_value}", "info")
+                log(f"{filter_config.message_prefix} >= {adjusted_value}", "debug")
 
         return df
 

@@ -34,7 +34,7 @@ def convert_signals_to_positions(
     else:
         data_pd = data
 
-    log(f"Converting signals to positions with {len(data_pd)} rows", "info")
+    log(f"Converting signals to positions with {len(data_pd)} rows", "debug")
 
     # Extract configuration parameters
     direction = config.get("DIRECTION", "Long")
@@ -67,7 +67,7 @@ def convert_signals_to_positions(
             log(f"RSI filter rejected {rejected_count} signals", "info")
 
     # Create Position column (shifted Signal)
-    log("Creating Position column from Signal", "info")
+    log("Creating Position column from Signal", "debug")
     data_pd["Position"] = data_pd["Signal"].shift(1).fillna(0)
 
     # Log conversion statistics
@@ -75,7 +75,7 @@ def convert_signals_to_positions(
     positions = sum(data_pd["Position"] != 0)
     log(
         f"Signal conversion complete: {positions} positions from {non_zero_signals} signals",
-        "info",
+        "debug",
     )
 
     # Convert back to polars if needed

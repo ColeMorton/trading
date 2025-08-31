@@ -373,7 +373,7 @@ def export_portfolios(
 
     # Simple user-facing log for export start
     if log:
-        log(f"Exporting {len(portfolios)} portfolios...", "info")
+        log(f"Exporting {len(portfolios)} portfolios...", "debug")
 
     # Determine strategy type from STRATEGY_TYPES list for filename generation
     strategy_types = config.get("STRATEGY_TYPES", ["SMA"])
@@ -441,7 +441,7 @@ def export_portfolios(
 
             df = filtered_df
             if log:
-                log(f"Applied filters: {len(df)} portfolios remain", "info")
+                log(f"Applied filters: {len(df)} portfolios remain", "debug")
 
         # Check if portfolios already have compound metric types (indicating prior aggregation)
         has_compound_metric_types = False

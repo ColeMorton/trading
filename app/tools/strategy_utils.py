@@ -66,9 +66,9 @@ def filter_portfolios_by_signal(
     if filtered_count > 0 and log_func:
         log_func(
             f"Filtered out {filtered_count} portfolios with {signal_field} = False",
-            "info",
+            "debug",
         )
-        log_func(f"Remaining portfolios: {len(filtered)}", "info")
+        log_func(f"Remaining portfolios: {len(filtered)}", "debug")
 
     return filtered
 

@@ -54,7 +54,8 @@ class SMAStrategy(BaseStrategy):
 
         direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
         log(
-            f"Calculating {direction} SMAs and signals with fast period {fast_period} and slow period {slow_period}"
+            f"Calculating {direction} SMA signals: fast={fast_period}, slow={slow_period}",
+            "debug"
         )
 
         try:
@@ -138,7 +139,8 @@ class EMAStrategy(BaseStrategy):
 
         direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
         log(
-            f"Calculating {direction} EMAs and signals with fast period {fast_period} and slow period {slow_period}"
+            f"Calculating {direction} EMA signals: fast={fast_period}, slow={slow_period}",
+            "debug"
         )
 
         try:
@@ -233,7 +235,8 @@ class MACDStrategy(BaseStrategy):
 
         direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
         log(
-            f"Calculating {direction} MACD signals with fast={fast_period}, slow={slow_period}, signal={signal_period}"
+            f"Calculating {direction} MACD signals: fast={fast_period}, slow={slow_period}, signal={signal_period}",
+            "debug"
         )
 
         try:

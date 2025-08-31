@@ -64,7 +64,7 @@ def backtest_strategy(
                     params["sl_stop"] = stop_loss
                     log(
                         f"Applied stop loss of {stop_loss*100:.2f}% with exit at candle close",
-                        "info",
+                        "debug",
                     )
                 else:
                     # For immediate exit, use the actual stop loss price
@@ -77,7 +77,7 @@ def backtest_strategy(
                     )
                     log(
                         f"Applied stop loss of {stop_loss*100:.2f}% with immediate exit",
-                        "info",
+                        "debug",
                     )
             else:
                 log(
@@ -87,7 +87,7 @@ def backtest_strategy(
         else:
             log(
                 "No stop loss configured for strategy - running without stop loss protection",
-                "info",
+                "debug",
             )
 
         if config.get("DIRECTION", "Long").lower() == "short":
@@ -239,7 +239,7 @@ def backtest_strategy(
                                 expectancy_per_trade = avg_win
                                 log_func(
                                     f"All trades are winning. Setting Expectancy per Trade to Avg Win: {avg_win:.4f}",
-                                    "info",
+                                    "debug",
                                 )
                                 stats_dict[
                                     "Expectancy per Trade"
@@ -248,11 +248,11 @@ def backtest_strategy(
                                 # Add debug logging
                                 log_func(
                                     f"Expectancy calculation components: Win Rate={win_rate:.4f}, Avg Win={avg_win:.4f}, Avg Loss=N/A (all trades winning)",
-                                    "info",
+                                    "debug",
                                 )
                                 log_func(
                                     f"Calculated Expectancy per Trade: {expectancy_per_trade:.4f}",
-                                    "info",
+                                    "debug",
                                 )
                             else:
                                 # This shouldn't happen (NaN avg_loss but win_rate <
@@ -278,11 +278,11 @@ def backtest_strategy(
                             # Add debug logging to diagnose expectancy calculation
                             log_func(
                                 f"Expectancy calculation components: Win Rate={win_rate:.4f}, Avg Win={avg_win:.4f}, Avg Loss={avg_loss:.4f}",
-                                "info",
+                                "debug",
                             )
                             log_func(
                                 f"Calculated Expectancy per Trade: {expectancy_per_trade:.4f}",
-                                "info",
+                                "debug",
                             )
                     else:
                         log_func(
@@ -308,13 +308,34 @@ def backtest_strategy(
 
                 # Alpha and Beta calculation removed - no longer needed
 
-                # Log the calculated risk metrics
+                # Log the calculated risk metrics with detailed validation
+                risk_metrics = {
+                    'Skew': stats_dict.get('Skew'),
+                    'Kurtosis': stats_dict.get('Kurtosis'), 
+                    'Tail Ratio': stats_dict.get('Tail Ratio'),
+                    'Common Sense Ratio': stats_dict.get('Common Sense Ratio'),
+                    'Value at Risk': stats_dict.get('Value at Risk')
+                }
+                
+                null_metrics = [k for k, v in risk_metrics.items() if v is None]
+                valid_metrics = [k for k, v in risk_metrics.items() if v is not None]
+                
                 log_func(
-                    f"Calculated risk metrics: Skew={stats_dict.get('Skew')}, Kurtosis={stats_dict.get('Kurtosis')}, "
-                    + f"Tail Ratio={stats_dict.get('Tail Ratio')}, Common Sense Ratio={stats_dict.get('Common Sense Ratio')}, "
-                    + f"Value at Risk={stats_dict.get('Value at Risk')}",
+                    f"Risk metrics calculation summary: {len(valid_metrics)} valid, {len(null_metrics)} null",
                     "debug",
                 )
+                
+                if valid_metrics:
+                    log_func(
+                        f"Valid risk metrics: {dict((k, risk_metrics[k]) for k in valid_metrics)}",
+                        "debug",
+                    )
+                
+                if null_metrics:
+                    log_func(
+                        f"Null risk metrics detected in backtest_strategy: {null_metrics}",
+                        "warning",
+                    )
 
                 # Add additional return metrics
                 # Convert Series/DataFrames to scalar values for CSV export
@@ -352,12 +373,34 @@ def backtest_strategy(
                         periods_per_year**0.5
                     )
 
+                    # Log return metrics with validation
+                    return_metrics = {
+                        'Daily Returns': stats_dict.get('Daily Returns'),
+                        'Annual Returns': stats_dict.get('Annual Returns'),
+                        'Cumulative Returns': stats_dict.get('Cumulative Returns'),
+                        'Annualized Return': stats_dict.get('Annualized Return'),
+                        'Annualized Volatility': stats_dict.get('Annualized Volatility')
+                    }
+                    
+                    null_return_metrics = [k for k, v in return_metrics.items() if v is None]
+                    valid_return_metrics = [k for k, v in return_metrics.items() if v is not None]
+                    
                     log_func(
-                        f"Calculated return metrics: Daily Returns={stats_dict['Daily Returns']}, "
-                        + f"Annual Returns={stats_dict['Annual Returns']}, Cumulative Returns={stats_dict['Cumulative Returns']}, "
-                        + f"Annualized Return={stats_dict['Annualized Return']}, Annualized Volatility={stats_dict['Annualized Volatility']}",
+                        f"Return metrics calculation summary: {len(valid_return_metrics)} valid, {len(null_return_metrics)} null",
                         "debug",
                     )
+                    
+                    if valid_return_metrics:
+                        log_func(
+                            f"Valid return metrics: {dict((k, return_metrics[k]) for k in valid_return_metrics)}",
+                            "debug",
+                        )
+                    
+                    if null_return_metrics:
+                        log_func(
+                            f"Null return metrics detected in backtest_strategy: {null_return_metrics}",
+                            "warning",
+                        )
                 except Exception as e:
                     log_func(f"Could not calculate some return metrics: {e}", "warning")
                     # Set failed metrics to None to ensure they're included in the CSV
@@ -389,7 +432,7 @@ def backtest_strategy(
                     force_refresh=force_refresh_trade_history,
                 )
                 if success:
-                    log("Trade history exported successfully", "info")
+                    log("Trade history exported successfully", "debug")
                 else:
                     log("Trade history export completed with warnings", "warning")
             except ImportError:

@@ -471,12 +471,26 @@ def export_csv(
                         "warning",
                     )
 
-                # Check for null values in metrics
+                # Check for null values in metrics with detailed logging
                 for metric in present_metrics:
-                    if data[metric].null_count() == len(data):
+                    null_count = data[metric].null_count()
+                    total_count = len(data)
+                    if null_count == total_count:
                         log(
-                            f"Metric '{metric}' has all null values in export data",
+                            f"Metric '{metric}' has all null values in export data (null_count={null_count}, total={total_count})",
                             "warning",
+                        )
+                    elif null_count > 0:
+                        log(
+                            f"Metric '{metric}' has {null_count}/{total_count} null values in export data",
+                            "debug",
+                        )
+                    else:
+                        # Log successful metrics with sample values for debugging
+                        sample_value = data[metric][0] if total_count > 0 else "N/A"
+                        log(
+                            f"Metric '{metric}' validation passed: {null_count}/{total_count} nulls, sample_value={sample_value}",
+                            "debug",
                         )
 
             # Convert duration columns to string format before CSV export
@@ -485,7 +499,7 @@ def export_csv(
             # Export the DataFrame with explicit overwrite
             data_for_export.write_csv(full_path, separator=",")
             if log:
-                log(f"Exported to: {os.path.basename(full_path)}", "info")
+                log(f"Exported to: {os.path.basename(full_path)}", "debug")
 
         elif isinstance(data, pd.DataFrame):
             # Check which metrics are present in the DataFrame
@@ -514,13 +528,13 @@ def export_csv(
             # Export the DataFrame with explicit overwrite
             data.to_csv(full_path, index=False)
             if log:
-                log(f"Exported to: {os.path.basename(full_path)}", "info")
+                log(f"Exported to: {os.path.basename(full_path)}", "debug")
         else:
             raise TypeError("Data must be either a DataFrame or list of dictionaries")
 
-        # Simple success message (avoid duplication with earlier logs)
-        message = f"{len(data)} rows exported to {os.path.basename(full_path)}"
-        print(message)
+        # Log success with full path context (debug level to avoid duplication)
+        if log:
+            log(f"✅ {len(data)} results → {full_path}", "debug")
 
         return data if isinstance(data, pl.DataFrame) else pl.DataFrame(data), True
 
@@ -574,7 +588,7 @@ def _validate_and_ensure_schema_compliance(
             if validation_result["is_valid"]:
                 log(
                     "Schema validation passed: Data is fully compliant with canonical schema",
-                    "info",
+                    "debug",
                 )
             else:
                 violations = len(validation_result.get("violations", []))

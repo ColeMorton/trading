@@ -140,7 +140,7 @@ def run(
         help="Filter by entry signals triggered on specific date (YYYYMMDD format, e.g., 20250811). Overrides --current if both specified.",
     ),
     performance_mode: str = typer.Option(
-        "minimal",
+        "standard",
         "--performance-mode",
         help="Performance monitoring level: minimal (basic timing), standard (phase breakdown + resources), detailed (full profiling + insights), benchmark (compare vs historical)",
     ),
@@ -153,6 +153,11 @@ def run(
         False,
         "--profile-execution",
         help="Enable detailed execution profiling with bottleneck identification",
+    ),
+    enable_parallel: bool = typer.Option(
+        True,
+        "--enable-parallel/--disable-parallel",
+        help="Enable parallel processing for parameter sweeps (default: enabled)",
     ),
 ):
     """
@@ -212,6 +217,7 @@ def run(
             performance_mode=performance_mode,
             show_resources=show_resources,
             profile_execution=profile_execution,
+            enable_parallel=enable_parallel,
         )
 
         # Load configuration
@@ -235,29 +241,23 @@ def run(
         global_show_output = ctx.obj.get("show_output", False) if ctx.obj else False
         global_quiet = (
             ctx.obj.get("quiet", True) if ctx.obj else True
-        )  # Default to quiet
+        )  # Default to quiet=True, but progress bars should always display
 
         # Initialize console logger with user preferences and performance options
-        # Verbose or local verbose enables output, otherwise respect global quiet
+        # For strategy execution, provide user feedback by default unless explicitly quieted
         is_verbose = verbose or global_verbose
         is_quiet = global_quiet and not is_verbose and not global_show_output
 
-        # Determine if performance monitoring should be enabled
-        enable_performance = (
-            performance_mode != "minimal" or show_resources or profile_execution
+        # Always use PerformanceAwareConsoleLogger for strategy execution to ensure
+        # consistent progress bar display with parameter combination awareness
+        console = PerformanceAwareConsoleLogger(
+            verbose=is_verbose,
+            quiet=is_quiet,
+            performance_mode=performance_mode,
+            show_resources=show_resources,
+            profile_execution=profile_execution,
         )
-
-        if enable_performance:
-            console = PerformanceAwareConsoleLogger(
-                verbose=is_verbose,
-                quiet=is_quiet,
-                performance_mode=performance_mode,
-                show_resources=show_resources,
-                profile_execution=profile_execution,
-            )
-            console.start_execution_monitoring("strategy_run")
-        else:
-            console = ConsoleLogger(verbose=is_verbose, quiet=is_quiet)
+        console.start_execution_monitoring("strategy_run")
 
         if is_verbose:
             console.debug("Loading strategy execution module...")

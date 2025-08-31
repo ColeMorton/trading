@@ -216,7 +216,7 @@ def export_results(df: pl.DataFrame, config: Dict[str, Any], log: Callable) -> N
         )
 
         log("MACD analysis results exported successfully")
-        print(f"MACD analysis complete. Total rows in output: {len(df)}")
+        log(f"MACD analysis complete. Total rows in output: {len(df)}", "debug")
 
     except Exception as e:
         log(f"Failed to export MACD results: {e}", "error")

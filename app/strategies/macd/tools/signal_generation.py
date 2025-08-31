@@ -27,9 +27,7 @@ def calculate_macd(
     Returns:
         DataFrame with MACD indicators added
     """
-    print(
-        f"Calculating MACD with fast EMA {fast_period}, slow EMA {slow_period}, signal EMA {signal_period}"
-    )
+    # MACD calculation logging removed for performance
 
     # Calculate EMAs
     data = data.with_columns(
@@ -42,7 +40,7 @@ def calculate_macd(
     # Count valid EMA points
     valid_short_ema = data.select(pl.col("EMA_short").is_not_null()).sum().item()
     valid_long_ema = data.select(pl.col("EMA_long").is_not_null()).sum().item()
-    print(f"Valid EMA points - Short: {valid_short_ema}, Long: {valid_long_ema}")
+    # EMA validation logging removed for performance
 
     # Calculate MACD line
     data = data.with_columns([(pl.col("EMA_short") - pl.col("EMA_long")).alias("MACD")])
@@ -55,7 +53,7 @@ def calculate_macd(
     # Count valid MACD and Signal Line points
     valid_macd = data.select(pl.col("MACD").is_not_null()).sum().item()
     valid_signal = data.select(pl.col("Signal_Line").is_not_null()).sum().item()
-    print(f"Valid MACD points: {valid_macd}, Valid Signal Line points: {valid_signal}")
+    # MACD validation logging removed for performance
 
     return data
 
@@ -79,17 +77,7 @@ def generate_macd_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataF
         signal_period = config.get("signal_period", config.get("signal_period", 9))
         direction = config.get("DIRECTION", "Long").lower()
 
-        # Log analysis parameters
-        print(
-            f"Analyzing periods - Fast: {fast_period}, Slow: {slow_period}, Signal: {signal_period}"
-        )
-        print(
-            f"Data length: {len(data)}, Required length: {max(fast_period, slow_period, signal_period)}"
-        )
-        print(
-            f"Calculating {direction.capitalize()} MACD signals with fast period {fast_period}, slow period {slow_period}, and signal period {signal_period}"
-        )
-        print(f"Input data shape: {data.shape}")
+        # Analysis parameters logging removed for performance
 
         # Calculate MACD indicators
         data = calculate_macd(data, fast_period, slow_period, signal_period)
@@ -142,9 +130,7 @@ def generate_macd_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataF
 
         # Log signal conversion statistics
         non_zero_signals = data.filter(pl.col("Signal") != 0).height
-        print(
-            f"Windows {fast_period}, {slow_period}, {signal_period}: {non_zero_signals} signals generated"
-        )
+        # Signal generation logging removed for performance
 
         # Check if there's a current entry or exit signal
         last_row = data.tail(1)
@@ -165,23 +151,21 @@ def generate_macd_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataF
                 <= data.tail(2).head(1).select("Signal_Line").item()
             )
 
-        print(
-            f"Windows {fast_period}, {slow_period}, {signal_period}: Entry signal: {current_signal}, Exit signal: {exit_signal}"
-        )
+        # Signal status logging removed for performance
 
         # Convert signals to positions using the standardized function
         from app.tools.signal_conversion import convert_signals_to_positions
 
         # Create a simple log function if not provided
-        def simple_log(message, level="info"):
-            print(f"[{level.upper()}] {message}")
+        def simple_log(message, level="debug"):
+            pass  # Suppress logging for performance
 
         data = convert_signals_to_positions(data, config, simple_log)
 
         return data
 
     except Exception as e:
-        print(f"Signal generation error: {str(e)}")
+        # Error logging removed for performance
         return None
 
 
@@ -327,7 +311,8 @@ def generate_current_signals(config: Dict, log: Callable) -> pl.DataFrame:
             export_csv(current_signals, "macd_cross", config, "current_signals")
 
             if len(current_signals) == 0:
-                print("No signals found for today")
+                # No signals logging removed for performance
+                pass
 
         return current_signals
 

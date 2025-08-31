@@ -355,7 +355,7 @@ def convert_stats(
 
     # Get ticker from stats if not in config
     ticker = config.get("TICKER") or stats.get("Ticker", "Unknown")
-    log(f"Converting stats for {ticker}", "info")
+    log(f"Converting stats for {ticker}", "debug")
 
     try:
         # Calculate Beats BNH percentage
@@ -404,7 +404,7 @@ def convert_stats(
         trading_days_per_month = 30 if is_crypto else 21
         log(
             f"Using {trading_days_per_month} trading days per month for {ticker} ({'crypto' if is_crypto else 'stock'})",
-            "info",
+            "debug",
         )
 
         # Calculate months in the backtest period
@@ -430,7 +430,7 @@ def convert_stats(
             stats["Total Period"] = days_in_period
             log(
                 f"Set Total Period to {days_in_period:.2f} days for {ticker} (crypto)",
-                "info",
+                "debug",
             )
         else:
             # For stocks, convert from trading days to calendar days
@@ -438,7 +438,7 @@ def convert_stats(
             stats["Total Period"] = days_in_period * (365 / 252)
             log(
                 f"Set Total Period to {stats['Total Period']:.2f} days for {ticker} (stock, adjusted from {days_in_period:.2f} trading days)",
-                "info",
+                "debug",
             )
 
         stats["Trades Per Day"] = stats["Total Closed Trades"] / stats["Total Period"]
@@ -512,30 +512,30 @@ def convert_stats(
 
                 log(
                     f"Statistical Confidence: {total_trades_count} trades → multiplier {confidence_multiplier:.4f}",
-                    "info",
+                    "debug",
                 )
                 log(
                     f"Final Score: {base_score:.4f} × {confidence_multiplier:.4f} = {stats['Score']:.4f}",
-                    "info",
+                    "debug",
                 )
                 log(
                     f"Normalized: Win Rate {win_rate_normalized:.4f} (×2.5, confidence-adjusted)",
-                    "info",
+                    "debug",
                 )
                 log(
                     f"Normalized: Total Trades {total_trades_normalized:.4f} (×1.5, statistical validity)",
-                    "info",
+                    "debug",
                 )
-                log(f"Normalized: Sortino {sortino_normalized:.4f}", "info")
-                log(f"Normalized: Profit Factor {profit_factor_normalized:.4f}", "info")
+                log(f"Normalized: Sortino {sortino_normalized:.4f}", "debug")
+                log(f"Normalized: Profit Factor {profit_factor_normalized:.4f}", "debug")
                 log(
                     f"Normalized: Expectancy {expectancy_per_trade_normalized:.4f}",
-                    "info",
+                    "debug",
                 )
                 log(
-                    f"Normalized: Beats Buy-and-hold {beats_bnh_normalized:.4f}", "info"
+                    f"Normalized: Beats Buy-and-hold {beats_bnh_normalized:.4f}", "debug"
                 )
-                log(f"Optimized Score: {stats['Score']:.4f}", "info")
+                log(f"Optimized Score: {stats['Score']:.4f}", "debug")
             except Exception as e:
                 stats["Score"] = 0
                 log(
@@ -593,8 +593,8 @@ def convert_stats(
         ):
             if stats["Expectancy per Trade"] <= 0:
                 log(
-                    f"Warning: Non-positive Expectancy per Trade ({stats['Expectancy per Trade']:.6f}) for {ticker}.",
-                    "info",
+                    f"Non-positive Expectancy per Trade ({stats['Expectancy per Trade']:.6f}) for {ticker}.",
+                    "debug",
                 )
 
             stats["Expectancy per Month"] = (
@@ -761,22 +761,22 @@ def convert_stats(
         # Add Signal Entry if provided
         if current is not None:
             converted["Signal Entry"] = current
-            log(f"Added Signal Entry: {current} for {ticker}", "info")
+            log(f"Added Signal Entry: {current} for {ticker}", "debug")
 
         # Add Signal Exit if provided
         if exit_signal is not None:
             converted["Signal Exit"] = exit_signal
-            log(f"Added Signal Exit: {exit_signal} for {ticker}", "info")
+            log(f"Added Signal Exit: {exit_signal} for {ticker}", "debug")
 
         # Add Signal Unconfirmed if provided
         if signal_unconfirmed is not None:
             converted["Signal Unconfirmed"] = signal_unconfirmed
-            log(f"Added Signal Unconfirmed: {signal_unconfirmed} for {ticker}", "info")
+            log(f"Added Signal Unconfirmed: {signal_unconfirmed} for {ticker}", "debug")
 
         # Ensure canonical schema compliance
         converted = _ensure_canonical_schema_compliance(converted, log, verbose)
 
-        log(f"Successfully converted stats for {ticker}", "info")
+        log(f"Successfully converted stats for {ticker}", "debug")
         return converted
 
     except Exception as e:

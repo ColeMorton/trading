@@ -387,8 +387,15 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
     ):
         """Start tracking a new execution phase."""
         if self.performance_mode == "minimal":
-            # Standard behavior for minimal mode
-            self.progress(f"{description or phase_name}")
+            # For strategy execution, show essential progress even in minimal mode
+            # Always display progress for strategy-related phases to provide user feedback
+            if phase_name in ["strategy_execution", "data_download", "backtesting", "portfolio_processing"] or "strategy" in phase_name.lower():
+                # Show essential progress for strategy execution phases
+                if not self.quiet:
+                    self.progress(f"⚙️  {description or phase_name}")
+            else:
+                # Standard minimal behavior for other phases
+                self.progress(f"{description or phase_name}")
             return
 
         current_time = time.time()
@@ -1023,6 +1030,135 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
             self, phase_name, description, estimated_duration
         )
 
+    def parameter_progress_context(
+        self,
+        strategy_name: str,
+        total_combinations: int,
+        show_parallel_workers: bool = True,
+        force_display: bool = False,
+    ):
+        """Create enhanced progress context for parameter sweep operations.
+
+        Args:
+            strategy_name: Name of the strategy being analyzed
+            total_combinations: Total number of parameter combinations
+            show_parallel_workers: Show parallel worker utilization
+            force_display: Force display even in quiet+minimal mode (for strategy execution)
+
+        Returns:
+            Enhanced Progress instance with nested progress bars and real-time metrics
+        """
+        # Determine performance level for progress display
+        if self.performance_mode == "minimal":
+            # Minimal mode: basic progress bar only
+            columns = [
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(bar_width=30),
+                TaskProgressColumn(),
+                TimeElapsedColumn(),
+            ]
+        elif self.performance_mode == "standard":
+            # Standard mode: progress + rate + workers
+            columns = [
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(bar_width=35),
+                TaskProgressColumn(),
+                TextColumn("•"),
+                TextColumn("[blue]{task.fields[rate]}/sec[/blue]"),
+                TimeElapsedColumn(),
+            ]
+            if show_parallel_workers:
+                columns.insert(-1, TextColumn("[dim]({task.fields[workers]} workers)[/dim]"))
+        else:
+            # Detailed/benchmark mode: full metrics
+            columns = [
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(bar_width=40),
+                TaskProgressColumn(),
+                TextColumn("•"),
+                TextColumn("[blue]{task.fields[rate]}/sec[/blue]"),
+                TextColumn("•"),
+                TextColumn("[green]ETA: {task.fields[eta]}[/green]"),
+                TimeElapsedColumn(),
+            ]
+            if show_parallel_workers:
+                columns.insert(-2, TextColumn("[dim]({task.fields[workers]} workers)[/dim]"))
+            
+            # Add memory monitoring for detailed modes
+            if self.show_resources:
+                columns.insert(-1, TextColumn("[yellow]Mem: {task.fields[memory]}MB[/yellow]"))
+
+        # Calculate adaptive refresh rate based on total combinations
+        if total_combinations < 50:
+            refresh_rate = 8  # High refresh for small sets
+        elif total_combinations < 500:
+            refresh_rate = 4  # Standard refresh for medium sets
+        else:
+            refresh_rate = 2  # Lower refresh for large sets to reduce CPU overhead
+
+        # Smart disable logic: For strategy execution contexts (force_display=True),
+        # always show progress bars to provide essential user feedback
+        # For other contexts, use conservative quiet+minimal logic
+        if force_display:
+            # Strategy execution context - always show progress bars
+            disable_progress = False
+        else:
+            # Other contexts - use conservative logic
+            disable_progress = self.quiet and self.performance_mode == "minimal"
+
+        progress = Progress(
+            *columns, 
+            console=self.console, 
+            expand=True, 
+            refresh_per_second=refresh_rate,
+            disable=disable_progress
+        )
+
+        return progress
+
+    def info(self, message: str, **kwargs) -> None:
+        """Display info message with enhanced strategy execution awareness."""
+        # For strategy execution contexts, always show essential info even in quiet mode
+        if self._current_phase and ("strategy" in self._current_phase.lower() or 
+            self._current_phase in ["data_download", "backtesting", "portfolio_processing"]):
+            # Always show strategy execution info regardless of quiet mode
+            self.console.print(f"[blue]ℹ️  {message}[/blue]", **kwargs)
+        else:
+            # Use base class behavior for other contexts
+            super().info(message, **kwargs)
+
+    def progress(self, message: str, **kwargs) -> None:
+        """Display progress message with enhanced strategy execution awareness."""
+        # For strategy execution contexts, always show progress even in quiet mode
+        if self._current_phase and ("strategy" in self._current_phase.lower() or 
+            self._current_phase in ["data_download", "backtesting", "portfolio_processing"]):
+            # Always show strategy execution progress regardless of quiet mode
+            self.console.print(f"[cyan]⚙️  {message}[/cyan]", **kwargs)
+        else:
+            # Use base class behavior for other contexts
+            super().progress(message, **kwargs)
+
+    def heading(self, message: str, level: int = 1, **kwargs) -> None:
+        """Display heading with enhanced strategy execution awareness."""
+        # For strategy execution contexts, always show headings even in quiet mode
+        if self._current_phase and ("strategy" in self._current_phase.lower() or 
+            self._current_phase in ["data_download", "backtesting", "portfolio_processing"]):
+            # Always show strategy execution headings regardless of quiet mode
+            if level == 1:
+                self.console.print(f"\n[bold cyan]🚀 {message}[/bold cyan]", **kwargs)
+            elif level == 2:
+                self.console.print(f"\n[bold blue]📊 {message}[/bold blue]", **kwargs)
+            elif level == 3:
+                self.console.print(f"\n[bold yellow]💡 {message}[/bold yellow]", **kwargs)
+            else:
+                self.console.print(f"\n[bold white]• {message}[/bold white]", **kwargs)
+        else:
+            # Use base class behavior for other contexts
+            super().heading(message, level, **kwargs)
+
 
 class LiveResourceDashboard:
     """Live updating resource dashboard for long-running phases."""
@@ -1154,6 +1290,7 @@ class LiveResourceDashboard:
 
             except Exception:
                 break  # Exit on any error to avoid disrupting execution
+
 
 
 class PerformancePhaseContext:

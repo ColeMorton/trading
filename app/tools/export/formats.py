@@ -79,12 +79,10 @@ class CSVExporter(ExportStrategy):
             else:
                 raise ExportValidationError(f"Unsupported DataFrame type: {type(df)}")
 
-            # Log success
+            # Log success (debug level to avoid duplication)
             rows_exported = len(df)
-            message = f"{rows_exported} rows exported to {full_path}"
             if context.log:
-                context.log(f"Successfully exported results to {full_path}", "info")
-            logging.info(message)
+                context.log(f"✅ {rows_exported} results → {full_path}", "debug")
 
             return ExportResult(
                 success=True, path=str(full_path), rows_exported=rows_exported
@@ -440,16 +438,30 @@ class CSVExporter(ExportStrategy):
                 "warning",
             )
 
-        # Check for null values in present metrics
+        # Check for null values in present metrics with detailed logging
         present_metrics = [metric for metric in self.RISK_METRICS if metric in columns]
 
         for metric in present_metrics:
             if isinstance(df, pl.DataFrame):
-                if df[metric].null_count() == len(df):
-                    context.log(f"Metric '{metric}' has all null values", "warning")
+                null_count = df[metric].null_count()
+                total_count = len(df)
+                if null_count == total_count:
+                    context.log(f"Metric '{metric}' has all null values in NEW export system (null_count={null_count}, total={total_count})", "warning")
+                elif null_count > 0:
+                    context.log(f"Metric '{metric}' has {null_count}/{total_count} null values in NEW export system", "debug")
+                else:
+                    sample_value = df[metric][0] if total_count > 0 else "N/A"
+                    context.log(f"NEW export - Metric '{metric}' validation passed: {null_count}/{total_count} nulls, sample_value={sample_value}", "debug")
             else:
-                if df[metric].isnull().all():
-                    context.log(f"Metric '{metric}' has all null values", "warning")
+                null_count = df[metric].isnull().sum()
+                total_count = len(df)
+                if null_count == total_count:
+                    context.log(f"Metric '{metric}' has all null values in NEW export system (pandas) (null_count={null_count}, total={total_count})", "warning")
+                elif null_count > 0:
+                    context.log(f"Metric '{metric}' has {null_count}/{total_count} null values in NEW export system (pandas)", "debug")
+                else:
+                    sample_value = df[metric].iloc[0] if total_count > 0 else "N/A"
+                    context.log(f"NEW export (pandas) - Metric '{metric}' validation passed: {null_count}/{total_count} nulls, sample_value={sample_value}", "debug")
 
 
 class JSONExporter(ExportStrategy):

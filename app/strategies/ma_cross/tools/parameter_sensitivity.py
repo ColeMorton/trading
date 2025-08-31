@@ -52,6 +52,9 @@ def analyze_parameter_sensitivity(
         for strategy_type in strategy_types:
             log(f"Analyzing parameter combinations for {strategy_type} strategy")
 
+            # Enable parallel processing for large parameter sets
+            use_parallel = len(parameter_sets) > 10 and config.get("ENABLE_PARALLEL", True)
+            
             # Analyze parameter combinations for this strategy type
             strategy_portfolios = analyze_parameter_combinations(
                 data,
@@ -59,6 +62,7 @@ def analyze_parameter_sensitivity(
                 config,
                 log,
                 strategy_type=strategy_type,
+                parallel=use_parallel,
             )
 
             if strategy_portfolios:
@@ -111,7 +115,7 @@ def export_results(df: pl.DataFrame, config: Dict[str, Any], log: Callable) -> N
         )
 
         log("Analysis results exported successfully")
-        print(f"Analysis complete. Total rows in output: {len(df)}")
+        log(f"Analysis complete. Total rows in output: {len(df)}", "debug")
 
     except Exception as e:
         log(f"Failed to export results: {e}", "error")
