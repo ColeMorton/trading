@@ -1044,7 +1044,6 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
         strategy_name: str,
         total_combinations: int,
         show_parallel_workers: bool = True,
-        force_display: bool = False,
     ):
         """Create enhanced progress context for parameter sweep operations.
 
@@ -1052,7 +1051,6 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
             strategy_name: Name of the strategy being analyzed
             total_combinations: Total number of parameter combinations
             show_parallel_workers: Show parallel worker utilization
-            force_display: Force display even in quiet+minimal mode (for strategy execution)
 
         Returns:
             Enhanced Progress instance with nested progress bars and real-time metrics
@@ -1114,15 +1112,9 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
         else:
             refresh_rate = 2  # Lower refresh for large sets to reduce CPU overhead
 
-        # Smart disable logic: For strategy execution contexts (force_display=True),
-        # always show progress bars to provide essential user feedback
-        # For other contexts, use conservative quiet+minimal logic
-        if force_display:
-            # Strategy execution context - always show progress bars
-            disable_progress = False
-        else:
-            # Other contexts - use conservative logic
-            disable_progress = self.quiet and self.performance_mode == "minimal"
+        # Always show progress bars for strategy execution contexts
+        # Progress bars provide essential user feedback regardless of quiet/minimal settings
+        disable_progress = False
 
         progress = Progress(
             *columns,

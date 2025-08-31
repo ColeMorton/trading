@@ -114,14 +114,41 @@ class SignalProcessorBase(ABC):
 
             # Process each signal using strategy-specific parameter analysis
             portfolios = []
-            for row in current_signals.iter_rows(named=True):
-                # Create strategy config for this combination
-                strategy_config = config_copy.copy()
 
-                # Strategy-specific parameter extraction and analysis
-                result = self._process_signal_row(data, row, strategy_config, log)
-                if result is not None:
-                    portfolios.append(result)
+            # Check if we have PerformanceAwareConsoleLogger for progress display
+            log_self = log.__self__ if hasattr(log, "__self__") else None
+            from app.tools.console_logging import PerformanceAwareConsoleLogger
+
+            if isinstance(log_self, PerformanceAwareConsoleLogger):
+                console_logger = log_self
+                with console_logger.progress_context(
+                    "Processing current signals..."
+                ) as progress:
+                    task = progress.add_task(
+                        f"Processing {len(current_signals)} signals...",
+                        total=len(current_signals),
+                    )
+                    for row in current_signals.iter_rows(named=True):
+                        # Create strategy config for this combination
+                        strategy_config = config_copy.copy()
+
+                        # Strategy-specific parameter extraction and analysis
+                        result = self._process_signal_row(
+                            data, row, strategy_config, log
+                        )
+                        if result is not None:
+                            portfolios.append(result)
+                        progress.update(task, advance=1)
+            else:
+                # Fallback to basic processing without progress bar
+                for row in current_signals.iter_rows(named=True):
+                    # Create strategy config for this combination
+                    strategy_config = config_copy.copy()
+
+                    # Strategy-specific parameter extraction and analysis
+                    result = self._process_signal_row(data, row, strategy_config, log)
+                    if result is not None:
+                        portfolios.append(result)
 
             return pl.DataFrame(portfolios) if portfolios else None
 
