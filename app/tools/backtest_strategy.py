@@ -310,27 +310,27 @@ def backtest_strategy(
 
                 # Log the calculated risk metrics with detailed validation
                 risk_metrics = {
-                    'Skew': stats_dict.get('Skew'),
-                    'Kurtosis': stats_dict.get('Kurtosis'), 
-                    'Tail Ratio': stats_dict.get('Tail Ratio'),
-                    'Common Sense Ratio': stats_dict.get('Common Sense Ratio'),
-                    'Value at Risk': stats_dict.get('Value at Risk')
+                    "Skew": stats_dict.get("Skew"),
+                    "Kurtosis": stats_dict.get("Kurtosis"),
+                    "Tail Ratio": stats_dict.get("Tail Ratio"),
+                    "Common Sense Ratio": stats_dict.get("Common Sense Ratio"),
+                    "Value at Risk": stats_dict.get("Value at Risk"),
                 }
-                
+
                 null_metrics = [k for k, v in risk_metrics.items() if v is None]
                 valid_metrics = [k for k, v in risk_metrics.items() if v is not None]
-                
+
                 log_func(
                     f"Risk metrics calculation summary: {len(valid_metrics)} valid, {len(null_metrics)} null",
                     "debug",
                 )
-                
+
                 if valid_metrics:
                     log_func(
                         f"Valid risk metrics: {dict((k, risk_metrics[k]) for k in valid_metrics)}",
                         "debug",
                     )
-                
+
                 if null_metrics:
                     log_func(
                         f"Null risk metrics detected in backtest_strategy: {null_metrics}",
@@ -375,27 +375,33 @@ def backtest_strategy(
 
                     # Log return metrics with validation
                     return_metrics = {
-                        'Daily Returns': stats_dict.get('Daily Returns'),
-                        'Annual Returns': stats_dict.get('Annual Returns'),
-                        'Cumulative Returns': stats_dict.get('Cumulative Returns'),
-                        'Annualized Return': stats_dict.get('Annualized Return'),
-                        'Annualized Volatility': stats_dict.get('Annualized Volatility')
+                        "Daily Returns": stats_dict.get("Daily Returns"),
+                        "Annual Returns": stats_dict.get("Annual Returns"),
+                        "Cumulative Returns": stats_dict.get("Cumulative Returns"),
+                        "Annualized Return": stats_dict.get("Annualized Return"),
+                        "Annualized Volatility": stats_dict.get(
+                            "Annualized Volatility"
+                        ),
                     }
-                    
-                    null_return_metrics = [k for k, v in return_metrics.items() if v is None]
-                    valid_return_metrics = [k for k, v in return_metrics.items() if v is not None]
-                    
+
+                    null_return_metrics = [
+                        k for k, v in return_metrics.items() if v is None
+                    ]
+                    valid_return_metrics = [
+                        k for k, v in return_metrics.items() if v is not None
+                    ]
+
                     log_func(
                         f"Return metrics calculation summary: {len(valid_return_metrics)} valid, {len(null_return_metrics)} null",
                         "debug",
                     )
-                    
+
                     if valid_return_metrics:
                         log_func(
                             f"Valid return metrics: {dict((k, return_metrics[k]) for k in valid_return_metrics)}",
                             "debug",
                         )
-                    
+
                     if null_return_metrics:
                         log_func(
                             f"Null return metrics detected in backtest_strategy: {null_return_metrics}",

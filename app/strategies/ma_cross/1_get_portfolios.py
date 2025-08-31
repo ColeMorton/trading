@@ -293,15 +293,15 @@ def run(config: Config = CONFIG, external_log=None) -> bool:
         def log_wrapper(message, level="info"):
             if hasattr(external_log, level):
                 getattr(external_log, level)(message)
-            elif hasattr(external_log, 'info'):
+            elif hasattr(external_log, "info"):
                 external_log.info(message)  # fallback to info level
             else:
                 # Last resort - try to call it directly
                 external_log(message, level)
-        
+
         # Store reference to original logger for enhanced progress display detection
         log_wrapper.__self__ = external_log
-        
+
         return _run_with_log(config, log_wrapper)
     else:
         with logging_context(

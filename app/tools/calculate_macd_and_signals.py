@@ -32,7 +32,7 @@ def calculate_macd_and_signals(
     direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
     log(
         f"Calculating {direction} MACD signals: fast={fast_period}, slow={slow_period}, signal={signal_period}",
-        "debug"
+        "debug",
     )
 
     try:

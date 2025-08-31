@@ -19,7 +19,7 @@ def calculate_mas(
     """
     log(
         f"Calculating {'SMA' if use_sma else 'EMA'} with periods {fast_period}, {slow_period}",
-        "debug"
+        "debug",
     )
     log(f"Input data shape: {data.shape}", "debug")
 

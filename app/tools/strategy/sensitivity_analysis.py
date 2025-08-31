@@ -194,8 +194,10 @@ class SensitivityAnalyzerBase(ABC):
         """
         # Use parallel processing for large parameter sets
         if parallel and len(parameter_sets) > 10:
-            return self._analyze_combinations_parallel(data, parameter_sets, config, log)
-        
+            return self._analyze_combinations_parallel(
+                data, parameter_sets, config, log
+            )
+
         # Sequential processing for small sets or when parallel is disabled
         portfolios = []
         for params in parameter_sets:
@@ -214,17 +216,16 @@ class SensitivityAnalyzerBase(ABC):
     ) -> List[Dict[str, Any]]:
         """Analyze parameter combinations using parallel processing."""
         try:
-            from app.tools.processing import parallel_parameter_sweep
             from app.tools.console_logging import PerformanceAwareConsoleLogger
-            
+            from app.tools.processing import parallel_parameter_sweep
+
             # Check if we have access to enhanced progress display
-            log_self = log.__self__ if hasattr(log, '__self__') else None
+            log_self = log.__self__ if hasattr(log, "__self__") else None
             use_enhanced_progress = isinstance(log_self, PerformanceAwareConsoleLogger)
-            
-            
+
             if use_enhanced_progress:
                 console_logger = log.__self__
-                
+
                 # Use enhanced progress context for large parameter sets
                 with console_logger.parameter_progress_context(
                     self.strategy_type, len(parameter_sets)
@@ -235,35 +236,44 @@ class SensitivityAnalyzerBase(ABC):
                         "workers": f"{os.cpu_count() or 4}",
                         "eta": "calculating...",
                     }
-                    
+
                     # Add memory field for detailed modes
                     if console_logger.show_resources:
                         import psutil
+
                         memory_mb = psutil.Process().memory_info().rss / 1024 / 1024
                         task_fields["memory"] = f"{memory_mb:.0f}"
-                    
+
                     task = progress.add_task(
                         f"Analyzing {self.strategy_type} parameters...",
                         total=len(parameter_sets),
-                        **task_fields
+                        **task_fields,
                     )
-                    
-                    log(f"🚀 Starting parallel analysis of {len(parameter_sets)} {self.strategy_type} parameter combinations", "info")
-                    
+
+                    log(
+                        f"🚀 Starting parallel analysis of {len(parameter_sets)} {self.strategy_type} parameter combinations",
+                        "info",
+                    )
+
                     # Create wrapper function with enhanced progress updates
                     completed_count = 0
                     import time
+
                     start_time = time.time()
-                    
-                    def strategy_wrapper_with_progress(params: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+
+                    def strategy_wrapper_with_progress(
+                        params: Dict[str, Any]
+                    ) -> Optional[Dict[str, Any]]:
                         nonlocal completed_count
-                        result = self.analyze_parameter_combination(data, config, log, **params)
+                        result = self.analyze_parameter_combination(
+                            data, config, log, **params
+                        )
                         completed_count += 1
-                        
+
                         # Calculate processing metrics
                         elapsed = time.time() - start_time
                         rate = completed_count / elapsed if elapsed > 0 else 0
-                        
+
                         # Calculate ETA
                         remaining = len(parameter_sets) - completed_count
                         eta_seconds = remaining / rate if rate > 0 else 0
@@ -273,42 +283,46 @@ class SensitivityAnalyzerBase(ABC):
                             eta_str = f"{eta_seconds/60:.1f}m"
                         else:
                             eta_str = f"{eta_seconds:.0f}s"
-                        
+
                         # Update progress with adaptive frequency
                         update_frequency = 5 if len(parameter_sets) < 100 else 10
-                        if completed_count % update_frequency == 0 or completed_count == len(parameter_sets):
+                        if (
+                            completed_count % update_frequency == 0
+                            or completed_count == len(parameter_sets)
+                        ):
                             update_fields = {
                                 "rate": f"{rate:.1f}",
                                 "workers": f"{os.cpu_count() or 4}",
                                 "eta": eta_str,
                             }
-                            
+
                             # Add memory monitoring for detailed modes
                             if console_logger.show_resources:
                                 try:
                                     import psutil
-                                    memory_mb = psutil.Process().memory_info().rss / 1024 / 1024
+
+                                    memory_mb = (
+                                        psutil.Process().memory_info().rss / 1024 / 1024
+                                    )
                                     update_fields["memory"] = f"{memory_mb:.0f}"
                                 except ImportError:
                                     pass
-                            
+
                             progress.update(
-                                task,
-                                completed=completed_count,
-                                **update_fields
+                                task, completed=completed_count, **update_fields
                             )
-                        
+
                         return result
-                    
+
                     # Use parallel parameter sweep
                     batch_size = max(1, len(parameter_sets) // (os.cpu_count() or 4))
                     results = parallel_parameter_sweep(
                         parameter_combinations=parameter_sets,
                         strategy_fn=strategy_wrapper_with_progress,
                         batch_size=batch_size,
-                        timeout=None
+                        timeout=None,
                     )
-                    
+
                     # Final progress update
                     elapsed = time.time() - start_time
                     final_rate = completed_count / elapsed if elapsed > 0 else 0
@@ -317,51 +331,71 @@ class SensitivityAnalyzerBase(ABC):
                         "workers": f"{os.cpu_count() or 4}",
                         "eta": "complete",
                     }
-                    
+
                     if console_logger.show_resources:
                         try:
                             import psutil
+
                             memory_mb = psutil.Process().memory_info().rss / 1024 / 1024
                             final_fields["memory"] = f"{memory_mb:.0f}"
                         except ImportError:
                             pass
-                    
-                    progress.update(
-                        task,
-                        completed=len(parameter_sets),
-                        **final_fields
-                    )
+
+                    progress.update(task, completed=len(parameter_sets), **final_fields)
             else:
                 # Fallback to basic logging without enhanced progress
-                log(f"🚀 Starting parallel analysis of {len(parameter_sets)} {self.strategy_type} parameter combinations", "info")
-                
+                log(
+                    f"🚀 Starting parallel analysis of {len(parameter_sets)} {self.strategy_type} parameter combinations",
+                    "info",
+                )
+
                 # Create wrapper function for strategy analysis
-                def strategy_wrapper(params: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-                    return self.analyze_parameter_combination(data, config, log, **params)
-                
+                def strategy_wrapper(
+                    params: Dict[str, Any]
+                ) -> Optional[Dict[str, Any]]:
+                    return self.analyze_parameter_combination(
+                        data, config, log, **params
+                    )
+
                 # Use parallel parameter sweep with CPU-bound executor
                 batch_size = max(1, len(parameter_sets) // (os.cpu_count() or 4))
-                log(f"⚙️  Using {os.cpu_count() or 4} CPU cores with batch size {batch_size}", "info")
-                
+                log(
+                    f"⚙️  Using {os.cpu_count() or 4} CPU cores with batch size {batch_size}",
+                    "info",
+                )
+
                 results = parallel_parameter_sweep(
                     parameter_combinations=parameter_sets,
                     strategy_fn=strategy_wrapper,
                     batch_size=batch_size,
-                    timeout=None
+                    timeout=None,
                 )
-            
+
             # Filter out None results
             valid_portfolios = [result for result in results if result is not None]
-            
-            log(f"✅ Parallel processing complete: {len(valid_portfolios)}/{len(parameter_sets)} successful", "info")
+
+            log(
+                f"✅ Parallel processing complete: {len(valid_portfolios)}/{len(parameter_sets)} successful",
+                "info",
+            )
             return valid_portfolios
-            
+
         except ImportError:
-            log("Parallel processing not available, falling back to sequential", "warning")
-            return self._analyze_combinations_sequential(data, parameter_sets, config, log)
+            log(
+                "Parallel processing not available, falling back to sequential",
+                "warning",
+            )
+            return self._analyze_combinations_sequential(
+                data, parameter_sets, config, log
+            )
         except Exception as e:
-            log(f"Parallel processing failed: {e}, falling back to sequential", "warning")
-            return self._analyze_combinations_sequential(data, parameter_sets, config, log)
+            log(
+                f"Parallel processing failed: {e}, falling back to sequential",
+                "warning",
+            )
+            return self._analyze_combinations_sequential(
+                data, parameter_sets, config, log
+            )
 
     def _analyze_combinations_sequential(
         self,
@@ -715,7 +749,9 @@ def analyze_parameter_combinations(
         strategy_type = _detect_strategy_type(config)
 
     analyzer = SensitivityAnalyzerFactory.create_analyzer(strategy_type)
-    return analyzer.analyze_parameter_combinations(data, parameter_sets, config, log, parallel=parallel)
+    return analyzer.analyze_parameter_combinations(
+        data, parameter_sets, config, log, parallel=parallel
+    )
 
 
 # Strategy-specific convenience functions for backward compatibility

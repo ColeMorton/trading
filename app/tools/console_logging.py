@@ -389,7 +389,16 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
         if self.performance_mode == "minimal":
             # For strategy execution, show essential progress even in minimal mode
             # Always display progress for strategy-related phases to provide user feedback
-            if phase_name in ["strategy_execution", "data_download", "backtesting", "portfolio_processing"] or "strategy" in phase_name.lower():
+            if (
+                phase_name
+                in [
+                    "strategy_execution",
+                    "data_download",
+                    "backtesting",
+                    "portfolio_processing",
+                ]
+                or "strategy" in phase_name.lower()
+            ):
                 # Show essential progress for strategy execution phases
                 if not self.quiet:
                     self.progress(f"⚙️  {description or phase_name}")
@@ -1070,7 +1079,9 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
                 TimeElapsedColumn(),
             ]
             if show_parallel_workers:
-                columns.insert(-1, TextColumn("[dim]({task.fields[workers]} workers)[/dim]"))
+                columns.insert(
+                    -1, TextColumn("[dim]({task.fields[workers]} workers)[/dim]")
+                )
         else:
             # Detailed/benchmark mode: full metrics
             columns = [
@@ -1085,11 +1096,15 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
                 TimeElapsedColumn(),
             ]
             if show_parallel_workers:
-                columns.insert(-2, TextColumn("[dim]({task.fields[workers]} workers)[/dim]"))
-            
+                columns.insert(
+                    -2, TextColumn("[dim]({task.fields[workers]} workers)[/dim]")
+                )
+
             # Add memory monitoring for detailed modes
             if self.show_resources:
-                columns.insert(-1, TextColumn("[yellow]Mem: {task.fields[memory]}MB[/yellow]"))
+                columns.insert(
+                    -1, TextColumn("[yellow]Mem: {task.fields[memory]}MB[/yellow]")
+                )
 
         # Calculate adaptive refresh rate based on total combinations
         if total_combinations < 50:
@@ -1110,11 +1125,11 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
             disable_progress = self.quiet and self.performance_mode == "minimal"
 
         progress = Progress(
-            *columns, 
-            console=self.console, 
-            expand=True, 
+            *columns,
+            console=self.console,
+            expand=True,
             refresh_per_second=refresh_rate,
-            disable=disable_progress
+            disable=disable_progress,
         )
 
         return progress
@@ -1122,8 +1137,11 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
     def info(self, message: str, **kwargs) -> None:
         """Display info message with enhanced strategy execution awareness."""
         # For strategy execution contexts, always show essential info even in quiet mode
-        if self._current_phase and ("strategy" in self._current_phase.lower() or 
-            self._current_phase in ["data_download", "backtesting", "portfolio_processing"]):
+        if self._current_phase and (
+            "strategy" in self._current_phase.lower()
+            or self._current_phase
+            in ["data_download", "backtesting", "portfolio_processing"]
+        ):
             # Always show strategy execution info regardless of quiet mode
             self.console.print(f"[blue]ℹ️  {message}[/blue]", **kwargs)
         else:
@@ -1133,8 +1151,11 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
     def progress(self, message: str, **kwargs) -> None:
         """Display progress message with enhanced strategy execution awareness."""
         # For strategy execution contexts, always show progress even in quiet mode
-        if self._current_phase and ("strategy" in self._current_phase.lower() or 
-            self._current_phase in ["data_download", "backtesting", "portfolio_processing"]):
+        if self._current_phase and (
+            "strategy" in self._current_phase.lower()
+            or self._current_phase
+            in ["data_download", "backtesting", "portfolio_processing"]
+        ):
             # Always show strategy execution progress regardless of quiet mode
             self.console.print(f"[cyan]⚙️  {message}[/cyan]", **kwargs)
         else:
@@ -1144,15 +1165,20 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
     def heading(self, message: str, level: int = 1, **kwargs) -> None:
         """Display heading with enhanced strategy execution awareness."""
         # For strategy execution contexts, always show headings even in quiet mode
-        if self._current_phase and ("strategy" in self._current_phase.lower() or 
-            self._current_phase in ["data_download", "backtesting", "portfolio_processing"]):
+        if self._current_phase and (
+            "strategy" in self._current_phase.lower()
+            or self._current_phase
+            in ["data_download", "backtesting", "portfolio_processing"]
+        ):
             # Always show strategy execution headings regardless of quiet mode
             if level == 1:
                 self.console.print(f"\n[bold cyan]🚀 {message}[/bold cyan]", **kwargs)
             elif level == 2:
                 self.console.print(f"\n[bold blue]📊 {message}[/bold blue]", **kwargs)
             elif level == 3:
-                self.console.print(f"\n[bold yellow]💡 {message}[/bold yellow]", **kwargs)
+                self.console.print(
+                    f"\n[bold yellow]💡 {message}[/bold yellow]", **kwargs
+                )
             else:
                 self.console.print(f"\n[bold white]• {message}[/bold white]", **kwargs)
         else:
@@ -1290,7 +1316,6 @@ class LiveResourceDashboard:
 
             except Exception:
                 break  # Exit on any error to avoid disrupting execution
-
 
 
 class PerformancePhaseContext:

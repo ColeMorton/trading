@@ -49,14 +49,16 @@ class StrategyDispatcher:
             "ATR": ATRStrategyService(console=self.console),
         }
 
-    def _extract_strategy_parameters(self, config: StrategyConfig, strategy_type: Union[StrategyType, str]) -> Dict[str, Optional[int]]:
+    def _extract_strategy_parameters(
+        self, config: StrategyConfig, strategy_type: Union[StrategyType, str]
+    ) -> Dict[str, Optional[int]]:
         """
         Extract strategy-specific parameters from StrategyConfig with proper fallback hierarchy.
-        
+
         Args:
             config: Strategy configuration model
             strategy_type: Strategy type to extract parameters for
-            
+
         Returns:
             Dictionary with parameter values (fast_min, fast_max, slow_min, slow_max, signal_min, signal_max)
         """
@@ -65,14 +67,17 @@ class StrategyDispatcher:
             strategy_value = strategy_type.value
         else:
             strategy_value = str(strategy_type).upper()
-        
+
         # Initialize with defaults
         params = {
-            'fast_min': None, 'fast_max': None,
-            'slow_min': None, 'slow_max': None, 
-            'signal_min': None, 'signal_max': None
+            "fast_min": None,
+            "fast_max": None,
+            "slow_min": None,
+            "slow_max": None,
+            "signal_min": None,
+            "signal_max": None,
         }
-        
+
         # Priority 1: Strategy-specific parameters from strategy_params
         if config.strategy_params:
             strategy_specific = None
@@ -84,68 +89,79 @@ class StrategyDispatcher:
                 strategy_specific = config.strategy_params.MACD
             elif strategy_value == "ATR" and config.strategy_params.ATR:
                 strategy_specific = config.strategy_params.ATR
-            
+
             if strategy_specific:
-                params.update({
-                    'fast_min': strategy_specific.fast_period_min,
-                    'fast_max': strategy_specific.fast_period_max,
-                    'slow_min': strategy_specific.slow_period_min,
-                    'slow_max': strategy_specific.slow_period_max,
-                    'signal_min': strategy_specific.signal_period_min,
-                    'signal_max': strategy_specific.signal_period_max,
-                })
-        
+                params.update(
+                    {
+                        "fast_min": strategy_specific.fast_period_min,
+                        "fast_max": strategy_specific.fast_period_max,
+                        "slow_min": strategy_specific.slow_period_min,
+                        "slow_max": strategy_specific.slow_period_max,
+                        "signal_min": strategy_specific.signal_period_min,
+                        "signal_max": strategy_specific.signal_period_max,
+                    }
+                )
+
         # Priority 2: Global CLI parameters (override strategy-specific if provided)
         if config.fast_period_min is not None:
-            params['fast_min'] = config.fast_period_min
+            params["fast_min"] = config.fast_period_min
         if config.fast_period_max is not None:
-            params['fast_max'] = config.fast_period_max
+            params["fast_max"] = config.fast_period_max
         if config.slow_period_min is not None:
-            params['slow_min'] = config.slow_period_min
+            params["slow_min"] = config.slow_period_min
         if config.slow_period_max is not None:
-            params['slow_max'] = config.slow_period_max
+            params["slow_max"] = config.slow_period_max
         if config.signal_period_min is not None:
-            params['signal_min'] = config.signal_period_min
+            params["signal_min"] = config.signal_period_min
         if config.signal_period_max is not None:
-            params['signal_max'] = config.signal_period_max
-        
+            params["signal_max"] = config.signal_period_max
+
         # Priority 3: Legacy parameters (for backward compatibility)
-        if params['fast_min'] is None and config.short_window_start is not None:
-            params['fast_min'] = config.short_window_start
-        if params['fast_max'] is None and config.short_window_end is not None:
-            params['fast_max'] = config.short_window_end
-        if params['slow_min'] is None and config.long_window_start is not None:
-            params['slow_min'] = config.long_window_start
-        if params['slow_max'] is None and config.long_window_end is not None:
-            params['slow_max'] = config.long_window_end
-        if params['signal_min'] is None and config.signal_window_start is not None:
-            params['signal_min'] = config.signal_window_start
-        if params['signal_max'] is None and config.signal_window_end is not None:
-            params['signal_max'] = config.signal_window_end
-        
+        if params["fast_min"] is None and config.short_window_start is not None:
+            params["fast_min"] = config.short_window_start
+        if params["fast_max"] is None and config.short_window_end is not None:
+            params["fast_max"] = config.short_window_end
+        if params["slow_min"] is None and config.long_window_start is not None:
+            params["slow_min"] = config.long_window_start
+        if params["slow_max"] is None and config.long_window_end is not None:
+            params["slow_max"] = config.long_window_end
+        if params["signal_min"] is None and config.signal_window_start is not None:
+            params["signal_min"] = config.signal_window_start
+        if params["signal_max"] is None and config.signal_window_end is not None:
+            params["signal_max"] = config.signal_window_end
+
         # Priority 4: Hard-coded defaults per strategy type
         defaults = {
-            'SMA': {'fast_min': 5, 'fast_max': 88, 'slow_min': 8, 'slow_max': 89},
-            'EMA': {'fast_min': 5, 'fast_max': 88, 'slow_min': 8, 'slow_max': 89},
-            'MACD': {'fast_min': 5, 'fast_max': 20, 'slow_min': 8, 'slow_max': 34, 'signal_min': 5, 'signal_max': 20},
-            'ATR': {'fast_min': 5, 'fast_max': 30, 'slow_min': 10, 'slow_max': 50},
+            "SMA": {"fast_min": 5, "fast_max": 88, "slow_min": 8, "slow_max": 89},
+            "EMA": {"fast_min": 5, "fast_max": 88, "slow_min": 8, "slow_max": 89},
+            "MACD": {
+                "fast_min": 5,
+                "fast_max": 20,
+                "slow_min": 8,
+                "slow_max": 34,
+                "signal_min": 5,
+                "signal_max": 20,
+            },
+            "ATR": {"fast_min": 5, "fast_max": 30, "slow_min": 10, "slow_max": 50},
         }
-        
-        strategy_defaults = defaults.get(strategy_value, defaults['SMA'])
+
+        strategy_defaults = defaults.get(strategy_value, defaults["SMA"])
         for key, default_value in strategy_defaults.items():
             if params[key] is None:
                 params[key] = default_value
-        
+
         return params
 
-    def _calculate_parameter_combinations(self, config: StrategyConfig, strategy_type: Union[StrategyType, str]) -> int:
+    def _calculate_parameter_combinations(
+        self, config: StrategyConfig, strategy_type: Union[StrategyType, str]
+    ) -> int:
         """
         Calculate expected parameter combinations for a strategy type.
-        
+
         Args:
             config: Strategy configuration model
             strategy_type: Strategy type to calculate combinations for
-            
+
         Returns:
             Estimated number of parameter combinations
         """
@@ -155,55 +171,68 @@ class StrategyDispatcher:
                 strategy_value = strategy_type.value
             else:
                 strategy_value = str(strategy_type).upper()
-            
+
             # Extract parameters using proper hierarchy
             params = self._extract_strategy_parameters(config, strategy_type)
-            
+
             if strategy_value in ["SMA", "EMA"]:
                 # MA strategies: fast_period × slow_period (with fast < slow constraint)
-                fast_min, fast_max = params['fast_min'], params['fast_max']
-                slow_min, slow_max = params['slow_min'], params['slow_max']
-                
+                fast_min, fast_max = params["fast_min"], params["fast_max"]
+                slow_min, slow_max = params["slow_min"], params["slow_max"]
+
                 # Calculate valid combinations where fast < slow
                 total_combinations = 0
                 for fast in range(fast_min, fast_max + 1):
                     valid_slow_min = max(fast + 1, slow_min)
                     if valid_slow_min <= slow_max:
-                        total_combinations += (slow_max - valid_slow_min + 1)
-                
+                        total_combinations += slow_max - valid_slow_min + 1
+
                 return total_combinations
-                
+
             elif strategy_value == "MACD":
                 # MACD strategy: fast_period × slow_period × signal_period (with slow > fast constraint)
-                fast_min, fast_max = params['fast_min'], params['fast_max']
-                slow_min, slow_max = params['slow_min'], params['slow_max']
-                signal_min, signal_max = params['signal_min'], params['signal_max']
-                
+                fast_min, fast_max = params["fast_min"], params["fast_max"]
+                slow_min, slow_max = params["slow_min"], params["slow_max"]
+                signal_min, signal_max = params["signal_min"], params["signal_max"]
+
                 # Calculate valid fast/slow combinations where slow > fast
                 valid_fast_slow_pairs = 0
                 for fast in range(fast_min, fast_max + 1):
                     valid_slow_min = max(fast + 1, slow_min)
                     if valid_slow_min <= slow_max:
-                        valid_fast_slow_pairs += (slow_max - valid_slow_min + 1)
-                
+                        valid_fast_slow_pairs += slow_max - valid_slow_min + 1
+
                 # Multiply by signal period combinations
                 signal_combinations = signal_max - signal_min + 1
                 return valid_fast_slow_pairs * signal_combinations
-                
+
             elif strategy_value == "ATR":
                 # ATR strategy: Based on ATR-specific parameters or conservative estimate
-                if config.atr_length_min and config.atr_length_max and config.atr_multiplier_min and config.atr_multiplier_max:
-                    length_combinations = config.atr_length_max - config.atr_length_min + 1
+                if (
+                    config.atr_length_min
+                    and config.atr_length_max
+                    and config.atr_multiplier_min
+                    and config.atr_multiplier_max
+                ):
+                    length_combinations = (
+                        config.atr_length_max - config.atr_length_min + 1
+                    )
                     multiplier_step = config.atr_multiplier_step or 0.1
-                    multiplier_combinations = int((config.atr_multiplier_max - config.atr_multiplier_min) / multiplier_step) + 1
+                    multiplier_combinations = (
+                        int(
+                            (config.atr_multiplier_max - config.atr_multiplier_min)
+                            / multiplier_step
+                        )
+                        + 1
+                    )
                     return length_combinations * multiplier_combinations
                 else:
                     return 500  # Conservative estimate for ATR
-                
+
             else:
                 # Unknown strategy type - return conservative estimate
                 return 100
-                
+
         except Exception:
             # If calculation fails, return conservative estimate
             return 100
@@ -287,14 +316,16 @@ class StrategyDispatcher:
                 if hasattr(config.strategy_types[0], "value")
                 else str(config.strategy_types[0])
             )
-            
+
             # Calculate expected parameter combinations for enhanced progress display
-            total_combinations = self._calculate_parameter_combinations(config, config.strategy_types[0])
-            
+            total_combinations = self._calculate_parameter_combinations(
+                config, config.strategy_types[0]
+            )
+
             # Use performance context with parameter combination information in description
             with self.console.performance_context(
-                "strategy_execution", 
-                f"{strategy_name} strategy ({total_combinations:,} parameter combinations)"
+                "strategy_execution",
+                f"{strategy_name} strategy ({total_combinations:,} parameter combinations)",
             ) as phase:
                 success = strategy_service.execute_strategy(config)
                 phase.add_detail("strategy_type", strategy_name)
@@ -384,12 +415,14 @@ class StrategyDispatcher:
                 )
 
                 # Calculate parameter combinations for this specific strategy
-                strategy_combinations = self._calculate_parameter_combinations(config, strategy_type)
+                strategy_combinations = self._calculate_parameter_combinations(
+                    config, strategy_type
+                )
 
                 # Use performance context with parameter combination information in description
                 with self.console.performance_context(
-                    f"{strategy_name}_execution", 
-                    f"{strategy_name} strategy ({strategy_combinations:,} parameter combinations)"
+                    f"{strategy_name}_execution",
+                    f"{strategy_name} strategy ({strategy_combinations:,} parameter combinations)",
                 ) as phase:
                     # Create single-strategy config
                     single_config = self._create_single_strategy_config(
@@ -409,7 +442,7 @@ class StrategyDispatcher:
                     # Execute strategy
                     success = service.execute_strategy(single_config)
                     results.append(success)
-                    
+
                     # Add phase details for tracking
                     phase.add_detail("strategy_type", strategy_name)
                     phase.add_detail("parameter_combinations", strategy_combinations)

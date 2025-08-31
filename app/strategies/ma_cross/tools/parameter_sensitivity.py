@@ -53,8 +53,10 @@ def analyze_parameter_sensitivity(
             log(f"Analyzing parameter combinations for {strategy_type} strategy")
 
             # Enable parallel processing for large parameter sets
-            use_parallel = len(parameter_sets) > 10 and config.get("ENABLE_PARALLEL", True)
-            
+            use_parallel = len(parameter_sets) > 10 and config.get(
+                "ENABLE_PARALLEL", True
+            )
+
             # Analyze parameter combinations for this strategy type
             strategy_portfolios = analyze_parameter_combinations(
                 data,

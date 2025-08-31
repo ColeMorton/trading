@@ -527,13 +527,16 @@ def convert_stats(
                     "debug",
                 )
                 log(f"Normalized: Sortino {sortino_normalized:.4f}", "debug")
-                log(f"Normalized: Profit Factor {profit_factor_normalized:.4f}", "debug")
+                log(
+                    f"Normalized: Profit Factor {profit_factor_normalized:.4f}", "debug"
+                )
                 log(
                     f"Normalized: Expectancy {expectancy_per_trade_normalized:.4f}",
                     "debug",
                 )
                 log(
-                    f"Normalized: Beats Buy-and-hold {beats_bnh_normalized:.4f}", "debug"
+                    f"Normalized: Beats Buy-and-hold {beats_bnh_normalized:.4f}",
+                    "debug",
                 )
                 log(f"Optimized Score: {stats['Score']:.4f}", "debug")
             except Exception as e:
