@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Type, Union
 
 from rich import print as rprint
 
-from app.tools.console_logging import ConsoleLogger
+from app.tools.console_logging import ConsoleLogger, PerformanceAwareConsoleLogger
 
 from ..models.strategy import (
     StrategyConfig,
@@ -72,12 +72,32 @@ class StrategyDispatcher:
             tickers_processed=[],
             strategy_types=[],
         )
+
+        # Start performance monitoring if using PerformanceAwareConsoleLogger
+        if isinstance(self.console, PerformanceAwareConsoleLogger):
+            # Estimate total phases based on configuration
+            total_phases = 1  # Always have strategy execution phase
+            if not config.skip_analysis:
+                total_phases += 2  # Data download + backtesting phases
+            total_phases += 2  # Portfolio processing + file export phases
+
+            self.console.info(
+                f"🎯 Starting strategy execution with {total_phases} phases"
+            )
         # Check if we should skip analysis and run portfolio processing only
         if config.skip_analysis:
-            self.console.info(
-                "Skip analysis mode enabled - processing existing portfolios"
-            )
-            success = self._execute_skip_analysis_mode(config)
+            if isinstance(self.console, PerformanceAwareConsoleLogger):
+                with self.console.performance_context(
+                    "portfolio_processing", "Processing existing portfolios", 5.0
+                ) as phase:
+                    success = self._execute_skip_analysis_mode(config)
+                    phase.add_detail("portfolios_processed", "existing")
+            else:
+                self.console.info(
+                    "Skip analysis mode enabled - processing existing portfolios"
+                )
+                success = self._execute_skip_analysis_mode(config)
+
             summary.execution_time = time.time() - start_time
             summary.success_rate = 1.0 if success else 0.0
             summary.successful_strategies = 1 if success else 0
@@ -100,8 +120,23 @@ class StrategyDispatcher:
             summary.total_strategies = 1
             return summary
 
-        # Execute using the determined service and collect results
-        success = strategy_service.execute_strategy(config)
+        # Execute using the determined service and collect results with performance tracking
+        if isinstance(self.console, PerformanceAwareConsoleLogger):
+            strategy_name = (
+                config.strategy_types[0].value
+                if hasattr(config.strategy_types[0], "value")
+                else str(config.strategy_types[0])
+            )
+            ticker_count = len(config.ticker) if isinstance(config.ticker, list) else 1
+
+            with self.console.performance_context(
+                "strategy_execution", f"Executing {strategy_name} strategy", 30.0
+            ) as phase:
+                success = strategy_service.execute_strategy(config)
+                phase.add_detail("strategy_type", strategy_name)
+                phase.add_detail("tickers", ticker_count)
+        else:
+            success = strategy_service.execute_strategy(config)
 
         # Populate summary for single strategy execution
         summary.execution_time = time.time() - start_time
@@ -174,60 +209,121 @@ class StrategyDispatcher:
             f"Executing {len(config.strategy_types)} strategies", level=2
         )
 
-        # Create progress context for multiple strategies
-        with self.console.progress_context("Strategy Execution") as progress:
-            strategy_task = progress.add_task(
-                "Processing strategies...", total=len(config.strategy_types)
-            )
-
+        # Use performance monitoring for mixed strategies if available
+        if isinstance(self.console, PerformanceAwareConsoleLogger):
+            # Execute with performance tracking for each strategy
             for i, strategy_type in enumerate(config.strategy_types):
-                progress.update(
-                    strategy_task, description=f"Running {strategy_type} strategy..."
+                strategy_name = (
+                    strategy_type.value
+                    if hasattr(strategy_type, "value")
+                    else str(strategy_type)
                 )
 
-                # Create single-strategy config
-                single_config = self._create_single_strategy_config(
-                    config, strategy_type
-                )
-
-                # Get appropriate service for this strategy type
-                service = self._determine_single_service(strategy_type)
-
-                if not service:
-                    self.console.error(
-                        f"No service found for strategy type: {strategy_type}"
+                with self.console.performance_context(
+                    "strategy_execution", f"Executing {strategy_name} strategy", 20.0
+                ) as phase:
+                    # Create single-strategy config
+                    single_config = self._create_single_strategy_config(
+                        config, strategy_type
                     )
-                    results.append(False)
+
+                    # Get appropriate service for this strategy type
+                    service = self._determine_single_service(strategy_type)
+
+                    if not service:
+                        self.console.error(
+                            f"No service found for strategy type: {strategy_type}"
+                        )
+                        results.append(False)
+                        continue
+
+                    # Execute strategy
+                    success = service.execute_strategy(single_config)
+                    results.append(success)
+
+                    phase.add_detail("strategy_type", strategy_name)
+                    phase.add_detail(
+                        "execution_order", f"{i+1}/{len(config.strategy_types)}"
+                    )
+
+                    # Create portfolio result for this strategy execution
+                    if success:
+                        portfolio_result = StrategyPortfolioResults(
+                            ticker=summary.tickers_processed[0]
+                            if summary.tickers_processed
+                            else "Unknown",
+                            strategy_type=strategy_type.value
+                            if hasattr(strategy_type, "value")
+                            else str(strategy_type),
+                            total_portfolios=0,
+                            filtered_portfolios=0,
+                            extreme_value_portfolios=0,
+                            files_exported=[],
+                        )
+                        summary.add_portfolio_result(portfolio_result)
+
+                        self.console.success(
+                            f"{strategy_type} strategy completed successfully"
+                        )
+                    else:
+                        self.console.error(f"{strategy_type} strategy failed")
+        else:
+            # Original implementation for non-performance mode
+            # Create progress context for multiple strategies
+            with self.console.progress_context("Strategy Execution") as progress:
+                strategy_task = progress.add_task(
+                    "Processing strategies...", total=len(config.strategy_types)
+                )
+
+                for i, strategy_type in enumerate(config.strategy_types):
+                    progress.update(
+                        strategy_task,
+                        description=f"Running {strategy_type} strategy...",
+                    )
+
+                    # Create single-strategy config
+                    single_config = self._create_single_strategy_config(
+                        config, strategy_type
+                    )
+
+                    # Get appropriate service for this strategy type
+                    service = self._determine_single_service(strategy_type)
+
+                    if not service:
+                        self.console.error(
+                            f"No service found for strategy type: {strategy_type}"
+                        )
+                        results.append(False)
+                        progress.update(strategy_task, advance=1)
+                        continue
+
+                    # Execute strategy
+                    success = service.execute_strategy(single_config)
+                    results.append(success)
+
+                    # Create portfolio result for this strategy execution
+                    if success:
+                        portfolio_result = StrategyPortfolioResults(
+                            ticker=summary.tickers_processed[0]
+                            if summary.tickers_processed
+                            else "Unknown",
+                            strategy_type=strategy_type.value
+                            if hasattr(strategy_type, "value")
+                            else str(strategy_type),
+                            total_portfolios=0,  # Would need service modification to get actual count
+                            filtered_portfolios=0,
+                            extreme_value_portfolios=0,
+                            files_exported=[],
+                        )
+                        summary.add_portfolio_result(portfolio_result)
+
+                        self.console.success(
+                            f"{strategy_type} strategy completed successfully"
+                        )
+                    else:
+                        self.console.error(f"{strategy_type} strategy failed")
+
                     progress.update(strategy_task, advance=1)
-                    continue
-
-                # Execute strategy
-                success = service.execute_strategy(single_config)
-                results.append(success)
-
-                # Create portfolio result for this strategy execution
-                if success:
-                    portfolio_result = StrategyPortfolioResults(
-                        ticker=summary.tickers_processed[0]
-                        if summary.tickers_processed
-                        else "Unknown",
-                        strategy_type=strategy_type.value
-                        if hasattr(strategy_type, "value")
-                        else str(strategy_type),
-                        total_portfolios=0,  # Would need service modification to get actual count
-                        filtered_portfolios=0,
-                        extreme_value_portfolios=0,
-                        files_exported=[],
-                    )
-                    summary.add_portfolio_result(portfolio_result)
-
-                    self.console.success(
-                        f"{strategy_type} strategy completed successfully"
-                    )
-                else:
-                    self.console.error(f"{strategy_type} strategy failed")
-
-                progress.update(strategy_task, advance=1)
 
         total_success = all(results)
         successful_count = sum(results)

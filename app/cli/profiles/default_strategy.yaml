@@ -31,11 +31,11 @@ config:
     MACD:
       # Parameter ranges for MACD strategy
       fast_period_min: 5
-      fast_period_max: 21
+      fast_period_max: 20
       slow_period_min: 8
       slow_period_max: 34
       signal_period_min: 5
-      signal_period_max: 21
+      signal_period_max: 20
       step: 1
 
   # Global fallback parameter ranges (for backwards compatibility)

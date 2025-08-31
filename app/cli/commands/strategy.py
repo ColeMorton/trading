@@ -14,7 +14,7 @@ from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
 
-from app.tools.console_logging import ConsoleLogger
+from app.tools.console_logging import ConsoleLogger, PerformanceAwareConsoleLogger
 
 from ..config import ConfigLoader
 from ..models.strategy import (
@@ -139,6 +139,21 @@ def run(
         "-d",
         help="Filter by entry signals triggered on specific date (YYYYMMDD format, e.g., 20250811). Overrides --current if both specified.",
     ),
+    performance_mode: str = typer.Option(
+        "minimal",
+        "--performance-mode",
+        help="Performance monitoring level: minimal (basic timing), standard (phase breakdown + resources), detailed (full profiling + insights), benchmark (compare vs historical)",
+    ),
+    show_resources: bool = typer.Option(
+        False,
+        "--show-resources",
+        help="Display real-time CPU and memory usage during execution",
+    ),
+    profile_execution: bool = typer.Option(
+        False,
+        "--profile-execution",
+        help="Enable detailed execution profiling with bottleneck identification",
+    ),
 ):
     """
     Execute strategy analysis with specified parameters.
@@ -194,6 +209,9 @@ def run(
             signal_max=signal_max,
             date=date,
             verbose=verbose,
+            performance_mode=performance_mode,
+            show_resources=show_resources,
+            profile_execution=profile_execution,
         )
 
         # Load configuration
@@ -219,12 +237,27 @@ def run(
             ctx.obj.get("quiet", True) if ctx.obj else True
         )  # Default to quiet
 
-        # Initialize console logger with user preferences
+        # Initialize console logger with user preferences and performance options
         # Verbose or local verbose enables output, otherwise respect global quiet
         is_verbose = verbose or global_verbose
         is_quiet = global_quiet and not is_verbose and not global_show_output
 
-        console = ConsoleLogger(verbose=is_verbose, quiet=is_quiet)
+        # Determine if performance monitoring should be enabled
+        enable_performance = (
+            performance_mode != "minimal" or show_resources or profile_execution
+        )
+
+        if enable_performance:
+            console = PerformanceAwareConsoleLogger(
+                verbose=is_verbose,
+                quiet=is_quiet,
+                performance_mode=performance_mode,
+                show_resources=show_resources,
+                profile_execution=profile_execution,
+            )
+            console.start_execution_monitoring("strategy_run")
+        else:
+            console = ConsoleLogger(verbose=is_verbose, quiet=is_quiet)
 
         if is_verbose:
             console.debug("Loading strategy execution module...")
@@ -288,6 +321,10 @@ def run(
 
         # Display rich execution summary instead of simple success message
         _display_strategy_summary(execution_summary, console)
+
+        # Complete performance monitoring if enabled
+        if isinstance(console, PerformanceAwareConsoleLogger):
+            console.complete_execution_monitoring()
 
     except Exception as e:
         # Create console logger for error handling if not already available

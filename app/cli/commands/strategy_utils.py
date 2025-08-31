@@ -73,6 +73,9 @@ def build_configuration_overrides(
     dry_run: bool = False,
     skip_analysis: bool = False,
     verbose: bool = False,
+    performance_mode: str = "minimal",
+    show_resources: bool = False,
+    profile_execution: bool = False,
     **additional_overrides,
 ) -> Dict[str, Any]:
     """
@@ -97,6 +100,9 @@ def build_configuration_overrides(
         date: Filter by entry signals triggered on specific date (YYYYMMDD format)
         dry_run: Dry run flag
         skip_analysis: Skip data download and analysis, assume portfolio files exist
+        performance_mode: Performance monitoring level (minimal/standard/detailed/benchmark)
+        show_resources: Display real-time CPU and memory usage during execution
+        profile_execution: Enable detailed execution profiling with bottleneck identification
         **additional_overrides: Additional override parameters
 
     Returns:
@@ -207,6 +213,11 @@ def build_configuration_overrides(
     if skip_analysis is not None:
         overrides["skip_analysis"] = skip_analysis
     overrides["verbose"] = verbose
+
+    # Performance monitoring flags
+    overrides["performance_mode"] = performance_mode
+    overrides["show_resources"] = show_resources
+    overrides["profile_execution"] = profile_execution
 
     # Add any additional overrides, but filter out None values for optional CLI parameters
     filtered_overrides = {
