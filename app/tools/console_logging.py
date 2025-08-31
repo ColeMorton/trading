@@ -1139,6 +1139,7 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
         # For strategy execution contexts, always show essential info even in quiet mode
         if self._current_phase and (
             "strategy" in self._current_phase.lower()
+            or self._current_phase.endswith("_execution")
             or self._current_phase
             in ["data_download", "backtesting", "portfolio_processing"]
         ):
