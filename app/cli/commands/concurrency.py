@@ -70,6 +70,7 @@ def resolve_portfolio_from_profile(profile_name: str, loader) -> tuple[str, str]
 
 @app.command()
 def analyze(
+    ctx: typer.Context,
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
@@ -159,9 +160,6 @@ def analyze(
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Preview configuration without executing"
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
-    ),
 ):
     """
     Run comprehensive concurrency analysis on a portfolio.
@@ -176,6 +174,9 @@ def analyze(
         trading-cli concurrency analyze portfolio.json --no-visualization --dry-run
     """
     try:
+        # Get global verbose flag
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
         # Load configuration first to determine portfolio
         loader = ConfigLoader()
 
@@ -305,7 +306,7 @@ def analyze(
             _show_concurrency_config_preview(config)
             return
 
-        if verbose:
+        if global_verbose:
             rprint("[dim]Loading concurrency analysis module...[/dim]")
 
         # Import and execute concurrency analysis
@@ -393,7 +394,7 @@ def analyze(
 
     except Exception as e:
         rprint(f"[red]Error running concurrency analysis: {e}[/red]")
-        if verbose:
+        if global_verbose:
             raise
         raise typer.Exit(1)
 
@@ -850,6 +851,7 @@ def _save_portfolio_review_report(review_data: dict, filename: str):
 
 @app.command()
 def optimize(
+    ctx: typer.Context,
     portfolio: str = typer.Argument(help="Portfolio filename to optimize"),
     min_strategies: int = typer.Option(
         3, "--min-strategies", "-m", help="Minimum strategies per combination"
@@ -871,9 +873,6 @@ def optimize(
     parallel: bool = typer.Option(
         False, "--parallel", help="Enable parallel processing for faster execution"
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
-    ),
 ):
     """
     Find optimal strategy combinations using permutation analysis.
@@ -887,6 +886,9 @@ def optimize(
         trading-cli concurrency optimize portfolio.json --allocation RISK_ADJUSTED --output results.json
     """
     try:
+        # Get global verbose flag
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
         rprint(f"[bold]Starting optimization analysis for: {portfolio}[/bold]")
 
         # Validate portfolio file exists
@@ -980,7 +982,7 @@ def optimize(
 
     except Exception as e:
         rprint(f"[red]Error running optimization: {e}[/red]")
-        if verbose:
+        if global_verbose:
             raise
         raise typer.Exit(1)
 

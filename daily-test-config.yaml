@@ -1,0 +1,125 @@
+# Daily Trading CLI Test Configuration
+# This file defines minimal test commands for validating the daily.sh system
+
+metadata:
+  name: 'daily_test_automation'
+  description: 'Test configuration for daily.sh validation and testing'
+  version: '1.0'
+  author: 'testing-system'
+  created_at: '2025-09-01T00:00:00Z'
+
+config:
+  # Global test settings
+  settings:
+    working_directory: '/Users/colemorton/Projects/trading'
+    max_parallel_commands: 2
+    default_timeout: 120 # Shorter timeouts for testing
+
+  # Notification settings (disabled for testing)
+  notifications:
+    enabled: false
+    email: null
+    webhook_url: null
+    notify_on_success: false
+    notify_on_failure: false
+
+  # Test command execution sequence - minimal and safe commands
+  commands:
+    # 1. Basic System Tests
+    - name: 'Test System Status'
+      command: 'poetry run trading-cli status'
+      enabled: true
+      timeout: 30
+      description: 'Test basic trading-cli system status'
+      continue_on_failure: true
+
+    - name: 'Test CLI Version'
+      command: 'poetry run trading-cli version'
+      enabled: true
+      timeout: 15
+      description: 'Test trading-cli version command'
+      continue_on_failure: true
+
+    - name: 'Test Config List'
+      command: 'poetry run trading-cli config list'
+      enabled: true
+      timeout: 30
+      description: 'Test configuration profile listing'
+      continue_on_failure: true
+
+    # 2. Help System Tests
+    - name: 'Test Strategy Help'
+      command: 'poetry run trading-cli strategy --help'
+      enabled: true
+      timeout: 15
+      description: 'Test strategy command help system'
+      continue_on_failure: true
+
+    - name: 'Test Portfolio Help'
+      command: 'poetry run trading-cli portfolio --help'
+      enabled: true
+      timeout: 15
+      description: 'Test portfolio command help system'
+      continue_on_failure: true
+
+    # 3. Dry Run Tests
+    - name: 'Test Strategy Dry Run'
+      command: 'poetry run trading-cli strategy run --profile ma_cross_crypto --dry-run'
+      enabled: true
+      timeout: 60
+      description: 'Test strategy execution in dry-run mode'
+      continue_on_failure: true
+
+    - name: 'Test Portfolio Dry Run'
+      command: 'poetry run trading-cli portfolio update --portfolio protected --dry-run'
+      enabled: true
+      timeout: 30
+      description: 'Test portfolio update in dry-run mode'
+      continue_on_failure: true
+
+    # 4. Health Check Tests
+    - name: 'Test Tools Health'
+      command: 'poetry run trading-cli tools health'
+      enabled: true
+      timeout: 60
+      description: 'Test system health check functionality'
+      continue_on_failure: true
+
+    - name: 'Test Concurrency Health'
+      command: 'poetry run trading-cli concurrency health'
+      enabled: true
+      timeout: 60
+      description: 'Test concurrency system health check'
+      continue_on_failure: true
+
+    # 5. Profile Validation Tests
+    - name: 'Test Config Validation'
+      command: 'poetry run trading-cli config validate'
+      enabled: true
+      timeout: 30
+      description: 'Test configuration validation system'
+      continue_on_failure: true
+
+    # 6. Quick Analysis Tests (minimal data)
+    - name: 'Test Quick Strategy Analysis'
+      command: 'poetry run trading-cli strategy run --ticker BTC-USD --strategy SMA --min-trades 1 --dry-run'
+      enabled: true
+      timeout: 45
+      description: 'Test quick strategy analysis with minimal parameters'
+      continue_on_failure: true
+
+    # 7. Disabled Commands for Security Testing
+    - name: 'Disabled Test Command'
+      command: 'poetry run trading-cli status'
+      enabled: false
+      timeout: 15
+      description: 'Test command that should be skipped (disabled)'
+      continue_on_failure: true
+
+    # 8. Error Handling Test (intentionally invalid command)
+    - name: 'Invalid Command Test'
+      command: 'invalid-command-that-should-fail'
+      enabled: false # Disabled to prevent actual execution
+      timeout: 15
+      description: 'Test error handling for invalid commands'
+      continue_on_failure: true

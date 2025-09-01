@@ -1,0 +1,195 @@
+# Daily Trading CLI Automation Configuration
+# This file defines the trading-cli commands to be executed daily by cron
+
+metadata:
+  name: 'daily_automation'
+  description: 'Daily trading CLI command execution for portfolio analysis and updates'
+  version: '1.0'
+  author: 'trading-system'
+  created_at: '2025-09-01T00:00:00Z'
+
+config:
+  # Global settings
+  settings:
+    working_directory: '/Users/colemorton/Projects/trading'
+    max_parallel_commands: 3
+    default_timeout: 900 # 15 minutes
+
+  # Notification settings (optional)
+  notifications:
+    enabled: false
+    email: null
+    webhook_url: null
+    notify_on_success: true
+    notify_on_failure: true
+
+  # Daily command execution sequence
+  commands:
+    # 1. System Health Checks
+    - name: 'System Health Check'
+      command: 'poetry run trading-cli tools health'
+      enabled: false
+      timeout: 60
+      description: 'Validate system health and dependencies'
+      continue_on_failure: true
+
+    # 2. Portfolio Updates
+    - name: 'Update Portfolio'
+      command: 'poetry run trading-cli --quiet portfolio update --portfolio portfolio'
+      enabled: false
+      timeout: 300
+      description: 'Update live signals portfolio data'
+      continue_on_failure: true
+
+    - name: 'Update Protected Portfolio'
+      command: 'poetry run trading-cli --quiet portfolio update --portfolio protected'
+      enabled: false
+      timeout: 300
+      description: 'Update protected portfolio with validation'
+      continue_on_failure: true
+
+    - name: 'Update Risk-On Portfolio'
+      command: 'poetry run trading-cli --quiet portfolio update --portfolio risk_on'
+      enabled: false
+      timeout: 300
+      description: 'Update risk-on portfolio with validation'
+      continue_on_failure: true
+
+    - name: 'Update DAILY Portfolio'
+      command: 'poetry run trading-cli --quiet portfolio update --portfolio DAILY'
+      enabled: false
+      timeout: 1500 # 25 minutes
+      description: 'Update risk-on portfolio with validation'
+      continue_on_failure: true
+
+      # 3. Strategy Analysis
+    - name: 'Daily Crypto Strategy Analysis - Australia'
+      command: 'poetry run trading-cli --quiet strategy run --profile australia_top_10'
+      enabled: true
+      timeout: 900 # 15 minutes
+      description: 'Execute crypto-focused MA Cross strategy analysis'
+      continue_on_failure: true
+
+    - name: 'Daily Crypto Strategy Analysis - Crypto'
+      command: 'poetry run trading-cli --quiet strategy run --profile ma_cross_crypto'
+      enabled: true
+      timeout: 900 # 15 minutes
+      description: 'Execute crypto-focused MA Cross strategy analysis'
+      continue_on_failure: true
+
+    - name: 'Daily Strategy Analysis - Primary Stocks'
+      command: 'poetry run trading-cli --quiet strategy run --profile current_primary_stocks'
+      enabled: true
+      timeout: 1800 # 45 minutes
+      description: 'Execute current primary stocks strategy analysis'
+      continue_on_failure: true
+
+    - name: 'Daily Strategy Analysis - Frontier Stocks'
+      command: 'poetry run trading-cli --quiet strategy run --profile frontier'
+      enabled: true
+      timeout: 2700 # 45 minutes
+      description: 'Execute current primary stocks strategy analysis'
+      continue_on_failure: true
+
+    - name: 'Daily Strategy Analysis - Asia Stocks'
+      command: 'poetry run trading-cli --quiet strategy run --profile asia_top_50'
+      enabled: true
+      timeout: 2700 # 45 minutes
+      description: 'Execute current primary stocks strategy analysis'
+      continue_on_failure: true
+
+    # 4. Position Management
+    - name: 'Generate Position Equity Data'
+      command: 'poetry run trading-cli positions equity --portfolio protected,risk_on,live_signals'
+      enabled: false
+      timeout: 180
+      description: 'Generate equity data for all portfolios'
+      continue_on_failure: true
+
+    - name: 'Validate Position Equity'
+      command: 'poetry run trading-cli positions validate-equity --portfolio protected,risk_on,live_signals'
+      enabled: false
+      timeout: 120
+      description: 'Validate mathematical consistency of equity curves'
+      continue_on_failure: true
+
+    # 5. Trade History Updates
+    - name: 'Update Trade History - Live Signals'
+      command: 'poetry run trading-cli trade-history update --portfolio live_signals --refresh-prices'
+      enabled: false
+      timeout: 300
+      description: 'Update trade history with current market data'
+      continue_on_failure: true
+
+    # 6. SPDS Analysis
+    - name: 'SPDS Analysis - Risk On Portfolio'
+      command: 'poetry run trading-cli spds analyze --portfolio risk_on.csv --output-format json'
+      enabled: false
+      timeout: 600
+      description: 'Statistical Performance Divergence System analysis'
+      continue_on_failure: true
+
+    # 7. Concurrency Analysis
+    - name: 'Portfolio Concurrency Health Check'
+      command: 'poetry run trading-cli concurrency health --fix'
+      enabled: false
+      timeout: 180
+      description: 'Check and fix concurrency analysis system health'
+      continue_on_failure: true
+
+    - name: 'Concurrency Analysis - Risk On'
+      command: 'poetry run trading-cli concurrency analyze risk_on --memory-optimization'
+      enabled: false # Disabled by default (computationally intensive)
+      timeout: 1800 # 30 minutes
+      description: 'Comprehensive concurrency analysis for risk-on portfolio'
+      continue_on_failure: true
+
+    # 8. Optional Advanced Analysis (disabled by default)
+    - name: 'Monte Carlo Risk Analysis'
+      command: 'poetry run trading-cli concurrency monte-carlo portfolio.json --simulations 10000'
+      enabled: false # Disabled by default (very time-intensive)
+      timeout: 3600 # 1 hour
+      description: 'Monte Carlo simulations for risk analysis'
+      continue_on_failure: true
+
+    - name: 'Strategy Optimization'
+      command: 'poetry run trading-cli concurrency optimize portfolio.json --parallel'
+      enabled: false # Disabled by default (computationally intensive)
+      timeout: 2400 # 40 minutes
+      description: 'Find optimal strategy combinations'
+      continue_on_failure: true
+
+  # Template commands for easy configuration (commented examples)
+  # Uncomment and modify as needed:
+
+  # Parameter sweep example:
+  # - name: "Parameter Sweep - AAPL"
+  #   command: "trading-cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow-min 20 --slow-max 200"
+  #   enabled: false
+  #   timeout: 1800
+  #   description: "Parameter sweep analysis for AAPL"
+  #   continue_on_failure: true
+
+  # 4-hour timeframe analysis example:
+  # - name: "4-Hour Crypto Analysis"
+  #   command: "trading-cli strategy run --ticker BTC-USD,ETH-USD --use-4hour --strategy SMA"
+  #   enabled: false
+  #   timeout: 600
+  #   description: "4-hour timeframe analysis for major crypto pairs"
+  #   continue_on_failure: true
+
+  # Custom date analysis example:
+  # - name: "Historical Analysis - Specific Date"
+  #   command: "trading-cli strategy run --ticker AAPL --date 20250801 --strategy SMA"
+  #   enabled: false
+  #   timeout: 300
+  #   description: "Analyze strategies for specific historical date"
+  #   continue_on_failure: true
+
+  # Portfolio review example:
+  # - name: "Portfolio Review - Multi-Crypto"
+  #   command: "trading-cli portfolio review --profile portfolio_review_multi_crypto"
+  #   enabled: false
+  #   timeout: 600
+  #   description: "Comprehensive multi-crypto portfolio review"
+  #   continue_on_failure: true

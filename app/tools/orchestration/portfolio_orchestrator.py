@@ -141,6 +141,38 @@ class PortfolioOrchestrator:
                     "Created empty CSV files with headers for configured ticker+strategy combinations",
                     "info",
                 )
+            else:
+                # Enhanced completion summary for successful analysis
+                if hasattr(self.log, "__self__") and hasattr(
+                    self.log.__self__, "completion_banner"
+                ):
+                    # Use enhanced console logger display
+                    self.log.__self__.completion_banner("Portfolio Analysis Complete")
+
+                    # Calculate summary statistics
+                    portfolio_count = len(all_portfolios) if all_portfolios else 0
+                    # Try to find best config from extreme_filtered_portfolios if available
+                    best_config = None
+                    if extreme_filtered_portfolios:
+                        try:
+                            # Find the portfolio with highest score
+                            best_portfolio = max(
+                                extreme_filtered_portfolios,
+                                key=lambda p: p.get("Score", 0),
+                            )
+                            fast = best_portfolio.get("Fast Period", "")
+                            slow = best_portfolio.get("Slow Period", "")
+                            strategy = best_portfolio.get("Strategy Type", "")
+                            if fast and slow and strategy:
+                                best_config = f"{strategy} {fast}/{slow}"
+                        except (ValueError, TypeError):
+                            pass
+
+                    self.log.__self__.results_summary_table(
+                        portfolios_generated=portfolio_count,
+                        best_config=best_config,
+                        files_exported=4,  # base, filtered, metrics, best
+                    )
 
             return True
 

@@ -113,6 +113,7 @@ def list(
 
 @app.command()
 def equity(
+    ctx: typer.Context,
     portfolio: Optional[str] = typer.Option(
         None, "--portfolio", "-p", help="Portfolio name (e.g., live_signals, risk_on)"
     ),
@@ -131,12 +132,11 @@ def equity(
     overwrite: bool = typer.Option(
         True, "--overwrite/--no-overwrite", help="Overwrite existing equity files"
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
-    ),
 ) -> None:
     """Generate equity curves from position data."""
     try:
+        # Get global verbose flag
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
         if not portfolio and not all_portfolios:
             rprint("[red]Must specify either --portfolio or --all[/red]")
             raise typer.Exit(1)
@@ -198,12 +198,12 @@ def equity(
                         output_dir=str(output_path) if output_dir else None,
                         metric_type=metric_enum,
                         init_cash=init_cash,
-                        log=_log_function if verbose else None,
+                        log=_log_function if global_verbose else None,
                     )
 
                     if success:
                         success_count += 1
-                        if verbose:
+                        if global_verbose:
                             rprint(
                                 f"[green]✓ Generated equity for {portfolio_name}[/green]"
                             )

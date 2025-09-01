@@ -101,9 +101,6 @@ def run(
         "--market-type",
         help="Market type: crypto, us_stock, or auto (automatic detection)",
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
-    ),
     direction: Optional[str] = typer.Option(
         None,
         "--direction",
@@ -189,6 +186,11 @@ def run(
                 )
                 raise typer.Exit(1)
 
+        # Get global options from context
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+        global_show_output = ctx.obj.get("show_output", False) if ctx.obj else False
+        global_quiet = ctx.obj.get("quiet", False) if ctx.obj else False
+
         # Load configuration
         loader = ConfigLoader()
 
@@ -213,7 +215,7 @@ def run(
             signal_min=signal_min,
             signal_max=signal_max,
             date=date,
-            verbose=verbose,
+            verbose=global_verbose,
             performance_mode=performance_mode,
             show_resources=show_resources,
             profile_execution=profile_execution,
@@ -236,17 +238,10 @@ def run(
             show_config_preview(config, "Strategy Configuration Preview")
             return
 
-        # Get global options from context
-        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
-        global_show_output = ctx.obj.get("show_output", False) if ctx.obj else False
-        global_quiet = (
-            ctx.obj.get("quiet", True) if ctx.obj else True
-        )  # Default to quiet=True, but progress bars should always display
-
         # Initialize console logger with user preferences and performance options
-        # For strategy execution, provide user feedback by default unless explicitly quieted
-        is_verbose = verbose or global_verbose
-        is_quiet = global_quiet and not is_verbose and not global_show_output
+        # For strategy execution, show rich output unless explicitly quieted
+        is_verbose = global_verbose
+        is_quiet = global_quiet
 
         # Always use PerformanceAwareConsoleLogger for strategy execution to ensure
         # consistent progress bar display with parameter combination awareness
@@ -330,9 +325,9 @@ def run(
         # Create console logger for error handling if not already available
         # For errors, always show output (don't use quiet mode for errors)
         error_console = locals().get("console") or ConsoleLogger(
-            verbose=verbose, quiet=False
+            verbose=global_verbose, quiet=False
         )
-        handle_command_error(e, "strategy run", verbose, console=error_console)
+        handle_command_error(e, "strategy run", global_verbose, console=error_console)
 
 
 @app.command()
@@ -537,11 +532,12 @@ def sweep(
                 rprint("[yellow]No valid parameter combinations found[/yellow]")
 
     except Exception as e:
-        handle_command_error(e, "strategy sweep", verbose=False)
+        handle_command_error(e, "strategy sweep", False)
 
 
 @app.command()
 def analyze(
+    ctx: typer.Context,
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
@@ -576,9 +572,6 @@ def analyze(
     sort_by: str = typer.Option(
         "Score", "--sort-by", "-s", help="Column to sort by (default: Score)"
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
-    ),
 ):
     """
     Analyze and aggregate portfolio data from CSV files (dry-run analysis).
@@ -599,6 +592,9 @@ def analyze(
         trading-cli strategy analyze --profile asia_top_50 --best --ticker TAL,META,SYF
     """
     try:
+        # Get global options from context
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
         # Validate date parameter if provided
         if date:
             import re
@@ -624,7 +620,7 @@ def analyze(
                 raise typer.Exit(1)
 
             # Override current flag if date is specified
-            if current and verbose:
+            if current and global_verbose:
                 rprint("[dim]Date parameter specified, overriding --current flag[/dim]")
             current = True  # Enable date-specific search
 
@@ -635,7 +631,7 @@ def analyze(
             ticker_list = process_ticker_input(ticker)
             ticker_filtering_active = True
 
-            if verbose:
+            if global_verbose:
                 rprint(
                     f"[dim]Ticker filtering enabled with {len(ticker_list)} tickers: {', '.join(ticker_list)}[/dim]"
                 )
@@ -671,7 +667,7 @@ def analyze(
         # Handle profile loading vs auto-discovery mode vs ticker filtering
         if ticker_filtering_active:
             # Ticker filtering mode - use provided ticker list regardless of profile
-            if verbose:
+            if global_verbose:
                 rprint(
                     f"[dim]Ticker filtering mode: analyzing {len(ticker_list)} specific tickers[/dim]"
                 )
@@ -690,7 +686,7 @@ def analyze(
                 config.ticker if isinstance(config.ticker, list) else [config.ticker]
             )
 
-            if verbose:
+            if global_verbose:
                 rprint(
                     f"[dim]Loaded profile '{profile}' with {len(ticker_list)} tickers[/dim]"
                 )
@@ -698,7 +694,7 @@ def analyze(
             # Auto-discovery mode (profile is None, best=True, current=True)
             ticker_list = ["Auto-discovered"]  # For display purposes
 
-            if verbose:
+            if global_verbose:
                 rprint(
                     f"[dim]Auto-discovery mode enabled - will scan current day directory[/dim]"
                 )
@@ -835,7 +831,7 @@ def analyze(
                 print(line)  # Plain print without Rich formatting/wrapping
 
     except Exception as e:
-        handle_command_error(e, "strategy analyze", verbose)
+        handle_command_error(e, "strategy analyze", global_verbose)
 
 
 def _display_portfolio_table(df, display_columns):
@@ -920,8 +916,11 @@ def _display_strategy_summary(
     summary: StrategyExecutionSummary, console: ConsoleLogger
 ) -> None:
     """Display rich strategy execution summary similar to seasonality command."""
-    # Main success header
-    console.heading("Strategy Analysis Complete!", level=1)
+    # Use enhanced completion banner if available
+    if hasattr(console, "completion_banner"):
+        console.completion_banner("Strategy Analysis Complete!")
+    else:
+        console.heading("Strategy Analysis Complete!", level=1)
 
     # Basic execution statistics
     ticker_count = len(summary.tickers_processed)
@@ -939,25 +938,41 @@ def _display_strategy_summary(
 
     # Portfolio Analysis Results section
     if summary.portfolio_results:
-        console.heading("Portfolio Analysis Results", level=2)
+        # Use enhanced results summary table if available
+        if hasattr(console, "results_summary_table"):
+            best_config = None
+            if summary.best_opportunity and summary.best_opportunity.best_config:
+                best = summary.best_opportunity
+                best_config = f"{best.strategy_type} {best.best_config}"
 
-        # Show aggregated statistics
-        console.info(f"Generated: {summary.total_portfolios_generated:,} portfolios")
+            console.results_summary_table(
+                portfolios_generated=summary.total_portfolios_generated,
+                best_config=best_config,
+                files_exported=summary.total_files_exported,
+            )
+        else:
+            # Fallback to basic display
+            console.heading("Portfolio Analysis Results", level=2)
 
-        if summary.total_filtered_portfolios > 0:
-            pass_rate = summary.filter_pass_rate * 100
+            # Show aggregated statistics
             console.info(
-                f"Filtered: {summary.total_filtered_portfolios:,} portfolios ({pass_rate:.1f}% pass rate)"
+                f"Generated: {summary.total_portfolios_generated:,} portfolios"
             )
 
-        # Show best configuration if available
-        if summary.best_opportunity:
-            best = summary.best_opportunity
-            if best.best_config:
-                config_info = f"Optimal: {best.strategy_type} {best.best_config}"
-                if best.best_score:
-                    config_info += f" (Score: {best.best_score:.3f})"
-                console.success(config_info)
+            if summary.total_filtered_portfolios > 0:
+                pass_rate = summary.filter_pass_rate * 100
+                console.info(
+                    f"Filtered: {summary.total_filtered_portfolios:,} portfolios ({pass_rate:.1f}% pass rate)"
+                )
+
+            # Show best configuration if available
+            if summary.best_opportunity:
+                best = summary.best_opportunity
+                if best.best_config:
+                    config_info = f"Optimal: {best.strategy_type} {best.best_config}"
+                    if best.best_score:
+                        config_info += f" (Score: {best.best_score:.3f})"
+                    console.success(config_info)
 
     # Files Generated section
     if summary.total_files_exported > 0:

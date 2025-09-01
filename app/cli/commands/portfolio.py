@@ -148,9 +148,6 @@ def update(
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Preview configuration without executing"
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
-    ),
 ):
     """
     Update portfolio results and aggregation.
@@ -170,7 +167,7 @@ def update(
         global_quiet = ctx.obj.get("quiet", True) if ctx.obj else True
 
         # Initialize console logger - portfolio commands default to rich output
-        is_verbose = verbose or global_verbose
+        is_verbose = global_verbose
         is_quiet = False  # Portfolio commands always show rich output
         console = ConsoleLogger(verbose=is_verbose, quiet=is_quiet)
         # Load configuration
@@ -246,7 +243,7 @@ def update(
 
     except Exception as e:
         console.error(f"Error updating portfolio: {e}")
-        if verbose or global_verbose:
+        if global_verbose:
             raise
         raise typer.Exit(1)
 
@@ -721,12 +718,6 @@ def review(
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Preview configuration without executing"
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
-    ),
-    quiet: bool = typer.Option(
-        False, "--quiet", "-q", help="Suppress non-essential output"
-    ),
     export_raw_data: bool = typer.Option(
         False, "--export-raw-data", help="Export raw data from VectorBT portfolios"
     ),
@@ -918,7 +909,7 @@ def review(
             _show_portfolio_review_config_preview(config, console)
             return
 
-        if verbose:
+        if global_verbose:
             console.debug("Loading portfolio review services...")
 
         # Import portfolio review services
@@ -1094,7 +1085,7 @@ def review(
 
     except Exception as e:
         console.error(f"Error in portfolio review: {e}")
-        if verbose:
+        if global_verbose:
             raise
         raise typer.Exit(1)
 

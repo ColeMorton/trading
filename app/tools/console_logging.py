@@ -11,10 +11,11 @@ import threading
 import time
 from contextlib import contextmanager
 from datetime import datetime
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import psutil
 from rich.align import Align
+from rich.box import ROUNDED
 from rich.console import Console
 from rich.layout import Layout
 from rich.live import Live
@@ -27,6 +28,7 @@ from rich.progress import (
     TextColumn,
     TimeElapsedColumn,
 )
+from rich.rule import Rule
 from rich.status import Status
 from rich.table import Table
 from rich.text import Text
@@ -67,11 +69,12 @@ class ConsoleLogger:
 
     def success(self, message: str, **kwargs) -> None:
         """Display success message with green checkmark."""
-        if not self.quiet:
-            self.console.print(f"[green]✅ {message}[/green]", **kwargs)
+        # Always show success messages, even in quiet mode
+        self.console.print(f"[green]✅ {message}[/green]", **kwargs)
 
     def error(self, message: str, **kwargs) -> None:
         """Display error message with red X."""
+        # Always show error messages, even in quiet mode
         self.console.print(f"[red]❌ {message}[/red]", **kwargs)
 
     def warning(self, message: str, **kwargs) -> None:
@@ -159,6 +162,112 @@ class ConsoleLogger:
     def live_table_context(self, table: Table):
         """Create a live updating table context."""
         return Live(table, console=self.console, refresh_per_second=4)
+
+    def data_summary_table(self, ticker: str, data_info: Dict[str, Any]) -> None:
+        """Display market data summary in a formatted table."""
+        if self.quiet:
+            return
+
+        table = Table(
+            title=f"📊 Market Data Summary: {ticker}",
+            show_header=True,
+            header_style="bold cyan",
+            box=ROUNDED,
+            border_style="blue",
+        )
+        table.add_column("Metric", style="cyan", no_wrap=True)
+        table.add_column("Value", style="white")
+
+        # Format values nicely
+        if "date_range" in data_info:
+            table.add_row("Date Range", data_info["date_range"])
+        if "price_range" in data_info:
+            table.add_row("Price Range", data_info["price_range"])
+        if "avg_volume" in data_info:
+            volume = data_info["avg_volume"]
+            if isinstance(volume, (int, float)):
+                table.add_row("Avg Volume", f"{volume:,.0f}")
+            else:
+                table.add_row("Avg Volume", str(volume))
+        if "frequency" in data_info:
+            table.add_row("Frequency", data_info["frequency"])
+        if "records_count" in data_info:
+            table.add_row("Records", f"{data_info['records_count']:,}")
+
+        self.console.print(table)
+
+    def strategy_header(
+        self, ticker: str, strategy_types: List[str], profile: str = None
+    ) -> None:
+        """Display strategy analysis header with enhanced formatting."""
+        if self.quiet:
+            return
+
+        title = f"🎯 Strategy Analysis: {ticker}"
+        if len(strategy_types) == 1:
+            subtitle = f"Strategy: {strategy_types[0]}"
+        else:
+            subtitle = f"Strategies: {', '.join(strategy_types)}"
+
+        if profile:
+            subtitle += f" | Profile: {profile}"
+
+        content = f"[bold white]{subtitle}[/bold white]"
+
+        panel = Panel(
+            content, title=title, border_style="cyan", box=ROUNDED, padding=(0, 2)
+        )
+
+        self.console.print("\n")
+        self.console.print(panel)
+
+    def results_summary_table(
+        self,
+        portfolios_generated: int,
+        best_config: str = None,
+        files_exported: int = None,
+    ) -> None:
+        """Display analysis results summary."""
+        if self.quiet:
+            return
+
+        table = Table(
+            title="📈 Analysis Summary",
+            show_header=False,
+            box=ROUNDED,
+            border_style="green",
+        )
+        table.add_column("Metric", style="cyan", no_wrap=True)
+        table.add_column("Value", style="white")
+
+        table.add_row("Portfolios Generated", f"{portfolios_generated:,}")
+        if best_config:
+            table.add_row("Best Configuration", best_config)
+        if files_exported:
+            table.add_row("Files Exported", str(files_exported))
+
+        self.console.print(table)
+
+    def phase_separator(self, title: str) -> None:
+        """Display a visual separator between major phases."""
+        if self.quiet:
+            return
+
+        rule = Rule(f"[bold blue]{title}[/bold blue]", style="blue")
+        self.console.print(rule)
+
+    def completion_banner(self, message: str = "Analysis Complete") -> None:
+        """Display a completion banner."""
+        if self.quiet:
+            return
+
+        panel = Panel(
+            f"[bold green]✅ {message}[/bold green]",
+            border_style="green",
+            box=ROUNDED,
+            padding=(0, 2),
+        )
+        self.console.print(panel)
 
 
 class ConsoleLoggingContext:
@@ -1128,14 +1237,18 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
 
     def info(self, message: str, **kwargs) -> None:
         """Display info message with enhanced strategy execution awareness."""
-        # For strategy execution contexts, always show essential info even in quiet mode
+        # Respect quiet mode when explicitly set
+        if self.quiet:
+            return
+
+        # For strategy execution contexts, show enhanced info
         if self._current_phase and (
             "strategy" in self._current_phase.lower()
             or self._current_phase.endswith("_execution")
             or self._current_phase
             in ["data_download", "backtesting", "portfolio_processing"]
         ):
-            # Always show strategy execution info regardless of quiet mode
+            # Show strategy execution info with enhanced formatting
             self.console.print(f"[blue]ℹ️  {message}[/blue]", **kwargs)
         else:
             # Use base class behavior for other contexts
@@ -1143,13 +1256,17 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
 
     def progress(self, message: str, **kwargs) -> None:
         """Display progress message with enhanced strategy execution awareness."""
-        # For strategy execution contexts, always show progress even in quiet mode
+        # Respect quiet mode when explicitly set
+        if self.quiet:
+            return
+
+        # For strategy execution contexts, show enhanced progress
         if self._current_phase and (
             "strategy" in self._current_phase.lower()
             or self._current_phase
             in ["data_download", "backtesting", "portfolio_processing"]
         ):
-            # Always show strategy execution progress regardless of quiet mode
+            # Show strategy execution progress with enhanced formatting
             self.console.print(f"[cyan]⚙️  {message}[/cyan]", **kwargs)
         else:
             # Use base class behavior for other contexts
@@ -1157,13 +1274,17 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
 
     def heading(self, message: str, level: int = 1, **kwargs) -> None:
         """Display heading with enhanced strategy execution awareness."""
-        # For strategy execution contexts, always show headings even in quiet mode
+        # Respect quiet mode when explicitly set
+        if self.quiet:
+            return
+
+        # For strategy execution contexts, show enhanced headings
         if self._current_phase and (
             "strategy" in self._current_phase.lower()
             or self._current_phase
             in ["data_download", "backtesting", "portfolio_processing"]
         ):
-            # Always show strategy execution headings regardless of quiet mode
+            # Show strategy execution headings with enhanced formatting
             if level == 1:
                 self.console.print(f"\n[bold cyan]🚀 {message}[/bold cyan]", **kwargs)
             elif level == 2:

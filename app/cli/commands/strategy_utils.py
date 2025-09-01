@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import typer
 from rich import print as rprint
+from rich.box import ROUNDED
 from rich.console import Console
 from rich.table import Table
 
@@ -465,7 +466,13 @@ def show_config_preview(
         config: Configuration to preview
         title: Table title
     """
-    table = Table(title=title, show_header=True)
+    table = Table(
+        title=f"🔧 {title}",
+        show_header=True,
+        header_style="bold cyan",
+        box=ROUNDED,
+        border_style="blue",
+    )
     table.add_column("Parameter", style="cyan", no_wrap=True)
     table.add_column("Value", style="green")
 
@@ -643,8 +650,15 @@ def display_results_table(
         rprint("[yellow]No results to display[/yellow]")
         return
 
-    # Create results table
-    table = Table(title=title, show_header=True)
+    # Create enhanced results table
+    table = Table(
+        title=f"📈 {title}",
+        show_header=True,
+        header_style="bold cyan",
+        box=ROUNDED,
+        border_style="green",
+    )
+    table.add_column("Rank", style="white", no_wrap=True, justify="right")
     table.add_column("Ticker", style="cyan", no_wrap=True)
     table.add_column("Strategy", style="blue", no_wrap=True)
     table.add_column("Score", style="green", justify="right")
@@ -655,8 +669,8 @@ def display_results_table(
     # Sort results by score if available
     sorted_results = sorted(results, key=lambda x: x.get("Score", 0), reverse=True)
 
-    # Display results
-    for result in sorted_results[:max_results]:
+    # Display results with ranking
+    for i, result in enumerate(sorted_results[:max_results], 1):
         ticker = result.get("Ticker", "N/A")
         strategy = result.get("Strategy", "N/A")
         score = result.get("Score", 0)
@@ -664,13 +678,28 @@ def display_results_table(
         trades = result.get("Total Trades", 0)
         total_return = result.get("Total Return [%]", 0)
 
+        # Color code the return based on performance
+        if total_return > 0:
+            return_display = f"[green]{total_return:.1f}%[/green]"
+        else:
+            return_display = f"[red]{total_return:.1f}%[/red]"
+
+        # Color code win rate
+        if win_rate >= 60:
+            winrate_display = f"[green]{win_rate:.1f}%[/green]"
+        elif win_rate >= 50:
+            winrate_display = f"[yellow]{win_rate:.1f}%[/yellow]"
+        else:
+            winrate_display = f"[red]{win_rate:.1f}%[/red]"
+
         table.add_row(
+            f"#{i}",
             ticker,
             strategy,
             f"{score:.2f}",
-            f"{win_rate:.1f}%",
+            winrate_display,
             str(int(trades)),
-            f"{total_return:.1f}%",
+            return_display,
         )
 
     console.print(table)
@@ -698,8 +727,14 @@ def display_sweep_results_table(
         rprint("[yellow]No sweep results to display[/yellow]")
         return
 
-    # Create sweep results table
-    table = Table(title=title, show_header=True)
+    # Create enhanced sweep results table
+    table = Table(
+        title=f"🔍 {title}",
+        show_header=True,
+        header_style="bold cyan",
+        box=ROUNDED,
+        border_style="blue",
+    )
     table.add_column("Rank", style="white", no_wrap=True, justify="right")
     table.add_column("Strategy", style="blue", no_wrap=True)
     table.add_column("Fast", style="cyan", justify="right")
@@ -710,7 +745,7 @@ def display_sweep_results_table(
     table.add_column("Return %", style="magenta", justify="right")
     table.add_column("Sharpe", style="bright_blue", justify="right")
 
-    # Display results with rank
+    # Display results with rank and color coding
     for i, result in enumerate(results[:max_results], 1):
         strategy = result.get("Strategy Type", "N/A")
         fast_period = result.get("Fast Period", 0)
@@ -721,16 +756,39 @@ def display_sweep_results_table(
         total_return = result.get("Total Return [%]", 0)
         sharpe = result.get("Sharpe Ratio", 0)
 
+        # Color code metrics based on performance
+        if total_return > 0:
+            return_display = f"[green]{total_return:.1f}%[/green]"
+        else:
+            return_display = f"[red]{total_return:.1f}%[/red]"
+
+        if win_rate >= 60:
+            winrate_display = f"[green]{win_rate:.1f}%[/green]"
+        elif win_rate >= 50:
+            winrate_display = f"[yellow]{win_rate:.1f}%[/yellow]"
+        else:
+            winrate_display = f"[red]{win_rate:.1f}%[/red]"
+
+        if sharpe > 1.0:
+            sharpe_display = f"[green]{sharpe:.2f}[/green]"
+        elif sharpe > 0.5:
+            sharpe_display = f"[yellow]{sharpe:.2f}[/yellow]"
+        else:
+            sharpe_display = f"[red]{sharpe:.2f}[/red]"
+
+        # Highlight top 3 results
+        rank_display = f"[bold yellow]#{i}[/bold yellow]" if i <= 3 else f"#{i}"
+
         table.add_row(
-            str(i),
+            rank_display,
             strategy,
             str(int(fast_period)),
             str(int(slow_period)),
             f"{score:.2f}",
-            f"{win_rate:.1f}%",
+            winrate_display,
             str(int(trades)),
-            f"{total_return:.1f}%",
-            f"{sharpe:.2f}",
+            return_display,
+            sharpe_display,
         )
 
     console.print(table)

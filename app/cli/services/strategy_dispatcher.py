@@ -262,6 +262,23 @@ class StrategyDispatcher:
             strategy_types=[],
         )
 
+        # Display enhanced strategy header
+        ticker_str = (
+            ", ".join(config.ticker)
+            if isinstance(config.ticker, list)
+            else str(config.ticker)
+        )
+        strategy_names = [
+            st.value if hasattr(st, "value") else str(st)
+            for st in config.strategy_types
+        ]
+
+        self.console.strategy_header(
+            ticker=ticker_str,
+            strategy_types=strategy_names,
+            profile=getattr(config, "profile_name", None),
+        )
+
         # Start performance monitoring if using PerformanceAwareConsoleLogger
         if isinstance(self.console, PerformanceAwareConsoleLogger):
             # Estimate total phases based on configuration
@@ -477,10 +494,16 @@ class StrategyDispatcher:
         summary.success_rate = successful_count / len(results) if results else 0.0
         summary.execution_time = time.time() - start_time
 
-        # Show completion summary
+        # Show completion summary with enhanced formatting
         if successful_count == len(results):
-            self.console.success(
+            self.console.completion_banner(
                 f"All {len(results)} strategies completed successfully"
+            )
+            # Show basic results summary
+            self.console.results_summary_table(
+                portfolios_generated=successful_count,
+                files_exported=len(results)
+                * 4,  # Estimate: base, filtered, metrics, best
             )
         else:
             self.console.warning(

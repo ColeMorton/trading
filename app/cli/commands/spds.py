@@ -75,6 +75,7 @@ def _detect_available_data_sources(portfolio: str) -> dict:
 
 @app.command()
 def analyze(
+    ctx: typer.Context,
     parameter: Optional[str] = typer.Argument(
         None,
         help='Analysis parameter: portfolio file (e.g., "risk_on.csv"), ticker (e.g., "AMD"), strategy (e.g., "TSLA_SMA_15_25"), or position UUID (e.g., "TSLA_SMA_15_25_20250710")',
@@ -125,10 +126,6 @@ def analyze(
     confidence_level: str = typer.Option(
         "medium", "--confidence-level", help="Confidence level: low, medium, high"
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
-    ),
-    quiet: bool = typer.Option(False, "--quiet", "-q", help="Quiet mode (errors only)"),
 ):
     """
     Analyze using Statistical Performance Divergence System with enhanced parameter support.
@@ -159,6 +156,10 @@ def analyze(
         trading-cli spds analyze NVDA,MSFT,QCOM --components risk,trend  # Multi-ticker with component scores (detailed is now default)
     """
     try:
+        # Get global verbose and quiet flags
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+        global_quiet = ctx.obj.get("quiet", False) if ctx.obj else False
+
         # Parameter resolution: handle --portfolio flag or positional parameter
         if portfolio and parameter:
             rprint(
@@ -170,7 +171,7 @@ def analyze(
             raise typer.Exit(1)
         elif portfolio:
             parameter = portfolio
-            if verbose:
+            if global_verbose:
                 rprint(f"[dim]Using portfolio flag: {portfolio}[/dim]")
         elif not parameter:
             rprint(
@@ -189,7 +190,7 @@ def analyze(
         from ...tools.parameter_parser import ParameterType, parse_spds_parameter
 
         # Parse the input parameter to detect type and extract components
-        if verbose:
+        if global_verbose:
             rprint(f"[dim]Parsing input parameter: {parameter}[/dim]")
 
         try:
@@ -200,7 +201,7 @@ def analyze(
 
         parameter_type = parsed_param.parameter_type
 
-        if verbose:
+        if global_verbose:
             rprint(f"[dim]Detected parameter type: {parameter_type}[/dim]")
             rprint(f"[dim]Parsed components: {parsed_param.dict()}[/dim]")
 
@@ -221,8 +222,8 @@ def analyze(
                     dual_layer_threshold,
                     sample_size_min,
                     confidence_level,
-                    verbose,
-                    quiet,
+                    global_verbose,
+                    global_quiet,
                 )
             )
         else:
@@ -241,8 +242,8 @@ def analyze(
                     dual_layer_threshold,
                     sample_size_min,
                     confidence_level,
-                    verbose,
-                    quiet,
+                    global_verbose,
+                    global_quiet,
                 )
             )
 
@@ -253,13 +254,14 @@ def analyze(
         raise typer.Exit(1)
     except Exception as e:
         rprint(f"[red]❌ Analysis failed: {e}[/red]")
-        if verbose:
+        if global_verbose:
             raise
         raise typer.Exit(1)
 
 
 @app.command()
 def export(
+    ctx: typer.Context,
     portfolio: str = typer.Argument(
         ..., help='Portfolio filename (e.g., "risk_on.csv")'
     ),
@@ -277,9 +279,6 @@ def export(
     output_dir: Optional[str] = typer.Option(
         None, "--output-dir", help="Output directory for exports"
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
-    ),
 ):
     """
     Export backtesting parameters and analysis results.
@@ -294,6 +293,9 @@ def export(
         trading-cli spds export risk_on.csv --data-source both --format all  # Force both data sources
     """
     try:
+        # Get global verbose flag
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
         # Auto-detect available data sources if not explicitly specified
         if data_source is None:
             data_source = "auto"
@@ -337,7 +339,7 @@ def export(
                 f"Invalid data source: {data_source}. Must be 'auto', 'both', 'trade-history', or 'equity-curves'"
             )
 
-        if verbose:
+        if global_verbose:
             rprint(
                 f"[dim]Available sources: TH={available_sources['trade_history']}, EQ={available_sources['equity_data']}[/dim]"
             )
@@ -352,7 +354,7 @@ def export(
             "trade_history": use_trade_history,
             "format": format,
             "output_dir": output_dir,
-            "verbose": verbose,
+            "verbose": global_verbose,
         }
 
         # Load configuration
@@ -386,7 +388,7 @@ def export(
 
     except Exception as e:
         rprint(f"[red]❌ Export failed: {e}[/red]")
-        if verbose:
+        if global_verbose:
             raise
         raise typer.Exit(1)
 
@@ -607,8 +609,8 @@ async def _analyze_portfolio_mode(
     dual_layer_threshold: float,
     sample_size_min: int,
     confidence_level: str,
-    verbose: bool,
-    quiet: bool,
+    global_verbose: bool,
+    global_quiet: bool,
 ):
     """Handle portfolio-based analysis (backward compatibility)."""
     # Auto-detect available data sources if not explicitly specified
@@ -652,7 +654,7 @@ async def _analyze_portfolio_mode(
             f"Invalid data source: {data_source}. Must be 'auto', 'both', 'trade-history', or 'equity-curves'"
         )
 
-    if verbose:
+    if global_verbose:
         rprint(
             f"[dim]Available sources: TH={available_sources['trade_history']}, EQ={available_sources['equity_data']}[/dim]"
         )
@@ -672,8 +674,8 @@ async def _analyze_portfolio_mode(
         "dual_layer_threshold": dual_layer_threshold,
         "sample_size_min": sample_size_min,
         "confidence_level": confidence_level,
-        "verbose": verbose,
-        "quiet": quiet,
+        "verbose": global_verbose,
+        "quiet": global_quiet,
     }
 
     # Load configuration
@@ -683,7 +685,7 @@ async def _analyze_portfolio_mode(
         # Use default SPDS profile
         config = loader.load_from_profile("spds_default", SPDSConfig, overrides)
 
-    if verbose:
+    if global_verbose:
         rprint(f"[dim]Analyzing portfolio: {portfolio}[/dim]")
         rprint(f"[dim]Data source: {data_source_status}[/dim]")
 
@@ -726,14 +728,14 @@ async def _analyze_portfolio_mode(
             "[dim]ℹ️  Using fallback analysis - this is normal for position-based portfolios[/dim]"
         )
 
-    if not quiet:
+    if not global_quiet:
         rprint(
             "[dim]📝 Strategy matching messages below are informational - SPDS uses robust fallback analysis[/dim]"
         )
 
     # Pre-analysis validation for data source mapping
-    if verbose and data_source in ["auto", "both", "trade-history"]:
-        _validate_data_source_mapping(portfolio, verbose)
+    if global_verbose and data_source in ["auto", "both", "trade-history"]:
+        _validate_data_source_mapping(portfolio, global_verbose)
 
     rprint("-" * 60)
 
@@ -787,8 +789,8 @@ async def _analyze_enhanced_parameter_mode(
     dual_layer_threshold: float,
     sample_size_min: int,
     confidence_level: str,
-    verbose: bool,
-    quiet: bool,
+    global_verbose: bool,
+    global_quiet: bool,
 ):
     """Handle enhanced parameter analysis (ticker, strategy, position UUID)."""
     from ...tools.parameter_parser import ParameterType
@@ -879,7 +881,7 @@ async def _analyze_enhanced_parameter_mode(
             "[dim]ℹ️  Analyzing multiple portfolios in parallel for comparative portfolio analysis[/dim]"
         )
 
-    if not quiet:
+    if not global_quiet:
         rprint(
             "[dim]📝 Enhanced parameter analysis provides specialized insights for each input type[/dim]"
         )
@@ -898,7 +900,7 @@ async def _analyze_enhanced_parameter_mode(
         results = await analyzer.analyze()
     except Exception as e:
         rprint(f"[red]❌ Analysis failed: {e}[/red]")
-        if verbose:
+        if global_verbose:
             raise
         raise typer.Exit(1)
 
@@ -960,7 +962,7 @@ async def _analyze_enhanced_parameter_mode(
         )
 
     except Exception as e:
-        if verbose:
+        if global_verbose:
             rprint(f"[yellow]⚠️  Export warning: {e}[/yellow]")
 
     # Output results
@@ -1380,7 +1382,7 @@ def _display_spds_health_results(health_results):
     console.print(table)
 
 
-def _validate_data_source_mapping(portfolio: str, verbose: bool = False):
+def _validate_data_source_mapping(portfolio: str, global_verbose: bool = False):
     """
     Validate Position_UUID to trade history file mapping.
 
@@ -1473,7 +1475,7 @@ def _validate_data_source_mapping(portfolio: str, verbose: bool = False):
             f"[dim]  • Equity Fallback: {fallback_count}/{total_count} strategies[/dim]"
         )
 
-        if verbose and fallback_count > 0:
+        if global_verbose and fallback_count > 0:
             rprint(f"[dim]📈 Strategies using equity fallback (first 5):[/dim]")
             for strategy in validation_results["fallback_strategies"][:5]:
                 rprint(
@@ -1482,7 +1484,7 @@ def _validate_data_source_mapping(portfolio: str, verbose: bool = False):
             if fallback_count > 5:
                 rprint(f"[dim]  • ... and {fallback_count - 5} more[/dim]")
 
-        if verbose and matched_count > 0:
+        if global_verbose and matched_count > 0:
             rprint(f"[dim]✅ Strategies with trade history (first 3):[/dim]")
             for strategy in validation_results["matched_strategies"][:3]:
                 rprint(

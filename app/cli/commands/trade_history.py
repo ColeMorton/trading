@@ -30,6 +30,7 @@ console = Console()
 
 @app.command()
 def close(
+    ctx: typer.Context,
     strategy: str = typer.Argument(
         ..., help="Strategy name (e.g., 'MA_SMA_78_82') or Position_UUID to analyze"
     ),
@@ -73,9 +74,6 @@ def close(
     base_path: Optional[str] = typer.Option(
         None, "--base-path", help="Base path to trading system directory"
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose logging"
-    ),
 ):
     """
     Close positions and generate comprehensive sell signal reports from SPDS data.
@@ -95,6 +93,9 @@ def close(
         trading-cli trade-history close CRWD_EMA_5_21 --output reports/CRWD_analysis.md
     """
     try:
+        # Get global verbose flag
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
         # Validate parameters for position closing mode
         position_closing_mode = portfolio is not None or price is not None
 
@@ -145,7 +146,7 @@ def close(
             "output": {
                 "output_file": output,
                 "output_format": format,
-                "verbose": verbose,
+                "verbose": global_verbose,
             },
         }
 
@@ -157,7 +158,7 @@ def close(
                 "default_trade_history", TradeHistoryConfig, overrides
             )
 
-        if verbose:
+        if global_verbose:
             rprint(f"[dim]Generating sell signal report for: {strategy}[/dim]")
 
         # Import unified services
@@ -177,7 +178,7 @@ def close(
                 self.include_raw_data = include_raw_data
                 self.current_price = current_price
                 self.market_condition = market_condition
-                self.verbose = verbose
+                self.verbose = global_verbose
                 self.list_strategies = False
                 self.health_check = False
                 self.validate_data = False
@@ -210,7 +211,7 @@ def close(
 
             except Exception as e:
                 rprint(f"[red]❌ Failed to close position: {str(e)}[/red]")
-                if verbose:
+                if global_verbose:
                     raise
                 raise typer.Exit(1)
 
@@ -236,13 +237,14 @@ def close(
 
     except Exception as e:
         rprint(f"[red]❌ Close command failed: {e}[/red]")
-        if verbose:
+        if global_verbose:
             raise
         raise typer.Exit(1)
 
 
 @app.command()
 def add(
+    ctx: typer.Context,
     ticker: str = typer.Argument(..., help="Ticker symbol (e.g., 'AAPL', 'BTC-USD')"),
     portfolio: Optional[str] = typer.Option(
         None,
@@ -283,9 +285,6 @@ def add(
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Preview the addition without executing"
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
-    ),
 ):
     """
     Add new position to specified portfolio with automatic strategy selection.
@@ -302,6 +301,9 @@ def add(
         trading-cli trade-history add AAPL --portfolio live_signals --strategy-type SMA --short-window 20 --long-window 50
     """
     try:
+        # Get global verbose flag
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
         # Validate portfolio parameter is provided
         if portfolio is None:
             rprint("[red]❌ Error: --portfolio parameter is required[/red]")
@@ -342,7 +344,7 @@ def add(
 
         # Auto-select best strategy if not manually specified
         if strategy_type is None or fast_period is None or slow_period is None:
-            if verbose:
+            if global_verbose:
                 rprint(f"[dim]Auto-selecting best strategy for {ticker}...[/dim]")
 
             # Find latest portfolio files for the ticker
@@ -361,7 +363,7 @@ def add(
             # Find the latest portfolio file
             latest_file = max(portfolio_files, key=lambda x: Path(x).stat().st_mtime)
 
-            if verbose:
+            if global_verbose:
                 rprint(f"[dim]Found strategy data: {latest_file}[/dim]")
 
             # Read and find best strategy
@@ -384,7 +386,7 @@ def add(
                 if slow_period is None:
                     slow_period = int(best_strategy["Slow Period"])
 
-                if verbose:
+                if global_verbose:
                     rprint(
                         f"[green]✅ Auto-selected: {strategy_type} {fast_period}/{slow_period} (Score: {best_strategy['Score']:.4f})[/green]"
                     )
@@ -465,20 +467,21 @@ def add(
 
             except Exception as e:
                 rprint(f"[red]❌ Failed to add position: {e}[/red]")
-                if verbose:
+                if global_verbose:
                     raise
                 raise typer.Exit(1)
 
     except Exception as e:
         if "❌" not in str(e):  # Don't double-print formatted errors
             rprint(f"[red]❌ Add command failed: {e}[/red]")
-        if verbose:
+        if global_verbose:
             raise
         raise typer.Exit(1)
 
 
 @app.command()
 def update(
+    ctx: typer.Context,
     portfolio: str = typer.Option(
         "live_signals", "--portfolio", "-f", help="Portfolio name to update"
     ),
@@ -514,9 +517,6 @@ def update(
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Preview updates without executing"
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
-    ),
 ):
     """
     Update existing positions with current market data and comprehensive validation.
@@ -545,6 +545,9 @@ def update(
         trading-cli trade-history update --portfolio live_signals --refresh --dry-run --verbose
     """
     try:
+        # Get global verbose flag
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
         # Skip complex configuration for now and proceed directly
         # This can be enhanced later when configuration system is fully set up
 
@@ -611,14 +614,14 @@ def update(
                 result = service.update_all_positions(
                     portfolio_name=portfolio,
                     dry_run=dry_run,
-                    verbose=verbose,
+                    verbose=global_verbose,
                     validate_calculations=validate_calculations,
                     auto_fix_errors=auto_fix_errors,
                 )
             else:
                 # Default mode: update only open positions
                 result = service.update_open_positions(
-                    portfolio_name=portfolio, dry_run=dry_run, verbose=verbose
+                    portfolio_name=portfolio, dry_run=dry_run, verbose=global_verbose
                 )
 
             if result["success"]:
@@ -649,7 +652,7 @@ def update(
                             rprint(
                                 f"   [blue]🔧 Calculation fixes applied: {len(calculation_fixes)}[/blue]"
                             )
-                            if verbose:
+                            if global_verbose:
                                 rprint("   [dim]Fixes made:[/dim]")
                                 for fix in calculation_fixes[:3]:  # Show first 3 fixes
                                     rprint(f"      • {fix}")
@@ -662,7 +665,7 @@ def update(
                             rprint(
                                 f"   [red]❌ Validation errors remaining: {len(validation_errors)}[/red]"
                             )
-                            if verbose:
+                            if global_verbose:
                                 for error in validation_errors[
                                     :2
                                 ]:  # Show first 2 errors
@@ -702,19 +705,20 @@ def update(
 
         except Exception as e:
             rprint(f"[red]❌ Update execution failed: {e}[/red]")
-            if verbose:
+            if global_verbose:
                 raise
             raise typer.Exit(1)
 
     except Exception as e:
         rprint(f"[red]❌ Update command failed: {e}[/red]")
-        if verbose:
+        if global_verbose:
             raise
         raise typer.Exit(1)
 
 
 @app.command()
 def list(
+    ctx: typer.Context,
     show_signals: bool = typer.Option(
         True, "--show-signals/--no-signals", help="Show exit signals in listing"
     ),
@@ -726,9 +730,6 @@ def list(
     ),
     limit: Optional[int] = typer.Option(
         None, "--limit", "-n", help="Limit number of results"
-    ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
     ),
 ):
     """
@@ -743,6 +744,9 @@ def list(
         trading-cli trade-history list --sort-by ticker --no-signals
     """
     try:
+        # Get global verbose flag
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
         rprint("📊 Available Trading Strategies")
         rprint("-" * 60)
 
@@ -786,13 +790,14 @@ def list(
 
     except Exception as e:
         rprint(f"[red]❌ List command failed: {e}[/red]")
-        if verbose:
+        if global_verbose:
             raise
         raise typer.Exit(1)
 
 
 @app.command()
 def validate(
+    ctx: typer.Context,
     check_data_integrity: bool = typer.Option(
         True,
         "--check-integrity/--no-check-integrity",
@@ -809,9 +814,6 @@ def validate(
     show_details: bool = typer.Option(
         False, "--show-details", help="Show detailed validation results"
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
-    ),
 ):
     """
     Validate trade history data integrity and system health.
@@ -825,6 +827,9 @@ def validate(
         trading-cli trade-history validate --no-check-strategies
     """
     try:
+        # Get global verbose flag
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
         rprint("🔍 Trade History Data Validation")
         rprint("-" * 60)
 
@@ -878,7 +883,7 @@ def validate(
 
     except Exception as e:
         rprint(f"[red]❌ Validation failed: {e}[/red]")
-        if verbose:
+        if global_verbose:
             raise
         raise typer.Exit(1)
 

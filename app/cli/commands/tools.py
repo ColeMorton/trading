@@ -28,6 +28,7 @@ console = Console()
 
 @app.command()
 def schema(
+    ctx: typer.Context,
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
@@ -48,9 +49,6 @@ def schema(
     ),
     output_file: Optional[str] = typer.Option(
         None, "--output", "-o", help="Output file path for conversions"
-    ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
     ),
 ):
     """
@@ -75,6 +73,9 @@ def schema(
             rprint("[red]File path is required for schema operations[/red]")
             raise typer.Exit(1)
 
+        # Get global verbose flag
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
         # Load configuration
         loader = ConfigLoader()
 
@@ -96,7 +97,7 @@ def schema(
             rprint("Please specify a profile using --profile or -p option")
             raise typer.Exit(1)
 
-        if verbose:
+        if global_verbose:
             rprint("[dim]Loading schema detection modules...[/dim]")
 
         # Import schema detection and validation modules
@@ -148,7 +149,7 @@ def schema(
                     f"📊 File contains {validation_result['total_rows']:,} rows with {validation_result['total_columns']} columns"
                 )
 
-                if verbose:
+                if global_verbose:
                     # Generate detailed report
                     report = generate_schema_compliance_report(validation_result)
                     rprint("\n[bold]Detailed Schema Report:[/bold]")
@@ -192,7 +193,7 @@ def schema(
                 )
 
                 # Validate converted file
-                if verbose:
+                if global_verbose:
                     rprint("🔍 Validating converted file...")
                     validation_result = validate_csv_schema(
                         str(output_path), strict=False
@@ -206,19 +207,20 @@ def schema(
 
             except Exception as e:
                 rprint(f"[red]Schema conversion failed: {e}[/red]")
-                if verbose:
+                if global_verbose:
                     raise
                 raise typer.Exit(1)
 
     except Exception as e:
         rprint(f"[red]Error in schema operations: {e}[/red]")
-        if verbose:
+        if global_verbose:
             raise
         raise typer.Exit(1)
 
 
 @app.command()
 def validate(
+    ctx: typer.Context,
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
@@ -241,9 +243,6 @@ def validate(
     save_report: Optional[str] = typer.Option(
         None, "--save-report", help="Save validation report to file"
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
-    ),
 ):
     """
     Data validation utilities.
@@ -262,6 +261,9 @@ def validate(
                 "[yellow]Please specify files (--file) or directory (--directory) to validate[/yellow]"
             )
             raise typer.Exit(1)
+
+        # Get global verbose flag
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
 
         # Load configuration
         loader = ConfigLoader()
@@ -287,7 +289,7 @@ def validate(
             rprint("Please specify a profile using --profile or -p option")
             raise typer.Exit(1)
 
-        if verbose:
+        if global_verbose:
             rprint("[dim]Loading validation modules...[/dim]")
 
         # Import validation modules
@@ -308,7 +310,7 @@ def validate(
             if directory_path.exists() and directory_path.is_dir():
                 csv_files = list(directory_path.glob("*.csv"))
                 files_to_validate.extend([str(f) for f in csv_files])
-                if verbose:
+                if global_verbose:
                     rprint(
                         f"Found {len(csv_files)} CSV files in directory: {config.directory}"
                     )
@@ -382,13 +384,14 @@ def validate(
 
     except Exception as e:
         rprint(f"[red]Error in validation: {e}[/red]")
-        if verbose:
+        if global_verbose:
             raise
         raise typer.Exit(1)
 
 
 @app.command()
 def health(
+    ctx: typer.Context,
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
@@ -413,9 +416,6 @@ def health(
     save_report: Optional[str] = typer.Option(
         None, "--save-report", help="Save health report to file"
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
-    ),
 ):
     """
     System health check.
@@ -429,6 +429,9 @@ def health(
         trading-cli tools health --no-deps --no-data
     """
     try:
+        # Get global verbose flag
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
         # Load configuration
         loader = ConfigLoader()
 
@@ -464,35 +467,41 @@ def health(
 
         # File system health check
         if config.check_files:
-            if verbose:
+            if global_verbose:
                 rprint("[dim]Checking file system health...[/dim]")
-            health_results["checks"]["files"] = _check_file_system_health(verbose)
+            health_results["checks"]["files"] = _check_file_system_health(
+                global_verbose
+            )
 
         # Dependencies check
         if config.check_dependencies:
-            if verbose:
+            if global_verbose:
                 rprint("[dim]Checking Python dependencies...[/dim]")
             health_results["checks"]["dependencies"] = _check_dependencies_health(
-                verbose
+                global_verbose
             )
 
         # Data integrity check
         if config.check_data:
-            if verbose:
+            if global_verbose:
                 rprint("[dim]Checking data integrity...[/dim]")
-            health_results["checks"]["data"] = _check_data_integrity(verbose)
+            health_results["checks"]["data"] = _check_data_integrity(global_verbose)
 
         # Configuration check
         if config.check_config:
-            if verbose:
+            if global_verbose:
                 rprint("[dim]Checking configuration validity...[/dim]")
-            health_results["checks"]["config"] = _check_configuration_health(verbose)
+            health_results["checks"]["config"] = _check_configuration_health(
+                global_verbose
+            )
 
         # Performance check
         if config.check_performance:
-            if verbose:
+            if global_verbose:
                 rprint("[dim]Running performance checks...[/dim]")
-            health_results["checks"]["performance"] = _check_performance_health(verbose)
+            health_results["checks"]["performance"] = _check_performance_health(
+                global_verbose
+            )
 
         # Calculate overall status
         total_issues = sum(
@@ -539,7 +548,7 @@ def health(
 
     except Exception as e:
         rprint(f"[red]Error in health check: {e}[/red]")
-        if verbose:
+        if global_verbose:
             raise
         raise typer.Exit(1)
 
@@ -598,7 +607,7 @@ def _save_validation_report(validation_results: dict, filename: str):
         json.dump(validation_results, f, indent=2)
 
 
-def _check_file_system_health(verbose: bool) -> dict:
+def _check_file_system_health(global_verbose: bool) -> dict:
     """Check file system health."""
     result = {"status": "healthy", "issues": 0, "details": []}
 
@@ -612,7 +621,7 @@ def _check_file_system_health(verbose: bool) -> dict:
             result["issues"] += 1
             result["details"].append(f"Missing critical directory: {dir_name}")
             result["status"] = "warning"
-        elif verbose:
+        elif global_verbose:
             result["details"].append(f"Directory exists: {dir_name}")
 
     # Check disk space (simplified)
@@ -625,7 +634,7 @@ def _check_file_system_health(verbose: bool) -> dict:
             result["issues"] += 1
             result["details"].append(f"Low disk space: {free_gb}GB free")
             result["status"] = "warning"
-        elif verbose:
+        elif global_verbose:
             result["details"].append(f"Disk space OK: {free_gb}GB free")
     except Exception as e:
         result["details"].append(f"Could not check disk space: {e}")
@@ -633,7 +642,7 @@ def _check_file_system_health(verbose: bool) -> dict:
     return result
 
 
-def _check_dependencies_health(verbose: bool) -> dict:
+def _check_dependencies_health(global_verbose: bool) -> dict:
     """Check Python dependencies health."""
     result = {"status": "healthy", "issues": 0, "details": []}
 
@@ -652,7 +661,7 @@ def _check_dependencies_health(verbose: bool) -> dict:
     for module_name in critical_imports:
         try:
             __import__(module_name)
-            if verbose:
+            if global_verbose:
                 result["details"].append(f"Module available: {module_name}")
         except ImportError:
             result["issues"] += 1
@@ -662,7 +671,7 @@ def _check_dependencies_health(verbose: bool) -> dict:
     return result
 
 
-def _check_data_integrity(verbose: bool) -> dict:
+def _check_data_integrity(global_verbose: bool) -> dict:
     """Check data integrity."""
     result = {"status": "healthy", "issues": 0, "details": []}
 
@@ -676,7 +685,7 @@ def _check_data_integrity(verbose: bool) -> dict:
             result["issues"] += 1
             result["details"].append("No portfolio CSV files found")
             result["status"] = "warning"
-        elif verbose:
+        elif global_verbose:
             result["details"].append(f"Found {len(csv_files)} portfolio files")
     else:
         result["issues"] += 1
@@ -691,7 +700,7 @@ def _check_data_integrity(verbose: bool) -> dict:
             result["issues"] += 1
             result["details"].append("No price data files found")
             result["status"] = "warning"
-        elif verbose:
+        elif global_verbose:
             result["details"].append(f"Found {len(price_files)} price data files")
     else:
         result["issues"] += 1
@@ -701,7 +710,7 @@ def _check_data_integrity(verbose: bool) -> dict:
     return result
 
 
-def _check_configuration_health(verbose: bool) -> dict:
+def _check_configuration_health(global_verbose: bool) -> dict:
     """Check configuration health."""
     result = {"status": "healthy", "issues": 0, "details": []}
 
@@ -730,7 +739,7 @@ def _check_configuration_health(verbose: bool) -> dict:
     return result
 
 
-def _check_performance_health(verbose: bool) -> dict:
+def _check_performance_health(global_verbose: bool) -> dict:
     """Check performance health."""
     result = {"status": "healthy", "issues": 0, "details": []}
 
@@ -749,7 +758,7 @@ def _check_performance_health(verbose: bool) -> dict:
             result["issues"] += 1
             result["details"].append(f"Slow import performance: {import_time:.2f}s")
             result["status"] = "warning"
-        elif verbose:
+        elif global_verbose:
             result["details"].append(f"Import performance OK: {import_time:.2f}s")
 
     except Exception as e:

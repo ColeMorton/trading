@@ -170,22 +170,40 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
             df = convert_daily_to_2day(df, ticker=ticker)
             log("Market-aware 2-day conversion completed")
 
-        # Log data statistics
-        log(f"Data summary for {ticker}:")
-        log(f"Date range: {df['Date'].min()} to {df['Date'].max()}")
-        log(f"Price range: ${df['Close'].min():.2f} to ${df['Close'].max():.2f}")
-        log(f"Average volume: {df['Volume'].mean():.0f}")
-
-        # Determine data frequency for logging
-        if use_2day:
-            frequency = "2-Day"
-        elif use_4hour:
-            frequency = "4-Hour"
-        elif use_hourly:
-            frequency = "Hourly"
+        # Enhanced data summary display using console logger if available
+        if hasattr(log, "__self__") and hasattr(log.__self__, "data_summary_table"):
+            # Use enhanced console logger display
+            data_info = {
+                "date_range": f"{df['Date'].min()} to {df['Date'].max()}",
+                "price_range": f"${df['Close'].min():.2f} to ${df['Close'].max():.2f}",
+                "avg_volume": int(df["Volume"].mean()),
+                "frequency": "2-Day"
+                if use_2day
+                else "4-Hour"
+                if use_4hour
+                else "Hourly"
+                if use_hourly
+                else "Daily",
+                "records_count": len(df),
+            }
+            log.__self__.data_summary_table(ticker, data_info)
         else:
-            frequency = "Daily"
-        log(f"Data frequency: {frequency}")
+            # Fallback to basic logging
+            log(f"Data summary for {ticker}:")
+            log(f"Date range: {df['Date'].min()} to {df['Date'].max()}")
+            log(f"Price range: ${df['Close'].min():.2f} to ${df['Close'].max():.2f}")
+            log(f"Average volume: {df['Volume'].mean():.0f}")
+
+            # Determine data frequency for logging
+            if use_2day:
+                frequency = "2-Day"
+            elif use_4hour:
+                frequency = "4-Hour"
+            elif use_hourly:
+                frequency = "Hourly"
+            else:
+                frequency = "Daily"
+            log(f"Data frequency: {frequency}")
 
         # Export to CSV
         export_config: ExportConfig = {
