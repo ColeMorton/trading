@@ -286,6 +286,7 @@ csv/
 /data/raw/portfolios/
 /data/raw/portfolios_best/
 /data/raw/portfolios_filtered/
+/data/raw/portfolios_metrics/
 
 attribution_data/
 /data/outputs/spds
