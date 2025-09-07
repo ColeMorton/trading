@@ -22,12 +22,13 @@ class BaseStrategyService(ABC):
         self.console = console
 
     @abstractmethod
-    def execute_strategy(self, config: StrategyConfig) -> bool:
+    def execute_strategy(self, config: StrategyConfig, progress_update_fn=None) -> bool:
         """
         Execute strategy analysis with the given configuration.
 
         Args:
             config: Strategy configuration model
+            progress_callback: Optional callback function for progress updates
 
         Returns:
             True if execution successful, False otherwise
@@ -56,7 +57,7 @@ class BaseStrategyService(ABC):
 class MAStrategyService(BaseStrategyService):
     """Service for MA Cross strategy execution."""
 
-    def execute_strategy(self, config: StrategyConfig) -> bool:
+    def execute_strategy(self, config: StrategyConfig, progress_update_fn=None) -> bool:
         """Execute MA Cross strategy analysis."""
         try:
             # Import MA Cross module
@@ -68,8 +69,10 @@ class MAStrategyService(BaseStrategyService):
             # Convert config to legacy format
             legacy_config = self.convert_config_to_legacy(config)
 
-            # Execute strategy with console logger if available
-            if self.console:
+            # Execute strategy with console logger and progress update function if available
+            if self.console and progress_update_fn:
+                return run(legacy_config, external_log=self.console, progress_update_fn=progress_update_fn)
+            elif self.console:
                 return run(legacy_config, external_log=self.console)
             else:
                 return run(legacy_config)
@@ -202,9 +205,15 @@ class MAStrategyService(BaseStrategyService):
 
         # Add USE_CURRENT and USE_DATE configuration
         legacy_config["USE_CURRENT"] = (
-            getattr(config.filter, "use_current", False) or False
+            config.use_current or getattr(config.filter, "use_current", False) or False
         )
         legacy_config["USE_DATE"] = getattr(config.filter, "date_filter", None)
+        
+        # Pass global progress allocation for accurate multi-ticker progress calculation
+        if hasattr(config, '_GLOBAL_PROGRESS_PER_TICKER'):
+            legacy_config["_GLOBAL_PROGRESS_PER_TICKER"] = getattr(config, '_GLOBAL_PROGRESS_PER_TICKER')
+        elif hasattr(config, '__dict__') and "_GLOBAL_PROGRESS_PER_TICKER" in config.__dict__:
+            legacy_config["_GLOBAL_PROGRESS_PER_TICKER"] = config.__dict__["_GLOBAL_PROGRESS_PER_TICKER"]
 
         # Add sorting parameters to maintain consistency with MACD
         legacy_config["SORT_BY"] = getattr(config, "sort_by", "Score")
@@ -226,7 +235,7 @@ class MAStrategyService(BaseStrategyService):
 class MACDStrategyService(BaseStrategyService):
     """Service for MACD strategy execution."""
 
-    def execute_strategy(self, config: StrategyConfig) -> bool:
+    def execute_strategy(self, config: StrategyConfig, progress_update_fn=None) -> bool:
         """Execute MACD strategy analysis."""
         try:
             # Import MACD module
@@ -238,8 +247,10 @@ class MACDStrategyService(BaseStrategyService):
             # Convert config to legacy format
             legacy_config = self.convert_config_to_legacy(config)
 
-            # Execute strategy with console logger if available
-            if self.console:
+            # Execute strategy with console logger and progress update function if available
+            if self.console and progress_update_fn:
+                return run(legacy_config, external_log=self.console, progress_update_fn=progress_update_fn)
+            elif self.console:
                 return run(legacy_config, external_log=self.console)
             else:
                 return run(legacy_config)
@@ -348,7 +359,9 @@ class MACDStrategyService(BaseStrategyService):
                 "SIGNAL_PERIOD": signal_min,  # For fallback detection
                 "STEP": step,
                 "DIRECTION": getattr(config, "direction", "Long"),
-                "USE_CURRENT": getattr(config.filter, "use_current", False) or False,
+                "USE_CURRENT": (
+                    config.use_current or getattr(config.filter, "use_current", False) or False
+                ),
                 "USE_DATE": getattr(config.filter, "date_filter", None),
                 "USE_HOURLY": getattr(config, "use_hourly", False),
                 "USE_4HOUR": getattr(config, "use_4hour", False),
@@ -407,7 +420,7 @@ class MACDStrategyService(BaseStrategyService):
 class ATRStrategyService(BaseStrategyService):
     """Service for ATR (Average True Range) Trailing Stop strategy execution."""
 
-    def execute_strategy(self, config: StrategyConfig) -> bool:
+    def execute_strategy(self, config: StrategyConfig, progress_update_fn=None) -> bool:
         """Execute ATR strategy analysis."""
         try:
             # Import ATR module
@@ -417,8 +430,10 @@ class ATRStrategyService(BaseStrategyService):
             # Convert config to legacy format
             legacy_config = self.convert_config_to_legacy(config)
 
-            # Execute strategy with console logger if available
-            if self.console:
+            # Execute strategy with console logger and progress callback if available
+            if self.console and progress_callback:
+                result = run(legacy_config, external_log=self.console, progress_callback=progress_callback)
+            elif self.console:
                 result = run(legacy_config, external_log=self.console)
             else:
                 result = run(legacy_config)
@@ -455,7 +470,9 @@ class ATRStrategyService(BaseStrategyService):
                 "ATR_MULTIPLIER_STEP": getattr(config, "atr_multiplier_step", 0.5),
                 "STEP": getattr(config, "step", 1),
                 "DIRECTION": getattr(config, "direction", "Long"),
-                "USE_CURRENT": getattr(config.filter, "use_current", False) or False,
+                "USE_CURRENT": (
+                    config.use_current or getattr(config.filter, "use_current", False) or False
+                ),
                 "USE_DATE": getattr(config.filter, "date_filter", None),
                 "USE_HOURLY": getattr(config, "use_hourly", False),
                 "USE_4HOUR": getattr(config, "use_4hour", False),

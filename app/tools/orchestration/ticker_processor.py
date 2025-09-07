@@ -37,7 +37,7 @@ class TickerProcessor:
         self,
         config: Dict[str, Any],
         strategy_type: str,
-        progress_tracker: Optional[Any] | None = None,
+        progress_update_fn: Optional[Any] | None = None,
     ) -> List[Dict[str, Any]]:
         """
         Execute a strategy for all configured tickers.
@@ -66,16 +66,25 @@ class TickerProcessor:
 
             # Process each ticker using unified signal processing
             all_portfolios = []
+            # Store original ticker count and calculate global total for progress calculation
+            original_ticker_count = len(tickers)
+            # Each ticker should contribute an equal share of the global progress
+            global_progress_per_ticker = config.get("_GLOBAL_PROGRESS_PER_TICKER", None)
+            
             for ticker in tickers:
                 self.log(f"Processing ticker: {ticker}")
 
                 # Create ticker-specific config
                 ticker_config = config.copy()
                 ticker_config["TICKER"] = ticker
+                # Preserve original ticker count and global progress allocation for accurate progress calculation
+                ticker_config["_ORIGINAL_TICKER_COUNT"] = original_ticker_count
+                if global_progress_per_ticker is not None:
+                    ticker_config["_GLOBAL_PROGRESS_PER_TICKER"] = global_progress_per_ticker
 
                 # Use unified signal processing that supports both MA and MACD
                 portfolios_df = process_ticker_portfolios(
-                    ticker, ticker_config, self.log
+                    ticker, ticker_config, self.log, progress_update_fn=progress_update_fn
                 )
 
                 if portfolios_df is not None and len(portfolios_df) > 0:

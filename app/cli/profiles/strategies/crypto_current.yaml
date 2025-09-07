@@ -1,0 +1,36 @@
+# MA Cross Crypto Analysis Profile
+# CLI profile for crypto-focused MA Cross analysis
+
+metadata:
+  name: 'crypto_current'
+  description: 'Analysis focused on cryptocurrency assets'
+  version: '1.0'
+  tags: ['ma_cross', 'crypto', 'btc', 'eth']
+  author: 'trading-cli'
+
+config_type: 'strategy'
+
+inherits_from: 'current'
+
+config:
+  # Crypto-focused ticker list
+  ticker:
+    - BTC-USD
+    - ETH-USD
+    - SOL-USD
+    - ENA-USD
+    - UNI7083-USD
+    - SUI20947-USD
+    - APT21794-USD
+    - TRX-USD
+    - PENDLE-USD
+    - ETHFI-USD
+    - HYPE32196-USD
+    - AAVE-USD
+
+  minimums:
+    win_rate: 0.45
+    trades: 13
+    expectancy_per_trade: 0.5
+    profit_factor: 1.236
+    sortino_ratio: 0.5

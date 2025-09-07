@@ -14,12 +14,12 @@ readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
 readonly DEFAULT_CONFIG_FILE="${SCRIPT_DIR}/daily-config.yaml"
 CONFIG_FILE="${DEFAULT_CONFIG_FILE}"
 readonly LOG_DIR="${SCRIPT_DIR}/logs/daily"
-readonly LOG_FILE="${LOG_DIR}/daily_$(date '+%Y%m%d').log"
+LOG_FILE="${LOG_DIR}/daily_$(date '+%Y%m%d').log"
 readonly LOCK_FILE="${SCRIPT_DIR}/.daily_execution.lock"
 readonly MAX_LOG_FILES=30
 readonly COMMAND_TIMEOUT_DEFAULT=600
 readonly TEST_CONFIG_FILE="${SCRIPT_DIR}/daily-test-config.yaml"
-readonly TEST_LOG_FILE="${LOG_DIR}/test_$(date '+%Y%m%d_%H%M%S').log"
+TEST_LOG_FILE="${LOG_DIR}/test_$(date '+%Y%m%d_%H%M%S').log"
 
 # Allowed trading-cli commands (security whitelist)
 readonly -a ALLOWED_COMMANDS=(
@@ -168,23 +168,85 @@ validate_config() {
 validate_command() {
     local command="${1}"
     local main_command
+    
+    # Debug logging (only for test mode)
+    if [[ "${TEST_MODE:-false}" == "true" ]]; then
+        echo "DEBUG: validate_command called with: $command" >> "${TEST_LOG_FILE}"
+    fi
 
-    # Extract main command (first word after trading-cli, handling poetry run prefix)
-    if [[ "${command}" =~ ^poetry[[:space:]]+run[[:space:]]+trading-cli[[:space:]]+([^[:space:]]+) ]]; then
-        main_command="${BASH_REMATCH[1]}"
-    elif [[ "${command}" =~ ^trading-cli[[:space:]]+([^[:space:]]+) ]]; then
-        main_command="${BASH_REMATCH[1]}"
+    # Extract main command, handling poetry run prefix and global flags
+    if [[ "${command}" =~ ^poetry[[:space:]]+run[[:space:]]+trading-cli[[:space:]]+(.+) ]]; then
+        # Parse the rest of the command after "poetry run trading-cli "
+        local cmd_rest="${BASH_REMATCH[1]}"
+        
+        # Debug logging
+        if [[ "${TEST_MODE:-false}" == "true" ]]; then
+            echo "DEBUG: cmd_rest = '$cmd_rest'" >> "${TEST_LOG_FILE}"
+        fi
+        
+        # Skip global flags (--quiet, --verbose, --show-output, etc.) to find subcommand
+        # Use bash parameter expansion to split on spaces
+        local IFS=' '
+        local tokens=($cmd_rest)
+        for token in "${tokens[@]}"; do
+            # Debug logging
+            if [[ "${TEST_MODE:-false}" == "true" ]]; then
+                echo "DEBUG: checking token = '$token'" >> "${TEST_LOG_FILE}"
+            fi
+            
+            # If token doesn't start with -- or -, it's the subcommand
+            if [[ ! "${token}" =~ ^-- ]] && [[ ! "${token}" =~ ^- ]]; then
+                main_command="${token}"
+                if [[ "${TEST_MODE:-false}" == "true" ]]; then
+                    echo "DEBUG: found main_command = '$main_command'" >> "${TEST_LOG_FILE}"
+                fi
+                break
+            fi
+        done
+    elif [[ "${command}" =~ ^trading-cli[[:space:]]+(.+) ]]; then
+        # Handle direct trading-cli commands (same logic)
+        local cmd_rest="${BASH_REMATCH[1]}"
+        local IFS=' '
+        local tokens=($cmd_rest)
+        for token in "${tokens[@]}"; do
+            if [[ ! "${token}" =~ ^-- ]] && [[ ! "${token}" =~ ^- ]]; then
+                main_command="${token}"
+                break
+            fi
+        done
     else
+        if [[ "${TEST_MODE:-false}" == "true" ]]; then
+            echo "DEBUG: command does not match expected pattern" >> "${TEST_LOG_FILE}"
+        fi
         return 1
+    fi
+    
+    # Ensure we found a main command
+    if [[ -z "${main_command}" ]]; then
+        if [[ "${TEST_MODE:-false}" == "true" ]]; then
+            echo "DEBUG: main_command is empty, returning 1" >> "${TEST_LOG_FILE}"
+        fi
+        return 1
+    fi
+
+    # Debug logging
+    if [[ "${TEST_MODE:-false}" == "true" ]]; then
+        echo "DEBUG: checking main_command '$main_command' against allowed list" >> "${TEST_LOG_FILE}"
     fi
 
     # Check if main command is in allowed list
     for allowed in "${ALLOWED_COMMANDS[@]}"; do
         if [[ "${main_command}" == "${allowed}" ]]; then
+            if [[ "${TEST_MODE:-false}" == "true" ]]; then
+                echo "DEBUG: matched allowed command '$allowed'" >> "${TEST_LOG_FILE}"
+            fi
             return 0
         fi
     done
 
+    if [[ "${TEST_MODE:-false}" == "true" ]]; then
+        echo "DEBUG: main_command '$main_command' not found in allowed list" >> "${TEST_LOG_FILE}"
+    fi
     return 1
 }
 
@@ -761,6 +823,9 @@ parse_test_args() {
         esac
     done
 
+    # Set test mode flag for global use
+    TEST_MODE=true
+    
     # Execute test mode with parsed options
     run_test_mode "${TEST_QUICK}" "${TEST_CONFIG_ONLY}" "${TEST_DEPENDENCIES}" \
                   "${TEST_CLI_COMMANDS}" "${TEST_WITH_PYTEST}" "${TEST_CONFIG_CUSTOM}"
@@ -777,6 +842,9 @@ run_test_mode() {
 
     # Initialize test logging
     init_test_logging
+
+    # Override LOG_FILE for test mode
+    LOG_FILE="${TEST_LOG_FILE}"
 
     log "INFO" "Starting daily.sh testing mode"
 

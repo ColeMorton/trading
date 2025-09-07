@@ -217,6 +217,7 @@ class AdaptiveThreadPoolExecutor:
         items: List[Any],
         batch_size: Optional[int] = None,
         timeout: Optional[float] = None,
+        progress_callback: Optional[Callable[[int], None]] = None,
     ) -> List[T]:
         """
         Process items in batches for optimal performance.
@@ -226,6 +227,7 @@ class AdaptiveThreadPoolExecutor:
             items: List of items to process
             batch_size: Size of each batch (auto-calculated if None)
             timeout: Timeout for each batch
+            progress_callback: Optional function to call with number of completed items
 
         Returns:
             List of results in original order
@@ -238,21 +240,49 @@ class AdaptiveThreadPoolExecutor:
             batch_size = max(1, len(items) // (self._current_workers * 2))
             batch_size = min(batch_size, 100)  # Cap at 100 items per batch
 
-        self.logger.debug(f"Processing {len(items)} items in batches of {batch_size}")
+        self.logger.debug(
+            f"Processing {len(items)} items in batches of {batch_size}"
+            f"{' with progress tracking' if progress_callback else ''}"
+        )
 
-        # Create batches
-        batches = [items[i : i + batch_size] for i in range(0, len(items), batch_size)]
+        # Create batches with their original indices to maintain order
+        batches = [
+            (i // batch_size, items[i : i + batch_size])
+            for i in range(0, len(items), batch_size)
+        ]
 
-        def process_batch(batch):
-            return [fn(item) for item in batch]
+        def process_batch(batch_index_and_items):
+            batch_index, batch_items = batch_index_and_items
+            batch_results = []
+            items_in_batch = len(batch_items)
+            for i, item in enumerate(batch_items):
+                result = fn(item)
+                batch_results.append(result)
+                # Call progress callback for each completed item
+                if progress_callback:
+                    progress_callback(1)
+            
+            if progress_callback:
+                self.logger.debug(
+                    f"Batch {batch_index} completed: {items_in_batch} items processed"
+                )
+            
+            return (batch_index, batch_results)
 
         # Process batches in parallel
-        results = []
         futures = [self.submit(process_batch, batch) for batch in batches]
-
+        
+        # Collect results maintaining original order
+        batch_results = {}
         for future in as_completed(futures, timeout=timeout):
-            batch_results = future.result()
-            results.extend(batch_results)
+            batch_index, results = future.result()
+            batch_results[batch_index] = results
+
+        # Flatten results in correct order
+        results = []
+        for i in range(len(batches)):
+            if i in batch_results:
+                results.extend(batch_results[i])
 
         return results
 
@@ -364,6 +394,7 @@ def parallel_parameter_sweep(
     strategy_fn: Callable[[Dict[str, Any]], T],
     batch_size: Optional[int] = None,
     timeout: Optional[float] = None,
+    progress_callback: Optional[Callable[[int], None]] = None,
 ) -> List[T]:
     """
     Execute parameter sweep in parallel batches.
@@ -373,6 +404,7 @@ def parallel_parameter_sweep(
         strategy_fn: Function that takes parameters and returns results
         batch_size: Size of each batch
         timeout: Timeout for the entire operation
+        progress_callback: Optional function to call with number of completed items
 
     Returns:
         List of results in same order as parameter_combinations
@@ -380,5 +412,6 @@ def parallel_parameter_sweep(
     executor = get_executor("cpu_bound")  # CPU-bound for strategy calculations
 
     return executor.batch_process(
-        strategy_fn, parameter_combinations, batch_size=batch_size, timeout=timeout
+        strategy_fn, parameter_combinations, batch_size=batch_size, timeout=timeout,
+        progress_callback=progress_callback
     )

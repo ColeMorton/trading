@@ -13,6 +13,7 @@ def analyze_parameter_sensitivity(
     long_windows: list[int],
     config: Dict[str, Any],
     log: Callable,
+    progress_update_fn=None,
 ) -> Optional[pl.DataFrame]:
     """
     Perform parameter sensitivity analysis and export results.
@@ -65,6 +66,7 @@ def analyze_parameter_sensitivity(
                 log,
                 strategy_type=strategy_type,
                 parallel=use_parallel,
+                progress_update_fn=progress_update_fn,
             )
 
             if strategy_portfolios:

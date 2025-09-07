@@ -24,3 +24,4 @@ config:
     expectancy_per_trade: 0.5
     profit_factor: 1.236
     sortino_ratio: 0.618
+    score: 1

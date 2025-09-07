@@ -146,7 +146,7 @@ def process_single_ticker(
     ticker: str,
     config: Config,
     log: callable,
-    progress_tracker: Optional["ProgressTracker"] = None,
+    progress_update_fn=None,
 ) -> Optional[Dict[str, Any]]:
     """Process a single ticker through the portfolio analysis pipeline.
 
@@ -178,16 +178,13 @@ def process_single_ticker(
     # Process portfolios for ticker
     # Get the actual ticker from config (which may be synthetic)
     actual_ticker = ticker_config.get("TICKER", ticker)
-    if progress_tracker:
-        progress_tracker.update(message=f"Analyzing portfolios for {actual_ticker}")
+    # Progress tracking handled by external progress_update_fn
 
-    portfolios_df = process_ticker_portfolios(actual_ticker, ticker_config, log)
+    portfolios_df = process_ticker_portfolios(actual_ticker, ticker_config, log, progress_update_fn=progress_update_fn)
     if portfolios_df is None:
         return None
 
     # Apply consolidated filtering using PortfolioFilterService
-    if progress_tracker:
-        progress_tracker.update(message=f"Filtering portfolios for {ticker}")
 
     from app.tools.strategy.filter_portfolios import filter_portfolios
 
@@ -200,8 +197,6 @@ def process_single_ticker(
 
     try:
         # Convert to dictionaries and normalize schema
-        if progress_tracker:
-            progress_tracker.update(message=f"Exporting portfolios for {ticker}")
 
         portfolio_dicts = portfolios_df.to_dicts()
 
@@ -546,7 +541,7 @@ def execute_strategy(
     config: Config,
     strategy_type: str,
     log: callable,
-    progress_tracker: Optional["ProgressTracker"] = None,
+    progress_update_fn=None,
 ) -> List[Dict[str, Any]]:
     """Execute a trading strategy for all tickers.
 
@@ -593,12 +588,7 @@ def execute_strategy(
         worker_count=None,
     )
 
-    # Update progress if tracker provided
-    if progress_tracker:
-        progress_tracker.set_total_steps(len(tickers))
-        progress_tracker.update(
-            phase="analysis", message=f"Starting {strategy_type} strategy analysis"
-        )
+    # Progress tracking handled by external progress_update_fn
 
     for i, ticker in enumerate(tickers):
         log(f"Processing {strategy_type} strategy for ticker: {ticker}")
@@ -630,37 +620,25 @@ def execute_strategy(
         # Set the strategy type in the config
         ticker_config["STRATEGY_TYPE"] = strategy_type
 
-        # Update progress before processing ticker
-        if progress_tracker:
-            progress_tracker.update(
-                step=i, message=f"Processing {ticker} ({i+1}/{len(tickers)})"
-            )
+        # Progress tracking handled by external progress_update_fn
 
         # Pass the formatted ticker from config to ensure synthetic tickers are
         # preserved
         formatted_ticker_to_process = ticker_config.get("TICKER", ticker)
         best_portfolio = process_single_ticker(
-            formatted_ticker_to_process, ticker_config, log, progress_tracker
+            formatted_ticker_to_process, ticker_config, log, progress_update_fn
         )
         if best_portfolio is not None:
             best_portfolios.append(best_portfolio)
 
-        # Update progress after processing ticker
-        if progress_tracker:
-            progress_tracker.increment(
-                message=f"Completed {ticker} ({i+1}/{len(tickers)})"
-            )
+        # Progress tracking handled by external progress_update_fn
 
         # Update performance tracking progress
         tracker.update_execution_progress(
             execution_id=execution_id, portfolios_generated=len(best_portfolios)
         )
 
-    # Mark analysis complete
-    if progress_tracker:
-        progress_tracker.complete(
-            f"Completed {strategy_type} analysis for {len(tickers)} tickers"
-        )
+    # Progress tracking handled by external progress_update_fn
 
     # Finalize performance tracking
     tracker.update_execution_progress(

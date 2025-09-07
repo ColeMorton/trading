@@ -146,6 +146,11 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
             fast_range = config.get("FAST_PERIOD_RANGE")
             slow_range = config.get("SLOW_PERIOD_RANGE")
 
+            # DEBUG: Check what we received
+            log(f"DEBUG: Config keys: {list(config.keys())}", "info")
+            log(f"DEBUG: FAST_PERIOD_RANGE = {fast_range}", "info")
+            log(f"DEBUG: SLOW_PERIOD_RANGE = {slow_range}", "info")
+
             # Backward compatibility: fallback to WINDOWS if ranges not specified
             if fast_range is None or slow_range is None:
                 if "WINDOWS" in config:

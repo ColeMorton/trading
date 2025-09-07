@@ -16,27 +16,24 @@ from scipy.cluster.hierarchy import dendrogram, leaves_list, linkage
 from scipy.spatial.distance import squareform
 
 PORTFOLIO = [
-    "MSTR",
-    "BTC-USD",
     "MU",
-    "GLD",
-    "COP",
     "SYK",
-    "WIT",
-    "NTES",
     "TSLA",
-    "AMZN",
-    "RKLB",
     "SCCO",
     "AAPL",
-    "FANG",
+    "MA",
+    "NTES",
+    "ANET",
+    "NFLX",
+    "EDU",
+    "AMZN",
 ]
 
 # PORTFOLIO = ["ETH-USD", "SOL-USD", "ETHFI-USD", "SUI20947-USD"]
 
 # PORTFOLIO = ['SPY', 'QQQ']
 
-NEXT = ["ANET", "EDU", "ABT", "MA"]
+NEXT = ["FSLR", "VRSN", "HD", "DIS"]
 
 # NEXT = [
 #     'BTC-USD',

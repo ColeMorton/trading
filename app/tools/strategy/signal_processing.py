@@ -68,7 +68,7 @@ class SignalProcessorBase(ABC):
         pass
 
     def process_current_signals(
-        self, ticker: str, config: Dict[str, Any], log: Callable
+        self, ticker: str, config: Dict[str, Any], log: Callable, progress_update_fn=None
     ) -> Optional[pl.DataFrame]:
         """Process current signals for a ticker using unified processing logic.
 
@@ -115,40 +115,25 @@ class SignalProcessorBase(ABC):
             # Process each signal using strategy-specific parameter analysis
             portfolios = []
 
-            # Check if we have PerformanceAwareConsoleLogger for progress display
-            log_self = log.__self__ if hasattr(log, "__self__") else None
-            from app.tools.console_logging import PerformanceAwareConsoleLogger
+            # Calculate progress increment for USE_CURRENT mode
+            # Since the dispatcher now sets the progress bar total to actual current signals,
+            # we can use simple 1:1 progress increments (1 per signal processed)
+            current_signals_count = len(current_signals)
+            progress_increment = 1  # Each current signal = 1 progress unit
+            
+            # Process signals without individual progress bars (unified tracking handled at CLI level)
+            for row in current_signals.iter_rows(named=True):
+                # Create strategy config for this combination
+                strategy_config = config_copy.copy()
 
-            if isinstance(log_self, PerformanceAwareConsoleLogger):
-                console_logger = log_self
-                with console_logger.progress_context(
-                    "Processing current signals..."
-                ) as progress:
-                    task = progress.add_task(
-                        f"Processing {len(current_signals)} signals...",
-                        total=len(current_signals),
-                    )
-                    for row in current_signals.iter_rows(named=True):
-                        # Create strategy config for this combination
-                        strategy_config = config_copy.copy()
-
-                        # Strategy-specific parameter extraction and analysis
-                        result = self._process_signal_row(
-                            data, row, strategy_config, log
-                        )
-                        if result is not None:
-                            portfolios.append(result)
-                        progress.update(task, advance=1)
-            else:
-                # Fallback to basic processing without progress bar
-                for row in current_signals.iter_rows(named=True):
-                    # Create strategy config for this combination
-                    strategy_config = config_copy.copy()
-
-                    # Strategy-specific parameter extraction and analysis
-                    result = self._process_signal_row(data, row, strategy_config, log)
-                    if result is not None:
-                        portfolios.append(result)
+                # Strategy-specific parameter extraction and analysis
+                result = self._process_signal_row(data, row, strategy_config, log)
+                if result is not None:
+                    portfolios.append(result)
+                
+                # Update progress for USE_CURRENT mode (1 per signal processed)
+                if progress_update_fn:
+                    progress_update_fn(progress_increment)
 
             return pl.DataFrame(portfolios) if portfolios else None
 
@@ -157,7 +142,7 @@ class SignalProcessorBase(ABC):
             return None
 
     def process_ticker_portfolios(
-        self, ticker: str, config: Dict[str, Any], log: Callable
+        self, ticker: str, config: Dict[str, Any], log: Callable, progress_update_fn=None
     ) -> Optional[pl.DataFrame]:
         """Process portfolios for a single ticker using unified logic.
 
@@ -170,27 +155,120 @@ class SignalProcessorBase(ABC):
             DataFrame of portfolios or None if processing fails
         """
         try:
+            # USE_CURRENT fast path - process only current signals without full analysis
             if config.get("USE_CURRENT", False):
-                return self.process_current_signals(ticker, config, log)
-            else:
-                # Use strategy-specific portfolio processing
-                portfolios = self._process_full_ticker_analysis(ticker, config, log)
-                if portfolios is None:
-                    log(f"Failed to process {ticker}", "error")
-                    return None
+                return self.process_current_signals(ticker, config, log, progress_update_fn)
+            
+            # Regular path - run full parameter sweep analysis
+            portfolios = self._process_full_ticker_analysis(ticker, config, log, progress_update_fn)
+            if portfolios is None:
+                log(f"Failed to process {ticker}", "error")
+                return None
 
-                portfolios_df = (
-                    pl.DataFrame(portfolios)
-                    if isinstance(portfolios, list)
-                    else portfolios
-                )
-                direction = config.get("DIRECTION", "Long")
-                log(f"Results for {ticker} {direction} {self.strategy_type}")
-                return portfolios_df
+            portfolios_df = (
+                pl.DataFrame(portfolios)
+                if isinstance(portfolios, list)
+                else portfolios
+            )
+            
+            direction = config.get("DIRECTION", "Long")
+            log(f"Results for {ticker} {direction} {self.strategy_type}")
+            return portfolios_df
 
         except Exception as e:
             log(f"Failed to process ticker portfolios for {ticker}: {str(e)}", "error")
             return None
+
+    def _filter_by_current_signals(
+        self, portfolios_df: pl.DataFrame, current_signals: pl.DataFrame, log: Callable
+    ) -> pl.DataFrame:
+        """Filter portfolios to only include those with current signals.
+        
+        Args:
+            portfolios_df: DataFrame of all portfolios
+            current_signals: DataFrame of current signals
+            log: Logging function
+            
+        Returns:
+            Filtered DataFrame containing only portfolios with current signals
+        """
+        # Extract parameters from current signals to match against portfolios
+        signal_params = self._extract_signal_parameters_for_filtering(current_signals)
+        
+        # Filter portfolios based on matching parameters
+        filtered = portfolios_df
+        for param_name, param_values in signal_params.items():
+            if param_name in portfolios_df.columns:
+                filtered = filtered.filter(pl.col(param_name).is_in(param_values))
+        
+        return filtered
+
+    def _extract_signal_parameters_for_filtering(
+        self, current_signals: pl.DataFrame
+    ) -> Dict[str, list]:
+        """Extract parameter values from current signals for filtering.
+        
+        Strategy-specific implementations should override this to extract
+        the relevant parameters.
+        
+        Args:
+            current_signals: DataFrame of current signals
+            
+        Returns:
+            Dictionary mapping parameter names to lists of values
+        """
+        return {}
+
+    def _calculate_total_combinations(self, config: Dict[str, Any]) -> int:
+        """Calculate total parameter combinations for progress tracking.
+        
+        Args:
+            config: Configuration dictionary
+            
+        Returns:
+            Total number of parameter combinations
+        """
+        # Strategy-specific implementations should override this.
+        # Default implementation returns a conservative estimate.
+        if self.strategy_type in ["SMA", "EMA"]:
+            # MA strategies: fast_period × slow_period (with fast < slow constraint)
+            fast_range = config.get("FAST_PERIOD_RANGE", (2, 89))
+            slow_range = config.get("SLOW_PERIOD_RANGE", (3, 89))
+            
+            fast_min, fast_max = fast_range
+            slow_min, slow_max = slow_range
+            
+            # Calculate valid combinations where fast < slow
+            total_combinations = 0
+            for fast in range(fast_min, fast_max + 1):
+                valid_slow_min = max(fast + 1, slow_min)
+                if valid_slow_min <= slow_max:
+                    total_combinations += slow_max - valid_slow_min + 1
+            
+            return total_combinations
+            
+        elif self.strategy_type == "MACD":
+            # MACD strategy: fast_period × slow_period × signal_period
+            fast_min = config.get("SHORT_WINDOW_START", 2)
+            fast_max = config.get("SHORT_WINDOW_END", 18)
+            slow_min = config.get("LONG_WINDOW_START", 4)
+            slow_max = config.get("LONG_WINDOW_END", 36)
+            signal_min = config.get("SIGNAL_WINDOW_START", 2)
+            signal_max = config.get("SIGNAL_WINDOW_END", 18)
+            step = config.get("STEP", 2)
+            
+            # Calculate valid combinations where slow > fast
+            valid_combinations = 0
+            for fast in range(fast_min, fast_max + 1, step):
+                for slow in range(slow_min, slow_max + 1, step):
+                    if slow > fast:
+                        signal_combinations = (signal_max - signal_min) // step + 1
+                        valid_combinations += signal_combinations
+            
+            return valid_combinations
+        
+        # Conservative fallback
+        return 100
 
     def _process_signal_row(
         self,
@@ -226,7 +304,7 @@ class SignalProcessorBase(ABC):
 
     @abstractmethod
     def _process_full_ticker_analysis(
-        self, ticker: str, config: Dict[str, Any], log: Callable
+        self, ticker: str, config: Dict[str, Any], log: Callable, progress_update_fn=None
     ) -> Optional[Any]:
         """Process full ticker analysis. Strategy implementations handle their specific logic.
 
@@ -234,6 +312,7 @@ class SignalProcessorBase(ABC):
             ticker: Ticker symbol
             config: Configuration dictionary
             log: Logging function
+            progress_update_fn: Optional progress update function for holistic tracking
 
         Returns:
             Portfolio results
@@ -307,14 +386,26 @@ class MASignalProcessor(SignalProcessorBase):
             "slow_period": row.get("Slow Period"),
         }
 
+    def _extract_signal_parameters_for_filtering(
+        self, current_signals: pl.DataFrame
+    ) -> Dict[str, list]:
+        """Extract MA parameter values from current signals for filtering."""
+        if len(current_signals) == 0:
+            return {}
+        
+        return {
+            "Fast Period": current_signals["Fast Period"].to_list(),
+            "Slow Period": current_signals["Slow Period"].to_list(),
+        }
+
     def _process_full_ticker_analysis(
-        self, ticker: str, config: Dict[str, Any], log: Callable
+        self, ticker: str, config: Dict[str, Any], log: Callable, progress_update_fn=None
     ) -> Optional[Any]:
         """Process full MA ticker analysis."""
         try:
             from app.tools.portfolio.processing import process_single_ticker
 
-            return process_single_ticker(ticker, config, log)
+            return process_single_ticker(ticker, config, log, progress_update_fn)
         except ImportError:
             log("Failed to import portfolio processing", "error")
             return None
@@ -383,8 +474,21 @@ class MACDSignalProcessor(SignalProcessorBase):
             "signal_period": row.get("Signal Period"),
         }
 
+    def _extract_signal_parameters_for_filtering(
+        self, current_signals: pl.DataFrame
+    ) -> Dict[str, list]:
+        """Extract MACD parameter values from current signals for filtering."""
+        if len(current_signals) == 0:
+            return {}
+        
+        return {
+            "Fast Period": current_signals["Fast Period"].to_list(),
+            "Slow Period": current_signals["Slow Period"].to_list(),
+            "Signal Period": current_signals["Signal Period"].to_list(),
+        }
+
     def _process_full_ticker_analysis(
-        self, ticker: str, config: Dict[str, Any], log: Callable
+        self, ticker: str, config: Dict[str, Any], log: Callable, progress_update_fn=None
     ) -> Optional[Any]:
         """Process full MACD ticker analysis."""
         try:
@@ -392,7 +496,7 @@ class MACDSignalProcessor(SignalProcessorBase):
                 process_single_ticker,
             )
 
-            return process_single_ticker(ticker, config, log)
+            return process_single_ticker(ticker, config, log, progress_update_fn)
         except ImportError:
             log("Failed to import MACD portfolio processing", "error")
             return None
@@ -445,7 +549,7 @@ class MeanReversionSignalProcessor(SignalProcessorBase):
         return {"change_pct": row.get("Change PCT")}
 
     def _process_full_ticker_analysis(
-        self, ticker: str, config: Dict[str, Any], log: Callable
+        self, ticker: str, config: Dict[str, Any], log: Callable, progress_update_fn=None
     ) -> Optional[Any]:
         """Process full Mean Reversion ticker analysis."""
         try:
@@ -453,7 +557,7 @@ class MeanReversionSignalProcessor(SignalProcessorBase):
                 process_single_ticker,
             )
 
-            return process_single_ticker(ticker, config, log)
+            return process_single_ticker(ticker, config, log, progress_update_fn)
         except ImportError:
             log("Failed to import Mean Reversion portfolio processing", "error")
             return None
@@ -494,7 +598,7 @@ class ATRSignalProcessor(SignalProcessorBase):
         }
 
     def _process_full_ticker_analysis(
-        self, ticker: str, config: Dict[str, Any], log: Callable
+        self, ticker: str, config: Dict[str, Any], log: Callable, progress_update_fn=None
     ) -> Optional[Any]:
         """Process full ATR ticker analysis."""
         try:
@@ -505,7 +609,7 @@ class ATRSignalProcessor(SignalProcessorBase):
             ticker_config["TICKER"] = ticker
 
             # Execute ATR strategy with parameter sweep
-            return execute_strategy(ticker_config, "ATR", log)
+            return execute_strategy(ticker_config, "ATR", log, progress_update_fn)
         except ImportError:
             log("Failed to import ATR strategy execution", "error")
             return None
@@ -580,7 +684,7 @@ def _detect_strategy_type(config: Dict[str, Any]) -> str:
 
 # Convenience functions for backward compatibility
 def process_current_signals(
-    ticker: str, config: Dict[str, Any], log: Callable, strategy_type: str = None
+    ticker: str, config: Dict[str, Any], log: Callable, strategy_type: str = None, progress_update_fn=None
 ) -> Optional[pl.DataFrame]:
     """Process current signals using unified signal processing.
 
@@ -597,11 +701,11 @@ def process_current_signals(
         strategy_type = _detect_strategy_type(config)
 
     processor = SignalProcessorFactory.create_processor(strategy_type)
-    return processor.process_current_signals(ticker, config, log)
+    return processor.process_current_signals(ticker, config, log, progress_update_fn)
 
 
 def process_ticker_portfolios(
-    ticker: str, config: Dict[str, Any], log: Callable, strategy_type: str = None
+    ticker: str, config: Dict[str, Any], log: Callable, strategy_type: str = None, progress_update_fn=None
 ) -> Optional[pl.DataFrame]:
     """Process ticker portfolios using unified signal processing.
 
@@ -618,7 +722,7 @@ def process_ticker_portfolios(
         strategy_type = _detect_strategy_type(config)
 
     processor = SignalProcessorFactory.create_processor(strategy_type)
-    portfolios_df = processor.process_ticker_portfolios(ticker, config, log)
+    portfolios_df = processor.process_ticker_portfolios(ticker, config, log, progress_update_fn)
 
     if portfolios_df is not None and len(portfolios_df) > 0:
         # Apply consistent sorting using configuration

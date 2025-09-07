@@ -224,7 +224,8 @@ def execute_all_strategies(config: Config, log) -> List[Dict[str, Any]]:
         strategy_config = {**config}
         strategy_config["STRATEGY_TYPE"] = strategy_type
 
-        portfolios = execute_strategy(strategy_config, strategy_type, log)
+        # Pass progress update function directly to strategy execution
+        portfolios = execute_strategy(strategy_config, strategy_type, log, progress_update_fn)
 
         # Check if portfolios is not None and not empty
         if portfolios is not None:
@@ -264,7 +265,7 @@ def execute_all_strategies(config: Config, log) -> List[Dict[str, Any]]:
         Exception: MACrossError,
     },
 )
-def run(config: Config = CONFIG, external_log=None) -> bool:
+def run(config: Config = CONFIG, external_log=None, progress_update_fn=None) -> bool:
     """Run portfolio analysis for single or multiple tickers.
 
     This function handles the main workflow of portfolio analysis:
@@ -302,15 +303,15 @@ def run(config: Config = CONFIG, external_log=None) -> bool:
         # Store reference to original logger for enhanced progress display detection
         log_wrapper.__self__ = external_log
 
-        return _run_with_log(config, log_wrapper)
+        return _run_with_log(config, log_wrapper, progress_update_fn)
     else:
         with logging_context(
             module_name="ma_cross", log_file="1_get_portfolios.log"
         ) as log:
-            return _run_with_log(config, log)
+            return _run_with_log(config, log, progress_update_fn)
 
 
-def _run_with_log(config: Config, log) -> bool:
+def _run_with_log(config: Config, log, progress_update_fn=None) -> bool:
     """Internal run function that accepts a logger."""
     # SAFEGUARD: Trade history export is not available for MA Cross strategy
     # to prevent generating thousands of JSON files due to parameter sweep combinations.
@@ -326,7 +327,7 @@ def _run_with_log(config: Config, log) -> bool:
 
     # Use the new PortfolioOrchestrator for cleaner workflow management
     orchestrator = PortfolioOrchestrator(log)
-    return orchestrator.run(config_copy)
+    return orchestrator.run(config_copy, progress_update_fn)
 
 
 @handle_errors(
@@ -376,7 +377,7 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
 
         # Use the new PortfolioOrchestrator for cleaner workflow management
         orchestrator = PortfolioOrchestrator(log)
-        return orchestrator.run(config_copy)
+        return orchestrator.run(config_copy, progress_update_fn=None)
 
 
 if __name__ == "__main__":

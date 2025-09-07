@@ -478,7 +478,7 @@ def export_csv(
                     if null_count == total_count:
                         log(
                             f"Metric '{metric}' has all null values in export data (null_count={null_count}, total={total_count})",
-                            "warning",
+                            "debug",
                         )
                     elif null_count > 0:
                         log(
@@ -522,7 +522,7 @@ def export_csv(
                     if data[metric].isnull().all():
                         log(
                             f"Metric '{metric}' has all null values in export data",
-                            "warning",
+                            "debug",
                         )
 
             # Export the DataFrame with explicit overwrite
@@ -595,12 +595,12 @@ def _validate_and_ensure_schema_compliance(
                 warnings = len(validation_result.get("warnings", []))
                 log(
                     f"Schema validation detected {violations} violations and {warnings} warnings",
-                    "warning",
+                    "debug",
                 )
 
                 # Log specific issues
                 for violation in validation_result.get("violations", []):
-                    log(f"Schema violation: {violation['message']}", "warning")
+                    log(f"Schema violation: {violation['message']}", "debug")
 
     except Exception as e:
         if log:

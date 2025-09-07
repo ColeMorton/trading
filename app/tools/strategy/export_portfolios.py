@@ -422,9 +422,10 @@ def export_portfolios(
             and len(df.select("Strategy Type").unique()) > 1
         )
 
-        # Apply minimum filtering for portfolios_best, portfolios_metrics, AND portfolios before any aggregation
+        # Apply minimum filtering for portfolios_best AND portfolios before any aggregation
         # Note: portfolios_filtered should already have minimums applied, so it's excluded
-        if export_type in ["portfolios_best", "portfolios_metrics", "portfolios"]:
+        # Note: portfolios_metrics should preserve all metric rows without additional filtering
+        if export_type in ["portfolios_best", "portfolios"]:
             from app.tools.portfolio.filtering_service import PortfolioFilterService
 
             # Apply MinimumsFilter to ensure YAML config criteria are enforced
@@ -457,7 +458,7 @@ def export_portfolios(
                 )
 
         if (
-            export_type in ["portfolios_best", "portfolios_metrics"]
+            export_type == "portfolios_best"
             and (has_metric_type or has_multiple_strategy_types)
             and not has_compound_metric_types
         ):
@@ -496,7 +497,7 @@ def export_portfolios(
                     "info",
                 )
         elif (
-            export_type in ["portfolios_best", "portfolios_metrics"]
+            export_type == "portfolios_best"
             and has_compound_metric_types
         ):
             if log:

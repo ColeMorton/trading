@@ -48,7 +48,7 @@ from app.tools.orchestration import PortfolioOrchestrator
         Exception: ATRError,
     },
 )
-def run(config: ATRConfig = None, external_log=None) -> bool:
+def run(config: ATRConfig = None, external_log=None, progress_update_fn=None) -> bool:
     """Run portfolio analysis for single or multiple tickers using the ATR trailing stop strategy.
 
     This function handles the main workflow of portfolio analysis:
@@ -65,6 +65,7 @@ def run(config: ATRConfig = None, external_log=None) -> bool:
     Args:
         config (ATRConfig): Configuration dictionary containing analysis parameters
         external_log: Optional external logger (e.g., from CLI)
+        progress_update_fn: Optional progress update function for holistic tracking
 
     Returns:
         bool: True if execution successful, False otherwise
@@ -91,13 +92,13 @@ def run(config: ATRConfig = None, external_log=None) -> bool:
         # Store reference to original logger for enhanced progress display detection
         log_wrapper.__self__ = external_log
 
-        return _run_with_log(config, log_wrapper)
+        return _run_with_log(config, log_wrapper, progress_update_fn)
     else:
         with logging_context(module_name="atr", log_file="1_get_portfolios.log") as log:
-            return _run_with_log(config, log)
+            return _run_with_log(config, log, progress_update_fn)
 
 
-def _run_with_log(config: ATRConfig, log) -> bool:
+def _run_with_log(config: ATRConfig, log, progress_update_fn=None) -> bool:
     """Internal run function with logger provided."""
     # SAFEGUARD: Trade history export is not available for ATR strategy
     # to prevent generating thousands of JSON files due to parameter sweep combinations.
@@ -117,7 +118,7 @@ def _run_with_log(config: ATRConfig, log) -> bool:
 
     # Use the PortfolioOrchestrator for clean workflow management
     orchestrator = PortfolioOrchestrator(log)
-    return orchestrator.run(config_copy)
+    return orchestrator.run(config_copy, progress_update_fn)
 
 
 @handle_errors(

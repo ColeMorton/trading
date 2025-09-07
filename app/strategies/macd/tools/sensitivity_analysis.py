@@ -25,6 +25,7 @@ def analyze_parameter_combinations(
     signal_windows: range = None,
     config: Dict[str, Any] = None,
     log: Callable = None,
+    progress_update_fn=None,
 ) -> Optional[pl.DataFrame]:
     """
     Perform MACD parameter sensitivity analysis across period combinations.
@@ -39,6 +40,7 @@ def analyze_parameter_combinations(
         signal_windows: Range of signal line window values (legacy parameter name)
         config: Configuration dictionary with MACD parameters
         log: Logging function for recording events and errors
+        progress_update_fn: Optional progress update function for holistic tracking
 
     Returns:
         Optional[pl.DataFrame]: DataFrame containing portfolio results, None if analysis fails
@@ -80,6 +82,7 @@ def analyze_parameter_combinations(
             config,
             log,
             strategy_type="MACD",
+            progress_update_fn=progress_update_fn,
         )
 
         if portfolios is None or (

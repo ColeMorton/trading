@@ -44,7 +44,7 @@ config:
   slow_period_min: 8
   slow_period_max: 89
   signal_period_min: 5
-  signal_period_max: 21
+  signal_period_max: 20
   step: 1
 
   # Strategy Configuration

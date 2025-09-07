@@ -16,7 +16,7 @@ config:
   name: 'current'
 
   ticker:
-    - FANG
+    - BTC-USD
 
   # Performance filters
   minimums:
@@ -25,3 +25,4 @@ config:
     expectancy_per_trade: 0.5
     profit_factor: 1.236
     sortino_ratio: 0.678
+    score: 1

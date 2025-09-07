@@ -19,7 +19,7 @@ from app.tools.get_data import get_data
 
 
 def process_single_ticker(
-    ticker: str, config: dict, log: Callable
+    ticker: str, config: dict, log: Callable, progress_update_fn=None
 ) -> Optional[pl.DataFrame]:
     """
     Process portfolio analysis for a single ticker using the MACD cross strategy.
@@ -28,6 +28,7 @@ def process_single_ticker(
         ticker (str): Ticker symbol to analyze
         config (dict): Configuration dictionary
         log (callable): Logging function for recording events and errors
+        progress_update_fn: Optional progress update function for holistic tracking
 
     Returns:
         Optional[pl.DataFrame]: Portfolio analysis results or None if processing fails
@@ -129,6 +130,7 @@ def process_single_ticker(
             signal_windows=signal_windows,
             config=config_copy,
             log=log,
+            progress_update_fn=progress_update_fn,
         )
         if portfolios is None or portfolios.is_empty():
             log(f"No valid portfolios generated for {ticker}", "warning")

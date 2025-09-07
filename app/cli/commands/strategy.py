@@ -136,6 +136,11 @@ def run(
         "-d",
         help="Filter by entry signals triggered on specific date (YYYYMMDD format, e.g., 20250811). Overrides --current if both specified.",
     ),
+    use_current: Optional[bool] = typer.Option(
+        None,
+        "--use-current",
+        help="Filter to only current entry signals (active positions for today). Overridden by --date if both specified.",
+    ),
     performance_mode: str = typer.Option(
         "standard",
         "--performance-mode",
@@ -155,6 +160,11 @@ def run(
         True,
         "--enable-parallel/--disable-parallel",
         help="Enable parallel processing for parameter sweeps (default: enabled)",
+    ),
+    refresh: bool = typer.Option(
+        False,
+        "--refresh",
+        help="Force complete regeneration of all files, bypassing smart resume (default: False)",
     ),
 ):
     """
@@ -215,11 +225,13 @@ def run(
             signal_min=signal_min,
             signal_max=signal_max,
             date=date,
+            use_current=use_current,
             verbose=global_verbose,
             performance_mode=performance_mode,
             show_resources=show_resources,
             profile_execution=profile_execution,
             enable_parallel=enable_parallel,
+            refresh=refresh,
         )
 
         # Load configuration

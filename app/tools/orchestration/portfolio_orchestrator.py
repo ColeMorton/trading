@@ -69,7 +69,7 @@ class PortfolioOrchestrator:
             self.export_manager = ExportManager()
             self.log("Using new unified export system", "info")
 
-    def run(self, config: Dict[str, Any]) -> bool:
+    def run(self, config: Dict[str, Any], progress_update_fn=None) -> bool:
         """
         Run the complete portfolio analysis workflow.
 
@@ -103,7 +103,7 @@ class PortfolioOrchestrator:
                 strategies = self._get_strategies(config)
 
                 # Step 4: Execute strategies
-                all_portfolios = self._execute_strategies(config, strategies)
+                all_portfolios = self._execute_strategies(config, strategies, progress_update_fn)
 
                 # Export raw portfolios first - always export to ensure files are created even when empty
                 self._export_raw_portfolios(all_portfolios or [], config)
@@ -246,7 +246,7 @@ class PortfolioOrchestrator:
         return get_strategy_types(config, self.log, intended_strategy or "SMA")
 
     def _execute_strategies(
-        self, config: Dict[str, Any], strategies: List[str]
+        self, config: Dict[str, Any], strategies: List[str], progress_update_fn=None
     ) -> List[Dict[str, Any]]:
         """
         Execute all strategies and collect results.
@@ -279,7 +279,7 @@ class PortfolioOrchestrator:
 
                 # Execute strategy using optimal method (concurrent for 3+ tickers)
                 portfolios = self.ticker_processor.execute_strategy(
-                    strategy_config, strategy_type
+                    strategy_config, strategy_type, progress_update_fn
                 )
 
                 if portfolios:
@@ -452,6 +452,88 @@ class PortfolioOrchestrator:
                     f"Minimums-filtered portfolio export failed: {str(e)}"
                 )
 
+    def _export_metrics_without_aggregation(
+        self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
+    ) -> None:
+        """
+        Export portfolios to portfolios_metrics without aggregating metric types.
+        Each metric extreme value gets its own row in the CSV file.
+
+        Args:
+            portfolios: List of portfolios with extreme value analysis applied
+            config: Configuration dictionary
+
+        Raises:
+            ExportError: If export fails
+        """
+        from collections import defaultdict
+        from app.tools.strategy.export_portfolios import export_portfolios
+
+        # Group portfolios by ticker+strategy combination
+        groups = defaultdict(list)
+        for portfolio in portfolios:
+            ticker = portfolio.get("Ticker", "UNKNOWN")
+            strategy = (
+                portfolio.get("Strategy Type")
+                or portfolio.get("Strategy")
+                or portfolio.get("strategy_type")
+                or "UNKNOWN"
+            )
+            group_key = f"{ticker}_{strategy}"
+            groups[group_key].append(portfolio)
+
+        self.log(
+            f"Grouped {len(portfolios)} portfolios into {len(groups)} ticker+strategy combinations for metrics export",
+            "info",
+        )
+
+        # Export each group individually without aggregation
+        for group_key, group_portfolios in groups.items():
+            try:
+                if not group_portfolios:
+                    continue
+
+                # Extract ticker and strategy from group key
+                ticker = group_portfolios[0].get("Ticker")
+                strategy = (
+                    group_portfolios[0].get("Strategy Type")
+                    or group_portfolios[0].get("Strategy")
+                    or group_portfolios[0].get("strategy_type")
+                    or "SMA"
+                )
+
+                # Create individual config for this ticker+strategy
+                group_config = config.copy()
+                group_config["TICKER"] = ticker
+                group_config["STRATEGY_TYPE"] = strategy
+                group_config["STRATEGY_TYPES"] = [strategy]
+                group_config["USE_MA"] = True
+
+                self.log(
+                    f"Exporting {len(group_portfolios)} metric rows for {ticker} {strategy} (preserving individual rows)",
+                    "info",
+                )
+
+                # Export this group directly without aggregation
+                _, success = export_portfolios(
+                    portfolios=group_portfolios,
+                    config=group_config,
+                    export_type="portfolios_metrics",
+                    log=self.log,
+                )
+
+                if success:
+                    self.log(
+                        f"Successfully exported {ticker}_{strategy} metrics with {len(group_portfolios)} rows",
+                        "info",
+                    )
+                else:
+                    self.log(f"Failed to export {ticker}_{strategy} metrics", "warning")
+
+            except Exception as e:
+                self.log(f"Error exporting metrics group {group_key}: {str(e)}", "error")
+                raise ExportError(f"Metrics export failed for {group_key}: {str(e)}")
+
     def _export_portfolios_metrics(
         self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
     ) -> None:
@@ -468,14 +550,10 @@ class PortfolioOrchestrator:
         with error_context(
             "Exporting portfolios_metrics", self.log, {Exception: ExportError}
         ):
-            from app.tools.strategy.export_portfolios import export_portfolios
-
             try:
-                # Always use grouped export for portfolios_metrics
-                self.log("Using grouped export for portfolios_metrics", "info")
-                self._export_grouped_portfolios(
-                    portfolios, config, "portfolios_metrics"
-                )
+                # Use direct export for portfolios_metrics to preserve one row per metric
+                self.log("Using direct export for portfolios_metrics (preserving individual metric rows)", "info")
+                self._export_metrics_without_aggregation(portfolios, config)
             except Exception as e:
                 self.log(f"Error exporting portfolios_metrics: {str(e)}", "error")
                 raise ExportError(f"Portfolios_metrics export failed: {str(e)}")

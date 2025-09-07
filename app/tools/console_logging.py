@@ -82,6 +82,11 @@ class ConsoleLogger:
         if not self.quiet:
             self.console.print(f"[yellow]⚠️  {message}[/yellow]", **kwargs)
 
+    def verbose_warning(self, message: str, **kwargs) -> None:
+        """Display warning message only in verbose mode."""
+        if self.verbose and not self.quiet:
+            self.console.print(f"[yellow]⚠️  {message}[/yellow]", **kwargs)
+
     def info(self, message: str, **kwargs) -> None:
         """Display info message with blue info icon."""
         if not self.quiet:

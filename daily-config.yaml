@@ -37,21 +37,21 @@ config:
     - name: 'Update Portfolio'
       command: 'poetry run trading-cli --quiet portfolio update --portfolio portfolio'
       enabled: false
-      timeout: 300
+      timeout: 60
       description: 'Update live signals portfolio data'
       continue_on_failure: true
 
     - name: 'Update Protected Portfolio'
       command: 'poetry run trading-cli --quiet portfolio update --portfolio protected'
       enabled: false
-      timeout: 300
+      timeout: 60
       description: 'Update protected portfolio with validation'
       continue_on_failure: true
 
     - name: 'Update Risk-On Portfolio'
       command: 'poetry run trading-cli --quiet portfolio update --portfolio risk_on'
       enabled: false
-      timeout: 300
+      timeout: 60
       description: 'Update risk-on portfolio with validation'
       continue_on_failure: true
 
@@ -64,21 +64,21 @@ config:
 
       # 3. Strategy Analysis
     - name: 'Daily Crypto Strategy Analysis - Australia'
-      command: 'poetry run trading-cli --quiet strategy run --profile australia_top_10'
+      command: 'poetry run trading-cli strategy run --profile australia_top_10'
       enabled: true
-      timeout: 900 # 15 minutes
+      timeout: 1200 # 20 minutes
       description: 'Execute crypto-focused MA Cross strategy analysis'
       continue_on_failure: true
 
     - name: 'Daily Crypto Strategy Analysis - Crypto'
-      command: 'poetry run trading-cli --quiet strategy run --profile ma_cross_crypto'
+      command: 'poetry run trading-cli --quiet strategy run --profile crypto_current'
       enabled: true
-      timeout: 900 # 15 minutes
+      timeout: 1200 # 20 minutes
       description: 'Execute crypto-focused MA Cross strategy analysis'
       continue_on_failure: true
 
     - name: 'Daily Strategy Analysis - Primary Stocks'
-      command: 'poetry run trading-cli --quiet strategy run --profile current_primary_stocks'
+      command: 'poetry run trading-cli --quiet strategy run --profile primary_stocks'
       enabled: true
       timeout: 1800 # 45 minutes
       description: 'Execute current primary stocks strategy analysis'
@@ -87,77 +87,77 @@ config:
     - name: 'Daily Strategy Analysis - Frontier Stocks'
       command: 'poetry run trading-cli --quiet strategy run --profile frontier'
       enabled: true
-      timeout: 2700 # 45 minutes
+      timeout: 4080
       description: 'Execute current primary stocks strategy analysis'
       continue_on_failure: true
 
     - name: 'Daily Strategy Analysis - Asia Stocks'
       command: 'poetry run trading-cli --quiet strategy run --profile asia_top_50'
       enabled: true
-      timeout: 2700 # 45 minutes
+      timeout: 4080
       description: 'Execute current primary stocks strategy analysis'
       continue_on_failure: true
 
-    # 4. Position Management
-    - name: 'Generate Position Equity Data'
-      command: 'poetry run trading-cli positions equity --portfolio protected,risk_on,live_signals'
-      enabled: false
-      timeout: 180
-      description: 'Generate equity data for all portfolios'
-      continue_on_failure: true
+    # # 4. Position Management
+    # - name: 'Generate Position Equity Data'
+    #   command: 'poetry run trading-cli positions equity --portfolio protected,risk_on,live_signals'
+    #   enabled: false
+    #   timeout: 180
+    #   description: 'Generate equity data for all portfolios'
+    #   continue_on_failure: true
 
-    - name: 'Validate Position Equity'
-      command: 'poetry run trading-cli positions validate-equity --portfolio protected,risk_on,live_signals'
-      enabled: false
-      timeout: 120
-      description: 'Validate mathematical consistency of equity curves'
-      continue_on_failure: true
+    # - name: 'Validate Position Equity'
+    #   command: 'poetry run trading-cli positions validate-equity --portfolio protected,risk_on,live_signals'
+    #   enabled: false
+    #   timeout: 120
+    #   description: 'Validate mathematical consistency of equity curves'
+    #   continue_on_failure: true
 
-    # 5. Trade History Updates
-    - name: 'Update Trade History - Live Signals'
-      command: 'poetry run trading-cli trade-history update --portfolio live_signals --refresh-prices'
-      enabled: false
-      timeout: 300
-      description: 'Update trade history with current market data'
-      continue_on_failure: true
+    # # 5. Trade History Updates
+    # - name: 'Update Trade History - Live Signals'
+    #   command: 'poetry run trading-cli trade-history update --portfolio live_signals --refresh-prices'
+    #   enabled: false
+    #   timeout: 300
+    #   description: 'Update trade history with current market data'
+    #   continue_on_failure: true
 
-    # 6. SPDS Analysis
-    - name: 'SPDS Analysis - Risk On Portfolio'
-      command: 'poetry run trading-cli spds analyze --portfolio risk_on.csv --output-format json'
-      enabled: false
-      timeout: 600
-      description: 'Statistical Performance Divergence System analysis'
-      continue_on_failure: true
+    # # 6. SPDS Analysis
+    # - name: 'SPDS Analysis - Risk On Portfolio'
+    #   command: 'poetry run trading-cli spds analyze --portfolio risk_on.csv --output-format json'
+    #   enabled: false
+    #   timeout: 600
+    #   description: 'Statistical Performance Divergence System analysis'
+    #   continue_on_failure: true
 
-    # 7. Concurrency Analysis
-    - name: 'Portfolio Concurrency Health Check'
-      command: 'poetry run trading-cli concurrency health --fix'
-      enabled: false
-      timeout: 180
-      description: 'Check and fix concurrency analysis system health'
-      continue_on_failure: true
+    # # 7. Concurrency Analysis
+    # - name: 'Portfolio Concurrency Health Check'
+    #   command: 'poetry run trading-cli concurrency health --fix'
+    #   enabled: false
+    #   timeout: 180
+    #   description: 'Check and fix concurrency analysis system health'
+    #   continue_on_failure: true
 
-    - name: 'Concurrency Analysis - Risk On'
-      command: 'poetry run trading-cli concurrency analyze risk_on --memory-optimization'
-      enabled: false # Disabled by default (computationally intensive)
-      timeout: 1800 # 30 minutes
-      description: 'Comprehensive concurrency analysis for risk-on portfolio'
-      continue_on_failure: true
+    # - name: 'Concurrency Analysis - Risk On'
+    #   command: 'poetry run trading-cli concurrency analyze risk_on --memory-optimization'
+    #   enabled: false # Disabled by default (computationally intensive)
+    #   timeout: 1800 # 30 minutes
+    #   description: 'Comprehensive concurrency analysis for risk-on portfolio'
+    #   continue_on_failure: true
 
-    # 8. Optional Advanced Analysis (disabled by default)
-    - name: 'Monte Carlo Risk Analysis'
-      command: 'poetry run trading-cli concurrency monte-carlo portfolio.json --simulations 10000'
-      enabled: false # Disabled by default (very time-intensive)
-      timeout: 3600 # 1 hour
-      description: 'Monte Carlo simulations for risk analysis'
-      continue_on_failure: true
+    # # 8. Optional Advanced Analysis (disabled by default)
+    # - name: 'Monte Carlo Risk Analysis'
+    #   command: 'poetry run trading-cli concurrency monte-carlo portfolio.json --simulations 10000'
+    #   enabled: false # Disabled by default (very time-intensive)
+    #   timeout: 3600 # 1 hour
+    #   description: 'Monte Carlo simulations for risk analysis'
+    #   continue_on_failure: true
 
-    - name: 'Strategy Optimization'
-      command: 'poetry run trading-cli concurrency optimize portfolio.json --parallel'
-      enabled: false # Disabled by default (computationally intensive)
-      timeout: 2400 # 40 minutes
-      description: 'Find optimal strategy combinations'
-      continue_on_failure: true
+    # - name: 'Strategy Optimization'
+    #   command: 'poetry run trading-cli concurrency optimize portfolio.json --parallel'
+    #   enabled: false # Disabled by default (computationally intensive)
+    #   timeout: 2400 # 40 minutes
+    #   description: 'Find optimal strategy combinations'
+    #   continue_on_failure: true
 
   # Template commands for easy configuration (commented examples)
   # Uncomment and modify as needed:

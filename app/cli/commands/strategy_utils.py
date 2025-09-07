@@ -71,6 +71,7 @@ def build_configuration_overrides(
     use_4hour: Optional[bool] = None,
     direction: Optional[str] = None,
     date: Optional[str] = None,
+    use_current: Optional[bool] = None,
     dry_run: bool = False,
     skip_analysis: bool = False,
     verbose: bool = False,
@@ -78,6 +79,7 @@ def build_configuration_overrides(
     show_resources: bool = False,
     profile_execution: bool = False,
     enable_parallel: bool = True,
+    refresh: bool = False,
     **additional_overrides,
 ) -> Dict[str, Any]:
     """
@@ -100,12 +102,14 @@ def build_configuration_overrides(
         years: Number of years of historical data to analyze (enables year-based analysis when provided)
         market_type: Market type for trading hours (crypto, us_stock, auto)
         date: Filter by entry signals triggered on specific date (YYYYMMDD format)
+        use_current: Filter to only current entry signals (active positions for today)
         dry_run: Dry run flag
         skip_analysis: Skip data download and analysis, assume portfolio files exist
         performance_mode: Performance monitoring level (minimal/standard/detailed/benchmark)
         show_resources: Display real-time CPU and memory usage during execution
         profile_execution: Enable detailed execution profiling with bottleneck identification
         enable_parallel: Enable parallel processing for parameter sweeps
+        refresh: Force complete regeneration bypassing smart resume
         **additional_overrides: Additional override parameters
 
     Returns:
@@ -204,11 +208,14 @@ def build_configuration_overrides(
         overrides["use_4hour"] = use_4hour
 
     # Filter configuration
-    if date is not None:
+    if date is not None or use_current is not None:
         filter_overrides = {}
-        filter_overrides["date_filter"] = date
-        # Override use_current if date is specified
-        filter_overrides["use_current"] = False
+        if date is not None:
+            filter_overrides["date_filter"] = date
+            # Override use_current if date is specified
+            filter_overrides["use_current"] = False
+        elif use_current is not None:
+            filter_overrides["use_current"] = use_current
         overrides["filter"] = filter_overrides
 
     # System flags
@@ -222,6 +229,9 @@ def build_configuration_overrides(
     overrides["show_resources"] = show_resources
     overrides["profile_execution"] = profile_execution
     overrides["ENABLE_PARALLEL"] = enable_parallel
+    
+    # Smart resume configuration
+    overrides["refresh"] = refresh
 
     # Add any additional overrides, but filter out None values for optional CLI parameters
     filtered_overrides = {
