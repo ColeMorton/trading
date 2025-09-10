@@ -49,10 +49,12 @@ class StrategyDispatcher:
             "MACD": MACDStrategyService(console=self.console),
             "ATR": ATRStrategyService(console=self.console),
         }
+
         # Initialize smart resume service with compatible logging
         def log_wrapper(message, level="info"):
             if hasattr(self.console, level):
                 getattr(self.console, level)(message)
+
         self.resume_service = SmartResumeService(log=log_wrapper)
 
     def _extract_strategy_parameters(
@@ -242,19 +244,19 @@ class StrategyDispatcher:
         except Exception:
             # If calculation fails, return conservative estimate
             return 100
-    
+
     def _calculate_actual_current_signal_combinations(
         self, config: StrategyConfig, strategy_type: Union[StrategyType, str]
     ) -> int:
         """
         Calculate actual current signal combinations when USE_CURRENT mode is enabled.
-        
+
         This pre-analyzes current signals across all configured tickers to determine
         the exact number of combinations that will be processed, providing accurate
         progress tracking for USE_CURRENT mode.
 
         Args:
-            config: Strategy configuration model  
+            config: Strategy configuration model
             strategy_type: Strategy type to analyze
 
         Returns:
@@ -262,57 +264,74 @@ class StrategyDispatcher:
         """
         try:
             from app.tools.strategy.signal_processing import SignalProcessorFactory
-            
+
             # Convert to string value
             if hasattr(strategy_type, "value"):
                 strategy_value = strategy_type.value
             else:
                 strategy_value = str(strategy_type).upper()
-                
+
             # Create signal processor for this strategy type
             processor = SignalProcessorFactory.create_processor(strategy_value)
-            
+
             # Convert config to legacy format for signal processing
             legacy_config = self._convert_strategy_config_to_legacy(config)
-            
+
             # Get ticker list
-            tickers = config.ticker if isinstance(config.ticker, list) else [config.ticker]
-            
+            tickers = (
+                config.ticker if isinstance(config.ticker, list) else [config.ticker]
+            )
+
             total_current_signals = 0
-            
+
             # Pre-analyze current signals for each ticker
             for ticker in tickers:
                 try:
                     # Create ticker-specific config
                     ticker_config = legacy_config.copy()
                     ticker_config["TICKER"] = ticker
-                    
+
                     # DEBUG: Check if parameter ranges are present
-                    self.console.debug(f"Ticker {ticker} config has FAST_PERIOD_RANGE: {ticker_config.get('FAST_PERIOD_RANGE')}")
-                    self.console.debug(f"Ticker {ticker} config has SLOW_PERIOD_RANGE: {ticker_config.get('SLOW_PERIOD_RANGE')}")
-                    
+                    self.console.debug(
+                        f"Ticker {ticker} config has FAST_PERIOD_RANGE: {ticker_config.get('FAST_PERIOD_RANGE')}"
+                    )
+                    self.console.debug(
+                        f"Ticker {ticker} config has SLOW_PERIOD_RANGE: {ticker_config.get('SLOW_PERIOD_RANGE')}"
+                    )
+
                     # Generate current signals for this ticker
                     current_signals = processor.generate_current_signals(
-                        ticker_config, lambda msg, level="info": getattr(self.console, level)(msg)
+                        ticker_config,
+                        lambda msg, level="info": getattr(self.console, level)(msg),
                     )
-                    
-                    signal_count = len(current_signals) if current_signals is not None else 0
+
+                    signal_count = (
+                        len(current_signals) if current_signals is not None else 0
+                    )
                     total_current_signals += signal_count
-                    
-                    self.console.debug(f"Ticker {ticker}: {signal_count} current signals")
-                    
+
+                    self.console.debug(
+                        f"Ticker {ticker}: {signal_count} current signals"
+                    )
+
                 except Exception as e:
-                    self.console.warning(f"Failed to pre-analyze signals for {ticker}: {e}")
+                    self.console.warning(
+                        f"Failed to pre-analyze signals for {ticker}: {e}"
+                    )
                     # Continue with other tickers
                     continue
-            
+
             return total_current_signals
-            
+
         except Exception as e:
-            self.console.error(f"Error calculating actual current signal combinations: {e}")
+            self.console.error(
+                f"Error calculating actual current signal combinations: {e}"
+            )
             # Fallback to theoretical calculation as conservative estimate
             ticker_count = len(config.ticker) if isinstance(config.ticker, list) else 1
-            combinations_per_ticker = self._calculate_parameter_combinations(config, strategy_type)
+            combinations_per_ticker = self._calculate_parameter_combinations(
+                config, strategy_type
+            )
             return ticker_count * combinations_per_ticker
 
     def execute_strategy(self, config: StrategyConfig) -> StrategyExecutionSummary:
@@ -339,42 +358,55 @@ class StrategyDispatcher:
             tickers_processed=[],
             strategy_types=[],
         )
-        
+
         # Smart Resume Analysis (unless refresh is enabled)
-        if not getattr(config, 'refresh', False):  # Default refresh=False means enable resume by default
+        if not getattr(
+            config, "refresh", False
+        ):  # Default refresh=False means enable resume by default
             # Convert StrategyConfig to legacy format for resume analysis
             legacy_config = self._convert_strategy_config_to_legacy(config)
-            
+
             # Analyze what work has already been completed
             resume_analysis = self.resume_service.analyze_resume_status(legacy_config)
-            
+
             # Show resume summary
             resume_summary = self.resume_service.get_resume_summary(resume_analysis)
             self.console.info(f"📋 Resume Analysis: {resume_summary}")
-            
+
             # If everything is complete, skip execution
             if resume_analysis.is_complete():
-                self.console.success("🎉 All analysis is complete and up-to-date! Skipping execution.")
+                self.console.success(
+                    "🎉 All analysis is complete and up-to-date! Skipping execution."
+                )
                 summary.execution_time = time.time() - start_time
                 summary.success_rate = 1.0
                 summary.successful_strategies = len(config.strategy_types)
                 summary.total_strategies = len(config.strategy_types)
                 summary.strategy_types = [
-                    st.value if hasattr(st, "value") else str(st) for st in config.strategy_types
+                    st.value if hasattr(st, "value") else str(st)
+                    for st in config.strategy_types
                 ]
                 summary.tickers_processed = (
-                    config.ticker if isinstance(config.ticker, list) else [config.ticker]
+                    config.ticker
+                    if isinstance(config.ticker, list)
+                    else [config.ticker]
                 )
                 return summary
-                
+
             # Filter config to only process remaining work
-            filtered_legacy_config = self.resume_service.filter_config_for_resume(legacy_config, resume_analysis)
-            
+            filtered_legacy_config = self.resume_service.filter_config_for_resume(
+                legacy_config, resume_analysis
+            )
+
             # Convert back to StrategyConfig format
-            config = self._convert_legacy_to_strategy_config(filtered_legacy_config, config)
-            
+            config = self._convert_legacy_to_strategy_config(
+                filtered_legacy_config, config
+            )
+
             if filtered_legacy_config.get("_RESUME_SKIP_ALL", False):
-                self.console.success("🎉 All analysis is complete and up-to-date! Skipping execution.")
+                self.console.success(
+                    "🎉 All analysis is complete and up-to-date! Skipping execution."
+                )
                 summary.execution_time = time.time() - start_time
                 summary.success_rate = 1.0
                 summary.successful_strategies = len(config.strategy_types)
@@ -455,50 +487,59 @@ class StrategyDispatcher:
 
             # Calculate total combinations across all tickers for holistic progress
             ticker_count = len(config.ticker) if isinstance(config.ticker, list) else 1
-            
+
             if config.use_current:
                 # When USE_CURRENT is enabled, calculate actual current signal combinations
-                self.console.info("🔍 Pre-analyzing current signals to calculate accurate progress...")
-                actual_combinations = self._calculate_actual_current_signal_combinations(
-                    config, config.strategy_types[0]
+                self.console.info(
+                    "🔍 Pre-analyzing current signals to calculate accurate progress..."
+                )
+                actual_combinations = (
+                    self._calculate_actual_current_signal_combinations(
+                        config, config.strategy_types[0]
+                    )
                 )
                 total_combinations = actual_combinations
-                self.console.info(f"📊 Current signal combinations found: {total_combinations:,} (filtered from theoretical maximum)")
+                self.console.info(
+                    f"📊 Current signal combinations found: {total_combinations:,} (filtered from theoretical maximum)"
+                )
             else:
                 # Use theoretical combinations for full parameter sweeps
                 combinations_per_ticker = self._calculate_parameter_combinations(
                     config, config.strategy_types[0]
                 )
                 total_combinations = ticker_count * combinations_per_ticker
-                self.console.info(f"📊 Total parameter combinations: {total_combinations:,}")
+                self.console.info(
+                    f"📊 Total parameter combinations: {total_combinations:,}"
+                )
 
             # Use holistic progress context that will be updated by actual work
             progress_description = f"🚀 {strategy_name} strategy ({total_combinations:,} parameters across {ticker_count} tickers)"
             if config.use_current:
                 progress_description += " - current signals only"
-                
+
             with self.console.progress_context(progress_description) as progress:
                 # Use determinate progress bar - signal processing already calculates correct increments
-                task_description = f"Analyzing {total_combinations:,} parameter combinations"
+                task_description = (
+                    f"Analyzing {total_combinations:,} parameter combinations"
+                )
                 if config.use_current:
                     task_description += " for current signals"
-                    
-                task = progress.add_task(
-                    task_description,
-                    total=total_combinations
-                )
-                
+
+                task = progress.add_task(task_description, total=total_combinations)
+
                 completed_combinations = 0
-                
+
                 # Create progress update function that services can call directly
                 def update_progress(combinations_completed: int):
                     nonlocal completed_combinations
                     completed_combinations += combinations_completed
                     progress.update(task, completed=completed_combinations)
-                
+
                 # Execute strategy with progress update function
-                success = strategy_service.execute_strategy(config, progress_update_fn=update_progress)
-                
+                success = strategy_service.execute_strategy(
+                    config, progress_update_fn=update_progress
+                )
+
                 # Validate progress reached expected total
                 if completed_combinations < total_combinations:
                     self.console.warning(
@@ -583,77 +624,97 @@ class StrategyDispatcher:
 
         # Calculate total combinations across all strategies and tickers for holistic progress
         ticker_count = len(config.ticker) if isinstance(config.ticker, list) else 1
-        use_current_mode = getattr(config, 'use_current', False)
-        
+        use_current_mode = getattr(config, "use_current", False)
+
         if use_current_mode:
             # When USE_CURRENT is enabled, calculate actual current signal combinations for all strategies
-            self.console.info("🔍 Pre-analyzing current signals across all strategies to calculate accurate progress...")
+            self.console.info(
+                "🔍 Pre-analyzing current signals across all strategies to calculate accurate progress..."
+            )
             total_combinations = 0
             strategy_details = []
-            
+
             for strategy_type in config.strategy_types:
-                actual_combinations = self._calculate_actual_current_signal_combinations(
-                    config, strategy_type
+                actual_combinations = (
+                    self._calculate_actual_current_signal_combinations(
+                        config, strategy_type
+                    )
                 )
                 total_combinations += actual_combinations
                 strategy_name = (
-                    strategy_type.value if hasattr(strategy_type, "value") else str(strategy_type)
+                    strategy_type.value
+                    if hasattr(strategy_type, "value")
+                    else str(strategy_type)
                 )
                 strategy_details.append(f"{strategy_name}")
-                self.console.debug(f"{strategy_name}: {actual_combinations} current signals")
-            
-            self.console.info(f"📊 Current signal combinations across all strategies: {total_combinations:,} (filtered from theoretical maximum)")
+                self.console.debug(
+                    f"{strategy_name}: {actual_combinations} current signals"
+                )
+
+            self.console.info(
+                f"📊 Current signal combinations across all strategies: {total_combinations:,} (filtered from theoretical maximum)"
+            )
         else:
             # Use theoretical combinations for full parameter sweeps
             total_combinations = 0
             strategy_details = []
-            
+
             for strategy_type in config.strategy_types:
-                combinations = self._calculate_parameter_combinations(config, strategy_type)
+                combinations = self._calculate_parameter_combinations(
+                    config, strategy_type
+                )
                 total_combinations += ticker_count * combinations
                 strategy_name = (
-                    strategy_type.value if hasattr(strategy_type, "value") else str(strategy_type)
+                    strategy_type.value
+                    if hasattr(strategy_type, "value")
+                    else str(strategy_type)
                 )
                 strategy_details.append(f"{strategy_name}")
-            
-            self.console.info(f"📊 Total parameter combinations across all strategies: {total_combinations:,}")
+
+            self.console.info(
+                f"📊 Total parameter combinations across all strategies: {total_combinations:,}"
+            )
 
         # Execute strategies with holistic progress tracking
         # Show progress bar for parameter sweeps (>10 combinations) OR USE_CURRENT mode (always valuable)
-        should_show_progress = (
-            isinstance(self.console, PerformanceAwareConsoleLogger) and 
-            (total_combinations > 10 or use_current_mode)
-        )
-        
+        should_show_progress = isinstance(
+            self.console, PerformanceAwareConsoleLogger
+        ) and (total_combinations > 10 or use_current_mode)
+
         if should_show_progress:
             strategy_names_str = ", ".join(strategy_details)
             progress_description = f"📊 Processing {total_combinations:,} combinations across {len(config.strategy_types)} strategies × {ticker_count} tickers"
             if use_current_mode:
                 progress_description += " - current signals only"
-                
+
             with self.console.progress_context(progress_description) as progress:
                 # Use determinate progress bar - signal processing already calculates correct increments
-                task_description = f"Analyzing {total_combinations:,} parameter combinations"
+                task_description = (
+                    f"Analyzing {total_combinations:,} parameter combinations"
+                )
                 if use_current_mode:
                     task_description += " for current signals"
-                    
-                task = progress.add_task(
-                    task_description,
-                    total=total_combinations
-                )
-                
+
+                task = progress.add_task(task_description, total=total_combinations)
+
                 completed_combinations = 0
-                
+
                 # Create progress update function for holistic tracking
                 def update_progress(combinations_completed: int):
                     nonlocal completed_combinations
                     completed_combinations += combinations_completed
                     progress.update(task, completed=completed_combinations)
-                
+
                 # Store global progress allocation for accurate multi-ticker progress calculation
-                ticker_count = len(config.ticker) if isinstance(config.ticker, list) else 1
-                global_progress_per_ticker = total_combinations / ticker_count if ticker_count > 0 else total_combinations
-                
+                ticker_count = (
+                    len(config.ticker) if isinstance(config.ticker, list) else 1
+                )
+                global_progress_per_ticker = (
+                    total_combinations / ticker_count
+                    if ticker_count > 0
+                    else total_combinations
+                )
+
                 # Execute each strategy with progress update function
                 for i, strategy_type in enumerate(config.strategy_types):
                     strategy_name = (
@@ -663,25 +724,35 @@ class StrategyDispatcher:
                     )
 
                     # Create single-strategy config
-                    single_config = self._create_single_strategy_config(config, strategy_type)
-                    
+                    single_config = self._create_single_strategy_config(
+                        config, strategy_type
+                    )
+
                     # Add global progress allocation for accurate multi-ticker progress
-                    if hasattr(single_config, '__dict__'):
-                        single_config.__dict__["_GLOBAL_PROGRESS_PER_TICKER"] = global_progress_per_ticker
+                    if hasattr(single_config, "__dict__"):
+                        single_config.__dict__[
+                            "_GLOBAL_PROGRESS_PER_TICKER"
+                        ] = global_progress_per_ticker
                     else:
                         # Fallback for dict-like configs
-                        single_config._GLOBAL_PROGRESS_PER_TICKER = global_progress_per_ticker
+                        single_config._GLOBAL_PROGRESS_PER_TICKER = (
+                            global_progress_per_ticker
+                        )
 
                     # Get appropriate service for this strategy type
                     service = self._determine_single_service(strategy_type)
 
                     if not service:
-                        self.console.error(f"No service found for strategy type: {strategy_type}")
+                        self.console.error(
+                            f"No service found for strategy type: {strategy_type}"
+                        )
                         results.append(False)
                         continue
 
                     # Execute strategy with progress update function
-                    success = service.execute_strategy(single_config, progress_update_fn=update_progress)
+                    success = service.execute_strategy(
+                        single_config, progress_update_fn=update_progress
+                    )
                     results.append(success)
 
                     # Create portfolio result for this strategy execution
@@ -700,10 +771,12 @@ class StrategyDispatcher:
                         )
                         summary.add_portfolio_result(portfolio_result)
 
-                        self.console.success(f"{strategy_type} strategy completed successfully")
+                        self.console.success(
+                            f"{strategy_type} strategy completed successfully"
+                        )
                     else:
                         self.console.error(f"{strategy_type} strategy failed")
-                
+
                 # Validate progress reached expected total after all strategies
                 if completed_combinations < total_combinations:
                     self.console.warning(
@@ -721,13 +794,17 @@ class StrategyDispatcher:
                 )
 
                 # Create single-strategy config
-                single_config = self._create_single_strategy_config(config, strategy_type)
+                single_config = self._create_single_strategy_config(
+                    config, strategy_type
+                )
 
                 # Get appropriate service for this strategy type
                 service = self._determine_single_service(strategy_type)
 
                 if not service:
-                    self.console.error(f"No service found for strategy type: {strategy_type}")
+                    self.console.error(
+                        f"No service found for strategy type: {strategy_type}"
+                    )
                     results.append(False)
                     continue
 
@@ -751,7 +828,9 @@ class StrategyDispatcher:
                     )
                     summary.add_portfolio_result(portfolio_result)
 
-                    self.console.success(f"{strategy_type} strategy completed successfully")
+                    self.console.success(
+                        f"{strategy_type} strategy completed successfully"
+                    )
                 else:
                     self.console.error(f"{strategy_type} strategy failed")
 
@@ -1002,14 +1081,16 @@ class StrategyDispatcher:
             legacy_config["MINIMUMS"]["BEATS_BNH"] = config.minimums.beats_bnh
 
         return legacy_config
-        
-    def _convert_strategy_config_to_legacy(self, config: StrategyConfig) -> Dict[str, Any]:
+
+    def _convert_strategy_config_to_legacy(
+        self, config: StrategyConfig
+    ) -> Dict[str, Any]:
         """
         Convert StrategyConfig to legacy format for resume analysis.
-        
+
         Args:
             config: Strategy configuration model
-            
+
         Returns:
             Legacy configuration dictionary
         """
@@ -1017,7 +1098,7 @@ class StrategyDispatcher:
         ticker_list = (
             config.ticker if isinstance(config.ticker, list) else [config.ticker]
         )
-        
+
         # Base legacy config
         legacy_config = {
             "TICKER": ticker_list,
@@ -1032,11 +1113,13 @@ class StrategyDispatcher:
             "USE_4HOUR": config.use_4hour,
             "USE_2DAY": config.use_2day,
             "USE_CURRENT": config.use_current,
-            "USE_DATE": getattr(config.filter, "date_filter", None) if hasattr(config, 'filter') else None,
+            "USE_DATE": getattr(config.filter, "date_filter", None)
+            if hasattr(config, "filter")
+            else None,
             "DIRECTION": getattr(config, "direction", "Long"),
             "REFRESH": getattr(config, "refresh", True),
         }
-        
+
         # Handle synthetic mode
         if config.synthetic.use_synthetic:
             legacy_config["USE_SYNTHETIC"] = True
@@ -1046,7 +1129,9 @@ class StrategyDispatcher:
         # Add parameter ranges for strategy processing
         def get_strategy_specific_params(strategy_type: str):
             """Extract strategy-specific parameters with fallback to global parameters."""
-            if config.strategy_params and hasattr(config.strategy_params, strategy_type):
+            if config.strategy_params and hasattr(
+                config.strategy_params, strategy_type
+            ):
                 strategy_params = getattr(config.strategy_params, strategy_type)
                 if strategy_params:
                     return strategy_params
@@ -1106,30 +1191,34 @@ class StrategyDispatcher:
             legacy_config["FAST_PERIOD"] = config.fast_period
         if config.slow_period:
             legacy_config["SLOW_PERIOD"] = config.slow_period
-            
+
         return legacy_config
-        
-    def _convert_legacy_to_strategy_config(self, legacy_config: Dict[str, Any], original_config: StrategyConfig) -> StrategyConfig:
+
+    def _convert_legacy_to_strategy_config(
+        self, legacy_config: Dict[str, Any], original_config: StrategyConfig
+    ) -> StrategyConfig:
         """
         Convert filtered legacy config back to StrategyConfig format.
-        
+
         Args:
             legacy_config: Filtered legacy configuration
             original_config: Original StrategyConfig for reference
-            
+
         Returns:
             Updated StrategyConfig with filtered ticker/strategy lists
         """
         from copy import deepcopy
-        
+
         # Create a deep copy of the original config
         filtered_config = deepcopy(original_config)
-        
+
         # Update with filtered values
         filtered_tickers = legacy_config.get("TICKER", [])
         if filtered_tickers:
-            filtered_config.ticker = filtered_tickers if len(filtered_tickers) > 1 else filtered_tickers[0]
-            
+            filtered_config.ticker = (
+                filtered_tickers if len(filtered_tickers) > 1 else filtered_tickers[0]
+            )
+
         filtered_strategies = legacy_config.get("STRATEGY_TYPES", [])
         if filtered_strategies:
             # Convert string strategy types back to StrategyType enums
@@ -1140,7 +1229,7 @@ class StrategyDispatcher:
                 except ValueError:
                     # Handle unknown strategy types gracefully
                     self.console.warning(f"Unknown strategy type: {strategy_str}")
-                    
+
             filtered_config.strategy_types = strategy_enums
-            
+
         return filtered_config

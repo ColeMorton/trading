@@ -36,21 +36,21 @@ config:
     # 2. Portfolio Updates
     - name: 'Update Portfolio'
       command: 'poetry run trading-cli --quiet portfolio update --portfolio portfolio'
-      enabled: false
+      enabled: true
       timeout: 60
       description: 'Update live signals portfolio data'
       continue_on_failure: true
 
     - name: 'Update Protected Portfolio'
       command: 'poetry run trading-cli --quiet portfolio update --portfolio protected'
-      enabled: false
+      enabled: true
       timeout: 60
       description: 'Update protected portfolio with validation'
       continue_on_failure: true
 
     - name: 'Update Risk-On Portfolio'
       command: 'poetry run trading-cli --quiet portfolio update --portfolio risk_on'
-      enabled: false
+      enabled: true
       timeout: 60
       description: 'Update risk-on portfolio with validation'
       continue_on_failure: true
@@ -65,35 +65,35 @@ config:
       # 3. Strategy Analysis
     - name: 'Daily Crypto Strategy Analysis - Australia'
       command: 'poetry run trading-cli strategy run --profile australia_top_10'
-      enabled: true
+      enabled: false
       timeout: 1200 # 20 minutes
       description: 'Execute crypto-focused MA Cross strategy analysis'
       continue_on_failure: true
 
     - name: 'Daily Crypto Strategy Analysis - Crypto'
       command: 'poetry run trading-cli --quiet strategy run --profile crypto_current'
-      enabled: true
+      enabled: false
       timeout: 1200 # 20 minutes
       description: 'Execute crypto-focused MA Cross strategy analysis'
       continue_on_failure: true
 
     - name: 'Daily Strategy Analysis - Primary Stocks'
       command: 'poetry run trading-cli --quiet strategy run --profile primary_stocks'
-      enabled: true
-      timeout: 1800 # 45 minutes
+      enabled: false
+      timeout: 5400 # 90 minutes
       description: 'Execute current primary stocks strategy analysis'
       continue_on_failure: true
 
     - name: 'Daily Strategy Analysis - Frontier Stocks'
       command: 'poetry run trading-cli --quiet strategy run --profile frontier'
-      enabled: true
-      timeout: 4080
+      enabled: false
+      timeout: 5400 # 90 minutes
       description: 'Execute current primary stocks strategy analysis'
       continue_on_failure: true
 
     - name: 'Daily Strategy Analysis - Asia Stocks'
       command: 'poetry run trading-cli --quiet strategy run --profile asia_top_50'
-      enabled: true
+      enabled: false
       timeout: 4080
       description: 'Execute current primary stocks strategy analysis'
       continue_on_failure: true
@@ -186,10 +186,10 @@ config:
   #   description: "Analyze strategies for specific historical date"
   #   continue_on_failure: true
 
-  # Portfolio review example:
-  # - name: "Portfolio Review - Multi-Crypto"
-  #   command: "trading-cli portfolio review --profile portfolio_review_multi_crypto"
+  # Portfolio synthesis example:
+  # - name: "Portfolio Synthesis - Multi-Crypto"
+  #   command: "trading-cli portfolio synthesize --profile portfolio_synthesis_multi_crypto"
   #   enabled: false
   #   timeout: 600
-  #   description: "Comprehensive multi-crypto portfolio review"
+  #   description: "Comprehensive multi-crypto portfolio synthesis"
   #   continue_on_failure: true

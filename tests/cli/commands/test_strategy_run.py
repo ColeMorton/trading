@@ -19,7 +19,11 @@ import pytest
 from typer.testing import CliRunner
 
 from app.cli.commands.strategy import app as strategy_app
-from app.cli.models.strategy import StrategyType, StrategyExecutionSummary, StrategyPortfolioResults
+from app.cli.models.strategy import (
+    StrategyExecutionSummary,
+    StrategyPortfolioResults,
+    StrategyType,
+)
 
 
 def create_mock_execution_summary(ticker="AAPL", strategy_type="SMA", **kwargs):
@@ -34,7 +38,7 @@ def create_mock_execution_summary(ticker="AAPL", strategy_type="SMA", **kwargs):
         portfolio_results=kwargs.get("portfolio_results", []),
         total_portfolios_generated=kwargs.get("total_portfolios_generated", 10),
         total_filtered_portfolios=kwargs.get("total_filtered_portfolios", 5),
-        total_files_exported=kwargs.get("total_files_exported", 3)
+        total_files_exported=kwargs.get("total_files_exported", 3),
     )
 
 
@@ -52,7 +56,7 @@ def create_mock_strategy_config(ticker=None, strategy_types=None, **kwargs):
     # Convert strategy types to strings for proper rendering
     if strategy_types:
         mock_config.strategy_types = [
-            st.value if hasattr(st, 'value') else str(st) for st in strategy_types
+            st.value if hasattr(st, "value") else str(st) for st in strategy_types
         ]
     else:
         mock_config.strategy_types = ["SMA"]
@@ -292,7 +296,9 @@ config:
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
         mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
-            ticker="AAPL", strategy_type="SMA", tickers_processed=["AAPL", "MSFT", "GOOGL"]
+            ticker="AAPL",
+            strategy_type="SMA",
+            tickers_processed=["AAPL", "MSFT", "GOOGL"],
         )
         mock_dispatcher_class.return_value = mock_dispatcher
 
@@ -488,7 +494,10 @@ config:
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
         mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
-            ticker="AAPL", strategy_type="SMA", success_rate=0.0, successful_strategies=0
+            ticker="AAPL",
+            strategy_type="SMA",
+            success_rate=0.0,
+            successful_strategies=0,
         )
         mock_dispatcher_class.return_value = mock_dispatcher
 

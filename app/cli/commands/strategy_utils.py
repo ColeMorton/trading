@@ -229,7 +229,7 @@ def build_configuration_overrides(
     overrides["show_resources"] = show_resources
     overrides["profile_execution"] = profile_execution
     overrides["ENABLE_PARALLEL"] = enable_parallel
-    
+
     # Smart resume configuration
     overrides["refresh"] = refresh
 

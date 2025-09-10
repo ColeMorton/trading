@@ -225,7 +225,9 @@ def execute_all_strategies(config: Config, log) -> List[Dict[str, Any]]:
         strategy_config["STRATEGY_TYPE"] = strategy_type
 
         # Pass progress update function directly to strategy execution
-        portfolios = execute_strategy(strategy_config, strategy_type, log, progress_update_fn)
+        portfolios = execute_strategy(
+            strategy_config, strategy_type, log, progress_update_fn
+        )
 
         # Check if portfolios is not None and not empty
         if portfolios is not None:

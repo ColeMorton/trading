@@ -17,7 +17,7 @@ This technical health analysis reveals a mature trading system with significant 
 **Examples**:
 
 ```python
-# app/contexts/portfolio/services/portfolio_review_service.py:268-270
+# app/contexts/portfolio/services/portfolio_synthesis_service.py:268-270
 except Exception as e:
     self._log(f"Error in single strategy review: {str(e)}", "error")
     raise  # Good - re-raises

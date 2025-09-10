@@ -318,6 +318,14 @@ def export_portfolios(
     target_schema_type = _get_target_schema_type(export_type)
 
     if not portfolios:
+        # Skip export for portfolios_best when no portfolios exist
+        if export_type == "portfolios_best":
+            if log:
+                log(
+                    f"Skipping {export_type} export - no portfolios to export", "info"
+                )
+            return pl.DataFrame(), False
+
         if log:
             log(
                 "No portfolios to export - creating empty CSV with headers only", "info"
@@ -433,6 +441,15 @@ def export_portfolios(
             filtered_df = filter_service.filter_portfolios_dataframe(df, config, log)
 
             if filtered_df is None or len(filtered_df) == 0:
+                # Skip export for portfolios_best when all portfolios are filtered out
+                if export_type == "portfolios_best":
+                    if log:
+                        log(
+                            f"Skipping {export_type} export - no portfolios remain after applying MINIMUMS filtering",
+                            "info",
+                        )
+                    return pl.DataFrame(), False
+
                 if log:
                     log(
                         f"No portfolios remain after applying MINIMUMS filtering for {export_type}",
@@ -496,10 +513,7 @@ def export_portfolios(
                     f"Aggregation complete: {pre_aggregation_count} → {len(df)} portfolios",
                     "info",
                 )
-        elif (
-            export_type == "portfolios_best"
-            and has_compound_metric_types
-        ):
+        elif export_type == "portfolios_best" and has_compound_metric_types:
             if log:
                 log("Skipping aggregation - portfolios already aggregated", "debug")
 

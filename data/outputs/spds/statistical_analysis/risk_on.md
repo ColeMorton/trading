@@ -196,7 +196,7 @@ The risk_on portfolio demonstrates strong performance with clear statistical evi
 - Alpha preservation: Maintain outperformance vs. benchmarks
 
 **Next Analysis Cycle:**
-- Full portfolio review in 30 days
+- Full portfolio synthesis in 30 days
 - Weekly monitoring of remaining high-conviction positions
 - Quarterly rebalancing based on statistical updates
 - Annual model validation and parameter optimization

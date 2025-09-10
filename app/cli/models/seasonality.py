@@ -70,6 +70,9 @@ class SeasonalityConfig(BaseConfig):
     min_sample_size: int = Field(
         default=10, description="Minimum sample size for pattern"
     )
+    time_period_days: int = Field(
+        default=1, description="Number of days for return calculations (1 for daily returns)"
+    )
 
     @field_validator("confidence_level")
     @classmethod
@@ -90,6 +93,76 @@ class SeasonalityConfig(BaseConfig):
     @field_validator("output_format")
     @classmethod
     def validate_output_format(cls, v: str) -> str:
+        """Validate output format."""
+        valid_formats = ["csv", "json"]
+        if v.lower() not in valid_formats:
+            raise ValueError(f"Output format must be one of {valid_formats}")
+        return v.lower()
+
+    @field_validator("time_period_days")
+    @classmethod
+    def validate_time_period_days(cls, v: int) -> int:
+        """Validate time period days is positive."""
+        if v <= 0:
+            raise ValueError("Time period days must be positive")
+        if v > 365:
+            raise ValueError("Time period days cannot exceed 365")
+        return v
+
+
+class PortfolioSeasonalityConfig(BaseConfig):
+    """Configuration for portfolio-based seasonality analysis."""
+
+    config_type: str = "portfolio_seasonality"
+    portfolio: str = Field(
+        description="Portfolio filename (CSV) from data/raw/strategies/ directory"
+    )
+    default_time_period_days: int = Field(
+        default=5, description="Default time period in days when no signal entry exists"
+    )
+    confidence_level: float = Field(
+        default=0.95, description="Confidence level for statistical tests"
+    )
+    output_format: str = Field(default="csv", description="Output format (csv or json)")
+    include_holidays: bool = Field(
+        default=False, description="Include holiday effect analysis"
+    )
+    detrend_data: bool = Field(
+        default=True, description="Remove trend before analyzing seasonality"
+    )
+    min_sample_size: int = Field(
+        default=10, description="Minimum sample size for pattern"
+    )
+
+    @field_validator("portfolio")
+    @classmethod
+    def validate_portfolio(cls, v: str) -> str:
+        """Validate portfolio filename is provided."""
+        if not v or not v.strip():
+            raise ValueError("Portfolio filename must be provided")
+        return v.strip()
+
+    @field_validator("default_time_period_days")
+    @classmethod
+    def validate_default_time_period(cls, v: int) -> int:
+        """Validate default time period is positive."""
+        if v <= 0:
+            raise ValueError("Default time period must be positive")
+        if v > 365:
+            raise ValueError("Default time period cannot exceed 365 days")
+        return v
+
+    @field_validator("confidence_level")
+    @classmethod
+    def validate_confidence_level_portfolio(cls, v: float) -> float:
+        """Validate confidence level is between 0 and 1."""
+        if not 0 < v < 1:
+            raise ValueError("Confidence level must be between 0 and 1")
+        return v
+
+    @field_validator("output_format")
+    @classmethod
+    def validate_output_format_portfolio(cls, v: str) -> str:
         """Validate output format."""
         valid_formats = ["csv", "json"]
         if v.lower() not in valid_formats:

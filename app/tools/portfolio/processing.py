@@ -58,7 +58,9 @@ def process_single_ticker(
         # Import current signal processing
         from app.tools.strategy.signal_processing import process_current_signals
 
-        return process_current_signals(ticker, config_copy, log, progress_update_fn=progress_update_fn)
+        return process_current_signals(
+            ticker, config_copy, log, progress_update_fn=progress_update_fn
+        )
 
     # Generate parameter ranges using explicit range configuration
     fast_range = config.get("FAST_PERIOD_RANGE")

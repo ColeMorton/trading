@@ -130,7 +130,7 @@ class TestEmptyExportIntegration:
     def test_export_portfolios_best_empty_creates_headers_only_file(
         self, test_config, temp_dir, mock_log
     ):
-        """Test that export_portfolios creates headers-only CSV for portfolios_best."""
+        """Test that export_portfolios skips export for empty portfolios_best."""
 
         # Call export_portfolios with empty list
         df, success = export_portfolios(
@@ -140,23 +140,18 @@ class TestEmptyExportIntegration:
             log=mock_log,
         )
 
-        # Verify export succeeded
-        assert success is True
+        # Verify export was skipped (new behavior)
+        assert success is False  # Changed: now returns False for empty portfolios_best
         assert isinstance(df, pl.DataFrame)
         assert len(df) == 0  # No data rows
-        assert len(df.columns) > 0  # Has header columns
+        assert len(df.columns) == 0  # No columns since no export happened
 
-        # Verify file was created
+        # Verify no file was created (new behavior)
         export_path = Path(temp_dir) / "data" / "raw" / "portfolios_best"
-        csv_files = list(export_path.glob("*.csv"))
-        assert len(csv_files) > 0
-
-        # Verify file contains only headers including Metric Type
-        csv_file = csv_files[0]
-        df_read = pl.read_csv(csv_file)
-        assert len(df_read) == 0  # No data rows
-        assert len(df_read.columns) > 0  # Has header columns
-        assert "Metric Type" in df_read.columns  # Best schema has Metric Type
+        if export_path.exists():
+            csv_files = list(export_path.glob("*.csv"))
+            assert len(csv_files) == 0  # No files should be created
+        # Directory may not exist if no export happened, which is acceptable
 
     def test_export_best_portfolios_empty_creates_file(
         self, test_config, temp_dir, mock_log

@@ -168,7 +168,7 @@ validate_config() {
 validate_command() {
     local command="${1}"
     local main_command
-    
+
     # Debug logging (only for test mode)
     if [[ "${TEST_MODE:-false}" == "true" ]]; then
         echo "DEBUG: validate_command called with: $command" >> "${TEST_LOG_FILE}"
@@ -178,12 +178,12 @@ validate_command() {
     if [[ "${command}" =~ ^poetry[[:space:]]+run[[:space:]]+trading-cli[[:space:]]+(.+) ]]; then
         # Parse the rest of the command after "poetry run trading-cli "
         local cmd_rest="${BASH_REMATCH[1]}"
-        
+
         # Debug logging
         if [[ "${TEST_MODE:-false}" == "true" ]]; then
             echo "DEBUG: cmd_rest = '$cmd_rest'" >> "${TEST_LOG_FILE}"
         fi
-        
+
         # Skip global flags (--quiet, --verbose, --show-output, etc.) to find subcommand
         # Use bash parameter expansion to split on spaces
         local IFS=' '
@@ -193,7 +193,7 @@ validate_command() {
             if [[ "${TEST_MODE:-false}" == "true" ]]; then
                 echo "DEBUG: checking token = '$token'" >> "${TEST_LOG_FILE}"
             fi
-            
+
             # If token doesn't start with -- or -, it's the subcommand
             if [[ ! "${token}" =~ ^-- ]] && [[ ! "${token}" =~ ^- ]]; then
                 main_command="${token}"
@@ -220,7 +220,7 @@ validate_command() {
         fi
         return 1
     fi
-    
+
     # Ensure we found a main command
     if [[ -z "${main_command}" ]]; then
         if [[ "${TEST_MODE:-false}" == "true" ]]; then
@@ -825,7 +825,7 @@ parse_test_args() {
 
     # Set test mode flag for global use
     TEST_MODE=true
-    
+
     # Execute test mode with parsed options
     run_test_mode "${TEST_QUICK}" "${TEST_CONFIG_ONLY}" "${TEST_DEPENDENCIES}" \
                   "${TEST_CLI_COMMANDS}" "${TEST_WITH_PYTEST}" "${TEST_CONFIG_CUSTOM}"

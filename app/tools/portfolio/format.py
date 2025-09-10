@@ -220,7 +220,7 @@ def convert_csv_to_strategy_config(
             continue  # Skip to next strategy in the loop
 
         # Add allocation if available
-        if "ALLOCATION" in row and row["ALLOCATION"] is not None:
+        if "ALLOCATION" in row and row["ALLOCATION"] is not None and row["ALLOCATION"] != "None":
             try:
                 allocation_float = float(row["ALLOCATION"])
                 # Ensure allocation is stored as a percentage (0-100)
@@ -233,17 +233,18 @@ def convert_csv_to_strategy_config(
                 strategy_config["ALLOCATION"] = allocation_percent
                 log(f"Allocation set to {allocation_percent:.2f}% for {ticker}", "info")
             except (ValueError, TypeError):
-                log(
-                    f"Error: Invalid allocation value for {ticker}: {row['ALLOCATION']}",
-                    "error",
-                )
+                if row['ALLOCATION'] is not None:  # Only log errors for non-None values
+                    log(
+                        f"Error: Invalid allocation value for {ticker}: {row['ALLOCATION']}",
+                        "error",
+                    )
         else:
-            # No allocation provided in CSV
+            # No allocation provided in CSV - None means equal weight will be applied
             strategy_config["ALLOCATION"] = None
-            log(f"No allocation provided for {ticker} in CSV file", "info")
+            log(f"No allocation provided for {ticker} - will use equal weighting", "info")
 
         # Add stop loss if available
-        if "STOP_LOSS" in row and row["STOP_LOSS"] is not None:
+        if "STOP_LOSS" in row and row["STOP_LOSS"] is not None and row["STOP_LOSS"] != "None":
             try:
                 stop_loss_float = float(row["STOP_LOSS"])
                 # Convert percentage (0-100) to decimal (0-1)
@@ -261,10 +262,11 @@ def convert_csv_to_strategy_config(
                     "info",
                 )
             except (ValueError, TypeError):
-                log(
-                    f"Error: Invalid stop loss value for {ticker}: {row['STOP_LOSS']}",
-                    "error",
-                )
+                if row['STOP_LOSS'] is not None:  # Only log errors for non-None values
+                    log(
+                        f"Error: Invalid stop loss value for {ticker}: {row['STOP_LOSS']}",
+                        "error",
+                    )
 
         # Add position size if available
         if "POSITION_SIZE" in row and row["POSITION_SIZE"] is not None:

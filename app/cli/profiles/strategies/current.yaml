@@ -15,6 +15,9 @@ config_type: 'strategy'
 config:
   name: 'current'
 
+  strategy_types:
+    - SMA
+
   ticker:
     - BTC-USD
 

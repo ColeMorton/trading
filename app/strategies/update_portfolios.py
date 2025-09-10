@@ -58,7 +58,7 @@ from app.tools.portfolio.stop_loss import (
 from app.tools.portfolio_results import (
     calculate_breadth_metrics,
     display_portfolio_summary,
-    filter_open_trades,
+    display_portfolio_table,
     filter_signal_entries,
     sort_portfolios,
 )
@@ -549,8 +549,8 @@ def _execute_portfolio_processing(
                 log(f"ERROR: Failed to sort portfolios: {str(e)}", "error")
                 return False
 
-            # Use standardized utility to filter and display open trades
-            open_trades_strategies = filter_open_trades(sorted_portfolios, log)
+            # Use standardized utility to display all portfolio strategies
+            portfolio_strategies = display_portfolio_table(sorted_portfolios, log)
 
             # Use standardized utility to filter and display signal entries
             # First get signal entries using the strategy_utils filter
@@ -561,14 +561,14 @@ def _execute_portfolio_processing(
 
             # Then use the portfolio_results utility to process and display them
             signal_entry_strategies = filter_signal_entries(
-                signal_entry_strategies, open_trades_strategies, log
+                signal_entry_strategies, portfolio_strategies, log
             )
 
             # Calculate and display breadth metrics
             if sorted_portfolios:
                 calculate_breadth_metrics(
                     sorted_portfolios,
-                    open_trades_strategies,
+                    portfolio_strategies,
                     signal_entry_strategies,
                     log,
                 )

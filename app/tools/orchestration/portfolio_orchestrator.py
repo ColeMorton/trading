@@ -103,7 +103,9 @@ class PortfolioOrchestrator:
                 strategies = self._get_strategies(config)
 
                 # Step 4: Execute strategies
-                all_portfolios = self._execute_strategies(config, strategies, progress_update_fn)
+                all_portfolios = self._execute_strategies(
+                    config, strategies, progress_update_fn
+                )
 
                 # Export raw portfolios first - always export to ensure files are created even when empty
                 self._export_raw_portfolios(all_portfolios or [], config)
@@ -467,6 +469,7 @@ class PortfolioOrchestrator:
             ExportError: If export fails
         """
         from collections import defaultdict
+
         from app.tools.strategy.export_portfolios import export_portfolios
 
         # Group portfolios by ticker+strategy combination
@@ -531,7 +534,9 @@ class PortfolioOrchestrator:
                     self.log(f"Failed to export {ticker}_{strategy} metrics", "warning")
 
             except Exception as e:
-                self.log(f"Error exporting metrics group {group_key}: {str(e)}", "error")
+                self.log(
+                    f"Error exporting metrics group {group_key}: {str(e)}", "error"
+                )
                 raise ExportError(f"Metrics export failed for {group_key}: {str(e)}")
 
     def _export_portfolios_metrics(
@@ -552,7 +557,10 @@ class PortfolioOrchestrator:
         ):
             try:
                 # Use direct export for portfolios_metrics to preserve one row per metric
-                self.log("Using direct export for portfolios_metrics (preserving individual metric rows)", "info")
+                self.log(
+                    "Using direct export for portfolios_metrics (preserving individual metric rows)",
+                    "info",
+                )
                 self._export_metrics_without_aggregation(portfolios, config)
             except Exception as e:
                 self.log(f"Error exporting portfolios_metrics: {str(e)}", "error")

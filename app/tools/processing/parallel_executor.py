@@ -261,17 +261,17 @@ class AdaptiveThreadPoolExecutor:
                 # Call progress callback for each completed item
                 if progress_callback:
                     progress_callback(1)
-            
+
             if progress_callback:
                 self.logger.debug(
                     f"Batch {batch_index} completed: {items_in_batch} items processed"
                 )
-            
+
             return (batch_index, batch_results)
 
         # Process batches in parallel
         futures = [self.submit(process_batch, batch) for batch in batches]
-        
+
         # Collect results maintaining original order
         batch_results = {}
         for future in as_completed(futures, timeout=timeout):
@@ -412,6 +412,9 @@ def parallel_parameter_sweep(
     executor = get_executor("cpu_bound")  # CPU-bound for strategy calculations
 
     return executor.batch_process(
-        strategy_fn, parameter_combinations, batch_size=batch_size, timeout=timeout,
-        progress_callback=progress_callback
+        strategy_fn,
+        parameter_combinations,
+        batch_size=batch_size,
+        timeout=timeout,
+        progress_callback=progress_callback,
     )

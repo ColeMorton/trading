@@ -1,0 +1,20 @@
+metadata:
+  name: portfolio_synthesis_multi_crypto
+  description: Multi-strategy portfolio synthesis for BTC and SOL
+  created_at: '2025-01-19T00:00:00.000000'
+  updated_at: '2025-01-19T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - portfolio_synthesis
+    - multi_strategy
+  author: system
+
+inherits_from: multi_strategy_base
+config_type: portfolio_synthesis
+
+config:
+  # Override inherited strategies with empty list when using raw_strategies
+  strategies: []
+  raw_strategies: portfolio
+
+  # Plot configuration (output_dir will be set automatically by unified structure)

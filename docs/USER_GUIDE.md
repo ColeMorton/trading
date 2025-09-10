@@ -253,7 +253,7 @@ config:
 
 ```bash
 # Analyze specific strategy configuration
-./trading-cli strategy analyze AAPL \
+./trading-cli strategy review AAPL \
   --strategy SMA \
   --fast 20 \
   --slow 50 \
@@ -718,8 +718,8 @@ Analyze a single strategy configuration in detail.
 **Examples:**
 
 ```bash
-./trading-cli strategy analyze AAPL --strategy SMA --fast 20 --slow 50
-./trading-cli strategy analyze BTC-USD --strategy EMA --show-trades
+./trading-cli strategy review AAPL --strategy SMA --fast 20 --slow 50
+./trading-cli strategy review BTC-USD --strategy EMA --show-trades
 ```
 
 ### Portfolio Commands (`portfolio`)

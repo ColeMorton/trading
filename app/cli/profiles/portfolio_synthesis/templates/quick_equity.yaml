@@ -1,0 +1,47 @@
+metadata:
+  name: quick_equity
+  description: Quick template for single equity strategy analysis
+  created_at: '2025-01-19T00:00:00.000000'
+  updated_at: '2025-01-19T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - portfolio_synthesis
+    - equity
+    - quick_template
+    - single_strategy
+  author: system
+  is_template: true
+
+inherits_from: equity_base
+config_type: portfolio_synthesis
+
+config:
+  # Template strategies (to be overridden by user)
+  strategies:
+    - ticker: '{{TICKER}}' # User should replace with actual ticker
+      fast_period: '{{FAST_PERIOD}}' # User should replace with actual value
+      slow_period: '{{SLOW_PERIOD}}' # User should replace with actual value
+      strategy_type: '{{STRATEGY_TYPE}}' # SMA or EMA
+      stop_loss: null
+
+  # Standard equity analysis period
+
+  # Default benchmark for equity
+  benchmark:
+    symbol: SPY
+    benchmark_type: buy_and_hold
+
+  # Plot configuration (output_dir will be determined automatically by unified structure)
+
+  # Template usage instructions (will be ignored by parser)
+  __template_usage: |
+    To use this template:
+    1. Replace {{TICKER}} with your equity symbol (e.g., AAPL, MSFT, GOOGL)
+    2. Replace {{FAST_PERIOD}} with your short moving average window (e.g., 20)
+    3. Replace {{SLOW_PERIOD}} with your long moving average window (e.g., 50)
+    4. Replace {{STRATEGY_TYPE}} with either "SMA" or "EMA"
+    
+    Output directories will be automatically determined by the unified structure.
+
+    Example command:
+    trading-cli portfolio synthesize --profile quick_equity --ticker AAPL

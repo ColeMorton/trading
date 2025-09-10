@@ -1,12 +1,15 @@
 """
-Portfolio Review Service
+Portfolio Synthesis Service
 
-Unified service for portfolio review operations, supporting both single
+Unified service for portfolio synthesis operations, supporting both single
 and multi-strategy analysis with benchmark comparison.
+
+Uses unified 3-layer directory structure: portfolio/{type}/{name}/{charts|data|analysis}/
 """
 
 import json
 import os
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -15,7 +18,7 @@ import pandas as pd
 import polars as pl
 import vectorbt as vbt
 
-from app.portfolio_review.tools.portfolio_analysis import (
+from app.portfolio_synthesis.tools.portfolio_analysis import (
     calculate_risk_metrics,
     check_open_positions,
     create_benchmark_data,
@@ -57,8 +60,8 @@ class StrategyConfig:
 
 
 @dataclass
-class PortfolioReviewConfig:
-    """Configuration for portfolio review operations."""
+class PortfolioSynthesisConfig:
+    """Configuration for portfolio synthesis operations."""
 
     strategies: List[StrategyConfig]
     start_date: str = "2020-01-01"
@@ -76,11 +79,12 @@ class PortfolioReviewConfig:
     max_workers: Optional[int] = None
     export_raw_data: bool = False
     raw_data_export_config: Optional[ExportConfig] = None
+    base_dir: str = "."
 
 
 @dataclass
 class PortfolioResults:
-    """Results from portfolio review analysis."""
+    """Results from portfolio synthesis analysis."""
 
     portfolio: "vbt.Portfolio"
     benchmark_portfolio: Optional["vbt.Portfolio"]
@@ -92,16 +96,16 @@ class PortfolioResults:
     raw_data_export_results: Optional[ExportResults] = None
 
 
-class PortfolioReviewService:
+class PortfolioSynthesisService:
     """
-    Unified service for portfolio review operations.
+    Unified service for portfolio synthesis operations.
 
     Supports both single and multi-strategy analysis with benchmark comparison,
     risk metrics calculation, and comprehensive reporting.
     """
 
-    def __init__(self, config: PortfolioReviewConfig, logger=None):
-        """Initialize portfolio review service."""
+    def __init__(self, config: PortfolioSynthesisConfig, logger=None):
+        """Initialize portfolio synthesis service."""
         self.config = config
         self.logger = logger
         self.plot_paths = []
@@ -130,11 +134,51 @@ class PortfolioReviewService:
             self.data_export_service = PortfolioDataExportService(export_config, logger)
             self._log("Raw data export enabled")
 
-    def run_single_strategy_review(
+    def _setup_directory_structure_and_metadata(self, execution_time: Optional[float] = None):
+        """
+        Create unified 3-layer directory structure and save metadata.
+        
+        Args:
+            execution_time: Optional execution time in seconds
+        """
+        try:
+            # Create all necessary directories
+            base_dir = self.config.get_base_output_dir()
+            charts_dir = self.config.get_charts_dir()
+            data_dir = self.config.get_data_dir()
+            analysis_dir = self.config.get_analysis_dir()
+            
+            # Create directories
+            os.makedirs(base_dir, exist_ok=True)
+            os.makedirs(charts_dir, exist_ok=True)
+            os.makedirs(data_dir, exist_ok=True)
+            os.makedirs(analysis_dir, exist_ok=True)
+            
+            self._log(f"Created unified directory structure:")
+            self._log(f"  Base: {base_dir}")
+            self._log(f"  Charts: {charts_dir}")
+            self._log(f"  Data: {data_dir}")
+            self._log(f"  Analysis: {analysis_dir}")
+            
+            # Generate and save metadata
+            metadata = self.config.generate_metadata(execution_time=execution_time)
+            metadata_file = self.config.get_metadata_file()
+            
+            with open(metadata_file, 'w') as f:
+                json.dump(metadata, f, indent=2, default=str)
+                
+            self._log(f"Saved metadata to: {metadata_file}")
+            return metadata
+            
+        except Exception as e:
+            self._log(f"Error setting up directory structure: {str(e)}", "warning")
+            return None
+
+    def run_single_strategy_synthesis(
         self, strategy_config: StrategyConfig
     ) -> PortfolioResults:
         """
-        Run portfolio review for a single strategy.
+        Run portfolio synthesis for a single strategy.
 
         Args:
             strategy_config: Configuration for the strategy
@@ -142,14 +186,20 @@ class PortfolioReviewService:
         Returns:
             PortfolioResults with analysis results
         """
+        start_time = time.time()
+        
         try:
-            self._log(f"Starting single strategy review for {strategy_config.ticker}")
+            self._log(f"Starting single strategy synthesis for {strategy_config.ticker}")
+            
+            # Setup unified directory structure and metadata
+            self._setup_directory_structure_and_metadata()
 
             # Get market data
             data_config = {
                 "start_date": self.config.start_date,
                 "end_date": self.config.end_date,
                 "USE_HOURLY": strategy_config.use_hourly,
+                "BASE_DIR": self.config.base_dir,
             }
             data = get_data(strategy_config.ticker, data_config, self._log)
 
@@ -261,6 +311,11 @@ class PortfolioReviewService:
                         "warning",
                     )
 
+            # Calculate execution time and save final metadata
+            execution_time = time.time() - start_time
+            self._setup_directory_structure_and_metadata(execution_time=execution_time)
+            self._log(f"Single strategy synthesis completed in {execution_time:.2f} seconds")
+            
             return PortfolioResults(
                 portfolio=portfolio,
                 benchmark_portfolio=benchmark_portfolio,
@@ -273,18 +328,23 @@ class PortfolioReviewService:
             )
 
         except Exception as e:
-            self._log(f"Error in single strategy review: {str(e)}", "error")
+            self._log(f"Error in single strategy synthesis: {str(e)}", "error")
             raise
 
-    def run_multi_strategy_review(self) -> PortfolioResults:
+    def run_multi_strategy_synthesis(self) -> PortfolioResults:
         """
-        Run portfolio review for multiple strategies with benchmark comparison.
+        Run portfolio synthesis for multiple strategies with benchmark comparison.
 
         Returns:
             PortfolioResults with comprehensive analysis
         """
+        start_time = time.time()
+        
         try:
-            self._log("Starting multi-strategy portfolio review")
+            self._log("Starting multi-strategy portfolio synthesis")
+            
+            # Setup unified directory structure and metadata
+            self._setup_directory_structure_and_metadata()
 
             # Validate configuration
             if not self.config.strategies:
@@ -501,6 +561,11 @@ class PortfolioReviewService:
                         "warning",
                     )
 
+            # Calculate execution time and save final metadata
+            execution_time = time.time() - start_time
+            self._setup_directory_structure_and_metadata(execution_time=execution_time)
+            self._log(f"Multi-strategy synthesis completed in {execution_time:.2f} seconds")
+            
             return PortfolioResults(
                 portfolio=portfolio,
                 benchmark_portfolio=benchmark_portfolio,
@@ -512,7 +577,7 @@ class PortfolioReviewService:
             )
 
         except Exception as e:
-            self._log(f"Error in multi-strategy review: {str(e)}", "error")
+            self._log(f"Error in multi-strategy synthesis: {str(e)}", "error")
             raise
 
     def _create_portfolio_config(
@@ -555,6 +620,7 @@ class PortfolioReviewService:
                     "start_date": self.config.start_date,
                     "end_date": self.config.end_date,
                     "USE_HOURLY": strategy_config.use_hourly,
+                    "BASE_DIR": self.config.base_dir,
                 }
                 benchmark_data = get_data(benchmark_symbol, benchmark_config, self._log)
 
@@ -608,6 +674,7 @@ class PortfolioReviewService:
             "end_date": self.config.end_date,
             "init_cash": self.config.init_cash,
             "fees": self.config.fees,
+            "BASE_DIR": self.config.base_dir,
         }
 
     def _export_equity_curve(
@@ -665,6 +732,7 @@ class PortfolioReviewService:
                 "start_date": self.config.start_date,
                 "end_date": self.config.end_date,
                 "USE_HOURLY": strategy_config.use_hourly,
+                "BASE_DIR": self.config.base_dir,
             }
             data = get_data(strategy_config.ticker, data_config, self._log)
 
@@ -716,18 +784,23 @@ class PortfolioReviewService:
                 "error": str(e),
             }
 
-    def run_multi_strategy_review_parallel(self) -> PortfolioResults:
+    def run_multi_strategy_synthesis_parallel(self) -> PortfolioResults:
         """
-        Run portfolio review for multiple strategies using parallel processing.
+        Run portfolio synthesis for multiple strategies using parallel processing.
 
         Returns:
             PortfolioResults with comprehensive analysis
         """
+        start_time = time.time()
+        
         try:
-            self._log("Starting parallel multi-strategy portfolio review")
+            self._log("Starting parallel multi-strategy portfolio synthesis")
+            
+            # Setup unified directory structure and metadata
+            self._setup_directory_structure_and_metadata()
 
             if not self.config.enable_parallel_processing:
-                return self.run_multi_strategy_review()
+                return self.run_multi_strategy_synthesis()
 
             # Validate configuration
             if not self.config.strategies:
@@ -842,6 +915,11 @@ class PortfolioReviewService:
                         "warning",
                     )
 
+            # Calculate execution time and save final metadata
+            execution_time = time.time() - start_time
+            self._setup_directory_structure_and_metadata(execution_time=execution_time)
+            self._log(f"Parallel multi-strategy synthesis completed in {execution_time:.2f} seconds")
+            
             return PortfolioResults(
                 portfolio=combined_portfolio,
                 benchmark_portfolio=None,  # Simplified - no benchmark for parallel processing
@@ -853,10 +931,10 @@ class PortfolioReviewService:
             )
 
         except Exception as e:
-            self._log(f"Error in parallel multi-strategy review: {str(e)}", "error")
+            self._log(f"Error in parallel multi-strategy synthesis: {str(e)}", "error")
             # Fall back to sequential processing
             self._log("Falling back to sequential processing")
-            return self.run_multi_strategy_review()
+            return self.run_multi_strategy_synthesis()
 
     def _create_dynamic_allocation(
         self,

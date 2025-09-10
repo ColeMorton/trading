@@ -92,7 +92,9 @@ class ExportResults:
 class PortfolioDataExportService:
     """
     Service for extracting and exporting comprehensive raw data from VectorBT portfolios.
-
+    
+    Uses unified 3-layer directory structure: portfolio/{type}/{name}/data/
+    
     Provides access to all underlying data used in portfolio visualization including:
     - Portfolio value series (equity curves)
     - Returns data (daily, cumulative)
@@ -128,8 +130,9 @@ class PortfolioDataExportService:
             ExportResults with information about exported files
         """
         try:
-            # Create output directory
+            # Create output directory using unified 3-layer structure
             os.makedirs(self.config.output_dir, exist_ok=True)
+            self._log(f"Using unified directory structure: {self.config.output_dir}")
 
             results = ExportResults()
 
@@ -747,9 +750,9 @@ class PortfolioDataExportService:
             return f"Export failed: {results.error_message}"
 
         summary_lines = [
-            f"Export completed successfully!",
+            f"Export completed successfully using unified 3-layer directory structure!",
             f"Total files exported: {results.total_files}",
-            f"Output directory: {self.config.output_dir}",
+            f"Data directory: {self.config.output_dir}",
             "",
             "Exported data types:",
         ]

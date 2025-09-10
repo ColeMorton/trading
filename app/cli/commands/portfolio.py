@@ -17,13 +17,14 @@ from rich.table import Table
 
 from app.tools.console_logging import ConsoleLogger
 from app.tools.portfolio.strategy_types import derive_use_sma
+from app.tools.portfolio_results import display_portfolio_table, display_portfolio_summary, display_portfolio_entry_exit_table
 
 from ..config import ConfigLoader
 from ..models.portfolio import (
     Direction,
     PortfolioConfig,
     PortfolioProcessingConfig,
-    PortfolioReviewConfig,
+    PortfolioSynthesisConfig,
     ReviewStrategyConfig,
     StrategyType,
 )
@@ -130,14 +131,44 @@ def load_strategies_from_raw_csv(
         raise ValueError(f"Failed to load strategies from CSV {csv_path}: {e}")
 
 
+def determine_portfolio_status(portfolio):
+    """Determine portfolio status based on signals and open trades."""
+    signal_entry = str(portfolio.get("Signal Entry", "")).lower() == "true"
+    signal_exit = str(portfolio.get("Signal Exit", "")).lower() == "true"
+    total_open_trades = portfolio.get("Total Open Trades")
+    
+    if signal_entry:
+        return "Entry"
+    elif signal_exit:
+        return "Exit"
+    elif total_open_trades == 1 or (isinstance(total_open_trades, str) and total_open_trades == "1"):
+        return "Active"
+    else:
+        return "Inactive"
+
+
+def filter_entry_strategies(portfolios: List[dict]) -> List[dict]:
+    """Filter portfolios to only Entry status strategies."""
+    return [p for p in portfolios if determine_portfolio_status(p) == "Entry"]
+
+
+def generate_csv_output_for_portfolios(portfolios: List[dict]) -> str:
+    """Generate CSV string output ready for copy/paste."""
+    if not portfolios:
+        return "No Entry strategies found"
+    
+    df = pd.DataFrame(portfolios)
+    return df.to_csv(index=False, lineterminator="\n").strip()
+
+
 @app.command()
 def update(
     ctx: typer.Context,
     profile: Optional[str] = typer.Option(
-        None, "--profile", "-p", help="Configuration profile name"
+        None, "--config", "-c", help="Configuration profile name"
     ),
     portfolio_file: Optional[str] = typer.Option(
-        None, "--portfolio", "-f", help="Portfolio filename to process"
+        None, "--portfolio", "-p", help="Portfolio filename to process"
     ),
     refresh: bool = typer.Option(
         True, "--refresh/--no-refresh", help="Whether to refresh cached data"
@@ -156,7 +187,7 @@ def update(
     and generates updated portfolio summaries with performance metrics.
 
     Examples:
-        trading-cli portfolio update --profile default_portfolio
+        trading-cli portfolio update --config default_portfolio
         trading-cli portfolio update --portfolio DAILY.csv --export-equity
         trading-cli portfolio update --portfolio risk_on.csv --dry-run
     """
@@ -252,7 +283,7 @@ def update(
 def process(
     ctx: typer.Context,
     profile: Optional[str] = typer.Option(
-        None, "--profile", "-p", help="Configuration profile name"
+        None, "--config", "-c", help="Configuration profile name"
     ),
     input_dir: Optional[Path] = typer.Option(
         None, "--input-dir", help="Input directory containing portfolio files"
@@ -276,7 +307,7 @@ def process(
 
     Examples:
         trading-cli portfolio process --input-dir ./data/raw/strategies --output-dir ./processed
-        trading-cli portfolio process --profile portfolio_processing --format json
+        trading-cli portfolio process --config portfolio_processing --format json
     """
     try:
         # Get global CLI options
@@ -503,7 +534,7 @@ def process(
 def aggregate(
     ctx: typer.Context,
     profile: Optional[str] = typer.Option(
-        None, "--profile", "-p", help="Configuration profile name"
+        None, "--config", "-c", help="Configuration profile name"
     ),
     by_ticker: bool = typer.Option(
         True, "--by-ticker/--no-by-ticker", help="Aggregate results by ticker"
@@ -528,7 +559,7 @@ def aggregate(
 
     Examples:
         trading-cli portfolio aggregate --by-ticker --output aggregated_results.csv
-        trading-cli portfolio aggregate --profile portfolio_processing --no-breadth
+        trading-cli portfolio aggregate --config portfolio_processing --no-breadth
     """
     try:
         # Get global CLI options
@@ -694,10 +725,10 @@ def aggregate(
 
 
 @app.command()
-def review(
+def synthesize(
     ctx: typer.Context,
     profile: Optional[str] = typer.Option(
-        None, "--profile", "-p", help="Configuration profile name"
+        None, "--config", "-c", help="Configuration profile name"
     ),
     strategy_name: Optional[str] = typer.Option(
         None, "--strategy", help="Single strategy name (e.g., AAPL_SMA_20_50)"
@@ -743,32 +774,32 @@ def review(
     ),
 ):
     """
-    Run comprehensive portfolio review analysis.
+    Run comprehensive portfolio synthesis analysis.
 
     Supports both single and multi-strategy portfolio analysis with benchmark
     comparison, risk metrics calculation, and comprehensive visualization.
 
     Examples:
         # Single strategy from profile
-        trading-cli portfolio review --profile portfolio_review_btc
+        trading-cli portfolio synthesize --config portfolio_synthesis_btc
 
         # Multi-strategy analysis
-        trading-cli portfolio review --profile portfolio_review_multi_crypto
+        trading-cli portfolio synthesize --config portfolio_synthesis_multi_crypto
 
         # Custom single strategy
-        trading-cli portfolio review --ticker BTC-USD --benchmark SPY
+        trading-cli portfolio synthesize --ticker BTC-USD --benchmark SPY
 
-        # Review with custom output
-        trading-cli portfolio review --profile portfolio_review_op --output-format detailed --save-plots
+        # Synthesize with custom output
+        trading-cli portfolio synthesize --config portfolio_synthesis_op --output-format detailed --save-plots
 
         # Export raw data for external analysis
-        trading-cli portfolio review --profile portfolio_review_btc --export-raw-data
+        trading-cli portfolio synthesize --config portfolio_synthesis_btc --export-raw-data
 
         # Export specific data types and formats
-        trading-cli portfolio review --ticker AAPL --export-raw-data --raw-data-formats csv,json --raw-data-types portfolio_value,returns,trades
+        trading-cli portfolio synthesize --ticker AAPL --export-raw-data --raw-data-formats csv,json --raw-data-types portfolio_value,returns,trades
 
         # Export with VectorBT objects for full functionality
-        trading-cli portfolio review --profile portfolio_review_multi_crypto --export-raw-data --include-vectorbt
+        trading-cli portfolio synthesize --config portfolio_synthesis_multi_crypto --export-raw-data --include-vectorbt
     """
     try:
         # Get global CLI options
@@ -836,10 +867,10 @@ def review(
 
         # Load configuration
         if profile:
-            config = loader.load_from_profile(profile, PortfolioReviewConfig, overrides)
+            config = loader.load_from_profile(profile, PortfolioSynthesisConfig, overrides)
         else:
             if not ticker:
-                console.error("Either --profile or --ticker must be specified")
+                console.error("Either --config or --ticker must be specified")
                 raise typer.Exit(1)
 
             # Create minimal config template for single ticker
@@ -855,7 +886,7 @@ def review(
                 "export_equity_curve": True,
                 "enable_plotting": True,
             }
-            config = loader.load_from_dict(template, PortfolioReviewConfig, overrides)
+            config = loader.load_from_dict(template, PortfolioSynthesisConfig, overrides)
 
         # Handle raw_strategies CSV loading
         if config.raw_strategies:
@@ -906,13 +937,13 @@ def review(
             raise typer.Exit(1)
 
         if dry_run:
-            _show_portfolio_review_config_preview(config, console)
+            _show_portfolio_synthesis_config_preview(config, console)
             return
 
         if global_verbose:
-            console.debug("Loading portfolio review services...")
+            console.debug("Loading portfolio synthesis services...")
 
-        # Import portfolio review services
+        # Import portfolio synthesis services
         from ...contexts.portfolio.services.benchmark_comparison_service import (
             BenchmarkComparisonService,
         )
@@ -925,10 +956,10 @@ def review(
             ExportFormat,
         )
         from ...contexts.portfolio.services.portfolio_review_service import (
-            PortfolioReviewConfig as ServiceConfig,
+            PortfolioSynthesisConfig as ServiceConfig,
         )
         from ...contexts.portfolio.services.portfolio_review_service import (
-            PortfolioReviewService,
+            PortfolioSynthesisService,
         )
         from ...contexts.portfolio.services.portfolio_review_service import (
             StrategyConfig as ServiceStrategyConfig,
@@ -1007,25 +1038,26 @@ def review(
             calculate_risk_metrics=config.calculate_risk_metrics,
             export_raw_data=config.raw_data_export.enable,
             raw_data_export_config=export_config,
+            base_dir=str(config.base_dir),
         )
 
-        # Initialize portfolio review service
-        review_service = PortfolioReviewService(service_config)
+        # Initialize portfolio synthesis service
+        synthesis_service = PortfolioSynthesisService(service_config)
 
-        console.heading("Running Portfolio Review Analysis", level=2)
+        console.heading("Running Portfolio Synthesis Analysis", level=2)
 
         # Run analysis based on strategy count
         if config.is_single_strategy:
             console.info(f"Analyzing single strategy: {config.strategies[0].ticker}")
-            results = review_service.run_single_strategy_review(service_strategies[0])
+            results = synthesis_service.run_single_strategy_synthesis(service_strategies[0])
         else:
             console.info(
                 f"Analyzing {len(config.strategies)} strategies across {len(config.unique_tickers)} tickers"
             )
-            results = review_service.run_multi_strategy_review()
+            results = synthesis_service.run_multi_strategy_synthesis()
 
         # Display results
-        _display_portfolio_review_results(results, config, output_format, console)
+        _display_portfolio_synthesis_results(results, config, output_format, console)
 
         # Generate visualizations if enabled
         if config.enable_plotting and save_plots:
@@ -1072,7 +1104,7 @@ def review(
                     f"Visualization generation failed: {viz_results.error_message}"
                 )
 
-        console.success("Portfolio review completed successfully!")
+        console.success("Portfolio synthesis completed successfully!")
 
         if config.is_single_strategy:
             console.info(
@@ -1084,10 +1116,115 @@ def review(
             )
 
     except Exception as e:
-        console.error(f"Error in portfolio review: {e}")
+        console.error(f"Error in portfolio synthesis: {e}")
         if global_verbose:
             raise
         raise typer.Exit(1)
+
+
+@app.command()
+def review(
+    ctx: typer.Context,
+    portfolio: str = typer.Option(..., "--portfolio", "-p", help="Portfolio filename to review"),
+    sort_by: str = typer.Option("Score", "--sort-by", help="Column to sort by"),
+    limit: int = typer.Option(None, "--limit", "-n", help="Number of rows to display (optional)"),
+    descending: bool = typer.Option(True, "--desc/--asc", help="Sort in descending order")
+):
+    """
+    Review portfolio performance with Rich CLI display.
+    
+    This is a read-only command that displays portfolio data using the same
+    Rich CLI output and tables as 'trading-cli portfolio update'.
+    
+    Examples:
+        trading-cli portfolio review --portfolio portfolio
+        trading-cli portfolio review --portfolio DAILY --limit 10 --sort-by "Total Return [%]"
+        trading-cli portfolio review --portfolio risk_on --desc
+        trading-cli portfolio review --portfolio crypto --asc
+    """
+    try:
+        # Get global CLI options
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+        
+        # Portfolio commands always show rich output
+        console = ConsoleLogger(verbose=global_verbose, quiet=False)
+        
+        # Resolve portfolio path
+        portfolio_path = f"data/raw/strategies/{resolve_portfolio_path(portfolio)}"
+        
+        # Check if portfolio file exists
+        from pathlib import Path
+        if not Path(portfolio_path).exists():
+            console.error(f"Portfolio file not found: {portfolio_path}")
+            
+            # Show available portfolios
+            strategies_dir = Path("data/raw/strategies")
+            if strategies_dir.exists():
+                available = [f.stem for f in strategies_dir.glob("*.csv")]
+                if available:
+                    console.info("Available portfolios:")
+                    for name in sorted(available)[:10]:  # Show first 10
+                        console.info(f"  - {name}")
+                    if len(available) > 10:
+                        console.info(f"  ... and {len(available) - 10} more")
+            raise typer.Exit(1)
+        
+        console.heading(f"Portfolio Review: {portfolio}", level=1)
+        
+        # Load portfolio data
+        import pandas as pd
+        try:
+            df = pd.read_csv(portfolio_path)
+            console.info(f"Loaded {len(df)} strategies from {portfolio_path}")
+        except Exception as e:
+            console.error(f"Error loading portfolio file: {e}")
+            raise typer.Exit(1)
+        
+        # Convert DataFrame to list of dictionaries (format expected by display functions)
+        portfolios = df.to_dict('records')
+        
+        # Apply sorting if requested
+        if sort_by and sort_by in df.columns:
+            portfolios = sorted(portfolios, key=lambda x: x.get(sort_by, 0), reverse=descending)
+        
+        # Apply limit if specified
+        if limit:
+            portfolios = portfolios[:limit]
+        
+        # Create a simple logging function for the display functions
+        def log_func(message: str, level: str = "info"):
+            if level == "error":
+                console.error(message)
+            elif level == "warning":
+                console.warning(message)
+            else:
+                console.debug(message)
+        
+        # Use the same display functions as portfolio update
+        display_portfolio_table(portfolios, log_func)
+        display_portfolio_entry_exit_table(portfolios, log_func)
+        display_portfolio_summary(portfolios, execution_time=None, log_func=log_func)
+        
+        # Add CSV output section for Entry strategies only
+        entry_strategies = filter_entry_strategies(portfolios)
+        if entry_strategies:
+            rprint(f"\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
+            csv_output = generate_csv_output_for_portfolios(entry_strategies)
+            csv_lines = csv_output.split("\n")
+            for line in csv_lines:
+                print(line)  # Plain print without Rich formatting/wrapping
+        else:
+            rprint(f"\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
+            print("No Entry strategies found")
+        
+        console.success("Portfolio review completed!")
+        
+    except Exception as e:
+        console.error(f"Error reviewing portfolio: {e}")
+        if global_verbose:
+            raise
+        raise typer.Exit(1)
+
 
 
 def _show_portfolio_config_preview(config: PortfolioConfig, console: ConsoleLogger):
@@ -1576,11 +1713,11 @@ def _save_aggregation_csv(aggregation_results: dict, output_path: Path):
     df.to_csv(output_path, index=False)
 
 
-def _show_portfolio_review_config_preview(
-    config: PortfolioReviewConfig, console: ConsoleLogger
+def _show_portfolio_synthesis_config_preview(
+    config: PortfolioSynthesisConfig, console: ConsoleLogger
 ):
-    """Display portfolio review configuration preview for dry run."""
-    table = Table(title="Portfolio Review Configuration Preview", show_header=True)
+    """Display portfolio synthesis configuration preview for dry run."""
+    table = Table(title="Portfolio Synthesis Configuration Preview", show_header=True)
     table.add_column("Parameter", style="cyan", no_wrap=True)
     table.add_column("Value", style="green")
 
@@ -1642,10 +1779,10 @@ def _show_portfolio_review_config_preview(
     console.warning("This is a dry run. Use --no-dry-run to execute.")
 
 
-def _display_portfolio_review_results(
-    results, config: PortfolioReviewConfig, output_format: str, console: ConsoleLogger
+def _display_portfolio_synthesis_results(
+    results, config: PortfolioSynthesisConfig, output_format: str, console: ConsoleLogger
 ):
-    """Display portfolio review results in specified format."""
+    """Display portfolio synthesis results in specified format."""
 
     # Portfolio Composition Table (for multi-strategy portfolios)
     if len(config.strategies) > 1:

@@ -548,7 +548,7 @@ def sweep(
 
 
 @app.command()
-def analyze(
+def review(
     ctx: typer.Context,
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
@@ -593,15 +593,15 @@ def analyze(
     in both table format and raw CSV format ready for copy/paste.
 
     Examples:
-        trading-cli strategy analyze --profile asia_top_50 --best
-        trading-cli strategy analyze --profile asia_top_50 --best --current
-        trading-cli strategy analyze --profile asia_top_50 --best --date 20250816
-        trading-cli strategy analyze --profile asia_top_50 --best --date 20250816 --top-n 25
-        trading-cli strategy analyze --profile asia_top_50 --best --output-format raw
-        trading-cli strategy analyze --profile asia_top_50 --best --sort-by "Total Return [%]"
-        trading-cli strategy analyze --best --current --ticker AAPL,MSFT,GOOGL
-        trading-cli strategy analyze --best --date 20250816 --ticker AAPL,MSFT,GOOGL
-        trading-cli strategy analyze --profile asia_top_50 --best --ticker TAL,META,SYF
+        trading-cli strategy review --profile asia_top_50 --best
+        trading-cli strategy review --profile asia_top_50 --best --current
+        trading-cli strategy review --profile asia_top_50 --best --date 20250816
+        trading-cli strategy review --profile asia_top_50 --best --date 20250816 --top-n 25
+        trading-cli strategy review --profile asia_top_50 --best --output-format raw
+        trading-cli strategy review --profile asia_top_50 --best --sort-by "Total Return [%]"
+        trading-cli strategy review --best --current --ticker AAPL,MSFT,GOOGL
+        trading-cli strategy review --best --date 20250816 --ticker AAPL,MSFT,GOOGL
+        trading-cli strategy review --profile asia_top_50 --best --ticker TAL,META,SYF
     """
     try:
         # Get global options from context
@@ -657,13 +657,13 @@ def analyze(
             )
             rprint("[dim]Examples:[/dim]")
             rprint(
-                "[dim]  Profile mode: trading-cli strategy analyze --profile asia_top_50 --best[/dim]"
+                "[dim]  Profile mode: trading-cli strategy review --profile asia_top_50 --best[/dim]"
             )
             rprint(
-                "[dim]  Auto-discovery: trading-cli strategy analyze --best --current[/dim]"
+                "[dim]  Auto-discovery: trading-cli strategy review --best --current[/dim]"
             )
             rprint(
-                "[dim]  Ticker filtering: trading-cli strategy analyze --best --current --ticker AAPL,MSFT[/dim]"
+                "[dim]  Ticker filtering: trading-cli strategy review --best --current --ticker AAPL,MSFT[/dim]"
             )
             raise typer.Exit(1)
 
@@ -672,7 +672,7 @@ def analyze(
                 "[red]Error: --best flag is required (only portfolios_best analysis is currently supported)[/red]"
             )
             rprint(
-                "[dim]Example: trading-cli strategy analyze --profile asia_top_50 --best[/dim]"
+                "[dim]Example: trading-cli strategy review --profile asia_top_50 --best[/dim]"
             )
             raise typer.Exit(1)
 
@@ -802,7 +802,7 @@ def analyze(
 
         if output_format == "raw":
             # Raw CSV output only
-            rprint("\n[bold cyan]📋 Raw CSV Data (Ready for Copy/Paste):[/bold cyan]")
+            rprint("\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
             csv_output = analysis_service.generate_csv_output(
                 display_data["all_results"]
             )
@@ -831,7 +831,7 @@ def analyze(
                 )
 
             # Raw CSV output section
-            rprint(f"\n[bold cyan]📋 Raw CSV Data (Ready for Copy/Paste):[/bold cyan]")
+            rprint(f"\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
             csv_output = analysis_service.generate_csv_output(
                 display_data["all_results"]
             )
@@ -843,7 +843,7 @@ def analyze(
                 print(line)  # Plain print without Rich formatting/wrapping
 
     except Exception as e:
-        handle_command_error(e, "strategy analyze", global_verbose)
+        handle_command_error(e, "strategy review", global_verbose)
 
 
 def _display_portfolio_table(df, display_columns):

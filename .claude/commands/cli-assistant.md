@@ -64,7 +64,7 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 
 - `run` - Execute strategy analysis with profile or custom parameters
 - `sweep` - Parameter sweep analysis for optimization
-- `analyze` - Single strategy detailed analysis
+- `review` - Single strategy detailed analysis
 
 ```bash
 # Profile-based execution
@@ -77,7 +77,7 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 ./trading-cli strategy sweep --ticker AAPL --fast-range 5,89 --slow-range 8,89 --min-trades 50
 
 # Single strategy analysis
-./trading-cli strategy analyze --ticker BTC-USD --strategy-type SMA --fast-period 9 --slow-period 21
+./trading-cli strategy review --ticker BTC-USD --strategy-type SMA --fast-period 9 --slow-period 21
 
 # Advanced filtering
 ./trading-cli strategy run --profile ma_cross_crypto --min-win-rate 0.6 --min-profit-factor 1.5 --min-sortino 1.0
@@ -105,17 +105,17 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 # Batch processing with correlation analysis
 ./trading-cli portfolio aggregate --correlation-analysis --risk-metrics
 
-# Comprehensive portfolio review analysis (NEW)
-./trading-cli portfolio review --profile portfolio_review_multi_crypto
+# Comprehensive portfolio synthesis analysis (NEW)
+./trading-cli portfolio synthesis --profile portfolio_synthesis_multi_crypto
 
 # CSV-based strategy loading with raw_strategies
-./trading-cli portfolio review --profile portfolio_review_multi_crypto --benchmark SPY
+./trading-cli portfolio synthesis --profile portfolio_synthesis_multi_crypto --benchmark SPY
 
 # Single strategy analysis with custom parameters
-./trading-cli portfolio review --ticker BTC-USD --benchmark QQQ --save-plots --export-stats
+./trading-cli portfolio synthesis --ticker BTC-USD --benchmark QQQ --save-plots --export-stats
 
 # Raw data export for external analysis
-./trading-cli portfolio review --profile portfolio_review_multi_crypto \
+./trading-cli portfolio synthesis --profile portfolio_synthesis_multi_crypto \
   --export-raw-data \
   --raw-data-formats csv,json,parquet \
   --raw-data-types portfolio_value,returns,trades,positions \
@@ -272,7 +272,7 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
   --format json \
   --include-analytics
 
-# Portfolio review with detailed analysis
+# portfolio synthesis with detailed analysis
 ./trading-cli concurrency review portfolio.csv \
   --focus allocation \
   --output-format json \
@@ -629,7 +629,7 @@ def validate_minimums(cls, v):
   --memory-optimization
 
 # Single strategy deep analysis
-./trading-cli strategy analyze \
+./trading-cli strategy review \
   --ticker BTC-USD \
   --strategy-type SMA \
   --fast-period 9 \
@@ -651,18 +651,18 @@ def validate_minimums(cls, v):
   --convert-format \
   --backup
 
-# Comprehensive portfolio review analysis
-./trading-cli portfolio review --profile portfolio_review_multi_crypto --verbose
+# Comprehensive portfolio synthesis analysis
+./trading-cli portfolio synthesis --profile portfolio_synthesis_multi_crypto --verbose
 
 # CSV-based multi-strategy analysis with benchmarking
-./trading-cli portfolio review --profile portfolio_review_multi_crypto \
+./trading-cli portfolio synthesis --profile portfolio_synthesis_multi_crypto \
   --benchmark SPY \
   --save-plots \
   --export-stats \
   --output-format detailed
 
 # Single strategy comprehensive analysis
-./trading-cli portfolio review \
+./trading-cli portfolio synthesis \
   --ticker BTC-USD \
   --benchmark QQQ \
   --save-plots \
@@ -671,7 +671,7 @@ def validate_minimums(cls, v):
   --raw-data-types all
 
 # Advanced raw data export with VectorBT objects
-./trading-cli portfolio review --profile portfolio_review_multi_crypto \
+./trading-cli portfolio synthesis --profile portfolio_synthesis_multi_crypto \
   --export-raw-data \
   --include-vectorbt \
   --raw-data-output-dir ./advanced_analysis \
@@ -1308,29 +1308,29 @@ Resolution:
 ./trading-cli config show profile_name --resolve-inheritance
 ```
 
-**Portfolio Review Configuration Errors:**
+**portfolio synthesis Configuration Errors:**
 
 ```bash
 ERROR: Raw strategies CSV file does not exist: data/raw/strategies/invalid.csv
 
 # Diagnosis
-./trading-cli config show portfolio_review_multi_crypto --format json
+./trading-cli config show portfolio_synthesis_multi_crypto --format json
 ls data/raw/strategies/
 
 # Resolution
-./trading-cli portfolio review --profile portfolio_review_multi_crypto --raw-strategies TSLA
-./trading-cli config validate portfolio_review_multi_crypto --detailed
+./trading-cli portfolio synthesis --profile portfolio_synthesis_multi_crypto --raw-strategies TSLA
+./trading-cli config validate portfolio_synthesis_multi_crypto --detailed
 ```
 
 ```bash
 ERROR: Either 'strategies' must be provided or 'raw_strategies' must reference a valid CSV file
 
 # Diagnosis
-./trading-cli config show portfolio_review_profile --resolve-inheritance
+./trading-cli config show portfolio_synthesis_profile --resolve-inheritance
 
 # Resolution
-./trading-cli config edit portfolio_review_profile  # Add strategies or raw_strategies
-./trading-cli portfolio review --ticker BTC-USD  # Use CLI override
+./trading-cli config edit portfolio_synthesis_profile  # Add strategies or raw_strategies
+./trading-cli portfolio synthesis --ticker BTC-USD  # Use CLI override
 ```
 
 #### **2. Runtime Errors**
@@ -1389,42 +1389,42 @@ du -h data/raw/ && ./trading-cli tools health --memory-analysis
 ./trading-cli strategy run --memory-threshold-mb 500 --gc-optimization
 ```
 
-**Portfolio Review Analysis Errors:**
+**portfolio synthesis Analysis Errors:**
 
 ```bash
 ERROR: Could not create benchmark. Primary symbol 'SPY' and fallback symbols (QQQ, VTI, VTSMX) all failed
 
 # Diagnosis
-./trading-cli portfolio review --ticker BTC-USD --dry-run --verbose
+./trading-cli portfolio synthesis --ticker BTC-USD --dry-run --verbose
 ./trading-cli tools health --check-dependencies --check-network
 
 # Resolution
-./trading-cli portfolio review --ticker BTC-USD --benchmark QQQ  # Try different benchmark
-./trading-cli portfolio review --profile portfolio_review_multi_crypto  # Use equal_weighted_portfolio
+./trading-cli portfolio synthesis --ticker BTC-USD --benchmark QQQ  # Try different benchmark
+./trading-cli portfolio synthesis --profile portfolio_synthesis_multi_crypto  # Use equal_weighted_portfolio
 ```
 
 ```bash
 ERROR: No strategies defined in config
 
 # Diagnosis
-./trading-cli config show portfolio_review_profile --resolve-inheritance --verbose
+./trading-cli config show portfolio_synthesis_profile --resolve-inheritance --verbose
 
 # Resolution
-./trading-cli portfolio review --ticker BTC-USD  # Add ticker via CLI
-./trading-cli config edit portfolio_review_profile  # Add strategies to profile
-./trading-cli portfolio review --raw-strategies crypto  # Use CSV loading
+./trading-cli portfolio synthesis --ticker BTC-USD  # Add ticker via CLI
+./trading-cli config edit portfolio_synthesis_profile  # Add strategies to profile
+./trading-cli portfolio synthesis --raw-strategies crypto  # Use CSV loading
 ```
 
 ```bash
 ERROR: Failed to create VectorBT portfolio - insufficient data
 
 # Diagnosis
-./trading-cli portfolio review --ticker INVALID_TICKER --dry-run --verbose
+./trading-cli portfolio synthesis --ticker INVALID_TICKER --dry-run --verbose
 ./trading-cli tools health --check-data-sources
 
 # Resolution
-./trading-cli portfolio review --ticker BTC-USD --start-date 2023-01-01  # Adjust date range
-./trading-cli portfolio review --profile portfolio_review_multi_crypto --verbose  # Use working profile
+./trading-cli portfolio synthesis --ticker BTC-USD --start-date 2023-01-01  # Adjust date range
+./trading-cli portfolio synthesis --profile portfolio_synthesis_multi_crypto --verbose  # Use working profile
 ```
 
 #### **4. Position Equity Management Issues**
@@ -1679,9 +1679,9 @@ ERROR: Insufficient data for Monte Carlo analysis
 - **Batch Operations**: Optimized batch processing with configurable sizes
 - **Progress Tracking**: Real-time progress monitoring with ETA calculations
 
-#### **Raw Strategies CSV Loading (Portfolio Review Innovation)**
+#### **Raw Strategies CSV Loading (portfolio synthesis Innovation)**
 
-The portfolio review system supports loading strategy configurations from CSV files in `data/raw/strategies/`, enabling dynamic strategy management and automated analysis workflows.
+The portfolio synthesis system supports loading strategy configurations from CSV files in `data/raw/strategies/`, enabling dynamic strategy management and automated analysis workflows.
 
 **File Structure:**
 
@@ -1697,9 +1697,9 @@ data/raw/strategies/
 **Configuration Usage:**
 
 ```yaml
-# In profile configuration (e.g., portfolio_review_multi_crypto.yaml)
+# In profile configuration (e.g., portfolio_synthesis_multi_crypto.yaml)
 metadata:
-  name: portfolio_review_multi_crypto
+  name: portfolio_synthesis_multi_crypto
   description: 'Multi-strategy analysis with CSV-based strategy loading'
 
 config:
@@ -1717,13 +1717,13 @@ config:
 
 ```bash
 # Profile-based CSV strategy loading
-./trading-cli portfolio review --profile portfolio_review_multi_crypto
+./trading-cli portfolio synthesis --profile portfolio_synthesis_multi_crypto
 
 # Override CSV file at runtime (loads from protected.csv instead)
-./trading-cli portfolio review --profile portfolio_review_multi_crypto --raw-strategies protected
+./trading-cli portfolio synthesis --profile portfolio_synthesis_multi_crypto --raw-strategies protected
 
 # Single strategy with CSV loading
-./trading-cli portfolio review --raw-strategies crypto --benchmark SPY --verbose
+./trading-cli portfolio synthesis --raw-strategies crypto --benchmark SPY --verbose
 ```
 
 **CSV File Format:**
@@ -1853,7 +1853,7 @@ data/raw/portfolio_exports/TSLA/
 
 # Portfolio operations
 ./trading-cli portfolio update --validate           # Update and aggregate portfolios
-./trading-cli portfolio review --profile portfolio_review_multi_crypto  # Comprehensive portfolio analysis
+./trading-cli portfolio synthesis --profile portfolio_synthesis_multi_crypto  # Comprehensive portfolio analysis
 
 # SPDS analysis with dual-source (v2.0)
 ./trading-cli spds analyze risk_on.csv --data-source auto  # Auto-detection analysis
@@ -1902,7 +1902,7 @@ data/raw/portfolio_exports/TSLA/
 # Memory optimization for large operations
 ./trading-cli strategy run --memory-optimization --streaming
 ./trading-cli portfolio process --streaming --chunk-size 5000
-./trading-cli portfolio review --profile portfolio_review_multi_crypto --export-raw-data --memory-optimization
+./trading-cli portfolio synthesis --profile portfolio_synthesis_multi_crypto --export-raw-data --memory-optimization
 ./trading-cli positions equity --memory-optimization --parallel-processing
 ./trading-cli concurrency analyze --memory-optimization --streaming --memory-threshold 2000
 ./trading-cli concurrency optimize --parallel --max-workers 8
@@ -1912,12 +1912,12 @@ data/raw/portfolio_exports/TSLA/
 ## Notes
 
 - **System Status**: Production-ready enterprise-grade CLI with comprehensive testing and validation
-- **Portfolio Review Enhancement**: Comprehensive multi-strategy analysis with CSV-based strategy loading, dynamic output organization, and advanced benchmarking
+- **portfolio synthesis Enhancement**: Comprehensive multi-strategy analysis with CSV-based strategy loading, dynamic output organization, and advanced benchmarking
 - **Raw Strategies Innovation**: Dynamic strategy loading from CSV files with automatic subdirectory organization and profile integration
 - **SPDS Enhancement**: v2.0 with revolutionary dual-source analysis and triple-layer convergence
 - **Position Equity Management**: Mathematical consistency validation with precision fee calculations and cash flow analysis
 - **Concurrency Analysis**: Advanced strategy interaction analysis with optimization, Monte Carlo risk analysis, and optimized profile inheritance (75% duplication reduction)
-- **Service Architecture**: Integrated portfolio review, visualization, benchmark comparison, and data export services
+- **Service Architecture**: Integrated portfolio synthesis, visualization, benchmark comparison, and data export services
 - **Type Safety**: Complete Pydantic validation with business logic enforcement
 - **Performance**: Optimized for large-scale operations with memory efficiency and parallel processing
 - **Rich Terminal**: Beautiful formatted output with progress tracking and interactive features

@@ -12,8 +12,11 @@ from app.tools.services.seasonality_expectancy_service import (
     SeasonalityExpectancyService,
 )
 from app.tools.services.seasonality_service import SeasonalityService
+from app.tools.services.portfolio_seasonality_service import (
+    PortfolioSeasonalityService,
+)
 
-from ..models.seasonality import SeasonalityConfig, SeasonalityExpectancyConfig
+from ..models.seasonality import SeasonalityConfig, SeasonalityExpectancyConfig, PortfolioSeasonalityConfig
 
 # Create seasonality sub-app
 app = typer.Typer(
@@ -407,6 +410,185 @@ def current(
     except Exception as e:
         rprint(f"\n[red]Error: {str(e)}[/red]")
         raise typer.Exit(1)
+
+
+@app.command()
+def portfolio(
+    portfolio_name: str = typer.Argument(
+        ...,
+        help="Portfolio filename from data/raw/strategies/ directory"
+    ),
+    default_time_period: int = typer.Option(
+        5,
+        "--default-days",
+        "-d",
+        help="Default time period in days when no signal entry exists"
+    ),
+    confidence_level: float = typer.Option(
+        0.95,
+        "--confidence-level",
+        "-c",
+        help="Confidence level for statistical tests (0-1)",
+    ),
+    output_format: str = typer.Option(
+        "csv",
+        "--output-format",
+        "-f",
+        help="Output format (csv or json)",
+    ),
+    detrend: bool = typer.Option(
+        True,
+        "--detrend/--no-detrend",
+        help="Remove trend before analyzing seasonality",
+    ),
+    min_sample_size: int = typer.Option(
+        10,
+        "--min-sample-size",
+        "-s",
+        help="Minimum sample size for pattern analysis",
+    ),
+    include_holidays: bool = typer.Option(
+        False,
+        "--include-holidays",
+        help="Include holiday effect analysis",
+    ),
+):
+    """Run seasonality analysis on all tickers in a portfolio with intelligent time period determination."""
+    try:
+        # Create configuration
+        config = PortfolioSeasonalityConfig(
+            portfolio=portfolio_name,
+            default_time_period_days=default_time_period,
+            confidence_level=confidence_level,
+            output_format=output_format,
+            detrend_data=detrend,
+            min_sample_size=min_sample_size,
+            include_holidays=include_holidays,
+        )
+
+        # Display initial configuration
+        rprint("\n[bold cyan]Portfolio Seasonality Analysis[/bold cyan]")
+        rprint(f"  Portfolio: [yellow]{portfolio_name}[/yellow]")
+        rprint(f"  Default time period: [green]{default_time_period} days[/green]")
+        rprint(f"  Confidence level: {confidence_level}")
+        rprint(f"  Output format: {output_format}")
+        rprint(f"  Detrend data: {detrend}")
+        rprint(f"  Min sample size: {min_sample_size}")
+        if include_holidays:
+            rprint("  [yellow]Including holiday effects[/yellow]")
+        rprint()
+
+        # Run analysis
+        service = PortfolioSeasonalityService(config)
+        results = service.run_analysis()
+
+        # Display results table
+        if results['display_data']:
+            _display_portfolio_results(results['display_data'], portfolio_name)
+        
+        # Display summary
+        rprint(f"\n[bold green]✨ Analysis Complete![/bold green]")
+        rprint(f"📊 [cyan]Portfolio: {results['portfolio']}[/cyan]")
+        rprint(f"🎯 [green]Total tickers: {results['total_tickers']}[/green]")
+        rprint(f"✅ [green]Successful analyses: {results['successful_analyses']}[/green]")
+
+        # Show any errors
+        failed_count = results['total_tickers'] - results['successful_analyses']
+        if failed_count > 0:
+            rprint(f"❌ [red]Failed analyses: {failed_count}[/red]")
+            
+            # List failed tickers
+            failed_tickers = [
+                ticker for ticker, result in results['ticker_results'].items()
+                if 'error' in result
+            ]
+            if failed_tickers:
+                rprint(f"   [red]Failed tickers: {', '.join(failed_tickers[:5])}[/red]")
+                if len(failed_tickers) > 5:
+                    rprint(f"   [red]   ... and {len(failed_tickers) - 5} more[/red]")
+
+        # Show time period breakdown
+        signal_based = sum(
+            1 for result in results['ticker_results'].values()
+            if result.get('analysis_source') == 'signal_entry'
+        )
+        default_based = sum(
+            1 for result in results['ticker_results'].values()
+            if result.get('analysis_source') == 'default'
+        )
+
+        rprint(f"\n[bold yellow]📈 Time Period Analysis:[/bold yellow]")
+        rprint(f"🎯 [green]{signal_based} tickers used signal-based time periods[/green]")
+        rprint(f"⏰ [yellow]{default_based} tickers used default {default_time_period}-day period[/yellow]")
+
+    except Exception as e:
+        rprint(f"\n[red]Error: {str(e)}[/red]")
+        raise typer.Exit(1)
+
+
+def _display_portfolio_results(display_data, portfolio_name):
+    """Display portfolio seasonality results in a formatted table."""
+    if not display_data:
+        return
+
+    table = Table(
+        title=f"Portfolio Seasonality Analysis: {portfolio_name}",
+        show_header=True,
+        header_style="bold magenta",
+    )
+
+    table.add_column("Ticker", style="bold white", no_wrap=True)
+    table.add_column("Years", style="cyan", justify="right")
+    table.add_column("Seasonal Strength", style="yellow", justify="right")
+    table.add_column("Strongest Pattern", style="blue")
+    table.add_column("Period", style="white")
+    table.add_column("Avg Return", style="green", justify="right")
+    table.add_column("Win Rate", style="magenta", justify="right")
+    table.add_column("Time Period", style="dim", justify="right")
+
+    for row in display_data:
+        # Color the average return based on value
+        avg_return = row.get('avg_return', 'N/A')
+        if isinstance(avg_return, (int, float)):
+            return_color = "green" if avg_return > 0 else "red"
+            avg_return_str = f"[{return_color}]{avg_return:+.2f}%[/{return_color}]"
+        else:
+            avg_return_str = str(avg_return)
+
+        # Format win rate
+        win_rate = row.get('win_rate', 'N/A')
+        if isinstance(win_rate, (int, float)):
+            win_rate_str = f"{win_rate:.1%}"
+        else:
+            win_rate_str = str(win_rate)
+
+        # Format seasonal strength
+        seasonal_strength = row.get('seasonal_strength', 'N/A')
+        if isinstance(seasonal_strength, (int, float)):
+            seasonal_strength_str = f"{seasonal_strength:.3f}"
+        else:
+            seasonal_strength_str = str(seasonal_strength)
+
+        # Format time period with source indicator
+        time_period_days = row.get('time_period_days', 'N/A')
+        analysis_source = row.get('analysis_source', 'default')
+        if analysis_source == 'signal_entry':
+            time_period_str = f"{time_period_days}d 🎯"
+        else:
+            time_period_str = f"{time_period_days}d"
+
+        table.add_row(
+            row.get('ticker', 'N/A'),
+            str(row.get('years', 'N/A')),
+            seasonal_strength_str,
+            row.get('strongest_pattern', 'N/A'),
+            row.get('period', 'N/A'),
+            avg_return_str,
+            win_rate_str,
+            time_period_str,
+        )
+
+    console.print(table)
 
 
 def _display_expectancy_results(results_df):

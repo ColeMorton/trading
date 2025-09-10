@@ -70,7 +70,7 @@ class TickerProcessor:
             original_ticker_count = len(tickers)
             # Each ticker should contribute an equal share of the global progress
             global_progress_per_ticker = config.get("_GLOBAL_PROGRESS_PER_TICKER", None)
-            
+
             for ticker in tickers:
                 self.log(f"Processing ticker: {ticker}")
 
@@ -80,11 +80,16 @@ class TickerProcessor:
                 # Preserve original ticker count and global progress allocation for accurate progress calculation
                 ticker_config["_ORIGINAL_TICKER_COUNT"] = original_ticker_count
                 if global_progress_per_ticker is not None:
-                    ticker_config["_GLOBAL_PROGRESS_PER_TICKER"] = global_progress_per_ticker
+                    ticker_config[
+                        "_GLOBAL_PROGRESS_PER_TICKER"
+                    ] = global_progress_per_ticker
 
                 # Use unified signal processing that supports both MA and MACD
                 portfolios_df = process_ticker_portfolios(
-                    ticker, ticker_config, self.log, progress_update_fn=progress_update_fn
+                    ticker,
+                    ticker_config,
+                    self.log,
+                    progress_update_fn=progress_update_fn,
                 )
 
                 if portfolios_df is not None and len(portfolios_df) > 0:

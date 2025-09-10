@@ -17,7 +17,7 @@ from ..models.concurrency import ConcurrencyAnalysisConfig, ConcurrencyConfig
 from ..models.portfolio import (
     PortfolioConfig,
     PortfolioProcessingConfig,
-    PortfolioReviewConfig,
+    PortfolioSynthesisConfig,
 )
 from ..models.spds import SPDSConfig
 from ..models.strategy import MACDConfig, MACrossConfig, StrategyConfig
@@ -84,7 +84,8 @@ class Profile(BaseModel):
             "macd": MACDConfig,
             "portfolio": PortfolioConfig,
             "portfolio_processing": PortfolioProcessingConfig,
-            "portfolio_review": PortfolioReviewConfig,
+            "portfolio_synthesis": PortfolioSynthesisConfig,
+            "portfolio_review": PortfolioSynthesisConfig,  # Backward compatibility
             "concurrency": ConcurrencyConfig,
             "concurrency_analysis": ConcurrencyAnalysisConfig,
             "spds": SPDSConfig,

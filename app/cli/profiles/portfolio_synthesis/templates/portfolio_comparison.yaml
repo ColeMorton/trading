@@ -1,0 +1,74 @@
+metadata:
+  name: portfolio_comparison
+  description: Template for comparing multiple strategies across different assets
+  created_at: '2025-01-19T00:00:00.000000'
+  updated_at: '2025-01-19T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - portfolio_synthesis
+    - multi_strategy
+    - comparison
+    - template
+  author: system
+  is_template: true
+
+inherits_from: multi_strategy_base
+config_type: portfolio_synthesis
+
+config:
+  # Template strategies (to be customized by user)
+  strategies:
+    # Strategy 1: Conservative approach
+    - ticker: '{{TICKER_1}}'
+      fast_period: 20
+      slow_period: 50
+      strategy_type: SMA
+
+    # Strategy 2: Aggressive approach
+    - ticker: '{{TICKER_1}}'
+      fast_period: 5
+      slow_period: 15
+      strategy_type: EMA
+
+    # Strategy 3: Different asset, conservative
+    - ticker: '{{TICKER_2}}'
+      fast_period: 20
+      slow_period: 50
+      strategy_type: SMA
+
+    # Strategy 4: Different asset, aggressive
+    - ticker: '{{TICKER_2}}'
+      fast_period: 5
+      slow_period: 15
+      strategy_type: EMA
+
+  # Comparison-focused settings
+
+  # Equal weighted benchmark for fair comparison
+  benchmark:
+    symbol: null
+    benchmark_type: equal_weighted_portfolio
+
+  # Plot configuration (output_dir will be determined automatically by unified structure)
+  plot_config:
+    height: 1200 # Taller for multiple panels
+    include_benchmark: true
+    include_risk_metrics: true
+
+  # Template usage instructions (will be ignored by parser)
+  __template_usage: |
+    To use this template:
+    1. Replace {{TICKER_1}} with your first asset symbol (e.g., BTC-USD, AAPL)
+    2. Replace {{TICKER_2}} with your second asset symbol (e.g., ETH-USD, MSFT)
+    3. Optionally modify the strategy parameters (windows, types)
+    4. Add more strategies by copying the strategy block structure
+    
+    Output directories will be automatically determined by the unified structure.
+
+    This template compares:
+    - Conservative vs Aggressive approaches on same assets
+    - Performance across different assets
+    - SMA vs EMA strategy types
+
+    Example command:
+    trading-cli portfolio synthesize --profile portfolio_comparison

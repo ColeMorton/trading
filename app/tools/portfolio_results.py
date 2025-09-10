@@ -101,14 +101,10 @@ def format_win_rate(value: float) -> Text:
 
     try:
         val = float(value)
-        if val >= 70:
-            color = "bright_green"
-        elif val >= 60:
+        if val > 50:
             color = "green"
-        elif val >= 50:
+        elif val >= 45:
             color = "yellow"
-        elif val >= 40:
-            color = "orange"
         else:
             color = "red"
         return Text(f"{val:.1f}%", style=color)
@@ -116,13 +112,121 @@ def format_win_rate(value: float) -> Text:
         return Text(str(value), style="dim")
 
 
+def format_ratio(value: float) -> Text:
+    """Format ratio with color coding based on performance thresholds."""
+    if value is None or value == "" or str(value).lower() in ["none", "n/a"]:
+        return Text("N/A", style="dim")
+
+    try:
+        val = float(value)
+        if val >= 1.34:
+            color = "green"
+        elif val >= 1.0:
+            color = "yellow"
+        else:
+            color = "red"
+        return Text(f"{val:.2f}", style=color)
+    except (ValueError, TypeError):
+        return Text(str(value), style="dim")
+
+
+def format_duration(value) -> Text:
+    """Format duration with compact display."""
+    if value is None or value == "" or str(value).lower() in ["none", "n/a"]:
+        return Text("N/A", style="dim")
+
+    try:
+        duration_str = str(value)
+        # Parse "X days HH:MM:SS.microseconds" format
+        if "days" in duration_str:
+            parts = duration_str.split()
+            days = int(parts[0])
+            if len(parts) > 2:
+                time_part = parts[2]
+                hours = int(time_part.split(":")[0])
+                return Text(f"{days}d {hours}h", style="blue")
+            else:
+                return Text(f"{days}d", style="blue")
+        else:
+            # Handle time-only format "HH:MM:SS"
+            time_parts = duration_str.split(":")
+            if len(time_parts) >= 2:
+                hours = int(float(time_parts[0]))
+                return Text(f"{hours}h", style="blue")
+            else:
+                return Text(str(value)[:10], style="dim")  # Truncate long values
+    except (ValueError, TypeError, IndexError):
+        return Text(str(value)[:10], style="dim")  # Truncate and show as-is
+
+
+def parse_duration_to_hours(value) -> float:
+    """Parse duration string to total hours for averaging calculations."""
+    if value is None or value == "" or str(value).lower() in ["none", "n/a"]:
+        return 0.0
+    
+    try:
+        duration_str = str(value)
+        total_hours = 0.0
+        
+        # Parse "X days HH:MM:SS.microseconds" format
+        if "days" in duration_str:
+            parts = duration_str.split()
+            days = int(parts[0])
+            total_hours = days * 24.0  # Convert days to hours
+            
+            if len(parts) > 2:
+                time_part = parts[2]
+                time_components = time_part.split(":")
+                if len(time_components) >= 1:
+                    total_hours += int(time_components[0])  # Add hours
+                if len(time_components) >= 2:
+                    total_hours += int(time_components[1]) / 60.0  # Add minutes as fractional hours
+        else:
+            # Handle time-only format "HH:MM:SS"
+            time_parts = duration_str.split(":")
+            if len(time_parts) >= 1:
+                total_hours += int(float(time_parts[0]))  # Hours
+            if len(time_parts) >= 2:
+                total_hours += int(time_parts[1]) / 60.0  # Minutes as fractional hours
+        
+        return total_hours
+    except (ValueError, TypeError, IndexError):
+        return 0.0
+
+
+def format_average_duration(hours: float) -> str:
+    """Format average hours back to readable duration string."""
+    if hours <= 0:
+        return "0h"
+    
+    days = int(hours // 24)
+    remaining_hours = int(hours % 24)
+    
+    if days > 0:
+        if remaining_hours > 0:
+            return f"{days}d {remaining_hours}h"
+        else:
+            return f"{days}d"
+    else:
+        return f"{remaining_hours}h"
+
+
+def format_status(status: str) -> Text:
+    """Format status with emoji and color coding."""
+    if status == "Entry":
+        return Text("🎯 Entry", style="green")
+    elif status == "Active":
+        return Text("🔒 Active", style="blue")
+    elif status == "Exit":
+        return Text("🚪 Exit", style="red")
+    else:  # Inactive
+        return Text("Inactive", style="white")
+
+
 def create_section_header(title: str, emoji: str = "📊") -> None:
     """Create a styled section header."""
     rprint(f"\n[bold cyan]{emoji} {title}[/bold cyan]")
     rprint("=" * (len(title) + 3))
-
-
-# Removed duplicate sort_portfolios function - using unified implementation
 
 
 def filter_open_trades(
@@ -255,6 +359,275 @@ def filter_open_trades(
             log_func("\n=== No Open Trades found ===")
 
     return open_trades
+
+
+# Removed duplicate sort_portfolios function - using unified implementation
+
+
+def _display_portfolio_table_core(
+    display_portfolios: List[Dict[str, Any]], 
+    section_title: str,
+    title_prefix: str, 
+    title_style: str,
+    log_func=None
+) -> None:
+    """Core table display logic shared between portfolio table functions.
+    
+    Args:
+        display_portfolios: List of portfolio dictionaries to display
+        section_title: Title for the section header (e.g., "Portfolio", "Portfolio Entry/Exit")
+        title_prefix: Emoji prefix for table title (e.g., "📊", "🎯") 
+        title_style: Style for table title (e.g., "bold cyan", "bold bright_green")
+        log_func: Optional logging function
+    """
+    if not display_portfolios:
+        create_section_header(section_title, title_prefix.strip())
+        if "Entry/Exit" in section_title:
+            rprint("[blue]📊 No Entry/Exit signals detected[/blue]")
+            rprint("[dim]   All strategies are currently Active or Inactive[/dim]")
+        else:
+            rprint("[yellow]⚠️  No portfolio strategies found[/yellow]")
+            rprint("[dim]   Portfolio may be empty or failed to load[/dim]")
+        return
+
+    create_section_header(section_title, title_prefix.strip())
+
+    table = Table(
+        title=f"{title_prefix} {len(display_portfolios)} {'Entry/Exit Signals' if 'Entry/Exit' in section_title else 'Strategies'}",
+        show_header=True,
+        header_style="bold magenta",
+        title_style=title_style,
+    )
+
+    # Define table columns including new Total Trades column
+    table.add_column("Ticker", style="cyan bold", no_wrap=True)
+    table.add_column("Strategy", style="blue", no_wrap=True)
+    table.add_column("Periods", style="white", justify="center")
+    table.add_column("Total Trades", justify="right")
+    table.add_column("Score", style="bold", justify="right")
+    table.add_column("Win Rate", justify="right")
+    table.add_column("Profit Factor", style="bold", justify="right", no_wrap=True)
+    table.add_column("Expectancy", justify="right", no_wrap=True)
+    table.add_column("Sortino", style="bold", justify="right", no_wrap=True)
+    table.add_column("Return", justify="right")
+    table.add_column("Beats BNH", justify="right", no_wrap=True)
+    table.add_column("Duration", justify="center", no_wrap=True)
+    table.add_column("Status", justify="center")
+    
+    def determine_portfolio_status(portfolio):
+        """Determine portfolio status based on signals and open trades."""
+        signal_entry = str(portfolio.get("Signal Entry", "")).lower() == "true"
+        signal_exit = str(portfolio.get("Signal Exit", "")).lower() == "true"
+        total_open_trades = portfolio.get("Total Open Trades")
+        
+        if signal_entry:
+            return "Entry"
+        elif signal_exit:
+            return "Exit"
+        elif total_open_trades == 1 or (isinstance(total_open_trades, str) and total_open_trades == "1"):
+            return "Active"
+        else:
+            return "Inactive"
+
+    for p in display_portfolios:
+        ticker = p.get("Ticker", "Unknown")
+        strategy_type = p.get("Strategy Type", "Unknown")
+        fast_period = p.get("Fast Period", "N/A")
+        slow_period = p.get("Slow Period", "N/A")
+        signal_period = p.get("Signal Period", "N/A")
+
+        # Format periods
+        if str(signal_period).lower() in ["0", "n/a", "none", ""]:
+            periods = f"{fast_period}/{slow_period}"
+        else:
+            periods = f"{fast_period}/{slow_period}/{signal_period}"
+
+        # Get metrics for display including Total Trades
+        total_trades = p.get("Total Trades", 0)
+        score = p.get("Score", 0)
+        win_rate = p.get("Win Rate [%]", 0)
+        profit_factor = p.get("Profit Factor", 0)
+        expectancy_per_trade = p.get("Expectancy per Trade", 0)
+        sortino_ratio = p.get("Sortino Ratio", 0)
+        total_return = p.get("Total Return [%]", 0)
+        beats_bnh = p.get("Beats BNH [%]", 0)
+        avg_trade_duration = p.get("Avg Trade Duration", "N/A")
+        status = determine_portfolio_status(p)
+
+        table.add_row(
+            ticker,
+            strategy_type,
+            periods,
+            str(total_trades),
+            format_score(score),
+            format_win_rate(win_rate),
+            format_ratio(profit_factor),
+            format_currency(expectancy_per_trade),
+            format_ratio(sortino_ratio),
+            format_percentage(total_return),
+            format_percentage(beats_bnh),
+            format_duration(avg_trade_duration),
+            format_status(status),
+        )
+
+    console.print(table)
+
+    # Summary statistics
+    if len(display_portfolios) > 1:
+        # Count strategies by status
+        status_counts = {"Entry": 0, "Active": 0, "Exit": 0, "Inactive": 0}
+        for p in display_portfolios:
+            status = determine_portfolio_status(p)
+            status_counts[status] = status_counts.get(status, 0) + 1
+        
+        avg_score = sum(float(p.get("Score", 0)) for p in display_portfolios) / len(display_portfolios)
+        avg_win_rate = sum(float(p.get("Win Rate [%]", 0)) for p in display_portfolios) / len(display_portfolios)
+        avg_return = sum(float(p.get("Total Return [%]", 0)) for p in display_portfolios) / len(display_portfolios)
+
+        summary_title = "Entry/Exit Summary" if "Entry/Exit" in section_title else "Portfolio Summary"
+        rprint(f"\n💡 [bold yellow]{summary_title}:[/bold yellow]")
+        rprint(f"   📊 Average Score: {format_score(avg_score)}")
+        rprint(f"   🎯 Average Win Rate: {format_win_rate(avg_win_rate)}")
+        rprint(f"   💰 Average Return: {format_percentage(avg_return)}")
+        
+        # Status Breakdown with visual bars
+        total_strategies = len(display_portfolios)
+        breakdown_title = "Signal Breakdown" if "Entry/Exit" in section_title else "Status Breakdown"
+        rprint(f"   📈 [bold yellow]{breakdown_title}:[/bold yellow]")
+        
+        # Define colors for each status type
+        status_colors = {
+            "Active": "blue",
+            "Entry": "green", 
+            "Exit": "red",
+            "Inactive": "cyan"
+        }
+        
+        # Filter status_counts to only include relevant statuses for Entry/Exit
+        if "Entry/Exit" in section_title:
+            relevant_statuses = {k: v for k, v in status_counts.items() if k in ["Entry", "Exit"] and v > 0}
+        else:
+            relevant_statuses = {k: v for k, v in status_counts.items() if v > 0}
+            
+        for status, count in sorted(relevant_statuses.items(), key=lambda x: x[1], reverse=True):
+            percentage = (count / total_strategies) * 100
+            bar_length = int(percentage / 5)  # Scale for visual bar
+            bar = "█" * bar_length + "░" * (20 - bar_length)
+            color = status_colors.get(status, "cyan")
+            rprint(f"     {status}: [{color}]{bar}[/{color}] {count} ({percentage:.1f}%)")
+
+    # Traditional logging if provided
+    if log_func:
+        if display_portfolios:
+            log_title = "Portfolio Entry/Exit Strategies" if "Entry/Exit" in section_title else "Portfolio Strategies"
+            log_func(f"\n=== {log_title} ===")
+            log_func("Ticker, Strategy Type, Fast Period, Slow Period, Signal Period, Total Trades, Score, Status")
+            for p in display_portfolios:
+                ticker = p.get("Ticker", "Unknown")
+                strategy_type = p.get("Strategy Type", "Unknown")
+                fast_period = p.get("Fast Period", "N/A")
+                slow_period = p.get("Slow Period", "N/A")
+                signal_period = p.get("Signal Period", "N/A")
+                total_trades = p.get("Total Trades", 0)
+                score = p.get("Score", 0)
+                status = determine_portfolio_status(p)
+                log_func(f"{ticker}, {strategy_type}, {fast_period}, {slow_period}, {signal_period}, {total_trades}, {score:.4f}, {status}")
+        else:
+            not_found_title = "No Entry/Exit Strategies found" if "Entry/Exit" in section_title else "No Portfolio Strategies found"
+            log_func(f"\n=== {not_found_title} ===")
+
+
+def display_portfolio_table(
+    portfolios: List[Dict[str, Any]], log_func=None
+) -> List[Dict[str, Any]]:
+    """Display all portfolios in a comprehensive table.
+
+    Args:
+        portfolios: List of portfolio dictionaries
+        log_func: Optional logging function
+
+    Returns:
+        List of all portfolio dictionaries (no filtering)
+    """
+    if not portfolios:
+        return []
+
+    # Sort portfolios by Ticker (ascending), then Score (descending)
+    def sort_key(portfolio):
+        ticker = portfolio.get("Ticker", "")
+        score = float(portfolio.get("Score", 0))
+        return (ticker, -score)  # negative score for descending order
+    
+    display_portfolios = sorted(portfolios, key=sort_key)
+
+    # Use shared core function for table display
+    _display_portfolio_table_core(
+        display_portfolios=display_portfolios,
+        section_title="Portfolio",
+        title_prefix="📊",
+        title_style="bold cyan",
+        log_func=log_func
+    )
+
+    return display_portfolios
+
+
+def display_portfolio_entry_exit_table(
+    portfolios: List[Dict[str, Any]], log_func=None
+) -> List[Dict[str, Any]]:
+    """Display only Entry/Exit portfolios in a comprehensive table.
+
+    Args:
+        portfolios: List of portfolio dictionaries
+        log_func: Optional logging function
+
+    Returns:
+        List of filtered Entry/Exit portfolio dictionaries
+    """
+    if not portfolios:
+        return []
+
+    # Determine portfolio status for filtering
+    def determine_portfolio_status(portfolio):
+        """Determine portfolio status based on signals and open trades."""
+        signal_entry = str(portfolio.get("Signal Entry", "")).lower() == "true"
+        signal_exit = str(portfolio.get("Signal Exit", "")).lower() == "true"
+        total_open_trades = portfolio.get("Total Open Trades")
+        
+        if signal_entry:
+            return "Entry"
+        elif signal_exit:
+            return "Exit"
+        elif total_open_trades == 1 or (isinstance(total_open_trades, str) and total_open_trades == "1"):
+            return "Active"
+        else:
+            return "Inactive"
+
+    # Filter portfolios to only include Entry and Exit status
+    filtered_portfolios = []
+    for portfolio in portfolios:
+        status = determine_portfolio_status(portfolio)
+        if status in ["Entry", "Exit"]:
+            filtered_portfolios.append(portfolio)
+
+    # Sort portfolios by Ticker (ascending), then Score (descending)
+    def sort_key(portfolio):
+        ticker = portfolio.get("Ticker", "")
+        score = float(portfolio.get("Score", 0))
+        return (ticker, -score)  # negative score for descending order
+    
+    display_portfolios = sorted(filtered_portfolios, key=sort_key)
+
+    # Use shared core function for table display
+    _display_portfolio_table_core(
+        display_portfolios=display_portfolios,
+        section_title="Portfolio Entry/Exit",
+        title_prefix="🎯",
+        title_style="bold bright_green",
+        log_func=log_func
+    )
+
+    return display_portfolios
 
 
 def filter_signal_entries(
@@ -738,6 +1111,49 @@ def display_portfolio_summary(
     avg_return = (
         sum(float(p.get("Total Return [%]", 0)) for p in portfolios) / total_strategies
     )
+    
+    # Calculate new average metrics
+    avg_profit_factor = (
+        sum(float(p.get("Profit Factor", 0)) for p in portfolios) / total_strategies
+    )
+    
+    # Parse expectancy values (remove $ and convert to float)
+    def parse_expectancy(value):
+        if value is None or value == "" or str(value).lower() in ["none", "n/a"]:
+            return 0.0
+        try:
+            # Remove currency symbols and convert to float
+            clean_value = str(value).replace("$", "").replace(",", "").strip()
+            return float(clean_value)
+        except (ValueError, TypeError):
+            return 0.0
+    
+    avg_expectancy = (
+        sum(parse_expectancy(p.get("Expectancy per Trade", 0)) for p in portfolios) / total_strategies
+    )
+    
+    avg_sortino = (
+        sum(float(p.get("Sortino Ratio", 0)) for p in portfolios) / total_strategies
+    )
+    
+    # Parse Beats BNH percentage values
+    def parse_percentage(value):
+        if value is None or value == "" or str(value).lower() in ["none", "n/a"]:
+            return 0.0
+        try:
+            # Remove % symbol and convert to float
+            clean_value = str(value).replace("%", "").strip()
+            return float(clean_value)
+        except (ValueError, TypeError):
+            return 0.0
+    
+    avg_beats_bnh = (
+        sum(parse_percentage(p.get("Beats BNH [%]", 0)) for p in portfolios) / total_strategies
+    )
+    
+    # Calculate average duration in hours
+    total_duration_hours = sum(parse_duration_to_hours(p.get("Avg Trade Duration", 0)) for p in portfolios)
+    avg_duration_hours = total_duration_hours / total_strategies
 
     # Strategy type distribution
     strategy_types = {}
@@ -834,6 +1250,36 @@ def display_portfolio_summary(
         f"{avg_return:.1f}%",
         format_percentage(avg_return),
         "Varies by timeframe",
+    )
+    perf_table.add_row(
+        "Average Profit Factor",
+        f"{avg_profit_factor:.2f}",
+        format_ratio(avg_profit_factor),
+        "> 1.5 is good",
+    )
+    perf_table.add_row(
+        "Average Expectancy",
+        f"${avg_expectancy:.2f}",
+        format_currency(avg_expectancy),
+        "> $0 is profitable",
+    )
+    perf_table.add_row(
+        "Average Sortino",
+        f"{avg_sortino:.2f}",
+        format_ratio(avg_sortino),
+        "> 1.0 is good",
+    )
+    perf_table.add_row(
+        "Average Beats BNH",
+        f"{avg_beats_bnh:.1f}%",
+        format_percentage(avg_beats_bnh),
+        "> 0% beats benchmark",
+    )
+    perf_table.add_row(
+        "Average Duration",
+        format_average_duration(avg_duration_hours),
+        format_duration(format_average_duration(avg_duration_hours)),
+        "Trade holding period",
     )
 
     console.print(perf_table)

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-08-29T06:51:07.222739",
+    "export_timestamp": "2025-09-08T13:16:07.345503",
     "strategy_config": {
       "ticker": "MSTR",
       "timeframe": "D",
@@ -15,7 +15,7 @@
       "total_return": 1247.5270455817529,
       "total_trades": "48",
       "win_rate": 0.5208333333333334,
-      "sharpe_ratio": 0.935503174857033,
+      "sharpe_ratio": 0.9351610193270459,
       "max_drawdown": -0.8394428050240448
     }
   },

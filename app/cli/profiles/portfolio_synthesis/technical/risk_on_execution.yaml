@@ -1,0 +1,100 @@
+metadata:
+  name: risk_on_execution
+  description: Technical execution parameters for risk_on portfolio
+  created_at: '2025-01-22T00:00:00.000000'
+  updated_at: '2025-01-22T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - technical_execution
+    - portfolio_synthesis
+    - risk_on
+  author: system
+
+inherits_from: portfolio_synthesis_base
+config_type: portfolio_execution
+
+config:
+  # Reference to business portfolio definition
+  portfolio_reference: 'data/config/portfolios/risk_on.yaml'
+
+  # Technical execution parameters for each asset
+  execution_strategies:
+    # Financial Services - Mastercard
+    - ticker: MA
+      strategy_type: SMA
+      fast_period: 78
+      slow_period: 82
+      execution_method: market_order
+      position_sizing: risk_weighted
+
+    # Semiconductor - ASML
+    - ticker: ASML
+      strategy_type: SMA
+      fast_period: 71
+      slow_period: 80
+      execution_method: market_order
+      position_sizing: risk_weighted
+
+    # Technology - Apple
+    - ticker: AAPL
+      strategy_type: SMA
+      fast_period: 46
+      slow_period: 56
+      execution_method: market_order
+      position_sizing: risk_weighted
+
+    # Electric Vehicles - Tesla
+    - ticker: TSLA
+      strategy_type: SMA
+      fast_period: 23
+      slow_period: 31
+      execution_method: limit_order # More volatile, use limit orders
+      position_sizing: risk_weighted
+
+    # Industrial - National Instruments
+    - ticker: NI
+      strategy_type: SMA
+      fast_period: 66
+      slow_period: 81
+      execution_method: market_order
+      position_sizing: risk_weighted
+
+    # Software - AppLovin
+    - ticker: APP
+      strategy_type: SMA
+      fast_period: 14
+      slow_period: 15
+      execution_method: limit_order # High volatility, use limit orders
+      position_sizing: risk_weighted
+
+  # Default execution parameters from business configuration
+  default_parameters:
+    # TODO: Configure actual values instead of references
+    # TODO: Configure actual values instead of references
+
+  # Risk management execution parameters
+  risk_execution:
+    stop_loss_method: trailing
+    position_sizing_method: volatility_adjusted
+    rebalancing_trigger: allocation_drift
+    max_deviation_threshold: 0.05
+
+  # portfolio synthesis specific execution settings
+  review_execution:
+    benchmark: 'SPY'
+    benchmark_type: 'buy_and_hold'
+    init_cash: 10000.0
+    # TODO: Configure actual values instead of references
+    calculate_risk_metrics: true
+    export_equity_curve: true
+    enable_plotting: true
+
+  # Performance analysis execution parameters
+  analysis_execution:
+    timeframe: 'D'
+    lookback_periods:
+      short_term: 21
+      medium_term: 63
+      long_term: 252
+    volatility_window: 21
+    correlation_window: 63

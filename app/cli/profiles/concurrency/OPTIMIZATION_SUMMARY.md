@@ -137,4 +137,4 @@ The optimization successfully:
 - ✅ Maintained full backward compatibility
 - ✅ Enhanced discoverability and usability
 
-The new structure follows the same successful pattern as `portfolio_review/` profiles, bringing consistency across the entire CLI configuration system.
+The new structure follows the same successful pattern as `portfolio_synthesis/` profiles, bringing consistency across the entire CLI configuration system.

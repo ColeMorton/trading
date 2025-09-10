@@ -1,0 +1,62 @@
+metadata:
+  name: equity_base
+  description: Base template for traditional equity portfolio synthesis strategies
+  created_at: '2025-01-19T00:00:00.000000'
+  updated_at: '2025-01-19T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - portfolio_synthesis
+    - equity
+    - traditional_markets
+    - base_template
+  author: system
+  is_template: true
+
+inherits_from: null
+config_type: portfolio_synthesis
+
+config:
+  # Empty strategies list to be overridden by child profiles
+  strategies: []
+
+  # Common equity settings (longer timeframe)
+  init_cash: 10000.0
+  fees: 0.001
+
+  # Default benchmark for equity
+  benchmark:
+    symbol: SPY
+    benchmark_type: buy_and_hold
+
+  # Analysis settings
+  calculate_risk_metrics: true
+  export_equity_curve: true
+  enable_plotting: true
+
+  # Plot configuration
+  plot_config:
+    width: 1200
+    height: 800
+    save_html: true
+    save_png: true
+    include_benchmark: true
+    include_risk_metrics: true
+
+  # Risk settings (equity-appropriate with risk-free rate)
+  risk_free_rate: 0.02
+  confidence_level: 0.95
+  bootstrap_samples: 1000
+
+  # Memory optimization defaults
+  enable_memory_optimization: false
+  memory_threshold_mb: 500.0
+  enable_parallel_processing: false
+  max_workers: null
+
+  # Common strategy defaults for equity
+  strategy_defaults:
+    direction: long
+    position_size: 1.0
+    use_hourly: false
+    signal_period: 9
+    stop_loss: null

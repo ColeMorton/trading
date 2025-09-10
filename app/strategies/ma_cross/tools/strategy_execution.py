@@ -180,7 +180,9 @@ def process_single_ticker(
     actual_ticker = ticker_config.get("TICKER", ticker)
     # Progress tracking handled by external progress_update_fn
 
-    portfolios_df = process_ticker_portfolios(actual_ticker, ticker_config, log, progress_update_fn=progress_update_fn)
+    portfolios_df = process_ticker_portfolios(
+        actual_ticker, ticker_config, log, progress_update_fn=progress_update_fn
+    )
     if portfolios_df is None:
         return None
 

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-08-29T06:51:02.634958",
+    "export_timestamp": "2025-09-08T13:15:56.364576",
     "strategy_config": {
       "ticker": "BTC-USD",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 660.6576124729586,
+      "total_return": 655.1705864501305,
       "total_trades": "144",
       "win_rate": 0.5208333333333334,
-      "sharpe_ratio": 1.4475562965736488,
+      "sharpe_ratio": 1.443870945569379,
       "max_drawdown": -0.6484165645822194
     }
   },
@@ -3025,23 +3025,23 @@
     },
     {
       "Entry Timestamp": "2025-08-28 00:00:00",
-      "Exit Timestamp": null,
-      "Avg Entry Price": 111957.453125,
-      "Avg Exit Price": 111957.453125,
-      "Size": 5.909902324539494,
-      "PnL": -661.657612472889,
-      "Return": -0.0009999999999998944,
+      "Exit Timestamp": "2025-09-03 00:00:00",
+      "Avg Entry Price": 112544.8046875,
+      "Avg Exit Price": 111723.2109375,
+      "Size": 5.879059582627248,
+      "PnL": -6148.6836353010995,
+      "Return": -0.009292848021985675,
       "Direction": "Long",
-      "Status": "Open",
-      "Duration": null,
-      "Duration_Days": null,
+      "Status": "Closed",
+      "Duration": "6 days 00:00:00",
+      "Duration_Days": 6.0,
       "Entry_Month": "2025-08",
       "Entry_Year": 2025.0,
       "Entry_Quarter": 3.0,
       "Trade_Type": "Breakeven",
-      "Cumulative_PnL": 660657.6124729585,
+      "Cumulative_PnL": 655170.5864501303,
       "Trade_Number": 144,
-      "Rolling_Avg_Return": 0.020703740892273614,
+      "Rolling_Avg_Return": 0.01904517128787646,
       "Rolling_Win_Rate": 0.6
     }
   ],
@@ -5624,10 +5624,19 @@
       "Order Id": 286,
       "Column": 0,
       "Timestamp": 3998,
-      "Size": 5.909902324539494,
-      "Price": 111957.453125,
+      "Size": 5.879059582627248,
+      "Price": 112544.8046875,
       "Fees": 661.657612472889,
       "Side": "Buy"
+    },
+    {
+      "Order Id": 287,
+      "Column": 0,
+      "Timestamp": 4004,
+      "Size": 5.879059582627248,
+      "Price": 111723.2109375,
+      "Fees": 656.8274138639947,
+      "Side": "Sell"
     }
   ],
   "positions": [
@@ -8208,39 +8217,39 @@
     {
       "Position Id": 143,
       "Column": 0,
-      "Size": 5.909902324539494,
+      "Size": 5.879059582627248,
       "Entry Timestamp": "1970-01-01 00:00:00",
-      "Avg Entry Price": 111957.453125,
+      "Avg Entry Price": 112544.8046875,
       "Entry Fees": 661.657612472889,
-      "Exit Timestamp": null,
-      "Avg Exit Price": 111957.453125,
-      "Exit Fees": 0.0,
-      "PnL": -661.657612472889,
-      "Return": -0.0009999999999998944,
+      "Exit Timestamp": "1970-01-01 00:00:00",
+      "Avg Exit Price": 111723.2109375,
+      "Exit Fees": 656.8274138639947,
+      "PnL": -6148.6836353010995,
+      "Return": -0.009292848021985675,
       "Direction": "Long",
-      "Status": "Open",
-      "Duration": null,
-      "Duration_Days": null,
+      "Status": "Closed",
+      "Duration": "0 days 00:00:00.000000006",
+      "Duration_Days": 6.944444444444445e-14,
       "Position_Type": "Breakeven"
     }
   ],
   "analytics": {
     "total_trades": 144,
-    "closed_trades": 143,
-    "open_trades": 1,
-    "win_rate": 52.44755244755245,
-    "avg_return": 7.105709742242884,
+    "closed_trades": 144,
+    "open_trades": 0,
+    "win_rate": 52.083333333333336,
+    "avg_return": 7.049911169017594,
     "avg_winner": 18.087364483892664,
-    "avg_loser": -5.006409458106142,
+    "avg_loser": -4.947320694977047,
     "best_trade": 217.46231727195834,
     "worst_trade": -24.03378449670691,
-    "total_pnl": 661319.2700854315,
-    "avg_trade_duration": 15.909090909090908,
-    "profit_factor": 1.9565710655990438,
+    "total_pnl": 655170.5864501307,
+    "avg_trade_duration": 15.840277777777779,
+    "profit_factor": 1.939323080168729,
     "trade_type_distribution": {
       "Big Winner": 41,
       "Loser": 30,
-      "Breakeven": 26,
+      "Breakeven": 27,
       "Big Loser": 26,
       "Winner": 20
     }

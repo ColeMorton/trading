@@ -200,19 +200,19 @@ class SensitivityAnalyzerBase(ABC):
                 return self._analyze_combinations_parallel(
                     data, parameter_sets, config, log, progress_update_fn
                 )
-            
+
             # Sequential processing with external progress tracking
             portfolios = []
             for i, params in enumerate(parameter_sets):
                 result = self.analyze_parameter_combination(data, config, log, **params)
                 if result is not None:
                     portfolios.append(result)
-                
+
                 # Update external progress after each combination
                 progress_update_fn(1)
 
             return portfolios
-        
+
         # No external progress - use local progress displays
         if parallel and len(parameter_sets) > 10:
             return self._analyze_combinations_parallel(
@@ -247,7 +247,7 @@ class SensitivityAnalyzerBase(ABC):
                     f"🚀 Starting parallel analysis of {len(parameter_sets)} {self.strategy_type} parameter combinations",
                     "info",
                 )
-                
+
                 # Create wrapper function without progress update (handled by parallel executor)
                 def strategy_wrapper_with_external_progress(
                     params: Dict[str, Any]
@@ -266,12 +266,14 @@ class SensitivityAnalyzerBase(ABC):
                     timeout=None,
                     progress_callback=progress_update_fn,
                 )
-                
+
             else:
                 # Check if we have access to enhanced progress display
                 log_self = log.__self__ if hasattr(log, "__self__") else None
-                use_enhanced_progress = isinstance(log_self, PerformanceAwareConsoleLogger)
-                
+                use_enhanced_progress = isinstance(
+                    log_self, PerformanceAwareConsoleLogger
+                )
+
                 if use_enhanced_progress:
                     console_logger = log.__self__
 
@@ -351,7 +353,9 @@ class SensitivityAnalyzerBase(ABC):
                                         import psutil
 
                                         memory_mb = (
-                                            psutil.Process().memory_info().rss / 1024 / 1024
+                                            psutil.Process().memory_info().rss
+                                            / 1024
+                                            / 1024
                                         )
                                         update_fields["memory"] = f"{memory_mb:.0f}"
                                     except ImportError:
@@ -364,7 +368,9 @@ class SensitivityAnalyzerBase(ABC):
                             return result
 
                         # Use parallel parameter sweep
-                        batch_size = max(1, len(parameter_sets) // (os.cpu_count() or 4))
+                        batch_size = max(
+                            1, len(parameter_sets) // (os.cpu_count() or 4)
+                        )
                         results = parallel_parameter_sweep(
                             parameter_combinations=parameter_sets,
                             strategy_fn=strategy_wrapper_with_progress,
@@ -386,12 +392,16 @@ class SensitivityAnalyzerBase(ABC):
                             try:
                                 import psutil
 
-                                memory_mb = psutil.Process().memory_info().rss / 1024 / 1024
+                                memory_mb = (
+                                    psutil.Process().memory_info().rss / 1024 / 1024
+                                )
                                 final_fields["memory"] = f"{memory_mb:.0f}"
                             except ImportError:
                                 pass
 
-                        progress.update(task, completed=len(parameter_sets), **final_fields)
+                        progress.update(
+                            task, completed=len(parameter_sets), **final_fields
+                        )
                 else:
                     # Fallback to basic logging without enhanced progress
                     log(
@@ -462,11 +472,11 @@ class SensitivityAnalyzerBase(ABC):
             result = self.analyze_parameter_combination(data, config, log, **params)
             if result is not None:
                 portfolios.append(result)
-            
+
             # Update external progress if function provided
             if progress_update_fn:
                 progress_update_fn(1)
-        
+
         return portfolios
 
     @abstractmethod
@@ -808,7 +818,12 @@ def analyze_parameter_combinations(
 
     analyzer = SensitivityAnalyzerFactory.create_analyzer(strategy_type)
     return analyzer.analyze_parameter_combinations(
-        data, parameter_sets, config, log, parallel=parallel, progress_update_fn=progress_update_fn
+        data,
+        parameter_sets,
+        config,
+        log,
+        parallel=parallel,
+        progress_update_fn=progress_update_fn,
     )
 
 

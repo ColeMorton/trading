@@ -71,7 +71,11 @@ class MAStrategyService(BaseStrategyService):
 
             # Execute strategy with console logger and progress update function if available
             if self.console and progress_update_fn:
-                return run(legacy_config, external_log=self.console, progress_update_fn=progress_update_fn)
+                return run(
+                    legacy_config,
+                    external_log=self.console,
+                    progress_update_fn=progress_update_fn,
+                )
             elif self.console:
                 return run(legacy_config, external_log=self.console)
             else:
@@ -208,12 +212,19 @@ class MAStrategyService(BaseStrategyService):
             config.use_current or getattr(config.filter, "use_current", False) or False
         )
         legacy_config["USE_DATE"] = getattr(config.filter, "date_filter", None)
-        
+
         # Pass global progress allocation for accurate multi-ticker progress calculation
-        if hasattr(config, '_GLOBAL_PROGRESS_PER_TICKER'):
-            legacy_config["_GLOBAL_PROGRESS_PER_TICKER"] = getattr(config, '_GLOBAL_PROGRESS_PER_TICKER')
-        elif hasattr(config, '__dict__') and "_GLOBAL_PROGRESS_PER_TICKER" in config.__dict__:
-            legacy_config["_GLOBAL_PROGRESS_PER_TICKER"] = config.__dict__["_GLOBAL_PROGRESS_PER_TICKER"]
+        if hasattr(config, "_GLOBAL_PROGRESS_PER_TICKER"):
+            legacy_config["_GLOBAL_PROGRESS_PER_TICKER"] = getattr(
+                config, "_GLOBAL_PROGRESS_PER_TICKER"
+            )
+        elif (
+            hasattr(config, "__dict__")
+            and "_GLOBAL_PROGRESS_PER_TICKER" in config.__dict__
+        ):
+            legacy_config["_GLOBAL_PROGRESS_PER_TICKER"] = config.__dict__[
+                "_GLOBAL_PROGRESS_PER_TICKER"
+            ]
 
         # Add sorting parameters to maintain consistency with MACD
         legacy_config["SORT_BY"] = getattr(config, "sort_by", "Score")
@@ -249,7 +260,11 @@ class MACDStrategyService(BaseStrategyService):
 
             # Execute strategy with console logger and progress update function if available
             if self.console and progress_update_fn:
-                return run(legacy_config, external_log=self.console, progress_update_fn=progress_update_fn)
+                return run(
+                    legacy_config,
+                    external_log=self.console,
+                    progress_update_fn=progress_update_fn,
+                )
             elif self.console:
                 return run(legacy_config, external_log=self.console)
             else:
@@ -360,7 +375,9 @@ class MACDStrategyService(BaseStrategyService):
                 "STEP": step,
                 "DIRECTION": getattr(config, "direction", "Long"),
                 "USE_CURRENT": (
-                    config.use_current or getattr(config.filter, "use_current", False) or False
+                    config.use_current
+                    or getattr(config.filter, "use_current", False)
+                    or False
                 ),
                 "USE_DATE": getattr(config.filter, "date_filter", None),
                 "USE_HOURLY": getattr(config, "use_hourly", False),
@@ -432,7 +449,11 @@ class ATRStrategyService(BaseStrategyService):
 
             # Execute strategy with console logger and progress callback if available
             if self.console and progress_callback:
-                result = run(legacy_config, external_log=self.console, progress_callback=progress_callback)
+                result = run(
+                    legacy_config,
+                    external_log=self.console,
+                    progress_callback=progress_callback,
+                )
             elif self.console:
                 result = run(legacy_config, external_log=self.console)
             else:
@@ -471,7 +492,9 @@ class ATRStrategyService(BaseStrategyService):
                 "STEP": getattr(config, "step", 1),
                 "DIRECTION": getattr(config, "direction", "Long"),
                 "USE_CURRENT": (
-                    config.use_current or getattr(config.filter, "use_current", False) or False
+                    config.use_current
+                    or getattr(config.filter, "use_current", False)
+                    or False
                 ),
                 "USE_DATE": getattr(config.filter, "date_filter", None),
                 "USE_HOURLY": getattr(config, "use_hourly", False),

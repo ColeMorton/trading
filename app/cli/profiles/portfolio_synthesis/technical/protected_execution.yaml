@@ -1,0 +1,79 @@
+metadata:
+  name: protected_execution
+  description: Technical execution parameters for protected portfolio
+  created_at: '2025-01-22T00:00:00.000000'
+  updated_at: '2025-01-22T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - technical_execution
+    - portfolio_synthesis
+    - protected
+    - conservative
+  author: system
+
+inherits_from: portfolio_synthesis_base
+config_type: portfolio_execution
+
+config:
+  # Reference to business portfolio definition
+  portfolio_reference: 'data/config/portfolios/protected.yaml'
+
+  # Technical execution parameters for each asset
+  execution_strategies:
+    # Financial Services - Raymond James Financial
+    - ticker: RJF
+      strategy_type: SMA
+      fast_period: 68
+      slow_period: 77
+      execution_method: market_order
+      position_sizing: equal_weight
+
+    # Industrial - Howmet Aerospace
+    - ticker: HWM
+      strategy_type: SMA
+      fast_period: 7
+      slow_period: 9
+      execution_method: market_order
+      position_sizing: equal_weight
+
+    # Industrial - Dover Corporation
+    - ticker: DOV
+      strategy_type: SMA
+      fast_period: 45
+      slow_period: 86
+      execution_method: market_order
+      position_sizing: equal_weight
+
+  # Conservative execution parameters from business configuration
+  default_parameters:
+    # TODO: Configure actual values instead of references
+    # TODO: Configure actual values instead of references
+
+  # Conservative risk management execution parameters
+  risk_execution:
+    stop_loss_method: fixed
+    # TODO: Configure actual values instead of references
+    position_sizing_method: equal_weight
+    rebalancing_trigger: time_based
+    max_deviation_threshold: 0.03 # Tighter controls for conservative portfolio
+
+  # portfolio synthesis specific execution settings
+  review_execution:
+    benchmark: 'SPY'
+    benchmark_type: 'buy_and_hold'
+    init_cash: 10000.0
+    # TODO: Configure actual values instead of references
+    calculate_risk_metrics: true
+    export_equity_curve: true
+    enable_plotting: true
+
+  # Conservative analysis execution parameters
+  analysis_execution:
+    timeframe: 'D'
+    lookback_periods:
+      short_term: 30 # Longer periods for stability
+      medium_term: 90
+      long_term: 365
+    volatility_window: 30
+    correlation_window: 90
+    # TODO: Configure actual values instead of references

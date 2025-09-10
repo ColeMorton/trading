@@ -1,0 +1,30 @@
+metadata:
+  name: example_string_strategies
+  description: Example profile showing string-based strategies configuration
+  created_at: '2025-01-19T00:00:00.000000'
+  updated_at: '2025-01-19T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - portfolio_synthesis
+    - example
+  author: system
+
+inherits_from: equity_base
+config_type: portfolio_synthesis
+
+config:
+  # Example: Load strategies from a CSV file using a string value
+  # This will load all strategies from data/raw/strategies/portfolio.csv
+  strategies: 'portfolio'
+  
+  # Alternative formats that also work:
+  # strategies: 'portfolio.csv'
+  # strategies: 'risk_on'
+  # strategies: 'protected'
+  
+  # Traditional array format still works:
+  # strategies:
+  #   - ticker: BTC-USD
+  #     fast_period: 20
+  #     slow_period: 50
+  #     strategy_type: SMA

@@ -212,7 +212,7 @@ The enhanced_multi_ticker_TSLA,AAPL,ADBE,AMZN,GME,ASML,NI,RJF,DOV,SMCI portfolio
 
 **Next Analysis Cycle:**
 
-- Full portfolio review in 30 days
+- Full portfolio synthesis in 30 days
 - Weekly monitoring of remaining high-conviction positions
 - Quarterly rebalancing based on statistical updates
 - Annual model validation and parameter optimization

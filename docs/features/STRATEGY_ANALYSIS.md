@@ -349,7 +349,7 @@ trading-cli strategy run --ticker AAPL --strategy SMA --data-period 5Y
 
 ```bash
 # Analyze strategy weaknesses
-trading-cli strategy analyze --portfolio AAPL_D_SMA.csv --detailed
+trading-cli strategy review --portfolio AAPL_D_SMA.csv --detailed
 
 # Optimize parameters
 trading-cli strategy sweep --ticker AAPL --strategy SMA --optimize
