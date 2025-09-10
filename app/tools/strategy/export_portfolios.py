@@ -321,9 +321,7 @@ def export_portfolios(
         # Skip export for portfolios_best when no portfolios exist
         if export_type == "portfolios_best":
             if log:
-                log(
-                    f"Skipping {export_type} export - no portfolios to export", "info"
-                )
+                log(f"Skipping {export_type} export - no portfolios to export", "info")
             return pl.DataFrame(), False
 
         if log:

@@ -137,9 +137,9 @@ class Direction(str, Enum):
 class PortfolioAnalysisType(str, Enum):
     """Portfolio analysis types for unified directory structure."""
 
-    SINGLE = "single"        # Single strategy analysis
-    MULTI = "multi"          # Multi-strategy portfolios
-    COMPARISON = "comparison" # Benchmark/strategy comparisons
+    SINGLE = "single"  # Single strategy analysis
+    MULTI = "multi"  # Multi-strategy portfolios
+    COMPARISON = "comparison"  # Benchmark/strategy comparisons
 
 
 class BenchmarkType(str, Enum):
@@ -288,7 +288,8 @@ class PortfolioSynthesisConfig(BaseConfig):
 
     # Strategy configuration
     strategies: Union[List[ReviewStrategyConfig], str] = Field(
-        default_factory=list, description="List of strategies to analyze or CSV filename in data/raw/strategies/"
+        default_factory=list,
+        description="List of strategies to analyze or CSV filename in data/raw/strategies/",
     )
     raw_strategies: Optional[str] = Field(
         default=None,
@@ -366,16 +367,16 @@ class PortfolioSynthesisConfig(BaseConfig):
         gt=0,
         description="Maximum number of parallel workers (default: auto)",
     )
-    
-    @model_validator(mode='after')
+
+    @model_validator(mode="after")
     def update_output_directories(self):
         """Update output directories to use unified structure after model creation."""
         # Update plot config output directory
         self.plot_config.output_dir = self.get_charts_dir()
-        
+
         # Update raw data export output directory
         self.raw_data_export.output_dir = self.get_data_dir()
-        
+
         return self
 
     @validator("start_date", "end_date")
@@ -406,30 +407,30 @@ class PortfolioSynthesisConfig(BaseConfig):
             if not csv_path.exists():
                 raise ValueError(f"Raw strategies CSV file does not exist: {csv_path}")
         return v
-    
+
     @root_validator(pre=True)
     def handle_strategies_string(cls, values):
         """Convert strategies string to list by loading from CSV."""
-        strategies = values.get('strategies')
-        
+        strategies = values.get("strategies")
+
         # If strategies is a string, treat it as a CSV filename
         if isinstance(strategies, str):
             # Import here to avoid circular imports
             from pathlib import Path
-            
+
             # Remove .csv extension if provided
-            csv_name = strategies.replace('.csv', '')
-            
+            csv_name = strategies.replace(".csv", "")
+
             # Check if the CSV file exists
             csv_path = Path("data/raw/strategies") / f"{csv_name}.csv"
             if not csv_path.exists():
                 raise ValueError(f"Strategies CSV file does not exist: {csv_path}")
-            
+
             # Store the CSV name in raw_strategies for the existing loading logic
-            values['raw_strategies'] = csv_name
+            values["raw_strategies"] = csv_name
             # Reset strategies to empty list so it will be loaded from CSV
-            values['strategies'] = []
-        
+            values["strategies"] = []
+
         return values
 
     def validate_final_strategies(self):
@@ -455,7 +456,7 @@ class PortfolioSynthesisConfig(BaseConfig):
     def unique_tickers(self) -> List[str]:
         """Get list of unique tickers."""
         return list(set(strategy.ticker for strategy in self.strategies))
-    
+
     @property
     def analysis_type(self) -> PortfolioAnalysisType:
         """Determine the analysis type based on configuration."""
@@ -465,7 +466,7 @@ class PortfolioSynthesisConfig(BaseConfig):
             return PortfolioAnalysisType.COMPARISON
         else:
             return PortfolioAnalysisType.MULTI
-    
+
     @property
     def portfolio_name(self) -> str:
         """Generate portfolio name for directory structure."""
@@ -478,35 +479,43 @@ class PortfolioSynthesisConfig(BaseConfig):
             return self.raw_strategies.lower()
         else:
             # Multi-strategy: use unique tickers
-            tickers = '_'.join(sorted([t.lower().replace('-', '_') for t in self.unique_tickers]))
+            tickers = "_".join(
+                sorted([t.lower().replace("-", "_") for t in self.unique_tickers])
+            )
             if len(tickers) > 50:  # Truncate if too long
                 return f"multi_{len(self.unique_tickers)}_strategies"
             return f"multi_{tickers}"
-    
+
     def get_base_output_dir(self) -> Path:
         """Get the base output directory using unified 3-layer structure."""
-        return Path("data/outputs/portfolio") / self.analysis_type.value / self.portfolio_name
-    
+        return (
+            Path("data/outputs/portfolio")
+            / self.analysis_type.value
+            / self.portfolio_name
+        )
+
     def get_charts_dir(self) -> Path:
         """Get the charts output directory."""
         return self.get_base_output_dir() / "charts"
-    
+
     def get_data_dir(self) -> Path:
         """Get the raw data export directory."""
         return self.get_base_output_dir() / "data"
-    
+
     def get_analysis_dir(self) -> Path:
         """Get the analysis output directory."""
         return self.get_base_output_dir() / "analysis"
-    
+
     def get_metadata_file(self) -> Path:
         """Get the metadata file path."""
         return self.get_base_output_dir() / "metadata.json"
-    
-    def generate_metadata(self, execution_time: Optional[float] = None) -> Dict[str, Any]:
+
+    def generate_metadata(
+        self, execution_time: Optional[float] = None
+    ) -> Dict[str, Any]:
         """Generate metadata for this portfolio synthesis run."""
         from datetime import datetime
-        
+
         metadata = {
             "portfolio_info": {
                 "name": self.portfolio_name,
@@ -514,7 +523,7 @@ class PortfolioSynthesisConfig(BaseConfig):
                 "is_single_strategy": self.is_single_strategy,
                 "strategy_count": len(self.strategies),
                 "unique_tickers": self.unique_tickers,
-                "raw_strategies_source": self.raw_strategies
+                "raw_strategies_source": self.raw_strategies,
             },
             "configuration": {
                 "start_date": self.start_date,
@@ -524,7 +533,7 @@ class PortfolioSynthesisConfig(BaseConfig):
                 "calculate_risk_metrics": self.calculate_risk_metrics,
                 "export_equity_curve": self.export_equity_curve,
                 "enable_plotting": self.enable_plotting,
-                "raw_data_export_enabled": self.raw_data_export.enable
+                "raw_data_export_enabled": self.raw_data_export.enable,
             },
             "strategies": [
                 {
@@ -535,22 +544,26 @@ class PortfolioSynthesisConfig(BaseConfig):
                     "direction": strategy.direction.value,
                     "position_size": strategy.position_size,
                     "stop_loss": strategy.stop_loss,
-                    "use_hourly": strategy.use_hourly
+                    "use_hourly": strategy.use_hourly,
                 }
                 for strategy in self.strategies
             ],
             "benchmark": {
                 "symbol": self.benchmark.symbol if self.benchmark else None,
-                "benchmark_type": self.benchmark.benchmark_type.value if self.benchmark else None
-            } if self.benchmark else None,
+                "benchmark_type": self.benchmark.benchmark_type.value
+                if self.benchmark
+                else None,
+            }
+            if self.benchmark
+            else None,
             "execution_info": {
                 "timestamp": datetime.now().isoformat(),
                 "execution_time_seconds": execution_time,
                 "base_output_dir": str(self.get_base_output_dir()),
                 "charts_dir": str(self.get_charts_dir()),
                 "data_dir": str(self.get_data_dir()),
-                "analysis_dir": str(self.get_analysis_dir())
-            }
+                "analysis_dir": str(self.get_analysis_dir()),
+            },
         }
-        
+
         return metadata

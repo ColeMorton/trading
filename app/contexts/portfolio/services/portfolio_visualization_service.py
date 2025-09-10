@@ -140,7 +140,7 @@ class VisualizationResults:
 class PortfolioVisualizationService:
     """
     Service for creating comprehensive portfolio visualizations.
-    
+
     Uses unified 3-layer directory structure: portfolio/{type}/{name}/charts/
 
     Integrates with the existing headless plotting system to create:
@@ -219,7 +219,9 @@ class PortfolioVisualizationService:
 
             # Create output directory using unified 3-layer structure
             os.makedirs(self.config.output_dir, exist_ok=True)
-            self._log(f"Using unified directory structure for charts: {self.config.output_dir}")
+            self._log(
+                f"Using unified directory structure for charts: {self.config.output_dir}"
+            )
 
             generated_files = []
 

@@ -43,7 +43,9 @@ class TestParameterConversionLogic:
             "BASE_DIR": "/tmp",
         }
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -94,7 +96,9 @@ class TestParameterConversionLogic:
             "BASE_DIR": "/tmp",
         }
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -145,7 +149,9 @@ class TestParameterConversionLogic:
             "BASE_DIR": "/tmp",
         }
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -196,7 +202,9 @@ class TestParameterConversionLogic:
             "BASE_DIR": "/tmp",
         }
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -247,7 +255,9 @@ class TestParameterConversionLogic:
             "BASE_DIR": "/tmp",
         }
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -358,7 +368,9 @@ class TestParameterConversionLogic:
 
         test_signal_period = 14
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -407,7 +419,9 @@ class TestParameterConversionLogic:
             "BASE_DIR": "/tmp",
         }
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"

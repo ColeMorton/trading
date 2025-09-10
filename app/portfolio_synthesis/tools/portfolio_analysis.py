@@ -38,13 +38,13 @@ def prepare_data(
     for symbol in symbols:
         log(f"Downloading data for {symbol}")
         data_config = {
-            "start_date": config["start_date"], 
-            "end_date": config["end_date"]
+            "start_date": config["start_date"],
+            "end_date": config["end_date"],
         }
         # Add BASE_DIR if available in config
         if "BASE_DIR" in config:
             data_config["BASE_DIR"] = config["BASE_DIR"]
-        
+
         df = get_data(symbol, data_config, log).with_columns(
             pl.col("Date").cast(pl.Datetime("ns")).alias("Date")
         )

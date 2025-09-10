@@ -16,12 +16,12 @@ config:
   # Example: Load strategies from a CSV file using a string value
   # This will load all strategies from data/raw/strategies/portfolio.csv
   strategies: 'portfolio'
-  
+
   # Alternative formats that also work:
   # strategies: 'portfolio.csv'
   # strategies: 'risk_on'
   # strategies: 'protected'
-  
+
   # Traditional array format still works:
   # strategies:
   #   - ticker: BTC-USD

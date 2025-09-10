@@ -62,7 +62,7 @@ config:
     2. Replace {{TICKER_2}} with your second asset symbol (e.g., ETH-USD, MSFT)
     3. Optionally modify the strategy parameters (windows, types)
     4. Add more strategies by copying the strategy block structure
-    
+
     Output directories will be automatically determined by the unified structure.
 
     This template compares:

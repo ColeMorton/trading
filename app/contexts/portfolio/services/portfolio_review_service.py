@@ -134,10 +134,12 @@ class PortfolioSynthesisService:
             self.data_export_service = PortfolioDataExportService(export_config, logger)
             self._log("Raw data export enabled")
 
-    def _setup_directory_structure_and_metadata(self, execution_time: Optional[float] = None):
+    def _setup_directory_structure_and_metadata(
+        self, execution_time: Optional[float] = None
+    ):
         """
         Create unified 3-layer directory structure and save metadata.
-        
+
         Args:
             execution_time: Optional execution time in seconds
         """
@@ -147,29 +149,29 @@ class PortfolioSynthesisService:
             charts_dir = self.config.get_charts_dir()
             data_dir = self.config.get_data_dir()
             analysis_dir = self.config.get_analysis_dir()
-            
+
             # Create directories
             os.makedirs(base_dir, exist_ok=True)
             os.makedirs(charts_dir, exist_ok=True)
             os.makedirs(data_dir, exist_ok=True)
             os.makedirs(analysis_dir, exist_ok=True)
-            
+
             self._log(f"Created unified directory structure:")
             self._log(f"  Base: {base_dir}")
             self._log(f"  Charts: {charts_dir}")
             self._log(f"  Data: {data_dir}")
             self._log(f"  Analysis: {analysis_dir}")
-            
+
             # Generate and save metadata
             metadata = self.config.generate_metadata(execution_time=execution_time)
             metadata_file = self.config.get_metadata_file()
-            
-            with open(metadata_file, 'w') as f:
+
+            with open(metadata_file, "w") as f:
                 json.dump(metadata, f, indent=2, default=str)
-                
+
             self._log(f"Saved metadata to: {metadata_file}")
             return metadata
-            
+
         except Exception as e:
             self._log(f"Error setting up directory structure: {str(e)}", "warning")
             return None
@@ -187,10 +189,12 @@ class PortfolioSynthesisService:
             PortfolioResults with analysis results
         """
         start_time = time.time()
-        
+
         try:
-            self._log(f"Starting single strategy synthesis for {strategy_config.ticker}")
-            
+            self._log(
+                f"Starting single strategy synthesis for {strategy_config.ticker}"
+            )
+
             # Setup unified directory structure and metadata
             self._setup_directory_structure_and_metadata()
 
@@ -314,8 +318,10 @@ class PortfolioSynthesisService:
             # Calculate execution time and save final metadata
             execution_time = time.time() - start_time
             self._setup_directory_structure_and_metadata(execution_time=execution_time)
-            self._log(f"Single strategy synthesis completed in {execution_time:.2f} seconds")
-            
+            self._log(
+                f"Single strategy synthesis completed in {execution_time:.2f} seconds"
+            )
+
             return PortfolioResults(
                 portfolio=portfolio,
                 benchmark_portfolio=benchmark_portfolio,
@@ -339,10 +345,10 @@ class PortfolioSynthesisService:
             PortfolioResults with comprehensive analysis
         """
         start_time = time.time()
-        
+
         try:
             self._log("Starting multi-strategy portfolio synthesis")
-            
+
             # Setup unified directory structure and metadata
             self._setup_directory_structure_and_metadata()
 
@@ -564,8 +570,10 @@ class PortfolioSynthesisService:
             # Calculate execution time and save final metadata
             execution_time = time.time() - start_time
             self._setup_directory_structure_and_metadata(execution_time=execution_time)
-            self._log(f"Multi-strategy synthesis completed in {execution_time:.2f} seconds")
-            
+            self._log(
+                f"Multi-strategy synthesis completed in {execution_time:.2f} seconds"
+            )
+
             return PortfolioResults(
                 portfolio=portfolio,
                 benchmark_portfolio=benchmark_portfolio,
@@ -792,10 +800,10 @@ class PortfolioSynthesisService:
             PortfolioResults with comprehensive analysis
         """
         start_time = time.time()
-        
+
         try:
             self._log("Starting parallel multi-strategy portfolio synthesis")
-            
+
             # Setup unified directory structure and metadata
             self._setup_directory_structure_and_metadata()
 
@@ -918,8 +926,10 @@ class PortfolioSynthesisService:
             # Calculate execution time and save final metadata
             execution_time = time.time() - start_time
             self._setup_directory_structure_and_metadata(execution_time=execution_time)
-            self._log(f"Parallel multi-strategy synthesis completed in {execution_time:.2f} seconds")
-            
+            self._log(
+                f"Parallel multi-strategy synthesis completed in {execution_time:.2f} seconds"
+            )
+
             return PortfolioResults(
                 portfolio=combined_portfolio,
                 benchmark_portfolio=None,  # Simplified - no benchmark for parallel processing

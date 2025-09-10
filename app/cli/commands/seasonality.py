@@ -8,15 +8,17 @@ from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
 
+from app.tools.services.portfolio_seasonality_service import PortfolioSeasonalityService
 from app.tools.services.seasonality_expectancy_service import (
     SeasonalityExpectancyService,
 )
 from app.tools.services.seasonality_service import SeasonalityService
-from app.tools.services.portfolio_seasonality_service import (
-    PortfolioSeasonalityService,
-)
 
-from ..models.seasonality import SeasonalityConfig, SeasonalityExpectancyConfig, PortfolioSeasonalityConfig
+from ..models.seasonality import (
+    PortfolioSeasonalityConfig,
+    SeasonalityConfig,
+    SeasonalityExpectancyConfig,
+)
 
 # Create seasonality sub-app
 app = typer.Typer(
@@ -415,14 +417,13 @@ def current(
 @app.command()
 def portfolio(
     portfolio_name: str = typer.Argument(
-        ...,
-        help="Portfolio filename from data/raw/strategies/ directory"
+        ..., help="Portfolio filename from data/raw/strategies/ directory"
     ),
     default_time_period: int = typer.Option(
         5,
         "--default-days",
         "-d",
-        help="Default time period in days when no signal entry exists"
+        help="Default time period in days when no signal entry exists",
     ),
     confidence_level: float = typer.Option(
         0.95,
@@ -483,24 +484,27 @@ def portfolio(
         results = service.run_analysis()
 
         # Display results table
-        if results['display_data']:
-            _display_portfolio_results(results['display_data'], portfolio_name)
-        
+        if results["display_data"]:
+            _display_portfolio_results(results["display_data"], portfolio_name)
+
         # Display summary
         rprint(f"\n[bold green]✨ Analysis Complete![/bold green]")
         rprint(f"📊 [cyan]Portfolio: {results['portfolio']}[/cyan]")
         rprint(f"🎯 [green]Total tickers: {results['total_tickers']}[/green]")
-        rprint(f"✅ [green]Successful analyses: {results['successful_analyses']}[/green]")
+        rprint(
+            f"✅ [green]Successful analyses: {results['successful_analyses']}[/green]"
+        )
 
         # Show any errors
-        failed_count = results['total_tickers'] - results['successful_analyses']
+        failed_count = results["total_tickers"] - results["successful_analyses"]
         if failed_count > 0:
             rprint(f"❌ [red]Failed analyses: {failed_count}[/red]")
-            
+
             # List failed tickers
             failed_tickers = [
-                ticker for ticker, result in results['ticker_results'].items()
-                if 'error' in result
+                ticker
+                for ticker, result in results["ticker_results"].items()
+                if "error" in result
             ]
             if failed_tickers:
                 rprint(f"   [red]Failed tickers: {', '.join(failed_tickers[:5])}[/red]")
@@ -509,17 +513,23 @@ def portfolio(
 
         # Show time period breakdown
         signal_based = sum(
-            1 for result in results['ticker_results'].values()
-            if result.get('analysis_source') == 'signal_entry'
+            1
+            for result in results["ticker_results"].values()
+            if result.get("analysis_source") == "signal_entry"
         )
         default_based = sum(
-            1 for result in results['ticker_results'].values()
-            if result.get('analysis_source') == 'default'
+            1
+            for result in results["ticker_results"].values()
+            if result.get("analysis_source") == "default"
         )
 
         rprint(f"\n[bold yellow]📈 Time Period Analysis:[/bold yellow]")
-        rprint(f"🎯 [green]{signal_based} tickers used signal-based time periods[/green]")
-        rprint(f"⏰ [yellow]{default_based} tickers used default {default_time_period}-day period[/yellow]")
+        rprint(
+            f"🎯 [green]{signal_based} tickers used signal-based time periods[/green]"
+        )
+        rprint(
+            f"⏰ [yellow]{default_based} tickers used default {default_time_period}-day period[/yellow]"
+        )
 
     except Exception as e:
         rprint(f"\n[red]Error: {str(e)}[/red]")
@@ -548,7 +558,7 @@ def _display_portfolio_results(display_data, portfolio_name):
 
     for row in display_data:
         # Color the average return based on value
-        avg_return = row.get('avg_return', 'N/A')
+        avg_return = row.get("avg_return", "N/A")
         if isinstance(avg_return, (int, float)):
             return_color = "green" if avg_return > 0 else "red"
             avg_return_str = f"[{return_color}]{avg_return:+.2f}%[/{return_color}]"
@@ -556,33 +566,33 @@ def _display_portfolio_results(display_data, portfolio_name):
             avg_return_str = str(avg_return)
 
         # Format win rate
-        win_rate = row.get('win_rate', 'N/A')
+        win_rate = row.get("win_rate", "N/A")
         if isinstance(win_rate, (int, float)):
             win_rate_str = f"{win_rate:.1%}"
         else:
             win_rate_str = str(win_rate)
 
         # Format seasonal strength
-        seasonal_strength = row.get('seasonal_strength', 'N/A')
+        seasonal_strength = row.get("seasonal_strength", "N/A")
         if isinstance(seasonal_strength, (int, float)):
             seasonal_strength_str = f"{seasonal_strength:.3f}"
         else:
             seasonal_strength_str = str(seasonal_strength)
 
         # Format time period with source indicator
-        time_period_days = row.get('time_period_days', 'N/A')
-        analysis_source = row.get('analysis_source', 'default')
-        if analysis_source == 'signal_entry':
+        time_period_days = row.get("time_period_days", "N/A")
+        analysis_source = row.get("analysis_source", "default")
+        if analysis_source == "signal_entry":
             time_period_str = f"{time_period_days}d 🎯"
         else:
             time_period_str = f"{time_period_days}d"
 
         table.add_row(
-            row.get('ticker', 'N/A'),
-            str(row.get('years', 'N/A')),
+            row.get("ticker", "N/A"),
+            str(row.get("years", "N/A")),
             seasonal_strength_str,
-            row.get('strongest_pattern', 'N/A'),
-            row.get('period', 'N/A'),
+            row.get("strongest_pattern", "N/A"),
+            row.get("period", "N/A"),
             avg_return_str,
             win_rate_str,
             time_period_str,

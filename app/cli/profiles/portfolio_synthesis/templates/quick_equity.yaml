@@ -40,7 +40,7 @@ config:
     2. Replace {{FAST_PERIOD}} with your short moving average window (e.g., 20)
     3. Replace {{SLOW_PERIOD}} with your long moving average window (e.g., 50)
     4. Replace {{STRATEGY_TYPE}} with either "SMA" or "EMA"
-    
+
     Output directories will be automatically determined by the unified structure.
 
     Example command:

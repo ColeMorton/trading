@@ -71,7 +71,8 @@ class SeasonalityConfig(BaseConfig):
         default=10, description="Minimum sample size for pattern"
     )
     time_period_days: int = Field(
-        default=1, description="Number of days for return calculations (1 for daily returns)"
+        default=1,
+        description="Number of days for return calculations (1 for daily returns)",
     )
 
     @field_validator("confidence_level")

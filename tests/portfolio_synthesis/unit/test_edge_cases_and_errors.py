@@ -41,7 +41,9 @@ class TestEdgeCasesAndErrorHandling:
 
                     # Invalid timeframes should still be processed (no validation in current implementation)
                     # The conversion function handles unknown values as 'daily' (default case)
-                    with patch("app.portfolio_synthesis.review.get_data") as mock_get_data:
+                    with patch(
+                        "app.portfolio_synthesis.review.get_data"
+                    ) as mock_get_data:
                         mock_get_data.side_effect = Exception("Expected test stop")
 
                         with pytest.raises(Exception, match="Expected test stop"):
@@ -74,7 +76,9 @@ class TestEdgeCasesAndErrorHandling:
                     mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
                     mock_get_config.return_value = mock_config
 
-                    with patch("app.portfolio_synthesis.review.get_data") as mock_get_data:
+                    with patch(
+                        "app.portfolio_synthesis.review.get_data"
+                    ) as mock_get_data:
                         mock_get_data.side_effect = Exception("Expected test stop")
 
                         with pytest.raises(Exception, match="Expected test stop"):
@@ -111,7 +115,9 @@ class TestEdgeCasesAndErrorHandling:
                     mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
                     mock_get_config.return_value = mock_config
 
-                    with patch("app.portfolio_synthesis.review.get_data") as mock_get_data:
+                    with patch(
+                        "app.portfolio_synthesis.review.get_data"
+                    ) as mock_get_data:
                         mock_get_data.side_effect = Exception("Expected test stop")
 
                         with pytest.raises(Exception, match="Expected test stop"):
@@ -261,7 +267,9 @@ class TestEdgeCasesAndErrorHandling:
             "BASE_DIR": "/tmp",
         }
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -292,7 +300,9 @@ class TestEdgeCasesAndErrorHandling:
         mock_portfolio.value.return_value.index = []
         mock_portfolio.value.return_value.values = []
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -390,7 +400,9 @@ class TestEdgeCasesAndErrorHandling:
                     mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
                     mock_get_config.return_value = config_with_none
 
-                    with patch("app.portfolio_synthesis.review.get_data") as mock_get_data:
+                    with patch(
+                        "app.portfolio_synthesis.review.get_data"
+                    ) as mock_get_data:
                         # None values should cause appropriate errors
                         mock_get_data.side_effect = Exception(
                             "Expected None value error"
@@ -432,7 +444,9 @@ class TestEdgeCasesAndErrorHandling:
                     mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
                     mock_get_config.return_value = special_config
 
-                    with patch("app.portfolio_synthesis.review.get_data") as mock_get_data:
+                    with patch(
+                        "app.portfolio_synthesis.review.get_data"
+                    ) as mock_get_data:
                         # Special characters might cause data retrieval issues
                         mock_get_data.side_effect = Exception(
                             "Expected special character error"
@@ -462,7 +476,9 @@ class TestEdgeCasesAndErrorHandling:
                     mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
                     mock_get_config.return_value = mock_config
 
-                    with patch("app.portfolio_synthesis.review.get_data") as mock_get_data:
+                    with patch(
+                        "app.portfolio_synthesis.review.get_data"
+                    ) as mock_get_data:
                         mock_get_data.side_effect = Exception("Expected test stop")
 
                         with pytest.raises(Exception, match="Expected test stop"):

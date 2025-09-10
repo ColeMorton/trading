@@ -92,9 +92,9 @@ class ExportResults:
 class PortfolioDataExportService:
     """
     Service for extracting and exporting comprehensive raw data from VectorBT portfolios.
-    
+
     Uses unified 3-layer directory structure: portfolio/{type}/{name}/data/
-    
+
     Provides access to all underlying data used in portfolio visualization including:
     - Portfolio value series (equity curves)
     - Returns data (daily, cumulative)

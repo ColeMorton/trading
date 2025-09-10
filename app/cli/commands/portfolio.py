@@ -17,7 +17,11 @@ from rich.table import Table
 
 from app.tools.console_logging import ConsoleLogger
 from app.tools.portfolio.strategy_types import derive_use_sma
-from app.tools.portfolio_results import display_portfolio_table, display_portfolio_summary, display_portfolio_entry_exit_table
+from app.tools.portfolio_results import (
+    display_portfolio_entry_exit_table,
+    display_portfolio_summary,
+    display_portfolio_table,
+)
 
 from ..config import ConfigLoader
 from ..models.portfolio import (
@@ -136,12 +140,14 @@ def determine_portfolio_status(portfolio):
     signal_entry = str(portfolio.get("Signal Entry", "")).lower() == "true"
     signal_exit = str(portfolio.get("Signal Exit", "")).lower() == "true"
     total_open_trades = portfolio.get("Total Open Trades")
-    
+
     if signal_entry:
         return "Entry"
     elif signal_exit:
         return "Exit"
-    elif total_open_trades == 1 or (isinstance(total_open_trades, str) and total_open_trades == "1"):
+    elif total_open_trades == 1 or (
+        isinstance(total_open_trades, str) and total_open_trades == "1"
+    ):
         return "Active"
     else:
         return "Inactive"
@@ -156,7 +162,7 @@ def generate_csv_output_for_portfolios(portfolios: List[dict]) -> str:
     """Generate CSV string output ready for copy/paste."""
     if not portfolios:
         return "No Entry strategies found"
-    
+
     df = pd.DataFrame(portfolios)
     return df.to_csv(index=False, lineterminator="\n").strip()
 
@@ -867,7 +873,9 @@ def synthesize(
 
         # Load configuration
         if profile:
-            config = loader.load_from_profile(profile, PortfolioSynthesisConfig, overrides)
+            config = loader.load_from_profile(
+                profile, PortfolioSynthesisConfig, overrides
+            )
         else:
             if not ticker:
                 console.error("Either --config or --ticker must be specified")
@@ -886,7 +894,9 @@ def synthesize(
                 "export_equity_curve": True,
                 "enable_plotting": True,
             }
-            config = loader.load_from_dict(template, PortfolioSynthesisConfig, overrides)
+            config = loader.load_from_dict(
+                template, PortfolioSynthesisConfig, overrides
+            )
 
         # Handle raw_strategies CSV loading
         if config.raw_strategies:
@@ -1049,7 +1059,9 @@ def synthesize(
         # Run analysis based on strategy count
         if config.is_single_strategy:
             console.info(f"Analyzing single strategy: {config.strategies[0].ticker}")
-            results = synthesis_service.run_single_strategy_synthesis(service_strategies[0])
+            results = synthesis_service.run_single_strategy_synthesis(
+                service_strategies[0]
+            )
         else:
             console.info(
                 f"Analyzing {len(config.strategies)} strategies across {len(config.unique_tickers)} tickers"
@@ -1125,17 +1137,23 @@ def synthesize(
 @app.command()
 def review(
     ctx: typer.Context,
-    portfolio: str = typer.Option(..., "--portfolio", "-p", help="Portfolio filename to review"),
+    portfolio: str = typer.Option(
+        ..., "--portfolio", "-p", help="Portfolio filename to review"
+    ),
     sort_by: str = typer.Option("Score", "--sort-by", help="Column to sort by"),
-    limit: int = typer.Option(None, "--limit", "-n", help="Number of rows to display (optional)"),
-    descending: bool = typer.Option(True, "--desc/--asc", help="Sort in descending order")
+    limit: int = typer.Option(
+        None, "--limit", "-n", help="Number of rows to display (optional)"
+    ),
+    descending: bool = typer.Option(
+        True, "--desc/--asc", help="Sort in descending order"
+    ),
 ):
     """
     Review portfolio performance with Rich CLI display.
-    
+
     This is a read-only command that displays portfolio data using the same
     Rich CLI output and tables as 'trading-cli portfolio update'.
-    
+
     Examples:
         trading-cli portfolio review --portfolio portfolio
         trading-cli portfolio review --portfolio DAILY --limit 10 --sort-by "Total Return [%]"
@@ -1145,18 +1163,19 @@ def review(
     try:
         # Get global CLI options
         global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
-        
+
         # Portfolio commands always show rich output
         console = ConsoleLogger(verbose=global_verbose, quiet=False)
-        
+
         # Resolve portfolio path
         portfolio_path = f"data/raw/strategies/{resolve_portfolio_path(portfolio)}"
-        
+
         # Check if portfolio file exists
         from pathlib import Path
+
         if not Path(portfolio_path).exists():
             console.error(f"Portfolio file not found: {portfolio_path}")
-            
+
             # Show available portfolios
             strategies_dir = Path("data/raw/strategies")
             if strategies_dir.exists():
@@ -1168,29 +1187,32 @@ def review(
                     if len(available) > 10:
                         console.info(f"  ... and {len(available) - 10} more")
             raise typer.Exit(1)
-        
+
         console.heading(f"Portfolio Review: {portfolio}", level=1)
-        
+
         # Load portfolio data
         import pandas as pd
+
         try:
             df = pd.read_csv(portfolio_path)
             console.info(f"Loaded {len(df)} strategies from {portfolio_path}")
         except Exception as e:
             console.error(f"Error loading portfolio file: {e}")
             raise typer.Exit(1)
-        
+
         # Convert DataFrame to list of dictionaries (format expected by display functions)
-        portfolios = df.to_dict('records')
-        
+        portfolios = df.to_dict("records")
+
         # Apply sorting if requested
         if sort_by and sort_by in df.columns:
-            portfolios = sorted(portfolios, key=lambda x: x.get(sort_by, 0), reverse=descending)
-        
+            portfolios = sorted(
+                portfolios, key=lambda x: x.get(sort_by, 0), reverse=descending
+            )
+
         # Apply limit if specified
         if limit:
             portfolios = portfolios[:limit]
-        
+
         # Create a simple logging function for the display functions
         def log_func(message: str, level: str = "info"):
             if level == "error":
@@ -1199,12 +1221,12 @@ def review(
                 console.warning(message)
             else:
                 console.debug(message)
-        
+
         # Use the same display functions as portfolio update
         display_portfolio_table(portfolios, log_func)
         display_portfolio_entry_exit_table(portfolios, log_func)
         display_portfolio_summary(portfolios, execution_time=None, log_func=log_func)
-        
+
         # Add CSV output section for Entry strategies only
         entry_strategies = filter_entry_strategies(portfolios)
         if entry_strategies:
@@ -1216,15 +1238,14 @@ def review(
         else:
             rprint(f"\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
             print("No Entry strategies found")
-        
+
         console.success("Portfolio review completed!")
-        
+
     except Exception as e:
         console.error(f"Error reviewing portfolio: {e}")
         if global_verbose:
             raise
         raise typer.Exit(1)
-
 
 
 def _show_portfolio_config_preview(config: PortfolioConfig, console: ConsoleLogger):
@@ -1780,7 +1801,10 @@ def _show_portfolio_synthesis_config_preview(
 
 
 def _display_portfolio_synthesis_results(
-    results, config: PortfolioSynthesisConfig, output_format: str, console: ConsoleLogger
+    results,
+    config: PortfolioSynthesisConfig,
+    output_format: str,
+    console: ConsoleLogger,
 ):
     """Display portfolio synthesis results in specified format."""
 

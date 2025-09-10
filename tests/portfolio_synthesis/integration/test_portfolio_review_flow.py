@@ -35,7 +35,9 @@ class TestPortfolioReviewFlowIntegration:
         mock_portfolio.value.return_value.index = ["2023-01-01", "2023-01-02"]
         mock_portfolio.value.return_value.values = [1000, 1050]
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -110,7 +112,9 @@ class TestPortfolioReviewFlowIntegration:
         mock_portfolio.value.return_value.index = ["2023-01-01", "2023-01-02"]
         mock_portfolio.value.return_value.values = [1000, 1100]
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -245,7 +249,9 @@ class TestPortfolioReviewFlowIntegration:
 
     def test_updated_config_dictionaries_integration(self):
         """Test that updated config dictionaries work correctly."""
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -308,7 +314,9 @@ class TestPortfolioReviewFlowIntegration:
             "BASE_DIR": "/tmp",
         }
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -433,7 +441,9 @@ class TestPortfolioReviewFlowIntegration:
         mock_value_series.values = [1000, 1050]
         mock_portfolio.value.return_value = mock_value_series
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"

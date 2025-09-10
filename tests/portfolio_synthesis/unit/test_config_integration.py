@@ -28,7 +28,9 @@ class TestConfigIntegration:
             "SIGNAL_PERIOD": 21,  # Should override function signal_period
         }
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -91,7 +93,9 @@ class TestConfigIntegration:
             # STRATEGY_TYPE and SIGNAL_PERIOD missing
         }
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -156,7 +160,9 @@ class TestConfigIntegration:
             # No modern parameters (TIMEFRAME, STRATEGY_TYPE, SIGNAL_PERIOD)
         }
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -223,7 +229,9 @@ class TestConfigIntegration:
             "SOME_CUSTOM_FIELD": "custom_value",
         }
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -290,7 +298,9 @@ class TestConfigIntegration:
             "BASE_DIR": "/tmp",
         }
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -355,7 +365,9 @@ class TestConfigIntegration:
             "SIGNAL_PERIOD": 15,  # Modern/Both
         }
 
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config, patch(
             "app.portfolio_synthesis.review.get_data"
@@ -411,7 +423,9 @@ class TestConfigIntegration:
 
         # This should cause an error since TICKER is required
         # But we want to test the parameter extraction logic
-        with patch("app.portfolio_synthesis.review.setup_logging") as mock_logging, patch(
+        with patch(
+            "app.portfolio_synthesis.review.setup_logging"
+        ) as mock_logging, patch(
             "app.portfolio_synthesis.review.get_config"
         ) as mock_get_config:
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
