@@ -41,7 +41,7 @@ class OptimizationConfig:
             "NFLX",
             "QCOM",
             "PDD",
-            "PLTR",
+            "AFL",
             # "GLD",
             # "SOL-USD",
             # "MSTR",

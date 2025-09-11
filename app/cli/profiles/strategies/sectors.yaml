@@ -8,7 +8,7 @@ metadata:
   tags: ['ma_cross', 'portfolio', 'analysis', 'production']
   author: 'trading-cli'
 
-inherits_from: 'default_strategy_current'
+inherits_from: 'default_strategy'
 
 config_type: 'strategy'
 

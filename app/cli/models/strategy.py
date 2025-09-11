@@ -146,6 +146,9 @@ class StrategyMinimums(BaseModel):
     beats_bnh: Optional[float] = Field(
         default=None, description="Minimum beats buy-and-hold percentage"
     )
+    score: Optional[float] = Field(
+        default=None, description="Minimum portfolio score"
+    )
 
 
 class StrategyConfig(BaseConfig):

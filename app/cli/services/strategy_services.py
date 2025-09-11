@@ -138,6 +138,8 @@ class MAStrategyService(BaseStrategyService):
             legacy_config["MINIMUMS"]["SORTINO_RATIO"] = config.minimums.sortino_ratio
         if config.minimums.beats_bnh is not None:
             legacy_config["MINIMUMS"]["BEATS_BNH"] = config.minimums.beats_bnh
+        if config.minimums.score is not None:
+            legacy_config["MINIMUMS"]["SCORE"] = config.minimums.score
 
         # Add parameter ranges for sweeps - prioritize strategy-specific params, fall back to global
         def get_strategy_specific_params(strategy_type: str):
@@ -426,6 +428,8 @@ class MACDStrategyService(BaseStrategyService):
             legacy_config["MINIMUMS"]["SORTINO_RATIO"] = config.minimums.sortino_ratio
         if config.minimums.beats_bnh is not None:
             legacy_config["MINIMUMS"]["BEATS_BNH"] = config.minimums.beats_bnh
+        if config.minimums.score is not None:
+            legacy_config["MINIMUMS"]["SCORE"] = config.minimums.score
 
         return legacy_config
 
@@ -546,6 +550,8 @@ class ATRStrategyService(BaseStrategyService):
             legacy_config["MINIMUMS"]["SORTINO_RATIO"] = config.minimums.sortino_ratio
         if config.minimums.beats_bnh is not None:
             legacy_config["MINIMUMS"]["BEATS_BNH"] = config.minimums.beats_bnh
+        if config.minimums.score is not None:
+            legacy_config["MINIMUMS"]["SCORE"] = config.minimums.score
 
         return legacy_config
 

@@ -1,0 +1,20 @@
+# MA Cross Portfolio Analysis Profile
+# CLI profile for running MA Cross portfolio analysis via trading-cli
+
+metadata:
+  name: 'sectors_current'
+  description: 'MA Cross portfolio analysis with specific ticker list from 1_get_portfolios.py'
+  version: '1.0'
+  tags: ['ma_cross', 'portfolio', 'analysis', 'production']
+  author: 'trading-cli'
+
+inherits_from: 'sectors'
+
+config_type: 'strategy'
+
+config:
+  use_current: true
+
+  # Filter configuration
+  filter:
+    use_current: true
