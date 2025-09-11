@@ -880,3 +880,313 @@ def validate_parameter_relationships(config: StrategyConfig) -> None:
     if config.minimums.trades is not None:
         if config.minimums.trades < 0:
             raise ValueError("Minimum trades must be non-negative")
+
+
+def _display_risk_comparison_matrix(
+    comparison_data: List[Dict[str, Any]], console: Console
+) -> None:
+    """
+    Display additional risk comparison matrix with categorized analysis.
+
+    Args:
+        comparison_data: List of sector comparison dicts from SectorComparisonEngine
+        console: Rich console instance for output
+    """
+    if not comparison_data:
+        return
+
+    # Categorize sectors by risk and performance
+    low_risk = []
+    medium_risk = []
+    high_risk = []
+
+    for sector in comparison_data:
+        if sector["max_drawdown"] > -40:
+            low_risk.append(sector)
+        elif sector["max_drawdown"] > -60:
+            medium_risk.append(sector)
+        else:
+            high_risk.append(sector)
+
+    # Create risk analysis table
+    risk_table = Table(
+        title="⚖️ Risk-Adjusted Performance Analysis",
+        box=ROUNDED,
+        show_header=True,
+        header_style="bold blue",
+        title_style="bold yellow",
+        expand=False,
+    )
+
+    risk_table.add_column("Risk Category", style="bold", width=15)
+    risk_table.add_column("Sectors", style="cyan", width=35)
+    risk_table.add_column("Count", style="yellow", width=8, justify="center")
+    risk_table.add_column("Avg Score", style="green", width=10, justify="right")
+    risk_table.add_column("Avg Sharpe", style="blue", width=10, justify="right")
+    risk_table.add_column("Top Pick", style="magenta", width=12)
+
+    # Add risk category rows
+    categories = [
+        ("Low Risk", low_risk, "green", "< 40% DD"),
+        ("Medium Risk", medium_risk, "yellow", "40-60% DD"),
+        ("High Risk", high_risk, "red", "> 60% DD"),
+    ]
+
+    for category_name, sectors, color, desc in categories:
+        if sectors:
+            sector_names = ", ".join([s["ticker"] for s in sectors[:5]])  # Show first 5
+            if len(sectors) > 5:
+                sector_names += f" (+{len(sectors)-5} more)"
+
+            avg_score = sum([s["score"] for s in sectors]) / len(sectors)
+            avg_sharpe = sum([s["sharpe_ratio"] for s in sectors]) / len(sectors)
+
+            # Find best sector in this risk category
+            best_in_category = max(sectors, key=lambda x: x["score"])
+            top_pick = f"{best_in_category['ticker']} ({best_in_category['score']:.3f})"
+
+            risk_table.add_row(
+                f"[{color}]{category_name}[/{color}]",
+                sector_names,
+                f"[{color}]{len(sectors)}[/{color}]",
+                f"{avg_score:.3f}",
+                f"{avg_sharpe:.2f}",
+                f"[bold]{top_pick}[/bold]",
+            )
+        else:
+            risk_table.add_row(
+                f"[{color}]{category_name}[/{color}]",
+                "[dim]None[/dim]",
+                f"[{color}]0[/{color}]",
+                "[dim]N/A[/dim]",
+                "[dim]N/A[/dim]",
+                "[dim]N/A[/dim]",
+            )
+
+    console.print()
+    console.print(risk_table)
+
+    # Add allocation recommendations table
+    alloc_table = Table(
+        title="💡 Sector Allocation Recommendations",
+        box=ROUNDED,
+        show_header=True,
+        header_style="bold green",
+        title_style="bold cyan",
+        expand=False,
+    )
+
+    alloc_table.add_column("Strategy", style="bold", width=20)
+    alloc_table.add_column("Sectors", style="cyan", width=40)
+    alloc_table.add_column("Rationale", style="yellow", width=35)
+
+    # Conservative allocation
+    conservative_picks = [
+        s for s in comparison_data if s["max_drawdown"] > -40 and s["score"] > 1.0
+    ][:3]
+    if conservative_picks:
+        conservative_sectors = ", ".join(
+            [f"{s['ticker']} ({s['score']:.2f})" for s in conservative_picks]
+        )
+        alloc_table.add_row(
+            "[green]Conservative[/green]",
+            conservative_sectors,
+            "Low drawdown, steady performance",
+        )
+
+    # Aggressive allocation (top performers)
+    aggressive_picks = comparison_data[:3]
+    aggressive_sectors = ", ".join(
+        [f"{s['ticker']} ({s['score']:.2f})" for s in aggressive_picks]
+    )
+    alloc_table.add_row(
+        "[red]Aggressive[/red]",
+        aggressive_sectors,
+        "Highest scores, accept higher risk",
+    )
+
+    # Balanced allocation (mix of risk levels)
+    balanced_picks = []
+    for category_name, sectors, color, desc in categories:
+        if sectors:
+            best_in_cat = max(sectors, key=lambda x: x["score"])
+            balanced_picks.append(best_in_cat)
+    balanced_picks = balanced_picks[:3]  # Take top from each risk category
+
+    if balanced_picks:
+        balanced_sectors = ", ".join(
+            [f"{s['ticker']} ({s['score']:.2f})" for s in balanced_picks]
+        )
+        alloc_table.add_row(
+            "[blue]Balanced[/blue]", balanced_sectors, "One from each risk category"
+        )
+
+    console.print()
+    console.print(alloc_table)
+
+
+def display_sector_comparison_table(
+    comparison_data: List[Dict[str, Any]],
+    console: Console,
+    benchmark_data: Optional[Dict] = None,
+) -> None:
+    """
+    Display sector comparison results in a rich formatted table.
+
+    Args:
+        comparison_data: List of sector comparison dicts from SectorComparisonEngine
+        console: Rich console instance for output
+        benchmark_data: Optional benchmark data for comparison
+    """
+    if not comparison_data:
+        console.print("[yellow]No sector comparison data to display[/yellow]")
+        return
+
+    # Create rich table
+    table = Table(
+        title="🏆 Sector ETF Performance Comparison (SMA Strategies)",
+        box=ROUNDED,
+        show_header=True,
+        header_style="bold magenta",
+        title_style="bold cyan",
+        expand=False,
+    )
+
+    # Add columns
+    table.add_column("Rank", style="bold", width=6, justify="center")
+    table.add_column("Sector", style="cyan", width=22)
+    table.add_column("Ticker", style="yellow", width=8, justify="center")
+    table.add_column("Score", style="green", width=8, justify="right")
+    table.add_column("SMA (F/S)", style="dim", width=10, justify="center")
+    table.add_column("Win Rate", style="blue", width=9, justify="right")
+    table.add_column("Total Return", style="magenta", width=12, justify="right")
+    table.add_column("Max DD", style="red", width=8, justify="right")
+    table.add_column("Sharpe", style="cyan", width=7, justify="right")
+    table.add_column("vs Top", style="dim", width=8, justify="right")
+
+    # Add benchmark comparison column if benchmark data available
+    has_benchmark = benchmark_data is not None
+    benchmark_ticker = benchmark_data["ticker"] if benchmark_data else None
+    if has_benchmark:
+        table.add_column(
+            f"vs {benchmark_ticker}", style="yellow", width=10, justify="right"
+        )
+
+    # Add rows with color coding
+    for i, sector in enumerate(comparison_data):
+        rank = sector["rank"]
+
+        # Color code rank
+        if rank == 1:
+            rank_style = "bold green"
+            rank_display = "🥇 1"
+        elif rank == 2:
+            rank_style = "bold yellow"
+            rank_display = "🥈 2"
+        elif rank == 3:
+            rank_style = "bold #cd7f32"  # Bronze
+            rank_display = "🥉 3"
+        else:
+            rank_style = "dim"
+            rank_display = str(rank)
+
+        # Color code score
+        if rank <= 3:
+            score_style = "bold green"
+        elif rank <= 6:
+            score_style = "yellow"
+        else:
+            score_style = "red"
+
+        # Format values
+        score_display = f"{sector['score']:.4f}"
+        sma_display = f"{sector['short_window']}/{sector['long_window']}"
+        win_rate_display = f"{sector['win_rate']:.1f}%"
+        total_return_display = f"{sector['total_return']:.1f}%"
+        max_dd_display = f"{sector['max_drawdown']:.1f}%"
+        sharpe_display = f"{sector['sharpe_ratio']:.2f}"
+        vs_top_display = f"{sector['score_vs_top_pct']:.1f}%"
+
+        # Color code drawdown (risk levels)
+        if sector["max_drawdown"] > -20:  # Low risk
+            dd_style = "green"
+        elif sector["max_drawdown"] > -40:  # Medium risk
+            dd_style = "yellow"
+        else:  # High risk
+            dd_style = "red"
+
+        # Color code Sharpe ratio
+        if sector["sharpe_ratio"] > 0.5:
+            sharpe_style = "green"
+        elif sector["sharpe_ratio"] > 0.2:
+            sharpe_style = "yellow"
+        else:
+            sharpe_style = "red"
+
+        # Prepare row data
+        row_data = [
+            f"[{rank_style}]{rank_display}[/{rank_style}]",
+            sector["sector_name"],
+            f"[bold]{sector['ticker']}[/bold]",
+            f"[{score_style}]{score_display}[/{score_style}]",
+            sma_display,
+            win_rate_display,
+            total_return_display,
+            f"[{dd_style}]{max_dd_display}[/{dd_style}]",
+            f"[{sharpe_style}]{sharpe_display}[/{sharpe_style}]",
+            vs_top_display,
+        ]
+
+        # Add benchmark comparison if available
+        if has_benchmark:
+            vs_benchmark_pct = sector.get("score_vs_benchmark_pct", 0)
+            outperforms = sector.get("outperforms_benchmark", False)
+
+            if outperforms:
+                vs_benchmark_style = "green"
+                vs_benchmark_display = f"{vs_benchmark_pct:.1f}%"
+            else:
+                vs_benchmark_style = "red"
+                vs_benchmark_display = f"{vs_benchmark_pct:.1f}%"
+
+            row_data.append(
+                f"[{vs_benchmark_style}]{vs_benchmark_display}[/{vs_benchmark_style}]"
+            )
+
+        table.add_row(*row_data)
+
+    # Display main table
+    console.print()
+    console.print(table)
+
+    # Add risk comparison matrix table
+    _display_risk_comparison_matrix(comparison_data, console)
+
+    # Summary statistics
+    top_score = comparison_data[0]["score"] if comparison_data else 0
+    bottom_score = comparison_data[-1]["score"] if comparison_data else 0
+    score_range = top_score - bottom_score
+
+    console.print(f"📊 [bold]Summary:[/bold]")
+    console.print(
+        f"   • Best Sector: [green]{comparison_data[0]['sector_name']} ({comparison_data[0]['ticker']})[/green] - Score: [bold]{top_score:.4f}[/bold]"
+    )
+    console.print(
+        f"   • Score Range: [yellow]{score_range:.4f}[/yellow] ({bottom_score:.4f} to {top_score:.4f})"
+    )
+    console.print(f"   • Total Sectors: [cyan]{len(comparison_data)}[/cyan]")
+
+    # Add benchmark summary if available
+    if benchmark_data:
+        benchmark_score = benchmark_data["score"]
+        outperforming_count = sum(
+            1 for s in comparison_data if s.get("outperforms_benchmark", False)
+        )
+        console.print(
+            f"   • Benchmark ({benchmark_data['ticker']}): [yellow]{benchmark_score:.4f}[/yellow] score"
+        )
+        console.print(
+            f"   • Outperforming Sectors: [green]{outperforming_count}/{len(comparison_data)}[/green] sectors beat {benchmark_data['ticker']}"
+        )
+
+    console.print()

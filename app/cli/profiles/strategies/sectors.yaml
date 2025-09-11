@@ -2,7 +2,7 @@
 # CLI profile for running MA Cross portfolio analysis via trading-cli
 
 metadata:
-  name: 'current'
+  name: 'sectors'
   description: 'MA Cross portfolio analysis with specific ticker list from 1_get_portfolios.py'
   version: '1.0'
   tags: ['ma_cross', 'portfolio', 'analysis', 'production']

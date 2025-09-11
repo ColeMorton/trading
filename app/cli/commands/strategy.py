@@ -1066,3 +1066,257 @@ def _display_strategy_summary(
         console.info(
             f"Success Rate: {success_rate_pct:.0f}% ({summary.successful_strategies}/{summary.total_strategies} strategies)"
         )
+
+
+@app.command()
+def sector_compare(
+    format: str = typer.Option(
+        "table", "--format", "-f", help="Output format: table, json, csv"
+    ),
+    export: Optional[str] = typer.Option(
+        None, "--export", "-e", help="Export results to file"
+    ),
+    date: Optional[str] = typer.Option(
+        None,
+        "--date",
+        "-d",
+        help="Specific date in YYYYMMDD format (default: latest available)",
+    ),
+    list_dates: bool = typer.Option(
+        False, "--list-dates", help="List available dates and exit"
+    ),
+    explain_columns: bool = typer.Option(
+        False, "--explain-columns", help="Explain all column meanings and exit"
+    ),
+    vs_benchmark: Optional[str] = typer.Option(
+        None,
+        "--vs-benchmark",
+        help="Compare against benchmark (SPY, BTC-USD, or any ticker)",
+    ),
+    refresh: bool = typer.Option(
+        False,
+        "--refresh",
+        help="Force regeneration of sector data (equivalent to: trading-cli strategy run -p sectors_current --refresh)",
+    ),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
+):
+    """
+    Compare sector ETF performance using SMA strategy scores.
+
+    Generates a cross-comparison matrix of all 11 sector ETFs (XLK, XLY, etc.)
+    ranked by their best SMA Score values across all parameter combinations.
+    """
+    from pathlib import Path
+
+    from app.tools.sector_comparison import SectorComparisonEngine
+
+    from .strategy_utils import display_sector_comparison_table
+
+    try:
+        console = Console()
+
+        # Smart data refresh logic (only when not using specific date)
+        if not date:  # Only auto-refresh for current/latest data
+            temp_engine = SectorComparisonEngine()
+
+            if temp_engine.needs_data_refresh(force_refresh=refresh):
+                console.print("[yellow]Generating sector data...[/yellow]")
+
+                try:
+                    # Execute sectors_current profile to generate/refresh data
+                    loader = ConfigLoader()
+
+                    # Build overrides with refresh flag
+                    overrides = {"refresh": refresh} if refresh else {}
+
+                    # Load sectors_current profile
+                    profile_config = loader.load_from_profile(
+                        "sectors_current", StrategyConfig, overrides
+                    )
+
+                    # Execute strategy with existing StrategyDispatcher
+                    console.print(
+                        "[dim]Running: trading-cli strategy run -p sectors_current"
+                        + (" --refresh" if refresh else "")
+                        + "[/dim]"
+                    )
+
+                    # Initialize strategy dispatcher with console logger
+                    console_logger = ConsoleLogger()
+                    dispatcher = StrategyDispatcher(console=console_logger)
+
+                    # Validate strategy compatibility
+                    if not dispatcher.validate_strategy_compatibility(
+                        profile_config.strategy_types
+                    ):
+                        console.print(
+                            "[red]✗[/red] Invalid strategy configuration in sectors_current profile"
+                        )
+                        console.print(
+                            "[yellow]Continuing with existing data...[/yellow]"
+                        )
+                    else:
+                        # Execute the strategy
+                        dispatcher.execute_strategy(profile_config)
+                        console.print(
+                            "[green]✓[/green] Sector data generated successfully"
+                        )
+
+                except Exception as e:
+                    console.print(
+                        f"[red]✗[/red] Error during sector data generation: {str(e)}"
+                    )
+                    console.print("[yellow]Continuing with existing data...[/yellow]")
+                    if verbose:
+                        console.print(f"[red]Full error: {str(e)}[/red]")
+
+        # Initialize sector comparison engine
+        engine = SectorComparisonEngine(date=date, benchmark_ticker=vs_benchmark)
+
+        # Handle list-dates option
+        if list_dates:
+            available_dates = engine.get_available_dates()
+            if available_dates:
+                console.print("[cyan]Available dates in portfolios_best:[/cyan]")
+                for date_str in available_dates:
+                    console.print(f"  • {date_str}")
+            else:
+                console.print(
+                    "[yellow]No dated directories found in portfolios_best[/yellow]"
+                )
+                console.print(
+                    "[dim]Run 'trading-cli strategy run -p sectors_current' to generate data[/dim]"
+                )
+            return
+
+        # Handle explain-columns option
+        if explain_columns:
+            console.print(
+                "[bold cyan]🔍 Sector Comparison Table - Column Explanations:[/bold cyan]\n"
+            )
+
+            explanations = [
+                ("Rank", "Overall ranking based on Score (1 = highest score)"),
+                ("Sector", "ETF ticker symbol for the sector"),
+                ("Name", "Full sector name (e.g., Technology, Healthcare)"),
+                (
+                    "Score",
+                    "Composite performance metric: Win Rate ×2.5 + Total Trades ×1.5 + Sortino ×1.2 + Profit Factor ×1.2 + Expectancy ×1.0 + Beats BNH ×0.6",
+                ),
+                (
+                    "vs Top",
+                    "Percentage relative to top-ranked sector: (sector_score / top_score) × 100%",
+                ),
+                (
+                    "SMA",
+                    "Optimal Simple Moving Average window combination (Fast/Slow periods)",
+                ),
+                (
+                    "Win Rate",
+                    "Percentage of profitable trades for the optimal strategy",
+                ),
+                ("Return", "Total return percentage for the optimal strategy"),
+                ("Max DD", "Maximum drawdown percentage (worst peak-to-trough loss)"),
+                ("Sharpe", "Risk-adjusted return metric (higher = better risk/reward)"),
+                (
+                    "P.Factor",
+                    "Profit Factor: Gross profit divided by gross loss (>1.0 = profitable)",
+                ),
+                ("Trades", "Total number of trades executed by the optimal strategy"),
+                ("Risk Level", "Color-coded risk assessment based on Max Drawdown:"),
+            ]
+
+            for label, description in explanations:
+                if label == "Risk Level":
+                    console.print(f"• [bold white]{label}:[/bold white] {description}")
+                    console.print("    [green]• Low Risk: <10% Max Drawdown[/green]")
+                    console.print(
+                        "    [yellow]• Medium Risk: 10-20% Max Drawdown[/yellow]"
+                    )
+                    console.print("    [red]• High Risk: >20% Max Drawdown[/red]")
+                else:
+                    console.print(f"• [bold white]{label}:[/bold white] {description}")
+
+            console.print(f"\n[bold yellow]💡 Key Insights:[/bold yellow]")
+            console.print(
+                "• Higher Score values indicate better overall strategy performance"
+            )
+            console.print(
+                "• 'vs Top' shows relative performance - 100% = best performing sector"
+            )
+            console.print(
+                "• Consider both Score and Max Drawdown for risk-adjusted decisions"
+            )
+            console.print("• Win Rate and Profit Factor validate strategy consistency")
+            console.print(
+                "• Minimum 44+ trades recommended for statistical significance"
+            )
+            return
+
+        if verbose:
+            target_date = engine.resolve_target_date()
+            if target_date:
+                console.print(
+                    f"[dim]Loading sector ETF data for date: {target_date}[/dim]"
+                )
+            else:
+                console.print(
+                    "[dim]Loading sector ETF data from fallback directory[/dim]"
+                )
+
+        # Generate comparison matrix
+        comparison_data = engine.generate_comparison_matrix()
+
+        if not comparison_data:
+            console.print("[red]No sector data found.[/red]")
+            console.print(
+                "[yellow]First run: trading-cli strategy run -p sectors_current[/yellow]"
+            )
+            available_dates = engine.get_available_dates()
+            if available_dates:
+                console.print(
+                    f"[dim]Or try a specific date: --date {available_dates[0]}[/dim]"
+                )
+            return
+
+        # Display results based on format
+        if format == "table":
+            display_sector_comparison_table(
+                comparison_data, console, engine.benchmark_data
+            )
+        elif format == "json":
+            import json
+
+            console.print(json.dumps(comparison_data, indent=2))
+        elif format == "csv":
+            import pandas as pd
+
+            df = pd.DataFrame(comparison_data)
+            console.print(df.to_csv(index=False))
+        else:
+            console.print(
+                f"[red]Unknown format: {format}. Use: table, json, or csv[/red]"
+            )
+            return
+
+        # Export if requested
+        if export:
+            export_path = Path(export)
+            if format == "json" or export_path.suffix == ".json":
+                success = engine.export_to_json(comparison_data, export)
+            elif format == "csv" or export_path.suffix == ".csv":
+                success = engine.export_to_csv(comparison_data, export)
+            else:
+                # Default to JSON
+                success = engine.export_to_json(comparison_data, export)
+
+            if success:
+                console.print(f"[green]Results exported to: {export}[/green]")
+            else:
+                console.print(f"[red]Failed to export results to: {export}[/red]")
+
+        if verbose:
+            console.print(f"[dim]Analyzed {len(comparison_data)} sectors[/dim]")
+
+    except Exception as e:
+        handle_command_error(e, "strategy sector-compare", verbose)

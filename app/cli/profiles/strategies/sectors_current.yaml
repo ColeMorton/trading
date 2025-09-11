@@ -8,13 +8,21 @@ metadata:
   tags: ['ma_cross', 'portfolio', 'analysis', 'production']
   author: 'trading-cli'
 
-inherits_from: 'sectors'
+inherits_from: 'default_strategy_current'
 
 config_type: 'strategy'
 
 config:
-  use_current: true
-
-  # Filter configuration
-  filter:
-    use_current: true
+  name: 'sectors_current'
+  ticker:
+    - XLK
+    - XLY
+    - XLE
+    - XLU
+    - XLRE
+    - XLI
+    - XLV
+    - XLP
+    - XLB
+    - XLF
+    - XLC
