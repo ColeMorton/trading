@@ -6,11 +6,17 @@ CLI commands to appropriate strategy services based on configuration.
 """
 
 import time
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Type, Union
 
 from rich import print as rprint
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
 
 from app.tools.console_logging import ConsoleLogger, PerformanceAwareConsoleLogger
+from app.tools.project_utils import get_project_root
 
 from ..models.strategy import (
     StrategyConfig,
@@ -24,6 +30,7 @@ from .strategy_services import (
     BaseStrategyService,
     MACDStrategyService,
     MAStrategyService,
+    SMAAtrStrategyService,
 )
 
 
@@ -48,6 +55,7 @@ class StrategyDispatcher:
             "MA": MAStrategyService(console=self.console),
             "MACD": MACDStrategyService(console=self.console),
             "ATR": ATRStrategyService(console=self.console),
+            "SMA_ATR": SMAAtrStrategyService(console=self.console),
         }
 
         # Initialize smart resume service with compatible logging
@@ -97,6 +105,12 @@ class StrategyDispatcher:
                 strategy_specific = config.strategy_params.MACD
             elif strategy_value == "ATR" and config.strategy_params.ATR:
                 strategy_specific = config.strategy_params.ATR
+            elif (
+                strategy_value == "SMA_ATR"
+                and hasattr(config.strategy_params, "SMA_ATR")
+                and config.strategy_params.SMA_ATR
+            ):
+                strategy_specific = config.strategy_params.SMA_ATR
 
             if strategy_specific:
                 params.update(
@@ -151,6 +165,12 @@ class StrategyDispatcher:
                 "signal_max": 20,
             },
             "ATR": {"fast_min": 5, "fast_max": 30, "slow_min": 10, "slow_max": 50},
+            "SMA_ATR": {
+                "fast_min": 10,
+                "fast_max": 50,
+                "slow_min": 20,
+                "slow_max": 100,
+            },
         }
 
         strategy_defaults = defaults.get(strategy_value, defaults["SMA"])
@@ -159,6 +179,352 @@ class StrategyDispatcher:
                 params[key] = default_value
 
         return params
+
+    def _analyze_cached_results(
+        self, config: StrategyConfig, resume_analysis
+    ) -> Dict[str, Any]:
+        """
+        PHASE 1: Analyze cached results from existing CSV files.
+
+        Args:
+            config: Strategy configuration
+            resume_analysis: Resume analysis results
+
+        Returns:
+            Dictionary with comprehensive cached result analysis
+        """
+        from collections import defaultdict
+
+        import polars as pl
+
+        project_root = Path(get_project_root())
+        analysis = {
+            "export_summary": defaultdict(
+                lambda: {"files": 0, "portfolios": 0, "exists": False}
+            ),
+            "best_strategies": [],
+            "file_paths": [],
+            "total_portfolios": 0,
+            "ticker_strategies": set(),
+        }
+
+        # FIX: Updated export directories to match SmartResumeService and export_csv.py paths
+        # Both use data/raw/ as base directory, not data/outputs/
+        export_dirs = {
+            "Raw Portfolios": ("data/raw/portfolios", ""),
+            "Filtered Portfolios": ("data/raw/portfolios_filtered", ""),
+            "Metrics Analysis": ("data/raw/portfolios_metrics", ""),
+            "Best Strategies": ("data/raw/portfolios_best", ""),
+        }
+
+        # Analyze each ticker+strategy combination
+        for ticker, strategy in resume_analysis.completed_combinations:
+            analysis["ticker_strategies"].add((ticker, strategy))
+
+            # FIX: Handle different filename formats with timeframe suffixes
+            # Look for files with patterns like BTC-USD_D_SMA_ATR.csv or BTC-USD_SMA_ATR.csv
+            possible_patterns = [
+                f"{ticker}_{strategy}.csv",
+                f"{ticker}_D_{strategy}.csv",  # Daily timeframe
+                f"{ticker}_H_{strategy}.csv",  # Hourly timeframe
+                f"{ticker}_4H_{strategy}.csv",  # 4-hour timeframe
+                f"{ticker}_2D_{strategy}.csv",  # 2-day timeframe
+            ]
+
+            # FIX: Also use glob patterns for more flexible matching
+            glob_patterns = [
+                f"*{ticker}*{strategy}*.csv",  # Most flexible
+                f"{ticker}*{strategy}.csv",  # Ticker prefix
+            ]
+
+            # Check each export type
+            for export_name, (export_path, _) in export_dirs.items():
+                full_dir = project_root / export_path
+
+                # FIX: For best and metrics, check date subdirectories
+                if export_name in ["Best Strategies", "Metrics Analysis"]:
+                    # First check direct path, then date subdirectories
+                    search_dirs = [full_dir]
+                    if full_dir.exists():
+                        # Add all subdirectories that look like dates (YYYYMMDD)
+                        for subdir in full_dir.iterdir():
+                            if (
+                                subdir.is_dir()
+                                and len(subdir.name) == 8
+                                and subdir.name.isdigit()
+                            ):
+                                search_dirs.append(subdir)
+                else:
+                    search_dirs = [full_dir]
+
+                # FIX: Try multiple filename patterns and directories
+                file_found = False
+                for search_dir in search_dirs:
+                    if not search_dir.exists():
+                        continue
+
+                    for pattern in possible_patterns:
+                        file_path = search_dir / pattern
+
+                        # Debug logging to diagnose path issues
+                        if hasattr(self.console, "debug"):
+                            self.console.debug(f"Checking for file: {file_path}")
+
+                        if file_path.exists():
+                            file_found = True
+                            analysis["export_summary"][export_name]["exists"] = True
+                            analysis["export_summary"][export_name]["files"] += 1
+
+                            # Count portfolios in CSV
+                            try:
+                                df = pl.read_csv(file_path)
+                                portfolio_count = len(df)
+                                analysis["export_summary"][export_name][
+                                    "portfolios"
+                                ] += portfolio_count
+
+                                if export_name == "Raw Portfolios":
+                                    analysis["total_portfolios"] += portfolio_count
+
+                                # Extract best strategy info from best results
+                                if export_name == "Best Strategies" and len(df) > 0:
+                                    try:
+                                        best_row = df.row(0, named=True)
+                                        analysis["best_strategies"].append(
+                                            {
+                                                "ticker": ticker,
+                                                "strategy": strategy,
+                                                "fast_period": best_row.get(
+                                                    "Fast Period", "N/A"
+                                                ),
+                                                "slow_period": best_row.get(
+                                                    "Slow Period", "N/A"
+                                                ),
+                                                "total_return": float(
+                                                    best_row.get("Total Return [%]", 0)
+                                                ),
+                                                "win_rate": float(
+                                                    best_row.get("Win Rate [%]", 0)
+                                                ),
+                                                "max_drawdown": float(
+                                                    best_row.get("Max Drawdown [%]", 0)
+                                                ),
+                                                "total_trades": int(
+                                                    best_row.get("Total Trades", 0)
+                                                ),
+                                            }
+                                        )
+                                    except (KeyError, ValueError, TypeError) as e:
+                                        self.console.warning(
+                                            f"Error extracting best strategy from {ticker}_{strategy}: {e}"
+                                        )
+
+                                # Add file path
+                                analysis["file_paths"].append(
+                                    {
+                                        "type": export_name,
+                                        "path": str(file_path),
+                                        "portfolios": portfolio_count,
+                                    }
+                                )
+
+                                # Only process the first found file to avoid duplicates
+                                break
+
+                            except Exception as e:
+                                self.console.warning(f"Error reading {file_path}: {e}")
+
+                        if file_found:
+                            break  # Stop searching patterns if file was found
+
+                # FIX: If no exact match found, try glob patterns
+                if not file_found:
+                    for search_dir in search_dirs:
+                        if not search_dir.exists():
+                            continue
+
+                        for glob_pattern in glob_patterns:
+                            matching_files = list(search_dir.glob(glob_pattern))
+
+                            if matching_files:
+                                # Use the first matching file
+                                file_path = matching_files[0]
+                                file_found = True
+
+                                if hasattr(self.console, "debug"):
+                                    self.console.debug(
+                                        f"Found file via glob pattern: {file_path}"
+                                    )
+
+                                analysis["export_summary"][export_name]["exists"] = True
+                                analysis["export_summary"][export_name]["files"] += 1
+
+                                # Count portfolios in CSV
+                                try:
+                                    df = pl.read_csv(file_path)
+                                    portfolio_count = len(df)
+                                    analysis["export_summary"][export_name][
+                                        "portfolios"
+                                    ] += portfolio_count
+
+                                    if export_name == "Raw Portfolios":
+                                        analysis["total_portfolios"] += portfolio_count
+
+                                    # Extract best strategy info from best results
+                                    if export_name == "Best Strategies" and len(df) > 0:
+                                        try:
+                                            best_row = df.row(0, named=True)
+                                            analysis["best_strategies"].append(
+                                                {
+                                                    "ticker": ticker,
+                                                    "strategy": strategy,
+                                                    "fast_period": best_row.get(
+                                                        "Fast Period", "N/A"
+                                                    ),
+                                                    "slow_period": best_row.get(
+                                                        "Slow Period", "N/A"
+                                                    ),
+                                                    "total_return": float(
+                                                        best_row.get(
+                                                            "Total Return [%]", 0
+                                                        )
+                                                    ),
+                                                    "win_rate": float(
+                                                        best_row.get("Win Rate [%]", 0)
+                                                    ),
+                                                    "max_drawdown": float(
+                                                        best_row.get(
+                                                            "Max Drawdown [%]", 0
+                                                        )
+                                                    ),
+                                                    "total_trades": int(
+                                                        best_row.get("Total Trades", 0)
+                                                    ),
+                                                }
+                                            )
+                                        except (KeyError, ValueError, TypeError) as e:
+                                            self.console.warning(
+                                                f"Error extracting best strategy: {e}"
+                                            )
+
+                                    # Add file path
+                                    analysis["file_paths"].append(
+                                        {
+                                            "type": export_name,
+                                            "path": str(file_path),
+                                            "portfolios": portfolio_count,
+                                        }
+                                    )
+
+                                    break  # Only use first matching file
+
+                                except Exception as e:
+                                    self.console.warning(
+                                        f"Error reading {file_path}: {e}"
+                                    )
+
+                            if file_found:
+                                break
+
+        return analysis
+
+    def _display_cached_results_summary(
+        self, analysis: Dict[str, Any], config: StrategyConfig
+    ):
+        """
+        PHASE 2: Display comprehensive Rich CLI summary for cached results.
+
+        Args:
+            analysis: Cached result analysis
+            config: Strategy configuration
+        """
+        console = Console()
+
+        # Export Summary Table
+        export_table = Table(
+            title="📁 Export Summary", show_header=True, header_style="bold magenta"
+        )
+        export_table.add_column("Export Type", style="cyan", no_wrap=True)
+        export_table.add_column("Files", justify="center", style="green")
+        export_table.add_column("Portfolios", justify="center", style="yellow")
+        export_table.add_column("Status", justify="center")
+
+        for export_type, data in analysis["export_summary"].items():
+            status = "✅ Complete" if data["exists"] else "❌ Missing"
+            export_table.add_row(
+                export_type, str(data["files"]), f"{data['portfolios']:,}", status
+            )
+
+        console.print(export_table)
+        console.print()
+
+        # Best Strategy Results Panel
+        if analysis["best_strategies"]:
+            for best_strategy in analysis["best_strategies"]:
+                strategy_info = f"{best_strategy['strategy']} ({best_strategy['fast_period']}/{best_strategy['slow_period']})"
+                performance = f"+{best_strategy['total_return']:.1f}% Return, {best_strategy['win_rate']:.1f}% Win Rate"
+                risk = f"{best_strategy['max_drawdown']:.1f}% Max Drawdown, {best_strategy['total_trades']} Trades"
+
+                best_strategy_panel = Panel.fit(
+                    f"[bold cyan]Ticker:[/bold cyan] {best_strategy['ticker']}\n"
+                    f"[bold cyan]Strategy:[/bold cyan] {strategy_info}\n"
+                    f"[bold green]Performance:[/bold green] {performance}\n"
+                    f"[bold yellow]Risk:[/bold yellow] {risk}",
+                    title="🏆 Best Strategy Results",
+                    border_style="green",
+                )
+                console.print(best_strategy_panel)
+                console.print()
+
+        # File Path Links
+        if analysis["file_paths"]:
+            console.print("[bold blue]📁 Generated Files:[/bold blue]")
+            file_icons = {
+                "Raw Portfolios": "📊",
+                "Filtered Portfolios": "🔽",
+                "Metrics Analysis": "📈",
+                "Best Strategies": "🏆",
+            }
+
+            # Group files by type for better organization
+            files_by_type = {}
+            for file_info in analysis["file_paths"]:
+                file_type = file_info["type"]
+                if file_type not in files_by_type:
+                    files_by_type[file_type] = []
+                files_by_type[file_type].append(file_info)
+
+            for file_type in [
+                "Raw Portfolios",
+                "Filtered Portfolios",
+                "Metrics Analysis",
+                "Best Strategies",
+            ]:
+                if file_type in files_by_type:
+                    icon = file_icons.get(file_type, "📄")
+                    total_portfolios = sum(
+                        f["portfolios"] for f in files_by_type[file_type]
+                    )
+
+                    if len(files_by_type[file_type]) == 1:
+                        file_info = files_by_type[file_type][0]
+                        # Make path relative for cleaner display
+                        relative_path = str(
+                            Path(file_info["path"]).relative_to(Path.cwd())
+                        )
+                        console.print(
+                            f"{icon} [cyan]{file_type}:[/cyan] [link]{relative_path}[/link] [dim]({file_info['portfolios']:,} portfolios)[/dim]"
+                        )
+                    else:
+                        console.print(
+                            f"{icon} [cyan]{file_type}:[/cyan] [dim]{len(files_by_type[file_type])} files ({total_portfolios:,} total portfolios)[/dim]"
+                        )
+            console.print()
+        else:
+            console.print(
+                "[yellow]⚠️  No cached files found - this might indicate an issue with resume detection[/yellow]"
+            )
+            console.print()
 
     def _calculate_parameter_combinations(
         self, config: StrategyConfig, strategy_type: Union[StrategyType, str]
@@ -236,6 +602,83 @@ class StrategyDispatcher:
                     return length_combinations * multiplier_combinations
                 else:
                     return 500  # Conservative estimate for ATR
+
+            elif strategy_value == "SMA_ATR":
+                # SMA_ATR strategy: Combines SMA periods and ATR parameters
+                # Extract parameters using proper hierarchy
+                params = self._extract_strategy_parameters(config, strategy_type)
+
+                # Calculate SMA combinations with STEP optimization (fast < slow)
+                fast_min, fast_max = params["fast_min"], params["fast_max"]
+                slow_min, slow_max = params["slow_min"], params["slow_max"]
+
+                # Get SMA step size for optimization (critical for performance)
+                sma_step = 1  # Default to 1 if not specified
+                if (
+                    hasattr(config, "strategy_params")
+                    and config.strategy_params
+                    and hasattr(config.strategy_params, "SMA_ATR")
+                    and config.strategy_params.SMA_ATR
+                ):
+                    sma_step = config.strategy_params.SMA_ATR.step or 1
+                elif hasattr(config, "step"):
+                    sma_step = config.step or 1
+
+                sma_combinations = 0
+                for fast in range(fast_min, fast_max + 1, sma_step):
+                    for slow in range(slow_min, slow_max + 1, sma_step):
+                        if fast < slow:
+                            sma_combinations += 1
+
+                # Calculate ATR combinations using discrete length values if available
+                if hasattr(config, "atr_length_range") and config.atr_length_range:
+                    # Use discrete ATR length values (optimized)
+                    length_combinations = len(config.atr_length_range)
+                elif hasattr(config, "atr_length_min") and config.atr_length_max:
+                    # Fallback to continuous range
+                    length_combinations = (
+                        config.atr_length_max - config.atr_length_min + 1
+                    )
+                else:
+                    # Default discrete values
+                    length_combinations = 6  # [3, 5, 7, 9, 11, 13]
+
+                # Calculate ATR multiplier combinations
+                if (
+                    hasattr(config, "atr_multiplier_min")
+                    and config.atr_multiplier_max
+                    and config.atr_multiplier_step
+                ):
+                    multiplier_step = config.atr_multiplier_step
+                    multiplier_combinations = (
+                        int(
+                            (config.atr_multiplier_max - config.atr_multiplier_min)
+                            / multiplier_step
+                        )
+                        + 1
+                    )
+                else:
+                    # Default multiplier combinations
+                    multiplier_combinations = 3  # [1.0, 2.5, 4.0] with step 1.5
+
+                atr_combinations = length_combinations * multiplier_combinations
+                total = sma_combinations * atr_combinations
+
+                # Debug logging for parameter calculation
+                if hasattr(self.console, "debug"):
+                    self.console.debug(f"SMA_ATR parameter calculation:")
+                    self.console.debug(
+                        f"  SMA combinations (step={sma_step}): {sma_combinations}"
+                    )
+                    self.console.debug(
+                        f"  ATR length combinations: {length_combinations}"
+                    )
+                    self.console.debug(
+                        f"  ATR multiplier combinations: {multiplier_combinations}"
+                    )
+                    self.console.debug(f"  Total: {total}")
+
+                return total
 
             else:
                 # Unknown strategy type - return conservative estimate
@@ -373,11 +816,26 @@ class StrategyDispatcher:
             resume_summary = self.resume_service.get_resume_summary(resume_analysis)
             self.console.info(f"📋 Resume Analysis: {resume_summary}")
 
-            # If everything is complete, skip execution
+            # If everything is complete, skip execution with ENHANCED CLI OUTPUT
             if resume_analysis.is_complete():
                 self.console.success(
                     "🎉 All analysis is complete and up-to-date! Skipping execution."
                 )
+
+                # PHASE 1 & 2: Analyze cached results and display Rich CLI summary
+                try:
+                    cached_analysis = self._analyze_cached_results(
+                        config, resume_analysis
+                    )
+                    self._display_cached_results_summary(cached_analysis, config)
+
+                    # Update summary with actual portfolio count from cached analysis
+                    summary.total_portfolios_generated = cached_analysis.get(
+                        "total_portfolios", 0
+                    )
+                except Exception as e:
+                    self.console.warning(f"Error analyzing cached results: {e}")
+
                 summary.execution_time = time.time() - start_time
                 summary.success_rate = 1.0
                 summary.successful_strategies = len(config.strategy_types)
@@ -407,6 +865,21 @@ class StrategyDispatcher:
                 self.console.success(
                     "🎉 All analysis is complete and up-to-date! Skipping execution."
                 )
+
+                # PHASE 1 & 2: Enhanced CLI output for secondary skip check
+                try:
+                    cached_analysis = self._analyze_cached_results(
+                        config, resume_analysis
+                    )
+                    self._display_cached_results_summary(cached_analysis, config)
+
+                    # Update summary with actual portfolio count from cached analysis
+                    summary.total_portfolios_generated = cached_analysis.get(
+                        "total_portfolios", 0
+                    )
+                except Exception as e:
+                    self.console.warning(f"Error analyzing cached results: {e}")
+
                 summary.execution_time = time.time() - start_time
                 summary.success_rate = 1.0
                 summary.successful_strategies = len(config.strategy_types)
@@ -916,6 +1389,8 @@ class StrategyDispatcher:
             return self._services["MA"]
         elif strategy_value == StrategyType.ATR.value:
             return self._services["ATR"]
+        elif strategy_value == StrategyType.SMA_ATR.value:
+            return self._services["SMA_ATR"]
         else:
             self.console.error(f"Unsupported strategy type: {strategy_value}")
             return None
@@ -961,9 +1436,17 @@ class StrategyDispatcher:
                 )
             return self._services["ATR"]
 
+        # Check for SMA_ATR strategy
+        if StrategyType.SMA_ATR.value in strategy_type_values:
+            if len(strategy_types) > 1:
+                self.console.warning(
+                    "Multiple strategy types specified with SMA_ATR. Using mixed strategy execution."
+                )
+            return self._services["SMA_ATR"]
+
         # No compatible service found
         self.console.error(f"Unsupported strategy types: {strategy_type_values}")
-        self.console.debug("Supported strategy types: SMA, EMA, MACD, ATR")
+        self.console.debug("Supported strategy types: SMA, EMA, MACD, ATR, SMA_ATR")
         return None
 
     def get_available_services(self) -> List[str]:
@@ -1138,7 +1621,7 @@ class StrategyDispatcher:
             return None
 
         # Check supported strategy types (SMA, EMA for MA strategies)
-        strategy_types_to_check = ["SMA", "EMA", "MACD", "ATR"]
+        strategy_types_to_check = ["SMA", "EMA", "MACD", "ATR", "SMA_ATR"]
         strategy_params_found = None
 
         for strategy_type in strategy_types_to_check:

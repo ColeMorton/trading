@@ -14,6 +14,11 @@ config_type: 'strategy'
 
 config:
   name: 'sectors_current'
+
+  # Strategy types - include default strategies
+  strategy_types:
+    - SMA
+
   ticker:
     - XLK
     - XLY

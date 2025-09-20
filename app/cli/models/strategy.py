@@ -20,6 +20,7 @@ class StrategyType(str, Enum):
     EMA = "EMA"
     MACD = "MACD"
     ATR = "ATR"
+    SMA_ATR = "SMA_ATR"
 
 
 class MarketType(str, Enum):
@@ -108,6 +109,9 @@ class StrategyParamsCollection(BaseModel):
     )
     ATR: Optional[StrategyParams] = Field(
         default=None, description="ATR strategy-specific parameters"
+    )
+    SMA_ATR: Optional[StrategyParams] = Field(
+        default=None, description="SMA_ATR strategy-specific parameters"
     )
 
 

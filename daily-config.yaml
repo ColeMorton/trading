@@ -65,7 +65,7 @@ config:
       # 3. Strategy Analysis
     - name: 'Daily Crypto Strategy Analysis - Australia'
       command: 'poetry run trading-cli strategy run --profile australia_top_10'
-      enabled: true
+      enabled: false
       timeout: 1200 # 20 minutes
       description: 'Execute crypto-focused MA Cross strategy analysis'
       continue_on_failure: true

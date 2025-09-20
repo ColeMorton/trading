@@ -27,8 +27,8 @@ class OptimizationConfig:
 
     def __init__(self):
         # Data configuration
-        self.start_date = "2020-03-08"
-        self.end_date = "2025-09-08"
+        self.start_date = "2020-03-18"
+        self.end_date = "2025-09-18"
         self.use_max_period = (
             True  # If True, ignores date range and uses max available data
         )
@@ -36,13 +36,10 @@ class OptimizationConfig:
         # Asset configuration
         self.assets = [
             "SYK",
-            "FANG",
-            "RKLB",
             "NFLX",
-            "QCOM",
-            "PDD",
             "AFL",
-            # "GLD",
+            "XPEV",
+            "AXON"
             # "SOL-USD",
             # "MSTR",
         ]

@@ -558,3 +558,180 @@ class ATRStrategyService(BaseStrategyService):
     def get_supported_strategy_types(self) -> List[str]:
         """Get supported strategy types for ATR."""
         return ["ATR"]
+
+
+class SMAAtrStrategyService(BaseStrategyService):
+    """Service for SMA_ATR strategy execution (SMA for entry, ATR trailing stop for exit)."""
+
+    def execute_strategy(self, config: StrategyConfig, progress_update_fn=None) -> bool:
+        """Execute SMA_ATR strategy analysis."""
+        try:
+            # Import SMA_ATR module
+            sma_atr_module = importlib.import_module(
+                "app.strategies.sma_atr.1_get_portfolios"
+            )
+            run = sma_atr_module.run
+
+            # Convert config to legacy format
+            legacy_config = self.convert_config_to_legacy(config)
+
+            # Execute strategy with console logger and progress update function if available
+            if self.console and progress_update_fn:
+                return run(
+                    legacy_config,
+                    external_log=self.console,
+                    progress_update_fn=progress_update_fn,
+                )
+            elif self.console:
+                return run(legacy_config, external_log=self.console)
+            else:
+                return run(legacy_config)
+
+        except Exception as e:
+            rprint(f"[red]Error executing SMA_ATR strategy: {e}[/red]")
+            return False
+
+    def convert_config_to_legacy(self, config: StrategyConfig) -> Dict[str, Any]:
+        """Convert CLI config to SMA_ATR legacy format."""
+        # Convert ticker to list format
+        ticker_list = (
+            config.ticker if isinstance(config.ticker, list) else [config.ticker]
+        )
+
+        # Automatically detect multi-ticker based on ticker list length
+        is_multi_ticker = len(ticker_list) > 1
+
+        # Check for strategy-specific SMA_ATR parameters first, then fall back to global parameters
+        sma_atr_params = None
+        if config.strategy_params and config.strategy_params.SMA_ATR:
+            sma_atr_params = config.strategy_params.SMA_ATR
+
+        # SMA parameter ranges (prioritize strategy-specific, then global, then defaults)
+        if sma_atr_params:
+            fast_period_min = sma_atr_params.fast_period_min or 8
+            fast_period_max = sma_atr_params.fast_period_max or 50
+            slow_period_min = sma_atr_params.slow_period_min or 11
+            slow_period_max = sma_atr_params.slow_period_max or 56
+            step = sma_atr_params.step or 3
+        else:
+            # Fallback to global parameters
+            fast_period_min = getattr(config, "fast_period_min", 8)
+            fast_period_max = getattr(config, "fast_period_max", 50)
+            slow_period_min = getattr(config, "slow_period_min", 11)
+            slow_period_max = getattr(config, "slow_period_max", 56)
+            step = getattr(config, "step", 3)
+
+        # Base legacy config structure (combines SMA and ATR configs)
+        legacy_config = {
+            "STRATEGY_TYPES": ["SMA_ATR"],
+            "STRATEGY_TYPE": "SMA_ATR",
+            "USE_YEARS": config.use_years,
+            "YEARS": config.years,
+            "USE_HOURLY": config.use_hourly,
+            "USE_4HOUR": config.use_4hour,
+            "USE_2DAY": config.use_2day,
+            "MULTI_TICKER": is_multi_ticker,
+            "USE_SCANNER": config.use_scanner,
+            "SCANNER_LIST": config.scanner_list,
+            "USE_GBM": config.use_gbm,
+            "USE_CURRENT": config.use_current,
+            "USE_DATE": getattr(config.filter, "date_filter", None),
+            "DIRECTION": getattr(config, "direction", "Long"),
+            "REFRESH": getattr(config, "refresh", True),
+            "MINIMUMS": {},
+            "BASE_DIR": str(config.base_dir),
+            # SMA parameter ranges (CRITICAL - was missing!)
+            "FAST_PERIOD_RANGE": [fast_period_min, fast_period_max],
+            "SLOW_PERIOD_RANGE": [slow_period_min, slow_period_max],
+            "STEP": step,
+            # ATR parameters (use discrete length values from profile)
+            "ATR_LENGTH_RANGE": getattr(
+                config, "atr_length_range", [3, 5, 7, 9, 11, 13]
+            ),
+            "ATR_MULTIPLIER_RANGE": [
+                getattr(config, "atr_multiplier_min", 1.0),
+                getattr(config, "atr_multiplier_max", 4.0),
+            ],
+            "ATR_MULTIPLIER_STEP": getattr(config, "atr_multiplier_step", 1.5),
+        }
+
+        # Handle ticker configuration based on synthetic mode
+        if config.synthetic.use_synthetic:
+            # For synthetic mode, don't set TICKER here - let process_synthetic_config handle it
+            legacy_config["USE_SYNTHETIC"] = True
+            legacy_config["TICKER_1"] = config.synthetic.ticker_1
+            legacy_config["TICKER_2"] = config.synthetic.ticker_2
+        else:
+            # For normal mode, set TICKER as usual
+            legacy_config["TICKER"] = ticker_list
+
+        # Add minimum criteria
+        if config.minimums.win_rate is not None:
+            legacy_config["MINIMUMS"]["WIN_RATE"] = config.minimums.win_rate
+        if config.minimums.trades is not None:
+            legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
+        if config.minimums.expectancy_per_trade is not None:
+            legacy_config["MINIMUMS"][
+                "EXPECTANCY_PER_TRADE"
+            ] = config.minimums.expectancy_per_trade
+        if config.minimums.profit_factor is not None:
+            legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
+        if config.minimums.sortino_ratio is not None:
+            legacy_config["MINIMUMS"]["SORTINO_RATIO"] = config.minimums.sortino_ratio
+        if config.minimums.beats_bnh is not None:
+            legacy_config["MINIMUMS"]["BEATS_BNH"] = config.minimums.beats_bnh
+        if config.minimums.score is not None:
+            legacy_config["MINIMUMS"]["SCORE"] = config.minimums.score
+
+        # Add parameter ranges for SMA sweeps - prioritize strategy-specific params
+        strategy_params_found = None
+        if config.strategy_params and hasattr(config.strategy_params, "SMA_ATR"):
+            strategy_params_found = config.strategy_params.SMA_ATR
+
+        # Fast period range mapping - prioritize CLI overrides
+        if config.fast_period_min is not None and config.fast_period_max is not None:
+            legacy_config["FAST_PERIOD_RANGE"] = (
+                config.fast_period_min,
+                config.fast_period_max,
+            )
+        elif (
+            strategy_params_found
+            and strategy_params_found.fast_period_min is not None
+            and strategy_params_found.fast_period_max is not None
+        ):
+            legacy_config["FAST_PERIOD_RANGE"] = (
+                strategy_params_found.fast_period_min,
+                strategy_params_found.fast_period_max,
+            )
+        elif config.fast_period_range:
+            legacy_config["FAST_PERIOD_RANGE"] = config.fast_period_range
+
+        # Slow period range mapping - prioritize CLI overrides
+        if config.slow_period_min is not None and config.slow_period_max is not None:
+            legacy_config["SLOW_PERIOD_RANGE"] = (
+                config.slow_period_min,
+                config.slow_period_max,
+            )
+        elif (
+            strategy_params_found
+            and strategy_params_found.slow_period_min is not None
+            and strategy_params_found.slow_period_max is not None
+        ):
+            legacy_config["SLOW_PERIOD_RANGE"] = (
+                strategy_params_found.slow_period_min,
+                strategy_params_found.slow_period_max,
+            )
+        elif config.slow_period_range:
+            legacy_config["SLOW_PERIOD_RANGE"] = config.slow_period_range
+
+        # Add specific periods if provided
+        if config.fast_period:
+            legacy_config["FAST_PERIOD"] = config.fast_period
+        if config.slow_period:
+            legacy_config["SLOW_PERIOD"] = config.slow_period
+
+        return legacy_config
+
+    def get_supported_strategy_types(self) -> List[str]:
+        """Get supported strategy types for SMA_ATR."""
+        return ["SMA_ATR"]

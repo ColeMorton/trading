@@ -355,3 +355,195 @@ class MACDStrategy(BaseStrategy):
             entries = entries & rsi_filter
 
         return entries, exits
+
+
+class SMAAtrStrategy(BaseStrategy):
+    """
+    SMA_ATR strategy combining SMA crossovers for entry and ATR trailing stops for exit.
+
+    This strategy generates entry signals based on SMA crossovers and uses
+    ATR (Average True Range) trailing stops for exit signals.
+    """
+
+    def calculate(
+        self,
+        data: pl.DataFrame,
+        fast_period: int,
+        slow_period: int,
+        config: Dict[str, Any],
+        log: Callable[[str, str], None],
+    ) -> pl.DataFrame:
+        """
+        Calculate SMA_ATR signals and positions.
+
+        Args:
+            data: Input price data
+            fast_period: Fast SMA period for entry signals
+            slow_period: Slow SMA period for entry signals
+            config: Configuration dictionary containing ATR parameters
+            log: Logging function
+
+        Returns:
+            DataFrame with SMA_ATR signals and positions
+        """
+        # Validate inputs
+        if not self.validate_periods(fast_period, slow_period, log):
+            raise ValueError("Invalid period parameters")
+
+        if not self.validate_data(data, log):
+            raise ValueError("Invalid data")
+
+        # Get ATR parameters
+        atr_length = config.get("ATR_LENGTH", 14)
+        atr_multiplier = config.get("ATR_MULTIPLIER", 2.0)
+
+        direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
+        log(
+            f"Calculating {direction} SMA_ATR signals: SMA({fast_period},{slow_period}), ATR({atr_length},{atr_multiplier})",
+            "debug",
+        )
+
+        try:
+            # Import required functions
+            from app.tools.calculate_atr import calculate_atr
+            from app.tools.calculate_ma_signals import calculate_ma_signals
+            from app.tools.calculate_mas import calculate_mas
+
+            # Calculate simple moving averages for entry signals
+            data = calculate_mas(data, fast_period, slow_period, True, log)
+
+            # Calculate ATR for trailing stops
+            atr_series = calculate_atr(data.to_pandas(), atr_length)
+            data = data.with_columns([pl.lit(atr_series.values).alias("ATR")])
+
+            # Generate SMA crossover signals for entries
+            entries, _ = calculate_ma_signals(data, config)
+
+            # Generate SMA_ATR positions using combined logic
+            data = self._generate_sma_atr_positions(
+                data, entries, atr_multiplier, direction, config, log
+            )
+
+            # Convert to final strategy format
+            strategy_config = config.copy()
+            strategy_config.update(
+                {
+                    "STRATEGY_TYPE": "SMA_ATR",
+                    "FAST_PERIOD": fast_period,
+                    "SLOW_PERIOD": slow_period,
+                    "ATR_LENGTH": atr_length,
+                    "ATR_MULTIPLIER": atr_multiplier,
+                }
+            )
+
+            return data
+
+        except Exception as e:
+            log(f"Failed to calculate {direction} SMA_ATR signals: {e}", "error")
+            raise
+
+    def _generate_sma_atr_positions(
+        self,
+        data: pl.DataFrame,
+        entries: pl.Series,
+        atr_multiplier: float,
+        direction: str,
+        config: Dict[str, Any],
+        log: Callable[[str, str], None],
+    ) -> pl.DataFrame:
+        """
+        Generate positions using SMA entries and ATR trailing stops.
+
+        Args:
+            data: DataFrame with SMA and ATR data
+            entries: Polars Series for entry signals
+            atr_multiplier: ATR multiplier for trailing stop calculation
+            direction: Trading direction ("Long" or "Short")
+            config: Configuration dictionary
+            log: Logging function
+
+        Returns:
+            DataFrame with positions and signals
+        """
+        # Convert to pandas for easier position generation logic
+        df = data.to_pandas()
+
+        # Add entry signals column
+        df["Entry_Signal"] = entries.to_pandas()
+
+        # Initialize tracking columns
+        df["Position"] = 0
+        df["Signal"] = 0
+        df["TrailingStop"] = None
+        df["HighestSinceEntry"] = None
+
+        position = 0
+        trailing_stop = None
+        highest_since_entry = None
+
+        for i in range(1, len(df)):
+            current_price = df.iloc[i]["Close"]
+            current_atr = df.iloc[i]["ATR"]
+            entry_signal = df.iloc[i]["Entry_Signal"]
+
+            if direction == "Long":
+                if position == 0:  # Not in position
+                    if entry_signal:  # SMA buy signal
+                        position = 1
+                        df.iloc[i, df.columns.get_loc("Signal")] = 1
+                        trailing_stop = current_price - (current_atr * atr_multiplier)
+                        highest_since_entry = current_price
+
+                elif position == 1:  # In long position
+                    # Update highest price since entry
+                    if current_price > highest_since_entry:
+                        highest_since_entry = current_price
+
+                    # Update trailing stop (can only move up)
+                    new_stop = highest_since_entry - (current_atr * atr_multiplier)
+                    if trailing_stop is not None:
+                        trailing_stop = max(trailing_stop, new_stop)
+                    else:
+                        trailing_stop = new_stop
+
+                    # Check for exit conditions (ATR trailing stop hit)
+                    if current_price <= trailing_stop:
+                        position = 0
+                        df.iloc[i, df.columns.get_loc("Signal")] = -1  # Exit signal
+                        trailing_stop = None
+                        highest_since_entry = None
+
+            else:  # Short direction
+                if position == 0:  # Not in position
+                    if entry_signal:  # SMA sell signal
+                        position = -1
+                        df.iloc[i, df.columns.get_loc("Signal")] = -1
+                        trailing_stop = current_price + (current_atr * atr_multiplier)
+                        highest_since_entry = current_price  # For short, track lowest
+
+                elif position == -1:  # In short position
+                    # Update lowest price since entry (for short positions)
+                    if current_price < highest_since_entry:
+                        highest_since_entry = current_price
+
+                    # Update trailing stop (can only move down)
+                    new_stop = highest_since_entry + (current_atr * atr_multiplier)
+                    if trailing_stop is not None:
+                        trailing_stop = min(trailing_stop, new_stop)
+                    else:
+                        trailing_stop = new_stop
+
+                    # Check for exit conditions (ATR trailing stop hit)
+                    if current_price >= trailing_stop:
+                        position = 0
+                        df.iloc[i, df.columns.get_loc("Signal")] = 1  # Exit signal
+                        trailing_stop = None
+                        highest_since_entry = None
+
+            # Record current state
+            df.iloc[i, df.columns.get_loc("Position")] = position
+            df.iloc[i, df.columns.get_loc("TrailingStop")] = trailing_stop
+            df.iloc[i, df.columns.get_loc("HighestSinceEntry")] = highest_since_entry
+
+        # Convert back to polars
+        return pl.from_pandas(df)

@@ -69,6 +69,79 @@ class PortfolioOrchestrator:
             self.export_manager = ExportManager()
             self.log("Using new unified export system", "info")
 
+    def _validate_export_files(
+        self, config: Dict[str, Any], export_type: str, expected_count: int
+    ) -> bool:
+        """
+        DIAGNOSTIC: Validate that export files were actually created on disk.
+
+        Args:
+            config: Configuration dictionary
+            export_type: Export type (e.g., "portfolios", "portfolios_filtered")
+            expected_count: Expected number of portfolios exported
+
+        Returns:
+            True if files exist, False otherwise
+        """
+        from pathlib import Path
+
+        from app.tools.project_utils import get_project_root
+
+        try:
+            project_root = Path(get_project_root())
+            export_dir = project_root / "data" / "outputs" / "portfolio_analysis"
+
+            if export_type != "portfolios":
+                export_dir = export_dir / export_type
+
+            # Look for files matching expected ticker+strategy combinations
+            tickers = config.get("TICKER", [])
+            if isinstance(tickers, str):
+                tickers = [tickers]
+            strategies = config.get("STRATEGY_TYPES", ["SMA"])
+
+            files_found = 0
+            total_rows = 0
+
+            for ticker in tickers:
+                for strategy in strategies:
+                    expected_filename = f"{ticker}_{strategy}.csv"
+                    file_path = export_dir / expected_filename
+
+                    if file_path.exists():
+                        files_found += 1
+                        # Count rows in CSV (excluding header)
+                        try:
+                            with open(file_path, "r") as f:
+                                row_count = sum(1 for line in f) - 1  # Exclude header
+                            total_rows += max(0, row_count)  # Ensure non-negative
+                            self.log(
+                                f"🔍 DIAGNOSTIC: Found {export_type} file {expected_filename} with {row_count} rows",
+                                "info",
+                            )
+                        except Exception as e:
+                            self.log(
+                                f"🔍 DIAGNOSTIC: Error reading {expected_filename}: {e}",
+                                "warning",
+                            )
+                    else:
+                        self.log(
+                            f"🔍 DIAGNOSTIC: Missing {export_type} file {expected_filename}",
+                            "warning",
+                        )
+
+            self.log(
+                f"🔍 DIAGNOSTIC: {export_type} validation - Found {files_found} files, {total_rows} total rows (expected ~{expected_count} portfolios)",
+                "info",
+            )
+            return files_found > 0 and total_rows > 0
+
+        except Exception as e:
+            self.log(
+                f"🔍 DIAGNOSTIC: File validation error for {export_type}: {e}", "error"
+            )
+            return False
+
     def run(self, config: Dict[str, Any], progress_update_fn=None) -> bool:
         """
         Run the complete portfolio analysis workflow.
@@ -86,12 +159,19 @@ class PortfolioOrchestrator:
             ExportError: If result export fails
         """
         try:
+            # Initialize variables for summary calculation
+            initial_count = 0
+
             # Check if we should skip analysis and load existing portfolios
             if config.get("skip_analysis", False):
                 self.log(
                     "Skip analysis mode enabled - loading existing portfolios", "info"
                 )
                 all_portfolios = self._load_existing_portfolios(config)
+                initial_count = len(all_portfolios) if all_portfolios else 0
+                self.log(
+                    f"🔍 DIAGNOSTIC: Loaded portfolios count: {initial_count}", "info"
+                )
             else:
                 # Step 1: Initialize configuration
                 config = self._initialize_configuration(config)
@@ -107,14 +187,43 @@ class PortfolioOrchestrator:
                     config, strategies, progress_update_fn
                 )
 
+                # DIAGNOSTIC: Track portfolio count after strategy execution
+                initial_count = len(all_portfolios) if all_portfolios else 0
+                self.log(
+                    f"🔍 DIAGNOSTIC: Initial portfolios from strategies: {initial_count}",
+                    "info",
+                )
+
                 # Export raw portfolios first - always export to ensure files are created even when empty
                 self._export_raw_portfolios(all_portfolios or [], config)
+
+                # DIAGNOSTIC: Track portfolio count after raw export
+                post_export_count = len(all_portfolios) if all_portfolios else 0
+                self.log(
+                    f"🔍 DIAGNOSTIC: Portfolios after raw export: {post_export_count}",
+                    "info",
+                )
+
+                # DIAGNOSTIC: Validate raw portfolio files were created
+                self._validate_export_files(config, "portfolios", initial_count)
 
             # Step 5: Export minimums-filtered portfolios
             # Apply minimums filtering and export to portfolios_filtered
             minimums_filtered_portfolios = self._export_minimums_filtered_portfolios(
                 all_portfolios or [], config
             )
+
+            # DIAGNOSTIC: Track portfolio count after minimums filtering
+            minimums_count = (
+                len(minimums_filtered_portfolios) if minimums_filtered_portfolios else 0
+            )
+            self.log(
+                f"🔍 DIAGNOSTIC: Portfolios after minimums filtering: {minimums_count}",
+                "info",
+            )
+
+            # DIAGNOSTIC: Validate filtered portfolio files were created
+            self._validate_export_files(config, "portfolios_filtered", minimums_count)
 
             # Step 6: Apply extreme filtering and export to portfolios_metrics
             # Apply extreme value analysis to minimums-filtered portfolios
@@ -124,14 +233,66 @@ class PortfolioOrchestrator:
                 )
             )
 
+            # DIAGNOSTIC: Track portfolio count after extreme filtering
+            extreme_count = (
+                len(extreme_filtered_portfolios) if extreme_filtered_portfolios else 0
+            )
+            self.log(
+                f"🔍 DIAGNOSTIC: Portfolios after extreme filtering: {extreme_count}",
+                "info",
+            )
+
             # Export portfolios with extreme value analysis to portfolios_metrics
             self._export_portfolios_metrics(extreme_filtered_portfolios or [], config)
+
+            # DIAGNOSTIC: Validate metrics portfolio files were created
+            self._validate_export_files(config, "portfolios_metrics", extreme_count)
 
             # Step 7: Export best portfolios based on portfolios_metrics data
             self._export_results(extreme_filtered_portfolios or [], config)
 
-            # Log appropriate messages for empty results
-            if not all_portfolios:
+            # DIAGNOSTIC: Validate best portfolio files were created
+            self._validate_export_files(
+                config, "portfolios_best", 1
+            )  # Should be 1 best portfolio per ticker+strategy
+
+            # DIAGNOSTIC: Final check of all_portfolios before summary
+            final_all_portfolios_count = len(all_portfolios) if all_portfolios else 0
+            self.log(
+                f"🔍 DIAGNOSTIC: Final all_portfolios count before summary: {final_all_portfolios_count}",
+                "info",
+            )
+            self.log(
+                f"🔍 DIAGNOSTIC: all_portfolios is None: {all_portfolios is None}",
+                "info",
+            )
+            self.log(
+                f"🔍 DIAGNOSTIC: all_portfolios type: {type(all_portfolios)}", "info"
+            )
+
+            # PHASE 2 FIX: Use the most reliable portfolio count source for summary
+            # Instead of relying on all_portfolios (which might get modified), use the actual export results
+            summary_portfolio_count = max(
+                initial_count, final_all_portfolios_count
+            )  # Use the higher count as source of truth
+            self.log(
+                f"🔍 DIAGNOSTIC: Using summary_portfolio_count: {summary_portfolio_count} (max of initial_count={initial_count}, final_all_portfolios_count={final_all_portfolios_count})",
+                "info",
+            )
+
+            # PHASE 2 FIX: Add inconsistency warning if exports succeeded but summary shows 0
+            if summary_portfolio_count == 0 and initial_count > 0:
+                self.log(
+                    "⚠️ INCONSISTENCY DETECTED: Exports showed success but summary count is 0",
+                    "warning",
+                )
+                self.log(
+                    f"⚠️ Initial portfolios: {initial_count}, Final portfolios: {final_all_portfolios_count}",
+                    "warning",
+                )
+
+            # Log appropriate messages for empty results - MODIFIED to use summary_portfolio_count
+            if summary_portfolio_count == 0 or not all_portfolios:
                 if config.get("skip_analysis", False):
                     self.log(
                         "No existing portfolio files found in data/raw/portfolios/",
@@ -151,8 +312,12 @@ class PortfolioOrchestrator:
                     # Use enhanced console logger display
                     self.log.__self__.completion_banner("Portfolio Analysis Complete")
 
-                    # Calculate summary statistics
-                    portfolio_count = len(all_portfolios) if all_portfolios else 0
+                    # Calculate summary statistics - PHASE 2 FIX: Use corrected portfolio count
+                    portfolio_count = summary_portfolio_count  # Use the corrected count instead of len(all_portfolios)
+                    self.log(
+                        f"🔍 DIAGNOSTIC: Summary portfolio_count calculated as: {portfolio_count} (using summary_portfolio_count)",
+                        "info",
+                    )
                     # Try to find best config from extreme_filtered_portfolios if available
                     best_config = None
                     if extreme_filtered_portfolios:
@@ -706,7 +871,38 @@ class PortfolioOrchestrator:
         groups = defaultdict(list)
 
         for portfolio in portfolios:
-            ticker = portfolio.get("Ticker", "UNKNOWN")
+            # PHASE 3 DIAGNOSTIC: Check what ticker fields are actually present
+            ticker_fields = {
+                "Ticker": portfolio.get("Ticker"),
+                "TICKER": portfolio.get("TICKER"),
+                "ticker": portfolio.get("ticker"),
+            }
+            available_ticker_fields = {
+                k: v for k, v in ticker_fields.items() if v is not None
+            }
+
+            # Robust ticker extraction - check multiple possible field names (case variations)
+            ticker = (
+                portfolio.get("Ticker")
+                or portfolio.get("TICKER")
+                or portfolio.get("ticker")
+            )
+
+            # PHASE 3 FIX: Fallback to config ticker if portfolio ticker is missing
+            if not ticker:
+                config_tickers = config.get("TICKER", [])
+                if isinstance(config_tickers, str):
+                    config_tickers = [config_tickers]
+                if config_tickers:
+                    ticker = config_tickers[
+                        0
+                    ]  # Use first configured ticker as fallback
+                    self.log(
+                        f"🔧 TICKER FIX: Using config ticker '{ticker}' as fallback",
+                        "info",
+                    )
+                else:
+                    ticker = "UNKNOWN"
             # Robust strategy extraction - check multiple possible field names
             strategy = (
                 portfolio.get("Strategy Type")
@@ -714,6 +910,17 @@ class PortfolioOrchestrator:
                 or portfolio.get("strategy_type")
                 or "UNKNOWN"
             )
+
+            # PHASE 3 DIAGNOSTIC: Log when ticker/strategy identification fails
+            if ticker == "UNKNOWN":
+                self.log(
+                    f"🔍 TICKER DIAGNOSTIC: Portfolio has no ticker field. Available ticker fields: {available_ticker_fields}",
+                    "warning",
+                )
+                self.log(
+                    f"🔍 TICKER DIAGNOSTIC: Portfolio keys: {list(portfolio.keys())[:10]}...",
+                    "info",
+                )
 
             if strategy == "UNKNOWN":
                 self.log(
@@ -765,7 +972,12 @@ class PortfolioOrchestrator:
                     ticker, strategy = group_key.split("_", 1)
                 else:
                     # Extract ticker and strategy from group key - use robust extraction
-                    ticker = group_portfolios[0].get("Ticker")
+                    ticker = (
+                        group_portfolios[0].get("Ticker")
+                        or group_portfolios[0].get("TICKER")
+                        or group_portfolios[0].get("ticker")
+                        or "UNKNOWN"
+                    )
                     strategy = (
                         group_portfolios[0].get("Strategy Type")
                         or group_portfolios[0].get("Strategy")

@@ -645,6 +645,105 @@ class ATRSignalProcessor(SignalProcessorBase):
             return None
 
 
+class SMAAtrSignalProcessor(SignalProcessorBase):
+    """Signal processor for SMA_ATR strategies."""
+
+    def __init__(self):
+        super().__init__("SMA_ATR")
+
+    def generate_current_signals(
+        self, config: Dict[str, Any], log: Callable
+    ) -> pl.DataFrame:
+        """Generate current signals for SMA_ATR strategy."""
+        try:
+            from app.strategies.sma_atr.tools.signal_generation import (
+                generate_current_signals,
+            )
+
+            return generate_current_signals(config, log)
+        except ImportError:
+            log("Failed to import SMA_ATR signal generation", "error")
+            return pl.DataFrame()
+
+    def analyze_parameter_combination(
+        self,
+        data: pl.DataFrame,
+        config: Dict[str, Any],
+        log: Callable,
+        **strategy_params,
+    ) -> Optional[Dict[str, Any]]:
+        """Analyze SMA_ATR parameter combination."""
+        try:
+            from app.strategies.sma_atr.tools.strategy_execution import (
+                execute_single_strategy,
+            )
+
+            # Create config for this specific combination
+            param_config = config.copy()
+            param_config.update(
+                {
+                    "FAST_PERIOD": strategy_params.get("fast_period")
+                    or config.get("FAST_PERIOD"),
+                    "SLOW_PERIOD": strategy_params.get("slow_period")
+                    or config.get("SLOW_PERIOD"),
+                    "ATR_LENGTH": strategy_params.get("atr_length")
+                    or config.get("ATR_LENGTH", 14),
+                    "ATR_MULTIPLIER": strategy_params.get("atr_multiplier")
+                    or config.get("ATR_MULTIPLIER", 2.0),
+                }
+            )
+
+            ticker = config.get("TICKER", "")
+            if isinstance(ticker, list):
+                ticker = ticker[0] if ticker else ""
+
+            return execute_single_strategy(ticker, param_config, log)
+        except ImportError:
+            log("Failed to import SMA_ATR strategy execution", "error")
+            return None
+
+    def _extract_strategy_parameters(self, row: Dict[str, Any]) -> Dict[str, Any]:
+        """Extract SMA_ATR-specific parameters."""
+        return {
+            "fast_period": row.get("Fast Period"),
+            "slow_period": row.get("Slow Period"),
+            "atr_length": row.get("ATR Length"),
+            "atr_multiplier": row.get("ATR Multiplier"),
+        }
+
+    def _extract_signal_parameters_for_filtering(
+        self, current_signals: pl.DataFrame
+    ) -> Dict[str, list]:
+        """Extract SMA_ATR parameter values from current signals for filtering."""
+        if len(current_signals) == 0:
+            return {}
+
+        return {
+            "Fast Period": current_signals["Fast Period"].to_list(),
+            "Slow Period": current_signals["Slow Period"].to_list(),
+            "ATR Length": current_signals["ATR Length"].to_list(),
+            "ATR Multiplier": current_signals["ATR Multiplier"].to_list(),
+        }
+
+    def _process_full_ticker_analysis(
+        self,
+        ticker: str,
+        config: Dict[str, Any],
+        log: Callable,
+        progress_update_fn=None,
+    ) -> Optional[Any]:
+        """Process full SMA_ATR ticker analysis."""
+        try:
+            from app.strategies.sma_atr.tools.strategy_execution import (
+                process_single_ticker,
+            )
+
+            return process_single_ticker(ticker, config, log, progress_update_fn)
+        except ImportError:
+            log("Failed to import SMA_ATR portfolio processing", "error")
+            return None
+
+
 class SignalProcessorFactory:
     """Factory for creating strategy-specific signal processors."""
 
@@ -655,6 +754,7 @@ class SignalProcessorFactory:
         "MEAN_REVERSION": lambda: MeanReversionSignalProcessor(),
         "MA_CROSS": lambda: MASignalProcessor("SMA"),  # Default to SMA
         "ATR": lambda: ATRSignalProcessor(),
+        "SMA_ATR": lambda: SMAAtrSignalProcessor(),
     }
 
     @classmethod

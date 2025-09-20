@@ -10,7 +10,12 @@ from typing import Dict, List, Type
 
 from app.tools.exceptions import StrategyError
 from app.tools.strategy.base import BaseStrategy
-from app.tools.strategy.concrete import EMAStrategy, MACDStrategy, SMAStrategy
+from app.tools.strategy.concrete import (
+    EMAStrategy,
+    MACDStrategy,
+    SMAAtrStrategy,
+    SMAStrategy,
+)
 from app.tools.strategy.unified_strategies import (
     UnifiedMACDStrategy,
     UnifiedMAStrategy,
@@ -44,6 +49,7 @@ class StrategyFactory:
             "SMA": SMAStrategy,
             "EMA": EMAStrategy,
             "MACD": MACDStrategy,
+            "SMA_ATR": SMAAtrStrategy,
             # New unified strategies implementing StrategyInterface
             "UNIFIED_SMA": lambda: UnifiedMAStrategy("SMA"),
             "UNIFIED_EMA": lambda: UnifiedMAStrategy("EMA"),

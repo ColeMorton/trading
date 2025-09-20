@@ -1,0 +1,85 @@
+metadata:
+  name: sma_atr_default
+  description: Default configuration for SMA_ATR strategy analysis
+  created_at: '2025-09-11T00:00:00.000000'
+  updated_at: '2025-09-11T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - sma_atr
+    - default
+    - strategy
+    - atr_trailing_stop
+  author: null
+inherits_from: null
+config_type: strategy
+config:
+  ticker:
+    # - BTC-USD
+    - NFLX
+    # - GOOGL
+
+  # Strategy types - SMA_ATR only
+  strategy_types:
+    - SMA_ATR
+
+  # Strategy-specific parameter configurations
+  strategy_params:
+    SMA_ATR:
+      # SMA parameter ranges for entry signals (optimized for 10x performance)
+      fast_period_min: 8
+      fast_period_max: 50
+      slow_period_min: 11
+      slow_period_max: 56
+      step: 3
+
+  # Global fallback parameter ranges (for backwards compatibility)
+  fast_period_min: 8
+  fast_period_max: 50
+  slow_period_min: 11
+  slow_period_max: 56
+  step: 3
+
+  # ATR-specific parameters with discrete length values (optimized)
+  atr_length_range: [3, 5, 7, 9, 11, 13]
+  atr_multiplier_min: 1.0
+  atr_multiplier_max: 4.0
+  atr_multiplier_step: 1.5
+
+  # Legacy ATR parameters for backward compatibility
+  atr_length_start: 3
+  atr_length_end: 13
+  atr_multiplier_start: 1.0
+  atr_multiplier_end: 5.0
+
+  # Quality filters - stricter for SMA_ATR given the complexity
+  # minimums:
+  #   win_rate: 0.55
+  #   trades: 50
+  #   profit_factor: 1.2
+  #   sortino_ratio: 0.8
+  #   expectancy_per_trade: 0.5
+  #   beats_bnh: true
+  #   score: 5.0
+
+  # Strategy Configuration
+  direction: Long
+  use_hourly: false
+  use_4hour: false
+  use_2day: false
+  use_years: false
+  years: 15
+  refresh: true
+  skip_analysis: false
+  use_current: false
+
+  # Result configuration
+  sort_by: 'Score'
+  sort_ascending: false
+
+  # Feature flags
+  use_synthetic: false
+  use_scanner: false
+  use_gbm: false
+
+  # Market type configuration
+  market_type: auto
