@@ -1,0 +1,55 @@
+{
+  "metadata": {
+    "ticker": "AAPL",
+    "period": 15,
+    "ma_type": "SMA",
+    "generated_at": "2025-09-21T09:20:33.699533",
+    "data_points": 11270,
+    "date_range": {
+      "start": "1981-01-05T00:00:00.000000000",
+      "end": "2025-09-19T00:00:00.000000000"
+    }
+  },
+  "analytics": {
+    "summary": {
+      "ticker": "AAPL",
+      "period": 15,
+      "ma_type": "SMA",
+      "data_points": 11270,
+      "start_date": "1981-01-05 00:00:00",
+      "end_date": "2025-09-19 00:00:00",
+      "date_range_days": 16328
+    },
+    "risk_metrics": {
+      "sharpe_ratio": 1.3342030963815203,
+      "sortino_ratio": 1.6754233111366386,
+      "max_drawdown": 80.17864161986641,
+      "volatility": 11.477670646146402,
+      "var_95": -1.0487593850327337,
+      "cvar_95": -1.6735207887989096
+    },
+    "performance_metrics": {
+      "total_return": 170803.35812126764,
+      "annualized_return": 18.111319413730985,
+      "cagr": 18.111319413730985,
+      "calmar_ratio": 0.22588708224315215,
+      "information_ratio": 1.5084544808008402
+    },
+    "trend_metrics": {
+      "trend_direction": "Upward",
+      "trend_strength": "Moderate",
+      "r_squared": 0.47461136773564816,
+      "smoothness_factor": 0.9902468670930873,
+      "linear_slope": 0.011673156120769617
+    },
+    "statistical_metrics": {
+      "mean_return": 0.0006870453855291989,
+      "std_deviation": 0.007230252895240335,
+      "skewness": -1.208449542329788,
+      "kurtosis": 10.976055728260217,
+      "autocorrelation": 0.9312708803129129,
+      "price_mean": 27.28361480173207,
+      "price_median": 0.5736049046119054
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "sweep_metadata": {
+    "timestamp": "2025-09-21T08:21:22.016553",
+    "tickers": ["BTC-USD"],
+    "period_range": {
+      "min": 20,
+      "max": 30,
+      "step": 10
+    },
+    "ma_type": "SMA",
+    "total_combinations": 2,
+    "processing_time_seconds": 2.601356029510498
+  },
+  "results": {
+    "successful_exports": 2,
+    "failed_exports": 0,
+    "success_rate_percent": 100.0
+  },
+  "export_details": [
+    {
+      "ticker": "BTC-USD",
+      "period": 20,
+      "status": "partial_success",
+      "csv_path": null,
+      "json_path": null,
+      "error": "stat: path should be string, bytes, os.PathLike or integer, not NoneType"
+    },
+    {
+      "ticker": "BTC-USD",
+      "period": 30,
+      "status": "partial_success",
+      "csv_path": null,
+      "json_path": null,
+      "error": "stat: path should be string, bytes, os.PathLike or integer, not NoneType"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "sweep_metadata": {
+    "timestamp": "2025-09-21T09:20:52.211451",
+    "tickers": ["BTC-USD"],
+    "period_range": {
+      "min": 15,
+      "max": 25,
+      "step": 5
+    },
+    "ma_type": "SMA",
+    "total_combinations": 3,
+    "processing_time_seconds": 0.1950840950012207
+  },
+  "results": {
+    "successful_exports": 3,
+    "failed_exports": 0,
+    "success_rate_percent": 100.0
+  },
+  "export_details": [
+    {
+      "ticker": "BTC-USD",
+      "period": 15,
+      "status": "success",
+      "csv_path": "data/raw/ma_cross/prices/BTC-USD_15.csv",
+      "json_path": "data/outputs/ma_cross/analysis/BTC-USD_15.json"
+    },
+    {
+      "ticker": "BTC-USD",
+      "period": 20,
+      "status": "success",
+      "csv_path": "data/raw/ma_cross/prices/BTC-USD_20.csv",
+      "json_path": "data/outputs/ma_cross/analysis/BTC-USD_20.json"
+    },
+    {
+      "ticker": "BTC-USD",
+      "period": 25,
+      "status": "success",
+      "csv_path": "data/raw/ma_cross/prices/BTC-USD_25.csv",
+      "json_path": "data/outputs/ma_cross/analysis/BTC-USD_25.json"
+    }
+  ]
+}

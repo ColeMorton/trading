@@ -16,7 +16,12 @@ from rich.console import Console
 from rich.table import Table
 
 from ..config import ConfigLoader
-from ..models.tools import HealthConfig, SchemaConfig, ValidationConfig
+from ..models.tools import (
+    ExportMADataConfig,
+    HealthConfig,
+    SchemaConfig,
+    ValidationConfig,
+)
 
 # Create tools sub-app
 app = typer.Typer(
@@ -811,6 +816,855 @@ def _display_health_results_summary(health_results: dict):
         for check_name, check_result in health_results["checks"].items():
             if check_result["status"] != "healthy":
                 rprint(f"  • {check_name.title()}: {check_result['issues']} issues")
+
+
+def _is_cache_valid(csv_path: str, json_path: str) -> bool:
+    """
+    Validate both CSV and JSON files exist and JSON contains required structure.
+
+    Args:
+        csv_path: Path to CSV file
+        json_path: Path to JSON analytics file
+
+    Returns:
+        bool: True if cache is valid, False otherwise
+    """
+    import json
+    import os
+
+    # Both files must exist
+    if not (os.path.exists(csv_path) and os.path.exists(json_path)):
+        return False
+
+    # JSON must be parseable and contain required structure
+    try:
+        with open(json_path, "r") as f:
+            data = json.load(f)
+
+        # Validate required structure
+        required_keys = ["metadata", "analytics"]
+        return all(key in data for key in required_keys)
+
+    except (json.JSONDecodeError, IOError, KeyError):
+        return False
+
+
+@app.command("export-ma-data")
+def export_ma_data(
+    ctx: typer.Context,
+    ticker: str = typer.Argument(..., help="Ticker symbol (e.g., AAPL, BTC-USD)"),
+    period: int = typer.Argument(..., help="Moving average period"),
+    ma_type: str = typer.Option(
+        "SMA", "--ma-type", help="Moving average type: SMA or EMA"
+    ),
+    output_dir: Optional[str] = typer.Option(
+        None, "--output-dir", help="Custom output directory"
+    ),
+    show_stats: bool = typer.Option(
+        True,
+        "--show-stats/--no-stats",
+        help="Display financial statistics and analytics",
+    ),
+    stats_format: str = typer.Option(
+        "table", "--stats-format", help="Statistics format: table, summary, json"
+    ),
+    period_detail: str = typer.Option(
+        "none",
+        "--period-detail",
+        help="Period analysis detail level: none, compact, summary, full",
+    ),
+    refresh: bool = typer.Option(
+        False,
+        "--refresh/--no-refresh",
+        help="Force refresh data even if files exist (default: False)",
+    ),
+):
+    """
+    Export moving average data as synthetic price data with financial analytics.
+
+    This command exports moving average values as synthetic OHLC price data,
+    where the Close price is the moving average value. The output format
+    matches standard price data: Date,Open,High,Low,Close,Volume.
+
+    CACHING BEHAVIOR:
+    - By default, if both CSV and JSON files exist, uses cached data (faster)
+    - Use --refresh to force regeneration even if files exist
+    - Cache validation ensures both files exist and JSON contains valid analytics
+
+    Additionally displays comprehensive financial analytics including:
+    - Risk metrics (Sharpe Ratio, Sortino Ratio, Max Drawdown, Volatility)
+    - Performance metrics (Total Return, CAGR, Calmar Ratio)
+    - Trend analysis (Direction, Strength, R-squared)
+    - Statistical summary (Mean, Std Dev, Skewness, Kurtosis)
+
+    Period analysis (--period-detail) provides:
+    - Weekly and monthly rolling performance metrics (auto-detects crypto vs stock trading days)
+    - Seasonality patterns and statistical significance
+    - Calendar effects (day of week, month of year)
+    - Period comparisons and best/worst performing periods
+
+    Examples:
+        trading-cli tools export-ma-data AAPL 20
+        trading-cli tools export-ma-data BTC-USD 50 --ma-type EMA
+        trading-cli tools export-ma-data MSFT 30 --output-dir ./custom_output/
+        trading-cli tools export-ma-data TSLA 25 --no-stats
+        trading-cli tools export-ma-data NVDA 15 --stats-format json
+        trading-cli tools export-ma-data AAPL 20 --period-detail compact
+        trading-cli tools export-ma-data BTC-USD 50 --period-detail full
+        trading-cli tools export-ma-data AAPL 20 --refresh  # Force refresh cached data
+    """
+    try:
+        # Get global verbose flag
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
+        # Validate MA type
+        if ma_type.upper() not in ["SMA", "EMA"]:
+            rprint(
+                f"[red]Error: Invalid MA type '{ma_type}'. Must be SMA or EMA.[/red]"
+            )
+            raise typer.Exit(1)
+
+        # Validate stats format
+        if stats_format not in ["table", "summary", "json"]:
+            rprint(
+                f"[red]Error: Invalid stats format '{stats_format}'. Must be table, summary, or json.[/red]"
+            )
+            raise typer.Exit(1)
+
+        # Validate period detail level
+        if period_detail not in ["none", "compact", "summary", "full"]:
+            rprint(
+                f"[red]Error: Invalid period detail '{period_detail}'. Must be none, compact, summary, or full.[/red]"
+            )
+            raise typer.Exit(1)
+
+        # Build configuration
+        config_data = {
+            "ticker": ticker,
+            "period": period,
+            "ma_type": ma_type.upper(),
+            "output_dir": output_dir,
+        }
+
+        # Validate configuration using Pydantic model
+        try:
+            config = ExportMADataConfig(**config_data)
+        except Exception as e:
+            rprint(f"[red]Configuration error: {e}[/red]")
+            raise typer.Exit(1)
+
+        # Import required modules
+        import json
+        import os
+        from datetime import datetime
+
+        # Determine file paths
+        output_path = config.output_dir or "data/raw/ma_cross/prices/"
+        filename = f"{config.ticker}_{config.period}.csv"
+        csv_path = os.path.join(output_path, filename)
+        json_path = os.path.join(
+            "data/outputs/ma_cross/analysis", f"{config.ticker}_{config.period}.json"
+        )
+
+        # Check cache status
+        use_cache = _is_cache_valid(csv_path, json_path) and not refresh
+
+        # Initialize metrics variables
+        metrics = None
+        period_metrics = None
+
+        if use_cache:
+            # Load existing data from cache
+            rprint(
+                f"[yellow]📋 Using cached data for {config.ticker} (period={config.period})[/yellow]"
+            )
+            rprint(f"[cyan]📁 CSV: {csv_path}[/cyan]")
+            rprint(f"[cyan]📊 Analysis: {json_path}[/cyan]")
+
+            try:
+                with open(json_path, "r") as f:
+                    cached_data = json.load(f)
+                metrics = cached_data.get("analytics")
+                period_metrics = cached_data.get("period_analysis")
+            except Exception as e:
+                if global_verbose:
+                    rprint(
+                        f"[yellow]Warning: Failed to load cached data, forcing refresh: {e}[/yellow]"
+                    )
+                # Fall through to refresh logic
+                use_cache = False
+
+        if not use_cache:
+            # Proceed with export and analysis
+            if refresh and (_is_cache_valid(csv_path, json_path)):
+                rprint(
+                    f"[cyan]🔄 Refreshing data for {config.ticker} (period={config.period})[/cyan]"
+                )
+            elif global_verbose:
+                rprint(
+                    f"[dim]Exporting {config.ma_type} data for {config.ticker} with period {config.period}[/dim]"
+                )
+
+            # Import and call the export function
+            from app.tools.export_ma_price_data import export_ma_price_data
+
+            # Call the export function
+            export_ma_price_data(config.ticker, config.period, config.ma_type)
+
+            # Success message
+            rprint(f"[green]✅ Successfully exported {config.ma_type} data[/green]")
+            rprint(f"[cyan]📁 CSV: {csv_path}[/cyan]")
+
+            # Calculate and export analytics to JSON (only when not using cache)
+            analysis_export_path = None
+
+            # Calculate financial analytics
+            try:
+                # Import analytics modules
+                import polars as pl
+
+                from app.tools.ma_analytics import analyze_ma_data
+
+                # Read the exported MA data for analysis
+                if os.path.exists(csv_path):
+                    ma_data = pl.read_csv(csv_path)
+
+                    # Calculate all metrics
+                    metrics = analyze_ma_data(
+                        ma_data, config.ticker, config.period, config.ma_type
+                    )
+
+                    # Calculate period metrics if needed
+                    if period_detail != "none":
+                        from app.tools.ma_period_analytics import analyze_ma_periods
+
+                        period_metrics = analyze_ma_periods(
+                            ma_data, config.ticker, config.period, config.ma_type
+                        )
+
+                    # Prepare analysis data for export
+                    analysis_data = {
+                        "metadata": {
+                            "ticker": config.ticker,
+                            "period": config.period,
+                            "ma_type": config.ma_type,
+                            "generated_at": datetime.now().isoformat(),
+                            "data_points": len(ma_data),
+                            "date_range": {
+                                "start": str(ma_data["Date"].min()),
+                                "end": str(ma_data["Date"].max()),
+                            },
+                        },
+                        "analytics": metrics,
+                    }
+
+                    # Add period analysis if calculated
+                    if period_metrics:
+                        analysis_data["period_analysis"] = period_metrics
+
+                    # Create analysis output directory
+                    analysis_dir = "data/outputs/ma_cross/analysis"
+                    os.makedirs(analysis_dir, exist_ok=True)
+
+                    # Save to JSON
+                    analysis_filename = f"{config.ticker}_{config.period}.json"
+                    analysis_export_path = os.path.join(analysis_dir, analysis_filename)
+
+                    with open(analysis_export_path, "w") as f:
+                        json.dump(analysis_data, f, indent=2, default=str)
+
+                    rprint(f"[cyan]📊 Analysis: {analysis_export_path}[/cyan]")
+
+                else:
+                    raise Exception(f"CSV export failed - file not found: {csv_path}")
+
+            except Exception as e:
+                if global_verbose:
+                    rprint(f"[red]Error calculating/exporting analytics: {e}[/red]")
+                    raise
+                else:
+                    rprint(f"[yellow]Warning: Analytics export failed: {e}[/yellow]")
+
+        # Display analytics if requested
+        if show_stats and metrics:
+            if global_verbose:
+                rprint("[dim]Displaying financial analytics...[/dim]")
+
+            try:
+                # Import display module
+                from app.tools.ma_display import display_ma_analysis
+
+                # Display results based on format
+                if stats_format == "json":
+                    import json
+
+                    rprint("\n[bold cyan]📊 Financial Analytics (JSON):[/bold cyan]")
+                    formatted_json = json.dumps(metrics, indent=2, default=str)
+                    rprint(formatted_json)
+                elif stats_format == "summary":
+                    # Display compact summary
+                    summary = metrics["summary"]
+                    risk = metrics["risk_metrics"]
+                    perf = metrics["performance_metrics"]
+                    trend = metrics["trend_metrics"]
+
+                    rprint(f"\n[bold cyan]📊 Analytics Summary:[/bold cyan]")
+                    rprint(
+                        f"[cyan]Sharpe:[/cyan] {risk['sharpe_ratio']:.3f} | [cyan]Return:[/cyan] {perf['total_return']:+.2f}% | [cyan]Trend:[/cyan] {trend['trend_direction']}"
+                    )
+                    rprint(
+                        f"[cyan]Max DD:[/cyan] {risk['max_drawdown']:.2f}% | [cyan]Volatility:[/cyan] {risk['volatility']:.2f}% | [cyan]R²:[/cyan] {trend['r_squared']:.3f}"
+                    )
+                else:
+                    # Default table format - display complete analysis
+                    rprint("")  # Add spacing
+                    display_ma_analysis(metrics, console)
+
+            except Exception as e:
+                if global_verbose:
+                    rprint(f"[red]Error calculating analytics: {e}[/red]")
+                    raise
+                else:
+                    rprint(
+                        f"[yellow]Warning: Analytics calculation failed: {e}[/yellow]"
+                    )
+
+        # Display period analysis if requested (already calculated if needed)
+        if period_detail != "none" and period_metrics:
+            if global_verbose:
+                rprint("[dim]Displaying period-specific analytics...[/dim]")
+
+            try:
+                # Import display module
+                from app.tools.ma_display import display_ma_period_analysis
+
+                # Display period analysis based on detail level
+                if period_detail == "compact":
+                    # Compact display - just the key insights
+                    rolling = period_metrics["rolling_performance"]
+                    seasonality = period_metrics["seasonality_patterns"]
+
+                    rprint(f"\n[bold cyan]📅 Period Analysis (Compact):[/bold cyan]")
+
+                    if "weekly" in rolling:
+                        weekly = rolling["weekly"]
+                        rprint(
+                            f"[cyan]Weekly Avg Return:[/cyan] {weekly['avg_return']:+.2f}% | [cyan]Win Rate:[/cyan] {weekly['win_rate']:.1f}%"
+                        )
+
+                    if "monthly" in rolling:
+                        monthly = rolling["monthly"]
+                        rprint(
+                            f"[cyan]Monthly Avg Return:[/cyan] {monthly['avg_return']:+.2f}% | [cyan]Win Rate:[/cyan] {monthly['win_rate']:.1f}%"
+                        )
+
+                    if seasonality.get("strongest_pattern"):
+                        pattern = seasonality["strongest_pattern"]
+                        rprint(
+                            f"[cyan]Strongest Pattern:[/cyan] {pattern['period']} ({pattern['avg_return']:+.2f}%)"
+                        )
+
+                elif period_detail == "summary":
+                    # Summary display - key tables without full details
+                    rprint(f"\n[bold cyan]📅 Period Analysis (Summary):[/bold cyan]")
+                    display_ma_period_analysis(period_metrics, console)
+
+                else:
+                    # Full display - all tables and details
+                    rprint(
+                        f"\n[bold cyan]📅 Period Analysis (Full Details):[/bold cyan]"
+                    )
+                    display_ma_period_analysis(period_metrics, console)
+
+            except Exception as e:
+                if global_verbose:
+                    rprint(f"[red]Error calculating period analytics: {e}[/red]")
+                    raise
+                else:
+                    rprint(
+                        f"[yellow]Warning: Period analytics calculation failed: {e}[/yellow]"
+                    )
+
+    except Exception as e:
+        if global_verbose:
+            rprint(f"[red]Detailed error: {e}[/red]")
+            raise
+        else:
+            rprint(f"[red]Error exporting MA data: {e}[/red]")
+            raise typer.Exit(1)
+
+
+@app.command("export-ma-data-sweep")
+def export_ma_data_sweep(
+    ctx: typer.Context,
+    tickers: str = typer.Option(
+        ...,
+        "--ticker",
+        help="Comma-separated ticker symbols (e.g., 'AAPL,BTC-USD,ETH-USD')",
+    ),
+    period_min: int = typer.Option(
+        ..., "--period-min", help="Minimum MA period for sweep"
+    ),
+    period_max: int = typer.Option(
+        ..., "--period-max", help="Maximum MA period for sweep"
+    ),
+    period_step: int = typer.Option(
+        1, "--period-step", help="Step size for period sweep"
+    ),
+    ma_type: str = typer.Option(
+        "SMA", "--ma-type", help="Moving average type: SMA or EMA"
+    ),
+    output_dir: Optional[str] = typer.Option(
+        None, "--output-dir", help="Custom output directory"
+    ),
+    show_stats: bool = typer.Option(
+        False,
+        "--show-stats/--no-stats",
+        help="Display financial statistics for each export",
+    ),
+    stats_format: str = typer.Option(
+        "summary", "--stats-format", help="Statistics format: table, summary, json"
+    ),
+    period_detail: str = typer.Option(
+        "none",
+        "--period-detail",
+        help="Period analysis detail level: none, compact, summary, full",
+    ),
+):
+    """
+    Perform parameter sweep analysis for moving average data export.
+
+    This command exports moving average data across multiple tickers and periods,
+    generating comprehensive datasets for parameter optimization and analysis.
+
+    The sweep generates all combinations of:
+    - Tickers: Each symbol in the comma-separated list
+    - Periods: Range from period_min to period_max by period_step
+
+    Each combination exports:
+    - CSV: data/raw/ma_cross/prices/{TICKER}_{PERIOD}.csv
+    - JSON Analytics: data/outputs/ma_cross/analysis/{TICKER}_{PERIOD}.json
+
+    Examples:
+    # Basic crypto sweep
+    trading-cli tools export-ma-data-sweep --ticker BTC-USD,ETH-USD --period-min 20 --period-max 200 --period-step 10
+
+    # Single ticker deep analysis
+    trading-cli tools export-ma-data-sweep --ticker AAPL --period-min 5 --period-max 100 --period-step 5
+
+    # EMA sweep with statistics
+    trading-cli tools export-ma-data-sweep --ticker BTC-USD --period-min 10 --period-max 50 --period-step 5 --ma-type EMA --show-stats
+    """
+    # Get global verbose flag
+    global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
+    try:
+        # Parse comma-separated tickers
+        ticker_list = [
+            ticker.strip() for ticker in tickers.split(",") if ticker.strip()
+        ]
+
+        # Create and validate configuration
+        from app.cli.models.tools import ExportMADataSweepConfig
+
+        config = ExportMADataSweepConfig(
+            tickers=ticker_list,
+            period_min=period_min,
+            period_max=period_max,
+            period_step=period_step,
+            ma_type=ma_type,
+            output_dir=output_dir,
+            show_stats=show_stats,
+            stats_format=stats_format,
+            period_detail=period_detail,
+        )
+
+        # Display sweep summary
+        total_combinations = config.get_total_combinations()
+        period_range = config.get_period_range()
+
+        rprint(f"\n[bold cyan]📊 MA Export Sweep Analysis[/bold cyan]")
+        rprint(f"[cyan]Tickers:[/cyan] {', '.join(config.tickers)}")
+        rprint(
+            f"[cyan]Period Range:[/cyan] {config.period_min} to {config.period_max} (step: {config.period_step})"
+        )
+        rprint(f"[cyan]MA Type:[/cyan] {config.ma_type}")
+        rprint(f"[cyan]Total Combinations:[/cyan] {total_combinations}")
+        rprint(
+            f"[cyan]Expected Files:[/cyan] {total_combinations * 2} (CSV + JSON per combination)"
+        )
+        rprint("")
+
+        # Import required modules for the sweep
+        import json
+        import time
+        from datetime import datetime
+
+        from rich.progress import (
+            BarColumn,
+            MofNCompleteColumn,
+            Progress,
+            SpinnerColumn,
+            TextColumn,
+            TimeElapsedColumn,
+        )
+
+        # Initialize tracking variables
+        successful_exports = 0
+        failed_exports = 0
+        export_details = []
+        sweep_start_time = time.time()
+
+        # Create output directories
+        csv_output_dir = output_dir if output_dir else "data/raw/ma_cross/prices"
+        analysis_output_dir = "data/outputs/ma_cross/analysis"
+        import os
+
+        os.makedirs(csv_output_dir, exist_ok=True)
+        os.makedirs(analysis_output_dir, exist_ok=True)
+
+        # Execute sweep with progress tracking
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[bold blue]{task.description}"),
+            BarColumn(),
+            MofNCompleteColumn(),
+            TimeElapsedColumn(),
+            console=console,
+        ) as progress:
+            task = progress.add_task(
+                "Exporting MA data sweep...", total=total_combinations
+            )
+
+            for ticker in config.tickers:
+                for period in period_range:
+                    try:
+                        # Update progress description
+                        progress.update(
+                            task, description=f"Processing {ticker} (period={period})"
+                        )
+
+                        # Call the existing export_ma_data logic
+                        from app.cli.models.tools import ExportMADataConfig
+                        from app.tools.export_ma_price_data import export_ma_price_data
+
+                        # Create single export config
+                        single_config = ExportMADataConfig(
+                            ticker=ticker,
+                            period=period,
+                            ma_type=config.ma_type,
+                            output_dir=config.output_dir,
+                        )
+
+                        # Export the data
+                        export_ma_price_data(
+                            ticker=single_config.ticker,
+                            period=single_config.period,
+                            ma_type=single_config.ma_type,
+                        )
+
+                        # Construct the output path manually (function doesn't return it)
+                        output_filename = f"{ticker}_{period}.csv"
+                        output_path = os.path.join(csv_output_dir, output_filename)
+
+                        # Generate analytics and export to JSON (replicating the existing logic)
+                        try:
+                            import polars as pl
+
+                            from app.tools.ma_analytics import analyze_ma_data
+
+                            # Read the exported MA data for analysis
+                            if os.path.exists(output_path):
+                                ma_data = pl.read_csv(output_path)
+
+                                # Calculate all metrics
+                                metrics = analyze_ma_data(
+                                    ma_data, ticker, period, config.ma_type
+                                )
+
+                                # Calculate period metrics if needed
+                                period_metrics = None
+                                if config.period_detail != "none":
+                                    from app.tools.ma_period_analytics import (
+                                        analyze_ma_periods,
+                                    )
+
+                                    period_metrics = analyze_ma_periods(
+                                        ma_data, ticker, period, config.ma_type
+                                    )
+
+                                # Prepare analysis data for export
+                                analysis_data = {
+                                    "metadata": {
+                                        "ticker": ticker,
+                                        "period": period,
+                                        "ma_type": config.ma_type,
+                                        "generated_at": datetime.now().isoformat(),
+                                        "data_points": len(ma_data),
+                                        "date_range": {
+                                            "start": str(ma_data["Date"].min()),
+                                            "end": str(ma_data["Date"].max()),
+                                        },
+                                    },
+                                    "analytics": metrics,
+                                }
+
+                                # Add period analysis if calculated
+                                if period_metrics:
+                                    analysis_data["period_analysis"] = period_metrics
+
+                                # Save to JSON
+                                analysis_filename = f"{ticker}_{period}.json"
+                                analysis_export_path = os.path.join(
+                                    analysis_output_dir, analysis_filename
+                                )
+
+                                with open(analysis_export_path, "w") as f:
+                                    json.dump(analysis_data, f, indent=2, default=str)
+
+                                # Track successful export
+                                successful_exports += 1
+                                export_details.append(
+                                    {
+                                        "ticker": ticker,
+                                        "period": period,
+                                        "status": "success",
+                                        "csv_path": output_path,
+                                        "json_path": analysis_export_path,
+                                    }
+                                )
+
+                                # Display stats if requested
+                                if config.show_stats:
+                                    if config.stats_format == "summary":
+                                        rprint(
+                                            f"[green]✅ {ticker} (period={period}):[/green] "
+                                            f"Return: {metrics['performance_metrics']['total_return']:.1f}%, "
+                                            f"Sharpe: {metrics['risk_metrics']['sharpe_ratio']:.2f}"
+                                        )
+                                    elif config.stats_format == "json":
+                                        rprint(
+                                            f"[green]✅ {ticker} (period={period}):[/green] JSON: {analysis_export_path}"
+                                        )
+
+                            else:
+                                raise Exception(
+                                    f"CSV export failed - file not found: {output_path}"
+                                )
+
+                        except Exception as analytics_error:
+                            if global_verbose:
+                                rprint(
+                                    f"[yellow]Warning: Analytics failed for {ticker} (period={period}): {analytics_error}[/yellow]"
+                                )
+                            # Still count as successful if CSV was exported
+                            successful_exports += 1
+                            export_details.append(
+                                {
+                                    "ticker": ticker,
+                                    "period": period,
+                                    "status": "partial_success",
+                                    "csv_path": output_path,
+                                    "json_path": None,
+                                    "error": str(analytics_error),
+                                }
+                            )
+
+                    except Exception as e:
+                        failed_exports += 1
+                        export_details.append(
+                            {
+                                "ticker": ticker,
+                                "period": period,
+                                "status": "failed",
+                                "csv_path": None,
+                                "json_path": None,
+                                "error": str(e),
+                            }
+                        )
+
+                        if global_verbose:
+                            rprint(
+                                f"[red]❌ Failed {ticker} (period={period}): {e}[/red]"
+                            )
+                        else:
+                            rprint(f"[red]❌ Failed {ticker} (period={period})[/red]")
+
+                    finally:
+                        progress.advance(task)
+
+        # Calculate sweep statistics
+        sweep_duration = time.time() - sweep_start_time
+        success_rate = (
+            (successful_exports / total_combinations) * 100
+            if total_combinations > 0
+            else 0
+        )
+
+        # Create sweep summary
+        sweep_summary = {
+            "sweep_metadata": {
+                "timestamp": datetime.now().isoformat(),
+                "tickers": config.tickers,
+                "period_range": {
+                    "min": config.period_min,
+                    "max": config.period_max,
+                    "step": config.period_step,
+                },
+                "ma_type": config.ma_type,
+                "total_combinations": total_combinations,
+                "processing_time_seconds": sweep_duration,
+            },
+            "results": {
+                "successful_exports": successful_exports,
+                "failed_exports": failed_exports,
+                "success_rate_percent": success_rate,
+            },
+            "export_details": export_details,
+        }
+
+        # Save sweep summary
+        summary_filename = (
+            f"sweep_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
+        summary_path = os.path.join(analysis_output_dir, summary_filename)
+        with open(summary_path, "w") as f:
+            json.dump(sweep_summary, f, indent=2, default=str)
+
+        # Display final summary
+        rprint(f"\n[bold green]✅ MA Export Sweep Completed[/bold green]")
+        rprint(f"[cyan]Total Combinations:[/cyan] {total_combinations}")
+        rprint(f"[green]Successful Exports:[/green] {successful_exports}")
+        rprint(f"[red]Failed Exports:[/red] {failed_exports}")
+        rprint(f"[cyan]Success Rate:[/cyan] {success_rate:.1f}%")
+        rprint(f"[cyan]Processing Time:[/cyan] {sweep_duration:.1f}s")
+        rprint(f"[cyan]Summary Report:[/cyan] {summary_path}")
+
+        if failed_exports > 0:
+            rprint(
+                f"\n[yellow]Warning: {failed_exports} exports failed. Check summary report for details.[/yellow]"
+            )
+
+        # Enhanced Financial Analytics
+        if successful_exports > 0:
+            rprint(f"\n[bold cyan]🚀 Enhanced Financial Analytics[/bold cyan]")
+            rprint("[dim]Loading performance data for comprehensive analysis...[/dim]")
+
+            try:
+                # Initialize analytics engine
+                from app.tools.ma_display import display_sweep_analysis
+                from app.tools.sweep_analytics import SweepAnalyticsEngine
+
+                analytics_engine = SweepAnalyticsEngine(analysis_output_dir)
+
+                # Load sweep data
+                period_range = config.get_period_range()
+                loaded_count = analytics_engine.load_sweep_data(
+                    tickers=config.tickers,
+                    periods=list(period_range),
+                    ma_type=config.ma_type,
+                )
+
+                if loaded_count > 0:
+                    rprint(
+                        f"[green]✅ Loaded analytics for {loaded_count} successful exports[/green]"
+                    )
+                    rprint("")  # Add spacing before analytics
+
+                    # Display comprehensive sweep analytics
+                    display_sweep_analysis(analytics_engine, console)
+
+                    # Save enhanced analytics to sweep summary
+                    if analytics_engine.statistics:
+                        enhanced_summary = sweep_summary.copy()
+                        enhanced_summary["enhanced_analytics"] = {
+                            "loaded_analytics_count": loaded_count,
+                            "top_performers": {
+                                "best_risk_adjusted": {
+                                    "period": analytics_engine.get_top_performers(
+                                        "risk_adjusted_score", 1
+                                    )[0].period,
+                                    "score": analytics_engine.get_top_performers(
+                                        "risk_adjusted_score", 1
+                                    )[0].risk_adjusted_score,
+                                }
+                                if analytics_engine.performance_data
+                                else None,
+                                "highest_sharpe": {
+                                    "period": analytics_engine.get_top_performers(
+                                        "sharpe_ratio", 1
+                                    )[0].period,
+                                    "sharpe": analytics_engine.get_top_performers(
+                                        "sharpe_ratio", 1
+                                    )[0].sharpe_ratio,
+                                }
+                                if analytics_engine.performance_data
+                                else None,
+                                "highest_return": {
+                                    "period": analytics_engine.get_top_performers(
+                                        "total_return", 1
+                                    )[0].period,
+                                    "return": analytics_engine.get_top_performers(
+                                        "total_return", 1
+                                    )[0].total_return,
+                                }
+                                if analytics_engine.performance_data
+                                else None,
+                            },
+                            "recommendations": {
+                                rec_type: {
+                                    "period": data.period,
+                                    "sharpe_ratio": data.sharpe_ratio,
+                                    "total_return": data.total_return,
+                                    "max_drawdown": data.max_drawdown,
+                                }
+                                for rec_type, data in analytics_engine.get_optimization_recommendations().items()
+                            },
+                            "statistics_summary": {
+                                metric_key: {
+                                    "min": stats.min_value,
+                                    "max": stats.max_value,
+                                    "median": stats.median_value,
+                                    "std_dev": stats.std_dev,
+                                    "best_period": stats.best_period,
+                                }
+                                for metric_key, stats in analytics_engine.statistics.items()
+                            },
+                        }
+
+                        # Re-save enhanced summary
+                        enhanced_summary_filename = f"sweep_summary_enhanced_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                        enhanced_summary_path = os.path.join(
+                            analysis_output_dir, enhanced_summary_filename
+                        )
+                        with open(enhanced_summary_path, "w") as f:
+                            json.dump(enhanced_summary, f, indent=2, default=str)
+
+                        rprint(
+                            f"[cyan]📊 Enhanced Summary:[/cyan] {enhanced_summary_path}"
+                        )
+
+                else:
+                    rprint(
+                        f"[yellow]⚠️ No analytics data available for enhanced analysis[/yellow]"
+                    )
+
+            except Exception as analytics_error:
+                if global_verbose:
+                    rprint(f"[red]Error in enhanced analytics: {analytics_error}[/red]")
+                    raise
+                else:
+                    rprint(
+                        f"[yellow]Warning: Enhanced analytics failed: {analytics_error}[/yellow]"
+                    )
+
+    except Exception as e:
+        if global_verbose:
+            rprint(f"[red]Detailed error: {e}[/red]")
+            raise
+        else:
+            rprint(f"[red]Error in MA export sweep: {e}[/red]")
+            raise typer.Exit(1)
 
 
 def _save_health_report(health_results: dict, filename: str):

@@ -1,0 +1,55 @@
+{
+  "metadata": {
+    "ticker": "BTC-USD",
+    "period": 708,
+    "ma_type": "SMA",
+    "generated_at": "2025-09-21T09:44:00.365885",
+    "data_points": 3315,
+    "date_range": {
+      "start": "2016-08-24T00:00:00.000000000",
+      "end": "2025-09-20T00:00:00.000000000"
+    }
+  },
+  "analytics": {
+    "summary": {
+      "ticker": "BTC-USD",
+      "period": 708,
+      "ma_type": "SMA",
+      "data_points": 3315,
+      "start_date": "2016-08-24 00:00:00",
+      "end_date": "2025-09-20 00:00:00",
+      "date_range_days": 3314
+    },
+    "risk_metrics": {
+      "sharpe_ratio": 12.448044440448822,
+      "sortino_ratio": 48.919337656441506,
+      "max_drawdown": 27.493054091469425,
+      "volatility": 3.1129636059581753,
+      "var_95": -0.10456963831196053,
+      "cvar_95": -0.1391576107157477
+    },
+    "performance_metrics": {
+      "total_return": 20925.52401918011,
+      "annualized_return": 50.18414273610161,
+      "cagr": 50.18414273610161,
+      "calmar_ratio": 1.8253389590381233,
+      "information_ratio": 13.090519025173174
+    },
+    "trend_metrics": {
+      "trend_direction": "Upward",
+      "trend_strength": "Very Strong",
+      "r_squared": 0.8484460132533236,
+      "smoothness_factor": 0.9981628475602358,
+      "linear_slope": 17.746166098977543
+    },
+    "statistical_metrics": {
+      "mean_return": 0.001617075766209015,
+      "std_deviation": 0.0019609827480381423,
+      "skewness": 1.5518892644002036,
+      "kurtosis": 4.726973613657385,
+      "autocorrelation": 0.9968480061235598,
+      "price_mean": 20693.21788400725,
+      "price_median": 12992.264954647775
+    }
+  }
+}

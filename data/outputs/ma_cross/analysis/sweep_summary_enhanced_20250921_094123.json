@@ -1,0 +1,157 @@
+{
+  "sweep_metadata": {
+    "timestamp": "2025-09-21T09:41:23.412196",
+    "tickers": ["BTC-USD"],
+    "period_range": {
+      "min": 365,
+      "max": 375,
+      "step": 5
+    },
+    "ma_type": "SMA",
+    "total_combinations": 3,
+    "processing_time_seconds": 0.1996631622314453
+  },
+  "results": {
+    "successful_exports": 3,
+    "failed_exports": 0,
+    "success_rate_percent": 100.0
+  },
+  "export_details": [
+    {
+      "ticker": "BTC-USD",
+      "period": 365,
+      "status": "success",
+      "csv_path": "data/raw/ma_cross/prices/BTC-USD_365.csv",
+      "json_path": "data/outputs/ma_cross/analysis/BTC-USD_365.json"
+    },
+    {
+      "ticker": "BTC-USD",
+      "period": 370,
+      "status": "success",
+      "csv_path": "data/raw/ma_cross/prices/BTC-USD_370.csv",
+      "json_path": "data/outputs/ma_cross/analysis/BTC-USD_370.json"
+    },
+    {
+      "ticker": "BTC-USD",
+      "period": 375,
+      "status": "success",
+      "csv_path": "data/raw/ma_cross/prices/BTC-USD_375.csv",
+      "json_path": "data/outputs/ma_cross/analysis/BTC-USD_375.json"
+    }
+  ],
+  "enhanced_analytics": {
+    "loaded_analytics_count": 3,
+    "top_performers": {
+      "best_risk_adjusted": {
+        "period": 375,
+        "score": 2.01481187469251
+      },
+      "highest_sharpe": {
+        "period": 375,
+        "sharpe": 9.581454459922064
+      },
+      "highest_return": {
+        "period": 365,
+        "return": 34024.955193053036
+      }
+    },
+    "recommendations": {
+      "balanced": {
+        "period": 375,
+        "sharpe_ratio": 9.581454459922064,
+        "total_return": 33845.014035635504,
+        "max_drawdown": 53.49593851756042
+      },
+      "aggressive": {
+        "period": 365,
+        "sharpe_ratio": 9.459150661675107,
+        "total_return": 34024.955193053036,
+        "max_drawdown": 53.87167322645241
+      },
+      "conservative": {
+        "period": 375,
+        "sharpe_ratio": 9.581454459922064,
+        "total_return": 33845.014035635504,
+        "max_drawdown": 53.49593851756042
+      },
+      "consistent": {
+        "period": 375,
+        "sharpe_ratio": 9.581454459922064,
+        "total_return": 33845.014035635504,
+        "max_drawdown": 53.49593851756042
+      }
+    },
+    "statistics_summary": {
+      "sharpe_ratio": {
+        "min": 9.459150661675107,
+        "max": 9.581454459922064,
+        "median": 9.519580013609724,
+        "std_dev": 0.06115332199661331,
+        "best_period": 375
+      },
+      "sortino_ratio": {
+        "min": 21.40191650839222,
+        "max": 22.12773903662479,
+        "median": 21.677977444910052,
+        "std_dev": 0.36635899346196754,
+        "best_period": 375
+      },
+      "total_return": {
+        "min": 33845.014035635504,
+        "max": 34024.955193053036,
+        "median": 33941.312814122684,
+        "std_dev": 90.04473186886297,
+        "best_period": 365
+      },
+      "annualized_return": {
+        "min": 49.469064755021954,
+        "max": 49.579224680422044,
+        "median": 49.52601343009031,
+        "std_dev": 0.055090528402592515,
+        "best_period": 375
+      },
+      "max_drawdown": {
+        "min": 53.49593851756042,
+        "max": 53.87167322645241,
+        "median": 53.705426080466346,
+        "std_dev": 0.18828158169212258,
+        "best_period": 375
+      },
+      "volatility": {
+        "min": 4.005421537761937,
+        "max": 4.049597025753686,
+        "median": 4.027806308119892,
+        "std_dev": 0.022088409699369507,
+        "best_period": 365
+      },
+      "calmar_ratio": {
+        "min": 0.9182760028090485,
+        "max": 0.9267848373974655,
+        "median": 0.9221789499609581,
+        "std_dev": 0.004259253878349619,
+        "best_period": 375
+      },
+      "information_ratio": {
+        "min": 9.953026962768984,
+        "max": 10.080777684992032,
+        "median": 10.016128220500429,
+        "std_dev": 0.06387692464791409,
+        "best_period": 375
+      },
+      "r_squared": {
+        "min": 0.7458558032076614,
+        "max": 0.7481396598629484,
+        "median": 0.7470000012395105,
+        "std_dev": 0.001141929079523053,
+        "best_period": 375
+      },
+      "risk_adjusted_score": {
+        "min": 2.011571485772215,
+        "max": 2.01481187469251,
+        "median": 2.0129492628402983,
+        "std_dev": 0.0016262284031928044,
+        "best_period": 375
+      }
+    }
+  }
+}

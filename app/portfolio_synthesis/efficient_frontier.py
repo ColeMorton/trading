@@ -38,8 +38,10 @@ class OptimizationConfig:
             "SYK",
             "NFLX",
             "AFL",
-            "XPEV",
-            "AXON"
+            "AXON",
+            "TRMB",
+            "NVDA",
+            "XYL",
             # "SOL-USD",
             # "MSTR",
         ]

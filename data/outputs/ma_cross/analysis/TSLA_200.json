@@ -1,0 +1,55 @@
+{
+  "metadata": {
+    "ticker": "TSLA",
+    "period": 200,
+    "ma_type": "SMA",
+    "generated_at": "2025-09-21T07:57:20.507182",
+    "data_points": 3632,
+    "date_range": {
+      "start": "2011-04-12T00:00:00.000000000",
+      "end": "2025-09-19T00:00:00.000000000"
+    }
+  },
+  "analytics": {
+    "summary": {
+      "ticker": "TSLA",
+      "period": 200,
+      "ma_type": "SMA",
+      "data_points": 3632,
+      "start_date": "2011-04-12 00:00:00",
+      "end_date": "2025-09-19 00:00:00",
+      "date_range_days": 5274
+    },
+    "risk_metrics": {
+      "sharpe_ratio": 7.730886415950182,
+      "sortino_ratio": 25.16000341651745,
+      "max_drawdown": 36.47728817333796,
+      "volatility": 4.5600923317509805,
+      "var_95": -0.1905499980391955,
+      "cvar_95": -0.26163865420593785
+    },
+    "performance_metrics": {
+      "total_return": 20937.70166077246,
+      "annualized_return": 44.95112269896917,
+      "cagr": 44.95112269896917,
+      "calmar_ratio": 1.2323043995311285,
+      "information_ratio": 8.16947402657254
+    },
+    "trend_metrics": {
+      "trend_direction": "Upward",
+      "trend_strength": "Strong",
+      "r_squared": 0.7123223163364341,
+      "smoothness_factor": 0.9964809487559821,
+      "linear_slope": 0.0874933808198367
+    },
+    "statistical_metrics": {
+      "mean_return": 0.0014783157088496923,
+      "std_deviation": 0.002872588158406129,
+      "skewness": 1.322537545546266,
+      "kurtosis": 1.5314971851767956,
+      "autocorrelation": 0.9948050474876811,
+      "price_mean": 88.97174074016708,
+      "price_median": 20.289271667003632
+    }
+  }
+}

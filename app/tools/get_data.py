@@ -20,15 +20,11 @@ def valid_data(ticker: str, config: DataConfig, log: Callable):
         # Detect market type for the ticker
         market_type = detect_market_type(ticker)
 
-        # For crypto, always refresh due to 24/7 nature - ignore REFRESH=False
+        # Use unified cache logic for both crypto and stock assets
         if market_type == MarketType.CRYPTO:
-            log(
-                f"Crypto market detected for {ticker}. Always refreshing due to 24/7 trading."
-            )
-            return download_data(ticker, config, log)
-
-        # For stocks, use existing smart refresh logic
-        log(f"Stock market detected for {ticker}. Using smart refresh logic.")
+            log(f"Crypto market detected for {ticker}. Using cache logic.")
+        else:
+            log(f"Stock market detected for {ticker}. Using cache logic.")
 
         # Determine file suffix based on timeframe
         if config.get("USE_2DAY", False):

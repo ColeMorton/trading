@@ -58,7 +58,7 @@ config:
     - name: 'Update DAILY Portfolio'
       command: 'poetry run trading-cli --quiet portfolio update --portfolio DAILY'
       enabled: true
-      timeout: 1500 # 25 minutes
+      timeout: 1800 # 30 minutes
       description: 'Update risk-on portfolio with validation'
       continue_on_failure: true
 
