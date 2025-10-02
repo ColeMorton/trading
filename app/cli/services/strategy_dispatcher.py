@@ -24,6 +24,7 @@ from ..models.strategy import (
     StrategyPortfolioResults,
     StrategyType,
 )
+from .batch_processing_service import BatchProcessingService
 from .smart_resume_service import SmartResumeService
 from .strategy_services import (
     ATRStrategyService,
@@ -64,6 +65,9 @@ class StrategyDispatcher:
                 getattr(self.console, level)(message)
 
         self.resume_service = SmartResumeService(log=log_wrapper)
+
+        # Initialize batch processing service
+        self.batch_service = None  # Will be initialized when needed
 
     def _extract_strategy_parameters(
         self, config: StrategyConfig, strategy_type: Union[StrategyType, str]
@@ -802,10 +806,99 @@ class StrategyDispatcher:
             strategy_types=[],
         )
 
-        # Smart Resume Analysis (unless refresh is enabled)
-        if not getattr(
-            config, "refresh", False
-        ):  # Default refresh=False means enable resume by default
+        # Batch Processing Logic
+        if getattr(config, "batch", False):
+            batch_size = getattr(config, "batch_size", None)
+            batch_file_path = getattr(config, "batch_file_path", "data/raw/batch.csv")
+
+            if batch_size is None:
+                self.console.error(
+                    "Batch size must be specified when batch mode is enabled"
+                )
+                summary.execution_time = time.time() - start_time
+                return summary
+
+            # Initialize batch service
+            self.batch_service = BatchProcessingService(
+                batch_file_path=batch_file_path, console=self.console
+            )
+
+            # Validate batch file
+            if not self.batch_service.validate_batch_file():
+                self.console.error("Batch file validation failed")
+                summary.execution_time = time.time() - start_time
+                return summary
+
+            # Get original ticker list
+            original_tickers = (
+                config.ticker if isinstance(config.ticker, list) else [config.ticker]
+            )
+
+            # Clean old entries from batch file
+            cleaned_count = self.batch_service.clean_old_entries()
+            if cleaned_count > 0:
+                self.console.info(
+                    f"Cleaned {cleaned_count} old entries from batch file"
+                )
+
+            # Create resume check function for smart batch selection
+            def resume_check_function(ticker: str) -> bool:
+                """Check if a ticker needs processing based on resume analysis."""
+                if getattr(config, "refresh", False):
+                    # If refresh is enabled, all tickers need processing
+                    return True
+
+                # Create single-ticker config for resume analysis
+                single_ticker_config = config.model_copy(deep=True)
+                single_ticker_config.ticker = ticker
+                single_ticker_config.batch = False
+
+                # Convert to legacy format and analyze
+                legacy_config = self._convert_strategy_config_to_legacy(
+                    single_ticker_config
+                )
+                ticker_resume_analysis = self.resume_service.analyze_resume_status(
+                    legacy_config
+                )
+
+                # Return True if ticker needs processing (not complete)
+                return not ticker_resume_analysis.is_complete()
+
+            # Get tickers that actually need processing using resume-aware selection
+            pending_tickers = self.batch_service.get_tickers_needing_processing(
+                original_tickers, batch_size, resume_check_function
+            )
+
+            if not pending_tickers:
+                self.console.success(
+                    "All tickers have been processed today. Nothing to do."
+                )
+                summary.execution_time = time.time() - start_time
+                summary.success_rate = 1.0
+                summary.tickers_processed = []
+                return summary
+
+            # Display batch status
+            self.batch_service.display_batch_status(original_tickers)
+
+            # Update config with batch-selected tickers
+            config.ticker = pending_tickers
+
+            self.console.heading(
+                f"Batch Processing: {len(pending_tickers)} tickers", level=2
+            )
+            self.console.info(f"Processing tickers: {', '.join(pending_tickers)}")
+
+            # Resume analysis summary for selected tickers
+            self.console.info(
+                f"📋 Resume Analysis: ✓ Selected {len(pending_tickers)} tickers that need processing"
+            )
+
+        # Smart Resume Analysis (unless refresh is enabled or in batch mode)
+        # Skip resume analysis for batch mode since it's already handled during batch selection
+        if not getattr(config, "refresh", False) and not getattr(
+            config, "batch", False
+        ):
             # Convert StrategyConfig to legacy format for resume analysis
             legacy_config = self._convert_strategy_config_to_legacy(config)
 
@@ -937,6 +1030,10 @@ class StrategyDispatcher:
         # Handle mixed strategy types by executing each strategy individually
         if len(config.strategy_types) > 1:
             return self._execute_mixed_strategies(config, summary, start_time)
+
+        # Handle batch processing by processing tickers individually
+        if getattr(config, "batch", False) and self.batch_service:
+            return self._execute_batch_processing(config, summary, start_time)
 
         # Single strategy: use original logic
         strategy_service = self._determine_single_service(config.strategy_types[0])
@@ -1716,3 +1813,132 @@ class StrategyDispatcher:
             filtered_config.strategy_types = strategy_enums
 
         return filtered_config
+
+    def _execute_batch_processing(
+        self,
+        config: StrategyConfig,
+        summary: StrategyExecutionSummary,
+        start_time: float,
+    ) -> StrategyExecutionSummary:
+        """
+        Execute batch processing by processing tickers individually.
+
+        Args:
+            config: Strategy configuration with batch settings
+            summary: Execution summary to update
+            start_time: Start time for execution timing
+
+        Returns:
+            Updated StrategyExecutionSummary with batch processing results
+        """
+        tickers_to_process = (
+            config.ticker if isinstance(config.ticker, list) else [config.ticker]
+        )
+
+        successful_tickers = []
+        failed_tickers = []
+
+        self.console.heading(
+            f"Batch Processing: {len(tickers_to_process)} tickers", level=2
+        )
+
+        for idx, ticker in enumerate(tickers_to_process, 1):
+            self.console.info(
+                f"Processing ticker {idx}/{len(tickers_to_process)}: {ticker}"
+            )
+
+            # Create a copy of config for single ticker
+            single_ticker_config = config.model_copy(deep=True)
+            single_ticker_config.ticker = ticker
+            single_ticker_config.batch = (
+                False  # Disable batch mode for individual execution
+            )
+
+            try:
+                # Handle mixed strategy types or single strategy
+                if len(config.strategy_types) > 1:
+                    ticker_summary = self._execute_mixed_strategies(
+                        single_ticker_config,
+                        StrategyExecutionSummary(
+                            execution_time=0.0,
+                            success_rate=0.0,
+                            successful_strategies=0,
+                            total_strategies=0,
+                            tickers_processed=[],
+                            strategy_types=[],
+                        ),
+                        time.time(),
+                    )
+                    success = ticker_summary.success_rate > 0
+                else:
+                    # Single strategy execution
+                    strategy_service = self._determine_single_service(
+                        config.strategy_types[0]
+                    )
+                    if not strategy_service:
+                        self.console.error(
+                            f"No compatible service found for strategy type: {config.strategy_types[0]}"
+                        )
+                        success = False
+                    else:
+                        success = strategy_service.execute_strategy(
+                            single_ticker_config
+                        )
+
+                if success:
+                    # Update batch file with successful completion
+                    batch_update_success = self.batch_service.update_ticker_status(
+                        ticker
+                    )
+                    if batch_update_success:
+                        successful_tickers.append(ticker)
+                        self.console.success(
+                            f"✅ {ticker} processed successfully and batch file updated"
+                        )
+                    else:
+                        self.console.warning(
+                            f"⚠️  {ticker} processed successfully but batch file update failed"
+                        )
+                        successful_tickers.append(ticker)  # Still count as success
+                else:
+                    failed_tickers.append(ticker)
+                    self.console.error(f"❌ {ticker} processing failed")
+
+            except Exception as e:
+                failed_tickers.append(ticker)
+                self.console.error(f"❌ {ticker} processing failed with error: {e}")
+
+        # Update summary with batch processing results
+        summary.execution_time = time.time() - start_time
+        summary.tickers_processed = successful_tickers
+        summary.successful_strategies = len(successful_tickers)
+        summary.total_strategies = len(tickers_to_process)
+        summary.success_rate = (
+            len(successful_tickers) / len(tickers_to_process)
+            if tickers_to_process
+            else 0.0
+        )
+        summary.strategy_types = [
+            st.value if hasattr(st, "value") else str(st)
+            for st in config.strategy_types
+        ]
+
+        # Display batch processing summary
+        self.console.heading("Batch Processing Summary", level=2)
+        self.console.success(
+            f"Successfully processed: {len(successful_tickers)} tickers"
+        )
+        if failed_tickers:
+            self.console.error(f"Failed to process: {len(failed_tickers)} tickers")
+            self.console.info(f"Failed tickers: {', '.join(failed_tickers)}")
+
+        if successful_tickers:
+            self.console.info(f"Processed tickers: {', '.join(successful_tickers)}")
+
+        # Show updated batch status
+        original_tickers = (
+            config.ticker if isinstance(config.ticker, list) else [config.ticker]
+        )
+        self.batch_service.display_batch_status(original_tickers)
+
+        return summary

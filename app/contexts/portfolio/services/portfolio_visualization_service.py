@@ -508,7 +508,7 @@ class PortfolioVisualizationService:
                         yref="paper",
                         text=f"Excess Return: {comparison_metrics.excess_return:.2%}<br>"
                         f"Information Ratio: {comparison_metrics.information_ratio:.2f}<br>"
-                        f"Beta: {comparison_metrics.beta:.2f}",
+                        f"Correlation: {comparison_metrics.correlation:.2f}",
                         showarrow=False,
                         align="left",
                         bgcolor=self.config.chart_style.hex_to_rgba(

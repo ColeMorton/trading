@@ -34,8 +34,6 @@ class ComparisonMetrics:
     excess_return: float
     tracking_error: float
     information_ratio: float
-    beta: float
-    alpha: float
     correlation: float
     max_drawdown_diff: float
     sharpe_ratio_diff: float
@@ -245,9 +243,9 @@ class BenchmarkComparisonService:
                 excess_return / tracking_error if tracking_error != 0 else 0
             )
 
-            # Beta and Alpha (CAPM)
-            beta = self._calculate_beta(port_ret, bench_ret)
-            alpha = self._calculate_alpha(port_ret, bench_ret, beta)
+            # Beta and Alpha calculations removed (June 2025 decision)
+            # These metrics were not providing meaningful value and were dependent on
+            # benchmark data availability, leading to inconsistent results
 
             # Correlation
             correlation = (
@@ -279,8 +277,6 @@ class BenchmarkComparisonService:
                 excess_return=excess_return,
                 tracking_error=tracking_error,
                 information_ratio=information_ratio,
-                beta=beta,
-                alpha=alpha,
                 correlation=correlation,
                 max_drawdown_diff=max_drawdown_diff,
                 sharpe_ratio_diff=sharpe_ratio_diff,
@@ -528,41 +524,9 @@ class BenchmarkComparisonService:
             symbols, start_date, end_date, init_cash, fees, benchmark_config
         )
 
-    def _calculate_beta(
-        self, portfolio_returns: np.ndarray, benchmark_returns: np.ndarray
-    ) -> float:
-        """Calculate portfolio beta relative to benchmark."""
-        try:
-            if len(portfolio_returns) < 2 or len(benchmark_returns) < 2:
-                return 1.0
-
-            covariance = np.cov(portfolio_returns, benchmark_returns)[0, 1]
-            benchmark_variance = np.var(benchmark_returns)
-
-            if benchmark_variance == 0:
-                return 1.0
-
-            return covariance / benchmark_variance
-
-        except Exception:
-            return 1.0
-
-    def _calculate_alpha(
-        self, portfolio_returns: np.ndarray, benchmark_returns: np.ndarray, beta: float
-    ) -> float:
-        """Calculate portfolio alpha (excess return after adjusting for beta)."""
-        try:
-            portfolio_mean = np.mean(portfolio_returns) * 252  # Annualized
-            benchmark_mean = np.mean(benchmark_returns) * 252  # Annualized
-
-            # Alpha = Portfolio Return - (Risk-free rate + Beta * (Benchmark Return - Risk-free rate))
-            # Assuming risk-free rate = 0 for simplicity
-            alpha = portfolio_mean - (beta * benchmark_mean)
-
-            return alpha
-
-        except Exception:
-            return 0.0
+    # _calculate_beta and _calculate_alpha methods removed (June 2025 decision)
+    # These methods calculated Alpha/Beta metrics that were not providing meaningful
+    # value and were dependent on benchmark data availability, leading to inconsistent results
 
     def _calculate_sharpe_ratio(
         self, returns: np.ndarray, risk_free_rate: float = 0.0

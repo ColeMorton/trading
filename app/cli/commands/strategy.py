@@ -166,6 +166,16 @@ def run(
         "--refresh",
         help="Force complete regeneration of all files, bypassing smart resume (default: False)",
     ),
+    batch: bool = typer.Option(
+        False,
+        "--batch",
+        help="Enable batch processing mode for large ticker lists",
+    ),
+    batch_size: Optional[int] = typer.Option(
+        None,
+        "--batch-size",
+        help="Maximum number of tickers to process per execution when batch mode is enabled",
+    ),
 ):
     """
     Execute strategy analysis with specified parameters.
@@ -183,6 +193,8 @@ def run(
         trading-cli strategy run --profile ma_cross_crypto --skip-analysis
         trading-cli strategy run --ticker IREN --date 20250811
         trading-cli strategy run --ticker AAPL,MSFT --date 20250815 --strategy SMA
+        trading-cli strategy run --profile daily_full --batch --batch-size 30
+        trading-cli strategy run --ticker AAPL,MSFT,GOOGL --batch --batch-size 2
     """
     try:
         # Validate date parameter if provided
@@ -232,6 +244,8 @@ def run(
             profile_execution=profile_execution,
             enable_parallel=enable_parallel,
             refresh=refresh,
+            batch=batch,
+            batch_size=batch_size,
         )
 
         # Load configuration
@@ -584,6 +598,11 @@ def review(
     sort_by: str = typer.Option(
         "Score", "--sort-by", "-s", help="Column to sort by (default: Score)"
     ),
+    batch: bool = typer.Option(
+        False,
+        "--batch",
+        help="Use tickers from batch file (data/raw/batch.csv) for non-current analysis",
+    ),
 ):
     """
     Analyze and aggregate portfolio data from CSV files (dry-run analysis).
@@ -602,6 +621,9 @@ def review(
         trading-cli strategy review --best --current --ticker AAPL,MSFT,GOOGL
         trading-cli strategy review --best --date 20250816 --ticker AAPL,MSFT,GOOGL
         trading-cli strategy review --profile asia_top_50 --best --ticker TAL,META,SYF
+        trading-cli strategy review --best --batch
+        trading-cli strategy review --best --batch --top-n 25
+        trading-cli strategy review --best --batch --sort-by "Total Return [%]"
     """
     try:
         # Get global options from context
@@ -647,13 +669,52 @@ def review(
                 rprint(
                     f"[dim]Ticker filtering enabled with {len(ticker_list)} tickers: {', '.join(ticker_list)}[/dim]"
                 )
+        elif batch:
+            # Batch mode - read tickers from batch file
+            from ..services.batch_processing_service import BatchProcessingService
+
+            try:
+                batch_service = BatchProcessingService()
+                if not batch_service.validate_batch_file():
+                    rprint("[red]Error: Batch file validation failed[/red]")
+                    raise typer.Exit(1)
+
+                batch_tickers = batch_service.get_batch_tickers()
+                if not batch_tickers:
+                    rprint("[yellow]Warning: No tickers found in batch file[/yellow]")
+                    raise typer.Exit(1)
+
+                ticker_list = batch_tickers
+                ticker_filtering_active = True
+
+                # Force non-current mode for batch processing
+                if current or date:
+                    rprint(
+                        "[yellow]Warning: Batch mode forces non-current analysis, ignoring --current/--date flags[/yellow]"
+                    )
+                current = False
+                date = None
+
+                if global_verbose:
+                    rprint(
+                        f"[dim]Batch mode enabled with {len(ticker_list)} tickers from batch file: {', '.join(ticker_list)}[/dim]"
+                    )
+
+            except Exception as e:
+                rprint(f"[red]Error processing batch file: {e}[/red]")
+                raise typer.Exit(1)
         else:
             ticker_filtering_active = False
 
         # Allow auto-discovery mode when both --best and --current are provided
-        if not profile and not (best and current) and not ticker_filtering_active:
+        if (
+            not profile
+            and not (best and current)
+            and not ticker_filtering_active
+            and not batch
+        ):
             rprint(
-                "[red]Error: --profile is required unless using --best --current for auto-discovery or --ticker for filtering[/red]"
+                "[red]Error: --profile is required unless using --best --current for auto-discovery, --ticker for filtering, or --batch for batch mode[/red]"
             )
             rprint("[dim]Examples:[/dim]")
             rprint(
@@ -664,6 +725,9 @@ def review(
             )
             rprint(
                 "[dim]  Ticker filtering: trading-cli strategy review --best --current --ticker AAPL,MSFT[/dim]"
+            )
+            rprint(
+                "[dim]  Batch mode: trading-cli strategy review --best --batch[/dim]"
             )
             raise typer.Exit(1)
 
@@ -717,7 +781,9 @@ def review(
 
         # Show mode and profile information
         if ticker_filtering_active:
-            if profile:
+            if batch:
+                rprint(f"📋 [white]Mode: Batch Processing[/white]")
+            elif profile:
                 rprint(f"📋 [white]Mode: Ticker Filtering (Profile: {profile})[/white]")
             else:
                 rprint(f"📋 [white]Mode: Ticker Filtering[/white]")

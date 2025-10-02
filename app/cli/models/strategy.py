@@ -341,6 +341,21 @@ class StrategyConfig(BaseConfig):
         description="Enable verbose output including detailed warnings and debug information",
     )
 
+    # Batch processing support
+    batch: bool = Field(
+        default=False,
+        description="Enable batch processing mode for large ticker lists",
+    )
+    batch_size: Optional[int] = Field(
+        default=None,
+        gt=0,
+        description="Maximum number of tickers to process per execution when batch mode is enabled",
+    )
+    batch_file_path: str = Field(
+        default="data/raw/batch.csv",
+        description="Path to the batch tracking CSV file",
+    )
+
     @validator("ticker", pre=True)
     def validate_ticker(cls, v):
         """Validate ticker input."""
@@ -497,6 +512,18 @@ class StrategyConfig(BaseConfig):
                 return MarketType.US_STOCK
             elif v in ["auto", "automatic", "detect"]:
                 return MarketType.AUTO
+        return v
+
+    @validator("batch_size")
+    def validate_batch_size_when_batch_enabled(cls, v, values):
+        """Ensure batch_size is provided when batch mode is enabled."""
+        batch_enabled = values.get("batch", False)
+        if batch_enabled and v is None:
+            raise ValueError("batch_size must be specified when batch mode is enabled")
+        if not batch_enabled and v is not None:
+            raise ValueError(
+                "batch_size can only be specified when batch mode is enabled"
+            )
         return v
 
 

@@ -37,7 +37,7 @@ config:
     - name: 'Update Portfolio'
       command: 'poetry run trading-cli --quiet portfolio update --portfolio portfolio'
       enabled: true
-      timeout: 60
+      timeout: 180
       description: 'Update live signals portfolio data'
       continue_on_failure: true
 
@@ -58,45 +58,45 @@ config:
     - name: 'Update DAILY Portfolio'
       command: 'poetry run trading-cli --quiet portfolio update --portfolio DAILY'
       enabled: true
-      timeout: 1800 # 30 minutes
+      timeout: 2400 # 40 minutes
       description: 'Update risk-on portfolio with validation'
       continue_on_failure: true
 
-      # 3. Strategy Analysis
-    - name: 'Daily Crypto Strategy Analysis - Australia'
-      command: 'poetry run trading-cli strategy run --profile australia_top_10'
-      enabled: false
-      timeout: 1200 # 20 minutes
-      description: 'Execute crypto-focused MA Cross strategy analysis'
-      continue_on_failure: true
+    #   # 3. Strategy Analysis
+    # - name: 'Daily Crypto Strategy Analysis - Australia'
+    #   command: 'poetry run trading-cli strategy run --profile australia_top_10'
+    #   enabled: false
+    #   timeout: 1200 # 20 minutes
+    #   description: 'Execute crypto-focused MA Cross strategy analysis'
+    #   continue_on_failure: true
 
-    - name: 'Daily Crypto Strategy Analysis - Crypto'
-      command: 'poetry run trading-cli --quiet strategy run --profile crypto_current'
-      enabled: true
-      timeout: 1200 # 20 minutes
-      description: 'Execute crypto-focused MA Cross strategy analysis'
-      continue_on_failure: true
+    # - name: 'Daily Crypto Strategy Analysis - Crypto'
+    #   command: 'poetry run trading-cli --quiet strategy run --profile crypto_current'
+    #   enabled: false
+    #   timeout: 1500 # 25 minutes
+    #   description: 'Execute crypto-focused MA Cross strategy analysis'
+    #   continue_on_failure: true
 
-    - name: 'Daily Strategy Analysis - Primary Stocks'
-      command: 'poetry run trading-cli --quiet strategy run --profile primary_stocks'
-      enabled: true
-      timeout: 5400 # 90 minutes
-      description: 'Execute current primary stocks strategy analysis'
-      continue_on_failure: true
+    # - name: 'Daily Strategy Analysis - Primary Stocks'
+    #   command: 'poetry run trading-cli --quiet strategy run --profile primary_stocks'
+    #   enabled: true
+    #   timeout: 5400 # 90 minutes
+    #   description: 'Execute current primary stocks strategy analysis'
+    #   continue_on_failure: true
 
-    - name: 'Daily Strategy Analysis - Frontier Stocks'
-      command: 'poetry run trading-cli --quiet strategy run --profile frontier'
-      enabled: true
-      timeout: 5400 # 90 minutes
-      description: 'Execute current primary stocks strategy analysis'
-      continue_on_failure: true
+    # - name: 'Daily Strategy Analysis - Frontier Stocks'
+    #   command: 'poetry run trading-cli --quiet strategy run --profile frontier'
+    #   enabled: true
+    #   timeout: 5400 # 90 minutes
+    #   description: 'Execute current primary stocks strategy analysis'
+    #   continue_on_failure: true
 
-    - name: 'Daily Strategy Analysis - Asia Stocks'
-      command: 'poetry run trading-cli --quiet strategy run --profile asia_top_50'
-      enabled: true
-      timeout: 4080
-      description: 'Execute current primary stocks strategy analysis'
-      continue_on_failure: true
+    # - name: 'Daily Strategy Analysis - Asia Stocks'
+    #   command: 'poetry run trading-cli --quiet strategy run --profile asia_top_50'
+    #   enabled: true
+    #   timeout: 4080
+    #   description: 'Execute current primary stocks strategy analysis'
+    #   continue_on_failure: true
 
     # # 4. Position Management
     # - name: 'Generate Position Equity Data'

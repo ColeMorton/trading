@@ -80,6 +80,8 @@ def build_configuration_overrides(
     profile_execution: bool = False,
     enable_parallel: bool = True,
     refresh: bool = False,
+    batch: bool = False,
+    batch_size: Optional[int] = None,
     **additional_overrides,
 ) -> Dict[str, Any]:
     """
@@ -110,6 +112,8 @@ def build_configuration_overrides(
         profile_execution: Enable detailed execution profiling with bottleneck identification
         enable_parallel: Enable parallel processing for parameter sweeps
         refresh: Force complete regeneration bypassing smart resume
+        batch: Enable batch processing mode for large ticker lists
+        batch_size: Maximum number of tickers to process per execution when batch mode is enabled
         **additional_overrides: Additional override parameters
 
     Returns:
@@ -232,6 +236,12 @@ def build_configuration_overrides(
 
     # Smart resume configuration
     overrides["refresh"] = refresh
+
+    # Batch processing configuration
+    if batch:
+        overrides["batch"] = batch
+    if batch_size is not None:
+        overrides["batch_size"] = batch_size
 
     # Add any additional overrides, but filter out None values for optional CLI parameters
     filtered_overrides = {

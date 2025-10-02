@@ -32,7 +32,7 @@ config:
     - CSCO
     - LIN
     - ISRG
-    - BRK.B
+    - BRK-B
     - JPM
     - LLY
     - V

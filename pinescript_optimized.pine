@@ -1,0 +1,151 @@
+//@version=6
+indicator("BTC Portfolio of Strategies", shorttitle="Portfolio", overlay=false)
+
+// ================ Portfolio Strategy Description ================
+// This indicator displays the percentage allocation of active strategies within a
+// predefined portfolio. It shows what percentage of the portfolio's strategies
+// are currently generating bullish signals, providing insight into overall
+// portfolio positioning and strategy consensus.
+
+// ================ Pine Script v6 Compliance Notes ================
+// This indicator follows Pine Script v6 best practices:
+// 1. All visual functions (bgcolor, plot, hline) are in global scope
+// 2. All series calculations are pre-computed to avoid function consistency warnings
+// 3. UDT (User Defined Type) properly named to avoid built-in namespace conflicts
+// 4. Conditional logic uses pre-calculated values, not conditional function calls
+// 5. Fixed daily timeframe for consistent portfolio analysis
+
+// ================ Configuration ================
+// Input parameters
+showTable = input.bool(true, "Show Info Table", group="Display")
+
+// Colors
+bullColor = input.color(#26c6da, "Bullish Color", group="Colors")
+bearColor = input.color(#7e57c2, "Bearish Color", group="Colors")
+neutralColor = input.color(#3179f5, "Neutral Color", group="Colors")
+
+// ================ Strategy Definitions ================
+// Define strategies using UDT (User Defined Type) - renamed to avoid namespace conflict
+type StrategyConfig
+    string name
+    string strategyType  // "SMA", "EMA", "MACD"
+    int param1
+    int param2
+    int param3    // For MACD signal period
+
+// Initialize strategies array
+var strategies = array.new<StrategyConfig>()
+
+if barstate.isfirst
+    // Clear and populate strategies with proper UDT constructor
+    array.clear(strategies)
+    array.push(strategies, StrategyConfig.new("SMA_11_36", "SMA", 11, 36, 0))
+    array.push(strategies, StrategyConfig.new("MACD_14_23_13", "MACD", 14, 23, 13))
+    array.push(strategies, StrategyConfig.new("SMA_26_38", "SMA", 26, 38, 0))
+    array.push(strategies, StrategyConfig.new("SMA_76_78", "SMA", 76, 78, 0))
+    array.push(strategies, StrategyConfig.new("SMA_8_44", "SMA", 8, 44, 0))
+    array.push(strategies, StrategyConfig.new("SMA_27_29", "SMA", 27, 29, 0))
+    array.push(strategies, StrategyConfig.new("SMA_33_36", "SMA", 33, 36, 0))
+
+// ================ Universal Strategy Function (Single Source of Truth) ================
+// Pine Script v6 compliant: Zero parameter duplication using dynamic parameters and lazy evaluation
+
+// Universal function handles all strategy types with parameters from StrategyConfig array
+calculateStrategySignal(strategyType, param1, param2, param3) =>
+    result = false
+
+    if strategyType == "SMA"
+        result := ta.sma(close, param1) > ta.sma(close, param2)
+    else if strategyType == "EMA"
+        result := ta.ema(close, param1) > ta.ema(close, param2)
+    else if strategyType == "MACD"
+        [macdLine, signalLine, _] = ta.macd(close, param1, param2, param3)
+        result := macdLine > signalLine
+
+    result
+
+// Dynamic parameter reading from single source of truth (StrategyConfig array)
+strategy1_config = array.get(strategies, 0)
+strategy2_config = array.get(strategies, 1)
+strategy3_config = array.get(strategies, 2)
+strategy4_config = array.get(strategies, 3)
+strategy5_config = array.get(strategies, 4)
+strategy6_config = array.get(strategies, 5)
+strategy7_config = array.get(strategies, 6)
+
+// Generic strategy calculations using dynamic parameters (execution model compliant)
+strategy_1 = calculateStrategySignal(strategy1_config.strategyType, strategy1_config.param1, strategy1_config.param2, strategy1_config.param3)
+strategy_2 = calculateStrategySignal(strategy2_config.strategyType, strategy2_config.param1, strategy2_config.param2, strategy2_config.param3)
+strategy_3 = calculateStrategySignal(strategy3_config.strategyType, strategy3_config.param1, strategy3_config.param2, strategy3_config.param3)
+strategy_4 = calculateStrategySignal(strategy4_config.strategyType, strategy4_config.param1, strategy4_config.param2, strategy4_config.param3)
+strategy_5 = calculateStrategySignal(strategy5_config.strategyType, strategy5_config.param1, strategy5_config.param2, strategy5_config.param3)
+strategy_6 = calculateStrategySignal(strategy6_config.strategyType, strategy6_config.param1, strategy6_config.param2, strategy6_config.param3)
+strategy_7 = calculateStrategySignal(strategy7_config.strategyType, strategy7_config.param1, strategy7_config.param2, strategy7_config.param3)
+
+// Store all signals in array for easy access
+var strategySignals = array.new<bool>()
+
+// Generic array mapping - no parameter references, pure index-based
+array.clear(strategySignals)
+array.push(strategySignals, strategy_1)
+array.push(strategySignals, strategy_2)
+array.push(strategySignals, strategy_3)
+array.push(strategySignals, strategy_4)
+array.push(strategySignals, strategy_5)
+array.push(strategySignals, strategy_6)
+array.push(strategySignals, strategy_7)
+
+// ================ Calculate Breadth ================
+calculateBreadth() =>
+    totalStrategies = array.size(strategies)
+    if totalStrategies == 0 or array.size(strategySignals) == 0
+        0.0
+    else
+        activeCount = 0
+        for i = 0 to totalStrategies - 1
+            if array.get(strategySignals, i)
+                activeCount += 1
+
+        // Return percentage of active strategies
+        (activeCount / totalStrategies) * 100
+
+// Request data using fixed daily timeframe for portfolio analysis
+allocation = request.security(syminfo.tickerid, "1D", calculateBreadth())
+
+// ================ Color Logic ================
+// Portfolio allocation color based on percentage
+oscillatorColor = allocation > 66 ? bullColor :
+                  allocation < 33 ? bearColor :
+                  neutralColor
+
+// ================ Plotting ================
+// Main portfolio allocation line
+plot(allocation, "Portfolio %", color=oscillatorColor, linewidth=2)
+
+// Reference lines
+hline(50, "Midline", color=neutralColor, linestyle=hline.style_dotted, linewidth=2)
+
+// ================ Alerts ================
+// Detect midline crossings
+crossAbove50 = ta.crossover(allocation, 50)
+crossBelow50 = ta.crossunder(allocation, 50)
+
+// Midline crossing alerts
+alertcondition(crossAbove50, "Portfolio Above Midline", "Portfolio allocation crossed above 50% midline")
+alertcondition(crossBelow50, "Portfolio Below Midline", "Portfolio allocation crossed below 50% midline")
+
+// Extreme condition alerts
+alertcondition(allocation >= 100, "Full Portfolio Allocation", "All strategies active - 100% portfolio allocation")
+alertcondition(allocation <= 0, "No Portfolio Allocation", "No strategies active - 0% portfolio allocation")
+
+// ================ Information Table ================
+if showTable and barstate.islast
+    var table infoTable = table.new(position.bottom_right, 1, 1, border_width=0)
+
+    // Calculate active strategies
+    totalStrategies = array.size(strategies)
+    activeStrategies = math.round(allocation * totalStrategies / 100)
+
+    // Single display: Active Strategies count
+    table.cell(infoTable, 0, 0, "Active Strategies: " + str.tostring(activeStrategies) + " / " + str.tostring(totalStrategies),
+               bgcolor=na, text_color=oscillatorColor, text_size=size.large)
