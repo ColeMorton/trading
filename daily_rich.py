@@ -43,7 +43,7 @@ class DailyTradingExecutor:
         self.lock_file = self.script_dir / ".daily_execution.lock"
         self.log_dir = self.script_dir / "logs" / "daily"
         self.max_log_files = 30
-        self.command_timeout_default = 600
+        self.command_timeout_default = None
 
         # Allowed trading-cli commands (security whitelist)
         self.allowed_commands = {
@@ -295,7 +295,7 @@ class DailyTradingExecutor:
             ) as stdout_file, tempfile.NamedTemporaryFile(
                 mode="w+", delete=False, suffix=".stderr"
             ) as stderr_file:
-                # Execute command with timeout
+                # Execute command with timeout (None means no timeout)
                 result = subprocess.run(
                     ["bash", "-c", f"cd '{self.script_dir}' && {command}"],
                     stdout=stdout_file,
@@ -386,6 +386,10 @@ class DailyTradingExecutor:
             if not config_valid:
                 return 5
 
+            # Keep default timeout as None unless explicitly overridden
+            # Note: config file default_timeout is ignored per user requirements
+            # Only individual command timeouts will be respected
+
             config_name = config.get("metadata", {}).get("name", "unnamed")
             self._log_and_print("INFO", f"Loaded configuration: {config_name}")
 
@@ -434,7 +438,8 @@ class DailyTradingExecutor:
                     else "[red]✗[/red]"
                 )
 
-                table.add_row(name, status, f"{timeout}s", security)
+                timeout_display = "No timeout" if timeout is None else f"{timeout}s"
+                table.add_row(name, status, timeout_display, security)
 
             self.console.print(table)
 

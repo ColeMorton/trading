@@ -1140,6 +1140,12 @@ def review(
     portfolio: str = typer.Option(
         ..., "--portfolio", "-p", help="Portfolio filename to review"
     ),
+    ticker: Optional[List[str]] = typer.Option(
+        None,
+        "--ticker",
+        "-t",
+        help="Filter to specific ticker symbols (multiple args or comma-separated: --ticker AAPL,MSFT or --ticker AAPL --ticker MSFT)",
+    ),
     sort_by: str = typer.Option("Score", "--sort-by", help="Column to sort by"),
     limit: int = typer.Option(
         None, "--limit", "-n", help="Number of rows to display (optional)"
@@ -1152,13 +1158,17 @@ def review(
     Review portfolio performance with Rich CLI display.
 
     This is a read-only command that displays portfolio data using the same
-    Rich CLI output and tables as 'trading-cli portfolio update'.
+    Rich CLI output and tables as 'trading-cli portfolio update'. Supports
+    filtering by specific ticker symbols.
 
     Examples:
         trading-cli portfolio review --portfolio portfolio
         trading-cli portfolio review --portfolio DAILY --limit 10 --sort-by "Total Return [%]"
         trading-cli portfolio review --portfolio risk_on --desc
         trading-cli portfolio review --portfolio crypto --asc
+        trading-cli portfolio review --portfolio DAILY --ticker MA,DLR,TFX,COO
+        trading-cli portfolio review --portfolio DAILY -t AAPL
+        trading-cli portfolio review --portfolio DAILY --ticker AAPL --ticker MSFT
     """
     try:
         # Get global CLI options
@@ -1199,6 +1209,33 @@ def review(
         except Exception as e:
             console.error(f"Error loading portfolio file: {e}")
             raise typer.Exit(1)
+
+        # Apply ticker filtering if specified
+        if ticker:
+            from .strategy_utils import process_ticker_input
+
+            ticker_list = process_ticker_input(ticker)
+            console.info(
+                f"Filtering to {len(ticker_list)} tickers: {', '.join(ticker_list)}"
+            )
+
+            # Filter DataFrame by ticker symbols (case-insensitive)
+            if "Ticker" in df.columns:
+                original_count = len(df)
+                df = df[df["Ticker"].str.upper().isin([t.upper() for t in ticker_list])]
+                filtered_count = len(df)
+                console.info(
+                    f"Filtered from {original_count} to {filtered_count} strategies"
+                )
+
+                if filtered_count == 0:
+                    console.error(
+                        f"No strategies found for tickers: {', '.join(ticker_list)}"
+                    )
+                    raise typer.Exit(1)
+            else:
+                console.error("Portfolio file does not contain a 'Ticker' column")
+                raise typer.Exit(1)
 
         # Convert DataFrame to list of dictionaries (format expected by display functions)
         portfolios = df.to_dict("records")

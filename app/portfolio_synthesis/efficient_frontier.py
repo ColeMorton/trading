@@ -44,6 +44,7 @@ class OptimizationConfig:
             "UNH",
             "TAL",
             "MSFT",
+            "TPR"
             # "SOL-USD",
             # "MSTR",
         ]

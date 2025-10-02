@@ -431,14 +431,171 @@ class PortfolioAnalysisService:
         if df.empty:
             return "No data available"
 
+        # Standardize schema and fix data types before output
+        standardized_df = self._standardize_output_schema(df)
+
         # Convert dataframe to CSV string with proper line breaks
-        csv_string = df.to_csv(index=False, lineterminator="\n")
+        csv_string = standardized_df.to_csv(index=False, lineterminator="\n")
 
         # Ensure each row is on a new line for better readability
         lines = csv_string.strip().split("\n")
         formatted_csv = "\n".join(lines)
 
         return formatted_csv
+
+    def _standardize_output_schema(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Standardize DataFrame schema to ensure consistent output format.
+
+        Fixes:
+        1. Remove legacy columns (Alpha, Beta, Short Window, Long Window, Signal Window)
+        2. Convert Fast/Slow/Signal Period from float to integer
+        3. Fix data corruption (migrate data from wrong columns)
+
+        Args:
+            df: Input DataFrame with potentially inconsistent schema
+
+        Returns:
+            DataFrame with standardized 61-column Extended schema
+        """
+        # Create a copy to avoid modifying the original
+        standardized_df = df.copy()
+
+        # Define the target Extended schema columns (61 columns)
+        target_columns = [
+            "Ticker",
+            "Strategy Type",
+            "Fast Period",
+            "Slow Period",
+            "Signal Period",
+            "Signal Entry",
+            "Signal Exit",
+            "Signal Unconfirmed",
+            "Total Open Trades",
+            "Total Trades",
+            "Score",
+            "Win Rate [%]",
+            "Profit Factor",
+            "Expectancy per Trade",
+            "Sortino Ratio",
+            "Beats BNH [%]",
+            "Avg Trade Duration",
+            "Trades Per Day",
+            "Trades per Month",
+            "Signals per Month",
+            "Expectancy per Month",
+            "Start",
+            "End",
+            "Period",
+            "Start Value",
+            "End Value",
+            "Total Return [%]",
+            "Benchmark Return [%]",
+            "Max Gross Exposure [%]",
+            "Total Fees Paid",
+            "Max Drawdown [%]",
+            "Max Drawdown Duration",
+            "Total Closed Trades",
+            "Open Trade PnL",
+            "Best Trade [%]",
+            "Worst Trade [%]",
+            "Avg Winning Trade [%]",
+            "Avg Losing Trade [%]",
+            "Avg Winning Trade Duration",
+            "Avg Losing Trade Duration",
+            "Expectancy",
+            "Sharpe Ratio",
+            "Calmar Ratio",
+            "Omega Ratio",
+            "Skew",
+            "Kurtosis",
+            "Tail Ratio",
+            "Common Sense Ratio",
+            "Value at Risk",
+            "Daily Returns",
+            "Annual Returns",
+            "Cumulative Returns",
+            "Annualized Return",
+            "Annualized Volatility",
+            "Signal Count",
+            "Position Count",
+            "Total Period",
+            "Allocation [%]",
+            "Stop Loss [%]",
+            "Last Position Open Date",
+            "Last Position Close Date",
+        ]
+
+        # Fix data corruption: migrate data from wrong columns to correct columns
+        # Handle cases where Fast/Slow/Signal Period are empty but data exists in Short/Long/Signal Window
+        if all(
+            col in standardized_df.columns
+            for col in ["Short Window", "Long Window", "Signal Window"]
+        ):
+            for idx, row in standardized_df.iterrows():
+                # Check if Fast/Slow/Signal Period are missing/empty AND Short/Long/Signal Window have data
+                fast_empty = (
+                    pd.isna(row.get("Fast Period")) or row.get("Fast Period") == ""
+                )
+                slow_empty = (
+                    pd.isna(row.get("Slow Period")) or row.get("Slow Period") == ""
+                )
+                signal_empty = (
+                    pd.isna(row.get("Signal Period")) or row.get("Signal Period") == ""
+                )
+
+                short_has_data = (
+                    not pd.isna(row.get("Short Window"))
+                    and row.get("Short Window") != ""
+                )
+                long_has_data = (
+                    not pd.isna(row.get("Long Window")) and row.get("Long Window") != ""
+                )
+                signal_has_data = (
+                    not pd.isna(row.get("Signal Window"))
+                    and row.get("Signal Window") != ""
+                )
+
+                # Migrate data if corruption detected
+                if fast_empty and short_has_data:
+                    standardized_df.at[idx, "Fast Period"] = row["Short Window"]
+                if slow_empty and long_has_data:
+                    standardized_df.at[idx, "Slow Period"] = row["Long Window"]
+                if signal_empty and signal_has_data:
+                    standardized_df.at[idx, "Signal Period"] = row["Signal Window"]
+
+        # Remove legacy columns that should not be in output
+        legacy_columns = [
+            "Alpha",
+            "Beta",
+            "Short Window",
+            "Long Window",
+            "Signal Window",
+        ]
+        columns_to_remove = [
+            col for col in legacy_columns if col in standardized_df.columns
+        ]
+        if columns_to_remove:
+            standardized_df = standardized_df.drop(columns=columns_to_remove)
+
+        # Fix data types: convert Fast/Slow/Signal Period to integers
+        period_columns = ["Fast Period", "Slow Period", "Signal Period"]
+        for col in period_columns:
+            if col in standardized_df.columns:
+                # Convert to numeric first (handles string numbers), then to int
+                standardized_df[col] = pd.to_numeric(
+                    standardized_df[col], errors="coerce"
+                )
+                # Convert to integer, handling NaN values
+                standardized_df[col] = standardized_df[col].fillna(0).astype("int64")
+
+        # Ensure we only output the target columns in the correct order
+        output_columns = [
+            col for col in target_columns if col in standardized_df.columns
+        ]
+        standardized_df = standardized_df[output_columns]
+
+        return standardized_df
 
     def get_display_columns(self) -> List[str]:
         """Get the key columns to display in the summary table."""

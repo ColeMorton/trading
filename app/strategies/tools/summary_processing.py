@@ -35,6 +35,12 @@ from app.tools.equity_data_extractor import (
 
 # Import export_portfolios inside functions to avoid circular imports
 from app.tools.get_config import get_config
+
+# Import data normalization functions
+from app.tools.portfolio.processing import (
+    get_portfolio_schema,
+    normalize_portfolio_data,
+)
 from app.tools.portfolio_transformation import reorder_columns
 from app.tools.project_utils import get_project_root
 from app.tools.stats_converter import convert_stats
@@ -1356,7 +1362,27 @@ def update_strategy_files(
 
         # Remove duplicates and apply filtering with enhanced logging
         try:
-            df = pl.DataFrame(reordered_portfolios)
+            # Normalize data to fix schema inference issues
+            log("📊 Normalizing portfolio data to fix mixed data types", "debug")
+            normalized_portfolios = normalize_portfolio_data(reordered_portfolios)
+
+            # Create DataFrame with explicit schema to prevent type inference conflicts
+            schema = get_portfolio_schema()
+
+            # Filter schema to only include columns present in the data
+            if normalized_portfolios:
+                available_columns = set(normalized_portfolios[0].keys())
+                filtered_schema = {
+                    k: v for k, v in schema.items() if k in available_columns
+                }
+                log(
+                    f"📊 Using explicit schema for {len(filtered_schema)} columns",
+                    "debug",
+                )
+            else:
+                filtered_schema = schema
+
+            df = pl.DataFrame(normalized_portfolios, schema=filtered_schema)
             log(f"📊 BEFORE DEDUPLICATION: {len(df)} portfolios in DataFrame", "info")
             log(f"📊 DataFrame columns: {df.columns}", "debug")
 
@@ -1426,6 +1452,15 @@ def update_strategy_files(
             reordered_portfolios = df.to_dicts()
         except Exception as e:
             log(f"Error during deduplication: {str(e)}", "warning")
+            log("Attempting fallback without DataFrame operations", "info")
+
+            # Fallback: use original data without deduplication if DataFrame operations fail
+            reordered_portfolios = (
+                normalized_portfolios
+                if "normalized_portfolios" in locals()
+                else reordered_portfolios
+            )
+            log(f"Using fallback data: {len(reordered_portfolios)} portfolios", "info")
 
         # Filter out portfolios with invalid metrics
         try:
@@ -1438,6 +1473,7 @@ def update_strategy_files(
             )
         except Exception as e:
             log(f"Error during invalid metrics filtering: {str(e)}", "warning")
+            log("Continuing with unfiltered portfolios due to filtering error", "info")
 
         if not reordered_portfolios:
             log("No portfolios remain after filtering", "warning")
@@ -1475,8 +1511,31 @@ def update_strategy_files(
                     clean_portfolio[key] = value
             csv_ready_portfolios.append(clean_portfolio)
 
-        # Convert to DataFrame for export
-        df = pl.DataFrame(csv_ready_portfolios)
+        # Convert to DataFrame for export with schema normalization
+        normalized_csv_portfolios = normalize_portfolio_data(csv_ready_portfolios)
+
+        # Use explicit schema for consistent DataFrame creation
+        schema = get_portfolio_schema()
+        if normalized_csv_portfolios:
+            available_columns = set(normalized_csv_portfolios[0].keys())
+            filtered_schema = {
+                k: v for k, v in schema.items() if k in available_columns
+            }
+        else:
+            filtered_schema = schema
+
+        try:
+            df = pl.DataFrame(normalized_csv_portfolios, schema=filtered_schema)
+            log(
+                f"Created DataFrame for CSV export with {len(normalized_csv_portfolios)} portfolios",
+                "debug",
+            )
+        except Exception as e:
+            log(
+                f"Error creating DataFrame with schema, falling back to auto-inference: {str(e)}",
+                "warning",
+            )
+            df = pl.DataFrame(normalized_csv_portfolios)
 
         # Sort DataFrame according to configuration before CSV export
         if config:

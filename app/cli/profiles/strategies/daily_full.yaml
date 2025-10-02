@@ -25,6 +25,7 @@ config:
     expectancy_per_trade: 0.236
     profit_factor: 1.236
     sortino_ratio: 0.618
+    beats_bnh: -0.9
     score: 1
 
   batch: true

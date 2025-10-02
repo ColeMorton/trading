@@ -6,7 +6,7 @@ including loading existing data and analyzing parameter sensitivity.
 """
 
 import os
-from typing import Callable, Optional
+from typing import Callable, Dict, List, Optional, Union
 
 import numpy as np
 import polars as pl
@@ -134,3 +134,118 @@ def process_single_ticker(
     return analyze_parameter_sensitivity(
         data, short_windows, long_windows, config_copy, log, progress_update_fn
     )
+
+
+def normalize_portfolio_data(portfolios: List[Dict]) -> List[Dict]:
+    """
+    Normalize portfolio data to ensure consistent data types across CSV sources.
+
+    Fixes schema inference issues by:
+    1. Converting string "None" to actual None values
+    2. Converting empty strings to None for consistency
+    3. Ensuring boolean fields are consistent strings
+
+    Args:
+        portfolios: List of portfolio dictionaries with mixed data types
+
+    Returns:
+        List of portfolio dictionaries with normalized data types
+    """
+    if not portfolios:
+        return portfolios
+
+    normalized_portfolios = []
+
+    for portfolio in portfolios:
+        normalized_portfolio = {}
+
+        for key, value in portfolio.items():
+            # Handle None string literals
+            if value == "None":
+                normalized_portfolio[key] = None
+            # Handle empty strings (convert to None for consistency)
+            elif value == "":
+                normalized_portfolio[key] = None
+            # Handle boolean string representations
+            elif value == "False":
+                normalized_portfolio[key] = "false"
+            elif value == "True":
+                normalized_portfolio[key] = "true"
+            else:
+                normalized_portfolio[key] = value
+
+        normalized_portfolios.append(normalized_portfolio)
+
+    return normalized_portfolios
+
+
+def get_portfolio_schema() -> Dict[str, pl.DataType]:
+    """
+    Define explicit Polars schema for portfolio DataFrames to prevent type inference conflicts.
+
+    Returns:
+        Dictionary mapping column names to Polars data types
+    """
+    return {
+        "Ticker": pl.Utf8,
+        "Strategy Type": pl.Utf8,
+        "Fast Period": pl.Int64,
+        "Slow Period": pl.Int64,
+        "Signal Period": pl.Int64,
+        "Signal Entry": pl.Utf8,  # false/true as strings
+        "Signal Exit": pl.Utf8,  # false/true as strings
+        "Signal Unconfirmed": pl.Utf8,  # Allow nulls as strings
+        "Total Open Trades": pl.Int64,
+        "Total Trades": pl.Int64,
+        "Score": pl.Float64,
+        "Win Rate [%]": pl.Float64,
+        "Profit Factor": pl.Float64,
+        "Expectancy per Trade": pl.Float64,
+        "Sortino Ratio": pl.Float64,
+        "Beats BNH [%]": pl.Float64,
+        "Avg Trade Duration": pl.Utf8,
+        "Trades Per Day": pl.Float64,
+        "Trades per Month": pl.Float64,
+        "Signals per Month": pl.Float64,
+        "Expectancy per Month": pl.Float64,
+        "Start": pl.Int64,
+        "End": pl.Int64,
+        "Period": pl.Utf8,
+        "Start Value": pl.Float64,
+        "End Value": pl.Float64,
+        "Total Return [%]": pl.Float64,
+        "Benchmark Return [%]": pl.Float64,
+        "Max Gross Exposure [%]": pl.Float64,
+        "Total Fees Paid": pl.Float64,
+        "Max Drawdown [%]": pl.Float64,
+        "Max Drawdown Duration": pl.Utf8,
+        "Total Closed Trades": pl.Int64,
+        "Open Trade PnL": pl.Float64,
+        "Best Trade [%]": pl.Float64,
+        "Worst Trade [%]": pl.Float64,
+        "Avg Winning Trade [%]": pl.Float64,
+        "Avg Losing Trade [%]": pl.Float64,
+        "Avg Winning Trade Duration": pl.Utf8,
+        "Avg Losing Trade Duration": pl.Utf8,
+        "Expectancy": pl.Float64,
+        "Sharpe Ratio": pl.Float64,
+        "Calmar Ratio": pl.Float64,
+        "Omega Ratio": pl.Float64,
+        "Skew": pl.Float64,
+        "Kurtosis": pl.Float64,
+        "Tail Ratio": pl.Float64,
+        "Common Sense Ratio": pl.Float64,
+        "Value at Risk": pl.Float64,
+        "Daily Returns": pl.Float64,
+        "Annual Returns": pl.Float64,
+        "Cumulative Returns": pl.Float64,
+        "Annualized Return": pl.Float64,
+        "Annualized Volatility": pl.Float64,
+        "Signal Count": pl.Int64,
+        "Position Count": pl.Int64,
+        "Total Period": pl.Float64,
+        "Allocation [%]": pl.Float64,
+        "Stop Loss [%]": pl.Utf8,  # Allow nulls as strings
+        "Last Position Open Date": pl.Utf8,  # Allow nulls as strings
+        "Last Position Close Date": pl.Utf8,  # Allow nulls as strings
+    }
