@@ -21,6 +21,7 @@ from app.tools.portfolio_results import (
     display_portfolio_entry_exit_table,
     display_portfolio_summary,
     display_portfolio_table,
+    display_ticker_summary_table,
 )
 
 from ..config import ConfigLoader
@@ -1262,6 +1263,10 @@ def review(
         # Use the same display functions as portfolio update
         display_portfolio_table(portfolios, log_func)
         display_portfolio_entry_exit_table(portfolios, log_func)
+        
+        # Display ticker-level summary for tickers with multiple strategies
+        display_ticker_summary_table(portfolios, log_func)
+        
         display_portfolio_summary(portfolios, execution_time=None, log_func=log_func)
 
         # Add CSV output section for Entry strategies only

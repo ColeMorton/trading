@@ -8,227 +8,24 @@ from typing import Any, Dict, List, Optional
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
-from rich.text import Text
 
+from app.tools.formatters import (
+    create_section_header,
+    format_average_duration,
+    format_currency,
+    format_duration,
+    format_percentage,
+    format_ratio,
+    format_score,
+    format_signal_status,
+    format_status,
+    format_win_rate,
+    parse_duration_to_hours,
+)
 from app.tools.portfolio.collection import sort_portfolios
 
 # Rich console for output
 console = Console()
-
-
-# Rich display helper functions
-def format_percentage(value: float, positive_good: bool = True) -> Text:
-    """Format percentage with color coding."""
-    if value is None or value == "" or str(value).lower() in ["none", "n/a"]:
-        return Text("N/A", style="dim")
-
-    try:
-        val = float(value)
-        color = (
-            "green"
-            if (val > 0 and positive_good) or (val < 0 and not positive_good)
-            else "red"
-        )
-        if abs(val) < 0.01:  # Very small values
-            color = "yellow"
-        return Text(f"{val:.2f}%", style=color)
-    except (ValueError, TypeError):
-        return Text(str(value), style="dim")
-
-
-def format_currency(value: float) -> Text:
-    """Format currency value with color coding."""
-    if value is None or value == "" or str(value).lower() in ["none", "n/a"]:
-        return Text("N/A", style="dim")
-
-    try:
-        val = float(value)
-        color = "green" if val > 0 else "red" if val < 0 else "yellow"
-        if abs(val) >= 1000000:
-            formatted = f"${val/1000000:.2f}M"
-        elif abs(val) >= 1000:
-            formatted = f"${val/1000:.1f}K"
-        else:
-            formatted = f"${val:.2f}"
-        return Text(formatted, style=color)
-    except (ValueError, TypeError):
-        return Text(str(value), style="dim")
-
-
-def format_score(value: float) -> Text:
-    """Format score with color coding based on performance thresholds."""
-    if value is None or value == "" or str(value).lower() in ["none", "n/a"]:
-        return Text("N/A", style="dim")
-
-    try:
-        val = float(value)
-        if val >= 1.5:
-            color = "bright_green"
-            emoji = "🔥"
-        elif val >= 1.2:
-            color = "green"
-            emoji = "📈"
-        elif val >= 1.0:
-            color = "yellow"
-            emoji = "⚖️"
-        elif val >= 0.8:
-            color = "orange"
-            emoji = "⚠️"
-        else:
-            color = "red"
-            emoji = "📉"
-        return Text(f"{emoji} {val:.4f}", style=color)
-    except (ValueError, TypeError):
-        return Text(str(value), style="dim")
-
-
-def format_signal_status(entry: bool, exit: bool, unconfirmed: str = None) -> Text:
-    """Format signal status with appropriate icons and colors."""
-    if entry:
-        return Text("🎯 ENTRY", style="bright_green bold")
-    elif exit:
-        return Text("🚪 EXIT", style="red bold")
-    elif unconfirmed and str(unconfirmed).lower() not in ["none", "n/a", ""]:
-        return Text("⏳ PENDING", style="yellow")
-    else:
-        return Text("🔒 HOLD", style="blue")
-
-
-def format_win_rate(value: float) -> Text:
-    """Format win rate with color coding."""
-    if value is None or value == "" or str(value).lower() in ["none", "n/a"]:
-        return Text("N/A", style="dim")
-
-    try:
-        val = float(value)
-        if val > 50:
-            color = "green"
-        elif val >= 45:
-            color = "yellow"
-        else:
-            color = "red"
-        return Text(f"{val:.1f}%", style=color)
-    except (ValueError, TypeError):
-        return Text(str(value), style="dim")
-
-
-def format_ratio(value: float) -> Text:
-    """Format ratio with color coding based on performance thresholds."""
-    if value is None or value == "" or str(value).lower() in ["none", "n/a"]:
-        return Text("N/A", style="dim")
-
-    try:
-        val = float(value)
-        if val >= 1.34:
-            color = "green"
-        elif val >= 1.0:
-            color = "yellow"
-        else:
-            color = "red"
-        return Text(f"{val:.2f}", style=color)
-    except (ValueError, TypeError):
-        return Text(str(value), style="dim")
-
-
-def format_duration(value) -> Text:
-    """Format duration with compact display."""
-    if value is None or value == "" or str(value).lower() in ["none", "n/a"]:
-        return Text("N/A", style="dim")
-
-    try:
-        duration_str = str(value)
-        # Parse "X days HH:MM:SS.microseconds" format
-        if "days" in duration_str:
-            parts = duration_str.split()
-            days = int(parts[0])
-            if len(parts) > 2:
-                time_part = parts[2]
-                hours = int(time_part.split(":")[0])
-                return Text(f"{days}d {hours}h", style="blue")
-            else:
-                return Text(f"{days}d", style="blue")
-        else:
-            # Handle time-only format "HH:MM:SS"
-            time_parts = duration_str.split(":")
-            if len(time_parts) >= 2:
-                hours = int(float(time_parts[0]))
-                return Text(f"{hours}h", style="blue")
-            else:
-                return Text(str(value)[:10], style="dim")  # Truncate long values
-    except (ValueError, TypeError, IndexError):
-        return Text(str(value)[:10], style="dim")  # Truncate and show as-is
-
-
-def parse_duration_to_hours(value) -> float:
-    """Parse duration string to total hours for averaging calculations."""
-    if value is None or value == "" or str(value).lower() in ["none", "n/a"]:
-        return 0.0
-
-    try:
-        duration_str = str(value)
-        total_hours = 0.0
-
-        # Parse "X days HH:MM:SS.microseconds" format
-        if "days" in duration_str:
-            parts = duration_str.split()
-            days = int(parts[0])
-            total_hours = days * 24.0  # Convert days to hours
-
-            if len(parts) > 2:
-                time_part = parts[2]
-                time_components = time_part.split(":")
-                if len(time_components) >= 1:
-                    total_hours += int(time_components[0])  # Add hours
-                if len(time_components) >= 2:
-                    total_hours += (
-                        int(time_components[1]) / 60.0
-                    )  # Add minutes as fractional hours
-        else:
-            # Handle time-only format "HH:MM:SS"
-            time_parts = duration_str.split(":")
-            if len(time_parts) >= 1:
-                total_hours += int(float(time_parts[0]))  # Hours
-            if len(time_parts) >= 2:
-                total_hours += int(time_parts[1]) / 60.0  # Minutes as fractional hours
-
-        return total_hours
-    except (ValueError, TypeError, IndexError):
-        return 0.0
-
-
-def format_average_duration(hours: float) -> str:
-    """Format average hours back to readable duration string."""
-    if hours <= 0:
-        return "0h"
-
-    days = int(hours // 24)
-    remaining_hours = int(hours % 24)
-
-    if days > 0:
-        if remaining_hours > 0:
-            return f"{days}d {remaining_hours}h"
-        else:
-            return f"{days}d"
-    else:
-        return f"{remaining_hours}h"
-
-
-def format_status(status: str) -> Text:
-    """Format status with emoji and color coding."""
-    if status == "Entry":
-        return Text("🎯 Entry", style="green")
-    elif status == "Active":
-        return Text("🔒 Active", style="blue")
-    elif status == "Exit":
-        return Text("🚪 Exit", style="red")
-    else:  # Inactive
-        return Text("Inactive", style="white")
-
-
-def create_section_header(title: str, emoji: str = "📊") -> None:
-    """Create a styled section header."""
-    rprint(f"\n[bold cyan]{emoji} {title}[/bold cyan]")
-    rprint("=" * (len(title) + 3))
 
 
 def filter_open_trades(
@@ -666,6 +463,132 @@ def display_portfolio_entry_exit_table(
     )
 
     return display_portfolios
+
+
+def display_ticker_summary_table(
+    portfolios: List[Dict[str, Any]], log_func=None
+) -> None:
+    """Display ticker-level summary when multiple strategies exist per ticker.
+
+    Shows aggregated metrics for each ticker including:
+    - Number of active strategies (those with open trades)
+    - Total number of strategies
+    - Percentage active
+    - Count of strategies with entry signals
+    - Count of strategies with exit signals
+
+    Only displays tickers that have more than one strategy.
+
+    Args:
+        portfolios: List of portfolio dictionaries
+        log_func: Optional logging function
+    """
+    if not portfolios:
+        return
+
+    from collections import defaultdict
+
+    # Group strategies by ticker
+    ticker_data = defaultdict(
+        lambda: {
+            "total": 0,
+            "active": 0,
+            "entry_signal_count": 0,
+            "exit_signal_count": 0,
+        }
+    )
+
+    for portfolio in portfolios:
+        ticker = portfolio.get("Ticker", "Unknown")
+        ticker_data[ticker]["total"] += 1
+
+        # Check if strategy is active (has open trade)
+        total_open_trades = portfolio.get("Total Open Trades")
+        if total_open_trades == 1 or (
+            isinstance(total_open_trades, str) and total_open_trades == "1"
+        ):
+            ticker_data[ticker]["active"] += 1
+
+        # Count entry/exit signals
+        signal_entry = str(portfolio.get("Signal Entry", "")).lower() == "true"
+        signal_exit = str(portfolio.get("Signal Exit", "")).lower() == "true"
+
+        if signal_entry:
+            ticker_data[ticker]["entry_signal_count"] += 1
+        if signal_exit:
+            ticker_data[ticker]["exit_signal_count"] += 1
+
+    # Filter to only show tickers with multiple strategies
+    multi_strategy_tickers = {
+        ticker: data for ticker, data in ticker_data.items() if data["total"] > 1
+    }
+
+    if not multi_strategy_tickers:
+        # No tickers with multiple strategies
+        return
+
+    # Create Rich table
+    table = Table(
+        title="📈 Ticker-Level Summary (Multiple Strategies per Ticker)",
+        show_header=True,
+        header_style="bold magenta",
+        border_style="bright_blue",
+    )
+
+    # Add columns
+    table.add_column("Ticker", style="cyan", no_wrap=True)
+    table.add_column("Active Strategies", justify="center")
+    table.add_column("Active %", justify="center")
+    table.add_column("Entry Signal", justify="center", style="bright_green")
+    table.add_column("Exit Signal", justify="center", style="bright_red")
+
+    # Add rows sorted by Active % (descending), then by ticker
+    sorted_tickers = sorted(
+        multi_strategy_tickers.items(),
+        key=lambda x: (
+            -(x[1]["active"] / x[1]["total"] * 100)
+            if x[1]["total"] > 0
+            else 0,  # Active % descending
+            x[0],  # Ticker alphabetically as tiebreaker
+        ),
+    )
+
+    for ticker, data in sorted_tickers:
+        active_pct = (data["active"] / data["total"] * 100) if data["total"] > 0 else 0
+
+        # Determine color based on percentage
+        if active_pct == 0:
+            color = "red"
+        elif active_pct < 50:
+            color = "yellow"
+        else:
+            color = "green"
+
+        # Create styled Text objects
+        active_display = Text(f"{data['active']}/{data['total']}", style=color)
+        active_pct_display = Text(f"{active_pct:.1f}%", style=color)
+
+        # Display counts for entry/exit signals
+        entry_count = data["entry_signal_count"]
+        exit_count = data["exit_signal_count"]
+
+        table.add_row(
+            ticker,
+            active_display,
+            active_pct_display,
+            str(entry_count),
+            str(exit_count),
+        )
+
+    # Display table
+    console.print()
+    console.print(table)
+    console.print()
+
+    if log_func:
+        log_func(
+            f"Displayed ticker summary for {len(multi_strategy_tickers)} tickers with multiple strategies"
+        )
 
 
 def filter_signal_entries(
