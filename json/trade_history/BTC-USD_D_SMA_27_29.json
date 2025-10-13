@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-09-17T15:29:08.736022",
+    "export_timestamp": "2025-10-13T06:43:12.480329",
     "strategy_config": {
       "ticker": "BTC-USD",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 655.1705864501305,
-      "total_trades": "144",
-      "win_rate": 0.5208333333333334,
-      "sharpe_ratio": 1.4422441359716038,
+      "total_return": 653.420087201462,
+      "total_trades": "145",
+      "win_rate": 0.5172413793103449,
+      "sharpe_ratio": 1.4347560186837698,
       "max_drawdown": -0.6484165645822194
     }
   },
@@ -3043,6 +3043,27 @@
       "Trade_Number": 144,
       "Rolling_Avg_Return": 0.01904517128787646,
       "Rolling_Win_Rate": 0.6
+    },
+    {
+      "Entry Timestamp": "2025-09-21 00:00:00",
+      "Exit Timestamp": null,
+      "Avg Entry Price": 115306.09375,
+      "Avg Exit Price": 115113.484375,
+      "Size": 5.684999379130836,
+      "PnL": -1750.499248668435,
+      "Return": -0.0026704180042521233,
+      "Direction": "Long",
+      "Status": "Open",
+      "Duration": null,
+      "Duration_Days": null,
+      "Entry_Month": "2025-09",
+      "Entry_Year": 2025.0,
+      "Entry_Quarter": 3.0,
+      "Trade_Type": "Breakeven",
+      "Cumulative_PnL": 653420.0872014619,
+      "Trade_Number": 145,
+      "Rolling_Avg_Return": 0.022701810768529198,
+      "Rolling_Win_Rate": 0.6
     }
   ],
   "orders": [
@@ -5637,6 +5658,15 @@
       "Price": 111723.2109375,
       "Fees": 656.8274138639947,
       "Side": "Sell"
+    },
+    {
+      "Order Id": 288,
+      "Column": 0,
+      "Timestamp": 4022,
+      "Size": 5.684999379130836,
+      "Price": 115306.09375,
+      "Fees": 655.5150713786716,
+      "Side": "Buy"
     }
   ],
   "positions": [
@@ -8231,12 +8261,30 @@
       "Duration": "0 days 00:00:00.000000006",
       "Duration_Days": 6.944444444444445e-14,
       "Position_Type": "Breakeven"
+    },
+    {
+      "Position Id": 144,
+      "Column": 0,
+      "Size": 5.684999379130836,
+      "Entry Timestamp": "1970-01-01 00:00:00",
+      "Avg Entry Price": 115306.09375,
+      "Entry Fees": 655.5150713786716,
+      "Exit Timestamp": null,
+      "Avg Exit Price": 115113.484375,
+      "Exit Fees": 0.0,
+      "PnL": -1750.499248668435,
+      "Return": -0.0026704180042521233,
+      "Direction": "Long",
+      "Status": "Open",
+      "Duration": null,
+      "Duration_Days": null,
+      "Position_Type": "Breakeven"
     }
   ],
   "analytics": {
-    "total_trades": 144,
+    "total_trades": 145,
     "closed_trades": 144,
-    "open_trades": 0,
+    "open_trades": 1,
     "win_rate": 52.083333333333336,
     "avg_return": 7.049911169017594,
     "avg_winner": 18.087364483892664,

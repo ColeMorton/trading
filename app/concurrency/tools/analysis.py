@@ -238,13 +238,24 @@ def analyze_concurrency(
         # Calculate strategy expectancies
         strategy_expectancies = []
         for config in config_list:
-            # Prefer EXPECTANCY_PER_TRADE if available, otherwise convert from
-            # EXPECTANCY_PER_MONTH
+            # Check multiple locations for expectancy in priority order
             ticker = config.get("TICKER", "unknown")
+
             if "EXPECTANCY_PER_TRADE" in config:
+                # Direct top-level field (rare, but check first)
                 expectancy = config["EXPECTANCY_PER_TRADE"]
                 log(
                     f"Using EXPECTANCY_PER_TRADE for {ticker}: {expectancy:.6f}", "info"
+                )
+            elif (
+                "PORTFOLIO_STATS" in config
+                and "Expectancy per Trade" in config["PORTFOLIO_STATS"]
+            ):
+                # From PORTFOLIO_STATS (CSV standard location)
+                expectancy = config["PORTFOLIO_STATS"]["Expectancy per Trade"]
+                log(
+                    f"Using PORTFOLIO_STATS['Expectancy per Trade'] for {ticker}: {expectancy:.6f}",
+                    "info",
                 )
             elif "EXPECTANCY_PER_MONTH" in config:
                 # Convert monthly expectancy to per-trade expectancy

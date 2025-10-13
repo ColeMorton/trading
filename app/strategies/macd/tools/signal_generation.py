@@ -100,7 +100,9 @@ def generate_macd_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataF
                         & (pl.col("MACD").shift(1) >= pl.col("Signal_Line").shift(1))
                     )
                     .then(0)  # Exit long
-                    .otherwise(pl.col("Signal"))
+                    .otherwise(
+                        None
+                    )  # Use None instead of pl.col("Signal") so forward_fill works
                     .alias("Signal")
                 ]
             )
@@ -118,7 +120,9 @@ def generate_macd_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataF
                         & (pl.col("MACD").shift(1) <= pl.col("Signal_Line").shift(1))
                     )
                     .then(0)  # Exit short
-                    .otherwise(pl.col("Signal"))
+                    .otherwise(
+                        None
+                    )  # Use None instead of pl.col("Signal") so forward_fill works
                     .alias("Signal")
                 ]
             )

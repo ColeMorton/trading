@@ -163,12 +163,12 @@ def run(
     ),
     refresh: bool = typer.Option(
         False,
-        "--refresh",
+        "--refresh/--no-refresh",
         help="Force complete regeneration of all files, bypassing smart resume (default: False)",
     ),
     batch: bool = typer.Option(
         False,
-        "--batch",
+        "--batch/--no-batch",
         help="Enable batch processing mode for large ticker lists",
     ),
     batch_size: Optional[int] = typer.Option(
@@ -603,6 +603,11 @@ def review(
         "--batch",
         help="Use tickers from batch file (data/raw/batch.csv) for non-current analysis",
     ),
+    export: bool = typer.Option(
+        False,
+        "--export",
+        help="Export CSV output to ./data/outputs/review/{YYYYMMDD_HHmmss}.csv",
+    ),
 ):
     """
     Analyze and aggregate portfolio data from CSV files (dry-run analysis).
@@ -624,6 +629,9 @@ def review(
         trading-cli strategy review --best --batch
         trading-cli strategy review --best --batch --top-n 25
         trading-cli strategy review --best --batch --sort-by "Total Return [%]"
+        trading-cli strategy review --best --batch --export
+        trading-cli strategy review --profile asia_top_50 --best --export
+        trading-cli strategy review --best --current --ticker AAPL,MSFT --export
     """
     try:
         # Get global options from context
@@ -907,6 +915,18 @@ def review(
             csv_lines = csv_output.split("\n")
             for line in csv_lines:
                 print(line)  # Plain print without Rich formatting/wrapping
+
+        # Export to CSV if requested
+        if export:
+            try:
+                output_dir = "./data/outputs/review"
+                success, file_path = analysis_service.export_to_csv(
+                    display_data["all_results"], output_dir
+                )
+                if success:
+                    rprint(f"\n[green]✅ Results exported to: {file_path}[/green]")
+            except Exception as export_error:
+                rprint(f"\n[red]❌ Export failed: {export_error}[/red]")
 
     except Exception as e:
         handle_command_error(e, "strategy review", global_verbose)

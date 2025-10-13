@@ -17,27 +17,30 @@ from scipy.spatial.distance import squareform
 
 PORTFOLIO = [
     "BTC-USD",
-    "GLD",
-    "EDU",
-    "PDD",
-    "QCOM",
-    "AFL",
+    "MSTR",
+    # "GLD",
+    # "EDU",
+    # "PDD",
+    # "QCOM",
+    # "AFL",
     "AXON",
     "TRMB",
-    "NVDA",
-    "NTES",
-    "UNH",
-    "PWR",
+    # "NVDA",
+    # "NTES",
+    "BRK-B",
+    "MA",
     "NFLX",
-    "TAL",
     "MSFT",
+    "TPR",
+    "CSCO",
+    "LI",
 ]
 
 # PORTFOLIO = ["ETH-USD", "SOL-USD", "ETHFI-USD", "SUI20947-USD"]
 
 # PORTFOLIO = ['SPY', 'QQQ']
 
-NEXT = ["MET", "AMD", "ROK", "CSCO", "ANET"]
+NEXT = ["SE", "PLTR"]
 
 # NEXT = [
 #     'BTC-USD',
@@ -48,7 +51,7 @@ NEXT = ["MET", "AMD", "ROK", "CSCO", "ANET"]
 
 ASSETS = list(dict.fromkeys(PORTFOLIO + NEXT))  # Remove duplicates
 
-DAYS = 90
+DAYS = 60
 
 
 def create_dendrogram_trace(linkage_matrix, labels):

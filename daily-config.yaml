@@ -33,49 +33,43 @@ config:
     #   description: 'Validate system health and dependencies'
     #   continue_on_failure: true
 
-    # # 2. Portfolio Updates
-    # - name: 'Update Portfolio'
-    #   command: 'poetry run trading-cli --quiet portfolio update --portfolio portfolio'
-    #   enabled: true
-    #   timeout: 180
-    #   description: 'Update live signals portfolio data'
-    #   continue_on_failure: true
+    # 2. Portfolio Updates
+    - name: 'Update Portfolio'
+      command: 'poetry run trading-cli --quiet portfolio update --portfolio portfolio'
+      enabled: true
+      description: 'Update live signals portfolio data'
+      continue_on_failure: true
 
-    # - name: 'Update Protected Portfolio'
-    #   command: 'poetry run trading-cli --quiet portfolio update --portfolio protected'
-    #   enabled: true
-    #   timeout: 60
-    #   description: 'Update protected portfolio with validation'
-    #   continue_on_failure: true
+    - name: 'Update Protected Portfolio'
+      command: 'poetry run trading-cli --quiet portfolio update --portfolio protected'
+      enabled: true
+      description: 'Update protected portfolio with validation'
+      continue_on_failure: true
 
-    # - name: 'Update Risk-On Portfolio'
-    #   command: 'poetry run trading-cli --quiet portfolio update --portfolio risk_on'
-    #   enabled: true
-    #   timeout: 60
-    #   description: 'Update risk-on portfolio with validation'
-    #   continue_on_failure: true
+    - name: 'Update Risk-On Portfolio'
+      command: 'poetry run trading-cli --quiet portfolio update --portfolio risk_on'
+      enabled: true
+      description: 'Update risk-on portfolio with validation'
+      continue_on_failure: true
 
-    # - name: 'Update DAILY Portfolio'
-    #   command: 'poetry run trading-cli --quiet portfolio update --portfolio DAILY'
-    #   enabled: true
-    #   timeout: 2400 # 40 minutes
-    #   description: 'Update risk-on portfolio with validation'
-    #   continue_on_failure: true
+    - name: 'Update DAILY Portfolio'
+      command: 'poetry run trading-cli --quiet portfolio update --portfolio DAILY'
+      enabled: true
+      description: 'Update risk-on portfolio with validation'
+      continue_on_failure: true
 
-    #   # 3. Strategy Analysis
-    # - name: 'Daily Crypto Strategy Analysis - Australia'
-    #   command: 'poetry run trading-cli strategy run --profile australia_top_10'
-    #   enabled: false
-    #   timeout: 1200 # 20 minutes
-    #   description: 'Execute crypto-focused MA Cross strategy analysis'
-    #   continue_on_failure: true
+      # 3. Strategy Analysis
+    - name: 'Daily Crypto Strategy Analysis - Australia'
+      command: 'poetry run trading-cli strategy run --profile australia_top_10'
+      enabled: false
+      description: 'Execute crypto-focused MA Cross strategy analysis'
+      continue_on_failure: true
 
-    # - name: 'Daily Crypto Strategy Analysis - Crypto'
-    #   command: 'poetry run trading-cli --quiet strategy run --profile crypto_current'
-    #   enabled: false
-    #   timeout: 1500 # 25 minutes
-    #   description: 'Execute crypto-focused MA Cross strategy analysis'
-    #   continue_on_failure: true
+    - name: 'Daily Crypto Strategy Analysis - Crypto'
+      command: 'poetry run trading-cli --quiet strategy run --profile crypto_current'
+      enabled: false
+      description: 'Execute crypto-focused MA Cross strategy analysis'
+      continue_on_failure: true
 
     - name: 'Daily Strategy Analysis - Primary Stocks'
       command: 'poetry run trading-cli --quiet strategy run --profile primary_stocks'

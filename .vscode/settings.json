@@ -3,5 +3,9 @@
         "./trading/ema_cross",
         "./app/ema_cross"
     ],
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    "cursorpyright.analysis.extraPaths": [
+        "./trading/ema_cross",
+        "./app/ema_cross"
+    ]
 }

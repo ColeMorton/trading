@@ -90,15 +90,24 @@ def backtest_strategy(
                 "debug",
             )
 
+        # Position column is a STATE (1=in position, 0=out), but vectorbt needs TRANSITIONS
+        # Detect when Position changes from 0->1 (entry) and 1->0 (exit)
+        position_shifted = data_pd["Position"].shift(1).fillna(0)
+
         if config.get("DIRECTION", "Long").lower() == "short":
-            # For short positions, enter when Signal is -1 (fast MA crosses below slow
-            # MA)
-            params["short_entries"] = data_pd["Signal"] == -1
-            params["short_exits"] = data_pd["Signal"] == 0
+            # Short entries: Position changes from 0 to -1
+            params["short_entries"] = (data_pd["Position"] == -1) & (
+                position_shifted == 0
+            )
+            # Short exits: Position changes from -1 to 0
+            params["short_exits"] = (data_pd["Position"] == 0) & (
+                position_shifted == -1
+            )
         else:
-            # For long positions, enter when Signal is 1 (fast MA crosses above slow MA)
-            params["entries"] = data_pd["Signal"] == 1
-            params["exits"] = data_pd["Signal"] == 0
+            # Long entries: Position changes from 0 to 1
+            params["entries"] = (data_pd["Position"] == 1) & (position_shifted == 0)
+            # Long exits: Position changes from 1 to 0
+            params["exits"] = (data_pd["Position"] == 0) & (position_shifted == 1)
 
         portfolio = vbt.Portfolio.from_signals(**params)
 

@@ -52,6 +52,42 @@ def process_ticker_input(ticker: Optional[List[str]]) -> List[str]:
     return flattened_tickers
 
 
+def process_strategy_type_input(strategy_type: Optional[List[str]]) -> List[str]:
+    """
+    Process strategy type input handling comma-separated values and multiple arguments.
+
+    Args:
+        strategy_type: List of strategy type strings (may contain comma-separated values)
+
+    Returns:
+        Flattened list of strategy type strings
+
+    Examples:
+        process_strategy_type_input(["EMA,MACD,ATR"]) -> ["EMA", "MACD", "ATR"]
+        process_strategy_type_input(["SMA", "EMA"]) -> ["SMA", "EMA"]
+        process_strategy_type_input(["MACD"]) -> ["MACD"]
+    """
+    if not strategy_type:
+        return []
+
+    flattened_strategies = []
+    for st in strategy_type:
+        if "," in st:
+            # Split comma-separated values and add to list
+            flattened_strategies.extend(
+                [
+                    strategy.strip().upper()
+                    for strategy in st.split(",")
+                    if strategy.strip()
+                ]
+            )
+        else:
+            # Single strategy type value
+            flattened_strategies.append(st.strip().upper())
+
+    return flattened_strategies
+
+
 def build_configuration_overrides(
     ticker: Optional[List[str]] = None,
     ticker_2: Optional[str] = None,
@@ -138,7 +174,7 @@ def build_configuration_overrides(
 
     # Strategy types
     if strategy_type:
-        overrides["strategy_types"] = strategy_type
+        overrides["strategy_types"] = process_strategy_type_input(strategy_type)
 
     # Minimums configuration
     if min_trades or min_win_rate:
@@ -502,6 +538,7 @@ def show_config_preview(
     table.add_row("Use Hourly", str(config.use_hourly))
     table.add_row("Use 4-Hour", str(config.use_4hour))
     table.add_row("Use 2-Day", str(config.use_2day))
+    table.add_row("Refresh Data", str(config.refresh))
     table.add_row("Skip Analysis", str(config.skip_analysis))
 
     if config.minimums.win_rate:

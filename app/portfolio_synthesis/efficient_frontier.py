@@ -27,26 +27,34 @@ class OptimizationConfig:
 
     def __init__(self):
         # Data configuration
-        self.start_date = "2020-03-30"
-        self.end_date = "2025-09-30"
+        self.start_date = "2020-04-07"
+        self.end_date = "2025-10-08"
         self.use_max_period = (
             True  # If True, ignores date range and uses max available data
         )
 
         # Asset configuration
+        # self.assets = [
+        #     "AXON",
+        #     "TRMB",
+        #     "CSCO",
+        #     "TPR",
+        #     "SE",
+        #     "MA",
+        #     "BRK-B",
+        #     "VST",
+        #     "AVGO"
+        # ]
+
+        # Asset configuration
         self.assets = [
-            "NFLX",
-            "AXON",
-            "TRMB",
-            "RKLB",
-            "AMD",
-            "CSCO",
-            "UNH",
-            "TAL",
-            "MSFT",
-            "TPR"
-            # "SOL-USD",
+            "SMR",
+            "NVDA",
+            "MP",
+            "HIMS",
+            "PLTR",
             # "MSTR",
+            # "BTC-USD"
         ]
 
         # Business rules
@@ -209,11 +217,15 @@ def downside_deviation_batch(returns_matrix, target=0):
         np.ndarray: Downside deviation for each portfolio
     """
     downside_diff = np.minimum(0, returns_matrix - target)
-    return np.sqrt(np.mean(downside_diff**2, axis=1))
+    dd = np.sqrt(np.mean(downside_diff**2, axis=1))
+    dd[dd == 0] = 1e-10
+    return dd
 
 
 def downside_deviation(returns, target=0):
     downside_diff = np.minimum(0, returns - target)
+    if np.all(downside_diff == 0):
+        return 1e-10
     return np.sqrt((downside_diff**2).mean())
 
 

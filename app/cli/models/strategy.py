@@ -368,9 +368,29 @@ class StrategyConfig(BaseConfig):
 
     @validator("strategy_types", pre=True)
     def validate_strategy_types(cls, v):
-        """Ensure strategy_types is a list."""
+        """Ensure strategy_types is a list and handle comma-separated input."""
         if isinstance(v, str):
-            return [v]
+            # Handle comma-separated strings
+            if "," in v:
+                return [s.strip().upper() for s in v.split(",") if s.strip()]
+            else:
+                # Single string value
+                return [v.strip().upper()]
+        elif isinstance(v, list):
+            # Handle list input - ensure all values are properly formatted
+            processed = []
+            for item in v:
+                if isinstance(item, str):
+                    if "," in item:
+                        # Handle comma-separated strings within list items
+                        processed.extend(
+                            [s.strip().upper() for s in item.split(",") if s.strip()]
+                        )
+                    else:
+                        processed.append(item.strip().upper())
+                else:
+                    processed.append(item)
+            return processed
         return v
 
     @validator("fast_period_range", "slow_period_range", "signal_period_range")

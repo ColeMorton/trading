@@ -12,13 +12,20 @@ from app.tools.portfolio import StrategyConfig
 
 
 def generate_strategy_permutations(
-    strategies: List[StrategyConfig], min_strategies: int = 3
+    strategies: List[StrategyConfig],
+    min_strategies: int = 3,
+    max_strategies: Optional[int] = None,
+    max_permutations: Optional[int] = None,
 ) -> List[List[StrategyConfig]]:
     """Generate all valid permutations of strategies with at least min_strategies per permutation.
 
     Args:
         strategies (List[StrategyConfig]): List of all available strategies
         min_strategies (int): Minimum number of strategies per permutation
+        max_strategies (Optional[int]): Maximum number of strategies per permutation.
+            Defaults to min_strategies (exact size only) to prevent combinatorial explosion.
+        max_permutations (Optional[int]): Maximum number of permutations to generate.
+            Used for early termination to prevent memory issues.
 
     Returns:
         List[List[StrategyConfig]]: List of strategy permutations
@@ -34,13 +41,26 @@ def generate_strategy_permutations(
             f"min_strategies ({min_strategies}) cannot be greater than the number of strategies ({len(strategies)})"
         )
 
+    # Default to exact size if max_strategies not specified
+    if max_strategies is None:
+        max_strategies = min_strategies
+
+    if max_strategies < min_strategies:
+        raise ValueError(
+            f"max_strategies ({max_strategies}) cannot be less than min_strategies ({min_strategies})"
+        )
+
     permutations = []
 
-    # Generate all combinations from min_strategies to total number of strategies
-    for r in range(min_strategies, len(strategies) + 1):
+    # Generate combinations from min_strategies to max_strategies
+    for r in range(min_strategies, max_strategies + 1):
         for combo in combinations(range(len(strategies)), r):
             permutation = [strategies[i] for i in combo]
             permutations.append(permutation)
+
+            # Early termination to prevent combinatorial explosion
+            if max_permutations and len(permutations) >= max_permutations:
+                return permutations
 
     return permutations
 
@@ -119,18 +139,17 @@ def find_optimal_permutation(
     """
     log("Starting permutation analysis for optimization", "info")
 
-    # Generate all valid permutations
-    permutations = generate_strategy_permutations(strategies, min_strategies)
+    # Generate valid permutations with exact size to prevent combinatorial explosion
+    # max_strategies=min_strategies means we only test exact portfolio sizes
+    # max_permutations provides early termination for very large strategy universes
+    permutations = generate_strategy_permutations(
+        strategies,
+        min_strategies,
+        max_strategies=min_strategies,
+        max_permutations=max_permutations,
+    )
     total_permutations = len(permutations)
-    log(f"Generated {total_permutations} valid permutations", "info")
-
-    # Limit permutations if max_permutations is specified
-    if max_permutations and max_permutations < total_permutations:
-        log(f"Limiting analysis to {max_permutations} permutations", "info")
-        # Prioritize permutations with fewer strategies for efficiency
-        permutations.sort(key=len)
-        permutations = permutations[:max_permutations]
-        total_permutations = len(permutations)
+    log(f"Generated {total_permutations} permutations of size {min_strategies}", "info")
 
     # Track best permutation and its metrics
     best_permutation = None

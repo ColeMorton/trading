@@ -106,6 +106,7 @@ class MAStrategyService(BaseStrategyService):
             "USE_HOURLY": config.use_hourly,
             "USE_4HOUR": config.use_4hour,
             "USE_2DAY": config.use_2day,
+            "REFRESH": config.refresh,
             "MULTI_TICKER": is_multi_ticker,
             "USE_SCANNER": config.use_scanner,
             "SCANNER_LIST": config.scanner_list,

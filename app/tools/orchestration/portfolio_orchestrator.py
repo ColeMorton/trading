@@ -89,10 +89,8 @@ class PortfolioOrchestrator:
 
         try:
             project_root = Path(get_project_root())
-            export_dir = project_root / "data" / "outputs" / "portfolio_analysis"
-
-            if export_type != "portfolios":
-                export_dir = export_dir / export_type
+            # FIX: Use correct export directory - files are created in data/raw/ not data/outputs/
+            export_dir = project_root / "data" / "raw" / export_type
 
             # Look for files matching expected ticker+strategy combinations
             tickers = config.get("TICKER", [])
@@ -100,12 +98,16 @@ class PortfolioOrchestrator:
                 tickers = [tickers]
             strategies = config.get("STRATEGY_TYPES", ["SMA"])
 
+            # FIX: Determine timeframe suffix based on config
+            timeframe_suffix = "_H" if config.get("USE_HOURLY", False) else "_D"
+
             files_found = 0
             total_rows = 0
 
             for ticker in tickers:
                 for strategy in strategies:
-                    expected_filename = f"{ticker}_{strategy}.csv"
+                    # FIX: Include timeframe suffix in expected filename
+                    expected_filename = f"{ticker}{timeframe_suffix}_{strategy}.csv"
                     file_path = export_dir / expected_filename
 
                     if file_path.exists():

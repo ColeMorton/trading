@@ -68,7 +68,9 @@ def prepare_dataframe(
 
         if date_dtype == pl.String:
             log("Converting Date column from string to datetime", "info")
-            df = df.with_columns([pl.col("Date").str.to_datetime().alias("Date")])
+            df = df.with_columns(
+                [pl.col("Date").str.to_datetime().cast(pl.Datetime("ns")).alias("Date")]
+            )
         elif date_dtype == pl.Date:
             log("Converting Date column from date to datetime", "info")
             df = df.with_columns([pl.col("Date").cast(pl.Datetime("ns")).alias("Date")])

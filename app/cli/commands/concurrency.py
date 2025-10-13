@@ -7,7 +7,7 @@ trade history export, and portfolio interaction analysis.
 
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 import typer
 from rich import print as rprint
@@ -847,6 +847,1039 @@ def _save_portfolio_review_report(review_data: dict, filename: str):
 
     with open(filename, "w") as f:
         json.dump(review_data, f, indent=2)
+
+
+def _display_portfolio_size_comparison(size_results: dict, best_size: int) -> None:
+    """Display side-by-side comparison of portfolio size metrics.
+
+    Args:
+        size_results: Dictionary mapping portfolio size to metrics
+        best_size: The portfolio size with the best efficiency score
+    """
+    if not size_results:
+        return
+
+    # Create comparison table
+    comparison_table = Table(
+        title="📊 Portfolio Size Analysis Results", show_header=True
+    )
+    comparison_table.add_column("Portfolio\nSize", style="cyan", justify="center")
+    comparison_table.add_column("Efficiency\nScore", style="green", justify="right")
+    comparison_table.add_column("Diversification", style="yellow", justify="right")
+    comparison_table.add_column("Independence", style="blue", justify="right")
+    comparison_table.add_column("Activity", style="magenta", justify="right")
+    comparison_table.add_column("Avg\nExpectancy", style="bright_cyan", justify="right")
+    comparison_table.add_column("Risk\nConcentration", style="red", justify="right")
+
+    # Add rows for each tested size
+    for size in sorted(size_results.keys()):
+        metrics = size_results[size]
+
+        # Determine if this is the best size
+        is_best = size == best_size
+        marker = " 🏆" if is_best else ""
+
+        # Format size with marker
+        size_str = f"{size} strategies{marker}"
+
+        comparison_table.add_row(
+            size_str,
+            f"{metrics['efficiency_score']:.4f}",
+            f"{metrics['diversification_multiplier']:.3f}",
+            f"{metrics['independence_multiplier']:.3f}",
+            f"{metrics['activity_multiplier']:.3f}",
+            f"{metrics['average_expectancy']:.3f}",
+            f"{metrics['risk_concentration_index']:.3f}",
+        )
+
+    console.print(comparison_table)
+
+    # Show improvement summary if multiple sizes tested
+    if len(size_results) > 1:
+        sizes = sorted(size_results.keys())
+        baseline_efficiency = size_results[sizes[0]]["efficiency_score"]
+        best_efficiency = size_results[best_size]["efficiency_score"]
+        improvement_pct = (
+            ((best_efficiency - baseline_efficiency) / baseline_efficiency) * 100
+            if baseline_efficiency > 0
+            else 0
+        )
+
+        rprint(
+            f"\n[dim]Best: {best_size}-strategy portfolio (+{improvement_pct:+.1f}% efficiency vs {sizes[0]}-strategy)[/dim]\n"
+        )
+
+
+def _display_all_portfolio_compositions(size_results: dict, best_size: int) -> None:
+    """Display detailed strategy composition for each tested portfolio size.
+
+    Args:
+        size_results: Dictionary mapping portfolio size to metrics and strategies
+        best_size: The portfolio size with the best efficiency score
+    """
+    if not size_results:
+        return
+
+    rprint("[bold cyan]📋 Detailed Portfolio Compositions[/bold cyan]\n")
+
+    for size in sorted(size_results.keys()):
+        metrics = size_results[size]
+        strategies = metrics.get("strategies", [])
+
+        if not strategies:
+            continue
+
+        # Determine if this is the best size
+        is_best = size == best_size
+        marker = " 🏆" if is_best else ""
+
+        # Create table for this portfolio size
+        rprint(f"[bold]{size}-Strategy Portfolio{marker}[/bold]")
+        rprint(f"[dim]Efficiency Score: {metrics['efficiency_score']:.4f}[/dim]")
+
+        strategy_table = Table(show_header=True, title=None)
+        strategy_table.add_column("#", style="white", justify="right")
+        strategy_table.add_column("Strategy ID", style="cyan")
+        strategy_table.add_column("Score", style="green", justify="right")
+        strategy_table.add_column("Sharpe", style="yellow", justify="right")
+
+        for i, strategy in enumerate(strategies[:size], 1):
+            strategy_table.add_row(
+                str(i),
+                strategy["strategy_id"],
+                f"{strategy['score']:.2f}",
+                f"{strategy['sharpe_ratio']:.3f}",
+            )
+
+        console.print(strategy_table)
+        rprint("")  # Blank line between tables
+
+
+def _calculate_strategy_diversification_scores(strategies: list) -> dict:
+    """Calculate diversification score for each strategy based on type variety and parameter dissimilarity.
+
+    Higher scores indicate strategies that contribute more to portfolio diversification through:
+    - Rare strategy types (less common in the universe)
+    - Dissimilar parameter values (different from other strategies)
+
+    Args:
+        strategies: List of strategy dictionaries with strategy_id, strategy_type, fast_period, slow_period
+
+    Returns:
+        dict: Mapping of strategy_id to diversification_multiplier (1.0-2.0)
+    """
+    if not strategies:
+        return {}
+
+    diversification_scores = {}
+
+    # Count strategy types for rarity calculation
+    type_counts = {}
+    for s in strategies:
+        type_counts[s["strategy_type"]] = type_counts.get(s["strategy_type"], 0) + 1
+
+    for strategy in strategies:
+        # Base score starts at 1.0 (neutral)
+        div_score = 1.0
+
+        # Bonus for strategy type variety (up to +0.5)
+        strategy_type = strategy["strategy_type"]
+        # Less common types get higher bonus
+        type_rarity = 1.0 - (type_counts[strategy_type] / len(strategies))
+        div_score += 0.5 * type_rarity
+
+        # Bonus for parameter dissimilarity (up to +0.5)
+        fast = strategy["fast_period"]
+        slow = strategy["slow_period"]
+
+        # Calculate average parameter distance from other strategies
+        param_distances = []
+        for s in strategies:
+            if s["strategy_id"] != strategy["strategy_id"]:
+                # Euclidean distance in parameter space
+                dist = (
+                    (s["fast_period"] - fast) ** 2 + (s["slow_period"] - slow) ** 2
+                ) ** 0.5
+                param_distances.append(dist)
+
+        if param_distances:
+            avg_distance = sum(param_distances) / len(param_distances)
+            # Normalize to 0-0.5 range (assuming typical max distance of ~100)
+            # Use sigmoid-like function for smooth scaling
+            param_bonus = 0.5 * (1 - (1 / (1 + avg_distance / 50)))
+            div_score += param_bonus
+
+        diversification_scores[strategy["strategy_id"]] = div_score
+
+    return diversification_scores
+
+
+def _select_diversified_portfolio(
+    strategies: list,
+    diversification_scores: dict,
+    target_size: int,
+    verbose: bool = False,
+) -> list:
+    """Select portfolio with enforced strategy type diversity via stratified sampling.
+
+    Implements hard diversity constraints to ensure robust strategy type representation:
+    - If 3+ types available: minimum 1 from each type
+    - If 2 types available: minimum 30% allocation to minority type
+    - Within each type: select best strategies by (score × diversification_multiplier)
+
+    This prevents regime risk concentration from over-representing a single strategy type.
+
+    Args:
+        strategies: List of strategy dictionaries sorted by weighted score
+        diversification_scores: Dict mapping strategy_id to diversification multiplier
+        target_size: Target portfolio size (5, 7, or 9)
+        verbose: Enable detailed logging
+
+    Returns:
+        List of selected strategies with enforced diversity
+    """
+    if not strategies or target_size <= 0:
+        return []
+
+    if len(strategies) <= target_size:
+        return strategies
+
+    # Group strategies by type (strata)
+    strata = {}
+    for strategy in strategies:
+        stype = strategy["strategy_type"]
+        strata.setdefault(stype, []).append(strategy)
+
+    n_types = len(strata)
+
+    if verbose:
+        rprint(f"[dim]Stratified selection: {n_types} strategy types available[/dim]")
+        for stype, candidates in strata.items():
+            rprint(f"[dim]  {stype}: {len(candidates)} candidates[/dim]")
+
+    # Case 1: Single strategy type - no diversity possible
+    if n_types == 1:
+        if verbose:
+            rprint(
+                f"[yellow]⚠️ Only one strategy type available - diversity constraints cannot be applied[/yellow]"
+            )
+        return strategies[:target_size]
+
+    # Case 2: Two strategy types - enforce minimum 30% minority representation
+    if n_types == 2:
+        types_list = list(strata.keys())
+        type1, type2 = types_list[0], types_list[1]
+
+        # Sort each type by weighted score
+        for stype in strata:
+            strata[stype] = sorted(
+                strata[stype],
+                key=lambda x: x["score"]
+                * diversification_scores.get(x["strategy_id"], 1.0),
+                reverse=True,
+            )
+
+        # Determine majority and minority types
+        if len(strata[type1]) >= len(strata[type2]):
+            majority_type, minority_type = type1, type2
+        else:
+            majority_type, minority_type = type2, type1
+
+        # Enforce minimum 30% allocation to minority type
+        min_minority = max(1, int(target_size * 0.3))
+        max_majority = target_size - min_minority
+
+        # Select strategies
+        portfolio = []
+        portfolio.extend(strata[minority_type][:min_minority])
+        portfolio.extend(strata[majority_type][:max_majority])
+
+        if verbose:
+            rprint(
+                f"[green]✓ Diversity enforced: {len(strata[minority_type][:min_minority])} {minority_type} + {len(strata[majority_type][:max_majority])} {majority_type}[/green]"
+            )
+
+        return portfolio[:target_size]
+
+    # Case 3: Three or more types - guarantee at least 1 from each type
+    if n_types >= 3:
+        # Sort each stratum by weighted score
+        for stype in strata:
+            strata[stype] = sorted(
+                strata[stype],
+                key=lambda x: x["score"]
+                * diversification_scores.get(x["strategy_id"], 1.0),
+                reverse=True,
+            )
+
+        portfolio = []
+        remaining_slots = target_size
+
+        # Round 1: Select best strategy from each type (mandatory diversity)
+        mandatory_selections = {}
+        for stype in sorted(strata.keys()):
+            if strata[stype]:
+                best_strategy = strata[stype][0]
+                portfolio.append(best_strategy)
+                mandatory_selections[stype] = best_strategy["strategy_id"]
+                remaining_slots -= 1
+
+                if verbose:
+                    div_score = diversification_scores.get(
+                        best_strategy["strategy_id"], 1.0
+                    )
+                    weighted = best_strategy["score"] * div_score
+                    rprint(
+                        f"[dim]  Round 1: {stype} → {best_strategy['strategy_id']} (weighted: {weighted:.3f})[/dim]"
+                    )
+
+        # Round 2: Fill remaining slots from all types by weighted score
+        if remaining_slots > 0:
+            # Collect all non-selected strategies
+            remaining_candidates = []
+            for stype, candidates in strata.items():
+                for strategy in candidates:
+                    # Skip strategies already selected in round 1
+                    if strategy["strategy_id"] not in mandatory_selections.values():
+                        remaining_candidates.append(strategy)
+
+            # Sort by weighted score
+            remaining_candidates = sorted(
+                remaining_candidates,
+                key=lambda x: x["score"]
+                * diversification_scores.get(x["strategy_id"], 1.0),
+                reverse=True,
+            )
+
+            # Add top remaining candidates
+            additional_selections = remaining_candidates[:remaining_slots]
+            portfolio.extend(additional_selections)
+
+            if verbose:
+                rprint(
+                    f"[dim]  Round 2: Added {len(additional_selections)} strategies by weighted score[/dim]"
+                )
+
+        # Display final type distribution
+        if verbose:
+            final_type_counts = {}
+            for s in portfolio:
+                stype = s["strategy_type"]
+                final_type_counts[stype] = final_type_counts.get(stype, 0) + 1
+
+            rprint(f"[green]✓ Final portfolio diversity:[/green]")
+            for stype, count in sorted(final_type_counts.items()):
+                pct = (count / len(portfolio)) * 100
+                rprint(f"[green]    {stype}: {count} ({pct:.1f}%)[/green]")
+
+        return portfolio[:target_size]
+
+    # Fallback (should never reach here)
+    return strategies[:target_size]
+
+
+def _export_strategies_to_file(
+    asset: str, strategies: list, force_overwrite: bool = False
+) -> None:
+    """Export strategies to data/raw/strategies/{asset}.csv.
+
+    Args:
+        asset: Asset symbol (e.g., 'PLTR', 'NVDA')
+        strategies: List of strategy dictionaries with ticker, strategy_type, fast_period, slow_period
+        force_overwrite: If True, overwrite existing file. If False, skip if file exists.
+    """
+    import pandas as pd
+
+    export_path = Path(f"data/raw/strategies/{asset}.csv")
+
+    # Check overwrite conditions
+    if export_path.exists() and not force_overwrite:
+        rprint(
+            f"[dim]Export skipped: {export_path} already exists (use --export to overwrite)[/dim]"
+        )
+        return
+
+    # Load strategy data from filtered files
+    combined_rows = []
+    for strategy in strategies:
+        ticker = strategy["ticker"]
+        strat_type = strategy["strategy_type"]
+        fast = strategy["fast_period"]
+        slow = strategy["slow_period"]
+
+        # Read from filtered file
+        source_file = Path(f"data/raw/portfolios_filtered/{ticker}_D_{strat_type}.csv")
+
+        if not source_file.exists():
+            rprint(f"[yellow]⚠️ Source file not found: {source_file}[/yellow]")
+            continue
+
+        try:
+            df = pd.read_csv(source_file)
+
+            # Filter to matching strategy
+            matching = df[
+                (df["Ticker"] == ticker)
+                & (df["Strategy Type"] == strat_type)
+                & (df["Fast Period"] == fast)
+                & (df["Slow Period"] == slow)
+            ]
+
+            if not matching.empty:
+                combined_rows.append(matching.iloc[0])
+            else:
+                rprint(
+                    f"[yellow]⚠️ Strategy not found in {source_file.name}: {ticker}_{strat_type}_{fast}_{slow}[/yellow]"
+                )
+        except Exception as e:
+            rprint(f"[red]❌ Error reading {source_file}: {e}[/red]")
+            continue
+
+    # Combine and export
+    if combined_rows:
+        result_df = pd.DataFrame(combined_rows)
+
+        # Ensure directory exists
+        export_path.parent.mkdir(parents=True, exist_ok=True)
+
+        result_df.to_csv(export_path, index=False)
+        rprint(
+            f"[green]✓ Exported {len(combined_rows)} strategies to: {export_path}[/green]"
+        )
+    else:
+        rprint(f"[red]❌ No strategies found to export[/red]")
+
+
+@app.command()
+def construct(
+    asset: Optional[str] = typer.Argument(
+        None,
+        help="Asset symbol (e.g., MSFT, NVDA, BTC-USD) - omit when using -t/-t1/-t2",
+    ),
+    ticker: Optional[List[str]] = typer.Option(
+        None,
+        "--ticker",
+        "-t",
+        help="Ticker symbol(s) to construct portfolios for (multiple args or comma-separated: -t AAPL,MSFT or -t AAPL -t MSFT). Overrides ASSET if both provided.",
+    ),
+    ticker_1: Optional[str] = typer.Option(
+        None, "--ticker-1", "-t1", help="First ticker for synthetic pair analysis"
+    ),
+    ticker_2: Optional[str] = typer.Option(
+        None,
+        "--ticker-2",
+        "-t2",
+        help="Second ticker for synthetic pair analysis (automatically enables synthetic mode)",
+    ),
+    min_score: float = typer.Option(
+        1.0, "--min-score", help="Minimum Score threshold for strategy inclusion"
+    ),
+    profile: Optional[str] = typer.Option(
+        None, "--profile", "-p", help="Configuration profile to use"
+    ),
+    output_format: str = typer.Option(
+        "table", "--format", help="Output format: table, json, csv"
+    ),
+    save_portfolio: Optional[str] = typer.Option(
+        None, "--save", help="Save optimal portfolio to file"
+    ),
+    export: bool = typer.Option(
+        False,
+        "--export",
+        "-e",
+        help="Export strategies to data/raw/strategies/{TICKER}.csv (overwrites if exists)",
+    ),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable verbose output"
+    ),
+):
+    """Construct optimal portfolio from asset strategy universe.
+
+    Auto-discovers strategy files for the given asset and constructs the optimal
+    portfolio (5, 7, or 9 strategies) with the highest efficiency_score.
+
+    Examples:
+        trading-cli concurrency construct MSFT
+        trading-cli concurrency construct -t MSFT
+        trading-cli concurrency construct -t HIMS,NVDA,SMR,PLTR --export
+        trading-cli concurrency construct -t HIMS -t NVDA -t SMR --export
+        trading-cli concurrency construct -t1 NVDA -t2 QQQ --verbose
+        trading-cli concurrency construct -t1 BTC-USD -t2 ETH-USD --min-score 1.5
+    """
+    import json
+    import os
+    import tempfile
+
+    from app.concurrency.tools.asset_strategy_loader import AssetStrategyLoader
+
+    from ...concurrency.review import run_concurrency_review
+    from .strategy_utils import process_ticker_input
+
+    # Initialize loader
+    loader = AssetStrategyLoader()
+
+    try:
+        # Resolve asset name - priority order:
+        # 1. Synthetic mode: ticker_2 + ticker_1 (highest priority)
+        # 2. Ticker flag: -t / --ticker (overrides asset)
+        # 3. Direct asset argument (fallback)
+
+        if ticker_2 is not None:
+            # Synthetic mode: ticker_1 + ticker_2
+            if ticker_1 is None:
+                rprint(
+                    "[red]❌ Error: -t1 is required when using -t2 for synthetic pairs[/red]"
+                )
+                raise typer.Exit(1)
+
+            asset_names = [f"{ticker_1}_{ticker_2}"]
+            is_synthetic = True
+            rprint(
+                f"[bold]Constructing synthetic pair portfolio: {asset_names[0]}[/bold]"
+            )
+        elif ticker_1 is not None:
+            # Single ticker mode via -t1 flag
+            asset_names = [ticker_1]
+            is_synthetic = False
+            rprint(f"[bold]Constructing optimal portfolio for {asset_names[0]}[/bold]")
+        elif ticker is not None:
+            # Process ticker input (handles comma-separated and multiple args)
+            asset_names = process_ticker_input(ticker)
+            is_synthetic = False
+
+            if not asset_names:
+                rprint("[red]❌ Error: No valid tickers provided via -t flag[/red]")
+                raise typer.Exit(1)
+
+            if len(asset_names) == 1:
+                rprint(
+                    f"[bold]Constructing optimal portfolio for {asset_names[0]}[/bold]"
+                )
+            else:
+                rprint(
+                    f"[bold]Constructing optimal portfolios for {len(asset_names)} tickers: {', '.join(asset_names)}[/bold]"
+                )
+        elif asset is not None:
+            # Direct asset argument
+            asset_names = [asset]
+            is_synthetic = False
+            rprint(f"[bold]Constructing optimal portfolio for {asset_names[0]}[/bold]")
+        else:
+            rprint(
+                "[red]❌ Error: Must specify either ASSET argument or use -t/-t1/-t2 flags[/red]"
+            )
+            rprint("[dim]Examples:[/dim]")
+            rprint("[dim]  Single asset: trading-cli concurrency construct NVDA[/dim]")
+            rprint(
+                "[dim]  Multiple tickers: trading-cli concurrency construct -t HIMS,NVDA,SMR --export[/dim]"
+            )
+            rprint(
+                "[dim]  Synthetic pair: trading-cli concurrency construct -t1 NVDA -t2 QQQ[/dim]"
+            )
+            raise typer.Exit(1)
+
+        # Track results for multiple tickers
+        all_results = []
+
+        # Process each ticker
+        for ticker_idx, asset_name in enumerate(asset_names, 1):
+            # Show progress for multiple tickers
+            if len(asset_names) > 1:
+                rprint(f"\n[bold cyan]{'='*60}[/bold cyan]")
+                rprint(
+                    f"[bold cyan]Processing ticker {ticker_idx}/{len(asset_names)}: {asset_name}[/bold cyan]"
+                )
+                rprint(f"[bold cyan]{'='*60}[/bold cyan]\n")
+
+            # Validate asset feasibility
+            rprint(f"[dim]Filtering criteria: Score >= {min_score}[/dim]")
+
+            feasibility = loader.validate_asset_data(asset_name)
+
+            if not feasibility.get("viable_for_construction", False):
+                if "error" in feasibility:
+                    rprint(f"[red]❌ Error: {feasibility['error']}[/red]")
+                else:
+                    rprint(
+                        f"[red]❌ Error: Insufficient strategies for portfolio construction[/red]"
+                    )
+                    rprint(
+                        f"Available strategies with Score >= {min_score}: {feasibility.get('score_filtered_strategies', 0)}"
+                    )
+                    rprint(f"Need at least 5 strategies for portfolio construction")
+
+                # For multiple tickers, continue to next ticker; for single ticker, exit
+                if len(asset_names) > 1:
+                    rprint(
+                        f"[yellow]⚠️ Skipping {asset_name}, continuing with remaining tickers...[/yellow]"
+                    )
+                    continue
+                else:
+                    raise typer.Exit(1)
+
+            rprint(f"[green]✓ Feasibility check passed[/green]")
+            rprint(f"Available strategies: {feasibility['score_filtered_strategies']}")
+
+            # Load strategies and create temporary portfolio file
+            strategies = loader.load_strategies_for_asset(
+                asset_name, min_score=min_score
+            )
+
+            # Calculate diversification scores for strategy selection
+            rprint(f"[dim]Calculating diversification-weighted scores...[/dim]")
+            diversification_scores = _calculate_strategy_diversification_scores(
+                strategies
+            )
+
+            # Sort strategies by score * diversification_multiplier (descending)
+            # This prioritizes strategies with high performance AND high diversification contribution
+            strategies = sorted(
+                strategies,
+                key=lambda x: x["score"]
+                * diversification_scores.get(x["strategy_id"], 1.0),
+                reverse=True,
+            )
+
+            if verbose:
+                rprint(
+                    f"[dim]Loaded {len(strategies)} strategies, sorted by score × diversification (highest first)[/dim]"
+                )
+                if strategies:
+                    top_strat = strategies[0]
+                    top_div = diversification_scores.get(top_strat["strategy_id"], 1.0)
+                    rprint(
+                        f"[dim]Top strategy: {top_strat['strategy_id']} (Score: {top_strat['score']:.3f}, Div: {top_div:.3f}, Weighted: {top_strat['score'] * top_div:.3f})[/dim]"
+                    )
+                    if len(strategies) >= 5:
+                        rprint(f"[dim]Top 5 strategies by weighted score:[/dim]")
+                        for i, s in enumerate(strategies[:5], 1):
+                            div = diversification_scores.get(s["strategy_id"], 1.0)
+                            weighted = s["score"] * div
+                            rprint(
+                                f"[dim]  {i}. {s['strategy_id']}: Score={s['score']:.3f}, Div={div:.3f}, Weighted={weighted:.3f}[/dim]"
+                            )
+
+                        # Show type distribution
+                        rprint(f"[dim]Strategy type distribution in top 10:[/dim]")
+                        type_counts = {}
+                        for s in strategies[:10]:
+                            stype = s["strategy_type"]
+                            type_counts[stype] = type_counts.get(stype, 0) + 1
+                        for stype, count in sorted(type_counts.items()):
+                            rprint(f"[dim]  {stype}: {count}[/dim]")
+
+            # Optimization: If we have exactly 5, 7, or 9 strategies, note exact match
+            # but still run optimization to calculate efficiency_score
+            is_exact_match = len(strategies) in [5, 7, 9]
+            if is_exact_match:
+                rprint(
+                    f"[green]✓ Exact match: {len(strategies)} strategies available[/green]"
+                )
+                rprint(
+                    f"[dim]Running optimization to calculate efficiency metrics...[/dim]"
+                )
+
+            # Prepare JSON portfolios directory
+            import uuid
+
+            json_portfolios_dir = Path.cwd() / "json" / "portfolios"
+            json_portfolios_dir.mkdir(parents=True, exist_ok=True)
+
+            try:
+                # Test portfolio sizes 5, 7, 9 and find best efficiency_score
+                best_result = None
+                best_score = -1
+                best_size = None
+                size_results = {}  # Track comprehensive metrics for each size
+                temp_files_to_cleanup = []  # Track all temp files for cleanup
+
+                # Determine which sizes to test
+                # If exact match, only test that single size, otherwise test all viable sizes
+                sizes_to_test = [len(strategies)] if is_exact_match else [5, 7, 9]
+
+                for size in sizes_to_test:
+                    if len(strategies) >= size:
+                        if is_exact_match:
+                            rprint(
+                                f"[bold]Calculating efficiency metrics for {size} strategies[/bold]"
+                            )
+                            rprint(
+                                f"[dim]Running concurrency analysis (this may take 15-30 seconds)...[/dim]"
+                            )
+                        else:
+                            rprint(f"[bold]Testing portfolio size: {size}[/bold]")
+                            rprint(
+                                f"[dim]Analyzing {size}-strategy combinations (this may take 30-90 seconds)...[/dim]"
+                            )
+
+                        # ===== STRATIFIED SELECTION: Apply diversity constraints =====
+                        # Select strategies using stratified sampling for type diversity
+                        selected_strategies = _select_diversified_portfolio(
+                            strategies=strategies,
+                            diversification_scores=diversification_scores,
+                            target_size=size,
+                            verbose=verbose,
+                        )
+
+                        # Convert selected strategies to portfolio format
+                        size_portfolio_data = []
+                        for strategy in selected_strategies:
+                            strategy_dict = {
+                                "strategy_id": strategy["strategy_id"],
+                                "ticker": strategy["ticker"],
+                                "strategy_type": strategy["strategy_type"],
+                                "fast_period": strategy["fast_period"],
+                                "slow_period": strategy["slow_period"],
+                                "allocation": strategy["allocation"],
+                                # Add PORTFOLIO_STATS dict to match CSV structure
+                                "PORTFOLIO_STATS": {
+                                    "Score": strategy["score"],
+                                    "Expectancy per Trade": strategy[
+                                        "expectancy_per_trade"
+                                    ],
+                                    "Win Rate [%]": strategy["win_rate"],
+                                    "Profit Factor": strategy["profit_factor"],
+                                    "Sharpe Ratio": strategy["sharpe_ratio"],
+                                    "Total Return [%]": strategy["total_return"],
+                                    "Max Drawdown [%]": strategy["max_drawdown"],
+                                },
+                            }
+
+                            # Add signal_period for MACD strategies if present
+                            if (
+                                "signal_period" in strategy
+                                and strategy["signal_period"] is not None
+                            ):
+                                strategy_dict["signal_period"] = strategy[
+                                    "signal_period"
+                                ]
+
+                            size_portfolio_data.append(strategy_dict)
+
+                        # Create temporary portfolio file for THIS SIZE
+                        size_temp_filename = (
+                            f"construct_temp_{uuid.uuid4().hex[:8]}_size{size}.json"
+                        )
+                        size_temp_path = json_portfolios_dir / size_temp_filename
+
+                        with open(size_temp_path, "w") as temp_file:
+                            json.dump(size_portfolio_data, temp_file, indent=2)
+
+                        temp_files_to_cleanup.append(size_temp_path)
+
+                        if verbose:
+                            rprint(
+                                f"[dim]Created size-specific temp file: {size_temp_filename} with {len(size_portfolio_data)} strategies[/dim]"
+                            )
+                        # ===== END BUG FIX =====
+
+                        # Run direct concurrency analysis (no optimization)
+                        config_overrides = {
+                            "PORTFOLIO": size_temp_filename,  # Use size-specific filename
+                            "OPTIMIZE": False,  # Use direct analysis path for consistency with analyze command
+                            "VISUALIZATION": False,
+                            "PARALLEL_PROCESSING": False,
+                            "REFRESH": False,  # Use cached data for performance
+                            # Performance optimizations for construct command
+                            "MC_INCLUDE_IN_REPORTS": False,  # Disable Monte Carlo (major speedup)
+                            "REPORT_INCLUDES": {  # Minimal reporting
+                                "TICKER_METRICS": False,
+                                "STRATEGIES": False,
+                                "STRATEGY_RELATIONSHIPS": False,
+                                "ALLOCATION": False,
+                            },
+                        }
+
+                        # Run direct analysis on THIS SIZE
+                        success = run_concurrency_review(
+                            size_temp_filename, config_overrides=config_overrides
+                        )
+
+                        if success:
+                            # Load results from regular JSON report file
+                            import json
+
+                            report_file = (
+                                Path.cwd()
+                                / "json"
+                                / "concurrency"
+                                / f"{size_temp_filename.replace('.json', '')}.json"
+                            )
+
+                            efficiency_score = 0.0
+                            metrics_loaded = False
+
+                            if report_file.exists():
+                                try:
+                                    with open(report_file, "r") as f:
+                                        report_data = json.load(f)
+
+                                    # Extract metrics from nested report structure
+                                    portfolio_metrics = report_data.get(
+                                        "portfolio_metrics", {}
+                                    )
+                                    efficiency_metrics = portfolio_metrics.get(
+                                        "efficiency", {}
+                                    )
+                                    risk_metrics = portfolio_metrics.get(
+                                        "risk", {}
+                                    ).get("portfolio_metrics", {})
+
+                                    # Extract efficiency score and multipliers from nested structure
+                                    efficiency_score = efficiency_metrics.get(
+                                        "efficiency_score", {}
+                                    ).get("value", 0.0)
+                                    diversification = (
+                                        efficiency_metrics.get("multipliers", {})
+                                        .get("diversification", {})
+                                        .get("value", 0.0)
+                                    )
+                                    independence = (
+                                        efficiency_metrics.get("multipliers", {})
+                                        .get("independence", {})
+                                        .get("value", 0.0)
+                                    )
+                                    activity = (
+                                        efficiency_metrics.get("multipliers", {})
+                                        .get("activity", {})
+                                        .get("value", 0.0)
+                                    )
+                                    total_expectancy = efficiency_metrics.get(
+                                        "expectancy", {}
+                                    ).get("value", 0.0)
+                                    average_expectancy = (
+                                        total_expectancy / size if size > 0 else 0.0
+                                    )
+                                    risk_concentration = risk_metrics.get(
+                                        "risk_concentration_index", {}
+                                    ).get("value", 0.0)
+
+                                    metrics_loaded = True
+
+                                    # Store comprehensive metrics for this size
+                                    size_results[size] = {
+                                        "efficiency_score": efficiency_score,
+                                        "diversification_multiplier": diversification,
+                                        "independence_multiplier": independence,
+                                        "activity_multiplier": activity,
+                                        "total_expectancy": total_expectancy,
+                                        "average_expectancy": average_expectancy,
+                                        "weighted_efficiency": efficiency_score,  # Use efficiency_score as weighted_efficiency
+                                        "risk_concentration_index": risk_concentration,
+                                        "strategies": selected_strategies,  # Include selected strategy list for detailed display
+                                    }
+
+                                    if verbose:
+                                        rprint(
+                                            f"[dim]✓ Loaded metrics from: {report_file.name}[/dim]"
+                                        )
+                                        rprint(
+                                            f"[dim]   Efficiency: {efficiency_score:.4f}, Div: {diversification:.3f}, Ind: {independence:.3f}, Activity: {activity:.3f}[/dim]"
+                                        )
+
+                                except Exception as e:
+                                    rprint(
+                                        f"[yellow]⚠️ Could not load analysis results: {e}[/yellow]"
+                                    )
+                                    if verbose:
+                                        import traceback
+
+                                        rprint(f"[dim]{traceback.format_exc()}[/dim]")
+                            else:
+                                rprint(
+                                    f"[yellow]⚠️ Analysis report not generated: {report_file.name}[/yellow]"
+                                )
+                                if verbose:
+                                    rprint(
+                                        f"[dim]   Expected location: {report_file}[/dim]"
+                                    )
+                                    rprint(
+                                        f"[dim]   Checking if directory exists: {report_file.parent.exists()}[/dim]"
+                                    )
+
+                            # Only use this result if metrics were successfully loaded
+                            if metrics_loaded and efficiency_score > best_score:
+                                best_score = efficiency_score
+                                best_size = size
+                                best_result = {
+                                    "size": size,
+                                    "efficiency_score": efficiency_score,
+                                    "strategies": selected_strategies,  # Diversified strategy selection
+                                }
+                            elif not metrics_loaded:
+                                # If no metrics loaded, still create a result but mark it
+                                rprint(
+                                    f"[dim]   Using fallback: Will display portfolio without efficiency metrics[/dim]"
+                                )
+                                if best_result is None:
+                                    # Create a basic result without metrics
+                                    best_result = {
+                                        "size": size,
+                                        "efficiency_score": None,  # Explicitly None to distinguish from 0.0
+                                        "strategies": selected_strategies,
+                                    }
+
+                if best_result:
+                    # Display portfolio size comparison if multiple sizes were tested
+                    if len(size_results) > 1:
+                        rprint("")  # Blank line for spacing
+                        _display_portfolio_size_comparison(size_results, best_size)
+
+                        # Display detailed strategy compositions for all portfolio sizes
+                        _display_all_portfolio_compositions(size_results, best_size)
+
+                    # Display results
+                    rprint(f"[bold green]🏆 Optimal Portfolio Constructed[/bold green]")
+                    rprint(f"Asset: {asset_name}")
+                    rprint(f"Portfolio Size: {best_result['size']} strategies")
+
+                    # Handle efficiency score display - None means metrics weren't generated
+                    if best_result["efficiency_score"] is not None:
+                        rprint(
+                            f"Efficiency Score: {best_result['efficiency_score']:.4f}"
+                        )
+                    else:
+                        rprint(
+                            f"Efficiency Score: [yellow]N/A (optimization metrics not generated)[/yellow]"
+                        )
+
+                    rprint(f"Total Strategies Evaluated: {len(strategies)}")
+
+                    # Display strategy composition (simplified)
+                    # Note: If multiple sizes were tested, detailed tables are already shown above
+                    if output_format == "table":
+                        # Skip duplicate table if already displayed above
+                        if len(size_results) <= 1:
+                            # Only show table if single size (no comparison was done)
+                            strategy_table = Table(show_header=True)
+                            strategy_table.add_column(
+                                "#", style="white", justify="right"
+                            )
+                            strategy_table.add_column("Strategy ID", style="cyan")
+                            strategy_table.add_column(
+                                "Score", style="green", justify="right"
+                            )
+                            strategy_table.add_column(
+                                "Sharpe", style="yellow", justify="right"
+                            )
+
+                            for i, strategy in enumerate(
+                                best_result["strategies"][: best_result["size"]], 1
+                            ):
+                                strategy_table.add_row(
+                                    str(i),
+                                    strategy["strategy_id"],
+                                    f"{strategy['score']:.2f}",
+                                    f"{strategy['sharpe_ratio']:.3f}",
+                                )
+                            console.print(strategy_table)
+
+                    elif output_format == "json":
+                        result_json = {
+                            "asset": asset_name,
+                            "optimal_size": best_result["size"],
+                            "efficiency_score": best_result["efficiency_score"],
+                            "strategies": [
+                                {
+                                    "strategy_id": s["strategy_id"],
+                                    "score": s["score"],
+                                    "sharpe_ratio": s["sharpe_ratio"],
+                                }
+                                for s in best_result["strategies"][
+                                    : best_result["size"]
+                                ]
+                            ],
+                        }
+                        rprint(json.dumps(result_json, indent=2))
+
+                    # Export strategies if requested or if file doesn't exist
+                    if export or (
+                        not Path(f"data/raw/strategies/{asset_name}.csv").exists()
+                    ):
+                        _export_strategies_to_file(
+                            asset_name,
+                            best_result["strategies"][: best_result["size"]],
+                            force_overwrite=export,
+                        )
+
+                    # Store result for this ticker
+                    all_results.append(
+                        {
+                            "asset": asset_name,
+                            "success": True,
+                            "portfolio_size": best_result["size"],
+                            "efficiency_score": best_result["efficiency_score"],
+                            "strategies_evaluated": len(strategies),
+                        }
+                    )
+
+                else:
+                    rprint(
+                        f"[red]❌ Failed to construct viable portfolio for {asset_name}[/red]"
+                    )
+                    all_results.append(
+                        {
+                            "asset": asset_name,
+                            "success": False,
+                            "error": "Failed to construct viable portfolio",
+                        }
+                    )
+
+                    # For single ticker, exit immediately; for multiple, continue
+                    if len(asset_names) == 1:
+                        raise typer.Exit(1)
+
+            finally:
+                # Clean up ALL temporary files
+                for temp_file in temp_files_to_cleanup:
+                    if temp_file.exists():
+                        temp_file.unlink()
+                        if verbose:
+                            rprint(f"[dim]Cleaned up: {temp_file.name}[/dim]")
+
+        # Display summary for multiple tickers
+        if len(asset_names) > 1:
+            rprint(f"\n[bold cyan]{'='*60}[/bold cyan]")
+            rprint(
+                f"[bold cyan]Summary: Processed {len(asset_names)} Tickers[/bold cyan]"
+            )
+            rprint(f"[bold cyan]{'='*60}[/bold cyan]\n")
+
+            successful = [r for r in all_results if r["success"]]
+            failed = [r for r in all_results if not r["success"]]
+
+            if successful:
+                rprint(
+                    f"[green]✓ Successfully constructed {len(successful)} portfolios:[/green]"
+                )
+                for result in successful:
+                    efficiency_display = (
+                        f"{result['efficiency_score']:.4f}"
+                        if result["efficiency_score"] is not None
+                        else "N/A"
+                    )
+                    rprint(
+                        f"  • {result['asset']}: {result['portfolio_size']} strategies (Efficiency: {efficiency_display})"
+                    )
+
+            if failed:
+                rprint(f"\n[red]✗ Failed to construct {len(failed)} portfolios:[/red]")
+                for result in failed:
+                    rprint(
+                        f"  • {result['asset']}: {result.get('error', 'Unknown error')}"
+                    )
+
+            rprint(
+                f"\n[bold]Overall Success Rate: {len(successful)}/{len(asset_names)} ({len(successful)/len(asset_names)*100:.1f}%)[/bold]"
+            )
+
+    except Exception as e:
+        rprint(f"[red]❌ Construction failed: {e}[/red]")
+        if verbose:
+            import traceback
+
+            rprint(traceback.format_exc())
+        raise typer.Exit(1)
 
 
 @app.command()

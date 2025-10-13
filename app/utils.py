@@ -113,20 +113,30 @@ def backtest_strategy(
         # Convert polars DataFrame to pandas DataFrame for vectorbt
         data_pd = data.to_pandas()
 
+        # Position column is a STATE (1=in, 0=out), but vectorbt needs TRANSITIONS
+        # Detect when Position changes from 0->1 (entry) and 1->0 (exit)
+        position_shifted = data_pd["Position"].shift(1).fillna(0)
+
         if config.get("SHORT", False):
+            # Short: enter when Position changes to 1, exit when returns to 0
+            short_entries = (data_pd["Position"] == 1) & (position_shifted == 0)
+            short_exits = (data_pd["Position"] == 0) & (position_shifted == 1)
             portfolio = vbt.Portfolio.from_signals(
                 close=data_pd["Close"],
-                short_entries=data_pd["Signal"] == 1,
-                short_exits=data_pd["Signal"] == 0,
+                short_entries=short_entries,
+                short_exits=short_exits,
                 init_cash=1000,
                 fees=0.001,
                 freq=freq,
             )
         else:
+            # Long: enter when Position changes to 1, exit when returns to 0
+            entries = (data_pd["Position"] == 1) & (position_shifted == 0)
+            exits = (data_pd["Position"] == 0) & (position_shifted == 1)
             portfolio = vbt.Portfolio.from_signals(
                 close=data_pd["Close"],
-                entries=data_pd["Signal"] == 1,
-                exits=data_pd["Signal"] == 0,
+                entries=entries,
+                exits=exits,
                 init_cash=1000,
                 fees=0.001,
                 freq=freq,

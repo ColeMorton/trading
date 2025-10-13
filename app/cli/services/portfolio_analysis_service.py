@@ -612,3 +612,34 @@ class PortfolioAnalysisService:
             "Max Drawdown [%]",  # Position 30
             "Total Trades",  # Position 9
         ]
+
+    def export_to_csv(self, df: pd.DataFrame, output_dir: str) -> Tuple[bool, str]:
+        """
+        Export DataFrame to timestamped CSV file.
+
+        Args:
+            df: DataFrame to export
+            output_dir: Base output directory path
+
+        Returns:
+            Tuple of (success: bool, file_path: str)
+        """
+        from datetime import datetime
+
+        if df.empty:
+            raise ValueError("Cannot export empty DataFrame")
+
+        # Create output directory if it doesn't exist
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+
+        # Generate timestamped filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{timestamp}.csv"
+        file_path = output_path / filename
+
+        # Export standardized CSV
+        standardized_df = self._standardize_output_schema(df)
+        standardized_df.to_csv(file_path, index=False)
+
+        return True, str(file_path)
