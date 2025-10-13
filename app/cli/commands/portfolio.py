@@ -16,8 +16,22 @@ from rich.console import Console
 from rich.table import Table
 
 from app.tools.console_logging import ConsoleLogger
+from app.tools.portfolio.aggregation_logic import (
+    aggregate_by_strategy,
+    aggregate_by_ticker,
+)
+from app.tools.portfolio.config_preview import (
+    show_portfolio_config_preview,
+    show_portfolio_synthesis_config_preview,
+    show_processing_config_preview,
+)
 from app.tools.portfolio.csv_generators import generate_csv_output_for_portfolios
 from app.tools.portfolio.data_loaders import load_strategies_from_raw_csv
+from app.tools.portfolio.file_utils import extract_file_metadata, save_aggregation_csv
+from app.tools.portfolio.metrics_calculators import (
+    calculate_summary_stats,
+    update_breadth_metrics,
+)
 from app.tools.portfolio.status_filters import (
     determine_portfolio_status,
     filter_entry_strategies,
@@ -112,7 +126,7 @@ def update(
             )
 
         if dry_run:
-            _show_portfolio_config_preview(config, console)
+            show_portfolio_config_preview(config, console)
             return
 
         console.debug("Loading portfolio processing module...")
@@ -229,7 +243,7 @@ def process(
             )
 
         if dry_run:
-            _show_processing_config_preview(config, console)
+            show_processing_config_preview(config, console)
             return
 
         console.heading("Processing Portfolio Files", level=1)
@@ -542,23 +556,23 @@ def aggregate(
                 processed_files += 1
 
                 # Extract metadata from filename
-                file_info = _extract_file_metadata(csv_file.name)
+                file_info = extract_file_metadata(csv_file.name)
 
                 # Aggregate by ticker if enabled
                 if config.aggregate_by_ticker:
-                    _aggregate_by_ticker(
+                    aggregate_by_ticker(
                         df, aggregation_results["by_ticker"], file_info
                     )
 
                 # Aggregate by strategy if enabled
                 if config.aggregate_by_strategy:
-                    _aggregate_by_strategy(
+                    aggregate_by_strategy(
                         df, aggregation_results["by_strategy"], file_info
                     )
 
                 # Update breadth metrics if enabled
                 if config.calculate_breadth_metrics:
-                    _update_breadth_metrics(
+                    update_breadth_metrics(
                         df, aggregation_results["breadth_metrics"], file_info
                     )
 
@@ -567,7 +581,7 @@ def aggregate(
                 continue
 
         # Calculate final aggregated metrics
-        _calculate_summary_stats(aggregation_results, processed_files, total_rows)
+        calculate_summary_stats(aggregation_results, processed_files, total_rows)
 
         # Display aggregation results
         _display_aggregation_results(aggregation_results, config, console)
@@ -599,7 +613,7 @@ def aggregate(
                 console.success(f"Results saved to JSON: {output_path}")
             else:
                 # Save as CSV (flattened format)
-                _save_aggregation_csv(aggregation_results, output_path)
+                save_aggregation_csv(aggregation_results, output_path)
                 console.success(f"Results saved to CSV: {output_path}")
 
         console.success("Portfolio aggregation completed!")
@@ -829,7 +843,7 @@ def synthesize(
             raise typer.Exit(1)
 
         if dry_run:
-            _show_portfolio_synthesis_config_preview(config, console)
+            show_portfolio_synthesis_config_preview(config, console)
             return
 
         if global_verbose:
@@ -1171,48 +1185,6 @@ def review(
         raise typer.Exit(1)
 
 
-def _show_portfolio_config_preview(config: PortfolioConfig, console: ConsoleLogger):
-    """Display portfolio configuration preview for dry run."""
-    table = Table(title="Portfolio Configuration Preview", show_header=True)
-    table.add_column("Parameter", style="cyan", no_wrap=True)
-    table.add_column("Value", style="green")
-
-    table.add_row("Portfolio File", str(config.portfolio))
-    table.add_row("Refresh Data", str(config.refresh))
-    table.add_row("Direction", config.direction)
-    table.add_row("Sort By", config.sort_by)
-    table.add_row("Sort Ascending", str(config.sort_ascending))
-    table.add_row("Use Extended Schema", str(config.use_extended_schema))
-    table.add_row("Export Equity Data", str(config.equity_data.export))
-
-    if config.equity_data.export:
-        table.add_row("Equity Metric", config.equity_data.metric)
-        table.add_row(
-            "Force Fresh Analysis", str(config.equity_data.force_fresh_analysis)
-        )
-
-    console.table(table)
-    console.warning("This is a dry run. Use --no-dry-run to execute.")
-
-
-def _show_processing_config_preview(
-    config: PortfolioProcessingConfig, console: ConsoleLogger
-):
-    """Display portfolio processing configuration preview."""
-    table = Table(title="Portfolio Processing Configuration Preview", show_header=True)
-    table.add_column("Parameter", style="cyan")
-    table.add_column("Value", style="green")
-
-    table.add_row("Input Directory", str(config.input_dir))
-    table.add_row("Output Directory", str(config.output_dir))
-    table.add_row("Export CSV", str(config.export_csv))
-    table.add_row("Export JSON", str(config.export_json))
-    table.add_row("Validate Schemas", str(config.validate_schemas))
-    table.add_row("Process Synthetic Tickers", str(config.process_synthetic_tickers))
-    table.add_row("Normalize Data", str(config.normalize_data))
-
-    console.table(table)
-    console.warning("This is a dry run. Use --no-dry-run to execute.")
 
 
 def _display_processing_summary(summary: dict, console: ConsoleLogger):
@@ -1269,252 +1241,6 @@ def _display_processing_summary(summary: dict, console: ConsoleLogger):
         console.table(files_table)
 
 
-def _extract_file_metadata(filename: str) -> dict:
-    """Extract metadata from portfolio filename."""
-    # Example: AAPL_D_SMA.csv -> ticker=AAPL, timeframe=D, strategy=SMA
-    parts = filename.replace(".csv", "").split("_")
-
-    metadata = {
-        "filename": filename,
-        "ticker": parts[0] if len(parts) > 0 else "UNKNOWN",
-        "timeframe": parts[1] if len(parts) > 1 else "D",
-        "strategy": parts[2] if len(parts) > 2 else "SMA",
-    }
-
-    return metadata
-
-
-def _aggregate_by_ticker(df: pd.DataFrame, ticker_aggregation: dict, file_info: dict):
-    """Aggregate portfolio data by ticker symbol."""
-    ticker = file_info["ticker"]
-
-    if ticker not in ticker_aggregation:
-        ticker_aggregation[ticker] = {
-            "total_strategies": 0,
-            "total_rows": 0,
-            "avg_score": 0,
-            "avg_win_rate": 0,
-            "avg_return": 0,
-            "best_strategy": None,
-            "best_score": 0,
-            "strategy_types": set(),
-            "timeframes": set(),
-        }
-
-    ticker_data = ticker_aggregation[ticker]
-
-    # Update counts
-    ticker_data["total_strategies"] += 1
-    ticker_data["total_rows"] += len(df)
-    ticker_data["strategy_types"].add(file_info["strategy"])
-    ticker_data["timeframes"].add(file_info["timeframe"])
-
-    # Calculate metrics if data exists
-    if len(df) > 0:
-        # Get top strategy from this file
-        if "Score" in df.columns:
-            top_row = df.loc[df["Score"].idxmax()]
-            score = top_row.get("Score", 0)
-
-            # Update averages (running average)
-            current_avg_score = ticker_data["avg_score"]
-            new_avg_score = (
-                (current_avg_score * (ticker_data["total_strategies"] - 1)) + score
-            ) / ticker_data["total_strategies"]
-            ticker_data["avg_score"] = new_avg_score
-
-            # Update best strategy if this one is better
-            if score > ticker_data["best_score"]:
-                ticker_data["best_score"] = score
-                ticker_data["best_strategy"] = {
-                    "filename": file_info["filename"],
-                    "strategy": file_info["strategy"],
-                    "score": score,
-                    "win_rate": top_row.get("Win Rate [%]", 0),
-                    "total_return": top_row.get("Total Return [%]", 0),
-                    "trades": top_row.get("Total Trades", 0),
-                }
-
-            # Update other averages
-            if "Win Rate [%]" in df.columns:
-                avg_win_rate = df["Win Rate [%]"].mean()
-                current_avg_wr = ticker_data["avg_win_rate"]
-                ticker_data["avg_win_rate"] = (
-                    (current_avg_wr * (ticker_data["total_strategies"] - 1))
-                    + avg_win_rate
-                ) / ticker_data["total_strategies"]
-
-            if "Total Return [%]" in df.columns:
-                avg_return = df["Total Return [%]"].mean()
-                current_avg_ret = ticker_data["avg_return"]
-                ticker_data["avg_return"] = (
-                    (current_avg_ret * (ticker_data["total_strategies"] - 1))
-                    + avg_return
-                ) / ticker_data["total_strategies"]
-
-
-def _aggregate_by_strategy(
-    df: pd.DataFrame, strategy_aggregation: dict, file_info: dict
-):
-    """Aggregate portfolio data by strategy type."""
-    strategy = file_info["strategy"]
-
-    if strategy not in strategy_aggregation:
-        strategy_aggregation[strategy] = {
-            "total_files": 0,
-            "total_rows": 0,
-            "avg_score": 0,
-            "avg_win_rate": 0,
-            "avg_return": 0,
-            "best_performer": None,
-            "best_score": 0,
-            "tickers": set(),
-            "timeframes": set(),
-        }
-
-    strategy_data = strategy_aggregation[strategy]
-
-    # Update counts
-    strategy_data["total_files"] += 1
-    strategy_data["total_rows"] += len(df)
-    strategy_data["tickers"].add(file_info["ticker"])
-    strategy_data["timeframes"].add(file_info["timeframe"])
-
-    # Calculate metrics if data exists
-    if len(df) > 0 and "Score" in df.columns:
-        # Get metrics from this file
-        avg_score = df["Score"].mean()
-        max_score = df["Score"].max()
-
-        # Update running averages
-        current_files = strategy_data["total_files"]
-        current_avg = strategy_data["avg_score"]
-        strategy_data["avg_score"] = (
-            (current_avg * (current_files - 1)) + avg_score
-        ) / current_files
-
-        # Update best performer if this file has better score
-        if max_score > strategy_data["best_score"]:
-            best_row = df.loc[df["Score"].idxmax()]
-            strategy_data["best_score"] = max_score
-            strategy_data["best_performer"] = {
-                "filename": file_info["filename"],
-                "ticker": file_info["ticker"],
-                "score": max_score,
-                "win_rate": best_row.get("Win Rate [%]", 0),
-                "total_return": best_row.get("Total Return [%]", 0),
-                "trades": best_row.get("Total Trades", 0),
-            }
-
-        # Update other metrics
-        if "Win Rate [%]" in df.columns:
-            avg_wr = df["Win Rate [%]"].mean()
-            current_avg_wr = strategy_data["avg_win_rate"]
-            strategy_data["avg_win_rate"] = (
-                (current_avg_wr * (current_files - 1)) + avg_wr
-            ) / current_files
-
-        if "Total Return [%]" in df.columns:
-            avg_ret = df["Total Return [%]"].mean()
-            current_avg_ret = strategy_data["avg_return"]
-            strategy_data["avg_return"] = (
-                (current_avg_ret * (current_files - 1)) + avg_ret
-            ) / current_files
-
-
-def _update_breadth_metrics(df: pd.DataFrame, breadth_metrics: dict, file_info: dict):
-    """Update breadth metrics across all portfolios."""
-    if len(df) == 0:
-        return
-
-    # Initialize breadth metrics if empty
-    if not breadth_metrics:
-        breadth_metrics.update(
-            {
-                "total_strategies": 0,
-                "profitable_strategies": 0,
-                "high_score_strategies": 0,  # Score > 1.0
-                "win_rate_distribution": {"high": 0, "medium": 0, "low": 0},
-                "strategy_distribution": {},
-                "ticker_coverage": set(),
-                "average_metrics": {"score": [], "win_rate": [], "return": []},
-            }
-        )
-
-    for _, row in df.iterrows():
-        breadth_metrics["total_strategies"] += 1
-
-        score = row.get("Score", 0)
-        win_rate = row.get("Win Rate [%]", 0)
-        total_return = row.get("Total Return [%]", 0)
-
-        # Count profitable strategies
-        if total_return > 0:
-            breadth_metrics["profitable_strategies"] += 1
-
-        # Count high score strategies
-        if score > 1.0:
-            breadth_metrics["high_score_strategies"] += 1
-
-        # Win rate distribution
-        if win_rate >= 60:
-            breadth_metrics["win_rate_distribution"]["high"] += 1
-        elif win_rate >= 40:
-            breadth_metrics["win_rate_distribution"]["medium"] += 1
-        else:
-            breadth_metrics["win_rate_distribution"]["low"] += 1
-
-        # Strategy distribution
-        strategy = file_info["strategy"]
-        if strategy not in breadth_metrics["strategy_distribution"]:
-            breadth_metrics["strategy_distribution"][strategy] = 0
-        breadth_metrics["strategy_distribution"][strategy] += 1
-
-        # Add to averages
-        breadth_metrics["average_metrics"]["score"].append(score)
-        breadth_metrics["average_metrics"]["win_rate"].append(win_rate)
-        breadth_metrics["average_metrics"]["return"].append(total_return)
-
-    # Add ticker to coverage
-    breadth_metrics["ticker_coverage"].add(file_info["ticker"])
-
-
-def _calculate_summary_stats(
-    aggregation_results: dict, processed_files: int, total_rows: int
-):
-    """Calculate final summary statistics for aggregation."""
-    summary = aggregation_results["summary_stats"]
-
-    summary["processed_files"] = processed_files
-    summary["total_rows"] = total_rows
-    summary["unique_tickers"] = len(aggregation_results["by_ticker"])
-    summary["unique_strategies"] = len(aggregation_results["by_strategy"])
-
-    # Calculate breadth metrics summary
-    breadth = aggregation_results["breadth_metrics"]
-    if breadth:
-        total_strategies = breadth["total_strategies"]
-        if total_strategies > 0:
-            summary["profitability_rate"] = (
-                breadth["profitable_strategies"] / total_strategies
-            ) * 100
-            summary["high_score_rate"] = (
-                breadth["high_score_strategies"] / total_strategies
-            ) * 100
-
-            # Calculate average metrics
-            if breadth["average_metrics"]["score"]:
-                summary["overall_avg_score"] = sum(
-                    breadth["average_metrics"]["score"]
-                ) / len(breadth["average_metrics"]["score"])
-            if breadth["average_metrics"]["win_rate"]:
-                summary["overall_avg_win_rate"] = sum(
-                    breadth["average_metrics"]["win_rate"]
-                ) / len(breadth["average_metrics"]["win_rate"])
-            if breadth["average_metrics"]["return"]:
-                summary["overall_avg_return"] = sum(
-                    breadth["average_metrics"]["return"]
-                ) / len(breadth["average_metrics"]["return"])
 
 
 def _display_aggregation_results(
@@ -1608,119 +1334,6 @@ def _display_aggregation_results(
         console.table(strategy_table)
 
 
-def _save_aggregation_csv(aggregation_results: dict, output_path: Path):
-    """Save aggregation results to CSV format."""
-    import pandas as pd
-
-    # Create a comprehensive CSV with key metrics
-    rows = []
-
-    # Add ticker aggregation data
-    for ticker, data in aggregation_results.get("by_ticker", {}).items():
-        row = {
-            "Type": "Ticker",
-            "Name": ticker,
-            "Total_Strategies": data["total_strategies"],
-            "Avg_Score": data["avg_score"],
-            "Best_Score": data["best_score"],
-            "Avg_Win_Rate": data["avg_win_rate"],
-            "Avg_Return": data["avg_return"],
-            "Best_Strategy_Type": data["best_strategy"]["strategy"]
-            if data["best_strategy"]
-            else None,
-            "Strategy_Types": ",".join(data["strategy_types"]),
-            "Timeframes": ",".join(data["timeframes"]),
-        }
-        rows.append(row)
-
-    # Add strategy aggregation data
-    for strategy, data in aggregation_results.get("by_strategy", {}).items():
-        row = {
-            "Type": "Strategy",
-            "Name": strategy,
-            "Total_Files": data["total_files"],
-            "Total_Rows": data["total_rows"],
-            "Avg_Score": data["avg_score"],
-            "Best_Score": data["best_score"],
-            "Avg_Win_Rate": data["avg_win_rate"],
-            "Avg_Return": data["avg_return"],
-            "Best_Ticker": data["best_performer"]["ticker"]
-            if data["best_performer"]
-            else None,
-            "Ticker_Count": len(data["tickers"]),
-            "Timeframes": ",".join(data["timeframes"]),
-        }
-        rows.append(row)
-
-    # Create DataFrame and save
-    df = pd.DataFrame(rows)
-    df.to_csv(output_path, index=False)
-
-
-def _show_portfolio_synthesis_config_preview(
-    config: PortfolioSynthesisConfig, console: ConsoleLogger
-):
-    """Display portfolio synthesis configuration preview for dry run."""
-    table = Table(title="Portfolio Synthesis Configuration Preview", show_header=True)
-    table.add_column("Parameter", style="cyan", no_wrap=True)
-    table.add_column("Value", style="green")
-
-    # Basic configuration
-    table.add_row(
-        "Analysis Type",
-        "Single Strategy" if config.is_single_strategy else "Multi-Strategy",
-    )
-    table.add_row("Date Range", f"{config.start_date} to {config.end_date}")
-    table.add_row("Initial Cash", f"${config.init_cash:,.2f}")
-    table.add_row("Fees", f"{config.fees:.3%}")
-
-    # Strategy details
-    if config.is_single_strategy:
-        strategy = config.strategies[0]
-        table.add_row("Ticker", strategy.ticker)
-        table.add_row("Strategy Type", strategy.strategy_type.value)
-        table.add_row("Windows", f"{strategy.fast_period}/{strategy.slow_period}")
-        if strategy.stop_loss:
-            table.add_row("Stop Loss", f"{strategy.stop_loss:.2%}")
-    else:
-        table.add_row("Strategies Count", str(len(config.strategies)))
-        table.add_row("Unique Tickers", str(len(config.unique_tickers)))
-        table.add_row("Tickers", ", ".join(config.unique_tickers))
-
-    # Analysis options
-    table.add_row("Risk Metrics", "✓" if config.calculate_risk_metrics else "✗")
-    table.add_row("Export Equity", "✓" if config.export_equity_curve else "✗")
-    table.add_row("Generate Plots", "✓" if config.enable_plotting else "✗")
-
-    # Raw data export options
-    table.add_row("Export Raw Data", "✓" if config.raw_data_export.enable else "✗")
-    if config.raw_data_export.enable:
-        table.add_row(
-            "Export Formats",
-            ", ".join([f.value for f in config.raw_data_export.export_formats]),
-        )
-        table.add_row(
-            "Data Types",
-            ", ".join([t.value for t in config.raw_data_export.data_types]),
-        )
-        table.add_row(
-            "Include VectorBT",
-            "✓" if config.raw_data_export.include_vectorbt_object else "✗",
-        )
-        table.add_row("Output Directory", str(config.raw_data_export.output_dir))
-
-    # Benchmark
-    if config.benchmark:
-        table.add_row(
-            "Benchmark",
-            config.benchmark.symbol
-            or f"Portfolio ({config.benchmark.benchmark_type.value})",
-        )
-    else:
-        table.add_row("Benchmark", "None")
-
-    console.console.print(table)
-    console.warning("This is a dry run. Use --no-dry-run to execute.")
 
 
 def _display_portfolio_synthesis_results(
