@@ -4,18 +4,20 @@ This module provides functions for loading strategy configurations from CSV file
 """
 
 from pathlib import Path
-from typing import List
+from typing import TYPE_CHECKING, List
 
 import polars as pl
 
-from app.cli.models.portfolio import Direction, ReviewStrategyConfig, StrategyType
 from app.tools.console_logging import ConsoleLogger
 from app.tools.portfolio.format import convert_csv_to_strategy_config
+
+if TYPE_CHECKING:
+    from app.cli.models.portfolio import Direction, ReviewStrategyConfig, StrategyType
 
 
 def load_strategies_from_raw_csv(
     raw_strategies_name: str, console: ConsoleLogger = None
-) -> List[ReviewStrategyConfig]:
+) -> List["ReviewStrategyConfig"]:
     """
     Load strategy configurations from a CSV file in data/raw/strategies/.
 
@@ -55,6 +57,9 @@ def load_strategies_from_raw_csv(
         # Use existing CSV conversion system
         config = {"BASE_DIR": ".", "REFRESH": True, "USE_HOURLY": False}
         strategy_configs = convert_csv_to_strategy_config(df, log, config)
+
+        # Import here to avoid circular import
+        from app.cli.models.portfolio import Direction, ReviewStrategyConfig, StrategyType
 
         # Convert to ReviewStrategyConfig objects
         review_strategies = []
