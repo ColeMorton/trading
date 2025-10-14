@@ -1,5 +1,5 @@
 """
-TDD Test Suite for Trading-CLI Strategy Run CSV Export Separation
+TDD Test Suite for Trading-CLI Strategy Sweep CSV Export Separation
 
 This test suite validates the core requirement that each strategy type
 (SMA, EMA, MACD) creates separate CSV files per ticker across all export stages.
@@ -8,7 +8,7 @@ CURRENT STATUS: ❌ FAILING (Red Phase)
 REASON: StrategyDispatcher bug prevents mixed strategy execution
 
 EXPECTED BEHAVIOR:
-- Command: trading-cli strategy run --ticker BTC-USD,SPY,MSTR --strategy SMA EMA MACD
+- Command: trading-cli strategy sweep --ticker BTC-USD,SPY,MSTR --strategy SMA EMA MACD
 - Output: 27 files (3 tickers × 3 strategies × 3 export types)
 - Files: data/raw/{export_type}/{TICKER}_D_{STRATEGY}.csv
 - Content: Each file contains only one strategy type and one ticker
@@ -28,7 +28,7 @@ from typer.testing import CliRunner
 from app.cli.main import app
 
 
-class TestStrategyRunCSVExportSeparation:
+class TestStrategySweepCSVExportSeparation:
     """TDD Test Suite for strategy-specific CSV file separation."""
 
     @pytest.fixture(autouse=True)
@@ -75,7 +75,7 @@ class TestStrategyRunCSVExportSeparation:
             app,
             [
                 "strategy",
-                "run",
+                "sweep",
                 "--ticker",
                 ",".join(self.tickers),
                 "--strategy",
@@ -150,7 +150,7 @@ class TestStrategyRunCSVExportSeparation:
             app,
             [
                 "strategy",
-                "run",
+                "sweep",
                 "--ticker",
                 ",".join(self.tickers),
                 "--strategy",
@@ -195,7 +195,7 @@ class TestStrategyRunCSVExportSeparation:
             app,
             [
                 "strategy",
-                "run",
+                "sweep",
                 "--ticker",
                 ",".join(self.tickers),
                 "--strategy",
@@ -237,7 +237,7 @@ class TestStrategyRunCSVExportSeparation:
             app,
             [
                 "strategy",
-                "run",
+                "sweep",
                 "--ticker",
                 "BTC-USD",  # Single ticker for focused test
                 "--strategy",
@@ -377,7 +377,7 @@ class TestDispatcherIntegrationValidation:
             app,
             [
                 "strategy",
-                "run",
+                "sweep",
                 "--ticker",
                 "BTC-USD",
                 "--strategy",
@@ -426,7 +426,7 @@ class TestDispatcherIntegrationValidation:
                 app,
                 [
                     "strategy",
-                    "run",
+                    "sweep",
                     "--ticker",
                     "BTC-USD",
                     "--strategy",

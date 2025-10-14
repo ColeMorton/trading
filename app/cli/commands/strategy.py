@@ -15,6 +15,7 @@ from rich.console import Console
 from rich.table import Table
 
 from app.tools.console_logging import ConsoleLogger, PerformanceAwareConsoleLogger
+from app.tools.portfolio.csv_generators import generate_csv_output_for_portfolios
 
 from ..config import ConfigLoader
 from ..models.strategy import (
@@ -47,6 +48,339 @@ console = Console()
 
 @app.command()
 def run(
+    ticker: str = typer.Argument(
+        ..., help="Single ticker symbol to test (e.g., AAPL, BTC-USD)"
+    ),
+    fast: int = typer.Option(..., "--fast", "-f", help="Fast moving average period"),
+    slow: int = typer.Option(..., "--slow", "-s", help="Slow moving average period"),
+    signal: Optional[int] = typer.Option(
+        None, "--signal", help="Signal period (for MACD strategies only)"
+    ),
+    strategy: str = typer.Option(
+        "SMA", "--strategy", help="Strategy type: SMA, EMA, or MACD"
+    ),
+    years: Optional[int] = typer.Option(
+        None, "--years", "-y", help="Number of years of historical data"
+    ),
+    use_4hour: bool = typer.Option(False, "--use-4hour", help="Use 4-hour timeframe"),
+    use_2day: bool = typer.Option(False, "--use-2day", help="Use 2-day timeframe"),
+    market_type: Optional[str] = typer.Option(
+        None, "--market-type", help="Market type: crypto, us_stock, or auto"
+    ),
+    direction: str = typer.Option(
+        "Long", "--direction", "-d", help="Trading direction: Long or Short"
+    ),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Preview configuration without executing"
+    ),
+):
+    """
+    Test a specific parameter combination on a single ticker.
+
+    This command runs a backtest for a single set of parameters and displays
+    the results in the terminal without creating any files. Use this to quickly
+    test specific parameter combinations before running a full sweep.
+
+    Examples:
+        trading-cli strategy run AAPL --fast 20 --slow 50
+        trading-cli strategy run BTC-USD --fast 10 --slow 30 --strategy EMA
+        trading-cli strategy run AAPL --fast 12 --slow 26 --signal 9 --strategy MACD
+        trading-cli strategy run ETH-USD --fast 15 --slow 45 --use-4hour
+        trading-cli strategy run TSLA --fast 20 --slow 50 --years 3
+    """
+    try:
+        # Validate parameters
+        if fast >= slow:
+            rprint("[red]Error: Fast period must be less than slow period[/red]")
+            raise typer.Exit(1)
+
+        if strategy.upper() == "MACD" and signal is None:
+            rprint("[red]Error: MACD strategy requires --signal parameter[/red]")
+            raise typer.Exit(1)
+
+        # Show configuration
+        rprint("\n[bold cyan]Strategy Backtest - Single Parameter Test[/bold cyan]")
+        rprint(f"[cyan]Ticker:[/cyan] {ticker}")
+        rprint(f"[cyan]Strategy:[/cyan] {strategy.upper()}")
+        rprint(
+            f"[cyan]Parameters:[/cyan] Fast={fast}, Slow={slow}"
+            + (f", Signal={signal}" if signal else "")
+        )
+        rprint(f"[cyan]Direction:[/cyan] {direction}")
+        if years:
+            rprint(f"[cyan]History:[/cyan] {years} years")
+        if use_4hour:
+            rprint(f"[cyan]Timeframe:[/cyan] 4-hour")
+        elif use_2day:
+            rprint(f"[cyan]Timeframe:[/cyan] 2-day")
+        rprint("")
+
+        if dry_run:
+            rprint("[yellow]Dry run - configuration preview only[/yellow]")
+            return
+
+        # Import required modules
+        from ...tools.get_config import get_config
+        from ...tools.get_data import get_data
+        from ...tools.logging_context import logging_context
+        from ...tools.project_utils import get_project_root
+        from ...tools.strategy.sensitivity_analysis import (
+            analyze_parameter_combinations,
+        )
+
+        with logging_context("cli_strategy_run", "strategy_run.log") as log:
+            # Build configuration
+            config = {
+                "TICKER": ticker,
+                "STRATEGY_TYPE": strategy.upper(),
+                "DIRECTION": direction,
+                "USE_HOURLY": use_4hour,
+                "USE_4HOUR": use_4hour,
+                "USE_2DAY": use_2day,
+                "BASE_DIR": get_project_root(),
+                "REFRESH": True,
+            }
+
+            if years:
+                config["USE_YEARS"] = True
+                config["YEARS"] = years
+
+            if market_type:
+                config["MARKET_TYPE"] = market_type
+
+            # Apply config defaults
+            ticker_config = get_config(config)
+
+            # Fetch price data
+            rprint(f"Fetching price data for {ticker}...")
+            data = get_data(ticker, ticker_config, log)
+            if data is None or len(data) == 0:
+                rprint(f"[red]Failed to fetch price data for {ticker}[/red]")
+                raise typer.Exit(1)
+
+            rprint(
+                f"Retrieved {len(data)} data points from {data['Date'].min()} to {data['Date'].max()}"
+            )
+
+            # Create single parameter set
+            if strategy.upper() == "MACD":
+                parameter_sets = [
+                    {"fast_period": fast, "slow_period": slow, "signal_period": signal}
+                ]
+            else:
+                parameter_sets = [{"fast_period": fast, "slow_period": slow}]
+
+            # Run backtest for single combination
+            rprint("\nRunning backtest...")
+            portfolios = analyze_parameter_combinations(
+                data,
+                parameter_sets,
+                ticker_config,
+                log,
+                strategy_type=strategy.upper(),
+                parallel=False,  # Single combination, no need for parallel
+            )
+
+            if not portfolios or len(portfolios) == 0:
+                rprint(
+                    "[yellow]No results generated - strategy may not have produced any trades[/yellow]"
+                )
+                raise typer.Exit(0)
+
+            # Get the single result
+            result = portfolios[0]
+
+            # Validate result consistency and clean up metrics for 0 trades
+            num_trades = (
+                int(result.get("Total Trades", 0))
+                if result.get("Total Trades") not in [None, "N/A", ""]
+                else 0
+            )
+            if num_trades == 0:
+                rprint("\n[yellow]⚠ Warning: Strategy generated 0 trades[/yellow]")
+                rprint(
+                    "[dim]This parameter combination never triggered entry signals in the historical data.[/dim]"
+                )
+                rprint(
+                    "[dim]Try adjusting the parameters or using a different timeframe.[/dim]\n"
+                )
+
+                # Clean up metrics that shouldn't exist with 0 trades
+                for key in [
+                    "Win Rate [%]",
+                    "Profit Factor",
+                    "# Wins",
+                    "# Losses",
+                    "Best Trade [%]",
+                    "Worst Trade [%]",
+                    "Expectancy",
+                    "Avg. Trade [%]",
+                    "Avg. Trade Duration",
+                ]:
+                    if key in result:
+                        result[key] = "N/A"
+
+            # Display results in rich table
+            rprint("\n[bold green]Backtest Results[/bold green]")
+
+            # Create main metrics table
+            table = Table(
+                title="Performance Metrics",
+                show_header=True,
+                header_style="bold magenta",
+            )
+            table.add_column("Metric", style="cyan", width=30)
+            table.add_column("Value", style="green", justify="right")
+
+            # Helper function to format values
+            def format_value(key, value):
+                if value == "N/A" or value is None:
+                    return "N/A"
+                if key in [
+                    "Win Rate [%]",
+                    "Total Return [%]",
+                    "Annual Return [%]",
+                    "Max. Drawdown [%]",
+                    "Avg. Trade [%]",
+                    "Best Trade [%]",
+                    "Worst Trade [%]",
+                ]:
+                    return (
+                        f"{value:.2f}%"
+                        if isinstance(value, (int, float))
+                        else str(value)
+                    )
+                if key in ["Sharpe Ratio", "Sortino Ratio"]:
+                    return (
+                        f"{value:.3f}"
+                        if isinstance(value, (int, float))
+                        else str(value)
+                    )
+                if key == "Expectancy":
+                    return (
+                        f"${value:.2f}"
+                        if isinstance(value, (int, float))
+                        else str(value)
+                    )
+                if isinstance(value, float):
+                    return f"{value:.2f}"
+                return str(value)
+
+            # Add key metrics
+            table.add_row(
+                "Total Return",
+                format_value("Total Return [%]", result.get("Total Return [%]", 0)),
+            )
+            table.add_row(
+                "Annual Return",
+                format_value("Annual Return [%]", result.get("Annual Return [%]", 0)),
+            )
+            table.add_row("Number of Trades", str(result.get("Total Trades", 0)))
+            table.add_row(
+                "Win Rate",
+                format_value("Win Rate [%]", result.get("Win Rate [%]", "N/A")),
+            )
+            table.add_row(
+                "Profit Factor",
+                format_value("Profit Factor", result.get("Profit Factor", "N/A")),
+            )
+            table.add_row(
+                "Sharpe Ratio",
+                format_value("Sharpe Ratio", result.get("Sharpe Ratio", 0)),
+            )
+            table.add_row(
+                "Sortino Ratio",
+                format_value("Sortino Ratio", result.get("Sortino Ratio", 0)),
+            )
+            table.add_row(
+                "Max Drawdown",
+                format_value("Max. Drawdown [%]", result.get("Max. Drawdown [%]", 0)),
+            )
+            table.add_row(
+                "Max Drawdown Duration",
+                str(result.get("Max. Drawdown Duration", "N/A")),
+            )
+            table.add_row(
+                "Avg Trade Return",
+                format_value("Avg. Trade [%]", result.get("Avg. Trade [%]", "N/A")),
+            )
+            table.add_row(
+                "Avg Trade Duration", str(result.get("Avg. Trade Duration", "N/A"))
+            )
+
+            if "Expectancy" in result and num_trades > 0:
+                table.add_row(
+                    "Expectancy",
+                    format_value("Expectancy", result.get("Expectancy", 0)),
+                )
+            if "Score" in result:
+                table.add_row("Strategy Score", f"{result.get('Score', 0):.2f}")
+
+            console.print(table)
+
+            # Display trade statistics if available
+            if num_trades > 0:
+                rprint(f"\n[bold]Trade Statistics:[/bold]")
+                # Calculate wins/losses from win rate and total trades
+                win_rate_val = result.get("Win Rate [%]", 0)
+                if win_rate_val not in ["N/A", None] and isinstance(
+                    win_rate_val, (int, float)
+                ):
+                    wins = int(num_trades * (win_rate_val / 100))
+                    losses = num_trades - wins
+                    rprint(f"  Winning Trades: {wins}")
+                    rprint(f"  Losing Trades: {losses}")
+                rprint(f"  Best Trade: {result.get('Best Trade [%]', 0):.2f}%")
+                rprint(f"  Worst Trade: {result.get('Worst Trade [%]', 0):.2f}%")
+                if "Avg Winning Trade [%]" in result and result.get(
+                    "Avg Winning Trade [%]"
+                ) not in ["N/A", None]:
+                    rprint(
+                        f"  Avg Winning Trade: {result.get('Avg Winning Trade [%]', 0):.2f}%"
+                    )
+                if "Avg Losing Trade [%]" in result and result.get(
+                    "Avg Losing Trade [%]"
+                ) not in ["N/A", None]:
+                    rprint(
+                        f"  Avg Losing Trade: {result.get('Avg Losing Trade [%]', 0):.2f}%"
+                    )
+
+            # Display equity curve info
+            if "Equity Final [$]" in result:
+                rprint(f"\n[bold]Equity Curve:[/bold]")
+                rprint(
+                    f"  Starting Equity: ${result.get('Equity Start [$]', 1000):.2f}"
+                )
+                rprint(f"  Final Equity: ${result.get('Equity Final [$]', 0):.2f}")
+                rprint(f"  Peak Equity: ${result.get('Equity Peak [$]', 0):.2f}")
+
+            # Display raw CSV data for copy/paste into portfolio files
+            rprint(f"\n[bold cyan]📋 Raw CSV Data (ready for copy/paste):[/bold cyan]")
+            csv_output = generate_csv_output_for_portfolios([result])
+
+            # Use plain print to avoid Rich formatting/wrapping for clean copy/paste
+            csv_lines = csv_output.split("\n")
+            for line in csv_lines:
+                print(line)
+
+            rprint("\n[green]✓ Backtest completed successfully[/green]")
+            rprint(
+                "[dim]Note: No files were exported. Use 'strategy sweep' to export results.[/dim]\n"
+            )
+
+    except typer.Exit:
+        raise
+    except Exception as e:
+        rprint(f"[red]Error running backtest: {e}[/red]")
+        if "--verbose" in str(e) or "-v" in str(e):
+            import traceback
+
+            rprint(traceback.format_exc())
+        raise typer.Exit(1)
+
+
+@app.command()
+def sweep(
     ctx: typer.Context,
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
@@ -113,22 +447,22 @@ def run(
         help="Skip data download and analysis, assume portfolio files exist in data/raw/portfolios/",
     ),
     fast_min: Optional[int] = typer.Option(
-        None, "--fast-min", help="Minimum fast period for analysis"
+        None, "--fast-min", help="Minimum fast period for sweep"
     ),
     fast_max: Optional[int] = typer.Option(
-        None, "--fast-max", help="Maximum fast period for analysis"
+        None, "--fast-max", help="Maximum fast period for sweep"
     ),
     slow_min: Optional[int] = typer.Option(
-        None, "--slow-min", help="Minimum slow period for analysis"
+        None, "--slow-min", help="Minimum slow period for sweep"
     ),
     slow_max: Optional[int] = typer.Option(
-        None, "--slow-max", help="Maximum slow period for analysis"
+        None, "--slow-max", help="Maximum slow period for sweep"
     ),
     signal_min: Optional[int] = typer.Option(
-        None, "--signal-min", help="Minimum signal period for analysis"
+        None, "--signal-min", help="Minimum signal period for sweep"
     ),
     signal_max: Optional[int] = typer.Option(
-        None, "--signal-max", help="Maximum signal period for analysis"
+        None, "--signal-max", help="Maximum signal period for sweep"
     ),
     date: Optional[str] = typer.Option(
         None,
@@ -178,23 +512,25 @@ def run(
     ),
 ):
     """
-    Execute strategy analysis with specified parameters.
+    Perform parameter sweep analysis across parameter ranges.
 
-    This command runs MA Cross or MACD strategy analysis on the specified
-    tickers with the given configuration parameters.
+    This command runs comprehensive parameter sweep analysis across different
+    moving average periods to find optimal combinations. It tests all parameter
+    combinations within the specified ranges and exports results to multiple
+    directories for filtering and analysis.
 
     Examples:
-        trading-cli strategy run --profile ma_cross_crypto
-        trading-cli strategy run --ticker AAPL,MSFT,GOOGL --strategy SMA EMA
-        trading-cli strategy run --ticker AAPL --ticker MSFT --strategy SMA
-        trading-cli strategy run --ticker BTC-USD --min-trades 20
-        trading-cli strategy run --ticker BTC-USD,ETH-USD --use-4hour
-        trading-cli strategy run --ticker ETH-USD --use-2day
-        trading-cli strategy run --profile ma_cross_crypto --skip-analysis
-        trading-cli strategy run --ticker IREN --date 20250811
-        trading-cli strategy run --ticker AAPL,MSFT --date 20250815 --strategy SMA
-        trading-cli strategy run --profile daily_full --batch --batch-size 30
-        trading-cli strategy run --ticker AAPL,MSFT,GOOGL --batch --batch-size 2
+        trading-cli strategy sweep --profile ma_cross_crypto
+        trading-cli strategy sweep --ticker AAPL,MSFT,GOOGL --strategy SMA EMA
+        trading-cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow-min 20 --slow-max 100
+        trading-cli strategy sweep --ticker BTC-USD --min-trades 20 --fast-min 10 --fast-max 30
+        trading-cli strategy sweep --ticker BTC-USD,ETH-USD --use-4hour
+        trading-cli strategy sweep --ticker ETH-USD --use-2day
+        trading-cli strategy sweep --profile ma_cross_crypto --skip-analysis
+        trading-cli strategy sweep --ticker IREN --date 20250811
+        trading-cli strategy sweep --ticker AAPL,MSFT --date 20250815 --strategy SMA
+        trading-cli strategy sweep --profile daily_full --batch --batch-size 30
+        trading-cli strategy sweep --ticker AAPL,MSFT,GOOGL --batch --batch-size 2
     """
     try:
         # Validate date parameter if provided
@@ -353,212 +689,7 @@ def run(
         error_console = locals().get("console") or ConsoleLogger(
             verbose=global_verbose, quiet=False
         )
-        handle_command_error(e, "strategy run", global_verbose, console=error_console)
-
-
-@app.command()
-def sweep(
-    profile: Optional[str] = typer.Option(
-        None, "--profile", "-p", help="Configuration profile name"
-    ),
-    ticker: Optional[List[str]] = typer.Option(
-        None,
-        "--ticker",
-        "-t",
-        help="Ticker symbols for parameter sweep (multiple args or comma-separated: --ticker AAPL,MSFT or --ticker AAPL --ticker MSFT)",
-    ),
-    fast_min: Optional[int] = typer.Option(
-        None, "--fast-min", help="Minimum fast period for sweep"
-    ),
-    fast_max: Optional[int] = typer.Option(
-        None, "--fast-max", help="Maximum fast period for sweep"
-    ),
-    slow_min: Optional[int] = typer.Option(
-        None, "--slow-min", help="Minimum slow period for sweep"
-    ),
-    slow_max: Optional[int] = typer.Option(
-        None, "--slow-max", help="Maximum slow period for sweep"
-    ),
-    signal_min: Optional[int] = typer.Option(
-        None, "--signal-min", help="Minimum signal period for sweep"
-    ),
-    signal_max: Optional[int] = typer.Option(
-        None, "--signal-max", help="Maximum signal period for sweep"
-    ),
-    max_results: int = typer.Option(
-        50, "--max-results", help="Maximum number of results to display"
-    ),
-    dry_run: bool = typer.Option(
-        False, "--dry-run", help="Preview sweep parameters without executing"
-    ),
-):
-    """
-    Perform parameter sweep analysis for MA Cross strategies.
-
-    This command runs a comprehensive parameter sweep across different
-    fast and slow moving average periods to find optimal combinations.
-    Supports multiple tickers for comparative analysis.
-
-    Examples:
-        trading-cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow-min 20 --slow-max 200
-        trading-cli strategy sweep --ticker AAPL,MSFT,GOOGL --fast-min 10 --fast-max 30 --slow-min 40 --slow-max 80
-        trading-cli strategy sweep --profile ma_cross_crypto --max-results 20
-    """
-    try:
-        loader = ConfigLoader()
-
-        # Build configuration overrides using shared utility
-        overrides = build_configuration_overrides(
-            ticker=ticker,
-            fast_min=fast_min,
-            fast_max=fast_max,
-            slow_min=slow_min,
-            slow_max=slow_max,
-            signal_min=signal_min,
-            signal_max=signal_max,
-            dry_run=dry_run,
-        )
-
-        # Load configuration (use StrategyConfig instead of MACrossConfig for consistency)
-        if profile:
-            config = loader.load_from_profile(profile, StrategyConfig, overrides)
-        else:
-            # Use default strategy profile
-            config = loader.load_from_profile(
-                "default_strategy", StrategyConfig, overrides
-            )
-
-        # Validate parameter relationships
-        validate_parameter_relationships(config)
-
-        if dry_run:
-            show_config_preview(config, "Parameter Sweep Preview")
-            return
-
-        # Show configuration summary
-        ticker_display = (
-            ", ".join(config.ticker)
-            if isinstance(config.ticker, list)
-            else config.ticker
-        )
-        fast_range_display = config.fast_period_range or (5, 50)
-        slow_range_display = config.slow_period_range or (20, 200)
-
-        show_execution_progress("Starting parameter sweep analysis")
-        rprint(f"Ticker(s): {ticker_display}")
-        rprint(f"Fast period range: {fast_range_display}")
-        rprint(f"Slow period range: {slow_range_display}")
-
-        # Import required modules for parameter sweep
-        from ...strategies.ma_cross.tools.parameter_sensitivity import (
-            analyze_parameter_sensitivity,
-        )
-        from ...tools.get_data import get_data
-        from ...tools.logging_context import logging_context
-
-        with logging_context("cli_parameter_sweep", "parameter_sweep.log") as log:
-            # Convert config to legacy format using shared utility
-            legacy_config = convert_to_legacy_config(config)
-
-            # Generate parameter combinations with defaults if not specified
-            if config.fast_period_range is None or config.slow_period_range is None:
-                rprint(
-                    "[yellow]Warning: No period ranges specified in profile. Using defaults.[/yellow]"
-                )
-                rprint(
-                    "[dim]For custom ranges, use: --fast-min X --fast-max Y --slow-min Z --slow-max W[/dim]"
-                )
-                fast_range = config.fast_period_range or (5, 50)
-                slow_range = config.slow_period_range or (20, 200)
-            else:
-                fast_range = config.fast_period_range
-                slow_range = config.slow_period_range
-
-            short_windows = list(range(fast_range[0], fast_range[1] + 1))
-            long_windows = list(range(slow_range[0], slow_range[1] + 1))
-
-            # Handle multiple tickers
-            ticker_list = (
-                config.ticker if isinstance(config.ticker, list) else [config.ticker]
-            )
-
-            # Calculate total combinations
-            total_combinations = (
-                sum(1 for s in short_windows for l in long_windows if s < l)
-                * len(config.strategy_types)
-                * len(ticker_list)
-            )
-
-            show_execution_progress(
-                "Executing parameter sweep",
-                ticker_count=len(ticker_list),
-                combination_count=total_combinations,
-            )
-
-            all_results = []
-
-            # Process each ticker individually
-            for single_ticker in ticker_list:
-                rprint(
-                    f"\n[bold]Processing parameter sweep for {single_ticker}...[/bold]"
-                )
-
-                # Get price data for single ticker
-                rprint(f"Fetching price data for {single_ticker}...")
-                data = get_data(single_ticker, legacy_config, log)
-                if data is None:
-                    rprint(f"[red]Failed to fetch price data for {single_ticker}[/red]")
-                    continue
-
-                for strategy_type in config.strategy_types:
-                    rprint(
-                        f"Running {strategy_type} parameter sweep for {single_ticker}..."
-                    )
-
-                    # Set strategy type in legacy config
-                    strategy_config = legacy_config.copy()
-                    strategy_config["STRATEGY_TYPE"] = strategy_type
-                    strategy_config[
-                        "TICKER"
-                    ] = single_ticker  # Ensure single ticker in config
-
-                    # Run parameter sensitivity analysis
-                    results_df = analyze_parameter_sensitivity(
-                        data=data,
-                        short_windows=short_windows,
-                        long_windows=long_windows,
-                        config=strategy_config,
-                        log=log,
-                    )
-
-                    if results_df is not None:
-                        # Convert to list of dicts for display
-                        strategy_results = results_df.to_dicts()
-                        all_results.extend(strategy_results)
-                        rprint(
-                            f"Found {len(strategy_results)} valid {strategy_type} combinations for {single_ticker}"
-                        )
-
-            if all_results:
-                # Sort by score and display top results using shared utility
-                sorted_results = sorted(
-                    all_results, key=lambda x: x.get("Score", 0), reverse=True
-                )
-
-                display_sweep_results_table(sorted_results[:max_results])
-                rprint(f"\n[green]Parameter sweep completed![/green]")
-                rprint(
-                    f"Found {len(all_results)} total combinations, showing top {min(max_results, len(sorted_results))}"
-                )
-
-                # Show export location
-                portfolio_dir = "data/raw/strategies/"
-                rprint(f"[dim]Full results exported to: {portfolio_dir}[/dim]")
-            else:
-                rprint("[yellow]No valid parameter combinations found[/yellow]")
-
-    except Exception as e:
-        handle_command_error(e, "strategy sweep", False)
+        handle_command_error(e, "strategy sweep", global_verbose, console=error_console)
 
 
 @app.command()

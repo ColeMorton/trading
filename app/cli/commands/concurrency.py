@@ -1398,24 +1398,45 @@ def construct(
 
             if not feasibility.get("viable_for_construction", False):
                 if "error" in feasibility:
-                    rprint(f"[red]❌ Error: {feasibility['error']}[/red]")
+                    rprint(f"[yellow]⚠️ Warning: {feasibility['error']}[/yellow]")
                 else:
                     rprint(
-                        f"[red]❌ Error: Insufficient strategies for portfolio construction[/red]"
+                        f"[yellow]⚠️ Warning: Insufficient strategies for portfolio construction[/yellow]"
                     )
                     rprint(
                         f"Available strategies with Score >= {min_score}: {feasibility.get('score_filtered_strategies', 0)}"
                     )
                     rprint(f"Need at least 5 strategies for portfolio construction")
 
-                # For multiple tickers, continue to next ticker; for single ticker, exit
-                if len(asset_names) > 1:
-                    rprint(
-                        f"[yellow]⚠️ Skipping {asset_name}, continuing with remaining tickers...[/yellow]"
+                # Load strategies for potential export even when insufficient for analysis
+                rprint(
+                    f"[yellow]⚠️ Skipping analysis for {asset_name} (need 5+ strategies)[/yellow]"
+                )
+
+                strategies = loader.load_strategies_for_asset(
+                    asset_name, min_score=min_score
+                )
+
+                # Export strategies if requested
+                if export:
+                    _export_strategies_to_file(
+                        asset_name, strategies, force_overwrite=True
                     )
-                    continue
-                else:
-                    raise typer.Exit(1)
+                    rprint(
+                        f"[green]✓ Exported {len(strategies)} available strategies to data/raw/strategies/{asset_name}.csv[/green]"
+                    )
+
+                # Track result
+                all_results.append(
+                    {
+                        "asset": asset_name,
+                        "success": False,
+                        "error": f"Insufficient strategies for analysis (need 5+, have {len(strategies)})",
+                        "portfolio_size": len(strategies),
+                        "efficiency_score": None,
+                    }
+                )
+                continue
 
             rprint(f"[green]✓ Feasibility check passed[/green]")
             rprint(f"Available strategies: {feasibility['score_filtered_strategies']}")

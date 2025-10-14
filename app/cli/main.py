@@ -204,6 +204,209 @@ def init():
         raise typer.Exit(1)
 
 
+@app.command()
+def pinescript(
+    ctx: typer.Context,
+    filename: str = typer.Argument(
+        ...,
+        help="CSV filename (with or without .csv extension). Searches in data/raw/strategies/",
+    ),
+    ticker: Optional[str] = typer.Option(
+        None,
+        "--ticker",
+        "-t",
+        help="Filter to specific ticker(s), comma-separated (e.g., 'BTC-USD' or 'HIMS,MP,NVDA')",
+    ),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Preview generation without writing files"
+    ),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Show detailed generation information"
+    ),
+    quiet: bool = typer.Option(
+        False,
+        "--quiet",
+        "-q",
+        help="Minimal output - only success/failure and file path",
+    ),
+):
+    """
+    Generate PineScript indicator code from strategy CSV file.
+
+    This command generates a multi-ticker breadth oscillator indicator
+    from a strategy CSV file. The CSV file is automatically looked up in
+    data/raw/strategies/ and the output is saved to the same directory.
+
+    The generated indicator includes:
+    - Automatic ticker selection dropdown
+    - Individual strategy signal calculations (SMA, EMA, MACD)
+    - Percentage-based breadth oscillator
+    - Visual threshold lines and coloring
+    - Statistics display table
+    - Alert conditions
+
+    Examples:
+        trading-cli pinescript MSTR.csv
+        trading-cli pinescript SMR
+        trading-cli pinescript portfolio --ticker BTC-USD
+        trading-cli pinescript portfolio.csv -t HIMS,MP,NVDA
+        trading-cli pinescript portfolio --dry-run --verbose
+        trading-cli pinescript portfolio --quiet
+    """
+    try:
+        # Get global verbose flag or use local
+        global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+        verbose = verbose or global_verbose
+
+        # Construct CSV path
+        if not filename.endswith(".csv"):
+            filename = f"{filename}.csv"
+
+        csv_dir = Path("data/raw/strategies")
+        csv_path = csv_dir / filename
+
+        if not csv_path.exists():
+            rprint(f"[red]Error: CSV file not found: {csv_path}[/red]")
+            rprint(f"[yellow]Looking in: {csv_dir.absolute()}[/yellow]")
+            raise typer.Exit(1)
+
+        # Parse ticker filter if provided
+        ticker_filter = None
+        if ticker:
+            ticker_filter = [t.strip() for t in ticker.split(",")]
+            if verbose and not quiet:
+                rprint(f"[dim]Applying ticker filter: {', '.join(ticker_filter)}[/dim]")
+
+        # Construct output path (same directory, .pine extension)
+        output_filename = csv_path.stem
+        if ticker_filter and len(ticker_filter) == 1:
+            # If single ticker, include in filename
+            output_filename = f"{csv_path.stem}_{ticker_filter[0]}"
+        elif ticker_filter:
+            # If multiple tickers, include count
+            output_filename = f"{csv_path.stem}_{len(ticker_filter)}tickers"
+
+        output_path = csv_dir / f"{output_filename}.pine"
+
+        # Show generation info (unless quiet)
+        if not quiet:
+            if verbose:
+                rprint(f"[cyan]Generating PineScript indicator...[/cyan]")
+                rprint(f"[dim]Source: {csv_path}[/dim]")
+                rprint(f"[dim]Output: {output_path}[/dim]")
+            else:
+                rprint(f"[cyan]Generating PineScript from {csv_path.name}...[/cyan]")
+
+        # Import and initialize generator
+        from app.tools.pinescript_generator import PineScriptGenerator
+
+        generator = PineScriptGenerator(str(csv_path), ticker_filter=ticker_filter)
+
+        # Get statistics
+        stats = generator.get_stats()
+
+        # Generate code
+        if dry_run:
+            code = generator.generate(output_path=None)
+            if not quiet:
+                rprint(f"[yellow]DRY RUN - No files written[/yellow]")
+        else:
+            code = generator.generate(output_path=str(output_path))
+
+        # Display results based on mode
+        if quiet:
+            # Quiet mode: minimal output
+            if dry_run:
+                rprint(f"[yellow]DRY RUN[/yellow]")
+            else:
+                rprint(f"[green]Success[/green]")
+                rprint(f"{output_path}")
+        else:
+            # Default comprehensive preview
+            rprint(f"[green]Successfully generated PineScript indicator![/green]")
+
+            if not dry_run:
+                rprint(f"\n[cyan]Output File:[/cyan] {output_path}")
+
+            # Create ticker breakdown table
+            from rich.panel import Panel
+
+            table = Table(
+                title="Strategy Breakdown", show_header=True, header_style="bold cyan"
+            )
+            table.add_column("Ticker", style="cyan", no_wrap=True)
+            table.add_column("Strategies", justify="right", style="green")
+            table.add_column("Types", style="yellow")
+
+            for ticker_name in stats["tickers"]:
+                count = stats["strategies_per_ticker"][ticker_name]
+                types = ", ".join(stats["strategy_types_per_ticker"][ticker_name])
+                table.add_row(ticker_name, str(count), types)
+
+            console.print(table)
+
+            # Summary statistics in panel
+            summary_text = (
+                f"[cyan]Total Strategies:[/cyan] {stats['total_strategies']}\n"
+            )
+            summary_text += f"[cyan]Total Tickers:[/cyan] {stats['total_tickers']}\n"
+            summary_text += f"[cyan]Lines of Code:[/cyan] {len(code.splitlines())}"
+
+            if ticker_filter:
+                summary_text += (
+                    f"\n[yellow]Filtered to:[/yellow] {', '.join(ticker_filter)}"
+                )
+
+            summary_panel = Panel(summary_text, title="Summary", border_style="cyan")
+            console.print(summary_panel)
+
+            # Code preview with syntax highlighting
+            from rich.syntax import Syntax
+
+            rprint("\n[bold cyan]Code Preview (first 40 lines):[/bold cyan]")
+            preview_code = "\n".join(code.splitlines()[:40])
+            syntax = Syntax(preview_code, "pine", theme="monokai", line_numbers=True)
+            console.print(syntax)
+
+            if len(code.splitlines()) > 40:
+                rprint(f"[dim]... and {len(code.splitlines()) - 40} more lines[/dim]")
+
+            # Usage instructions
+            if not dry_run:
+                usage_panel = Panel(
+                    "[bold]Next Steps:[/bold]\n"
+                    "1. Open TradingView Pine Editor\n"
+                    f"2. Copy contents of: [cyan]{output_path}[/cyan]\n"
+                    "3. Paste into Pine Editor and click 'Add to Chart'\n"
+                    "4. Select ticker from dropdown to view breadth oscillator",
+                    title="Usage Instructions",
+                    border_style="green",
+                )
+                console.print(usage_panel)
+            else:
+                rprint(f"\n[yellow]Remove --dry-run to write the file[/yellow]")
+
+        # Verbose additions (if not quiet)
+        if verbose and not quiet:
+            rprint(f"\n[bold cyan]Detailed Breakdown:[/bold cyan]")
+            for ticker_name in stats["tickers"]:
+                count = stats["strategies_per_ticker"][ticker_name]
+                types = stats["strategy_types_per_ticker"][ticker_name]
+                rprint(
+                    f"  [cyan]{ticker_name}:[/cyan] {count} strategies ({', '.join(types)})"
+                )
+
+    except ValueError as e:
+        # Handle validation errors (e.g., no strategies found for ticker)
+        rprint(f"[red]Validation Error: {e}[/red]")
+        raise typer.Exit(1)
+    except Exception as e:
+        rprint(f"[red]Error generating PineScript: {e}[/red]")
+        if verbose and not quiet:
+            console.print_exception()
+        raise typer.Exit(1)
+
+
 @app.callback()
 def main(
     ctx: typer.Context,

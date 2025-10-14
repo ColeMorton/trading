@@ -16,6 +16,7 @@ class PatternType(str, Enum):
     WEEKLY = "Weekly"
     QUARTERLY = "Quarterly"
     DAY_OF_MONTH = "DayOfMonth"
+    WEEK_OF_YEAR = "WeekOfYear"
 
 
 class SeasonalityPattern(BaseModel):
@@ -31,6 +32,13 @@ class SeasonalityPattern(BaseModel):
     p_value: Optional[float] = None
     confidence_interval_lower: Optional[float] = None
     confidence_interval_upper: Optional[float] = None
+    sharpe_ratio: Optional[float] = None
+    sortino_ratio: Optional[float] = None
+    max_drawdown: Optional[float] = None
+    consistency_score: Optional[float] = None
+    skewness: Optional[float] = None
+    kurtosis: Optional[float] = None
+    period_number: Optional[int] = None
 
 
 class SeasonalityResult(BaseModel):
@@ -95,7 +103,7 @@ class SeasonalityConfig(BaseConfig):
     @classmethod
     def validate_output_format(cls, v: str) -> str:
         """Validate output format."""
-        valid_formats = ["csv", "json"]
+        valid_formats = ["csv", "json", "both"]
         if v.lower() not in valid_formats:
             raise ValueError(f"Output format must be one of {valid_formats}")
         return v.lower()
@@ -119,7 +127,8 @@ class PortfolioSeasonalityConfig(BaseConfig):
         description="Portfolio filename (CSV) from data/raw/strategies/ directory"
     )
     default_time_period_days: int = Field(
-        default=5, description="Default time period in days when no signal entry exists"
+        default=21,
+        description="Default time period in days when no signal entry exists",
     )
     confidence_level: float = Field(
         default=0.95, description="Confidence level for statistical tests"

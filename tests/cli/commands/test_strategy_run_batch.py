@@ -1,7 +1,7 @@
 """
-Comprehensive tests for CLI Strategy Run Command Batch Functionality.
+Comprehensive tests for CLI Strategy Sweep Command Batch Functionality.
 
-This test suite covers the `trading-cli strategy run --batch` command with focus on:
+This test suite covers the `trading-cli strategy sweep --batch` command with focus on:
 - Batch flag functionality and parameter validation
 - Batch size parameter validation and limits
 - Batch file integration with strategy execution
@@ -102,8 +102,8 @@ def create_mock_strategy_config_batch(ticker=None, strategy_types=None, **kwargs
     return mock_config
 
 
-class TestStrategyRunBatchCommand:
-    """Test cases for strategy run command batch functionality."""
+class TestStrategySweepBatchCommand:
+    """Test cases for strategy sweep command batch functionality."""
 
     @pytest.fixture
     def cli_runner(self):
@@ -171,7 +171,7 @@ config:
         # Run command with batch flag
         result = cli_runner.invoke(
             strategy_app,
-            ["run", "--ticker", "AAPL,MSFT,GOOGL", "--strategy", "SMA", "--batch"],
+            ["sweep", "--ticker", "AAPL,MSFT,GOOGL", "--strategy", "SMA", "--batch"],
         )
 
         # Verify results
@@ -297,7 +297,9 @@ config:
             profile_file.write_text(sample_batch_profile)
 
             # Run command
-            result = cli_runner.invoke(strategy_app, ["run", "--profile", "test_batch"])
+            result = cli_runner.invoke(
+                strategy_app, ["sweep", "--profile", "test_batch"]
+            )
 
         assert result.exit_code == 0
         assert "batch" in result.stdout.lower()
@@ -325,7 +327,7 @@ config:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--profile", "test_batch", "--batch-size", "5"]
+            strategy_app, ["sweep", "--profile", "test_batch", "--batch-size", "5"]
         )
 
         assert result.exit_code == 0
@@ -381,7 +383,7 @@ config:
 
         result = cli_runner.invoke(
             strategy_app,
-            ["run", "--ticker", "AAPL,MSFT,GOOGL", "--strategy", "SMA", "--batch"],
+            ["sweep", "--ticker", "AAPL,MSFT,GOOGL", "--strategy", "SMA", "--batch"],
         )
 
         assert result.exit_code == 0
@@ -467,7 +469,7 @@ config:
         """Test batch processing with invalid strategy type."""
         result = cli_runner.invoke(
             strategy_app,
-            ["run", "--ticker", "AAPL", "--strategy", "INVALID", "--batch"],
+            ["sweep", "--ticker", "AAPL", "--strategy", "INVALID", "--batch"],
         )
 
         # Should handle invalid strategy gracefully
@@ -534,14 +536,14 @@ config:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA", "--batch"]
+            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA", "--batch"]
         )
 
         assert result.exit_code == 0
         # Batch file path should be used from config
 
 
-class TestStrategyRunBatchResumeIntegration:
+class TestStrategySweepBatchResumeIntegration:
     """Test cases for batch processing integration with resume analysis."""
 
     @pytest.fixture
@@ -722,7 +724,7 @@ class TestStrategyRunBatchResumeIntegration:
         )
 
 
-class TestStrategyRunBatchEdgeCases:
+class TestStrategySweepBatchEdgeCases:
     """Test edge cases and boundary conditions for batch functionality."""
 
     @pytest.fixture
@@ -752,7 +754,7 @@ class TestStrategyRunBatchEdgeCases:
     def test_batch_with_empty_ticker_list(self, cli_runner):
         """Test batch processing with empty ticker list."""
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "", "--strategy", "SMA", "--batch"]
+            strategy_app, ["sweep", "--ticker", "", "--strategy", "SMA", "--batch"]
         )
 
         # Should handle empty list gracefully
@@ -818,7 +820,7 @@ class TestStrategyRunBatchEdgeCases:
         """Test that batch flag validation works properly."""
         result = cli_runner.invoke(
             strategy_app,
-            ["run", "--ticker", "AAPL", "--strategy", "SMA", "--batch-size", "5"],
+            ["sweep", "--ticker", "AAPL", "--strategy", "SMA", "--batch-size", "5"],
         )
 
         # batch-size without --batch should be handled appropriately

@@ -1,0 +1,87 @@
+//@version=5
+indicator("Multi-Ticker Strategy Breadth", shorttitle="Breadth", overlay=false)
+
+// ================ Script Metadata ================
+// Generated: 2025-10-13 19:02:55
+// Source CSV: BTC-USD.csv
+// Total Strategies: 5
+// Tickers: BTC-USD
+
+// ================ Configuration ================
+tickerInput = input.string("BTC-USD", "Select Ticker", options=["BTC-USD"])
+timeframeInput = input.timeframe("D", "Strategy Timeframe")
+threshold = input.int(50, "Center Threshold", minval=0, maxval=100)
+
+// ================ Strategy Functions ================
+
+smaCrossSignal(shortWindow, longWindow) =>
+    shortSMA = ta.sma(close, shortWindow)
+    longSMA = ta.sma(close, longWindow)
+    shortSMA > longSMA
+
+emaCrossSignal(shortWindow, longWindow) =>
+    shortEMA = ta.ema(close, shortWindow)
+    longEMA = ta.ema(close, longWindow)
+    shortEMA > longEMA
+
+macdSignal(shortWindow, longWindow, signalWindow) =>
+    [macdLine, signalLine, _] = ta.macd(close, shortWindow, longWindow, signalWindow)
+    macdLine > signalLine
+
+// ================ Breadth Calculation ================
+calculateBreadth() =>
+    int active = 0
+    int total = 0
+
+    if tickerInput == "BTC-USD"
+        total := 5
+
+        if emaCrossSignal(6, 29)
+            active += 1
+
+        if macdSignal(15, 18, 20)
+            active += 1
+
+        if smaCrossSignal(83, 84)
+            active += 1
+
+        if smaCrossSignal(27, 39)
+            active += 1
+
+        if smaCrossSignal(60, 61)
+            active += 1
+
+    [active, total]
+
+// Execute calculation on selected timeframe
+[active, total] = request.security(syminfo.tickerid, timeframeInput, calculateBreadth())
+percentage = (active / total) * 100
+
+// ================ Visualization ================
+
+color bullColor = color.new(#26c6da, 0)
+color bearColor = color.new(#7e57c2, 0)
+color neutralColor = color.new(#3179f5, 0)
+
+oscillatorColor = percentage > threshold ? bullColor :
+                  percentage < threshold ? bearColor :
+                  neutralColor
+
+// Plot oscillator
+plot(percentage, "Strategy Breadth %", color=oscillatorColor, linewidth=2)
+hline(threshold, "Threshold", color=neutralColor, linestyle=hline.style_dashed)
+
+// Display statistics table
+var table infoTable = table.new(position.bottom_right, 2, 2, border_width=1)
+if barstate.islast
+    table.cell(infoTable, 0, 0, "Active Strategies", bgcolor=color.new(#000000, 90), text_color=color.white)
+    table.cell(infoTable, 1, 0, str.tostring(active) + " / " + str.tostring(total), bgcolor=color.new(#000000, 90), text_color=oscillatorColor)
+    table.cell(infoTable, 0, 1, "Percentage", bgcolor=color.new(#000000, 90), text_color=color.white)
+    table.cell(infoTable, 1, 1, str.tostring(math.round(percentage)) + "%", bgcolor=color.new(#000000, 90), text_color=oscillatorColor)
+
+// ================ Alerts ================
+crossingUp = ta.crossover(percentage, threshold)
+crossingDown = ta.crossunder(percentage, threshold)
+
+alertcondition(crossingUp, "Breadth Crossing Up", "{{ticker}} breadth crossing above threshold")
+alertcondition(crossingDown, "Breadth Crossing Down", "{{ticker}} breadth crossing below threshold")

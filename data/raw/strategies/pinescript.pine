@@ -1,0 +1,330 @@
+//@version=5
+indicator("Multi-Ticker Strategy Breadth", shorttitle="Breadth", overlay=false)
+
+// ================ Script Metadata ================
+// Generated: 2025-10-14 11:00:12
+// Source CSV: pinescript.csv
+// Total Strategies: 74
+// Tickers: BTC-USD, ETH-USD, ETH-USD_BTC-USD, ETH-USD_MSTR, ETH-USD_QQQ, HIMS, MP, MSTR, MSTR_BTC-USD, MSTR_QQQ, NVDA, PLTR, SMR
+
+// ================ Configuration ================
+tickerInput = input.string("BTC-USD", "Select Ticker", options=["BTC-USD", "ETH-USD", "ETH-USD_BTC-USD", "ETH-USD_MSTR", "ETH-USD_QQQ", "HIMS", "MP", "MSTR", "MSTR_BTC-USD", "MSTR_QQQ", "NVDA", "PLTR", "SMR"])
+timeframeInput = input.timeframe("D", "Strategy Timeframe")
+threshold = input.int(50, "Center Threshold", minval=0, maxval=100)
+
+// ================ Strategy Functions ================
+
+smaCrossSignal(shortWindow, longWindow) =>
+    shortSMA = ta.sma(close, shortWindow)
+    longSMA = ta.sma(close, longWindow)
+    shortSMA > longSMA
+
+emaCrossSignal(shortWindow, longWindow) =>
+    shortEMA = ta.ema(close, shortWindow)
+    longEMA = ta.ema(close, longWindow)
+    shortEMA > longEMA
+
+macdSignal(shortWindow, longWindow, signalWindow) =>
+    [macdLine, signalLine, _] = ta.macd(close, shortWindow, longWindow, signalWindow)
+    macdLine > signalLine
+
+// ================ Breadth Calculation ================
+calculateBreadth() =>
+    int active = 0
+    int total = 0
+
+    if tickerInput == "BTC-USD"
+        total := 5
+
+        if smaCrossSignal(27, 39)
+            active += 1
+
+        if smaCrossSignal(83, 84)
+            active += 1
+
+        if macdSignal(15, 18, 20)
+            active += 1
+
+        if emaCrossSignal(6, 29)
+            active += 1
+
+        if smaCrossSignal(60, 61)
+            active += 1
+
+    else if tickerInput == "ETH-USD"
+        total := 5
+
+        if smaCrossSignal(29, 31)
+            active += 1
+
+        if smaCrossSignal(12, 21)
+            active += 1
+
+        if smaCrossSignal(14, 19)
+            active += 1
+
+        if smaCrossSignal(8, 23)
+            active += 1
+
+        if macdSignal(10, 33, 21)
+            active += 1
+
+    else if tickerInput == "ETH-USD_BTC-USD"
+        total := 4
+
+        if smaCrossSignal(14, 16)
+            active += 1
+
+        if smaCrossSignal(15, 23)
+            active += 1
+
+        if smaCrossSignal(15, 24)
+            active += 1
+
+        if smaCrossSignal(16, 23)
+            active += 1
+
+    else if tickerInput == "ETH-USD_MSTR"
+        total := 5
+
+        if emaCrossSignal(5, 13)
+            active += 1
+
+        if macdSignal(10, 34, 17)
+            active += 1
+
+        if smaCrossSignal(9, 12)
+            active += 1
+
+        if smaCrossSignal(9, 13)
+            active += 1
+
+        if smaCrossSignal(9, 14)
+            active += 1
+
+    else if tickerInput == "ETH-USD_QQQ"
+        total := 7
+
+        if emaCrossSignal(7, 13)
+            active += 1
+
+        if macdSignal(9, 30, 20)
+            active += 1
+
+        if smaCrossSignal(8, 13)
+            active += 1
+
+        if smaCrossSignal(9, 13)
+            active += 1
+
+        if smaCrossSignal(7, 13)
+            active += 1
+
+        if smaCrossSignal(26, 28)
+            active += 1
+
+        if smaCrossSignal(7, 12)
+            active += 1
+
+    else if tickerInput == "HIMS"
+        total := 9
+
+        if smaCrossSignal(20, 21)
+            active += 1
+
+        if macdSignal(12, 13, 20)
+            active += 1
+
+        if smaCrossSignal(11, 12)
+            active += 1
+
+        if macdSignal(11, 15, 19)
+            active += 1
+
+        if macdSignal(10, 15, 20)
+            active += 1
+
+        if macdSignal(11, 16, 17)
+            active += 1
+
+        if macdSignal(16, 22, 9)
+            active += 1
+
+        if macdSignal(6, 9, 6)
+            active += 1
+
+        if macdSignal(5, 8, 8)
+            active += 1
+
+    else if tickerInput == "MP"
+        total := 5
+
+        if macdSignal(9, 11, 9)
+            active += 1
+
+        if macdSignal(7, 12, 10)
+            active += 1
+
+        if macdSignal(7, 8, 14)
+            active += 1
+
+        if macdSignal(10, 13, 6)
+            active += 1
+
+        if smaCrossSignal(86, 87)
+            active += 1
+
+    else if tickerInput == "MSTR"
+        total := 5
+
+        if macdSignal(20, 21, 18)
+            active += 1
+
+        if smaCrossSignal(84, 88)
+            active += 1
+
+        if macdSignal(16, 22, 18)
+            active += 1
+
+        if macdSignal(17, 29, 18)
+            active += 1
+
+        if emaCrossSignal(12, 59)
+            active += 1
+
+    else if tickerInput == "MSTR_BTC-USD"
+        total := 5
+
+        if emaCrossSignal(10, 17)
+            active += 1
+
+        if macdSignal(14, 23, 6)
+            active += 1
+
+        if smaCrossSignal(8, 12)
+            active += 1
+
+        if smaCrossSignal(10, 15)
+            active += 1
+
+        if smaCrossSignal(7, 13)
+            active += 1
+
+    else if tickerInput == "MSTR_QQQ"
+        total := 9
+
+        if smaCrossSignal(18, 30)
+            active += 1
+
+        if smaCrossSignal(87, 88)
+            active += 1
+
+        if smaCrossSignal(86, 89)
+            active += 1
+
+        if smaCrossSignal(86, 88)
+            active += 1
+
+        if smaCrossSignal(18, 21)
+            active += 1
+
+        if smaCrossSignal(18, 23)
+            active += 1
+
+        if smaCrossSignal(85, 89)
+            active += 1
+
+        if smaCrossSignal(73, 82)
+            active += 1
+
+        if smaCrossSignal(19, 21)
+            active += 1
+
+    else if tickerInput == "NVDA"
+        total := 5
+
+        if smaCrossSignal(64, 74)
+            active += 1
+
+        if smaCrossSignal(24, 57)
+            active += 1
+
+        if smaCrossSignal(78, 82)
+            active += 1
+
+        if emaCrossSignal(16, 79)
+            active += 1
+
+        if macdSignal(15, 32, 20)
+            active += 1
+
+    else if tickerInput == "PLTR"
+        total := 5
+
+        if smaCrossSignal(10, 12)
+            active += 1
+
+        if smaCrossSignal(10, 11)
+            active += 1
+
+        if smaCrossSignal(27, 28)
+            active += 1
+
+        if macdSignal(7, 11, 7)
+            active += 1
+
+        if smaCrossSignal(16, 18)
+            active += 1
+
+    else if tickerInput == "SMR"
+        total := 5
+
+        if smaCrossSignal(17, 18)
+            active += 1
+
+        if smaCrossSignal(7, 9)
+            active += 1
+
+        if smaCrossSignal(13, 14)
+            active += 1
+
+        if smaCrossSignal(20, 21)
+            active += 1
+
+        if macdSignal(6, 11, 14)
+            active += 1
+
+    [active, total]
+
+// Execute calculation on selected timeframe
+[active, total] = request.security(syminfo.tickerid, timeframeInput, calculateBreadth())
+percentage = (active / total) * 100
+
+// ================ Visualization ================
+
+color bullColor = color.new(#26c6da, 0)
+color bearColor = color.new(#7e57c2, 0)
+color neutralColor = color.new(#3179f5, 0)
+
+oscillatorColor = percentage > threshold ? bullColor :
+                  percentage < threshold ? bearColor :
+                  neutralColor
+
+// Plot oscillator
+plot(percentage, "Strategy Breadth %", color=oscillatorColor, linewidth=2)
+hline(threshold, "Threshold", color=neutralColor, linestyle=hline.style_dashed)
+
+// Display statistics table
+var table infoTable = table.new(position.bottom_right, 2, 2, border_width=1)
+if barstate.islast
+    table.cell(infoTable, 0, 0, "Active Strategies", bgcolor=color.new(#000000, 90), text_color=color.white)
+    table.cell(infoTable, 1, 0, str.tostring(active) + " / " + str.tostring(total), bgcolor=color.new(#000000, 90), text_color=oscillatorColor)
+    table.cell(infoTable, 0, 1, "Percentage", bgcolor=color.new(#000000, 90), text_color=color.white)
+    table.cell(infoTable, 1, 1, str.tostring(math.round(percentage)) + "%", bgcolor=color.new(#000000, 90), text_color=oscillatorColor)
+
+// ================ Alerts ================
+crossingUp = ta.crossover(percentage, threshold)
+crossingDown = ta.crossunder(percentage, threshold)
+
+alertcondition(crossingUp, "Breadth Crossing Up", "{{ticker}} breadth crossing above threshold")
+alertcondition(crossingDown, "Breadth Crossing Down", "{{ticker}} breadth crossing below threshold")

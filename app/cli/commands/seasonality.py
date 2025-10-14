@@ -420,7 +420,7 @@ def portfolio(
         ..., help="Portfolio filename from data/raw/strategies/ directory"
     ),
     default_time_period: int = typer.Option(
-        5,
+        21,
         "--default-days",
         "-d",
         help="Default time period in days when no signal entry exists",
@@ -531,6 +531,21 @@ def portfolio(
             f"⏰ [yellow]{default_based} tickers used default {default_time_period}-day period[/yellow]"
         )
 
+        # Display tickers with positive expectancy
+        if results["display_data"]:
+            positive_expectancy_tickers = [
+                row["ticker"]
+                for row in results["display_data"]
+                if isinstance(row.get("expectancy"), (int, float))
+                and row["expectancy"] > 0
+            ]
+
+            if positive_expectancy_tickers:
+                rprint(
+                    f"\n[bold green]✨ Tickers with Positive Expectancy ({len(positive_expectancy_tickers)}):[/bold green]"
+                )
+                rprint(f"[cyan]{','.join(positive_expectancy_tickers)}[/cyan]")
+
     except Exception as e:
         rprint(f"\n[red]Error: {str(e)}[/red]")
         raise typer.Exit(1)
@@ -554,6 +569,7 @@ def _display_portfolio_results(display_data, portfolio_name):
     table.add_column("Period", style="white")
     table.add_column("Avg Return", style="green", justify="right")
     table.add_column("Win Rate", style="magenta", justify="right")
+    table.add_column("Expectancy", style="bright_green", justify="right")
     table.add_column("Time Period", style="dim", justify="right")
 
     for row in display_data:
@@ -579,6 +595,16 @@ def _display_portfolio_results(display_data, portfolio_name):
         else:
             seasonal_strength_str = str(seasonal_strength)
 
+        # Format expectancy
+        expectancy = row.get("expectancy", "N/A")
+        if isinstance(expectancy, (int, float)):
+            expectancy_color = "bright_green" if expectancy > 0 else "red"
+            expectancy_str = (
+                f"[{expectancy_color}]{expectancy:+.2f}%[/{expectancy_color}]"
+            )
+        else:
+            expectancy_str = str(expectancy)
+
         # Format time period with source indicator
         time_period_days = row.get("time_period_days", "N/A")
         analysis_source = row.get("analysis_source", "default")
@@ -595,6 +621,7 @@ def _display_portfolio_results(display_data, portfolio_name):
             row.get("period", "N/A"),
             avg_return_str,
             win_rate_str,
+            expectancy_str,
             time_period_str,
         )
 

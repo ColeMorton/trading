@@ -56,7 +56,7 @@ class SeasonalityAnalyzer:
 
         patterns = []
 
-        # Analyze different pattern types
+        # Analyze different pattern types - get ALL historical patterns
         monthly_patterns = self.analyze_monthly_patterns(returns)
         patterns.extend(monthly_patterns)
 
@@ -69,21 +69,9 @@ class SeasonalityAnalyzer:
         day_of_month_patterns = self.analyze_day_of_month_patterns(returns)
         patterns.extend(day_of_month_patterns)
 
-        # Add current date context and filter for current date actionable analysis
-        current_date_patterns = []
-        for pattern in patterns:
-            # Create current date specific version of each pattern
-            current_date_pattern = self._create_current_date_pattern(pattern, returns)
-            if current_date_pattern:
-                current_date_patterns.append(current_date_pattern)
-
-        # If we have current date patterns, use those; otherwise fall back to general patterns
-        if current_date_patterns:
-            patterns = current_date_patterns
-
-        # Add current date context to patterns
-        for i, pattern in enumerate(patterns):
-            patterns[i] = self._add_current_date_context(pattern)
+        # Add week-of-year patterns
+        week_of_year_patterns = self.analyze_week_of_year_patterns(returns)
+        patterns.extend(week_of_year_patterns)
 
         return patterns
 
@@ -256,6 +244,43 @@ class SeasonalityAnalyzer:
 
         return patterns
 
+    def analyze_week_of_year_patterns(
+        self, returns: pd.Series
+    ) -> List[SeasonalityPattern]:
+        """Analyze week-of-year seasonal patterns (weeks 1-52).
+
+        Args:
+            returns: Daily returns series with datetime index
+
+        Returns:
+            List of week-of-year patterns
+        """
+        patterns = []
+        week_data = {}
+
+        # Group returns by week of year
+        for date, ret in returns.items():
+            week_num = date.isocalendar()[1]  # ISO week number (1-52/53)
+            if week_num not in week_data:
+                week_data[week_num] = []
+            week_data[week_num].append(ret)
+
+        # Calculate statistics for each week
+        for week_num in sorted(week_data.keys()):
+            week_returns = np.array(week_data[week_num])
+
+            if len(week_returns) >= self.min_sample_size:
+                pattern = self._create_pattern(
+                    pattern_type=PatternType.WEEK_OF_YEAR,
+                    period=f"Week {week_num}",
+                    returns=week_returns,
+                    all_returns=returns.values,
+                    period_number=week_num,
+                )
+                patterns.append(pattern)
+
+        return patterns
+
     def calculate_seasonal_strength(self, patterns: List[SeasonalityPattern]) -> float:
         """Calculate overall seasonal strength score.
 
@@ -317,8 +342,9 @@ class SeasonalityAnalyzer:
         period: str,
         returns: np.ndarray,
         all_returns: np.ndarray,
+        period_number: Optional[int] = None,
     ) -> SeasonalityPattern:
-        """Create a seasonality pattern from returns data."""
+        """Create a seasonality pattern from returns data with comprehensive metrics."""
         avg_return = np.mean(returns) * 100  # Convert to percentage
         std_dev = np.std(returns) * 100
         win_rate = np.sum(returns > 0) / len(returns)
@@ -333,6 +359,30 @@ class SeasonalityAnalyzer:
         ci_lower = avg_return - margin
         ci_upper = avg_return + margin
 
+        # Calculate Sharpe Ratio (assuming risk-free rate = 0)
+        # Use tolerance to handle floating point precision issues
+        sharpe_ratio = (avg_return / std_dev) if std_dev > 1e-10 else 0
+
+        # Calculate Sortino Ratio (downside deviation)
+        downside_returns = returns[returns < 0]
+        downside_std = (
+            np.std(downside_returns) * 100 if len(downside_returns) > 0 else std_dev
+        )
+        sortino_ratio = (avg_return / downside_std) if downside_std > 1e-10 else 0
+
+        # Calculate Maximum Drawdown (simplified - max negative return)
+        max_drawdown = np.min(returns) * 100 if len(returns) > 0 else 0
+
+        # Calculate Consistency Score (% of positive returns)
+        consistency_score = win_rate
+
+        # Calculate Skewness and Kurtosis
+        from scipy.stats import kurtosis as kurt
+        from scipy.stats import skew
+
+        skewness = float(skew(returns)) if len(returns) > 2 else 0
+        kurtosis_val = float(kurt(returns)) if len(returns) > 3 else 0
+
         return SeasonalityPattern(
             pattern_type=pattern_type,
             period=period,
@@ -344,6 +394,13 @@ class SeasonalityAnalyzer:
             p_value=p_value,
             confidence_interval_lower=ci_lower,
             confidence_interval_upper=ci_upper,
+            sharpe_ratio=sharpe_ratio,
+            sortino_ratio=sortino_ratio,
+            max_drawdown=max_drawdown,
+            consistency_score=consistency_score,
+            skewness=skewness,
+            kurtosis=kurtosis_val,
+            period_number=period_number,
         )
 
     def _add_current_date_context(

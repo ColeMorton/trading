@@ -192,7 +192,7 @@ class PortfolioSeasonalityService:
                     # Fallback to default if duration parsing failed
                     ticker_periods[ticker] = self.config.default_time_period_days
             else:
-                # Use default time period (5 days for stocks)
+                # Use default time period
                 ticker_periods[ticker] = self.config.default_time_period_days
 
         return ticker_periods
@@ -266,7 +266,7 @@ class PortfolioSeasonalityService:
             source = (
                 "Signal Entry"
                 if days != self.config.default_time_period_days
-                else "Default (5 days)"
+                else f"Default ({self.config.default_time_period_days} days)"
             )
             table.add_row(ticker, f"{days} days", source)
 
@@ -325,6 +325,11 @@ class PortfolioSeasonalityService:
                             strongest_pattern.average_return, 2
                         ),
                         "Win_Rate": round(strongest_pattern.win_rate, 3),
+                        "Expectancy": round(
+                            strongest_pattern.average_return
+                            * strongest_pattern.win_rate,
+                            2,
+                        ),
                         "Sample_Size": strongest_pattern.sample_size,
                         "Statistical_Significance": round(
                             strongest_pattern.statistical_significance, 3
@@ -341,7 +346,7 @@ class PortfolioSeasonalityService:
             filepath = output_dir / filename
 
             df = pd.DataFrame(summary_data)
-            df = df.sort_values("Seasonal_Strength", ascending=False)
+            df = df.sort_values("Expectancy", ascending=False)
             df.to_csv(filepath, index=False)
 
             self.console.print(f"[green]✓ Portfolio summary saved: {filename}[/green]")
@@ -414,6 +419,11 @@ class PortfolioSeasonalityService:
                         "period": strongest_pattern.period,
                         "avg_return": round(strongest_pattern.average_return, 2),
                         "win_rate": round(strongest_pattern.win_rate, 3),
+                        "expectancy": round(
+                            strongest_pattern.average_return
+                            * strongest_pattern.win_rate,
+                            2,
+                        ),
                         "sample_size": strongest_pattern.sample_size,
                         "statistical_significance": round(
                             strongest_pattern.statistical_significance, 3
@@ -423,11 +433,11 @@ class PortfolioSeasonalityService:
                     }
                 )
 
-        # Sort by seasonal strength (highest first)
+        # Sort by expectancy (highest first)
         display_data.sort(
-            key=lambda x: x.get("seasonal_strength", 0)
-            if isinstance(x.get("seasonal_strength"), (int, float))
-            else 0,
+            key=lambda x: x.get("expectancy", -999)
+            if isinstance(x.get("expectancy"), (int, float))
+            else -999,
             reverse=True,
         )
         return display_data
