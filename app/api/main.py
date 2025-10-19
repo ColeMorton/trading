@@ -180,12 +180,15 @@ app.openapi = custom_openapi
 app.include_router(health.router, prefix="/health", tags=["Health"])
 
 # Import and include completed routers
-from .routers import concurrency, config, jobs, seasonality, strategy
+from .routers import concurrency, config, jobs, seasonality, strategy, sweeps
 
 
 app.include_router(jobs.router, prefix=f"{settings.API_V1_PREFIX}/jobs", tags=["Jobs"])
 app.include_router(
     strategy.router, prefix=f"{settings.API_V1_PREFIX}/strategy", tags=["Strategy"]
+)
+app.include_router(
+    sweeps.router, prefix=f"{settings.API_V1_PREFIX}/sweeps", tags=["Sweeps"]
 )
 app.include_router(
     config.router, prefix=f"{settings.API_V1_PREFIX}/config", tags=["Config"]

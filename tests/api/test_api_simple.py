@@ -174,6 +174,18 @@ def test_all_seasonality_endpoints_exist():
     assert "/api/v1/seasonality/portfolio" in paths
 
 
+def test_all_sweep_endpoints_exist():
+    """Verify all sweep results endpoints are registered."""
+    openapi = client.get("/api/openapi.json").json()
+    paths = openapi["paths"]
+
+    assert "/api/v1/sweeps/" in paths
+    assert "/api/v1/sweeps/latest" in paths
+    assert "/api/v1/sweeps/{sweep_run_id}" in paths
+    assert "/api/v1/sweeps/{sweep_run_id}/best" in paths
+    assert "/api/v1/sweeps/{sweep_run_id}/best-per-ticker" in paths
+
+
 if __name__ == "__main__":
     import pytest
 

@@ -85,15 +85,20 @@ class DatabaseManager:
 
     async def _initialize_prisma(self):
         """Initialize Prisma client."""
+        import sys
+        import os
+        from contextlib import redirect_stderr, redirect_stdout
+        from io import StringIO
+        
         try:
-            self.prisma = Prisma()
-            await self.prisma.connect()
+            # Suppress Prisma's error output to avoid confusing users
+            with redirect_stderr(StringIO()), redirect_stdout(StringIO()):
+                self.prisma = Prisma()
+                await self.prisma.connect()
             logger.info("Prisma client connected successfully")
         except Exception as e:
-            logger.warning(f"Failed to connect Prisma client: {e}")
-            logger.info(
-                "Continuing without database - GraphQL features will be limited"
-            )
+            # Prisma is optional - only log at debug level to avoid confusion
+            logger.debug(f"Prisma client not initialized: {e}")
             self.prisma = None
 
     async def _initialize_redis(self):
@@ -122,8 +127,14 @@ class DatabaseManager:
     async def _initialize_connection_pool(self):
         """Initialize asyncpg connection pool."""
         try:
+            # Convert DATABASE_URL to asyncpg-compatible format
+            # Strip SQLAlchemy-specific dialect suffix if present
+            db_url = str(self.settings.database_url)
+            if "+asyncpg" in db_url:
+                db_url = db_url.replace("+asyncpg", "")
+            
             self._connection_pool = await asyncpg.create_pool(
-                str(self.settings.database_url),
+                db_url,
                 min_size=5,
                 max_size=self.settings.db_pool_size,
                 command_timeout=self.settings.db_pool_timeout,
@@ -249,3 +260,23 @@ async def startup_database():
 async def shutdown_database():
     """Shutdown event for database cleanup."""
     await db_manager.close()
+
+
+async def is_database_available() -> bool:
+    """
+    Quick health check for database availability.
+
+    Returns:
+        True if database is available and can accept connections, False otherwise
+    """
+    try:
+        # Check if connection pool is available (asyncpg-based)
+        if db_manager._connection_pool:
+            # Try a simple query
+            async with db_manager._connection_pool.acquire() as conn:
+                await conn.fetchval("SELECT 1")
+            return True
+        return False
+    except Exception as e:
+        logger.warning(f"Database availability check failed: {e}")
+        return False

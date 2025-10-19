@@ -7,6 +7,7 @@ unified trading CLI system.
 
 from pathlib import Path
 import sys
+from typing import Optional
 
 from rich import print as rprint
 from rich.console import Console
@@ -211,7 +212,7 @@ def pinescript(
         ...,
         help="CSV filename (with or without .csv extension). Searches in data/raw/strategies/",
     ),
-    ticker: str | None = typer.Option(
+    ticker: Optional[str] = typer.Option(
         None,
         "--ticker",
         "-t",
@@ -425,7 +426,7 @@ def main(
         "-q",
         help="Suppress all output except success/failure messages",
     ),
-    profiles_dir: Path | None = typer.Option(
+    profiles_dir: Optional[Path] = typer.Option(
         None, "--profiles-dir", help="Custom profiles directory"
     ),
 ):

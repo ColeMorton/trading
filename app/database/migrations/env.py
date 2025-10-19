@@ -5,10 +5,6 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-# Import all models to ensure they're registered
-from app.api.core.database import Base
-
-
 # Alembic Config object
 config = context.config
 
@@ -16,8 +12,9 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Add your model's MetaData object here for 'autogenerate' support
-target_metadata = Base.metadata
+# For manual migrations without ORM models
+# target_metadata is set to None since we're using raw SQL migrations
+target_metadata = None
 
 
 def run_migrations_offline() -> None:

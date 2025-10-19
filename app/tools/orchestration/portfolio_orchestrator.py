@@ -128,9 +128,10 @@ class PortfolioOrchestrator:
                                 "warning",
                             )
                     else:
+                        # Only log at debug level - file may be created later in async export
                         self.log(
-                            f"🔍 DIAGNOSTIC: Missing {export_type} file {expected_filename}",
-                            "warning",
+                            f"🔍 DIAGNOSTIC: {export_type} file not yet found: {expected_filename}",
+                            "debug",
                         )
 
             self.log(

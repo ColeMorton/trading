@@ -33,7 +33,12 @@ Complete navigation guide for the trading strategy analysis platform.
 ### API Documentation
 
 - [API README](docs/api/README.md) - Complete API documentation
+- [Sweep Results API](docs/api/SWEEP_RESULTS_API.md) - Sweep endpoint reference
+- [API Data Flow](docs/api/API_DATA_FLOW.md) - How data flows through the system
+- [Integration Guide](docs/api/INTEGRATION_GUIDE.md) - Best practices
+- [Quick Reference](docs/api/QUICK_REFERENCE.md) - Quick syntax card
 - [API Getting Started](docs/api/GETTING_STARTED.md) - API setup guide
+- [Examples](docs/api/examples/) - Working code examples
 
 ### Development
 
@@ -42,6 +47,13 @@ Complete navigation guide for the trading strategy analysis platform.
 - [Code Quality Improvement](docs/development/CODE_QUALITY_IMPROVEMENT.md) - Gradual improvement
 - [SSH Guide](docs/development/SSH_GUIDE.md) - Remote development
 - [AI Assistant Guide](docs/development/AI_ASSISTANT_GUIDE.md) - Using Claude/AI
+
+### Database
+
+- [Database Overview](docs/database/README.md) - Database documentation hub
+- [Database Schema](docs/database/SCHEMA.md) - Complete schema reference  
+- [Migration Changelog](docs/database/CHANGELOG.md) - Migration history
+- [SQL Views & Queries](sql/README.md) - 19 database views + queries
 
 ### Architecture
 
@@ -109,6 +121,20 @@ Complete navigation guide for the trading strategy analysis platform.
 
 ---
 
+## Recent Updates
+
+### October 2025 - Sweep Results API & Database Normalization
+
+- ✅ Database normalization (tickers, strategy types)
+- ✅ 19 analytical database views
+- ✅ Sweep Results API (5 new endpoints)
+- ✅ 42+ tests with comprehensive coverage
+- ✅ 2,000+ lines of documentation
+
+See [CHANGELOG.md](./CHANGELOG.md) for complete history.
+
+---
+
 ## Project Components
 
 ### Command-Line Interface (CLI)
@@ -120,9 +146,17 @@ Complete navigation guide for the trading strategy analysis platform.
 ### REST API
 
 - **Status**: Operational
-- **Endpoints**: 33 working endpoints
+- **Endpoints**: 38 working endpoints (33 original + 5 sweep results)
 - **URL**: http://localhost:8000
 - **Docs**: http://localhost:8000/api/docs
+
+### Database
+
+- **Status**: Production ready
+- **Tables**: 10 (normalized schema)
+- **Views**: 19 analytical views
+- **Records**: 4,855 sweep results
+- **Migrations**: 7 (all applied)
 
 ### Core Systems
 

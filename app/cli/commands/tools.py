@@ -7,6 +7,7 @@ and maintenance operations.
 import json
 import os
 from pathlib import Path
+from typing import Optional
 
 from rich import print as rprint
 from rich.console import Console
@@ -33,10 +34,10 @@ console = Console()
 @app.command()
 def schema(
     ctx: typer.Context,
-    profile: str | None = typer.Option(
+    profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
-    file_path: str | None = typer.Option(
+    file_path: Optional[str] = typer.Option(
         None, "--file", "-f", help="Path to CSV file for schema operations"
     ),
     detect: bool = typer.Option(
@@ -51,7 +52,7 @@ def schema(
     validate_only: bool = typer.Option(
         False, "--validate-only", help="Only validate schema, don't convert"
     ),
-    output_file: str | None = typer.Option(
+    output_file: Optional[str] = typer.Option(
         None, "--output", "-o", help="Output file path for conversions"
     ),
 ):
@@ -225,13 +226,13 @@ def schema(
 @app.command()
 def validate(
     ctx: typer.Context,
-    profile: str | None = typer.Option(
+    profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
     files: list[str] = typer.Option(
         [], "--file", "-f", help="File paths to validate (can be used multiple times)"
     ),
-    directory: str | None = typer.Option(
+    directory: Optional[str] = typer.Option(
         None, "--directory", "-d", help="Directory to validate all CSV files"
     ),
     schema_validation: bool = typer.Option(
@@ -244,7 +245,7 @@ def validate(
     output_format: str = typer.Option(
         "table", "--output", help="Output format: table, json, summary"
     ),
-    save_report: str | None = typer.Option(
+    save_report: Optional[str] = typer.Option(
         None, "--save-report", help="Save validation report to file"
     ),
 ):
@@ -392,7 +393,7 @@ def validate(
 @app.command()
 def health(
     ctx: typer.Context,
-    profile: str | None = typer.Option(
+    profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
     check_files: bool = typer.Option(
@@ -413,7 +414,7 @@ def health(
     output_format: str = typer.Option(
         "table", "--output", help="Output format: table, json, summary"
     ),
-    save_report: str | None = typer.Option(
+    save_report: Optional[str] = typer.Option(
         None, "--save-report", help="Save health report to file"
     ),
 ):
@@ -847,7 +848,7 @@ def export_ma_data(
     ma_type: str = typer.Option(
         "SMA", "--ma-type", help="Moving average type: SMA or EMA"
     ),
-    output_dir: str | None = typer.Option(
+    output_dir: Optional[str] = typer.Option(
         None, "--output-dir", help="Custom output directory"
     ),
     show_stats: bool = typer.Option(
@@ -1198,7 +1199,7 @@ def export_ma_data_sweep(
     ma_type: str = typer.Option(
         "SMA", "--ma-type", help="Moving average type: SMA or EMA"
     ),
-    output_dir: str | None = typer.Option(
+    output_dir: Optional[str] = typer.Option(
         None, "--output-dir", help="Custom output directory"
     ),
     show_stats: bool = typer.Option(
@@ -1662,7 +1663,7 @@ def pinescript(
         ...,
         help="CSV filename (with or without .csv extension). Searches in data/raw/strategies/",
     ),
-    ticker: str | None = typer.Option(
+    ticker: Optional[str] = typer.Option(
         None,
         "--ticker",
         "-t",

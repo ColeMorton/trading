@@ -47,6 +47,18 @@ config:
   signal_period_max: 20
   step: 1
 
+  # ATR-specific parameters with discrete length values (optimized)
+  atr_length_range: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+  atr_multiplier_min: 1.0
+  atr_multiplier_max: 8.0
+  atr_multiplier_step: 0.1
+
+  # Legacy ATR parameters for backward compatibility
+  atr_length_start: 3
+  atr_length_end: 13
+  atr_multiplier_start: 1.0
+  atr_multiplier_end: 5.0
+
   # Strategy Configuration
   direction: Long
   use_hourly: false

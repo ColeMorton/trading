@@ -6,6 +6,7 @@ settings, and system configuration.
 """
 
 import builtins
+from typing import Optional
 
 from rich import print as rprint
 from rich.console import Console
@@ -310,7 +311,7 @@ def _run_interactive_editor(
 
 @app.command()
 def validate(
-    profile_name: str | None = typer.Argument(
+    profile_name: Optional[str] = typer.Argument(
         None, help="Profile name to validate (validates all if not specified)"
     ),
 ):

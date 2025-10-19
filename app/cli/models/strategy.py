@@ -7,7 +7,7 @@ including MA Cross and MACD strategies.
 
 from enum import Enum
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ValidationInfo
 
 from .base import BaseConfig, Direction
 
@@ -57,37 +57,37 @@ class StrategyParams(BaseModel):
 
     @field_validator("fast_period_max")
     @classmethod
-    def validate_fast_period_range(cls, v, values):
+    def validate_fast_period_range(cls, v, info: ValidationInfo):
         """Ensure fast period max is greater than fast period min."""
+        fast_period_min = info.data.get("fast_period_min")
         if (
             v is not None
-            and "fast_period_min" in values
-            and values["fast_period_min"] is not None
-        ) and v <= values["fast_period_min"]:
+            and fast_period_min is not None
+        ) and v <= fast_period_min:
             raise ValueError("Fast period max must be greater than fast period min")
         return v
 
     @field_validator("slow_period_max")
     @classmethod
-    def validate_slow_period_range(cls, v, values):
+    def validate_slow_period_range(cls, v, info: ValidationInfo):
         """Ensure slow period max is greater than slow period min."""
+        slow_period_min = info.data.get("slow_period_min")
         if (
             v is not None
-            and "slow_period_min" in values
-            and values["slow_period_min"] is not None
-        ) and v <= values["slow_period_min"]:
+            and slow_period_min is not None
+        ) and v <= slow_period_min:
             raise ValueError("Slow period max must be greater than slow period min")
         return v
 
     @field_validator("signal_period_max")
     @classmethod
-    def validate_signal_period_range(cls, v, values):
+    def validate_signal_period_range(cls, v, info: ValidationInfo):
         """Ensure signal period max is greater than signal period min."""
+        signal_period_min = info.data.get("signal_period_min")
         if (
             v is not None
-            and "signal_period_min" in values
-            and values["signal_period_min"] is not None
-        ) and v <= values["signal_period_min"]:
+            and signal_period_min is not None
+        ) and v <= signal_period_min:
             raise ValueError("Signal period max must be greater than signal period min")
         return v
 
@@ -351,6 +351,12 @@ class StrategyConfig(BaseConfig):
         description="Path to the batch tracking CSV file",
     )
 
+    # Database persistence
+    database: bool = Field(
+        default=False,
+        description="Persist strategy sweep results to PostgreSQL database",
+    )
+
     @field_validator("ticker", mode="before")
     @classmethod
     def validate_ticker(cls, v):
@@ -401,13 +407,13 @@ class StrategyConfig(BaseConfig):
 
     @field_validator("fast_period_max")
     @classmethod
-    def validate_fast_period_range(cls, v, values):
+    def validate_fast_period_range(cls, v, info: ValidationInfo):
         """Ensure fast period max is greater than or equal to fast period min."""
+        fast_period_min = info.data.get("fast_period_min")
         if (
             v is not None
-            and "fast_period_min" in values
-            and values["fast_period_min"] is not None
-        ) and v < values["fast_period_min"]:
+            and fast_period_min is not None
+        ) and v < fast_period_min:
             raise ValueError(
                 "Fast period max must be greater than or equal to fast period min"
             )
@@ -415,13 +421,13 @@ class StrategyConfig(BaseConfig):
 
     @field_validator("slow_period_max")
     @classmethod
-    def validate_slow_period_range(cls, v, values):
+    def validate_slow_period_range(cls, v, info: ValidationInfo):
         """Ensure slow period max is greater than or equal to slow period min."""
+        slow_period_min = info.data.get("slow_period_min")
         if (
             v is not None
-            and "slow_period_min" in values
-            and values["slow_period_min"] is not None
-        ) and v < values["slow_period_min"]:
+            and slow_period_min is not None
+        ) and v < slow_period_min:
             raise ValueError(
                 "Slow period max must be greater than or equal to slow period min"
             )
@@ -429,13 +435,13 @@ class StrategyConfig(BaseConfig):
 
     @field_validator("signal_period_max")
     @classmethod
-    def validate_signal_period_range(cls, v, values):
+    def validate_signal_period_range(cls, v, info: ValidationInfo):
         """Ensure signal period max is greater than or equal to signal period min."""
+        signal_period_min = info.data.get("signal_period_min")
         if (
             v is not None
-            and "signal_period_min" in values
-            and values["signal_period_min"] is not None
-        ) and v < values["signal_period_min"]:
+            and signal_period_min is not None
+        ) and v < signal_period_min:
             raise ValueError(
                 "Signal period max must be greater than or equal to signal period min"
             )
@@ -443,25 +449,25 @@ class StrategyConfig(BaseConfig):
 
     @field_validator("atr_length_max")
     @classmethod
-    def validate_atr_length_range(cls, v, values):
+    def validate_atr_length_range(cls, v, info: ValidationInfo):
         """Ensure ATR length max is greater than ATR length min."""
+        atr_length_min = info.data.get("atr_length_min")
         if (
             v is not None
-            and "atr_length_min" in values
-            and values["atr_length_min"] is not None
-        ) and v <= values["atr_length_min"]:
+            and atr_length_min is not None
+        ) and v <= atr_length_min:
             raise ValueError("ATR length max must be greater than ATR length min")
         return v
 
     @field_validator("atr_multiplier_max")
     @classmethod
-    def validate_atr_multiplier_range(cls, v, values):
+    def validate_atr_multiplier_range(cls, v, info: ValidationInfo):
         """Ensure ATR multiplier max is greater than ATR multiplier min."""
+        atr_multiplier_min = info.data.get("atr_multiplier_min")
         if (
             v is not None
-            and "atr_multiplier_min" in values
-            and values["atr_multiplier_min"] is not None
-        ) and v <= values["atr_multiplier_min"]:
+            and atr_multiplier_min is not None
+        ) and v <= atr_multiplier_min:
             raise ValueError(
                 "ATR multiplier max must be greater than ATR multiplier min"
             )
@@ -483,26 +489,26 @@ class StrategyConfig(BaseConfig):
 
     @field_validator("slow_period")
     @classmethod
-    def validate_periods(cls, v, values):
+    def validate_periods(cls, v, info: ValidationInfo):
         """Ensure slow period is greater than fast period when both are specified."""
+        fast_period = info.data.get("fast_period")
         if (
             v is not None
-            and "fast_period" in values
-            and values["fast_period"] is not None
-        ) and v <= values["fast_period"]:
+            and fast_period is not None
+        ) and v <= fast_period:
             raise ValueError("Slow period must be greater than fast period")
         return v
 
     @field_validator("use_4hour")
     @classmethod
-    def validate_use_4hour_exclusivity(cls, v, values):
+    def validate_use_4hour_exclusivity(cls, v, info: ValidationInfo):
         """Ensure use_4hour is not used with other timeframe options."""
         if v is True:
-            if values.get("use_hourly") is True:
+            if info.data.get("use_hourly") is True:
                 raise ValueError(
                     "Cannot use both use_hourly and use_4hour options simultaneously. Choose one timeframe."
                 )
-            if values.get("use_2day") is True:
+            if info.data.get("use_2day") is True:
                 raise ValueError(
                     "Cannot use both use_2day and use_4hour options simultaneously. Choose one timeframe."
                 )
@@ -510,14 +516,14 @@ class StrategyConfig(BaseConfig):
 
     @field_validator("use_2day")
     @classmethod
-    def validate_use_2day_exclusivity(cls, v, values):
+    def validate_use_2day_exclusivity(cls, v, info: ValidationInfo):
         """Ensure use_2day is not used with other timeframe options."""
         if v is True:
-            if values.get("use_hourly") is True:
+            if info.data.get("use_hourly") is True:
                 raise ValueError(
                     "Cannot use both use_hourly and use_2day options simultaneously. Choose one timeframe."
                 )
-            if values.get("use_4hour") is True:
+            if info.data.get("use_4hour") is True:
                 raise ValueError(
                     "Cannot use both use_4hour and use_2day options simultaneously. Choose one timeframe."
                 )
@@ -539,9 +545,9 @@ class StrategyConfig(BaseConfig):
 
     @field_validator("batch_size")
     @classmethod
-    def validate_batch_size_when_batch_enabled(cls, v, values):
+    def validate_batch_size_when_batch_enabled(cls, v, info: ValidationInfo):
         """Ensure batch_size is provided when batch mode is enabled."""
-        batch_enabled = values.get("batch", False)
+        batch_enabled = info.data.get("batch", False)
         if batch_enabled and v is None:
             raise ValueError("batch_size must be specified when batch mode is enabled")
         if not batch_enabled and v is not None:

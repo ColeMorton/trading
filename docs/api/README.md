@@ -1,377 +1,392 @@
-# Trading CLI API
+# Trading CLI API Documentation
 
-A production-ready FastAPI application that exposes the trading-cli as a REST API with async job execution, real-time streaming, and comprehensive authentication.
+## Overview
+
+The Trading CLI API provides programmatic access to all trading strategy analysis commands. It features an asynchronous job-based architecture with real-time progress streaming and comprehensive results access.
 
 ## Quick Start
 
+### 1. Start the API Server
+
 ```bash
-# Start all services
-docker-compose up -d postgres redis api arq_worker
+# Development mode
+uvicorn app.api.main:app --reload --port 8000
 
-# Run database migrations (first time)
-docker-compose exec api alembic upgrade head
-
-# Test the API
-curl http://localhost:8000/health
-
-# Open interactive docs
-open http://localhost:8000/api/docs
+# Production mode (via Docker)
+docker-compose up api
 ```
 
-## Architecture
+### 2. Get an API Key
 
+Default development key:
 ```
-Client → FastAPI → PostgreSQL (job storage)
-                 → Redis/ARQ → ARQ Worker → trading-cli execution
-                             → Progress updates (SSE)
+dev-key-000000000000000000000000
 ```
 
-### Key Components
+### 3. Make Your First Request
 
-- **FastAPI App**: REST API with auto-generated documentation
-- **ARQ Worker**: Async job execution in background
-- **PostgreSQL**: Job history and API key storage
-- **Redis**: Job queue and progress tracking
-- **SSE Streaming**: Real-time progress updates
+```bash
+curl -X GET "http://localhost:8000/api/v1/sweeps/latest" \
+  -H "X-API-Key: dev-key-000000000000000000000000"
+```
 
-## Available Endpoints (33 total)
+### 4. View Interactive Documentation
 
-### Health & Monitoring (4)
+Visit: `http://localhost:8000/api/docs`
 
-- `GET /health` - Basic health check
-- `GET /health/detailed` - Component status
-- `GET /health/ready` - Readiness probe
-- `GET /health/live` - Liveness probe
+---
 
-### Job Management (5)
+## API Endpoints
 
-- `GET /api/v1/jobs` - List jobs
-- `GET /api/v1/jobs/{id}` - Get job status
-- `GET /api/v1/jobs/{id}/stream` - Stream progress (SSE)
-- `DELETE /api/v1/jobs/{id}` - Cancel job
+### Strategy Execution
 
-### Strategy Commands (4)
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/v1/strategy/run` | POST | Execute single strategy backtest |
+| `/api/v1/strategy/sweep` | POST | Run parameter sweep analysis |
+| `/api/v1/strategy/review` | POST | Detailed strategy review |
+| `/api/v1/strategy/sector-compare` | POST | Cross-sector comparison |
 
-- `POST /api/v1/strategy/run` - Execute strategy analysis
-- `POST /api/v1/strategy/sweep` - Parameter sweep
-- `POST /api/v1/strategy/review` - Strategy review
-- `POST /api/v1/strategy/sector-compare` - Sector comparison
+### Sweep Results ⭐ NEW
 
-### Configuration (6)
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/v1/sweeps/` | GET | List all sweep runs |
+| `/api/v1/sweeps/latest` | GET | Latest sweep results |
+| `/api/v1/sweeps/{id}` | GET | All results for sweep |
+| `/api/v1/sweeps/{id}/best` | GET | Best result for sweep |
+| `/api/v1/sweeps/{id}/best-per-ticker` | GET | Best per ticker |
 
-- `POST /api/v1/config/list` - List profiles
-- `POST /api/v1/config/show` - Show profile
-- `POST /api/v1/config/verify-defaults` - Verify defaults
-- `POST /api/v1/config/set-default` - Set default
-- `POST /api/v1/config/edit` - Edit profile
-- `POST /api/v1/config/validate` - Validate profiles
+### Job Management
 
-### Concurrency Analysis (8)
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/v1/jobs/{id}` | GET | Get job status |
+| `/api/v1/jobs/{id}/stream` | GET | Stream job progress (SSE) |
+| `/api/v1/jobs/{id}` | DELETE | Cancel job |
+| `/api/v1/jobs/` | GET | List jobs |
 
-- `POST /api/v1/concurrency/analyze` - Analyze concurrency
-- `POST /api/v1/concurrency/export` - Export results
-- `POST /api/v1/concurrency/review` - Review analysis
-- `POST /api/v1/concurrency/construct` - Construct portfolio
-- `POST /api/v1/concurrency/optimize` - Optimize portfolio
-- `POST /api/v1/concurrency/monte-carlo` - Monte Carlo analysis
-- `POST /api/v1/concurrency/health` - Health check
-- `POST /api/v1/concurrency/demo` - Demo analysis
+### Configuration
 
-### Seasonality (6)
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/v1/config/list` | POST | List configurations |
+| `/api/v1/config/show` | POST | Show configuration |
+| `/api/v1/config/verify-defaults` | POST | Verify defaults |
+| `/api/v1/config/set-default` | POST | Set default config |
+| `/api/v1/config/edit` | POST | Edit configuration |
+| `/api/v1/config/validate` | POST | Validate configuration |
 
-- `POST /api/v1/seasonality/run` - Run analysis
-- `POST /api/v1/seasonality/list` - List results
-- `POST /api/v1/seasonality/results` - Get results
-- `POST /api/v1/seasonality/clean` - Clean old data
-- `POST /api/v1/seasonality/current` - Current signals
-- `POST /api/v1/seasonality/portfolio` - Portfolio analysis
+### Concurrency Analysis
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/v1/concurrency/analyze` | POST | Analyze concurrency |
+| `/api/v1/concurrency/export` | POST | Export concurrency data |
+| `/api/v1/concurrency/review` | POST | Review concurrency |
+| `/api/v1/concurrency/construct` | POST | Construct portfolio |
+| `/api/v1/concurrency/optimize` | POST | Optimize portfolio |
+| `/api/v1/concurrency/monte-carlo` | POST | Monte Carlo analysis |
+
+### Seasonality Analysis
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/v1/seasonality/run` | POST | Run seasonality analysis |
+| `/api/v1/seasonality/list` | POST | List seasonality data |
+| `/api/v1/seasonality/results` | POST | Get seasonality results |
+| `/api/v1/seasonality/clean` | POST | Clean seasonality data |
+| `/api/v1/seasonality/current` | POST | Get current seasonality |
+| `/api/v1/seasonality/portfolio` | POST | Seasonality portfolio |
+
+### Health & Monitoring
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/health/` | GET | Basic health check |
+| `/health/detailed` | GET | Detailed component health |
+| `/health/ready` | GET | Readiness probe |
+| `/health/live` | GET | Liveness probe |
+
+---
 
 ## Authentication
 
-All endpoints (except `/health`) require API key authentication.
+All API endpoints (except health checks) require an API key passed in the `X-API-Key` header:
+
+```http
+X-API-Key: your-api-key-here
+```
 
 ### Development Key
 
-For testing:
-
+For development and testing:
 ```
-X-API-Key: dev-key-000000000000000000000000
-```
-
-### Production Keys
-
-```bash
-# Create API key with specific scopes
-python scripts/manage_api_keys.py create "App Name" --scopes strategy config
-
-# List keys
-python scripts/manage_api_keys.py list
-
-# Deactivate key
-python scripts/manage_api_keys.py deactivate {key_id}
+dev-key-000000000000000000000000
 ```
 
-### Scopes
+**⚠️ Never use the development key in production!**
 
-- `strategy` - Strategy analysis
-- `portfolio` - Portfolio management
-- `spds` - Statistical analysis
-- `trade-history` - Trade history
-- `config` - Configuration
-- `tools` - Utility tools
-- `concurrency` - Concurrency analysis
-- `positions` - Position management
-- `seasonality` - Seasonality analysis
-- `*` - All scopes (admin)
+---
 
-## Usage Examples
+## Common Workflows
 
-### Execute Strategy Analysis
+### Workflow 1: Run a Strategy Sweep
 
-```bash
-curl -X POST http://localhost:8000/api/v1/strategy/run \
-  -H "X-API-Key: dev-key-000000000000000000000000" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "ticker": "BTC-USD",
-    "fast_period": 20,
-    "slow_period": 50,
-    "strategy_type": "SMA"
-  }'
+```python
+import requests
+import time
 
-# Response:
-{
-  "job_id": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "pending",
-  "created_at": "2025-10-19T12:00:00",
-  "stream_url": "/api/v1/jobs/550e8400.../stream",
-  "status_url": "/api/v1/jobs/550e8400..."
-}
+api_key = "dev-key-000000000000000000000000"
+headers = {"X-API-Key": api_key}
+
+# 1. Start sweep
+job = requests.post(
+    "http://localhost:8000/api/v1/strategy/sweep",
+    json={
+        "ticker": "AAPL",
+        "fast_range_min": 5,
+        "fast_range_max": 50,
+        "slow_range_min": 10,
+        "slow_range_max": 200,
+        "min_trades": 50
+    },
+    headers=headers
+).json()
+
+print(f"Job started: {job['job_id']}")
+
+# 2. Poll for completion
+while True:
+    status = requests.get(
+        f"http://localhost:8000/api/v1/jobs/{job['job_id']}",
+        headers=headers
+    ).json()
+    
+    if status["status"] == "completed":
+        break
+    elif status["status"] == "failed":
+        raise Exception(f"Job failed: {status['error_message']}")
+    
+    print(f"Progress: {status['progress']}%")
+    time.sleep(5)
+
+# 3. Get latest results
+latest = requests.get(
+    "http://localhost:8000/api/v1/sweeps/latest",
+    headers=headers
+).json()
+
+sweep_id = latest["sweep_run_id"]
+
+# 4. Get best result
+best = requests.get(
+    f"http://localhost:8000/api/v1/sweeps/{sweep_id}/best?ticker=AAPL",
+    headers=headers
+).json()
+
+print(f"Best result: {best['results'][0]}")
 ```
 
-### Stream Progress (Server-Sent Events)
+### Workflow 2: Analyze Latest Sweep
 
-```bash
-curl http://localhost:8000/api/v1/jobs/{job_id}/stream \
-  -H "X-API-Key: dev-key-000000000000000000000000"
+```python
+# Get latest sweep results
+latest = requests.get(
+    "http://localhost:8000/api/v1/sweeps/latest?limit=10",
+    headers=headers
+).json()
 
-# Real-time stream:
-data: {"percent": 10, "message": "Initializing..."}
-data: {"percent": 50, "message": "Executing command..."}
-data: {"percent": 100, "message": "Complete"}
-data: {"done": true, "status": "completed"}
+# Display top performers
+for result in latest["results"]:
+    print(f"{result['ticker']}: {result['fast_period']}/{result['slow_period']} "
+          f"Score={result['score']:.2f}")
 ```
 
-### Check Job Status
+### Workflow 3: Compare Strategies Across Tickers
 
-```bash
-curl http://localhost:8000/api/v1/jobs/{job_id} \
-  -H "X-API-Key: dev-key-000000000000000000000000"
+```python
+# Get best result for each ticker
+sweep_id = "your-sweep-id"
+best_per_ticker = requests.get(
+    f"http://localhost:8000/api/v1/sweeps/{sweep_id}/best-per-ticker",
+    headers=headers
+).json()
 
-# Response:
-{
-  "job_id": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "completed",
-  "progress": 100,
-  "command_group": "strategy",
-  "command_name": "run",
-  "parameters": {...},
-  "result_data": {...},
-  "created_at": "2025-10-19T12:00:00",
-  "completed_at": "2025-10-19T12:02:15"
-}
-```
-
-## Project Structure
-
-```
-app/api/
-├── core/                  # Core infrastructure
-│   ├── config.py         # Settings
-│   ├── security.py       # Authentication
-│   ├── database.py       # Database sessions
-│   └── redis.py          # Redis client
-├── models/                # Data models
-│   ├── auth.py           # API key model
-│   ├── jobs.py           # Job models
-│   ├── schemas.py        # Response schemas
-│   └── requests/         # Request models
-├── routers/               # API endpoints
-│   ├── health.py
-│   ├── jobs.py
-│   ├── strategy.py
-│   ├── config.py
-│   ├── concurrency.py
-│   └── seasonality.py
-├── services/              # Business logic
-│   ├── job_service.py
-│   ├── queue_service.py
-│   └── command_services/
-├── jobs/                  # Job queue system
-│   ├── worker.py         # ARQ worker
-│   ├── tasks.py          # Task definitions
-│   └── progress.py       # Progress tracking
-├── streaming/             # Real-time updates
-│   └── sse.py            # Server-Sent Events
-└── main.py                # FastAPI application
-```
-
-## Configuration
-
-### Environment Variables
-
-Create `.env` file:
-
-```bash
-# API
-API_V1_PREFIX=/api/v1
-ENVIRONMENT=development
-DEBUG=true
-
-# Security
-API_KEY_SECRET=your-secret-here
-API_KEY_MIN_LENGTH=32
-
-# Database
-DATABASE_URL=postgresql://trading_user:trading_password@localhost:5432/trading_db
-
-# Redis
-REDIS_URL=redis://localhost:6379
-ARQ_QUEUE_NAME=trading_jobs
-
-# Jobs
-JOB_TIMEOUT=3600
-MAX_CONCURRENT_JOBS=10
-
-# Rate Limiting
-RATE_LIMIT_DEFAULT=60
-```
-
-## Development
-
-### Local Development
-
-```bash
-# Terminal 1: Start infrastructure
-docker-compose up -d postgres redis
-
-# Terminal 2: Start API
-poetry run uvicorn app.api.main:app --reload --port 8000
-
-# Terminal 3: Start worker
-poetry run arq app.api.jobs.worker.WorkerSettings
-
-# Terminal 4: Test
-./scripts/test_api.sh
-```
-
-### Using Docker Compose
-
-```bash
-# Start everything
-docker-compose up -d
-
-# View logs
-docker-compose logs -f api arq_worker
-
-# Stop everything
-docker-compose down
-```
-
-## Testing
-
-```bash
-# Run automated test suite
-./scripts/test_api.sh
-
-# Run API tests
-poetry run pytest tests/api/
-
-# Manual testing via Swagger UI
-open http://localhost:8000/api/docs
-```
-
-## Production Deployment
-
-1. Set `ENVIRONMENT=production` in `.env`
-2. Set `DEBUG=false`
-3. Change `API_KEY_SECRET` to secure value
-4. Create production API keys
-5. Configure rate limiting
-6. Set up monitoring and logging
-7. Use production database/Redis instances
-8. Enable HTTPS
-
-## Features
-
-- Async job execution (non-blocking)
-- Real-time progress streaming (SSE)
-- API key authentication with scopes
-- Job cancellation
-- Health monitoring
-- Auto-generated documentation
-- Type-safe requests/responses
-- Error handling
-- Connection pooling
-- Docker support
-- Database migrations
-- Graceful shutdown
-
-## Resources
-
-- **API Documentation**: http://localhost:8000/api/docs (Swagger UI)
-- **Alternative Docs**: http://localhost:8000/api/redoc (ReDoc)
-- **Getting Started**: [GETTING_STARTED.md](GETTING_STARTED.md)
-- **CLI Reference**: See main project README
-
-## Support
-
-### Troubleshooting
-
-**Connection refused**:
-
-```bash
-# Ensure services are running
-docker-compose ps
-docker-compose up -d postgres redis
-```
-
-**Table does not exist**:
-
-```bash
-# Run migrations
-alembic upgrade head
-```
-
-**Jobs stay pending**:
-
-```bash
-# Ensure worker is running
-poetry run arq app.api.jobs.worker.WorkerSettings
-```
-
-**Invalid API key**:
-
-```bash
-# Use development key for testing
-X-API-Key: dev-key-000000000000000000000000
-```
-
-### Logs
-
-```bash
-# API logs
-docker-compose logs -f api
-
-# Worker logs
-docker-compose logs -f arq_worker
-
-# Database logs
-docker-compose logs -f postgres
+# Compare
+for result in best_per_ticker["results"]:
+    print(f"{result['ticker']}: {result['score']:.2f} "
+          f"({result['fast_period']}/{result['slow_period']})")
 ```
 
 ---
 
-**Version**: 1.0.0
-**Status**: Production Ready
-**Documentation**: http://localhost:8000/api/docs
+## Detailed Documentation
+
+- **[Sweep Results API](./SWEEP_RESULTS_API.md)** - Complete endpoint reference
+- **[API Data Flow](./API_DATA_FLOW.md)** - How data flows through the system
+- **[Integration Guide](./INTEGRATION_GUIDE.md)** - Integration best practices
+- **[Examples](./examples/)** - Code examples and scripts
+
+---
+
+## Response Formats
+
+All endpoints return JSON with consistent error handling:
+
+### Success Response
+```json
+{
+  "data": {...},
+  "metadata": {...}
+}
+```
+
+### Error Response
+```json
+{
+  "error": "Error Type",
+  "detail": "Detailed error message",
+  "code": "ERROR_CODE",
+  "timestamp": "2025-10-19T10:00:00Z"
+}
+```
+
+---
+
+## Rate Limiting
+
+Currently no rate limiting is enforced. 
+
+**Recommended:** 
+- Maximum 100 requests per minute per API key
+- Sweep operations: Maximum 5 concurrent sweeps
+- Job polling: Maximum 1 request per second
+
+---
+
+## Best Practices
+
+### 1. Use Sweep Results Endpoints
+
+✅ **Do:**
+```python
+# Get results via API
+best = api.get(f"/sweeps/{sweep_id}/best?ticker=AAPL")
+```
+
+❌ **Don't:**
+```python
+# Parse CSV files manually
+df = pd.read_csv("data/raw/portfolios/...")
+```
+
+### 2. Poll Efficiently
+
+✅ **Do:**
+```python
+# Exponential backoff
+wait_time = 5
+while True:
+    status = get_status(job_id)
+    if status["status"] in ["completed", "failed"]:
+        break
+    time.sleep(wait_time)
+    wait_time = min(wait_time * 1.5, 30)  # Max 30 seconds
+```
+
+❌ **Don't:**
+```python
+# Poll too frequently
+while True:
+    status = get_status(job_id)
+    time.sleep(0.1)  # Too fast!
+```
+
+### 3. Use Pagination
+
+✅ **Do:**
+```python
+# Paginate large result sets
+offset = 0
+while True:
+    results = api.get(f"/sweeps/{id}?limit=100&offset={offset}")
+    process(results["results"])
+    if results["returned_count"] < 100:
+        break
+    offset += 100
+```
+
+### 4. Handle Errors Gracefully
+
+✅ **Do:**
+```python
+try:
+    results = api.get(f"/sweeps/{sweep_id}/best")
+except requests.HTTPError as e:
+    if e.response.status_code == 404:
+        print("Sweep not found or no results")
+    else:
+        raise
+```
+
+---
+
+## Performance
+
+### Response Times (typical)
+
+- Health checks: < 10ms
+- List sweeps: < 50ms
+- Get best result: < 50ms
+- Get all results (100 records): < 100ms
+- Stream job progress: Real-time (SSE)
+
+### Optimization Tips
+
+1. Use `/best` endpoint instead of fetching all results and filtering
+2. Request only needed fields (not yet implemented - future enhancement)
+3. Use pagination for large datasets
+4. Cache sweep summaries (data doesn't change after completion)
+
+---
+
+## Development
+
+### Running Tests
+
+```bash
+# All API tests
+pytest tests/api/ -v
+
+# Specific test file
+pytest tests/api/test_sweeps_router.py -v
+
+# With coverage
+pytest tests/api/ --cov=app/api/routers/sweeps --cov-report=html
+```
+
+### Adding New Endpoints
+
+1. Create router in `app/api/routers/`
+2. Define schemas in `app/api/models/schemas.py`
+3. Register router in `app/api/main.py`
+4. Add tests in `tests/api/`
+5. Update this documentation
+
+---
+
+## Support
+
+- **Documentation**: `/docs/api/`
+- **OpenAPI Spec**: `http://localhost:8000/api/openapi.json`
+- **Interactive Docs**: `http://localhost:8000/api/docs`
+- **Examples**: `./examples/`
+
+---
+
+## Version
+
+Current Version: **1.0.0**
+
+Last Updated: 2025-10-19

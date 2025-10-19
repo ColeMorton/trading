@@ -7,6 +7,7 @@ trade history export, and portfolio interaction analysis.
 
 from pathlib import Path
 import sys
+from typing import Optional
 
 from rich import print as rprint
 from rich.console import Console
@@ -69,15 +70,15 @@ def resolve_portfolio_from_profile(profile_name: str, loader) -> tuple[str, str]
 @app.command()
 def analyze(
     ctx: typer.Context,
-    profile: str | None = typer.Option(
+    profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
-    portfolio: str | None = typer.Argument(
+    portfolio: Optional[str] = typer.Argument(
         None,
         help="Portfolio filename (JSON or CSV) - uses profile portfolio if not specified",
     ),
     # General configuration options
-    base_dir: str | None = typer.Option(
+    base_dir: Optional[str] = typer.Option(
         None, "--base-dir", help="Base directory for logs and outputs"
     ),
     refresh: bool = typer.Option(
@@ -86,7 +87,7 @@ def analyze(
     csv_use_hourly: bool = typer.Option(
         False, "--hourly/--daily", help="Use hourly timeframe for CSV strategies"
     ),
-    sort_by: str | None = typer.Option(
+    sort_by: Optional[str] = typer.Option(
         None,
         "--sort-by",
         help="Field to sort results by (score, win_rate, total_return, sharpe_ratio, allocation)",
@@ -96,31 +97,31 @@ def analyze(
         "--ensure-counterpart/--no-counterpart",
         help="Ensure strategy counterpart validation",
     ),
-    initial_value: float | None = typer.Option(
+    initial_value: Optional[float] = typer.Option(
         None, "--initial-value", help="Initial portfolio value for position sizing"
     ),
-    target_var: float | None = typer.Option(
+    target_var: Optional[float] = typer.Option(
         None, "--target-var", help="Target Value at Risk (VaR) threshold (0.0-1.0)"
     ),
     # Risk management options
-    max_risk_per_strategy: float | None = typer.Option(
+    max_risk_per_strategy: Optional[float] = typer.Option(
         None, "--max-risk-strategy", help="Maximum risk percentage per strategy"
     ),
-    max_risk_total: float | None = typer.Option(
+    max_risk_total: Optional[float] = typer.Option(
         None, "--max-risk-total", help="Maximum total portfolio risk percentage"
     ),
-    risk_calculation_method: str | None = typer.Option(
+    risk_calculation_method: Optional[str] = typer.Option(
         None,
         "--risk-method",
         help="Risk calculation method (standard, monte_carlo, bootstrap, var)",
     ),
     # Execution and signal options
-    execution_mode: str | None = typer.Option(
+    execution_mode: Optional[str] = typer.Option(
         None,
         "--execution-mode",
         help="Signal execution timing mode (same_period, next_period, delayed)",
     ),
-    signal_definition_mode: str | None = typer.Option(
+    signal_definition_mode: Optional[str] = typer.Option(
         None,
         "--signal-mode",
         help="Signal definition approach (complete_trade, entry_only, exit_only, both)",
@@ -402,7 +403,7 @@ def export(
     portfolio: str = typer.Argument(
         help="Portfolio filename to export trade history from"
     ),
-    output_dir: Path | None = typer.Option(
+    output_dir: Optional[Path] = typer.Option(
         None, "--output-dir", "-o", help="Output directory for trade history files"
     ),
     format: str = typer.Option(
@@ -515,7 +516,7 @@ def review(
     output_format: str = typer.Option(
         "table", "--output", help="Output format: table, json, summary"
     ),
-    save_report: str | None = typer.Option(
+    save_report: Optional[str] = typer.Option(
         None, "--save-report", help="Save detailed report to file"
     ),
 ):
@@ -1252,20 +1253,20 @@ def _export_strategies_to_file(
 
 @app.command()
 def construct(
-    asset: str | None = typer.Argument(
+    asset: Optional[str] = typer.Argument(
         None,
         help="Asset symbol (e.g., MSFT, NVDA, BTC-USD) - omit when using -t/-t1/-t2",
     ),
-    ticker: list[str] | None = typer.Option(
+    ticker: Optional[list[str]] = typer.Option(
         None,
         "--ticker",
         "-t",
         help="Ticker symbol(s) to construct portfolios for (multiple args or comma-separated: -t AAPL,MSFT or -t AAPL -t MSFT). Overrides ASSET if both provided.",
     ),
-    ticker_1: str | None = typer.Option(
+    ticker_1: Optional[str] = typer.Option(
         None, "--ticker-1", "-t1", help="First ticker for synthetic pair analysis"
     ),
-    ticker_2: str | None = typer.Option(
+    ticker_2: Optional[str] = typer.Option(
         None,
         "--ticker-2",
         "-t2",
@@ -1274,13 +1275,13 @@ def construct(
     min_score: float = typer.Option(
         1.0, "--min-score", help="Minimum Score threshold for strategy inclusion"
     ),
-    profile: str | None = typer.Option(
+    profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile to use"
     ),
     output_format: str = typer.Option(
         "table", "--format", help="Output format: table, json, csv"
     ),
-    save_portfolio: str | None = typer.Option(
+    save_portfolio: Optional[str] = typer.Option(
         None, "--save", help="Save optimal portfolio to file"
     ),
     export: bool = typer.Option(
@@ -1904,7 +1905,7 @@ def optimize(
     min_strategies: int = typer.Option(
         3, "--min-strategies", "-m", help="Minimum strategies per combination"
     ),
-    max_permutations: int | None = typer.Option(
+    max_permutations: Optional[int] = typer.Option(
         None, "--max-permutations", help="Maximum permutations to evaluate"
     ),
     allocation_mode: str = typer.Option(
@@ -1912,7 +1913,7 @@ def optimize(
         "--allocation",
         help="Allocation mode: EQUAL, SIGNAL_COUNT, PERFORMANCE, RISK_ADJUSTED",
     ),
-    output_file: Path | None = typer.Option(
+    output_file: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Save optimization results to file"
     ),
     visualize: bool = typer.Option(
@@ -2054,7 +2055,7 @@ def monte_carlo(
     save_simulations: bool = typer.Option(
         False, "--save-simulations", help="Save individual simulation paths"
     ),
-    output_file: Path | None = typer.Option(
+    output_file: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Save Monte Carlo results to file"
     ),
     visualize: bool = typer.Option(
@@ -2305,7 +2306,7 @@ def health(
 
 @app.command()
 def demo(
-    output_dir: Path | None = typer.Option(
+    output_dir: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Output directory for demo results"
     ),
     strategies: int = typer.Option(

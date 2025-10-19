@@ -203,6 +203,7 @@ class StrategySweepRequest(SQLModel):
             f"{self.slow_range_min},{self.slow_range_max}",
             "--min-trades",
             str(self.min_trades),
+            "--database",  # Always save to database for API access
         ]
 
 
@@ -728,3 +729,75 @@ class SeasonalityPortfolioRequest(SQLModel):
             args.append("--include-holidays")
 
         return args
+
+
+# ============================================================================
+# Sweep Results Response Models
+# ============================================================================
+
+
+class SweepResultDetail(SQLModel):
+    """Detailed result from a parameter sweep."""
+
+    result_id: str
+    ticker: str
+    strategy_type: str
+    fast_period: int
+    slow_period: int
+    signal_period: int | None = None
+    score: float | None = None
+    sharpe_ratio: float | None = None
+    sortino_ratio: float | None = None
+    calmar_ratio: float | None = None
+    total_return_pct: float | None = None
+    annualized_return: float | None = None
+    win_rate_pct: float | None = None
+    profit_factor: float | None = None
+    expectancy_per_trade: float | None = None
+    max_drawdown_pct: float | None = None
+    max_drawdown_duration: str | None = None
+    total_trades: int | None = None
+    total_closed_trades: int | None = None
+    trades_per_month: float | None = None
+    avg_trade_duration: str | None = None
+    rank_for_ticker: int | None = None
+
+
+class SweepResultsResponse(SQLModel):
+    """Response model for sweep results listing."""
+
+    sweep_run_id: str
+    total_count: int
+    returned_count: int
+    offset: int
+    limit: int
+    results: list[SweepResultDetail]
+
+
+class BestResultsResponse(SQLModel):
+    """Response model for best results queries."""
+
+    sweep_run_id: str
+    run_date: datetime
+    total_results: int
+    results: list[SweepResultDetail]
+
+
+class SweepSummaryResponse(SQLModel):
+    """Summary statistics for a sweep run."""
+
+    sweep_run_id: str
+    run_date: datetime
+    result_count: int
+    ticker_count: int
+    strategy_count: int
+    avg_score: float | None = None
+    max_score: float | None = None
+    median_score: float | None = None
+    best_ticker: str | None = None
+    best_strategy: str | None = None
+    best_score: float | None = None
+    best_fast_period: int | None = None
+    best_slow_period: int | None = None
+    best_sharpe_ratio: float | None = None
+    best_total_return_pct: float | None = None

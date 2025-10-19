@@ -6,6 +6,7 @@ from position-level data.
 """
 
 from pathlib import Path
+from typing import Optional
 
 from rich import print as rprint
 from rich.console import Console
@@ -109,13 +110,13 @@ def list(
 @app.command()
 def equity(
     ctx: typer.Context,
-    portfolio: str | None = typer.Option(
+    portfolio: Optional[str] = typer.Option(
         None, "--portfolio", "-p", help="Portfolio name (e.g., live_signals, risk_on)"
     ),
     all_portfolios: bool = typer.Option(
         False, "--all", help="Generate equity for all position files"
     ),
-    output_dir: str | None = typer.Option(
+    output_dir: Optional[str] = typer.Option(
         None, "--output-dir", "-o", help="Custom output directory"
     ),
     metric_type: str = typer.Option(
@@ -232,7 +233,7 @@ def equity(
 
 @app.command()
 def validate(
-    portfolio: str | None = typer.Option(
+    portfolio: Optional[str] = typer.Option(
         None, "--portfolio", "-p", help="Portfolio name to validate"
     ),
     all_portfolios: bool = typer.Option(
@@ -361,7 +362,7 @@ def validate(
 
 @app.command()
 def validate_equity(
-    portfolio: str | None = typer.Option(
+    portfolio: Optional[str] = typer.Option(
         None, "--portfolio", "-p", help="Portfolio name to validate"
     ),
     all_portfolios: bool = typer.Option(
@@ -370,7 +371,7 @@ def validate_equity(
     output_format: str = typer.Option(
         "console", "--format", help="Output format: console, json, csv"
     ),
-    output_file: str | None = typer.Option(
+    output_file: Optional[str] = typer.Option(
         None, "--output", "-o", help="Output file path (for json/csv formats)"
     ),
     excellent_threshold: float = typer.Option(

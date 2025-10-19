@@ -121,6 +121,7 @@ def build_configuration_overrides(
     refresh: bool = False,
     batch: bool = False,
     batch_size: int | None = None,
+    database: bool = False,
     **additional_overrides,
 ) -> dict[str, Any]:
     """
@@ -305,6 +306,10 @@ def build_configuration_overrides(
         overrides["batch"] = batch
     if batch_size is not None:
         overrides["batch_size"] = batch_size
+
+    # Database persistence configuration
+    if database:
+        overrides["database"] = database
 
     # Add any additional overrides, but filter out None values for optional CLI parameters
     filtered_overrides = {
