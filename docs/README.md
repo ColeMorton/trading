@@ -1,109 +1,146 @@
 # Trading System Documentation
 
-## Architecture Overview
-
-This is a comprehensive trading strategy analysis platform with CLI-first architecture, implementing Domain-Driven Design principles and focused service decomposition.
-
-## Documentation Structure
-
-### 📋 Getting Started
-
-- [Quick Start Guide](./getting-started/QUICK_START.md) - Get up and running in 5 minutes
-- [Installation Guide](./getting-started/INSTALLATION.md) - System requirements and setup
-- [User Guide](./USER_GUIDE.md) - Comprehensive user documentation
-
-### 🏗️ Architecture
-
-- [System Architecture](./architecture/SYSTEM_ARCHITECTURE.md) - High-level system design
-- [Service Architecture](./architecture/SERVICE_ARCHITECTURE.md) - Service decomposition and bounded contexts
-- [CLI Architecture](./architecture/CLI_ARCHITECTURE.md) - Command-line interface design
-- [Data Flow](./architecture/DATA_FLOW.md) - Data processing and flow patterns
-
-### 🔧 Development
-
-- [Development Guide](./development/DEVELOPMENT_GUIDE.md) - Development environment setup
-- [Contributing Guide](./development/CONTRIBUTING.md) - How to contribute to the project
-- [Code Style Guide](./development/CODE_STYLE.md) - Coding standards and conventions
-- [Testing Guide](./development/TESTING.md) - Testing strategies and practices
-
-### 🚀 Features
-
-- [Strategy Analysis](./features/STRATEGY_ANALYSIS.md) - Trading strategy analysis capabilities
-- [Portfolio Management](./features/PORTFOLIO_MANAGEMENT.md) - Portfolio optimization and management
-- [Statistical Analysis](./features/STATISTICAL_ANALYSIS.md) - Statistical Performance Divergence System
-- [Trade History](./features/TRADE_HISTORY.md) - Trade history analysis and reporting
-- [Configuration Management](./features/CONFIGURATION.md) - Configuration system and profiles
-
-### 📊 Performance
-
-- [Performance Optimization](./performance/PERFORMANCE_OPTIMIZATION_GUIDE.md) - System optimization techniques
-- [Memory Optimization](./performance/MEMORY_OPTIMIZATION.md) - Memory optimization strategies
-- [Scaling Guide](./performance/SCALING.md) - Scaling for large datasets
-
-### 🔍 Troubleshooting
-
-- [Common Issues](./troubleshooting/COMMON_ISSUES.md) - Frequently encountered problems
-- [Debugging Guide](./troubleshooting/DEBUGGING.md) - Debugging techniques and tools
-- [Error Messages](./troubleshooting/ERROR_MESSAGES.md) - Error message reference
-
-### 📚 Reference
-
-- [Command Reference](./reference/COMMAND_REFERENCE.md) - Complete CLI command reference
-- [API Reference](./reference/API_REFERENCE.md) - Internal API documentation
-- [Configuration Reference](./reference/CONFIGURATION_REFERENCE.md) - Configuration options
-- [Schema Reference](./reference/SCHEMA_REFERENCE.md) - Data schemas and formats
-
-### 🗂️ Legacy Documentation
-
-- [Migration Guides](./legacy/MIGRATION_GUIDES.md) - Legacy system migration guides
-- [Deprecated Features](./legacy/DEPRECATED.md) - Deprecated functionality documentation
-- [Archive](./legacy/ARCHIVE.md) - Archived documentation
+Comprehensive documentation for the trading strategy analysis platform.
 
 ## Quick Navigation
 
-### For Users
+### New to the System?
 
-- New to the system? Start with [Quick Start Guide](./getting-started/QUICK_START.md)
-- Need help with commands? Check [Command Reference](./reference/COMMAND_REFERENCE.md)
-- Having issues? See [Troubleshooting](./troubleshooting/COMMON_ISSUES.md)
+- [Quick Start Guide](getting-started/QUICK_START.md) - Get running in 5 minutes
+- [User Guide](USER_GUIDE.md) - Complete user documentation
+- [User Manual](USER_MANUAL.md) - Detailed manual
 
-### For Developers
+### Using the API?
 
-- Setting up dev environment? See [Development Guide](./development/DEVELOPMENT_GUIDE.md)
-- Understanding the architecture? Read [System Architecture](./architecture/SYSTEM_ARCHITECTURE.md)
-- Contributing code? Follow [Contributing Guide](./development/CONTRIBUTING.md)
+- [API Documentation](api/README.md) - Complete API reference
+- [API Getting Started](api/GETTING_STARTED.md) - API setup guide
+- Interactive Docs: http://localhost:8000/api/docs
 
-### For Architects
+### Developing?
 
-- System design decisions? Check [Architecture Documentation](./architecture/)
-- Performance considerations? See [Performance Guides](./performance/)
-- Scaling decisions? Read [Scaling Guide](./performance/SCALING.md)
-
-## Documentation Maintenance
-
-This documentation follows a structured approach:
-
-- **Living Documentation**: Updated alongside code changes
-- **Version Control**: All documentation is version controlled
-- **Review Process**: Documentation changes go through code review
-- **Standards**: Consistent formatting and structure across all docs
-
-## Contributing to Documentation
-
-1. Follow the existing structure and formatting
-2. Update the relevant index files when adding new documentation
-3. Ensure all links work correctly
-4. Include examples and code snippets where appropriate
-5. Keep language clear and concise
-
-## Support
-
-For questions about the documentation:
-
-- Check the [troubleshooting guides](./troubleshooting/)
-- Review the [command reference](./reference/)
-- See the [development guide](./development/) for technical details
+- [Development Guide](development/DEVELOPMENT_GUIDE.md) - Dev environment
+- [Code Quality](development/CODE_QUALITY.md) - Standards and tools
+- [System Architecture](architecture/SYSTEM_ARCHITECTURE.md) - Architecture
 
 ---
 
-_This documentation structure was implemented as part of the architectural refactoring to consolidate scattered documentation into a cohesive, maintainable system._
+## Documentation Structure
+
+### Getting Started
+
+- [Quick Start](getting-started/QUICK_START.md) - 5-minute setup
+- [Docker Setup](getting-started/DOCKER_SETUP.md) - Docker Compose guide
+
+### API
+
+- [API README](api/README.md) - Complete API documentation
+- [API Getting Started](api/GETTING_STARTED.md) - Setup and usage
+
+### Development
+
+- [Development Guide](development/DEVELOPMENT_GUIDE.md) - Development environment
+- [Code Quality](development/CODE_QUALITY.md) - Linting, formatting, standards
+- [Code Quality Improvement](development/CODE_QUALITY_IMPROVEMENT.md) - Gradual improvement plan
+- [SSH Guide](development/SSH_GUIDE.md) - Remote development setup
+- [AI Assistant Guide](development/AI_ASSISTANT_GUIDE.md) - Using AI assistants
+
+### Architecture
+
+- [System Architecture](architecture/SYSTEM_ARCHITECTURE.md) - High-level design
+- [Data Loader Extraction](architecture/data_loader_extraction_summary.md) - Refactoring summary
+- [Formatter Extraction](architecture/formatter_extraction_summary.md) - Formatting refactor
+- [Refactoring Results](architecture/refactoring_integration_test_results.md) - Test results
+
+### Features
+
+- [Strategy Analysis](features/STRATEGY_ANALYSIS.md) - Trading strategy capabilities
+
+### Testing
+
+- [Testing Best Practices](testing/TESTING_BEST_PRACTICES.md) - Testing strategies
+- [TDD Guidelines](testing/TDD_GUIDELINES.md) - Test-driven development
+- [TDD Workflow](testing/DEVELOPER_TDD_WORKFLOW.md) - Developer workflow
+- [Test Organization](testing/TEST_ORGANIZATION.md) - Test structure
+
+### Reference
+
+- [Command Reference](reference/COMMAND_REFERENCE.md) - Complete CLI reference
+- [Configuration Guide](CONFIGURATION_GUIDE.md) - Configuration options
+- [CSV Schemas](csv_schemas.md) - Data format specifications
+
+### Performance
+
+- [Performance Optimization](PERFORMANCE_OPTIMIZATION_GUIDE.md) - Optimization guide
+- [Memory Optimization](memory_optimization_examples.md) - Memory techniques
+
+### Troubleshooting
+
+- [Common Issues](troubleshooting/COMMON_ISSUES.md) - FAQ and solutions
+
+### Specialized Topics
+
+- [Research](research/) - Research papers and analysis
+  - [SBC DeFi Research](research/sbc/) - DeFi protocol research
+- [AI/Prompts](ai/prompts/) - AI assistant prompts and templates
+
+### Historical Documentation
+
+- [Architecture Plans](architect/) - Historical implementation plans
+- [Product Owner Analysis](product_owner/) - Requirements documentation
+- [Business Analyst](business_analyst/) - User stories
+
+---
+
+## Documentation by Audience
+
+### For End Users
+
+1. Start: [Quick Start Guide](getting-started/QUICK_START.md)
+2. Learn: [User Guide](USER_GUIDE.md)
+3. Reference: [Command Reference](reference/COMMAND_REFERENCE.md)
+4. Help: [Troubleshooting](troubleshooting/COMMON_ISSUES.md)
+
+### For API Consumers
+
+1. Start: [API Getting Started](api/GETTING_STARTED.md)
+2. Reference: [API Documentation](api/README.md)
+3. Interactive: http://localhost:8000/api/docs
+4. Help: [Troubleshooting](troubleshooting/COMMON_ISSUES.md)
+
+### For Developers
+
+1. Setup: [Development Guide](development/DEVELOPMENT_GUIDE.md)
+2. Architecture: [System Architecture](architecture/SYSTEM_ARCHITECTURE.md)
+3. Standards: [Code Quality](development/CODE_QUALITY.md)
+4. Testing: [Testing Best Practices](testing/TESTING_BEST_PRACTICES.md)
+
+### For Architects
+
+1. Design: [System Architecture](architecture/SYSTEM_ARCHITECTURE.md)
+2. Performance: [Performance Optimization](PERFORMANCE_OPTIMIZATION_GUIDE.md)
+3. Plans: [Architecture Plans](architect/)
+
+---
+
+## Documentation Standards
+
+This documentation follows these principles:
+
+- **Living Documentation**: Updated alongside code changes
+- **Version Controlled**: All docs in git
+- **DRY**: Single source of truth, no redundancy
+- **Clear Navigation**: Organized by audience and topic
+- **Searchable**: Consistent structure and formatting
+
+## Contributing to Documentation
+
+1. Follow existing structure and formatting
+2. Update navigation files when adding docs
+3. Ensure all links work correctly
+4. Include examples and code snippets
+5. Keep language clear and concise
+
+---
+
+**Navigation**: [Master Index](../INDEX.md) | [Main README](../README.md)
+**Status**: Documentation reorganized October 19, 2025

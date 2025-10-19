@@ -5,11 +5,11 @@ This module implements drawdown calculations from manual stop-loss distance entr
 as specified in Phase 2 of the position sizing migration plan.
 """
 
-import json
 from dataclasses import dataclass
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import polars as pl
 
@@ -22,10 +22,10 @@ class DrawdownEntry:
     stop_loss_distance: float  # Distance to stop loss (0-1, e.g., 0.05 = 5%)
     position_value: float  # Position value for risk calculation
     max_risk_amount: float  # Calculated maximum risk amount
-    entry_price: Optional[float] = None  # Optional entry price
-    stop_loss_price: Optional[float] = None  # Optional calculated stop loss price
-    entry_date: Optional[datetime] = None
-    id: Optional[int] = None
+    entry_price: float | None = None  # Optional entry price
+    stop_loss_price: float | None = None  # Optional calculated stop loss price
+    entry_date: datetime | None = None
+    id: int | None = None
 
 
 @dataclass
@@ -34,7 +34,7 @@ class DrawdownSummary:
 
     total_risk_amount: float
     average_stop_distance: float
-    largest_risk_position: Optional[DrawdownEntry]
+    largest_risk_position: DrawdownEntry | None
     total_position_value: float
     portfolio_risk_percentage: float
     position_count: int
@@ -44,7 +44,7 @@ class DrawdownSummary:
 class DrawdownCalculator:
     """Service for calculating drawdowns from manual stop-loss distance entries."""
 
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(self, base_dir: str | None = None):
         """Initialize the drawdown calculator.
 
         Args:
@@ -55,7 +55,7 @@ class DrawdownCalculator:
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.drawdowns_file = self.data_dir / "manual_drawdowns.json"
 
-    def _load_drawdowns(self) -> Dict[str, Any]:
+    def _load_drawdowns(self) -> dict[str, Any]:
         """Load drawdown entries from JSON file.
 
         Returns:
@@ -65,12 +65,12 @@ class DrawdownCalculator:
             return {"drawdowns": [], "last_updated": None}
 
         try:
-            with open(self.drawdowns_file, "r") as f:
+            with open(self.drawdowns_file) as f:
                 return json.load(f)
         except (json.JSONDecodeError, FileNotFoundError):
             return {"drawdowns": [], "last_updated": None}
 
-    def _save_drawdowns(self, data: Dict[str, Any]) -> None:
+    def _save_drawdowns(self, data: dict[str, Any]) -> None:
         """Save drawdown entries to JSON file.
 
         Args:
@@ -84,7 +84,7 @@ class DrawdownCalculator:
         symbol: str,
         stop_loss_distance: float,
         position_value: float,
-        entry_price: Optional[float] = None,
+        entry_price: float | None = None,
     ) -> DrawdownEntry:
         """Add a new drawdown entry from manual stop-loss distance.
 
@@ -157,10 +157,10 @@ class DrawdownCalculator:
     def update_drawdown_entry(
         self,
         symbol: str,
-        stop_loss_distance: Optional[float] = None,
-        position_value: Optional[float] = None,
-        entry_price: Optional[float] = None,
-    ) -> Optional[DrawdownEntry]:
+        stop_loss_distance: float | None = None,
+        position_value: float | None = None,
+        entry_price: float | None = None,
+    ) -> DrawdownEntry | None:
         """Update an existing drawdown entry.
 
         Args:
@@ -218,7 +218,7 @@ class DrawdownCalculator:
 
         return None
 
-    def get_drawdown_entry(self, symbol: str) -> Optional[DrawdownEntry]:
+    def get_drawdown_entry(self, symbol: str) -> DrawdownEntry | None:
         """Get drawdown entry for a specific symbol.
 
         Args:
@@ -245,7 +245,7 @@ class DrawdownCalculator:
 
         return None
 
-    def get_all_drawdowns(self) -> List[DrawdownEntry]:
+    def get_all_drawdowns(self) -> list[DrawdownEntry]:
         """Get all drawdown entries.
 
         Returns:
@@ -271,7 +271,7 @@ class DrawdownCalculator:
         return drawdowns
 
     def calculate_drawdown_summary(
-        self, net_worth: Optional[float] = None
+        self, net_worth: float | None = None
     ) -> DrawdownSummary:
         """Calculate summary of all drawdown entries.
 
@@ -347,7 +347,7 @@ class DrawdownCalculator:
 
     def calculate_position_risk_amount(
         self, symbol: str, current_price: float
-    ) -> Optional[float]:
+    ) -> float | None:
         """Calculate current risk amount based on current price and stop loss.
 
         Args:
@@ -371,7 +371,7 @@ class DrawdownCalculator:
 
         return max(0, total_risk)  # Ensure non-negative risk
 
-    def export_drawdowns_to_csv(self, output_path: Optional[str] = None) -> str:
+    def export_drawdowns_to_csv(self, output_path: str | None = None) -> str:
         """Export drawdown entries to CSV format.
 
         Args:
@@ -396,9 +396,9 @@ class DrawdownCalculator:
                     "max_risk_amount": drawdown.max_risk_amount,
                     "entry_price": drawdown.entry_price,
                     "stop_loss_price": drawdown.stop_loss_price,
-                    "entry_date": drawdown.entry_date.isoformat()
-                    if drawdown.entry_date
-                    else None,
+                    "entry_date": (
+                        drawdown.entry_date.isoformat() if drawdown.entry_date else None
+                    ),
                     "id": drawdown.id,
                 }
             )
@@ -408,7 +408,7 @@ class DrawdownCalculator:
 
         return output_path
 
-    def import_drawdowns_from_dict(self, drawdowns_dict: Dict[str, Any]) -> None:
+    def import_drawdowns_from_dict(self, drawdowns_dict: dict[str, Any]) -> None:
         """Import drawdown entries from dictionary (for Excel migration).
 
         Args:
@@ -440,7 +440,7 @@ class DrawdownCalculator:
 
     def validate_total_risk(
         self, expected_total_risk: float, tolerance: float = 0.01
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Validate total risk amount against expected value.
 
         Args:
@@ -459,16 +459,15 @@ class DrawdownCalculator:
                 True,
                 f"Risk total validation passed: ${summary.total_risk_amount:.2f}",
             )
-        else:
-            return (
-                False,
-                f"Risk total validation failed: "
-                f"Expected ${expected_total_risk:.2f}, "
-                f"Calculated ${summary.total_risk_amount:.2f}, "
-                f"Difference ${difference:.2f} exceeds tolerance ${tolerance_amount:.2f}",
-            )
+        return (
+            False,
+            f"Risk total validation failed: "
+            f"Expected ${expected_total_risk:.2f}, "
+            f"Calculated ${summary.total_risk_amount:.2f}, "
+            f"Difference ${difference:.2f} exceeds tolerance ${tolerance_amount:.2f}",
+        )
 
-    def get_risk_by_symbol(self) -> Dict[str, float]:
+    def get_risk_by_symbol(self) -> dict[str, float]:
         """Get risk amount by symbol for portfolio analysis.
 
         Returns:
@@ -482,7 +481,7 @@ class DrawdownCalculator:
 
         return risk_by_symbol
 
-    def calculate_portfolio_risk_metrics(self, net_worth: float) -> Dict[str, float]:
+    def calculate_portfolio_risk_metrics(self, net_worth: float) -> dict[str, float]:
         """Calculate comprehensive portfolio risk metrics.
 
         Args:
@@ -499,11 +498,14 @@ class DrawdownCalculator:
             "average_stop_distance": summary.average_stop_distance
             * 100,  # Convert to percentage
             "position_count": summary.position_count,
-            "largest_single_risk": summary.largest_risk_position.max_risk_amount
-            if summary.largest_risk_position
-            else 0.0,
-            "risk_per_position_average": summary.total_risk_amount
-            / summary.position_count
-            if summary.position_count > 0
-            else 0.0,
+            "largest_single_risk": (
+                summary.largest_risk_position.max_risk_amount
+                if summary.largest_risk_position
+                else 0.0
+            ),
+            "risk_per_position_average": (
+                summary.total_risk_amount / summary.position_count
+                if summary.position_count > 0
+                else 0.0
+            ),
         }

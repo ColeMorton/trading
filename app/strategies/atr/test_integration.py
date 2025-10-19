@@ -16,10 +16,7 @@ Focus: Real workflow testing with minimal mocking for authentic behavior
 import os
 import tempfile
 import unittest
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -27,7 +24,6 @@ import polars as pl
 
 from app.strategies.atr.tools.strategy_execution import (
     analyze_params,
-    calculate_atr,
     execute_strategy,
     generate_signals,
 )
@@ -46,7 +42,7 @@ class TestATRWorkflowIntegration(unittest.TestCase):
         base_price = 20.0  # TSLA started around $20 pre-split
         price_changes = []
 
-        for i, date in enumerate(self.tsla_dates):
+        for i, _date in enumerate(self.tsla_dates):
             # Different trend periods to simulate TSLA's volatile history
             if i < 1000:  # Early growth period
                 trend = 0.0008
@@ -276,7 +272,6 @@ class TestATRWorkflowIntegration(unittest.TestCase):
                         self.assertGreater(len(exported_results), 0)
 
                         # Verify filename format would be correct
-                        expected_filename_pattern = "TSLA_D_ATR.csv"
                         # This would be verified in the actual export function
 
     def test_error_handling_invalid_data(self):
@@ -293,7 +288,7 @@ class TestATRWorkflowIntegration(unittest.TestCase):
             self.assertIsInstance(results, list)
 
             # Should log appropriate warnings/errors
-            error_messages = [
+            [
                 msg
                 for msg in self.log_messages
                 if "error" in msg.lower() or "warning" in msg.lower()
@@ -311,7 +306,7 @@ class TestATRWorkflowIntegration(unittest.TestCase):
             self.assertEqual(results, [])
 
             # Should log error about data loading failure
-            error_logged = any("error" in msg.lower() for msg in self.log_messages)
+            any("error" in msg.lower() for msg in self.log_messages)
             # Implementation may or may not log specific error messages
 
     def test_configuration_validation(self):
@@ -564,29 +559,27 @@ class TestATRExportIntegration(unittest.TestCase):
             config = {"BASE_DIR": temp_dir, "TICKER": "TSLA", "STRATEGY_TYPE": "ATR"}
 
             # Mock the actual file writing
-            with patch("polars.DataFrame.write_csv") as mock_write_csv:
-                with patch(
+            with (
+                patch("polars.DataFrame.write_csv"),
+                patch(
                     "app.strategies.atr.tools.strategy_execution.export_portfolios_to_csv"
-                ) as mock_export:
+                ) as mock_export,
+            ):
 
-                    def mock_export_impl(portfolios, config, log):
-                        # Extract expected filename from config
-                        expected_filename = (
-                            f"{config.get('TICKER', 'UNKNOWN')}_D_ATR.csv"
-                        )
-                        expected_path = os.path.join(
-                            config["BASE_DIR"], expected_filename
-                        )
+                def mock_export_impl(portfolios, config, log):
+                    # Extract expected filename from config
+                    expected_filename = f"{config.get('TICKER', 'UNKNOWN')}_D_ATR.csv"
+                    expected_path = os.path.join(config["BASE_DIR"], expected_filename)
 
-                        # Verify filename format
-                        self.assertIn("_D_ATR.csv", expected_path)
-                        return True
+                    # Verify filename format
+                    self.assertIn("_D_ATR.csv", expected_path)
+                    return True
 
-                    mock_export.side_effect = mock_export_impl
+                mock_export.side_effect = mock_export_impl
 
-                    # Test export
-                    result = mock_export(self.sample_portfolios, config, lambda x: None)
-                    self.assertTrue(result)
+                # Test export
+                result = mock_export(self.sample_portfolios, config, lambda x: None)
+                self.assertTrue(result)
 
     def test_export_signal_entry_values(self):
         """Test that Signal Entry values are exported correctly (not all true)."""

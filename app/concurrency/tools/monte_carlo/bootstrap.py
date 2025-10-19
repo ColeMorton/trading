@@ -6,7 +6,6 @@ preserving temporal dependencies and market microstructure patterns.
 """
 
 import random
-from typing import Optional
 
 import numpy as np
 import polars as pl
@@ -26,7 +25,7 @@ class BootstrapSampler:
         self.min_data_fraction = min_data_fraction
 
     def block_bootstrap_sample(
-        self, data: pl.DataFrame, seed: Optional[int] = None
+        self, data: pl.DataFrame, seed: int | None = None
     ) -> pl.DataFrame:
         """Create bootstrap sample using block bootstrap method.
 

@@ -6,7 +6,6 @@ timeframe analysis, ensuring proper handling of crypto vs stock market differenc
 """
 
 from datetime import datetime, timedelta
-from typing import Union
 from unittest.mock import Mock
 
 import pandas as pd

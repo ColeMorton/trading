@@ -5,7 +5,7 @@ This module provides standardized functions for calculating expectancy metrics
 across both signals and trades, ensuring consistency throughout the system.
 """
 
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -47,8 +47,8 @@ def calculate_expectancy(win_rate: float, avg_win: float, avg_loss: float) -> fl
 
 
 def calculate_expectancy_from_returns(
-    returns: Union[List[float], np.ndarray, pd.Series]
-) -> Tuple[float, Dict[str, float]]:
+    returns: list[float] | np.ndarray | pd.Series,
+) -> tuple[float, dict[str, float]]:
     """Calculate expectancy directly from a series of returns.
 
     Args:
@@ -117,10 +117,10 @@ def calculate_expectancy_from_returns(
 
 
 def calculate_expectancy_with_stop_loss(
-    returns: Union[List[float], np.ndarray, pd.Series],
+    returns: list[float] | np.ndarray | pd.Series,
     stop_loss: float,
     direction: str = "Long",
-) -> Tuple[float, Dict[str, float]]:
+) -> tuple[float, dict[str, float]]:
     """Calculate expectancy with stop loss applied to returns.
 
     Args:
@@ -159,17 +159,16 @@ def calculate_expectancy_with_stop_loss(
                     adjusted_returns.append(ret)
             else:
                 adjusted_returns.append(ret)
-        else:  # Short
-            # For short positions
-            if ret > 0:  # Only positive returns are losses for short positions
-                loss_indices.append(i)
-                if ret > stop_loss:
-                    # Limit losses to stop loss level
-                    adjusted_returns.append(-stop_loss)
-                else:
-                    adjusted_returns.append(-ret)  # Negate return for short positions
+        # For short positions
+        elif ret > 0:  # Only positive returns are losses for short positions
+            loss_indices.append(i)
+            if ret > stop_loss:
+                # Limit losses to stop loss level
+                adjusted_returns.append(-stop_loss)
             else:
                 adjusted_returns.append(-ret)  # Negate return for short positions
+        else:
+            adjusted_returns.append(-ret)  # Negate return for short positions
 
     # Calculate expectancy with adjusted returns
     expectancy, components = calculate_expectancy_from_returns(
@@ -198,8 +197,8 @@ def calculate_expectancy_per_month(
 
 
 def calculate_expectancy_metrics(
-    returns: Union[List[float], np.ndarray, pd.Series], config: Dict[str, Any]
-) -> Dict[str, float]:
+    returns: list[float] | np.ndarray | pd.Series, config: dict[str, Any]
+) -> dict[str, float]:
     """Calculate comprehensive expectancy metrics.
 
     Args:
@@ -244,9 +243,9 @@ def calculate_expectancy_metrics(
         results["Avg Loss with Stop Loss [%]"] = (
             sl_components["avg_loss"] * 100 if sl_components["avg_loss"] else 0
         )
-        results[
-            "Expectancy per Trade"
-        ] = sl_expectancy  # Use stop-loss adjusted expectancy
+        results["Expectancy per Trade"] = (
+            sl_expectancy  # Use stop-loss adjusted expectancy
+        )
 
     # Calculate monthly expectancy if trades per month is provided
     if "TRADES_PER_MONTH" in config and config["TRADES_PER_MONTH"] is not None:

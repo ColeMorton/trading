@@ -1,7 +1,8 @@
 """Data alignment utilities for concurrency analysis."""
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
 import pandas as pd
 import polars as pl
@@ -36,7 +37,7 @@ def resample_hourly_to_daily(
         log("Hourly data successfully resampled to daily", "info")
         return resampled
     except Exception as e:
-        log(f"Error resampling hourly data: {str(e)}", "error")
+        log(f"Error resampling hourly data: {e!s}", "error")
         raise
 
 
@@ -97,12 +98,12 @@ def prepare_dataframe(
         return df
 
     except Exception as e:
-        log(f"Error preparing dataframe: {str(e)}", "error")
+        log(f"Error preparing dataframe: {e!s}", "error")
         raise
 
 
 def find_common_dates(
-    dfs: List[pl.DataFrame], log: Callable[[str, str], None]
+    dfs: list[pl.DataFrame], log: Callable[[str, str], None]
 ) -> pl.DataFrame:
     """Find dates common to all dataframes.
 
@@ -130,14 +131,14 @@ def find_common_dates(
             common_dates.intersection_update(df["Date"].to_list())
 
         result = pl.DataFrame(
-            {"Date": pl.Series(sorted(list(common_dates)), dtype=pl.Datetime("ns"))}
+            {"Date": pl.Series(sorted(common_dates), dtype=pl.Datetime("ns"))}
         )
 
         log(f"Found {len(result)} common dates", "info")
         return result
 
     except Exception as e:
-        log(f"Error finding common dates: {str(e)}", "error")
+        log(f"Error finding common dates: {e!s}", "error")
         raise
 
 
@@ -147,7 +148,7 @@ def align_data(
     log: Callable[[str, str], None],
     is_hourly_1: bool = False,
     is_hourly_2: bool = False,
-) -> Tuple[pl.DataFrame, pl.DataFrame]:
+) -> tuple[pl.DataFrame, pl.DataFrame]:
     """Align two dataframes by date range and timeframe.
 
     Args:
@@ -191,15 +192,15 @@ def align_data(
         return aligned_1, aligned_2
 
     except Exception as e:
-        log(f"Error aligning data: {str(e)}", "error")
+        log(f"Error aligning data: {e!s}", "error")
         raise
 
 
 def align_multiple_data(
-    data_list: List[pl.DataFrame],
-    hourly_flags: List[bool],
+    data_list: list[pl.DataFrame],
+    hourly_flags: list[bool],
     log: Callable[[str, str], None],
-) -> List[pl.DataFrame]:
+) -> list[pl.DataFrame]:
     """Align multiple dataframes by date range and timeframe.
 
     Args:
@@ -231,7 +232,7 @@ def align_multiple_data(
         log("Preparing dataframes", "info")
         prepared_dfs = [
             prepare_dataframe(df, is_hourly, log)
-            for df, is_hourly in zip(data_list, hourly_flags)
+            for df, is_hourly in zip(data_list, hourly_flags, strict=False)
         ]
 
         # Find common dates and align all dataframes
@@ -267,15 +268,15 @@ def align_multiple_data(
         return aligned_dfs
 
     except Exception as e:
-        log(f"Error during multiple data alignment: {str(e)}", "error")
+        log(f"Error during multiple data alignment: {e!s}", "error")
         raise
 
 
 def validate_aligned_data_quality(
-    aligned_data: List[pl.DataFrame],
-    csv_path: Optional[str] | None = None,
-    json_metrics: Optional[Dict[str, Any]] = None,
-    log: Optional[Callable[[str, str], None]] = None,
+    aligned_data: list[pl.DataFrame],
+    csv_path: str | None | None = None,
+    json_metrics: dict[str, Any] | None = None,
+    log: Callable[[str, str], None] | None = None,
 ) -> ValidationSummary:
     """
     Validate the quality of aligned data against source data.
@@ -377,7 +378,7 @@ def validate_aligned_data_quality(
                     "info",
                 )
             except Exception as e:
-                log(f"Cross-validation failed: {str(e)}", "warning")
+                log(f"Cross-validation failed: {e!s}", "warning")
                 cross_validation_passed = False
 
         # Generate summary
@@ -407,17 +408,17 @@ def validate_aligned_data_quality(
         )
 
     except Exception as e:
-        log(f"Error during data alignment validation: {str(e)}", "error")
+        log(f"Error during data alignment validation: {e!s}", "error")
         return ValidationSummary(0, 0, 1, 1, 0, [])
 
 
 def align_with_validation(
-    data_list: List[pl.DataFrame],
-    hourly_flags: List[bool],
-    csv_path: Optional[str] | None = None,
-    json_metrics: Optional[Dict[str, Any]] = None,
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Tuple[List[pl.DataFrame], ValidationSummary]:
+    data_list: list[pl.DataFrame],
+    hourly_flags: list[bool],
+    csv_path: str | None | None = None,
+    json_metrics: dict[str, Any] | None = None,
+    log: Callable[[str, str], None] | None = None,
+) -> tuple[list[pl.DataFrame], ValidationSummary]:
     """
     Align multiple dataframes with built-in validation.
 
@@ -468,5 +469,5 @@ def align_with_validation(
         return aligned_data, validation_summary
 
     except Exception as e:
-        log(f"Error during alignment with validation: {str(e)}", "error")
+        log(f"Error during alignment with validation: {e!s}", "error")
         raise

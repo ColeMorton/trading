@@ -18,10 +18,10 @@ Test coverage includes:
 - Large ticker list performance
 """
 
-import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
-from unittest.mock import Mock, patch
+import tempfile
+from unittest.mock import Mock
 
 import pandas as pd
 import pytest
@@ -71,7 +71,7 @@ class TestBatchProcessingService:
         with tempfile.TemporaryDirectory() as temp_dir:
             batch_file = Path(temp_dir) / "new_batch.csv"
 
-            service = BatchProcessingService(str(batch_file), mock_console)
+            BatchProcessingService(str(batch_file), mock_console)
 
             # File should be created
             assert batch_file.exists()
@@ -202,7 +202,7 @@ class TestBatchProcessingService:
         pending = batch_service.get_pending_tickers(all_tickers, batch_size)
 
         assert len(pending) == 3
-        assert set(pending).issubset(set(t.upper() for t in all_tickers))
+        assert set(pending).issubset({t.upper() for t in all_tickers})
 
     def test_get_pending_tickers_some_processed(self, batch_service, sample_batch_data):
         """Test getting pending tickers when some are already processed."""
@@ -368,7 +368,7 @@ class TestBatchProcessingServiceResumeAware:
         )
 
         assert len(result) == 2  # Batch size limit
-        assert set(result).issubset(set(t.upper() for t in all_tickers))
+        assert set(result).issubset({t.upper() for t in all_tickers})
 
     def test_get_tickers_needing_processing_some_skip(self, batch_service):
         """Test when some tickers can be skipped."""

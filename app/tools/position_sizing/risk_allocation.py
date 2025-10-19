@@ -5,7 +5,7 @@ This module implements the 11.8% risk allocation system used in Excel B5 formula
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 
 @dataclass
@@ -88,7 +88,7 @@ class RiskAllocationCalculator:
         total_risk = self.calculate_excel_b5_equivalent(net_worth)
         return total_risk / position_count
 
-    def validate_risk_percentage(self, risk_percentage: float) -> Tuple[bool, str]:
+    def validate_risk_percentage(self, risk_percentage: float) -> tuple[bool, str]:
         """Validate risk percentage is within reasonable bounds.
 
         Args:
@@ -113,8 +113,8 @@ class RiskAllocationCalculator:
         return True, f"Risk percentage valid: {risk_percentage:.1%}"
 
     def calculate_multiple_account_allocation(
-        self, account_balances: Dict[str, float]
-    ) -> Dict[str, RiskAllocation]:
+        self, account_balances: dict[str, float]
+    ) -> dict[str, RiskAllocation]:
         """Calculate risk allocation across multiple accounts.
 
         Args:
@@ -141,7 +141,7 @@ class RiskAllocationCalculator:
         return allocations
 
     def get_total_risk_across_accounts(
-        self, account_balances: Dict[str, float]
+        self, account_balances: dict[str, float]
     ) -> RiskAllocation:
         """Calculate total risk allocation across all accounts.
 
@@ -156,7 +156,7 @@ class RiskAllocationCalculator:
 
     def calculate_risk_utilization(
         self, net_worth: float, current_risk_exposure: float
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate current risk utilization compared to allocation.
 
         Args:
@@ -197,16 +197,15 @@ class RiskAllocationCalculator:
         """
         if utilization_percentage < 50:
             return "Conservative - Low utilization"
-        elif utilization_percentage < 80:
+        if utilization_percentage < 80:
             return "Moderate - Normal utilization"
-        elif utilization_percentage < 100:
+        if utilization_percentage < 100:
             return "Aggressive - High utilization"
-        else:
-            return "Over-allocated - Exceeds risk limit"
+        return "Over-allocated - Exceeds risk limit"
 
     def get_risk_allocation_summary(
-        self, net_worth: float, account_breakdown: Optional[Dict[str, float]] = None
-    ) -> Dict[str, Any]:
+        self, net_worth: float, account_breakdown: dict[str, float] | None = None
+    ) -> dict[str, Any]:
         """Get comprehensive risk allocation summary.
 
         Args:
@@ -247,7 +246,7 @@ class RiskAllocationCalculator:
 
         return summary
 
-    def update_risk_percentage(self, new_risk_percentage: float) -> Tuple[bool, str]:
+    def update_risk_percentage(self, new_risk_percentage: float) -> tuple[bool, str]:
         """Update the risk percentage used for calculations.
 
         Args:
@@ -265,5 +264,4 @@ class RiskAllocationCalculator:
                 True,
                 f"Risk percentage updated from {old_percentage:.1%} to {new_risk_percentage:.1%}",
             )
-        else:
-            return False, f"Invalid risk percentage: {message}"
+        return False, f"Invalid risk percentage: {message}"

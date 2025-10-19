@@ -6,9 +6,10 @@ and the Statistical Performance Divergence System (SPDS) for comprehensive
 portfolio analysis.
 """
 
+from collections.abc import Callable
 import logging
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 from app.contexts.portfolio.services.concurrency_analysis_service import (
     ConcurrencyAnalysisEngine,
@@ -30,7 +31,7 @@ class UnifiedAnalysisService:
         enable_concurrency_analysis: bool = True,
         enable_spds_analysis: bool = False,  # SPDS integration placeholder
         enable_memory_optimization: bool = False,
-        log: Optional[Callable[[str, str], None]] = None,
+        log: Callable[[str, str], None] | None = None,
     ):
         """Initialize the unified analysis service.
 
@@ -63,10 +64,10 @@ class UnifiedAnalysisService:
 
     def run_comprehensive_analysis(
         self,
-        portfolio_path: Union[str, Path],
-        config_overrides: Optional[Dict[str, Any]] = None,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
-    ) -> Dict[str, Any]:
+        portfolio_path: str | Path,
+        config_overrides: dict[str, Any] | None = None,
+        progress_callback: Callable[[int, int], None] | None = None,
+    ) -> dict[str, Any]:
         """Run comprehensive analysis combining all enabled systems.
 
         Args:
@@ -133,9 +134,9 @@ class UnifiedAnalysisService:
 
             # Generate cross-system insights
             if len(unified_results["analysis_components"]) > 1:
-                unified_results[
-                    "cross_system_insights"
-                ] = self._generate_cross_system_insights(unified_results)
+                unified_results["cross_system_insights"] = (
+                    self._generate_cross_system_insights(unified_results)
+                )
 
             # Generate unified recommendations
             unified_results["recommendations"] = self._generate_unified_recommendations(
@@ -146,15 +147,15 @@ class UnifiedAnalysisService:
             return unified_results
 
         except Exception as e:
-            error_msg = f"Unified analysis failed: {str(e)}"
+            error_msg = f"Unified analysis failed: {e!s}"
             self.log(error_msg, "error")
             raise TradingSystemError(error_msg) from e
 
     def analyze_strategy_interactions(
         self,
-        strategies: List[StrategyConfig],
-        config_overrides: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        strategies: list[StrategyConfig],
+        config_overrides: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Analyze interactions between strategies across different systems.
 
         Args:
@@ -195,30 +196,30 @@ class UnifiedAnalysisService:
             # SPDS-based interactions (placeholder)
             if self.enable_spds:
                 spds_interactions = self._analyze_spds_interactions(strategies)
-                interaction_results["system_specific_results"][
-                    "spds"
-                ] = spds_interactions
+                interaction_results["system_specific_results"]["spds"] = (
+                    spds_interactions
+                )
 
             # Cross-system interaction analysis
             if len(interaction_results["system_specific_results"]) > 1:
-                interaction_results[
-                    "cross_system_analysis"
-                ] = self._analyze_cross_system_interactions(
-                    interaction_results["system_specific_results"]
+                interaction_results["cross_system_analysis"] = (
+                    self._analyze_cross_system_interactions(
+                        interaction_results["system_specific_results"]
+                    )
                 )
 
             return interaction_results
 
         except Exception as e:
-            error_msg = f"Strategy interaction analysis failed: {str(e)}"
+            error_msg = f"Strategy interaction analysis failed: {e!s}"
             self.log(error_msg, "error")
             raise TradingSystemError(error_msg) from e
 
     def generate_optimization_recommendations(
         self,
-        analysis_results: Dict[str, Any],
-        optimization_criteria: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        analysis_results: dict[str, Any],
+        optimization_criteria: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Generate optimization recommendations based on unified analysis.
 
         Args:
@@ -268,7 +269,7 @@ class UnifiedAnalysisService:
             return recommendations
 
         except Exception as e:
-            error_msg = f"Recommendation generation failed: {str(e)}"
+            error_msg = f"Recommendation generation failed: {e!s}"
             self.log(error_msg, "error")
             raise TradingSystemError(error_msg) from e
 
@@ -284,15 +285,15 @@ class UnifiedAnalysisService:
             # self.spds_engine = SPDSAnalysisEngine(...)
 
         except Exception as e:
-            self.log(f"SPDS integration failed: {str(e)}", "warning")
+            self.log(f"SPDS integration failed: {e!s}", "warning")
             self.enable_spds = False
 
     def _run_spds_analysis(
         self,
-        portfolio_path: Union[str, Path],
-        config_overrides: Optional[Dict[str, Any]] = None,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
-    ) -> Dict[str, Any]:
+        portfolio_path: str | Path,
+        config_overrides: dict[str, Any] | None = None,
+        progress_callback: Callable[[int, int], None] | None = None,
+    ) -> dict[str, Any]:
         """Run SPDS analysis (placeholder implementation)."""
         # Placeholder for SPDS integration
         return {
@@ -303,8 +304,8 @@ class UnifiedAnalysisService:
         }
 
     def _analyze_spds_interactions(
-        self, strategies: List[StrategyConfig]
-    ) -> Dict[str, Any]:
+        self, strategies: list[StrategyConfig]
+    ) -> dict[str, Any]:
         """Analyze SPDS-based strategy interactions (placeholder)."""
         return {
             "interaction_type": "spds_placeholder",
@@ -313,8 +314,8 @@ class UnifiedAnalysisService:
         }
 
     def _generate_cross_system_insights(
-        self, unified_results: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, unified_results: dict[str, Any]
+    ) -> dict[str, Any]:
         """Generate insights by combining results from multiple systems."""
         insights = {
             "cross_system_correlations": {},
@@ -336,16 +337,18 @@ class UnifiedAnalysisService:
             insights["system_agreement"]["efficiency_divergence_correlation"] = {
                 "concurrency_efficiency": concurrency_efficiency,
                 "spds_divergence": spds_divergence,
-                "correlation": "positive"
-                if concurrency_efficiency > 0.5 and spds_divergence < 0.3
-                else "negative",
+                "correlation": (
+                    "positive"
+                    if concurrency_efficiency > 0.5 and spds_divergence < 0.3
+                    else "negative"
+                ),
             }
 
         return insights
 
     def _analyze_cross_system_interactions(
-        self, system_results: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, system_results: dict[str, Any]
+    ) -> dict[str, Any]:
         """Analyze interactions across different analysis systems."""
         cross_analysis = {
             "systems_analyzed": list(system_results.keys()),
@@ -357,8 +360,8 @@ class UnifiedAnalysisService:
         return cross_analysis
 
     def _generate_unified_recommendations(
-        self, unified_results: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, unified_results: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Generate recommendations based on unified analysis results."""
         recommendations = []
 
@@ -405,8 +408,8 @@ class UnifiedAnalysisService:
         return recommendations
 
     def _generate_concurrency_recommendations(
-        self, concurrency_results: Dict[str, Any], criteria: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, concurrency_results: dict[str, Any], criteria: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Generate recommendations based on concurrency analysis."""
         recommendations = []
 
@@ -429,8 +432,8 @@ class UnifiedAnalysisService:
         return recommendations
 
     def _generate_spds_recommendations(
-        self, spds_results: Dict[str, Any], criteria: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, spds_results: dict[str, Any], criteria: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Generate recommendations based on SPDS analysis (placeholder)."""
         return [
             {
@@ -442,8 +445,8 @@ class UnifiedAnalysisService:
         ]
 
     def _generate_cross_system_recommendations(
-        self, cross_insights: Dict[str, Any], criteria: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, cross_insights: dict[str, Any], criteria: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Generate recommendations based on cross-system insights."""
         recommendations = []
 
@@ -467,13 +470,13 @@ class UnifiedAnalysisService:
 
 # Convenience functions
 def run_unified_portfolio_analysis(
-    portfolio_path: Union[str, Path],
+    portfolio_path: str | Path,
     enable_concurrency: bool = True,
     enable_spds: bool = False,
     enable_memory_optimization: bool = False,
-    config_overrides: Optional[Dict[str, Any]] = None,
-    progress_callback: Optional[Callable[[int, int], None]] = None,
-) -> Dict[str, Any]:
+    config_overrides: dict[str, Any] | None = None,
+    progress_callback: Callable[[int, int], None] | None = None,
+) -> dict[str, Any]:
     """Run unified portfolio analysis with all available systems.
 
     This is a convenience function for comprehensive portfolio analysis.

@@ -14,18 +14,19 @@ Features:
 - Portfolio impact analysis
 """
 
-import logging
 from datetime import datetime
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ..models.unified_strategy_models import UnifiedStrategyData
-from .signal_data_aggregator import SignalDataAggregator, StrategyData
+from .signal_data_aggregator import SignalDataAggregator
 from .strategy_data_coordinator import (
     DataCoordinationConfig,
     StrategyDataCoordinator,
     StrategyDataCoordinatorError,
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -35,8 +36,8 @@ class SellReportGenerator:
 
     def __init__(
         self,
-        aggregator: Optional[SignalDataAggregator] = None,
-        data_coordinator: Optional[StrategyDataCoordinator] = None,
+        aggregator: SignalDataAggregator | None = None,
+        data_coordinator: StrategyDataCoordinator | None = None,
         use_coordinator: bool = True,
     ):
         """Initialize with optional data aggregator or central coordinator"""
@@ -59,7 +60,7 @@ class SellReportGenerator:
         self,
         strategy_identifier: str,
         include_raw_data: bool = False,
-        snapshot_id: Optional[str] = None,
+        snapshot_id: str | None = None,
     ) -> str:
         """
         Generate comprehensive sell signal report using coordinated data
@@ -91,8 +92,8 @@ class SellReportGenerator:
         return "\n\n".join(report_sections)
 
     def _get_strategy_data(
-        self, strategy_identifier: str, snapshot_id: Optional[str] = None
-    ) -> Optional[UnifiedStrategyData]:
+        self, strategy_identifier: str, snapshot_id: str | None = None
+    ) -> UnifiedStrategyData | None:
         """Get strategy data using coordinator or fallback to aggregator"""
         try:
             if self.use_coordinator and self.data_coordinator:
@@ -105,28 +106,23 @@ class SellReportGenerator:
                         f"Retrieved coordinated data for {strategy_identifier}"
                     )
                     return unified_data
-                else:
-                    logger.warning(
-                        f"No coordinated data found for {strategy_identifier}"
-                    )
-                    return None
-            else:
-                # Fallback to legacy aggregator - keep legacy format for backward compatibility
-                legacy_data = self.aggregator.get_strategy_data(strategy_identifier)
-                if legacy_data:
-                    # Convert legacy data to unified format for consistent processing
-                    unified_data = UnifiedStrategyData.from_legacy_strategy_data(
-                        legacy_data.to_dict()
-                        if hasattr(legacy_data, "to_dict")
-                        else vars(legacy_data)
-                    )
-                    logger.debug(
-                        f"Retrieved and converted legacy data for {strategy_identifier}"
-                    )
-                    return unified_data
-                else:
-                    logger.warning(f"No legacy data found for {strategy_identifier}")
-                    return None
+                logger.warning(f"No coordinated data found for {strategy_identifier}")
+                return None
+            # Fallback to legacy aggregator - keep legacy format for backward compatibility
+            legacy_data = self.aggregator.get_strategy_data(strategy_identifier)
+            if legacy_data:
+                # Convert legacy data to unified format for consistent processing
+                unified_data = UnifiedStrategyData.from_legacy_strategy_data(
+                    legacy_data.to_dict()
+                    if hasattr(legacy_data, "to_dict")
+                    else vars(legacy_data)
+                )
+                logger.debug(
+                    f"Retrieved and converted legacy data for {strategy_identifier}"
+                )
+                return unified_data
+            logger.warning(f"No legacy data found for {strategy_identifier}")
+            return None
 
         except (StrategyDataCoordinatorError, Exception) as e:
             logger.error(
@@ -231,9 +227,9 @@ class SellReportGenerator:
         z_score_strength = (
             "Strong"
             if abs(data.statistics.z_score_divergence) > 0.05
-            else "Moderate"
-            if abs(data.statistics.z_score_divergence) > 0.02
-            else "Weak"
+            else (
+                "Moderate" if abs(data.statistics.z_score_divergence) > 0.02 else "Weak"
+            )
         )
         iqr_strength = (
             "High"
@@ -270,7 +266,7 @@ class SellReportGenerator:
 
     def _generate_exit_strategy(self, data: UnifiedStrategyData) -> str:
         """Generate exit strategy recommendations"""
-        exit_scenarios = self._build_exit_scenarios(data)
+        self._build_exit_scenarios(data)
         optimal_scenario = self._determine_optimal_exit(data)
 
         return f"""## 🎯 Exit Strategy Recommendations
@@ -472,44 +468,43 @@ Max Return: {max(data.raw_returns):.4f}
         """Assess overall risk level"""
         if data.signal.exit_signal in ["EXIT_IMMEDIATELY", "STRONG_SELL"]:
             return "🔴 HIGH"
-        elif data.signal.exit_signal == "SELL":
+        if data.signal.exit_signal == "SELL":
             return "🟡 MODERATE"
-        else:
-            return "🟢 LOW"
+        return "🟢 LOW"
 
     def _assess_urgency(self, data: UnifiedStrategyData) -> str:
         """Assess urgency level"""
         if data.signal.exit_signal == "EXIT_IMMEDIATELY":
             return "🚨 IMMEDIATE"
-        elif data.signal.signal_confidence > 80:
+        if data.signal.signal_confidence > 80:
             return "⚡ HIGH"
-        elif data.signal.signal_confidence > 60:
+        if data.signal.signal_confidence > 60:
             return "⏰ MODERATE"
-        else:
-            return "📊 LOW"
+        return "📊 LOW"
 
     def _get_confidence_rating(self, confidence: float) -> str:
         """Get confidence rating description"""
         if confidence >= 85:
             return "🎯 VERY HIGH"
-        elif confidence >= 75:
+        if confidence >= 75:
             return "✅ HIGH"
-        elif confidence >= 65:
+        if confidence >= 65:
             return "📊 MODERATE"
-        else:
-            return "⚠️ LOW"
+        return "⚠️ LOW"
 
-    def _build_exit_scenarios(self, data: UnifiedStrategyData) -> List[Dict[str, Any]]:
+    def _build_exit_scenarios(self, data: UnifiedStrategyData) -> list[dict[str, Any]]:
         """Build multiple exit scenarios"""
         return [
             {
                 "name": "Take Profit",
                 "trigger": f"{data.backtesting.take_profit_pct:.2f}% gain",
                 "action": "Full exit",
-                "priority": "High"
-                if data.performance.unrealized_pnl
-                > data.backtesting.take_profit_pct * 0.7
-                else "Medium",
+                "priority": (
+                    "High"
+                    if data.performance.unrealized_pnl
+                    > data.backtesting.take_profit_pct * 0.7
+                    else "Medium"
+                ),
             },
             {
                 "name": "Stop Loss",
@@ -542,8 +537,7 @@ Max Return: {max(data.raw_returns):.4f}
             ):
                 return recommendation
             # If it's a short phrase, enhance it with context
-            else:
-                return f"{recommendation} - Based on comprehensive statistical analysis of {data.statistics.sample_size} observations."
+            return f"{recommendation} - Based on comprehensive statistical analysis of {data.statistics.sample_size} observations."
 
         # Second priority: Use raw analysis data if available
         if data.raw_analysis_data:
@@ -565,26 +559,23 @@ Max Return: {max(data.raw_returns):.4f}
         if data.signal.exit_signal == "SELL":
             if data.signal.signal_confidence > 80:
                 return f"Immediate exit recommended - Strong statistical signal ({data.signal.signal_confidence:.1f}% confidence) with high significance."
-            elif data.signal.signal_confidence > 70:
+            if data.signal.signal_confidence > 70:
                 return f"Gradual exit using trailing stop with close monitoring - Moderate statistical signal ({data.signal.signal_confidence:.1f}% confidence)."
-            else:
-                return f"Prepare for potential exit - {signal_strength} signal ({data.signal.signal_confidence:.1f}% confidence) requires careful monitoring."
-        elif data.signal.exit_signal == "STRONG_SELL":
+            return f"Prepare for potential exit - {signal_strength} signal ({data.signal.signal_confidence:.1f}% confidence) requires careful monitoring."
+        if data.signal.exit_signal == "STRONG_SELL":
             return f"Urgent exit required - Critical statistical threshold exceeded with {data.signal.signal_confidence:.1f}% confidence."
-        elif data.performance.unrealized_pnl > data.backtesting.take_profit_pct * 0.8:
+        if data.performance.unrealized_pnl > data.backtesting.take_profit_pct * 0.8:
             return f"Take profit exit approaching - Position near target ({data.performance.unrealized_pnl:.2f}% vs {data.backtesting.take_profit_pct:.2f}% target)."
-        elif data.performance.unrealized_pnl < -data.backtesting.stop_loss_pct * 0.5:
+        if data.performance.unrealized_pnl < -data.backtesting.stop_loss_pct * 0.5:
             return f"Risk management exit - Position approaching stop loss threshold ({data.performance.unrealized_pnl:.2f}% vs -{data.backtesting.stop_loss_pct:.2f}% limit)."
-        else:
-            convergence_desc = f"dual-layer convergence at {data.statistics.dual_layer_convergence_score*100:.1f}%"
-            return f"Maintain position with active {convergence_desc} and strict risk management protocols."
+        convergence_desc = f"dual-layer convergence at {data.statistics.dual_layer_convergence_score*100:.1f}%"
+        return f"Maintain position with active {convergence_desc} and strict risk management protocols."
 
     def _generate_timing_recommendations(self, data: UnifiedStrategyData) -> str:
         """Generate timing recommendations"""
         if data.signal.exit_signal == "SELL":
             return "**Recommended Timing**: Exit within 1-3 trading sessions to optimize price execution while avoiding market impact."
-        else:
-            return "**Recommended Timing**: Continue monitoring with daily reassessment of statistical indicators."
+        return "**Recommended Timing**: Continue monitoring with daily reassessment of statistical indicators."
 
     def _calculate_risk_score(self, data: UnifiedStrategyData) -> int:
         """Calculate overall risk score (1-10)"""
@@ -624,18 +615,16 @@ Max Return: {max(data.raw_returns):.4f}
         """Assess volatility risk"""
         if abs(data.statistics.z_score_divergence) > 0.05:
             return "HIGH - Significant statistical divergence detected"
-        elif abs(data.statistics.iqr_divergence) > 0.15:
+        if abs(data.statistics.iqr_divergence) > 0.15:
             return "MODERATE - Above normal quartile range"
-        else:
-            return "LOW - Within normal statistical parameters"
+        return "LOW - Within normal statistical parameters"
 
     def _assess_liquidity_risk(self, ticker: str) -> str:
         """Assess liquidity risk by ticker"""
         major_tickers = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "META", "NVDA"]
         if ticker in major_tickers:
             return "LOW - Major stock with high liquidity"
-        else:
-            return "MODERATE - Monitor intraday volume patterns"
+        return "MODERATE - Monitor intraday volume patterns"
 
     def _get_immediate_actions(self, data: UnifiedStrategyData) -> str:
         """Get immediate actions list"""
@@ -644,8 +633,7 @@ Max Return: {max(data.raw_returns):.4f}
 2. 📊 Set up real-time monitoring alerts
 3. 📋 Prepare exit order parameters
 4. 🔍 Assess market conditions for optimal timing"""
-        else:
-            return """1. ✅ Continue monitoring established parameters
+        return """1. ✅ Continue monitoring established parameters
 2. 📊 Review daily statistical updates
 3. 🔍 Monitor threshold breach alerts
 4. 📋 Maintain risk management protocols"""
@@ -657,7 +645,7 @@ Max Return: {max(data.raw_returns):.4f}
 3. **Convergence Tracking**: Dual-layer convergence score changes
 4. **Performance Assessment**: Unrealized P&L vs. target parameters"""
 
-    def _calculate_std_dev(self, returns: List[float]) -> float:
+    def _calculate_std_dev(self, returns: list[float]) -> float:
         """Calculate standard deviation of returns"""
         if not returns:
             return 0.0
@@ -669,11 +657,11 @@ Max Return: {max(data.raw_returns):.4f}
 
 def generate_sell_report(
     strategy_identifier: str,
-    base_path: Optional[Path] = None,
+    base_path: Path | None = None,
     include_raw_data: bool = False,
     use_coordinator: bool = True,
-    data_coordinator: Optional[StrategyDataCoordinator] = None,
-    snapshot_id: Optional[str] = None,
+    data_coordinator: StrategyDataCoordinator | None = None,
+    snapshot_id: str | None = None,
 ) -> str:
     """
     Convenience function to generate sell report with optional central data coordination
@@ -700,11 +688,10 @@ def generate_sell_report(
         return generator.generate_sell_report(
             strategy_identifier, include_raw_data, snapshot_id
         )
-    else:
-        # Fallback to legacy aggregator
-        aggregator = SignalDataAggregator(base_path)
-        generator = SellReportGenerator(aggregator, use_coordinator=False)
-        return generator.generate_sell_report(strategy_identifier, include_raw_data)
+    # Fallback to legacy aggregator
+    aggregator = SignalDataAggregator(base_path)
+    generator = SellReportGenerator(aggregator, use_coordinator=False)
+    return generator.generate_sell_report(strategy_identifier, include_raw_data)
 
 
 # CLI support

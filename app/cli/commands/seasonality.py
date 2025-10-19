@@ -1,12 +1,11 @@
 """Seasonality analysis command implementations."""
 
 from pathlib import Path
-from typing import List, Optional
 
-import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
+import typer
 
 from app.tools.services.portfolio_seasonality_service import PortfolioSeasonalityService
 from app.tools.services.seasonality_expectancy_service import (
@@ -20,6 +19,7 @@ from ..models.seasonality import (
     SeasonalityExpectancyConfig,
 )
 
+
 # Create seasonality sub-app
 app = typer.Typer(
     name="seasonality",
@@ -32,7 +32,7 @@ console = Console()
 
 @app.command()
 def run(
-    tickers: Optional[List[str]] = typer.Option(
+    tickers: list[str] | None = typer.Option(
         None,
         "--ticker",
         "-t",
@@ -120,7 +120,7 @@ def run(
             rprint("\n[yellow]No tickers were analyzed[/yellow]")
 
     except Exception as e:
-        rprint(f"\n[red]Error: {str(e)}[/red]")
+        rprint(f"\n[red]Error: {e!s}[/red]")
         raise typer.Exit(1)
 
 
@@ -176,7 +176,7 @@ def list_tickers():
         console.print(table)
 
     except Exception as e:
-        rprint(f"\n[red]Error: {str(e)}[/red]")
+        rprint(f"\n[red]Error: {e!s}[/red]")
         raise typer.Exit(1)
 
 
@@ -250,7 +250,7 @@ def results(
 
                 if data.get("strongest_pattern"):
                     pattern = data["strongest_pattern"]
-                    rprint(f"\n[yellow]Strongest Pattern:[/yellow]")
+                    rprint("\n[yellow]Strongest Pattern:[/yellow]")
                     rprint(f"  Type: {pattern['pattern_type']}")
                     rprint(f"  Period: {pattern['period']}")
                     rprint(f"  Average return: {pattern['average_return']:.2f}%")
@@ -261,7 +261,7 @@ def results(
             raise typer.Exit(1)
 
     except Exception as e:
-        rprint(f"\n[red]Error: {str(e)}[/red]")
+        rprint(f"\n[red]Error: {e!s}[/red]")
         raise typer.Exit(1)
 
 
@@ -290,13 +290,13 @@ def clean():
             rprint("[yellow]Cleanup cancelled[/yellow]")
 
     except Exception as e:
-        rprint(f"\n[red]Error: {str(e)}[/red]")
+        rprint(f"\n[red]Error: {e!s}[/red]")
         raise typer.Exit(1)
 
 
 @app.command()
 def current(
-    tickers: Optional[List[str]] = typer.Option(
+    tickers: list[str] | None = typer.Option(
         None,
         "--ticker",
         "-t",
@@ -408,7 +408,7 @@ def current(
         top_ticker = results_df.iloc[0]
         avg_return = results_df["expected_return"].mean()
 
-        rprint(f"\n💡 [bold yellow]Key Insights:[/bold yellow]")
+        rprint("\n💡 [bold yellow]Key Insights:[/bold yellow]")
         rprint(
             f"🏆 [white]Best Opportunity: {top_ticker['ticker']} ({top_ticker['expected_return']:+.2f}%)[/white]"
         )
@@ -418,7 +418,7 @@ def current(
         )
 
     except Exception as e:
-        rprint(f"\n[red]Error: {str(e)}[/red]")
+        rprint(f"\n[red]Error: {e!s}[/red]")
         raise typer.Exit(1)
 
 
@@ -433,7 +433,7 @@ def portfolio(
         "-d",
         help="Default time period in days when no signal entry exists",
     ),
-    time_period: Optional[int] = typer.Option(
+    time_period: int | None = typer.Option(
         None,
         "--time-period",
         "-tp",
@@ -508,7 +508,7 @@ def portfolio(
             _display_portfolio_results(results["display_data"], portfolio_name)
 
         # Display summary
-        rprint(f"\n[bold green]✨ Analysis Complete![/bold green]")
+        rprint("\n[bold green]✨ Analysis Complete![/bold green]")
         rprint(f"📊 [cyan]Portfolio: {results['portfolio']}[/cyan]")
         rprint(f"🎯 [green]Total tickers: {results['total_tickers']}[/green]")
         rprint(
@@ -548,7 +548,7 @@ def portfolio(
             if result.get("analysis_source") == "default"
         )
 
-        rprint(f"\n[bold yellow]📈 Time Period Analysis:[/bold yellow]")
+        rprint("\n[bold yellow]📈 Time Period Analysis:[/bold yellow]")
         if override_based > 0:
             rprint(
                 f"🎯 [red]{override_based} tickers used OVERRIDE time period ({time_period} days)[/red]"
@@ -566,7 +566,7 @@ def portfolio(
             positive_expectancy_tickers = [
                 row["ticker"]
                 for row in results["display_data"]
-                if isinstance(row.get("expectancy"), (int, float))
+                if isinstance(row.get("expectancy"), int | float)
                 and row["expectancy"] > 0
             ]
 
@@ -577,7 +577,7 @@ def portfolio(
                 rprint(f"[cyan]{','.join(positive_expectancy_tickers)}[/cyan]")
 
     except Exception as e:
-        rprint(f"\n[red]Error: {str(e)}[/red]")
+        rprint(f"\n[red]Error: {e!s}[/red]")
         raise typer.Exit(1)
 
 
@@ -605,7 +605,7 @@ def _display_portfolio_results(display_data, portfolio_name):
     for row in display_data:
         # Color the average return based on value
         avg_return = row.get("avg_return", "N/A")
-        if isinstance(avg_return, (int, float)):
+        if isinstance(avg_return, int | float):
             return_color = "green" if avg_return > 0 else "red"
             avg_return_str = f"[{return_color}]{avg_return:+.2f}%[/{return_color}]"
         else:
@@ -613,21 +613,21 @@ def _display_portfolio_results(display_data, portfolio_name):
 
         # Format win rate
         win_rate = row.get("win_rate", "N/A")
-        if isinstance(win_rate, (int, float)):
+        if isinstance(win_rate, int | float):
             win_rate_str = f"{win_rate:.1%}"
         else:
             win_rate_str = str(win_rate)
 
         # Format seasonal strength
         seasonal_strength = row.get("seasonal_strength", "N/A")
-        if isinstance(seasonal_strength, (int, float)):
+        if isinstance(seasonal_strength, int | float):
             seasonal_strength_str = f"{seasonal_strength:.3f}"
         else:
             seasonal_strength_str = str(seasonal_strength)
 
         # Format expectancy
         expectancy = row.get("expectancy", "N/A")
-        if isinstance(expectancy, (int, float)):
+        if isinstance(expectancy, int | float):
             expectancy_color = "bright_green" if expectancy > 0 else "red"
             expectancy_str = (
                 f"[{expectancy_color}]{expectancy:+.2f}%[/{expectancy_color}]"

@@ -21,6 +21,7 @@ from app.tools.config_service import ConfigService
 from app.tools.get_data import get_data
 from app.tools.setup_logging import setup_logging
 
+
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
     "TICKER": "LULU",
@@ -86,7 +87,7 @@ def run(config: CacheConfig) -> bool:
                     )
                     log("Using cached protective stop loss analysis results")
             except Exception as e:
-                log(f"Error loading cached protective stop loss analysis: {str(e)}")
+                log(f"Error loading cached protective stop loss analysis: {e!s}")
                 metric_matrices = None
                 holding_period_range = None
 
@@ -134,7 +135,7 @@ def run(config: CacheConfig) -> bool:
         return True
 
     except Exception as e:
-        log(f"Error during protective stop loss analysis: {str(e)}", "error")
+        log(f"Error during protective stop loss analysis: {e!s}", "error")
         log_close()
         raise
 
@@ -145,5 +146,5 @@ if __name__ == "__main__":
         if result:
             print("Protective stop loss analysis completed successfully!")
     except Exception as e:
-        print(f"Protective stop loss analysis failed: {str(e)}")
+        print(f"Protective stop loss analysis failed: {e!s}")
         raise

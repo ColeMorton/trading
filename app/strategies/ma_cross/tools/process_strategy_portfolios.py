@@ -6,7 +6,8 @@ This module provides a unified approach to processing different strategy types
 parameter validation and processing logic.
 """
 
-from typing import Any, Callable, Dict, Optional, Tuple
+from collections.abc import Callable
+from typing import Any
 
 import polars as pl
 
@@ -21,10 +22,10 @@ def process_strategy_portfolios(
     strategy_type: str,
     fast_period: int,
     slow_period: int,
-    signal_period: Optional[int] | None = None,
-    config: Dict[str, Any] = None,
+    signal_period: int | None | None = None,
+    config: dict[str, Any] | None = None,
     log: Callable | None = None,
-) -> Optional[Tuple[Optional[pl.DataFrame], dict, Optional[pl.DataFrame]]]:
+) -> tuple[pl.DataFrame | None, dict, pl.DataFrame | None] | None:
     """
     Process portfolios for a given ticker based on strategy type.
 
@@ -128,16 +129,15 @@ def process_strategy_portfolios(
         # Return results if strategy was processed
         if portfolio is not None:
             return portfolio, strategy_config, signal_data
-        else:
-            log(
-                f"No valid {strategy_type} strategy processed for {current_ticker}",
-                "error",
-            )
-            return None
+        log(
+            f"No valid {strategy_type} strategy processed for {current_ticker}",
+            "error",
+        )
+        return None
 
     except Exception as e:
         error_msg = (
-            f"Failed to process {strategy_type} strategy for {current_ticker}: {str(e)}"
+            f"Failed to process {strategy_type} strategy for {current_ticker}: {e!s}"
         )
         log(error_msg, "error")
         raise Exception(error_msg) from e
@@ -147,9 +147,9 @@ def process_sma_strategy(
     ticker: str,
     fast_period: int,
     slow_period: int,
-    config: Dict[str, Any] = None,
+    config: dict[str, Any] | None = None,
     log: Callable | None = None,
-) -> Optional[Tuple[Optional[pl.DataFrame], dict, Optional[pl.DataFrame]]]:
+) -> tuple[pl.DataFrame | None, dict, pl.DataFrame | None] | None:
     """
     Process SMA strategy for a given ticker.
 
@@ -177,9 +177,9 @@ def process_ema_strategy(
     ticker: str,
     fast_period: int,
     slow_period: int,
-    config: Dict[str, Any] = None,
+    config: dict[str, Any] | None = None,
     log: Callable | None = None,
-) -> Optional[Tuple[Optional[pl.DataFrame], dict, Optional[pl.DataFrame]]]:
+) -> tuple[pl.DataFrame | None, dict, pl.DataFrame | None] | None:
     """
     Process EMA strategy for a given ticker.
 
@@ -208,9 +208,9 @@ def process_macd_strategy(
     fast_period: int,
     slow_period: int,
     signal_period: int,
-    config: Dict[str, Any] = None,
+    config: dict[str, Any] | None = None,
     log: Callable | None = None,
-) -> Optional[Tuple[Optional[pl.DataFrame], dict, Optional[pl.DataFrame]]]:
+) -> tuple[pl.DataFrame | None, dict, pl.DataFrame | None] | None:
     """
     Process MACD strategy for a given ticker.
 

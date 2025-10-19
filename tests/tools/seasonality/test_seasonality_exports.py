@@ -4,12 +4,10 @@ CRITICAL: These tests verify that exported data is correctly structured
 and contains all required fields for downstream analysis.
 """
 
-import json
 from datetime import datetime
-from pathlib import Path
+import json
 
 import pandas as pd
-import pytest
 
 
 def get_service_class():

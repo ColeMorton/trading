@@ -2,9 +2,8 @@
 Test version of enhanced analyzer for quick validation.
 """
 
-import asyncio
 import logging
-from typing import Any, Dict
+from typing import Any
 
 from .parameter_parser import ParameterType, ParsedParameter
 from .simplified_analysis_result import convert_to_standard_result, create_simple_result
@@ -18,7 +17,7 @@ class TestAssetDistributionAnalyzer:
         self.ticker = parsed_param.ticker
         self.logger = logger or logging.getLogger(__name__)
 
-    async def analyze(self) -> Dict[str, Any]:
+    async def analyze(self) -> dict[str, Any]:
         """Test analysis that always works."""
         strategy_name = f"{self.ticker}_ASSET_DISTRIBUTION"
 
@@ -53,7 +52,7 @@ class TestStrategyAnalyzer:
         self.slow_period = parsed_param.slow_period
         self.logger = logger or logging.getLogger(__name__)
 
-    async def analyze(self) -> Dict[str, Any]:
+    async def analyze(self) -> dict[str, Any]:
         """Test analysis that always works."""
         strategy_name = (
             f"{self.ticker}_{self.strategy_type}_{self.fast_period}_{self.slow_period}"
@@ -93,7 +92,7 @@ class TestPositionAnalyzer:
         self.entry_date = parsed_param.entry_date
         self.logger = logger or logging.getLogger(__name__)
 
-    async def analyze(self) -> Dict[str, Any]:
+    async def analyze(self) -> dict[str, Any]:
         """Test analysis that always works."""
         position_uuid = f"{self.ticker}_{self.strategy_type}_{self.fast_period}_{self.slow_period}_{self.entry_date.replace('-', '')}"
 
@@ -125,9 +124,8 @@ def create_test_analyzer(parsed_param: ParsedParameter, logger=None):
     """Create test analyzer based on parameter type."""
     if parsed_param.parameter_type == ParameterType.TICKER_ONLY:
         return TestAssetDistributionAnalyzer(parsed_param, logger)
-    elif parsed_param.parameter_type == ParameterType.STRATEGY_SPEC:
+    if parsed_param.parameter_type == ParameterType.STRATEGY_SPEC:
         return TestStrategyAnalyzer(parsed_param, logger)
-    elif parsed_param.parameter_type == ParameterType.POSITION_UUID:
+    if parsed_param.parameter_type == ParameterType.POSITION_UUID:
         return TestPositionAnalyzer(parsed_param, logger)
-    else:
-        raise ValueError(f"Unsupported parameter type: {parsed_param.parameter_type}")
+    raise ValueError(f"Unsupported parameter type: {parsed_param.parameter_type}")

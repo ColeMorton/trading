@@ -7,23 +7,19 @@ and concurrent strategy analysis.
 """
 
 import os
-import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+import sys
 
-import matplotlib.patches as patches
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from app.concurrency.tools.monte_carlo.core import (
-    MonteCarloPortfolioResult,
-    ParameterStabilityResult,
-)
+from app.concurrency.tools.monte_carlo.core import MonteCarloPortfolioResult
+
 
 # Try to import seaborn for enhanced visualizations
 try:
@@ -41,7 +37,7 @@ class MonteCarloVisualizationConfig:
         self,
         output_dir: str = "png/concurrency/monte_carlo",
         enable_seaborn: bool = True,
-        figure_size: Tuple[int, int] = (12, 8),
+        figure_size: tuple[int, int] = (12, 8),
         dpi: int = 300,
     ):
         """Initialize visualization configuration.
@@ -68,7 +64,7 @@ class PortfolioMonteCarloVisualizer:
     across multiple tickers in a portfolio, following concurrency patterns.
     """
 
-    def __init__(self, config: Optional[MonteCarloVisualizationConfig] = None):
+    def __init__(self, config: MonteCarloVisualizationConfig | None = None):
         """Initialize the portfolio visualizer.
 
         Args:
@@ -90,9 +86,9 @@ class PortfolioMonteCarloVisualizer:
 
     def create_portfolio_stability_heatmap(
         self,
-        monte_carlo_results: Dict[str, MonteCarloPortfolioResult],
+        monte_carlo_results: dict[str, MonteCarloPortfolioResult],
         metric: str = "stability_score",
-        save_path: Optional[str] = None,
+        save_path: str | None = None,
     ) -> str:
         """Create portfolio-wide stability heatmap.
 
@@ -208,8 +204,8 @@ class PortfolioMonteCarloVisualizer:
 
     def create_stability_distribution_plot(
         self,
-        monte_carlo_results: Dict[str, MonteCarloPortfolioResult],
-        save_path: Optional[str] = None,
+        monte_carlo_results: dict[str, MonteCarloPortfolioResult],
+        save_path: str | None = None,
     ) -> str:
         """Create distribution plot of stability scores across portfolio.
 
@@ -322,9 +318,9 @@ class PortfolioMonteCarloVisualizer:
 
     def create_portfolio_summary_plot(
         self,
-        monte_carlo_results: Dict[str, MonteCarloPortfolioResult],
-        portfolio_metrics: Dict[str, float],
-        save_path: Optional[str] = None,
+        monte_carlo_results: dict[str, MonteCarloPortfolioResult],
+        portfolio_metrics: dict[str, float],
+        save_path: str | None = None,
     ) -> str:
         """Create portfolio-level Monte Carlo summary visualization.
 
@@ -359,7 +355,7 @@ class PortfolioMonteCarloVisualizer:
         axes[0, 0].legend()
 
         # Color bars based on stability
-        for i, (bar, score) in enumerate(zip(bars, ticker_scores)):
+        for i, (bar, score) in enumerate(zip(bars, ticker_scores, strict=False)):
             bar.set_color("green" if score > 0.7 else "red")
 
         # Portfolio metrics summary
@@ -381,7 +377,7 @@ Max Params: {portfolio_metrics.get('simulation_parameters', {}).get('max_paramet
             metrics_text,
             fontsize=10,
             verticalalignment="center",
-            bbox=dict(boxstyle="round", facecolor="lightblue", alpha=0.8),
+            bbox={"boxstyle": "round", "facecolor": "lightblue", "alpha": 0.8},
         )
         axes[0, 1].set_xlim(0, 1)
         axes[0, 1].set_ylim(0, 1)
@@ -511,9 +507,9 @@ Max Params: {portfolio_metrics.get('simulation_parameters', {}).get('max_paramet
 
     def generate_portfolio_visualizations(
         self,
-        monte_carlo_results: Dict[str, MonteCarloPortfolioResult],
-        portfolio_metrics: Dict[str, float],
-    ) -> List[str]:
+        monte_carlo_results: dict[str, MonteCarloPortfolioResult],
+        portfolio_metrics: dict[str, float],
+    ) -> list[str]:
         """Generate complete set of portfolio Monte Carlo visualizations.
 
         Args:
@@ -552,10 +548,10 @@ Max Params: {portfolio_metrics.get('simulation_parameters', {}).get('max_paramet
 
 
 def create_monte_carlo_visualizations(
-    monte_carlo_results: Dict[str, MonteCarloPortfolioResult],
-    portfolio_metrics: Dict[str, float],
-    config: Optional[MonteCarloVisualizationConfig] = None,
-) -> List[str]:
+    monte_carlo_results: dict[str, MonteCarloPortfolioResult],
+    portfolio_metrics: dict[str, float],
+    config: MonteCarloVisualizationConfig | None = None,
+) -> list[str]:
     """Create Monte Carlo visualizations for portfolio analysis.
 
     Args:

@@ -7,9 +7,8 @@ used throughout the trading system.
 
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class Direction(str, Enum):
@@ -50,7 +49,7 @@ class AllocationConfig(BaseModel):
     ensure_sum_100: bool = Field(
         default=True, description="Whether to ensure allocations sum to 100%"
     )
-    account_value: Optional[float] = Field(
+    account_value: float | None = Field(
         default=None, gt=0, description="Account value for position size calculation"
     )
 
@@ -61,7 +60,7 @@ class StopLossConfig(BaseModel):
     handle_stop_loss: bool = Field(
         default=True, description="Whether to process stop loss data"
     )
-    use_candle_close: Optional[bool] = Field(
+    use_candle_close: bool | None = Field(
         default=None,
         description="Whether to use candle close for stop loss calculation",
     )
@@ -76,27 +75,28 @@ class FilterConfig(BaseModel):
     use_current: bool = Field(
         default=False, description="Filter for current signal entries only"
     )
-    date_filter: Optional[str] = Field(
+    date_filter: str | None = Field(
         default=None,
         description="Filter for entry signals triggered on specific date (YYYYMMDD format)",
     )
-    min_win_rate: Optional[float] = Field(
+    min_win_rate: float | None = Field(
         default=None, ge=0, le=1, description="Minimum win rate filter"
     )
-    min_trades: Optional[int] = Field(
+    min_trades: int | None = Field(
         default=None, ge=0, description="Minimum number of trades filter"
     )
-    min_expectancy: Optional[float] = Field(
+    min_expectancy: float | None = Field(
         default=None, description="Minimum expectancy per trade filter"
     )
-    min_profit_factor: Optional[float] = Field(
+    min_profit_factor: float | None = Field(
         default=None, ge=0, description="Minimum profit factor filter"
     )
-    min_sortino_ratio: Optional[float] = Field(
+    min_sortino_ratio: float | None = Field(
         default=None, description="Minimum Sortino ratio filter"
     )
 
-    @validator("date_filter")
+    @field_validator("date_filter")
+    @classmethod
     def validate_date_filter(cls, v):
         """Validate date_filter format."""
         if v is not None:
@@ -116,7 +116,7 @@ class BaseConfig(BaseModel):
     base_dir: Path = Field(
         default_factory=lambda: Path.cwd(), description="Base directory for the project"
     )
-    portfolio: Optional[str] = Field(
+    portfolio: str | None = Field(
         default=None, description="Portfolio filename (with or without extension)"
     )
 
@@ -134,7 +134,7 @@ class BaseConfig(BaseModel):
     use_2day: bool = Field(
         default=False, description="Use 2-day timeframe for analysis"
     )
-    use_extended_schema: Optional[bool] = Field(
+    use_extended_schema: bool | None = Field(
         default=None,
         description="Use extended schema with allocation/stop loss columns",
     )
@@ -166,7 +166,8 @@ class BaseConfig(BaseModel):
         default=False, description="Preview operations without executing"
     )
 
-    @validator("base_dir", pre=True)
+    @field_validator("base_dir", mode="before")
+    @classmethod
     def validate_base_dir(cls, v):
         """Ensure base_dir is a Path object and exists."""
         if isinstance(v, str):
@@ -175,7 +176,8 @@ class BaseConfig(BaseModel):
             raise ValueError(f"Base directory does not exist: {v}")
         return v.resolve()
 
-    @validator("portfolio")
+    @field_validator("portfolio")
+    @classmethod
     def validate_portfolio(cls, v):
         """Validate portfolio filename."""
         if v is not None and not v.strip():

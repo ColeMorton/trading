@@ -16,10 +16,7 @@ import polars as pl
 import vectorbt as vbt
 
 from app.tools.backtest_strategy import backtest_strategy
-from app.tools.trade_history_exporter import (
-    export_trade_history,
-    generate_trade_filename,
-)
+from app.tools.trade_history_exporter import generate_trade_filename
 
 
 class TestTradeHistoryBacktestIntegration(unittest.TestCase):
@@ -93,7 +90,7 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
             )
 
             # Verify JSON structure
-            with open(expected_path, "r") as f:
+            with open(expected_path) as f:
                 trade_data = json.load(f)
 
             self.assertIn("metadata", trade_data)
@@ -124,7 +121,7 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                 pass
 
             # Run backtest with export enabled via parameter
-            portfolio = backtest_strategy(
+            backtest_strategy(
                 self.test_data, config, mock_log, export_trade_history=True
             )
 
@@ -152,7 +149,7 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                 pass
 
             # Run backtest without export
-            portfolio = backtest_strategy(
+            backtest_strategy(
                 self.test_data, config, mock_log, export_trade_history=False
             )
 
@@ -180,7 +177,7 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                 pass
 
             # First backtest - should create file
-            portfolio1 = backtest_strategy(
+            backtest_strategy(
                 self.test_data, config, mock_log, export_trade_history=True
             )
 
@@ -198,7 +195,7 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
             time.sleep(0.1)
 
             # Second backtest without force refresh - should skip
-            portfolio2 = backtest_strategy(
+            backtest_strategy(
                 self.test_data,
                 config,
                 mock_log,
@@ -214,7 +211,7 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
             time.sleep(0.1)
 
             # Third backtest with force refresh - should regenerate
-            portfolio3 = backtest_strategy(
+            backtest_strategy(
                 self.test_data,
                 config,
                 mock_log,
@@ -242,7 +239,7 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                 pass
 
             # First backtest - creates file
-            portfolio1 = backtest_strategy(
+            backtest_strategy(
                 self.test_data, config, mock_log, export_trade_history=True
             )
 
@@ -262,7 +259,7 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
             old_mtime = os.path.getmtime(expected_path)
 
             # Second backtest should regenerate the old file
-            portfolio2 = backtest_strategy(
+            backtest_strategy(
                 self.test_data, config, mock_log, export_trade_history=True
             )
 
@@ -309,7 +306,7 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
 
             for config in configs:
                 # Run backtest
-                portfolio = backtest_strategy(self.test_data, config, mock_log)
+                backtest_strategy(self.test_data, config, mock_log)
 
                 # Check file was created
                 expected_filename = generate_trade_filename(config, "json")
@@ -351,7 +348,7 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                 temp_dir, "json", "trade_history", expected_filename
             )
 
-            with open(expected_path, "r") as f:
+            with open(expected_path) as f:
                 trade_data = json.load(f)
 
             # Compare portfolio metrics with exported metadata
@@ -468,7 +465,7 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                 config = test_case["config"]
 
                 # Run backtest
-                portfolio = backtest_strategy(self.test_data, config, mock_log)
+                backtest_strategy(self.test_data, config, mock_log)
 
                 # Check file creation
                 expected_path = os.path.join(
@@ -480,7 +477,7 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                 )
 
                 # Verify metadata
-                with open(expected_path, "r") as f:
+                with open(expected_path) as f:
                     trade_data = json.load(f)
 
                 strategy_config = trade_data["metadata"]["strategy_config"]
@@ -506,7 +503,7 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
                 pass
 
             # Run backtest
-            portfolio = backtest_strategy(self.test_data, config, mock_log)
+            backtest_strategy(self.test_data, config, mock_log)
 
             # Check filename includes stop loss
             expected_filename = "BTC-USD_D_SMA_10_20_SL_0.0500.json"
@@ -516,7 +513,7 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
             self.assertTrue(os.path.exists(expected_path))
 
             # Verify stop loss in metadata
-            with open(expected_path, "r") as f:
+            with open(expected_path) as f:
                 trade_data = json.load(f)
 
             parameters = trade_data["metadata"]["strategy_config"]["parameters"]

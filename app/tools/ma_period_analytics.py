@@ -5,14 +5,12 @@ This module provides weekly and monthly period-specific analysis for moving aver
 including rolling performance metrics, seasonality patterns, and period comparisons.
 """
 
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
 import polars as pl
 
-from app.cli.models.seasonality import SeasonalityPattern
 from app.tools.seasonality_analyzer import SeasonalityAnalyzer
 
 
@@ -97,7 +95,7 @@ def detect_asset_type(ticker: str) -> str:
     return "stock"
 
 
-def get_rolling_windows(asset_type: str) -> Dict[str, int]:
+def get_rolling_windows(asset_type: str) -> dict[str, int]:
     """
     Get appropriate rolling windows based on asset type.
 
@@ -112,14 +110,14 @@ def get_rolling_windows(asset_type: str) -> Dict[str, int]:
             "weekly": 7,  # 7 calendar days (crypto trades 24/7)
             "monthly": 30,  # 30 calendar days
         }
-    else:  # stock
-        return {
-            "weekly": 5,  # 5 trading days (Mon-Fri)
-            "monthly": 21,  # ~21 trading days per month
-        }
+    # stock
+    return {
+        "weekly": 5,  # 5 trading days (Mon-Fri)
+        "monthly": 21,  # ~21 trading days per month
+    }
 
 
-def get_period_labels(asset_type: str) -> Dict[str, str]:
+def get_period_labels(asset_type: str) -> dict[str, str]:
     """
     Get appropriate period labels based on asset type.
 
@@ -135,12 +133,12 @@ def get_period_labels(asset_type: str) -> Dict[str, str]:
             "monthly": "🗓️ Monthly (30d)",
             "note": "Crypto markets trade 24/7/365",
         }
-    else:  # stock
-        return {
-            "weekly": "🗓️ Weekly (5d)",
-            "monthly": "📅 Monthly (21d)",
-            "note": "Based on trading days (Mon-Fri)",
-        }
+    # stock
+    return {
+        "weekly": "🗓️ Weekly (5d)",
+        "monthly": "📅 Monthly (21d)",
+        "note": "Based on trading days (Mon-Fri)",
+    }
 
 
 class MAPeriodAnalytics:
@@ -188,7 +186,7 @@ class MAPeriodAnalytics:
         """Calculate daily returns from MA values."""
         return self.df["Close"].pct_change().dropna()
 
-    def calculate_all_period_metrics(self) -> Dict[str, Any]:
+    def calculate_all_period_metrics(self) -> dict[str, Any]:
         """Calculate all period-specific metrics."""
         return {
             "rolling_performance": self._calculate_rolling_performance(),
@@ -203,7 +201,7 @@ class MAPeriodAnalytics:
             },
         }
 
-    def _calculate_rolling_performance(self) -> Dict[str, Dict[str, float]]:
+    def _calculate_rolling_performance(self) -> dict[str, dict[str, float]]:
         """Calculate rolling performance metrics for different periods."""
         rolling_metrics = {}
 
@@ -225,7 +223,7 @@ class MAPeriodAnalytics:
 
     def _calculate_rolling_metrics(
         self, window: int, period_name: str
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Calculate rolling metrics for a specific window size."""
         if len(self.returns) < window:
             return self._get_empty_rolling_metrics()
@@ -261,30 +259,38 @@ class MAPeriodAnalytics:
 
         # Calculate summary statistics
         return {
-            "avg_return": float(rolling_returns.mean() * 100)
-            if not rolling_returns.isna().all()
-            else 0.0,
-            "avg_volatility": float(rolling_vol.mean() * 100)
-            if not rolling_vol.isna().all()
-            else 0.0,
-            "avg_sharpe": float(rolling_sharpe.mean())
-            if not rolling_sharpe.isna().all()
-            else 0.0,
-            "avg_max_drawdown": float(rolling_max_dd.mean())
-            if not rolling_max_dd.isna().all()
-            else 0.0,
-            "best_return": float(rolling_returns.max() * 100)
-            if not rolling_returns.isna().all()
-            else 0.0,
-            "worst_return": float(rolling_returns.min() * 100)
-            if not rolling_returns.isna().all()
-            else 0.0,
-            "win_rate": float((rolling_returns > 0).mean() * 100)
-            if not rolling_returns.isna().all()
-            else 0.0,
+            "avg_return": (
+                float(rolling_returns.mean() * 100)
+                if not rolling_returns.isna().all()
+                else 0.0
+            ),
+            "avg_volatility": (
+                float(rolling_vol.mean() * 100) if not rolling_vol.isna().all() else 0.0
+            ),
+            "avg_sharpe": (
+                float(rolling_sharpe.mean()) if not rolling_sharpe.isna().all() else 0.0
+            ),
+            "avg_max_drawdown": (
+                float(rolling_max_dd.mean()) if not rolling_max_dd.isna().all() else 0.0
+            ),
+            "best_return": (
+                float(rolling_returns.max() * 100)
+                if not rolling_returns.isna().all()
+                else 0.0
+            ),
+            "worst_return": (
+                float(rolling_returns.min() * 100)
+                if not rolling_returns.isna().all()
+                else 0.0
+            ),
+            "win_rate": (
+                float((rolling_returns > 0).mean() * 100)
+                if not rolling_returns.isna().all()
+                else 0.0
+            ),
         }
 
-    def _get_empty_rolling_metrics(self) -> Dict[str, float]:
+    def _get_empty_rolling_metrics(self) -> dict[str, float]:
         """Return empty metrics when insufficient data."""
         return {
             "avg_return": 0.0,
@@ -296,7 +302,7 @@ class MAPeriodAnalytics:
             "win_rate": 0.0,
         }
 
-    def _analyze_seasonality_patterns(self) -> Dict[str, Any]:
+    def _analyze_seasonality_patterns(self) -> dict[str, Any]:
         """Analyze seasonal patterns in MA data using existing seasonality analyzer."""
         try:
             # Create seasonality analyzer
@@ -372,7 +378,7 @@ class MAPeriodAnalytics:
                 "error": str(e),
             }
 
-    def _calculate_period_comparison(self) -> Dict[str, Any]:
+    def _calculate_period_comparison(self) -> dict[str, Any]:
         """Compare performance across different time periods."""
         comparison = {}
 
@@ -426,12 +432,11 @@ class MAPeriodAnalytics:
 
             if len(aligned_weekly) > 1 and len(aligned_monthly) > 1:
                 return aligned_weekly.corr(aligned_monthly)
-            else:
-                return 0.0
+            return 0.0
         except:
             return 0.0
 
-    def _find_best_worst_periods(self) -> Dict[str, Any]:
+    def _find_best_worst_periods(self) -> dict[str, Any]:
         """Find best and worst performing periods."""
         best_worst = {}
 
@@ -442,18 +447,26 @@ class MAPeriodAnalytics:
             worst_week_idx = weekly_returns.idxmin()
 
             best_worst["weekly"] = {
-                "best_week": best_week_idx.strftime("%Y-%m-%d")
-                if pd.notna(best_week_idx)
-                else None,
-                "best_return": float(weekly_returns.max() * 100)
-                if pd.notna(weekly_returns.max())
-                else 0.0,
-                "worst_week": worst_week_idx.strftime("%Y-%m-%d")
-                if pd.notna(worst_week_idx)
-                else None,
-                "worst_return": float(weekly_returns.min() * 100)
-                if pd.notna(weekly_returns.min())
-                else 0.0,
+                "best_week": (
+                    best_week_idx.strftime("%Y-%m-%d")
+                    if pd.notna(best_week_idx)
+                    else None
+                ),
+                "best_return": (
+                    float(weekly_returns.max() * 100)
+                    if pd.notna(weekly_returns.max())
+                    else 0.0
+                ),
+                "worst_week": (
+                    worst_week_idx.strftime("%Y-%m-%d")
+                    if pd.notna(worst_week_idx)
+                    else None
+                ),
+                "worst_return": (
+                    float(weekly_returns.min() * 100)
+                    if pd.notna(weekly_returns.min())
+                    else 0.0
+                ),
             }
 
         # Monthly analysis
@@ -463,23 +476,31 @@ class MAPeriodAnalytics:
             worst_month_idx = monthly_returns.idxmin()
 
             best_worst["monthly"] = {
-                "best_month": best_month_idx.strftime("%Y-%m")
-                if pd.notna(best_month_idx)
-                else None,
-                "best_return": float(monthly_returns.max() * 100)
-                if pd.notna(monthly_returns.max())
-                else 0.0,
-                "worst_month": worst_month_idx.strftime("%Y-%m")
-                if pd.notna(worst_month_idx)
-                else None,
-                "worst_return": float(monthly_returns.min() * 100)
-                if pd.notna(monthly_returns.min())
-                else 0.0,
+                "best_month": (
+                    best_month_idx.strftime("%Y-%m")
+                    if pd.notna(best_month_idx)
+                    else None
+                ),
+                "best_return": (
+                    float(monthly_returns.max() * 100)
+                    if pd.notna(monthly_returns.max())
+                    else 0.0
+                ),
+                "worst_month": (
+                    worst_month_idx.strftime("%Y-%m")
+                    if pd.notna(worst_month_idx)
+                    else None
+                ),
+                "worst_return": (
+                    float(monthly_returns.min() * 100)
+                    if pd.notna(monthly_returns.min())
+                    else 0.0
+                ),
             }
 
         return best_worst
 
-    def _analyze_calendar_patterns(self) -> Dict[str, Any]:
+    def _analyze_calendar_patterns(self) -> dict[str, Any]:
         """Analyze calendar-based patterns (day of week, month of year effects)."""
         calendar_analysis = {}
 
@@ -547,7 +568,7 @@ class MAPeriodAnalytics:
 
 def analyze_ma_periods(
     ma_data: pl.DataFrame, ticker: str, period: int, ma_type: str
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Convenience function to analyze MA period data and return all metrics.
 

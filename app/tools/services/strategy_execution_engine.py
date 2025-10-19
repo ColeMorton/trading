@@ -6,11 +6,11 @@ parameter configuration, and strategy execution through the Strategy Pattern.
 """
 
 import asyncio
+from enum import Enum
 import json
 import sys
 import time
-from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class StrategyTypeEnum(str, Enum):
@@ -28,15 +28,11 @@ from app.core.interfaces import (
     ConfigurationInterface,
     LoggingInterface,
     ProgressTrackerInterface,
-    StrategyAnalyzerInterface,
 )
 from app.core.strategies.strategy_factory import StrategyFactory
 from app.tools.performance_tracker import get_strategy_performance_tracker
 from app.tools.processing import DataConverter, StreamingProcessor, get_memory_optimizer
-from app.tools.services.strategy_data_coordinator import (
-    StrategyDataCoordinator,
-    StrategyDataCoordinatorError,
-)
+from app.tools.services.strategy_data_coordinator import StrategyDataCoordinator
 
 
 class StrategyExecutionEngineError(Exception):
@@ -62,10 +58,10 @@ class StrategyExecutionEngine:
         cache: CacheInterface,
         config: ConfigurationInterface,
         logger: LoggingInterface,
-        progress_tracker: Optional[ProgressTrackerInterface] = None,
+        progress_tracker: ProgressTrackerInterface | None = None,
         executor=None,
         enable_memory_optimization: bool = True,
-        data_coordinator: Optional[StrategyDataCoordinator] = None,
+        data_coordinator: StrategyDataCoordinator | None = None,
     ):
         """Initialize the strategy execution engine with optional data coordination."""
         self.strategy_factory = strategy_factory
@@ -92,11 +88,11 @@ class StrategyExecutionEngine:
     async def execute_strategy_analysis(
         self,
         strategy_type: StrategyTypeEnum,
-        strategy_config: Dict[str, Any],
+        strategy_config: dict[str, Any],
         log,
-        execution_id: Optional[str] = None,
-        data_snapshot_id: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        execution_id: str | None = None,
+        data_snapshot_id: str | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Execute strategy analysis with the given configuration and optional data snapshot.
 
@@ -141,7 +137,7 @@ class StrategyExecutionEngine:
                 if hasattr(strategy_type, "value")
                 else str(strategy_type)
             )
-            error_msg = f"Strategy execution failed for {strategy_type_str}: {str(e)}"
+            error_msg = f"Strategy execution failed for {strategy_type_str}: {e!s}"
             log(error_msg, "error")
             raise StrategyExecutionEngineError(error_msg)
 
@@ -156,7 +152,7 @@ class StrategyExecutionEngine:
             )
             log(f"Created strategy instance for {strategy_type_str}")
             return strategy
-        except ValueError as e:
+        except ValueError:
             strategy_type_str = (
                 strategy_type.value
                 if hasattr(strategy_type, "value")
@@ -169,7 +165,7 @@ class StrategyExecutionEngine:
     def _validate_strategy_parameters(
         self,
         strategy,
-        strategy_config: Dict[str, Any],
+        strategy_config: dict[str, Any],
         strategy_type: StrategyTypeEnum,
         log,
     ):
@@ -187,8 +183,8 @@ class StrategyExecutionEngine:
         log(f"Strategy parameters validated for {strategy_type_str}")
 
     def _configure_strategy_parameters(
-        self, strategy_type: StrategyTypeEnum, strategy_config: Dict[str, Any], log
-    ) -> Dict[str, Any]:
+        self, strategy_type: StrategyTypeEnum, strategy_config: dict[str, Any], log
+    ) -> dict[str, Any]:
         """Configure strategy-specific parameters."""
         configured_params = strategy_config.copy()
         strategy_type_str = (
@@ -216,10 +212,10 @@ class StrategyExecutionEngine:
     async def _execute_strategy_with_tracking(
         self,
         strategy,
-        strategy_config: Dict[str, Any],
+        strategy_config: dict[str, Any],
         log,
-        execution_id: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        execution_id: str | None = None,
+    ) -> list[dict[str, Any]]:
         """Execute strategy with performance tracking and memory optimization."""
         start_time = time.time()
 
@@ -261,8 +257,8 @@ class StrategyExecutionEngine:
         return all_portfolio_dicts or []
 
     def _optimize_portfolio_results(
-        self, portfolio_dicts: List[Dict[str, Any]], log
-    ) -> List[Dict[str, Any]]:
+        self, portfolio_dicts: list[dict[str, Any]], log
+    ) -> list[dict[str, Any]]:
         """Optimize portfolio results for memory efficiency."""
         if not self.memory_optimizer:
             return portfolio_dicts
@@ -304,12 +300,12 @@ class StrategyExecutionEngine:
     async def execute_strategy_with_concurrent_support(
         self,
         strategy_type: StrategyTypeEnum,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         log,
         execution_id: str,
         progress_callback,
-        data_snapshot_id: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        data_snapshot_id: str | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Execute strategy with concurrent support for multiple tickers and optional data snapshot.
 
@@ -407,11 +403,11 @@ class StrategyExecutionEngine:
             return all_portfolio_dicts
 
         except Exception as e:
-            error_msg = f"Concurrent strategy execution failed: {str(e)}"
+            error_msg = f"Concurrent strategy execution failed: {e!s}"
             log(error_msg, "error")
             raise StrategyExecutionEngineError(error_msg)
 
-    async def check_cache(self, cache_key: str, log) -> Optional[Any]:
+    async def check_cache(self, cache_key: str, log) -> Any | None:
         """Check cache for existing results."""
         cached_result = await self.cache.get(cache_key)
         if cached_result:

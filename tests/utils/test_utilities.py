@@ -11,20 +11,16 @@ This module provides reusable testing utilities for the trading CLI test suite:
 These utilities reduce code duplication and improve test maintainability.
 """
 
-import csv
-import json
-import tempfile
-from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
-from unittest.mock import MagicMock, Mock
+import tempfile
+from typing import Any
+from unittest.mock import Mock
 
 import pandas as pd
 import polars as pl
 from typer.testing import CliRunner
 
-from app.cli.config.loader import ConfigLoader
-from app.cli.models.strategy import StrategyConfig, StrategyType
+from app.cli.models.strategy import StrategyType
 
 
 class MockDataFactory:
@@ -49,7 +45,7 @@ class MockDataFactory:
         prices = []
         current_price = base_price
 
-        for i, date in enumerate(dates):
+        for i, _date in enumerate(dates):
             # Add trend
             current_price *= 1 + trend
 
@@ -136,7 +132,7 @@ class MockDataFactory:
 
     @staticmethod
     def create_multi_ticker_results(
-        tickers: List[str], strategy_types: List[str], results_per_combination: int = 3
+        tickers: list[str], strategy_types: list[str], results_per_combination: int = 3
     ) -> pl.DataFrame:
         """Create multi-ticker, multi-strategy results."""
         all_results = []
@@ -190,8 +186,8 @@ class MockDataFactory:
 
     @staticmethod
     def create_mock_config(
-        ticker: Union[str, List[str]] = "AAPL",
-        strategy_types: List[StrategyType] = None,
+        ticker: str | list[str] = "AAPL",
+        strategy_types: list[StrategyType] | None = None,
         **kwargs,
     ) -> Mock:
         """Create mock strategy configuration."""
@@ -231,7 +227,7 @@ class CLITestRunner:
         app,
         ticker: str = "AAPL",
         strategy: str = "SMA",
-        profile: Optional[str] = None,
+        profile: str | None = None,
         dry_run: bool = False,
         **kwargs,
     ):
@@ -267,7 +263,7 @@ class CLITestRunner:
         fast_max: int = 50,
         slow_min: int = 20,
         slow_max: int = 100,
-        max_results: Optional[int] = None,
+        max_results: int | None = None,
         **kwargs,
     ):
         """Run parameter sweep command with common parameters."""
@@ -299,8 +295,8 @@ class CLITestRunner:
         dispatcher_class_mock,
         get_data_mock,
         ticker: str = "AAPL",
-        strategy_types: List[StrategyType] = None,
-        return_data: Optional[pl.DataFrame] = None,
+        strategy_types: list[StrategyType] | None = None,
+        return_data: pl.DataFrame | None = None,
         execution_success: bool = True,
     ):
         """Setup common strategy execution mocks."""
@@ -332,7 +328,7 @@ class CLITestRunner:
         get_data_mock,
         logging_mock,
         ticker: str = "AAPL",
-        return_results: Optional[pl.DataFrame] = None,
+        return_results: pl.DataFrame | None = None,
     ):
         """Setup common parameter sweep mocks."""
         if return_results is None:
@@ -357,7 +353,7 @@ class ExportValidator:
     """Validate exported files and data structures."""
 
     @staticmethod
-    def validate_csv_file(file_path: Path) -> Dict[str, Any]:
+    def validate_csv_file(file_path: Path) -> dict[str, Any]:
         """Validate CSV file structure and return metadata."""
         if not file_path.exists():
             raise AssertionError(f"CSV file does not exist: {file_path}")
@@ -454,7 +450,7 @@ class ExportValidator:
 
     @staticmethod
     def validate_metric_type_preservation(
-        df: pl.DataFrame, expected_metric_types: List[str]
+        df: pl.DataFrame, expected_metric_types: list[str]
     ):
         """Validate that metric types are preserved correctly."""
         if "Metric Type" not in df.columns:
@@ -516,14 +512,14 @@ class ConfigBuilder:
             "version": "1.0",
         }
 
-    def with_tickers(self, tickers: Union[str, List[str]]):
+    def with_tickers(self, tickers: str | list[str]):
         """Add tickers to configuration."""
         if isinstance(tickers, str):
             tickers = [tickers]
         self.config["ticker"] = tickers
         return self
 
-    def with_strategies(self, strategies: List[str]):
+    def with_strategies(self, strategies: list[str]):
         """Add strategy types to configuration."""
         self.config["strategy_types"] = strategies
         return self
@@ -545,13 +541,13 @@ class ConfigBuilder:
         }
         return self
 
-    def with_parameter_ranges(self, fast_range: List[int], slow_range: List[int]):
+    def with_parameter_ranges(self, fast_range: list[int], slow_range: list[int]):
         """Add parameter ranges for sweeps."""
         self.config["fast_period_range"] = fast_range
         self.config["slow_period_range"] = slow_range
         return self
 
-    def with_metadata(self, name: str, description: str = None):
+    def with_metadata(self, name: str, description: str | None = None):
         """Add metadata."""
         self.metadata["name"] = name
         if description:
@@ -563,7 +559,7 @@ class ConfigBuilder:
         self.metadata["inherits_from"] = parent
         return self
 
-    def build_dict(self) -> Dict[str, Any]:
+    def build_dict(self) -> dict[str, Any]:
         """Build configuration dictionary."""
         return {
             "metadata": self.metadata,
@@ -615,7 +611,7 @@ class AssertionHelpers:
         # Validate data types and ranges
         if "Score" in df.columns:
             scores = df["Score"].to_list()
-            if any(not isinstance(score, (int, float)) for score in scores):
+            if any(not isinstance(score, int | float) for score in scores):
                 raise AssertionError("Score column contains non-numeric values")
             if any(score < 0 or score > 10 for score in scores):
                 raise AssertionError(
@@ -624,7 +620,7 @@ class AssertionHelpers:
 
     @staticmethod
     def assert_export_file_naming_convention(
-        file_path: Path, ticker: str, strategy: str = None
+        file_path: Path, ticker: str, strategy: str | None = None
     ):
         """Assert export file follows naming convention."""
         filename = file_path.name
@@ -634,18 +630,17 @@ class AssertionHelpers:
             raise AssertionError(f"Filename should contain ticker {ticker}: {filename}")
 
         # Should contain strategy if single strategy
-        if strategy and len([strategy]) == 1:
-            if strategy not in filename:
-                raise AssertionError(
-                    f"Filename should contain strategy {strategy}: {filename}"
-                )
+        if strategy and len([strategy]) == 1 and strategy not in filename:
+            raise AssertionError(
+                f"Filename should contain strategy {strategy}: {filename}"
+            )
 
         # Should have .csv extension
         if not filename.endswith(".csv"):
             raise AssertionError(f"Filename should have .csv extension: {filename}")
 
     @staticmethod
-    def assert_cli_command_success(result, expected_messages: List[str] = None):
+    def assert_cli_command_success(result, expected_messages: list[str] | None = None):
         """Assert CLI command executed successfully."""
         if result.exit_code != 0:
             raise AssertionError(
@@ -660,7 +655,9 @@ class AssertionHelpers:
                     )
 
     @staticmethod
-    def assert_cli_command_failure(result, expected_error_messages: List[str] = None):
+    def assert_cli_command_failure(
+        result, expected_error_messages: list[str] | None = None
+    ):
         """Assert CLI command failed appropriately."""
         if result.exit_code == 0:
             raise AssertionError(
@@ -698,9 +695,8 @@ class AssertionHelpers:
                     raise AssertionError(
                         f"Column {col} differs by more than tolerance {tolerance}: max diff = {diff}"
                     )
-            else:
-                if not df1[col].equals(df2[col]):
-                    raise AssertionError(f"Column {col} values are not equal")
+            elif not df1[col].equals(df2[col]):
+                raise AssertionError(f"Column {col} values are not equal")
 
     @staticmethod
     def assert_performance_within_bounds(execution_time: float, max_time: float):

@@ -6,7 +6,6 @@ to ensure 54% performance improvement is achieved while maintaining accuracy.
 """
 
 import time
-from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import Mock, patch
 
 import pytest
@@ -201,10 +200,9 @@ class TestConcurrentExecution:
         def mock_batch_processing(batch, config, strategy_type, log):
             if batch[0] == "AAPL":
                 raise Exception("Batch processing failed")
-            elif batch[0] == "MSFT":
+            if batch[0] == "MSFT":
                 return [{"Ticker": "MSFT", "Total Return [%]": 10.0}]
-            else:
-                return [{"Ticker": ticker, "Total Return [%]": 5.0} for ticker in batch]
+            return [{"Ticker": ticker, "Total Return [%]": 5.0} for ticker in batch]
 
         mock_process_ticker_batch.side_effect = mock_batch_processing
 
@@ -266,7 +264,7 @@ class TestConcurrentExecution:
             {"Ticker": "TEST", "Total Return [%]": 10.0}
         ]
 
-        results = execute_strategy_concurrent(
+        execute_strategy_concurrent(
             basic_config, "SMA", mock_log, mock_progress_tracker
         )
 

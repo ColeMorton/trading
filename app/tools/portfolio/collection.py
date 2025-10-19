@@ -6,7 +6,8 @@ It provides centralized functionality for consistent portfolio operations
 across the application.
 """
 
-from typing import Any, Callable, Dict, List, Optional, Union
+from collections.abc import Callable
+from typing import Any
 
 import polars as pl
 
@@ -14,7 +15,7 @@ from app.strategies.ma_cross.config_types import Config
 from app.tools.portfolio.base_extended_schemas import SchemaTransformer, SchemaType
 
 
-def detect_column_names(df: pl.DataFrame) -> Dict[str, str]:
+def detect_column_names(df: pl.DataFrame) -> dict[str, str]:
     """
     Detect which column naming convention is used in the DataFrame.
 
@@ -27,25 +28,19 @@ def detect_column_names(df: pl.DataFrame) -> Dict[str, str]:
     column_mapping = {}
 
     # Check for fast period column
-    if "Fast Period" in df.columns:
-        column_mapping["fast_period"] = "Fast Period"
-    elif "Fast Period" in df.columns:
+    if "Fast Period" in df.columns or "Fast Period" in df.columns:
         column_mapping["fast_period"] = "Fast Period"
     else:
         column_mapping["fast_period"] = None
 
     # Check for slow period column
-    if "Slow Period" in df.columns:
-        column_mapping["slow_period"] = "Slow Period"
-    elif "Slow Period" in df.columns:
+    if "Slow Period" in df.columns or "Slow Period" in df.columns:
         column_mapping["slow_period"] = "Slow Period"
     else:
         column_mapping["slow_period"] = None
 
     # Check for signal period column
-    if "Signal Period" in df.columns:
-        column_mapping["signal_period"] = "Signal Period"
-    elif "Signal Period" in df.columns:
+    if "Signal Period" in df.columns or "Signal Period" in df.columns:
         column_mapping["signal_period"] = "Signal Period"
     else:
         column_mapping["signal_period"] = None
@@ -59,8 +54,8 @@ class PortfolioExportError(Exception):
 
 
 def sort_portfolios(
-    portfolios: Union[List[Dict[str, Any]], pl.DataFrame], config: Config
-) -> Union[List[Dict[str, Any]], pl.DataFrame]:
+    portfolios: list[dict[str, Any]] | pl.DataFrame, config: Config
+) -> list[dict[str, Any]] | pl.DataFrame:
     """Sort portfolios using consistent logic across the application.
 
     Args:
@@ -121,10 +116,10 @@ def sort_portfolios(
 
 
 def deduplicate_and_aggregate_portfolios(
-    portfolios: Union[List[Dict[str, Any]], pl.DataFrame],
-    log: Optional[Callable] | None = None,
-    desired_metric_types: Optional[List[str]] | None = None,
-) -> Union[List[Dict[str, Any]], pl.DataFrame]:
+    portfolios: list[dict[str, Any]] | pl.DataFrame,
+    log: Callable | None | None = None,
+    desired_metric_types: list[str] | None | None = None,
+) -> list[dict[str, Any]] | pl.DataFrame:
     """
     Deduplicate portfolios to have exactly ONE row per {ticker,strategy_type} combination.
     Uses get_best_portfolio to find the best configuration for each ticker+strategy,
@@ -243,12 +238,11 @@ def deduplicate_and_aggregate_portfolios(
                     "⚠️ WARNING: No configurations with multiple metric types found - aggregation may not provide expected concatenation",
                     "warning",
                 )
-    else:
-        if log:
-            log(
-                "📊 No Metric Type column found - proceeding with standard deduplication",
-                "info",
-            )
+    elif log:
+        log(
+            "📊 No Metric Type column found - proceeding with standard deduplication",
+            "info",
+        )
 
     # Filter to desired Metric Types if specified
     if desired_metric_types is not None and "Metric Type" in df.columns:
@@ -281,21 +275,20 @@ def deduplicate_and_aggregate_portfolios(
             df = df.rename({score_col: "Score"})
             if log:
                 log(f"Renamed '{score_col}' column to 'Score'", "info")
+        # Use Total Return [%] as fallback
+        elif "Total Return [%]" in df.columns:
+            df = df.with_columns(
+                pl.col("Total Return [%]").cast(pl.Float64).alias("Score")
+            )
+            if log:
+                log("Using 'Total Return [%]' as Score column", "info")
         else:
-            # Use Total Return [%] as fallback
-            if "Total Return [%]" in df.columns:
-                df = df.with_columns(
-                    pl.col("Total Return [%]").cast(pl.Float64).alias("Score")
+            if log:
+                log(
+                    "ERROR: Neither Score nor Total Return [%] column found",
+                    "error",
                 )
-                if log:
-                    log("Using 'Total Return [%]' as Score column", "info")
-            else:
-                if log:
-                    log(
-                        "ERROR: Neither Score nor Total Return [%] column found",
-                        "error",
-                    )
-                raise ValueError("Neither Score nor Total Return [%] column found")
+            raise ValueError("Neither Score nor Total Return [%] column found")
 
     # Check if Metric Type column exists
     if "Metric Type" not in df.columns:
@@ -420,7 +413,7 @@ def deduplicate_and_aggregate_portfolios(
         except Exception as e:
             if log:
                 log(
-                    f"⚠️ PHASE 3: Filtering error for {ticker} {strategy_type}, using string conversion: {str(e)}",
+                    f"⚠️ PHASE 3: Filtering error for {ticker} {strategy_type}, using string conversion: {e!s}",
                     "warning",
                 )
             # Fallback to string conversion with error handling
@@ -445,7 +438,7 @@ def deduplicate_and_aggregate_portfolios(
             except Exception as fallback_error:
                 if log:
                     log(
-                        f"❌ CRITICAL: Fallback filtering also failed: {str(fallback_error)}",
+                        f"❌ CRITICAL: Fallback filtering also failed: {fallback_error!s}",
                         "error",
                     )
                 continue
@@ -489,14 +482,13 @@ def deduplicate_and_aggregate_portfolios(
             metric = metric.strip()
             if metric.startswith("Most"):
                 return 1
-            elif metric.startswith("Mean"):
+            if metric.startswith("Mean"):
                 return 2
-            elif metric.startswith("Median"):
+            if metric.startswith("Median"):
                 return 3
-            elif metric.startswith("Least"):
+            if metric.startswith("Least"):
                 return 4
-            else:
-                return 5
+            return 5
 
         sorted_metrics = sorted(metric_types, key=lambda x: (get_priority(x), x))
         aggregated_metric_type = ", ".join(sorted_metrics)
@@ -601,7 +593,7 @@ def deduplicate_and_aggregate_portfolios(
 
             if log:
                 log(
-                    f"❌ PHASE 3: Schema normalization failed for {ticker} {strategy_type} after {schema_time:.4f}s: {str(e)}",
+                    f"❌ PHASE 3: Schema normalization failed for {ticker} {strategy_type} after {schema_time:.4f}s: {e!s}",
                     "error",
                 )
                 log(f"📊 Error context: {error_details}", "error")
@@ -609,9 +601,9 @@ def deduplicate_and_aggregate_portfolios(
             # Enhanced fallback with proper error handling
             try:
                 # Fallback: Clear Allocation [%] for portfolios_best exports since this represents aggregated data
-                final_portfolio[
-                    "Allocation [%]"
-                ] = None  # Use None instead of empty string for consistency
+                final_portfolio["Allocation [%]"] = (
+                    None  # Use None instead of empty string for consistency
+                )
                 final_portfolio["Stop Loss [%]"] = None
 
                 # Ensure Metric Type is preserved even in fallback
@@ -628,7 +620,7 @@ def deduplicate_and_aggregate_portfolios(
             except Exception as fallback_error:
                 if log:
                     log(
-                        f"❌ CRITICAL: Fallback normalization also failed for {ticker} {strategy_type}: {str(fallback_error)}",
+                        f"❌ CRITICAL: Fallback normalization also failed for {ticker} {strategy_type}: {fallback_error!s}",
                         "error",
                     )
                 # Skip this portfolio if both normalization and fallback fail
@@ -650,12 +642,12 @@ def deduplicate_and_aggregate_portfolios(
         result_df = pl.DataFrame(result_portfolios).sort("Score", descending=True)
     except Exception as e:
         if log:
-            log(f"❌ PHASE 3: Failed to create result DataFrame: {str(e)}", "error")
+            log(f"❌ PHASE 3: Failed to create result DataFrame: {e!s}", "error")
         return result_portfolios if input_is_list else pl.DataFrame(result_portfolios)
 
     # Phase 3: Comprehensive validation and performance reporting
     if log:
-        log(f"Aggregation completed successfully", "debug")
+        log("Aggregation completed successfully", "debug")
         log(
             f"Portfolio reduction: {len(df)} → {len(result_df)} rows",
             "debug",
@@ -664,7 +656,7 @@ def deduplicate_and_aggregate_portfolios(
         # Validate schema compliance across all results
         schema_compliant_count = 0
         for portfolio in result_portfolios:
-            if "Metric Type" in portfolio and portfolio["Metric Type"]:
+            if portfolio.get("Metric Type"):
                 schema_compliant_count += 1
 
         log(
@@ -722,7 +714,7 @@ def deduplicate_and_aggregate_portfolios(
     return result_df.to_dicts() if input_is_list else result_df
 
 
-def test_bkng_metric_aggregation(log: Optional[Callable] = None) -> bool:
+def test_bkng_metric_aggregation(log: Callable | None = None) -> bool:
     """
     Test function to validate BKNG metric type concatenation through unified pipeline.
 
@@ -835,12 +827,12 @@ def test_bkng_metric_aggregation(log: Optional[Callable] = None) -> bool:
 
     except Exception as e:
         if log:
-            log(f"Test FAILED: Exception during BKNG aggregation: {str(e)}", "error")
+            log(f"Test FAILED: Exception during BKNG aggregation: {e!s}", "error")
         return False
 
 
 def export_best_portfolios(
-    portfolios: List[Dict[str, Any]], config: Config, log: callable
+    portfolios: list[dict[str, Any]], config: Config, log: callable
 ) -> bool:
     """Export the best portfolios to a CSV file with deduplication.
 
@@ -967,7 +959,7 @@ def export_best_portfolios(
             from app.tools.strategy.export_portfolios import export_portfolios
         except ImportError as e:
             log(
-                f"Failed to import export_portfolios due to circular import: {str(e)}",
+                f"Failed to import export_portfolios due to circular import: {e!s}",
                 "error",
             )
             return False
@@ -985,13 +977,13 @@ def export_best_portfolios(
         return True
 
     except (ValueError, PortfolioExportError) as e:
-        log(f"Failed to export portfolios: {str(e)}", "error")
+        log(f"Failed to export portfolios: {e!s}", "error")
         return False
 
 
 def combine_strategy_portfolios(
-    ema_portfolios: List[Dict[str, Any]], sma_portfolios: List[Dict[str, Any]]
-) -> List[Dict[str, Any]]:
+    ema_portfolios: list[dict[str, Any]], sma_portfolios: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
     """Combine portfolios from EMA and SMA strategies.
 
     Args:
@@ -1037,8 +1029,8 @@ def combine_strategy_portfolios(
 
 
 def collect_filtered_portfolios_for_export(
-    config: Dict[str, Any], strategy_types: List[str], log: Callable
-) -> List[Dict[str, Any]]:
+    config: dict[str, Any], strategy_types: list[str], log: Callable
+) -> list[dict[str, Any]]:
     """
     Collect filtered portfolios data (multiple metric types per configuration)
     from portfolios_filtered CSV files for best portfolios export.
@@ -1164,7 +1156,7 @@ def collect_filtered_portfolios_for_export(
 
                 except Exception as e:
                     log(
-                        f"Error reading filtered portfolios file {filtered_file}: {str(e)}",
+                        f"Error reading filtered portfolios file {filtered_file}: {e!s}",
                         "error",
                     )
                     continue
@@ -1200,5 +1192,5 @@ def collect_filtered_portfolios_for_export(
         return all_portfolios
 
     except Exception as e:
-        log(f"Error collecting filtered portfolios: {str(e)}", "error")
+        log(f"Error collecting filtered portfolios: {e!s}", "error")
         return []

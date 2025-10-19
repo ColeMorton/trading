@@ -9,10 +9,11 @@ from .loader import ConfigLoader
 from .manager import ConfigManager, ProfileManager
 from .profiles import Profile, ProfileConfig
 
+
 __all__ = [
+    "ConfigLoader",
     "ConfigManager",
-    "ProfileManager",
     "Profile",
     "ProfileConfig",
-    "ConfigLoader",
+    "ProfileManager",
 ]

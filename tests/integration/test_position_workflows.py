@@ -8,12 +8,9 @@ while providing improved consistency and error handling.
 
 import tempfile
 import unittest
-from datetime import datetime
-from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pandas as pd
-import pytest
 
 from app.exceptions import (
     DataNotFoundError,
@@ -207,7 +204,7 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
     def test_duplicate_position_prevention(self):
         """Test that duplicate positions are prevented."""
         # Add first position
-        position_uuid = self.service.add_position_to_portfolio(
+        self.service.add_position_to_portfolio(
             ticker="AAPL",
             strategy_type="SMA",
             fast_period=20,
@@ -309,7 +306,7 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
             self.assertGreater(mae, 0)
 
             # Close position and verify exit efficiency calculation
-            result = self.service.close_position(
+            self.service.close_position(
                 position_uuid=position_uuid,
                 portfolio_name="test_mfe_mae",
                 exit_price=165.0,
@@ -451,7 +448,7 @@ class TestPositionWorkflowsErrorRecovery(unittest.TestCase):
         """Test handling of missing price data."""
         # Try to add position for ticker without price data
         with self.assertRaises(PriceDataError):
-            position_uuid = self.service.add_position_to_portfolio(
+            self.service.add_position_to_portfolio(
                 ticker="MISSING",
                 strategy_type="SMA",
                 fast_period=20,

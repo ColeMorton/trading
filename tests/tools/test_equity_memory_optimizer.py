@@ -9,7 +9,6 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from app.tools.equity_data_extractor import EquityData
 from app.tools.equity_memory_optimizer import (
@@ -338,9 +337,7 @@ class TestStreamingEquityExporter:
         with patch("app.tools.equity_export.export_equity_data_batch") as mock_batch:
             mock_batch.return_value = {"exported_count": 3, "total_portfolios": 3}
 
-            results = exporter.stream_export_equity_data(
-                portfolios, mock_log, export_config
-            )
+            exporter.stream_export_equity_data(portfolios, mock_log, export_config)
 
             # Should fall back to batch export
             mock_batch.assert_called_once()
@@ -452,7 +449,7 @@ class TestMemoryAnalysis:
         for i in range(3):
             portfolio = {
                 "Ticker": f"NODATA{i:03d}",
-                "Strategy Type": "SMA"
+                "Strategy Type": "SMA",
                 # No _equity_data field
             }
             portfolios.append(portfolio)

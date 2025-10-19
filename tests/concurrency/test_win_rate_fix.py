@@ -9,12 +9,13 @@ Tests the standardized win rate calculator to ensure:
 4. Legacy compatibility is maintained
 """
 
+from pathlib import Path
 import sys
 import unittest
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
 
 # Add parent directories to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -172,7 +173,7 @@ class TestWinRateCalculator(unittest.TestCase):
         self.assertIn("legacy", comparisons)
 
         # All should be WinRateComponents
-        for key, result in comparisons.items():
+        for _key, result in comparisons.items():
             self.assertIsInstance(result, WinRateComponents)
 
     def test_legacy_compatibility(self):

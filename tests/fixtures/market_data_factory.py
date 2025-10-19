@@ -15,7 +15,6 @@ Key Features:
 """
 
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -43,12 +42,12 @@ class MarketDataFactory:
     def create_price_data(
         self,
         ticker: str,
-        start_date: Union[str, datetime] = "2023-01-01",
-        end_date: Union[str, datetime] = "2023-12-31",
+        start_date: str | datetime = "2023-01-01",
+        end_date: str | datetime = "2023-12-31",
         frequency: str = "D",
         base_price: float = 100.0,
-        volatility: float = None,
-        trend: float = None,
+        volatility: float | None = None,
+        trend: float | None = None,
         pattern: str = "random_walk",
     ) -> pl.DataFrame:
         """
@@ -179,13 +178,13 @@ class MarketDataFactory:
 
     def create_multi_ticker_data(
         self,
-        tickers: List[str],
-        start_date: Union[str, datetime] = "2023-01-01",
-        end_date: Union[str, datetime] = "2023-12-31",
+        tickers: list[str],
+        start_date: str | datetime = "2023-01-01",
+        end_date: str | datetime = "2023-12-31",
         frequency: str = "D",
-        base_prices: Optional[Dict[str, float]] = None,
-        correlations: Optional[Dict[Tuple[str, str], float]] = None,
-    ) -> Dict[str, pl.DataFrame]:
+        base_prices: dict[str, float] | None = None,
+        correlations: dict[tuple[str, str], float] | None = None,
+    ) -> dict[str, pl.DataFrame]:
         """
         Generate correlated price data for multiple tickers.
 
@@ -314,9 +313,9 @@ class MarketDataFactory:
 
     def create_yfinance_compatible_data(
         self,
-        tickers: Union[str, List[str]],
-        start_date: Union[str, datetime] = "2023-01-01",
-        end_date: Union[str, datetime] = "2023-12-31",
+        tickers: str | list[str],
+        start_date: str | datetime = "2023-01-01",
+        end_date: str | datetime = "2023-12-31",
         frequency: str = "D",
     ) -> pd.DataFrame:
         """
@@ -345,27 +344,26 @@ class MarketDataFactory:
             df = ticker_data[ticker].to_pandas()
             df.set_index("Date", inplace=True)
             return df
-        else:
-            # Multiple tickers - create MultiIndex columns
-            all_data = {}
-            dates = None
+        # Multiple tickers - create MultiIndex columns
+        all_data = {}
+        dates = None
 
-            for ticker in tickers:
-                df = ticker_data[ticker].to_pandas()
-                if dates is None:
-                    dates = df["Date"]
+        for ticker in tickers:
+            df = ticker_data[ticker].to_pandas()
+            if dates is None:
+                dates = df["Date"]
 
-                for col in ["Open", "High", "Low", "Close", "Volume"]:
-                    all_data[(col, ticker)] = df[col].values
+            for col in ["Open", "High", "Low", "Close", "Volume"]:
+                all_data[(col, ticker)] = df[col].values
 
-            # Create MultiIndex columns
-            result_df = pd.DataFrame(all_data, index=dates)
-            result_df.columns = pd.MultiIndex.from_tuples(
-                result_df.columns, names=[None, None]
-            )
-            result_df.index.name = "Date"
+        # Create MultiIndex columns
+        result_df = pd.DataFrame(all_data, index=dates)
+        result_df.columns = pd.MultiIndex.from_tuples(
+            result_df.columns, names=[None, None]
+        )
+        result_df.index.name = "Date"
 
-            return result_df
+        return result_df
 
     def create_strategy_test_data(
         self,
@@ -432,11 +430,11 @@ class MarketDataFactory:
         # Simple high/low generation
         highs = [
             max(o, c) * (1 + abs(np.random.normal(0, 0.005)))
-            for o, c in zip(opens, closes)
+            for o, c in zip(opens, closes, strict=False)
         ]
         lows = [
             min(o, c) * (1 - abs(np.random.normal(0, 0.005)))
-            for o, c in zip(opens, closes)
+            for o, c in zip(opens, closes, strict=False)
         ]
 
         # Volume
@@ -480,8 +478,8 @@ def create_stable_price_data(
 
 
 def create_multi_asset_data(
-    tickers: List[str], days: int = 365, correlation: float = 0.6
-) -> Dict[str, pl.DataFrame]:
+    tickers: list[str], days: int = 365, correlation: float = 0.6
+) -> dict[str, pl.DataFrame]:
     """Create correlated multi-asset data - convenience function."""
     factory = MarketDataFactory(seed=42)
     end_date = datetime(2023, 1, 1) + timedelta(days=days)
@@ -489,7 +487,7 @@ def create_multi_asset_data(
     # Create correlation dict
     correlations = {}
     for i, ticker1 in enumerate(tickers):
-        for j, ticker2 in enumerate(tickers[i + 1 :], i + 1):
+        for _j, ticker2 in enumerate(tickers[i + 1 :], i + 1):
             key = (ticker1, ticker2) if ticker1 < ticker2 else (ticker2, ticker1)
             correlations[key] = correlation
 

@@ -14,14 +14,13 @@ Key Features:
 - Scenario analysis and stress testing
 """
 
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
-import polars as pl
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -126,8 +125,8 @@ class RiskMetrics(BaseModel):
 
     # Additional Context
     calculation_date: datetime = Field(default_factory=datetime.now)
-    period_start: Optional[datetime] = None
-    period_end: Optional[datetime] = None
+    period_start: datetime | None = None
+    period_end: datetime | None = None
     total_trades: int = 0
 
 
@@ -144,11 +143,11 @@ class PositionSizer:
         portfolio_value: float,
         entry_price: float,
         stop_loss: float,
-        win_rate: Optional[float] = None,
-        avg_win: Optional[float] = None,
-        avg_loss: Optional[float] = None,
-        volatility: Optional[float] = None,
-    ) -> Dict[str, Any]:
+        win_rate: float | None = None,
+        avg_win: float | None = None,
+        avg_loss: float | None = None,
+        volatility: float | None = None,
+    ) -> dict[str, Any]:
         """
         Calculate position size using specified method.
 
@@ -158,7 +157,7 @@ class PositionSizer:
         if method == PositionSizingMethod.FIXED_PERCENTAGE:
             return self._fixed_percentage_sizing(portfolio_value, entry_price)
 
-        elif method == PositionSizingMethod.KELLY_CRITERION:
+        if method == PositionSizingMethod.KELLY_CRITERION:
             if not all([win_rate, avg_win, avg_loss]):
                 raise ValueError(
                     "Kelly criterion requires win_rate, avg_win, and avg_loss"
@@ -167,7 +166,7 @@ class PositionSizer:
                 portfolio_value, entry_price, stop_loss, win_rate, avg_win, avg_loss
             )
 
-        elif method == PositionSizingMethod.VOLATILITY_TARGET:
+        if method == PositionSizingMethod.VOLATILITY_TARGET:
             if volatility is None:
                 raise ValueError(
                     "Volatility target sizing requires volatility parameter"
@@ -176,15 +175,14 @@ class PositionSizer:
                 portfolio_value, entry_price, volatility
             )
 
-        elif method == PositionSizingMethod.MAX_DRAWDOWN_TARGET:
+        if method == PositionSizingMethod.MAX_DRAWDOWN_TARGET:
             return self._max_drawdown_sizing(portfolio_value, entry_price, stop_loss)
 
-        else:
-            raise ValueError(f"Unsupported position sizing method: {method}")
+        raise ValueError(f"Unsupported position sizing method: {method}")
 
     def _fixed_percentage_sizing(
         self, portfolio_value: float, entry_price: float
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Fixed percentage position sizing."""
         dollar_amount = portfolio_value * self.risk_params.max_position_size
         shares = int(dollar_amount / entry_price)
@@ -208,7 +206,7 @@ class PositionSizer:
         win_rate: float,
         avg_win: float,
         avg_loss: float,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Kelly criterion position sizing."""
         # Calculate Kelly fraction: f = (bp - q) / b
         # where b = avg_win/avg_loss, p = win_rate, q = 1 - win_rate
@@ -252,7 +250,7 @@ class PositionSizer:
 
     def _volatility_target_sizing(
         self, portfolio_value: float, entry_price: float, volatility: float
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Volatility target position sizing."""
         # Size position to achieve target portfolio volatility
         target_vol = self.risk_params.volatility_target
@@ -276,7 +274,7 @@ class PositionSizer:
 
     def _max_drawdown_sizing(
         self, portfolio_value: float, entry_price: float, stop_loss: float
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Position sizing based on maximum drawdown target."""
         # Size position so that stop loss hit equals portfolio heat
         risk_per_share = abs(entry_price - stop_loss)
@@ -303,9 +301,9 @@ class RiskCalculator:
 
     @staticmethod
     def calculate_comprehensive_metrics(
-        returns: Union[pd.Series, np.ndarray, List[float]],
-        trades: Optional[pd.DataFrame] = None,
-        benchmark_returns: Optional[Union[pd.Series, np.ndarray]] = None,
+        returns: pd.Series | np.ndarray | list[float],
+        trades: pd.DataFrame | None = None,
+        benchmark_returns: pd.Series | np.ndarray | None = None,
         risk_free_rate: float = 0.02,
     ) -> RiskMetrics:
         """
@@ -419,9 +417,9 @@ class RiskCalculator:
                 freq_str = str(freq)
                 if "D" in freq_str:
                     return 252  # Daily
-                elif "W" in freq_str:
+                if "W" in freq_str:
                     return 52  # Weekly
-                elif "M" in freq_str:
+                if "M" in freq_str:
                     return 12  # Monthly
 
         # Fallback: assume daily if more than 100 observations, otherwise monthly
@@ -443,7 +441,7 @@ class RiskCalculator:
         return max_duration
 
     @staticmethod
-    def _calculate_trade_metrics(trades: pd.DataFrame) -> Dict[str, float]:
+    def _calculate_trade_metrics(trades: pd.DataFrame) -> dict[str, float]:
         """Calculate trade-based risk metrics."""
         if trades is None or len(trades) == 0:
             return {
@@ -520,9 +518,9 @@ class RiskManagementLayer:
 
     def assess_strategy_risk(
         self,
-        returns: Union[pd.Series, np.ndarray, List[float]],
-        trades: Optional[pd.DataFrame] = None,
-        benchmark_returns: Optional[Union[pd.Series, np.ndarray]] = None,
+        returns: pd.Series | np.ndarray | list[float],
+        trades: pd.DataFrame | None = None,
+        benchmark_returns: pd.Series | np.ndarray | None = None,
     ) -> RiskMetrics:
         """Assess comprehensive risk metrics for a strategy."""
         return self.calculator.calculate_comprehensive_metrics(
@@ -536,7 +534,7 @@ class RiskManagementLayer:
         entry_price: float,
         stop_loss: float,
         **kwargs,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate optimal position size using specified method."""
         return self.position_sizer.calculate_position_size(
             method, portfolio_value, entry_price, stop_loss, **kwargs
@@ -548,8 +546,8 @@ class RiskManagementLayer:
         position_size: float,
         entry_price: float,
         stop_loss: float,
-        current_positions: Optional[List[Dict]] = None,
-    ) -> Dict[str, Any]:
+        current_positions: list[dict] | None = None,
+    ) -> dict[str, Any]:
         """
         Validate a proposed trade against risk parameters.
 
@@ -609,8 +607,8 @@ class RiskManagementLayer:
         return validation_result
 
     def get_portfolio_risk_summary(
-        self, positions: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, positions: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """
         Calculate portfolio-level risk summary.
 

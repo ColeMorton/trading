@@ -1,11 +1,9 @@
 """Seasonality analysis engine for stock price data."""
 
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
-import polars as pl
 from scipy import stats
 
 from app.cli.models.seasonality import PatternType, SeasonalityPattern
@@ -19,7 +17,7 @@ class SeasonalityAnalyzer:
         confidence_level: float = 0.95,
         min_sample_size: int = 10,
         time_period_days: int = 1,
-        current_date: Optional[datetime] = None,
+        current_date: datetime | None = None,
     ):
         """Initialize the analyzer.
 
@@ -38,7 +36,7 @@ class SeasonalityAnalyzer:
 
     def analyze_all_patterns(
         self, data: pd.DataFrame, detrend: bool = True
-    ) -> List[SeasonalityPattern]:
+    ) -> list[SeasonalityPattern]:
         """Analyze all seasonal patterns in the data.
 
         Args:
@@ -75,7 +73,7 @@ class SeasonalityAnalyzer:
 
         return patterns
 
-    def analyze_monthly_patterns(self, returns: pd.Series) -> List[SeasonalityPattern]:
+    def analyze_monthly_patterns(self, returns: pd.Series) -> list[SeasonalityPattern]:
         """Analyze monthly seasonal patterns.
 
         Args:
@@ -125,7 +123,7 @@ class SeasonalityAnalyzer:
 
         return patterns
 
-    def analyze_weekly_patterns(self, returns: pd.Series) -> List[SeasonalityPattern]:
+    def analyze_weekly_patterns(self, returns: pd.Series) -> list[SeasonalityPattern]:
         """Analyze weekly (day of week) seasonal patterns.
 
         Args:
@@ -164,7 +162,7 @@ class SeasonalityAnalyzer:
 
     def analyze_quarterly_patterns(
         self, returns: pd.Series
-    ) -> List[SeasonalityPattern]:
+    ) -> list[SeasonalityPattern]:
         """Analyze quarterly seasonal patterns.
 
         Args:
@@ -201,7 +199,7 @@ class SeasonalityAnalyzer:
 
     def analyze_day_of_month_patterns(
         self, returns: pd.Series
-    ) -> List[SeasonalityPattern]:
+    ) -> list[SeasonalityPattern]:
         """Analyze day of month seasonal patterns.
 
         Args:
@@ -246,7 +244,7 @@ class SeasonalityAnalyzer:
 
     def analyze_week_of_year_patterns(
         self, returns: pd.Series
-    ) -> List[SeasonalityPattern]:
+    ) -> list[SeasonalityPattern]:
         """Analyze week-of-year seasonal patterns (weeks 1-52).
 
         Args:
@@ -281,7 +279,7 @@ class SeasonalityAnalyzer:
 
         return patterns
 
-    def calculate_seasonal_strength(self, patterns: List[SeasonalityPattern]) -> float:
+    def calculate_seasonal_strength(self, patterns: list[SeasonalityPattern]) -> float:
         """Calculate overall seasonal strength score.
 
         Args:
@@ -347,7 +345,7 @@ class SeasonalityAnalyzer:
         period: str,
         returns: np.ndarray,
         all_returns: np.ndarray,
-        period_number: Optional[int] = None,
+        period_number: int | None = None,
     ) -> SeasonalityPattern:
         """Create a seasonality pattern from returns data with comprehensive metrics."""
         avg_return = np.mean(returns) * 100  # Convert to percentage
@@ -382,8 +380,7 @@ class SeasonalityAnalyzer:
         consistency_score = win_rate
 
         # Calculate Skewness and Kurtosis
-        from scipy.stats import kurtosis as kurt
-        from scipy.stats import skew
+        from scipy.stats import kurtosis as kurt, skew
 
         skewness = float(skew(returns)) if len(returns) > 2 else 0
         kurtosis_val = float(kurt(returns)) if len(returns) > 3 else 0
@@ -420,7 +417,7 @@ class SeasonalityAnalyzer:
             Enhanced pattern with current date context
         """
         # Calculate days until this pattern period starts
-        days_to_pattern = self._calculate_days_to_pattern(pattern)
+        self._calculate_days_to_pattern(pattern)
 
         # Create new pattern with same data (no direct metadata field modification needed)
         enhanced_pattern = SeasonalityPattern(
@@ -529,7 +526,7 @@ class SeasonalityAnalyzer:
 
     def _create_current_date_pattern(
         self, pattern: SeasonalityPattern, returns: pd.Series
-    ) -> Optional[SeasonalityPattern]:
+    ) -> SeasonalityPattern | None:
         """Create a current date specific version of a seasonal pattern.
 
         This filters historical returns to only include positions that were initiated

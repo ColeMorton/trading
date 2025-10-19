@@ -13,8 +13,9 @@ Key Features:
 - Easy integration with existing tests
 """
 
+from collections.abc import Callable
 import functools
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 from unittest.mock import Mock, patch
 
 from tests.fixtures.market_data_factory import MarketDataFactory, mock_yfinance_download
@@ -45,10 +46,10 @@ _stabilizer = DataStabilizer()
 
 
 def stable_market_data(
-    tickers: Optional[List[str]] = None,
+    tickers: list[str] | None = None,
     mock_yfinance: bool = True,
     mock_get_data: bool = True,
-    cache_key: Optional[str] = None,
+    cache_key: str | None = None,
 ):
     """
     Decorator to provide stable market data for tests.
@@ -69,7 +70,6 @@ def stable_market_data(
     def decorator(test_func):
         @functools.wraps(test_func)
         def wrapper(*args, **kwargs):
-            test_tickers = tickers or ["AAPL", "MSFT", "GOOGL"]
             patches = []
 
             # Mock yfinance if requested
@@ -115,7 +115,7 @@ def stable_market_data(
 
 
 def mock_external_apis(
-    apis: Optional[List[str]] = None, return_values: Optional[Dict[str, Any]] = None
+    apis: list[str] | None = None, return_values: dict[str, Any] | None = None
 ):
     """
     Decorator to mock specific external APIs with custom return values.
@@ -183,7 +183,7 @@ def fast_test_data(pattern: str = "simple", periods: int = 100):
         def wrapper(*args, **kwargs):
             def mock_fast_get_data(ticker, config, log):
                 return _stabilizer.factory.create_strategy_test_data(
-                    ticker=ticker, periods=periods, pattern=f"trending_with_signals"
+                    ticker=ticker, periods=periods, pattern="trending_with_signals"
                 )
 
             def mock_fast_yf_download(symbols, **yf_kwargs):
@@ -235,7 +235,7 @@ def fast_test_data(pattern: str = "simple", periods: int = 100):
 
 
 def stabilize_integration_test(
-    tickers: Optional[List[str]] = None,
+    tickers: list[str] | None = None,
     timeout_override: int = 30,
     cache_data: bool = True,
 ):
@@ -272,9 +272,8 @@ def stabilize_integration_test(
             def mock_comprehensive_get_data(ticker, config, log):
                 if ticker in test_data:
                     return test_data[ticker]
-                else:
-                    # Generate on-demand for missing tickers
-                    return _stabilizer.factory.create_price_data(ticker)
+                # Generate on-demand for missing tickers
+                return _stabilizer.factory.create_price_data(ticker)
 
             def mock_comprehensive_yf_download(symbols, **yf_kwargs):
                 return _stabilizer.factory.create_yfinance_compatible_data(
@@ -323,19 +322,19 @@ def get_test_data_factory() -> MarketDataFactory:
     return _stabilizer.factory
 
 
-def create_test_fixtures(tickers: List[str]) -> Dict[str, Any]:
+def create_test_fixtures(tickers: list[str]) -> dict[str, Any]:
     """Create common test fixtures for a set of tickers."""
     factory = _stabilizer.factory
 
     fixtures = {
         "price_data": factory.create_multi_ticker_data(tickers),
-        "single_ticker_data": factory.create_price_data(tickers[0])
-        if tickers
-        else None,
+        "single_ticker_data": (
+            factory.create_price_data(tickers[0]) if tickers else None
+        ),
         "strategy_test_data": factory.create_strategy_test_data() if tickers else None,
-        "yfinance_format_data": factory.create_yfinance_compatible_data(tickers)
-        if tickers
-        else None,
+        "yfinance_format_data": (
+            factory.create_yfinance_compatible_data(tickers) if tickers else None
+        ),
     }
 
     return fixtures
@@ -345,7 +344,7 @@ def create_test_fixtures(tickers: List[str]) -> Dict[str, Any]:
 class MockExternalAPIs:
     """Context manager for temporarily mocking external APIs."""
 
-    def __init__(self, apis: List[str], mock_data: Optional[Dict] = None):
+    def __init__(self, apis: list[str], mock_data: dict | None = None):
         self.apis = apis
         self.mock_data = mock_data or {}
         self.patches = []
@@ -382,7 +381,7 @@ class TestPerformanceTracker:
         self.execution_times[test_name] = execution_time
         self.api_call_counts[test_name] = api_calls
 
-    def get_slow_tests(self, threshold: float = 5.0) -> List[str]:
+    def get_slow_tests(self, threshold: float = 5.0) -> list[str]:
         """Get tests that exceed the execution time threshold."""
         return [
             test_name
@@ -390,14 +389,15 @@ class TestPerformanceTracker:
             if exec_time > threshold
         ]
 
-    def generate_report(self) -> Dict[str, Any]:
+    def generate_report(self) -> dict[str, Any]:
         """Generate performance report."""
         return {
             "total_tests": len(self.execution_times),
-            "average_execution_time": sum(self.execution_times.values())
-            / len(self.execution_times)
-            if self.execution_times
-            else 0,
+            "average_execution_time": (
+                sum(self.execution_times.values()) / len(self.execution_times)
+                if self.execution_times
+                else 0
+            ),
             "slow_tests": self.get_slow_tests(),
             "total_api_calls": sum(self.api_call_counts.values()),
             "tests_with_api_calls": len(

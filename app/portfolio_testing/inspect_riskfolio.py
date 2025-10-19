@@ -2,6 +2,7 @@ import inspect
 
 import riskfolio as rp
 
+
 print("Available attributes in riskfolio module:")
 for name, obj in inspect.getmembers(rp):
     if not name.startswith("_"):  # Exclude private attributes

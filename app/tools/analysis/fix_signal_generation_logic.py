@@ -10,13 +10,15 @@ The fix ensures that if a value > P70 threshold, it generates a SELL signal
 regardless of the exact percentile rank calculation.
 """
 
-import sys
 from pathlib import Path
+import sys
+
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 import logging
 from pathlib import Path
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -37,7 +39,7 @@ def fix_signal_generation_logic():
     logger.info(f"Fixing signal generation logic in {service_file}")
 
     # Read the current file
-    with open(service_file, "r") as f:
+    with open(service_file) as f:
         content = f.read()
 
     # Create backup
@@ -128,9 +130,8 @@ def fix_signal_generation_logic():
         logger.info("   Changed SELL threshold from P80 (80.0) to P70 (70.0)")
         logger.info("   SMCI with percentile rank 70.91 will now trigger SELL")
         return True
-    else:
-        logger.error("❌ Could not find the target signal generation method")
-        return False
+    logger.error("❌ Could not find the target signal generation method")
+    return False
 
 
 def test_fix():
@@ -140,7 +141,7 @@ def test_fix():
     smci_percentile_rank = 70.91
     p70_threshold = 70.0  # Hold threshold
 
-    print(f"\nTesting signal generation fix:")
+    print("\nTesting signal generation fix:")
     print(f"  SMCI percentile rank: {smci_percentile_rank}")
     print(f"  P70 threshold (hold): {p70_threshold}")
     print(f"  Rank > P70: {smci_percentile_rank > p70_threshold}")
@@ -149,11 +150,11 @@ def test_fix():
     if smci_percentile_rank > p70_threshold:
         expected_signal = "SELL"
         print(f"  Expected signal: {expected_signal}")
-        print(f"  ✅ Fix should resolve the SMCI bug")
+        print("  ✅ Fix should resolve the SMCI bug")
     else:
         expected_signal = "HOLD"
         print(f"  Expected signal: {expected_signal}")
-        print(f"  ❌ Fix may not resolve the issue")
+        print("  ❌ Fix may not resolve the issue")
 
     return expected_signal
 
@@ -164,9 +165,9 @@ if __name__ == "__main__":
 
     # Apply the fix
     if fix_signal_generation_logic():
-        print(f"\n🎉 Signal generation logic has been fixed!")
+        print("\n🎉 Signal generation logic has been fixed!")
         print(f"   SMCI should now generate {expected_signal} instead of HOLD")
-        print(f"   Values exceeding P70 threshold will trigger SELL signals")
+        print("   Values exceeding P70 threshold will trigger SELL signals")
     else:
-        print(f"\n❌ Failed to apply signal generation fix")
-        print(f"   Manual intervention required")
+        print("\n❌ Failed to apply signal generation fix")
+        print("   Manual intervention required")

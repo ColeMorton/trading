@@ -6,7 +6,7 @@ ensuring proper structure, types, and values for various trading features.
 """
 
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 from app.tools.exceptions import ConfigurationError
 
@@ -21,8 +21,8 @@ class MetricType(Enum):
 
 
 def validate_equity_data_config(
-    config: Dict[str, Any]
-) -> Tuple[bool, Dict[str, Any], List[str]]:
+    config: dict[str, Any],
+) -> tuple[bool, dict[str, Any], list[str]]:
     """
     Validate EQUITY_DATA configuration section.
 
@@ -96,8 +96,8 @@ def validate_equity_data_config(
 
 
 def validate_configuration_schema(
-    config: Dict[str, Any]
-) -> Tuple[bool, Dict[str, Any], List[str]]:
+    config: dict[str, Any],
+) -> tuple[bool, dict[str, Any], list[str]]:
     """
     Validate entire configuration schema.
 
@@ -121,7 +121,7 @@ def validate_configuration_schema(
     return True, validated_config, warnings
 
 
-def get_validated_equity_config(config: Dict[str, Any]) -> Dict[str, Any]:
+def get_validated_equity_config(config: dict[str, Any]) -> dict[str, Any]:
     """
     Get validated EQUITY_DATA configuration with defaults.
 
@@ -141,12 +141,10 @@ def get_validated_equity_config(config: Dict[str, Any]) -> Dict[str, Any]:
             pass
         return validated_config
     except Exception as e:
-        raise ConfigurationError(
-            f"Failed to validate EQUITY_DATA configuration: {str(e)}"
-        )
+        raise ConfigurationError(f"Failed to validate EQUITY_DATA configuration: {e!s}")
 
 
-def is_equity_export_enabled(config: Dict[str, Any]) -> bool:
+def is_equity_export_enabled(config: dict[str, Any]) -> bool:
     """
     Check if equity data export is enabled in configuration.
 
@@ -164,7 +162,7 @@ def is_equity_export_enabled(config: Dict[str, Any]) -> bool:
         return False
 
 
-def get_equity_metric_selection(config: Dict[str, Any]) -> str:
+def get_equity_metric_selection(config: dict[str, Any]) -> str:
     """
     Get the equity metric selection from configuration.
 
@@ -182,7 +180,7 @@ def get_equity_metric_selection(config: Dict[str, Any]) -> str:
         return MetricType.MEAN.value
 
 
-def log_configuration_validation(config: Dict[str, Any], log_func):
+def log_configuration_validation(config: dict[str, Any], log_func):
     """
     Validate configuration and log results.
 
@@ -211,8 +209,8 @@ def log_configuration_validation(config: Dict[str, Any], log_func):
         return validated_config
 
     except ConfigurationError as e:
-        log_func(f"Configuration validation error: {str(e)}", "error")
+        log_func(f"Configuration validation error: {e!s}", "error")
         raise
     except Exception as e:
-        log_func(f"Unexpected error during configuration validation: {str(e)}", "error")
-        raise ConfigurationError(f"Configuration validation failed: {str(e)}")
+        log_func(f"Unexpected error during configuration validation: {e!s}", "error")
+        raise ConfigurationError(f"Configuration validation failed: {e!s}")

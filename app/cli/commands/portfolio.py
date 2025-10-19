@@ -7,13 +7,12 @@ and management operations.
 
 import os
 from pathlib import Path
-from typing import List, Optional
 
 import pandas as pd
-import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
+import typer
 
 from app.tools.console_logging import ConsoleLogger
 from app.tools.portfolio.aggregation_logic import (
@@ -32,10 +31,7 @@ from app.tools.portfolio.metrics_calculators import (
     calculate_summary_stats,
     update_breadth_metrics,
 )
-from app.tools.portfolio.status_filters import (
-    determine_portfolio_status,
-    filter_entry_strategies,
-)
+from app.tools.portfolio.status_filters import filter_entry_strategies
 from app.tools.portfolio.strategy_types import derive_use_sma
 from app.tools.portfolio_results import (
     display_portfolio_entry_exit_table,
@@ -46,14 +42,12 @@ from app.tools.portfolio_results import (
 
 from ..config import ConfigLoader
 from ..models.portfolio import (
-    Direction,
     PortfolioConfig,
     PortfolioProcessingConfig,
     PortfolioSynthesisConfig,
-    ReviewStrategyConfig,
-    StrategyType,
 )
 from ..utils import resolve_portfolio_path
+
 
 # Create portfolio sub-app
 app = typer.Typer(
@@ -66,10 +60,10 @@ console = Console()
 @app.command()
 def update(
     ctx: typer.Context,
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--config", "-c", help="Configuration profile name"
     ),
-    portfolio_file: Optional[str] = typer.Option(
+    portfolio_file: str | None = typer.Option(
         None, "--portfolio", "-p", help="Portfolio filename to process"
     ),
     refresh: bool = typer.Option(
@@ -96,8 +90,8 @@ def update(
     try:
         # Get global CLI options
         global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
-        global_show_output = ctx.obj.get("show_output", False) if ctx.obj else False
-        global_quiet = ctx.obj.get("quiet", True) if ctx.obj else True
+        ctx.obj.get("show_output", False) if ctx.obj else False
+        ctx.obj.get("quiet", True) if ctx.obj else True
 
         # Initialize console logger - portfolio commands default to rich output
         is_verbose = global_verbose
@@ -138,7 +132,7 @@ def update(
         console.heading("Updating Portfolio Results", level=1)
 
         # Convert Pydantic model to dict for existing functions
-        config_dict = config.dict()
+        config.dict()
 
         # Map CLI config to existing config format
         legacy_config = {
@@ -160,7 +154,7 @@ def update(
         }
 
         # Normalize the configuration
-        normalized_config = normalize_config(legacy_config)
+        normalize_config(legacy_config)
 
         # Execute portfolio update
         success = update_portfolios_run(
@@ -184,13 +178,13 @@ def update(
 @app.command()
 def process(
     ctx: typer.Context,
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--config", "-c", help="Configuration profile name"
     ),
-    input_dir: Optional[Path] = typer.Option(
+    input_dir: Path | None = typer.Option(
         None, "--input-dir", help="Input directory containing portfolio files"
     ),
-    output_dir: Optional[Path] = typer.Option(
+    output_dir: Path | None = typer.Option(
         None, "--output-dir", help="Output directory for processed results"
     ),
     format: str = typer.Option("csv", "--format", help="Output format: csv, json"),
@@ -253,7 +247,6 @@ def process(
         from pathlib import Path
 
         from ...tools.portfolio.schema_validation import (
-            batch_validate_csv_files,
             generate_schema_compliance_report,
         )
 
@@ -405,12 +398,11 @@ def process(
             """Convert numpy types to native Python types for JSON serialization."""
             if hasattr(obj, "item"):  # numpy scalar
                 return obj.item()
-            elif isinstance(obj, dict):
+            if isinstance(obj, dict):
                 return {k: convert_numpy_types(v) for k, v in obj.items()}
-            elif isinstance(obj, list):
+            if isinstance(obj, list):
                 return [convert_numpy_types(v) for v in obj]
-            else:
-                return obj
+            return obj
 
         # Convert summary to native Python types
         json_compatible_summary = convert_numpy_types(summary)
@@ -435,7 +427,7 @@ def process(
 @app.command()
 def aggregate(
     ctx: typer.Context,
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--config", "-c", help="Configuration profile name"
     ),
     by_ticker: bool = typer.Option(
@@ -449,7 +441,7 @@ def aggregate(
     calculate_breadth: bool = typer.Option(
         True, "--breadth/--no-breadth", help="Calculate breadth metrics"
     ),
-    output_file: Optional[str] = typer.Option(
+    output_file: str | None = typer.Option(
         None, "--output", "-o", help="Output filename for aggregated results"
     ),
 ):
@@ -560,9 +552,7 @@ def aggregate(
 
                 # Aggregate by ticker if enabled
                 if config.aggregate_by_ticker:
-                    aggregate_by_ticker(
-                        df, aggregation_results["by_ticker"], file_info
-                    )
+                    aggregate_by_ticker(df, aggregation_results["by_ticker"], file_info)
 
                 # Aggregate by strategy if enabled
                 if config.aggregate_by_strategy:
@@ -594,16 +584,15 @@ def aggregate(
             def convert_for_json(obj):
                 if hasattr(obj, "item"):
                     return obj.item()
-                elif isinstance(obj, set):
+                if isinstance(obj, set):
                     return list(obj)
-                elif isinstance(obj, dict):
+                if isinstance(obj, dict):
                     return {k: convert_for_json(v) for k, v in obj.items()}
-                elif isinstance(obj, list):
+                if isinstance(obj, list):
                     return [convert_for_json(v) for v in obj]
-                elif pd.isna(obj):
+                if pd.isna(obj):
                     return None
-                else:
-                    return obj
+                return obj
 
             json_results = convert_for_json(aggregation_results)
 
@@ -629,14 +618,14 @@ def aggregate(
 @app.command()
 def synthesize(
     ctx: typer.Context,
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--config", "-c", help="Configuration profile name"
     ),
-    strategy_name: Optional[str] = typer.Option(
+    strategy_name: str | None = typer.Option(
         None, "--strategy", help="Single strategy name (e.g., AAPL_SMA_20_50)"
     ),
-    ticker: Optional[str] = typer.Option(None, "--ticker", help="Single ticker symbol"),
-    benchmark: Optional[str] = typer.Option(
+    ticker: str | None = typer.Option(None, "--ticker", help="Single ticker symbol"),
+    benchmark: str | None = typer.Option(
         None, "--benchmark", help="Benchmark symbol for comparison"
     ),
     output_format: str = typer.Option(
@@ -654,12 +643,12 @@ def synthesize(
     export_raw_data: bool = typer.Option(
         False, "--export-raw-data", help="Export raw data from VectorBT portfolios"
     ),
-    raw_data_formats: Optional[str] = typer.Option(
+    raw_data_formats: str | None = typer.Option(
         None,
         "--raw-data-formats",
         help="Comma-separated export formats: csv,json,parquet,pickle",
     ),
-    raw_data_types: Optional[str] = typer.Option(
+    raw_data_types: str | None = typer.Option(
         None,
         "--raw-data-types",
         help="Comma-separated data types: portfolio_value,returns,trades,orders,positions,statistics,prices,drawdowns,cumulative_returns,all",
@@ -669,7 +658,7 @@ def synthesize(
         "--include-vectorbt",
         help="Export VectorBT portfolio objects for full functionality",
     ),
-    raw_data_output_dir: Optional[str] = typer.Option(
+    raw_data_output_dir: str | None = typer.Option(
         None,
         "--raw-data-output-dir",
         help="Custom output directory for raw data exports",
@@ -779,9 +768,9 @@ def synthesize(
 
             # Create minimal config template for single ticker
             template = {
-                "strategies": [overrides["strategies"][0]]
-                if "strategies" in overrides
-                else [],
+                "strategies": (
+                    [overrides["strategies"][0]] if "strategies" in overrides else []
+                ),
                 "start_date": "2020-01-01",
                 "end_date": "2024-12-31",
                 "init_cash": 10000.0,
@@ -850,12 +839,6 @@ def synthesize(
             console.debug("Loading portfolio synthesis services...")
 
         # Import portfolio synthesis services
-        from ...contexts.portfolio.services.benchmark_comparison_service import (
-            BenchmarkComparisonService,
-        )
-        from ...contexts.portfolio.services.benchmark_comparison_service import (
-            BenchmarkConfig as ServiceBenchmarkConfig,
-        )
         from ...contexts.portfolio.services.portfolio_data_export_service import (
             DataType,
             ExportConfig,
@@ -863,21 +846,12 @@ def synthesize(
         )
         from ...contexts.portfolio.services.portfolio_review_service import (
             PortfolioSynthesisConfig as ServiceConfig,
-        )
-        from ...contexts.portfolio.services.portfolio_review_service import (
             PortfolioSynthesisService,
-        )
-        from ...contexts.portfolio.services.portfolio_review_service import (
             StrategyConfig as ServiceStrategyConfig,
         )
         from ...contexts.portfolio.services.portfolio_visualization_service import (
             PlotConfig as ServicePlotConfig,
-        )
-        from ...contexts.portfolio.services.portfolio_visualization_service import (
             PortfolioVisualizationService,
-        )
-        from ...contexts.portfolio.services.risk_metrics_calculator import (
-            RiskMetricsCalculator,
         )
 
         # Convert Pydantic models to service configuration
@@ -887,9 +861,11 @@ def synthesize(
                 ticker=strategy.ticker,
                 fast_period=strategy.fast_period,
                 slow_period=strategy.slow_period,
-                strategy_type=strategy.strategy_type.value
-                if hasattr(strategy.strategy_type, "value")
-                else strategy.strategy_type,
+                strategy_type=(
+                    strategy.strategy_type.value
+                    if hasattr(strategy.strategy_type, "value")
+                    else strategy.strategy_type
+                ),
                 direction=strategy.direction.value,
                 stop_loss=strategy.stop_loss,
                 position_size=strategy.position_size,
@@ -936,9 +912,9 @@ def synthesize(
             init_cash=config.init_cash,
             fees=config.fees,
             benchmark_symbol=config.benchmark.symbol if config.benchmark else None,
-            benchmark_type=config.benchmark.benchmark_type.value
-            if config.benchmark
-            else None,
+            benchmark_type=(
+                config.benchmark.benchmark_type.value if config.benchmark else None
+            ),
             enable_plotting=config.enable_plotting,
             export_equity_curve=config.export_equity_curve,
             calculate_risk_metrics=config.calculate_risk_metrics,
@@ -1036,7 +1012,7 @@ def review(
     portfolio: str = typer.Option(
         ..., "--portfolio", "-p", help="Portfolio filename to review"
     ),
-    ticker: Optional[List[str]] = typer.Option(
+    ticker: list[str] | None = typer.Option(
         None,
         "--ticker",
         "-t",
@@ -1158,22 +1134,22 @@ def review(
         # Use the same display functions as portfolio update
         display_portfolio_table(portfolios, log_func)
         display_portfolio_entry_exit_table(portfolios, log_func)
-        
+
         # Display ticker-level summary for tickers with multiple strategies
         display_ticker_summary_table(portfolios, log_func)
-        
+
         display_portfolio_summary(portfolios, execution_time=None, log_func=log_func)
 
         # Add CSV output section for Entry strategies only
         entry_strategies = filter_entry_strategies(portfolios)
         if entry_strategies:
-            rprint(f"\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
+            rprint("\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
             csv_output = generate_csv_output_for_portfolios(entry_strategies)
             csv_lines = csv_output.split("\n")
             for line in csv_lines:
                 print(line)  # Plain print without Rich formatting/wrapping
         else:
-            rprint(f"\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
+            rprint("\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
             print("No Entry strategies found")
 
         console.success("Portfolio review completed!")
@@ -1183,8 +1159,6 @@ def review(
         if global_verbose:
             raise
         raise typer.Exit(1)
-
-
 
 
 def _display_processing_summary(summary: dict, console: ConsoleLogger):
@@ -1224,7 +1198,9 @@ def _display_processing_summary(summary: dict, console: ConsoleLogger):
 
                 validation = result.get("validation")
                 if validation:
-                    schema_valid = "✅ Valid" if validation["is_valid"] else "❌ Invalid"
+                    schema_valid = (
+                        "✅ Valid" if validation["is_valid"] else "❌ Invalid"
+                    )
                 else:
                     schema_valid = "⏭️ Skipped"
 
@@ -1239,8 +1215,6 @@ def _display_processing_summary(summary: dict, console: ConsoleLogger):
             files_table.add_row(file_name, status, rows, columns, schema_valid, formats)
 
         console.table(files_table)
-
-
 
 
 def _display_aggregation_results(
@@ -1334,8 +1308,6 @@ def _display_aggregation_results(
         console.table(strategy_table)
 
 
-
-
 def _display_portfolio_synthesis_results(
     results,
     config: PortfolioSynthesisConfig,
@@ -1387,7 +1359,7 @@ def _display_portfolio_synthesis_results(
 
     # Add key statistics
     for key, value in results.statistics.items():
-        if isinstance(value, (int, float)):
+        if isinstance(value, int | float):
             if "%" in key or "rate" in key.lower():
                 stats_table.add_row(
                     key, f"{value:.2%}" if abs(value) < 10 else f"{value:.2f}%"

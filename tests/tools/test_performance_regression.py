@@ -5,13 +5,13 @@ This module implements performance regression detection for the optimization sys
 It ensures that performance improvements are maintained over time.
 """
 
+from datetime import datetime
 import json
 import logging
+from pathlib import Path
 import statistics
 import time
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import psutil
 import pytest
@@ -21,9 +21,8 @@ from app.tools.processing import (
     get_cache_manager,
     get_memory_optimizer,
     get_performance_monitor,
-    get_precompute_engine,
 )
-from app.tools.processing.performance_monitor import PerformanceMonitor
+
 
 logger = logging.getLogger(__name__)
 
@@ -31,17 +30,17 @@ logger = logging.getLogger(__name__)
 class PerformanceBaseline:
     """Manages performance baselines for regression testing."""
 
-    def __init__(self, baseline_file: Optional[Path] = None):
+    def __init__(self, baseline_file: Path | None = None):
         """Initialize performance baseline manager."""
         self.baseline_file = baseline_file or Path("tests/performance_baselines.json")
-        self.baselines: Dict[str, Dict[str, float]] = {}
+        self.baselines: dict[str, dict[str, float]] = {}
         self.load_baselines()
 
     def load_baselines(self):
         """Load performance baselines from file."""
         if self.baseline_file.exists():
             try:
-                with open(self.baseline_file, "r") as f:
+                with open(self.baseline_file) as f:
                     data = json.load(f)
                     self.baselines = data.get("baselines", {})
                 logger.info(f"Loaded {len(self.baselines)} performance baselines")
@@ -87,7 +86,7 @@ class PerformanceBaseline:
         except Exception as e:
             logger.error(f"Failed to save baselines: {e}")
 
-    def get_baseline(self, category: str, metric: str) -> Optional[float]:
+    def get_baseline(self, category: str, metric: str) -> float | None:
         """Get baseline value for a metric."""
         return self.baselines.get(category, {}).get(metric)
 
@@ -99,7 +98,7 @@ class PerformanceBaseline:
 
     def check_regression(
         self, category: str, metric: str, current_value: float, tolerance: float = 0.2
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Check if current value represents a performance regression."""
         baseline = self.get_baseline(category, metric)
 
@@ -187,7 +186,7 @@ class TestCachePerformanceRegression:
         # Measure cache read performance
         read_times = []
 
-        for i in range(20):
+        for _i in range(20):
             start_time = time.time()
             result = cache_manager.get("read_test_key", category="test")
             read_time = (time.time() - start_time) * 1000  # Convert to ms
@@ -260,7 +259,7 @@ class TestMemoryOptimizationRegression:
         # Measure optimization performance
         optimization_times = []
 
-        for i in range(5):
+        for _i in range(5):
             df_copy = df.copy()
             start_time = time.time()
             optimized_df = memory_optimizer.optimize_dataframe(df_copy)
@@ -303,7 +302,7 @@ class TestMemoryOptimizationRegression:
         memory_optimizer = get_memory_optimizer()
 
         dataframes = []
-        for i in range(10):
+        for _i in range(10):
             df = pd.DataFrame(
                 {
                     "data": np.random.random(5000),
@@ -342,7 +341,7 @@ class TestParallelProcessingRegression:
 
         setup_times = []
 
-        for i in range(5):
+        for _i in range(5):
             start_time = time.time()
 
             executor = AdaptiveThreadPoolExecutor(
@@ -557,10 +556,10 @@ class TestAdvancedOptimizationRegression:
         # Capture resource snapshots (should be fast)
         snapshot_times = []
 
-        for i in range(5):
+        for _i in range(5):
             start_time = time.time()
             resource_snapshot = auto_tuner.resource_monitor.capture_resource_snapshot()
-            perf_snapshot = auto_tuner.resource_monitor.capture_performance_snapshot()
+            auto_tuner.resource_monitor.capture_performance_snapshot()
             snapshot_time = (time.time() - start_time) * 1000  # Convert to ms
             snapshot_times.append(snapshot_time)
 
@@ -622,9 +621,7 @@ class TestEndToEndPerformanceRegression:
         pipeline_times = []
 
         for iteration in range(2):  # Reduced iterations
-            with performance_monitor.monitor_operation(
-                f"full_pipeline_{iteration}"
-            ) as op_id:
+            with performance_monitor.monitor_operation(f"full_pipeline_{iteration}"):
                 start_time = time.time()
 
                 # Step 1: Data generation and optimization

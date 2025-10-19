@@ -6,7 +6,7 @@ Provides template-based configuration generation for new strategies.
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class StrategyType(Enum):
@@ -45,11 +45,11 @@ class TemplateConfig:
 
     # Technical Indicators
     primary_indicator: IndicatorType
-    secondary_indicators: List[IndicatorType]
+    secondary_indicators: list[IndicatorType]
 
     # Signal Generation
-    entry_conditions: List[str]
-    exit_conditions: List[str]
+    entry_conditions: list[str]
+    exit_conditions: list[str]
 
     # Risk Management
     stop_loss_enabled: bool = True
@@ -62,7 +62,7 @@ class TemplateConfig:
     default_lookback_period: int = 252
 
     # Configuration Fields
-    config_fields: Dict[str, Any] = None
+    config_fields: dict[str, Any] = None
 
     # Advanced Options
     use_machine_learning: bool = False
@@ -74,7 +74,7 @@ class TemplateConfig:
         if self.config_fields is None:
             self.config_fields = self._generate_default_config()
 
-    def _generate_default_config(self) -> Dict[str, Any]:
+    def _generate_default_config(self) -> dict[str, Any]:
         """Generate default configuration based on strategy type."""
         base_config = {
             "TICKER": [self.default_ticker],
@@ -213,7 +213,7 @@ class TemplateConfig:
         lines.append("}")
         return "\n".join(lines)
 
-    def get_strategy_specific_imports(self) -> List[str]:
+    def get_strategy_specific_imports(self) -> list[str]:
         """Get imports specific to this strategy type."""
         imports = []
 

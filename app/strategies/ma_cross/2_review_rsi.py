@@ -17,6 +17,7 @@ from app.tools.config_service import ConfigService
 from app.tools.get_data import get_data
 from app.tools.setup_logging import setup_logging
 
+
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
     "TICKER": "BALL",
@@ -125,7 +126,7 @@ def run(config: CacheConfig) -> bool:
         return True
 
     except Exception as e:
-        log(f"Error during RSI analysis: {str(e)}", "error")
+        log(f"Error during RSI analysis: {e!s}", "error")
         log_close()
         raise
 
@@ -136,5 +137,5 @@ if __name__ == "__main__":
         if result:
             print("RSI analysis completed successfully!")
     except Exception as e:
-        print(f"RSI analysis failed: {str(e)}")
+        print(f"RSI analysis failed: {e!s}")
         raise

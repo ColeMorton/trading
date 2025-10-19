@@ -11,21 +11,14 @@ This test suite validates that exported CSV files match expected schemas:
 """
 
 import csv
-import tempfile
 from pathlib import Path
+import tempfile
 from unittest.mock import Mock, patch
 
 import pandas as pd
 import polars as pl
 import pytest
 
-from app.tools.portfolio.base_extended_schemas import (
-    CANONICAL_COLUMN_NAMES,
-    ExtendedPortfolioSchema,
-    FilteredPortfolioSchema,
-    SchemaTransformer,
-    SchemaType,
-)
 from app.tools.strategy.export_portfolios import export_portfolios
 
 
@@ -161,7 +154,7 @@ class TestExportedCSVSchemaValidation:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Find the exported CSV file
         export_path = Path(temp_export_dir) / "data" / "raw" / "portfolios"
@@ -216,7 +209,7 @@ class TestExportedCSVSchemaValidation:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Find the exported CSV file
         export_path = Path(temp_export_dir) / "data" / "raw" / "portfolios_filtered"
@@ -272,7 +265,7 @@ class TestExportedCSVSchemaValidation:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Find the exported CSV file
         export_path = Path(temp_export_dir) / "data" / "raw" / "portfolios_best"
@@ -336,7 +329,7 @@ class TestExportedCSVSchemaValidation:
                     log=Mock(),
                 )
 
-            assert success == True
+            assert success is True
 
             # Find and read the exported CSV file
             export_path = Path(temp_export_dir) / "data" / "raw" / export_type
@@ -386,7 +379,7 @@ class TestExportedCSVSchemaValidation:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Find and read the exported CSV file
         export_path = Path(temp_export_dir) / "data" / "raw" / "portfolios_filtered"
@@ -414,8 +407,8 @@ class TestExportedCSVSchemaValidation:
                 assert df_pandas[col].dtype in ["float64", "Float64"]
 
         # Test that numeric values are actually numeric (not strings)
-        assert isinstance(df_pandas["Total Trades"].iloc[0], (int, float))
-        assert isinstance(df_pandas["Win Rate [%]"].iloc[0], (int, float))
+        assert isinstance(df_pandas["Total Trades"].iloc[0], int | float)
+        assert isinstance(df_pandas["Win Rate [%]"].iloc[0], int | float)
 
     def test_csv_special_values_handling(self, base_config, temp_export_dir):
         """Test that special values (None, NaN, inf) are handled correctly in CSV."""
@@ -450,7 +443,7 @@ class TestExportedCSVSchemaValidation:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Find and read the exported CSV file
         export_path = Path(temp_export_dir) / "data" / "raw" / "portfolios_filtered"
@@ -468,7 +461,7 @@ class TestExportedCSVSchemaValidation:
             assert pd.isna(df_pandas["Max Drawdown [%]"].iloc[0])
 
         # Verify the CSV file is well-formed
-        with open(csv_files[0], "r") as f:
+        with open(csv_files[0]) as f:
             reader = csv.reader(f)
             rows = list(reader)
             assert len(rows) >= 2  # Header + at least one data row
@@ -516,7 +509,7 @@ class TestExportedCSVSchemaValidation:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Find and read the exported CSV file
         export_path = Path(temp_export_dir) / "data" / "raw" / "portfolios_best"
@@ -572,7 +565,7 @@ class TestExportedCSVSchemaValidation:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Find and read the exported CSV file
         export_path = Path(temp_export_dir) / "data" / "raw" / "portfolios_filtered"
@@ -592,7 +585,7 @@ class TestExportedCSVSchemaValidation:
         # Verify data integrity
         assert len(df_pandas["Ticker"].unique()) <= 5  # Max 5 unique tickers
         assert len(df_pandas["Strategy Type"].unique()) <= 3  # Max 3 strategy types
-        assert all(isinstance(score, (int, float)) for score in df_pandas["Score"])
+        assert all(isinstance(score, int | float) for score in df_pandas["Score"])
 
     def test_csv_encoding_and_formatting(
         self, sample_portfolio_data, base_config, temp_export_dir
@@ -608,7 +601,7 @@ class TestExportedCSVSchemaValidation:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Find the exported CSV file
         export_path = Path(temp_export_dir) / "data" / "raw" / "portfolios"
@@ -618,12 +611,12 @@ class TestExportedCSVSchemaValidation:
         csv_file = csv_files[0]
 
         # Test file encoding
-        with open(csv_file, "r", encoding="utf-8") as f:
+        with open(csv_file, encoding="utf-8") as f:
             content = f.read()
             assert len(content) > 0
 
         # Test CSV format compliance
-        with open(csv_file, "r", newline="") as f:
+        with open(csv_file, newline="") as f:
             reader = csv.reader(f)
             rows = list(reader)
 

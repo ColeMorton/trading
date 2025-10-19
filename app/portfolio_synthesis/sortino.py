@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import yfinance as yf
 
+
 # Define the list of assets
 # ASSETS = ['SPY', 'QQQ', 'BTC-USD', 'SOL-USD']
 
@@ -46,7 +47,7 @@ def plot_rolling_sortino(rolling_sortino_dict, assets):
 
     periods = ["120 Days", "90 Days", "60 Days", "30 Days"]
 
-    for ax, period in zip(axs.flatten(), periods):
+    for ax, period in zip(axs.flatten(), periods, strict=False):
         rolling_sortino = rolling_sortino_dict[period]
         for asset in assets:
             ax.plot(rolling_sortino[asset], label=asset)

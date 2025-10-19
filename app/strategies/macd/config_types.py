@@ -5,7 +5,7 @@ This module provides centralized TypedDict definitions for configuration
 across the MACD cross strategy modules.
 """
 
-from typing import Dict, List, Optional, TypedDict, Union
+from typing import TypedDict
 
 from typing_extensions import NotRequired
 
@@ -34,7 +34,7 @@ class PortfolioConfig(TypedDict, total=False):
         MINIMUMS (NotRequired[Dict[str, Union[int, float]]]): Minimum thresholds for filtering
     """
 
-    TICKER: Union[str, List[str]]
+    TICKER: str | list[str]
     BASE_DIR: str
     USE_CURRENT: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
@@ -51,7 +51,7 @@ class PortfolioConfig(TypedDict, total=False):
     STEP: NotRequired[int]
     SORT_BY: NotRequired[str]
     SORT_ASC: NotRequired[bool]
-    MINIMUMS: NotRequired[Dict[str, Union[int, float]]]
+    MINIMUMS: NotRequired[dict[str, int | float]]
 
 
 # No default configuration - all parameters must come from YAML profiles

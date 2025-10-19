@@ -8,7 +8,6 @@ strategy analysis system to ensure optimal performance characteristics.
 import os
 import tempfile
 import time
-from typing import Any, Dict, List
 from unittest.mock import Mock, patch
 
 import numpy as np
@@ -18,7 +17,6 @@ import psutil
 import pytest
 
 from app.tools.orchestration.portfolio_orchestrator import PortfolioOrchestrator
-from app.tools.orchestration.ticker_processor import TickerProcessor
 
 
 class TestMACrossPerformanceBenchmarks:
@@ -140,8 +138,8 @@ class TestSingleOperationBenchmarks(TestMACrossPerformanceBenchmarks):
 
         # Create strategies multiple times
         for _ in range(1000):
-            sma_strategy = factory.create_strategy("SMA")
-            ema_strategy = factory.create_strategy("EMA")
+            factory.create_strategy("SMA")
+            factory.create_strategy("EMA")
 
         execution_time = time.time() - start_time
 
@@ -188,9 +186,7 @@ class TestWorkflowBenchmarks(TestMACrossPerformanceBenchmarks):
             patch(
                 "app.tools.portfolio.filtering_service.PortfolioFilterService"
             ) as mock_filter_service,
-            patch(
-                "app.tools.strategy.export_portfolios.export_portfolios"
-            ) as mock_export,
+            patch("app.tools.strategy.export_portfolios.export_portfolios"),
         ):
             # Setup mocks with large dataset
             mock_get_data.return_value = large_price_dataset
@@ -230,9 +226,7 @@ class TestWorkflowBenchmarks(TestMACrossPerformanceBenchmarks):
             patch(
                 "app.tools.portfolio.filtering_service.PortfolioFilterService"
             ) as mock_filter_service,
-            patch(
-                "app.tools.strategy.export_portfolios.export_portfolios"
-            ) as mock_export,
+            patch("app.tools.strategy.export_portfolios.export_portfolios"),
         ):
             # Setup mocks
             mock_get_data.return_value = large_price_dataset
@@ -272,9 +266,7 @@ class TestWorkflowBenchmarks(TestMACrossPerformanceBenchmarks):
             patch(
                 "app.tools.portfolio.filtering_service.PortfolioFilterService"
             ) as mock_filter_service,
-            patch(
-                "app.tools.strategy.export_portfolios.export_portfolios"
-            ) as mock_export,
+            patch("app.tools.strategy.export_portfolios.export_portfolios"),
         ):
             # Setup mocks
             mock_get_data.return_value = large_price_dataset
@@ -392,7 +384,6 @@ class TestConcurrencyBenchmarks(TestMACrossPerformanceBenchmarks):
     ):
         """Test concurrent processing of multiple tickers."""
         import concurrent.futures
-        import threading
 
         # Configure for concurrent processing
         concurrent_config = performance_config.copy()

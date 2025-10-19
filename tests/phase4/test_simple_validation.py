@@ -5,10 +5,9 @@ Simple Phase 4 Validation Test
 A minimal test to validate Phase 4 testing concepts without circular import issues.
 """
 
-import threading
-import time
 from concurrent.futures import ThreadPoolExecutor
-from unittest.mock import Mock, patch
+import time
+from unittest.mock import Mock
 
 import pytest
 

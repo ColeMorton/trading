@@ -1,5 +1,6 @@
+from collections.abc import Callable
 import math
-from typing import Any, Callable, Dict
+from typing import Any
 
 import polars as pl
 import vectorbt as vbt
@@ -118,7 +119,7 @@ def backtest_strategy(
         portfolio._data_pd = data_pd
 
         # Define the stats method that will use the stored attributes
-        def stats(self) -> Dict[str, Any]:
+        def stats(self) -> dict[str, Any]:
             """
             Calculate portfolio statistics with additional metrics.
 
@@ -132,7 +133,7 @@ def backtest_strategy(
 
             # Get original stats from parent class
             original_stats = super(type(self), self).stats()
-            stats_dict = {k: v for k, v in original_stats.items()}
+            stats_dict = dict(original_stats.items())
 
             # Add period parameters with new naming convention
             # Support both new and legacy parameter names
@@ -250,9 +251,9 @@ def backtest_strategy(
                                     f"All trades are winning. Setting Expectancy per Trade to Avg Win: {avg_win:.4f}",
                                     "debug",
                                 )
-                                stats_dict[
-                                    "Expectancy per Trade"
-                                ] = expectancy_per_trade
+                                stats_dict["Expectancy per Trade"] = (
+                                    expectancy_per_trade
+                                )
 
                                 # Add debug logging
                                 log_func(
@@ -336,7 +337,7 @@ def backtest_strategy(
 
                 if valid_metrics:
                     log_func(
-                        f"Valid risk metrics: {dict((k, risk_metrics[k]) for k in valid_metrics)}",
+                        f"Valid risk metrics: { {k: risk_metrics[k] for k in valid_metrics} }",
                         "debug",
                     )
 
@@ -407,7 +408,7 @@ def backtest_strategy(
 
                     if valid_return_metrics:
                         log_func(
-                            f"Valid return metrics: {dict((k, return_metrics[k]) for k in valid_return_metrics)}",
+                            f"Valid return metrics: { {k: return_metrics[k] for k in valid_return_metrics} }",
                             "debug",
                         )
 

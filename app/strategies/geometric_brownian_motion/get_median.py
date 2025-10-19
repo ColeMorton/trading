@@ -4,6 +4,7 @@ import polars as pl
 from app.tools.get_config import get_config
 from app.utils import get_filename, get_path
 
+
 # Default Configuration
 CONFIG = {
     "YEARS": 30,

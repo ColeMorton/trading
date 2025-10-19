@@ -6,18 +6,19 @@ at the function level, following SOLID principles and KISS design.
 
 import functools
 import traceback
-from typing import Any, Dict, Optional, Type, TypeVar
+from typing import Any, TypeVar
 
 from app.tools.exceptions import TradingSystemError
+
 
 # Type variable for the return type of the decorated function
 T = TypeVar("T")
 
 
 def handle_errors(
-    operation_name: Optional[str] | None = None,
-    error_map: Optional[Dict[Type[Exception], Type[TradingSystemError]]] = None,
-    default_error_type: Type[TradingSystemError] = TradingSystemError,
+    operation_name: str | None | None = None,
+    error_map: dict[type[Exception], type[TradingSystemError]] | None = None,
+    default_error_type: type[TradingSystemError] = TradingSystemError,
     include_traceback: bool = True,
     reraise: bool = False,
     default_return: Any = False,
@@ -99,7 +100,7 @@ def handle_errors(
                 error_type = error_map.get(type(e), default_error_type)
 
                 # Create the error message
-                error_message = f"{op_name} failed: {str(e)}"
+                error_message = f"{op_name} failed: {e!s}"
 
                 # Create and log the error
                 trading_error = error_type(error_message, error_details)

@@ -6,14 +6,14 @@ This module provides consistent signal counting, filtering, and processing
 methodologies across all trading modules to eliminate discrepancies.
 """
 
-import os
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Optional, Tuple, Union
+import os
 
 import numpy as np
 import pandas as pd
 import polars as pl
+
 
 # Get configuration
 USE_FIXED_SIGNAL_PROC = os.getenv("USE_FIXED_SIGNAL_PROC", "true").lower() == "true"
@@ -62,11 +62,11 @@ class SignalDefinition:
     volume_column: str = "Volume"
 
     # Filter criteria
-    min_volume: Optional[float] | None = None
-    rsi_column: Optional[str] | None = None
+    min_volume: float | None | None = None
+    rsi_column: str | None | None = None
     rsi_oversold: float = 30.0
     rsi_overbought: float = 70.0
-    volatility_threshold: Optional[float] | None = None
+    volatility_threshold: float | None | None = None
 
     # Position shift (signals -> positions)
     position_shift: int = 1
@@ -90,7 +90,7 @@ class SignalProcessor:
 
     def count_raw_signals(
         self,
-        data: Union[pd.DataFrame, pl.DataFrame],
+        data: pd.DataFrame | pl.DataFrame,
         signal_definition: SignalDefinition,
     ) -> int:
         """
@@ -118,9 +118,9 @@ class SignalProcessor:
 
     def count_filtered_signals(
         self,
-        data: Union[pd.DataFrame, pl.DataFrame],
+        data: pd.DataFrame | pl.DataFrame,
         signal_definition: SignalDefinition,
-    ) -> Tuple[int, pd.DataFrame]:
+    ) -> tuple[int, pd.DataFrame]:
         """
         Count filtered signals after applying criteria.
 
@@ -182,7 +182,7 @@ class SignalProcessor:
 
     def count_position_signals(
         self,
-        data: Union[pd.DataFrame, pl.DataFrame],
+        data: pd.DataFrame | pl.DataFrame,
         signal_definition: SignalDefinition,
     ) -> int:
         """
@@ -212,7 +212,7 @@ class SignalProcessor:
 
     def count_trade_signals(
         self,
-        data: Union[pd.DataFrame, pl.DataFrame],
+        data: pd.DataFrame | pl.DataFrame,
         signal_definition: SignalDefinition,
     ) -> int:
         """
@@ -247,7 +247,7 @@ class SignalProcessor:
 
     def get_comprehensive_counts(
         self,
-        data: Union[pd.DataFrame, pl.DataFrame],
+        data: pd.DataFrame | pl.DataFrame,
         signal_definition: SignalDefinition,
     ) -> SignalCounts:
         """
@@ -272,9 +272,7 @@ class SignalProcessor:
             trade_signals=trade_count,
         )
 
-    def reconcile_signal_counts(
-        self, counts: SignalCounts
-    ) -> Dict[str, Union[int, float]]:
+    def reconcile_signal_counts(self, counts: SignalCounts) -> dict[str, int | float]:
         """
         Provide reconciliation analysis of signal counts.
 
@@ -300,8 +298,8 @@ class SignalProcessor:
         }
 
     def standardize_signal_column(
-        self, data: Union[pd.DataFrame, pl.DataFrame], method: str = "crossover"
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+        self, data: pd.DataFrame | pl.DataFrame, method: str = "crossover"
+    ) -> pd.DataFrame | pl.DataFrame:
         """
         Standardize signal detection method across different data formats.
 
@@ -346,9 +344,9 @@ class SignalProcessor:
 
 
 def calculate_signal_count_standardized(
-    data: Union[pd.DataFrame, pl.DataFrame],
-    signal_type: Union[str, SignalType] = SignalType.FILTERED,
-    signal_definition: Optional[SignalDefinition] | None = None,
+    data: pd.DataFrame | pl.DataFrame,
+    signal_type: str | SignalType = SignalType.FILTERED,
+    signal_definition: SignalDefinition | None | None = None,
 ) -> int:
     """
     Convenience function for standardized signal counting.
@@ -371,15 +369,14 @@ def calculate_signal_count_standardized(
 
     if signal_type == SignalType.RAW:
         return processor.count_raw_signals(data, signal_definition)
-    elif signal_type == SignalType.FILTERED:
+    if signal_type == SignalType.FILTERED:
         count, _ = processor.count_filtered_signals(data, signal_definition)
         return count
-    elif signal_type == SignalType.POSITION:
+    if signal_type == SignalType.POSITION:
         return processor.count_position_signals(data, signal_definition)
-    elif signal_type == SignalType.TRADE:
+    if signal_type == SignalType.TRADE:
         return processor.count_trade_signals(data, signal_definition)
-    else:
-        raise ValueError(f"Unknown signal type: {signal_type}")
+    raise ValueError(f"Unknown signal type: {signal_type}")
 
 
 if __name__ == "__main__":

@@ -5,23 +5,17 @@ Performs statistical significance testing with parametric and non-parametric tes
 including multiple testing corrections for robust statistical validation.
 """
 
-import logging
-import warnings
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+import logging
+from typing import Any
+import warnings
 
 import numpy as np
 import pandas as pd
 from scipy import stats
 from scipy.stats import (
-    anderson,
-    bartlett,
-    chi2_contingency,
-    fisher_exact,
-    friedmanchisquare,
     jarque_bera,
     kruskal,
-    kstest,
     levene,
     mannwhitneyu,
     shapiro,
@@ -29,9 +23,8 @@ from scipy.stats import (
     ttest_rel,
     wilcoxon,
 )
-from statsmodels.stats.diagnostic import acorr_ljungbox
 from statsmodels.stats.multitest import multipletests
-from statsmodels.tsa.stattools import adfuller, kpss
+from statsmodels.tsa.stattools import adfuller
 
 from ..config.statistical_analysis_config import SPDSConfig
 from ..models.correlation_models import (
@@ -49,7 +42,7 @@ class SignificanceTestingEngine:
     assumption checking and multiple testing corrections.
     """
 
-    def __init__(self, config: SPDSConfig, logger: Optional[logging.Logger] = None):
+    def __init__(self, config: SPDSConfig, logger: logging.Logger | None = None):
         """
         Initialize the Significance Testing Engine
 
@@ -80,8 +73,8 @@ class SignificanceTestingEngine:
 
     async def test_mean_difference(
         self,
-        sample1: Union[List[float], np.ndarray, pd.Series],
-        sample2: Union[List[float], np.ndarray, pd.Series],
+        sample1: list[float] | np.ndarray | pd.Series,
+        sample2: list[float] | np.ndarray | pd.Series,
         paired: bool = False,
         alpha: float = 0.05,
         alternative: str = "two-sided",
@@ -235,7 +228,7 @@ class SignificanceTestingEngine:
                     p_value = stats.t.cdf(test_stat, dof)
 
             # Calculate confidence interval
-            ci = self._correlation_confidence_interval(correlation, sample_size, alpha)
+            self._correlation_confidence_interval(correlation, sample_size, alpha)
 
             # Effect size interpretation
             effect_interpretation = self._interpret_correlation_magnitude(
@@ -268,8 +261,8 @@ class SignificanceTestingEngine:
 
     async def test_multiple_groups(
         self,
-        groups: List[Union[List[float], np.ndarray, pd.Series]],
-        group_names: Optional[List[str]] = None,
+        groups: list[list[float] | np.ndarray | pd.Series],
+        group_names: list[str] | None = None,
         alpha: float = 0.05,
     ) -> SignificanceTestResult:
         """
@@ -351,7 +344,7 @@ class SignificanceTestingEngine:
             raise
 
     async def test_normality(
-        self, data: Union[List[float], np.ndarray, pd.Series], alpha: float = 0.05
+        self, data: list[float] | np.ndarray | pd.Series, alpha: float = 0.05
     ) -> SignificanceTestResult:
         """
         Test for normality of data distribution
@@ -409,7 +402,7 @@ class SignificanceTestingEngine:
 
     async def test_stationarity(
         self,
-        time_series: Union[List[float], np.ndarray, pd.Series],
+        time_series: list[float] | np.ndarray | pd.Series,
         alpha: float = 0.05,
     ) -> SignificanceTestResult:
         """
@@ -437,7 +430,7 @@ class SignificanceTestingEngine:
 
             test_stat = adf_result[0]
             p_value = adf_result[1]
-            critical_values = adf_result[4]
+            adf_result[4]
 
             # For ADF test, null hypothesis is non-stationarity
             # So significant result means data IS stationary
@@ -454,9 +447,9 @@ class SignificanceTestingEngine:
                 is_significant=is_stationary,
                 significance_level=self._classify_significance(validated_p_value),
                 effect_size=None,
-                effect_size_interpretation="Stationary"
-                if is_stationary
-                else "Non-stationary",
+                effect_size_interpretation=(
+                    "Stationary" if is_stationary else "Non-stationary"
+                ),
                 assumptions_met={"sufficient_length": len(ts) >= 10},
                 assumption_warnings=[],
                 sample_size=len(ts),
@@ -469,7 +462,7 @@ class SignificanceTestingEngine:
             raise
 
     async def apply_multiple_testing_correction(
-        self, p_values: List[float], method: str = "fdr_bh", alpha: float = 0.05
+        self, p_values: list[float], method: str = "fdr_bh", alpha: float = 0.05
     ) -> MultipleTestingCorrection:
         """
         Apply multiple testing correction to p-values
@@ -525,7 +518,7 @@ class SignificanceTestingEngine:
 
     async def _test_assumptions_for_ttest(
         self, x1: np.ndarray, x2: np.ndarray, paired: bool
-    ) -> Dict[str, bool]:
+    ) -> dict[str, bool]:
         """Test assumptions for t-test"""
         assumptions = {}
 
@@ -558,8 +551,8 @@ class SignificanceTestingEngine:
         return assumptions
 
     async def _test_assumptions_for_anova(
-        self, groups: List[np.ndarray]
-    ) -> Dict[str, bool]:
+        self, groups: list[np.ndarray]
+    ) -> dict[str, bool]:
         """Test assumptions for ANOVA"""
         assumptions = {}
 
@@ -598,7 +591,7 @@ class SignificanceTestingEngine:
 
     def _calculate_effect_size(
         self, x1: np.ndarray, x2: np.ndarray, test_type: str, paired: bool
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate appropriate effect size measure"""
         if test_type == "parametric":
             if paired:
@@ -619,18 +612,17 @@ class SignificanceTestingEngine:
             interpretation = self._interpret_cohens_d(abs(d))
             return {"value": float(d), "interpretation": interpretation}
 
-        else:
-            # For non-parametric tests, use rank-biserial correlation or similar
-            # Simplified implementation
-            effect_size = abs(np.mean(x1) - np.mean(x2)) / (np.std(x1) + np.std(x2))
-            return {
-                "value": float(effect_size),
-                "interpretation": "Non-parametric effect size",
-            }
+        # For non-parametric tests, use rank-biserial correlation or similar
+        # Simplified implementation
+        effect_size = abs(np.mean(x1) - np.mean(x2)) / (np.std(x1) + np.std(x2))
+        return {
+            "value": float(effect_size),
+            "interpretation": "Non-parametric effect size",
+        }
 
     def _calculate_group_effect_size(
-        self, groups: List[np.ndarray], test_type: str
-    ) -> Dict[str, Any]:
+        self, groups: list[np.ndarray], test_type: str
+    ) -> dict[str, Any]:
         """Calculate effect size for multiple groups comparison"""
         if test_type == "parametric":
             # Eta-squared (proportion of variance explained)
@@ -646,20 +638,19 @@ class SignificanceTestingEngine:
             interpretation = self._interpret_eta_squared(eta_squared)
 
             return {"value": float(eta_squared), "interpretation": interpretation}
-        else:
-            # For non-parametric, use epsilon-squared approximation
-            h_statistic, _ = kruskal(*groups)
-            n_total = sum(len(group) for group in groups)
-            epsilon_squared = (h_statistic - len(groups) + 1) / (n_total - len(groups))
+        # For non-parametric, use epsilon-squared approximation
+        h_statistic, _ = kruskal(*groups)
+        n_total = sum(len(group) for group in groups)
+        epsilon_squared = (h_statistic - len(groups) + 1) / (n_total - len(groups))
 
-            return {
-                "value": float(epsilon_squared),
-                "interpretation": "Non-parametric effect size",
-            }
+        return {
+            "value": float(epsilon_squared),
+            "interpretation": "Non-parametric effect size",
+        }
 
     def _correlation_confidence_interval(
         self, r: float, n: int, alpha: float = 0.05
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """Calculate confidence interval for correlation coefficient"""
         # Fisher z-transformation
         z = 0.5 * np.log((1 + r) / (1 - r))
@@ -682,45 +673,41 @@ class SignificanceTestingEngine:
         """Classify significance level based on p-value"""
         if p_value < self.alpha_levels["highly_significant"]:
             return SignificanceLevel.HIGHLY_SIGNIFICANT
-        elif p_value < self.alpha_levels["significant"]:
+        if p_value < self.alpha_levels["significant"]:
             return SignificanceLevel.SIGNIFICANT
-        elif p_value < self.alpha_levels["marginally_significant"]:
+        if p_value < self.alpha_levels["marginally_significant"]:
             return SignificanceLevel.MARGINALLY_SIGNIFICANT
-        else:
-            return SignificanceLevel.NOT_SIGNIFICANT
+        return SignificanceLevel.NOT_SIGNIFICANT
 
     def _interpret_cohens_d(self, d: float) -> str:
         """Interpret Cohen's d effect size"""
         if d >= 0.8:
             return "Large effect"
-        elif d >= 0.5:
+        if d >= 0.5:
             return "Medium effect"
-        elif d >= 0.2:
+        if d >= 0.2:
             return "Small effect"
-        else:
-            return "Negligible effect"
+        return "Negligible effect"
 
     def _interpret_eta_squared(self, eta_sq: float) -> str:
         """Interpret eta-squared effect size"""
         if eta_sq >= 0.14:
             return "Large effect"
-        elif eta_sq >= 0.06:
+        if eta_sq >= 0.06:
             return "Medium effect"
-        elif eta_sq >= 0.01:
+        if eta_sq >= 0.01:
             return "Small effect"
-        else:
-            return "Negligible effect"
+        return "Negligible effect"
 
     def _interpret_correlation_magnitude(self, r: float) -> str:
         """Interpret correlation magnitude"""
         if r >= 0.7:
             return "Strong relationship"
-        elif r >= 0.5:
+        if r >= 0.5:
             return "Moderate relationship"
-        elif r >= 0.3:
+        if r >= 0.3:
             return "Weak relationship"
-        else:
-            return "Negligible relationship"
+        return "Negligible relationship"
 
     def _validate_p_value(self, p_value: float) -> float:
         """
@@ -737,16 +724,15 @@ class SignificanceTestingEngine:
                 f"Negative p-value detected: {p_value}, setting to 1e-10"
             )
             return 1e-10
-        elif p_value > 1.0:
+        if p_value > 1.0:
             self.logger.warning(f"P-value > 1.0 detected: {p_value}, setting to 1.0")
             return 1.0
-        elif p_value == 0.0:
+        if p_value == 0.0:
             self.logger.warning("P-value of exactly 0.0 detected, setting to 1e-10")
             return 1e-10
-        elif np.isnan(p_value) or np.isinf(p_value):
+        if np.isnan(p_value) or np.isinf(p_value):
             self.logger.warning(
                 f"Invalid p-value detected: {p_value}, setting to 1e-10"
             )
             return 1e-10
-        else:
-            return p_value
+        return p_value

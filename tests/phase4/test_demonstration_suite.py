@@ -8,10 +8,9 @@ New Test Development (Integration, Performance, Error Handling)
 This serves as a working demonstration of advanced testing patterns.
 """
 
-import threading
-import time
 from concurrent.futures import ThreadPoolExecutor
-from unittest.mock import Mock, patch
+import time
+from unittest.mock import patch
 
 import pytest
 
@@ -206,13 +205,15 @@ class TestErrorHandlingDemonstration:
         editor_service = ProfileEditorService(config_manager)
 
         # Test FileNotFoundError propagation
-        with patch.object(
-            config_manager.profile_manager,
-            "load_profile",
-            side_effect=FileNotFoundError("Profile not found"),
+        with (
+            patch.object(
+                config_manager.profile_manager,
+                "load_profile",
+                side_effect=FileNotFoundError("Profile not found"),
+            ),
+            pytest.raises(FileNotFoundError, match="Profile 'missing' not found"),
         ):
-            with pytest.raises(FileNotFoundError, match="Profile 'missing' not found"):
-                editor_service.load_profile("missing")
+            editor_service.load_profile("missing")
 
     def test_input_validation(self):
         """Test comprehensive input validation."""
@@ -261,7 +262,7 @@ class TestErrorHandlingDemonstration:
                     raise ValueError(f"Worker {worker_id} failure")
 
                 with patch.object(service, "execute_strategy", return_value=True):
-                    result = service.execute_strategy(config)
+                    service.execute_strategy(config)
                     results.append(worker_id)
                     return True
 
@@ -289,13 +290,15 @@ class TestErrorHandlingDemonstration:
         service = PortfolioAnalysisService()
 
         # Test resource unavailable scenario
-        with patch.object(
-            service,
-            "aggregate_portfolios_best",
-            side_effect=MemoryError("Out of memory"),
+        with (
+            patch.object(
+                service,
+                "aggregate_portfolios_best",
+                side_effect=MemoryError("Out of memory"),
+            ),
+            pytest.raises(MemoryError),
         ):
-            with pytest.raises(MemoryError):
-                service.aggregate_portfolios_best(["AAPL"])
+            service.aggregate_portfolios_best(["AAPL"])
 
         # Test recovery after error
         with patch.object(service, "aggregate_portfolios_best") as mock_agg:
@@ -314,7 +317,6 @@ class TestAdvancedTestingPatterns:
 
     def test_test_data_generation(self):
         """Test advanced test data generation."""
-        import polars as pl
 
         from tests.fixtures.market_data_factory import MarketDataFactory
 

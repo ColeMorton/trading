@@ -5,9 +5,10 @@ This module contains the main execution logic for running concurrency analysis
 across multiple trading strategies.
 """
 
+from collections.abc import Callable
 import json
 from pathlib import Path
-from typing import Any, Callable, Dict, List
+from typing import Any
 
 import numpy as np
 
@@ -33,15 +34,15 @@ class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
         if obj is None:
             return 1  # Convert None to 1 for best_horizon (default horizon)
-        elif isinstance(obj, (np.integer, np.int64, np.int32, np.int16, np.int8)):
+        if isinstance(obj, np.integer | np.int64 | np.int32 | np.int16 | np.int8):
             return int(obj)
-        elif isinstance(obj, (np.floating, np.float64, np.float32, np.float16)):
+        if isinstance(obj, np.floating | np.float64 | np.float32 | np.float16):
             return float(obj)
-        elif isinstance(obj, (np.bool_, np.bool8)):
+        if isinstance(obj, np.bool_ | np.bool8):
             return bool(obj)
-        elif isinstance(obj, (np.ndarray,)):
+        if isinstance(obj, np.ndarray):
             return obj.tolist()
-        return super(NumpyEncoder, self).default(obj)
+        return super().default(obj)
 
 
 def get_portfolio_path(config: ConcurrencyConfig) -> Path:
@@ -64,7 +65,7 @@ def get_portfolio_path(config: ConcurrencyConfig) -> Path:
 
 
 def save_json_report(
-    report: Dict[str, Any], config: ConcurrencyConfig, log: Callable[[str, str], None]
+    report: dict[str, Any], config: ConcurrencyConfig, log: Callable[[str, str], None]
 ) -> Path:
     """Save JSON report to file.
 
@@ -98,12 +99,12 @@ def save_json_report(
         return report_path
 
     except Exception as e:
-        log(f"Error saving JSON report: {str(e)}", "error")
-        raise IOError(f"Failed to save report: {str(e)}")
+        log(f"Error saving JSON report: {e!s}", "error")
+        raise OSError(f"Failed to save report: {e!s}")
 
 
 def run_analysis(
-    strategies: List[StrategyConfig],
+    strategies: list[StrategyConfig],
     log: Callable[[str, str], None],
     config: ConcurrencyConfig,
 ) -> bool:
@@ -146,7 +147,7 @@ def run_analysis(
                     )
                 except ValueError as e:
                     log(
-                        f"Could not generate strategy ID for strategy {i+1}: {str(e)}",
+                        f"Could not generate strategy ID for strategy {i+1}: {e!s}",
                         "warning",
                     )
                     # Use a fallback ID based on index
@@ -309,7 +310,7 @@ def run_analysis(
                             )
 
                             if viz_paths:
-                                log(f"Monte Carlo visualizations saved to:", "info")
+                                log("Monte Carlo visualizations saved to:", "info")
                                 for path in viz_paths:
                                     log(f"  {path}", "info")
                             else:
@@ -317,7 +318,7 @@ def run_analysis(
 
                         except Exception as viz_error:
                             log(
-                                f"Error generating Monte Carlo visualizations: {str(viz_error)}",
+                                f"Error generating Monte Carlo visualizations: {viz_error!s}",
                                 "error",
                             )
 
@@ -325,7 +326,7 @@ def run_analysis(
                     log("No Monte Carlo results generated", "warning")
 
             except Exception as e:
-                log(f"Error during Monte Carlo analysis: {str(e)}", "error")
+                log(f"Error during Monte Carlo analysis: {e!s}", "error")
                 log("Continuing with standard analysis results", "info")
 
         # Generate and save JSON report for all strategies
@@ -431,7 +432,7 @@ def run_analysis(
                 log("Optimization complete. Reports saved.", "info")
 
             except Exception as e:
-                log(f"Error during optimization: {str(e)}", "error")
+                log(f"Error during optimization: {e!s}", "error")
                 log("Continuing with standard analysis results", "info")
 
         # Create visualization if enabled (using all strategies results)
@@ -447,7 +448,7 @@ def run_analysis(
         return True
 
     except Exception as e:
-        log(f"Execution failed: {str(e)}", "error")
+        log(f"Execution failed: {e!s}", "error")
         raise
 
 
@@ -488,5 +489,5 @@ def main(config: ConcurrencyConfig) -> bool:
         return result
 
     except Exception as e:
-        print(f"Execution failed: {str(e)}")
+        print(f"Execution failed: {e!s}")
         raise

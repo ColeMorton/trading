@@ -5,16 +5,14 @@ Service for extracting and exporting raw data from VectorBT portfolios
 to enable external chart generation and custom analysis.
 """
 
+from dataclasses import dataclass, field
+from enum import Enum
 import json
 import os
 import pickle
-from dataclasses import dataclass, field
-from enum import Enum
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Optional
 
 import pandas as pd
-import polars as pl
 import vectorbt as vbt
 
 
@@ -47,10 +45,10 @@ class ExportConfig:
     """Configuration for portfolio data export."""
 
     output_dir: str = "data/outputs/portfolio/raw_data"
-    export_formats: List[ExportFormat] = field(
+    export_formats: list[ExportFormat] = field(
         default_factory=lambda: [ExportFormat.CSV, ExportFormat.JSON]
     )
-    data_types: List[DataType] = field(default_factory=lambda: [DataType.ALL])
+    data_types: list[DataType] = field(default_factory=lambda: [DataType.ALL])
     include_vectorbt_object: bool = False
     filename_prefix: str = ""
     filename_suffix: str = ""
@@ -76,9 +74,9 @@ class ExportConfig:
 class ExportResults:
     """Results from portfolio data export."""
 
-    exported_files: Dict[str, List[str]] = field(default_factory=dict)
+    exported_files: dict[str, list[str]] = field(default_factory=dict)
     success: bool = True
-    error_message: Optional[str] = None
+    error_message: str | None = None
     total_files: int = 0
 
     def add_file(self, data_type: str, file_path: str):
@@ -164,7 +162,7 @@ class PortfolioDataExportService:
                         )
 
                 except Exception as e:
-                    self._log(f"Error exporting {data_type.value}: {str(e)}", "warning")
+                    self._log(f"Error exporting {data_type.value}: {e!s}", "warning")
 
             # Export benchmark data if provided
             if benchmark_portfolio:
@@ -192,7 +190,7 @@ class PortfolioDataExportService:
             return results
 
         except Exception as e:
-            self._log(f"Error exporting portfolio data: {str(e)}", "error")
+            self._log(f"Error exporting portfolio data: {e!s}", "error")
             return ExportResults(success=False, error_message=str(e))
 
     def _export_portfolio_value(
@@ -228,7 +226,7 @@ class PortfolioDataExportService:
                 results.add_file(DataType.PORTFOLIO_VALUE.value, file_path)
 
         except Exception as e:
-            self._log(f"Error exporting portfolio value: {str(e)}", "warning")
+            self._log(f"Error exporting portfolio value: {e!s}", "warning")
 
     def _export_returns(
         self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults
@@ -263,7 +261,7 @@ class PortfolioDataExportService:
                 results.add_file(DataType.RETURNS.value, file_path)
 
         except Exception as e:
-            self._log(f"Error exporting returns: {str(e)}", "warning")
+            self._log(f"Error exporting returns: {e!s}", "warning")
 
     def _export_cumulative_returns(
         self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults
@@ -299,7 +297,7 @@ class PortfolioDataExportService:
                 results.add_file(DataType.CUMULATIVE_RETURNS.value, file_path)
 
         except Exception as e:
-            self._log(f"Error exporting cumulative returns: {str(e)}", "warning")
+            self._log(f"Error exporting cumulative returns: {e!s}", "warning")
 
     def _export_drawdowns(
         self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults
@@ -339,7 +337,7 @@ class PortfolioDataExportService:
                 results.add_file(DataType.DRAWDOWNS.value, file_path)
 
         except Exception as e:
-            self._log(f"Error exporting drawdowns: {str(e)}", "warning")
+            self._log(f"Error exporting drawdowns: {e!s}", "warning")
 
     def _export_trades(
         self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults
@@ -381,7 +379,7 @@ class PortfolioDataExportService:
                 results.add_file(DataType.TRADES.value, file_path)
 
         except Exception as e:
-            self._log(f"Error exporting trades: {str(e)}", "warning")
+            self._log(f"Error exporting trades: {e!s}", "warning")
 
     def _export_orders(
         self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults
@@ -423,7 +421,7 @@ class PortfolioDataExportService:
                 results.add_file(DataType.ORDERS.value, file_path)
 
         except Exception as e:
-            self._log(f"Error exporting orders: {str(e)}", "warning")
+            self._log(f"Error exporting orders: {e!s}", "warning")
 
     def _export_positions(
         self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults
@@ -465,7 +463,7 @@ class PortfolioDataExportService:
                 results.add_file(DataType.POSITIONS.value, file_path)
 
         except Exception as e:
-            self._log(f"Error exporting positions: {str(e)}", "warning")
+            self._log(f"Error exporting positions: {e!s}", "warning")
 
     def _export_statistics(
         self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults
@@ -500,7 +498,7 @@ class PortfolioDataExportService:
                 results.add_file(DataType.STATISTICS.value, file_path)
 
         except Exception as e:
-            self._log(f"Error exporting statistics: {str(e)}", "warning")
+            self._log(f"Error exporting statistics: {e!s}", "warning")
 
     def _export_prices(
         self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults
@@ -534,7 +532,7 @@ class PortfolioDataExportService:
                 results.add_file(DataType.PRICE_DATA.value, file_path)
 
         except Exception as e:
-            self._log(f"Error exporting price data: {str(e)}", "warning")
+            self._log(f"Error exporting price data: {e!s}", "warning")
 
     def _export_benchmark_data(
         self,
@@ -577,7 +575,7 @@ class PortfolioDataExportService:
                 results.add_file("benchmark", file_path)
 
         except Exception as e:
-            self._log(f"Error exporting benchmark data: {str(e)}", "warning")
+            self._log(f"Error exporting benchmark data: {e!s}", "warning")
 
     def _export_vectorbt_object(
         self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults
@@ -602,21 +600,27 @@ class PortfolioDataExportService:
             try:
                 portfolio_data = {
                     "close": portfolio.close,
-                    "orders": portfolio.orders().records
-                    if hasattr(portfolio.orders(), "records")
-                    else None,
-                    "trades": portfolio.trades().records
-                    if hasattr(portfolio.trades(), "records")
-                    else None,
+                    "orders": (
+                        portfolio.orders().records
+                        if hasattr(portfolio.orders(), "records")
+                        else None
+                    ),
+                    "trades": (
+                        portfolio.trades().records
+                        if hasattr(portfolio.trades(), "records")
+                        else None
+                    ),
                     "init_cash": portfolio.init_cash,
                     "fees": portfolio.fees if hasattr(portfolio, "fees") else None,
-                    "wrapper": {
-                        "index": portfolio.wrapper.index,
-                        "columns": portfolio.wrapper.columns,
-                        "freq": portfolio.wrapper.freq,
-                    }
-                    if hasattr(portfolio, "wrapper")
-                    else None,
+                    "wrapper": (
+                        {
+                            "index": portfolio.wrapper.index,
+                            "columns": portfolio.wrapper.columns,
+                            "freq": portfolio.wrapper.freq,
+                        }
+                        if hasattr(portfolio, "wrapper")
+                        else None
+                    ),
                 }
 
                 with open(file_path, "wb") as f:
@@ -635,18 +639,26 @@ class PortfolioDataExportService:
                 metadata = {
                     "portfolio_type": str(type(portfolio)),
                     "shape": getattr(portfolio.wrapper, "shape", None),
-                    "columns": list(portfolio.wrapper.columns)
-                    if hasattr(portfolio.wrapper, "columns")
-                    else None,
-                    "index_start": str(portfolio.wrapper.index[0])
-                    if hasattr(portfolio.wrapper, "index")
-                    else None,
-                    "index_end": str(portfolio.wrapper.index[-1])
-                    if hasattr(portfolio.wrapper, "index")
-                    else None,
-                    "init_cash": float(portfolio.init_cash)
-                    if hasattr(portfolio, "init_cash")
-                    else None,
+                    "columns": (
+                        list(portfolio.wrapper.columns)
+                        if hasattr(portfolio.wrapper, "columns")
+                        else None
+                    ),
+                    "index_start": (
+                        str(portfolio.wrapper.index[0])
+                        if hasattr(portfolio.wrapper, "index")
+                        else None
+                    ),
+                    "index_end": (
+                        str(portfolio.wrapper.index[-1])
+                        if hasattr(portfolio.wrapper, "index")
+                        else None
+                    ),
+                    "init_cash": (
+                        float(portfolio.init_cash)
+                        if hasattr(portfolio, "init_cash")
+                        else None
+                    ),
                     "note": "VectorBT object could not be serialized. This file contains metadata only.",
                 }
 
@@ -663,7 +675,7 @@ class PortfolioDataExportService:
 
         except Exception as e:
             self._log(
-                f"Error exporting VectorBT object (all methods failed): {str(e)}",
+                f"Error exporting VectorBT object (all methods failed): {e!s}",
                 "warning",
             )
             self._log(
@@ -690,18 +702,26 @@ class PortfolioDataExportService:
                     "include_vectorbt_object": self.config.include_vectorbt_object,
                 },
                 "portfolio_info": {
-                    "start_date": str(portfolio.wrapper.index[0])
-                    if hasattr(portfolio.wrapper, "index")
-                    else None,
-                    "end_date": str(portfolio.wrapper.index[-1])
-                    if hasattr(portfolio.wrapper, "index")
-                    else None,
-                    "total_periods": len(portfolio.wrapper.index)
-                    if hasattr(portfolio.wrapper, "index")
-                    else None,
-                    "columns": list(portfolio.wrapper.columns)
-                    if hasattr(portfolio.wrapper, "columns")
-                    else None,
+                    "start_date": (
+                        str(portfolio.wrapper.index[0])
+                        if hasattr(portfolio.wrapper, "index")
+                        else None
+                    ),
+                    "end_date": (
+                        str(portfolio.wrapper.index[-1])
+                        if hasattr(portfolio.wrapper, "index")
+                        else None
+                    ),
+                    "total_periods": (
+                        len(portfolio.wrapper.index)
+                        if hasattr(portfolio.wrapper, "index")
+                        else None
+                    ),
+                    "columns": (
+                        list(portfolio.wrapper.columns)
+                        if hasattr(portfolio.wrapper, "columns")
+                        else None
+                    ),
                 },
                 "exported_files": results.exported_files,
                 "total_files_exported": results.total_files,
@@ -716,7 +736,7 @@ class PortfolioDataExportService:
             results.add_file("metadata", file_path)
 
         except Exception as e:
-            self._log(f"Error exporting metadata: {str(e)}", "warning")
+            self._log(f"Error exporting metadata: {e!s}", "warning")
 
     def _generate_filename(self, portfolio_name: str) -> str:
         """Generate base filename for exports."""
@@ -741,7 +761,7 @@ class PortfolioDataExportService:
             with open(file_path, "rb") as f:
                 return pickle.load(f)
         except Exception as e:
-            self._log(f"Error loading VectorBT portfolio: {str(e)}", "error")
+            self._log(f"Error loading VectorBT portfolio: {e!s}", "error")
             raise
 
     def get_export_summary(self, results: ExportResults) -> str:
@@ -750,7 +770,7 @@ class PortfolioDataExportService:
             return f"Export failed: {results.error_message}"
 
         summary_lines = [
-            f"Export completed successfully using unified 3-layer directory structure!",
+            "Export completed successfully using unified 3-layer directory structure!",
             f"Total files exported: {results.total_files}",
             f"Data directory: {self.config.output_dir}",
             "",

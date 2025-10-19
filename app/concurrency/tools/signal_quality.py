@@ -5,8 +5,9 @@ This module provides functions to calculate various signal quality metrics
 for trading strategies, helping to quantify the value of each signal.
 """
 
+from collections.abc import Callable
 import os
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 import polars as pl
@@ -15,6 +16,7 @@ from app.tools.expectancy import calculate_expectancy
 from app.tools.stop_loss_simulator import apply_stop_loss_to_signal_quality_metrics
 
 from .signal_processor import SignalDefinition, SignalProcessor
+
 
 # Get configuration
 USE_FIXED_SIGNAL_PROC = os.getenv("USE_FIXED_SIGNAL_PROC", "true").lower() == "true"
@@ -25,8 +27,8 @@ def calculate_signal_quality_metrics(
     returns_df: pl.DataFrame,
     strategy_id: str,
     log: Callable[[str, str], None],
-    stop_loss: Optional[float] | None = None,
-) -> Dict[str, Any]:
+    stop_loss: float | None | None = None,
+) -> dict[str, Any]:
     """Calculate signal quality metrics for a strategy.
 
     Args:
@@ -311,7 +313,7 @@ def calculate_signal_quality_metrics(
         }
     except Exception as e:
         log(
-            f"Error calculating signal quality metrics for {strategy_id}: {str(e)}",
+            f"Error calculating signal quality metrics for {strategy_id}: {e!s}",
             "error",
         )
         return {}
@@ -319,7 +321,7 @@ def calculate_signal_quality_metrics(
 
 def _calculate_metrics_for_strategy(
     signals: pl.Series, returns: pl.Series, strategy_id: str
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Calculate signal quality metrics for a single strategy.
 
     Args:
@@ -489,7 +491,7 @@ def _calculate_metrics_for_strategy(
 
 def _calculate_horizon_metrics(
     signals: np.ndarray, returns: np.ndarray
-) -> Dict[str, Dict[str, float]]:
+) -> dict[str, dict[str, float]]:
     """Calculate performance metrics for different time horizons using proper out-of-sample methodology.
 
     This function evaluates signal performance across different time horizons without
@@ -568,7 +570,7 @@ def _calculate_horizon_metrics(
 
 
 def _find_best_horizon(
-    horizon_metrics: Dict[str, Dict[str, float]],
+    horizon_metrics: dict[str, dict[str, float]],
     min_sample_size: int = 10,  # Reduced from 20 to make it easier to find valid horizons
 ) -> int:
     """Find the best performing time horizon based on multiple criteria.
@@ -709,7 +711,7 @@ def _calculate_signal_timing_efficiency(
             signal_count += 1
 
             # Calculate returns around the signal
-            pre_signal_returns = np.sum(returns[i - lookback : i])
+            np.sum(returns[i - lookback : i])
             post_signal_returns = np.sum(returns[i : i + lookahead + 1])
 
             # Calculate total available return in the window
@@ -737,8 +739,7 @@ def _calculate_signal_timing_efficiency(
     # Calculate efficiency
     if total_available > 0 and signal_count > 0:
         return float(total_captured / total_available)
-    else:
-        return 0.0
+    return 0.0
 
 
 def _calculate_signal_opportunity_cost(
@@ -884,8 +885,8 @@ def _calculate_quality_score(
 
 
 def _calculate_aggregate_metrics(
-    strategy_metrics: Dict[str, Dict[str, Any]]
-) -> Dict[str, Any]:
+    strategy_metrics: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
     """Calculate aggregate metrics across all strategies.
 
     Args:
@@ -916,7 +917,7 @@ def _calculate_aggregate_metrics(
     }
 
     # Sum up total signals
-    for strategy_id, metrics in strategy_metrics.items():
+    for _strategy_id, metrics in strategy_metrics.items():
         total_signals += metrics.get("signal_count", 0)
 
     # If no signals, return empty metrics
@@ -924,14 +925,14 @@ def _calculate_aggregate_metrics(
         return {"signal_count": 0, "signal_quality_score": 0.0}
 
     # Calculate weighted averages based on signal count
-    for strategy_id, metrics in strategy_metrics.items():
+    for _strategy_id, metrics in strategy_metrics.items():
         signal_count = metrics.get("signal_count", 0)
         if signal_count == 0:
             continue
 
         weight = signal_count / total_signals
 
-        for metric_name in weighted_metrics.keys():
+        for metric_name in weighted_metrics:
             if metric_name in metrics:
                 weighted_metrics[metric_name] += weight * metrics[metric_name]
 
@@ -942,12 +943,12 @@ def _calculate_aggregate_metrics(
 
 
 def calculate_aggregate_signal_quality(
-    strategy_metrics: Dict[str, Dict[str, Any]],
+    strategy_metrics: dict[str, dict[str, Any]],
     log: Callable[[str, str], None],
-    stop_loss: Optional[float] | None = None,
-    strategy_allocations: Optional[List[float]] | None = None,
-    strategy_ids: Optional[List[str]] | None = None,
-) -> Dict[str, Any]:
+    stop_loss: float | None | None = None,
+    strategy_allocations: list[float] | None | None = None,
+    strategy_ids: list[str] | None | None = None,
+) -> dict[str, Any]:
     """Calculate aggregate signal quality metrics across all strategies.
 
     Args:
@@ -1050,7 +1051,7 @@ def calculate_aggregate_signal_quality(
                 )
 
             # Apply weighting based on metric type
-            for metric_name in weighted_metrics.keys():
+            for metric_name in weighted_metrics:
                 if metric_name in metrics and metrics[metric_name] is not None:
                     metric_value = metrics[metric_name]
 
@@ -1093,13 +1094,13 @@ def calculate_aggregate_signal_quality(
 
         return weighted_metrics
     except Exception as e:
-        log(f"Error calculating aggregate signal quality metrics: {str(e)}", "error")
+        log(f"Error calculating aggregate signal quality metrics: {e!s}", "error")
         return {"signal_count": 0, "signal_quality_score": 0.0, "error": str(e)}
 
 
 def _validate_performance_aggregation(
-    strategy_metrics: Dict[str, Dict[str, Any]],
-    aggregated_metrics: Dict[str, Any],
+    strategy_metrics: dict[str, dict[str, Any]],
+    aggregated_metrics: dict[str, Any],
     log: Callable[[str, str], None],
 ) -> None:
     """
@@ -1110,7 +1111,7 @@ def _validate_performance_aggregation(
     try:
         # Check Sharpe ratio sign preservation
         individual_sharpes = []
-        for strategy_id, metrics in strategy_metrics.items():
+        for _strategy_id, metrics in strategy_metrics.items():
             sharpe = metrics.get("sharpe_ratio")
             if sharpe is not None and not np.isnan(sharpe):
                 individual_sharpes.append(sharpe)
@@ -1124,12 +1125,9 @@ def _validate_performance_aggregation(
                 mostly_positive = np.mean(np.array(individual_sharpes) > 0) > 0.5
                 aggregated_positive = aggregated_sharpe > 0
 
-                if mostly_positive and not aggregated_positive:
-                    log(
-                        f"WARNING: Sharpe ratio sign flip detected! Individual avg: {avg_individual_sharpe:.3f}, Aggregated: {aggregated_sharpe:.3f}",
-                        "warning",
-                    )
-                elif not mostly_positive and aggregated_positive:
+                if (mostly_positive and not aggregated_positive) or (
+                    not mostly_positive and aggregated_positive
+                ):
                     log(
                         f"WARNING: Sharpe ratio sign flip detected! Individual avg: {avg_individual_sharpe:.3f}, Aggregated: {aggregated_sharpe:.3f}",
                         "warning",
@@ -1142,7 +1140,7 @@ def _validate_performance_aggregation(
 
         # Check win rate reasonableness
         individual_win_rates = []
-        for strategy_id, metrics in strategy_metrics.items():
+        for _strategy_id, metrics in strategy_metrics.items():
             win_rate = metrics.get("win_rate")
             if win_rate is not None and not np.isnan(win_rate):
                 individual_win_rates.append(win_rate)
@@ -1170,7 +1168,7 @@ def _validate_performance_aggregation(
 
         # Check profit factor reasonableness
         individual_pfs = []
-        for strategy_id, metrics in strategy_metrics.items():
+        for _strategy_id, metrics in strategy_metrics.items():
             pf = metrics.get("profit_factor")
             if pf is not None and not np.isnan(pf):
                 individual_pfs.append(pf)
@@ -1192,16 +1190,16 @@ def _validate_performance_aggregation(
                 )
 
     except Exception as e:
-        log(f"Error in performance aggregation validation: {str(e)}", "error")
+        log(f"Error in performance aggregation validation: {e!s}", "error")
 
 
 def validate_win_rate_consistency(
-    csv_win_rates: List[float],
+    csv_win_rates: list[float],
     json_win_rate: float,
     ticker: str,
     tolerance: float = 0.1,
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, Any]:
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, Any]:
     """
     Validate win rate consistency between CSV and JSON data for a specific ticker.
 

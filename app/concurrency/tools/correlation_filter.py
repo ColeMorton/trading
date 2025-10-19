@@ -5,8 +5,9 @@ This module provides functionality to filter and limit strategy concurrency
 based on correlation analysis, reducing risk concentration.
 """
 
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -30,12 +31,12 @@ class ConcurrencyLimitMode(Enum):
 
 
 def filter_correlated_strategies(
-    position_arrays: List[np.ndarray],
-    strategy_ids: List[str],
+    position_arrays: list[np.ndarray],
+    strategy_ids: list[str],
     correlation_threshold: float = 0.5,
     mode: CorrelationFilterMode = CorrelationFilterMode.THRESHOLD,
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, List[str]]:
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, list[str]]:
     """Filter strategies based on correlation analysis.
 
     Args:
@@ -110,7 +111,7 @@ def filter_correlated_strategies(
 
         return groups
 
-    elif mode == CorrelationFilterMode.CLUSTERING:
+    if mode == CorrelationFilterMode.CLUSTERING:
         # Use hierarchical clustering to group strategies
         # This is a simplified implementation
 
@@ -131,7 +132,7 @@ def filter_correlated_strategies(
 
         return groups
 
-    elif mode == CorrelationFilterMode.DYNAMIC:
+    if mode == CorrelationFilterMode.DYNAMIC:
         # Dynamic correlation filtering based on market conditions
         # This would typically use more sophisticated analysis
 
@@ -157,19 +158,18 @@ def filter_correlated_strategies(
             log,
         )
 
-    else:
-        # Invalid mode, return all strategies in a single group
-        if log:
-            log(
-                f"Invalid correlation filter mode: {mode}. No filtering applied.",
-                "warning",
-            )
-        return {"all_strategies": strategy_ids}
+    # Invalid mode, return all strategies in a single group
+    if log:
+        log(
+            f"Invalid correlation filter mode: {mode}. No filtering applied.",
+            "warning",
+        )
+    return {"all_strategies": strategy_ids}
 
 
 def _simple_hierarchical_clustering(
-    distance_matrix: np.ndarray, strategy_ids: List[str], threshold: float
-) -> Dict[str, List[str]]:
+    distance_matrix: np.ndarray, strategy_ids: list[str], threshold: float
+) -> dict[str, list[str]]:
     """Simple hierarchical clustering implementation.
 
     Args:
@@ -222,13 +222,13 @@ def _simple_hierarchical_clustering(
 
 
 def limit_strategy_concurrency(
-    position_arrays: List[np.ndarray],
-    strategy_ids: List[str],
+    position_arrays: list[np.ndarray],
+    strategy_ids: list[str],
     max_concurrent: int = 5,
     mode: ConcurrencyLimitMode = ConcurrencyLimitMode.FIXED,
-    market_volatility: Optional[float] | None = None,
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, np.ndarray]:
+    market_volatility: float | None | None = None,
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, np.ndarray]:
     """Limit the number of concurrent strategies.
 
     Args:
@@ -245,11 +245,17 @@ def limit_strategy_concurrency(
     if len(position_arrays) != len(strategy_ids):
         if log:
             log("Position arrays and strategy IDs must have the same length", "error")
-        return {sid: arr.copy() for sid, arr in zip(strategy_ids, position_arrays)}
+        return {
+            sid: arr.copy()
+            for sid, arr in zip(strategy_ids, position_arrays, strict=False)
+        }
 
     if mode == ConcurrencyLimitMode.DISABLED:
         # No concurrency limits, return original position arrays
-        return {sid: arr.copy() for sid, arr in zip(strategy_ids, position_arrays)}
+        return {
+            sid: arr.copy()
+            for sid, arr in zip(strategy_ids, position_arrays, strict=False)
+        }
 
     # Determine the concurrency limit based on mode
     limit = max_concurrent
@@ -286,11 +292,11 @@ def limit_strategy_concurrency(
 
     # Create modified position arrays
     modified_positions = {
-        sid: arr.copy() for sid, arr in zip(strategy_ids, position_arrays)
+        sid: arr.copy() for sid, arr in zip(strategy_ids, position_arrays, strict=False)
     }
 
     # Stack position arrays to create a matrix
-    position_matrix = np.column_stack([arr for arr in position_arrays])
+    position_matrix = np.column_stack(list(position_arrays))
 
     # Count active strategies at each time step
     active_count = np.sum(position_matrix != 0, axis=1)
@@ -335,8 +341,8 @@ def limit_strategy_concurrency(
 
 
 def get_correlation_filter_config(
-    config: Dict[str, Any]
-) -> Tuple[CorrelationFilterMode, float]:
+    config: dict[str, Any],
+) -> tuple[CorrelationFilterMode, float]:
     """Get correlation filter configuration.
 
     Args:
@@ -355,15 +361,15 @@ def get_correlation_filter_config(
         mode = CorrelationFilterMode.DISABLED
 
     # Ensure threshold is a valid float between 0 and 1
-    if not isinstance(threshold, (int, float)) or threshold < 0 or threshold > 1:
+    if not isinstance(threshold, int | float) or threshold < 0 or threshold > 1:
         threshold = 0.5
 
     return mode, threshold
 
 
 def get_concurrency_limit_config(
-    config: Dict[str, Any]
-) -> Tuple[ConcurrencyLimitMode, int]:
+    config: dict[str, Any],
+) -> tuple[ConcurrencyLimitMode, int]:
     """Get concurrency limit configuration.
 
     Args:

@@ -4,17 +4,18 @@ Signal Conversion Module.
 This module provides standardized functions for converting signals to trades.
 """
 
-from typing import Any, Callable, Dict, Union
+from collections.abc import Callable
+from typing import Any
 
 import pandas as pd
 import polars as pl
 
 
 def convert_signals_to_positions(
-    data: Union[pl.DataFrame, pd.DataFrame],
-    config: Dict[str, Any],
+    data: pl.DataFrame | pd.DataFrame,
+    config: dict[str, Any],
     log: Callable[[str, str], None],
-) -> Union[pl.DataFrame, pd.DataFrame]:
+) -> pl.DataFrame | pd.DataFrame:
     """Convert signals to positions with filtering.
 
     This function applies various filters to signals before converting them to positions.

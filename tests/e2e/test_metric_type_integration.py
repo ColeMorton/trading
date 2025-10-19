@@ -7,11 +7,11 @@ through API serialization to frontend consumption.
 
 import json
 import time
-from typing import Any, Dict, List
 
+from fastapi.testclient import TestClient
 import pytest
 import requests
-from fastapi.testclient import TestClient
+
 
 # from app.api.main import app  # Temporarily disabled - module not found
 
@@ -58,7 +58,7 @@ class TestMetricTypeE2EIntegration:
 
             # Verify metric_type is present in at least one portfolio
             portfolios_with_metric_type = [
-                p for p in data["portfolios"] if "metric_type" in p and p["metric_type"]
+                p for p in data["portfolios"] if p.get("metric_type")
             ]
 
             # At least some portfolios should have metric_type
@@ -116,9 +116,7 @@ class TestMetricTypeE2EIntegration:
 
                 # Check for metric_type in results
                 results_with_metric_type = [
-                    r
-                    for r in status_data["results"]
-                    if "metric_type" in r and r["metric_type"]
+                    r for r in status_data["results"] if r.get("metric_type")
                 ]
 
                 # At least some results should have metric_type
@@ -135,7 +133,7 @@ class TestMetricTypeE2EIntegration:
                     assert result["ticker"] == "ETH-USD"
 
                 break
-            elif status == "failed":
+            if status == "failed":
                 pytest.fail(
                     f"Analysis failed: {status_data.get('error', 'Unknown error')}"
                 )
@@ -169,7 +167,7 @@ class TestMetricTypeE2EIntegration:
             if status_data["status"] == "completed":
                 completed_data = status_data
                 break
-            elif status_data["status"] == "failed":
+            if status_data["status"] == "failed":
                 pytest.fail(f"Analysis failed: {status_data.get('error')}")
 
             time.sleep(1)
@@ -242,7 +240,7 @@ class TestMetricTypeE2EIntegration:
                 if status_data["status"] == "completed":
                     portfolios = status_data.get("results", [])
                     break
-                elif status_data["status"] == "failed":
+                if status_data["status"] == "failed":
                     pytest.skip(
                         f"Analysis failed for {ticker}: {status_data.get('error')}"
                     )
@@ -316,7 +314,7 @@ class TestMetricTypeE2EIntegration:
 
             if status_data["status"] == "completed":
                 break
-            elif status_data["status"] == "failed":
+            if status_data["status"] == "failed":
                 pytest.fail(f"Analysis failed: {status_data.get('error')}")
 
             time.sleep(1)
@@ -331,7 +329,7 @@ class TestMetricTypeE2EIntegration:
 
         # Verify JSON serialization is consistent
         for result in results:
-            if "metric_type" in result and result["metric_type"]:
+            if result.get("metric_type"):
                 # Should be properly serialized string
                 metric_type = result["metric_type"]
                 assert isinstance(metric_type, str)
@@ -411,7 +409,7 @@ class TestMetricTypeE2EIntegration:
 
             # Should still return results with metric_type
             portfolios_with_metric_type = [
-                p for p in portfolios if "metric_type" in p and p["metric_type"]
+                p for p in portfolios if p.get("metric_type")
             ]
 
             # Performance check: should have results with metric_type
@@ -452,6 +450,8 @@ if __name__ == "__main__":
 
     # Run the tests
     print("🚀 Running metric_type integration tests...")
-    result = subprocess.run(["python", "-m", "pytest", __file__, "-v", "--tb=short"])
+    result = subprocess.run(
+        ["python", "-m", "pytest", __file__, "-v", "--tb=short"], check=False
+    )
 
     sys.exit(result.returncode)

@@ -6,7 +6,6 @@ Extracted from the larger statistical analysis service for better maintainabilit
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -32,16 +31,16 @@ class StatisticalAnalyzer:
 
     def __init__(
         self,
-        config: Optional[SPDSConfig] = None,
-        logger: Optional[logging.Logger] = None,
+        config: SPDSConfig | None = None,
+        logger: logging.Logger | None = None,
     ):
         """Initialize the statistical analyzer."""
         self.config = config or get_spds_config()
         self.logger = logger or logging.getLogger(__name__)
 
     def calculate_basic_statistics(
-        self, data: Union[pd.DataFrame, pl.DataFrame]
-    ) -> Dict[str, float]:
+        self, data: pd.DataFrame | pl.DataFrame
+    ) -> dict[str, float]:
         """Calculate basic statistical metrics."""
         if isinstance(data, pl.DataFrame):
             data = data.to_pandas()
@@ -56,7 +55,7 @@ class StatisticalAnalyzer:
             "kurtosis": float(data.kurtosis().iloc[0]) if not data.empty else 0.0,
         }
 
-    def calculate_var_metrics(self, returns: Union[pd.Series, pl.Series]) -> VaRMetrics:
+    def calculate_var_metrics(self, returns: pd.Series | pl.Series) -> VaRMetrics:
         """Calculate Value at Risk metrics."""
         if isinstance(returns, pl.Series):
             returns = returns.to_pandas()
@@ -84,7 +83,7 @@ class StatisticalAnalyzer:
         )
 
     def calculate_percentile_metrics(
-        self, data: Union[pd.Series, pl.Series]
+        self, data: pd.Series | pl.Series
     ) -> PercentileMetrics:
         """Calculate percentile-based metrics."""
         if isinstance(data, pl.Series):
@@ -105,7 +104,7 @@ class StatisticalAnalyzer:
         )
 
     def calculate_statistical_metrics(
-        self, data: Union[pd.DataFrame, pl.DataFrame]
+        self, data: pd.DataFrame | pl.DataFrame
     ) -> StatisticalMetrics:
         """Calculate comprehensive statistical metrics."""
         if isinstance(data, pl.DataFrame):

@@ -1,6 +1,6 @@
 """Efficiency score calculation for concurrency analysis."""
 
-from typing import Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
 
 
 def calculate_strategy_efficiency(
@@ -9,7 +9,7 @@ def calculate_strategy_efficiency(
     exclusive_ratio: float,
     inactive_ratio: float,
     log: Callable[[str, str], None],
-) -> Tuple[float, float, float, float]:
+) -> tuple[float, float, float, float]:
     """Calculate individual strategy efficiency without allocation.
 
     Args:
@@ -71,22 +71,22 @@ def calculate_strategy_efficiency(
         return efficiency, diversification, independence, activity
 
     except Exception as e:
-        log(f"Error calculating strategy efficiency: {str(e)}", "error")
+        log(f"Error calculating strategy efficiency: {e!s}", "error")
         raise
 
 
 def calculate_portfolio_efficiency(
-    strategy_efficiencies: List[float],
-    strategy_expectancies: List[float],
-    strategy_allocations: List[float],
-    strategy_risk_contributions: List[float],
+    strategy_efficiencies: list[float],
+    strategy_expectancies: list[float],
+    strategy_allocations: list[float],
+    strategy_risk_contributions: list[float],
     avg_correlation: float,
     concurrent_periods: int,
     exclusive_periods: int,
     inactive_periods: int,
     total_periods: int,
     log: Callable[[str, str], None],
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Calculate portfolio-level efficiency metrics with risk adjustment.
 
     Args:
@@ -155,6 +155,7 @@ def calculate_portfolio_efficiency(
                 strategy_efficiencies,
                 strategy_expectancies,
                 strategy_risk_contributions,
+                strict=False,
             )
         ):
             # Use equal allocation for all strategies
@@ -281,7 +282,7 @@ def calculate_portfolio_efficiency(
         return portfolio_metrics
 
     except Exception as e:
-        log(f"Error calculating portfolio efficiency: {str(e)}", "error")
+        log(f"Error calculating portfolio efficiency: {e!s}", "error")
         raise
 
 
@@ -335,7 +336,7 @@ def calculate_risk_factor(risk: float) -> float:
     return 1 - risk
 
 
-def normalize_values(values: List[float]) -> List[float]:
+def normalize_values(values: list[float]) -> list[float]:
     """Normalize a list of values to a scale of 0 to 1.
 
     Args:
@@ -354,8 +355,8 @@ def normalize_values(values: List[float]) -> List[float]:
 
 
 def _validate_expectancy_calculation(
-    metrics: Dict[str, float],
-    strategy_expectancies: List[float],
+    metrics: dict[str, float],
+    strategy_expectancies: list[float],
     log: Callable[[str, str], None],
 ) -> None:
     """
@@ -429,14 +430,14 @@ def _validate_expectancy_calculation(
                     )
 
     except Exception as e:
-        log(f"Error in expectancy validation: {str(e)}", "error")
+        log(f"Error in expectancy validation: {e!s}", "error")
 
 
 def convert_expectancy_units(
     expectancy_value: float,
     source_unit: str = "percentage",
     target_unit: str = "decimal",
-    log: Optional[Callable[[str, str], None]] = None,
+    log: Callable[[str, str], None] | None = None,
 ) -> float:
     """
     Convert expectancy between different units (percentage vs decimal).

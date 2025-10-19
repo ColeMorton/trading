@@ -12,7 +12,6 @@ import pandas as pd
 import polars as pl
 
 from app.concurrency.tools.signal_quality import calculate_signal_quality_metrics
-from app.tools.backtest_strategy import backtest_strategy
 from app.tools.expectancy import calculate_expectancy
 
 
@@ -70,7 +69,7 @@ class TestExpectancyIntegration(unittest.TestCase):
         )
 
         # Convert to polars DataFrame
-        data_pl = pl.from_pandas(data_pd)
+        pl.from_pandas(data_pd)
 
         # Calculate signal quality metrics
         mock_log = MockLogger()
@@ -85,7 +84,6 @@ class TestExpectancyIntegration(unittest.TestCase):
         signal_expectancy = signal_metrics.get("expectancy_per_signal", 0)
 
         # Create a simple config for backtest
-        config = {"DIRECTION": "Long", "USE_HOURLY": False}
 
         # Mock the backtest_strategy function to avoid actual backtesting
         # Instead, manually calculate expectancy using the same data

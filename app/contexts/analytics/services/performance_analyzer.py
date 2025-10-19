@@ -6,7 +6,6 @@ Extracted from the larger analysis service for better maintainability.
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -33,15 +32,15 @@ class PerformanceAnalyzer:
 
     def __init__(
         self,
-        config: Optional[SPDSConfig] = None,
-        logger: Optional[logging.Logger] = None,
+        config: SPDSConfig | None = None,
+        logger: logging.Logger | None = None,
     ):
         """Initialize the performance analyzer."""
         self.config = config or get_spds_config()
         self.logger = logger or logging.getLogger(__name__)
 
     def analyze_trade_history(
-        self, trades_data: Union[pd.DataFrame, pl.DataFrame]
+        self, trades_data: pd.DataFrame | pl.DataFrame
     ) -> TradeHistoryMetrics:
         """Analyze trade history and calculate performance metrics."""
         if isinstance(trades_data, pl.DataFrame):
@@ -118,7 +117,7 @@ class PerformanceAnalyzer:
         )
 
     def analyze_equity_curve(
-        self, equity_data: Union[pd.DataFrame, pl.DataFrame]
+        self, equity_data: pd.DataFrame | pl.DataFrame
     ) -> EquityAnalysis:
         """Analyze equity curve and calculate performance metrics."""
         if isinstance(equity_data, pl.DataFrame):
@@ -196,7 +195,7 @@ class PerformanceAnalyzer:
         )
 
     def analyze_strategy_distribution(
-        self, strategy_data: Union[pd.DataFrame, pl.DataFrame]
+        self, strategy_data: pd.DataFrame | pl.DataFrame
     ) -> StrategyDistributionAnalysis:
         """Analyze strategy performance distribution."""
         if isinstance(strategy_data, pl.DataFrame):
@@ -255,8 +254,8 @@ class PerformanceAnalyzer:
         )
 
     def calculate_risk_metrics(
-        self, returns: Union[pd.Series, pl.Series]
-    ) -> Dict[str, float]:
+        self, returns: pd.Series | pl.Series
+    ) -> dict[str, float]:
         """Calculate comprehensive risk metrics."""
         if isinstance(returns, pl.Series):
             returns = returns.to_pandas()
@@ -293,7 +292,7 @@ class PerformanceAnalyzer:
             "cvar_99": cvar_99,
             "max_drawdown": max_drawdown,
             "volatility": float(returns.std()),
-            "downside_deviation": float(returns[returns < 0].std())
-            if (returns < 0).any()
-            else 0.0,
+            "downside_deviation": (
+                float(returns[returns < 0].std()) if (returns < 0).any() else 0.0
+            ),
         }

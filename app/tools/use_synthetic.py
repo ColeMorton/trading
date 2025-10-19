@@ -1,5 +1,5 @@
+from collections.abc import Callable
 import os
-from typing import Callable, Tuple
 
 import polars as pl
 
@@ -9,7 +9,7 @@ from app.tools.download_data import download_data
 
 def use_synthetic(
     ticker1: str, ticker2: str, config: DataConfig, log: Callable
-) -> Tuple[pl.DataFrame, str]:
+) -> tuple[pl.DataFrame, str]:
     """Create a synthetic pair from two tickers.
 
     Args:
@@ -159,7 +159,7 @@ def use_synthetic(
             log(f"Successfully exported results to {full_path}")
             success = True
         except Exception as e:
-            log(f"Failed to export synthetic pair data: {str(e)}", "error")
+            log(f"Failed to export synthetic pair data: {e!s}", "error")
             success = False
 
         if success:
@@ -170,10 +170,9 @@ def use_synthetic(
         # Return the data and synthetic ticker for further processing
         if success:
             return data, synthetic_ticker
-        else:
-            log("Failed to create synthetic pair", "error")
-            return pl.DataFrame(), ""
+        log("Failed to create synthetic pair", "error")
+        return pl.DataFrame(), ""
 
     except Exception as e:
-        log(f"Error in use_synthetic: {str(e)}", "error")
+        log(f"Error in use_synthetic: {e!s}", "error")
         raise

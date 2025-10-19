@@ -5,18 +5,14 @@ This module provides an adapter that allows the existing scanner functionality
 to be used programmatically without file I/O dependencies.
 """
 
-import os
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional
+import os
+from typing import Any
 
 import polars as pl
 
-from app.strategies.ma_cross.core import (
-    AnalysisConfig,
-    AnalysisResult,
-    SignalInfo,
-    TickerResult,
-)
+from app.strategies.ma_cross.core import AnalysisConfig, AnalysisResult, TickerResult
 from app.strategies.ma_cross.core.analyzer import MACrossAnalyzer
 from app.strategies.ma_cross.tools.scanner_processing import process_ticker
 from app.tools.setup_logging import setup_logging
@@ -28,7 +24,7 @@ class ScannerAdapter:
     for programmatic use.
     """
 
-    def __init__(self, log: Optional[Callable] | None = None):
+    def __init__(self, log: Callable | None | None = None):
         """Initialize the scanner adapter."""
         self._log = log
         self._log_close = None
@@ -39,7 +35,7 @@ class ScannerAdapter:
             )
 
     def process_portfolio_file(
-        self, portfolio_path: str, config: Dict[str, Any]
+        self, portfolio_path: str, config: dict[str, Any]
     ) -> AnalysisResult:
         """
         Process a portfolio CSV file using the existing scanner logic.
@@ -93,12 +89,12 @@ class ScannerAdapter:
             )
 
         except Exception as e:
-            self._log(f"Error processing portfolio file: {str(e)}", "error")
+            self._log(f"Error processing portfolio file: {e!s}", "error")
             raise
 
     def _process_ticker_row(
-        self, ticker: str, row: Dict[str, Any], config: Dict[str, Any]
-    ) -> List[TickerResult]:
+        self, ticker: str, row: dict[str, Any], config: dict[str, Any]
+    ) -> list[TickerResult]:
         """
         Process a single row from the portfolio using existing scanner logic.
 
@@ -145,7 +141,7 @@ class ScannerAdapter:
                     results.append(ema_result)
 
         except Exception as e:
-            self._log(f"Error processing {ticker}: {str(e)}", "error")
+            self._log(f"Error processing {ticker}: {e!s}", "error")
             # Return error result
             error_result = TickerResult(ticker=ticker, error=str(e))
             results.append(error_result)
@@ -157,7 +153,7 @@ class ScannerAdapter:
         if self._log_close:
             self._log_close()
 
-    def _json_to_config(self, json_portfolio: Dict[str, Any]) -> AnalysisConfig:
+    def _json_to_config(self, json_portfolio: dict[str, Any]) -> AnalysisConfig:
         """
         Convert JSON portfolio format to AnalysisConfig.
 
@@ -191,7 +187,7 @@ class ScannerAdapter:
             direction="Long",  # Default to Long
         )
 
-    def scan_portfolio(self, json_portfolio: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def scan_portfolio(self, json_portfolio: dict[str, Any]) -> list[dict[str, Any]]:
         """
         Scan a portfolio and return results in the expected format.
 
@@ -259,7 +255,7 @@ class ScannerAdapter:
 
         return mapping[upper_tf]
 
-    def _format_result(self, portfolio_result: TickerResult) -> Dict[str, Any]:
+    def _format_result(self, portfolio_result: TickerResult) -> dict[str, Any]:
         """
         Format a TickerResult for CLI output.
 
@@ -288,7 +284,7 @@ class ScannerAdapter:
         }
 
 
-def run_scanner_with_config(config: Dict[str, Any]) -> List[Dict[str, Any]]:
+def run_scanner_with_config(config: dict[str, Any]) -> list[dict[str, Any]]:
     """
     Convenience function to run the scanner with a given configuration
     and return results as dictionaries.

@@ -4,12 +4,10 @@ CRITICAL: These tests verify the highest-risk area - auto-download logic.
 The retry mechanism must prevent infinite loops while successfully downloading data.
 """
 
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pandas as pd
-import pytest
 
 
 def get_service_class():
@@ -51,7 +49,7 @@ class TestAutoDownloadTriggers:
             mock_download.return_value = MagicMock(is_empty=lambda: False)
 
             # Act
-            result = service._analyze_ticker("TEST", _retry=False)
+            service._analyze_ticker("TEST", _retry=False)
 
             # Assert download was called
             assert mock_download.called
@@ -78,7 +76,7 @@ class TestAutoDownloadTriggers:
             mock_download.return_value = MagicMock(is_empty=lambda: False)
 
             # Act
-            result = service._analyze_ticker("TEST", _retry=False)
+            service._analyze_ticker("TEST", _retry=False)
 
             # Assert download was called
             assert mock_download.called

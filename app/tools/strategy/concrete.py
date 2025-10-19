@@ -5,7 +5,8 @@ This module contains concrete implementations of trading strategies
 that inherit from the BaseStrategy abstract class.
 """
 
-from typing import Any, Callable, Dict
+from collections.abc import Callable
+from typing import Any
 
 import polars as pl
 
@@ -29,7 +30,7 @@ class SMAStrategy(BaseStrategy):
         data: pl.DataFrame,
         fast_period: int,
         slow_period: int,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
         """
@@ -114,7 +115,7 @@ class EMAStrategy(BaseStrategy):
         data: pl.DataFrame,
         fast_period: int,
         slow_period: int,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
         """
@@ -200,7 +201,7 @@ class MACDStrategy(BaseStrategy):
         data: pl.DataFrame,
         fast_period: int,
         slow_period: int,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
         """
@@ -296,9 +297,9 @@ class MACDStrategy(BaseStrategy):
         """Calculate MACD line, signal line, and histogram."""
 
         # Calculate fast and slow EMAs
-        alpha_fast = 2.0 / (fast_period + 1)
-        alpha_slow = 2.0 / (slow_period + 1)
-        alpha_signal = 2.0 / (signal_period + 1)
+        2.0 / (fast_period + 1)
+        2.0 / (slow_period + 1)
+        2.0 / (signal_period + 1)
 
         # Calculate EMAs using exponential smoothing
         data = data.with_columns(
@@ -330,7 +331,7 @@ class MACDStrategy(BaseStrategy):
         return data
 
     def _calculate_macd_signals(
-        self, data: pl.DataFrame, config: Dict[str, Any]
+        self, data: pl.DataFrame, config: dict[str, Any]
     ) -> tuple:
         """Calculate MACD entry and exit signals based on MACD line crossing signal line."""
 
@@ -370,7 +371,7 @@ class SMAAtrStrategy(BaseStrategy):
         data: pl.DataFrame,
         fast_period: int,
         slow_period: int,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
         """
@@ -448,7 +449,7 @@ class SMAAtrStrategy(BaseStrategy):
         entries: pl.Series,
         atr_multiplier: float,
         direction: str,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
         """
@@ -496,8 +497,7 @@ class SMAAtrStrategy(BaseStrategy):
 
                 elif position == 1:  # In long position
                     # Update highest price since entry
-                    if current_price > highest_since_entry:
-                        highest_since_entry = current_price
+                    highest_since_entry = max(current_price, highest_since_entry)
 
                     # Update trailing stop (can only move up)
                     new_stop = highest_since_entry - (current_atr * atr_multiplier)
@@ -513,32 +513,30 @@ class SMAAtrStrategy(BaseStrategy):
                         trailing_stop = None
                         highest_since_entry = None
 
-            else:  # Short direction
-                if position == 0:  # Not in position
-                    if entry_signal:  # SMA sell signal
-                        position = -1
-                        df.iloc[i, df.columns.get_loc("Signal")] = -1
-                        trailing_stop = current_price + (current_atr * atr_multiplier)
-                        highest_since_entry = current_price  # For short, track lowest
+            elif position == 0:  # Not in position
+                if entry_signal:  # SMA sell signal
+                    position = -1
+                    df.iloc[i, df.columns.get_loc("Signal")] = -1
+                    trailing_stop = current_price + (current_atr * atr_multiplier)
+                    highest_since_entry = current_price  # For short, track lowest
 
-                elif position == -1:  # In short position
-                    # Update lowest price since entry (for short positions)
-                    if current_price < highest_since_entry:
-                        highest_since_entry = current_price
+            elif position == -1:  # In short position
+                # Update lowest price since entry (for short positions)
+                highest_since_entry = min(current_price, highest_since_entry)
 
-                    # Update trailing stop (can only move down)
-                    new_stop = highest_since_entry + (current_atr * atr_multiplier)
-                    if trailing_stop is not None:
-                        trailing_stop = min(trailing_stop, new_stop)
-                    else:
-                        trailing_stop = new_stop
+                # Update trailing stop (can only move down)
+                new_stop = highest_since_entry + (current_atr * atr_multiplier)
+                if trailing_stop is not None:
+                    trailing_stop = min(trailing_stop, new_stop)
+                else:
+                    trailing_stop = new_stop
 
-                    # Check for exit conditions (ATR trailing stop hit)
-                    if current_price >= trailing_stop:
-                        position = 0
-                        df.iloc[i, df.columns.get_loc("Signal")] = 1  # Exit signal
-                        trailing_stop = None
-                        highest_since_entry = None
+                # Check for exit conditions (ATR trailing stop hit)
+                if current_price >= trailing_stop:
+                    position = 0
+                    df.iloc[i, df.columns.get_loc("Signal")] = 1  # Exit signal
+                    trailing_stop = None
+                    highest_since_entry = None
 
             # Record current state
             df.iloc[i, df.columns.get_loc("Position")] = position

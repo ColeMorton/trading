@@ -6,14 +6,12 @@ and maintenance operations.
 
 import json
 import os
-import sys
 from pathlib import Path
-from typing import List, Optional
 
-import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
+import typer
 
 from ..config import ConfigLoader
 from ..models.tools import (
@@ -22,6 +20,7 @@ from ..models.tools import (
     SchemaConfig,
     ValidationConfig,
 )
+
 
 # Create tools sub-app
 app = typer.Typer(
@@ -34,10 +33,10 @@ console = Console()
 @app.command()
 def schema(
     ctx: typer.Context,
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
-    file_path: Optional[str] = typer.Option(
+    file_path: str | None = typer.Option(
         None, "--file", "-f", help="Path to CSV file for schema operations"
     ),
     detect: bool = typer.Option(
@@ -52,7 +51,7 @@ def schema(
     validate_only: bool = typer.Option(
         False, "--validate-only", help="Only validate schema, don't convert"
     ),
-    output_file: Optional[str] = typer.Option(
+    output_file: str | None = typer.Option(
         None, "--output", "-o", help="Output file path for conversions"
     ),
 ):
@@ -134,7 +133,7 @@ def schema(
                 )
 
                 if validation_result["is_valid"]:
-                    rprint(f"[green]✅ Schema validation passed[/green]")
+                    rprint("[green]✅ Schema validation passed[/green]")
                 else:
                     rprint(
                         f"[red]❌ Schema validation failed with {len(validation_result['violations'])} violations[/red]"
@@ -191,7 +190,7 @@ def schema(
                 converted_df = pd.DataFrame(normalized_data)
                 converted_df.to_csv(output_path, index=False)
 
-                rprint(f"[green]✅ Schema conversion completed![/green]")
+                rprint("[green]✅ Schema conversion completed![/green]")
                 rprint(f"📁 Output saved to: {output_path}")
                 rprint(
                     f"📊 Converted {len(normalized_data):,} rows to {len(converted_df.columns)} columns"
@@ -204,7 +203,7 @@ def schema(
                         str(output_path), strict=False
                     )
                     if validation_result["is_valid"]:
-                        rprint(f"[green]✅ Converted file validation passed[/green]")
+                        rprint("[green]✅ Converted file validation passed[/green]")
                     else:
                         rprint(
                             f"[yellow]⚠️ Converted file has {len(validation_result['violations'])} validation issues[/yellow]"
@@ -226,13 +225,13 @@ def schema(
 @app.command()
 def validate(
     ctx: typer.Context,
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
-    files: List[str] = typer.Option(
+    files: list[str] = typer.Option(
         [], "--file", "-f", help="File paths to validate (can be used multiple times)"
     ),
-    directory: Optional[str] = typer.Option(
+    directory: str | None = typer.Option(
         None, "--directory", "-d", help="Directory to validate all CSV files"
     ),
     schema_validation: bool = typer.Option(
@@ -245,7 +244,7 @@ def validate(
     output_format: str = typer.Option(
         "table", "--output", help="Output format: table, json, summary"
     ),
-    save_report: Optional[str] = typer.Option(
+    save_report: str | None = typer.Option(
         None, "--save-report", help="Save validation report to file"
     ),
 ):
@@ -298,11 +297,7 @@ def validate(
             rprint("[dim]Loading validation modules...[/dim]")
 
         # Import validation modules
-        from ...tools.portfolio.schema_validation import (
-            batch_validate_csv_files,
-            generate_schema_compliance_report,
-        )
-        from ...tools.portfolio.validation import validate_portfolio_schema
+        from ...tools.portfolio.schema_validation import batch_validate_csv_files
 
         # Collect files to validate
         files_to_validate = []
@@ -376,7 +371,7 @@ def validate(
         if invalid_files > 0:
             rprint(f"[red]❌ {invalid_files} files failed validation[/red]")
         else:
-            rprint(f"[green]✅ All files passed validation![/green]")
+            rprint("[green]✅ All files passed validation![/green]")
 
         # Save report if requested
         if config.save_report:
@@ -397,7 +392,7 @@ def validate(
 @app.command()
 def health(
     ctx: typer.Context,
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
     check_files: bool = typer.Option(
@@ -418,7 +413,7 @@ def health(
     output_format: str = typer.Option(
         "table", "--output", help="Output format: table, json, summary"
     ),
-    save_report: Optional[str] = typer.Option(
+    save_report: str | None = typer.Option(
         None, "--save-report", help="Save health report to file"
     ),
 ):
@@ -753,10 +748,6 @@ def _check_performance_health(global_verbose: bool) -> dict:
 
     start_time = time.time()
     try:
-        import pandas as pd
-        import polars as pl
-        import vectorbt as vbt
-
         import_time = time.time() - start_time
 
         if import_time > 5.0:  # More than 5 seconds
@@ -830,7 +821,6 @@ def _is_cache_valid(csv_path: str, json_path: str) -> bool:
         bool: True if cache is valid, False otherwise
     """
     import json
-    import os
 
     # Both files must exist
     if not (os.path.exists(csv_path) and os.path.exists(json_path)):
@@ -838,14 +828,14 @@ def _is_cache_valid(csv_path: str, json_path: str) -> bool:
 
     # JSON must be parseable and contain required structure
     try:
-        with open(json_path, "r") as f:
+        with open(json_path) as f:
             data = json.load(f)
 
         # Validate required structure
         required_keys = ["metadata", "analytics"]
         return all(key in data for key in required_keys)
 
-    except (json.JSONDecodeError, IOError, KeyError):
+    except (OSError, json.JSONDecodeError, KeyError):
         return False
 
 
@@ -857,7 +847,7 @@ def export_ma_data(
     ma_type: str = typer.Option(
         "SMA", "--ma-type", help="Moving average type: SMA or EMA"
     ),
-    output_dir: Optional[str] = typer.Option(
+    output_dir: str | None = typer.Option(
         None, "--output-dir", help="Custom output directory"
     ),
     show_stats: bool = typer.Option(
@@ -954,9 +944,9 @@ def export_ma_data(
             raise typer.Exit(1)
 
         # Import required modules
+        from datetime import datetime
         import json
         import os
-        from datetime import datetime
 
         # Determine file paths
         output_path = config.output_dir or "data/raw/ma_cross/prices/"
@@ -982,7 +972,7 @@ def export_ma_data(
             rprint(f"[cyan]📊 Analysis: {json_path}[/cyan]")
 
             try:
-                with open(json_path, "r") as f:
+                with open(json_path) as f:
                     cached_data = json.load(f)
                 metrics = cached_data.get("analytics")
                 period_metrics = cached_data.get("period_analysis")
@@ -1082,8 +1072,7 @@ def export_ma_data(
                 if global_verbose:
                     rprint(f"[red]Error calculating/exporting analytics: {e}[/red]")
                     raise
-                else:
-                    rprint(f"[yellow]Warning: Analytics export failed: {e}[/yellow]")
+                rprint(f"[yellow]Warning: Analytics export failed: {e}[/yellow]")
 
         # Display analytics if requested
         if show_stats and metrics:
@@ -1103,12 +1092,12 @@ def export_ma_data(
                     rprint(formatted_json)
                 elif stats_format == "summary":
                     # Display compact summary
-                    summary = metrics["summary"]
+                    metrics["summary"]
                     risk = metrics["risk_metrics"]
                     perf = metrics["performance_metrics"]
                     trend = metrics["trend_metrics"]
 
-                    rprint(f"\n[bold cyan]📊 Analytics Summary:[/bold cyan]")
+                    rprint("\n[bold cyan]📊 Analytics Summary:[/bold cyan]")
                     rprint(
                         f"[cyan]Sharpe:[/cyan] {risk['sharpe_ratio']:.3f} | [cyan]Return:[/cyan] {perf['total_return']:+.2f}% | [cyan]Trend:[/cyan] {trend['trend_direction']}"
                     )
@@ -1124,10 +1113,7 @@ def export_ma_data(
                 if global_verbose:
                     rprint(f"[red]Error calculating analytics: {e}[/red]")
                     raise
-                else:
-                    rprint(
-                        f"[yellow]Warning: Analytics calculation failed: {e}[/yellow]"
-                    )
+                rprint(f"[yellow]Warning: Analytics calculation failed: {e}[/yellow]")
 
         # Display period analysis if requested (already calculated if needed)
         if period_detail != "none" and period_metrics:
@@ -1144,7 +1130,7 @@ def export_ma_data(
                     rolling = period_metrics["rolling_performance"]
                     seasonality = period_metrics["seasonality_patterns"]
 
-                    rprint(f"\n[bold cyan]📅 Period Analysis (Compact):[/bold cyan]")
+                    rprint("\n[bold cyan]📅 Period Analysis (Compact):[/bold cyan]")
 
                     if "weekly" in rolling:
                         weekly = rolling["weekly"]
@@ -1166,13 +1152,13 @@ def export_ma_data(
 
                 elif period_detail == "summary":
                     # Summary display - key tables without full details
-                    rprint(f"\n[bold cyan]📅 Period Analysis (Summary):[/bold cyan]")
+                    rprint("\n[bold cyan]📅 Period Analysis (Summary):[/bold cyan]")
                     display_ma_period_analysis(period_metrics, console)
 
                 else:
                     # Full display - all tables and details
                     rprint(
-                        f"\n[bold cyan]📅 Period Analysis (Full Details):[/bold cyan]"
+                        "\n[bold cyan]📅 Period Analysis (Full Details):[/bold cyan]"
                     )
                     display_ma_period_analysis(period_metrics, console)
 
@@ -1180,18 +1166,16 @@ def export_ma_data(
                 if global_verbose:
                     rprint(f"[red]Error calculating period analytics: {e}[/red]")
                     raise
-                else:
-                    rprint(
-                        f"[yellow]Warning: Period analytics calculation failed: {e}[/yellow]"
-                    )
+                rprint(
+                    f"[yellow]Warning: Period analytics calculation failed: {e}[/yellow]"
+                )
 
     except Exception as e:
         if global_verbose:
             rprint(f"[red]Detailed error: {e}[/red]")
             raise
-        else:
-            rprint(f"[red]Error exporting MA data: {e}[/red]")
-            raise typer.Exit(1)
+        rprint(f"[red]Error exporting MA data: {e}[/red]")
+        raise typer.Exit(1)
 
 
 @app.command("export-ma-data-sweep")
@@ -1214,7 +1198,7 @@ def export_ma_data_sweep(
     ma_type: str = typer.Option(
         "SMA", "--ma-type", help="Moving average type: SMA or EMA"
     ),
-    output_dir: Optional[str] = typer.Option(
+    output_dir: str | None = typer.Option(
         None, "--output-dir", help="Custom output directory"
     ),
     show_stats: bool = typer.Option(
@@ -1283,7 +1267,7 @@ def export_ma_data_sweep(
         total_combinations = config.get_total_combinations()
         period_range = config.get_period_range()
 
-        rprint(f"\n[bold cyan]📊 MA Export Sweep Analysis[/bold cyan]")
+        rprint("\n[bold cyan]📊 MA Export Sweep Analysis[/bold cyan]")
         rprint(f"[cyan]Tickers:[/cyan] {', '.join(config.tickers)}")
         rprint(
             f"[cyan]Period Range:[/cyan] {config.period_min} to {config.period_max} (step: {config.period_step})"
@@ -1296,9 +1280,9 @@ def export_ma_data_sweep(
         rprint("")
 
         # Import required modules for the sweep
+        from datetime import datetime
         import json
         import time
-        from datetime import datetime
 
         from rich.progress import (
             BarColumn,
@@ -1532,7 +1516,7 @@ def export_ma_data_sweep(
             json.dump(sweep_summary, f, indent=2, default=str)
 
         # Display final summary
-        rprint(f"\n[bold green]✅ MA Export Sweep Completed[/bold green]")
+        rprint("\n[bold green]✅ MA Export Sweep Completed[/bold green]")
         rprint(f"[cyan]Total Combinations:[/cyan] {total_combinations}")
         rprint(f"[green]Successful Exports:[/green] {successful_exports}")
         rprint(f"[red]Failed Exports:[/red] {failed_exports}")
@@ -1547,7 +1531,7 @@ def export_ma_data_sweep(
 
         # Enhanced Financial Analytics
         if successful_exports > 0:
-            rprint(f"\n[bold cyan]🚀 Enhanced Financial Analytics[/bold cyan]")
+            rprint("\n[bold cyan]🚀 Enhanced Financial Analytics[/bold cyan]")
             rprint("[dim]Loading performance data for comprehensive analysis...[/dim]")
 
             try:
@@ -1580,36 +1564,42 @@ def export_ma_data_sweep(
                         enhanced_summary["enhanced_analytics"] = {
                             "loaded_analytics_count": loaded_count,
                             "top_performers": {
-                                "best_risk_adjusted": {
-                                    "period": analytics_engine.get_top_performers(
-                                        "risk_adjusted_score", 1
-                                    )[0].period,
-                                    "score": analytics_engine.get_top_performers(
-                                        "risk_adjusted_score", 1
-                                    )[0].risk_adjusted_score,
-                                }
-                                if analytics_engine.performance_data
-                                else None,
-                                "highest_sharpe": {
-                                    "period": analytics_engine.get_top_performers(
-                                        "sharpe_ratio", 1
-                                    )[0].period,
-                                    "sharpe": analytics_engine.get_top_performers(
-                                        "sharpe_ratio", 1
-                                    )[0].sharpe_ratio,
-                                }
-                                if analytics_engine.performance_data
-                                else None,
-                                "highest_return": {
-                                    "period": analytics_engine.get_top_performers(
-                                        "total_return", 1
-                                    )[0].period,
-                                    "return": analytics_engine.get_top_performers(
-                                        "total_return", 1
-                                    )[0].total_return,
-                                }
-                                if analytics_engine.performance_data
-                                else None,
+                                "best_risk_adjusted": (
+                                    {
+                                        "period": analytics_engine.get_top_performers(
+                                            "risk_adjusted_score", 1
+                                        )[0].period,
+                                        "score": analytics_engine.get_top_performers(
+                                            "risk_adjusted_score", 1
+                                        )[0].risk_adjusted_score,
+                                    }
+                                    if analytics_engine.performance_data
+                                    else None
+                                ),
+                                "highest_sharpe": (
+                                    {
+                                        "period": analytics_engine.get_top_performers(
+                                            "sharpe_ratio", 1
+                                        )[0].period,
+                                        "sharpe": analytics_engine.get_top_performers(
+                                            "sharpe_ratio", 1
+                                        )[0].sharpe_ratio,
+                                    }
+                                    if analytics_engine.performance_data
+                                    else None
+                                ),
+                                "highest_return": (
+                                    {
+                                        "period": analytics_engine.get_top_performers(
+                                            "total_return", 1
+                                        )[0].period,
+                                        "return": analytics_engine.get_top_performers(
+                                            "total_return", 1
+                                        )[0].total_return,
+                                    }
+                                    if analytics_engine.performance_data
+                                    else None
+                                ),
                             },
                             "recommendations": {
                                 rec_type: {
@@ -1646,25 +1636,23 @@ def export_ma_data_sweep(
 
                 else:
                     rprint(
-                        f"[yellow]⚠️ No analytics data available for enhanced analysis[/yellow]"
+                        "[yellow]⚠️ No analytics data available for enhanced analysis[/yellow]"
                     )
 
             except Exception as analytics_error:
                 if global_verbose:
                     rprint(f"[red]Error in enhanced analytics: {analytics_error}[/red]")
                     raise
-                else:
-                    rprint(
-                        f"[yellow]Warning: Enhanced analytics failed: {analytics_error}[/yellow]"
-                    )
+                rprint(
+                    f"[yellow]Warning: Enhanced analytics failed: {analytics_error}[/yellow]"
+                )
 
     except Exception as e:
         if global_verbose:
             rprint(f"[red]Detailed error: {e}[/red]")
             raise
-        else:
-            rprint(f"[red]Error in MA export sweep: {e}[/red]")
-            raise typer.Exit(1)
+        rprint(f"[red]Error in MA export sweep: {e}[/red]")
+        raise typer.Exit(1)
 
 
 @app.command("pinescript")
@@ -1674,7 +1662,7 @@ def pinescript(
         ...,
         help="CSV filename (with or without .csv extension). Searches in data/raw/strategies/",
     ),
-    ticker: Optional[str] = typer.Option(
+    ticker: str | None = typer.Option(
         None,
         "--ticker",
         "-t",
@@ -1754,7 +1742,7 @@ def pinescript(
         # Show generation info (unless quiet)
         if not quiet:
             if verbose:
-                rprint(f"[cyan]Generating PineScript indicator...[/cyan]")
+                rprint("[cyan]Generating PineScript indicator...[/cyan]")
                 rprint(f"[dim]Source: {csv_path}[/dim]")
                 rprint(f"[dim]Output: {output_path}[/dim]")
             else:
@@ -1772,7 +1760,7 @@ def pinescript(
         if dry_run:
             code = generator.generate(output_path=None)
             if not quiet:
-                rprint(f"[yellow]DRY RUN - No files written[/yellow]")
+                rprint("[yellow]DRY RUN - No files written[/yellow]")
         else:
             code = generator.generate(output_path=str(output_path))
 
@@ -1780,13 +1768,13 @@ def pinescript(
         if quiet:
             # Quiet mode: minimal output
             if dry_run:
-                rprint(f"[yellow]DRY RUN[/yellow]")
+                rprint("[yellow]DRY RUN[/yellow]")
             else:
-                rprint(f"[green]Success[/green]")
+                rprint("[green]Success[/green]")
                 rprint(f"{output_path}")
         else:
             # Default comprehensive preview
-            rprint(f"[green]Successfully generated PineScript indicator![/green]")
+            rprint("[green]Successfully generated PineScript indicator![/green]")
 
             if not dry_run:
                 rprint(f"\n[cyan]Output File:[/cyan] {output_path}")
@@ -1847,11 +1835,11 @@ def pinescript(
                 )
                 console.print(usage_panel)
             else:
-                rprint(f"\n[yellow]Remove --dry-run to write the file[/yellow]")
+                rprint("\n[yellow]Remove --dry-run to write the file[/yellow]")
 
         # Verbose additions (if not quiet)
         if verbose and not quiet:
-            rprint(f"\n[bold cyan]Detailed Breakdown:[/bold cyan]")
+            rprint("\n[bold cyan]Detailed Breakdown:[/bold cyan]")
             for ticker_name in stats["tickers"]:
                 count = stats["strategies_per_ticker"][ticker_name]
                 types = stats["strategy_types_per_ticker"][ticker_name]

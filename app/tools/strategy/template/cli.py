@@ -6,8 +6,6 @@ Provides interactive CLI for creating new strategies using templates.
 
 import argparse
 import sys
-from pathlib import Path
-from typing import List, Optional
 
 from .config_template import IndicatorType, StrategyType, TemplateConfig
 from .generator import StrategyTemplateGenerator
@@ -204,9 +202,9 @@ class StrategyTemplateCLI:
                 print(f"✅ Successfully created strategy '{args.strategy_name}'")
                 print(f"📁 Location: {result['strategy_path']}")
                 print(f"📄 Files created: {result['file_count']}")
-                print(f"\nNext steps:")
-                print(f"1. Review the generated configuration in config_types.py")
-                print(f"2. Customize the strategy logic in tools/strategy_execution.py")
+                print("\nNext steps:")
+                print("1. Review the generated configuration in config_types.py")
+                print("2. Customize the strategy logic in tools/strategy_execution.py")
                 print(
                     f"3. Run tests: pytest {result['strategy_path']}/test_strategy.py"
                 )
@@ -362,8 +360,7 @@ class StrategyTemplateCLI:
                 index = int(choice) - 1
                 if 0 <= index < len(types):
                     return types[index]
-                else:
-                    print(f"Please enter a number between 1 and {len(types)}")
+                print(f"Please enter a number between 1 and {len(types)}")
             except ValueError:
                 print("Please enter a valid number.")
 
@@ -374,7 +371,7 @@ class StrategyTemplateCLI:
         ).strip()
         return description or "Custom trading strategy"
 
-    def _prompt_indicators(self) -> tuple[IndicatorType, List[IndicatorType]]:
+    def _prompt_indicators(self) -> tuple[IndicatorType, list[IndicatorType]]:
         """Prompt for technical indicators."""
         print("\n🔍 Select primary technical indicator:")
         indicators = list(IndicatorType)
@@ -401,7 +398,7 @@ class StrategyTemplateCLI:
                 print("Please enter a valid number.")
 
         # Secondary indicators
-        print(f"\n🔍 Select secondary indicators (optional):")
+        print("\n🔍 Select secondary indicators (optional):")
         print("Enter indicator numbers separated by spaces, or press Enter to skip")
         for i, indicator in enumerate(indicators, 1):
             if indicator != primary:
@@ -488,7 +485,7 @@ class StrategyTemplateCLI:
         response = input("\n✅ Create this strategy? (y/n) [y]: ").strip().lower()
         return response != "n"
 
-    def _get_default_entry_conditions(self, strategy_type: str) -> List[str]:
+    def _get_default_entry_conditions(self, strategy_type: str) -> list[str]:
         """Get default entry conditions for strategy type."""
         conditions = {
             "moving_average": [
@@ -532,7 +529,7 @@ class StrategyTemplateCLI:
             ],
         )
 
-    def _get_default_exit_conditions(self, strategy_type: str) -> List[str]:
+    def _get_default_exit_conditions(self, strategy_type: str) -> list[str]:
         """Get default exit conditions for strategy type."""
         conditions = {
             "moving_average": [

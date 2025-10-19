@@ -8,15 +8,13 @@ IMPORTANT: Trade history export is only available through app/concurrency/review
 generating thousands of files from parameter sweep strategies like MA Cross analysis.
 """
 
+from datetime import datetime
 import json
 import os
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 import vectorbt as vbt
-
-from app.tools.export_csv import ExportConfig
 
 
 def extract_trade_history(portfolio: "vbt.Portfolio") -> pd.DataFrame:
@@ -201,7 +199,7 @@ def _enrich_trade_data(
                 enriched_df["Exit Timestamp"] = date_index[exit_indices]
 
             else:
-                print(f"Warning: Could not find datetime reference in portfolio data")
+                print("Warning: Could not find datetime reference in portfolio data")
                 print(
                     f"Portfolio data columns: {list(portfolio_data.columns) if hasattr(portfolio_data, 'columns') else 'No columns'}"
                 )
@@ -228,9 +226,9 @@ def _enrich_trade_data(
             enriched_df.loc[closed_mask, "Duration"] = duration_timedelta
 
             # Convert to days as float (includes fractional days)
-            enriched_df.loc[
-                closed_mask, "Duration_Days"
-            ] = duration_timedelta.dt.total_seconds() / (24 * 60 * 60)
+            enriched_df.loc[closed_mask, "Duration_Days"] = (
+                duration_timedelta.dt.total_seconds() / (24 * 60 * 60)
+            )
 
         # For open trades, set Exit Timestamp and Duration_Days to None for JSON compatibility
         open_mask = enriched_df["Status"] == "Open"
@@ -318,9 +316,9 @@ def _enrich_position_data(position_df: pd.DataFrame) -> pd.DataFrame:
             enriched_df.loc[closed_mask, "Duration"] = duration_timedelta
 
             # Convert to days as float (includes fractional days)
-            enriched_df.loc[
-                closed_mask, "Duration_Days"
-            ] = duration_timedelta.dt.total_seconds() / (24 * 60 * 60)
+            enriched_df.loc[closed_mask, "Duration_Days"] = (
+                duration_timedelta.dt.total_seconds() / (24 * 60 * 60)
+            )
 
         # For open positions, set Exit Timestamp and Duration_Days to None for JSON compatibility
         open_mask = enriched_df["Status"] == "Open"
@@ -349,19 +347,19 @@ def _categorize_trade_performance(return_value: float) -> str:
     """
     if pd.isna(return_value):
         return "Unknown"
-    elif return_value > 0.05:  # > 5%
+    if return_value > 0.05:  # > 5%
         return "Big Winner"
-    elif return_value > 0.01:  # 1-5%
+    if return_value > 0.01:  # 1-5%
         return "Winner"
-    elif return_value > -0.01:  # -1% to 1%
+    if return_value > -0.01:  # -1% to 1%
         return "Breakeven"
-    elif return_value > -0.05:  # -5% to -1%
+    if return_value > -0.05:  # -5% to -1%
         return "Loser"
-    else:  # < -5%
-        return "Big Loser"
+    # < -5%
+    return "Big Loser"
 
 
-def generate_trade_filename(config: Dict[str, Any], extension: str = "json") -> str:
+def generate_trade_filename(config: dict[str, Any], extension: str = "json") -> str:
     """
     Generate standardized filename for trade history exports following existing conventions.
 
@@ -420,8 +418,8 @@ def generate_trade_filename(config: Dict[str, Any], extension: str = "json") -> 
 
 
 def _extract_strategy_parameters(
-    config: Dict[str, Any], strategy_type: str
-) -> List[str]:
+    config: dict[str, Any], strategy_type: str
+) -> list[str]:
     """
     Extract strategy parameters for filename generation.
 
@@ -477,8 +475,8 @@ def _extract_strategy_parameters(
 
 
 def create_comprehensive_trade_history(
-    portfolio: "vbt.Portfolio", config: Dict[str, Any]
-) -> Dict[str, Any]:
+    portfolio: "vbt.Portfolio", config: dict[str, Any]
+) -> dict[str, Any]:
     """
     Create comprehensive trade history data structure with all components.
 
@@ -505,21 +503,31 @@ def create_comprehensive_trade_history(
             "parameters": _extract_all_strategy_parameters(config),
         },
         "portfolio_summary": {
-            "total_return": float(portfolio.total_return())
-            if hasattr(portfolio.total_return(), "iloc")
-            else portfolio.total_return(),
-            "total_trades": int(portfolio.trades.count())
-            if hasattr(portfolio.trades.count(), "iloc")
-            else portfolio.trades.count(),
-            "win_rate": float(portfolio.trades.win_rate())
-            if hasattr(portfolio.trades.win_rate(), "iloc")
-            else portfolio.trades.win_rate(),
-            "sharpe_ratio": float(portfolio.sharpe_ratio())
-            if hasattr(portfolio.sharpe_ratio(), "iloc")
-            else portfolio.sharpe_ratio(),
-            "max_drawdown": float(portfolio.max_drawdown())
-            if hasattr(portfolio.max_drawdown(), "iloc")
-            else portfolio.max_drawdown(),
+            "total_return": (
+                float(portfolio.total_return())
+                if hasattr(portfolio.total_return(), "iloc")
+                else portfolio.total_return()
+            ),
+            "total_trades": (
+                int(portfolio.trades.count())
+                if hasattr(portfolio.trades.count(), "iloc")
+                else portfolio.trades.count()
+            ),
+            "win_rate": (
+                float(portfolio.trades.win_rate())
+                if hasattr(portfolio.trades.win_rate(), "iloc")
+                else portfolio.trades.win_rate()
+            ),
+            "sharpe_ratio": (
+                float(portfolio.sharpe_ratio())
+                if hasattr(portfolio.sharpe_ratio(), "iloc")
+                else portfolio.sharpe_ratio()
+            ),
+            "max_drawdown": (
+                float(portfolio.max_drawdown())
+                if hasattr(portfolio.max_drawdown(), "iloc")
+                else portfolio.max_drawdown()
+            ),
         },
     }
 
@@ -590,7 +598,7 @@ def create_comprehensive_trade_history(
     return trade_history
 
 
-def _extract_all_strategy_parameters(config: Dict[str, Any]) -> Dict[str, Any]:
+def _extract_all_strategy_parameters(config: dict[str, Any]) -> dict[str, Any]:
     """Extract all strategy parameters for metadata."""
     params = {}
 
@@ -642,9 +650,9 @@ def _is_trade_history_current(filepath: str) -> bool:
 
 def export_trade_history(
     portfolio: "vbt.Portfolio",
-    config: Dict[str, Any],
+    config: dict[str, Any],
     export_type: str = "json",
-    base_dir: Optional[str] = None,
+    base_dir: str | None = None,
     force_refresh: bool = False,
 ) -> bool:
     """
@@ -695,9 +703,8 @@ def export_trade_history(
 
             return trade_count > 0
 
-        else:
-            # Legacy CSV export (kept for backward compatibility)
-            return _export_legacy_csv(portfolio, config, trade_history_dir)
+        # Legacy CSV export (kept for backward compatibility)
+        return _export_legacy_csv(portfolio, config, trade_history_dir)
 
     except Exception as e:
         print(f"Error exporting trade history: {e}")
@@ -705,7 +712,7 @@ def export_trade_history(
 
 
 def _export_legacy_csv(
-    portfolio: "vbt.Portfolio", config: Dict[str, Any], trade_history_dir: str
+    portfolio: "vbt.Portfolio", config: dict[str, Any], trade_history_dir: str
 ) -> bool:
     """Export individual CSV files (legacy format)."""
     success = True
@@ -743,7 +750,7 @@ def _export_legacy_csv(
     return success
 
 
-def analyze_trade_performance(trade_df: pd.DataFrame) -> Dict[str, Any]:
+def analyze_trade_performance(trade_df: pd.DataFrame) -> dict[str, Any]:
     """
     Generate trade performance analytics.
 
@@ -773,10 +780,12 @@ def analyze_trade_performance(trade_df: pd.DataFrame) -> Dict[str, Any]:
         "best_trade": closed_trades["Return"].max() * 100,
         "worst_trade": closed_trades["Return"].min() * 100,
         "total_pnl": closed_trades["PnL"].sum(),
-        "avg_trade_duration": closed_trades["Duration_Days"].dropna().mean()
-        if "Duration_Days" in closed_trades.columns
-        and len(closed_trades["Duration_Days"].dropna()) > 0
-        else None,
+        "avg_trade_duration": (
+            closed_trades["Duration_Days"].dropna().mean()
+            if "Duration_Days" in closed_trades.columns
+            and len(closed_trades["Duration_Days"].dropna()) > 0
+            else None
+        ),
         "profit_factor": None,
     }
 

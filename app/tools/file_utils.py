@@ -1,8 +1,7 @@
 """File utility functions for data loading and caching."""
 
-import os
 from datetime import datetime
-from typing import Set
+import os
 
 import polars as pl
 
@@ -91,7 +90,7 @@ def is_file_from_this_hour(filepath: str) -> bool:
     )
 
 
-def get_current_window_combinations(filepath: str) -> Set[tuple]:
+def get_current_window_combinations(filepath: str) -> set[tuple]:
     """
     Read and validate current signal combinations from a file.
 
@@ -107,7 +106,7 @@ def get_current_window_combinations(filepath: str) -> Set[tuple]:
 
     try:
         # Read the file content
-        with open(filepath, "r") as f:
+        with open(filepath) as f:
             lines = f.readlines()
 
         if len(lines) <= 1:  # Only header or empty
@@ -122,24 +121,24 @@ def get_current_window_combinations(filepath: str) -> Set[tuple]:
                 zip(
                     current_signals.get_column("Fast Period").cast(pl.Int32).to_list(),
                     current_signals.get_column("Slow Period").cast(pl.Int32).to_list(),
+                    strict=False,
                 )
             )
-        else:
-            # Malformed CSV - try to parse as space-separated values
-            window_combs = set()
-            for line in lines[1:]:  # Skip header
-                try:
-                    # Split on any whitespace and convert to integers
-                    windows = [int(w) for w in line.strip().split()]
-                    if len(windows) == 2:
-                        fast_period, slow_period = windows
-                        window_combs.add((fast_period, slow_period))
-                except (ValueError, IndexError):
-                    continue
-            return window_combs
+        # Malformed CSV - try to parse as space-separated values
+        window_combs = set()
+        for line in lines[1:]:  # Skip header
+            try:
+                # Split on any whitespace and convert to integers
+                windows = [int(w) for w in line.strip().split()]
+                if len(windows) == 2:
+                    fast_period, slow_period = windows
+                    window_combs.add((fast_period, slow_period))
+            except (ValueError, IndexError):
+                continue
+        return window_combs
 
     except Exception as e:
-        print(f"Error reading window combinations: {str(e)}")
+        print(f"Error reading window combinations: {e!s}")
         return set()
 
 

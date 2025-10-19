@@ -6,26 +6,21 @@ from position-level data.
 """
 
 from pathlib import Path
-from typing import List, Optional
 
-import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
+import typer
 
 from app.tools.equity_data_extractor import MetricType
-from app.tools.position_equity_generator import (
-    PositionEquityGenerator,
-    generate_position_equity,
-)
+from app.tools.position_equity_generator import generate_position_equity
 from app.tools.position_equity_validator import (
     PositionEquityValidator,
     ValidationConfig,
     ValidationStatus,
-    validate_all_portfolios,
-    validate_portfolio_equity,
 )
 from app.tools.project_utils import get_project_root
+
 
 # Create positions sub-app
 app = typer.Typer(
@@ -108,19 +103,19 @@ def list(
         console.print(table)
 
     except Exception as e:
-        rprint(f"[red]Error listing position files: {str(e)}[/red]")
+        rprint(f"[red]Error listing position files: {e!s}[/red]")
 
 
 @app.command()
 def equity(
     ctx: typer.Context,
-    portfolio: Optional[str] = typer.Option(
+    portfolio: str | None = typer.Option(
         None, "--portfolio", "-p", help="Portfolio name (e.g., live_signals, risk_on)"
     ),
     all_portfolios: bool = typer.Option(
         False, "--all", help="Generate equity for all position files"
     ),
-    output_dir: Optional[str] = typer.Option(
+    output_dir: str | None = typer.Option(
         None, "--output-dir", "-o", help="Custom output directory"
     ),
     metric_type: str = typer.Option(
@@ -215,10 +210,10 @@ def equity(
 
                 except Exception as e:
                     error_count += 1
-                    rprint(f"[red]✗ Error processing {portfolio_name}: {str(e)}[/red]")
+                    rprint(f"[red]✗ Error processing {portfolio_name}: {e!s}[/red]")
 
         # Summary
-        rprint(f"\n[bold]Equity Generation Summary:[/bold]")
+        rprint("\n[bold]Equity Generation Summary:[/bold]")
         rprint(f"[green]✓ Successful: {success_count}[/green]")
         if error_count > 0:
             rprint(f"[red]✗ Errors: {error_count}[/red]")
@@ -231,13 +226,13 @@ def equity(
             rprint(f"\n[blue]Equity files saved to: {output_location}[/blue]")
 
     except Exception as e:
-        rprint(f"[red]Error in equity generation: {str(e)}[/red]")
+        rprint(f"[red]Error in equity generation: {e!s}[/red]")
         raise typer.Exit(1)
 
 
 @app.command()
 def validate(
-    portfolio: Optional[str] = typer.Option(
+    portfolio: str | None = typer.Option(
         None, "--portfolio", "-p", help="Portfolio name to validate"
     ),
     all_portfolios: bool = typer.Option(
@@ -273,13 +268,13 @@ def validate(
                 total_positions = len(positions)
                 open_positions = len([p for p in positions if p.status == "Open"])
                 closed_positions = len([p for p in positions if p.status == "Closed"])
-                unique_tickers = len(set(p.ticker for p in positions))
+                unique_tickers = len({p.ticker for p in positions})
 
                 # Check for required price data
                 missing_prices = []
                 prices_dir = Path(get_project_root()) / "data" / "raw" / "prices"
 
-                for ticker in set(p.ticker for p in positions):
+                for ticker in {p.ticker for p in positions}:
                     price_file = prices_dir / f"{ticker}_D.csv"
                     if not price_file.exists():
                         missing_prices.append(ticker)
@@ -360,13 +355,13 @@ def validate(
             )
 
     except Exception as e:
-        rprint(f"[red]Error in validation: {str(e)}[/red]")
+        rprint(f"[red]Error in validation: {e!s}[/red]")
         raise typer.Exit(1)
 
 
 @app.command()
 def validate_equity(
-    portfolio: Optional[str] = typer.Option(
+    portfolio: str | None = typer.Option(
         None, "--portfolio", "-p", help="Portfolio name to validate"
     ),
     all_portfolios: bool = typer.Option(
@@ -375,7 +370,7 @@ def validate_equity(
     output_format: str = typer.Option(
         "console", "--format", help="Output format: console, json, csv"
     ),
-    output_file: Optional[str] = typer.Option(
+    output_file: str | None = typer.Option(
         None, "--output", "-o", help="Output file path (for json/csv formats)"
     ),
     excellent_threshold: float = typer.Option(
@@ -442,7 +437,7 @@ def validate_equity(
             if result.status == ValidationStatus.CRITICAL:
                 worst_status = ValidationStatus.CRITICAL
                 break
-            elif (
+            if (
                 result.status == ValidationStatus.WARNING
                 and worst_status != ValidationStatus.CRITICAL
             ):
@@ -455,11 +450,11 @@ def validate_equity(
 
         if worst_status == ValidationStatus.CRITICAL:
             raise typer.Exit(2)  # Critical issues
-        elif worst_status == ValidationStatus.WARNING:
+        if worst_status == ValidationStatus.WARNING:
             raise typer.Exit(1)  # Warning issues
 
     except Exception as e:
-        rprint(f"[red]Error in equity validation: {str(e)}[/red]")
+        rprint(f"[red]Error in equity validation: {e!s}[/red]")
         raise typer.Exit(1)
 
 
@@ -483,8 +478,8 @@ def info(
         open_positions = [p for p in positions if p.status == "Open"]
         closed_positions = [p for p in positions if p.status == "Closed"]
 
-        unique_tickers = set(p.ticker for p in positions)
-        strategy_types = set(p.strategy_type for p in positions)
+        unique_tickers = {p.ticker for p in positions}
+        strategy_types = {p.strategy_type for p in positions}
 
         # Date range
         min_date = min(p.entry_timestamp for p in positions)
@@ -524,7 +519,7 @@ def info(
             )
 
     except Exception as e:
-        rprint(f"[red]Error showing portfolio info: {str(e)}[/red]")
+        rprint(f"[red]Error showing portfolio info: {e!s}[/red]")
         raise typer.Exit(1)
 
 

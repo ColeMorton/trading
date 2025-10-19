@@ -1,4 +1,5 @@
-from typing import Any, Callable, Dict, List, TypedDict
+from collections.abc import Callable
+from typing import Any, TypedDict
 
 import matplotlib
 import numpy as np
@@ -7,6 +8,7 @@ import polars as pl
 from app.portfolio_optimization.schemas import PortfolioConfig
 from app.portfolio_optimization.tools.position_sizing import calculate_position_sizes
 from app.portfolio_optimization.tools.position_sizing_types import PositionSizingConfig
+
 
 matplotlib.use("TkAgg")  # Set interactive backend
 import json
@@ -22,6 +24,7 @@ from app.portfolio_optimization.tools.portfolio_config import (
     load_portfolio_config,
 )
 from app.tools.setup_logging import setup_logging
+
 
 # Position sizing configuration - values not stored in portfolio JSON
 config: PositionSizingConfig = {
@@ -78,11 +81,11 @@ def download_data(ticker: str, log: callable) -> pl.DataFrame:
         data = download_data_tool(ticker, data_config, log)
         return data.select(pl.col("Close").alias(ticker))
     except Exception as e:
-        log(f"Error downloading {ticker}: {str(e)}", "error")
+        log(f"Error downloading {ticker}: {e!s}", "error")
         raise
 
 
-def combine_prices(tickers: List[str], log: callable) -> pl.DataFrame:
+def combine_prices(tickers: list[str], log: callable) -> pl.DataFrame:
     """
     Combine price data for multiple tickers into a single DataFrame.
 
@@ -147,8 +150,8 @@ def calculate_cvar(returns: np.ndarray, confidence_level: float = 0.95) -> float
 
 
 def calculate_asset_metrics(
-    returns: pl.DataFrame, weights: Dict[str, float], log: Callable[[str, str], None]
-) -> List[Dict[str, float]]:
+    returns: pl.DataFrame, weights: dict[str, float], log: Callable[[str, str], None]
+) -> list[dict[str, float]]:
     """
     Calculate performance metrics for individual assets.
 
@@ -242,21 +245,21 @@ def main() -> None:
             objective_function=ObjectiveFunction.MAXIMIZE_RATIO,
             min_weights=optimization_config["min_weight"],
             max_weights=optimization_config["max_weight"],
-            portfolio_params=dict(
-                name="Optimized Portfolio",
-                risk_free_rate=optimization_config["risk_free_rate"],
-            ),
+            portfolio_params={
+                "name": "Optimized Portfolio",
+                "risk_free_rate": optimization_config["risk_free_rate"],
+            },
         )
 
         # Fit model and get weights
         log("Fitting optimization model")
         model.fit(returns)
-        weights = dict(zip(TICKERS, model.weights_))
+        weights = dict(zip(TICKERS, model.weights_, strict=False))
 
         # Get optimized portfolio
         log("Calculating portfolio metrics")
         portfolio = model.predict(returns)
-        weights = dict(zip(TICKERS, model.weights_))
+        weights = dict(zip(TICKERS, model.weights_, strict=False))
 
         # Calculate metrics using skfolio's Portfolio object
         annualized_return = portfolio.mean * 252  # annualize the mean return
@@ -362,7 +365,9 @@ def main() -> None:
             scale_factor = portfolio_config["target_value"] / total_leveraged_value
 
             # Scale down initial values while keeping leverage and allocation same
-            for asset, metrics in zip(portfolio_config["portfolio"], results):
+            for asset, metrics in zip(
+                portfolio_config["portfolio"], results, strict=False
+            ):
                 metrics["initial_value"] *= scale_factor
                 metrics["leveraged_value"] = (
                     metrics["initial_value"] * asset["leverage"]
@@ -374,7 +379,7 @@ def main() -> None:
         total_leveraged_value = sum(metrics["leveraged_value"] for metrics in results)
         sum(metrics["initial_value"] for metrics in results)
 
-        for asset, metrics in zip(portfolio_config["portfolio"], results):
+        for asset, metrics in zip(portfolio_config["portfolio"], results, strict=False):
             # Modified print_asset_details to skip risk metrics
             print(f"\nAsset: {asset['ticker']}")
             print(f"  Initial (pre-leverage) value: ${metrics['initial_value']:.2f}")
@@ -414,7 +419,9 @@ def main() -> None:
                     "position_size": metrics["position_size"],
                     "allocation": metrics["allocation"],
                 }
-                for asset, metrics in zip(portfolio_config["portfolio"], results)
+                for asset, metrics in zip(
+                    portfolio_config["portfolio"], results, strict=False
+                )
             ],
             "position_sizing_config": {
                 "use_ema": config["use_ema"],
@@ -439,7 +446,7 @@ def main() -> None:
         log_close()
 
     except Exception as e:
-        log(f"An error occurred: {str(e)}", "error")
+        log(f"An error occurred: {e!s}", "error")
         log_close()
         raise
 

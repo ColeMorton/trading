@@ -5,7 +5,8 @@ This module provides adapters to maintain backward compatibility with existing
 export functions while using the new unified export system.
 """
 
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from collections.abc import Callable
+from typing import Any
 
 import pandas as pd
 import polars as pl
@@ -14,18 +15,19 @@ from app.tools.export.interfaces import ExportContext, ExportFormat, ExportResul
 from app.tools.export.manager import ExportManager
 from app.tools.export_csv import ExportConfig
 
+
 # Global export manager instance
 _manager = ExportManager()
 
 
 def export_csv_adapter(
-    data: Union[pl.DataFrame, pd.DataFrame, List[Dict]],
+    data: pl.DataFrame | pd.DataFrame | list[dict],
     feature1: str,
     config: ExportConfig,
     feature2: str = "",
-    filename: Optional[str] | None = None,
-    log: Optional[Callable] | None = None,
-) -> Tuple[pl.DataFrame, bool]:
+    filename: str | None | None = None,
+    log: Callable | None | None = None,
+) -> tuple[pl.DataFrame, bool]:
     """Adapter for the legacy export_csv function.
 
     This function maintains backward compatibility with the existing export_csv
@@ -65,24 +67,20 @@ def export_csv_adapter(
         # Return the original data as DataFrame
         if isinstance(data, pl.DataFrame):
             return data, True
-        elif isinstance(data, pd.DataFrame):
+        if isinstance(data, pd.DataFrame | list):
             return pl.DataFrame(data), True
-        elif isinstance(data, list):
-            return pl.DataFrame(data), True
-        else:
-            return pl.DataFrame(), True
-    else:
-        return pl.DataFrame(), False
+        return pl.DataFrame(), True
+    return pl.DataFrame(), False
 
 
 def export_portfolios_adapter(
-    portfolios: List[Dict],
+    portfolios: list[dict],
     config: ExportConfig,
     export_type: str,
-    csv_filename: Optional[str] | None = None,
-    log: Optional[Callable] | None = None,
+    csv_filename: str | None | None = None,
+    log: Callable | None | None = None,
     feature_dir: str = "",
-) -> Tuple[pl.DataFrame, bool]:
+) -> tuple[pl.DataFrame, bool]:
     """Adapter for the legacy export_portfolios function.
 
     This function provides a bridge between the existing portfolio export
@@ -115,10 +113,10 @@ def export_portfolios_adapter(
 
 
 def save_json_report_adapter(
-    report: Dict[str, Any],
-    config: Dict[str, Any],
+    report: dict[str, Any],
+    config: dict[str, Any],
     log: Callable[[str, str], None],
-    json_encoder: Optional[type] | None = None,
+    json_encoder: type | None | None = None,
 ) -> str:
     """Adapter for saving JSON reports.
 
@@ -166,17 +164,16 @@ def save_json_report_adapter(
 
     if result.success:
         return result.path
-    else:
-        raise IOError(f"Failed to save report: {result.error_message}")
+    raise OSError(f"Failed to save report: {result.error_message}")
 
 
 def migrate_to_export_manager(
     data: Any,
     export_format: str,
-    config: Dict[str, Any],
+    config: dict[str, Any],
     feature_path: str = "",
-    filename: Optional[str] | None = None,
-    log: Optional[Callable] | None = None,
+    filename: str | None | None = None,
+    log: Callable | None | None = None,
     **kwargs,
 ) -> ExportResult:
     """Helper function to migrate existing code to use ExportManager.

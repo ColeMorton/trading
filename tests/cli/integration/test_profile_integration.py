@@ -14,9 +14,7 @@ with the CLI system:
 These tests ensure all provided profiles are functional and maintain backward compatibility.
 """
 
-import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import polars as pl
 import pytest
@@ -64,8 +62,8 @@ class TestDefaultStrategyProfileIntegration:
 
         # Verify strategy configuration
         assert config.direction == "Long"
-        assert config.use_hourly == False
-        assert config.use_years == False
+        assert config.use_hourly is False
+        assert config.use_years is False
         assert config.years == 15
 
     def test_default_strategy_profile_parameter_validation(self, config_loader):
@@ -80,7 +78,7 @@ class TestDefaultStrategyProfileIntegration:
 
         # Verify sorting configuration
         assert config.sort_by == "Score"
-        assert config.sort_ascending == False
+        assert config.sort_ascending is False
 
         # Verify years configuration
         assert config.years > 0
@@ -160,7 +158,7 @@ class TestDefaultStrategyProfileIntegration:
         # Test use_years override
         overrides = {"use_years": True}
         config = config_loader.load_from_profile("default_strategy", {}, overrides)
-        assert config.use_years == True
+        assert config.use_years is True
 
     @patch("app.cli.commands.strategy.get_data")
     @patch("app.cli.commands.strategy.StrategyDispatcher")
@@ -350,9 +348,9 @@ class TestDefaultStrategyCurrentProfileIntegration:
         assert current_config.years == base_config.years
 
         # Verify current-specific overrides
-        assert current_config.use_current == True
+        assert current_config.use_current is True
         assert hasattr(current_config, "filter")
-        assert current_config.filter.use_current == True
+        assert current_config.filter.use_current is True
 
     def test_default_strategy_current_profile_loading(self, config_loader):
         """Test that default_strategy_current profile loads with inheritance."""
@@ -363,9 +361,9 @@ class TestDefaultStrategyCurrentProfileIntegration:
         assert config.ticker == ["BTC-USD"]
 
         # Verify current signal filtering is enabled
-        assert config.use_current == True
+        assert config.use_current is True
         assert hasattr(config, "filter")
-        assert config.filter.use_current == True
+        assert config.filter.use_current is True
 
         # Verify inherited MACD parameters
         assert config.short_window_start == 5
@@ -417,7 +415,7 @@ class TestDefaultStrategyCurrentProfileIntegration:
         assert config.years == 3
 
         # Verify current-specific config preserved
-        assert config.use_current == True
+        assert config.use_current is True
 
         # Verify other inherited values preserved
         assert config.short_window_start == 5

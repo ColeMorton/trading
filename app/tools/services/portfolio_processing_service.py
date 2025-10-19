@@ -6,11 +6,10 @@ It provides utilities for converting portfolio dictionaries to metrics and
 processing portfolio data with proper validation.
 """
 
-import glob
-
 # API removed - creating local definitions
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+import glob
+from typing import Any
 
 
 @dataclass
@@ -30,13 +29,13 @@ class PortfolioProcessor:
         pass
 
     def process_portfolios(
-        self, portfolios: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, portfolios: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Process portfolios."""
         # Basic processing logic
         return portfolios
 
-    def calculate_metrics(self, portfolio: Dict[str, Any]) -> PortfolioMetrics:
+    def calculate_metrics(self, portfolio: dict[str, Any]) -> PortfolioMetrics:
         """Calculate portfolio metrics."""
         # Basic metrics calculation
         return PortfolioMetrics(
@@ -70,8 +69,8 @@ class PortfolioProcessingService:
         self.portfolio_processor = PortfolioProcessor()
 
     def convert_portfolios_to_metrics(
-        self, portfolio_dicts: List[Dict[str, Any]], log
-    ) -> List[PortfolioMetrics]:
+        self, portfolio_dicts: list[dict[str, Any]], log
+    ) -> list[PortfolioMetrics]:
         """
         Convert portfolio dictionaries to PortfolioMetrics objects.
 
@@ -87,8 +86,8 @@ class PortfolioProcessingService:
         )
 
     def process_and_deduplicate_portfolios(
-        self, all_portfolio_dicts: List[Dict[str, Any]], log
-    ) -> tuple[List[PortfolioMetrics], List[Dict[str, Any]]]:
+        self, all_portfolio_dicts: list[dict[str, Any]], log
+    ) -> tuple[list[PortfolioMetrics], list[dict[str, Any]]]:
         """
         Process portfolios and return both metrics and deduplicated dictionaries.
 
@@ -127,7 +126,7 @@ class PortfolioProcessingService:
 
         return portfolio_metrics, deduplicated_portfolios
 
-    def _create_deduplication_key(self, portfolio_dict: Dict[str, Any]) -> str:
+    def _create_deduplication_key(self, portfolio_dict: dict[str, Any]) -> str:
         """Create a unique key for portfolio deduplication."""
         # Use key attributes to create a unique identifier
         ticker = portfolio_dict.get("ticker", "unknown")
@@ -141,8 +140,8 @@ class PortfolioProcessingService:
         return f"{ticker}_{strategy_type}_{timeframe}_{fast_period}_{slow_period}"
 
     def collect_export_paths(
-        self, config: Dict[str, Any], strategy_types: List[str], log
-    ) -> Dict[str, List[str]]:
+        self, config: dict[str, Any], strategy_types: list[str], log
+    ) -> dict[str, list[str]]:
         """
         Collect paths of exported portfolio CSV files.
 
@@ -183,9 +182,9 @@ class PortfolioProcessingService:
                     export_paths["portfolios_filtered"].extend(filtered_files)
 
             # Remove duplicates and sort
-            export_paths["portfolios"] = sorted(list(set(export_paths["portfolios"])))
+            export_paths["portfolios"] = sorted(set(export_paths["portfolios"]))
             export_paths["portfolios_filtered"] = sorted(
-                list(set(export_paths["portfolios_filtered"]))
+                set(export_paths["portfolios_filtered"])
             )
 
             log(
@@ -194,11 +193,11 @@ class PortfolioProcessingService:
             )
 
         except Exception as e:
-            log(f"Error collecting export paths: {str(e)}", "error")
+            log(f"Error collecting export paths: {e!s}", "error")
 
         return export_paths
 
-    def validate_portfolio_data(self, portfolio_dict: Dict[str, Any], log) -> bool:
+    def validate_portfolio_data(self, portfolio_dict: dict[str, Any], log) -> bool:
         """
         Validate portfolio dictionary contains required fields.
 
@@ -219,8 +218,8 @@ class PortfolioProcessingService:
         return True
 
     def calculate_portfolio_summary(
-        self, portfolios: List[Dict[str, Any]], log
-    ) -> Dict[str, Any]:
+        self, portfolios: list[dict[str, Any]], log
+    ) -> dict[str, Any]:
         """
         Calculate summary statistics for a collection of portfolios.
 
@@ -251,9 +250,9 @@ class PortfolioProcessingService:
                     summary["timeframes"].add(portfolio.get("timeframe", "unknown"))
 
             # Convert sets to lists for JSON serialization
-            summary["tickers"] = sorted(list(summary["tickers"]))
-            summary["strategy_types"] = sorted(list(summary["strategy_types"]))
-            summary["timeframes"] = sorted(list(summary["timeframes"]))
+            summary["tickers"] = sorted(summary["tickers"])
+            summary["strategy_types"] = sorted(summary["strategy_types"])
+            summary["timeframes"] = sorted(summary["timeframes"])
 
             log(
                 f"Portfolio summary: {summary['total_count']} portfolios, "
@@ -262,14 +261,14 @@ class PortfolioProcessingService:
             )
 
         except Exception as e:
-            log(f"Error calculating portfolio summary: {str(e)}", "error")
+            log(f"Error calculating portfolio summary: {e!s}", "error")
             summary["error"] = str(e)
 
         return summary
 
     def filter_portfolios_by_criteria(
-        self, portfolios: List[Dict[str, Any]], criteria: Dict[str, Any], log
-    ) -> List[Dict[str, Any]]:
+        self, portfolios: list[dict[str, Any]], criteria: dict[str, Any], log
+    ) -> list[dict[str, Any]]:
         """
         Filter portfolios based on specified criteria.
 
@@ -306,11 +305,10 @@ class PortfolioProcessingService:
                         if portfolio_value > value:
                             include = False
                             break
-                    else:
-                        # Exact match
-                        if portfolio.get(key) != value:
-                            include = False
-                            break
+                    # Exact match
+                    elif portfolio.get(key) != value:
+                        include = False
+                        break
 
                 if include:
                     filtered.append(portfolio)
@@ -320,7 +318,7 @@ class PortfolioProcessingService:
             )
 
         except Exception as e:
-            log(f"Error filtering portfolios: {str(e)}", "error")
+            log(f"Error filtering portfolios: {e!s}", "error")
             return portfolios  # Return original list on error
 
         return filtered

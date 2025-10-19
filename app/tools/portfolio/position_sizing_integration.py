@@ -5,10 +5,10 @@ This module integrates position sizing capabilities with existing portfolio infr
 extending the schema while maintaining backward compatibility.
 """
 
-import json
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import polars as pl
 
@@ -27,7 +27,6 @@ from app.tools.position_sizing import (
 )
 from app.tools.risk import CVaRCalculator
 
-from .base_extended_schemas import SchemaType
 from .position_sizing_schema_extension import (
     PositionSizingPortfolioRow,
     PositionSizingSchema,
@@ -38,7 +37,7 @@ from .position_sizing_schema_extension import (
 class PositionSizingPortfolioIntegration:
     """Integrates position sizing with existing portfolio management infrastructure."""
 
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(self, base_dir: str | None = None):
         """Initialize position sizing portfolio integration.
 
         Args:
@@ -70,7 +69,7 @@ class PositionSizingPortfolioIntegration:
         strategy_type: str = "SMA",
         fast_period: int = 20,
         slow_period: int = 50,
-        manual_data: Optional[Dict[str, Any]] = None,
+        manual_data: dict[str, Any] | None = None,
     ) -> PositionSizingPortfolioRow:
         """Create a complete position sizing portfolio row.
 
@@ -189,12 +188,14 @@ class PositionSizingPortfolioIntegration:
             Position_Value=position_value,
             Stop_Loss_Distance=stop_loss_distance,
             Max_Risk_Amount=max_risk_amount,
-            Current_Position=position_entry.current_position
-            if position_entry
-            else None,
-            Account_Type=position_entry.account_type
-            if position_entry
-            else manual_data.get("account_type", "IBKR"),
+            Current_Position=(
+                position_entry.current_position if position_entry else None
+            ),
+            Account_Type=(
+                position_entry.account_type
+                if position_entry
+                else manual_data.get("account_type", "IBKR")
+            ),
             # Portfolio coordination fields
             Portfolio_Type=portfolio_type,
             Allocation_Percentage=allocation_percentage,
@@ -229,8 +230,8 @@ class PositionSizingPortfolioIntegration:
 
     def create_position_sizing_portfolio(
         self,
-        tickers: List[str],
-        manual_data_by_ticker: Optional[Dict[str, Dict[str, Any]]] = None,
+        tickers: list[str],
+        manual_data_by_ticker: dict[str, dict[str, Any]] | None = None,
     ) -> pl.DataFrame:
         """Create a complete position sizing portfolio DataFrame.
 
@@ -253,9 +254,9 @@ class PositionSizingPortfolioIntegration:
 
     def export_position_sizing_portfolio(
         self,
-        tickers: List[str],
-        output_path: Optional[str] = None,
-        manual_data_by_ticker: Optional[Dict[str, Dict[str, Any]]] = None,
+        tickers: list[str],
+        output_path: str | None = None,
+        manual_data_by_ticker: dict[str, dict[str, Any]] | None = None,
     ) -> str:
         """Export position sizing portfolio to CSV.
 
@@ -279,8 +280,8 @@ class PositionSizingPortfolioIntegration:
         return output_path
 
     def validate_position_sizing_data(
-        self, row_data: Dict[str, Any]
-    ) -> Tuple[bool, Dict[str, Any]]:
+        self, row_data: dict[str, Any]
+    ) -> tuple[bool, dict[str, Any]]:
         """Validate position sizing data against schema and Excel formulas.
 
         Args:
@@ -310,7 +311,7 @@ class PositionSizingPortfolioIntegration:
 
         return validation.is_valid, validation_results
 
-    def import_manual_data_from_excel(self, excel_data: Dict[str, Any]) -> None:
+    def import_manual_data_from_excel(self, excel_data: dict[str, Any]) -> None:
         """Import manual data from Excel spreadsheet format.
 
         Args:
@@ -363,7 +364,7 @@ class PositionSizingPortfolioIntegration:
                 excel_data["portfolio_holdings"]
             )
 
-    def get_comprehensive_portfolio_summary(self) -> Dict[str, Any]:
+    def get_comprehensive_portfolio_summary(self) -> dict[str, Any]:
         """Get comprehensive summary combining all position sizing components.
 
         Returns:
@@ -388,12 +389,14 @@ class PositionSizingPortfolioIntegration:
                 "total_value": position_summary.total_position_value,
                 "count": position_summary.position_count,
                 "average_size": position_summary.average_position_size,
-                "largest_position": {
-                    "symbol": position_summary.largest_position.symbol,
-                    "value": position_summary.largest_position.position_value,
-                }
-                if position_summary.largest_position
-                else None,
+                "largest_position": (
+                    {
+                        "symbol": position_summary.largest_position.symbol,
+                        "value": position_summary.largest_position.position_value,
+                    }
+                    if position_summary.largest_position
+                    else None
+                ),
             },
             "risk_management": {
                 "total_risk_amount": drawdown_summary.total_risk_amount,
@@ -415,7 +418,7 @@ class PositionSizingPortfolioIntegration:
             },
         }
 
-    def generate_excel_compatible_export(self, tickers: List[str]) -> Dict[str, Any]:
+    def generate_excel_compatible_export(self, tickers: list[str]) -> dict[str, Any]:
         """Generate Excel-compatible export data.
 
         Args:
@@ -451,7 +454,7 @@ class PositionSizingPortfolioIntegration:
         return excel_data
 
     def save_excel_compatible_export(
-        self, tickers: List[str], output_path: Optional[str] = None
+        self, tickers: list[str], output_path: str | None = None
     ) -> str:
         """Save Excel-compatible export to JSON file.
 

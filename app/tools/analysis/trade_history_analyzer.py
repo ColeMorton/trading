@@ -7,16 +7,14 @@ Analyzes trade performance distributions, MFE/MAE patterns, and exit efficiency.
 
 import json
 import logging
-from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
 from ..config.statistical_analysis_config import SPDSConfig
 from ..models.statistical_analysis_models import (
-    ConfidenceLevel,
     PercentileMetrics,
     StatisticalMetrics,
     TradeHistoryMetrics,
@@ -40,7 +38,7 @@ class TradeHistoryAnalyzer:
     - Exit efficiency metrics
     """
 
-    def __init__(self, config: SPDSConfig, logger: Optional[logging.Logger] = None):
+    def __init__(self, config: SPDSConfig, logger: logging.Logger | None = None):
         """
         Initialize the Trade History Analyzer
 
@@ -64,7 +62,7 @@ class TradeHistoryAnalyzer:
 
     async def analyze_strategy_trades(
         self, strategy_name: str, ticker: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Analyze all trades for a specific strategy and ticker
 
@@ -172,7 +170,7 @@ class TradeHistoryAnalyzer:
 
     async def _load_trade_history(
         self, strategy_name: str, ticker: str
-    ) -> Optional[pd.DataFrame]:
+    ) -> pd.DataFrame | None:
         """
         Load trade history data from available sources
 
@@ -269,8 +267,7 @@ class TradeHistoryAnalyzer:
                 )
                 if file_path.suffix == ".json":
                     return await self._load_json_trade_history(file_path)
-                else:
-                    return await self._load_csv_trade_history(file_path)
+                return await self._load_csv_trade_history(file_path)
 
         # Enhanced logging to indicate fallback behavior
         parsed_strategy = self._parse_position_uuid(strategy_name, ticker)
@@ -331,7 +328,7 @@ class TradeHistoryAnalyzer:
 
     def _extract_position_uuid_patterns(
         self, strategy_name: str, ticker: str
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Extract multiple filename patterns from Position_UUID format.
 
@@ -380,7 +377,7 @@ class TradeHistoryAnalyzer:
     async def _load_json_trade_history(self, file_path: Path) -> pd.DataFrame:
         """Load trade history from JSON format"""
         try:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 trade_data = json.load(f)
 
             # Convert to DataFrame
@@ -451,8 +448,7 @@ class TradeHistoryAnalyzer:
             or "mae" not in df.columns
             or df["mfe"].isna().any()
             or df["mae"].isna().any()
-            or (df["mfe"] == 0.0).all()
-            and (df["mae"] == 0.0).all()
+            or ((df["mfe"] == 0.0).all() and (df["mae"] == 0.0).all())
         ):
             self.logger.info(
                 "MFE/MAE data missing or invalid, attempting calculation from trade data"
@@ -462,15 +458,17 @@ class TradeHistoryAnalyzer:
             try:
                 df = mfe_mae_calculator.calculate_from_trades(
                     df,
-                    entry_price_col="entry_price"
-                    if "entry_price" in df.columns
-                    else "Avg Entry Price",
-                    exit_price_col="exit_price"
-                    if "exit_price" in df.columns
-                    else "Avg Exit Price",
-                    direction_col="direction"
-                    if "direction" in df.columns
-                    else "Direction",
+                    entry_price_col=(
+                        "entry_price"
+                        if "entry_price" in df.columns
+                        else "Avg Entry Price"
+                    ),
+                    exit_price_col=(
+                        "exit_price" if "exit_price" in df.columns else "Avg Exit Price"
+                    ),
+                    direction_col=(
+                        "direction" if "direction" in df.columns else "Direction"
+                    ),
                     return_col="return_pct",
                 )
                 self.logger.debug(
@@ -549,7 +547,7 @@ class TradeHistoryAnalyzer:
                         df[col] = df[col].replace("", default_value)
 
                     # Convert to numeric with coercion
-                    original_values = df[col].copy()
+                    df[col].copy()
                     df[col] = converter(df[col], errors="coerce")
 
                     # Fill NaN values with defaults
@@ -638,7 +636,7 @@ class TradeHistoryAnalyzer:
                         df[col]
                         .apply(
                             lambda x: not isinstance(
-                                x, (int, float, np.integer, np.floating)
+                                x, int | float | np.integer | np.floating
                             )
                         )
                         .sum()
@@ -676,7 +674,7 @@ class TradeHistoryAnalyzer:
         except Exception as e:
             self.logger.error(f"Error during data integrity validation: {e}")
 
-    def _analyze_trade_returns(self, trade_data: pd.DataFrame) -> Dict[str, Any]:
+    def _analyze_trade_returns(self, trade_data: pd.DataFrame) -> dict[str, Any]:
         """Analyze trade return distributions"""
         returns = trade_data["returns"].dropna()
 
@@ -724,7 +722,7 @@ class TradeHistoryAnalyzer:
             "max_drawdown": max_drawdown,
         }
 
-    def _analyze_mfe_patterns(self, trade_data: pd.DataFrame) -> Dict[str, Any]:
+    def _analyze_mfe_patterns(self, trade_data: pd.DataFrame) -> dict[str, Any]:
         """Analyze Maximum Favorable Excursion patterns"""
         mfe_data = trade_data["mfe"].dropna()
 
@@ -735,7 +733,7 @@ class TradeHistoryAnalyzer:
 
         return {"statistics": statistics}
 
-    def _analyze_mae_patterns(self, trade_data: pd.DataFrame) -> Dict[str, Any]:
+    def _analyze_mae_patterns(self, trade_data: pd.DataFrame) -> dict[str, Any]:
         """Analyze Maximum Adverse Excursion patterns"""
         mae_data = trade_data["mae"].dropna()
 
@@ -748,7 +746,7 @@ class TradeHistoryAnalyzer:
 
         return {"statistics": statistics}
 
-    def _analyze_trade_durations(self, trade_data: pd.DataFrame) -> Dict[str, Any]:
+    def _analyze_trade_durations(self, trade_data: pd.DataFrame) -> dict[str, Any]:
         """Analyze trade duration patterns"""
         duration_data = trade_data["duration"].dropna()
 
@@ -759,7 +757,7 @@ class TradeHistoryAnalyzer:
 
         return {"statistics": statistics}
 
-    def _calculate_exit_efficiency(self, trade_data: pd.DataFrame) -> Dict[str, float]:
+    def _calculate_exit_efficiency(self, trade_data: pd.DataFrame) -> dict[str, float]:
         """Calculate exit efficiency metrics"""
         try:
             # Filter for closed trades with valid MFE and return data
@@ -803,7 +801,7 @@ class TradeHistoryAnalyzer:
             self.logger.warning(f"Failed to calculate exit efficiency: {e}")
             return {"average_efficiency": 0.0, "mfe_capture_ratio": 0.0}
 
-    def _assess_trade_quality(self, trade_data: pd.DataFrame) -> Dict[str, int]:
+    def _assess_trade_quality(self, trade_data: pd.DataFrame) -> dict[str, int]:
         """Assess trade quality based on returns"""
         returns = trade_data["returns"].dropna()
 

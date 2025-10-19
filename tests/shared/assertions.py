@@ -3,19 +3,18 @@ Custom assertions for trading system testing infrastructure.
 Phase 3: Testing Infrastructure Consolidation
 """
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
-import numpy as np
 import polars as pl
 import pytest
 
 
 def assert_portfolio_performance(
-    portfolio_result: Dict[str, Any],
-    min_return: Optional[float] = None,
-    max_drawdown: Optional[float] = None,
-    min_sharpe: Optional[float] = None,
-    min_win_rate: Optional[float] = None,
+    portfolio_result: dict[str, Any],
+    min_return: float | None = None,
+    max_drawdown: float | None = None,
+    min_sharpe: float | None = None,
+    min_win_rate: float | None = None,
 ):
     """
     Assert portfolio performance meets criteria.
@@ -57,8 +56,8 @@ def assert_portfolio_performance(
 
 
 def assert_market_data_valid(
-    data: Union[pl.DataFrame, dict],
-    required_columns: Optional[List[str]] = None,
+    data: pl.DataFrame | dict,
+    required_columns: list[str] | None = None,
     min_rows: int = 1,
 ):
     """
@@ -100,8 +99,8 @@ def assert_market_data_valid(
 
 
 def assert_trading_signals_valid(
-    signals: Union[pl.DataFrame, List[Dict[str, Any]]],
-    valid_signal_types: Optional[List[str]] = None,
+    signals: pl.DataFrame | list[dict[str, Any]],
+    valid_signal_types: list[str] | None = None,
 ):
     """
     Assert trading signals are valid.
@@ -136,7 +135,7 @@ def assert_trading_signals_valid(
 
 
 def assert_risk_metrics_valid(
-    risk_metrics: Dict[str, float], check_bounds: bool = True
+    risk_metrics: dict[str, float], check_bounds: bool = True
 ):
     """
     Assert risk metrics are valid and within expected bounds.
@@ -151,7 +150,7 @@ def assert_risk_metrics_valid(
     for metric in required_metrics:
         assert metric in risk_metrics, f"Risk metrics missing required metric: {metric}"
         assert isinstance(
-            risk_metrics[metric], (int, float)
+            risk_metrics[metric], int | float
         ), f"Risk metric {metric} must be numeric"
 
     if check_bounds:
@@ -177,7 +176,7 @@ def assert_risk_metrics_valid(
 
 
 def assert_backtest_results_valid(
-    backtest_results: Dict[str, Any],
+    backtest_results: dict[str, Any],
     min_trades: int = 1,
     require_positive_return: bool = False,
 ):
@@ -236,7 +235,7 @@ def assert_backtest_results_valid(
 
 
 def assert_configuration_valid(
-    config: Dict[str, Any], schema: Optional[Dict[str, type]] = None
+    config: dict[str, Any], schema: dict[str, type] | None = None
 ):
     """
     Assert configuration is valid against schema.
@@ -258,9 +257,9 @@ def assert_configuration_valid(
 
 
 def assert_api_response_valid(
-    response: Union[dict, Any],
+    response: dict | Any,
     expected_status: int = 200,
-    required_fields: Optional[List[str]] = None,
+    required_fields: list[str] | None = None,
 ):
     """
     Assert API response is valid.
@@ -310,7 +309,7 @@ def assert_performance_within_tolerance(
     ), f"Execution time {actual_time:.2f}s outside tolerance [{min_time:.2f}s, {max_time:.2f}s]"
 
 
-def assert_dataframe_schema(df: pl.DataFrame, expected_schema: Dict[str, pl.DataType]):
+def assert_dataframe_schema(df: pl.DataFrame, expected_schema: dict[str, pl.DataType]):
     """
     Assert DataFrame has expected schema.
 

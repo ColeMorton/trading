@@ -6,9 +6,9 @@ This script demonstrates the unified strategy framework capabilities
 and shows how to use the new infrastructure.
 """
 
-import sys
 from pathlib import Path
-from typing import Any, Dict
+import sys
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
@@ -150,7 +150,7 @@ def demo_migration_capabilities():
     print("\nTesting incomplete MACD configuration:")
     incomplete_config = {
         "FAST_PERIOD": 12,
-        "SLOW_PERIOD": 26
+        "SLOW_PERIOD": 26,
         # Missing SIGNAL_PERIOD
     }
 

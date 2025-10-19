@@ -5,7 +5,7 @@ This module handles the preparation of data by calculating technical indicators
 and generating entry signals.
 """
 
-from typing import Callable, Tuple
+from collections.abc import Callable
 
 import numpy as np
 import polars as pl
@@ -18,7 +18,7 @@ from app.tools.calculate_rsi import calculate_rsi
 
 def prepare_data(
     data: pl.DataFrame, config: PSLConfig, log: Callable
-) -> Tuple[pl.DataFrame, np.ndarray]:
+) -> tuple[pl.DataFrame, np.ndarray]:
     """
     Prepare data by calculating technical indicators and generating entry signals.
 

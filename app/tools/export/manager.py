@@ -6,7 +6,7 @@ multiple export formats through a common interface.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from app.tools.export.formats import CSVExporter, JSONExporter
 from app.tools.export.interfaces import (
@@ -29,7 +29,7 @@ class ExportManager:
 
     def __init__(self):
         """Initialize ExportManager with default exporters."""
-        self._exporters: Dict[str, ExportStrategy] = {
+        self._exporters: dict[str, ExportStrategy] = {
             ExportFormat.CSV: CSVExporter(),
             ExportFormat.JSON: JSONExporter(),
         }
@@ -71,7 +71,7 @@ class ExportManager:
         # Delegate to the specific exporter
         return exporter.export(context)
 
-    def export_batch(self, contexts: List[ExportContext]) -> List[ExportResult]:
+    def export_batch(self, contexts: list[ExportContext]) -> list[ExportResult]:
         """Export multiple datasets in batch.
 
         Args:
@@ -96,7 +96,7 @@ class ExportManager:
 
         return results
 
-    def get_supported_formats(self) -> List[str]:
+    def get_supported_formats(self) -> list[str]:
         """Get list of currently supported export formats.
 
         Returns:
@@ -113,9 +113,9 @@ def export_data(
     data: Any,
     format: str,
     feature_path: str,
-    config: Dict[str, Any],
-    filename: Optional[str] | None = None,
-    log: Optional[Any] | None = None,
+    config: dict[str, Any],
+    filename: str | None | None = None,
+    log: Any | None | None = None,
     **kwargs,
 ) -> ExportResult:
     """Convenience function for exporting data.

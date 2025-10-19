@@ -4,15 +4,15 @@ CRITICAL: These tests verify that pattern detection correctly groups returns
 by time periods and doesn't create duplicates.
 """
 
+import contextlib
+
 import numpy as np
 import pandas as pd
-import pytest
 
 
 def get_analyzer_class():
     """Late import to avoid circular dependency."""
     # Import models first to break circular chain
-    from app.cli.models.seasonality import PatternType, SeasonalityPattern
     from app.tools.seasonality_analyzer import SeasonalityAnalyzer
 
     return SeasonalityAnalyzer
@@ -259,10 +259,8 @@ class TestQuarterlyPatterns:
             for month in range(1, 13):
                 # Add ~20 days per month
                 for day in range(1, 21):
-                    try:
+                    with contextlib.suppress(ValueError):
                         dates.append(pd.Timestamp(year=year, month=month, day=day))
-                    except ValueError:
-                        pass
 
         # Create price data
         prices = [100.0]
@@ -425,7 +423,7 @@ class TestPatternAnalysisIntegration:
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
 
         # Get unique pattern types
-        pattern_types = set(p.pattern_type for p in patterns)
+        pattern_types = {p.pattern_type for p in patterns}
 
         # Should have all 5 types
         expected_types = {

@@ -4,10 +4,9 @@ Test Suite for Strategy Template Generator
 Comprehensive tests for the template-based strategy development system.
 """
 
+from pathlib import Path
 import shutil
 import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
@@ -383,7 +382,7 @@ class TestStrategyTemplateGenerator:
 
         # Check file content
         main_file = strategy_path / "1_get_portfolios.py"
-        with open(main_file, "r") as f:
+        with open(main_file) as f:
             content = f.read()
             assert "TestSuccess Strategy" in content
             assert "test_success" in content
@@ -527,7 +526,7 @@ class TestIntegration:
 
         # Check main execution file
         main_file = strategy_path / "1_get_portfolios.py"
-        with open(main_file, "r") as f:
+        with open(main_file) as f:
             main_content = f.read()
             assert "Comprehensive MACD strategy" in main_content
             assert "comprehensive_test" in main_content
@@ -535,7 +534,7 @@ class TestIntegration:
 
         # Check configuration file
         config_file = strategy_path / "config_types.py"
-        with open(config_file, "r") as f:
+        with open(config_file) as f:
             config_content = f.read()
             assert "class ComprehensiveTestConfig(TypedDict):" in config_content
             assert "MACD_FAST" in config_content
@@ -544,7 +543,7 @@ class TestIntegration:
 
         # Check strategy execution file
         execution_file = strategy_path / "tools" / "strategy_execution.py"
-        with open(execution_file, "r") as f:
+        with open(execution_file) as f:
             execution_content = f.read()
             assert "from ta.trend import MACD" in execution_content
             assert "from ta.momentum import RSIIndicator" in execution_content
@@ -553,7 +552,7 @@ class TestIntegration:
 
         # Check test file
         test_file = strategy_path / "test_strategy.py"
-        with open(test_file, "r") as f:
+        with open(test_file) as f:
             test_content = f.read()
             assert "class TestComprehensiveTestConfiguration:" in test_content
             assert "class TestComprehensiveTestIndicators:" in test_content
@@ -561,7 +560,7 @@ class TestIntegration:
 
         # Check README
         readme_file = strategy_path / "README.md"
-        with open(readme_file, "r") as f:
+        with open(readme_file) as f:
             readme_content = f.read()
             assert "# Comprehensive Test Strategy" in readme_content
             assert "MACD" in readme_content

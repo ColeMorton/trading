@@ -5,7 +5,7 @@ This module provides centralized type definitions for strategy configurations
 to ensure consistency across the application.
 """
 
-from typing import Dict, List, Literal, TypedDict, Union
+from typing import Literal, TypedDict
 
 from typing_extensions import NotRequired
 
@@ -98,7 +98,7 @@ class StrategyConfig(TypedDict, total=False):
         USE_MA (NotRequired[bool]): Whether to use moving averages
     """
 
-    TICKER: Union[str, List[str]]
+    TICKER: str | list[str]
     WINDOWS: NotRequired[int]
     DIRECTION: NotRequired[str]
     USE_HOURLY: NotRequired[bool]
@@ -116,10 +116,10 @@ class StrategyConfig(TypedDict, total=False):
     BASE_DIR: NotRequired[str]
     REFRESH: NotRequired[bool]
     USE_CURRENT: NotRequired[bool]
-    MINIMUMS: NotRequired[Dict[str, Union[int, float]]]
+    MINIMUMS: NotRequired[dict[str, int | float]]
     SORT_BY: NotRequired[str]
     SORT_ASC: NotRequired[bool]
-    STRATEGY_TYPES: NotRequired[List[str]]
+    STRATEGY_TYPES: NotRequired[list[str]]
     STRATEGY_TYPE: NotRequired[str]
     USE_MA: NotRequired[bool]
 

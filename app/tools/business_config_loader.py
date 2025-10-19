@@ -5,14 +5,13 @@ This module provides specialized loading for business configuration files from
 data/config/ directory with support for composition, inheritance, and YAML processing.
 """
 
-import os
 from functools import lru_cache
+import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import yaml
 
-from app.tools.config_management import ConfigManager
 from app.tools.structured_logging import get_logger
 
 
@@ -23,7 +22,7 @@ class BusinessConfigurationError(Exception):
 class BusinessConfigLoader:
     """Loader for business configuration files with composition and inheritance support."""
 
-    def __init__(self, config_dir: Optional[Union[str, Path]] = None):
+    def __init__(self, config_dir: str | Path | None = None):
         """Initialize the business configuration loader.
 
         Args:
@@ -43,7 +42,7 @@ class BusinessConfigLoader:
             )
 
         # Cache for loaded configurations to avoid reloading
-        self._config_cache: Dict[str, Dict[str, Any]] = {}
+        self._config_cache: dict[str, dict[str, Any]] = {}
 
         self.logger.info(
             f"Business configuration loader initialized with directory: {self.config_dir}"
@@ -54,7 +53,7 @@ class BusinessConfigLoader:
         return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
     @lru_cache(maxsize=128)
-    def load_config(self, config_path: str) -> Dict[str, Any]:
+    def load_config(self, config_path: str) -> dict[str, Any]:
         """Load a configuration file with composition and inheritance support.
 
         Args:
@@ -76,7 +75,7 @@ class BusinessConfigLoader:
                 )
 
             # Load base configuration
-            with open(full_path, "r") as f:
+            with open(full_path) as f:
                 config = yaml.safe_load(f)
 
             if not isinstance(config, dict):
@@ -97,14 +96,13 @@ class BusinessConfigLoader:
         except Exception as e:
             if isinstance(e, BusinessConfigurationError):
                 raise
-            else:
-                raise BusinessConfigurationError(
-                    f"Error loading configuration {config_path}: {str(e)}"
-                )
+            raise BusinessConfigurationError(
+                f"Error loading configuration {config_path}: {e!s}"
+            )
 
     def _process_inheritance(
-        self, config: Dict[str, Any], current_path: str
-    ) -> Dict[str, Any]:
+        self, config: dict[str, Any], current_path: str
+    ) -> dict[str, Any]:
         """Process inheritance directives in configuration.
 
         Args:
@@ -145,7 +143,7 @@ class BusinessConfigLoader:
 
     def _load_parent_config(
         self, parent_path: str, current_path: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Load a parent configuration with support for section references.
 
         Args:
@@ -180,7 +178,7 @@ class BusinessConfigLoader:
 
         return parent_config
 
-    def _process_composition(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def _process_composition(self, config: dict[str, Any]) -> dict[str, Any]:
         """Process composition references throughout the configuration.
 
         Args:
@@ -196,16 +194,15 @@ class BusinessConfigLoader:
                     # Resolve reference
                     ref_path = value[5:]  # Remove '$ref:' prefix
                     result[key] = self._resolve_reference(ref_path)
-                elif isinstance(value, (dict, list)):
+                elif isinstance(value, dict | list):
                     # Recursively process nested structures
                     result[key] = self._process_composition(value)
                 else:
                     result[key] = value
             return result
-        elif isinstance(config, list):
+        if isinstance(config, list):
             return [self._process_composition(item) for item in config]
-        else:
-            return config
+        return config
 
     def _resolve_reference(self, ref_path: str) -> Any:
         """Resolve a configuration reference.
@@ -239,8 +236,8 @@ class BusinessConfigLoader:
         return current
 
     def _merge_configs(
-        self, base: Dict[str, Any], override: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, base: dict[str, Any], override: dict[str, Any]
+    ) -> dict[str, Any]:
         """Merge two configuration dictionaries.
 
         Args:
@@ -266,7 +263,7 @@ class BusinessConfigLoader:
 
         return result
 
-    def get_asset_config(self, asset_class: str) -> Dict[str, Any]:
+    def get_asset_config(self, asset_class: str) -> dict[str, Any]:
         """Get configuration for a specific asset class.
 
         Args:
@@ -281,7 +278,7 @@ class BusinessConfigLoader:
         config_path = f"assets/{asset_class}.yaml"
         return self.load_config(config_path)
 
-    def get_trading_config(self, config_name: str) -> Dict[str, Any]:
+    def get_trading_config(self, config_name: str) -> dict[str, Any]:
         """Get trading-related business configuration.
 
         Args:
@@ -296,7 +293,7 @@ class BusinessConfigLoader:
         config_path = f"trading/{config_name}.yaml"
         return self.load_config(config_path)
 
-    def get_portfolio_config(self, portfolio_name: str) -> Dict[str, Any]:
+    def get_portfolio_config(self, portfolio_name: str) -> dict[str, Any]:
         """Get portfolio business configuration.
 
         Args:
@@ -311,7 +308,7 @@ class BusinessConfigLoader:
         config_path = f"portfolios/{portfolio_name}.yaml"
         return self.load_config(config_path)
 
-    def get_asset_specific_defaults(self, asset_symbol: str) -> Dict[str, Any]:
+    def get_asset_specific_defaults(self, asset_symbol: str) -> dict[str, Any]:
         """Get asset-specific default parameters.
 
         Args:
@@ -339,7 +336,7 @@ class BusinessConfigLoader:
         # Return defaults section
         return asset_config.get("defaults", {})
 
-    def _find_asset_class(self, symbol: str, mappings: Dict[str, Any]) -> Optional[str]:
+    def _find_asset_class(self, symbol: str, mappings: dict[str, Any]) -> str | None:
         """Find the asset class for a given symbol.
 
         Args:
@@ -358,7 +355,7 @@ class BusinessConfigLoader:
 
         return None
 
-    def _symbol_in_mappings(self, symbol: str, mappings: Union[Dict, List]) -> bool:
+    def _symbol_in_mappings(self, symbol: str, mappings: dict | list) -> bool:
         """Check if symbol exists in mapping structure.
 
         Args:
@@ -370,7 +367,7 @@ class BusinessConfigLoader:
         """
         if isinstance(mappings, list):
             return symbol in mappings
-        elif isinstance(mappings, dict):
+        if isinstance(mappings, dict):
             for value in mappings.values():
                 if self._symbol_in_mappings(symbol, value):
                     return True
@@ -382,7 +379,7 @@ class BusinessConfigLoader:
         self.load_config.cache_clear()
         self.logger.info("Configuration cache cleared")
 
-    def list_available_configs(self) -> Dict[str, List[str]]:
+    def list_available_configs(self) -> dict[str, list[str]]:
         """List all available configuration files by category.
 
         Returns:
@@ -390,7 +387,7 @@ class BusinessConfigLoader:
         """
         configs = {"trading": [], "assets": [], "portfolios": []}
 
-        for category in configs.keys():
+        for category in configs:
             category_dir = self.config_dir / category
             if category_dir.exists():
                 for config_file in category_dir.glob("*.yaml"):
@@ -404,7 +401,7 @@ _business_config_loader = None
 
 
 def get_business_config_loader(
-    config_dir: Optional[Union[str, Path]] = None
+    config_dir: str | Path | None = None,
 ) -> BusinessConfigLoader:
     """Get or create the singleton BusinessConfigLoader instance.
 
@@ -423,7 +420,7 @@ def get_business_config_loader(
 # Convenience functions for common operations
 
 
-def load_business_config(config_path: str) -> Dict[str, Any]:
+def load_business_config(config_path: str) -> dict[str, Any]:
     """Load a business configuration file.
 
     Args:
@@ -436,7 +433,7 @@ def load_business_config(config_path: str) -> Dict[str, Any]:
     return loader.load_config(config_path)
 
 
-def get_asset_defaults(asset_symbol: str) -> Dict[str, Any]:
+def get_asset_defaults(asset_symbol: str) -> dict[str, Any]:
     """Get default parameters for an asset.
 
     Args:
@@ -449,7 +446,7 @@ def get_asset_defaults(asset_symbol: str) -> Dict[str, Any]:
     return loader.get_asset_specific_defaults(asset_symbol)
 
 
-def get_risk_management_config() -> Dict[str, Any]:
+def get_risk_management_config() -> dict[str, Any]:
     """Get risk management business configuration.
 
     Returns:
@@ -459,7 +456,7 @@ def get_risk_management_config() -> Dict[str, Any]:
     return loader.get_trading_config("risk_management")
 
 
-def get_strategy_defaults() -> Dict[str, Any]:
+def get_strategy_defaults() -> dict[str, Any]:
     """Get strategy default business configuration.
 
     Returns:
@@ -469,7 +466,7 @@ def get_strategy_defaults() -> Dict[str, Any]:
     return loader.get_trading_config("strategy_defaults")
 
 
-def get_spds_defaults() -> Dict[str, Any]:
+def get_spds_defaults() -> dict[str, Any]:
     """Get SPDS business configuration.
 
     Returns:
@@ -479,7 +476,7 @@ def get_spds_defaults() -> Dict[str, Any]:
     return loader.get_trading_config("spds_defaults")
 
 
-def get_market_parameters() -> Dict[str, Any]:
+def get_market_parameters() -> dict[str, Any]:
     """Get market parameters business configuration.
 
     Returns:

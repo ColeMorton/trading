@@ -1,4 +1,4 @@
-from typing import Callable, Dict
+from collections.abc import Callable
 
 import numpy as np
 import pandas as pd
@@ -8,7 +8,7 @@ from app.strategies.ma_cross.tools.heatmap_figures import create_heatmap_figures
 from app.utils import get_filename, get_path
 
 
-def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> None:
+def plot_heatmap(portfolio_data: pl.DataFrame, config: dict, log: Callable) -> None:
     """
     Plot heatmaps of MA cross strategy performance from portfolio data.
 
@@ -179,5 +179,5 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
         log("Heatmap generation completed")
 
     except Exception as e:
-        log(f"Error generating heatmaps: {str(e)}", "error")
+        log(f"Error generating heatmaps: {e!s}", "error")
         raise

@@ -10,10 +10,9 @@ Classes:
     WinRateType: Enumeration of different win rate calculation types
 """
 
-import os
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Union
+import os
 
 import numpy as np
 import pandas as pd
@@ -193,7 +192,7 @@ class WinRateCalculator:
 
     def compare_calculations(
         self, returns: np.ndarray, signals: np.ndarray | None = None
-    ) -> Dict[str, WinRateComponents]:
+    ) -> dict[str, WinRateComponents]:
         """
         Compare different win rate calculation methods.
 
@@ -281,18 +280,18 @@ class WinRateCalculator:
             signals = df[signal_col].values
             return self.calculate_signal_win_rate(returns, signals)
 
-        elif method == WinRateType.WEIGHTED:
+        if method == WinRateType.WEIGHTED:
             if weight_col is None or weight_col not in df.columns:
                 raise ValueError(f"Weight column '{weight_col}' not found in DataFrame")
             weights = df[weight_col].values
             return self.calculate_weighted_win_rate(returns, weights)
 
-        else:  # TRADE
-            return self.calculate_trade_win_rate(returns)
+        # TRADE
+        return self.calculate_trade_win_rate(returns)
 
 
 def calculate_win_rate_standardized(
-    returns: Union[np.ndarray, List[float]],
+    returns: np.ndarray | list[float],
     method: str = "trade",
     signals: np.ndarray | None = None,
     include_zeros: bool = False,

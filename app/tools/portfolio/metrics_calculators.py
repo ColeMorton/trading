@@ -4,12 +4,12 @@ This module provides functions for calculating breadth metrics,
 summary statistics, and aggregated performance metrics.
 """
 
-from typing import Any, Dict
+from typing import Any
 
 import pandas as pd
 
 
-def update_breadth_metrics(df: pd.DataFrame, breadth_metrics: Dict, file_info: Dict):
+def update_breadth_metrics(df: pd.DataFrame, breadth_metrics: dict, file_info: dict):
     """Update breadth metrics across all portfolios.
 
     Args:
@@ -73,7 +73,7 @@ def update_breadth_metrics(df: pd.DataFrame, breadth_metrics: Dict, file_info: D
 
 
 def calculate_summary_stats(
-    aggregation_results: Dict[str, Any], processed_files: int, total_rows: int
+    aggregation_results: dict[str, Any], processed_files: int, total_rows: int
 ):
     """Calculate final summary statistics for aggregation.
 
@@ -114,4 +114,3 @@ def calculate_summary_stats(
                 summary["overall_avg_return"] = sum(
                     breadth["average_metrics"]["return"]
                 ) / len(breadth["average_metrics"]["return"])
-

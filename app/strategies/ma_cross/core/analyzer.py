@@ -5,9 +5,10 @@ This module provides the core analysis logic for MA Cross strategy,
 decoupled from file I/O and specific execution contexts.
 """
 
-import time
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, List, Optional
+import time
+from typing import Any
 
 from app.strategies.ma_cross.core.models import (
     AnalysisConfig,
@@ -29,7 +30,7 @@ class MACrossAnalyzer:
     independent of how it's invoked (CLI, API, etc.).
     """
 
-    def __init__(self, log: Optional[Callable] | None = None):
+    def __init__(self, log: Callable | None | None = None):
         """
         Initialize the analyzer.
 
@@ -121,14 +122,14 @@ class MACrossAnalyzer:
             )
 
         except Exception as e:
-            self._log(f"Error analyzing {config.ticker}: {str(e)}", "error")
+            self._log(f"Error analyzing {config.ticker}: {e!s}", "error")
             return TickerResult(
                 ticker=config.ticker,
                 error=str(e),
                 processing_time=time.time() - start_time,
             )
 
-    def analyze_multiple(self, configs: List[AnalysisConfig]) -> AnalysisResult:
+    def analyze_multiple(self, configs: list[AnalysisConfig]) -> AnalysisResult:
         """
         Analyze multiple tickers with their configurations.
 
@@ -152,7 +153,7 @@ class MACrossAnalyzer:
         )
 
     def analyze_portfolio(
-        self, tickers: List[str], base_config: AnalysisConfig
+        self, tickers: list[str], base_config: AnalysisConfig
     ) -> AnalysisResult:
         """
         Analyze a portfolio of tickers with the same base configuration.
@@ -181,7 +182,7 @@ class MACrossAnalyzer:
 
         return self.analyze_multiple(configs)
 
-    def _fetch_data(self, config: AnalysisConfig) -> Optional[Any]:
+    def _fetch_data(self, config: AnalysisConfig) -> Any | None:
         """Fetch price data for analysis."""
         try:
             config_dict = config.to_dict()
@@ -198,10 +199,10 @@ class MACrossAnalyzer:
             return data
 
         except Exception as e:
-            self._log(f"Error fetching data for {config.ticker}: {str(e)}", "error")
+            self._log(f"Error fetching data for {config.ticker}: {e!s}", "error")
             return None
 
-    def _analyze_signals(self, data: Any, config: AnalysisConfig) -> List[SignalInfo]:
+    def _analyze_signals(self, data: Any, config: AnalysisConfig) -> list[SignalInfo]:
         """Analyze data for MA Cross signals."""
         signals = []
 
@@ -221,12 +222,12 @@ class MACrossAnalyzer:
             return signals
 
         except Exception as e:
-            self._log(f"Error analyzing signals: {str(e)}", "error")
+            self._log(f"Error analyzing signals: {e!s}", "error")
             return []
 
     def _check_single_window(
         self, data: Any, fast_period: int, slow_period: int, config: AnalysisConfig
-    ) -> Optional[SignalInfo]:
+    ) -> SignalInfo | None:
         """Check for signal with specific window combination."""
         try:
             # Clone data to avoid modifying original
@@ -282,13 +283,13 @@ class MACrossAnalyzer:
 
         except Exception as e:
             self._log(
-                f"Error checking window {fast_period}/{slow_period}: {str(e)}", "error"
+                f"Error checking window {fast_period}/{slow_period}: {e!s}", "error"
             )
             return None
 
     def _scan_window_permutations(
         self, data: Any, config: AnalysisConfig
-    ) -> List[SignalInfo]:
+    ) -> list[SignalInfo]:
         """Scan all window permutations for signals."""
         signals = []
 

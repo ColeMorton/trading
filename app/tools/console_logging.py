@@ -6,15 +6,14 @@ implementing Rich-based console output with proper categorization and visual hie
 Enhanced with integrated performance monitoring for strategy execution optimization.
 """
 
+from contextlib import contextmanager
+from datetime import datetime
 import logging
 import threading
 import time
-from contextlib import contextmanager
-from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 import psutil
-from rich.align import Align
 from rich.box import ROUNDED
 from rich.console import Console
 from rich.layout import Layout
@@ -31,7 +30,6 @@ from rich.progress import (
 from rich.rule import Rule
 from rich.status import Status
 from rich.table import Table
-from rich.text import Text
 
 from .setup_logging import setup_logging
 
@@ -46,7 +44,7 @@ class ConsoleLogger:
 
     def __init__(
         self,
-        console: Optional[Console] = None,
+        console: Console | None = None,
         show_time: bool = False,
         verbose: bool = False,
         quiet: bool = True,
@@ -168,7 +166,7 @@ class ConsoleLogger:
         """Create a live updating table context."""
         return Live(table, console=self.console, refresh_per_second=4)
 
-    def data_summary_table(self, ticker: str, data_info: Dict[str, Any]) -> None:
+    def data_summary_table(self, ticker: str, data_info: dict[str, Any]) -> None:
         """Display market data summary in a formatted table."""
         if self.quiet:
             return
@@ -190,7 +188,7 @@ class ConsoleLogger:
             table.add_row("Price Range", data_info["price_range"])
         if "avg_volume" in data_info:
             volume = data_info["avg_volume"]
-            if isinstance(volume, (int, float)):
+            if isinstance(volume, int | float):
                 table.add_row("Avg Volume", f"{volume:,.0f}")
             else:
                 table.add_row("Avg Volume", str(volume))
@@ -202,7 +200,7 @@ class ConsoleLogger:
         self.console.print(table)
 
     def strategy_header(
-        self, ticker: str, strategy_types: List[str], profile: str = None
+        self, ticker: str, strategy_types: list[str], profile: str | None = None
     ) -> None:
         """Display strategy analysis header with enhanced formatting."""
         if self.quiet:
@@ -229,8 +227,8 @@ class ConsoleLogger:
     def results_summary_table(
         self,
         portfolios_generated: int,
-        best_config: str = None,
-        files_exported: int = None,
+        best_config: str | None = None,
+        files_exported: int | None = None,
     ) -> None:
         """Display analysis results summary."""
         if self.quiet:
@@ -288,8 +286,8 @@ class ConsoleLoggingContext:
         log_file: str,
         level: int = logging.INFO,
         mode: str = "w",
-        log_subdir: Optional[str] = None,
-        console_options: Optional[Dict[str, Any]] = None,
+        log_subdir: str | None = None,
+        console_options: dict[str, Any] | None = None,
     ):
         """
         Initialize console logging context.
@@ -358,7 +356,7 @@ def console_logging_context(
     log_file: str,
     level: int = logging.INFO,
     mode: str = "w",
-    log_subdir: Optional[str] = None,
+    log_subdir: str | None = None,
     verbose: bool = False,
     quiet: bool = True,
     show_time: bool = False,
@@ -412,7 +410,7 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
 
     def __init__(
         self,
-        console: Optional[Console] = None,
+        console: Console | None = None,
         show_time: bool = False,
         verbose: bool = False,
         quiet: bool = True,
@@ -497,7 +495,7 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
         self,
         phase_name: str,
         description: str = "",
-        estimated_duration: Optional[float] = None,
+        estimated_duration: float | None = None,
     ):
         """Start tracking a new execution phase."""
         if self.performance_mode == "minimal":
@@ -549,7 +547,7 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
         if self.show_resources:
             self._display_resource_status()
 
-    def end_phase(self, success: bool = True, details: Optional[Dict[str, Any]] = None):
+    def end_phase(self, success: bool = True, details: dict[str, Any] | None = None):
         """End the current execution phase."""
         if not self._current_phase or self.performance_mode == "minimal":
             return
@@ -594,7 +592,7 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
         phase_name: str,
         duration: float,
         memory_delta: float,
-        details: Optional[Dict[str, Any]],
+        details: dict[str, Any] | None,
     ):
         """Enhanced bottleneck detection with pattern analysis and actionable insights."""
         thresholds = self._phase_thresholds.get(
@@ -754,7 +752,7 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
         self._display_execution_summary(total_time)
 
     def _display_phase_performance(
-        self, phase_name: str, duration: float, details: Optional[Dict[str, Any]]
+        self, phase_name: str, duration: float, details: dict[str, Any] | None
     ):
         """Display detailed phase performance information."""
         if self.quiet:
@@ -800,7 +798,7 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
         # Show additional details if available
         if details and self.performance_mode == "detailed":
             for key, value in details.items():
-                if isinstance(value, (int, float)):
+                if isinstance(value, int | float):
                     self.console.print(f"   [dim]• {key}: {value:,.2f}[/dim]")
                 else:
                     self.console.print(f"   [dim]• {key}: {value}[/dim]")
@@ -892,7 +890,7 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
 
                 # Show top recommendations
                 if alert.get("recommendations"):
-                    self.console.print(f"   [yellow]💡 Recommended Actions:[/yellow]")
+                    self.console.print("   [yellow]💡 Recommended Actions:[/yellow]")
                     for i, rec in enumerate(
                         alert["recommendations"][:2], 1
                     ):  # Top 2 recommendations
@@ -906,7 +904,9 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
                     f"   [yellow]⚠️ {alert['phase'].replace('_', ' ').title()}: {alert['duration']:.1f}s[/yellow]"
                 )
                 if alert.get("recommendations") and self.performance_mode == "detailed":
-                    self.console.print(f"   [dim]💡 {alert['recommendations'][0]}[/dim]")
+                    self.console.print(
+                        f"   [dim]💡 {alert['recommendations'][0]}[/dim]"
+                    )
 
     def _display_bottleneck_patterns(self):
         """Display detected bottleneck patterns for system optimization."""
@@ -923,7 +923,9 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
                 self.console.print(
                     f"   [dim]   • Average duration: {pattern['avg_duration']:.1f}s[/dim]"
                 )
-                self.console.print(f"   [yellow]💡 {pattern['recommendation']}[/yellow]")
+                self.console.print(
+                    f"   [yellow]💡 {pattern['recommendation']}[/yellow]"
+                )
                 self.console.print()
 
     def _display_optimization_recommendations(self):
@@ -1146,7 +1148,7 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
         self,
         phase_name: str,
         description: str = "",
-        estimated_duration: Optional[float] = None,
+        estimated_duration: float | None = None,
     ):
         """Create a performance monitoring context for a phase."""
         return PerformancePhaseContext(
@@ -1445,7 +1447,7 @@ class PerformancePhaseContext:
         logger: PerformanceAwareConsoleLogger,
         phase_name: str,
         description: str,
-        estimated_duration: Optional[float],
+        estimated_duration: float | None,
     ):
         self.logger = logger
         self.phase_name = phase_name

@@ -2,7 +2,7 @@
 
 import logging
 import logging.config
-from typing import Any, Dict, Optional
+from typing import Any
 
 from app.core.interfaces import ConfigurationInterface, LoggingInterface
 
@@ -10,9 +10,9 @@ from app.core.interfaces import ConfigurationInterface, LoggingInterface
 class LoggingService(LoggingInterface):
     """Concrete implementation of logging service."""
 
-    def __init__(self, config: Optional[ConfigurationInterface] | None = None):
+    def __init__(self, config: ConfigurationInterface | None | None = None):
         self._config = config
-        self._loggers: Dict[str, logging.Logger] = {}
+        self._loggers: dict[str, logging.Logger] = {}
         self.configure()
 
     def get_logger(self, name: str) -> logging.Logger:
@@ -21,7 +21,7 @@ class LoggingService(LoggingInterface):
             self._loggers[name] = logging.getLogger(name)
         return self._loggers[name]
 
-    def configure(self, config: Optional[Dict[str, Any]] = None) -> None:
+    def configure(self, config: dict[str, Any] | None = None) -> None:
         """Configure logging settings."""
         if config and "version" in config:
             logging.config.dictConfig(config)

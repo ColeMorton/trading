@@ -5,12 +5,11 @@ Tests single ticker and multi-ticker execution with different USE_CURRENT settin
 and verifies CSV export paths.
 """
 
+from datetime import datetime
 import os
+from pathlib import Path
 import shutil
 import tempfile
-from datetime import datetime
-from pathlib import Path
-from typing import Dict, List, Union
 
 import polars as pl
 
@@ -44,7 +43,7 @@ class TestMACDMultiTicker:
             shutil.rmtree(self.temp_dir)
 
     def _create_test_config(
-        self, ticker: Union[str, List[str]], use_current: bool = True, **kwargs
+        self, ticker: str | list[str], use_current: bool = True, **kwargs
     ) -> PortfolioConfig:
         """Create a test configuration."""
         config: PortfolioConfig = {
@@ -74,7 +73,7 @@ class TestMACDMultiTicker:
         config.update(kwargs)
         return config
 
-    def _verify_csv_structure(self, csv_path: Path) -> Dict:
+    def _verify_csv_structure(self, csv_path: Path) -> dict:
         """Verify CSV file structure and return summary."""
         assert csv_path.exists(), f"CSV file not found: {csv_path}"
 
@@ -98,9 +97,9 @@ class TestMACDMultiTicker:
         return {
             "row_count": len(df),
             "ticker": df["Ticker"].unique().to_list() if len(df) > 0 else [],
-            "strategies": df["Strategy Type"].unique().to_list()
-            if len(df) > 0
-            else [],  # Updated column name
+            "strategies": (
+                df["Strategy Type"].unique().to_list() if len(df) > 0 else []
+            ),  # Updated column name
             "min_trades": df["Total Trades"].min() if len(df) > 0 else 0,
             "max_return": df["Total Return [%]"].max() if len(df) > 0 else 0,
         }
@@ -114,11 +113,11 @@ class TestMACDMultiTicker:
 
         # Verify results structure
         assert success is not None
-        assert success == True
+        assert success is True
 
         # Check for portfolio CSV
         date_str = datetime.now().strftime("%Y%m%d")
-        portfolio_pattern = f"AAPL_D_MACD.csv"
+        portfolio_pattern = "AAPL_D_MACD.csv"
 
         # Look for files in both dated and root directories
         found_portfolio = False
@@ -148,10 +147,10 @@ class TestMACDMultiTicker:
 
         # Verify results
         assert success is not None
-        assert success == True
+        assert success is True
 
         # Check for portfolio CSV
-        portfolio_pattern = f"MSFT_D_MACD.csv"
+        portfolio_pattern = "MSFT_D_MACD.csv"
 
         # Look for files
         found_portfolio = False
@@ -185,7 +184,7 @@ class TestMACDMultiTicker:
 
         # Verify results for both tickers
         assert success is not None
-        assert success == True
+        assert success is True
 
         # Check for portfolio CSVs for each ticker
         date_str = datetime.now().strftime("%Y%m%d")
@@ -217,7 +216,7 @@ class TestMACDMultiTicker:
 
         # Verify results
         assert success is not None
-        assert success == True
+        assert success is True
 
         # Check for portfolio CSVs
         found_tickers = []
@@ -244,16 +243,14 @@ class TestMACDMultiTicker:
         config = self._create_test_config("SPY", use_current=True)
 
         # Run strategy with filtering
-        success = run(config)
+        run(config)
 
         # Check if filtered directory has files
         date_str = datetime.now().strftime("%Y%m%d")
         filtered_paths = [self.filtered_dir / date_str, self.filtered_dir]
 
-        found_filtered = False
         for path in filtered_paths:
             if path.exists() and any(path.iterdir()):
-                found_filtered = True
                 break
 
         # Filtered portfolios may or may not exist depending on results
@@ -266,11 +263,11 @@ class TestMACDMultiTicker:
         config = self._create_test_config(["AAPL", "MSFT", "GOOGL"], use_current=True)
 
         # Run strategy
-        success = run(config)
+        run(config)
 
         # Check best portfolios directory
         date_str = datetime.now().strftime("%Y%m%d")
-        best_paths = [self.best_dir / date_str, self.best_dir]
+        [self.best_dir / date_str, self.best_dir]
 
         # Best portfolios may be created by separate aggregation process
         # Just verify directory exists

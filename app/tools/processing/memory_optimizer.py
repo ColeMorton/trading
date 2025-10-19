@@ -6,18 +6,20 @@ garbage collection management, and memory usage monitoring for efficient
 data processing in trading strategies.
 """
 
+from collections import deque
+from collections.abc import Callable
+from contextlib import contextmanager
+from datetime import datetime
 import gc
 import logging
 import sys
+from typing import Any, Generic, TypeVar
 import weakref
-from collections import deque
-from contextlib import contextmanager
-from datetime import datetime
-from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar
 
 import pandas as pd
 import polars as pl
 import psutil
+
 
 T = TypeVar("T")
 
@@ -67,7 +69,7 @@ class ObjectPool(Generic[T]):
             self._in_use.discard(obj)
 
             # Clear data if it's a DataFrame
-            if isinstance(obj, (pd.DataFrame, pl.DataFrame)):
+            if isinstance(obj, pd.DataFrame | pl.DataFrame):
                 self._clear_dataframe(obj)
 
             if len(self._pool) < self.max_size:
@@ -86,7 +88,7 @@ class ObjectPool(Generic[T]):
             # Polars DataFrames are immutable, so we can't clear them
             pass
 
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self) -> dict[str, int]:
         """Get pool usage statistics."""
         return {
             **self._stats,
@@ -128,7 +130,7 @@ class DataFramePool:
         with self.polars_pool.borrow() as df:
             yield df
 
-    def get_stats(self) -> Dict[str, Dict[str, int]]:
+    def get_stats(self) -> dict[str, dict[str, int]]:
         """Get statistics for all pools."""
         return {
             "pandas": self.pandas_pool.get_stats(),
@@ -190,7 +192,7 @@ class MemoryMonitor:
 
         return False
 
-    def get_memory_info(self) -> Dict[str, float]:
+    def get_memory_info(self) -> dict[str, float]:
         """Get current memory usage information."""
         memory_info = self._process.memory_info()
         return {
@@ -342,7 +344,7 @@ class MemoryOptimizer:
 
         logger.info("Memory caches cleared and garbage collection triggered")
 
-    def get_optimization_stats(self) -> Dict[str, Any]:
+    def get_optimization_stats(self) -> dict[str, Any]:
         """Get comprehensive optimization statistics."""
         stats = {
             "timestamp": datetime.now().isoformat(),
@@ -360,7 +362,7 @@ class MemoryOptimizer:
 
 
 # Global memory optimizer instance
-_global_optimizer: Optional[MemoryOptimizer] = None
+_global_optimizer: MemoryOptimizer | None = None
 
 
 def get_memory_optimizer() -> MemoryOptimizer:

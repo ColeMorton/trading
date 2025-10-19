@@ -5,11 +5,12 @@ Phase 5: Complete Integration Validation
 This script validates all concurrency calculation fixes are working together correctly.
 """
 
+from datetime import datetime
 import json
 import os
-import sys
-from datetime import datetime
 from pathlib import Path
+import sys
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -203,7 +204,7 @@ class IntegrationValidator:
                 if not check_results["valid"]:
                     if "message" in check_results:
                         print(f"  {check_results['message']}")
-                    if "issues" in check_results and check_results["issues"]:
+                    if check_results.get("issues"):
                         for issue in check_results["issues"][:5]:  # Show first 5 issues
                             print(f"  - {issue}")
                         if len(check_results["issues"]) > 5:

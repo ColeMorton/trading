@@ -21,9 +21,8 @@ Key test scenarios:
 - Error handling for missing files/profiles
 """
 
-import tempfile
-from datetime import datetime
 from pathlib import Path
+import tempfile
 from unittest.mock import Mock, patch
 
 import pandas as pd

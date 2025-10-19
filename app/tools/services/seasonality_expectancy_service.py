@@ -1,10 +1,9 @@
 """Service layer for seasonality expectancy analysis."""
 
-import warnings
 from calendar import monthrange
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -18,6 +17,7 @@ from rich.progress import (
 )
 
 from app.cli.models.seasonality import SeasonalityExpectancyConfig
+
 
 warnings.filterwarnings("ignore")
 
@@ -110,9 +110,9 @@ class SeasonalityExpectancyService:
                         self.results.append(result)
                 except Exception as e:
                     self.console.print(
-                        f"⚠️  [yellow]Warning: Error processing {csv_file.name}: {str(e)}[/yellow]"
+                        f"⚠️  [yellow]Warning: Error processing {csv_file.name}: {e!s}[/yellow]"
                     )
-                    self.skipped_tickers.append((ticker, f"Processing error: {str(e)}"))
+                    self.skipped_tickers.append((ticker, f"Processing error: {e!s}"))
                     continue
 
                 progress.advance(task)
@@ -146,7 +146,7 @@ class SeasonalityExpectancyService:
 
     def _calculate_time_weights(
         self, start_date: datetime.date, end_date: datetime.date
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Calculate time weights for different periods based on actual calendar days.
 
         Args:
@@ -201,15 +201,15 @@ class SeasonalityExpectancyService:
         return weights
 
     def _analyze_ticker_file(
-        self, csv_file: Path, ticker: str, time_weights: Dict[str, float]
-    ) -> Optional[Dict]:
+        self, csv_file: Path, ticker: str, time_weights: dict[str, float]
+    ) -> dict | None:
         """Analyze a single ticker's seasonality file."""
 
         # Load data
         try:
             df = pd.read_csv(csv_file)
         except Exception as e:
-            self.skipped_tickers.append((ticker, f"Failed to read file: {str(e)}"))
+            self.skipped_tickers.append((ticker, f"Failed to read file: {e!s}"))
             return None
 
         # Calculate weighted return based on time periods
@@ -361,7 +361,7 @@ class SeasonalityExpectancyService:
         """Classify ticker into asset class."""
         if "-USD" in ticker:
             return "Crypto"
-        elif ticker in [
+        if ticker in [
             "SPY",
             "QQQ",
             "IWM",
@@ -378,21 +378,19 @@ class SeasonalityExpectancyService:
             "XLC",
         ]:
             return "ETF"
-        elif ticker == "GLD":
+        if ticker == "GLD":
             return "Commodity"
-        else:
-            return "Stock"
+        return "Stock"
 
     def _calculate_confidence(self, significance: float, sample_size: int) -> str:
         """Calculate confidence level."""
         if significance > 0.8 and sample_size > 200:
             return "Very High"
-        elif significance > 0.7 and sample_size > 100:
+        if significance > 0.7 and sample_size > 100:
             return "High"
-        elif significance > 0.6 and sample_size > 50:
+        if significance > 0.6 and sample_size > 50:
             return "Medium"
-        else:
-            return "Low"
+        return "Low"
 
     def generate_csv_report(self, results_df: pd.DataFrame) -> Path:
         """Generate CSV report and save to current directory.
@@ -474,7 +472,7 @@ class SeasonalityExpectancyService:
             f"- **Period**: {start_date.strftime('%B %d, %Y')} - {end_date.strftime('%B %d, %Y')} ({self.config.days}-day hold)",
             f"- **Tickers Analyzed**: {len(results_df)} tickers met quality criteria",
             f"- **Top Opportunities**: {len(top_results)} highest expectancy tickers shown",
-            f"- **Methodology**: Risk-adjusted expectancy with statistical significance filters",
+            "- **Methodology**: Risk-adjusted expectancy with statistical significance filters",
             f"- **Quality Filters**: Min sample size {self.config.min_sample_size}, min significance {self.config.min_significance}",
             "",
             "---",
@@ -579,16 +577,15 @@ class SeasonalityExpectancyService:
         """Generate insight text for a ticker."""
         if row["asset_class"] == "Crypto":
             return f"🚀 Strong crypto pattern - {row['expected_return']:+.2f}% expected"
-        elif row["expected_return"] > 0.1:
+        if row["expected_return"] > 0.1:
             return (
                 f"📈 Above-average returns with {row['confidence'].lower()} confidence"
             )
-        elif row["win_rate"] > 0.55:
+        if row["win_rate"] > 0.55:
             return f"✅ High win rate ({row['win_rate']:.1%}) pattern"
-        elif row["confidence"] in ["High", "Very High"]:
-            return f"🔒 High statistical confidence"
-        else:
-            return f"⚖️ Balanced risk-return profile"
+        if row["confidence"] in ["High", "Very High"]:
+            return "🔒 High statistical confidence"
+        return "⚖️ Balanced risk-return profile"
 
     def _get_best_stock(self, results_df: pd.DataFrame) -> str:
         """Get the best performing traditional stock."""

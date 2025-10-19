@@ -5,17 +5,18 @@ This module provides standardized error handling utilities for the application,
 including custom exceptions, validation functions, and recovery mechanisms.
 """
 
-import traceback
+from collections.abc import Callable
 from datetime import datetime
 from functools import wraps
-from pathlib import Path
-from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar, Union
+import traceback
+from typing import Any, Generic, TypeVar
 
 import numpy as np
 import pandas as pd
 import polars as pl
 
 from app.tools.setup_logging import setup_logging
+
 
 # Type variable for generic functions
 T = TypeVar("T")
@@ -24,7 +25,7 @@ T = TypeVar("T")
 class SignalProcessingError(Exception):
     """Base exception for signal processing errors."""
 
-    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+    def __init__(self, message: str, details: dict[str, Any] | None = None):
         """Initialize the exception.
 
         Args:
@@ -56,7 +57,7 @@ class RecoveryError(SignalProcessingError):
 class ErrorHandler:
     """Class for standardized error handling."""
 
-    def __init__(self, log: Optional[Callable[[str, str], None]] = None):
+    def __init__(self, log: Callable[[str, str], None] | None = None):
         """Initialize the ErrorHandler class.
 
         Args:
@@ -70,8 +71,8 @@ class ErrorHandler:
 
     def validate_dataframe(
         self,
-        df: Union[pd.DataFrame, pl.DataFrame],
-        required_columns: List[str],
+        df: pd.DataFrame | pl.DataFrame,
+        required_columns: list[str],
         name: str = "DataFrame",
     ) -> None:
         """Validate that a DataFrame has the required columns.
@@ -148,15 +149,15 @@ class ErrorHandler:
         except Exception as e:
             # Wrap other exceptions in DataValidationError
             raise DataValidationError(
-                f"Error validating {name}: {str(e)}",
+                f"Error validating {name}: {e!s}",
                 {"name": name, "error": str(e), "required_columns": required_columns},
             ) from e
 
     def validate_config(
         self,
-        config: Dict[str, Any],
-        required_keys: List[str],
-        optional_keys: Optional[List[str]] | None = None,
+        config: dict[str, Any],
+        required_keys: list[str],
+        optional_keys: list[str] | None | None = None,
         name: str = "Configuration",
     ) -> None:
         """Validate that a configuration dictionary has the required keys.
@@ -204,13 +205,13 @@ class ErrorHandler:
         except Exception as e:
             # Wrap other exceptions in ConfigurationError
             raise ConfigurationError(
-                f"Error validating {name}: {str(e)}",
+                f"Error validating {name}: {e!s}",
                 {"name": name, "error": str(e), "required_keys": required_keys},
             ) from e
 
     def validate_numeric_array(
         self,
-        array: Union[np.ndarray, List[float], pd.Series],
+        array: np.ndarray | list[float] | pd.Series,
         name: str = "Array",
         min_length: int = 1,
         allow_nan: bool = False,
@@ -276,15 +277,15 @@ class ErrorHandler:
         except Exception as e:
             # Wrap other exceptions in DataValidationError
             raise DataValidationError(
-                f"Error validating {name}: {str(e)}", {"name": name, "error": str(e)}
+                f"Error validating {name}: {e!s}", {"name": name, "error": str(e)}
             ) from e
 
     def handle_calculation_error(
         self,
         error: Exception,
-        context: Dict[str, Any],
-        fallback_value: Optional[T] | None = None,
-    ) -> Optional[T]:
+        context: dict[str, Any],
+        fallback_value: T | None | None = None,
+    ) -> T | None:
         """Handle a calculation error with detailed logging and optional recovery.
 
         Args:
@@ -310,7 +311,7 @@ class ErrorHandler:
         }
 
         # Log the error
-        self.log(f"Calculation error: {type(error).__name__}: {str(error)}", "error")
+        self.log(f"Calculation error: {type(error).__name__}: {error!s}", "error")
         self.log(f"Error context: {context}", "debug")
         self.log(f"Traceback: {tb_str}", "debug")
 
@@ -318,15 +319,14 @@ class ErrorHandler:
         if fallback_value is not None:
             self.log(f"Using fallback value: {fallback_value}", "warning")
             return fallback_value
-        else:
-            raise CalculationError(
-                f"Calculation error: {str(error)}", error_details
-            ) from error
+        raise CalculationError(
+            f"Calculation error: {error!s}", error_details
+        ) from error
 
     def with_error_handling(
         self,
-        fallback_value: Optional[T] | None = None,
-        context_provider: Optional[Callable[..., Dict[str, Any]]] = None,
+        fallback_value: T | None | None = None,
+        context_provider: Callable[..., dict[str, Any]] | None = None,
     ) -> Callable:
         """Decorator for functions to add standardized error handling.
 
@@ -371,8 +371,8 @@ class Result(Generic[T]):
 
     def __init__(
         self,
-        value: Optional[T] | None = None,
-        error: Optional[Exception] | None = None,
+        value: T | None | None = None,
+        error: Exception | None | None = None,
         success: bool = True,
     ):
         """Initialize the Result object.
@@ -437,10 +437,7 @@ class Result(Generic[T]):
         """
         if self.success:
             return self.value
-        else:
-            raise self.error or ValueError(
-                "Result is an error but no error was provided"
-            )
+        raise self.error or ValueError("Result is an error but no error was provided")
 
     def unwrap_or(self, default: T) -> T:
         """Get the value if successful, or a default value if not.
@@ -453,8 +450,7 @@ class Result(Generic[T]):
         """
         if self.success:
             return self.value
-        else:
-            return default
+        return default
 
     def map(self, func: Callable[[T], Any]) -> "Result":
         """Apply a function to the value if successful.
@@ -478,10 +474,10 @@ class Result(Generic[T]):
 
 
 def validate_dataframe(
-    df: Union[pd.DataFrame, pl.DataFrame],
-    required_columns: List[str],
+    df: pd.DataFrame | pl.DataFrame,
+    required_columns: list[str],
     name: str = "DataFrame",
-    log: Optional[Callable] | None = None,
+    log: Callable | None | None = None,
 ) -> bool:
     """Validate that a DataFrame has the required columns.
 
@@ -505,11 +501,11 @@ def validate_dataframe(
 
 
 def validate_config(
-    config: Dict[str, Any],
-    required_keys: List[str],
-    optional_keys: Optional[List[str]] | None = None,
+    config: dict[str, Any],
+    required_keys: list[str],
+    optional_keys: list[str] | None | None = None,
     name: str = "Configuration",
-    log: Optional[Callable] | None = None,
+    log: Callable | None | None = None,
 ) -> bool:
     """Validate that a configuration dictionary has the required keys.
 

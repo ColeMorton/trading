@@ -4,8 +4,9 @@ Quick check of risk contribution fix status.
 """
 
 import os
-import sys
 from pathlib import Path
+import sys
+
 
 # Set to use fixed calculation
 os.environ["USE_FIXED_RISK_CALC"] = "true"

@@ -10,14 +10,12 @@ Tests the new portfolio analysis service functionality including:
 - Error handling and edge cases
 """
 
+from pathlib import Path
 import tempfile
 import unittest
-from datetime import datetime
-from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pandas as pd
-import pytest
 
 from app.cli.services.portfolio_analysis_service import PortfolioAnalysisService
 

@@ -1,6 +1,6 @@
 """Type definitions for position sizing calculations."""
 
-from typing import Dict, TypedDict
+from typing import TypedDict
 
 
 class Asset(TypedDict):
@@ -46,4 +46,4 @@ class AssetMetrics(TypedDict):
     leveraged_value: float
     position_size: float
     allocation: float
-    var_cvar: Dict[float, tuple[float, float]]
+    var_cvar: dict[float, tuple[float, float]]

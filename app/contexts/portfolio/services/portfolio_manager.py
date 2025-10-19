@@ -5,12 +5,9 @@ Focused service for portfolio management operations.
 Extracted from the larger portfolio services for better maintainability.
 """
 
-import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Union
-
-import pandas as pd
-import polars as pl
+import logging
+from typing import Any
 
 from app.tools.config.statistical_analysis_config import SPDSConfig, get_spds_config
 
@@ -50,16 +47,16 @@ class PortfolioManager:
 
     def __init__(
         self,
-        config: Optional[SPDSConfig] = None,
-        logger: Optional[logging.Logger] = None,
+        config: SPDSConfig | None = None,
+        logger: logging.Logger | None = None,
     ):
         """Initialize the portfolio manager."""
         self.config = config or get_spds_config()
         self.logger = logger or logging.getLogger(__name__)
 
     def create_portfolio(
-        self, strategies: List[Dict[str, Any]], allocation_method: str = "equal_weight"
-    ) -> Dict[str, Any]:
+        self, strategies: list[dict[str, Any]], allocation_method: str = "equal_weight"
+    ) -> dict[str, Any]:
         """Create a portfolio from multiple strategies."""
         if not strategies:
             return {
@@ -87,7 +84,7 @@ class PortfolioManager:
             }
 
         except Exception as e:
-            self.logger.error(f"Portfolio creation failed: {str(e)}")
+            self.logger.error(f"Portfolio creation failed: {e!s}")
             return {
                 "strategies": strategies,
                 "allocation": {},
@@ -114,7 +111,7 @@ class PortfolioManager:
             )
 
         # Calculate position size based on risk per trade
-        risk_amount = account_balance * risk_per_trade
+        account_balance * risk_per_trade
 
         # Calculate position weight
         position_weight = 1.0 / strategy_count
@@ -135,9 +132,9 @@ class PortfolioManager:
 
     def optimize_portfolio(
         self,
-        strategies: List[Dict[str, Any]],
+        strategies: list[dict[str, Any]],
         optimization_method: str = "sharpe_ratio",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Optimize portfolio allocation."""
         if not strategies:
             return {
@@ -178,7 +175,7 @@ class PortfolioManager:
             }
 
         except Exception as e:
-            self.logger.error(f"Portfolio optimization failed: {str(e)}")
+            self.logger.error(f"Portfolio optimization failed: {e!s}")
             return {
                 "original_allocation": {},
                 "optimized_allocation": {},
@@ -188,8 +185,8 @@ class PortfolioManager:
             }
 
     def _calculate_allocations(
-        self, strategies: List[Dict[str, Any]], allocation_method: str
-    ) -> Dict[str, float]:
+        self, strategies: list[dict[str, Any]], allocation_method: str
+    ) -> dict[str, float]:
         """Calculate allocation weights for strategies."""
         if not strategies:
             return {}
@@ -244,7 +241,7 @@ class PortfolioManager:
         return allocations
 
     def _calculate_portfolio_metrics(
-        self, strategies: List[Dict[str, Any]], allocations: Dict[str, float]
+        self, strategies: list[dict[str, Any]], allocations: dict[str, float]
     ) -> PortfolioMetrics:
         """Calculate portfolio-level metrics."""
         if not strategies or not allocations:
@@ -288,20 +285,19 @@ class PortfolioManager:
         )
 
     def _optimize_allocation(
-        self, strategies: List[Dict[str, Any]], optimization_method: str
-    ) -> Dict[str, float]:
+        self, strategies: list[dict[str, Any]], optimization_method: str
+    ) -> dict[str, float]:
         """Optimize allocation using specified method."""
         # This is a simplified optimization
         # In practice, you would use more sophisticated optimization algorithms
 
         if optimization_method == "sharpe_ratio":
             return self._calculate_allocations(strategies, "risk_adjusted")
-        elif optimization_method == "return":
+        if optimization_method == "return":
             return self._calculate_allocations(strategies, "performance_weighted")
-        elif optimization_method == "equal_weight":
+        if optimization_method == "equal_weight":
             return self._calculate_allocations(strategies, "equal_weight")
-        else:
-            raise ValueError(f"Unsupported optimization method: {optimization_method}")
+        raise ValueError(f"Unsupported optimization method: {optimization_method}")
 
     def _calculate_improvement(
         self,
@@ -317,22 +313,21 @@ class PortfolioManager:
                 optimized_metrics.sharpe_ratio - current_metrics.sharpe_ratio
             ) / abs(current_metrics.sharpe_ratio)
 
-        elif optimization_method == "return":
+        if optimization_method == "return":
             if current_metrics.total_return == 0:
                 return float("inf") if optimized_metrics.total_return > 0 else 0.0
             return (
                 optimized_metrics.total_return - current_metrics.total_return
             ) / abs(current_metrics.total_return)
 
-        else:
-            return 0.0
+        return 0.0
 
     def rebalance_portfolio(
         self,
-        current_positions: Dict[str, float],
-        target_allocation: Dict[str, float],
+        current_positions: dict[str, float],
+        target_allocation: dict[str, float],
         total_portfolio_value: float,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate rebalancing trades needed."""
         rebalancing_trades = {}
 

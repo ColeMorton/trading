@@ -5,8 +5,8 @@ This module handles the processing of portfolio data for single tickers,
 including loading existing data and analyzing parameter sensitivity.
 """
 
+from collections.abc import Callable
 import os
-from typing import Callable, Optional
 
 import numpy as np
 import polars as pl
@@ -19,7 +19,7 @@ from app.tools.strategy.sensitivity_analysis import analyze_parameter_combinatio
 
 def process_single_ticker(
     ticker: str, config: dict, log: Callable
-) -> Optional[pl.DataFrame]:
+) -> pl.DataFrame | None:
     """
     Process portfolio analysis for a single ticker.
 
@@ -38,7 +38,7 @@ def process_single_ticker(
         config_copy = config.copy()
         config_copy["TICKER"] = ticker
 
-        if config.get("REFRESH", True) == False:
+        if config.get("REFRESH", True) is False:
             # Construct file path using BASE_DIR
             file_name = f'{ticker}{"_H" if config.get("USE_HOURLY", False) else "_D"}'
             directory = os.path.join(
@@ -83,5 +83,5 @@ def process_single_ticker(
         return pl.DataFrame(portfolios)
 
     except Exception as e:
-        log(f"Failed to process ticker {ticker}: {str(e)}", "error")
+        log(f"Failed to process ticker {ticker}: {e!s}", "error")
         return None

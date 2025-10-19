@@ -4,12 +4,13 @@ Optimized for trading system workloads with intelligent batching strategies
 and memory-efficient processing.
 """
 
-import logging
-import time
+from collections.abc import Callable
 from concurrent.futures import as_completed
 from dataclasses import dataclass
+import logging
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
+import time
+from typing import Any, TypeVar
 
 import polars as pl
 
@@ -18,6 +19,7 @@ from .data_converter import DataConverter
 from .memory_optimizer import get_memory_optimizer
 from .parallel_executor import get_executor
 
+
 T = TypeVar("T")
 
 
@@ -25,8 +27,8 @@ T = TypeVar("T")
 class BatchResult:
     """Result of a batch processing operation."""
 
-    successful_results: Dict[str, Any]
-    failed_items: Dict[str, Exception]
+    successful_results: dict[str, Any]
+    failed_items: dict[str, Exception]
     processing_time: float
     cache_hits: int
     cache_misses: int
@@ -55,12 +57,12 @@ class TickerBatchProcessor:
 
     def process_tickers(
         self,
-        tickers: List[str],
+        tickers: list[str],
         processing_fn: Callable[[str], T],
         cache_category: str = "signals",
-        cache_params: Optional[Dict[str, Any]] = None,
-        source_files: Optional[List[str]] = None,
-        batch_size: Optional[int] = None,
+        cache_params: dict[str, Any] | None = None,
+        source_files: list[str] | None = None,
+        batch_size: int | None = None,
     ) -> BatchResult:
         """
         Process multiple tickers with intelligent caching and error handling.
@@ -154,13 +156,13 @@ class TickerBatchProcessor:
 
     def _process_with_retries(
         self,
-        tickers: List[str],
+        tickers: list[str],
         processing_fn: Callable[[str], T],
-        batch_size: Optional[int],
-    ) -> Dict[str, Dict[str, Any]]:
+        batch_size: int | None,
+    ) -> dict[str, dict[str, Any]]:
         """Process tickers with retry logic for failed items."""
 
-        def process_single_ticker(ticker: str) -> Tuple[str, Any, Optional[Exception]]:
+        def process_single_ticker(ticker: str) -> tuple[str, Any, Exception | None]:
             """Process a single ticker with error handling."""
             for attempt in range(self.max_retries + 1):
                 try:
@@ -234,8 +236,8 @@ class ParameterSweepProcessor:
     def process_parameter_combinations(
         self,
         base_identifier: str,
-        parameter_combinations: List[Dict[str, Any]],
-        strategy_fn: Callable[[Dict[str, Any]], T],
+        parameter_combinations: list[dict[str, Any]],
+        strategy_fn: Callable[[dict[str, Any]], T],
         cache_category: str = "computations",
     ) -> BatchResult:
         """
@@ -351,11 +353,11 @@ class ParameterSweepProcessor:
 
     def _process_chunk(
         self,
-        chunk: List[Tuple[int, Dict[str, Any]]],
-        strategy_fn: Callable[[Dict[str, Any]], T],
-    ) -> List[Tuple[int, Any, Optional[Exception]]]:
+        chunk: list[tuple[int, dict[str, Any]]],
+        strategy_fn: Callable[[dict[str, Any]], T],
+    ) -> list[tuple[int, Any, Exception | None]]:
         """Process a chunk of parameter combinations with memory optimization."""
-        results: List[Tuple[int, Any, Optional[Exception]]] = []
+        results: list[tuple[int, Any, Exception | None]] = []
 
         # Monitor memory during chunk processing
         if self.memory_optimizer:
@@ -442,11 +444,11 @@ class MemoryEfficientParameterSweep:
 
     def run_parameter_sweep(
         self,
-        strategy_fn: Callable[[Dict[str, Any]], Union[pl.DataFrame, dict]],
-        parameter_grid: Dict[str, List[Any]],
+        strategy_fn: Callable[[dict[str, Any]], pl.DataFrame | dict],
+        parameter_grid: dict[str, list[Any]],
         base_identifier: str,
-        output_dir: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        output_dir: str | None = None,
+    ) -> dict[str, Any]:
         """
         Run memory-efficient parameter sweep.
 
@@ -487,7 +489,7 @@ class MemoryEfficientParameterSweep:
                 for combo_idx, combo_values in enumerate(chunk_combinations):
                     try:
                         # Create parameter dictionary
-                        params = dict(zip(param_names, combo_values))
+                        params = dict(zip(param_names, combo_values, strict=False))
 
                         # Execute strategy
                         result = strategy_fn(params)
@@ -545,10 +547,10 @@ class MemoryEfficientParameterSweep:
 
     def _save_chunk_results(
         self,
-        chunk_results: List[Any],
+        chunk_results: list[Any],
         chunk_idx: int,
         base_identifier: str,
-        output_dir: Union[str, Path],
+        output_dir: str | Path,
     ) -> str:
         """Save chunk results to disk."""
         output_dir = Path(output_dir)
@@ -583,10 +585,10 @@ class MemoryEfficientParameterSweep:
 
 
 def batch_analyze_tickers(
-    tickers: List[str],
+    tickers: list[str],
     analysis_fn: Callable[[str], T],
-    cache_params: Optional[Dict[str, Any]] = None,
-    source_files: Optional[List[str]] = None,
+    cache_params: dict[str, Any] | None = None,
+    source_files: list[str] | None = None,
 ) -> BatchResult:
     """
     Analyze multiple tickers in batch with caching.
@@ -611,8 +613,8 @@ def batch_analyze_tickers(
 
 def batch_parameter_sweep(
     strategy_name: str,
-    parameter_combinations: List[Dict[str, Any]],
-    strategy_fn: Callable[[Dict[str, Any]], T],
+    parameter_combinations: list[dict[str, Any]],
+    strategy_fn: Callable[[dict[str, Any]], T],
     memory_efficient: bool = False,
 ) -> BatchResult:
     """
@@ -636,13 +638,13 @@ def batch_parameter_sweep(
 
 
 def memory_efficient_parameter_sweep(
-    strategy_fn: Callable[[Dict[str, Any]], Union[pl.DataFrame, dict]],
-    parameter_grid: Dict[str, List[Any]],
+    strategy_fn: Callable[[dict[str, Any]], pl.DataFrame | dict],
+    parameter_grid: dict[str, list[Any]],
     strategy_name: str,
     output_dir: str,
     max_memory_mb: float = 2000.0,
     chunk_size: int = 50,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Execute large-scale parameter sweep with memory optimization.
 

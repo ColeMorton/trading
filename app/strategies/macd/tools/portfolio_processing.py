@@ -6,8 +6,8 @@ including loading existing data and analyzing parameter sensitivity for
 the MACD cross strategy.
 """
 
+from collections.abc import Callable
 import os
-from typing import Callable, Optional
 
 import polars as pl
 
@@ -20,7 +20,7 @@ from app.tools.get_data import get_data
 
 def process_single_ticker(
     ticker: str, config: dict, log: Callable, progress_update_fn=None
-) -> Optional[pl.DataFrame]:
+) -> pl.DataFrame | None:
     """
     Process portfolio analysis for a single ticker using the MACD cross strategy.
 
@@ -41,7 +41,7 @@ def process_single_ticker(
         config_copy = config.copy()
         config_copy["TICKER"] = ticker
 
-        if config.get("REFRESH", True) == False:
+        if config.get("REFRESH", True) is False:
             # Construct file path using BASE_DIR
             file_name = f'{ticker}{"_H" if config.get("USE_HOURLY", False) else "_D"}'
             directory = os.path.join(config["BASE_DIR"], "csv", "macd", "portfolios")
@@ -97,10 +97,10 @@ def process_single_ticker(
 
         # Calculate number of parameter combinations
         step = config.get("STEP", 2)
-        short_windows_count = (
+        (
             config.get("SHORT_WINDOW_END", 18) - config.get("SHORT_WINDOW_START", 2)
         ) // step + 1
-        long_windows_count = (
+        (
             config.get("LONG_WINDOW_END", 36) - config.get("LONG_WINDOW_START", 4)
         ) // step + 1
         signal_windows_count = (
@@ -140,5 +140,5 @@ def process_single_ticker(
         return portfolios
 
     except Exception as e:
-        log(f"Failed to process ticker {ticker}: {str(e)}", "error")
+        log(f"Failed to process ticker {ticker}: {e!s}", "error")
         return None

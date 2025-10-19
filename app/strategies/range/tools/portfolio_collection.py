@@ -6,7 +6,7 @@ It provides centralized functionality for consistent portfolio operations
 across the Range High Break strategy.
 """
 
-from typing import Any, Dict, List, Union
+from typing import Any
 
 import polars as pl
 
@@ -15,8 +15,8 @@ from app.range.tools.export_portfolios import export_portfolios
 
 
 def sort_portfolios(
-    portfolios: Union[List[Dict[str, Any]], pl.DataFrame], config: PortfolioConfig
-) -> Union[List[Dict[str, Any]], pl.DataFrame]:
+    portfolios: list[dict[str, Any]] | pl.DataFrame, config: PortfolioConfig
+) -> list[dict[str, Any]] | pl.DataFrame:
     """Sort portfolios using consistent logic across the application.
 
     Args:
@@ -42,7 +42,7 @@ def sort_portfolios(
 
 
 def export_best_portfolios(
-    portfolios: List[Dict[str, Any]], config: PortfolioConfig, log: callable
+    portfolios: list[dict[str, Any]], config: PortfolioConfig, log: callable
 ) -> bool:
     """Export the best portfolios to a CSV file.
 
@@ -77,10 +77,9 @@ def export_best_portfolios(
         if success:
             log(f"Exported {len(sorted_portfolios)} portfolios sorted by {sort_by}")
             return True
-        else:
-            log("Failed to export portfolios", "error")
-            return False
+        log("Failed to export portfolios", "error")
+        return False
 
     except Exception as e:
-        log(f"Failed to export portfolios: {str(e)}", "error")
+        log(f"Failed to export portfolios: {e!s}", "error")
         return False

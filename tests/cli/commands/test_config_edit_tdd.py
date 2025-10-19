@@ -6,8 +6,8 @@ This test demonstrates the Red-Green-Refactor TDD cycle for implementing
 the profile editing functionality in the CLI config command.
 """
 
-import tempfile
 from pathlib import Path
+import tempfile
 from unittest.mock import Mock, patch
 
 import pytest
@@ -250,7 +250,7 @@ config:
             assert "Backup created" in result.stdout
 
             # Verify backup was created
-            backup_path = temp_profiles_dir / f"test_profile.yaml.backup"
+            backup_path = temp_profiles_dir / "test_profile.yaml.backup"
             assert backup_path.exists()
 
 

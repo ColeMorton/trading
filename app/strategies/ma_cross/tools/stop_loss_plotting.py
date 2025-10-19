@@ -5,8 +5,8 @@ This module contains functions for creating visualizations of stop loss paramete
 """
 
 import numpy as np
-import plotly.graph_objects as go
 from numpy.typing import NDArray
+import plotly.graph_objects as go
 from typing_extensions import TypedDict
 
 
@@ -105,15 +105,15 @@ def create_stop_loss_heatmap(
                 colorscale=colorscale,
                 zmin=zmin,
                 zmax=zmax,
-                colorbar=dict(
-                    title=dict(
-                        text=f"{metric_name.capitalize().replace('_', ' ')} {title_suffix}",
-                        side="right",
-                    ),
-                    thickness=20,
-                    len=0.9,
-                    tickformat=format_info["format"],
-                ),
+                colorbar={
+                    "title": {
+                        "text": f"{metric_name.capitalize().replace('_', ' ')} {title_suffix}",
+                        "side": "right",
+                    },
+                    "thickness": 20,
+                    "len": 0.9,
+                    "tickformat": format_info["format"],
+                },
                 hoverongaps=False,
                 hovertemplate=(
                     "Stop Loss: %{x:.2f}%<br>"
@@ -128,30 +128,30 @@ def create_stop_loss_heatmap(
         title_text = f'{ticker} Stop Loss Sensitivity Analysis<br><sub>{metric_name.capitalize().replace("_", " ")}</sub>'
 
         fig.update_layout(
-            title=dict(
-                text=title_text,
-                x=0.5,
-                xanchor="center",
-                y=0.95,
-                yanchor="top",
-                font=dict(size=16),
-            ),
-            xaxis=dict(
-                title=dict(text="Stop Loss Threshold (%)", font=dict(size=14)),
-                tickmode="array",
-                ticktext=[
+            title={
+                "text": title_text,
+                "x": 0.5,
+                "xanchor": "center",
+                "y": 0.95,
+                "yanchor": "top",
+                "font": {"size": 16},
+            },
+            xaxis={
+                "title": {"text": "Stop Loss Threshold (%)", "font": {"size": 14}},
+                "tickmode": "array",
+                "ticktext": [
                     f"{x:.1f}%" for x in stop_loss_range[::50]
                 ],  # Show every 50th tick
-                tickvals=stop_loss_range[::50],
-                showgrid=True,
-                gridwidth=1,
-                gridcolor="rgba(128, 128, 128, 0.2)",
-            ),
-            yaxis=dict(showticklabels=False, showgrid=False, fixedrange=True),
+                "tickvals": stop_loss_range[::50],
+                "showgrid": True,
+                "gridwidth": 1,
+                "gridcolor": "rgba(128, 128, 128, 0.2)",
+            },
+            yaxis={"showticklabels": False, "showgrid": False, "fixedrange": True},
             plot_bgcolor="white",
             paper_bgcolor="white",
             autosize=True,
-            margin=dict(l=50, r=50, t=100, b=50),
+            margin={"l": 50, "r": 50, "t": 100, "b": 50},
         )
 
         figures[metric_name] = fig

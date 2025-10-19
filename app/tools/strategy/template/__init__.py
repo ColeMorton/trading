@@ -11,11 +11,12 @@ from .execution_template import ExecutionTemplate
 from .generator import StrategyTemplateGenerator
 from .validation_template import ValidationTemplate
 
+
 __all__ = [
-    "StrategyTemplateGenerator",
-    "TemplateConfig",
-    "StrategyType",
-    "IndicatorType",
     "ExecutionTemplate",
+    "IndicatorType",
+    "StrategyTemplateGenerator",
+    "StrategyType",
+    "TemplateConfig",
     "ValidationTemplate",
 ]

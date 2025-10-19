@@ -7,11 +7,10 @@ for trade history analysis and position management functionality.
 
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
-from .base import BaseConfig, Direction
+from .base import BaseConfig
 
 
 class StrategyType(str, Enum):
@@ -94,10 +93,10 @@ class TradeHistoryAnalysisConfig(BaseModel):
     include_raw_data: bool = Field(
         default=False, description="Include raw statistical data in reports"
     )
-    current_price: Optional[float] = Field(
+    current_price: float | None = Field(
         default=None, gt=0, description="Current market price for enhanced analysis"
     )
-    market_condition: Optional[MarketCondition] = Field(
+    market_condition: MarketCondition | None = Field(
         default=None, description="Current market condition assessment"
     )
 
@@ -120,7 +119,7 @@ class TradeHistoryOutputConfig(BaseModel):
     output_format: OutputFormat = Field(
         default=OutputFormat.MARKDOWN, description="Primary output format"
     )
-    output_file: Optional[str] = Field(
+    output_file: str | None = Field(
         default=None, description="Output file path (default: stdout)"
     )
 
@@ -142,14 +141,14 @@ class TradeHistoryPositionConfig(BaseModel):
     """Trade history position management configuration."""
 
     # Position parameters
-    ticker: Optional[str] = Field(default=None, description="Ticker symbol")
-    strategy_type: Optional[StrategyType] = Field(
+    ticker: str | None = Field(default=None, description="Ticker symbol")
+    strategy_type: StrategyType | None = Field(
         default=None, description="Strategy type"
     )
-    fast_period: Optional[int] = Field(
+    fast_period: int | None = Field(
         default=None, ge=1, description="Short period window"
     )
-    slow_period: Optional[int] = Field(
+    slow_period: int | None = Field(
         default=None, ge=1, description="Long period window"
     )
     timeframe: Timeframe = Field(
@@ -157,13 +156,11 @@ class TradeHistoryPositionConfig(BaseModel):
     )
 
     # Entry parameters
-    entry_price: Optional[float] = Field(
+    entry_price: float | None = Field(
         default=None, gt=0, description="Manual entry price override"
     )
-    quantity: Optional[float] = Field(
-        default=None, gt=0, description="Position quantity"
-    )
-    signal_date: Optional[str] = Field(
+    quantity: float | None = Field(default=None, gt=0, description="Position quantity")
+    signal_date: str | None = Field(
         default=None, description="Signal date (YYYY-MM-DD format)"
     )
 
@@ -175,16 +172,16 @@ class TradeHistoryPositionConfig(BaseModel):
         default=0.02, ge=0.001, le=0.1, description="Risk percentage per trade"
     )
 
-    @validator("slow_period")
+    @field_validator("slow_period")
+    @classmethod
     def validate_long_vs_short(cls, v, values):
         """Ensure slow period > fast period."""
         if (
             v is not None
             and "fast_period" in values
             and values["fast_period"] is not None
-        ):
-            if v <= values["fast_period"]:
-                raise ValueError("Slow period must be greater than fast period")
+        ) and v <= values["fast_period"]:
+            raise ValueError("Slow period must be greater than fast period")
         return v
 
 
@@ -199,16 +196,16 @@ class TradeHistoryListConfig(BaseModel):
     )
 
     # Filtering
-    filter_signal: Optional[SignalType] = Field(
+    filter_signal: SignalType | None = Field(
         default=None, description="Filter by signal type"
     )
-    filter_ticker: Optional[str] = Field(
+    filter_ticker: str | None = Field(
         default=None, description="Filter by ticker symbol"
     )
-    filter_strategy: Optional[str] = Field(
+    filter_strategy: str | None = Field(
         default=None, description="Filter by strategy pattern"
     )
-    min_confidence: Optional[float] = Field(
+    min_confidence: float | None = Field(
         default=None, ge=0.0, le=100.0, description="Minimum confidence level filter"
     )
 
@@ -217,9 +214,7 @@ class TradeHistoryListConfig(BaseModel):
         default=SortOption.CONFIDENCE, description="Sort criteria"
     )
     sort_descending: bool = Field(default=True, description="Sort in descending order")
-    limit: Optional[int] = Field(
-        default=None, ge=1, description="Limit number of results"
-    )
+    limit: int | None = Field(default=None, ge=1, description="Limit number of results")
 
 
 class TradeHistoryUpdateConfig(BaseModel):
@@ -275,7 +270,7 @@ class TradeHistoryValidationConfig(BaseModel):
     generate_report: bool = Field(
         default=False, description="Generate validation report file"
     )
-    report_file: Optional[str] = Field(
+    report_file: str | None = Field(
         default=None, description="Validation report file path"
     )
 
@@ -306,7 +301,7 @@ class TradeHistoryConfig(BaseConfig):
     )
 
     # Global options
-    base_path: Optional[str] = Field(
+    base_path: str | None = Field(
         default=None, description="Base path to trading system directory"
     )
 
@@ -318,7 +313,7 @@ class TradeHistoryConfig(BaseConfig):
         return self.base_dir
 
     @property
-    def data_directories(self) -> Dict[str, Path]:
+    def data_directories(self) -> dict[str, Path]:
         """Get data directory paths."""
         base = self.effective_base_path
         return {
@@ -337,7 +332,7 @@ class TradeHistoryConfig(BaseConfig):
             "portfolios": base / "csv" / "portfolios",
         }
 
-    def get_strategy_name(self) -> Optional[str]:
+    def get_strategy_name(self) -> str | None:
         """Generate strategy name from position config."""
         pos = self.position
         if all(
@@ -352,7 +347,7 @@ class TradeHistoryConfig(BaseConfig):
             return f"{pos.ticker}_{pos.timeframe.value}_{pos.strategy_type.value}_{pos.fast_period}_{pos.slow_period}"
         return None
 
-    def to_legacy_args_dict(self) -> Dict:
+    def to_legacy_args_dict(self) -> dict:
         """Convert to legacy arguments dictionary for existing modules."""
         return {
             "strategy": self.get_strategy_name(),
@@ -360,9 +355,11 @@ class TradeHistoryConfig(BaseConfig):
             "format": self.output.output_format.value,
             "include_raw_data": self.analysis.include_raw_data,
             "current_price": self.analysis.current_price,
-            "market_condition": self.analysis.market_condition.value
-            if self.analysis.market_condition
-            else None,
+            "market_condition": (
+                self.analysis.market_condition.value
+                if self.analysis.market_condition
+                else None
+            ),
             "base_path": self.base_path,
             "verbose": self.output.verbose,
             "list_strategies": False,

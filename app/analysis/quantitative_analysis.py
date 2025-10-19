@@ -12,22 +12,22 @@ Key Features:
 - Professional report generation with actionable recommendations
 """
 
-import json
-import logging
-import warnings
 from dataclasses import asdict, dataclass
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+import warnings
 
 import numpy as np
 import pandas as pd
+
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
 
 # Scientific computing imports
 from scipy import stats
+
 
 try:
     from scipy.optimize import minimize
@@ -48,7 +48,6 @@ except ImportError:
     PLOTTING_AVAILABLE = False
 
 # Project imports
-from app.tools.logging_context import logging_context
 from app.tools.project_utils import get_project_root
 
 
@@ -71,11 +70,11 @@ class StrategyMetrics:
     var_99: float
     skewness: float
     kurtosis: float
-    beta: Optional[float] = None
-    alpha: Optional[float] = None
-    correlation_to_market: Optional[float] = None
+    beta: float | None = None
+    alpha: float | None = None
+    correlation_to_market: float | None = None
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to dictionary for JSON serialization"""
         return asdict(self)
 
@@ -93,10 +92,10 @@ class PortfolioAnalysis:
     var_95: float
     var_99: float
     diversification_ratio: float
-    correlation_matrix: Dict
-    top_performers: List[str]
-    risk_contributors: List[str]
-    recommendations: List[str]
+    correlation_matrix: dict
+    top_performers: list[str]
+    risk_contributors: list[str]
+    recommendations: list[str]
 
 
 class QuantitativeAnalyzer:
@@ -107,7 +106,7 @@ class QuantitativeAnalyzer:
     portfolio optimization recommendations based on strategy performance data.
     """
 
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(self, base_dir: str | None = None):
         """Initialize the quantitative analyzer"""
         if base_dir:
             self.base_dir = Path(base_dir)
@@ -123,10 +122,10 @@ class QuantitativeAnalyzer:
         self.output_dir.mkdir(exist_ok=True)
 
         # Initialize data containers
-        self.trades_data: Optional[pd.DataFrame] = None
-        self.incoming_data: Optional[pd.DataFrame] = None
-        self.json_data: Optional[Dict] = None
-        self.strategy_metrics: List[StrategyMetrics] = []
+        self.trades_data: pd.DataFrame | None = None
+        self.incoming_data: pd.DataFrame | None = None
+        self.json_data: dict | None = None
+        self.strategy_metrics: list[StrategyMetrics] = []
 
         # Market benchmark data (if available)
         self.benchmark_return = 0.10  # Default 10% annual return
@@ -160,17 +159,17 @@ class QuantitativeAnalyzer:
             if json_files:
                 print(f"Found {len(json_files)} JSON trade history files")
                 # Load first available JSON file as example
-                with open(json_files[0], "r") as f:
+                with open(json_files[0]) as f:
                     self.json_data = json.load(f)
                     print(f"Loaded JSON data from {json_files[0].name}")
 
             return True
 
         except Exception as e:
-            print(f"Error loading data: {str(e)}")
+            print(f"Error loading data: {e!s}")
             return False
 
-    def calculate_strategy_metrics(self, data: pd.DataFrame) -> List[StrategyMetrics]:
+    def calculate_strategy_metrics(self, data: pd.DataFrame) -> list[StrategyMetrics]:
         """Calculate comprehensive metrics for each strategy"""
         metrics = []
 
@@ -230,7 +229,7 @@ class QuantitativeAnalyzer:
                 metrics.append(metric)
 
             except Exception as e:
-                print(f"Error calculating metrics for {ticker}: {str(e)}")
+                print(f"Error calculating metrics for {ticker}: {e!s}")
                 continue
 
         return metrics
@@ -267,16 +266,15 @@ class QuantitativeAnalyzer:
             if len(available_columns) >= 2:
                 correlation_matrix = data[available_columns].corr()
                 return correlation_matrix
-            else:
-                print("Insufficient data for correlation analysis")
-                return pd.DataFrame()
+            print("Insufficient data for correlation analysis")
+            return pd.DataFrame()
 
         except Exception as e:
-            print(f"Error in correlation analysis: {str(e)}")
+            print(f"Error in correlation analysis: {e!s}")
             return pd.DataFrame()
 
     def calculate_portfolio_metrics(
-        self, strategies: List[StrategyMetrics]
+        self, strategies: list[StrategyMetrics]
     ) -> PortfolioAnalysis:
         """Calculate portfolio-level metrics and analysis"""
         if not strategies:
@@ -331,10 +329,10 @@ class QuantitativeAnalyzer:
             )
 
         except Exception as e:
-            print(f"Error calculating portfolio metrics: {str(e)}")
+            print(f"Error calculating portfolio metrics: {e!s}")
             return None
 
-    def _generate_recommendations(self, strategies: List[StrategyMetrics]) -> List[str]:
+    def _generate_recommendations(self, strategies: list[StrategyMetrics]) -> list[str]:
         """Generate actionable trading recommendations based on analysis"""
         recommendations = []
 
@@ -389,14 +387,14 @@ class QuantitativeAnalyzer:
                 )
 
         except Exception as e:
-            print(f"Error generating recommendations: {str(e)}")
+            print(f"Error generating recommendations: {e!s}")
             recommendations.append(
                 "Unable to generate specific recommendations due to data limitations."
             )
 
         return recommendations
 
-    def compare_portfolios(self) -> Dict:
+    def compare_portfolios(self) -> dict:
         """Compare existing trades vs incoming strategies"""
         comparison = {}
 
@@ -435,16 +433,16 @@ class QuantitativeAnalyzer:
                     comparison["enhancement_impact"] = enhancement_impact
 
         except Exception as e:
-            print(f"Error in portfolio comparison: {str(e)}")
+            print(f"Error in portfolio comparison: {e!s}")
 
         return comparison
 
     def run_monte_carlo_analysis(
         self,
-        strategies: List[StrategyMetrics],
+        strategies: list[StrategyMetrics],
         num_simulations: int = 10000,
         time_horizon: int = 252,
-    ) -> Dict:
+    ) -> dict:
         """Run Monte Carlo simulation for portfolio projections"""
         try:
             if not strategies:
@@ -483,7 +481,7 @@ class QuantitativeAnalyzer:
             return monte_carlo_results
 
         except Exception as e:
-            print(f"Error in Monte Carlo analysis: {str(e)}")
+            print(f"Error in Monte Carlo analysis: {e!s}")
             return {}
 
     def generate_comprehensive_report(self) -> str:
@@ -506,7 +504,7 @@ class QuantitativeAnalyzer:
             report_lines.append("EXECUTIVE SUMMARY")
             report_lines.append("-" * 40)
 
-            if "existing" in comparison and comparison["existing"]:
+            if comparison.get("existing"):
                 existing = comparison["existing"]
                 report_lines.append(
                     f"• Existing Portfolio: {existing.total_strategies} strategies"
@@ -519,7 +517,7 @@ class QuantitativeAnalyzer:
                 )
                 report_lines.append(f"• Maximum Drawdown: {existing.max_drawdown:.2f}%")
 
-            if "incoming" in comparison and comparison["incoming"]:
+            if comparison.get("incoming"):
                 incoming = comparison["incoming"]
                 report_lines.append(
                     f"• Incoming Strategies: {incoming.total_strategies} strategies"
@@ -543,7 +541,7 @@ class QuantitativeAnalyzer:
             report_lines.append("")
 
             # Detailed Analysis for Existing Portfolio
-            if "existing" in comparison and comparison["existing"]:
+            if comparison.get("existing"):
                 existing = comparison["existing"]
                 report_lines.append("EXISTING PORTFOLIO ANALYSIS")
                 report_lines.append("-" * 40)
@@ -576,7 +574,7 @@ class QuantitativeAnalyzer:
                     report_lines.append("")
 
             # Incoming Portfolio Analysis
-            if "incoming" in comparison and comparison["incoming"]:
+            if comparison.get("incoming"):
                 incoming = comparison["incoming"]
                 report_lines.append("INCOMING STRATEGIES ANALYSIS")
                 report_lines.append("-" * 40)
@@ -638,7 +636,7 @@ class QuantitativeAnalyzer:
                 report_lines.append("")
 
             # Monte Carlo Analysis
-            if "existing" in comparison and comparison["existing"]:
+            if comparison.get("existing"):
                 existing_metrics = self.calculate_strategy_metrics(self.trades_data)
                 mc_results = self.run_monte_carlo_analysis(existing_metrics)
 
@@ -672,10 +670,10 @@ class QuantitativeAnalyzer:
             # Gather all recommendations
             all_recommendations = []
 
-            if "existing" in comparison and comparison["existing"]:
+            if comparison.get("existing"):
                 all_recommendations.extend(comparison["existing"].recommendations)
 
-            if "incoming" in comparison and comparison["incoming"]:
+            if comparison.get("incoming"):
                 all_recommendations.extend(comparison["incoming"].recommendations)
 
             # Add portfolio enhancement recommendations
@@ -713,11 +711,11 @@ class QuantitativeAnalyzer:
             report_lines.append("=" * 80)
 
         except Exception as e:
-            report_lines.append(f"Error generating report: {str(e)}")
+            report_lines.append(f"Error generating report: {e!s}")
 
         return "\n".join(report_lines)
 
-    def save_report(self, report_content: str, filename: Optional[str] = None) -> str:
+    def save_report(self, report_content: str, filename: str | None = None) -> str:
         """Save the analysis report to file"""
         try:
             if filename is None:
@@ -733,10 +731,10 @@ class QuantitativeAnalyzer:
             return str(report_path)
 
         except Exception as e:
-            print(f"Error saving report: {str(e)}")
+            print(f"Error saving report: {e!s}")
             return ""
 
-    def export_metrics_to_json(self, filename: Optional[str] = None) -> str:
+    def export_metrics_to_json(self, filename: str | None = None) -> str:
         """Export detailed metrics to JSON for further analysis"""
         try:
             if filename is None:
@@ -779,7 +777,7 @@ class QuantitativeAnalyzer:
             return str(export_path)
 
         except Exception as e:
-            print(f"Error exporting metrics: {str(e)}")
+            print(f"Error exporting metrics: {e!s}")
             return ""
 
 
@@ -810,7 +808,7 @@ def main():
     # Export detailed metrics
     metrics_path = analyzer.export_metrics_to_json()
 
-    print(f"\nAnalysis complete!")
+    print("\nAnalysis complete!")
     print(f"Report saved: {report_path}")
     print(f"Metrics exported: {metrics_path}")
 

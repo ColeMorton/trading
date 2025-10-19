@@ -14,12 +14,9 @@ Key Testing Areas:
 - Resource cleanup and state isolation
 """
 
-import os
+from pathlib import Path
 import tempfile
 import time
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Dict, List
 from unittest.mock import Mock, patch
 
 import pytest
@@ -28,7 +25,6 @@ from tests.fixtures.data_stabilization import (
     stabilize_integration_test,
     stable_market_data,
 )
-from tests.fixtures.market_data_factory import MarketDataFactory
 
 
 @pytest.mark.integration
@@ -160,26 +156,28 @@ class TestAdvancedStrategyIntegration:
         }
 
         # Step 3: Test cross-component operations
-        with patch.object(
-            config_manager.profile_manager, "load_profile", return_value=test_profile
+        with (
+            patch.object(
+                config_manager.profile_manager,
+                "load_profile",
+                return_value=test_profile,
+            ),
+            patch.object(config_manager.profile_manager, "save_profile") as mock_save,
         ):
-            with patch.object(
-                config_manager.profile_manager, "save_profile"
-            ) as mock_save:
-                # Load profile through editor service
-                loaded_profile = editor_service.load_profile("integration_test")
+            # Load profile through editor service
+            loaded_profile = editor_service.load_profile("integration_test")
 
-                # Modify profile state
-                editor_service.set_field_value(
-                    loaded_profile, "config.ticker", "AAPL,MSFT,GOOGL"
-                )
+            # Modify profile state
+            editor_service.set_field_value(
+                loaded_profile, "config.ticker", "AAPL,MSFT,GOOGL"
+            )
 
-                # Save modified profile
-                editor_service.save_profile("integration_test", loaded_profile)
+            # Save modified profile
+            editor_service.save_profile("integration_test", loaded_profile)
 
-                # Verify state consistency
-                assert loaded_profile["config"]["ticker"] == ["AAPL", "MSFT", "GOOGL"]
-                mock_save.assert_called_once_with("integration_test", loaded_profile)
+            # Verify state consistency
+            assert loaded_profile["config"]["ticker"] == ["AAPL", "MSFT", "GOOGL"]
+            mock_save.assert_called_once_with("integration_test", loaded_profile)
 
         # Step 4: Test portfolio service with modified state
         mock_tickers = loaded_profile["config"]["ticker"]
@@ -353,8 +351,6 @@ config:
         """
         Test proper resource cleanup and state isolation between tests.
         """
-        import shutil
-        import tempfile
 
         from app.cli.services.portfolio_analysis_service import PortfolioAnalysisService
 
@@ -464,23 +460,23 @@ class TestCrossComponentCommunication:
         runner = CliRunner()
 
         # Test CLI → Service communication
-        with patch("app.cli.commands.config.ConfigManager") as mock_config_manager:
-            with patch(
+        with (
+            patch("app.cli.commands.config.ConfigManager"),
+            patch(
                 "app.cli.services.profile_editor_service.ProfileEditorService"
-            ) as mock_service_class:
-                # Setup mocks
-                mock_service = mock_service_class.return_value
-                mock_service.load_profile.return_value = {
-                    "config": {"ticker": ["AAPL"]}
-                }
+            ) as mock_service_class,
+        ):
+            # Setup mocks
+            mock_service = mock_service_class.return_value
+            mock_service.load_profile.return_value = {"config": {"ticker": ["AAPL"]}}
 
-                # Execute CLI command
-                result = runner.invoke(config_app, ["edit", "test_profile"])
+            # Execute CLI command
+            result = runner.invoke(config_app, ["edit", "test_profile"])
 
-                # Verify CLI → Service communication
-                mock_service_class.assert_called_once()
-                mock_service.load_profile.assert_called_once_with("test_profile")
-                assert result.exit_code == 0
+            # Verify CLI → Service communication
+            mock_service_class.assert_called_once()
+            mock_service.load_profile.assert_called_once_with("test_profile")
+            assert result.exit_code == 0
 
     @stable_market_data(tickers=["AAPL", "MSFT"])
     def test_event_driven_communication(self):
@@ -515,7 +511,7 @@ class TestCrossComponentCommunication:
 
             # Step 3: Execute operation that triggers events
             service = MockService()
-            result = service.aggregate_portfolios_best(["AAPL", "MSFT"])
+            service.aggregate_portfolios_best(["AAPL", "MSFT"])
 
             # Step 4: Verify event sequence
             assert len(events) == 2

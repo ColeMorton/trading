@@ -5,9 +5,9 @@ This module implements strict validation strategies that ensure data quality
 and throw meaningful exceptions rather than using fallback values.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
-from typing import Callable, List, Optional
 
 import numpy as np
 
@@ -26,10 +26,10 @@ class ValidationResult:
 
     is_valid: bool
     level: ValidationLevel
-    messages: List[str]
-    warnings: List[str]
+    messages: list[str]
+    warnings: list[str]
     quality_score: float
-    corrective_actions: List[str]
+    corrective_actions: list[str]
 
 
 class RiskAccuracyValidator:
@@ -80,7 +80,7 @@ class RiskAccuracyValidator:
         }
 
     def validate_return_data(
-        self, returns_matrix: np.ndarray, strategy_names: List[str]
+        self, returns_matrix: np.ndarray, strategy_names: list[str]
     ) -> ValidationResult:
         """
         Validate return data quality for variance estimation.
@@ -293,7 +293,7 @@ class RiskAccuracyValidator:
             quality_factors.append(correlation_quality)
 
         except Exception as e:
-            messages.append(f"Correlation matrix calculation failed: {str(e)}")
+            messages.append(f"Correlation matrix calculation failed: {e!s}")
             corrective_actions.append("Check return data alignment and quality")
             quality_factors.append(0.0)
             if self.validation_level in [
@@ -341,7 +341,7 @@ class RiskAccuracyValidator:
             quality_factors.append(condition_quality)
 
         except Exception as e:
-            messages.append(f"Covariance matrix validation failed: {str(e)}")
+            messages.append(f"Covariance matrix validation failed: {e!s}")
             quality_factors.append(0.0)
             if self.validation_level == ValidationLevel.STRICT:
                 return ValidationResult(
@@ -401,7 +401,7 @@ class RiskAccuracyValidator:
         )
 
     def validate_covariance_matrix(
-        self, cov_matrix: np.ndarray, strategy_names: List[str]
+        self, cov_matrix: np.ndarray, strategy_names: list[str]
     ) -> ValidationResult:
         """
         Validate covariance matrix properties for risk calculation.
@@ -494,7 +494,7 @@ class RiskAccuracyValidator:
             quality_factors.append(eigenvalue_quality)
 
         except Exception as e:
-            messages.append(f"Eigenvalue calculation failed: {str(e)}")
+            messages.append(f"Eigenvalue calculation failed: {e!s}")
             quality_factors.append(0.0)
             if self.validation_level == ValidationLevel.STRICT:
                 return ValidationResult(
@@ -534,7 +534,7 @@ class RiskAccuracyValidator:
             quality_factors.append(condition_quality)
 
         except Exception as e:
-            messages.append(f"Condition number calculation failed: {str(e)}")
+            messages.append(f"Condition number calculation failed: {e!s}")
             quality_factors.append(0.0)
 
         # 5. Diagonal dominance check
@@ -575,7 +575,7 @@ class RiskAccuracyValidator:
             quality_factors.append(variance_quality)
 
         except Exception as e:
-            messages.append(f"Variance validation failed: {str(e)}")
+            messages.append(f"Variance validation failed: {e!s}")
             quality_factors.append(0.0)
 
         # 6. Correlation bounds check
@@ -623,7 +623,7 @@ class RiskAccuracyValidator:
             quality_factors.append(correlation_quality)
 
         except Exception as e:
-            warnings.append(f"Correlation bounds check failed: {str(e)}")
+            warnings.append(f"Correlation bounds check failed: {e!s}")
             quality_factors.append(0.5)
 
         # Calculate overall quality score
@@ -655,7 +655,7 @@ class RiskAccuracyValidator:
         )
 
     def validate_portfolio_weights(
-        self, weights: np.ndarray, strategy_names: List[str]
+        self, weights: np.ndarray, strategy_names: list[str]
     ) -> ValidationResult:
         """
         Validate portfolio weights for risk calculation.
@@ -729,8 +729,7 @@ class RiskAccuracyValidator:
                     0.0,
                     corrective_actions,
                 )
-            else:
-                warnings.append(f"Negative weights detected: {neg_strategies}")
+            warnings.append(f"Negative weights detected: {neg_strategies}")
 
         # 3. Sum validation
         weight_sum = np.sum(weights)
@@ -795,8 +794,8 @@ class RiskAccuracyValidator:
         self,
         returns_matrix: np.ndarray,
         weights: np.ndarray,
-        strategy_names: List[str],
-        cov_matrix: Optional[np.ndarray] | None = None,
+        strategy_names: list[str],
+        cov_matrix: np.ndarray | None | None = None,
     ) -> ValidationResult:
         """
         Comprehensive validation of all risk calculation inputs.

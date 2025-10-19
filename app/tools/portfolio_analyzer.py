@@ -8,12 +8,11 @@ trade history - everything else is handled automatically.
 
 import asyncio
 import logging
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import pandas as pd
 
-from .config.statistical_analysis_config import SPDSConfig, StatisticalAnalysisConfig
+from .config.statistical_analysis_config import StatisticalAnalysisConfig
 from .models.statistical_analysis_models import StatisticalAnalysisResult
 from .services.statistical_analysis_service import StatisticalAnalysisService
 from .uuid_utils import parse_strategy_uuid
@@ -37,7 +36,7 @@ class PortfolioStatisticalAnalyzer:
         self,
         portfolio: str,
         use_trade_history: bool = True,
-        logger: Optional[logging.Logger] = None,
+        logger: logging.Logger | None = None,
     ):
         """
         Initialize portfolio analyzer.
@@ -60,8 +59,8 @@ class PortfolioStatisticalAnalyzer:
         )
 
         # Cache loaded data
-        self._portfolio_data: Optional[pd.DataFrame] = None
-        self._trade_history_data: Optional[pd.DataFrame] = None
+        self._portfolio_data: pd.DataFrame | None = None
+        self._trade_history_data: pd.DataFrame | None = None
 
         self.logger.info(
             f"Portfolio analyzer initialized for '{portfolio}' with "
@@ -86,7 +85,7 @@ class PortfolioStatisticalAnalyzer:
         )
         return self._portfolio_data
 
-    def load_trade_history(self) -> Optional[pd.DataFrame]:
+    def load_trade_history(self) -> pd.DataFrame | None:
         """Load trade history CSV from ./data/raw/positions/ (same filename as portfolio)"""
         if not self.use_trade_history:
             return None
@@ -104,10 +103,9 @@ class PortfolioStatisticalAnalyzer:
                     f"This is normal when analyzing strategies without individual trade data."
                 )
                 return None
-            else:
-                raise FileNotFoundError(
-                    f"Trade history file not found: {trade_history_path}"
-                )
+            raise FileNotFoundError(
+                f"Trade history file not found: {trade_history_path}"
+            )
 
         self.logger.info(f"Loading trade history from: {trade_history_path}")
         self._trade_history_data = pd.read_csv(trade_history_path)
@@ -117,7 +115,7 @@ class PortfolioStatisticalAnalyzer:
 
     async def analyze(
         self, detailed: bool = False
-    ) -> Dict[str, StatisticalAnalysisResult]:
+    ) -> dict[str, StatisticalAnalysisResult]:
         """
         Analyze entire portfolio and return results for all strategies.
 
@@ -168,8 +166,8 @@ class PortfolioStatisticalAnalyzer:
         return results
 
     def get_exit_signals(
-        self, results: Dict[str, StatisticalAnalysisResult]
-    ) -> Dict[str, str]:
+        self, results: dict[str, StatisticalAnalysisResult]
+    ) -> dict[str, str]:
         """
         Extract exit signals from analysis results.
 
@@ -200,8 +198,8 @@ class PortfolioStatisticalAnalyzer:
         return signals
 
     def get_summary_report(
-        self, results: Dict[str, StatisticalAnalysisResult]
-    ) -> Dict[str, Any]:
+        self, results: dict[str, StatisticalAnalysisResult]
+    ) -> dict[str, Any]:
         """
         Generate summary report of portfolio analysis.
 
@@ -261,9 +259,9 @@ class PortfolioStatisticalAnalyzer:
             "use_trade_history": self.use_trade_history,
             "signal_distribution": signal_counts,
             "high_confidence_analyses": high_confidence_count,
-            "confidence_rate": high_confidence_count / total_strategies
-            if total_strategies > 0
-            else 0,
+            "confidence_rate": (
+                high_confidence_count / total_strategies if total_strategies > 0 else 0
+            ),
             "immediate_exits": signal_counts.get("EXIT_IMMEDIATELY", 0),
             "strong_sells": signal_counts.get("STRONG_SELL", 0),
             "holds": signal_counts.get("HOLD", 0),
@@ -271,7 +269,7 @@ class PortfolioStatisticalAnalyzer:
 
     def _extract_strategies_from_portfolio(
         self, portfolio_data: pd.DataFrame
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Extract strategy information from portfolio CSV."""
         strategies = []
 
@@ -362,10 +360,10 @@ class PortfolioStatisticalAnalyzer:
 
     async def _analyze_strategy(
         self,
-        strategy_info: Dict[str, Any],
-        trade_history_data: Optional[pd.DataFrame],
+        strategy_info: dict[str, Any],
+        trade_history_data: pd.DataFrame | None,
         detailed: bool = False,
-        position_context: Optional[Dict[str, Dict[str, Any]]] = None,
+        position_context: dict[str, dict[str, Any]] | None = None,
     ) -> StatisticalAnalysisResult:
         """Analyze individual strategy from portfolio."""
         strategy_name = strategy_info["strategy_name"]
@@ -465,9 +463,11 @@ class PortfolioStatisticalAnalyzer:
                 result.asset_divergence,
                 result.strategy_divergence,
                 position_data,
-                component_scores=result.raw_analysis_data.get("component_scores")
-                if result.raw_analysis_data
-                else None,
+                component_scores=(
+                    result.raw_analysis_data.get("component_scores")
+                    if result.raw_analysis_data
+                    else None
+                ),
             )
 
             # Replace the exit signal with position-aware signal
@@ -595,7 +595,7 @@ class PortfolioStatisticalAnalyzer:
 
         matched_rows = []
 
-        for idx, row in trade_history_data.iterrows():
+        for _idx, row in trade_history_data.iterrows():
             position_uuid = str(row["Position_UUID"])
 
             # Remove date suffix if present
@@ -610,21 +610,20 @@ class PortfolioStatisticalAnalyzer:
 
         if matched_rows:
             return pd.DataFrame(matched_rows)
-        else:
-            # Try broader matching - just ticker and strategy type
-            broader_pattern = f"{ticker}_{strategy_type}"
-            for idx, row in trade_history_data.iterrows():
-                position_uuid = str(row["Position_UUID"])
-                uuid_without_date = re.sub(date_pattern, "", position_uuid)
+        # Try broader matching - just ticker and strategy type
+        broader_pattern = f"{ticker}_{strategy_type}"
+        for _idx, row in trade_history_data.iterrows():
+            position_uuid = str(row["Position_UUID"])
+            uuid_without_date = re.sub(date_pattern, "", position_uuid)
 
-                if uuid_without_date.startswith(broader_pattern):
-                    matched_rows.append(row)
-                    self.logger.info(
-                        f"Broad fuzzy matched trade history: {position_uuid} -> {strategy_name}"
-                    )
+            if uuid_without_date.startswith(broader_pattern):
+                matched_rows.append(row)
+                self.logger.info(
+                    f"Broad fuzzy matched trade history: {position_uuid} -> {strategy_name}"
+                )
 
-            if matched_rows:
-                return pd.DataFrame(matched_rows)
+        if matched_rows:
+            return pd.DataFrame(matched_rows)
 
         return None
 
@@ -632,7 +631,7 @@ class PortfolioStatisticalAnalyzer:
 # Convenience function for quick analysis
 async def analyze_portfolio(
     portfolio: str, use_trade_history: bool = True
-) -> Tuple[Dict[str, StatisticalAnalysisResult], Dict[str, Any]]:
+) -> tuple[dict[str, StatisticalAnalysisResult], dict[str, Any]]:
     """
     Quick portfolio analysis function.
 

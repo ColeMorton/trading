@@ -6,13 +6,12 @@ across different modules in the application.
 """
 
 from pathlib import Path
-from typing import Optional
 
 
 def resolve_portfolio_file_path(
     portfolio_name: str,
-    base_dir: Optional[str] | None = None,
-    file_type: Optional[str] | None = None,
+    base_dir: str | None | None = None,
+    file_type: str | None | None = None,
 ) -> Path:
     """
     Resolve the path to a portfolio file.
@@ -29,7 +28,7 @@ def resolve_portfolio_file_path(
         FileNotFoundError: If portfolio file cannot be found
     """
     # Use provided base_dir or default to current directory
-    base = Path(base_dir) if base_dir else Path(".")
+    base = Path(base_dir) if base_dir else Path()
 
     # Print debugging information
     import logging

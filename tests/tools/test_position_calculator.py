@@ -6,16 +6,12 @@ requirements to ensure accurate P&L calculations and prevent regression of
 the original SMCI position calculation bug ($376.53 vs $13.17).
 """
 
+from datetime import datetime
 import logging
-import math
 import unittest
-from datetime import datetime, timedelta
-from typing import Any, Dict
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
-import pytest
-from hypothesis import given
-from hypothesis import strategies as st
+from hypothesis import given, strategies as st
 
 from app.tools.position_calculator import (
     STANDARD_DAYS_PRECISION,
@@ -388,7 +384,9 @@ class TestPositionCalculator(unittest.TestCase):
     def test_comprehensive_position_refresh_with_mfe_mae_update(self):
         """Test comprehensive refresh with MFE/MAE updates."""
         result = self.calculator.comprehensive_position_refresh(
-            self.smci_test_data, mfe=0.5, mae=0.1  # New MFE  # New MAE
+            self.smci_test_data,
+            mfe=0.5,
+            mae=0.1,  # New MFE  # New MAE
         )
 
         refreshed_data = result["data"]
@@ -684,7 +682,7 @@ class TestPositionCalculatorPerformance(unittest.TestCase):
 
         start_time = time.time()
 
-        for i in range(100):
+        for _i in range(100):
             self.calculator.comprehensive_position_refresh(test_data)
 
         end_time = time.time()

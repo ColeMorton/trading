@@ -13,29 +13,19 @@ CLI → SPDSAnalysisEngine → Results
 This reduces complexity while maintaining all analytical capabilities.
 """
 
-import asyncio
-import json
-import logging
 from dataclasses import dataclass
 from datetime import datetime
+import json
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
-import polars as pl
 from scipy import stats
 
-from .config.statistical_analysis_config import StatisticalAnalysisConfig
-
 # Import consolidated models and config
-from .models.spds_models import (
-    AnalysisResult,
-    ConfidenceLevel,
-    ExitSignal,
-    SignalType,
-    SPDSConfig,
-)
+from .models.spds_models import AnalysisResult, ExitSignal, SignalType, SPDSConfig
 
 
 @dataclass
@@ -46,8 +36,8 @@ class AnalysisRequest:
     parameter: str  # Portfolio file, strategy spec, or position UUID
     use_trade_history: bool = True
     output_format: str = "results"
-    save_results: Optional[str] = None
-    config_overrides: Optional[Dict[str, Any]] = None
+    save_results: str | None = None
+    config_overrides: dict[str, Any] | None = None
 
 
 @dataclass
@@ -56,8 +46,8 @@ class AnalysisContext:
 
     request: AnalysisRequest
     config: SPDSConfig
-    data_sources: Dict[str, bool]
-    execution_metadata: Dict[str, Any]
+    data_sources: dict[str, bool]
+    execution_metadata: dict[str, Any]
 
 
 class SPDSAnalysisEngine:
@@ -70,8 +60,8 @@ class SPDSAnalysisEngine:
 
     def __init__(
         self,
-        config: Optional[SPDSConfig] = None,
-        logger: Optional[logging.Logger] = None,
+        config: SPDSConfig | None = None,
+        logger: logging.Logger | None = None,
     ):
         """
         Initialize the SPDS Analysis Engine.
@@ -82,7 +72,7 @@ class SPDSAnalysisEngine:
         """
         self.config = config or self._create_default_config()
         self.logger = logger or self._create_default_logger()
-        self.results_cache: Dict[str, AnalysisResult] = {}
+        self.results_cache: dict[str, AnalysisResult] = {}
 
         # Initialize statistical thresholds
         self.z_score_threshold = 2.0
@@ -90,7 +80,7 @@ class SPDSAnalysisEngine:
         self.convergence_threshold = self.config.convergence_threshold
 
         # Performance tracking
-        self.performance_metrics: Dict[str, float] = {}
+        self.performance_metrics: dict[str, float] = {}
 
     def _create_default_config(self) -> SPDSConfig:
         """Create default configuration for the analysis engine."""
@@ -109,7 +99,7 @@ class SPDSAnalysisEngine:
             logger.setLevel(logging.INFO)
         return logger
 
-    async def analyze(self, request: AnalysisRequest) -> Dict[str, AnalysisResult]:
+    async def analyze(self, request: AnalysisRequest) -> dict[str, AnalysisResult]:
         """
         Main analysis method that handles all analysis types.
 
@@ -141,9 +131,9 @@ class SPDSAnalysisEngine:
 
             # Record performance metrics
             execution_time = (datetime.now() - start_time).total_seconds()
-            self.performance_metrics[
-                f"{request.analysis_type}_execution_time"
-            ] = execution_time
+            self.performance_metrics[f"{request.analysis_type}_execution_time"] = (
+                execution_time
+            )
 
             self.logger.info(f"Analysis completed in {execution_time:.2f}s")
 
@@ -191,7 +181,7 @@ class SPDSAnalysisEngine:
 
     def _detect_data_sources(
         self, parameter: str, analysis_type: str
-    ) -> Dict[str, bool]:
+    ) -> dict[str, bool]:
         """Detect available data sources for the analysis."""
         data_sources = {
             "portfolio_file": False,
@@ -241,7 +231,7 @@ class SPDSAnalysisEngine:
 
     async def _analyze_portfolio(
         self, context: AnalysisContext
-    ) -> Dict[str, AnalysisResult]:
+    ) -> dict[str, AnalysisResult]:
         """Analyze entire portfolio for exit signals."""
         portfolio_file = context.request.parameter
 
@@ -289,7 +279,7 @@ class SPDSAnalysisEngine:
 
     async def _analyze_strategy(
         self, context: AnalysisContext
-    ) -> Dict[str, AnalysisResult]:
+    ) -> dict[str, AnalysisResult]:
         """Analyze specific strategy performance."""
         strategy_spec = context.request.parameter
 
@@ -333,7 +323,7 @@ class SPDSAnalysisEngine:
 
     async def _analyze_position(
         self, context: AnalysisContext
-    ) -> Dict[str, AnalysisResult]:
+    ) -> dict[str, AnalysisResult]:
         """Analyze specific position by UUID."""
         position_uuid = context.request.parameter
 
@@ -401,7 +391,7 @@ class SPDSAnalysisEngine:
 
         return result
 
-    def _calculate_statistical_metrics(self, position: pd.Series) -> Dict[str, float]:
+    def _calculate_statistical_metrics(self, position: pd.Series) -> dict[str, float]:
         """Calculate basic statistical metrics for a position."""
         metrics = {}
 
@@ -435,7 +425,7 @@ class SPDSAnalysisEngine:
 
     async def _calculate_divergence_metrics(
         self, position: pd.Series, context: AnalysisContext
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Calculate divergence metrics using simplified statistical analysis."""
 
         # Extract position data
@@ -489,9 +479,9 @@ class SPDSAnalysisEngine:
     def _calculate_component_scores(
         self,
         position: pd.Series,
-        statistical_metrics: Dict[str, float],
-        divergence_metrics: Dict[str, float],
-    ) -> Dict[str, float]:
+        statistical_metrics: dict[str, float],
+        divergence_metrics: dict[str, float],
+    ) -> dict[str, float]:
         """Calculate component scores for different analysis dimensions."""
 
         # Helper function to safely get numeric values
@@ -560,9 +550,9 @@ class SPDSAnalysisEngine:
 
     def _generate_exit_signal(
         self,
-        component_scores: Dict[str, float],
-        statistical_metrics: Dict[str, float],
-        divergence_metrics: Dict[str, float],
+        component_scores: dict[str, float],
+        statistical_metrics: dict[str, float],
+        divergence_metrics: dict[str, float],
     ) -> ExitSignal:
         """Generate exit signal based on component scores and statistical analysis."""
 
@@ -607,8 +597,8 @@ class SPDSAnalysisEngine:
     def _generate_signal_reasoning(
         self,
         signal_type: SignalType,
-        component_scores: Dict[str, float],
-        statistical_metrics: Dict[str, float],
+        component_scores: dict[str, float],
+        statistical_metrics: dict[str, float],
     ) -> str:
         """Generate human-readable reasoning for the exit signal."""
 
@@ -620,19 +610,19 @@ class SPDSAnalysisEngine:
                 f"Max drawdown: {statistical_metrics['max_drawdown']:.1%}."
             )
 
-        elif signal_type == SignalType.EXIT_SOON:
+        if signal_type == SignalType.EXIT_SOON:
             return (
                 f"Moderate negative signals detected. Overall score: {component_scores['overall_score']:.1f}. "
                 f"Consider exiting based on momentum: {component_scores['momentum_score']:.1f} "
                 f"and trend: {component_scores['trend_score']:.1f}."
             )
 
-        else:  # HOLD
-            return (
-                f"Position within acceptable parameters. Overall score: {component_scores['overall_score']:.1f}. "
-                f"Risk score: {component_scores['risk_score']:.1f}, "
-                f"Trend score: {component_scores['trend_score']:.1f}. Continue monitoring."
-            )
+        # HOLD
+        return (
+            f"Position within acceptable parameters. Overall score: {component_scores['overall_score']:.1f}. "
+            f"Risk score: {component_scores['risk_score']:.1f}, "
+            f"Trend score: {component_scores['trend_score']:.1f}. Continue monitoring."
+        )
 
     def _get_recommended_action(self, signal_type: SignalType) -> str:
         """Get recommended action based on signal type."""
@@ -644,7 +634,7 @@ class SPDSAnalysisEngine:
         return action_map.get(signal_type, "Hold position and monitor")
 
     def _calculate_risk_level(
-        self, component_scores: Dict[str, float], statistical_metrics: Dict[str, float]
+        self, component_scores: dict[str, float], statistical_metrics: dict[str, float]
     ) -> str:
         """Calculate risk level based on component scores and metrics."""
 
@@ -654,13 +644,12 @@ class SPDSAnalysisEngine:
 
         if risk_score < -30 or max_drawdown > 0.3 or win_rate < 0.4:
             return "HIGH"
-        elif risk_score < -10 or max_drawdown > 0.2 or win_rate < 0.5:
+        if risk_score < -10 or max_drawdown > 0.2 or win_rate < 0.5:
             return "MEDIUM"
-        else:
-            return "LOW"
+        return "LOW"
 
     def _calculate_confidence_level(
-        self, component_scores: Dict[str, float], statistical_metrics: Dict[str, float]
+        self, component_scores: dict[str, float], statistical_metrics: dict[str, float]
     ) -> float:
         """Calculate overall confidence level in the analysis."""
 
@@ -693,7 +682,7 @@ class SPDSAnalysisEngine:
 
         return min(max(confidence, 0.0), 100.0)
 
-    async def _find_position_by_uuid(self, position_uuid: str) -> Optional[pd.Series]:
+    async def _find_position_by_uuid(self, position_uuid: str) -> pd.Series | None:
         """Find position data by UUID across all portfolio files."""
 
         # Search in positions directory
@@ -713,7 +702,7 @@ class SPDSAnalysisEngine:
 
         return None
 
-    async def _save_results(self, results: Dict[str, AnalysisResult], filename: str):
+    async def _save_results(self, results: dict[str, AnalysisResult], filename: str):
         """Save analysis results to file."""
 
         # Create exports directory if it doesn't exist
@@ -750,7 +739,7 @@ class SPDSAnalysisEngine:
 
         self.logger.info(f"Results saved to: {output_path}")
 
-    def get_performance_metrics(self) -> Dict[str, float]:
+    def get_performance_metrics(self) -> dict[str, float]:
         """Get performance metrics for the analysis engine."""
         return self.performance_metrics.copy()
 
@@ -758,16 +747,18 @@ class SPDSAnalysisEngine:
         """Clear the results cache."""
         self.results_cache.clear()
 
-    def get_health_status(self) -> Dict[str, Any]:
+    def get_health_status(self) -> dict[str, Any]:
         """Get health status of the analysis engine."""
         return {
             "status": "healthy",
             "cache_size": len(self.results_cache),
             "performance_metrics": self.performance_metrics,
             "config_version": "simplified_engine_v1",
-            "last_analysis": max(self.performance_metrics.keys())
-            if self.performance_metrics
-            else "never",
+            "last_analysis": (
+                max(self.performance_metrics.keys())
+                if self.performance_metrics
+                else "never"
+            ),
         }
 
 
@@ -775,8 +766,8 @@ class SPDSAnalysisEngine:
 async def analyze_portfolio(
     portfolio_file: str,
     use_trade_history: bool = True,
-    config_overrides: Optional[Dict[str, Any]] = None,
-) -> Dict[str, AnalysisResult]:
+    config_overrides: dict[str, Any] | None = None,
+) -> dict[str, AnalysisResult]:
     """
     Convenience function to analyze a portfolio.
 
@@ -799,8 +790,8 @@ async def analyze_portfolio(
 
 
 async def analyze_strategy(
-    strategy_spec: str, config_overrides: Optional[Dict[str, Any]] = None
-) -> Dict[str, AnalysisResult]:
+    strategy_spec: str, config_overrides: dict[str, Any] | None = None
+) -> dict[str, AnalysisResult]:
     """
     Convenience function to analyze a strategy.
 
@@ -821,8 +812,8 @@ async def analyze_strategy(
 
 
 async def analyze_position(
-    position_uuid: str, config_overrides: Optional[Dict[str, Any]] = None
-) -> Dict[str, AnalysisResult]:
+    position_uuid: str, config_overrides: dict[str, Any] | None = None
+) -> dict[str, AnalysisResult]:
     """
     Convenience function to analyze a position.
 

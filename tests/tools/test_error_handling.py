@@ -3,7 +3,6 @@ Unit tests for the error handling module.
 """
 
 import unittest
-from typing import Any, Dict, Optional
 
 import numpy as np
 import pandas as pd

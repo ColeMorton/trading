@@ -5,11 +5,10 @@ Validates 50% fixture duplication reduction and 30% performance improvement targ
 """
 
 import ast
-import time
 from pathlib import Path
-from typing import Any, Dict, List, Set, Tuple
-
-import pytest
+import sys
+import time
+from typing import Any
 
 
 class FixtureDuplicationAnalyzer:
@@ -17,15 +16,15 @@ class FixtureDuplicationAnalyzer:
 
     def __init__(self, project_root: Path):
         self.project_root = project_root
-        self.fixture_definitions: Dict[str, List[Tuple[str, str]]] = {}
-        self.duplicated_fixtures: Dict[str, List[str]] = {}
+        self.fixture_definitions: dict[str, list[tuple[str, str]]] = {}
+        self.duplicated_fixtures: dict[str, list[str]] = {}
 
-    def analyze_file(self, file_path: Path) -> Dict[str, Set[str]]:
+    def analyze_file(self, file_path: Path) -> dict[str, set[str]]:
         """Analyze a single Python file for fixture definitions."""
         fixtures = {"pytest_fixtures": set(), "function_names": set()}
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             tree = ast.parse(content)
@@ -37,9 +36,7 @@ class FixtureDuplicationAnalyzer:
                         if (
                             isinstance(decorator, ast.Name)
                             and decorator.id == "fixture"
-                        ):
-                            fixtures["pytest_fixtures"].add(node.name)
-                        elif (
+                        ) or (
                             isinstance(decorator, ast.Attribute)
                             and decorator.attr == "fixture"
                         ):
@@ -53,14 +50,14 @@ class FixtureDuplicationAnalyzer:
 
         return fixtures
 
-    def find_conftest_files(self) -> List[Path]:
+    def find_conftest_files(self) -> list[Path]:
         """Find all conftest.py files in the project."""
         conftest_files = []
         for conftest in self.project_root.rglob("conftest.py"):
             conftest_files.append(conftest)
         return conftest_files
 
-    def find_fixture_files(self) -> List[Path]:
+    def find_fixture_files(self) -> list[Path]:
         """Find all fixture-related files."""
         fixture_files = []
 
@@ -81,10 +78,10 @@ class FixtureDuplicationAnalyzer:
 
         return fixture_files
 
-    def calculate_duplication_metrics(self) -> Dict[str, float]:
+    def calculate_duplication_metrics(self) -> dict[str, float]:
         """Calculate fixture duplication metrics."""
         fixture_files = self.find_fixture_files()
-        all_fixtures: Dict[str, List[str]] = {}
+        all_fixtures: dict[str, list[str]] = {}
         total_lines = 0
         duplicated_lines = 0
 
@@ -95,7 +92,7 @@ class FixtureDuplicationAnalyzer:
 
             # Count lines in fixture files
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
+                with open(file_path, encoding="utf-8") as f:
                     file_lines = len(f.readlines())
                     total_lines += file_lines
             except Exception:
@@ -129,9 +126,9 @@ class FixtureDuplicationAnalyzer:
             "duplicated_fixture_details": duplicated_fixtures,
         }
 
-    def analyze_consolidation_success(self) -> Dict[str, bool]:
+    def analyze_consolidation_success(self) -> dict[str, bool]:
         """Analyze if consolidation objectives were met."""
-        metrics = self.calculate_duplication_metrics()
+        self.calculate_duplication_metrics()
 
         # Check specific consolidation targets
         consolidation_results = {
@@ -151,7 +148,7 @@ class FixtureDuplicationAnalyzer:
             return True  # File doesn't exist, so no duplication
 
         try:
-            with open(api_conftest, "r") as f:
+            with open(api_conftest) as f:
                 content = f.read()
                 # Check if event_loop fixture still exists in API conftest
                 return "def event_loop(" not in content
@@ -168,14 +165,14 @@ class FixtureDuplicationAnalyzer:
         api_uses_different_name = True
 
         try:
-            with open(main_conftest, "r") as f:
+            with open(main_conftest) as f:
                 main_content = f.read()
                 main_has_api_client = "def api_client(" in main_content
         except Exception:
             pass
 
         try:
-            with open(api_conftest, "r") as f:
+            with open(api_conftest) as f:
                 api_content = f.read()
                 # Should not have conflicting test_client name
                 api_uses_different_name = "def test_client(" not in api_content
@@ -189,7 +186,7 @@ class FixtureDuplicationAnalyzer:
         factories_file = self.project_root / "tests" / "shared" / "factories.py"
 
         try:
-            with open(factories_file, "r") as f:
+            with open(factories_file) as f:
                 content = f.read()
                 return (
                     "create_api_portfolio_data" in content
@@ -206,7 +203,7 @@ class FixtureDuplicationAnalyzer:
             return True
 
         try:
-            with open(api_conftest, "r") as f:
+            with open(api_conftest) as f:
                 content = f.read()
                 # Check for consolidation comments
                 return (
@@ -223,11 +220,11 @@ class FixturePerformanceValidator:
     def __init__(self, project_root: Path):
         self.project_root = project_root
 
-    def measure_test_setup_performance(self, sample_size: int = 10) -> Dict[str, float]:
+    def measure_test_setup_performance(self, sample_size: int = 10) -> dict[str, float]:
         """Measure test setup performance with current fixtures."""
         setup_times = []
 
-        for i in range(sample_size):
+        for _i in range(sample_size):
             start_time = time.time()
 
             # Simulate test setup by importing and creating fixtures
@@ -261,7 +258,7 @@ class FixturePerformanceValidator:
             "sample_size": sample_size,
         }
 
-    def test_cache_effectiveness(self) -> Dict[str, Any]:
+    def test_cache_effectiveness(self) -> dict[str, Any]:
         """Test the effectiveness of the caching system."""
         try:
             from tests.shared.factories import create_test_market_data
@@ -272,12 +269,12 @@ class FixturePerformanceValidator:
 
             # Cold run
             start_time = time.time()
-            data1 = create_test_market_data(ticker="TEST", days=252)
+            create_test_market_data(ticker="TEST", days=252)
             cold_time = time.time() - start_time
 
             # Warm run (should be cached)
             start_time = time.time()
-            data2 = create_test_market_data(ticker="TEST", days=252)
+            create_test_market_data(ticker="TEST", days=252)
             warm_time = time.time() - start_time
 
             # Get cache stats if available
@@ -299,7 +296,7 @@ class FixturePerformanceValidator:
             return {"error": f"Cache test failed: {e}"}
 
 
-def validate_phase3_implementation() -> Dict[str, Any]:
+def validate_phase3_implementation() -> dict[str, Any]:
     """
     Comprehensive Phase 3 validation.
 
@@ -365,12 +362,12 @@ def validate_phase3_implementation() -> Dict[str, Any]:
         f"🎯 Target (<12.5%): {'✅ PASS' if objectives_met['50_percent_duplication_reduction'] else '❌ FAIL'}"
     )
 
-    print(f"\n🔄 Consolidation Results:")
+    print("\n🔄 Consolidation Results:")
     for objective, success in consolidation_results.items():
         status = "✅ PASS" if success else "❌ FAIL"
         print(f"   {objective}: {status}")
 
-    print(f"\n⚡ Performance Results:")
+    print("\n⚡ Performance Results:")
     print(f"   Setup Time: {setup_performance['average_setup_time']:.3f}s")
     if "performance_improvement" in cache_effectiveness:
         print(
@@ -395,4 +392,4 @@ def validate_phase3_implementation() -> Dict[str, Any]:
 
 if __name__ == "__main__":
     results = validate_phase3_implementation()
-    exit(0 if results["overall_success"] else 1)
+    sys.exit(0 if results["overall_success"] else 1)

@@ -5,20 +5,21 @@ This module implements auto-tuning for ThreadPool and memory pool sizes
 based on system resources and performance metrics.
 """
 
-import json
-import logging
-import statistics
-import threading
-import time
 from collections import deque
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+import json
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+import statistics
+import threading
+import time
+from typing import Any
 
 import psutil
 
 from .performance_monitor import get_performance_monitor
+
 
 logger = logging.getLogger(__name__)
 
@@ -32,8 +33,8 @@ class ResourceSnapshot:
     memory_percent: float
     memory_available_mb: float
     cpu_count: int
-    load_average: Optional[float] = None
-    io_wait_percent: Optional[float] = None
+    load_average: float | None = None
+    io_wait_percent: float | None = None
 
 
 @dataclass
@@ -111,7 +112,7 @@ class ResourceMonitor:
 
         return snapshot
 
-    def capture_performance_snapshot(self) -> Optional[PerformanceSnapshot]:
+    def capture_performance_snapshot(self) -> PerformanceSnapshot | None:
         """Capture current performance metrics."""
         try:
             # Get recent performance summary
@@ -170,7 +171,7 @@ class ResourceMonitor:
             logger.debug(f"Failed to capture performance snapshot: {e}")
             return None
 
-    def get_resource_trend(self, minutes: int = 30) -> Dict[str, float]:
+    def get_resource_trend(self, minutes: int = 30) -> dict[str, float]:
         """Get resource usage trend over time."""
         cutoff_time = datetime.now() - timedelta(minutes=minutes)
 
@@ -206,7 +207,7 @@ class ResourceMonitor:
 
         return trends
 
-    def get_performance_trend(self, minutes: int = 30) -> Dict[str, float]:
+    def get_performance_trend(self, minutes: int = 30) -> dict[str, float]:
         """Get performance trend over time."""
         cutoff_time = datetime.now() - timedelta(minutes=minutes)
 
@@ -235,7 +236,7 @@ class ResourceMonitor:
 
         return trends
 
-    def _calculate_trend(self, values: List[float]) -> float:
+    def _calculate_trend(self, values: list[float]) -> float:
         """Calculate trend direction (-1 to 1, where 1 is increasing)."""
         if len(values) < 2:
             return 0.0
@@ -248,7 +249,9 @@ class ResourceMonitor:
         x_mean = statistics.mean(x_values)
         y_mean = statistics.mean(values)
 
-        numerator = sum((x - x_mean) * (y - y_mean) for x, y in zip(x_values, values))
+        numerator = sum(
+            (x - x_mean) * (y - y_mean) for x, y in zip(x_values, values, strict=False)
+        )
         x_var = sum((x - x_mean) ** 2 for x in x_values)
         y_var = sum((y - y_mean) ** 2 for y in values)
 
@@ -274,7 +277,7 @@ class AutoTuner:
         self.confidence_threshold = confidence_threshold
 
         self.resource_monitor = ResourceMonitor()
-        self.tuning_history: List[TuningRecommendation] = []
+        self.tuning_history: list[TuningRecommendation] = []
         self.active_tuning = False
         self._tuning_thread = None
 
@@ -338,9 +341,9 @@ class AutoTuner:
             # Wait for next cycle
             time.sleep(self.tuning_interval)
 
-    def _generate_recommendations(self) -> List[TuningRecommendation]:
+    def _generate_recommendations(self) -> list[TuningRecommendation]:
         """Generate tuning recommendations based on current state."""
-        recommendations: List[TuningRecommendation] = []
+        recommendations: list[TuningRecommendation] = []
 
         # Get trends
         resource_trend = self.resource_monitor.get_resource_trend()
@@ -372,8 +375,8 @@ class AutoTuner:
         return recommendations
 
     def _cpu_recommendations(
-        self, resource_trend: Dict, performance_trend: Dict
-    ) -> List[TuningRecommendation]:
+        self, resource_trend: dict, performance_trend: dict
+    ) -> list[TuningRecommendation]:
         """Generate CPU-related recommendations."""
         recommendations = []
 
@@ -419,8 +422,8 @@ class AutoTuner:
         return recommendations
 
     def _memory_recommendations(
-        self, resource_trend: Dict, performance_trend: Dict
-    ) -> List[TuningRecommendation]:
+        self, resource_trend: dict, performance_trend: dict
+    ) -> list[TuningRecommendation]:
         """Generate memory-related recommendations."""
         recommendations = []
 
@@ -487,13 +490,13 @@ class AutoTuner:
         return recommendations
 
     def _performance_recommendations(
-        self, resource_trend: Dict, performance_trend: Dict
-    ) -> List[TuningRecommendation]:
+        self, resource_trend: dict, performance_trend: dict
+    ) -> list[TuningRecommendation]:
         """Generate performance-related recommendations."""
         recommendations = []
 
         duration_avg = performance_trend["duration_avg"]
-        throughput_avg = performance_trend["throughput_avg"]
+        performance_trend["throughput_avg"]
         error_rate = performance_trend["error_rate_avg"]
 
         current_streaming_threshold = self.current_config["streaming_threshold_mb"]
@@ -539,7 +542,7 @@ class AutoTuner:
         return recommendations
 
     def _apply_recommendations(
-        self, recommendations: List[TuningRecommendation]
+        self, recommendations: list[TuningRecommendation]
     ) -> int:
         """Apply high-confidence recommendations."""
         applied_count = 0
@@ -567,17 +570,17 @@ class AutoTuner:
                 # This would require integration with the parallel executor
                 return True
 
-            elif rec.component == "memory_pool" and rec.parameter == "pool_size":
+            if rec.component == "memory_pool" and rec.parameter == "pool_size":
                 self.current_config["memory_pool_size"] = rec.recommended_value
                 # Note: Memory pool reconfiguration would happen here
                 return True
 
-            elif rec.component == "cache" and rec.parameter == "size_mb":
+            if rec.component == "cache" and rec.parameter == "size_mb":
                 self.current_config["cache_size_mb"] = rec.recommended_value
                 # Note: Cache size reconfiguration would happen here
                 return True
 
-            elif rec.component == "streaming" and rec.parameter == "threshold_mb":
+            if rec.component == "streaming" and rec.parameter == "threshold_mb":
                 self.current_config["streaming_threshold_mb"] = rec.recommended_value
                 # Note: Streaming threshold reconfiguration would happen here
                 return True
@@ -588,7 +591,7 @@ class AutoTuner:
             logger.error(f"Failed to apply recommendation: {e}")
             return False
 
-    def get_tuning_status(self) -> Dict[str, Any]:
+    def get_tuning_status(self) -> dict[str, Any]:
         """Get current tuning status."""
         resource_trend = self.resource_monitor.get_resource_trend()
         performance_trend = self.resource_monitor.get_performance_trend()
@@ -600,14 +603,16 @@ class AutoTuner:
             "resource_trend": resource_trend,
             "performance_trend": performance_trend,
             "recent_recommendations": len(self.tuning_history),
-            "last_tuning": self.tuning_history[-1].timestamp.isoformat()
-            if self.tuning_history
-            else None,
+            "last_tuning": (
+                self.tuning_history[-1].timestamp.isoformat()
+                if self.tuning_history
+                else None
+            ),
         }
 
         return status
 
-    def manual_recommendation(self) -> List[TuningRecommendation]:
+    def manual_recommendation(self) -> list[TuningRecommendation]:
         """Get manual tuning recommendations without applying them."""
         # Capture current state
         self.resource_monitor.capture_resource_snapshot()
@@ -657,7 +662,7 @@ class AutoTuner:
 
 
 # Global auto-tuner instance
-_global_auto_tuner: Optional[AutoTuner] = None
+_global_auto_tuner: AutoTuner | None = None
 
 
 def get_auto_tuner() -> AutoTuner:

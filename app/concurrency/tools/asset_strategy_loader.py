@@ -6,14 +6,15 @@ Auto-discovers and loads strategy files for a given asset from the portfolio met
 Applies intelligent filtering based on Score threshold and converts to concurrency format.
 """
 
-import logging
 from glob import glob
+import logging
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import pandas as pd
 
 from app.tools.exceptions import DataLoadError
+
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +85,7 @@ class AssetStrategyLoader:
 
     def load_strategies_for_asset(
         self, asset: str, min_score: float = 1.0
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Load all strategy files for a given asset and apply filtering.
 
@@ -130,7 +131,7 @@ class AssetStrategyLoader:
         logger.info(f"Total strategies loaded for {asset}: {len(all_strategies)}")
         return all_strategies
 
-    def _discover_strategy_files(self, asset: str) -> List[Path]:
+    def _discover_strategy_files(self, asset: str) -> list[Path]:
         """Auto-discover strategy files matching the asset pattern."""
         pattern = str(self.data_dir / f"{asset}_D_*.csv")
         file_paths = glob(pattern)
@@ -139,7 +140,7 @@ class AssetStrategyLoader:
 
     def _load_and_filter_file(
         self, file_path: Path, min_score: float
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Load CSV file and convert to strategy dictionaries with filtering."""
         df = pd.read_csv(file_path)
 
@@ -200,7 +201,7 @@ class AssetStrategyLoader:
 
     def _convert_to_strategy_dict(
         self, row: pd.Series, source_file: Path
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Convert CSV row to strategy dictionary."""
 
         # Extract strategy identifier
@@ -278,7 +279,7 @@ class AssetStrategyLoader:
 
         return "UNKNOWN"
 
-    def get_available_assets(self) -> List[str]:
+    def get_available_assets(self) -> list[str]:
         """Get list of available assets based on existing strategy files."""
         pattern = str(self.data_dir / "*_D_*.csv")
         file_paths = glob(pattern)
@@ -290,9 +291,9 @@ class AssetStrategyLoader:
             if len(parts) >= 1:
                 assets.add(parts[0])
 
-        return sorted(list(assets))
+        return sorted(assets)
 
-    def validate_asset_data(self, asset: str) -> Dict[str, Any]:
+    def validate_asset_data(self, asset: str) -> dict[str, Any]:
         """Validate data quality for an asset."""
         try:
             strategies = self.load_strategies_for_asset(

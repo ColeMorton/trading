@@ -5,8 +5,8 @@ This module provides alternatives to VectorBT's interactive plotting that work
 in headless environments without requiring anywidget or Jupyter widgets.
 """
 
+from collections.abc import Callable
 import os
-from typing import Callable, List, Optional, Union
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -21,9 +21,9 @@ def save_portfolio_plots(
     portfolio,
     output_dir: str,
     filename_prefix: str = "portfolio",
-    subplots: Optional[List[str]] = None,
+    subplots: list[str] | None = None,
     **kwargs,
-) -> List[str]:
+) -> list[str]:
     """
     Save portfolio plots to files instead of displaying them interactively.
 
@@ -81,7 +81,7 @@ def save_portfolio_plots(
             # Kaleido might not be available, continue with HTML only
             pass
 
-    except Exception as e:
+    except Exception:
         # Fallback: create individual matplotlib plots
         created_files.extend(
             _create_matplotlib_fallback(portfolio, output_dir, filename_prefix)
@@ -92,7 +92,7 @@ def save_portfolio_plots(
 
 def create_portfolio_plot_files(
     portfolio, config: dict, log_func: Callable
-) -> List[str]:
+) -> list[str]:
     """
     Create portfolio plot files based on strategy configuration.
 
@@ -126,13 +126,13 @@ def create_portfolio_plot_files(
         return created_files
 
     except Exception as e:
-        log_func(f"Error generating portfolio plots: {str(e)}", "error")
+        log_func(f"Error generating portfolio plots: {e!s}", "error")
         return []
 
 
 def _create_matplotlib_fallback(
     portfolio, output_dir: str, filename_prefix: str
-) -> List[str]:
+) -> list[str]:
     """
     Fallback method using matplotlib for basic portfolio plots.
 
@@ -178,7 +178,7 @@ def _create_matplotlib_fallback(
         plt.close()
         created_files.append(drawdown_path)
 
-    except Exception as e:
+    except Exception:
         # Even fallback failed, but don't raise - just return empty list
         pass
 

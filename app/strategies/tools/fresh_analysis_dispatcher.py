@@ -6,7 +6,8 @@ but no VectorBT Portfolio objects exist. It dispatches to the appropriate strate
 analysis function based on strategy type and returns Portfolio objects for equity extraction.
 """
 
-from typing import Any, Callable, Dict, Optional, Tuple
+from collections.abc import Callable
+from typing import Any
 
 
 def dispatch_fresh_analysis(
@@ -14,10 +15,10 @@ def dispatch_fresh_analysis(
     strategy_type: str,
     fast_period: int,
     slow_period: int,
-    signal_period: Optional[int],
-    config: Dict[str, Any],
+    signal_period: int | None,
+    config: dict[str, Any],
     log: Callable[[str, str], None],
-) -> Optional[Any]:
+) -> Any | None:
     """
     Dispatch fresh strategy analysis to generate VectorBT Portfolio objects.
 
@@ -47,20 +48,19 @@ def dispatch_fresh_analysis(
             return _dispatch_ma_analysis(
                 ticker, strategy_type, fast_period, slow_period, config, log
             )
-        elif strategy_type == "MACD":
+        if strategy_type == "MACD":
             return _dispatch_macd_analysis(
                 ticker, fast_period, slow_period, signal_period, config, log
             )
-        else:
-            log(
-                f"Unsupported strategy type for fresh analysis: {strategy_type}",
-                "warning",
-            )
-            return None
+        log(
+            f"Unsupported strategy type for fresh analysis: {strategy_type}",
+            "warning",
+        )
+        return None
 
     except Exception as e:
         log(
-            f"Failed to execute fresh {strategy_type} analysis for {ticker}: {str(e)}",
+            f"Failed to execute fresh {strategy_type} analysis for {ticker}: {e!s}",
             "error",
         )
         return None
@@ -71,15 +71,12 @@ def _dispatch_ma_analysis(
     strategy_type: str,
     fast_period: int,
     slow_period: int,
-    config: Dict[str, Any],
+    config: dict[str, Any],
     log: Callable[[str, str], None],
-) -> Optional[Any]:
+) -> Any | None:
     """Dispatch fresh MA (SMA/EMA) analysis."""
     try:
         # Import here to avoid circular imports
-        from app.strategies.ma_cross.tools.strategy_execution import (
-            execute_single_strategy,
-        )
         from app.tools.backtest_strategy import backtest_strategy
         from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
         from app.tools.get_data import get_data
@@ -135,7 +132,7 @@ def _dispatch_ma_analysis(
         return portfolio
 
     except Exception as e:
-        log(f"Error in MA fresh analysis for {ticker}: {str(e)}", "error")
+        log(f"Error in MA fresh analysis for {ticker}: {e!s}", "error")
         return None
 
 
@@ -143,10 +140,10 @@ def _dispatch_macd_analysis(
     ticker: str,
     fast_period: int,
     slow_period: int,
-    signal_period: Optional[int],
-    config: Dict[str, Any],
+    signal_period: int | None,
+    config: dict[str, Any],
     log: Callable[[str, str], None],
-) -> Optional[Any]:
+) -> Any | None:
     """Dispatch fresh MACD analysis."""
     try:
         # Import here to avoid circular imports
@@ -192,18 +189,18 @@ def _dispatch_macd_analysis(
         return None
 
     except Exception as e:
-        log(f"Error in MACD fresh analysis for {ticker}: {str(e)}", "error")
+        log(f"Error in MACD fresh analysis for {ticker}: {e!s}", "error")
         return None
 
 
 def should_trigger_fresh_analysis(
-    config: Dict[str, Any],
+    config: dict[str, Any],
     has_vectorbt_portfolio: bool,
-    ticker: str = None,
-    strategy_type: str = None,
-    fast_period: int = None,
-    slow_period: int = None,
-    signal_period: Optional[int] = None,
+    ticker: str | None = None,
+    strategy_type: str | None = None,
+    fast_period: int | None = None,
+    slow_period: int | None = None,
+    signal_period: int | None = None,
 ) -> bool:
     """
     Determine if fresh analysis should be triggered for equity export.
@@ -264,7 +261,7 @@ def should_trigger_fresh_analysis(
 
             # If file exists, skip fresh analysis
             if file_exists:
-                file_path = get_equity_file_path(
+                get_equity_file_path(
                     ticker=ticker,
                     strategy_type=strategy_type,
                     fast_period=fast_period,

@@ -7,7 +7,7 @@ with named constants, parameter validation, and documentation.
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, TypedDict, Union
+from typing import Any, TypedDict
 
 from typing_extensions import NotRequired
 
@@ -34,9 +34,9 @@ class SignalMetricsConfig(TypedDict):
     RETURN_COLUMN: str
     ANNUALIZATION_FACTOR: int
     MIN_SAMPLE_SIZE: int
-    HORIZONS: List[int]
+    HORIZONS: list[int]
     NORMALIZATION_METHOD: str
-    FEATURE_RANGE: List[float]
+    FEATURE_RANGE: list[float]
 
 
 class SignalFilterConfig(TypedDict):
@@ -101,7 +101,7 @@ class HorizonAnalysisConfig(TypedDict):
         SAMPLE_SIZE_FACTOR: Sample size normalization factor
     """
 
-    HORIZONS: List[int]
+    HORIZONS: list[int]
     MIN_SAMPLE_SIZE: int
     SHARPE_WEIGHT: float
     WIN_RATE_WEIGHT: float
@@ -182,7 +182,7 @@ DEFAULT_SIGNAL_CONVERSION_CONFIG: SignalConversionConfig = {
 class SignalConfigManager:
     """Manager for signal processing configuration."""
 
-    def __init__(self, log: Optional[Callable[[str, str], None]] = None):
+    def __init__(self, log: Callable[[str, str], None] | None = None):
         """Initialize the configuration manager.
 
         Args:
@@ -203,7 +203,7 @@ class SignalConfigManager:
         self.horizon_config = DEFAULT_HORIZON_ANALYSIS_CONFIG.copy()
         self.conversion_config = DEFAULT_SIGNAL_CONVERSION_CONFIG.copy()
 
-    def load_config_from_file(self, filepath: Union[str, Path]) -> bool:
+    def load_config_from_file(self, filepath: str | Path) -> bool:
         """Load configuration from a JSON file.
 
         Args:
@@ -213,7 +213,7 @@ class SignalConfigManager:
             bool: True if successful, False otherwise
         """
         try:
-            with open(filepath, "r") as f:
+            with open(filepath) as f:
                 config_data = json.load(f)
 
             self.log(f"Loading configuration from {filepath}", "info")
@@ -238,10 +238,10 @@ class SignalConfigManager:
             return True
 
         except Exception as e:
-            self.log(f"Error loading configuration: {str(e)}", "error")
+            self.log(f"Error loading configuration: {e!s}", "error")
             return False
 
-    def save_config_to_file(self, filepath: Union[str, Path]) -> bool:
+    def save_config_to_file(self, filepath: str | Path) -> bool:
         """Save configuration to a JSON file.
 
         Args:
@@ -266,10 +266,10 @@ class SignalConfigManager:
             return True
 
         except Exception as e:
-            self.log(f"Error saving configuration: {str(e)}", "error")
+            self.log(f"Error saving configuration: {e!s}", "error")
             return False
 
-    def update_metrics_config(self, config_updates: Dict[str, Any]) -> None:
+    def update_metrics_config(self, config_updates: dict[str, Any]) -> None:
         """Update signal metrics configuration.
 
         Args:
@@ -278,7 +278,7 @@ class SignalConfigManager:
         self._update_config(self.metrics_config, config_updates)
         self._validate_metrics_config()
 
-    def update_filter_config(self, config_updates: Dict[str, Any]) -> None:
+    def update_filter_config(self, config_updates: dict[str, Any]) -> None:
         """Update signal filter configuration.
 
         Args:
@@ -287,7 +287,7 @@ class SignalConfigManager:
         self._update_config(self.filter_config, config_updates)
         self._validate_filter_config()
 
-    def update_quality_config(self, config_updates: Dict[str, Any]) -> None:
+    def update_quality_config(self, config_updates: dict[str, Any]) -> None:
         """Update signal quality configuration.
 
         Args:
@@ -296,7 +296,7 @@ class SignalConfigManager:
         self._update_config(self.quality_config, config_updates)
         self._validate_quality_config()
 
-    def update_horizon_config(self, config_updates: Dict[str, Any]) -> None:
+    def update_horizon_config(self, config_updates: dict[str, Any]) -> None:
         """Update horizon analysis configuration.
 
         Args:
@@ -305,7 +305,7 @@ class SignalConfigManager:
         self._update_config(self.horizon_config, config_updates)
         self._validate_horizon_config()
 
-    def update_conversion_config(self, config_updates: Dict[str, Any]) -> None:
+    def update_conversion_config(self, config_updates: dict[str, Any]) -> None:
         """Update signal conversion configuration.
 
         Args:
@@ -314,7 +314,7 @@ class SignalConfigManager:
         self._update_config(self.conversion_config, config_updates)
         self._validate_conversion_config()
 
-    def _update_config(self, config: Dict[str, Any], updates: Dict[str, Any]) -> None:
+    def _update_config(self, config: dict[str, Any], updates: dict[str, Any]) -> None:
         """Update a configuration dictionary with new values.
 
         Args:
@@ -563,7 +563,7 @@ class SignalConfigManager:
             )
             config["DIRECTION"] = DEFAULT_SIGNAL_CONVERSION_CONFIG["DIRECTION"]
 
-    def get_combined_config(self) -> Dict[str, Any]:
+    def get_combined_config(self) -> dict[str, Any]:
         """Get a combined configuration dictionary.
 
         Returns:
@@ -579,7 +579,7 @@ class SignalConfigManager:
 
 
 # Convenience function to get default configuration
-def get_default_config() -> Dict[str, Dict[str, Any]]:
+def get_default_config() -> dict[str, dict[str, Any]]:
     """Get the default configuration for all signal processing components.
 
     Returns:
@@ -596,7 +596,7 @@ def get_default_config() -> Dict[str, Dict[str, Any]]:
 
 # Convenience function to load configuration from file
 def load_config_from_file(
-    filepath: Union[str, Path], log: Optional[Callable[[str, str], None]] = None
+    filepath: str | Path, log: Callable[[str, str], None] | None = None
 ) -> SignalConfigManager:
     """Load configuration from a file and return a config manager.
 
@@ -614,7 +614,7 @@ def load_config_from_file(
 
 # Convenience function to create a configuration file with default values
 def create_default_config_file(
-    filepath: Union[str, Path], log: Optional[Callable[[str, str], None]] = None
+    filepath: str | Path, log: Callable[[str, str], None] | None = None
 ) -> bool:
     """Create a configuration file with default values.
 

@@ -13,8 +13,7 @@ Key Features:
 """
 
 import logging
-import re
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -23,11 +22,11 @@ import pandas as pd
 class DataQualityValidator:
     """Comprehensive validator for trading data quality."""
 
-    def __init__(self, logger: Optional[logging.Logger] = None):
+    def __init__(self, logger: logging.Logger | None = None):
         """Initialize validator with optional logger."""
         self.logger = logger or logging.getLogger(__name__)
 
-    def validate_position_data(self, df: pd.DataFrame) -> Dict[str, Any]:
+    def validate_position_data(self, df: pd.DataFrame) -> dict[str, Any]:
         """
         Comprehensive validation of position-level trading data.
 
@@ -72,7 +71,7 @@ class DataQualityValidator:
             "severity": "critical" if issues else "warning" if warnings else "clean",
         }
 
-    def _validate_uuid_formats(self, df: pd.DataFrame) -> List[str]:
+    def _validate_uuid_formats(self, df: pd.DataFrame) -> list[str]:
         """Validate Position_UUID formats for different strategy types."""
         issues = []
 
@@ -113,7 +112,7 @@ class DataQualityValidator:
 
         return issues
 
-    def _validate_schema_completeness(self, df: pd.DataFrame) -> List[str]:
+    def _validate_schema_completeness(self, df: pd.DataFrame) -> list[str]:
         """Validate required fields are present and populated."""
         issues = []
 
@@ -140,7 +139,7 @@ class DataQualityValidator:
 
         return issues
 
-    def _validate_mathematical_consistency(self, df: pd.DataFrame) -> List[str]:
+    def _validate_mathematical_consistency(self, df: pd.DataFrame) -> list[str]:
         """Validate mathematical relationships and consistency."""
         issues = []
 
@@ -190,7 +189,7 @@ class DataQualityValidator:
 
         return issues
 
-    def _validate_precision_standards(self, df: pd.DataFrame) -> List[str]:
+    def _validate_precision_standards(self, df: pd.DataFrame) -> list[str]:
         """Validate numerical precision standards."""
         warnings = []
 
@@ -223,7 +222,7 @@ class DataQualityValidator:
 
         return warnings
 
-    def _check_scientific_notation(self, df: pd.DataFrame) -> List[str]:
+    def _check_scientific_notation(self, df: pd.DataFrame) -> list[str]:
         """Check for scientific notation in numeric fields."""
         issues = []
 
@@ -242,7 +241,7 @@ class DataQualityValidator:
 
         return issues
 
-    def _validate_data_types(self, df: pd.DataFrame) -> List[str]:
+    def _validate_data_types(self, df: pd.DataFrame) -> list[str]:
         """Validate data types are appropriate for each column."""
         issues = []
 
@@ -270,7 +269,7 @@ class DataQualityValidator:
 
         return issues
 
-    def fix_common_issues(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
+    def fix_common_issues(self, df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
         """
         Automatically fix common data quality issues.
 
@@ -359,7 +358,7 @@ class DataQualityValidator:
         return df_fixed, fixes_applied
 
 
-def validate_position_csv(file_path: str) -> Dict[str, Any]:
+def validate_position_csv(file_path: str) -> dict[str, Any]:
     """
     Convenience function to validate a position CSV file.
 
@@ -376,14 +375,14 @@ def validate_position_csv(file_path: str) -> Dict[str, Any]:
     except Exception as e:
         return {
             "total_positions": 0,
-            "critical_issues": [f"Failed to read file: {str(e)}"],
+            "critical_issues": [f"Failed to read file: {e!s}"],
             "warnings": [],
             "is_valid": False,
             "severity": "critical",
         }
 
 
-def fix_position_csv(file_path: str, output_path: str = None) -> Dict[str, Any]:
+def fix_position_csv(file_path: str, output_path: str | None = None) -> dict[str, Any]:
     """
     Convenience function to fix common issues in a position CSV file.
 

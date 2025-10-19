@@ -5,14 +5,11 @@ Unified service for calculating comprehensive risk metrics for portfolios
 and trading strategies.
 """
 
-import warnings
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-import scipy.stats as stats
-from scipy.optimize import minimize
+from scipy import stats
 
 
 @dataclass
@@ -59,9 +56,9 @@ class PortfolioRiskProfile:
     """Complete risk profile for a portfolio."""
 
     risk_metrics: RiskMetrics
-    confidence_intervals: Dict[str, Tuple[float, float]]
-    stress_test_results: Dict[str, float]
-    risk_attribution: Optional[Dict[str, float]] = None
+    confidence_intervals: dict[str, tuple[float, float]]
+    stress_test_results: dict[str, float]
+    risk_attribution: dict[str, float] | None = None
 
 
 class RiskMetricsCalculator:
@@ -89,8 +86,8 @@ class RiskMetricsCalculator:
 
     def calculate_comprehensive_risk_metrics(
         self,
-        returns: Union[pd.Series, np.ndarray],
-        prices: Optional[Union[pd.Series, np.ndarray]] = None,
+        returns: pd.Series | np.ndarray,
+        prices: pd.Series | np.ndarray | None = None,
         frequency: int = 252,  # Trading days per year
     ) -> RiskMetrics:
         """
@@ -182,13 +179,13 @@ class RiskMetricsCalculator:
             )
 
         except Exception as e:
-            self._log(f"Error calculating risk metrics: {str(e)}", "error")
+            self._log(f"Error calculating risk metrics: {e!s}", "error")
             return self._get_empty_risk_metrics()
 
     def calculate_portfolio_risk_profile(
         self,
-        returns: Union[pd.Series, np.ndarray],
-        prices: Optional[Union[pd.Series, np.ndarray]] = None,
+        returns: pd.Series | np.ndarray,
+        prices: pd.Series | np.ndarray | None = None,
         confidence_level: float = 0.95,
         bootstrap_samples: int = 1000,
     ) -> PortfolioRiskProfile:
@@ -223,7 +220,7 @@ class RiskMetricsCalculator:
             )
 
         except Exception as e:
-            self._log(f"Error calculating portfolio risk profile: {str(e)}", "error")
+            self._log(f"Error calculating portfolio risk profile: {e!s}", "error")
             return PortfolioRiskProfile(
                 risk_metrics=self._get_empty_risk_metrics(),
                 confidence_intervals={},
@@ -232,7 +229,7 @@ class RiskMetricsCalculator:
 
     def _calculate_var_cvar(
         self, returns: np.ndarray
-    ) -> Tuple[float, float, float, float]:
+    ) -> tuple[float, float, float, float]:
         """Calculate Value at Risk and Conditional VaR at 95% and 99% levels."""
         try:
             if len(returns) == 0:
@@ -259,7 +256,7 @@ class RiskMetricsCalculator:
             return var_95, var_99, cvar_95, cvar_99
 
         except Exception as e:
-            self._log(f"Error calculating VaR/CVaR: {str(e)}", "warning")
+            self._log(f"Error calculating VaR/CVaR: {e!s}", "warning")
             return 0.0, 0.0, 0.0, 0.0
 
     def _calculate_downside_volatility(
@@ -278,8 +275,8 @@ class RiskMetricsCalculator:
             return 0.0
 
     def _calculate_drawdown_metrics(
-        self, prices: Union[pd.Series, np.ndarray]
-    ) -> Tuple[float, float, int]:
+        self, prices: pd.Series | np.ndarray
+    ) -> tuple[float, float, int]:
         """Calculate drawdown metrics from price series."""
         try:
             if isinstance(prices, pd.Series):
@@ -308,12 +305,12 @@ class RiskMetricsCalculator:
             return abs(max_drawdown), abs(avg_drawdown), max_dd_duration
 
         except Exception as e:
-            self._log(f"Error calculating drawdown metrics: {str(e)}", "warning")
+            self._log(f"Error calculating drawdown metrics: {e!s}", "warning")
             return 0.0, 0.0, 0
 
     def _calculate_drawdown_from_returns(
         self, cumulative_returns: np.ndarray
-    ) -> Tuple[float, float, int]:
+    ) -> tuple[float, float, int]:
         """Calculate drawdown metrics from cumulative returns."""
         try:
             return self._calculate_drawdown_metrics(cumulative_returns)
@@ -420,7 +417,7 @@ class RiskMetricsCalculator:
 
     def _calculate_confidence_intervals(
         self, returns: np.ndarray, confidence_level: float, bootstrap_samples: int
-    ) -> Dict[str, Tuple[float, float]]:
+    ) -> dict[str, tuple[float, float]]:
         """Calculate confidence intervals for key metrics using bootstrap."""
         try:
             # Bootstrap sampling
@@ -460,10 +457,10 @@ class RiskMetricsCalculator:
             return confidence_intervals
 
         except Exception as e:
-            self._log(f"Error calculating confidence intervals: {str(e)}", "warning")
+            self._log(f"Error calculating confidence intervals: {e!s}", "warning")
             return {}
 
-    def _perform_stress_tests(self, returns: np.ndarray) -> Dict[str, float]:
+    def _perform_stress_tests(self, returns: np.ndarray) -> dict[str, float]:
         """Perform stress tests on the returns."""
         try:
             stress_results = {}
@@ -486,7 +483,7 @@ class RiskMetricsCalculator:
             return stress_results
 
         except Exception as e:
-            self._log(f"Error performing stress tests: {str(e)}", "warning")
+            self._log(f"Error performing stress tests: {e!s}", "warning")
             return {}
 
     def _get_empty_risk_metrics(self) -> RiskMetrics:

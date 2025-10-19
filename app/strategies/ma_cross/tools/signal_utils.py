@@ -1,7 +1,7 @@
 from datetime import date, timedelta
-from typing import Dict, List
 
 import polars as pl
+
 
 # Cache for last trading day
 _LAST_TRADING_DAY = None
@@ -36,10 +36,9 @@ def get_last_trading_day(today: date = date.today()) -> date:
     # Fallback to calendar logic
     if today.weekday() == 0:  # Monday
         return today - timedelta(days=3)
-    elif today.weekday() == 6:  # Sunday
+    if today.weekday() == 6:  # Sunday
         return today - timedelta(days=2)
-    else:
-        return today - timedelta(days=1)
+    return today - timedelta(days=1)
 
 
 def is_signal_current(signals: pl.DataFrame, config: dict | None = None) -> bool:
@@ -67,11 +66,10 @@ def is_signal_current(signals: pl.DataFrame, config: dict | None = None) -> bool
     # Check if we have a valid entry signal in the last row based on direction
     if config and config.get("DIRECTION", "Long") == "Short":
         return signal == -1 and position == 0
-    else:
-        return signal == 1 and position == 0
+    return signal == 1 and position == 0
 
 
-def check_signal_match(signals: List[Dict], fast_window: int, slow_window: int) -> bool:
+def check_signal_match(signals: list[dict], fast_window: int, slow_window: int) -> bool:
     """
     Check if any signal matches the given window combination.
 

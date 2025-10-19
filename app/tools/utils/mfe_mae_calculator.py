@@ -6,7 +6,6 @@ for consistent calculations across the entire trading system codebase.
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -20,7 +19,7 @@ class MFEMAECalculator:
     and error handling for various data formats.
     """
 
-    def __init__(self, logger: Optional[logging.Logger] = None):
+    def __init__(self, logger: logging.Logger | None = None):
         """
         Initialize the MFE/MAE calculator
 
@@ -88,9 +87,9 @@ class MFEMAECalculator:
     def calculate_from_price_series(
         self,
         entry_price: float,
-        price_series: Union[List[float], pd.Series],
+        price_series: list[float] | pd.Series,
         direction: str = "Long",
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """
         Calculate MFE/MAE from a price series (tick data or OHLC data)
 
@@ -136,7 +135,7 @@ class MFEMAECalculator:
         direction: str = "Long",
         high_col: str = "high",
         low_col: str = "low",
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """
         Calculate MFE/MAE from OHLC data
 
@@ -174,8 +173,8 @@ class MFEMAECalculator:
             return 0.0, 0.0
 
     def calculate_from_returns_only(
-        self, returns: Union[List[float], pd.Series, float], direction: str = "Long"
-    ) -> Tuple[float, float]:
+        self, returns: list[float] | pd.Series | float, direction: str = "Long"
+    ) -> tuple[float, float]:
         """
         Calculate MFE/MAE from return data only (simplified calculation)
 
@@ -188,7 +187,7 @@ class MFEMAECalculator:
         """
         try:
             # Handle single return value
-            if isinstance(returns, (int, float)):
+            if isinstance(returns, int | float):
                 return self._calculate_mfe_mae_from_single_return(
                     float(returns), direction
                 )
@@ -223,7 +222,7 @@ class MFEMAECalculator:
         mae: float,
         direction: str = "Long",
         tolerance: float = 0.01,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Validate MFE/MAE calculations for logical consistency
 
@@ -344,8 +343,7 @@ class MFEMAECalculator:
             return_pct = float(return_pct)
             if direction.lower() in ["long", "buy", "1"]:
                 return round(max(return_pct, 0.0), 6)
-            else:
-                return round(abs(min(return_pct, 0.0)), 6)
+            return round(abs(min(return_pct, 0.0)), 6)
         except:
             return 0.0
 
@@ -355,26 +353,22 @@ class MFEMAECalculator:
             return_pct = float(return_pct)
             if direction.lower() in ["long", "buy", "1"]:
                 return round(abs(min(return_pct, 0.0)), 6)
-            else:
-                return round(max(return_pct, 0.0), 6)
+            return round(max(return_pct, 0.0), 6)
         except:
             return 0.0
 
     def _calculate_mfe_mae_from_single_return(
         self, return_pct: float, direction: str
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """Calculate MFE/MAE from a single return value"""
         try:
             if direction.lower() in ["long", "buy", "1"]:
                 if return_pct >= 0:
                     return round(float(return_pct), 6), 0.0
-                else:
-                    return 0.0, round(abs(float(return_pct)), 6)
-            else:
-                if return_pct <= 0:
-                    return round(abs(float(return_pct)), 6), 0.0
-                else:
-                    return 0.0, round(float(return_pct), 6)
+                return 0.0, round(abs(float(return_pct)), 6)
+            if return_pct <= 0:
+                return round(abs(float(return_pct)), 6), 0.0
+            return 0.0, round(float(return_pct), 6)
         except:
             return 0.0, 0.0
 
@@ -392,7 +386,7 @@ class MFEMAECalculator:
 _global_calculator = None
 
 
-def get_mfe_mae_calculator(logger: Optional[logging.Logger] = None) -> MFEMAECalculator:
+def get_mfe_mae_calculator(logger: logging.Logger | None = None) -> MFEMAECalculator:
     """
     Get the global MFE/MAE calculator instance
 
@@ -425,7 +419,7 @@ def calculate_mfe_mae_from_trades(
 
 def validate_mfe_mae_data(
     current_return: float, mfe: float, mae: float, direction: str = "Long"
-) -> List[str]:
+) -> list[str]:
     """Convenience function to validate MFE/MAE data"""
     calculator = get_mfe_mae_calculator()
     return calculator.validate_mfe_mae(current_return, mfe, mae, direction)

@@ -6,9 +6,8 @@ that inherit from the BaseStrategy abstract class and implement the
 StrategyInterface for consistency across the trading system.
 """
 
-import sys
-from pathlib import Path
-from typing import Any, Callable, Dict, List
+from collections.abc import Callable
+from typing import Any
 
 import polars as pl
 
@@ -23,15 +22,7 @@ from app.tools.signal_conversion import convert_signals_to_positions
 from app.tools.strategy.base import BaseStrategy
 
 # Import unified configuration system
-from app.tools.strategy.unified_config import (
-    BasePortfolioConfig,
-    ConfigFactory,
-    ConfigValidator,
-    MACDConfig,
-    MAConfig,
-    MeanReversionConfig,
-    RangeConfig,
-)
+from app.tools.strategy.unified_config import ConfigFactory, ConfigValidator
 
 
 class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
@@ -58,7 +49,7 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
         data: pl.DataFrame,
         fast_period: int,
         slow_period: int,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
         """
@@ -130,7 +121,7 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
             )
             raise
 
-    def validate_parameters(self, config: Dict[str, Any]) -> bool:
+    def validate_parameters(self, config: dict[str, Any]) -> bool:
         """Validate strategy-specific parameters using unified configuration system."""
         try:
             validation_result = ConfigValidator.validate_ma_config(config)
@@ -143,11 +134,9 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
                     return False
                 if not isinstance(config[param], int) or config[param] <= 0:
                     return False
-            if config.get("FAST_PERIOD", 0) >= config.get("SLOW_PERIOD", 0):
-                return False
-            return True
+            return not config.get("FAST_PERIOD", 0) >= config.get("SLOW_PERIOD", 0)
 
-    def execute(self, config: Dict[str, Any], log: Any) -> List[Dict[str, Any]]:
+    def execute(self, config: dict[str, Any], log: Any) -> list[dict[str, Any]]:
         """Execute the strategy and return portfolio results."""
         try:
             # Import the strategy execution logic from MA Cross
@@ -161,7 +150,7 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
                 f"Failed to import MA Cross strategy execution for {self.ma_type}"
             )
 
-    def get_parameter_ranges(self) -> Dict[str, Any]:
+    def get_parameter_ranges(self) -> dict[str, Any]:
         """Get strategy-specific parameter ranges and defaults using unified config system."""
         try:
             defaults = ConfigFactory.get_default_config(self.ma_type)
@@ -223,7 +212,7 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
         data: pl.DataFrame,
         fast_period: int,
         slow_period: int,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
         """
@@ -340,7 +329,7 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
         return data
 
     def _calculate_macd_signals(
-        self, data: pl.DataFrame, config: Dict[str, Any]
+        self, data: pl.DataFrame, config: dict[str, Any]
     ) -> tuple:
         """Calculate MACD entry and exit signals."""
 
@@ -362,7 +351,7 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
 
         return entries, exits
 
-    def validate_parameters(self, config: Dict[str, Any]) -> bool:
+    def validate_parameters(self, config: dict[str, Any]) -> bool:
         """Validate strategy-specific parameters using unified configuration system."""
         try:
             validation_result = ConfigValidator.validate_macd_config(config)
@@ -375,11 +364,9 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
                     return False
                 if not isinstance(config[param], int) or config[param] <= 0:
                     return False
-            if config.get("FAST_PERIOD", 0) >= config.get("SLOW_PERIOD", 0):
-                return False
-            return True
+            return not config.get("FAST_PERIOD", 0) >= config.get("SLOW_PERIOD", 0)
 
-    def execute(self, config: Dict[str, Any], log: Any) -> List[Dict[str, Any]]:
+    def execute(self, config: dict[str, Any], log: Any) -> list[dict[str, Any]]:
         """Execute the strategy and return portfolio results."""
         try:
             # Import the strategy execution logic from MACD
@@ -389,7 +376,7 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
         except ImportError:
             raise StrategyError("Failed to import MACD strategy execution")
 
-    def get_parameter_ranges(self) -> Dict[str, Any]:
+    def get_parameter_ranges(self) -> dict[str, Any]:
         """Get strategy-specific parameter ranges and defaults using unified config system."""
         try:
             defaults = ConfigFactory.get_default_config("MACD")
@@ -456,7 +443,7 @@ class UnifiedMeanReversionStrategy(BaseStrategy, StrategyInterface):
         data: pl.DataFrame,
         fast_period: int,
         slow_period: int,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
         """
@@ -496,7 +483,7 @@ class UnifiedMeanReversionStrategy(BaseStrategy, StrategyInterface):
 
             # For now, delegate to existing implementation
             # This will be further refined in Phase 3 (Tool Consolidation)
-            results = execute_strategy(strategy_config, log)
+            execute_strategy(strategy_config, log)
 
             # Convert results back to DataFrame format expected by BaseStrategy
             # This is a simplified implementation for Phase 1
@@ -512,7 +499,7 @@ class UnifiedMeanReversionStrategy(BaseStrategy, StrategyInterface):
             log(f"Failed to calculate mean reversion signals: {e}", "error")
             raise
 
-    def validate_parameters(self, config: Dict[str, Any]) -> bool:
+    def validate_parameters(self, config: dict[str, Any]) -> bool:
         """Validate strategy-specific parameters."""
         required_params = ["FAST_PERIOD", "SLOW_PERIOD"]
 
@@ -524,7 +511,7 @@ class UnifiedMeanReversionStrategy(BaseStrategy, StrategyInterface):
 
         return True
 
-    def execute(self, config: Dict[str, Any], log: Any) -> List[Dict[str, Any]]:
+    def execute(self, config: dict[str, Any], log: Any) -> list[dict[str, Any]]:
         """Execute the strategy and return portfolio results."""
         try:
             from app.strategies.mean_reversion.tools.strategy_execution import (
@@ -535,7 +522,7 @@ class UnifiedMeanReversionStrategy(BaseStrategy, StrategyInterface):
         except ImportError:
             raise StrategyError("Failed to import Mean Reversion strategy execution")
 
-    def get_parameter_ranges(self) -> Dict[str, Any]:
+    def get_parameter_ranges(self) -> dict[str, Any]:
         """Get strategy-specific parameter ranges and defaults."""
         return {
             "FAST_PERIOD": {"min": 10, "max": 30, "default": 20},
@@ -563,7 +550,7 @@ class UnifiedRangeStrategy(BaseStrategy, StrategyInterface):
         data: pl.DataFrame,
         fast_period: int,
         slow_period: int,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
         """Calculate range trading signals and positions."""
@@ -586,7 +573,7 @@ class UnifiedRangeStrategy(BaseStrategy, StrategyInterface):
             log(f"Failed to calculate range trading signals: {e}", "error")
             raise
 
-    def validate_parameters(self, config: Dict[str, Any]) -> bool:
+    def validate_parameters(self, config: dict[str, Any]) -> bool:
         """Validate strategy-specific parameters."""
         required_params = ["FAST_PERIOD", "SLOW_PERIOD"]
 
@@ -598,7 +585,7 @@ class UnifiedRangeStrategy(BaseStrategy, StrategyInterface):
 
         return True
 
-    def execute(self, config: Dict[str, Any], log: Any) -> List[Dict[str, Any]]:
+    def execute(self, config: dict[str, Any], log: Any) -> list[dict[str, Any]]:
         """Execute the strategy and return portfolio results."""
         try:
             from app.strategies.range.tools.strategy_execution import execute_strategy
@@ -607,7 +594,7 @@ class UnifiedRangeStrategy(BaseStrategy, StrategyInterface):
         except ImportError:
             raise StrategyError("Failed to import Range strategy execution")
 
-    def get_parameter_ranges(self) -> Dict[str, Any]:
+    def get_parameter_ranges(self) -> dict[str, Any]:
         """Get strategy-specific parameter ranges and defaults."""
         return {
             "FAST_PERIOD": {"min": 10, "max": 30, "default": 20},

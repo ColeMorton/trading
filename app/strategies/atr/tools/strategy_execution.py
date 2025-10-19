@@ -5,7 +5,7 @@ This module handles the execution of ATR trailing stop strategies, including por
 parameter sweeps, and portfolio generation for both single and multiple tickers.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -30,7 +30,7 @@ def calculate_atr(data: pd.DataFrame, length: int) -> pd.Series:
     """
     # Ensure data has proper index
     if not isinstance(data.index, pd.DatetimeIndex):
-        print(f"Warning: Data index is not DatetimeIndex in calculate_atr.")
+        print("Warning: Data index is not DatetimeIndex in calculate_atr.")
 
     # Vectorized calculation of true range components
     high_low = data["High"] - data["Low"]
@@ -144,38 +144,34 @@ def generate_signals(
                     in_position = True
                 else:
                     data.loc[data.index[i], "Signal"] = 0
+            # Short entry: close <= trailing stop
+            elif current_close <= trailing_stop:
+                data.loc[data.index[i], "Signal"] = -1  # Use -1 for short entries
+                in_position = True
             else:
-                # Short entry: close <= trailing stop
-                if current_close <= trailing_stop:
-                    data.loc[data.index[i], "Signal"] = -1  # Use -1 for short entries
-                    in_position = True
-                else:
-                    data.loc[data.index[i], "Signal"] = 0
+                data.loc[data.index[i], "Signal"] = 0
 
+        # When in position, trailing stop moves in favorable direction only
+        elif is_long:
+            # Long: trailing stop can only move up (never down)
+            trailing_stop = max(trailing_stop, potential_stop)
+
+            # Long exit: close < trailing stop
+            if current_close < trailing_stop:
+                data.loc[data.index[i], "Signal"] = 0
+                in_position = False
+            else:
+                data.loc[data.index[i], "Signal"] = 1
         else:
-            # When in position, trailing stop moves in favorable direction only
-            if is_long:
-                # Long: trailing stop can only move up (never down)
-                trailing_stop = max(trailing_stop, potential_stop)
+            # Short: trailing stop can only move down (never up)
+            trailing_stop = min(trailing_stop, potential_stop)
 
-                # Long exit: close < trailing stop
-                if current_close < trailing_stop:
-                    data.loc[data.index[i], "Signal"] = 0
-                    in_position = False
-                else:
-                    data.loc[data.index[i], "Signal"] = 1
+            # Short exit: close > trailing stop
+            if current_close > trailing_stop:
+                data.loc[data.index[i], "Signal"] = 0
+                in_position = False
             else:
-                # Short: trailing stop can only move down (never up)
-                trailing_stop = min(trailing_stop, potential_stop)
-
-                # Short exit: close > trailing stop
-                if current_close > trailing_stop:
-                    data.loc[data.index[i], "Signal"] = 0
-                    in_position = False
-                else:
-                    data.loc[
-                        data.index[i], "Signal"
-                    ] = -1  # Use -1 for short position hold
+                data.loc[data.index[i], "Signal"] = -1  # Use -1 for short position hold
 
         # Store the trailing stop value for this period
         data.loc[data.index[i], "ATR_Trailing_Stop"] = trailing_stop
@@ -261,7 +257,7 @@ def backtest_atr_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
         entries_series = pd.Series(entries_values, index=data.index)
         exits_series = pd.Series(exits_values, index=data.index)
 
-        portfolio: "vbt.Portfolio" = vbt.Portfolio.from_signals(
+        portfolio: vbt.Portfolio = vbt.Portfolio.from_signals(
             close=close_series,
             entries=entries_series,
             exits=exits_series,
@@ -269,7 +265,7 @@ def backtest_atr_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
             fees=0.001,
         )
         return portfolio
-    except Exception as e:
+    except Exception:
         # Return a dummy portfolio with zero returns if backtesting fails
         dummy_index = data.index
         dummy_close = pd.Series(100, index=dummy_index)
@@ -292,8 +288,8 @@ def analyze_params(
     atr_multiplier: float,
     ticker: str,
     log: callable,
-    config: dict = None,
-) -> Dict[str, Any]:
+    config: dict | None = None,
+) -> dict[str, Any]:
     """
     Analyze parameters for ATR trailing stop strategy and return portfolio dict.
 
@@ -335,9 +331,7 @@ def analyze_params(
         data_polars = pl.from_pandas(data_with_signals)
 
         # Use shared backtest strategy for comprehensive metrics
-        portfolio: "vbt.Portfolio" = backtest_strategy(
-            data_polars, backtest_config, log
-        )
+        portfolio: vbt.Portfolio = backtest_strategy(data_polars, backtest_config, log)
 
         # Calculate signal information using proper ATR signal detection
         # Convert pandas DataFrame to polars for signal detection
@@ -409,7 +403,7 @@ def analyze_params(
 
     except Exception as e:
         log(
-            f"Error in analyze_params for {ticker} (ATR {atr_length}, Mult {atr_multiplier}): {str(e)}",
+            f"Error in analyze_params for {ticker} (ATR {atr_length}, Mult {atr_multiplier}): {e!s}",
             "error",
         )
 
@@ -433,7 +427,7 @@ def analyze_params(
 
 def execute_strategy(
     config: ATRConfig, strategy_type: str, log: callable
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Execute ATR strategy with parameter sweep and return portfolio results.
 
     This function performs parameter sensitivity analysis by testing combinations
@@ -515,7 +509,7 @@ def execute_strategy(
                         )
                         continue
                 except Exception as e:
-                    log(f"Failed to convert data for {ticker}: {str(e)}", "error")
+                    log(f"Failed to convert data for {ticker}: {e!s}", "error")
                     continue
 
             if len(data) == 0:
@@ -538,13 +532,13 @@ def execute_strategy(
 
                     except Exception as e:
                         log(
-                            f"Error processing {ticker} with ATR({atr_length}, {atr_multiplier}): {str(e)}",
+                            f"Error processing {ticker} with ATR({atr_length}, {atr_multiplier}): {e!s}",
                             "error",
                         )
                         continue
 
         except Exception as e:
-            log(f"Error processing ticker {ticker}: {str(e)}", "error")
+            log(f"Error processing ticker {ticker}: {e!s}", "error")
             continue
 
     log(f"Generated {len(all_portfolios)} portfolio results")

@@ -5,6 +5,7 @@ import numpy as np
 import polars as pl
 from scipy import stats
 
+
 TICKER = "BTC-USD"
 BASE_DIR = "/Users/colemorton/Projects/trading"
 

@@ -4,12 +4,11 @@ Strategy Template Generator
 Main generator class that orchestrates template-based strategy creation.
 """
 
-import os
-import shutil
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+import shutil
+from typing import Any
 
-from .config_template import IndicatorType, StrategyType, TemplateConfig
+from .config_template import TemplateConfig
 from .execution_template import ExecutionTemplate
 from .validation_template import ValidationTemplate
 
@@ -17,7 +16,7 @@ from .validation_template import ValidationTemplate
 class StrategyTemplateGenerator:
     """Main class for generating complete strategy implementations from templates."""
 
-    def __init__(self, base_path: Optional[str] = None):
+    def __init__(self, base_path: str | None = None):
         """Initialize the strategy template generator.
 
         Args:
@@ -50,7 +49,7 @@ class StrategyTemplateGenerator:
         template_config: TemplateConfig,
         overwrite: bool = False,
         dry_run: bool = False,
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """Generate a complete strategy implementation from template.
 
         Args:
@@ -107,7 +106,7 @@ class StrategyTemplateGenerator:
             "file_count": len(files_created),
         }
 
-    def _generate_all_files(self, config: TemplateConfig) -> Dict[str, str]:
+    def _generate_all_files(self, config: TemplateConfig) -> dict[str, str]:
         """Generate all files for the strategy.
 
         Args:
@@ -129,9 +128,9 @@ class StrategyTemplateGenerator:
 
         # 3. Strategy execution tools
         files["tools/__init__.py"] = self._generate_tools_init()
-        files[
-            "tools/strategy_execution.py"
-        ] = execution_template.generate_strategy_execution_file()
+        files["tools/strategy_execution.py"] = (
+            execution_template.generate_strategy_execution_file()
+        )
 
         # 4. Exception definitions
         files["exceptions.py"] = execution_template.generate_exceptions_file()
@@ -462,7 +461,7 @@ For questions about this generated strategy:
 
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    def list_available_strategies(self) -> List[str]:
+    def list_available_strategies(self) -> list[str]:
         """List all existing strategies in the strategies directory.
 
         Returns:
@@ -513,7 +512,7 @@ For questions about this generated strategy:
 
         return True
 
-    def get_strategy_info(self, strategy_name: str) -> Optional[Dict[str, Any]]:
+    def get_strategy_info(self, strategy_name: str) -> dict[str, Any] | None:
         """Get information about an existing strategy.
 
         Args:

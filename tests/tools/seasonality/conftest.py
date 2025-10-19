@@ -1,7 +1,5 @@
 """Shared fixtures for seasonality tests."""
 
-from datetime import datetime, timedelta
-
 import numpy as np
 import pandas as pd
 import pytest
@@ -203,7 +201,7 @@ def mock_yfinance_multiindex_data():
     dates = pd.date_range("2020-01-01", periods=1260, freq="D")
 
     # Create MultiIndex columns
-    columns = pd.MultiIndex.from_tuples(
+    pd.MultiIndex.from_tuples(
         [
             ("Open", "TEST"),
             ("High", "TEST"),

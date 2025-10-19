@@ -6,7 +6,6 @@ and default value behavior.
 """
 
 import inspect
-from typing import Any, Dict
 
 import pytest
 
@@ -149,7 +148,7 @@ class TestFunctionSignature:
 
         for params in valid_parameter_sets:
             try:
-                bound_args = sig.bind(**params)
+                sig.bind(**params)
                 # If binding succeeds, parameters are accepted
                 assert True
             except TypeError as e:

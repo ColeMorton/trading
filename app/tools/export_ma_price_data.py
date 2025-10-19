@@ -14,11 +14,12 @@ Example:
 """
 
 import argparse
+from collections.abc import Callable
 import os
 import sys
-from typing import Any, Callable, Dict
 
 import polars as pl
+
 
 # Add the project root to the Python path
 sys.path.append(

@@ -1,20 +1,20 @@
 import logging
 import os
-import sys
 from pathlib import Path
+import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import vectorbt as vbt
 
+
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from app.strategies.macd.config_types import PortfolioConfig
-from app.tools.calculate_rsi import calculate_rsi
 from app.tools.get_data import get_data
+
 
 # Ensure the logs directory exists
 os.makedirs("logs", exist_ok=True)
@@ -69,8 +69,7 @@ def main():
     }
 
     # Configuration loaded from inline definition
-    YEARS = 30  # Set timeframe in years for daily data
-    USE_HOURLY = config.get("USE_HOURLY", False)
+    config.get("USE_HOURLY", False)
     USE_SYNTHETIC = config.get("USE_SYNTHETIC", False)
     TICKER_1 = config.get("TICKER", "EVRG")
     TICKER_2 = config.get("TICKER_2", "BTC-USD")
@@ -149,11 +148,10 @@ def main():
                         price[i - holding_period : i] >= entry_price[i - holding_period]
                     ):
                         exit_signal[i] = 1
-                else:
-                    if np.any(
-                        price[i - holding_period : i] <= entry_price[i - holding_period]
-                    ):
-                        exit_signal[i] = 1
+                elif np.any(
+                    price[i - holding_period : i] <= entry_price[i - holding_period]
+                ):
+                    exit_signal[i] = 1
         return exit_signal
 
     entry_price = data["Close"].where(entries, None).ffill()
@@ -181,7 +179,7 @@ def main():
         results.append((holding_period, total_return, num_positions, expectancy))
 
     # Plot the results with three y-axes
-    holding_periods, returns, num_positions, expectancies = zip(*results)
+    holding_periods, returns, num_positions, expectancies = zip(*results, strict=False)
 
     fig, ax1 = plt.subplots(figsize=(12, 6))
 

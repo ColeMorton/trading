@@ -5,11 +5,10 @@ Validates SPDS export files to ensure they contain proper data and are not empty
 Provides fallback export generation when standard exports fail.
 """
 
+from datetime import datetime
 import json
 import logging
-from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -18,7 +17,7 @@ import pandas as pd
 class ExportValidator:
     """Validates and ensures proper SPDS export file generation."""
 
-    def __init__(self, logger: Optional[logging.Logger] = None):
+    def __init__(self, logger: logging.Logger | None = None):
         self.logger = logger or logging.getLogger(__name__)
         self.export_base = Path("data/outputs/spds")
         self.statistical_dir = self.export_base / "statistical_analysis"
@@ -28,7 +27,7 @@ class ExportValidator:
         self.statistical_dir.mkdir(parents=True, exist_ok=True)
         self.backtesting_dir.mkdir(parents=True, exist_ok=True)
 
-    def validate_exports(self, portfolio_name: str) -> Tuple[bool, List[str]]:
+    def validate_exports(self, portfolio_name: str) -> tuple[bool, list[str]]:
         """
         Validate that export files exist and contain proper data.
 
@@ -83,7 +82,7 @@ class ExportValidator:
 
         return len(issues) == 0, issues
 
-    def _validate_enhanced_exports(self, portfolio_base: str) -> Tuple[bool, List[str]]:
+    def _validate_enhanced_exports(self, portfolio_base: str) -> tuple[bool, list[str]]:
         """
         Validate exports for enhanced parameter analysis (no position file validation).
 
@@ -109,7 +108,7 @@ class ExportValidator:
         return len(issues) == 0, issues
 
     def generate_fallback_exports(
-        self, portfolio_name: str, position_data_path: Optional[str] = None
+        self, portfolio_name: str, position_data_path: str | None = None
     ) -> bool:
         """
         Generate fallback exports using position data when standard exports fail.
@@ -136,9 +135,8 @@ class ExportValidator:
                         f"Enhanced analysis fallback export - skipping position validation: {position_data_path}"
                     )
                     return True  # Enhanced analysis doesn't need position data
-                else:
-                    self.logger.error(f"Position data not found: {position_data_path}")
-                    return False
+                self.logger.error(f"Position data not found: {position_data_path}")
+                return False
 
             df = pd.read_csv(position_data_path)
             open_positions = df[df["Status"] == "Open"]
@@ -174,7 +172,7 @@ class ExportValidator:
 
     def _generate_analysis_data(
         self, open_positions: pd.DataFrame
-    ) -> Tuple[List[Dict], List[Dict]]:
+    ) -> tuple[list[dict], list[dict]]:
         """Generate analysis results and backtesting parameters from position data."""
         results = []
         backtesting_params = []
@@ -224,11 +222,13 @@ class ExportValidator:
                 "days_held": int(pos["Days_Since_Entry"]),
                 "trade_quality": pos["Trade_Quality"],
                 "percentile_rank": float((returns <= current_pnl).mean()),
-                "statistical_significance": "HIGH"
-                if confidence >= 0.85
-                else "MEDIUM"
-                if confidence >= 0.70
-                else "LOW",
+                "statistical_significance": (
+                    "HIGH"
+                    if confidence >= 0.85
+                    else "MEDIUM"
+                    if confidence >= 0.70
+                    else "LOW"
+                ),
                 "analysis_timestamp": datetime.now().isoformat(),
             }
             results.append(result)
@@ -256,7 +256,7 @@ class ExportValidator:
         return results, backtesting_params
 
     def _export_statistical_analysis(
-        self, portfolio_base: str, results: List[Dict], open_positions: pd.DataFrame
+        self, portfolio_base: str, results: list[dict], open_positions: pd.DataFrame
     ):
         """Export statistical analysis to JSON and CSV."""
         # Generate portfolio summary
@@ -288,23 +288,27 @@ class ExportValidator:
             },
             "portfolio_summary": {
                 "total_positions": len(open_positions),
-                "profitable_positions": len(
-                    open_positions[open_positions["Current_Unrealized_PnL"] > 0]
-                )
-                if len(open_positions) > 0
-                else 0,
-                "success_rate": (open_positions["Current_Unrealized_PnL"] > 0).mean()
-                if len(open_positions) > 0
-                else 0,
+                "profitable_positions": (
+                    len(open_positions[open_positions["Current_Unrealized_PnL"] > 0])
+                    if len(open_positions) > 0
+                    else 0
+                ),
+                "success_rate": (
+                    (open_positions["Current_Unrealized_PnL"] > 0).mean()
+                    if len(open_positions) > 0
+                    else 0
+                ),
                 "average_return": float(returns.mean()) if len(returns) > 0 else 0,
-                "total_unrealized_pnl": float(returns.mean())
-                if len(returns) > 0
-                else 0,
-                "signal_distribution": pd.Series([r["exit_signal"] for r in results])
-                .value_counts()
-                .to_dict()
-                if results
-                else {},
+                "total_unrealized_pnl": (
+                    float(returns.mean()) if len(returns) > 0 else 0
+                ),
+                "signal_distribution": (
+                    pd.Series([r["exit_signal"] for r in results])
+                    .value_counts()
+                    .to_dict()
+                    if results
+                    else {}
+                ),
             },
             "statistical_analysis_results": results,
         }
@@ -320,7 +324,7 @@ class ExportValidator:
             pd.DataFrame(results).to_csv(csv_file, index=False)
 
     def _export_backtesting_parameters(
-        self, portfolio_base: str, backtesting_params: List[Dict]
+        self, portfolio_base: str, backtesting_params: list[dict]
     ):
         """Export backtesting parameters to JSON and CSV."""
         export_data = {
@@ -343,7 +347,7 @@ class ExportValidator:
             pd.DataFrame(backtesting_params).to_csv(csv_file, index=False)
 
     def _export_markdown_report(
-        self, portfolio_base: str, results: List[Dict], open_positions: pd.DataFrame
+        self, portfolio_base: str, results: list[dict], open_positions: pd.DataFrame
     ):
         """Export comprehensive SPDS analysis report."""
         md_file = self.statistical_dir / f"{portfolio_base}.md"
@@ -366,7 +370,7 @@ class ExportValidator:
     def _generate_comprehensive_fallback_report(
         self,
         portfolio_base: str,
-        results: List[Dict],
+        results: list[dict],
         open_positions: pd.DataFrame,
         signal_dist: pd.Series,
     ) -> str:
@@ -388,9 +392,9 @@ class ExportValidator:
         # Count action items
         immediate_exits = signal_dist.get("EXIT_IMMEDIATELY", 0)
         strong_sells = signal_dist.get("STRONG_SELL", 0)
-        sells = signal_dist.get("SELL", 0)
+        signal_dist.get("SELL", 0)
         holds = signal_dist.get("HOLD", 0)
-        time_exits = signal_dist.get("TIME_EXIT", 0)
+        signal_dist.get("TIME_EXIT", 0)
 
         # Calculate portfolio performance
         returns = (
@@ -415,7 +419,7 @@ class ExportValidator:
             "",
             f"**Generated**: {datetime.now().strftime('%B %d, %Y %H:%M:%S')}  ",
             f"**Portfolio**: {portfolio_base}.csv  ",
-            f"**Analysis Type**: Statistical Performance Divergence System (SPDS)  ",
+            "**Analysis Type**: Statistical Performance Divergence System (SPDS)  ",
             f"**Total Positions**: {len(open_positions)}  ",
             "",
             "---",

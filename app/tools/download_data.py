@@ -1,12 +1,13 @@
-import threading
+from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Callable
+import threading
 
 import polars as pl
 import yfinance as yf
 
 from app.tools.data_types import DataConfig
 from app.tools.export_csv import ExportConfig, export_csv
+
 
 # Thread lock for yfinance downloads to prevent concurrent access issues
 _yfinance_lock = threading.Lock()
@@ -120,13 +121,12 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
             if ticker_col in data.columns:
                 return data[ticker_col]
             # Fallback to simple column name
-            elif col_name in data.columns:
+            if col_name in data.columns:
                 return data[col_name]
-            else:
-                available_cols = list(data.columns)
-                raise KeyError(
-                    f"Column '{col_name}' not found for {ticker}. Available columns: {available_cols}"
-                )
+            available_cols = list(data.columns)
+            raise KeyError(
+                f"Column '{col_name}' not found for {ticker}. Available columns: {available_cols}"
+            )
 
         # Convert to Polars DataFrame with explicit schema
         df = pl.DataFrame(
@@ -177,13 +177,15 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
                 "date_range": f"{df['Date'].min()} to {df['Date'].max()}",
                 "price_range": f"${df['Close'].min():.2f} to ${df['Close'].max():.2f}",
                 "avg_volume": int(df["Volume"].mean()),
-                "frequency": "2-Day"
-                if use_2day
-                else "4-Hour"
-                if use_4hour
-                else "Hourly"
-                if use_hourly
-                else "Daily",
+                "frequency": (
+                    "2-Day"
+                    if use_2day
+                    else "4-Hour"
+                    if use_4hour
+                    else "Hourly"
+                    if use_hourly
+                    else "Daily"
+                ),
                 "records_count": len(df),
             }
             log.__self__.data_summary_table(ticker, data_info)
@@ -222,5 +224,5 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
         return df
 
     except Exception as e:
-        log(f"Error in download_data for {ticker}: {str(e)}", "error")
+        log(f"Error in download_data for {ticker}: {e!s}", "error")
         raise

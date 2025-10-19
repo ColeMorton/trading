@@ -3,10 +3,10 @@
 Test the risk calculation fix on the actual portfolio_d_20250530 data.
 """
 
-import json
 import os
-import sys
 from pathlib import Path
+import sys
+
 
 # Add parent directory to path
 sys.path.append(str(Path(__file__).parent.parent.parent))

@@ -5,19 +5,16 @@ Integrates pattern recognition with trade quality analysis for enhanced
 decision making and statistical validation of trade outcomes.
 """
 
-import asyncio
-import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+import logging
+from typing import Any
 
 import numpy as np
-import pandas as pd
 
 from ..analysis.pattern_recognition_system import PatternRecognitionSystem
 from ..config.statistical_analysis_config import SPDSConfig
-from ..models.correlation_models import PatternResult, SignificanceLevel
 
 
 class TradeQuality(Enum):
@@ -40,7 +37,7 @@ class TradeQualityAnalysis:
     mfe_mae_ratio: float
     exit_efficiency: float
     duration_score: float
-    pattern_match: Optional[str]
+    pattern_match: str | None
     pattern_confidence: float
     risk_assessment: str
     recommendation: str
@@ -54,10 +51,10 @@ class QualityPattern:
 
     pattern_id: str
     quality_level: TradeQuality
-    characteristics: Dict[str, Any]
-    success_indicators: List[str]
-    warning_signs: List[str]
-    typical_outcomes: Dict[str, float]
+    characteristics: dict[str, Any]
+    success_indicators: list[str]
+    warning_signs: list[str]
+    typical_outcomes: dict[str, float]
     sample_size: int
 
 
@@ -76,7 +73,7 @@ class TradeQualityPatternRecognizer:
         self,
         config: SPDSConfig,
         pattern_recognition_system: PatternRecognitionSystem,
-        logger: Optional[logging.Logger] = None,
+        logger: logging.Logger | None = None,
     ):
         """
         Initialize the Trade Quality Pattern Recognizer
@@ -119,17 +116,17 @@ class TradeQualityPatternRecognizer:
         }
 
         # Pattern storage
-        self.quality_patterns: Dict[TradeQuality, List[QualityPattern]] = {
+        self.quality_patterns: dict[TradeQuality, list[QualityPattern]] = {
             quality: [] for quality in TradeQuality
         }
 
         # Analysis cache
-        self.quality_cache: Dict[str, TradeQualityAnalysis] = {}
+        self.quality_cache: dict[str, TradeQualityAnalysis] = {}
 
         self.logger.info("TradeQualityPatternRecognizer initialized")
 
     async def analyze_trade_quality(
-        self, trade_data: Dict[str, Any], include_pattern_matching: bool = True
+        self, trade_data: dict[str, Any], include_pattern_matching: bool = True
     ) -> TradeQualityAnalysis:
         """
         Analyze trade quality with pattern matching
@@ -218,8 +215,8 @@ class TradeQualityPatternRecognizer:
             raise
 
     async def analyze_portfolio_quality(
-        self, trades_data: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, trades_data: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """
         Analyze quality distribution across portfolio
 
@@ -250,9 +247,9 @@ class TradeQualityPatternRecognizer:
             portfolio_stats = {
                 "total_trades": len(quality_analyses),
                 "quality_distribution": quality_distribution,
-                "average_quality_score": np.mean(quality_scores)
-                if quality_scores
-                else 0,
+                "average_quality_score": (
+                    np.mean(quality_scores) if quality_scores else 0
+                ),
                 "quality_consistency": np.std(quality_scores) if quality_scores else 0,
                 "excellent_trades_pct": quality_distribution.get("excellent", 0)
                 / len(quality_analyses)
@@ -298,8 +295,8 @@ class TradeQualityPatternRecognizer:
             raise
 
     async def learn_quality_patterns(
-        self, historical_trades: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, historical_trades: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """
         Learn quality patterns from historical trades
 
@@ -366,8 +363,8 @@ class TradeQualityPatternRecognizer:
             raise
 
     async def get_real_time_quality_assessment(
-        self, current_position_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, current_position_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Get real-time quality assessment for open position
 
@@ -420,15 +417,15 @@ class TradeQualityPatternRecognizer:
     # Helper methods
 
     async def _calculate_quality_metrics(
-        self, trade_data: Dict[str, Any]
-    ) -> Dict[str, float]:
+        self, trade_data: dict[str, Any]
+    ) -> dict[str, float]:
         """Calculate quality metrics from trade data"""
 
         mfe = trade_data.get("mfe", 0.0)
         mae = trade_data.get("mae", 0.0)
         return_pct = trade_data.get("return_pct", 0.0)
         duration_days = trade_data.get("duration_days", 0)
-        exit_efficiency = trade_data.get("exit_efficiency", None)
+        exit_efficiency = trade_data.get("exit_efficiency")
 
         # MFE/MAE ratio
         mfe_mae_ratio = mfe / abs(mae) if mae < 0 else float("inf") if mfe > 0 else 0
@@ -455,7 +452,7 @@ class TradeQualityPatternRecognizer:
         }
 
     def _classify_trade_quality(
-        self, quality_metrics: Dict[str, float]
+        self, quality_metrics: dict[str, float]
     ) -> TradeQuality:
         """Classify trade quality based on metrics"""
 
@@ -503,7 +500,7 @@ class TradeQualityPatternRecognizer:
         return TradeQuality.FAILED
 
     def _calculate_quality_score(
-        self, quality_metrics: Dict[str, float], quality_classification: TradeQuality
+        self, quality_metrics: dict[str, float], quality_classification: TradeQuality
     ) -> float:
         """Calculate numerical quality score"""
 
@@ -533,8 +530,8 @@ class TradeQualityPatternRecognizer:
         return max(0.0, min(1.0, final_score))
 
     async def _find_quality_patterns(
-        self, trade_data: Dict[str, Any], quality: TradeQuality
-    ) -> Optional[Dict[str, Any]]:
+        self, trade_data: dict[str, Any], quality: TradeQuality
+    ) -> dict[str, Any] | None:
         """Find matching quality patterns"""
 
         quality_patterns = self.quality_patterns.get(quality, [])
@@ -562,7 +559,7 @@ class TradeQualityPatternRecognizer:
         return None
 
     def _calculate_pattern_match_confidence(
-        self, trade_data: Dict[str, Any], pattern: QualityPattern
+        self, trade_data: dict[str, Any], pattern: QualityPattern
     ) -> float:
         """Calculate confidence in pattern match"""
 
@@ -595,22 +592,21 @@ class TradeQualityPatternRecognizer:
         return matches / total_characteristics if total_characteristics > 0 else 0
 
     def _assess_trade_risk(
-        self, quality_metrics: Dict[str, float], quality: TradeQuality
+        self, quality_metrics: dict[str, float], quality: TradeQuality
     ) -> str:
         """Assess trade risk level"""
 
         if quality in [TradeQuality.EXCELLENT, TradeQuality.GOOD]:
             return "LOW"
-        elif quality == TradeQuality.AVERAGE:
+        if quality == TradeQuality.AVERAGE:
             return "MEDIUM"
-        else:
-            return "HIGH"
+        return "HIGH"
 
     def _generate_quality_recommendation(
         self,
         quality: TradeQuality,
-        metrics: Dict[str, float],
-        pattern_match: Optional[str],
+        metrics: dict[str, float],
+        pattern_match: str | None,
     ) -> str:
         """Generate quality-based recommendation"""
 
@@ -630,7 +626,7 @@ class TradeQualityPatternRecognizer:
         return base_recommendation
 
     async def _count_similar_trades(
-        self, trade_data: Dict[str, Any], quality: TradeQuality
+        self, trade_data: dict[str, Any], quality: TradeQuality
     ) -> int:
         """Count similar trades in history"""
         # Simplified implementation
@@ -639,7 +635,7 @@ class TradeQualityPatternRecognizer:
     def _predict_trade_outcome(
         self,
         quality: TradeQuality,
-        metrics: Dict[str, float],
+        metrics: dict[str, float],
         pattern_confidence: float,
     ) -> str:
         """Predict likely trade outcome"""
@@ -655,8 +651,8 @@ class TradeQualityPatternRecognizer:
         return outcomes[quality]
 
     async def _identify_portfolio_quality_patterns(
-        self, quality_analyses: List[TradeQualityAnalysis]
-    ) -> Dict[str, Any]:
+        self, quality_analyses: list[TradeQualityAnalysis]
+    ) -> dict[str, Any]:
         """Identify patterns in portfolio quality"""
 
         # Strategy quality patterns
@@ -672,14 +668,14 @@ class TradeQualityPatternRecognizer:
             "strategy_quality_patterns": strategy_quality,
             "quality_consistency": np.std([a.quality_score for a in quality_analyses]),
             "dominant_quality": max(
-                set([a.quality_classification for a in quality_analyses]),
+                {a.quality_classification for a in quality_analyses},
                 key=[a.quality_classification for a in quality_analyses].count,
             ),
         }
 
     def _generate_portfolio_quality_recommendations(
-        self, portfolio_stats: Dict[str, Any], quality_patterns: Dict[str, Any]
-    ) -> List[str]:
+        self, portfolio_stats: dict[str, Any], quality_patterns: dict[str, Any]
+    ) -> list[str]:
         """Generate portfolio-level quality recommendations"""
 
         recommendations = []
@@ -705,8 +701,8 @@ class TradeQualityPatternRecognizer:
         return recommendations
 
     async def _learn_quality_specific_patterns(
-        self, quality: TradeQuality, trades: List[Dict[str, Any]]
-    ) -> List[QualityPattern]:
+        self, quality: TradeQuality, trades: list[dict[str, Any]]
+    ) -> list[QualityPattern]:
         """Learn patterns for specific quality level"""
 
         # Simplified pattern learning
@@ -739,7 +735,7 @@ class TradeQualityPatternRecognizer:
 
         return patterns
 
-    def _assess_quality_trend(self, position_data: Dict[str, Any]) -> str:
+    def _assess_quality_trend(self, position_data: dict[str, Any]) -> str:
         """Assess quality trend for open position"""
         mfe = position_data.get("mfe", 0)
         mae = position_data.get("mae", 0)
@@ -747,10 +743,9 @@ class TradeQualityPatternRecognizer:
 
         if current_pnl > mfe * 0.8:
             return "improving"
-        elif current_pnl < mae * 0.8:
+        if current_pnl < mae * 0.8:
             return "deteriorating"
-        else:
-            return "stable"
+        return "stable"
 
     def _get_immediate_action_recommendation(
         self, quality_analysis: TradeQualityAnalysis
@@ -758,29 +753,27 @@ class TradeQualityPatternRecognizer:
         """Get immediate action recommendation"""
         if quality_analysis.quality_classification == TradeQuality.EXCELLENT:
             return "CAPTURE_GAINS"
-        elif quality_analysis.quality_classification in [
+        if quality_analysis.quality_classification in [
             TradeQuality.POOR,
             TradeQuality.FAILED,
         ]:
             return "CONSIDER_EXIT"
-        else:
-            return "MONITOR"
+        return "MONITOR"
 
-    def _predict_quality_trajectory(self, position_data: Dict[str, Any]) -> str:
+    def _predict_quality_trajectory(self, position_data: dict[str, Any]) -> str:
         """Predict quality trajectory"""
         days_held = position_data.get("days_held", 0)
         mfe = position_data.get("mfe", 0)
 
         if days_held > 30 and mfe > 0.15:
             return "likely_peak"
-        elif days_held < 10:
+        if days_held < 10:
             return "developing"
-        else:
-            return "maturing"
+        return "maturing"
 
     async def _get_similar_trade_outcomes(
-        self, position_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, position_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Get outcomes of similar trades"""
         # Simplified implementation
         return {"similar_count": 12, "average_outcome": 0.087, "success_rate": 0.75}

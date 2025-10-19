@@ -5,13 +5,12 @@ This module provides comprehensive statistical analysis of underlying asset pric
 focusing on return distributions, volatility analysis, and risk metrics.
 """
 
+from datetime import datetime
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import polars as pl
-import yfinance as yf
 from scipy import stats
 
 from app.tools.data_types import DataConfig
@@ -34,12 +33,12 @@ class MarketDataAnalyzer:
     asset characteristics independent of trading strategies.
     """
 
-    def __init__(self, ticker: str, logger: Optional[logging.Logger] = None):
+    def __init__(self, ticker: str, logger: logging.Logger | None = None):
         """Initialize market data analyzer."""
         self.ticker = ticker
         self.logger = logger or logging.getLogger(__name__)
-        self.prices: Optional[pl.DataFrame] = None
-        self.returns: Optional[np.ndarray] = None
+        self.prices: pl.DataFrame | None = None
+        self.returns: np.ndarray | None = None
 
         # Initialize enhanced risk assessment components
         self.risk_free_provider = create_risk_free_rate_provider()
@@ -134,7 +133,7 @@ class MarketDataAnalyzer:
             self.logger.error(f"Failed to calculate returns: {e}")
             return False
 
-    def analyze_distribution(self) -> Dict[str, Any]:
+    def analyze_distribution(self) -> dict[str, Any]:
         """
         Perform comprehensive distribution analysis on returns.
 
@@ -249,7 +248,7 @@ class MarketDataAnalyzer:
             self.logger.error(f"Failed to analyze distribution: {e}")
             return {}
 
-    def _fit_distributions(self, returns: np.ndarray) -> Dict[str, Any]:
+    def _fit_distributions(self, returns: np.ndarray) -> dict[str, Any]:
         """
         Fit various distributions to the returns data.
 
@@ -289,7 +288,7 @@ class MarketDataAnalyzer:
 
         return results
 
-    def _calculate_momentum_metrics(self, returns: np.ndarray) -> Dict[str, Any]:
+    def _calculate_momentum_metrics(self, returns: np.ndarray) -> dict[str, Any]:
         """
         Calculate momentum-based metrics for trend identification.
 
@@ -358,7 +357,7 @@ class MarketDataAnalyzer:
         recent_window = returns[-window:]
         return float(np.mean(recent_window))
 
-    def _calculate_trend_metrics(self) -> Dict[str, Any]:
+    def _calculate_trend_metrics(self) -> dict[str, Any]:
         """
         Calculate trend strength and direction metrics.
 
@@ -422,7 +421,7 @@ class MarketDataAnalyzer:
             self.logger.warning(f"Failed to calculate trend metrics: {e}")
             return self._default_trend_metrics()
 
-    def _default_trend_metrics(self) -> Dict[str, Any]:
+    def _default_trend_metrics(self) -> dict[str, Any]:
         """Return default trend metrics when calculation fails."""
         return {
             "trend_direction_20d": 0.0,
@@ -438,7 +437,7 @@ class MarketDataAnalyzer:
 
     def _calculate_risk_adjusted_metrics(
         self, mean_return: float, std_return: float
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Calculate risk-adjusted return metrics.
 
@@ -499,8 +498,8 @@ class MarketDataAnalyzer:
             }
 
     def generate_recommendation(
-        self, analysis: Dict[str, Any], include_components: bool = False
-    ) -> Union[Tuple[str, float, str], Tuple[str, float, str, Dict[str, float]]]:
+        self, analysis: dict[str, Any], include_components: bool = False
+    ) -> tuple[str, float, str] | tuple[str, float, str, dict[str, float]]:
         """
         Generate comprehensive recommendation based on asset analysis.
 
@@ -515,7 +514,7 @@ class MarketDataAnalyzer:
         if not analysis:
             base_result = ("HOLD", 0.5, "Insufficient data for analysis")
             if include_components:
-                return base_result + ({},)
+                return (*base_result, {})
             return base_result
 
         try:
@@ -744,15 +743,15 @@ class MarketDataAnalyzer:
                     "attribution_timestamp": attribution_result.timestamp.isoformat(),
                 }
 
-                return base_result + (component_scores,)
+                return (*base_result, component_scores)
 
             return base_result
 
         except Exception as e:
             self.logger.error(f"Failed to generate recommendation: {e}")
-            return "HOLD", 0.50, f"Recommendation generation error: {str(e)}"
+            return "HOLD", 0.50, f"Recommendation generation error: {e!s}"
 
-    def generate_exit_signal(self, analysis: Dict[str, Any]) -> Tuple[str, float, str]:
+    def generate_exit_signal(self, analysis: dict[str, Any]) -> tuple[str, float, str]:
         """
         Legacy method for backward compatibility.
         Calls generate_recommendation internally.
@@ -763,14 +762,13 @@ class MarketDataAnalyzer:
         """Score volatility component (0-100)."""
         if annual_vol > 0.80:  # >80% annual volatility
             return 100
-        elif annual_vol > 0.60:  # >60% annual volatility
+        if annual_vol > 0.60:  # >60% annual volatility
             return 80 + (annual_vol - 0.60) * 100  # 80-100
-        elif annual_vol > 0.40:  # >40% annual volatility
+        if annual_vol > 0.40:  # >40% annual volatility
             return 60 + (annual_vol - 0.40) * 100  # 60-80
-        elif annual_vol > 0.20:  # >20% annual volatility
+        if annual_vol > 0.20:  # >20% annual volatility
             return 30 + (annual_vol - 0.20) * 150  # 30-60
-        else:
-            return annual_vol * 150  # 0-30
+        return annual_vol * 150  # 0-30
 
     def _score_tail_risk(self, var_95: float, excess_kurtosis: float) -> float:
         """Score tail risk component (0-100)."""
@@ -830,7 +828,7 @@ class MarketDataAnalyzer:
         # Cap adjustment between 0.7 and 1.5
         return max(0.7, min(1.5, total_adjustment))
 
-    def _score_momentum(self, analysis: Dict[str, Any]) -> float:
+    def _score_momentum(self, analysis: dict[str, Any]) -> float:
         """Score momentum component (-100 to +100) with volatility adjustment."""
         try:
             momentum_diff = analysis.get("momentum_differential", 0)
@@ -871,7 +869,7 @@ class MarketDataAnalyzer:
         except Exception:
             return 0.0
 
-    def _score_trend_strength(self, analysis: Dict[str, Any]) -> float:
+    def _score_trend_strength(self, analysis: dict[str, Any]) -> float:
         """Score trend strength component (-100 to +100)."""
         try:
             trend_20d = analysis.get("trend_direction_20d", 0)
@@ -906,12 +904,12 @@ class MarketDataAnalyzer:
         except Exception:
             return 0.0
 
-    def _score_risk_adjusted_returns(self, analysis: Dict[str, Any]) -> float:
+    def _score_risk_adjusted_returns(self, analysis: dict[str, Any]) -> float:
         """Score risk-adjusted returns component (-100 to +100)."""
         try:
             sharpe_ratio = analysis.get("annualized_sharpe", 0)
             sortino_ratio = analysis.get("annualized_sortino", 0)
-            return_to_risk = analysis.get("return_to_risk_ratio", 0)
+            analysis.get("return_to_risk_ratio", 0)
             mean_return = analysis.get("mean_daily_return", 0)
 
             # Sharpe ratio scoring (>1.0 is good, >2.0 is excellent)
@@ -939,11 +937,11 @@ class MarketDataAnalyzer:
         except Exception:
             return 0.0
 
-    def _score_mean_reversion(self, analysis: Dict[str, Any]) -> float:
+    def _score_mean_reversion(self, analysis: dict[str, Any]) -> float:
         """Score mean reversion opportunities (-100 to +100) with bidirectional signals."""
         try:
             var_95 = analysis.get("var_95", 0)
-            var_5 = analysis.get("percentile_5", 0)  # 5th percentile for overbought
+            analysis.get("percentile_5", 0)  # 5th percentile for overbought
             current_vs_mean = analysis.get("trend_direction_20d", 0)
             volatility = analysis.get("annualized_volatility", 0)
             percentile_95 = analysis.get("percentile_95", 0)
@@ -994,7 +992,7 @@ class MarketDataAnalyzer:
 
     async def analyze(
         self, period_days: int = 252 * 2, include_components: bool = False
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Perform complete market data analysis.
 
@@ -1066,7 +1064,7 @@ class MarketDataAnalyzer:
 
 
 def create_market_data_analyzer(
-    ticker: str, logger: Optional[logging.Logger] = None
+    ticker: str, logger: logging.Logger | None = None
 ) -> MarketDataAnalyzer:
     """
     Create a market data analyzer instance.

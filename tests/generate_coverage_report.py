@@ -7,13 +7,12 @@ Generates detailed coverage reports with analysis and recommendations.
 """
 
 import argparse
+from datetime import datetime
 import json
+from pathlib import Path
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
-from datetime import datetime
-from pathlib import Path
-from typing import Dict, List, Optional
 
 
 class CoverageReporter:
@@ -32,8 +31,8 @@ class CoverageReporter:
         self.analysis = {}
 
     def run_coverage_tests(
-        self, test_categories: Optional[List[str]] = None, verbose: bool = False
-    ) -> Dict:
+        self, test_categories: list[str] | None = None, verbose: bool = False
+    ) -> dict:
         """
         Run tests with coverage collection.
 
@@ -50,11 +49,14 @@ class CoverageReporter:
         print(f"🧪 Running coverage tests for categories: {', '.join(test_categories)}")
 
         # Run unified test runner with coverage
-        cmd = (
-            ["python", "tests/run_unified_tests.py"]
-            + test_categories
-            + ["-c", "--save", "coverage_test_results.json"]
-        )
+        cmd = [
+            "python",
+            "tests/run_unified_tests.py",
+            *test_categories,
+            "-c",
+            "--save",
+            "coverage_test_results.json",
+        ]
 
         if verbose:
             cmd.append("-v")
@@ -67,7 +69,8 @@ class CoverageReporter:
                 cwd=self.project_root,
                 capture_output=True,
                 text=True,
-                timeout=1800,  # 30 minutes
+                timeout=1800,
+                check=False,  # 30 minutes
             )
 
             if result.returncode != 0:
@@ -88,7 +91,7 @@ class CoverageReporter:
             print(f"Error running coverage tests: {e}")
             return {"status": "error", "error": str(e)}
 
-    def parse_coverage_xml(self, xml_file: str = "coverage.xml") -> Dict:
+    def parse_coverage_xml(self, xml_file: str = "coverage.xml") -> dict:
         """Parse coverage XML report."""
         xml_path = self.project_root / xml_file
 
@@ -149,7 +152,7 @@ class CoverageReporter:
             print(f"Error parsing coverage XML: {e}")
             return {}
 
-    def parse_coverage_json(self, json_file: str = "coverage.json") -> Dict:
+    def parse_coverage_json(self, json_file: str = "coverage.json") -> dict:
         """Parse coverage JSON report."""
         json_path = self.project_root / json_file
 
@@ -158,13 +161,13 @@ class CoverageReporter:
             return {}
 
         try:
-            with open(json_path, "r") as f:
+            with open(json_path) as f:
                 return json.load(f)
         except Exception as e:
             print(f"Error parsing coverage JSON: {e}")
             return {}
 
-    def analyze_coverage(self, coverage_data: Dict) -> Dict:
+    def analyze_coverage(self, coverage_data: dict) -> dict:
         """Analyze coverage data and provide insights."""
         if not coverage_data:
             return {}
@@ -278,8 +281,8 @@ class CoverageReporter:
         return analysis
 
     def generate_report(
-        self, output_file: Optional[str] = None, format_type: str = "console"
-    ) -> Dict:
+        self, output_file: str | None = None, format_type: str = "console"
+    ) -> dict:
         """
         Generate comprehensive coverage report.
 
@@ -331,7 +334,7 @@ class CoverageReporter:
 
         return report
 
-    def print_console_report(self, report: Dict):
+    def print_console_report(self, report: dict):
         """Print coverage report to console."""
         analysis = report.get("analysis", {})
         overall = analysis.get("overall_assessment", {})
@@ -376,7 +379,7 @@ class CoverageReporter:
         # Recommendations
         recommendations = analysis.get("recommendations", [])
         if recommendations:
-            print(f"\n💡 RECOMMENDATIONS")
+            print("\n💡 RECOMMENDATIONS")
             print("-" * 40)
             for i, rec in enumerate(recommendations, 1):
                 print(f"{i}. {rec}")
@@ -394,7 +397,7 @@ class CoverageReporter:
 
         print("=" * 60)
 
-    def generate_html_report(self, report: Dict, output_file: str):
+    def generate_html_report(self, report: dict, output_file: str):
         """Generate HTML coverage report."""
         # For now, this would use the existing htmlcov directory
         # In a full implementation, this would generate a custom HTML report

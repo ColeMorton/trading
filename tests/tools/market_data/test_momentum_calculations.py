@@ -61,8 +61,8 @@ class TestMomentumMetricsCalculation:
         assert result["recent_avg_return"] > result["historical_avg_return"]
 
         # All values should be numeric
-        for key, value in result.items():
-            assert isinstance(value, (int, float))
+        for _key, value in result.items():
+            assert isinstance(value, int | float)
             assert not np.isnan(value)
 
     def test_momentum_metrics_downtrend(self, analyzer, downtrend_returns):
@@ -280,8 +280,8 @@ class TestMomentumErrorHandling:
 
         # Should handle NaN values and return valid numbers
         assert isinstance(result, dict)
-        for key, value in result.items():
-            assert isinstance(value, (int, float))
+        for _key, value in result.items():
+            assert isinstance(value, int | float)
             # Results should either be valid numbers or default zeros
             assert not np.isnan(value) or value == 0.0
 
@@ -293,7 +293,7 @@ class TestMomentumErrorHandling:
 
         # Should handle infinite values gracefully
         assert isinstance(result, dict)
-        for key, value in result.items():
+        for _key, value in result.items():
             assert np.isfinite(value) or value == 0.0
 
     def test_momentum_calculation_exception(self, analyzer):
@@ -360,7 +360,7 @@ class TestMomentumIntegration:
 
         for key in momentum_keys:
             if key in result:
-                assert isinstance(result[key], (int, float))
+                assert isinstance(result[key], int | float)
                 assert not np.isnan(result[key])
 
 

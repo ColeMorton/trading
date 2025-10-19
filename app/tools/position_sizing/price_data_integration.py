@@ -6,7 +6,6 @@ This module provides a standardized interface for price data fetching using exis
 """
 
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
 
 import polars as pl
 
@@ -17,7 +16,7 @@ from app.tools.get_data import get_data
 class PriceDataIntegration:
     """Standardized price data interface for position sizing calculations."""
 
-    def __init__(self, base_dir: Optional[str] = None, cache_enabled: bool = True):
+    def __init__(self, base_dir: str | None = None, cache_enabled: bool = True):
         """Initialize price data integration.
 
         Args:
@@ -78,15 +77,14 @@ class PriceDataIntegration:
             # Get latest close price
             if len(data) > 0:
                 return float(data["Close"].tail(1).item())
-            else:
-                raise ValueError(f"No price data available for {symbol}")
+            raise ValueError(f"No price data available for {symbol}")
 
         except Exception as e:
-            raise ValueError(f"Failed to fetch price for {symbol}: {str(e)}")
+            raise ValueError(f"Failed to fetch price for {symbol}: {e!s}")
 
     def get_multiple_prices(
-        self, symbols: List[str], use_cache: bool = True
-    ) -> Dict[str, float]:
+        self, symbols: list[str], use_cache: bool = True
+    ) -> dict[str, float]:
         """Get current prices for multiple symbols.
 
         Args:
@@ -103,7 +101,7 @@ class PriceDataIntegration:
             try:
                 prices[symbol] = self.get_current_price(symbol, use_cache)
             except Exception as e:
-                errors.append(f"{symbol}: {str(e)}")
+                errors.append(f"{symbol}: {e!s}")
                 prices[symbol] = 0.0
 
         if errors:
@@ -138,7 +136,7 @@ class PriceDataIntegration:
 
         return data
 
-    def calculate_price_changes(self, symbol: str, days: int = 30) -> Dict[str, float]:
+    def calculate_price_changes(self, symbol: str, days: int = 30) -> dict[str, float]:
         """Calculate price change metrics for a symbol.
 
         Args:
@@ -176,11 +174,9 @@ class PriceDataIntegration:
             }
 
         except Exception as e:
-            raise ValueError(
-                f"Failed to calculate price changes for {symbol}: {str(e)}"
-            )
+            raise ValueError(f"Failed to calculate price changes for {symbol}: {e!s}")
 
-    def validate_symbol(self, symbol: str) -> Tuple[bool, str]:
+    def validate_symbol(self, symbol: str) -> tuple[bool, str]:
         """Validate that a symbol has available price data.
 
         Args:
@@ -193,13 +189,12 @@ class PriceDataIntegration:
             price = self.get_current_price(symbol)
             if price > 0:
                 return True, f"Valid symbol with current price: ${price:.2f}"
-            else:
-                return False, f"Symbol has zero price: {symbol}"
+            return False, f"Symbol has zero price: {symbol}"
 
         except Exception as e:
-            return False, f"Invalid symbol {symbol}: {str(e)}"
+            return False, f"Invalid symbol {symbol}: {e!s}"
 
-    def get_portfolio_prices(self, portfolio: Dict[str, float]) -> Dict[str, any]:
+    def get_portfolio_prices(self, portfolio: dict[str, float]) -> dict[str, any]:
         """Get prices and calculate values for a portfolio.
 
         Args:
@@ -230,7 +225,7 @@ class PriceDataIntegration:
 
         return portfolio_data
 
-    def refresh_all_cache(self, symbols: List[str]) -> Dict[str, bool]:
+    def refresh_all_cache(self, symbols: list[str]) -> dict[str, bool]:
         """Force refresh cached data for multiple symbols.
 
         Args:

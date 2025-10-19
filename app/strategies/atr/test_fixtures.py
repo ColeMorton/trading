@@ -13,11 +13,11 @@ Shared test utilities, fixtures, and helper functions for ATR strategy testing:
 Focus: Reusable testing infrastructure for consistent ATR test implementation
 """
 
+from collections.abc import Callable
 import os
 import tempfile
-from datetime import datetime, timedelta
-from typing import Any, Callable, Dict, List, Optional
-from unittest.mock import MagicMock, Mock
+from typing import Any
+from unittest.mock import Mock
 
 import numpy as np
 import pandas as pd
@@ -122,7 +122,7 @@ class ATRTestDataGenerator:
         returns = []
         current_vol = base_volatility
 
-        for i in range(periods):
+        for _i in range(periods):
             if volatility_clustering:
                 # GARCH-like volatility clustering
                 vol_persistence = 0.9
@@ -229,7 +229,7 @@ class ATRTestConfigBuilder:
         atr_multiplier_max: float = 3.0,
         atr_multiplier_step: float = 0.5,
         use_current: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create basic ATR configuration for testing."""
         return {
             "TICKER": ticker,
@@ -255,7 +255,7 @@ class ATRTestConfigBuilder:
     @staticmethod
     def create_performance_config(
         ticker: str = "PERF_TEST", large_parameter_space: bool = False
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create configuration optimized for performance testing."""
         if large_parameter_space:
             return {
@@ -276,11 +276,10 @@ class ATRTestConfigBuilder:
                     "SORTINO_RATIO": -5.0,
                 },
             }
-        else:
-            return ATRTestConfigBuilder.create_basic_config(ticker)
+        return ATRTestConfigBuilder.create_basic_config(ticker)
 
     @staticmethod
-    def create_regression_config(ticker: str = "REGRESSION") -> Dict[str, Any]:
+    def create_regression_config(ticker: str = "REGRESSION") -> dict[str, Any]:
         """Create configuration for regression testing."""
         config = ATRTestConfigBuilder.create_basic_config(ticker)
         config.update(
@@ -299,7 +298,9 @@ class ATRTestAssertions:
     """Custom assertion helpers for ATR testing."""
 
     @staticmethod
-    def assert_valid_atr_portfolio(portfolio: Dict[str, Any], ticker: str = None):
+    def assert_valid_atr_portfolio(
+        portfolio: dict[str, Any], ticker: str | None = None
+    ):
         """Assert that portfolio dictionary has valid ATR structure."""
         # Required fields
         required_fields = [
@@ -332,18 +333,18 @@ class ATRTestAssertions:
 
         # Numeric validations
         assert isinstance(
-            portfolio["Fast Period"], (int, float)
+            portfolio["Fast Period"], int | float
         ), "Fast Period should be numeric"
         assert isinstance(
-            portfolio["Slow Period"], (int, float)
+            portfolio["Slow Period"], int | float
         ), "Slow Period should be numeric"
         assert isinstance(
-            portfolio["Total Trades"], (int, float)
+            portfolio["Total Trades"], int | float
         ), "Total Trades should be numeric"
         assert isinstance(
-            portfolio["Win Rate [%]"], (int, float)
+            portfolio["Win Rate [%]"], int | float
         ), "Win Rate should be numeric"
-        assert isinstance(portfolio["Score"], (int, float)), "Score should be numeric"
+        assert isinstance(portfolio["Score"], int | float), "Score should be numeric"
 
         # Range validations
         assert (
@@ -381,7 +382,7 @@ class ATRTestAssertions:
             ).all(), "ATR Trailing Stop values should be positive"
 
     @staticmethod
-    def assert_no_regression_bugs(portfolio: Dict[str, Any], ticker: str):
+    def assert_no_regression_bugs(portfolio: dict[str, Any], ticker: str):
         """Assert that common regression bugs are not present."""
         # Bug 1: Ticker corruption (shows as "UNKNOWN")
         assert (
@@ -531,7 +532,7 @@ class ATRTestUtilities:
         atr_multiplier_min: float,
         atr_multiplier_max: float,
         atr_multiplier_step: float,
-    ) -> List[tuple]:
+    ) -> list[tuple]:
         """Generate all parameter combinations for testing."""
         combinations = []
 
@@ -554,7 +555,7 @@ class ATRTestUtilities:
 
     @staticmethod
     def create_temporary_config_file(
-        config: Dict[str, Any], filename: str = None
+        config: dict[str, Any], filename: str | None = None
     ) -> str:
         """Create temporary configuration file for testing."""
         import yaml
@@ -573,7 +574,7 @@ class ATRTestUtilities:
         return filename
 
     @staticmethod
-    def cleanup_test_files(file_paths: List[str]):
+    def cleanup_test_files(file_paths: list[str]):
         """Clean up temporary test files."""
         for path in file_paths:
             try:
@@ -622,9 +623,9 @@ class ATRTestUtilities:
 
 # Convenience imports for easy access
 __all__ = [
-    "ATRTestDataGenerator",
-    "ATRTestConfigBuilder",
     "ATRTestAssertions",
+    "ATRTestConfigBuilder",
+    "ATRTestDataGenerator",
     "ATRTestMocks",
     "ATRTestUtilities",
 ]

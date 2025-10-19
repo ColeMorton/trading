@@ -10,18 +10,16 @@ This service consolidates functionality from:
 - trade_history_close_live_signal.py
 """
 
-import json
+from datetime import datetime
 import logging
-from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import pandas as pd
 
 from ..cli.utils import resolve_portfolio_path
 from ..exceptions import (
     CalculationError,
-    ConfigurationError,
     DataNotFoundError,
     PortfolioError,
     PriceDataError,
@@ -36,7 +34,7 @@ from ..tools.uuid_utils import generate_position_uuid
 class TradingSystemConfig:
     """Configuration for trading system file paths and settings."""
 
-    def __init__(self, base_dir: str = None):
+    def __init__(self, base_dir: str | None = None):
         """Initialize configuration with base directory."""
         self.base_dir = Path(base_dir) if base_dir else Path.cwd()
 
@@ -82,7 +80,7 @@ class PositionService:
     """
 
     def __init__(
-        self, config: TradingSystemConfig = None, logger: logging.Logger = None
+        self, config: TradingSystemConfig = None, logger: logging.Logger | None = None
     ):
         """Initialize the position service."""
         self.config = config or TradingSystemConfig()
@@ -122,12 +120,11 @@ class PositionService:
                     datetime.strptime(date_str, "%Y%m%d %H:%M:%S")
                 else:
                     datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+            # Try YYYYMMDD format first, then YYYY-MM-DD
+            elif len(date_str) == 8 and date_str.isdigit():
+                datetime.strptime(date_str, "%Y%m%d")
             else:
-                # Try YYYYMMDD format first, then YYYY-MM-DD
-                if len(date_str) == 8 and date_str.isdigit():
-                    datetime.strptime(date_str, "%Y%m%d")
-                else:
-                    datetime.strptime(date_str, "%Y-%m-%d")
+                datetime.strptime(date_str, "%Y-%m-%d")
         except ValueError:
             raise ValidationError(f"Invalid date format: {date_str}")
 
@@ -139,7 +136,7 @@ class PositionService:
         entry_price: float,
         direction: str = "Long",
         timeframe: str = "D",
-    ) -> Tuple[Optional[float], Optional[float], Optional[float]]:
+    ) -> tuple[float | None, float | None, float | None]:
         """
         Calculate Max Favourable Excursion and Max Adverse Excursion.
 
@@ -230,7 +227,7 @@ class PositionService:
             return mfe, mae, mfe_mae_ratio
 
         except Exception as e:
-            if isinstance(e, (ValidationError, PriceDataError)):
+            if isinstance(e, ValidationError | PriceDataError):
                 raise
             raise CalculationError(f"Error calculating MFE/MAE for {ticker}: {e}")
 
@@ -243,7 +240,7 @@ class PositionService:
         entry_date: str,
         direction: str = "Long",
         timeframe: str = "D",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Verify that entry signal actually occurred on specified date.
 
@@ -343,7 +340,7 @@ class PositionService:
             }
 
         except Exception as e:
-            if isinstance(e, (ValidationError, DataNotFoundError, PriceDataError)):
+            if isinstance(e, ValidationError | DataNotFoundError | PriceDataError):
                 raise
             raise SignalValidationError(f"Error verifying signal for {ticker}: {e}")
 
@@ -354,13 +351,13 @@ class PositionService:
         fast_period: int,
         slow_period: int,
         signal_period: int = 0,
-        entry_date: str = None,
-        entry_price: float = None,
-        exit_date: str = None,
-        exit_price: float = None,
+        entry_date: str | None = None,
+        entry_price: float | None = None,
+        exit_date: str | None = None,
+        exit_price: float | None = None,
         position_size: float = 1.0,
         direction: str = "Long",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Create a complete position record with all calculated fields.
 
@@ -465,10 +462,10 @@ class PositionService:
         fast_period: int,
         slow_period: int,
         signal_period: int = 0,
-        entry_date: str = None,
-        entry_price: float = None,
-        exit_date: str = None,
-        exit_price: float = None,
+        entry_date: str | None = None,
+        entry_price: float | None = None,
+        exit_date: str | None = None,
+        exit_price: float | None = None,
         position_size: float = 1.0,
         direction: str = "Long",
         portfolio_name: str = "live_signals",
@@ -575,8 +572,8 @@ class PositionService:
         position_uuid: str,
         portfolio_name: str,
         exit_price: float,
-        exit_date: str = None,
-    ) -> Dict[str, Any]:
+        exit_date: str | None = None,
+    ) -> dict[str, Any]:
         """
         Close an open position in a portfolio.
 
@@ -678,8 +675,8 @@ class PositionService:
         }
 
     def list_positions(
-        self, portfolio_name: str, status_filter: str = None
-    ) -> List[Dict[str, Any]]:
+        self, portfolio_name: str, status_filter: str | None = None
+    ) -> list[dict[str, Any]]:
         """
         List all positions in a portfolio.
 
@@ -701,7 +698,7 @@ class PositionService:
 
         return df.to_dict("records")
 
-    def get_position(self, position_uuid: str, portfolio_name: str) -> Dict[str, Any]:
+    def get_position(self, position_uuid: str, portfolio_name: str) -> dict[str, Any]:
         """
         Get a specific position by UUID.
 

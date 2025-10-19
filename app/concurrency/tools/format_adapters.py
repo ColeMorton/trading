@@ -22,11 +22,12 @@ Classes:
     FormatDetector: Automatic format detection
 """
 
-import json
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
+import json
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 
@@ -37,12 +38,12 @@ class FormatSpec:
 
     format_name: str
     format_version: str
-    expected_columns: List[str]
-    column_mappings: Dict[str, str]  # source_col -> standard_col
-    data_types: Dict[str, str]
-    required_columns: List[str]
-    optional_columns: List[str]
-    validation_rules: Dict[str, Any]
+    expected_columns: list[str]
+    column_mappings: dict[str, str]  # source_col -> standard_col
+    data_types: dict[str, str]
+    required_columns: list[str]
+    optional_columns: list[str]
+    validation_rules: dict[str, Any]
 
 
 @dataclass
@@ -50,14 +51,14 @@ class AdaptationResult:
     """Result of format adaptation."""
 
     success: bool
-    adapted_data: Optional[pd.DataFrame]
+    adapted_data: pd.DataFrame | None
     format_detected: str
     format_version: str
     rows_processed: int
-    columns_mapped: Dict[str, str]
-    validation_results: Dict[str, Any]
-    warnings: List[str] = field(default_factory=list)
-    errors: List[str] = field(default_factory=list)
+    columns_mapped: dict[str, str]
+    validation_results: dict[str, Any]
+    warnings: list[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
 
 class FormatAdapter(ABC):
@@ -78,7 +79,7 @@ class FormatAdapter(ABC):
         self.format_spec = format_spec
 
     @abstractmethod
-    def detect_format(self, data: Union[pd.DataFrame, str, Path]) -> bool:
+    def detect_format(self, data: pd.DataFrame | str | Path) -> bool:
         """
         Detect if data matches this format.
 
@@ -92,8 +93,8 @@ class FormatAdapter(ABC):
     @abstractmethod
     def adapt_to_standard(
         self,
-        data: Union[pd.DataFrame, str, Path],
-        log: Optional[Callable[[str, str], None]] = None,
+        data: pd.DataFrame | str | Path,
+        log: Callable[[str, str], None] | None = None,
     ) -> AdaptationResult:
         """
         Adapt data from this format to standard format.
@@ -107,8 +108,8 @@ class FormatAdapter(ABC):
         """
 
     def validate_adapted_data(
-        self, data: pd.DataFrame, log: Optional[Callable[[str, str], None]] = None
-    ) -> Dict[str, Any]:
+        self, data: pd.DataFrame, log: Callable[[str, str], None] | None = None
+    ) -> dict[str, Any]:
         """
         Validate adapted data against standard format.
 
@@ -160,7 +161,7 @@ class FormatAdapter(ABC):
                         validation["valid"] = False
             except Exception as e:
                 validation["warnings"].append(
-                    f"Validation rule {rule_name} failed: {str(e)}"
+                    f"Validation rule {rule_name} failed: {e!s}"
                 )
 
         validation["checks_performed"].append("validation_rules")
@@ -179,8 +180,8 @@ class FormatAdapter(ABC):
         return actual_type in compatibility_map.get(expected_type, [expected_type])
 
     def _apply_validation_rule(
-        self, data: pd.DataFrame, rule_name: str, rule_config: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, data: pd.DataFrame, rule_name: str, rule_config: dict[str, Any]
+    ) -> dict[str, Any]:
         """Apply a specific validation rule."""
         result = {"passed": True, "warnings": [], "errors": []}
 
@@ -230,7 +231,7 @@ class FormatAdapter(ABC):
                         )
 
         except Exception as e:
-            result["errors"].append(f"Error applying rule {rule_name}: {str(e)}")
+            result["errors"].append(f"Error applying rule {rule_name}: {e!s}")
             result["passed"] = False
 
         return result
@@ -305,10 +306,10 @@ class VectorBTAdapter(FormatAdapter):
         )
         super().__init__(format_spec)
 
-    def detect_format(self, data: Union[pd.DataFrame, str, Path]) -> bool:
+    def detect_format(self, data: pd.DataFrame | str | Path) -> bool:
         """Detect if data is VectorBT format."""
         try:
-            if isinstance(data, (str, Path)):
+            if isinstance(data, str | Path):
                 df = pd.read_csv(data, nrows=5)  # Read just a few rows for detection
             else:
                 df = data.head(5)
@@ -330,13 +331,13 @@ class VectorBTAdapter(FormatAdapter):
 
     def adapt_to_standard(
         self,
-        data: Union[pd.DataFrame, str, Path],
-        log: Optional[Callable[[str, str], None]] = None,
+        data: pd.DataFrame | str | Path,
+        log: Callable[[str, str], None] | None = None,
     ) -> AdaptationResult:
         """Adapt VectorBT format to standard format."""
         try:
             # Load data if needed
-            if isinstance(data, (str, Path)):
+            if isinstance(data, str | Path):
                 df = pd.read_csv(data)
                 if log:
                     log(f"Loaded VectorBT CSV with {len(df)} rows", "info")
@@ -374,7 +375,7 @@ class VectorBTAdapter(FormatAdapter):
                         )
                         columns_mapped[date_col] = f"{date_col.lower()}_date"
                     except Exception as e:
-                        warnings.append(f"Could not parse {date_col} as date: {str(e)}")
+                        warnings.append(f"Could not parse {date_col} as date: {e!s}")
 
             # Validate adapted data
             validation_results = self.validate_adapted_data(adapted_df, log)
@@ -398,7 +399,7 @@ class VectorBTAdapter(FormatAdapter):
             )
 
         except Exception as e:
-            error_msg = f"Error adapting VectorBT format: {str(e)}"
+            error_msg = f"Error adapting VectorBT format: {e!s}"
             return AdaptationResult(
                 success=False,
                 adapted_data=None,
@@ -419,7 +420,7 @@ class CustomCSVAdapter(FormatAdapter):
     or structures than the standard VectorBT format.
     """
 
-    def __init__(self, custom_mappings: Dict[str, str] = None):
+    def __init__(self, custom_mappings: dict[str, str] | None = None):
         # Define flexible format spec for custom CSVs
         format_spec = FormatSpec(
             format_name="custom_csv",
@@ -441,10 +442,10 @@ class CustomCSVAdapter(FormatAdapter):
         super().__init__(format_spec)
         self.custom_mappings = custom_mappings or {}
 
-    def detect_format(self, data: Union[pd.DataFrame, str, Path]) -> bool:
+    def detect_format(self, data: pd.DataFrame | str | Path) -> bool:
         """Detect if data is a custom CSV format."""
         try:
-            if isinstance(data, (str, Path)):
+            if isinstance(data, str | Path):
                 df = pd.read_csv(data, nrows=5)
             else:
                 df = data.head(5)
@@ -458,7 +459,7 @@ class CustomCSVAdapter(FormatAdapter):
             }
 
             matches = 0
-            for concept, variations in column_variations.items():
+            for _concept, variations in column_variations.items():
                 if any(
                     var.lower() in [col.lower() for col in df.columns]
                     for var in variations
@@ -473,12 +474,12 @@ class CustomCSVAdapter(FormatAdapter):
 
     def adapt_to_standard(
         self,
-        data: Union[pd.DataFrame, str, Path],
-        log: Optional[Callable[[str, str], None]] = None,
+        data: pd.DataFrame | str | Path,
+        log: Callable[[str, str], None] | None = None,
     ) -> AdaptationResult:
         """Adapt custom CSV format to standard format."""
         try:
-            if isinstance(data, (str, Path)):
+            if isinstance(data, str | Path):
                 df = pd.read_csv(data)
             else:
                 df = data.copy()
@@ -525,7 +526,7 @@ class CustomCSVAdapter(FormatAdapter):
             )
 
         except Exception as e:
-            error_msg = f"Error adapting custom CSV format: {str(e)}"
+            error_msg = f"Error adapting custom CSV format: {e!s}"
             return AdaptationResult(
                 success=False,
                 adapted_data=None,
@@ -537,7 +538,7 @@ class CustomCSVAdapter(FormatAdapter):
                 errors=[error_msg],
             )
 
-    def _detect_column_mappings(self, columns: List[str]) -> Dict[str, str]:
+    def _detect_column_mappings(self, columns: list[str]) -> dict[str, str]:
         """Automatically detect column mappings based on column names."""
         mappings = {}
 
@@ -595,13 +596,13 @@ class JSONAdapter(FormatAdapter):
         )
         super().__init__(format_spec)
 
-    def detect_format(self, data: Union[pd.DataFrame, str, Path]) -> bool:
+    def detect_format(self, data: pd.DataFrame | str | Path) -> bool:
         """Detect if data is JSON portfolio format."""
         try:
             if isinstance(data, dict):
                 json_data = data
-            elif isinstance(data, (str, Path)):
-                with open(data, "r") as f:
+            elif isinstance(data, str | Path):
+                with open(data) as f:
                     json_data = json.load(f)
             else:
                 return False
@@ -615,15 +616,15 @@ class JSONAdapter(FormatAdapter):
 
     def adapt_to_standard(
         self,
-        data: Union[Dict[str, Any], str, Path],
-        log: Optional[Callable[[str, str], None]] = None,
+        data: dict[str, Any] | str | Path,
+        log: Callable[[str, str], None] | None = None,
     ) -> AdaptationResult:
         """Adapt JSON format to standard format."""
         try:
             if isinstance(data, dict):
                 json_data = data.copy()
-            elif isinstance(data, (str, Path)):
-                with open(data, "r") as f:
+            elif isinstance(data, str | Path):
+                with open(data) as f:
                     json_data = json.load(f)
             else:
                 raise ValueError("Unsupported data type for JSON adaptation")
@@ -655,7 +656,7 @@ class JSONAdapter(FormatAdapter):
             )
 
         except Exception as e:
-            error_msg = f"Error adapting JSON format: {str(e)}"
+            error_msg = f"Error adapting JSON format: {e!s}"
             return AdaptationResult(
                 success=False,
                 adapted_data=None,
@@ -667,7 +668,7 @@ class JSONAdapter(FormatAdapter):
                 errors=[error_msg],
             )
 
-    def _standardize_json_structure(self, json_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _standardize_json_structure(self, json_data: dict[str, Any]) -> dict[str, Any]:
         """Standardize JSON structure to common format."""
         standardized = {"ticker_metrics": {}, "portfolio_metrics": {}, "metadata": {}}
 
@@ -686,7 +687,7 @@ class JSONAdapter(FormatAdapter):
 
         return standardized
 
-    def _json_to_dataframe(self, ticker_metrics: Dict[str, Any]) -> pd.DataFrame:
+    def _json_to_dataframe(self, ticker_metrics: dict[str, Any]) -> pd.DataFrame:
         """Convert JSON ticker metrics to DataFrame format."""
         rows = []
 
@@ -701,7 +702,7 @@ class JSONAdapter(FormatAdapter):
 
             # Extract other metrics
             for key, value in metrics.items():
-                if key != "signal_quality_metrics" and isinstance(value, (int, float)):
+                if key != "signal_quality_metrics" and isinstance(value, int | float):
                     row[key] = value
 
             rows.append(row)
@@ -723,8 +724,8 @@ class FormatDetector:
 
     def detect_and_adapt(
         self,
-        data: Union[pd.DataFrame, str, Path, Dict[str, Any]],
-        log: Optional[Callable[[str, str], None]] = None,
+        data: pd.DataFrame | str | Path | dict[str, Any],
+        log: Callable[[str, str], None] | None = None,
     ) -> AdaptationResult:
         """
         Detect format and adapt data automatically.
@@ -754,7 +755,7 @@ class FormatDetector:
             except Exception as e:
                 if log:
                     log(
-                        f"Format detection failed for {adapter.format_spec.format_name}: {str(e)}",
+                        f"Format detection failed for {adapter.format_spec.format_name}: {e!s}",
                         "warning",
                     )
                 continue
@@ -775,7 +776,7 @@ class FormatDetector:
             errors=[error_msg],
         )
 
-    def get_supported_formats(self) -> List[Dict[str, str]]:
+    def get_supported_formats(self) -> list[dict[str, str]]:
         """Get list of supported formats."""
         return [
             {
@@ -793,8 +794,8 @@ class FormatDetector:
 
 def create_custom_adapter(
     format_name: str,
-    column_mappings: Dict[str, str],
-    validation_rules: Dict[str, Any] = None,
+    column_mappings: dict[str, str],
+    validation_rules: dict[str, Any] | None = None,
 ) -> CustomCSVAdapter:
     """
     Create a custom adapter for specific CSV formats.

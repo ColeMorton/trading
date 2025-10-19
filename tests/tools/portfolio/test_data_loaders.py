@@ -1,8 +1,8 @@
 """Tests for portfolio data loading functions."""
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
 
 from app.cli.models.portfolio import Direction, ReviewStrategyConfig, StrategyType
 from app.tools.portfolio.data_loaders import load_strategies_from_raw_csv
@@ -66,7 +66,9 @@ class TestLoadStrategiesFromRawCsv:
         mock_path_instance.exists.return_value = False
         mock_path.return_value = mock_path_instance
 
-        with pytest.raises(ValueError, match="(does not exist|Failed to load strategies)"):
+        with pytest.raises(
+            ValueError, match="(does not exist|Failed to load strategies)"
+        ):
             load_strategies_from_raw_csv("nonexistent")
 
     @patch("app.tools.portfolio.data_loaders.Path")
@@ -260,4 +262,3 @@ class TestLoadStrategiesFromRawCsv:
         assert result[0].strategy_type == StrategyType.SMA
         assert result[1].strategy_type == StrategyType.EMA
         assert result[2].strategy_type == StrategyType.MACD
-

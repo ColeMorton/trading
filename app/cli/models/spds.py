@@ -7,9 +7,8 @@ for SPDS portfolio analysis functionality.
 
 from enum import Enum
 from pathlib import Path
-from typing import Dict, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 from ...tools.parameter_parser import ParameterType, ParsedParameter
 from .base import BaseConfig
@@ -68,7 +67,8 @@ class SPDSThresholds(BaseModel):
         description="Percentile threshold for HOLD signal",
     )
 
-    @validator("exit_immediately", "strong_sell", "sell", "hold")
+    @field_validator("exit_immediately", "strong_sell", "sell", "hold")
+    @classmethod
     def validate_thresholds(cls, v, values):
         """Ensure thresholds are in descending order."""
         if v < 0 or v > 100:
@@ -89,14 +89,16 @@ class SPDSSampleSize(BaseModel):
         default=50, ge=1, description="Optimal sample size for high-confidence analysis"
     )
 
-    @validator("preferred")
+    @field_validator("preferred")
+    @classmethod
     def validate_preferred_vs_minimum(cls, v, values):
         """Ensure preferred >= minimum."""
         if "minimum" in values and v < values["minimum"]:
             raise ValueError("Preferred sample size must be >= minimum")
         return v
 
-    @validator("optimal")
+    @field_validator("optimal")
+    @classmethod
     def validate_optimal_vs_preferred(cls, v, values):
         """Ensure optimal >= preferred."""
         if "preferred" in values and v < values["preferred"]:
@@ -176,7 +178,7 @@ class SPDSOutputConfig(BaseModel):
     output_format: OutputFormat = Field(
         default=OutputFormat.TABLE, description="Primary output format"
     )
-    save_results: Optional[str] = Field(
+    save_results: str | None = Field(
         default=None, description="File path to save results (JSON format)"
     )
 
@@ -187,7 +189,7 @@ class SPDSOutputConfig(BaseModel):
     export_format: ExportFormat = Field(
         default=ExportFormat.ALL, description="Export format for analysis results"
     )
-    output_dir: Optional[str] = Field(
+    output_dir: str | None = Field(
         default=None, description="Custom output directory for exports"
     )
 
@@ -268,7 +270,8 @@ class SPDSStrategyConfig(BaseModel):
         default=True, description="Compare strategy performance with buy-and-hold"
     )
 
-    @validator("slow_period")
+    @field_validator("slow_period")
+    @classmethod
     def validate_windows(cls, v, values):
         """Ensure slow period > fast period."""
         if "fast_period" in values and v <= values["fast_period"]:
@@ -314,7 +317,7 @@ class SPDSConfig(BaseConfig):
     )
 
     # Enhanced parameter support
-    parameter_config: Optional[SPDSParameterConfig] = Field(
+    parameter_config: SPDSParameterConfig | None = Field(
         default=None,
         description="Enhanced parameter configuration for different input types",
     )
@@ -330,7 +333,8 @@ class SPDSConfig(BaseConfig):
         default=1000.0, ge=100.0, description="Maximum memory usage in MB"
     )
 
-    @validator("portfolio")
+    @field_validator("portfolio")
+    @classmethod
     def validate_portfolio_required(cls, v):
         """Ensure portfolio is provided for SPDS analysis."""
         if not v or not v.strip():
@@ -353,12 +357,11 @@ class SPDSConfig(BaseConfig):
         """Get effective sample size requirement based on confidence level."""
         if self.analysis.confidence_level == ConfidenceLevel.HIGH:
             return self.analysis.sample_size.optimal
-        elif self.analysis.confidence_level == ConfidenceLevel.MEDIUM:
+        if self.analysis.confidence_level == ConfidenceLevel.MEDIUM:
             return self.analysis.sample_size.preferred
-        else:
-            return self.analysis.sample_size.minimum
+        return self.analysis.sample_size.minimum
 
-    def to_legacy_config_dict(self) -> Dict:
+    def to_legacy_config_dict(self) -> dict:
         """Convert to legacy configuration dictionary for existing SPDS modules."""
         return {
             "PORTFOLIO": self.portfolio,
@@ -397,12 +400,11 @@ class SPDSConfig(BaseConfig):
         param_type = self.parameter_config.parameter_type
         if param_type == ParameterType.TICKER_ONLY:
             return "Asset Distribution Analysis"
-        elif param_type == ParameterType.STRATEGY_SPEC:
+        if param_type == ParameterType.STRATEGY_SPEC:
             return "Strategy Performance Analysis"
-        elif param_type == ParameterType.POSITION_UUID:
+        if param_type == ParameterType.POSITION_UUID:
             return "Position-Specific Analysis"
-        else:
-            return "Portfolio Analysis"
+        return "Portfolio Analysis"
 
     @classmethod
     def for_ticker_analysis(

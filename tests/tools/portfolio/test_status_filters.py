@@ -1,7 +1,5 @@
 """Tests for portfolio status filtering functions."""
 
-import pytest
-
 from app.tools.portfolio.status_filters import (
     determine_portfolio_status,
     filter_entry_strategies,
@@ -259,4 +257,3 @@ class TestFilterEntryStrategies:
         assert result[0]["Ticker"] == "A"
         assert result[1]["Ticker"] == "C"
         assert result[2]["Ticker"] == "D"
-

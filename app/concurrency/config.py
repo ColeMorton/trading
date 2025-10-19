@@ -5,15 +5,15 @@ analysis system, supporting multiple portfolio formats and configurations.
 """
 
 import csv
-import json
 from dataclasses import dataclass
+import json
 from pathlib import Path
-from typing import Any, Dict, List, TypedDict
+from typing import Any, TypedDict
 
 from typing_extensions import NotRequired
 
-from app.concurrency.error_handling import ValidationError as BaseValidationError
 from app.concurrency.error_handling import (
+    ValidationError as BaseValidationError,
     handle_concurrency_errors,
     track_error,
     validate_inputs,
@@ -248,7 +248,7 @@ def detect_portfolio_format(file_path: str) -> PortfolioFormat:
         return PortfolioFormat(
             extension=".csv", content_type="text/csv", validator=validate_csv_portfolio
         )
-    elif extension == ".json":
+    if extension == ".json":
         # Detect JSON subtype by content
         try:
             with open(path) as f:
@@ -267,7 +267,7 @@ def detect_portfolio_format(file_path: str) -> PortfolioFormat:
                     validator=validate_ma_portfolio,
                 )
         except json.JSONDecodeError as e:
-            error = FileFormatError(f"Invalid JSON file: {str(e)}")
+            error = FileFormatError(f"Invalid JSON file: {e!s}")
             track_error(
                 error,
                 "portfolio format detection",
@@ -286,7 +286,7 @@ def detect_portfolio_format(file_path: str) -> PortfolioFormat:
 
 @handle_concurrency_errors("configuration validation")
 @validate_inputs(config=lambda x: isinstance(x, dict))
-def validate_config(config: Dict[str, Any]) -> ConcurrencyConfig:
+def validate_config(config: dict[str, Any]) -> ConcurrencyConfig:
     """Validate concurrency configuration.
 
     Args:
@@ -385,7 +385,7 @@ def validate_config(config: Dict[str, Any]) -> ConcurrencyConfig:
             {"field": "OPTIMIZE", "type": type(config["OPTIMIZE"]).__name__},
         )
         raise error
-    elif "OPTIMIZE" not in config:
+    if "OPTIMIZE" not in config:
         config["OPTIMIZE"] = False
 
     # Validate OPTIMIZE_MIN_STRATEGIES (default to 3 if not present)
@@ -455,7 +455,7 @@ def validate_csv_portfolio(file_path: str) -> None:
             if not first_row:
                 raise ValidationError("CSV file is empty")
     except csv.Error as e:
-        raise ValidationError(f"Invalid CSV format: {str(e)}")
+        raise ValidationError(f"Invalid CSV format: {e!s}")
 
 
 def validate_ma_portfolio(file_path: str) -> None:
@@ -516,7 +516,7 @@ def validate_ma_portfolio(file_path: str) -> None:
                 else:
                     raise ValidationError(f"Invalid strategy type: {strategy['type']}")
     except json.JSONDecodeError as e:
-        raise ValidationError(f"Invalid JSON format: {str(e)}")
+        raise ValidationError(f"Invalid JSON format: {e!s}")
 
 
 def validate_macd_portfolio(file_path: str) -> None:
@@ -554,4 +554,4 @@ def validate_macd_portfolio(file_path: str) -> None:
                 if strategy["type"] != "MACD":
                     raise ValidationError(f"Invalid strategy type: {strategy['type']}")
     except json.JSONDecodeError as e:
-        raise ValidationError(f"Invalid JSON format: {str(e)}")
+        raise ValidationError(f"Invalid JSON format: {e!s}")

@@ -5,8 +5,9 @@ This module provides different strategies for allocating capital across
 multiple trading strategies, improving on the default signal-count-based weighting.
 """
 
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -23,12 +24,12 @@ class AllocationMode(Enum):
 
 
 def calculate_allocations(
-    strategy_metrics: List[Dict[str, Any]],
+    strategy_metrics: list[dict[str, Any]],
     mode: AllocationMode = AllocationMode.SIGNAL_COUNT,
-    custom_allocations: Optional[Dict[str, float]] = None,
+    custom_allocations: dict[str, float] | None = None,
     performance_metric: str = "sharpe_ratio",
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, float]:
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, float]:
     """Calculate strategy allocations based on the specified mode.
 
     Args:
@@ -82,8 +83,7 @@ def calculate_allocations(
             value = metrics.get(performance_metric, 0)
 
             # Handle negative values (can't allocate negative weight)
-            if value < 0:
-                value = 0
+            value = max(value, 0)
 
             performance_values.append(value)
 
@@ -216,7 +216,7 @@ def calculate_allocations(
     return allocations
 
 
-def get_allocation_mode(config: Dict[str, Any]) -> AllocationMode:
+def get_allocation_mode(config: dict[str, Any]) -> AllocationMode:
     """Get the allocation mode from configuration.
 
     Args:
@@ -235,10 +235,10 @@ def get_allocation_mode(config: Dict[str, Any]) -> AllocationMode:
 
 
 def analyze_allocation_impact(
-    strategy_metrics: List[Dict[str, Any]],
+    strategy_metrics: list[dict[str, Any]],
     returns: np.ndarray,
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, Any]:
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, Any]:
     """Analyze the impact of different allocation modes on portfolio performance.
 
     Args:

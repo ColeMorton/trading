@@ -9,10 +9,10 @@ This service now delegates core position operations to the unified PositionServi
 while maintaining its existing interface for backward compatibility.
 """
 
-import logging
 from datetime import datetime
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import pandas as pd
 
@@ -35,8 +35,8 @@ class TradeHistoryService:
 
     def __init__(
         self,
-        logger: Optional[logging.Logger] = None,
-        base_dir: Optional[Path] = None,
+        logger: logging.Logger | None = None,
+        base_dir: Path | None = None,
     ):
         """Initialize the service."""
         self.logger = logger or logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class TradeHistoryService:
         portfolio_name: str,
         dry_run: bool = False,
         verbose: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Update dynamic metrics for open positions in a portfolio.
 
@@ -169,7 +169,7 @@ class TradeHistoryService:
                             self.logger.warning(f"   ⚠️  {full_error_msg}")
 
                 except Exception as e:
-                    error_msg = f"Error processing {ticker}: {str(e)}"
+                    error_msg = f"Error processing {ticker}: {e!s}"
                     errors.append(error_msg)
                     self.logger.error(error_msg)
 
@@ -191,10 +191,10 @@ class TradeHistoryService:
             }
 
         except Exception as e:
-            self.logger.error(f"Failed to update open positions: {str(e)}")
+            self.logger.error(f"Failed to update open positions: {e!s}")
             return {
                 "success": False,
-                "message": f"Update failed: {str(e)}",
+                "message": f"Update failed: {e!s}",
                 "updated_count": 0,
                 "errors": [str(e)],
             }
@@ -206,7 +206,7 @@ class TradeHistoryService:
         verbose: bool = False,
         validate_calculations: bool = True,
         auto_fix_errors: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Comprehensive refresh of ALL positions using centralized PositionCalculator.
 
@@ -278,7 +278,7 @@ class TradeHistoryService:
                     entry_date = position["Entry_Timestamp"]
                     entry_price = position["Avg_Entry_Price"]
                     exit_price = position.get("Avg_Exit_Price")
-                    position_size = position.get("Position_Size", 1.0)
+                    position.get("Position_Size", 1.0)
                     direction = position.get("Direction", "Long")
                     status = position.get("Status", "Unknown")
 
@@ -351,48 +351,43 @@ class TradeHistoryService:
                                 f"Quality: {refreshed_data.get('Trade_Quality', 'Unknown')}"
                             )
 
-                    else:
-                        # Could not calculate MFE/MAE - still try to refresh other calculations
-                        if exit_price is not None:
-                            # At least recalculate P&L and Return using PositionCalculator
-                            try:
-                                refresh_result = (
-                                    calculator.comprehensive_position_refresh(
-                                        position_data=position_data
-                                    )
-                                )
+                    # Could not calculate MFE/MAE - still try to refresh other calculations
+                    elif exit_price is not None:
+                        # At least recalculate P&L and Return using PositionCalculator
+                        try:
+                            refresh_result = calculator.comprehensive_position_refresh(
+                                position_data=position_data
+                            )
 
-                                refreshed_data = refresh_result["data"]
-                                changes = refresh_result["changes"]
+                            refreshed_data = refresh_result["data"]
+                            changes = refresh_result["changes"]
 
-                                # Update basic calculations
-                                for field in ["PnL", "Return", "Days_Since_Entry"]:
-                                    if field in refreshed_data and field in df.columns:
-                                        df.loc[idx, field] = refreshed_data[field]
+                            # Update basic calculations
+                            for field in ["PnL", "Return", "Days_Since_Entry"]:
+                                if field in refreshed_data and field in df.columns:
+                                    df.loc[idx, field] = refreshed_data[field]
 
-                                if changes and verbose:
-                                    self.logger.info(
-                                        f"   📝 Basic refresh for {ticker}:"
-                                    )
-                                    for change in changes:
-                                        self.logger.info(f"      • {change}")
+                            if changes and verbose:
+                                self.logger.info(f"   📝 Basic refresh for {ticker}:")
+                                for change in changes:
+                                    self.logger.info(f"      • {change}")
 
-                                updated_count += 1
+                            updated_count += 1
 
-                            except Exception as calc_error:
-                                error_msg = f"Basic calculation refresh failed for {ticker}: {str(calc_error)}"
-                                errors.append(error_msg)
-                                if verbose:
-                                    self.logger.warning(f"   ⚠️  {error_msg}")
-                        else:
-                            # No exit price and no MFE/MAE - record error
-                            error_msg = f"Insufficient data for {ticker}: {mfe_mae_error or 'No exit price available'}"
+                        except Exception as calc_error:
+                            error_msg = f"Basic calculation refresh failed for {ticker}: {calc_error!s}"
                             errors.append(error_msg)
                             if verbose:
-                                self.logger.warning(f"   ❌ {error_msg}")
+                                self.logger.warning(f"   ⚠️  {error_msg}")
+                    else:
+                        # No exit price and no MFE/MAE - record error
+                        error_msg = f"Insufficient data for {ticker}: {mfe_mae_error or 'No exit price available'}"
+                        errors.append(error_msg)
+                        if verbose:
+                            self.logger.warning(f"   ❌ {error_msg}")
 
                 except Exception as e:
-                    error_msg = f"Error processing {ticker}: {str(e)}"
+                    error_msg = f"Error processing {ticker}: {e!s}"
                     errors.append(error_msg)
                     self.logger.error(error_msg)
 
@@ -433,10 +428,10 @@ class TradeHistoryService:
             return result
 
         except Exception as e:
-            self.logger.error(f"Failed to refresh all positions: {str(e)}")
+            self.logger.error(f"Failed to refresh all positions: {e!s}")
             return {
                 "success": False,
-                "message": f"Comprehensive refresh failed: {str(e)}",
+                "message": f"Comprehensive refresh failed: {e!s}",
                 "updated_count": 0,
                 "errors": [str(e)],
                 "refresh_mode": "comprehensive",
@@ -444,7 +439,7 @@ class TradeHistoryService:
 
     def _validate_all_calculations(
         self, df: pd.DataFrame, verbose: bool = False
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Validate calculations for all positions in the DataFrame.
 
@@ -507,7 +502,7 @@ class TradeHistoryService:
                             self.logger.info(f"   ⚠️  {warning_msg}")
 
                 except Exception as e:
-                    error_msg = f"Validation error for {ticker}: {str(e)}"
+                    error_msg = f"Validation error for {ticker}: {e!s}"
                     validation_errors.append(error_msg)
                     if verbose:
                         self.logger.error(f"   ❌ {error_msg}")
@@ -521,17 +516,17 @@ class TradeHistoryService:
             }
 
         except Exception as e:
-            self.logger.error(f"Failed to validate calculations: {str(e)}")
+            self.logger.error(f"Failed to validate calculations: {e!s}")
             return {
                 "success": False,
-                "errors": [f"Validation failed: {str(e)}"],
+                "errors": [f"Validation failed: {e!s}"],
                 "warnings": [],
                 "corrected_count": 0,
                 "total_validated": 0,
             }
 
     def _refresh_price_data(
-        self, tickers: list, earliest_date: Optional[str] = None, verbose: bool = False
+        self, tickers: list, earliest_date: str | None = None, verbose: bool = False
     ) -> None:
         """
         Force refresh price data for the given tickers.
@@ -568,7 +563,7 @@ class TradeHistoryService:
                 # Default to downloading significant history
                 period_str = "1y"  # 1 year of data
                 if verbose:
-                    self.logger.info(f"   📅 Downloading 1 year of historical data")
+                    self.logger.info("   📅 Downloading 1 year of historical data")
 
             for ticker in tickers:
                 try:
@@ -601,22 +596,19 @@ class TradeHistoryService:
                             self.logger.info(
                                 f"   ✅ Updated {ticker}: {len(data)} days ({date_range})"
                             )
-                    else:
-                        if verbose:
-                            self.logger.warning(
-                                f"   ⚠️  No data available for {ticker}"
-                            )
+                    elif verbose:
+                        self.logger.warning(f"   ⚠️  No data available for {ticker}")
 
                 except Exception as e:
                     if verbose:
                         self.logger.warning(
-                            f"   ❌ Failed to update price data for {ticker}: {str(e)}"
+                            f"   ❌ Failed to update price data for {ticker}: {e!s}"
                         )
 
         except ImportError:
             self.logger.warning("yfinance not available - skipping price data refresh")
         except Exception as e:
-            self.logger.error(f"Error refreshing price data: {str(e)}")
+            self.logger.error(f"Error refreshing price data: {e!s}")
 
     def _calculate_position_metrics_comprehensive(
         self,
@@ -624,9 +616,9 @@ class TradeHistoryService:
         entry_date: str,
         entry_price: float,
         direction: str = "Long",
-        exit_date: Optional[str] = None,
+        exit_date: str | None = None,
         verbose: bool = False,
-    ) -> Tuple[Optional[float], Optional[float], Optional[float], Optional[str]]:
+    ) -> tuple[float | None, float | None, float | None, str | None]:
         """
         Calculate MFE, MAE, and current excursion for both open and closed positions.
 
@@ -703,14 +695,12 @@ class TradeHistoryService:
             return mfe, mae, current_excursion, None
 
         except Exception as e:
-            error_msg = (
-                f"Error calculating comprehensive MFE/MAE for {ticker}: {str(e)}"
-            )
+            error_msg = f"Error calculating comprehensive MFE/MAE for {ticker}: {e!s}"
             if verbose:
                 self.logger.error(error_msg)
             return None, None, None, error_msg
 
-    def _read_prices(self, ticker: str) -> tuple[Optional[pd.DataFrame], Optional[str]]:
+    def _read_prices(self, ticker: str) -> tuple[pd.DataFrame | None, str | None]:
         """Read price data for a ticker.
 
         Returns:
@@ -745,7 +735,7 @@ class TradeHistoryService:
             return df, None
 
         except Exception as e:
-            return None, f"Error reading price data file: {str(e)}"
+            return None, f"Error reading price data file: {e!s}"
 
     def _calculate_position_metrics(
         self,
@@ -754,7 +744,7 @@ class TradeHistoryService:
         entry_price: float,
         direction: str = "Long",
         verbose: bool = False,
-    ) -> Tuple[Optional[float], Optional[float], Optional[float], Optional[str]]:
+    ) -> tuple[float | None, float | None, float | None, str | None]:
         """Calculate MFE, MAE, and current excursion for a position.
 
         Returns:
@@ -807,7 +797,7 @@ class TradeHistoryService:
             return mfe, mae, current_excursion, None
 
         except Exception as e:
-            error_msg = f"Error calculating MFE/MAE for {ticker}: {str(e)}"
+            error_msg = f"Error calculating MFE/MAE for {ticker}: {e!s}"
             if verbose:
                 self.logger.error(error_msg)
             return None, None, None, error_msg
@@ -818,7 +808,7 @@ class TradeHistoryService:
         mae: float,
         verbose: bool = False,
         ticker: str = "",
-        final_return: Optional[float] = None,
+        final_return: float | None = None,
     ) -> str:
         """Assess trade quality using centralized PositionCalculator."""
         try:
@@ -835,7 +825,7 @@ class TradeHistoryService:
             return trade_quality
 
         except Exception as e:
-            self.logger.error(f"Error assessing trade quality for {ticker}: {str(e)}")
+            self.logger.error(f"Error assessing trade quality for {ticker}: {e!s}")
             return "Unknown"
 
     # Delegation methods to PositionService for unified operations
@@ -847,10 +837,10 @@ class TradeHistoryService:
         fast_period: int,
         slow_period: int,
         signal_period: int = 0,
-        entry_date: str = None,
-        entry_price: float = None,
-        exit_date: str = None,
-        exit_price: float = None,
+        entry_date: str | None = None,
+        entry_price: float | None = None,
+        exit_date: str | None = None,
+        exit_price: float | None = None,
         position_size: float = 1.0,
         direction: str = "Long",
         portfolio_name: str = "live_signals",
@@ -878,8 +868,8 @@ class TradeHistoryService:
         position_uuid: str,
         portfolio_name: str,
         exit_price: float,
-        exit_date: str = None,
-    ) -> Dict[str, Any]:
+        exit_date: str | None = None,
+    ) -> dict[str, Any]:
         """Delegate position closing to unified PositionService."""
         return self.position_service.close_position(
             position_uuid=position_uuid,
@@ -889,11 +879,11 @@ class TradeHistoryService:
         )
 
     def list_positions(
-        self, portfolio_name: str, status_filter: str = None
-    ) -> List[Dict[str, Any]]:
+        self, portfolio_name: str, status_filter: str | None = None
+    ) -> list[dict[str, Any]]:
         """Delegate position listing to unified PositionService."""
         return self.position_service.list_positions(portfolio_name, status_filter)
 
-    def get_position(self, position_uuid: str, portfolio_name: str) -> Dict[str, Any]:
+    def get_position(self, position_uuid: str, portfolio_name: str) -> dict[str, Any]:
         """Delegate position retrieval to unified PositionService."""
         return self.position_service.get_position(position_uuid, portfolio_name)

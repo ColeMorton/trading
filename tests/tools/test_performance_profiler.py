@@ -5,9 +5,9 @@ This module tests the performance monitoring, benchmarking, and memory tracking
 capabilities for equity data export operations.
 """
 
+from pathlib import Path
 import tempfile
 import time
-from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
@@ -234,7 +234,7 @@ class TestPerformanceProfiler:
             # Verify file content
             import json
 
-            with open(report_path, "r") as f:
+            with open(report_path) as f:
                 report_data = json.load(f)
 
             assert "performance_summary" in report_data

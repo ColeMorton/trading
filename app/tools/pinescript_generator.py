@@ -7,7 +7,6 @@ creating ticker-specific breadth oscillators.
 
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
 
 import pandas as pd
 
@@ -15,7 +14,7 @@ import pandas as pd
 class PineScriptGenerator:
     """Generate PineScript code for multi-ticker strategy breadth oscillators."""
 
-    def __init__(self, csv_path: str, ticker_filter: Optional[List[str]] = None):
+    def __init__(self, csv_path: str, ticker_filter: list[str] | None = None):
         """
         Initialize generator with strategy CSV file.
 
@@ -51,7 +50,7 @@ class PineScriptGenerator:
         if missing_cols:
             raise ValueError(f"CSV missing required columns: {missing_cols}")
 
-    def _get_tickers(self) -> List[str]:
+    def _get_tickers(self) -> list[str]:
         """Get unique list of tickers from CSV."""
         return sorted(self.df["Ticker"].unique().tolist())
 
@@ -59,7 +58,7 @@ class PineScriptGenerator:
         """Get strategies for a specific ticker."""
         return self.df[self.df["Ticker"] == ticker].copy()
 
-    def _get_strategy_types(self, ticker: str) -> List[str]:
+    def _get_strategy_types(self, ticker: str) -> list[str]:
         """Get unique strategy types for a ticker."""
         strategies = self._get_ticker_strategies(ticker)
         return sorted(strategies["Strategy Type"].unique().tolist())
@@ -74,15 +73,14 @@ class PineScriptGenerator:
             return (
                 f"        if smaCrossSignal({fast}, {slow})\n            active += 1\n"
             )
-        elif strategy_type == "EMA":
+        if strategy_type == "EMA":
             return (
                 f"        if emaCrossSignal({fast}, {slow})\n            active += 1\n"
             )
-        elif strategy_type == "MACD":
+        if strategy_type == "MACD":
             signal = int(strategy["Signal Period"])
             return f"        if macdSignal({fast}, {slow}, {signal})\n            active += 1\n"
-        else:
-            raise ValueError(f"Unknown strategy type: {strategy_type}")
+        raise ValueError(f"Unknown strategy type: {strategy_type}")
 
     def _generate_ticker_block(self, ticker: str, strategies: pd.DataFrame) -> str:
         """Generate PineScript code block for a ticker's strategies."""
@@ -95,7 +93,7 @@ class PineScriptGenerator:
         code = f'    {condition} tickerInput == "{ticker}"\n'
         code += f"        total := {total_strategies}\n\n"
 
-        for idx, strategy in strategies.iterrows():
+        for _idx, strategy in strategies.iterrows():
             code += self._generate_strategy_function(strategy)
             code += "\n"
 
@@ -115,7 +113,7 @@ class PineScriptGenerator:
         header += f'// Tickers: {", ".join(tickers)}\n'
 
         if self.ticker_filter_applied:
-            header += f"// Filter Applied: Yes\n"
+            header += "// Filter Applied: Yes\n"
             header += f"// {self.ticker_filter_info}\n"
 
         header += "\n"
@@ -214,7 +212,7 @@ class PineScriptGenerator:
         alerts += 'alertcondition(crossingDown, "Breadth Crossing Down", "{{ticker}} breadth crossing below threshold")\n'
         return alerts
 
-    def generate(self, output_path: Optional[str] = None) -> str:
+    def generate(self, output_path: str | None = None) -> str:
         """
         Generate complete PineScript code.
 
@@ -240,7 +238,7 @@ class PineScriptGenerator:
 
         return code
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """Get generation statistics."""
         tickers = self._get_tickers()
         stats = {

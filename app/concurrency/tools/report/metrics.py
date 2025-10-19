@@ -3,7 +3,7 @@
 This module provides functionality for calculating various metrics for concurrency analysis reports.
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
 # Import types from the parent module
 from app.concurrency.tools.types import (
@@ -16,7 +16,7 @@ from app.concurrency.tools.types import (
 )
 
 
-def calculate_ticker_metrics(strategies: List[Strategy]) -> Dict[str, Any]:
+def calculate_ticker_metrics(strategies: list[Strategy]) -> dict[str, Any]:
     """Calculates ticker metrics from a list of strategies.
 
     Args:
@@ -25,7 +25,7 @@ def calculate_ticker_metrics(strategies: List[Strategy]) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: Dictionary of ticker metrics, with ticker symbols as keys.
     """
-    ticker_metrics: Dict[str, Any] = {}
+    ticker_metrics: dict[str, Any] = {}
     for strategy in strategies:
         ticker = strategy["parameters"]["ticker"]["value"]
         if ticker not in ticker_metrics:
@@ -100,7 +100,7 @@ def calculate_ticker_metrics(strategies: List[Strategy]) -> Dict[str, Any]:
 
 
 def create_portfolio_metrics(
-    stats: Dict[str, Any], config: Dict[str, Any] = None
+    stats: dict[str, Any], config: dict[str, Any] | None = None
 ) -> PortfolioMetrics:
     """Create portfolio metrics with the optimized structure.
 
@@ -272,7 +272,7 @@ def create_portfolio_metrics(
         # Format the metrics in the standard format
         formatted_metrics = {}
         for key, value in aggregate_metrics.items():
-            if isinstance(value, (int, float)):
+            if isinstance(value, int | float):
                 formatted_metrics[key] = {
                     "value": value,
                     "description": f"Aggregate {key.replace('_', ' ')}",

@@ -5,7 +5,8 @@ This module handles the execution of the Range High Break trading strategy,
 including portfolio processing, filtering, and best portfolio selection.
 """
 
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 import polars as pl
@@ -19,7 +20,7 @@ from app.tools.stats_converter import convert_stats
 
 def process_single_ticker(
     ticker: str, config: PortfolioConfig, log: Callable
-) -> Optional[List[Dict[str, Any]]]:
+) -> list[dict[str, Any]] | None:
     """Process a single ticker through the portfolio analysis pipeline.
 
     Args:
@@ -95,7 +96,7 @@ def process_single_ticker(
         return portfolios
 
     except Exception as e:
-        log(f"Failed to process {ticker}: {str(e)}", "error")
+        log(f"Failed to process {ticker}: {e!s}", "error")
         return None
 
 
@@ -103,9 +104,9 @@ def calculate_range_signals(
     data: pl.DataFrame,
     range_length: int,
     candle_lookback: int,
-    config: Dict[str, Any],
+    config: dict[str, Any],
     log: Callable,
-) -> Optional[pl.DataFrame]:
+) -> pl.DataFrame | None:
     """Calculate Range High Break signals.
 
     Args:
@@ -157,13 +158,13 @@ def calculate_range_signals(
         return data
 
     except Exception as e:
-        log(f"Failed to calculate range signals: {str(e)}", "error")
+        log(f"Failed to calculate range signals: {e!s}", "error")
         return None
 
 
 def execute_strategy(
     config: PortfolioConfig, strategy_type: str, log: Callable
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Execute the Range High Break strategy for all tickers.
 
     Args:

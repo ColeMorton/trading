@@ -9,9 +9,9 @@ Author: Claude Code Analysis
 Date: July 2025
 """
 
-import os
-import sys
 from pathlib import Path
+import sys
+
 
 # Add the project root to Python path
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -23,6 +23,7 @@ import pandas as pd
 
 from app.tools.config.statistical_analysis_config import SPDSConfig
 from app.tools.services.statistical_analysis_service import StatisticalAnalysisService
+
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -43,7 +44,7 @@ async def test_smci_signal_generation():
 
     if smci_position.empty:
         logger.error("SMCI position not found")
-        return
+        return None
 
     smci_row = smci_position.iloc[0]
     current_return = smci_row["Current_Unrealized_PnL"]
@@ -56,7 +57,7 @@ async def test_smci_signal_generation():
     config = SPDSConfig(PORTFOLIO="live_signals.csv", USE_TRADE_HISTORY=True)
 
     # Create service
-    service = StatisticalAnalysisService(config)
+    StatisticalAnalysisService(config)
 
     # Test the percentile calculation logic
     logger.info("Testing percentile calculation logic...")
@@ -84,7 +85,7 @@ async def test_smci_signal_generation():
     logger.info(f"Calculated percentile rank: {percentile_rank:.2f}")
 
     # Check signal generation thresholds
-    logger.info(f"Signal thresholds from config:")
+    logger.info("Signal thresholds from config:")
     logger.info(
         f"  Exit immediately: {config.PERCENTILE_THRESHOLDS['exit_immediately']}"
     )
@@ -135,7 +136,7 @@ async def test_smci_signal_generation():
     logger.info(
         f"SMCI current return: {current_return:.6f} ({current_return*100:.2f}%)"
     )
-    logger.info(f"P70 threshold: 0.1274 (12.74%)")
+    logger.info("P70 threshold: 0.1274 (12.74%)")
     logger.info(f"Condition: {current_return:.6f} > 0.1274 = {current_return > 0.1274}")
     logger.info(f"Estimated percentile rank: {estimated_rank:.2f}")
     logger.info(f"Should trigger SELL if rank > 80.0: {estimated_rank > 80.0}")

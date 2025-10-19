@@ -3,10 +3,10 @@ Shared test fixtures for trading system testing infrastructure.
 Phase 3: Testing Infrastructure Consolidation
 """
 
-import tempfile
+from collections.abc import Generator
 from pathlib import Path
-from typing import Any, Dict, Generator
-from unittest.mock import MagicMock
+import tempfile
+from typing import Any
 
 import pandas as pd
 import polars as pl
@@ -137,7 +137,7 @@ def test_database_session():
         def first(self):
             """Get first result."""
             if self.data:
-                return list(self.data.values())[0]
+                return next(iter(self.data.values()))
             return None
 
         def all(self):
@@ -164,7 +164,7 @@ def mock_strategy_executor():
             self.executed_strategies = []
             self.results = {}
 
-        def execute(self, strategy_config: Dict[str, Any]) -> Dict[str, Any]:
+        def execute(self, strategy_config: dict[str, Any]) -> dict[str, Any]:
             """Execute strategy with mock results."""
             strategy_id = strategy_config.get("strategy_id", "test_strategy")
             self.executed_strategies.append(strategy_config)
@@ -183,7 +183,7 @@ def mock_strategy_executor():
             self.results[strategy_id] = mock_result
             return mock_result
 
-        def get_result(self, strategy_id: str) -> Dict[str, Any]:
+        def get_result(self, strategy_id: str) -> dict[str, Any]:
             """Get strategy execution result."""
             return self.results.get(strategy_id, {})
 
@@ -226,7 +226,7 @@ def mock_data_provider():
 
             return self.cache[cache_key]
 
-        def get_fundamentals(self, ticker: str) -> Dict[str, Any]:
+        def get_fundamentals(self, ticker: str) -> dict[str, Any]:
             """Get mock fundamental data."""
             return {
                 "market_cap": 1_000_000_000,
@@ -312,7 +312,7 @@ def mock_portfolio_optimizer():
             expected_returns: pl.Series,
             cov_matrix: pl.DataFrame,
             num_points: int = 100,
-        ) -> Dict[str, pl.Series]:
+        ) -> dict[str, pl.Series]:
             """Calculate efficient frontier."""
             # Mock efficient frontier
             risk_levels = pl.Series(range(num_points)) / num_points * 0.3
@@ -330,19 +330,20 @@ class MockAPIClient:
         self.requests = []
         self.responses = {}
 
-    def get(self, url: str, **kwargs) -> Dict[str, Any]:
+    def get(self, url: str, **kwargs) -> dict[str, Any]:
         """Mock GET request."""
         self.requests.append({"method": "GET", "url": url, "kwargs": kwargs})
 
         # Return mock response based on URL
         if "market_data" in url:
             return {"status": "success", "data": mock_yfinance_data()}
-        elif "strategy" in url:
+        if "strategy" in url:
             return {"status": "success", "data": {"result": "executed"}}
-        else:
-            return {"status": "success", "data": {}}
+        return {"status": "success", "data": {}}
 
-    def post(self, url: str, data: Dict[str, Any] = None, **kwargs) -> Dict[str, Any]:
+    def post(
+        self, url: str, data: dict[str, Any] | None = None, **kwargs
+    ) -> dict[str, Any]:
         """Mock POST request."""
         self.requests.append(
             {"method": "POST", "url": url, "data": data, "kwargs": kwargs}
@@ -350,7 +351,7 @@ class MockAPIClient:
 
         return {"status": "success", "data": {"id": "test_execution_123"}}
 
-    def set_response(self, url_pattern: str, response: Dict[str, Any]):
+    def set_response(self, url_pattern: str, response: dict[str, Any]):
         """Set custom response for URL pattern."""
         self.responses[url_pattern] = response
 

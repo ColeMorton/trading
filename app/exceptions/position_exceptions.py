@@ -9,7 +9,7 @@ Provides structured exception hierarchy to replace mixed error patterns
 class PositionError(Exception):
     """Base exception for all position-related operations."""
 
-    def __init__(self, message: str, position_uuid: str = None, **kwargs):
+    def __init__(self, message: str, position_uuid: str | None = None, **kwargs):
         super().__init__(message)
         self.position_uuid = position_uuid
         self.details = kwargs

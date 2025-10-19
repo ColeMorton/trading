@@ -3,7 +3,8 @@
 This module provides functionality for generating JSON reports from concurrency analysis results.
 """
 
-from typing import Any, Callable, Dict, List
+from collections.abc import Callable
+from typing import Any
 
 from app.concurrency.tools.report.metrics import (
     calculate_ticker_metrics,
@@ -19,11 +20,11 @@ from app.concurrency.tools.types import ConcurrencyReport
 
 
 def generate_json_report(
-    strategies: List[Dict[str, Any]],
-    stats: Dict[str, Any],
+    strategies: list[dict[str, Any]],
+    stats: dict[str, Any],
     log: Callable[[str, str], None],
-    config: Dict[str, Any],
-    monte_carlo_results: Dict[str, Any] = None,
+    config: dict[str, Any],
+    monte_carlo_results: dict[str, Any] | None = None,
 ) -> ConcurrencyReport:
     """Generate a comprehensive JSON report of the concurrency analysis.
 
@@ -98,7 +99,7 @@ def generate_json_report(
                     )
                 except ValueError as e:
                     log(
-                        f"Could not generate strategy ID for strategy {idx}: {str(e)}",
+                        f"Could not generate strategy ID for strategy {idx}: {e!s}",
                         "warning",
                     )
 
@@ -166,9 +167,11 @@ def generate_json_report(
                         "ticker": getattr(
                             result,
                             "ticker",
-                            strategy_id.split("_")[0]
-                            if "_" in strategy_id
-                            else strategy_id,
+                            (
+                                strategy_id.split("_")[0]
+                                if "_" in strategy_id
+                                else strategy_id
+                            ),
                         ),
                         "strategy_stability_score": float(
                             getattr(result, "portfolio_stability_score", 0.0)
@@ -346,14 +349,15 @@ def generate_json_report(
                     "total_strategies_analyzed": total_tickers,
                     "stable_strategies_count": stable_tickers,
                     "stable_strategies_percentage": (
-                        stable_tickers / total_tickers * 100
-                    )
-                    if total_tickers > 0
-                    else 0.0,
-                    "average_stability_score": sum(stability_scores)
-                    / len(stability_scores)
-                    if stability_scores
-                    else 0.0,
+                        (stable_tickers / total_tickers * 100)
+                        if total_tickers > 0
+                        else 0.0
+                    ),
+                    "average_stability_score": (
+                        sum(stability_scores) / len(stability_scores)
+                        if stability_scores
+                        else 0.0
+                    ),
                     "simulation_parameters": {
                         "num_simulations": config.get("MC_NUM_SIMULATIONS", 100),
                         "confidence_level": config.get("MC_CONFIDENCE_LEVEL", 0.95),
@@ -368,5 +372,5 @@ def generate_json_report(
         return report
 
     except Exception as e:
-        log(f"Error generating JSON report: {str(e)}", "error")
+        log(f"Error generating JSON report: {e!s}", "error")
         raise

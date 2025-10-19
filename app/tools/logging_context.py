@@ -5,9 +5,8 @@ ensures proper resource cleanup across the system. It follows SOLID principles
 and KISS (Keep It Simple, Stupid) design philosophy.
 """
 
-import logging
 from contextlib import contextmanager
-from typing import Optional
+import logging
 
 from app.tools.setup_logging import setup_logging
 
@@ -18,7 +17,7 @@ def logging_context(
     log_file: str,
     level: int = logging.INFO,
     mode: str = "w",
-    log_subdir: Optional[str] | None = None,
+    log_subdir: str | None | None = None,
 ):
     """Context manager for standardized logging setup and cleanup.
 

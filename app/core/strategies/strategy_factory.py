@@ -6,7 +6,7 @@ This module provides a factory for creating strategy instances based on strategy
 
 # API removed - creating local definition
 from enum import Enum
-from typing import Any, Dict
+from typing import Any
 
 
 class StrategyTypeEnum(str, Enum):
@@ -42,10 +42,9 @@ class StrategyFactory:
         """
         if strategy_type in [StrategyTypeEnum.SMA, StrategyTypeEnum.EMA]:
             return MACrossStrategy()
-        elif strategy_type == StrategyTypeEnum.MACD:
+        if strategy_type == StrategyTypeEnum.MACD:
             return MACDStrategy()
-        else:
-            raise ValueError(f"Unsupported strategy type: {strategy_type}")
+        raise ValueError(f"Unsupported strategy type: {strategy_type}")
 
     @staticmethod
     def get_supported_strategies() -> list[StrategyTypeEnum]:
@@ -54,7 +53,7 @@ class StrategyFactory:
 
     @staticmethod
     def validate_strategy_config(
-        strategy_type: StrategyTypeEnum, config: Dict[str, Any]
+        strategy_type: StrategyTypeEnum, config: dict[str, Any]
     ) -> bool:
         """Validate configuration for a specific strategy type.
 
@@ -72,7 +71,7 @@ class StrategyFactory:
             return False
 
     @staticmethod
-    def get_parameter_ranges(strategy_type: StrategyTypeEnum) -> Dict[str, Any]:
+    def get_parameter_ranges(strategy_type: StrategyTypeEnum) -> dict[str, Any]:
         """Get parameter ranges for a specific strategy type.
 
         Args:

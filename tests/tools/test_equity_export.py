@@ -6,9 +6,9 @@ file naming, directory creation, CSV export, and batch processing.
 """
 
 import os
-import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+import tempfile
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -25,7 +25,7 @@ from app.tools.equity_export import (
     get_equity_export_file_path,
     validate_equity_export_requirements,
 )
-from app.tools.exceptions import ExportError, TradingSystemError
+from app.tools.exceptions import TradingSystemError
 
 
 class TestEquityExportFilenames:

@@ -5,13 +5,11 @@ This module provides comprehensive progress tracking and intermediate result cac
 for ATR parameter sweeps, enabling resumable analysis and detailed progress reporting.
 """
 
+from dataclasses import dataclass, field
 import json
 import os
 import time
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
-
-import polars as pl
+from typing import Any
 
 
 @dataclass
@@ -25,7 +23,7 @@ class ATRProgressState:
     failed_combinations: int = 0
     start_time: float = field(default_factory=time.time)
     last_update_time: float = field(default_factory=time.time)
-    estimated_completion_time: Optional[float] = None
+    estimated_completion_time: float | None = None
     current_chunk: int = 0
     total_chunks: int = 0
 
@@ -60,13 +58,13 @@ class ATRProgressState:
             return 0.0
         return self.completed_combinations / elapsed
 
-    def get_estimated_remaining_time(self) -> Optional[float]:
+    def get_estimated_remaining_time(self) -> float | None:
         """Get estimated remaining time in seconds."""
         if self.estimated_completion_time is None:
             return None
         return max(0, self.estimated_completion_time - time.time())
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "ticker": self.ticker,
@@ -82,7 +80,7 @@ class ATRProgressState:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ATRProgressState":
+    def from_dict(cls, data: dict[str, Any]) -> "ATRProgressState":
         """Create from dictionary."""
         return cls(**data)
 
@@ -121,9 +119,9 @@ class ATRProgressTracker:
             os.makedirs(self.cache_dir, exist_ok=True)
 
         # Current state
-        self.current_state: Optional[ATRProgressState] = None
-        self.cached_results: Dict[str, List[Dict[str, Any]]] = {}
-        self.progress_callbacks: List[callable] = []
+        self.current_state: ATRProgressState | None = None
+        self.cached_results: dict[str, list[dict[str, Any]]] = {}
+        self.progress_callbacks: list[callable] = []
 
     def start_tracking(
         self,
@@ -157,7 +155,7 @@ class ATRProgressTracker:
     def update_chunk_progress(
         self,
         chunk_index: int,
-        chunk_results: List[Dict[str, Any]],
+        chunk_results: list[dict[str, Any]],
         failed_count: int = 0,
     ):
         """
@@ -198,7 +196,7 @@ class ATRProgressTracker:
         """Add a callback function to be called on progress updates."""
         self.progress_callbacks.append(callback)
 
-    def get_progress_summary(self) -> Dict[str, Any]:
+    def get_progress_summary(self) -> dict[str, Any]:
         """Get current progress summary."""
         if self.current_state is None:
             return {}
@@ -243,7 +241,7 @@ class ATRProgressTracker:
         if remaining_time is not None:
             log(f"  Estimated remaining: {remaining_time:.1f}s", "info")
 
-    def get_cached_results(self, ticker: str) -> List[Dict[str, Any]]:
+    def get_cached_results(self, ticker: str) -> list[dict[str, Any]]:
         """Get all cached results for a ticker."""
         if not self.enable_caching:
             return []
@@ -257,10 +255,10 @@ class ATRProgressTracker:
                 if filename.startswith("chunk_") and filename.endswith(".json"):
                     filepath = os.path.join(ticker_cache_dir, filename)
                     try:
-                        with open(filepath, "r") as f:
+                        with open(filepath) as f:
                             chunk_data = json.load(f)
                             cached_results.extend(chunk_data)
-                    except Exception as e:
+                    except Exception:
                         continue  # Skip corrupted cache files
 
         return cached_results
@@ -276,7 +274,7 @@ class ATRProgressTracker:
 
             shutil.rmtree(ticker_cache_dir)
 
-    def _cache_chunk_results(self, chunk_index: int, results: List[Dict[str, Any]]):
+    def _cache_chunk_results(self, chunk_index: int, results: list[dict[str, Any]]):
         """Cache results from a completed chunk."""
         if not self.current_state or not results:
             return
@@ -289,7 +287,7 @@ class ATRProgressTracker:
         try:
             with open(cache_file, "w") as f:
                 json.dump(results, f, indent=2, default=str)
-        except Exception as e:
+        except Exception:
             # Cache write failed, continue without caching
             pass
 
@@ -305,7 +303,7 @@ class ATRProgressTracker:
         try:
             with open(progress_file, "w") as f:
                 json.dump(self.current_state.to_dict(), f, indent=2)
-        except Exception as e:
+        except Exception:
             # Progress save failed, continue without saving
             pass
 
@@ -315,7 +313,7 @@ class ATRProgressTracker:
 
         if os.path.exists(progress_file):
             try:
-                with open(progress_file, "r") as f:
+                with open(progress_file) as f:
                     progress_data = json.load(f)
                     # Only restore if the analysis was recent (within 24 hours)
                     if time.time() - progress_data.get("last_update_time", 0) < 86400:
@@ -324,7 +322,7 @@ class ATRProgressTracker:
                         if self.current_state:
                             restored_state.start_time = self.current_state.start_time
                             self.current_state = restored_state
-            except Exception as e:
+            except Exception:
                 # Failed to load progress, start fresh
                 pass
 
@@ -334,14 +332,14 @@ class ATRProgressTracker:
         for callback in self.progress_callbacks:
             try:
                 callback(summary)
-            except Exception as e:
+            except Exception:
                 # Callback failed, continue with others
                 continue
 
 
 def create_atr_progress_tracker(
-    config: Dict[str, Any],
-    cache_dir: Optional[str] = None,
+    config: dict[str, Any],
+    cache_dir: str | None = None,
 ) -> ATRProgressTracker:
     """
     Factory function to create an ATR progress tracker from configuration.

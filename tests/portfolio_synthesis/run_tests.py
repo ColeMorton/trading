@@ -4,7 +4,6 @@ Test runner for portfolio_synthesis tests.
 This script runs all portfolio_synthesis tests and provides coverage information.
 """
 
-import subprocess
 import sys
 
 import pytest

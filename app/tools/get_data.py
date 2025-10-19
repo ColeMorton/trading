@@ -1,5 +1,5 @@
+from collections.abc import Callable
 import os
-from typing import Callable, Tuple, Union
 
 import polars as pl
 
@@ -13,7 +13,7 @@ from app.tools.use_synthetic import use_synthetic
 def valid_data(ticker: str, config: DataConfig, log: Callable):
     # Handle refresh logic - default to False for smart refresh behavior
     refresh_setting = config.get("REFRESH", False)
-    if refresh_setting == False:
+    if refresh_setting is False:
         # Import market detection function
         from app.tools.market_hours import MarketType, detect_market_type
 
@@ -67,10 +67,9 @@ def valid_data(ticker: str, config: DataConfig, log: Callable):
             if is_valid:
                 log(f"Loading existing data from {file_path}.")
                 return pl.read_csv(file_path)
-            else:
-                log(
-                    f"File exists but wasn't created this {timeframe}. Downloading new data."
-                )
+            log(
+                f"File exists but wasn't created this {timeframe}. Downloading new data."
+            )
         else:
             log("File doesn't exist. Downloading new data.")
     else:
@@ -82,7 +81,7 @@ def valid_data(ticker: str, config: DataConfig, log: Callable):
 
 def get_data(
     ticker: str, config: DataConfig, log: Callable
-) -> Union[pl.DataFrame, Tuple[pl.DataFrame, str]]:
+) -> pl.DataFrame | tuple[pl.DataFrame, str]:
     """Get data based on configuration settings.
 
     Args:
@@ -150,5 +149,5 @@ def get_data(
         return data
 
     except Exception as e:
-        log(f"Error in get_data: {str(e)}", "error")
+        log(f"Error in get_data: {e!s}", "error")
         raise

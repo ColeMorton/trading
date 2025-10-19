@@ -5,7 +5,8 @@ This module provides functions for validating portfolio data against schemas
 and reporting errors.
 """
 
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
+from typing import Any
 
 import polars as pl
 
@@ -15,8 +16,8 @@ from app.tools.portfolio.strategy_utils import get_strategy_type_for_export
 def validate_portfolio_schema(
     df: pl.DataFrame,
     log: Callable[[str, str], None],
-    required_columns: Optional[List[str]] | None = None,
-) -> Tuple[bool, List[str]]:
+    required_columns: list[str] | None | None = None,
+) -> tuple[bool, list[str]]:
     """
     Validate that a portfolio DataFrame has the required columns.
 
@@ -41,8 +42,8 @@ def validate_portfolio_schema(
 
 
 def validate_strategy_config(
-    strategy: Dict[str, Any], log: Callable[[str, str], None]
-) -> Tuple[bool, List[str]]:
+    strategy: dict[str, Any], log: Callable[[str, str], None]
+) -> tuple[bool, list[str]]:
     """
     Validate a strategy configuration dictionary.
 
@@ -142,10 +143,6 @@ def validate_strategy_config(
         "FAST_PERIOD": int,
         "SLOW_PERIOD": int,
         "SIGNAL_PERIOD": int,
-        # Legacy parameter names (for backward compatibility)
-        "FAST_PERIOD": int,
-        "SLOW_PERIOD": int,
-        "SIGNAL_PERIOD": int,
         # Other fields
         "STOP_LOSS": float,
         "POSITION_SIZE": float,
@@ -202,8 +199,8 @@ def validate_strategy_config(
 
 
 def validate_portfolio_configs(
-    strategies: List[Dict[str, Any]], log: Callable[[str, str], None]
-) -> Tuple[bool, List[Dict[str, Any]]]:
+    strategies: list[dict[str, Any]], log: Callable[[str, str], None]
+) -> tuple[bool, list[dict[str, Any]]]:
     """
     Validate a list of strategy configurations.
 

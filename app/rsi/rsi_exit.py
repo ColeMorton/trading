@@ -31,8 +31,7 @@ def backtest_rsi(data, rsi_window, rsi_overbought):
     # Check the number of trades
     if len(pf.trades) >= 21:  # Use len() to check the number of trades
         return pf.total_return()
-    else:
-        return None  # Return None if trades are less than 21
+    return None  # Return None if trades are less than 21
 
 
 # Set a fixed RSI window
@@ -65,7 +64,7 @@ fig.add_trace(
         y=total_returns,
         mode="lines+markers",
         name="Total Return",
-        marker=dict(size=10),
+        marker={"size": 10},
     )
 )
 

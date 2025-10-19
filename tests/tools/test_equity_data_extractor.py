@@ -5,7 +5,7 @@ This module provides comprehensive test coverage for the equity data extraction
 functionality including edge cases, error handling, and metric calculations.
 """
 
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd

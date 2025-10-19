@@ -10,7 +10,7 @@ This module provides specialized analyzers for different parameter types:
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -20,11 +20,7 @@ from .market_data_analyzer import create_market_data_analyzer
 from .parameter_parser import ParameterType, ParsedParameter
 from .portfolio_analyzer import PortfolioStatisticalAnalyzer
 from .services.statistical_analysis_service import StatisticalAnalysisService
-from .simplified_analysis_result import (
-    SimpleAnalysisResult,
-    convert_to_standard_result,
-    create_simple_result,
-)
+from .simplified_analysis_result import convert_to_standard_result, create_simple_result
 
 
 class AssetDistributionAnalyzer:
@@ -38,7 +34,7 @@ class AssetDistributionAnalyzer:
     def __init__(
         self,
         parsed_param: ParsedParameter,
-        logger: Optional[logging.Logger] = None,
+        logger: logging.Logger | None = None,
     ):
         """Initialize asset distribution analyzer."""
         self.parsed_param = parsed_param
@@ -54,7 +50,7 @@ class AssetDistributionAnalyzer:
             f"Asset distribution analyzer initialized for ticker: {self.ticker}"
         )
 
-    async def analyze(self) -> Dict[str, Any]:
+    async def analyze(self) -> dict[str, Any]:
         """
         Perform asset distribution analysis using market data.
 
@@ -66,7 +62,7 @@ class AssetDistributionAnalyzer:
         # Use market data analyzer for true asset distribution analysis
         return await self._analyze_from_market_data()
 
-    async def _analyze_from_market_data(self) -> Dict[str, Any]:
+    async def _analyze_from_market_data(self) -> dict[str, Any]:
         """Analyze using market data for true asset distribution analysis."""
         self.logger.info(f"Performing market data analysis for {self.ticker}")
 
@@ -134,7 +130,7 @@ class AssetDistributionAnalyzer:
             self.logger.error(f"Market data analysis failed for {self.ticker}: {e}")
             return await self._create_synthetic_result()
 
-    def _find_existing_strategy_files(self) -> List[Path]:
+    def _find_existing_strategy_files(self) -> list[Path]:
         """Find existing strategy files for the ticker."""
         strategy_patterns = [
             f"{self.ticker}_D_SMA.csv",
@@ -168,8 +164,8 @@ class AssetDistributionAnalyzer:
         return found_files
 
     async def _analyze_from_strategy_files(
-        self, strategy_files: List[Path]
-    ) -> Dict[str, Any]:
+        self, strategy_files: list[Path]
+    ) -> dict[str, Any]:
         """Analyze using existing strategy files."""
         results = {}
 
@@ -185,7 +181,7 @@ class AssetDistributionAnalyzer:
 
                 # Create a virtual config for this strategy
                 config = StatisticalAnalysisConfig.create(str(strategy_file), False)
-                service = StatisticalAnalysisService(config=config, logger=self.logger)
+                StatisticalAnalysisService(config=config, logger=self.logger)
 
                 # Load and analyze the strategy data
                 strategy_data = pd.read_csv(strategy_file)
@@ -209,7 +205,7 @@ class AssetDistributionAnalyzer:
 
         return results
 
-    async def _analyze_from_return_distributions(self) -> Dict[str, Any]:
+    async def _analyze_from_return_distributions(self) -> dict[str, Any]:
         """Analyze using return distribution data."""
         self.logger.info(f"Analyzing {self.ticker} using return distribution fallback")
 
@@ -220,16 +216,15 @@ class AssetDistributionAnalyzer:
 
         if return_dist_path.exists():
             return await self._analyze_from_return_file(return_dist_path)
-        else:
-            # Create synthetic analysis result
-            return await self._create_synthetic_result()
+        # Create synthetic analysis result
+        return await self._create_synthetic_result()
 
-    async def _analyze_from_return_file(self, return_file: Path) -> Dict[str, Any]:
+    async def _analyze_from_return_file(self, return_file: Path) -> dict[str, Any]:
         """Analyze from return distribution file."""
         import json
 
         try:
-            with open(return_file, "r") as f:
+            with open(return_file) as f:
                 return_data = json.load(f)
 
             # Create analysis result from return distribution
@@ -240,7 +235,7 @@ class AssetDistributionAnalyzer:
             self.logger.warning(f"Failed to load return distribution file: {e}")
             return await self._create_synthetic_result()
 
-    async def _create_synthetic_result(self) -> Dict[str, Any]:
+    async def _create_synthetic_result(self) -> dict[str, Any]:
         """Create synthetic analysis result for asset distribution."""
         self.logger.info(f"Creating synthetic analysis result for {self.ticker}")
 
@@ -396,7 +391,7 @@ class MultiTickerAnalyzer:
     def __init__(
         self,
         parsed_param: ParsedParameter,
-        logger: Optional[logging.Logger] = None,
+        logger: logging.Logger | None = None,
     ):
         """Initialize multi-ticker analyzer."""
         self.parsed_param = parsed_param
@@ -410,7 +405,7 @@ class MultiTickerAnalyzer:
             f"Multi-ticker analyzer initialized for tickers: {', '.join(self.tickers)}"
         )
 
-    async def analyze(self) -> Dict[str, Any]:
+    async def analyze(self) -> dict[str, Any]:
         """
         Perform parallel analysis on multiple tickers.
 
@@ -434,7 +429,7 @@ class MultiTickerAnalyzer:
 
         # Combine results from all tickers
         combined_results = {}
-        for i, (ticker, result) in enumerate(zip(self.tickers, results)):
+        for _i, (ticker, result) in enumerate(zip(self.tickers, results, strict=False)):
             if isinstance(result, Exception):
                 self.logger.warning(f"Analysis failed for {ticker}: {result}")
                 # Create synthetic result for failed ticker
@@ -454,7 +449,7 @@ class MultiTickerAnalyzer:
         )
         return combined_results
 
-    async def _analyze_single_ticker(self, ticker: str) -> Dict[str, Any]:
+    async def _analyze_single_ticker(self, ticker: str) -> dict[str, Any]:
         """Analyze a single ticker using market data."""
         self.logger.debug(f"Analyzing ticker: {ticker}")
 
@@ -521,7 +516,7 @@ class MultiTickerAnalyzer:
             self.logger.error(f"Analysis failed for {ticker}: {e}")
             return await self._create_synthetic_result_for_ticker(ticker)
 
-    async def _create_synthetic_result_for_ticker(self, ticker: str) -> Dict[str, Any]:
+    async def _create_synthetic_result_for_ticker(self, ticker: str) -> dict[str, Any]:
         """Create a synthetic result for a failed ticker analysis."""
         strategy_name = f"{ticker}_ASSET_DISTRIBUTION"
 
@@ -554,7 +549,7 @@ class MultiStrategyAnalyzer:
     def __init__(
         self,
         parsed_param: ParsedParameter,
-        logger: Optional[logging.Logger] = None,
+        logger: logging.Logger | None = None,
     ):
         """Initialize multi-strategy analyzer."""
         self.parsed_param = parsed_param
@@ -570,7 +565,7 @@ class MultiStrategyAnalyzer:
             f"Multi-strategy analyzer initialized for {len(self.strategies)} strategies"
         )
 
-    async def analyze(self) -> Dict[str, Any]:
+    async def analyze(self) -> dict[str, Any]:
         """
         Perform parallel analysis on multiple strategies.
 
@@ -596,7 +591,9 @@ class MultiStrategyAnalyzer:
 
         # Combine results from all strategies
         combined_results = {}
-        for i, (strategy, result) in enumerate(zip(self.strategies, results)):
+        for _i, (strategy, result) in enumerate(
+            zip(self.strategies, results, strict=False)
+        ):
             if isinstance(result, Exception):
                 self.logger.warning(
                     f"Analysis failed for strategy {strategy}: {result}"
@@ -619,8 +616,8 @@ class MultiStrategyAnalyzer:
         return combined_results
 
     async def _analyze_single_strategy(
-        self, strategy: Dict[str, Union[str, int]]
-    ) -> Dict[str, Any]:
+        self, strategy: dict[str, str | int]
+    ) -> dict[str, Any]:
         """Analyze a single strategy using market data and strategy files."""
         ticker = strategy["ticker"]
         strategy_type = strategy["strategy_type"]
@@ -696,8 +693,8 @@ class MultiStrategyAnalyzer:
             return await self._create_synthetic_result_for_strategy(strategy)
 
     async def _create_synthetic_result_for_strategy(
-        self, strategy: Dict[str, Union[str, int]]
-    ) -> Dict[str, Any]:
+        self, strategy: dict[str, str | int]
+    ) -> dict[str, Any]:
         """Create a synthetic result for a failed strategy analysis."""
         ticker = strategy["ticker"]
         strategy_type = strategy["strategy_type"]
@@ -738,7 +735,7 @@ class MultiPositionAnalyzer:
     def __init__(
         self,
         parsed_param: ParsedParameter,
-        logger: Optional[logging.Logger] = None,
+        logger: logging.Logger | None = None,
     ):
         """Initialize multi-position analyzer."""
         self.parsed_param = parsed_param
@@ -754,7 +751,7 @@ class MultiPositionAnalyzer:
             f"Multi-position analyzer initialized for {len(self.positions)} positions"
         )
 
-    async def analyze(self) -> Dict[str, Any]:
+    async def analyze(self) -> dict[str, Any]:
         """
         Perform parallel analysis on multiple positions.
 
@@ -780,7 +777,9 @@ class MultiPositionAnalyzer:
 
         # Combine results from all positions
         combined_results = {}
-        for i, (position, result) in enumerate(zip(self.positions, results)):
+        for _i, (position, result) in enumerate(
+            zip(self.positions, results, strict=False)
+        ):
             if isinstance(result, Exception):
                 self.logger.warning(
                     f"Analysis failed for position {position}: {result}"
@@ -803,8 +802,8 @@ class MultiPositionAnalyzer:
         return combined_results
 
     async def _analyze_single_position(
-        self, position: Dict[str, Union[str, int]]
-    ) -> Dict[str, Any]:
+        self, position: dict[str, str | int]
+    ) -> dict[str, Any]:
         """Analyze a single position using market data and position history."""
         ticker = position["ticker"]
         strategy_type = position["strategy_type"]
@@ -882,8 +881,8 @@ class MultiPositionAnalyzer:
             return await self._create_synthetic_result_for_position(position)
 
     async def _create_synthetic_result_for_position(
-        self, position: Dict[str, Union[str, int]]
-    ) -> Dict[str, Any]:
+        self, position: dict[str, str | int]
+    ) -> dict[str, Any]:
         """Create a synthetic result for a failed position analysis."""
         ticker = position["ticker"]
         strategy_type = position["strategy_type"]
@@ -926,7 +925,7 @@ class MultiPortfolioAnalyzer:
     def __init__(
         self,
         parsed_param: ParsedParameter,
-        logger: Optional[logging.Logger] = None,
+        logger: logging.Logger | None = None,
     ):
         """Initialize multi-portfolio analyzer."""
         self.parsed_param = parsed_param
@@ -942,7 +941,7 @@ class MultiPortfolioAnalyzer:
             f"Multi-portfolio analyzer initialized for {len(self.portfolio_files)} portfolios"
         )
 
-    async def analyze(self) -> Dict[str, Any]:
+    async def analyze(self) -> dict[str, Any]:
         """
         Perform parallel analysis on multiple portfolios.
 
@@ -968,8 +967,8 @@ class MultiPortfolioAnalyzer:
 
         # Combine results from all portfolios
         combined_results = {}
-        for i, (portfolio_file, result) in enumerate(
-            zip(self.portfolio_files, results)
+        for _i, (portfolio_file, result) in enumerate(
+            zip(self.portfolio_files, results, strict=False)
         ):
             if isinstance(result, Exception):
                 self.logger.warning(
@@ -992,7 +991,7 @@ class MultiPortfolioAnalyzer:
         )
         return combined_results
 
-    async def _analyze_single_portfolio(self, portfolio_file: str) -> Dict[str, Any]:
+    async def _analyze_single_portfolio(self, portfolio_file: str) -> dict[str, Any]:
         """Analyze a single portfolio using existing portfolio analysis logic."""
         self.logger.debug(f"Analyzing portfolio: {portfolio_file}")
 
@@ -1050,7 +1049,7 @@ class MultiPortfolioAnalyzer:
 
     async def _create_synthetic_result_for_portfolio(
         self, portfolio_file: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create a synthetic result for a failed portfolio analysis."""
         strategy_name = f"{portfolio_file}_PORTFOLIO_ANALYSIS"
 
@@ -1083,7 +1082,7 @@ class StrategyAnalyzer:
     def __init__(
         self,
         parsed_param: ParsedParameter,
-        logger: Optional[logging.Logger] = None,
+        logger: logging.Logger | None = None,
     ):
         """Initialize strategy analyzer."""
         self.parsed_param = parsed_param
@@ -1102,7 +1101,7 @@ class StrategyAnalyzer:
             f"{self.fast_period}/{self.slow_period}"
         )
 
-    async def analyze(self) -> Dict[str, Any]:
+    async def analyze(self) -> dict[str, Any]:
         """
         Perform enhanced strategy analysis with layered approach.
 
@@ -1117,7 +1116,7 @@ class StrategyAnalyzer:
         # Perform layered analysis: Asset Distribution + Strategy Performance + Equity Curves
         return await self._perform_layered_analysis()
 
-    async def _perform_layered_analysis(self) -> Dict[str, Any]:
+    async def _perform_layered_analysis(self) -> dict[str, Any]:
         """
         Perform layered analysis combining asset distribution, strategy performance, and equity curves.
 
@@ -1137,12 +1136,12 @@ class StrategyAnalyzer:
             asset_analysis = await asset_analyzer.analyze()
 
             # Layer 2: Strategy Performance Analysis
-            self.logger.info(f"Layer 2: Analyzing strategy performance")
+            self.logger.info("Layer 2: Analyzing strategy performance")
             strategy_file = self._find_strategy_file()
             strategy_analysis = await self._analyze_strategy_performance(strategy_file)
 
             # Layer 3: Equity Curve Analysis
-            self.logger.info(f"Layer 3: Analyzing equity curves")
+            self.logger.info("Layer 3: Analyzing equity curves")
             equity_file = self._find_equity_curve_file()
             equity_analysis = await self._analyze_equity_curve_file(equity_file)
 
@@ -1157,7 +1156,7 @@ class StrategyAnalyzer:
             self.logger.error(f"Layered analysis failed for {strategy_name}: {e}")
             return await self._create_synthetic_strategy_result()
 
-    def _find_equity_curve_file(self) -> Optional[Path]:
+    def _find_equity_curve_file(self) -> Path | None:
         """Find the specific equity curve file for this strategy."""
         equity_filename = f"{self.ticker}_{self.strategy_type}_{self.fast_period}_{self.slow_period}.csv"
 
@@ -1179,8 +1178,8 @@ class StrategyAnalyzer:
         return None
 
     async def _analyze_strategy_performance(
-        self, strategy_file: Optional[Path]
-    ) -> Dict[str, Any]:
+        self, strategy_file: Path | None
+    ) -> dict[str, Any]:
         """Analyze strategy performance from strategy files."""
         if not strategy_file or not strategy_file.exists():
             self.logger.warning("No strategy file found for performance analysis")
@@ -1202,8 +1201,7 @@ class StrategyAnalyzer:
                     "data": first_result,
                     "source_file": str(strategy_file),
                 }
-            else:
-                return {"analysis_type": "strategy_performance", "status": "no_results"}
+            return {"analysis_type": "strategy_performance", "status": "no_results"}
 
         except Exception as e:
             self.logger.warning(f"Strategy performance analysis failed: {e}")
@@ -1214,8 +1212,8 @@ class StrategyAnalyzer:
             }
 
     async def _analyze_equity_curve_file(
-        self, equity_file: Optional[Path]
-    ) -> Dict[str, Any]:
+        self, equity_file: Path | None
+    ) -> dict[str, Any]:
         """Analyze equity curve data from file."""
         if not equity_file or not equity_file.exists():
             self.logger.warning("No equity curve file found")
@@ -1281,9 +1279,9 @@ class StrategyAnalyzer:
 
     def _combine_layered_results(
         self,
-        asset_analysis: Dict[str, Any],
-        strategy_analysis: Dict[str, Any],
-        equity_analysis: Dict[str, Any],
+        asset_analysis: dict[str, Any],
+        strategy_analysis: dict[str, Any],
+        equity_analysis: dict[str, Any],
         strategy_name: str,
     ) -> Any:
         """Combine results from all analysis layers into a unified result."""
@@ -1335,10 +1333,10 @@ class StrategyAnalyzer:
 
     def _generate_layered_exit_signal(
         self,
-        asset_analysis: Dict[str, Any],
-        strategy_analysis: Dict[str, Any],
-        equity_analysis: Dict[str, Any],
-    ) -> Tuple[str, float, str]:
+        asset_analysis: dict[str, Any],
+        strategy_analysis: dict[str, Any],
+        equity_analysis: dict[str, Any],
+    ) -> tuple[str, float, str]:
         """Generate exit signal considering all analysis layers."""
 
         # Extract signals from each layer
@@ -1403,7 +1401,7 @@ class StrategyAnalyzer:
 
         return base_signal, final_confidence, reasoning
 
-    def _find_strategy_file(self) -> Optional[Path]:
+    def _find_strategy_file(self) -> Path | None:
         """Find the specific strategy file."""
         # Construct expected filename patterns
         filename_patterns = [
@@ -1440,7 +1438,7 @@ class StrategyAnalyzer:
         )
         return None
 
-    async def _analyze_strategy_file(self, strategy_file: Path) -> Dict[str, Any]:
+    async def _analyze_strategy_file(self, strategy_file: Path) -> dict[str, Any]:
         """Analyze using the found strategy file."""
         self.logger.info(f"Analyzing strategy file: {strategy_file}")
 
@@ -1478,7 +1476,7 @@ class StrategyAnalyzer:
             self.logger.error(f"Failed to analyze strategy file {strategy_file}: {e}")
             return await self._create_synthetic_strategy_result()
 
-    async def _analyze_from_equity_curves(self) -> Dict[str, Any]:
+    async def _analyze_from_equity_curves(self) -> dict[str, Any]:
         """Analyze using equity curve data."""
         self.logger.info("Analyzing from equity curves")
 
@@ -1504,7 +1502,7 @@ class StrategyAnalyzer:
         # No equity file found, create synthetic result
         return await self._create_synthetic_strategy_result()
 
-    async def _analyze_equity_file(self, equity_file: Path) -> Dict[str, Any]:
+    async def _analyze_equity_file(self, equity_file: Path) -> dict[str, Any]:
         """Analyze equity curve file."""
         self.logger.info(f"Analyzing equity file: {equity_file}")
 
@@ -1589,7 +1587,7 @@ class StrategyAnalyzer:
             self.logger.error(f"Failed to analyze equity file {equity_file}: {e}")
             return await self._create_synthetic_strategy_result()
 
-    async def _create_synthetic_strategy_result(self) -> Dict[str, Any]:
+    async def _create_synthetic_strategy_result(self) -> dict[str, Any]:
         """Create synthetic strategy analysis result."""
         strategy_name = (
             f"{self.ticker}_{self.strategy_type}_{self.fast_period}_{self.slow_period}"
@@ -1632,7 +1630,7 @@ class PositionAnalyzer:
     def __init__(
         self,
         parsed_param: ParsedParameter,
-        logger: Optional[logging.Logger] = None,
+        logger: logging.Logger | None = None,
     ):
         """Initialize position analyzer."""
         self.parsed_param = parsed_param
@@ -1653,7 +1651,7 @@ class PositionAnalyzer:
             f"entered on {self.entry_date}"
         )
 
-    async def analyze(self) -> Dict[str, Any]:
+    async def analyze(self) -> dict[str, Any]:
         """
         Perform comprehensive position analysis with multi-layered approach.
 
@@ -1671,7 +1669,7 @@ class PositionAnalyzer:
 
     async def _perform_position_layered_analysis(
         self, position_uuid: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Perform comprehensive position analysis with all four layers.
 
@@ -1687,7 +1685,7 @@ class PositionAnalyzer:
             asset_analysis = await asset_analyzer.analyze()
 
             # Layer 2: Strategy Performance Analysis
-            self.logger.info(f"Layer 2: Analyzing strategy performance")
+            self.logger.info("Layer 2: Analyzing strategy performance")
             # Create a temporary StrategyAnalyzer to reuse its logic
             strategy_param = ParsedParameter(
                 parameter_type=ParameterType.STRATEGY_SPEC,
@@ -1705,14 +1703,14 @@ class PositionAnalyzer:
             )
 
             # Layer 3: Equity Curve Analysis
-            self.logger.info(f"Layer 3: Analyzing equity curves")
+            self.logger.info("Layer 3: Analyzing equity curves")
             equity_file = strategy_analyzer._find_equity_curve_file()
             equity_analysis = await strategy_analyzer._analyze_equity_curve_file(
                 equity_file
             )
 
             # Layer 4: Position-Specific Analysis
-            self.logger.info(f"Layer 4: Analyzing position-specific data")
+            self.logger.info("Layer 4: Analyzing position-specific data")
             position_data = self._find_position_data(position_uuid)
             position_analysis = await self._analyze_position_specific_data(
                 position_data, position_uuid
@@ -1736,8 +1734,8 @@ class PositionAnalyzer:
             return await self._fallback_strategy_analysis(position_uuid)
 
     async def _analyze_position_specific_data(
-        self, position_data: Optional[pd.Series], position_uuid: str
-    ) -> Dict[str, Any]:
+        self, position_data: pd.Series | None, position_uuid: str
+    ) -> dict[str, Any]:
         """Analyze position-specific data and metrics."""
         if position_data is None:
             self.logger.warning(f"No position data found for {position_uuid}")
@@ -1803,7 +1801,7 @@ class PositionAnalyzer:
 
     def _assess_holding_period_risk(
         self, days_since_entry: int, entry_date: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Assess risk based on holding period and market conditions."""
         # Basic holding period risk assessment
         if days_since_entry > 120:  # > 4 months
@@ -1827,13 +1825,13 @@ class PositionAnalyzer:
 
     def _assess_position_efficiency(
         self, mfe: float, mae: float, current_pnl: float
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Assess position efficiency based on MFE/MAE and current PnL."""
         if mae == 0:
             efficiency_score = 100.0 if mfe > 0 else 50.0
         else:
             # Efficiency based on how close current PnL is to MFE vs MAE
-            mfe_mae_ratio = mfe / abs(mae) if mae < 0 else mfe / mae
+            mfe / abs(mae) if mae < 0 else mfe / mae
 
             if current_pnl > 0:
                 # Positive position - how close to MFE?
@@ -1867,10 +1865,10 @@ class PositionAnalyzer:
 
     def _combine_position_layered_results(
         self,
-        asset_analysis: Dict[str, Any],
-        strategy_analysis: Dict[str, Any],
-        equity_analysis: Dict[str, Any],
-        position_analysis: Dict[str, Any],
+        asset_analysis: dict[str, Any],
+        strategy_analysis: dict[str, Any],
+        equity_analysis: dict[str, Any],
+        position_analysis: dict[str, Any],
         position_uuid: str,
     ) -> Any:
         """Combine results from all four analysis layers into a unified position result."""
@@ -1941,11 +1939,11 @@ class PositionAnalyzer:
 
     def _generate_position_exit_signal(
         self,
-        asset_analysis: Dict[str, Any],
-        strategy_analysis: Dict[str, Any],
-        equity_analysis: Dict[str, Any],
-        position_analysis: Dict[str, Any],
-    ) -> Tuple[str, float, str]:
+        asset_analysis: dict[str, Any],
+        strategy_analysis: dict[str, Any],
+        equity_analysis: dict[str, Any],
+        position_analysis: dict[str, Any],
+    ) -> tuple[str, float, str]:
         """Generate exit signal considering all four analysis layers."""
 
         # Extract signals from each layer
@@ -1960,9 +1958,7 @@ class PositionAnalyzer:
         mfe = position_analysis.get("position_metrics", {}).get(
             "max_favourable_excursion", 0.0
         )
-        mae = position_analysis.get("position_metrics", {}).get(
-            "max_adverse_excursion", 0.0
-        )
+        position_analysis.get("position_metrics", {}).get("max_adverse_excursion", 0.0)
         days_held = position_analysis.get("position_metrics", {}).get(
             "days_since_entry", 0
         )
@@ -2048,7 +2044,7 @@ class PositionAnalyzer:
 
         return base_signal, final_confidence, reasoning
 
-    def _find_position_data(self, position_uuid: str) -> Optional[pd.Series]:
+    def _find_position_data(self, position_uuid: str) -> pd.Series | None:
         """Find the specific position data."""
         # Search in position files
         position_dirs = [
@@ -2118,7 +2114,7 @@ class PositionAnalyzer:
 
     async def _analyze_position_data(
         self, position_data: pd.Series, position_uuid: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Analyze using found position data."""
         self.logger.info(f"Analyzing position data for UUID: {position_uuid}")
 
@@ -2183,7 +2179,7 @@ class PositionAnalyzer:
             self.logger.error(f"Failed to analyze position data: {e}")
             return await self._fallback_strategy_analysis(position_uuid)
 
-    async def _fallback_strategy_analysis(self, position_uuid: str) -> Dict[str, Any]:
+    async def _fallback_strategy_analysis(self, position_uuid: str) -> dict[str, Any]:
         """Fallback to strategy-level analysis when position data unavailable."""
         self.logger.info(
             f"Falling back to strategy analysis for position: {position_uuid}"
@@ -2205,7 +2201,7 @@ class PositionAnalyzer:
 
         # Enhance results with position-specific context
         enhanced_results = {}
-        for name, result in strategy_results.items():
+        for _name, result in strategy_results.items():
             # Modify the result to reflect position-specific analysis
             result.strategy_name = position_uuid
             if hasattr(result, "divergence_metrics"):
@@ -2223,7 +2219,7 @@ class PositionAnalyzer:
 
 
 def create_analyzer(
-    parsed_param: ParsedParameter, logger: Optional[logging.Logger] = None
+    parsed_param: ParsedParameter, logger: logging.Logger | None = None
 ):
     """
     Factory function to create appropriate analyzer based on parameter type.
@@ -2240,17 +2236,16 @@ def create_analyzer(
     """
     if parsed_param.parameter_type == ParameterType.TICKER_ONLY:
         return AssetDistributionAnalyzer(parsed_param, logger)
-    elif parsed_param.parameter_type == ParameterType.MULTI_TICKER:
+    if parsed_param.parameter_type == ParameterType.MULTI_TICKER:
         return MultiTickerAnalyzer(parsed_param, logger)
-    elif parsed_param.parameter_type == ParameterType.STRATEGY_SPEC:
+    if parsed_param.parameter_type == ParameterType.STRATEGY_SPEC:
         return StrategyAnalyzer(parsed_param, logger)
-    elif parsed_param.parameter_type == ParameterType.MULTI_STRATEGY_SPEC:
+    if parsed_param.parameter_type == ParameterType.MULTI_STRATEGY_SPEC:
         return MultiStrategyAnalyzer(parsed_param, logger)
-    elif parsed_param.parameter_type == ParameterType.POSITION_UUID:
+    if parsed_param.parameter_type == ParameterType.POSITION_UUID:
         return PositionAnalyzer(parsed_param, logger)
-    elif parsed_param.parameter_type == ParameterType.MULTI_POSITION_UUID:
+    if parsed_param.parameter_type == ParameterType.MULTI_POSITION_UUID:
         return MultiPositionAnalyzer(parsed_param, logger)
-    elif parsed_param.parameter_type == ParameterType.MULTI_PORTFOLIO_FILE:
+    if parsed_param.parameter_type == ParameterType.MULTI_PORTFOLIO_FILE:
         return MultiPortfolioAnalyzer(parsed_param, logger)
-    else:
-        raise ValueError(f"Unsupported parameter type: {parsed_param.parameter_type}")
+    raise ValueError(f"Unsupported parameter type: {parsed_param.parameter_type}")

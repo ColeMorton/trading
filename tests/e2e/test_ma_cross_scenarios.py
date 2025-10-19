@@ -8,13 +8,14 @@ Principles: Minimal mocking, real configurations, actual file I/O
 
 import importlib.util
 import os
+from pathlib import Path
 import sys
 import tempfile
 import unittest
-from pathlib import Path
 from unittest.mock import patch
 
 import polars as pl
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -75,9 +76,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
                 file_path = os.path.join(portfolios_dir, filename)
                 with open(file_path, "w") as f:
                     f.write(
-                        "Ticker,Strategy Type,Total Return [%]\nAAPL,{},15.5\n".format(
-                            strategy
-                        )
+                        f"Ticker,Strategy Type,Total Return [%]\nAAPL,{strategy},15.5\n"
                     )
 
             return True
@@ -234,9 +233,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
                 file_path = os.path.join(portfolios_dir, filename)
                 with open(file_path, "w") as f:
                     f.write(
-                        "Ticker,Strategy Type,Total Return [%]\nGOOGL,{},12.3\n".format(
-                            strategy
-                        )
+                        f"Ticker,Strategy Type,Total Return [%]\nGOOGL,{strategy},12.3\n"
                     )
 
             return True
@@ -244,7 +241,9 @@ class TestMACrossE2EScenarios(unittest.TestCase):
         mock_orchestrator_run.side_effect = mock_run_side_effect
 
         mock_fetch.return_value = create_realistic_price_data(
-            ticker="GOOGL", days=200, trend=0.0008  # Slight uptrend for better signals
+            ticker="GOOGL",
+            days=200,
+            trend=0.0008,  # Slight uptrend for better signals
         )
 
         config = {
@@ -318,7 +317,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
             os.makedirs(portfolios_dir, exist_ok=True)
 
             # Create expected portfolio file with SHORT suffix
-            filename = f"BEAR_D_SMA_SHORT.csv"
+            filename = "BEAR_D_SMA_SHORT.csv"
             file_path = os.path.join(portfolios_dir, filename)
             with open(file_path, "w") as f:
                 f.write("Ticker,Strategy Type,Total Return [%]\nBEAR,SMA,8.7\n")
@@ -329,7 +328,10 @@ class TestMACrossE2EScenarios(unittest.TestCase):
 
         # Create declining market data
         declining_data = create_realistic_price_data(
-            ticker="BEAR", days=150, trend=-0.0005, volatility=0.02  # Declining trend
+            ticker="BEAR",
+            days=150,
+            trend=-0.0005,
+            volatility=0.02,  # Declining trend
         )
 
         mock_fetch.return_value = declining_data
@@ -406,7 +408,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
 
         # Even with strict filters, process should complete successfully
         files = os.listdir(portfolios_dir)
-        filter_files = [f for f in files if f.startswith("FILTER_TEST")]
+        [f for f in files if f.startswith("FILTER_TEST")]
         # May be 0 files if nothing passes filters - that's valid behavior
 
     def test_error_handling_scenario(self):

@@ -6,19 +6,17 @@ configurations from various sources.
 """
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union
+from typing import Any, TypeVar
 
-import yaml
 from pydantic import BaseModel, ValidationError
+import yaml
 
-from ..models.base import BaseConfig
-from ..models.concurrency import ConcurrencyAnalysisConfig, ConcurrencyConfig
-from ..models.portfolio import PortfolioConfig, PortfolioProcessingConfig
-from ..models.strategy import MACDConfig, MACrossConfig, StrategyConfig
-from ..models.tools import HealthConfig, SchemaConfig, ValidationConfig
-from ..models.trade_history import TradeHistoryConfig
-from .manager import ConfigManager, ProfileManager
-from .profiles import Profile, ProfileConfig
+from ..models.concurrency import ConcurrencyConfig
+from ..models.portfolio import PortfolioConfig
+from ..models.strategy import StrategyConfig
+from .manager import ConfigManager
+from .profiles import ProfileConfig
+
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -26,7 +24,7 @@ T = TypeVar("T", bound=BaseModel)
 class ConfigLoader:
     """Utility class for loading configurations from various sources."""
 
-    def __init__(self, profiles_dir: Optional[Path] = None):
+    def __init__(self, profiles_dir: Path | None = None):
         """Initialize the config loader.
 
         Args:
@@ -42,8 +40,8 @@ class ConfigLoader:
     def load_from_profile(
         self,
         profile_name: str,
-        config_type: Optional[Type[T]] = None,
-        overrides: Optional[Dict[str, Any]] = None,
+        config_type: type[T] | None = None,
+        overrides: dict[str, Any] | None = None,
     ) -> T:
         """Load configuration from a profile.
 
@@ -74,9 +72,9 @@ class ConfigLoader:
 
     def load_from_yaml(
         self,
-        yaml_path: Union[str, Path],
-        config_type: Type[T],
-        overrides: Optional[Dict[str, Any]] = None,
+        yaml_path: str | Path,
+        config_type: type[T],
+        overrides: dict[str, Any] | None = None,
     ) -> T:
         """Load configuration from a YAML file.
 
@@ -94,7 +92,7 @@ class ConfigLoader:
             raise FileNotFoundError(f"Configuration file not found: {yaml_path}")
 
         try:
-            with open(yaml_path, "r") as f:
+            with open(yaml_path) as f:
                 config_dict = yaml.safe_load(f)
         except yaml.YAMLError as e:
             raise ValidationError(f"Invalid YAML in {yaml_path}: {e}", config_type)
@@ -108,9 +106,9 @@ class ConfigLoader:
 
     def load_from_dict(
         self,
-        config_dict: Dict[str, Any],
-        config_type: Type[T],
-        overrides: Optional[Dict[str, Any]] = None,
+        config_dict: dict[str, Any],
+        config_type: type[T],
+        overrides: dict[str, Any] | None = None,
     ) -> T:
         """Load configuration from a dictionary.
 
@@ -130,8 +128,8 @@ class ConfigLoader:
         return config_type(**config_dict)
 
     def _merge_configs(
-        self, base: Dict[str, Any], override: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, base: dict[str, Any], override: dict[str, Any]
+    ) -> dict[str, Any]:
         """Merge two configuration dictionaries."""
         result = base.copy()
 
@@ -150,57 +148,54 @@ class ConfigLoader:
 
 # Convenience functions
 def load_strategy_config(
-    profile_name: Optional[str] = None,
-    yaml_path: Optional[Path] = None,
-    config_dict: Optional[Dict[str, Any]] = None,
-    overrides: Optional[Dict[str, Any]] = None,
+    profile_name: str | None = None,
+    yaml_path: Path | None = None,
+    config_dict: dict[str, Any] | None = None,
+    overrides: dict[str, Any] | None = None,
 ) -> StrategyConfig:
     """Load strategy configuration from various sources."""
     loader = ConfigLoader()
 
     if profile_name:
         return loader.load_from_profile(profile_name, StrategyConfig, overrides)
-    elif yaml_path:
+    if yaml_path:
         return loader.load_from_yaml(yaml_path, StrategyConfig, overrides)
-    elif config_dict:
+    if config_dict:
         return loader.load_from_dict(config_dict, StrategyConfig, overrides)
-    else:
-        raise ValueError("Must specify profile_name, yaml_path, or config_dict")
+    raise ValueError("Must specify profile_name, yaml_path, or config_dict")
 
 
 def load_portfolio_config(
-    profile_name: Optional[str] = None,
-    yaml_path: Optional[Path] = None,
-    config_dict: Optional[Dict[str, Any]] = None,
-    overrides: Optional[Dict[str, Any]] = None,
+    profile_name: str | None = None,
+    yaml_path: Path | None = None,
+    config_dict: dict[str, Any] | None = None,
+    overrides: dict[str, Any] | None = None,
 ) -> PortfolioConfig:
     """Load portfolio configuration from various sources."""
     loader = ConfigLoader()
 
     if profile_name:
         return loader.load_from_profile(profile_name, PortfolioConfig, overrides)
-    elif yaml_path:
+    if yaml_path:
         return loader.load_from_yaml(yaml_path, PortfolioConfig, overrides)
-    elif config_dict:
+    if config_dict:
         return loader.load_from_dict(config_dict, PortfolioConfig, overrides)
-    else:
-        raise ValueError("Must specify profile_name, yaml_path, or config_dict")
+    raise ValueError("Must specify profile_name, yaml_path, or config_dict")
 
 
 def load_concurrency_config(
-    profile_name: Optional[str] = None,
-    yaml_path: Optional[Path] = None,
-    config_dict: Optional[Dict[str, Any]] = None,
-    overrides: Optional[Dict[str, Any]] = None,
+    profile_name: str | None = None,
+    yaml_path: Path | None = None,
+    config_dict: dict[str, Any] | None = None,
+    overrides: dict[str, Any] | None = None,
 ) -> ConcurrencyConfig:
     """Load concurrency configuration from various sources."""
     loader = ConfigLoader()
 
     if profile_name:
         return loader.load_from_profile(profile_name, ConcurrencyConfig, overrides)
-    elif yaml_path:
+    if yaml_path:
         return loader.load_from_yaml(yaml_path, ConcurrencyConfig, overrides)
-    elif config_dict:
+    if config_dict:
         return loader.load_from_dict(config_dict, ConcurrencyConfig, overrides)
-    else:
-        raise ValueError("Must specify profile_name, yaml_path, or config_dict")
+    raise ValueError("Must specify profile_name, yaml_path, or config_dict")

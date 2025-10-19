@@ -9,9 +9,9 @@ import argparse
 import asyncio
 import json
 import logging
-import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+import sys
+
 
 # Configure logging
 logging.basicConfig(
@@ -86,22 +86,16 @@ Examples:
         )
 
         # Health command
-        health_parser = subparsers.add_parser("health", help="System health check")
+        subparsers.add_parser("health", help="System health check")
 
         # List portfolios command
-        list_parser = subparsers.add_parser(
-            "list-portfolios", help="List available portfolios"
-        )
+        subparsers.add_parser("list-portfolios", help="List available portfolios")
 
         # Demo command
-        demo_parser = subparsers.add_parser(
-            "demo", help="Create demo files and run example"
-        )
+        subparsers.add_parser("demo", help="Create demo files and run example")
 
         # Interactive command
-        interactive_parser = subparsers.add_parser(
-            "interactive", help="Interactive mode"
-        )
+        subparsers.add_parser("interactive", help="Interactive mode")
 
         # Global options
         parser.add_argument(
@@ -111,7 +105,7 @@ Examples:
 
         return parser
 
-    async def run(self, args: Optional[list] = None) -> int:
+    async def run(self, args: list | None = None) -> int:
         """Run the CLI application"""
         try:
             parsed_args = self.parser.parse_args(args)
@@ -125,17 +119,16 @@ Examples:
             # Route to appropriate handler
             if parsed_args.command == "analyze":
                 return await self._handle_analyze(parsed_args)
-            elif parsed_args.command == "health":
+            if parsed_args.command == "health":
                 return await self._handle_health()
-            elif parsed_args.command == "list-portfolios":
+            if parsed_args.command == "list-portfolios":
                 return self._handle_list_portfolios()
-            elif parsed_args.command == "demo":
+            if parsed_args.command == "demo":
                 return await self._handle_demo()
-            elif parsed_args.command == "interactive":
+            if parsed_args.command == "interactive":
                 return await self._handle_interactive()
-            else:
-                self.parser.print_help()
-                return 0
+            self.parser.print_help()
+            return 0
 
         except KeyboardInterrupt:
             print("\n⚠️  Operation cancelled by user")
@@ -188,10 +181,10 @@ Examples:
             # Output results
             if args.output_format == "json":
                 return self._output_json_results(results, args.save_results)
-            elif args.output_format == "summary":
+            if args.output_format == "summary":
                 return self._output_summary_results(results)
-            else:  # table format
-                return self._output_table_results(results)
+            # table format
+            return self._output_table_results(results)
 
         except Exception as e:
             print(f"❌ Analysis failed: {e}")
@@ -201,14 +194,12 @@ Examples:
         """Determine whether to use trade history based on data source preference"""
         if data_source == "trade-history":
             return True
-        elif data_source == "equity-curves":
+        if data_source == "equity-curves":
             return False
-        else:  # auto or both
-            return False  # Default to equity curves
+        # auto or both
+        return False  # Default to equity curves
 
-    def _output_json_results(
-        self, results: Dict, save_path: Optional[str] = None
-    ) -> int:
+    def _output_json_results(self, results: dict, save_path: str | None = None) -> int:
         """Output results in JSON format"""
         # Convert results to serializable format
         serializable_results = {}
@@ -247,9 +238,9 @@ Examples:
 
         return 0
 
-    def _output_summary_results(self, results: Dict) -> int:
+    def _output_summary_results(self, results: dict) -> int:
         """Output summary results"""
-        print(f"\n📈 Analysis Summary")
+        print("\n📈 Analysis Summary")
         print("=" * 40)
         print(f"Total Results: {len(results)}")
 
@@ -271,7 +262,7 @@ Examples:
 
         return 0
 
-    def _output_table_results(self, results: Dict) -> int:
+    def _output_table_results(self, results: dict) -> int:
         """Output detailed table results"""
         if not results:
             print("No results to display")
@@ -281,7 +272,7 @@ Examples:
         self._output_summary_results(results)
 
         # Detailed results
-        print(f"\n📋 Detailed Analysis Results")
+        print("\n📋 Detailed Analysis Results")
         print("=" * 100)
 
         # Table header
@@ -319,7 +310,7 @@ Examples:
                 f"{strategy_name:<30} {result.ticker:<8} {signal_icon} {signal:<13} {risk:<10} {confidence:>6.1f}%    {reasoning}"
             )
 
-        print(f"\n💡 Architecture: New 3-layer SPDS system (CLI → Engine → Results)")
+        print("\n💡 Architecture: New 3-layer SPDS system (CLI → Engine → Results)")
         print(f"📊 Performance: {len(results)} results processed")
 
         return 0
@@ -337,12 +328,12 @@ Examples:
 
             # Test configuration
             print("2. Configuration... ", end="")
-            config = SPDSConfig()
+            SPDSConfig()
             print("✅")
 
             # Test export service
             print("3. Export Service... ", end="")
-            export_service = SPDSExportService()
+            SPDSExportService()
             print("✅")
 
             # Test data directories
@@ -368,9 +359,9 @@ Examples:
             except Exception as e:
                 print(f"⚠️ ({str(e)[:30]}...)")
 
-            print(f"\n🎯 System Status: Operational")
-            print(f"📊 Architecture: New 3-layer SPDS (simplified)")
-            print(f"🔧 Components: SPDSAnalysisEngine, SPDSExportService, SPDSConfig")
+            print("\n🎯 System Status: Operational")
+            print("📊 Architecture: New 3-layer SPDS (simplified)")
+            print("🔧 Components: SPDSAnalysisEngine, SPDSExportService, SPDSConfig")
 
             return 0
 
@@ -480,16 +471,16 @@ Examples:
 
             # Show sample result
             if results:
-                sample_key = list(results.keys())[0]
+                sample_key = next(iter(results.keys()))
                 sample_result = results[sample_key]
-                print(f"\n📊 Sample Result:")
+                print("\n📊 Sample Result:")
                 print(f"   Strategy: {sample_result.strategy_name}")
                 print(f"   Signal: {sample_result.exit_signal.signal_type.value}")
                 print(f"   Confidence: {sample_result.confidence_level:.1f}%")
 
-            print(f"\n🎉 Demo completed successfully!")
+            print("\n🎉 Demo completed successfully!")
             print(
-                f"💡 Try: python -m app.tools.spds_cli_updated analyze --portfolio demo_new_architecture.csv"
+                "💡 Try: python -m app.tools.spds_cli_updated analyze --portfolio demo_new_architecture.csv"
             )
 
             return 0

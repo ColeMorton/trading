@@ -10,22 +10,7 @@ from app.tools.heatmap_utils import process_heatmap_data
 from app.tools.setup_logging import setup_logging
 
 
-def run(
-    config: HeatmapConfig = {
-        "USE_CURRENT": False,
-        "USE_BEST_PORTFOLIO": False,  # Default to regular portfolios directory
-        "USE_SMA": True,
-        "TICKER": "APP",
-        "TICKER_1": "BTC-USD",
-        "TICKER_2": "BTC-USD",
-        "WINDOWS": 89,
-        "USE_HOURLY": False,
-        "USE_SYNTHETIC": False,
-        "REFRESH": True,
-        "BASE_DIR": ".",
-        "DIRECTION": "Long",  # Default to Long position
-    }
-) -> bool:
+def run(config: HeatmapConfig = None) -> bool:
     """Run the heatmap generation process.
 
     This function:
@@ -42,6 +27,21 @@ def run(
     Raises:
         Exception: If portfolio data is missing or heatmap generation fails
     """
+    if config is None:
+        config = {
+            "USE_CURRENT": False,
+            "USE_BEST_PORTFOLIO": False,
+            "USE_SMA": True,
+            "TICKER": "APP",
+            "TICKER_1": "BTC-USD",
+            "TICKER_2": "BTC-USD",
+            "WINDOWS": 89,
+            "USE_HOURLY": False,
+            "USE_SYNTHETIC": False,
+            "REFRESH": True,
+            "BASE_DIR": ".",
+            "DIRECTION": "Long",
+        }
     log, log_close, _, _ = setup_logging(
         module_name="ma_cross", log_file="2_get_heatmaps.log"
     )
@@ -52,7 +52,7 @@ def run(
         return result
 
     except Exception as e:
-        log(f"Execution failed: {str(e)}", "error")
+        log(f"Execution failed: {e!s}", "error")
         log_close()
         raise
 
@@ -63,5 +63,5 @@ if __name__ == "__main__":
         if result:
             print("Execution completed successfully!")
     except Exception as e:
-        print(f"Execution failed: {str(e)}")
+        print(f"Execution failed: {e!s}")
         raise

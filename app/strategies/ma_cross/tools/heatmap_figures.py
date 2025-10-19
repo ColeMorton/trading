@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -14,8 +14,8 @@ def create_heatmap_figures(
     score: pd.Series,
     windows: np.ndarray,
     title: str,
-    config: Dict[str, Any],
-) -> Dict[str, go.Figure]:
+    config: dict[str, Any],
+) -> dict[str, go.Figure]:
     """
     Create separate heatmap figures for profit factor, total trades, Sortino ratio, win rate, expectancy, and score with consistent styling.
     Makes the heatmaps symmetrical by mirroring values across the diagonal.
@@ -141,7 +141,7 @@ def create_heatmap_figures(
             z=profit_factor_heatmap,
             x=windows,
             y=windows,
-            colorbar=dict(title="Profit Factor"),
+            colorbar={"title": "Profit Factor"},
             zmin=profit_factor_zmin,
             zmax=profit_factor_zmax,
             colorscale="thermal",
@@ -149,15 +149,15 @@ def create_heatmap_figures(
     )
 
     profit_factor_fig.update_layout(
-        title=dict(
-            text=f'{config["TICKER"]} - {ma_type} Cross Strategy Profit Factor<br><sup>{title}</sup>',
-            x=0.5,
-            xanchor="center",
-        ),
-        yaxis=dict(title="Slow Period"),
-        xaxis=dict(title="Fast Period"),
+        title={
+            "text": f'{config["TICKER"]} - {ma_type} Cross Strategy Profit Factor<br><sup>{title}</sup>',
+            "x": 0.5,
+            "xanchor": "center",
+        },
+        yaxis={"title": "Slow Period"},
+        xaxis={"title": "Fast Period"},
         autosize=True,
-        margin=dict(l=50, r=50, t=100, b=50),
+        margin={"l": 50, "r": 50, "t": 100, "b": 50},
     )
 
     # Create trades figure
@@ -167,7 +167,7 @@ def create_heatmap_figures(
             z=trades_heatmap,
             x=windows,
             y=windows,
-            colorbar=dict(title="Total Trades"),
+            colorbar={"title": "Total Trades"},
             zmin=trades_zmin,
             zmax=trades_zmax,  # Use fixed maximum of 200
             colorscale="thermal",
@@ -175,15 +175,15 @@ def create_heatmap_figures(
     )
 
     trades_fig.update_layout(
-        title=dict(
-            text=f'{config["TICKER"]} - {ma_type} Cross Strategy Total Trades<br><sup>{title}</sup>',
-            x=0.5,
-            xanchor="center",
-        ),
-        yaxis=dict(title="Slow Period"),
-        xaxis=dict(title="Fast Period"),
+        title={
+            "text": f'{config["TICKER"]} - {ma_type} Cross Strategy Total Trades<br><sup>{title}</sup>',
+            "x": 0.5,
+            "xanchor": "center",
+        },
+        yaxis={"title": "Slow Period"},
+        xaxis={"title": "Fast Period"},
         autosize=True,
-        margin=dict(l=50, r=50, t=100, b=50),
+        margin={"l": 50, "r": 50, "t": 100, "b": 50},
     )
 
     # Create Sortino ratio figure
@@ -193,7 +193,7 @@ def create_heatmap_figures(
             z=sortino_heatmap,
             x=windows,
             y=windows,
-            colorbar=dict(title="Sortino Ratio"),
+            colorbar={"title": "Sortino Ratio"},
             zmin=sortino_zmin,
             zmax=sortino_zmax,
             colorscale="thermal",
@@ -201,15 +201,15 @@ def create_heatmap_figures(
     )
 
     sortino_fig.update_layout(
-        title=dict(
-            text=f'{config["TICKER"]} - {ma_type} Cross Strategy Sortino Ratio<br><sup>{title}</sup>',
-            x=0.5,
-            xanchor="center",
-        ),
-        yaxis=dict(title="Slow Period"),
-        xaxis=dict(title="Fast Period"),
+        title={
+            "text": f'{config["TICKER"]} - {ma_type} Cross Strategy Sortino Ratio<br><sup>{title}</sup>',
+            "x": 0.5,
+            "xanchor": "center",
+        },
+        yaxis={"title": "Slow Period"},
+        xaxis={"title": "Fast Period"},
         autosize=True,
-        margin=dict(l=50, r=50, t=100, b=50),
+        margin={"l": 50, "r": 50, "t": 100, "b": 50},
     )
 
     # Create Win Rate figure
@@ -219,7 +219,7 @@ def create_heatmap_figures(
             z=win_rate_heatmap,
             x=windows,
             y=windows,
-            colorbar=dict(title="Win Rate", tickformat="%"),
+            colorbar={"title": "Win Rate", "tickformat": "%"},
             zmin=win_rate_zmin,
             zmax=win_rate_zmax,
             colorscale="thermal",
@@ -227,15 +227,15 @@ def create_heatmap_figures(
     )
 
     win_rate_fig.update_layout(
-        title=dict(
-            text=f'{config["TICKER"]} - {ma_type} Cross Strategy Win Rate<br><sup>{title}</sup>',
-            x=0.5,
-            xanchor="center",
-        ),
-        yaxis=dict(title="Slow Period"),
-        xaxis=dict(title="Fast Period"),
+        title={
+            "text": f'{config["TICKER"]} - {ma_type} Cross Strategy Win Rate<br><sup>{title}</sup>',
+            "x": 0.5,
+            "xanchor": "center",
+        },
+        yaxis={"title": "Slow Period"},
+        xaxis={"title": "Fast Period"},
         autosize=True,
-        margin=dict(l=50, r=50, t=100, b=50),
+        margin={"l": 50, "r": 50, "t": 100, "b": 50},
     )
 
     # Create Expectancy figure
@@ -245,7 +245,7 @@ def create_heatmap_figures(
             z=expectancy_heatmap,
             x=windows,
             y=windows,
-            colorbar=dict(title="Expectancy"),
+            colorbar={"title": "Expectancy"},
             zmin=expectancy_zmin,
             zmax=expectancy_zmax,
             colorscale="thermal",
@@ -253,15 +253,15 @@ def create_heatmap_figures(
     )
 
     expectancy_fig.update_layout(
-        title=dict(
-            text=f'{config["TICKER"]} - {ma_type} Cross Strategy Expectancy<br><sup>{title}</sup>',
-            x=0.5,
-            xanchor="center",
-        ),
-        yaxis=dict(title="Slow Period"),
-        xaxis=dict(title="Fast Period"),
+        title={
+            "text": f'{config["TICKER"]} - {ma_type} Cross Strategy Expectancy<br><sup>{title}</sup>',
+            "x": 0.5,
+            "xanchor": "center",
+        },
+        yaxis={"title": "Slow Period"},
+        xaxis={"title": "Fast Period"},
         autosize=True,
-        margin=dict(l=50, r=50, t=100, b=50),
+        margin={"l": 50, "r": 50, "t": 100, "b": 50},
     )
 
     # Create Score figure
@@ -271,7 +271,7 @@ def create_heatmap_figures(
             z=score_heatmap,
             x=windows,
             y=windows,
-            colorbar=dict(title="Score"),
+            colorbar={"title": "Score"},
             zmin=score_zmin,
             zmax=score_zmax,
             colorscale="thermal",
@@ -279,15 +279,15 @@ def create_heatmap_figures(
     )
 
     score_fig.update_layout(
-        title=dict(
-            text=f'{config["TICKER"]} - {ma_type} Cross Strategy Score<br><sup>{title}</sup>',
-            x=0.5,
-            xanchor="center",
-        ),
-        yaxis=dict(title="Slow Period"),
-        xaxis=dict(title="Fast Period"),
+        title={
+            "text": f'{config["TICKER"]} - {ma_type} Cross Strategy Score<br><sup>{title}</sup>',
+            "x": 0.5,
+            "xanchor": "center",
+        },
+        yaxis={"title": "Slow Period"},
+        xaxis={"title": "Fast Period"},
         autosize=True,
-        margin=dict(l=50, r=50, t=100, b=50),
+        margin={"l": 50, "r": 50, "t": 100, "b": 50},
     )
 
     return {

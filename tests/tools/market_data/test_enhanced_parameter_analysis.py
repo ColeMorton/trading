@@ -5,18 +5,13 @@ Tests the integration of MarketDataAnalyzer with SPDS enhanced parameter
 analysis including ticker-only, strategy, and position UUID analysis.
 """
 
-import asyncio
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
 import polars as pl
 import pytest
 
-from app.tools.market_data_analyzer import (
-    MarketDataAnalyzer,
-    create_market_data_analyzer,
-)
 from app.tools.parameter_parser import ParameterType, ParsedParameter
 from app.tools.simplified_analysis_result import (
     SimpleAnalysisResult,
@@ -639,7 +634,7 @@ class TestPerformanceMetrics:
                 or any(
                     metric in str(v)
                     for v in metrics.values()
-                    if isinstance(v, (dict, str))
+                    if isinstance(v, dict | str)
                 )
             )
 

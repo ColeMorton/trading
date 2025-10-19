@@ -14,12 +14,9 @@ This test suite validates handling of edge cases and boundary conditions:
 These tests ensure the system is robust under unusual but valid conditions.
 """
 
+from datetime import timedelta
 import math
-import os
-import tempfile
-from datetime import datetime, timedelta
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import polars as pl
 import pytest
@@ -1033,9 +1030,7 @@ class TestUnusualMarketConditions:
     ):
         """Test handling of strongly trending markets."""
         # Create strongly trending data (consistent upward movement)
-        trending_prices = [
-            100.0 * (1.001**i) for i in range(252)
-        ]  # ~0.1% daily growth
+        trending_prices = [100.0 * (1.001**i) for i in range(252)]  # ~0.1% daily growth
 
         trending_data = pl.DataFrame(
             {

@@ -5,14 +5,13 @@ This module handles result aggregation, response formatting, and task status man
 It provides utilities for creating responses and managing asynchronous task execution.
 """
 
-import time
-import uuid
 from collections import defaultdict
 
 # API removed - creating local definitions
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
+import uuid
 
 
 @dataclass
@@ -20,8 +19,8 @@ class MACrossResponse:
     """MA Cross analysis response."""
 
     ticker: str
-    portfolios: List[Dict[str, Any]]
-    analysis_metadata: Dict[str, Any]
+    portfolios: list[dict[str, Any]]
+    analysis_metadata: dict[str, Any]
 
 
 @dataclass
@@ -31,8 +30,8 @@ class MACrossAsyncResponse:
     request_id: str
     ticker: str
     status: str
-    portfolios: List[Dict[str, Any]]
-    analysis_metadata: Dict[str, Any]
+    portfolios: list[dict[str, Any]]
+    analysis_metadata: dict[str, Any]
 
 
 @dataclass
@@ -52,7 +51,7 @@ class StrategyAnalysisRequest:
     ticker: str
     strategy_type: str
     timeframe: str = "D"
-    parameters: Dict[str, Any] = None
+    parameters: dict[str, Any] = None
 
 
 class TaskStatus:
@@ -77,7 +76,7 @@ class MetricsCollector:
         """Record a metric."""
         self.metrics[name].append(value)
 
-    def get_metrics(self) -> Dict[str, List[float]]:
+    def get_metrics(self) -> dict[str, list[float]]:
         """Get all metrics."""
         return dict(self.metrics)
 
@@ -117,7 +116,7 @@ class ResultAggregationService:
         self,
         logger: LoggingInterface,
         metrics: MonitoringInterface,
-        progress_tracker: Optional[ProgressTrackerInterface] = None,
+        progress_tracker: ProgressTrackerInterface | None = None,
     ):
         """Initialize the result aggregation service."""
         self.logger = logger
@@ -127,9 +126,9 @@ class ResultAggregationService:
     def create_analysis_response(
         self,
         request: StrategyAnalysisRequest,
-        portfolio_metrics: List[PortfolioMetrics],
-        deduplicated_portfolios: List[Dict[str, Any]],
-        export_paths: Dict[str, List[str]],
+        portfolio_metrics: list[PortfolioMetrics],
+        deduplicated_portfolios: list[dict[str, Any]],
+        export_paths: dict[str, list[str]],
         execution_time: float,
         log,
     ) -> MACrossResponse:
@@ -209,7 +208,7 @@ class ResultAggregationService:
             return response
 
         except Exception as e:
-            error_msg = f"Failed to create analysis response: {str(e)}"
+            error_msg = f"Failed to create analysis response: {e!s}"
             log(error_msg, "error")
             raise ResultAggregationServiceError(error_msg)
 
@@ -246,7 +245,7 @@ class ResultAggregationService:
             estimated_time=60.0,  # Estimate based on typical analysis time
         )
 
-    async def get_task_status(self, execution_id: str) -> Dict[str, Any]:
+    async def get_task_status(self, execution_id: str) -> dict[str, Any]:
         """
         Get the status of an asynchronous task.
 
@@ -326,7 +325,7 @@ class ResultAggregationService:
             )
         except Exception as e:
             # Don't fail the analysis if metrics recording fails
-            self.logger.log(f"Failed to record metrics: {str(e)}", "warning")
+            self.logger.log(f"Failed to record metrics: {e!s}", "warning")
 
     def cleanup_old_tasks(self, max_age_hours: int = 24) -> int:
         """
@@ -364,9 +363,9 @@ class ResultAggregationService:
         self,
         execution_id: str,
         status: str,
-        progress: str = None,
+        progress: str | None = None,
         results: Any = None,
-        error: str = None,
+        error: str | None = None,
     ):
         """
         Update task status with new information.
@@ -395,8 +394,8 @@ class ResultAggregationService:
             task_data["updated_at"] = datetime.now().isoformat()
 
     def get_analysis_summary(
-        self, portfolio_metrics: List[PortfolioMetrics]
-    ) -> Dict[str, Any]:
+        self, portfolio_metrics: list[PortfolioMetrics]
+    ) -> dict[str, Any]:
         """
         Generate summary statistics for analysis results.
 
@@ -437,6 +436,6 @@ class ResultAggregationService:
             summary["strategy_breakdown"] = strategy_counts
 
         except Exception as e:
-            summary["error"] = f"Error calculating summary: {str(e)}"
+            summary["error"] = f"Error calculating summary: {e!s}"
 
         return summary

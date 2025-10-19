@@ -1,6 +1,6 @@
 """Tests for style formatting functions."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from app.tools.formatters.style_formatters import create_section_header
 

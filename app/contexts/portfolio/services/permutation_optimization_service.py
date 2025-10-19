@@ -5,15 +5,12 @@ This service provides strategy combination optimization using systematic
 permutation analysis to find the most efficient portfolio configurations.
 """
 
+from collections.abc import Callable, Iterator
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass, field
 import itertools
 import time
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
-
-import numpy as np
-import polars as pl
+from typing import Any
 
 from app.concurrency.config import ConcurrencyConfig
 from app.concurrency.tools.analysis import analyze_concurrency
@@ -27,13 +24,13 @@ from app.tools.portfolio import StrategyConfig
 class OptimizationResult:
     """Result of permutation optimization."""
 
-    best_permutation: List[str]
+    best_permutation: list[str]
     best_efficiency: float
-    best_results: Dict[str, Any]
+    best_results: dict[str, Any]
     total_analyzed: int
     execution_time: float
     improvement_percentage: float
-    convergence_info: Dict[str, Any] = field(default_factory=dict)
+    convergence_info: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -43,9 +40,9 @@ class OptimizationProgress:
     total_permutations: int = 0
     completed_permutations: int = 0
     current_best_efficiency: float = -float("inf")
-    current_best_permutation: Optional[List[str]] = None
-    start_time: Optional[float] = None
-    estimated_remaining_time: Optional[float] = None
+    current_best_permutation: list[str] | None = None
+    start_time: float | None = None
+    estimated_remaining_time: float | None = None
 
     def get_progress_percentage(self) -> float:
         """Get completion percentage."""
@@ -54,7 +51,10 @@ class OptimizationProgress:
         return (self.completed_permutations / self.total_permutations) * 100
 
     def update_progress(
-        self, completed: int, efficiency: float = None, permutation: List[str] = None
+        self,
+        completed: int,
+        efficiency: float | None = None,
+        permutation: list[str] | None = None,
     ):
         """Update progress tracking."""
         self.completed_permutations = completed
@@ -83,11 +83,11 @@ class PermutationOptimizationService:
     def __init__(
         self,
         enable_parallel_processing: bool = False,
-        max_workers: Optional[int] = None,
+        max_workers: int | None = None,
         enable_early_stopping: bool = True,
         convergence_threshold: float = 0.001,
         convergence_window: int = 50,
-        log: Optional[Callable[[str, str], None]] = None,
+        log: Callable[[str, str], None] | None = None,
     ):
         """Initialize the permutation optimization service.
 
@@ -110,17 +110,17 @@ class PermutationOptimizationService:
         self.progress = OptimizationProgress()
 
         # Convergence tracking
-        self.efficiency_history: List[float] = []
+        self.efficiency_history: list[float] = []
         self.convergence_detected = False
 
     def optimize_strategy_selection(
         self,
-        strategies: List[StrategyConfig],
+        strategies: list[StrategyConfig],
         min_strategies: int = 3,
-        max_permutations: Optional[int] = None,
+        max_permutations: int | None = None,
         allocation_mode: str = "EQUAL",
-        config_overrides: Optional[Dict[str, Any]] = None,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
+        config_overrides: dict[str, Any] | None = None,
+        progress_callback: Callable[[int, int], None] | None = None,
     ) -> OptimizationResult:
         """Find optimal strategy combination using permutation analysis.
 
@@ -184,15 +184,15 @@ class PermutationOptimizationService:
             return result
 
         except Exception as e:
-            error_msg = f"Strategy optimization failed: {str(e)}"
+            error_msg = f"Strategy optimization failed: {e!s}"
             self.log(error_msg, "error")
             raise TradingSystemError(error_msg) from e
 
     def optimize_with_constraints(
         self,
-        strategies: List[StrategyConfig],
-        constraints: Dict[str, Any],
-        progress_callback: Optional[Callable[[int, int], None]] = None,
+        strategies: list[StrategyConfig],
+        constraints: dict[str, Any],
+        progress_callback: Callable[[int, int], None] | None = None,
     ) -> OptimizationResult:
         """Optimize strategy selection with additional constraints.
 
@@ -208,11 +208,11 @@ class PermutationOptimizationService:
             self.log("Starting constrained optimization", "info")
 
             # Extract constraints
-            min_strategies = constraints.get("min_strategies", 3)
-            max_strategies = constraints.get("max_strategies", len(strategies))
-            max_correlation = constraints.get("max_correlation", 0.8)
-            min_diversification = constraints.get("min_diversification", 0.2)
-            sector_limits = constraints.get("sector_limits", {})
+            constraints.get("min_strategies", 3)
+            constraints.get("max_strategies", len(strategies))
+            constraints.get("max_correlation", 0.8)
+            constraints.get("min_diversification", 0.2)
+            constraints.get("sector_limits", {})
 
             # Generate valid permutations with constraints
             valid_permutations = list(
@@ -259,16 +259,16 @@ class PermutationOptimizationService:
             )
 
         except Exception as e:
-            error_msg = f"Constrained optimization failed: {str(e)}"
+            error_msg = f"Constrained optimization failed: {e!s}"
             self.log(error_msg, "error")
             raise TradingSystemError(error_msg) from e
 
     def _generate_permutations(
         self,
-        strategies: List[StrategyConfig],
+        strategies: list[StrategyConfig],
         min_strategies: int,
-        max_permutations: Optional[int],
-    ) -> Iterator[List[StrategyConfig]]:
+        max_permutations: int | None,
+    ) -> Iterator[list[StrategyConfig]]:
         """Generate strategy permutations for optimization."""
         n_strategies = len(strategies)
 
@@ -292,9 +292,9 @@ class PermutationOptimizationService:
 
     def _generate_constrained_permutations(
         self,
-        strategies: List[StrategyConfig],
-        constraints: Dict[str, Any],
-    ) -> Iterator[List[StrategyConfig]]:
+        strategies: list[StrategyConfig],
+        constraints: dict[str, Any],
+    ) -> Iterator[list[StrategyConfig]]:
         """Generate permutations that satisfy constraints."""
         min_strategies = constraints.get("min_strategies", 3)
         max_strategies = constraints.get("max_strategies", len(strategies))
@@ -308,8 +308,8 @@ class PermutationOptimizationService:
 
     def _satisfies_sector_constraints(
         self,
-        combination: Tuple[StrategyConfig, ...],
-        sector_limits: Dict[str, int],
+        combination: tuple[StrategyConfig, ...],
+        sector_limits: dict[str, int],
     ) -> bool:
         """Check if combination satisfies sector constraints."""
         if not sector_limits:
@@ -337,16 +337,15 @@ class PermutationOptimizationService:
 
         if ticker in tech_tickers:
             return "technology"
-        elif ticker in crypto_tickers:
+        if ticker in crypto_tickers:
             return "cryptocurrency"
-        else:
-            return "other"
+        return "other"
 
     def _run_parallel_optimization(
         self,
-        permutations: List[List[StrategyConfig]],
+        permutations: list[list[StrategyConfig]],
         config: ConcurrencyConfig,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
+        progress_callback: Callable[[int, int], None] | None = None,
     ) -> OptimizationResult:
         """Run optimization using parallel processing."""
         self.log(
@@ -395,7 +394,7 @@ class PermutationOptimizationService:
                         break
 
                 except Exception as e:
-                    self.log(f"Error evaluating permutation: {str(e)}", "warning")
+                    self.log(f"Error evaluating permutation: {e!s}", "warning")
 
         return OptimizationResult(
             best_permutation=best_permutation,
@@ -408,9 +407,9 @@ class PermutationOptimizationService:
 
     def _run_sequential_optimization(
         self,
-        permutations: List[List[StrategyConfig]],
+        permutations: list[list[StrategyConfig]],
         config: ConcurrencyConfig,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
+        progress_callback: Callable[[int, int], None] | None = None,
     ) -> OptimizationResult:
         """Run optimization sequentially."""
         self.log("Running sequential optimization", "info")
@@ -441,7 +440,7 @@ class PermutationOptimizationService:
                     break
 
             except Exception as e:
-                self.log(f"Error evaluating permutation {i}: {str(e)}", "warning")
+                self.log(f"Error evaluating permutation {i}: {e!s}", "warning")
                 continue
 
         return OptimizationResult(
@@ -455,9 +454,9 @@ class PermutationOptimizationService:
 
     def _evaluate_permutation(
         self,
-        permutation: List[StrategyConfig],
+        permutation: list[StrategyConfig],
         config: ConcurrencyConfig,
-    ) -> Tuple[float, Dict[str, Any]]:
+    ) -> tuple[float, dict[str, Any]]:
         """Evaluate a single permutation."""
         try:
             # Process strategies
@@ -477,7 +476,7 @@ class PermutationOptimizationService:
             return efficiency, results
 
         except Exception as e:
-            self.log(f"Error evaluating permutation: {str(e)}", "warning")
+            self.log(f"Error evaluating permutation: {e!s}", "warning")
             return 0.0, {}
 
     def _check_convergence(self, efficiency: float) -> bool:
@@ -506,7 +505,7 @@ class PermutationOptimizationService:
 
     def _calculate_baseline_efficiency(
         self,
-        strategies: List[StrategyConfig],
+        strategies: list[StrategyConfig],
         config: ConcurrencyConfig,
     ) -> float:
         """Calculate baseline efficiency using all strategies."""
@@ -519,7 +518,7 @@ class PermutationOptimizationService:
     def _build_optimization_config(
         self,
         allocation_mode: str,
-        config_overrides: Optional[Dict[str, Any]] = None,
+        config_overrides: dict[str, Any] | None = None,
     ) -> ConcurrencyConfig:
         """Build configuration for optimization."""
         config = {
@@ -541,11 +540,11 @@ class PermutationOptimizationService:
 
 # Convenience functions
 def find_optimal_strategy_combination(
-    strategies: List[StrategyConfig],
+    strategies: list[StrategyConfig],
     min_strategies: int = 3,
-    max_permutations: Optional[int] = None,
+    max_permutations: int | None = None,
     enable_parallel_processing: bool = False,
-    progress_callback: Optional[Callable[[int, int], None]] = None,
+    progress_callback: Callable[[int, int], None] | None = None,
 ) -> OptimizationResult:
     """Find optimal strategy combination using permutation optimization.
 
@@ -564,11 +563,11 @@ def find_optimal_strategy_combination(
 
 
 def optimize_with_risk_constraints(
-    strategies: List[StrategyConfig],
+    strategies: list[StrategyConfig],
     max_correlation: float = 0.8,
     max_sector_concentration: float = 0.5,
     min_diversification: float = 0.2,
-    progress_callback: Optional[Callable[[int, int], None]] = None,
+    progress_callback: Callable[[int, int], None] | None = None,
 ) -> OptimizationResult:
     """Optimize strategy selection with risk constraints.
 

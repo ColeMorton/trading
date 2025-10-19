@@ -6,14 +6,14 @@ This test ensures that when multiple tickers are provided as a list,
 they are combined into a single date-based portfolios_best file.
 """
 
+from datetime import datetime
 import os
+from pathlib import Path
 import sys
 import unittest
-from datetime import datetime
-from pathlib import Path
-from typing import Dict, List
 
 import polars as pl
+
 
 # Add the app directory to the Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -54,7 +54,7 @@ class TestMultiTickerExport(unittest.TestCase):
                 "Win Rate [%]": 60.0 + i * 5,
                 "Total Trades": 100 + i * 20,
                 "Metric Type": (
-                    f"Most Total Return [%]" if i == 0 else "Most Sharpe Ratio"
+                    "Most Total Return [%]" if i == 0 else "Most Sharpe Ratio"
                 ),
                 "Score": 1.5 + i * 0.2,
                 "Signal Entry": True,

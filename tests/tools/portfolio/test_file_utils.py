@@ -1,8 +1,7 @@
 """Tests for file utility functions."""
 
-import pytest
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from app.tools.portfolio.file_utils import extract_file_metadata, save_aggregation_csv
 
@@ -202,4 +201,3 @@ class TestSaveAggregationCsv:
         save_aggregation_csv(aggregation_results, output_path)
 
         mock_to_csv.assert_called_once()
-

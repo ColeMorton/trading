@@ -5,12 +5,8 @@ This module provides regression testing to ensure that changes to the MA Cross
 system do not break existing functionality or produce unexpected results.
 """
 
-import json
 import os
 import tempfile
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List
 from unittest.mock import Mock, patch
 
 import numpy as np
@@ -71,7 +67,7 @@ class TestMACrossRegression:
         volatility = 0.02
 
         prices = [base_price]
-        for i in range(1, 250):
+        for _i in range(1, 250):
             daily_return = trend + np.random.normal(0, volatility)
             new_price = prices[-1] * (1 + daily_return)
             prices.append(max(new_price, 1000))  # Prevent negative prices
@@ -171,7 +167,7 @@ class TestConfigurationRegression(TestMACrossRegression):
         for key, value in baseline_config.items():
             assert key in processed
             # For simple values, they should be identical
-            if isinstance(value, (str, int, float, bool)):
+            if isinstance(value, str | int | float | bool):
                 assert processed[key] == value
 
     def test_config_backwards_compatibility(self, mock_log):
@@ -253,9 +249,7 @@ class TestWorkflowRegression(TestMACrossRegression):
             patch(
                 "app.tools.portfolio.filtering_service.PortfolioFilterService"
             ) as mock_filter_service,
-            patch(
-                "app.tools.strategy.export_portfolios.export_portfolios"
-            ) as mock_export,
+            patch("app.tools.strategy.export_portfolios.export_portfolios"),
         ):
             # Setup consistent mock responses
             mock_get_data.return_value = baseline_price_data
@@ -320,9 +314,7 @@ class TestWorkflowRegression(TestMACrossRegression):
             patch(
                 "app.tools.portfolio.filtering_service.PortfolioFilterService"
             ) as mock_filter_service,
-            patch(
-                "app.tools.strategy.export_portfolios.export_portfolios"
-            ) as mock_export,
+            patch("app.tools.strategy.export_portfolios.export_portfolios"),
         ):
             # Setup mocks
             mock_get_data.return_value = baseline_price_data
@@ -423,7 +415,7 @@ class TestDataValidationRegression(TestMACrossRegression):
         ].items():
             if field in portfolio_data:
                 actual_value = portfolio_data[field]
-                if isinstance(actual_value, (int, float)):
+                if isinstance(actual_value, int | float):
                     assert (
                         min_val <= actual_value <= max_val
                     ), f"Field '{field}' value {actual_value} out of range [{min_val}, {max_val}]"
@@ -488,12 +480,6 @@ class TestErrorHandlingRegression(TestMACrossRegression):
 
     def test_error_type_consistency(self, mock_log):
         """Test that error types are consistently raised."""
-
-        from app.strategies.ma_cross.exceptions import (
-            MACrossConfigurationError,
-            MACrossDataError,
-            MACrossExecutionError,
-        )
 
         # Test that specific error types are raised for specific conditions
         ticker_processor = TickerProcessor(mock_log)
@@ -586,7 +572,6 @@ class TestPerformanceRegression(TestMACrossRegression):
 
     def test_memory_regression(self, baseline_config, baseline_price_data, mock_log):
         """Test that memory usage doesn't regress."""
-        import os
 
         import psutil
 

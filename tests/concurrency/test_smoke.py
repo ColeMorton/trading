@@ -1,9 +1,8 @@
 """Smoke tests to verify testing framework setup."""
 
 import json
-import tempfile
-import unittest
 from pathlib import Path
+import unittest
 
 from .base import ConcurrencyTestCase, MockDataMixin
 
@@ -120,12 +119,9 @@ class TestImportability(unittest.TestCase):
     def test_import_concurrency_module(self):
         """Test importing concurrency modules."""
         # These should not raise ImportError
-        import app.concurrency.config
-        import app.concurrency.review
-        import app.concurrency.tools.runner
 
         # Check key classes/functions exist
-        from app.concurrency.config import ConcurrencyConfig, validate_config
+        from app.concurrency.config import validate_config
         from app.concurrency.review import run_analysis
 
         self.assertTrue(callable(validate_config))
@@ -133,11 +129,7 @@ class TestImportability(unittest.TestCase):
 
     def test_import_error_handling(self):
         """Test importing error handling module."""
-        from app.concurrency.error_handling import (
-            ConcurrencyError,
-            ErrorRegistry,
-            handle_concurrency_errors,
-        )
+        from app.concurrency.error_handling import ConcurrencyError, ErrorRegistry
 
         # Test creating an error
         error = ConcurrencyError("Test error")

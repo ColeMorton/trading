@@ -1,13 +1,13 @@
 """Position-based metrics calculation for concurrency analysis."""
 
-from typing import Callable, Dict, List, Tuple
+from collections.abc import Callable
 
 import numpy as np
 
 
 def calculate_position_metrics(
-    position_arrays: List[np.ndarray], log: Callable[[str, str], None]
-) -> Tuple[Dict[str, float], float, int, int, int, int, float, List[Dict[str, float]]]:
+    position_arrays: list[np.ndarray], log: Callable[[str, str], None]
+) -> tuple[dict[str, float], float, int, int, int, int, float, list[dict[str, float]]]:
     """Calculate metrics from position arrays.
 
     Args:
@@ -67,7 +67,7 @@ def calculate_position_metrics(
 
         # Calculate correlations
         log("Calculating strategy correlations", "info")
-        correlations: Dict[str, float] = {}
+        correlations: dict[str, float] = {}
         correlation_sum = 0.0
         correlation_count = 0
 
@@ -186,5 +186,5 @@ def calculate_position_metrics(
         )
 
     except Exception as e:
-        log(f"Error calculating position metrics: {str(e)}", "error")
+        log(f"Error calculating position metrics: {e!s}", "error")
         raise

@@ -29,10 +29,10 @@ This ensures the batch system maintains state correctly across:
 - Error conditions and recovery
 """
 
-import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
-from unittest.mock import Mock, patch
+import tempfile
+from unittest.mock import Mock
 
 import pandas as pd
 import pytest
@@ -44,7 +44,6 @@ from app.cli.models.strategy import (
     SyntheticTickerConfig,
 )
 from app.cli.services.batch_processing_service import BatchProcessingService
-from app.cli.services.strategy_dispatcher import StrategyDispatcher
 from app.tools.console_logging import ConsoleLogger
 
 
@@ -180,7 +179,7 @@ class TestEndToEndBatchWorkflows:
         )
 
         # Day 1: Process first batch
-        today = datetime.now().strftime("%Y-%m-%d")
+        datetime.now().strftime("%Y-%m-%d")
         day1_batch = ["TICKER000", "TICKER001", "TICKER002"]
 
         for ticker in day1_batch:
@@ -358,7 +357,7 @@ class TestEndToEndBatchWorkflows:
 
         # Scenario 2: Partial batch processing with some failures
         successful_tickers = result[:3]
-        failed_tickers = result[3:]
+        result[3:]
 
         # Update successful tickers
         for ticker in successful_tickers:
@@ -406,7 +405,7 @@ class TestEndToEndBatchWorkflows:
             assert len(processed) == 0
 
             # Should handle update gracefully (may fail, but shouldn't crash)
-            success = batch_service.update_ticker_status("AAPL")
+            batch_service.update_ticker_status("AAPL")
             # Success depends on implementation - may fail due to corruption
 
         finally:
@@ -434,7 +433,7 @@ class TestEndToEndBatchWorkflows:
                 return True
 
             # Process multiple batches
-            for batch_num in range(10):  # Process 10 batches
+            for _batch_num in range(10):  # Process 10 batches
                 # Get current batch
                 remaining_tickers = [
                     t

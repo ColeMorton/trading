@@ -2,10 +2,10 @@
 Quick test script to verify MACD multi-ticker functionality.
 """
 
-import os
-import sys
 from datetime import datetime
 from pathlib import Path
+import sys
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
@@ -141,7 +141,7 @@ def test_multi_ticker_execution():
                                 break
 
                         if not found:
-                            print(f"⚠ Portfolio file not found at expected locations")
+                            print("⚠ Portfolio file not found at expected locations")
 
                     except Exception as e:
                         print(f"✗ Export failed: {e}")

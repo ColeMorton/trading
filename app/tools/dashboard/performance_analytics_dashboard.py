@@ -5,23 +5,17 @@ Statistical performance tracking and analytics with multi-timeframe
 analysis, exit efficiency monitoring, and portfolio optimization insights.
 """
 
-import asyncio
-import json
-import logging
 from collections import defaultdict
-from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta
+from dataclasses import dataclass
+from datetime import datetime
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
 from ..config.statistical_analysis_config import SPDSConfig
-from ..models.statistical_analysis_models import (
-    DivergenceAnalysisResult,
-    StatisticalAnalysisResult,
-)
 from ..services.statistical_analysis_service import StatisticalAnalysisService
 
 
@@ -51,8 +45,8 @@ class ExitEfficiencyAnalysis:
     improvement: float
     target_efficiency: float
     progress_to_target: float
-    efficiency_by_strategy: Dict[str, float]
-    efficiency_by_timeframe: Dict[str, float]
+    efficiency_by_strategy: dict[str, float]
+    efficiency_by_timeframe: dict[str, float]
     efficiency_trend: str
 
 
@@ -63,12 +57,12 @@ class StatisticalDashboardData:
     timestamp: datetime
     performance_metrics: PerformanceMetrics
     exit_efficiency: ExitEfficiencyAnalysis
-    statistical_signals: Dict[str, int]
-    top_performers: List[Dict[str, Any]]
-    bottom_performers: List[Dict[str, Any]]
-    risk_alerts: List[Dict[str, Any]]
+    statistical_signals: dict[str, int]
+    top_performers: list[dict[str, Any]]
+    bottom_performers: list[dict[str, Any]]
+    risk_alerts: list[dict[str, Any]]
     portfolio_health_score: float
-    recommendations: List[str]
+    recommendations: list[str]
 
 
 class PerformanceAnalyticsDashboard:
@@ -87,7 +81,7 @@ class PerformanceAnalyticsDashboard:
         self,
         config: SPDSConfig,
         statistical_service: StatisticalAnalysisService,
-        logger: Optional[logging.Logger] = None,
+        logger: logging.Logger | None = None,
     ):
         """
         Initialize the Performance Analytics Dashboard
@@ -107,12 +101,12 @@ class PerformanceAnalyticsDashboard:
         self.baseline_portfolio_health = 68
 
         # Analytics tracking
-        self.performance_history: List[PerformanceMetrics] = []
-        self.efficiency_history: List[ExitEfficiencyAnalysis] = []
+        self.performance_history: list[PerformanceMetrics] = []
+        self.efficiency_history: list[ExitEfficiencyAnalysis] = []
 
         # Analytics cache
         self.cache_ttl = 300  # 5 minutes
-        self.analytics_cache: Dict[str, Tuple[datetime, Any]] = {}
+        self.analytics_cache: dict[str, tuple[datetime, Any]] = {}
 
         self.logger.info("PerformanceAnalyticsDashboard initialized")
 
@@ -217,7 +211,7 @@ class PerformanceAnalyticsDashboard:
             self.logger.error(f"Exit efficiency analysis failed: {e}")
             raise
 
-    async def get_performance_attribution(self) -> Dict[str, Any]:
+    async def get_performance_attribution(self) -> dict[str, Any]:
         """
         Analyze performance attribution across strategies and assets
 
@@ -226,7 +220,7 @@ class PerformanceAnalyticsDashboard:
         """
         try:
             # Load all position data
-            positions = await self._load_all_positions()
+            await self._load_all_positions()
             completed_trades = await self._load_completed_trades()
 
             # Strategy attribution
@@ -242,9 +236,11 @@ class PerformanceAnalyticsDashboard:
                     "total_return": sum(returns),
                     "average_return": np.mean(returns),
                     "trade_count": len(returns),
-                    "win_rate": sum(1 for r in returns if r > 0) / len(returns)
-                    if returns
-                    else 0,
+                    "win_rate": (
+                        sum(1 for r in returns if r > 0) / len(returns)
+                        if returns
+                        else 0
+                    ),
                     "sharpe_ratio": self._calculate_sharpe_ratio(returns),
                 }
 
@@ -300,7 +296,7 @@ class PerformanceAnalyticsDashboard:
             self.logger.error(f"Performance attribution analysis failed: {e}")
             return {}
 
-    async def get_statistical_signal_analysis(self) -> Dict[str, Any]:
+    async def get_statistical_signal_analysis(self) -> dict[str, Any]:
         """
         Analyze statistical signal distribution and performance
 
@@ -376,7 +372,7 @@ class PerformanceAnalyticsDashboard:
             self.logger.error(f"Statistical signal analysis failed: {e}")
             return {}
 
-    async def get_portfolio_health_analysis(self) -> Dict[str, Any]:
+    async def get_portfolio_health_analysis(self) -> dict[str, Any]:
         """
         Analyze portfolio health and risk metrics
 
@@ -427,9 +423,9 @@ class PerformanceAnalyticsDashboard:
             # Diversification component
             if positions:
                 unique_strategies = len(
-                    set(pos.get("strategy_name", "") for pos in positions)
+                    {pos.get("strategy_name", "") for pos in positions}
                 )
-                unique_tickers = len(set(pos.get("ticker", "") for pos in positions))
+                unique_tickers = len({pos.get("ticker", "") for pos in positions})
                 diversification_score = min(
                     100, (unique_strategies * 20) + (unique_tickers * 10)
                 )
@@ -533,7 +529,7 @@ class PerformanceAnalyticsDashboard:
         )
 
     async def _calculate_performance_metrics(
-        self, positions: List[Dict[str, Any]], completed_trades: List[Dict[str, Any]]
+        self, positions: list[dict[str, Any]], completed_trades: list[dict[str, Any]]
     ) -> PerformanceMetrics:
         """Calculate portfolio performance metrics"""
 
@@ -598,7 +594,7 @@ class PerformanceAnalyticsDashboard:
             average_holding_days=average_holding_days,
         )
 
-    def _calculate_sharpe_ratio(self, returns: List[float]) -> float:
+    def _calculate_sharpe_ratio(self, returns: list[float]) -> float:
         """Calculate Sharpe ratio"""
         if not returns or len(returns) < 2:
             return 0.0
@@ -609,8 +605,8 @@ class PerformanceAnalyticsDashboard:
         return avg_return / std_return if std_return > 0 else 0.0
 
     async def _calculate_efficiency_by_strategy(
-        self, completed_trades: List[Dict[str, Any]]
-    ) -> Dict[str, float]:
+        self, completed_trades: list[dict[str, Any]]
+    ) -> dict[str, float]:
         """Calculate exit efficiency by strategy"""
         strategy_efficiencies = defaultdict(list)
 
@@ -626,8 +622,8 @@ class PerformanceAnalyticsDashboard:
         }
 
     async def _calculate_efficiency_by_timeframe(
-        self, completed_trades: List[Dict[str, Any]]
-    ) -> Dict[str, float]:
+        self, completed_trades: list[dict[str, Any]]
+    ) -> dict[str, float]:
         """Calculate exit efficiency by timeframe"""
         timeframe_efficiencies = defaultdict(list)
 
@@ -643,7 +639,7 @@ class PerformanceAnalyticsDashboard:
         }
 
     async def _calculate_efficiency_trend(
-        self, completed_trades: List[Dict[str, Any]]
+        self, completed_trades: list[dict[str, Any]]
     ) -> str:
         """Calculate efficiency trend"""
         if len(completed_trades) < 10:
@@ -675,14 +671,13 @@ class PerformanceAnalyticsDashboard:
 
         if recent_efficiency > earlier_efficiency * 1.05:
             return "improving"
-        elif recent_efficiency < earlier_efficiency * 0.95:
+        if recent_efficiency < earlier_efficiency * 0.95:
             return "declining"
-        else:
-            return "stable"
+        return "stable"
 
     async def _identify_top_performers(
-        self, completed_trades: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, completed_trades: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Identify top performing trades"""
         if not completed_trades:
             return []
@@ -705,8 +700,8 @@ class PerformanceAnalyticsDashboard:
         ]
 
     async def _identify_bottom_performers(
-        self, completed_trades: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, completed_trades: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Identify bottom performing trades"""
         if not completed_trades:
             return []
@@ -727,8 +722,8 @@ class PerformanceAnalyticsDashboard:
         ]
 
     async def _generate_risk_alerts(
-        self, positions: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, positions: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Generate risk alerts for current positions"""
         alerts = []
 
@@ -763,8 +758,8 @@ class PerformanceAnalyticsDashboard:
         return alerts
 
     def _generate_health_recommendations(
-        self, health_components: Dict[str, float], portfolio_health_score: float
-    ) -> List[str]:
+        self, health_components: dict[str, float], portfolio_health_score: float
+    ) -> list[str]:
         """Generate health-based recommendations"""
         recommendations = []
 
@@ -799,8 +794,8 @@ class PerformanceAnalyticsDashboard:
         self,
         performance_metrics: PerformanceMetrics,
         exit_efficiency: ExitEfficiencyAnalysis,
-        health_analysis: Dict[str, Any],
-    ) -> List[str]:
+        health_analysis: dict[str, Any],
+    ) -> list[str]:
         """Generate dashboard recommendations"""
         recommendations = []
 
@@ -827,12 +822,12 @@ class PerformanceAnalyticsDashboard:
 
         return recommendations[:10]  # Limit to top 10 recommendations
 
-    async def _load_all_positions(self) -> List[Dict[str, Any]]:
+    async def _load_all_positions(self) -> list[dict[str, Any]]:
         """Load all current positions"""
         # Simplified implementation - would load from actual position tracking
         return []
 
-    async def _load_completed_trades(self) -> List[Dict[str, Any]]:
+    async def _load_completed_trades(self) -> list[dict[str, Any]]:
         """Load completed trades from trade history"""
         completed_trades = []
 

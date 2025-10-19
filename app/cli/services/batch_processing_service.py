@@ -8,10 +8,8 @@ with progress tracking and duplicate prevention.
 import csv
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Set
 
 import pandas as pd
-from rich import print as rprint
 
 from app.tools.console_logging import ConsoleLogger
 
@@ -27,7 +25,7 @@ class BatchProcessingService:
     def __init__(
         self,
         batch_file_path: str = "data/raw/batch.csv",
-        console: Optional[ConsoleLogger] = None,
+        console: ConsoleLogger | None = None,
     ):
         """
         Initialize batch processing service.
@@ -161,7 +159,7 @@ class BatchProcessingService:
             self.console.error(f"Error cleaning old entries: {e}")
             return 0
 
-    def get_processed_tickers_today(self) -> Set[str]:
+    def get_processed_tickers_today(self) -> set[str]:
         """
         Get the set of tickers that have been processed today.
 
@@ -186,7 +184,7 @@ class BatchProcessingService:
             self.console.error(f"Error getting processed tickers: {e}")
             return set()
 
-    def get_pending_tickers(self, all_tickers: List[str], batch_size: int) -> List[str]:
+    def get_pending_tickers(self, all_tickers: list[str], batch_size: int) -> list[str]:
         """
         Get up to batch_size tickers that haven't been processed today.
 
@@ -227,8 +225,8 @@ class BatchProcessingService:
             return []
 
     def get_tickers_needing_processing(
-        self, all_tickers: List[str], batch_size: int, resume_check_fn: callable
-    ) -> List[str]:
+        self, all_tickers: list[str], batch_size: int, resume_check_fn: callable
+    ) -> list[str]:
         """
         Get exactly batch_size tickers that need processing, considering both batch file
         status and resume analysis (existing files, freshness, etc.).
@@ -329,7 +327,7 @@ class BatchProcessingService:
             self.console.error(f"Error updating ticker status for {ticker}: {e}")
             return False
 
-    def get_batch_status(self, all_tickers: List[str]) -> dict:
+    def get_batch_status(self, all_tickers: list[str]) -> dict:
         """
         Get comprehensive batch processing status.
 
@@ -353,9 +351,9 @@ class BatchProcessingService:
                 "pending": len(pending_tickers),
                 "processed_list": list(processed_today),
                 "pending_list": pending_tickers,
-                "completion_rate": len(processed_today) / len(all_tickers)
-                if all_tickers
-                else 0,
+                "completion_rate": (
+                    len(processed_today) / len(all_tickers) if all_tickers else 0
+                ),
             }
 
         except Exception as e:
@@ -369,7 +367,7 @@ class BatchProcessingService:
                 "completion_rate": 0.0,
             }
 
-    def display_batch_status(self, all_tickers: List[str]) -> None:
+    def display_batch_status(self, all_tickers: list[str]) -> None:
         """
         Display batch processing status to console.
 
@@ -392,7 +390,7 @@ class BatchProcessingService:
                 processed_preview += f" (and {len(status['processed_list']) - 5} more)"
             self.console.success(f"Processed: {processed_preview}")
 
-    def get_batch_tickers(self) -> List[str]:
+    def get_batch_tickers(self) -> list[str]:
         """
         Get all tickers from the batch file.
 

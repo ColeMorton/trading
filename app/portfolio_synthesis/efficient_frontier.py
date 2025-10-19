@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import yfinance as yf
 from scipy.optimize import minimize
+import yfinance as yf
+
 
 # Set date range and assets
 # start_date = '2020-06-02'
@@ -72,15 +73,14 @@ class OptimizationConfig:
         if total_memory_gb >= 16:
             # High-memory system: use up to 8GB
             return 8000
-        elif total_memory_gb >= 8:
+        if total_memory_gb >= 8:
             # Medium-memory system: use up to 4GB
             return 4000
-        elif total_memory_gb >= 4:
+        if total_memory_gb >= 4:
             # Low-memory system: use up to 2GB
             return 2000
-        else:
-            # Very low-memory system: use up to 1GB
-            return 1000
+        # Very low-memory system: use up to 1GB
+        return 1000
 
     def get_performance_settings(self):
         """Get performance settings optimized for accuracy."""

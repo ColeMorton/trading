@@ -4,9 +4,7 @@ Unit tests for CVaR Calculator
 Tests Excel B12/E11 formula accuracy against known values.
 """
 
-import json
-from pathlib import Path
-from unittest.mock import Mock, mock_open, patch
+from unittest.mock import mock_open, patch
 
 import pytest
 
@@ -112,8 +110,7 @@ class TestCVaRCalculator:
         def mock_load_json(file_path):
             if "trades.json" in str(file_path):
                 return self.mock_trades_data
-            else:
-                return self.mock_portfolio_data
+            return self.mock_portfolio_data
 
         with patch.object(
             self.calculator, "_load_json_file", side_effect=mock_load_json
@@ -153,8 +150,7 @@ class TestCVaRCalculator:
         def side_effect(*args, **kwargs):
             if "trades.json" in str(args[0]):
                 return self.mock_trades_data
-            else:
-                return self.mock_portfolio_data
+            return self.mock_portfolio_data
 
         mock_json_load.side_effect = side_effect
 

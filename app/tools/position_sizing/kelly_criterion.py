@@ -4,12 +4,11 @@ Kelly Criterion Calculator for Position Sizing
 This module implements Excel B17-B21 Kelly calculations using manual trading journal inputs.
 """
 
-import json
-import math
 from dataclasses import dataclass
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 
 @dataclass
@@ -38,7 +37,7 @@ class KellyMetrics:
 class KellyCriterionSizer:
     """Implements Excel B17-B21 Kelly calculations using manual trading journal inputs."""
 
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(self, base_dir: str | None = None):
         """Initialize Kelly Criterion calculator.
 
         Args:
@@ -258,7 +257,7 @@ class KellyCriterionSizer:
 
     def validate_kelly_inputs(
         self, num_primary: int, num_outliers: int, kelly_criterion: float
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Validate Kelly criterion inputs.
 
         Args:
@@ -299,14 +298,13 @@ class KellyCriterionSizer:
 
         if errors:
             return False, "; ".join(errors)
-        elif warnings:
+        if warnings:
             return True, f"Valid with warnings: {'; '.join(warnings)}"
-        else:
-            return True, "All inputs valid"
+        return True, "All inputs valid"
 
     def get_kelly_statistics_summary(
         self, num_primary: int, num_outliers: int, kelly_criterion: float
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get summary statistics for Kelly analysis.
 
         Args:
@@ -335,9 +333,9 @@ class KellyCriterionSizer:
                 "raw_kelly_criterion": kelly_criterion,
                 "confidence_ratio": confidence_metrics.confidence_ratio,
                 "adjusted_kelly_multiplier": position_multiplier,
-                "risk_reduction_factor": position_multiplier / kelly_criterion
-                if kelly_criterion > 0
-                else 0,
+                "risk_reduction_factor": (
+                    position_multiplier / kelly_criterion if kelly_criterion > 0 else 0
+                ),
             },
             "excel_references": {
                 "B17_primary_trades": num_primary,
@@ -381,7 +379,7 @@ class KellyCriterionSizer:
             return
 
         try:
-            with open(self.kelly_file, "r") as f:
+            with open(self.kelly_file) as f:
                 data = json.load(f)
                 self._num_primary = data.get("num_primary", 10)
                 self._num_outliers = data.get("num_outliers", 2)
@@ -404,7 +402,7 @@ class KellyCriterionSizer:
         with open(self.kelly_file, "w") as f:
             json.dump(data, f, indent=2)
 
-    def get_current_parameters(self) -> Dict[str, Any]:
+    def get_current_parameters(self) -> dict[str, Any]:
         """Get current Kelly criterion parameters.
 
         Returns:

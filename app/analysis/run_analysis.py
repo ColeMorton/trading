@@ -13,8 +13,9 @@ Usage:
 """
 
 import argparse
-import sys
 from pathlib import Path
+import sys
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -163,7 +164,7 @@ def create_charts(analyzer: QuantitativeAnalyzer) -> bool:
         print("Matplotlib/Seaborn not available. Skipping chart creation.")
         return False
     except Exception as e:
-        print(f"Error creating charts: {str(e)}")
+        print(f"Error creating charts: {e!s}")
         return False
 
 
@@ -252,7 +253,7 @@ def run_comprehensive_analysis(args):
             return True
 
         except Exception as e:
-            log(f"Error in quantitative analysis: {str(e)}", "error")
+            log(f"Error in quantitative analysis: {e!s}", "error")
             return False
 
 
@@ -277,9 +278,8 @@ def main():
         if args.export_charts:
             print("- Correlation matrices and performance charts (PNG)")
         return 0
-    else:
-        print("\n✗ Analysis failed. Check logs for details.")
-        return 1
+    print("\n✗ Analysis failed. Check logs for details.")
+    return 1
 
 
 if __name__ == "__main__":

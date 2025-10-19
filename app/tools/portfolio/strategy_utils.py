@@ -5,7 +5,8 @@ This module provides centralized utilities for handling strategy types
 and ensuring consistency across the application.
 """
 
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
+from typing import Any
 
 from app.tools.portfolio.strategy_types import (
     DEFAULT_STRATEGY_TYPE,
@@ -16,7 +17,7 @@ from app.tools.portfolio.strategy_types import (
 
 
 def determine_strategy_type(
-    row: Dict[str, Any], log: Optional[Callable[[str, str], None]] = None
+    row: dict[str, Any], log: Callable[[str, str], None] | None = None
 ) -> StrategyTypeLiteral:
     """
     Determine strategy type from row data with consistent priority.
@@ -46,7 +47,7 @@ def determine_strategy_type(
     ]
 
     for field in field_priority:
-        if field in row and row[field]:
+        if row.get(field):
             strategy_type = row[field]
             # Validate strategy type
             if strategy_type in VALID_STRATEGY_TYPES:
@@ -56,13 +57,12 @@ def determine_strategy_type(
                         "info",
                     )
                 return strategy_type  # type: ignore
-            else:
-                if log:
-                    log(
-                        f"Invalid strategy type '{strategy_type}' from field '{field}' for {ticker}, defaulting to {DEFAULT_STRATEGY_TYPE}",
-                        "warning",
-                    )
-                return "SMA"  # DEFAULT_STRATEGY_TYPE
+            if log:
+                log(
+                    f"Invalid strategy type '{strategy_type}' from field '{field}' for {ticker}, defaulting to {DEFAULT_STRATEGY_TYPE}",
+                    "warning",
+                )
+            return "SMA"  # DEFAULT_STRATEGY_TYPE
 
     # Check if this might be a MACD strategy based on presence of SIGNAL_PERIOD
     if "SIGNAL_PERIOD" in row and row["SIGNAL_PERIOD"] is not None:
@@ -83,7 +83,7 @@ def determine_strategy_type(
     return DEFAULT_STRATEGY_TYPE
 
 
-def create_strategy_type_fields(strategy_type: StrategyTypeLiteral) -> Dict[str, Any]:
+def create_strategy_type_fields(strategy_type: StrategyTypeLiteral) -> dict[str, Any]:
     """
     Create a dictionary with all strategy type field representations.
 
@@ -101,7 +101,7 @@ def create_strategy_type_fields(strategy_type: StrategyTypeLiteral) -> Dict[str,
 
 
 def get_strategy_type_for_export(
-    df: Dict[str, Any], log: Optional[Callable[[str, str], None]] = None
+    df: dict[str, Any], log: Callable[[str, str], None] | None = None
 ) -> StrategyTypeLiteral:
     """
     Get the strategy type for export, handling all possible field names.

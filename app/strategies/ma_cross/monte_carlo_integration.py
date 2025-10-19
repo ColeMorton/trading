@@ -16,16 +16,15 @@ Migration Guide:
 See: /architect/monte_carlo_refactoring_plan.md
 """
 
-import json
 import os
+from typing import Any
 import warnings
-from typing import Any, Dict, List, Optional, Tuple
 
 import polars as pl
 
 # Import new concurrency-based Monte Carlo framework
-from app.concurrency.tools.monte_carlo import MonteCarloConfig as NewMonteCarloConfig
 from app.concurrency.tools.monte_carlo import (
+    MonteCarloConfig as NewMonteCarloConfig,
     PortfolioMonteCarloManager,
     create_monte_carlo_config,
 )
@@ -35,12 +34,11 @@ from app.strategies.ma_cross.tools.parameter_sensitivity import (
 )
 from app.tools.setup_logging import setup_logging
 
+
 # Import legacy classes for compatibility (if needed)
 try:
     from app.strategies.monte_carlo.parameter_robustness import (
         MonteCarloConfig as LegacyMonteCarloConfig,
-    )
-    from app.strategies.monte_carlo.parameter_robustness import (
         run_parameter_robustness_analysis,
     )
 except ImportError:
@@ -63,7 +61,7 @@ class MonteCarloEnhancedAnalyzer:
     def __init__(
         self,
         parameter_config: ParameterTestingConfig,
-        mc_config: Optional[Any] = None,
+        mc_config: Any | None = None,
         robustness_threshold: float = 0.7,
     ):
         """
@@ -136,7 +134,7 @@ class MonteCarloEnhancedAnalyzer:
         else:
             print(f"[{level.upper()}] {message}")
 
-    def run_enhanced_analysis(self) -> Dict[str, Any]:
+    def run_enhanced_analysis(self) -> dict[str, Any]:
         """
         Run enhanced parameter analysis with Monte Carlo robustness testing.
 
@@ -182,7 +180,7 @@ class MonteCarloEnhancedAnalyzer:
             if log_close:
                 log_close()
 
-    def _convert_parameter_config_to_strategies(self) -> List[Dict[str, Any]]:
+    def _convert_parameter_config_to_strategies(self) -> list[dict[str, Any]]:
         """Convert parameter config to strategy format for new framework."""
         strategies = []
 
@@ -211,8 +209,8 @@ class MonteCarloEnhancedAnalyzer:
         return strategies[: self.mc_config.max_parameters_to_test]  # Respect limits
 
     def _convert_results_to_legacy_format(
-        self, monte_carlo_results: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, monte_carlo_results: dict[str, Any]
+    ) -> dict[str, Any]:
         """Convert new Monte Carlo results to legacy format."""
         legacy_results = {
             "standard_results": [],
@@ -276,7 +274,7 @@ class MonteCarloEnhancedAnalyzer:
 
         return legacy_results
 
-    def _run_standard_analysis(self) -> List[Dict[str, Any]]:
+    def _run_standard_analysis(self) -> list[dict[str, Any]]:
         """Run standard parameter sensitivity analysis."""
         config_dict = self.parameter_config.to_dict()
 
@@ -315,14 +313,14 @@ class MonteCarloEnhancedAnalyzer:
                     all_results.extend(ticker_results)
 
             except Exception as e:
-                self.log(f"Standard analysis failed for {ticker}: {str(e)}", "error")
+                self.log(f"Standard analysis failed for {ticker}: {e!s}", "error")
                 continue
 
         return all_results
 
     def _filter_promising_parameters(
-        self, standard_results: List[Dict[str, Any]], top_percentage: float = 0.3
-    ) -> List[Tuple[str, int, int]]:
+        self, standard_results: list[dict[str, Any]], top_percentage: float = 0.3
+    ) -> list[tuple[str, int, int]]:
         """
         Filter promising parameter combinations for robustness testing.
 
@@ -337,7 +335,7 @@ class MonteCarloEnhancedAnalyzer:
             return []
 
         # Sort by a composite score (e.g., Sharpe ratio, return, etc.)
-        def calculate_composite_score(result: Dict[str, Any]) -> float:
+        def calculate_composite_score(result: dict[str, Any]) -> float:
             sharpe = result.get("Sharpe Ratio", 0)
             total_return = result.get("Total Return [%]", 0)
             win_rate = result.get("Win Rate [%]", 0)
@@ -380,8 +378,8 @@ class MonteCarloEnhancedAnalyzer:
         return promising_params
 
     def _run_robustness_analysis(
-        self, promising_params: List[Tuple[str, int, int]]
-    ) -> Dict[str, List]:
+        self, promising_params: list[tuple[str, int, int]]
+    ) -> dict[str, list]:
         """
         Run Monte Carlo robustness analysis on promising parameters.
 
@@ -422,9 +420,11 @@ class MonteCarloEnhancedAnalyzer:
                 "USE_HOURLY": self.parameter_config.use_hourly,
                 "USE_YEARS": self.parameter_config.use_years,
                 "YEARS": self.parameter_config.years,
-                "STRATEGY_TYPE": self.parameter_config.strategy_types[0]
-                if self.parameter_config.strategy_types
-                else "SMA",
+                "STRATEGY_TYPE": (
+                    self.parameter_config.strategy_types[0]
+                    if self.parameter_config.strategy_types
+                    else "SMA"
+                ),
             }
 
             try:
@@ -438,16 +438,16 @@ class MonteCarloEnhancedAnalyzer:
                 all_robustness_results.update(ticker_results)
 
             except Exception as e:
-                self.log(f"Robustness analysis failed for {ticker}: {str(e)}", "error")
+                self.log(f"Robustness analysis failed for {ticker}: {e!s}", "error")
                 continue
 
         return all_robustness_results
 
     def _generate_recommendations(
         self,
-        standard_results: List[Dict[str, Any]],
-        robustness_results: Dict[str, List],
-    ) -> List[Dict[str, Any]]:
+        standard_results: list[dict[str, Any]],
+        robustness_results: dict[str, list],
+    ) -> list[dict[str, Any]]:
         """
         Generate parameter recommendations based on both analyses.
 
@@ -532,7 +532,7 @@ class MonteCarloEnhancedAnalyzer:
         return recommendations
 
     def _calculate_recommendation_score(
-        self, standard_result: Dict[str, Any], robustness_result
+        self, standard_result: dict[str, Any], robustness_result
     ) -> float:
         """
         Calculate composite recommendation score consistent with existing strategy scoring.
@@ -616,9 +616,9 @@ class MonteCarloEnhancedAnalyzer:
 
     def _create_analysis_summary(
         self,
-        standard_results: List[Dict[str, Any]],
-        robustness_results: Dict[str, List],
-    ) -> Dict[str, Any]:
+        standard_results: list[dict[str, Any]],
+        robustness_results: dict[str, list],
+    ) -> dict[str, Any]:
         """Create summary of the analysis."""
         total_combinations = len(standard_results)
         tested_combinations = sum(
@@ -635,9 +635,11 @@ class MonteCarloEnhancedAnalyzer:
             "total_parameter_combinations": total_combinations,
             "tested_combinations": tested_combinations,
             "stable_combinations": stable_combinations,
-            "stability_rate": stable_combinations / tested_combinations
-            if tested_combinations > 0
-            else 0,
+            "stability_rate": (
+                stable_combinations / tested_combinations
+                if tested_combinations > 0
+                else 0
+            ),
             "tickers_analyzed": len(self.parameter_config.tickers),
             "monte_carlo_simulations": self.mc_config.num_simulations,
             "confidence_level": self.mc_config.confidence_level,
@@ -645,9 +647,9 @@ class MonteCarloEnhancedAnalyzer:
 
     def _export_enhanced_results(
         self,
-        standard_results: List[Dict[str, Any]],
-        robustness_results: Dict[str, List],
-        recommendations: List[Dict[str, Any]],
+        standard_results: list[dict[str, Any]],
+        robustness_results: dict[str, list],
+        recommendations: list[dict[str, Any]],
     ) -> None:
         """Export comprehensive analysis results."""
         output_dir = "data/outputs/ma_cross/monte_carlo_enhanced"
@@ -709,12 +711,12 @@ class MonteCarloEnhancedAnalyzer:
 
 
 def run_monte_carlo_enhanced_ma_cross(
-    tickers: List[str],
+    tickers: list[str],
     windows: int = 50,
-    strategy_types: List[str] = ["SMA", "EMA"],
+    strategy_types: list[str] | None = None,
     mc_simulations: int = 1000,
     direction: str = "Long",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Convenience function to run Monte Carlo enhanced MA Cross analysis.
 
@@ -729,6 +731,8 @@ def run_monte_carlo_enhanced_ma_cross(
         Complete analysis results
     """
     # Create configurations
+    if strategy_types is None:
+        strategy_types = ["SMA", "EMA"]
     param_config = ParameterTestingConfig(
         tickers=tickers,
         windows=windows,

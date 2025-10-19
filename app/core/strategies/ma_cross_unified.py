@@ -16,22 +16,20 @@ Key Features:
 
 import asyncio
 import time
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
-import numpy as np
 import pandas as pd
 import polars as pl
 import vectorbt as vbt
 
 from app.core.parameter_testing_engine import ParameterTestingEngine
-from app.core.risk_management_layer import PositionSizingMethod, RiskManagementLayer
+from app.core.risk_management_layer import RiskManagementLayer
 from app.core.strategy_framework import (
     AbstractStrategy,
     StrategyFactory,
     UnifiedStrategyConfig,
     UnifiedStrategyResult,
 )
-from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.get_data import get_data
 
 
@@ -55,12 +53,12 @@ class MACrossUnifiedStrategy(AbstractStrategy):
         return "MA_CROSS"
 
     @property
-    def required_parameters(self) -> List[str]:
+    def required_parameters(self) -> list[str]:
         """Return list of required parameters for this strategy."""
         return ["fast_period", "slow_period", "ma_type"]
 
     @property
-    def default_parameters(self) -> Dict[str, Any]:
+    def default_parameters(self) -> dict[str, Any]:
         """Return default parameters for this strategy."""
         return {
             "fast_period": 20,
@@ -99,7 +97,7 @@ class MACrossUnifiedStrategy(AbstractStrategy):
         self,
         ticker: str,
         config: UnifiedStrategyConfig,
-        data: Optional[Union[pd.DataFrame, pl.DataFrame]] = None,
+        data: pd.DataFrame | pl.DataFrame | None = None,
     ) -> UnifiedStrategyResult:
         """Execute strategy for a single ticker with specific parameters."""
         start_time = time.time()
@@ -141,14 +139,14 @@ class MACrossUnifiedStrategy(AbstractStrategy):
             return result
 
         except Exception as e:
-            self._log_error(f"Error executing MA Cross for {ticker}: {str(e)}")
+            self._log_error(f"Error executing MA Cross for {ticker}: {e!s}")
             raise
 
     async def execute_optimization(
         self,
         ticker: str,
         config: UnifiedStrategyConfig,
-        parameter_ranges: Dict[str, List[Any]],
+        parameter_ranges: dict[str, list[Any]],
     ) -> UnifiedStrategyResult:
         """Execute parameter optimization for a single ticker."""
         self._log_info(f"Starting parameter optimization for {ticker}")
@@ -179,7 +177,7 @@ class MACrossUnifiedStrategy(AbstractStrategy):
         return best_result
 
     def _calculate_signals(
-        self, data: pd.DataFrame, parameters: Dict[str, Any]
+        self, data: pd.DataFrame, parameters: dict[str, Any]
     ) -> pd.DataFrame:
         """Calculate moving average signals."""
         fast_period = parameters["fast_period"]
@@ -215,7 +213,7 @@ class MACrossUnifiedStrategy(AbstractStrategy):
         data: pd.DataFrame,
         signals_data: pd.DataFrame,
         config: UnifiedStrategyConfig,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Run vectorbt backtest."""
         try:
             # Prepare signals for vectorbt
@@ -256,7 +254,7 @@ class MACrossUnifiedStrategy(AbstractStrategy):
             }
 
         except Exception as e:
-            self._log_error(f"Backtest error: {str(e)}")
+            self._log_error(f"Backtest error: {e!s}")
             # Return minimal result structure
             return {
                 "portfolio": None,
@@ -271,8 +269,8 @@ class MACrossUnifiedStrategy(AbstractStrategy):
             }
 
     def _extract_performance_metrics(
-        self, backtest_result: Dict[str, Any]
-    ) -> Dict[str, float]:
+        self, backtest_result: dict[str, Any]
+    ) -> dict[str, float]:
         """Extract standardized performance metrics."""
         return {
             "Total Return [%]": backtest_result.get("total_return", 0.0) * 100,
@@ -293,8 +291,8 @@ class MACrossUnifiedStrategy(AbstractStrategy):
         }
 
     def _calculate_risk_metrics(
-        self, backtest_result: Dict[str, Any], config: UnifiedStrategyConfig
-    ) -> Dict[str, float]:
+        self, backtest_result: dict[str, Any], config: UnifiedStrategyConfig
+    ) -> dict[str, float]:
         """Calculate risk metrics using the risk management layer."""
         try:
             portfolio = backtest_result.get("portfolio")
@@ -320,7 +318,7 @@ class MACrossUnifiedStrategy(AbstractStrategy):
             }
 
         except Exception as e:
-            self._log_error(f"Risk metrics calculation error: {str(e)}")
+            self._log_error(f"Risk metrics calculation error: {e!s}")
             return {}
 
     async def _get_market_data(
@@ -341,10 +339,10 @@ class MACrossUnifiedStrategy(AbstractStrategy):
             return data
 
         except Exception as e:
-            self._log_error(f"Error fetching data for {ticker}: {str(e)}")
+            self._log_error(f"Error fetching data for {ticker}: {e!s}")
             raise
 
-    def get_parameter_ranges(self) -> Dict[str, List[Any]]:
+    def get_parameter_ranges(self) -> dict[str, list[Any]]:
         """Get default parameter ranges for optimization."""
         return {
             "fast_period": list(range(5, 51, 5)),  # 5, 10, 15, ..., 50
@@ -353,7 +351,7 @@ class MACrossUnifiedStrategy(AbstractStrategy):
         }
 
     def create_config_for_ticker(
-        self, ticker: str, custom_params: Dict[str, Any] = None
+        self, ticker: str, custom_params: dict[str, Any] | None = None
     ) -> UnifiedStrategyConfig:
         """Create a configuration for a specific ticker."""
         parameters = self.default_parameters.copy()
@@ -408,9 +406,9 @@ async def execute_ma_cross_single(
 
 async def optimize_ma_cross(
     ticker: str,
-    short_range: List[int] = None,
-    long_range: List[int] = None,
-    ma_types: List[str] = None,
+    short_range: list[int] | None = None,
+    long_range: list[int] | None = None,
+    ma_types: list[str] | None = None,
     **kwargs,
 ) -> UnifiedStrategyResult:
     """
@@ -439,11 +437,11 @@ async def optimize_ma_cross(
 
 
 async def execute_ma_cross_portfolio(
-    tickers: List[str],
-    parameters: Dict[str, Any] = None,
-    progress_callback: Optional[callable] = None,
+    tickers: list[str],
+    parameters: dict[str, Any] | None = None,
+    progress_callback: callable | None = None,
     **kwargs,
-) -> List[UnifiedStrategyResult]:
+) -> list[UnifiedStrategyResult]:
     """
     Execute MA Cross strategy for multiple tickers (convenience function).
 

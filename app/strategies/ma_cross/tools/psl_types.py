@@ -2,9 +2,10 @@
 Type definitions for protective stop loss analysis.
 """
 
-from typing import TYPE_CHECKING, List, Optional, Tuple, TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 from typing_extensions import NotRequired
+
 
 if TYPE_CHECKING:
     import numpy as np
@@ -58,5 +59,5 @@ class MetricMatrices(TypedDict):
     win_rate: "np.ndarray"
 
 
-AnalysisResult = Tuple[MetricMatrices, "np.ndarray"]
-HoldingPeriodResult = List[Tuple[int, float, int, float]]
+AnalysisResult = tuple[MetricMatrices, "np.ndarray"]
+HoldingPeriodResult = list[tuple[int, float, int, float]]

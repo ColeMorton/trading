@@ -5,39 +5,19 @@ This module handles the execution of SMA_ATR trading strategies,
 which combine SMA crossovers for entry signals with ATR trailing stops for exits.
 """
 
-import asyncio
-import uuid
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
 from app.strategies.sma_atr.config_types import Config
 from app.tools.backtest_strategy import backtest_strategy
-from app.tools.calculate_atr import calculate_atr, calculate_atr_signals
+from app.tools.calculate_atr import calculate_atr
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.get_data import get_data
-from app.tools.performance_tracker import (
-    get_strategy_performance_tracker,
-    monitor_performance,
-    timing_context,
-)
-from app.tools.portfolio.schema_detection import (
-    SchemaVersion,
-    detect_schema_version,
-    ensure_allocation_sum_100_percent,
-    normalize_portfolio_data,
-)
-from app.tools.portfolio.selection import (
-    get_best_portfolio,
-    get_best_portfolios_per_strategy_type,
-)
 from app.tools.stats_converter import convert_stats
-from app.tools.strategy.export_portfolios import PortfolioExportError, export_portfolios
-from app.tools.strategy.filter_portfolios import filter_portfolios
-from app.tools.strategy.signal_processing import process_ticker_portfolios
 from app.tools.strategy.signal_utils import is_exit_signal_current, is_signal_current
 
+
 if TYPE_CHECKING:
-    from app.tools.progress_tracking import ProgressTracker
+    pass
 
 import numpy as np
 import polars as pl
@@ -182,7 +162,7 @@ def execute_backtest_on_signals(
     signals_data: pl.DataFrame,
     config: dict,
     log: callable,
-) -> Optional[Dict]:
+) -> dict | None:
     """
     Execute backtest using pre-computed SMA_ATR signals (optimization for caching).
 
@@ -240,15 +220,15 @@ def execute_backtest_on_signals(
                     config.get("ATR_MULTIPLIER", 2.0), 1
                 ),  # Round to 1 decimal to avoid floating point errors
                 "Exit Signal Period": None,  # Not used by ATR strategy
-                "Allocation [%]": config.get("ALLOCATION", None),
-                "Stop Loss [%]": config.get("STOP_LOSS", None),
+                "Allocation [%]": config.get("ALLOCATION"),
+                "Stop Loss [%]": config.get("STOP_LOSS"),
             }
         )
 
         return converted_stats
 
     except Exception as e:
-        log(f"Failed to execute backtest on signals: {str(e)}", "error")
+        log(f"Failed to execute backtest on signals: {e!s}", "error")
         return None
 
 
@@ -360,8 +340,7 @@ def generate_sma_atr_positions(
 
                 elif position == 1:  # In long position
                     # Update highest price (vectorized where possible)
-                    if current_price > highest_price:
-                        highest_price = current_price
+                    highest_price = max(current_price, highest_price)
 
                     # Update trailing stop (can only move up)
                     new_stop = highest_price - (current_atr * atr_multiplier)
@@ -400,8 +379,7 @@ def generate_sma_atr_positions(
 
                 elif position == -1:  # In short position
                     # Update lowest price since entry
-                    if current_price < lowest_price:
-                        lowest_price = current_price
+                    lowest_price = min(current_price, lowest_price)
 
                     # Update trailing stop (can only move down)
                     new_stop = lowest_price + (current_atr * atr_multiplier)
@@ -438,7 +416,7 @@ def generate_sma_atr_positions(
 
 def execute_single_strategy(
     ticker: str, data: pl.DataFrame, config: Config, log: callable
-) -> Optional[Dict]:
+) -> dict | None:
     """Execute a single SMA_ATR strategy with specified parameters and pre-fetched data.
 
     Args:
@@ -521,7 +499,7 @@ def execute_single_strategy(
         return converted_stats
 
     except Exception as e:
-        log(f"Failed to execute SMA_ATR strategy: {str(e)}", "error")
+        log(f"Failed to execute SMA_ATR strategy: {e!s}", "error")
         return None
 
 
@@ -530,7 +508,7 @@ def process_single_ticker(
     config: Config,
     log: callable,
     progress_update_fn=None,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Process a single ticker through SMA_ATR parameter sweep.
 
@@ -723,7 +701,7 @@ def process_single_ticker(
 
                         multiplier += atr_multiplier_step
 
-        log(f"Performance optimization applied:", "info")
+        log("Performance optimization applied:", "info")
         log(
             f"  SMA entry signal caching: {len(sma_entry_cache)} unique combinations cached",
             "info",

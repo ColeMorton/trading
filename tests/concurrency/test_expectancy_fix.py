@@ -7,12 +7,8 @@ the 596,446% variance issue and produces consistent, reasonable results.
 
 import os
 
-import numpy as np
-import pytest
-
 from app.concurrency.tools.expectancy_calculator import (
     ExpectancyCalculator,
-    calculate_fixed_expectancy,
     fix_legacy_expectancy,
 )
 

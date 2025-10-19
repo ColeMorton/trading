@@ -8,10 +8,11 @@ consistent results across signal-based and trade-based calculations.
 """
 
 import os
-import sys
 from pathlib import Path
+import sys
 
 import numpy as np
+
 
 # Add parent directory to path
 sys.path.append(str(Path(__file__).parent.parent.parent))

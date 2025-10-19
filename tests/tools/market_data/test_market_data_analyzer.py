@@ -6,8 +6,7 @@ returns calculation, and comprehensive market data analysis.
 """
 
 import logging
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
@@ -103,7 +102,7 @@ class TestMarketDataFetching:
     @patch("app.tools.market_data_analyzer.download_data")
     def test_fetch_data_empty_dataframe(self, mock_download):
         """Test handling of empty dataframe."""
-        empty_df = pl.DataFrame()
+        pl.DataFrame()
         mock_empty = Mock()
         mock_empty.is_empty.return_value = True
         mock_download.return_value = mock_empty
@@ -263,7 +262,7 @@ class TestFullAnalysisWorkflow:
         prices = [base_price]
 
         # Generate realistic price series with trend and volatility
-        for i in range(1, len(dates)):
+        for _i in range(1, len(dates)):
             daily_return = np.random.normal(0.0005, 0.02)  # Slight positive drift
             new_price = prices[-1] * (1 + daily_return)
             prices.append(new_price)

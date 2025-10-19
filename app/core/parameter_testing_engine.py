@@ -15,17 +15,14 @@ Key Features:
 """
 
 import asyncio
-import time
-import uuid
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+from collections.abc import Callable
 from dataclasses import dataclass
 from itertools import product
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+import time
+from typing import Any
 
 import numpy as np
 import pandas as pd
-import polars as pl
-from pydantic import BaseModel, Field
 
 from app.core.strategy_framework import UnifiedStrategyConfig, UnifiedStrategyResult
 
@@ -35,7 +32,7 @@ class ParameterSet:
     """Individual parameter combination for testing."""
 
     id: str
-    parameters: Dict[str, Any]
+    parameters: dict[str, Any]
     priority: float = 1.0  # Higher priority = tested first
 
     def __post_init__(self):
@@ -76,10 +73,7 @@ class OptimizationConstraints:
             return False
 
         # Check minimum profit factor
-        if metrics.get("Profit Factor", 0) < self.min_profit_factor:
-            return False
-
-        return True
+        return not metrics.get("Profit Factor", 0) < self.min_profit_factor
 
 
 class ParameterTestingEngine:
@@ -113,7 +107,7 @@ class ParameterTestingEngine:
         self.enable_early_termination = enable_early_termination
 
         # Internal state
-        self._results_cache: Dict[str, UnifiedStrategyResult] = {}
+        self._results_cache: dict[str, UnifiedStrategyResult] = {}
         self._execution_stats = {
             "total_tests": 0,
             "successful_tests": 0,
@@ -123,8 +117,8 @@ class ParameterTestingEngine:
         }
 
     def generate_parameter_grid(
-        self, parameter_ranges: Dict[str, List[Any]], strategy_type: str = None
-    ) -> List[ParameterSet]:
+        self, parameter_ranges: dict[str, list[Any]], strategy_type: str | None = None
+    ) -> list[ParameterSet]:
         """
         Generate parameter combinations from ranges.
 
@@ -141,7 +135,7 @@ class ParameterTestingEngine:
 
         parameter_sets = []
         for combination in product(*param_values):
-            params = dict(zip(param_names, combination))
+            params = dict(zip(param_names, combination, strict=False))
             param_set = ParameterSet(
                 id="",  # Will be auto-generated
                 parameters=params,
@@ -155,7 +149,7 @@ class ParameterTestingEngine:
         return parameter_sets
 
     def _calculate_priority(
-        self, parameters: Dict[str, Any], strategy_type: str = None
+        self, parameters: dict[str, Any], strategy_type: str | None = None
     ) -> float:
         """
         Calculate priority for parameter set.
@@ -207,10 +201,10 @@ class ParameterTestingEngine:
         strategy_executor: Callable,
         ticker: str,
         base_config: UnifiedStrategyConfig,
-        parameter_ranges: Dict[str, List[Any]],
+        parameter_ranges: dict[str, list[Any]],
         constraints: OptimizationConstraints = None,
-        progress_callback: Optional[Callable] = None,
-    ) -> Dict[str, Any]:
+        progress_callback: Callable | None = None,
+    ) -> dict[str, Any]:
         """
         Optimize parameters for a single ticker.
 
@@ -312,8 +306,8 @@ class ParameterTestingEngine:
         strategy_executor: Callable,
         ticker: str,
         base_config: UnifiedStrategyConfig,
-        parameter_sets: List[ParameterSet],
-    ) -> List[Optional[UnifiedStrategyResult]]:
+        parameter_sets: list[ParameterSet],
+    ) -> list[UnifiedStrategyResult | None]:
         """Execute a batch of parameter sets in parallel."""
 
         # Create tasks for parallel execution
@@ -350,7 +344,7 @@ class ParameterTestingEngine:
         ticker: str,
         config: UnifiedStrategyConfig,
         param_set_id: str,
-    ) -> Optional[UnifiedStrategyResult]:
+    ) -> UnifiedStrategyResult | None:
         """Execute a single parameter set."""
         try:
             # Check cache first
@@ -369,10 +363,10 @@ class ParameterTestingEngine:
 
         except Exception as e:
             # Log error and return None
-            print(f"Error testing {ticker} with params {config.parameters}: {str(e)}")
+            print(f"Error testing {ticker} with params {config.parameters}: {e!s}")
             return None
 
-    def get_execution_stats(self) -> Dict[str, Any]:
+    def get_execution_stats(self) -> dict[str, Any]:
         """Get execution statistics."""
         return self._execution_stats.copy()
 
@@ -381,7 +375,7 @@ class ParameterTestingEngine:
         self._results_cache.clear()
 
     def export_results(
-        self, results: List[Dict[str, Any]], output_path: str, format: str = "csv"
+        self, results: list[dict[str, Any]], output_path: str, format: str = "csv"
     ) -> None:
         """
         Export optimization results to file.
@@ -435,7 +429,7 @@ def create_ma_cross_parameter_ranges(
     long_min: int = 20,
     long_max: int = 200,
     long_step: int = 10,
-) -> Dict[str, List[int]]:
+) -> dict[str, list[int]]:
     """Create parameter ranges for MA Cross strategy optimization."""
     return {
         "fast_period": list(range(short_min, short_max + 1, short_step)),
@@ -450,7 +444,7 @@ def create_macd_parameter_ranges(
     long_max: int = 35,
     signal_min: int = 7,
     signal_max: int = 12,
-) -> Dict[str, List[int]]:
+) -> dict[str, list[int]]:
     """Create parameter ranges for MACD strategy optimization."""
     return {
         "short_period": list(range(short_min, short_max + 1)),
@@ -466,7 +460,7 @@ def create_rsi_parameter_ranges(
     oversold_max: int = 35,
     overbought_min: int = 65,
     overbought_max: int = 80,
-) -> Dict[str, List[int]]:
+) -> dict[str, list[int]]:
     """Create parameter ranges for RSI strategy optimization."""
     return {
         "rsi_window": list(range(window_min, window_max + 1)),

@@ -1,7 +1,7 @@
+from collections.abc import Callable
 import logging
 import os
 import time
-from typing import Callable, Tuple
 
 
 def get_project_root() -> str:
@@ -20,7 +20,7 @@ def setup_logging(
     level: int = logging.INFO,
     mode: str = "w",
     log_subdir: str | None = None,
-) -> Tuple[
+) -> tuple[
     Callable[[str, str], None], Callable[[], None], logging.Logger, logging.FileHandler
 ]:
     """

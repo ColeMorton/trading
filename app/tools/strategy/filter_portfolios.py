@@ -6,15 +6,14 @@ eliminating duplication while maintaining strategy-specific behavior through
 configuration and polymorphism.
 """
 
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import Any
 
 import polars as pl
 
 from app.tools.export_csv import ExportConfig
-from app.tools.portfolio.collection import sort_portfolios
 from app.tools.portfolio.metrics import DURATION_METRICS, NUMERIC_METRICS
 from app.tools.portfolio.schema_detection import (
-    SchemaVersion,
     detect_schema_version,
     ensure_allocation_sum_100_percent,
     normalize_portfolio_data,
@@ -71,7 +70,7 @@ class PortfolioFilterConfig:
             "RANGE": {"sort_by": "Total Return [%]", "sort_asc": False},
         }
 
-    def get_window_parameters(self) -> List[str]:
+    def get_window_parameters(self) -> list[str]:
         """Get window/period parameters for the strategy."""
         # First try new period params, fall back to legacy window params
         period_params = self.period_params.get(self.strategy_type)
@@ -81,13 +80,13 @@ class PortfolioFilterConfig:
             self.strategy_type, ["Fast Period", "Slow Period"]
         )
 
-    def get_relevant_metrics(self) -> List[str]:
+    def get_relevant_metrics(self) -> list[str]:
         """Get relevant metrics for the strategy."""
         return self.relevant_metrics.get(
             self.strategy_type, NUMERIC_METRICS + DURATION_METRICS
         )
 
-    def get_display_preferences(self) -> Dict[str, Any]:
+    def get_display_preferences(self) -> dict[str, Any]:
         """Get display preferences for the strategy."""
         return self.display_preferences.get(
             self.strategy_type, {"sort_by": "Total Return [%]", "sort_asc": False}
@@ -99,8 +98,8 @@ def create_metric_result(
     row_idx: int,
     df: pl.DataFrame,
     label: str,
-    window_params: List[str] = None,
-) -> Dict[str, Any]:
+    window_params: list[str] | None = None,
+) -> dict[str, Any]:
     """Create result dictionary for a metric including strategy-specific parameters.
 
     Args:
@@ -118,7 +117,7 @@ def create_metric_result(
 
     # Use default window params if not provided
     if window_params is None:
-        period_params = ["Fast Period", "Slow Period"]
+        pass
 
     # Create result with strategy-specific parameters
     result = {"Metric Type": f"{label} {metric}"}
@@ -127,14 +126,11 @@ def create_metric_result(
     for param in window_params:
         if param in row:
             result[param] = row[param]
-        else:
-            # Set default values for missing parameters
-            if param == "Signal Period":
-                result[param] = 0
-            elif "Window" in param:
-                result[param] = 0
-            elif "PCT" in param:
-                result[param] = 0.0
+        # Set default values for missing parameters
+        elif param == "Signal Period" or "Window" in param:
+            result[param] = 0
+        elif "PCT" in param:
+            result[param] = 0.0
 
     # Add remaining columns (excluding parameters we already handled)
     handled_columns = {"Metric Type"} | set(window_params)
@@ -145,7 +141,7 @@ def create_metric_result(
     return result
 
 
-def get_metric_rows(df: pl.DataFrame, metric: str) -> Dict[str, int]:
+def get_metric_rows(df: pl.DataFrame, metric: str) -> dict[str, int]:
     """Get row indices for extreme values of a metric.
 
     Args:
@@ -190,8 +186,11 @@ def get_metric_rows(df: pl.DataFrame, metric: str) -> Dict[str, int]:
 
 
 def create_metric_result_from_rows(
-    metric: str, rows: Dict[str, int], df: pl.DataFrame, window_params: List[str] = None
-) -> List[Dict[str, Any]]:
+    metric: str,
+    rows: dict[str, int],
+    df: pl.DataFrame,
+    window_params: list[str] | None = None,
+) -> list[dict[str, Any]]:
     """Create result dictionaries from metric row indices.
 
     Args:
@@ -216,8 +215,8 @@ def create_metric_result_from_rows(
 
 
 def _process_metrics(
-    df: pl.DataFrame, metrics: List[str], window_params: List[str] = None
-) -> List[Dict]:
+    df: pl.DataFrame, metrics: list[str], window_params: list[str] | None = None
+) -> list[dict]:
     """Process a list of metrics and create result rows.
 
     Args:
@@ -245,7 +244,7 @@ def _process_metrics(
 
 
 def _prepare_result_df(
-    result_rows: List[Dict], config: ExportConfig, filter_config: PortfolioFilterConfig
+    result_rows: list[dict], config: ExportConfig, filter_config: PortfolioFilterConfig
 ) -> pl.DataFrame:
     """Prepare result DataFrame with proper sorting and schema compliance.
 
@@ -291,8 +290,8 @@ def _prepare_result_df(
 def filter_portfolios(
     portfolios_df: pl.DataFrame,
     config: ExportConfig,
-    log: Optional[Callable] = None,
-    strategy_type: str = None,
+    log: Callable | None = None,
+    strategy_type: str | None = None,
 ) -> pl.DataFrame:
     """Filter portfolios and create extreme value analysis using unified filtering logic.
 
@@ -377,15 +376,15 @@ def filter_portfolios(
 
     except Exception as e:
         if log:
-            log(f"Error filtering portfolios: {str(e)}", "error")
+            log(f"Error filtering portfolios: {e!s}", "error")
         return pl.DataFrame()
 
 
 def filter_and_export_portfolios(
     portfolios_df: pl.DataFrame,
     config: ExportConfig,
-    log: Optional[Callable] = None,
-    strategy_type: str = None,
+    log: Callable | None = None,
+    strategy_type: str | None = None,
 ) -> bool:
     """Filter portfolios and export to CSV with unified filtering logic.
 
@@ -432,14 +431,14 @@ def filter_and_export_portfolios(
 
     except Exception as e:
         if log:
-            log(f"Error filtering and exporting portfolios: {str(e)}", "error")
+            log(f"Error filtering and exporting portfolios: {e!s}", "error")
         return False
 
 
 # Convenience functions for backward compatibility
 def create_metric_summary(
     df: pl.DataFrame, metric: str, strategy_type: str = "SMA"
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Create metric summary for a specific metric (convenience function).
 
     Args:
@@ -458,7 +457,7 @@ def create_metric_summary(
 
 
 def get_extreme_values(
-    df: pl.DataFrame, metrics: List[str] = None, strategy_type: str = "SMA"
+    df: pl.DataFrame, metrics: list[str] | None = None, strategy_type: str = "SMA"
 ) -> pl.DataFrame:
     """Get extreme values for specified metrics (convenience function).
 

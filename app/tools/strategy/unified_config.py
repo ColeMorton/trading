@@ -5,10 +5,8 @@ This module provides a unified configuration system that eliminates duplication
 across strategy configurations while maintaining type safety and validation.
 """
 
-import json
-from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, TypedDict, Union
+from typing import Any, Literal, TypedDict
 
 from typing_extensions import NotRequired
 
@@ -55,20 +53,20 @@ class BasePortfolioConfig(TypedDict, total=False):
     """
 
     # Required fields - present in all strategy configs
-    TICKER: Union[str, List[str]]
+    TICKER: str | list[str]
     BASE_DIR: str
 
     # Data source configuration - common to all strategies
     USE_CURRENT: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
     USE_YEARS: NotRequired[bool]
-    YEARS: NotRequired[Union[int, float]]
+    YEARS: NotRequired[int | float]
     REFRESH: NotRequired[bool]
 
     # Strategy execution parameters - common patterns
     DIRECTION: NotRequired[Literal["Long", "Short"]]
     STRATEGY_TYPE: NotRequired[str]
-    STRATEGY_TYPES: NotRequired[List[str]]
+    STRATEGY_TYPES: NotRequired[list[str]]
 
     # Parameter range configuration - used by all parameter sweep strategies
     SHORT_WINDOW_START: NotRequired[int]
@@ -83,7 +81,7 @@ class BasePortfolioConfig(TypedDict, total=False):
     WINDOWS: NotRequired[int]  # Some strategies use this for combined ranges
 
     # Filtering and validation - common across strategies
-    MINIMUMS: NotRequired[Dict[str, Union[int, float]]]
+    MINIMUMS: NotRequired[dict[str, int | float]]
     SORT_BY: NotRequired[str]
     SORT_ASC: NotRequired[bool]
 
@@ -92,15 +90,15 @@ class BasePortfolioConfig(TypedDict, total=False):
     EXPORT_TRADE_HISTORY: NotRequired[bool]
 
     # Position sizing and risk management
-    ACCOUNT_VALUE: NotRequired[Union[int, float]]
-    ENTRY_PRICES: NotRequired[Dict[str, float]]
+    ACCOUNT_VALUE: NotRequired[int | float]
+    ENTRY_PRICES: NotRequired[dict[str, float]]
 
     # RSI configuration - used by multiple strategies
     USE_RSI: NotRequired[bool]
     RSI_WINDOW: NotRequired[int]
-    RSI_THRESHOLD: NotRequired[Union[int, float]]
-    RSI_OVERSOLD: NotRequired[Union[int, float]]
-    RSI_OVERBOUGHT: NotRequired[Union[int, float]]
+    RSI_THRESHOLD: NotRequired[int | float]
+    RSI_OVERSOLD: NotRequired[int | float]
+    RSI_OVERBOUGHT: NotRequired[int | float]
 
 
 class MAConfig(BasePortfolioConfig):
@@ -165,7 +163,7 @@ class ConfigValidator:
     """
 
     @staticmethod
-    def validate_base_config(config: BasePortfolioConfig) -> Dict[str, Any]:
+    def validate_base_config(config: BasePortfolioConfig) -> dict[str, Any]:
         """
         Validate base configuration fields common to all strategies.
 
@@ -236,7 +234,7 @@ class ConfigValidator:
             if param in config:
                 value = config[param]
                 if (
-                    not isinstance(value, (int, float))
+                    not isinstance(value, int | float)
                     or value < min_val
                     or value > max_val
                 ):
@@ -244,14 +242,14 @@ class ConfigValidator:
                     result["is_valid"] = False
                     result["suggestions"][param] = (
                         min(max(value, min_val), max_val)
-                        if isinstance(value, (int, float))
+                        if isinstance(value, int | float)
                         else min_val
                     )
 
         return result
 
     @staticmethod
-    def validate_ma_config(config: MAConfig) -> Dict[str, Any]:
+    def validate_ma_config(config: MAConfig) -> dict[str, Any]:
         """Validate MA-specific configuration."""
         result = ConfigValidator.validate_base_config(config)
 
@@ -259,7 +257,7 @@ class ConfigValidator:
         return result
 
     @staticmethod
-    def validate_macd_config(config: MACDConfig) -> Dict[str, Any]:
+    def validate_macd_config(config: MACDConfig) -> dict[str, Any]:
         """Validate MACD-specific configuration."""
         result = ConfigValidator.validate_base_config(config)
 
@@ -274,7 +272,7 @@ class ConfigValidator:
         return result
 
     @staticmethod
-    def validate_mean_reversion_config(config: MeanReversionConfig) -> Dict[str, Any]:
+    def validate_mean_reversion_config(config: MeanReversionConfig) -> dict[str, Any]:
         """Validate Mean Reversion specific configuration."""
         result = ConfigValidator.validate_base_config(config)
 
@@ -292,7 +290,7 @@ class ConfigValidator:
         return result
 
     @staticmethod
-    def validate_range_config(config: RangeConfig) -> Dict[str, Any]:
+    def validate_range_config(config: RangeConfig) -> dict[str, Any]:
         """Validate Range trading specific configuration."""
         result = ConfigValidator.validate_base_config(config)
 
@@ -329,7 +327,7 @@ class ConfigFactory:
     @classmethod
     def create_config(
         cls, strategy_type: str, **kwargs
-    ) -> Union[MAConfig, MACDConfig, MeanReversionConfig, RangeConfig]:
+    ) -> MAConfig | MACDConfig | MeanReversionConfig | RangeConfig:
         """
         Create a configuration for the specified strategy type.
 
@@ -356,8 +354,8 @@ class ConfigFactory:
 
     @classmethod
     def validate_config(
-        cls, strategy_type: str, config: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        cls, strategy_type: str, config: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Validate configuration for the specified strategy type.
 
@@ -377,7 +375,7 @@ class ConfigFactory:
         return validator(config)
 
     @classmethod
-    def get_default_config(cls, strategy_type: str) -> Dict[str, Any]:
+    def get_default_config(cls, strategy_type: str) -> dict[str, Any]:
         """
         Get default configuration for a strategy type.
 
@@ -439,7 +437,7 @@ class ConfigFactory:
         return result
 
     @classmethod
-    def get_supported_strategies(cls) -> List[str]:
+    def get_supported_strategies(cls) -> list[str]:
         """Get list of supported strategy types."""
         return list(cls._strategy_config_map.keys())
 
@@ -466,12 +464,12 @@ def create_range_config(**kwargs) -> RangeConfig:
 
 
 def validate_strategy_config(
-    strategy_type: str, config: Dict[str, Any]
-) -> Dict[str, Any]:
+    strategy_type: str, config: dict[str, Any]
+) -> dict[str, Any]:
     """Convenience function for configuration validation."""
     return ConfigFactory.validate_config(strategy_type, config)
 
 
-def get_default_strategy_config(strategy_type: str) -> Dict[str, Any]:
+def get_default_strategy_config(strategy_type: str) -> dict[str, Any]:
     """Convenience function for getting default configuration."""
     return ConfigFactory.get_default_config(strategy_type)

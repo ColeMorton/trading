@@ -6,9 +6,10 @@ from VectorBT Portfolio objects. It supports comprehensive equity metrics includ
 cumulative equity, drawdowns, MFE/MAE calculations, and bar-by-bar analysis.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -99,7 +100,7 @@ class EquityDataExtractor:
     objects and calculates comprehensive equity metrics for strategy analysis.
     """
 
-    def __init__(self, log: Optional[Callable[[str, str], None]] = None):
+    def __init__(self, log: Callable[[str, str], None] | None = None):
         """
         Initialize the equity data extractor.
 
@@ -116,7 +117,7 @@ class EquityDataExtractor:
         self,
         portfolio: "vbt.Portfolio",
         metric_type: MetricType = MetricType.MEAN,
-        config: Optional[Dict[str, Any]] = None,
+        config: dict[str, Any] | None = None,
     ) -> EquityData:
         """
         Extract comprehensive equity data from VectorBT Portfolio.
@@ -177,7 +178,7 @@ class EquityDataExtractor:
             return equity_data
 
         except Exception as e:
-            error_msg = f"Failed to extract equity data: {str(e)}"
+            error_msg = f"Failed to extract equity data: {e!s}"
             self.log(error_msg, "error")
             raise TradingSystemError(error_msg) from e
 
@@ -209,14 +210,13 @@ class EquityDataExtractor:
                 else:
                     # Single column
                     equity_curve = portfolio_value.values
+            # If it's already a numpy array
+            elif portfolio_value.ndim > 1:
+                equity_curve = self._apply_metric_selection(
+                    portfolio_value, metric_type
+                )
             else:
-                # If it's already a numpy array
-                if portfolio_value.ndim > 1:
-                    equity_curve = self._apply_metric_selection(
-                        portfolio_value, metric_type
-                    )
-                else:
-                    equity_curve = portfolio_value
+                equity_curve = portfolio_value
 
             # Ensure we have a 1D array
             if equity_curve.ndim > 1:
@@ -232,7 +232,7 @@ class EquityDataExtractor:
 
         except Exception as e:
             raise TradingSystemError(
-                f"Failed to extract base equity curve: {str(e)}"
+                f"Failed to extract base equity curve: {e!s}"
             ) from e
 
     def _extract_timestamp_index(self, portfolio: "vbt.Portfolio") -> pd.Index:
@@ -265,9 +265,7 @@ class EquityDataExtractor:
             return pd.RangeIndex(len(equity_curve))
 
         except Exception as e:
-            raise TradingSystemError(
-                f"Failed to extract timestamp index: {str(e)}"
-            ) from e
+            raise TradingSystemError(f"Failed to extract timestamp index: {e!s}") from e
 
     def _apply_metric_selection(
         self, data: np.ndarray, metric_type: MetricType
@@ -288,25 +286,24 @@ class EquityDataExtractor:
         # For 2D data, apply metric across columns (different backtests)
         if metric_type == MetricType.MEAN:
             return np.mean(data, axis=1)
-        elif metric_type == MetricType.MEDIAN:
+        if metric_type == MetricType.MEDIAN:
             return np.median(data, axis=1)
-        elif metric_type == MetricType.BEST:
+        if metric_type == MetricType.BEST:
             # Best = highest final value
             final_values = data[-1, :]
             best_column = np.argmax(final_values)
             return data[:, best_column]
-        elif metric_type == MetricType.WORST:
+        if metric_type == MetricType.WORST:
             # Worst = lowest final value
             final_values = data[-1, :]
             worst_column = np.argmin(final_values)
             return data[:, worst_column]
-        else:
-            self.log(f"Unknown metric type: {metric_type}, using mean", "warning")
-            return np.mean(data, axis=1)
+        self.log(f"Unknown metric type: {metric_type}, using mean", "warning")
+        return np.mean(data, axis=1)
 
     def _calculate_equity_metrics(
         self, equity_curve: np.ndarray
-    ) -> Dict[str, np.ndarray]:
+    ) -> dict[str, np.ndarray]:
         """
         Calculate basic equity metrics.
 
@@ -347,7 +344,7 @@ class EquityDataExtractor:
 
     def _calculate_drawdown_metrics(
         self, equity_curve: np.ndarray
-    ) -> Dict[str, np.ndarray]:
+    ) -> dict[str, np.ndarray]:
         """
         Calculate drawdown metrics including running peaks.
 
@@ -378,7 +375,7 @@ class EquityDataExtractor:
 
     def _calculate_mfe_mae_metrics(
         self, portfolio: "vbt.Portfolio", equity_curve: np.ndarray
-    ) -> Dict[str, np.ndarray]:
+    ) -> dict[str, np.ndarray]:
         """
         Calculate Maximum Favorable Excursion (MFE) and Maximum Adverse Excursion (MAE).
 
@@ -416,8 +413,8 @@ class EquityDataExtractor:
                     exit_indices = exit_indices[~np.isnan(exit_indices)]
 
                     # Calculate MFE/MAE for each trade
-                    for i, (entry_idx, exit_idx) in enumerate(
-                        zip(entry_indices, exit_indices)
+                    for _i, (entry_idx, exit_idx) in enumerate(
+                        zip(entry_indices, exit_indices, strict=False)
                     ):
                         entry_idx = int(entry_idx)
                         exit_idx = int(exit_idx)
@@ -438,15 +435,19 @@ class EquityDataExtractor:
                                 )
                                 mfe[j] = max(
                                     mfe[j],
-                                    np.max(period_excursions)
-                                    if len(period_excursions) > 0
-                                    else 0.0,
+                                    (
+                                        np.max(period_excursions)
+                                        if len(period_excursions) > 0
+                                        else 0.0
+                                    ),
                                 )
                                 mae[j] = min(
                                     mae[j],
-                                    np.min(period_excursions)
-                                    if len(period_excursions) > 0
-                                    else 0.0,
+                                    (
+                                        np.min(period_excursions)
+                                        if len(period_excursions) > 0
+                                        else 0.0
+                                    ),
                                 )
 
             # If no trade data available, calculate cumulative excursions
@@ -466,7 +467,7 @@ class EquityDataExtractor:
             return {"mfe": mfe, "mae": mae}
 
         except Exception as e:
-            self.log(f"Failed to calculate MFE/MAE, using zeros: {str(e)}", "warning")
+            self.log(f"Failed to calculate MFE/MAE, using zeros: {e!s}", "warning")
             return {
                 "mfe": np.zeros_like(equity_curve),
                 "mae": np.zeros_like(equity_curve),
@@ -475,9 +476,9 @@ class EquityDataExtractor:
 
 def extract_equity_data_from_portfolio(
     portfolio: "vbt.Portfolio",
-    metric_type: Union[str, MetricType] = MetricType.MEAN,
-    config: Optional[Dict[str, Any]] = None,
-    log: Optional[Callable[[str, str], None]] = None,
+    metric_type: str | MetricType = MetricType.MEAN,
+    config: dict[str, Any] | None = None,
+    log: Callable[[str, str], None] | None = None,
 ) -> EquityData:
     """
     Convenience function for extracting equity data from a VectorBT Portfolio.
@@ -509,7 +510,7 @@ def extract_equity_data_from_portfolio(
 
 
 def validate_equity_data(
-    equity_data: EquityData, log: Optional[Callable[[str, str], None]] = None
+    equity_data: EquityData, log: Callable[[str, str], None] | None = None
 ) -> bool:
     """
     Validate EquityData object for consistency and correctness.
@@ -522,7 +523,9 @@ def validate_equity_data(
         True if validation passes, False otherwise
     """
     if log is None:
-        log = lambda msg, level: print(f"[{level.upper()}] {msg}")
+
+        def log(msg, level):
+            return print(f"[{level.upper()}] {msg}")
 
     try:
         # Check all arrays have same length
@@ -579,5 +582,5 @@ def validate_equity_data(
         return True
 
     except Exception as e:
-        log(f"Equity data validation failed: {str(e)}", "error")
+        log(f"Equity data validation failed: {e!s}", "error")
         return False

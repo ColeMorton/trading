@@ -4,11 +4,13 @@ This module provides a context manager for standardized error handling
 across the trading system, following SOLID principles and KISS design.
 """
 
-import traceback
+from collections.abc import Callable
 from contextlib import contextmanager
-from typing import Callable, Dict, Optional, Type, TypeVar
+import traceback
+from typing import TypeVar
 
 from app.tools.exceptions import TradingSystemError
+
 
 # Type variable for the return type of the operation
 T = TypeVar("T")
@@ -18,8 +20,8 @@ T = TypeVar("T")
 def error_context(
     operation_name: str,
     log_func: Callable[[str, str], None],
-    error_map: Optional[Dict[Type[Exception], Type[TradingSystemError]]] = None,
-    default_error_type: Type[TradingSystemError] = TradingSystemError,
+    error_map: dict[type[Exception], type[TradingSystemError]] | None = None,
+    default_error_type: type[TradingSystemError] = TradingSystemError,
     include_traceback: bool = True,
     reraise: bool = False,
 ):
@@ -74,7 +76,7 @@ def error_context(
         error_type = error_map.get(type(e), default_error_type)
 
         # Create the error message
-        error_message = f"{operation_name} failed: {str(e)}"
+        error_message = f"{operation_name} failed: {e!s}"
 
         # Create and log the error
         trading_error = error_type(error_message, error_details)

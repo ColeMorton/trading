@@ -6,11 +6,10 @@ processing 860 combinations of ATR parameters while maintaining memory efficienc
 and providing progress tracking.
 """
 
-import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Dict, List, Optional, Tuple
+import time
+from typing import Any
 
-import pandas as pd
 import polars as pl
 
 from app.strategies.ma_cross.tools.atr_signal_processing import (
@@ -20,12 +19,8 @@ from app.strategies.ma_cross.tools.atr_signal_processing import (
 )
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.get_data import get_data
-from app.tools.performance_tracker import timing_context
-from app.tools.portfolio.base_extended_schemas import (
-    ExtendedPortfolioSchema,
-    SchemaTransformer,
-    SchemaType,
-)
+from app.tools.portfolio.base_extended_schemas import SchemaTransformer, SchemaType
+
 
 try:
     from app.tools.processing.memory_optimizer import get_memory_optimizer
@@ -98,7 +93,7 @@ class ATRParameterSweepEngine:
         self.schema_transformer = SchemaTransformer()
 
         # Initialize progress tracker
-        self.progress_tracker: Optional[ATRProgressTracker] = None
+        self.progress_tracker: ATRProgressTracker | None = None
 
         # Track sweep statistics
         self.sweep_stats = {
@@ -109,7 +104,7 @@ class ATRParameterSweepEngine:
             "memory_usage_mb": 0.0,
         }
 
-    def generate_atr_parameter_combinations(self) -> List[Tuple[int, float]]:
+    def generate_atr_parameter_combinations(self) -> list[tuple[int, float]]:
         """
         Generate ATR parameter combinations for sensitivity analysis using configured ranges.
 
@@ -132,12 +127,12 @@ class ATRParameterSweepEngine:
     def process_single_atr_combination(
         self,
         ticker: str,
-        ma_config: Dict[str, Any],
+        ma_config: dict[str, Any],
         atr_length: int,
         atr_multiplier: float,
         prices: pl.DataFrame,
         log: callable,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Process a single ATR parameter combination.
 
@@ -212,7 +207,7 @@ class ATRParameterSweepEngine:
                     stats_dict = portfolio.stats()
                 except Exception as e:
                     log(
-                        f"Failed to get portfolio stats for ATR({atr_length}, {atr_multiplier}): {str(e)}",
+                        f"Failed to get portfolio stats for ATR({atr_length}, {atr_multiplier}): {e!s}",
                         "error",
                     )
                     self.sweep_stats["failed_combinations"] += 1
@@ -272,7 +267,7 @@ class ATRParameterSweepEngine:
 
         except Exception as e:
             log(
-                f"Error processing ATR({atr_length}, {atr_multiplier}): {str(e)}",
+                f"Error processing ATR({atr_length}, {atr_multiplier}): {e!s}",
                 "error",
             )
             self.sweep_stats["failed_combinations"] += 1
@@ -281,12 +276,12 @@ class ATRParameterSweepEngine:
     def process_atr_parameter_chunk(
         self,
         ticker: str,
-        ma_config: Dict[str, Any],
-        parameter_chunk: List[Tuple[int, float]],
+        ma_config: dict[str, Any],
+        parameter_chunk: list[tuple[int, float]],
         prices: pl.DataFrame,
         log: callable,
         chunk_index: int,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Process a chunk of ATR parameter combinations.
 
@@ -355,10 +350,10 @@ class ATRParameterSweepEngine:
     def execute_atr_parameter_sweep(
         self,
         ticker: str,
-        ma_config: Dict[str, Any],
+        ma_config: dict[str, Any],
         log: callable,
         use_concurrent: bool = True,
-    ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         """
         Execute the complete ATR parameter sweep analysis.
 
@@ -450,7 +445,7 @@ class ATRParameterSweepEngine:
                                 "info",
                             )
                         except Exception as e:
-                            log(f"Chunk {chunk_index + 1} failed: {str(e)}", "error")
+                            log(f"Chunk {chunk_index + 1} failed: {e!s}", "error")
                             self.sweep_stats["failed_combinations"] += len(
                                 parameter_chunks[chunk_index]
                             )
@@ -482,7 +477,7 @@ class ATRParameterSweepEngine:
                         process.memory_info().rss / 1024 / 1024
                     )
 
-            log(f"ATR parameter sweep completed:", "info")
+            log("ATR parameter sweep completed:", "info")
             log(
                 f"  Total combinations: {self.sweep_stats['total_combinations']}",
                 "info",
@@ -498,16 +493,16 @@ class ATRParameterSweepEngine:
             return all_results, self.sweep_stats
 
         except Exception as e:
-            log(f"ATR parameter sweep failed: {str(e)}", "error")
+            log(f"ATR parameter sweep failed: {e!s}", "error")
             sweep_duration = time.time() - sweep_start_time
             self.sweep_stats["processing_time"] = sweep_duration
             return [], self.sweep_stats
 
     def validate_sweep_results(
         self,
-        results: List[Dict[str, Any]],
+        results: list[dict[str, Any]],
         log: callable,
-    ) -> Tuple[bool, List[str]]:
+    ) -> tuple[bool, list[str]]:
         """
         Validate the results of the ATR parameter sweep.
 
@@ -582,7 +577,7 @@ class ATRParameterSweepEngine:
 
 
 def create_atr_sweep_engine(
-    config: Dict[str, Any],
+    config: dict[str, Any],
     enable_memory_optimization: bool = True,
 ) -> ATRParameterSweepEngine:
     """

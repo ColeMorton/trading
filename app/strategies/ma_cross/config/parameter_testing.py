@@ -7,7 +7,7 @@ Provides comprehensive validation and type-safe configuration handling.
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 
 class ValidationSeverity(Enum):
@@ -23,7 +23,7 @@ class ValidationResult:
     """Result of configuration validation."""
 
     is_valid: bool
-    messages: List[Dict[str, str]] = field(default_factory=list)
+    messages: list[dict[str, str]] = field(default_factory=list)
 
     def add_error(self, message: str, field: str = ""):
         """Add an error message."""
@@ -61,19 +61,19 @@ class ValidationResult:
 class FilterCriteria:
     """Portfolio filtering criteria."""
 
-    min_win_rate: Optional[float] = None
-    min_trades: Optional[int] = None
-    min_expectancy_per_trade: Optional[float] = None
-    min_profit_factor: Optional[float] = None
-    min_sortino_ratio: Optional[float] = None
-    min_score: Optional[float] = None
-    min_beats_bnh: Optional[float] = None
-    max_drawdown: Optional[float] = None
-    min_annual_return: Optional[float] = None
-    min_sharpe_ratio: Optional[float] = None
+    min_win_rate: float | None = None
+    min_trades: int | None = None
+    min_expectancy_per_trade: float | None = None
+    min_profit_factor: float | None = None
+    min_sortino_ratio: float | None = None
+    min_score: float | None = None
+    min_beats_bnh: float | None = None
+    max_drawdown: float | None = None
+    min_annual_return: float | None = None
+    min_sharpe_ratio: float | None = None
     require_signal_entry: bool = False
     exclude_open_trades: bool = False
-    metric_types: List[str] = field(default_factory=list)
+    metric_types: list[str] = field(default_factory=list)
 
     def validate(self) -> ValidationResult:
         """Validate filter criteria."""
@@ -119,7 +119,7 @@ class ExportOptions:
     include_summary: bool = True
     max_results: int = 100
     filename_prefix: str = "ma_cross_analysis"
-    export_directory: Optional[str] = None
+    export_directory: str | None = None
 
     def validate(self) -> ValidationResult:
         """Validate export options."""
@@ -144,7 +144,7 @@ class ExportOptions:
 class ExecutionOptions:
     """Execution configuration options."""
 
-    use_concurrent: Optional[bool] = None  # Auto-detect based on ticker count
+    use_concurrent: bool | None = None  # Auto-detect based on ticker count
     max_workers: int = 4
     timeout_seconds: int = 3600
     enable_progress_tracking: bool = True
@@ -189,18 +189,18 @@ class ParameterTestingConfig:
     """
 
     # Core parameters
-    tickers: List[str]
+    tickers: list[str]
     windows: int
-    strategy_types: List[str]
+    strategy_types: list[str]
     direction: str = "Long"
 
     # Optional parameters
     use_hourly: bool = False
     use_years: bool = False
-    years: Optional[int] = None
+    years: int | None = None
     use_synthetic: bool = False
-    ticker_1: Optional[str] = None
-    ticker_2: Optional[str] = None
+    ticker_1: str | None = None
+    ticker_2: str | None = None
 
     # Configuration objects
     filters: FilterCriteria = field(default_factory=FilterCriteria)
@@ -215,7 +215,7 @@ class ParameterTestingConfig:
     base_directory: str = "/Users/colemorton/Projects/trading"
 
     @classmethod
-    def from_dict(cls, config_dict: Dict[str, Any]) -> "ParameterTestingConfig":
+    def from_dict(cls, config_dict: dict[str, Any]) -> "ParameterTestingConfig":
         """
         Create configuration from dictionary.
 
@@ -278,7 +278,7 @@ class ParameterTestingConfig:
             ),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Convert configuration to dictionary format.
 
@@ -385,12 +385,11 @@ class ParameterTestingConfig:
                 )
 
         # Validate synthetic ticker configuration
-        if self.use_synthetic:
-            if not self.ticker_1 or not self.ticker_2:
-                result.add_error(
-                    "Both ticker_1 and ticker_2 must be specified for synthetic tickers",
-                    "synthetic",
-                )
+        if self.use_synthetic and (not self.ticker_1 or not self.ticker_2):
+            result.add_error(
+                "Both ticker_1 and ticker_2 must be specified for synthetic tickers",
+                "synthetic",
+            )
 
         # Validate sort field
         valid_sort_fields = {
@@ -438,7 +437,7 @@ class ParameterTestingConfig:
 
         return result
 
-    def get_execution_summary(self) -> Dict[str, Any]:
+    def get_execution_summary(self) -> dict[str, Any]:
         """
         Get a summary of the execution configuration.
 

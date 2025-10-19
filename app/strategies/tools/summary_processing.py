@@ -6,7 +6,8 @@ adjusted metrics and processing portfolio statistics for various strategy types
 including SMA, EMA, and MACD.
 """
 
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import Any
 
 import polars as pl
 
@@ -21,7 +22,6 @@ from app.strategies.tools.process_strategy_portfolios import process_macd_strate
 # Import configuration validation for Phase 4 integration
 from app.tools.config_validation import (
     get_equity_metric_selection,
-    get_validated_equity_config,
     is_equity_export_enabled,
     log_configuration_validation,
 )
@@ -45,7 +45,6 @@ from app.tools.portfolio_transformation import reorder_columns
 from app.tools.project_utils import get_project_root
 from app.tools.stats_converter import convert_stats
 from app.tools.strategy.signal_utils import (
-    calculate_signal_unconfirmed,
     calculate_signal_unconfirmed_realtime,
     is_exit_signal_current,
     is_signal_current,
@@ -58,10 +57,10 @@ def _extract_equity_data_if_enabled(
     strategy_type: str,
     fast_period: int,
     slow_period: int,
-    signal_period: Optional[int],
-    config: Dict[str, Any],
+    signal_period: int | None,
+    config: dict[str, Any],
     log: Callable[[str, str], None],
-) -> Optional[EquityData]:
+) -> EquityData | None:
     """
     Extract equity data from portfolio if equity export is enabled.
 
@@ -104,15 +103,15 @@ def _extract_equity_data_if_enabled(
 
     except Exception as e:
         log(
-            f"Failed to extract equity data for {ticker} {strategy_type}: {str(e)}",
+            f"Failed to extract equity data for {ticker} {strategy_type}: {e!s}",
             "warning",
         )
         return None
 
 
 def process_ticker_portfolios(
-    ticker: str, row: dict, config: Dict[str, Any], log: Callable[[str, str], None]
-) -> Optional[List[dict]]:
+    ticker: str, row: dict, config: dict[str, Any], log: Callable[[str, str], None]
+) -> list[dict] | None:
     """
     Process portfolios for a single ticker based on strategy type.
 
@@ -273,7 +272,7 @@ def process_ticker_portfolios(
                     log=log,
                 )
             except Exception as e:
-                log(f"Failed to process MACD strategy for {ticker}: {str(e)}", "error")
+                log(f"Failed to process MACD strategy for {ticker}: {e!s}", "error")
                 return None
 
             if result:
@@ -353,11 +352,7 @@ def process_ticker_portfolios(
                         stop_loss = row.get("STOP_LOSS", row.get("Stop Loss [%]"))
                         # Convert allocation and stop loss values to float, handling
                         # string 'None' values
-                        if (
-                            allocation is not None
-                            and allocation != ""
-                            and allocation != "None"
-                        ):
+                        if allocation is not None and allocation not in ("", "None"):
                             try:
                                 stats["Allocation [%]"] = float(allocation)
                             except (ValueError, TypeError):
@@ -369,11 +364,7 @@ def process_ticker_portfolios(
                         else:
                             stats["Allocation [%]"] = None
 
-                        if (
-                            stop_loss is not None
-                            and stop_loss != ""
-                            and stop_loss != "None"
-                        ):
+                        if stop_loss is not None and stop_loss not in ("", "None"):
                             try:
                                 stats["Stop Loss [%]"] = float(stop_loss)
                             except (ValueError, TypeError):
@@ -387,10 +378,9 @@ def process_ticker_portfolios(
 
                         # Preserve Last Position Open Date and Last Position Close Date
                         last_open_date = row.get("Last Position Open Date")
-                        if (
-                            last_open_date is not None
-                            and last_open_date != ""
-                            and last_open_date != "None"
+                        if last_open_date is not None and last_open_date not in (
+                            "",
+                            "None",
                         ):
                             stats["Last Position Open Date"] = last_open_date
                             log(
@@ -405,10 +395,9 @@ def process_ticker_portfolios(
                             )
 
                         last_close_date = row.get("Last Position Close Date")
-                        if (
-                            last_close_date is not None
-                            and last_close_date != ""
-                            and last_close_date != "None"
+                        if last_close_date is not None and last_close_date not in (
+                            "",
+                            "None",
                         ):
                             stats["Last Position Close Date"] = last_close_date
                             log(
@@ -538,7 +527,7 @@ def process_ticker_portfolios(
                         portfolios.append(converted_stats)
                     except Exception as e:
                         log(
-                            f"Failed to process MACD stats for {ticker}: {str(e)}",
+                            f"Failed to process MACD stats for {ticker}: {e!s}",
                             "error",
                         )
 
@@ -643,11 +632,7 @@ def process_ticker_portfolios(
                         stop_loss = row.get("STOP_LOSS", row.get("Stop Loss [%]"))
                         # Convert allocation and stop loss values to float, handling
                         # string 'None' values
-                        if (
-                            allocation is not None
-                            and allocation != ""
-                            and allocation != "None"
-                        ):
+                        if allocation is not None and allocation not in ("", "None"):
                             try:
                                 sma_stats["Allocation [%]"] = float(allocation)
                             except (ValueError, TypeError):
@@ -659,11 +644,7 @@ def process_ticker_portfolios(
                         else:
                             sma_stats["Allocation [%]"] = None
 
-                        if (
-                            stop_loss is not None
-                            and stop_loss != ""
-                            and stop_loss != "None"
-                        ):
+                        if stop_loss is not None and stop_loss not in ("", "None"):
                             try:
                                 sma_stats["Stop Loss [%]"] = float(stop_loss)
                             except (ValueError, TypeError):
@@ -677,10 +658,9 @@ def process_ticker_portfolios(
 
                         # Preserve Last Position Open Date and Last Position Close Date
                         last_open_date = row.get("Last Position Open Date")
-                        if (
-                            last_open_date is not None
-                            and last_open_date != ""
-                            and last_open_date != "None"
+                        if last_open_date is not None and last_open_date not in (
+                            "",
+                            "None",
                         ):
                             sma_stats["Last Position Open Date"] = last_open_date
                             log(
@@ -695,10 +675,9 @@ def process_ticker_portfolios(
                             )
 
                         last_close_date = row.get("Last Position Close Date")
-                        if (
-                            last_close_date is not None
-                            and last_close_date != ""
-                            and last_close_date != "None"
+                        if last_close_date is not None and last_close_date not in (
+                            "",
+                            "None",
                         ):
                             sma_stats["Last Position Close Date"] = last_close_date
                             log(
@@ -842,7 +821,7 @@ def process_ticker_portfolios(
                         portfolios.append(sma_converted_stats)
                     except Exception as e:
                         log(
-                            f"Failed to process SMA stats for {ticker}: {str(e)}",
+                            f"Failed to process SMA stats for {ticker}: {e!s}",
                             "error",
                         )
 
@@ -910,11 +889,7 @@ def process_ticker_portfolios(
                         stop_loss = row.get("STOP_LOSS", row.get("Stop Loss [%]"))
                         # Convert allocation and stop loss values to float, handling
                         # string 'None' values
-                        if (
-                            allocation is not None
-                            and allocation != ""
-                            and allocation != "None"
-                        ):
+                        if allocation is not None and allocation not in ("", "None"):
                             try:
                                 ema_stats["Allocation [%]"] = float(allocation)
                             except (ValueError, TypeError):
@@ -926,11 +901,7 @@ def process_ticker_portfolios(
                         else:
                             ema_stats["Allocation [%]"] = None
 
-                        if (
-                            stop_loss is not None
-                            and stop_loss != ""
-                            and stop_loss != "None"
-                        ):
+                        if stop_loss is not None and stop_loss not in ("", "None"):
                             try:
                                 ema_stats["Stop Loss [%]"] = float(stop_loss)
                             except (ValueError, TypeError):
@@ -944,10 +915,9 @@ def process_ticker_portfolios(
 
                         # Preserve Last Position Open Date and Last Position Close Date
                         last_open_date = row.get("Last Position Open Date")
-                        if (
-                            last_open_date is not None
-                            and last_open_date != ""
-                            and last_open_date != "None"
+                        if last_open_date is not None and last_open_date not in (
+                            "",
+                            "None",
                         ):
                             ema_stats["Last Position Open Date"] = last_open_date
                             log(
@@ -962,10 +932,9 @@ def process_ticker_portfolios(
                             )
 
                         last_close_date = row.get("Last Position Close Date")
-                        if (
-                            last_close_date is not None
-                            and last_close_date != ""
-                            and last_close_date != "None"
+                        if last_close_date is not None and last_close_date not in (
+                            "",
+                            "None",
                         ):
                             ema_stats["Last Position Close Date"] = last_close_date
                             log(
@@ -1098,13 +1067,13 @@ def process_ticker_portfolios(
                         portfolios.append(ema_converted_stats)
                     except Exception as e:
                         log(
-                            f"Failed to process EMA stats for {ticker}: {str(e)}",
+                            f"Failed to process EMA stats for {ticker}: {e!s}",
                             "error",
                         )
 
             except Exception as e:
                 log(
-                    f"Failed to process {strategy_type} strategy for {ticker}: {str(e)}",
+                    f"Failed to process {strategy_type} strategy for {ticker}: {e!s}",
                     "error",
                 )
                 return None
@@ -1116,15 +1085,15 @@ def process_ticker_portfolios(
         return portfolios if portfolios else None
 
     except Exception as e:
-        log(f"Failed to process stats for {ticker}: {str(e)}", "error")
+        log(f"Failed to process stats for {ticker}: {e!s}", "error")
         return None
 
 
 def _generate_spds_compatible_entries(
-    aggregated_portfolios: List[Dict],
+    aggregated_portfolios: list[dict],
     portfolio_name: str,
     log: Callable[[str, str], None],
-) -> List[Dict]:
+) -> list[dict]:
     """
     Generate SPDS-compatible individual strategy entries from trade history data.
 
@@ -1218,24 +1187,23 @@ def _generate_spds_compatible_entries(
                 "info",
             )
             return individual_entries
-        else:
-            log(
-                "No individual entries generated, falling back to aggregated data",
-                "warning",
-            )
-            return aggregated_portfolios
+        log(
+            "No individual entries generated, falling back to aggregated data",
+            "warning",
+        )
+        return aggregated_portfolios
 
     except Exception as e:
-        log(f"Error generating SPDS-compatible entries: {str(e)}", "error")
+        log(f"Error generating SPDS-compatible entries: {e!s}", "error")
         log("Falling back to aggregated data", "warning")
         return aggregated_portfolios
 
 
 def update_strategy_files(
-    portfolios: List[Dict],
+    portfolios: list[dict],
     portfolio_name: str,
     log: Callable[[str, str], None],
-    config: Optional[Dict] | None = None,
+    config: dict | None | None = None,
 ) -> bool:
     """
     Update existing strategy files with processed portfolio data.
@@ -1260,7 +1228,7 @@ def update_strategy_files(
                 config.update(validated_config)
                 log("Configuration validation completed successfully", "info")
             except Exception as e:
-                log(f"Configuration validation failed: {str(e)}", "error")
+                log(f"Configuration validation failed: {e!s}", "error")
         else:
             log("No configuration provided - using default settings", "warning")
 
@@ -1432,7 +1400,8 @@ def update_strategy_files(
                 if found_column:
                     uniqueness_columns.append(found_column)
                     log(
-                        f"📊 Mapped '{standard_name}' to column '{found_column}'", "info"
+                        f"📊 Mapped '{standard_name}' to column '{found_column}'",
+                        "info",
                     )
                 else:
                     log(
@@ -1475,7 +1444,7 @@ def update_strategy_files(
 
             reordered_portfolios = df.to_dicts()
         except Exception as e:
-            log(f"Error during deduplication: {str(e)}", "warning")
+            log(f"Error during deduplication: {e!s}", "warning")
             log("Attempting fallback without DataFrame operations", "info")
 
             # Fallback: use original data without deduplication if DataFrame operations fail
@@ -1496,7 +1465,7 @@ def update_strategy_files(
                 f"After filtering invalid metrics: {len(reordered_portfolios)} portfolios remain"
             )
         except Exception as e:
-            log(f"Error during invalid metrics filtering: {str(e)}", "warning")
+            log(f"Error during invalid metrics filtering: {e!s}", "warning")
             log("Continuing with unfiltered portfolios due to filtering error", "info")
 
         if not reordered_portfolios:
@@ -1505,8 +1474,6 @@ def update_strategy_files(
 
         # Import export_csv for direct strategy file updates
         from pathlib import Path
-
-        from app.tools.export_csv import export_csv
 
         # Update strategy files directly in /data/raw/strategies/ directory
         strategies_dir = Path(export_config["BASE_DIR"]) / "data" / "raw" / "strategies"
@@ -1522,7 +1489,9 @@ def update_strategy_files(
                 if key.startswith("_") or key in ["_equity_data"]:
                     continue
                 # Convert complex objects to strings for CSV compatibility
-                if value is not None and not isinstance(value, (str, int, float, bool)):
+                if value is not None and not isinstance(
+                    value, str | int | float | bool
+                ):
                     try:
                         clean_portfolio[key] = str(value)
                     except:
@@ -1556,7 +1525,7 @@ def update_strategy_files(
             )
         except Exception as e:
             log(
-                f"Error creating DataFrame with schema, falling back to auto-inference: {str(e)}",
+                f"Error creating DataFrame with schema, falling back to auto-inference: {e!s}",
                 "warning",
             )
             df = pl.DataFrame(normalized_csv_portfolios)
@@ -1575,14 +1544,14 @@ def update_strategy_files(
                             pl.col("Total Return [%]").cast(pl.Float64).alias("Score")
                         )
                         log(
-                            f"Created Score column from Total Return [%] for sorting",
+                            "Created Score column from Total Return [%] for sorting",
                             "info",
                         )
                     except Exception:
                         # Use the original Total Return [%] column
                         sort_by = "Total Return [%]"
                         log(
-                            f"Using Total Return [%] for sorting instead of Score",
+                            "Using Total Return [%] for sorting instead of Score",
                             "info",
                         )
                 else:
@@ -1604,7 +1573,7 @@ def update_strategy_files(
                         "info",
                     )
                 except Exception as e:
-                    log(f"Error sorting by {sort_by}: {str(e)}", "warning")
+                    log(f"Error sorting by {sort_by}: {e!s}", "warning")
             else:
                 log(
                     f"Warning: Sort column '{sort_by}' not found in DataFrame columns: {df.columns}",
@@ -1623,7 +1592,7 @@ def update_strategy_files(
             success = True
             log(f"✅ STRATEGY FILE UPDATED: {output_path}", "info")
         except Exception as e:
-            log(f"❌ FAILED TO UPDATE STRATEGY FILE: {str(e)}", "error")
+            log(f"❌ FAILED TO UPDATE STRATEGY FILE: {e!s}", "error")
             success = False
 
         if not success:
@@ -1660,15 +1629,15 @@ def update_strategy_files(
         return True
 
     except Exception as e:
-        log(f"Error updating strategy files: {str(e)}", "error")
+        log(f"Error updating strategy files: {e!s}", "error")
         return False
 
 
 def export_summary_results(
-    portfolios: List[Dict],
+    portfolios: list[dict],
     portfolio_name: str,
     log: Callable[[str, str], None],
-    config: Optional[Dict] | None = None,
+    config: dict | None | None = None,
 ) -> bool:
     """
     Export portfolio summary results to CSV.
@@ -1690,7 +1659,7 @@ def export_summary_results(
             config.update(validated_config)
             log("Configuration validation completed successfully", "info")
         except Exception as e:
-            log(f"Configuration validation failed: {str(e)}", "error")
+            log(f"Configuration validation failed: {e!s}", "error")
             # Continue with unvalidated config but log the issue
     else:
         log("No configuration provided - using default settings", "warning")
@@ -1833,10 +1802,10 @@ def export_summary_results(
             # If Metric Type column exists, include it in uniqueness check to preserve different metric types
             if "Metric Type" in df.columns:
                 uniqueness_columns.append("Metric Type")
-                log(f"📊 PHASE 2 FIX: Including Metric Type in uniqueness check", "info")
+                log("📊 PHASE 2 FIX: Including Metric Type in uniqueness check", "info")
             else:
                 log(
-                    f"📊 No Metric Type column found, using standard uniqueness check",
+                    "📊 No Metric Type column found, using standard uniqueness check",
                     "info",
                 )
 
@@ -1912,7 +1881,7 @@ def export_summary_results(
             else:
                 log(f"📊 NO DUPLICATES FOUND: {len(df)} portfolios preserved", "info")
         except Exception as e:
-            log(f"Error during deduplication: {str(e)}", "warning")
+            log(f"Error during deduplication: {e!s}", "warning")
 
         # Filter out portfolios with invalid metrics
         try:
@@ -1928,7 +1897,7 @@ def export_summary_results(
                 f"After filtering invalid metrics: {len(reordered_portfolios)} portfolios remain"
             )
         except Exception as e:
-            log(f"Error during invalid metrics filtering: {str(e)}", "warning")
+            log(f"Error during invalid metrics filtering: {e!s}", "warning")
 
         # Check if we have any portfolios left after filtering
         if not reordered_portfolios:
@@ -1964,7 +1933,7 @@ def export_summary_results(
                         "warning",
                     )
             except Exception as e:
-                log(f"Error during sorting: {str(e)}", "warning")
+                log(f"Error during sorting: {e!s}", "warning")
 
         # Import export_portfolios here to avoid circular imports
         from app.tools.strategy.export_portfolios import export_portfolios
@@ -2088,11 +2057,10 @@ def export_summary_results(
         except ImportError:
             log("Equity export module not available", "warning")
         except Exception as e:
-            log(f"Error during equity data export: {str(e)}", "warning")
+            log(f"Error during equity data export: {e!s}", "warning")
             # Don't fail the entire export process due to equity export errors
 
         log("Portfolio summary exported successfully")
         return True
-    else:
-        log("No portfolios were processed", "warning")
-        return False
+    log("No portfolios were processed", "warning")
+    return False

@@ -5,14 +5,14 @@ This module provides utilities for filtering portfolios based on various criteri
 """
 
 import math
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import polars as pl
 
 
 def filter_invalid_metrics(
-    portfolios: Union[List[Dict[str, Any]], pl.DataFrame], log=None
-) -> Union[List[Dict[str, Any]], pl.DataFrame]:
+    portfolios: list[dict[str, Any]] | pl.DataFrame, log=None
+) -> list[dict[str, Any]] | pl.DataFrame:
     """Filter out portfolios with invalid metric values.
 
     Removes portfolios where any of the following is true:
@@ -47,8 +47,6 @@ def filter_invalid_metrics(
 
     # Use pandas fallback to avoid Polars implementation errors
     try:
-        import pandas as pd
-
         # Exclude non-serializable columns before pandas conversion
         serializable_df = df
         if "_equity_data" in df.columns:
@@ -145,7 +143,7 @@ def filter_invalid_metrics(
     return filtered_df.to_dicts() if input_is_list else filtered_df
 
 
-def check_invalid_metrics(stats: Dict[str, Any], log=None) -> Optional[Dict[str, Any]]:
+def check_invalid_metrics(stats: dict[str, Any], log=None) -> dict[str, Any] | None:
     """Check if portfolio stats have invalid metrics.
 
     Checks if any of the following is true:

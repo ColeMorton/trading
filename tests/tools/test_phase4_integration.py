@@ -5,9 +5,9 @@ This module tests the integration of all Phase 4 advanced optimization component
 """
 
 import gc
+from pathlib import Path
 import statistics
 import time
-from pathlib import Path
 
 import pandas as pd
 import psutil
@@ -135,7 +135,7 @@ class TestPhase4Integration:
         auto_tuner = get_auto_tuner()
 
         # Capture some resource snapshots
-        for i in range(10):
+        for _i in range(10):
             auto_tuner.resource_monitor.capture_resource_snapshot()
             auto_tuner.resource_monitor.capture_performance_snapshot()
             time.sleep(0.01)
@@ -225,7 +225,7 @@ class TestPhase4Integration:
     def test_cache_warmer_functionality(self):
         """Test cache warmer basic functionality."""
         cache_warmer = get_cache_warmer(auto_start=False)
-        cache_manager = get_cache_manager()
+        get_cache_manager()
 
         # Track some cache accesses
         cache_warmer.track_cache_access("test_pattern_1", "test")

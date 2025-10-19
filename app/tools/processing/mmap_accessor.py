@@ -6,16 +6,16 @@ large files, especially frequently accessed price data files, without
 loading entire contents into memory.
 """
 
+from collections.abc import Iterator
+from contextlib import contextmanager, suppress
 import logging
 import mmap
-import os
-from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
-import polars as pl
+
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class MemoryMappedFile:
     to memory, allowing the OS to manage paging and caching.
     """
 
-    def __init__(self, file_path: Union[str, Path], mode: str = "r"):
+    def __init__(self, file_path: str | Path, mode: str = "r"):
         """
         Initialize memory-mapped file.
 
@@ -40,7 +40,7 @@ class MemoryMappedFile:
         self.mode = mode
         self.file = None
         self.mmap = None
-        self._line_offsets: Optional[List[int]] = None
+        self._line_offsets: list[int] | None = None
 
     def open(self):
         """Open file and create memory map."""
@@ -78,7 +78,7 @@ class MemoryMappedFile:
         """Context manager exit."""
         self.close()
 
-    def read_line(self, line_number: int) -> Optional[str]:
+    def read_line(self, line_number: int) -> str | None:
         """
         Read a specific line from the file.
 
@@ -106,7 +106,7 @@ class MemoryMappedFile:
 
         return line_bytes.decode("utf-8").rstrip("\r\n")
 
-    def read_lines(self, start_line: int, num_lines: int) -> List[str]:
+    def read_lines(self, start_line: int, num_lines: int) -> list[str]:
         """
         Read multiple lines from the file.
 
@@ -139,7 +139,7 @@ class MemoryMappedFile:
 
         logger.debug(f"Built line index with {len(self._line_offsets) - 1} lines")
 
-    def search(self, pattern: bytes, max_results: int = 100) -> List[int]:
+    def search(self, pattern: bytes, max_results: int = 100) -> list[int]:
         """
         Search for pattern in file.
 
@@ -186,12 +186,12 @@ class MMapCSVReader:
     Provides random access to CSV rows without loading entire file.
     """
 
-    def __init__(self, file_path: Union[str, Path]):
+    def __init__(self, file_path: str | Path):
         """Initialize CSV reader."""
         self.file_path = Path(file_path)
         self.mmap_file = MemoryMappedFile(file_path)
-        self._header: Optional[List[str]] = None
-        self._dtypes: Optional[Dict[str, type]] = None
+        self._header: list[str] | None = None
+        self._dtypes: dict[str, type] | None = None
 
     @contextmanager
     def open(self):
@@ -201,7 +201,7 @@ class MMapCSVReader:
             self._header = mf.read_line(0).split(",")
             yield self
 
-    def read_row(self, row_number: int) -> Optional[Dict[str, Any]]:
+    def read_row(self, row_number: int) -> dict[str, Any] | None:
         """
         Read a specific row as dictionary.
 
@@ -225,7 +225,7 @@ class MMapCSVReader:
                 f"Row {row_number} has {len(values)} values, expected {len(self._header)}"
             )
 
-        return dict(zip(self._header, values))
+        return dict(zip(self._header, values, strict=False))
 
     def read_rows(self, start_row: int, num_rows: int) -> pd.DataFrame:
         """
@@ -254,10 +254,8 @@ class MMapCSVReader:
         if self._dtypes:
             for col, dtype in self._dtypes.items():
                 if col in df.columns:
-                    try:
+                    with suppress(Exception):
                         df[col] = df[col].astype(dtype)
-                    except:
-                        pass
 
         return df
 
@@ -311,7 +309,7 @@ class MMapCSVReader:
             yield chunk
 
     @property
-    def header(self) -> List[str]:
+    def header(self) -> list[str]:
         """Get CSV header."""
         if self._header is None:
             with self.mmap_file:
@@ -333,15 +331,15 @@ class MMapAccessor:
 
     def __init__(self):
         """Initialize accessor with cache."""
-        self._open_files: Dict[Path, MemoryMappedFile] = {}
-        self._csv_readers: Dict[Path, MMapCSVReader] = {}
+        self._open_files: dict[Path, MemoryMappedFile] = {}
+        self._csv_readers: dict[Path, MMapCSVReader] = {}
 
     def get_prices(
         self,
-        file_path: Union[str, Path],
-        start_date: Optional[str] = None,
-        end_date: Optional[str] = None,
-        columns: Optional[List[str]] = None,
+        file_path: str | Path,
+        start_date: str | None = None,
+        end_date: str | None = None,
+        columns: list[str] | None = None,
     ) -> pd.DataFrame:
         """
         Get price data from CSV file with date filtering.
@@ -400,8 +398,8 @@ class MMapAccessor:
         return df
 
     def get_latest_prices(
-        self, file_paths: List[Union[str, Path]], n_rows: int = 100
-    ) -> Dict[str, pd.DataFrame]:
+        self, file_paths: list[str | Path], n_rows: int = 100
+    ) -> dict[str, pd.DataFrame]:
         """
         Get latest N rows from multiple price files.
 
@@ -437,10 +435,10 @@ class MMapAccessor:
 
     def search_in_files(
         self,
-        file_paths: List[Union[str, Path]],
+        file_paths: list[str | Path],
         search_term: str,
         max_results_per_file: int = 10,
-    ) -> Dict[str, List[Dict[str, Any]]]:
+    ) -> dict[str, list[dict[str, Any]]]:
         """
         Search for term across multiple files.
 
@@ -496,7 +494,7 @@ class MMapAccessor:
 
 
 # Global accessor instance
-_global_accessor: Optional[MMapAccessor] = None
+_global_accessor: MMapAccessor | None = None
 
 
 def get_mmap_accessor() -> MMapAccessor:

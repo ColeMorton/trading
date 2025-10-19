@@ -1,8 +1,9 @@
 """Utility for converting and formatting portfolio statistics."""
 
-import math
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, Dict, Optional, TypedDict
+import math
+from typing import Any, TypedDict
 
 import numpy as np
 import pandas as pd
@@ -103,15 +104,13 @@ def calculate_win_rate_normalized(win_rate, total_trades=None):
             penalty_factor = math.exp((40 - effective_win_rate) / 25)
             base_score = 0.1 + 0.9 * (normalized**dynamic_power)
             return base_score / penalty_factor
-        else:
-            return 0.1 + 0.9 * (normalized**dynamic_power)
-    else:
-        # Above break-even: controlled growth with soft cap
-        excess = effective_win_rate - 50
-        normalized_excess = excess / 50
+        return 0.1 + 0.9 * (normalized**dynamic_power)
+    # Above break-even: controlled growth with soft cap
+    excess = effective_win_rate - 50
+    normalized_excess = excess / 50
 
-        # Soft exponential growth that approaches but never exceeds 2.618
-        return 1.0 + 1.618 * (1 - math.exp(-2.5 * normalized_excess))
+    # Soft exponential growth that approaches but never exceeds 2.618
+    return 1.0 + 1.618 * (1 - math.exp(-2.5 * normalized_excess))
 
 
 def calculate_profit_factor_normalized(profit_factor):
@@ -138,24 +137,23 @@ def calculate_profit_factor_normalized(profit_factor):
         # Strong penalty for consistently losing strategies
         return 0.1
 
-    elif profit_factor < 1.0:
+    if profit_factor < 1.0:
         # Linear interpolation for near break-even region
         # Maps [0.8, 1.0] → [0.1, 0.5]
         return 0.1 + 0.4 * (profit_factor - 0.8) / 0.2
 
-    elif profit_factor < 2.0:
+    if profit_factor < 2.0:
         # Linear scaling for profitable strategies
         # Maps [1.0, 2.0] → [0.5, 1.5]
         return 0.5 + 1.0 * (profit_factor - 1.0) / 1.0
 
-    elif profit_factor < 4.0:
+    if profit_factor < 4.0:
         # Square root scaling for excellent strategies (diminishing returns)
         # Maps [2.0, 4.0] → [1.5, 2.618]
         return 1.5 + 1.118 * math.sqrt((profit_factor - 2.0) / 2.0)
 
-    else:
-        # Cap at maximum to prevent single-metric optimization
-        return 2.618
+    # Cap at maximum to prevent single-metric optimization
+    return 2.618
 
 
 def calculate_expectancy_per_trade_normalized(expectancy, volatility=None):
@@ -259,19 +257,19 @@ def calculate_total_trades_normalized(total_trades):
         normalized = total_trades / 20
         return 0.05 + 0.1 * (normalized**4.0)  # Very steep curve, almost unusable
 
-    elif total_trades < 40:
+    if total_trades < 40:
         # Very low sample size: insufficient for statistical confidence
         # Maps [20, 39] → [0.15, 0.5]
         progress = (total_trades - 20) / 20
         return 0.15 + 0.35 * (progress**3.0)  # Steep penalty curve
 
-    elif total_trades <= 49:
+    if total_trades <= 49:
         # Minimal significance: still penalized but improving
         # Maps [40, 49] → [0.5, 1.0]
         progress = (total_trades - 40) / 9
         return 0.5 + 0.5 * (progress**2.0)  # Quadratic improvement
 
-    elif total_trades <= 100:
+    if total_trades <= 100:
         # Optimal range for daily strategies: highest scores
         # Maps [50, 100] → [1.0, 2.2]
         progress = (total_trades - 50) / 50
@@ -279,17 +277,16 @@ def calculate_total_trades_normalized(total_trades):
         curve_factor = 4 * progress * (1 - progress)  # Parabolic peak
         return 1.0 + 1.2 * (0.7 * progress + 0.3 * curve_factor)
 
-    elif total_trades <= 200:
+    if total_trades <= 200:
         # Strong confidence zone: good scores with slight decline
         # Maps [101, 200] → [2.0, 1.8]
         progress = (total_trades - 100) / 100
         return 2.2 - 0.4 * progress  # Gentle decline
 
-    else:
-        # Excellent confidence but diminishing returns
-        # Maps [200+, ∞) → [1.5, 1.8]
-        excess = total_trades - 200
-        return 1.8 - 0.3 * (1 - math.exp(-excess / 100))  # Asymptotic approach to 1.5
+    # Excellent confidence but diminishing returns
+    # Maps [200+, ∞) → [1.5, 1.8]
+    excess = total_trades - 200
+    return 1.8 - 0.3 * (1 - math.exp(-excess / 100))  # Asymptotic approach to 1.5
 
 
 def calculate_beats_bnh_normalized(beats_bnh_percent):
@@ -311,14 +308,14 @@ def calculate_beats_bnh_normalized(beats_bnh_percent):
 
 
 def convert_stats(
-    stats: Dict[str, Any],
+    stats: dict[str, Any],
     log: Callable[[str, str], None],
     config: StatsConfig | None = None,
     current: Any | None = None,
     exit_signal: Any | None = None,
     signal_unconfirmed: str | None = None,
     verbose: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Convert portfolio statistics to a standardized format with proper type handling.
 
     Processes raw statistics to calculate additional metrics and ensure consistent
@@ -408,8 +405,8 @@ def convert_stats(
         )
 
         # Calculate months in the backtest period
-        if isinstance(stats["End"], (int, float)) and isinstance(
-            stats["Start"], (int, float)
+        if isinstance(stats["End"], int | float) and isinstance(
+            stats["Start"], int | float
         ):
             if config.get("USE_HOURLY", False):
                 # For hourly data, convert hours to days first
@@ -542,7 +539,7 @@ def convert_stats(
             except Exception as e:
                 stats["Score"] = 0
                 log(
-                    f"Error calculating Score for {ticker}: {str(e)}. Setting to 0.",
+                    f"Error calculating Score for {ticker}: {e!s}. Setting to 0.",
                     "error",
                 )
         else:
@@ -603,29 +600,28 @@ def convert_stats(
             stats["Expectancy per Month"] = (
                 stats["Trades per Month"] * stats["Expectancy per Trade"]
             )
+        # Calculate Expectancy per Trade if missing
+        elif (
+            "Total Return [%]" in stats
+            and "Total Trades" in stats
+            and stats["Total Trades"] > 0
+        ):
+            # Estimate Expectancy per Trade from Total Return and Total Trades
+            expectancy = stats["Total Return [%]"] / (100 * stats["Total Trades"])
+            stats["Expectancy per Trade"] = expectancy
+            log(
+                f"Calculated missing Expectancy per Trade: {expectancy:.6f} for {ticker}",
+                "info",
+            )
+            stats["Expectancy per Month"] = stats["Trades per Month"] * expectancy
         else:
-            # Calculate Expectancy per Trade if missing
-            if (
-                "Total Return [%]" in stats
-                and "Total Trades" in stats
-                and stats["Total Trades"] > 0
-            ):
-                # Estimate Expectancy per Trade from Total Return and Total Trades
-                expectancy = stats["Total Return [%]"] / (100 * stats["Total Trades"])
-                stats["Expectancy per Trade"] = expectancy
-                log(
-                    f"Calculated missing Expectancy per Trade: {expectancy:.6f} for {ticker}",
-                    "info",
-                )
-                stats["Expectancy per Month"] = stats["Trades per Month"] * expectancy
-            else:
-                # Set default values if we can't calculate
-                log(
-                    "Expectancy per Trade not found and cannot be calculated, using defaults",
-                    "debug",
-                )
-                stats["Expectancy per Trade"] = 0.0
-                stats["Expectancy per Month"] = 0.0
+            # Set default values if we can't calculate
+            log(
+                "Expectancy per Trade not found and cannot be calculated, using defaults",
+                "debug",
+            )
+            stats["Expectancy per Trade"] = 0.0
+            stats["Expectancy per Month"] = 0.0
 
         # Calculate average trade duration as weighted average of winning and
         # losing durations
@@ -673,7 +669,7 @@ def convert_stats(
                 stats["Avg Trade Duration"] = str(avg_duration)
             except Exception as e:
                 log(
-                    f"Error calculating average trade duration for {ticker}: {str(e)}",
+                    f"Error calculating average trade duration for {ticker}: {e!s}",
                     "error",
                 )
                 stats["Avg Trade Duration"] = str(avg_duration)
@@ -737,14 +733,14 @@ def convert_stats(
                                 "debug",
                             )
                         except Exception as e:
-                            log(f"Error converting {k} to scalar: {str(e)}", "error")
+                            log(f"Error converting {k} to scalar: {e!s}", "error")
                             converted[k] = v
                     else:
                         converted[k] = v
 
                     # Log the value being preserved
                     log(f"Preserving risk metric {k} = {converted[k]}", "debug")
-                elif k == "Start" or k == "End":
+                elif k in ("Start", "End"):
                     converted[k] = (
                         v.strftime("%Y-%m-%d %H:%M:%S")
                         if isinstance(v, datetime)
@@ -752,7 +748,7 @@ def convert_stats(
                     )
                 elif isinstance(v, pd.Timedelta):
                     converted[k] = str(v)
-                elif isinstance(v, (int, float)):
+                elif isinstance(v, int | float):
                     # Keep numeric values as is
                     converted[k] = v
                 elif k == "_equity_data":
@@ -783,13 +779,13 @@ def convert_stats(
         return converted
 
     except Exception as e:
-        log(f"Failed to convert stats for {ticker}: {str(e)}", "error")
+        log(f"Failed to convert stats for {ticker}: {e!s}", "error")
         raise
 
 
 def _ensure_canonical_schema_compliance(
-    stats: Dict[str, Any], log: Callable[[str, str], None], verbose: bool = False
-) -> Dict[str, Any]:
+    stats: dict[str, Any], log: Callable[[str, str], None], verbose: bool = False
+) -> dict[str, Any]:
     """
     Ensure the stats dictionary conforms to the canonical 59-column schema.
 
@@ -840,7 +836,7 @@ def _ensure_canonical_schema_compliance(
 
 def _get_default_value_for_column(
     column_name: str,
-    stats: Dict[str, Any],
+    stats: dict[str, Any],
     log: Callable[[str, str], None],
     verbose: bool = False,
 ) -> Any:
@@ -920,7 +916,7 @@ def _get_default_value_for_column(
         "Total Period": stats.get("Total Period", 0.0),
     }
 
-    default_value = column_defaults.get(column_name, None)
+    default_value = column_defaults.get(column_name)
 
     # Define columns that commonly missing and don't need warnings
     commonly_missing = {
@@ -943,12 +939,11 @@ def _get_default_value_for_column(
                 f"No default value defined for column '{column_name}', using None",
                 log_level,
             )
-    else:
-        # Only show debug messages if verbose mode is enabled
-        if verbose:
-            log(
-                f"Using default value for missing column '{column_name}': {default_value}",
-                "debug",
-            )
+    # Only show debug messages if verbose mode is enabled
+    elif verbose:
+        log(
+            f"Using default value for missing column '{column_name}': {default_value}",
+            "debug",
+        )
 
     return default_value

@@ -8,14 +8,12 @@ This module provides volume and liquidity scoring capabilities including:
 - Liquidity risk assessment
 """
 
-import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from typing import Any, Dict, Optional, Tuple
+import logging
+from typing import Any
 
 import numpy as np
 import pandas as pd
-import polars as pl
 import yfinance as yf
 
 
@@ -39,7 +37,7 @@ class VolumeLiquidityAnalyzer:
     and liquidity scoring for market impact assessment.
     """
 
-    def __init__(self, ticker: str, logger: Optional[logging.Logger] = None):
+    def __init__(self, ticker: str, logger: logging.Logger | None = None):
         """
         Initialize volume liquidity analyzer.
 
@@ -49,7 +47,7 @@ class VolumeLiquidityAnalyzer:
         """
         self.ticker = ticker
         self.logger = logger or logging.getLogger(__name__)
-        self.volume_data: Optional[pd.DataFrame] = None
+        self.volume_data: pd.DataFrame | None = None
 
     def fetch_volume_data(self, period_days: int = 60) -> bool:
         """
@@ -305,7 +303,7 @@ class VolumeLiquidityAnalyzer:
             liquidity_score=50.0,
         )
 
-    def get_volume_analysis(self) -> Dict[str, Any]:
+    def get_volume_analysis(self) -> dict[str, Any]:
         """
         Get comprehensive volume analysis results.
 
@@ -337,7 +335,7 @@ class VolumeLiquidityAnalyzer:
 
 
 def create_volume_analyzer(
-    ticker: str, logger: Optional[logging.Logger] = None
+    ticker: str, logger: logging.Logger | None = None
 ) -> VolumeLiquidityAnalyzer:
     """Factory function to create volume liquidity analyzer."""
     return VolumeLiquidityAnalyzer(ticker, logger)

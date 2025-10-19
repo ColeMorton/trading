@@ -4,8 +4,6 @@ Validation Template Generator
 Provides testing and validation templates for generated strategies.
 """
 
-from typing import Any, Dict, List
-
 from .config_template import TemplateConfig
 
 
@@ -328,7 +326,7 @@ if __name__ == "__main__":
         lines = []
         indent = "        "
 
-        for key, value in self.config.config_fields.items():
+        for key, _value in self.config.config_fields.items():
             if key in ["TICKER", "BASE_DIR", "REFRESH", "DIRECTION", "USE_CURRENT"]:
                 continue  # Already tested above
 

@@ -5,10 +5,9 @@ This module tests the memory optimization components including object pooling,
 memory monitoring, data conversion, streaming processing, and memory-mapped file access.
 """
 
-import gc
-import tempfile
 from pathlib import Path
-from unittest.mock import Mock, patch
+import tempfile
+from unittest.mock import patch
 
 import pandas as pd
 import polars as pl
@@ -58,9 +57,9 @@ class TestMemoryOptimizer:
         df["int_col"] = df["int_col"].astype("int64")
         df["float_col"] = df["float_col"].astype("float64")
 
-        start_memory = df.memory_usage(deep=True).sum()
+        df.memory_usage(deep=True).sum()
         optimized_df = optimizer.optimize_dataframe(df)
-        end_memory = optimized_df.memory_usage(deep=True).sum()
+        optimized_df.memory_usage(deep=True).sum()
 
         # For small datasets, optimization might not reduce size significantly
         # Just verify the function runs without error and optimizations are applied
@@ -84,7 +83,7 @@ class TestMemoryOptimizer:
         # Acquire objects
         obj1 = obj_pool.acquire()
         obj2 = obj_pool.acquire()
-        obj3 = obj_pool.acquire()
+        obj_pool.acquire()
 
         assert len(obj_pool._in_use) == 3
 
@@ -129,7 +128,7 @@ class TestMemoryOptimizer:
         monitor = MemoryMonitor(threshold_mb=100.0, check_interval=1)
 
         # Force memory check
-        gc_triggered = monitor.check_memory(force=True)
+        monitor.check_memory(force=True)
 
         # Check memory info
         memory_info = monitor.get_memory_info()
@@ -197,8 +196,8 @@ class TestDataConverter:
         df = pd.DataFrame({"a": [1, 2, 3]})
 
         # Convert twice - second should hit cache
-        result1 = converter.to_polars(df)
-        result2 = converter.to_polars(df)
+        converter.to_polars(df)
+        converter.to_polars(df)
 
         # Check cache stats
         stats = converter.get_stats()
@@ -241,7 +240,7 @@ class TestStreamingProcessor:
 
             # Each chunk should be a DataFrame
             for chunk in chunks:
-                assert isinstance(chunk, (pd.DataFrame, pl.DataFrame))
+                assert isinstance(chunk, pd.DataFrame | pl.DataFrame)
                 assert len(chunk) <= 2  # Chunk size limit
 
         finally:
@@ -263,8 +262,8 @@ class TestStreamingProcessor:
             def agg_func(chunk):
                 if hasattr(chunk, "sum"):  # Polars
                     return {"sum": chunk["value"].sum()}
-                else:  # Pandas
-                    return {"sum": chunk["value"].sum()}
+                # Pandas
+                return {"sum": chunk["value"].sum()}
 
             def combine_func(chunk_results):
                 return sum(r["sum"] for r in chunk_results)
@@ -362,7 +361,8 @@ class TestMemoryEfficientParameterSweep:
     def test_parameter_sweep_execution(self):
         """Test parameter sweep execution."""
         sweep = MemoryEfficientParameterSweep(
-            chunk_size=2, stream_to_disk=False  # Keep in memory for testing
+            chunk_size=2,
+            stream_to_disk=False,  # Keep in memory for testing
         )
 
         # Define test strategy
@@ -476,9 +476,9 @@ class TestIntegration:
 
         optimizer = MemoryOptimizer()
 
-        start_memory = large_df.memory_usage(deep=True).sum()
+        large_df.memory_usage(deep=True).sum()
         optimized_df = optimizer.optimize_dataframe(large_df)
-        end_memory = optimized_df.memory_usage(deep=True).sum()
+        optimized_df.memory_usage(deep=True).sum()
 
         # Just verify optimization runs without error
         assert optimized_df is not None

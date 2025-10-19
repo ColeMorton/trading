@@ -13,10 +13,8 @@ TESTS COVER:
 - Error handling for missing files
 """
 
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 
-import pandas as pd
 import pytest
 
 from app.concurrency.tools.asset_strategy_loader import AssetStrategyLoader
@@ -303,7 +301,7 @@ TEST,D,SMA,5,30,,0.90,45.0,1.2,0.40,50.0,-35.0,5.0,40,0.0"""
     def test_parse_ticker_from_filename(self):
         """Test extracting ticker from filename pattern."""
         # Note: _parse_ticker_from_filename is not a class method, but we can test the logic
-        loader = AssetStrategyLoader()
+        AssetStrategyLoader()
 
         # Test via get_available_assets which uses the parsing logic
         # This test validates the pattern matching works

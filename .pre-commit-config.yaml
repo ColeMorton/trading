@@ -42,7 +42,17 @@ repos:
         language_version: python3.11
         args: ['--line-length', '88']
 
-  # flake8 - Style guide enforcement (temporarily disabled)
+  # Ruff - Modern, fast Python linter (replaces flake8, isort checks, and more)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      # Run the linter
+      - id: ruff
+        args: ['--fix', '--exit-non-zero-on-fix']
+      # Run the formatter (optional - black is primary formatter)
+      - id: ruff-format
+
+  # flake8 - Style guide enforcement (temporarily disabled - replaced by Ruff)
   # - repo: https://github.com/pycqa/flake8
   #   rev: 7.0.0
   #   hooks:

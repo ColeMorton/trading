@@ -12,16 +12,15 @@ Author: Financial Research Analysis
 Date: 2025-09-23
 """
 
+from datetime import datetime
 import json
-import warnings
-from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+import warnings
 
 import numpy as np
 import pandas as pd
-from scipy import stats
 from scipy.stats import bootstrap
+
 
 warnings.filterwarnings("ignore")
 
@@ -35,7 +34,7 @@ class BTC1093DayHoldAnalyzer:
         self.hold_period = 1093  # Exactly 1093 days
         self.results = {}
 
-    def load_price_data(self) -> Optional[pd.DataFrame]:
+    def load_price_data(self) -> pd.DataFrame | None:
         """Load BTC-USD daily price data."""
         try:
             if not self.data_path.exists():
@@ -73,7 +72,9 @@ class BTC1093DayHoldAnalyzer:
         latest_entry_idx = len(df) - self.hold_period - 1
 
         if latest_entry_idx < 0:
-            print(f"❌ Error: Insufficient data. Need at least {self.hold_period} days.")
+            print(
+                f"❌ Error: Insufficient data. Need at least {self.hold_period} days."
+            )
             return pd.DataFrame()
 
         print(
@@ -110,7 +111,7 @@ class BTC1093DayHoldAnalyzer:
 
         return pd.DataFrame(results)
 
-    def calculate_statistics(self, returns_df: pd.DataFrame) -> Dict:
+    def calculate_statistics(self, returns_df: pd.DataFrame) -> dict:
         """Calculate comprehensive statistics from the rolling returns."""
         if returns_df.empty:
             return {"error": "No data available for analysis"}
@@ -183,7 +184,7 @@ class BTC1093DayHoldAnalyzer:
 
     def calculate_confidence_intervals(
         self, returns_df: pd.DataFrame, confidence_level: float = 0.95
-    ) -> Dict:
+    ) -> dict:
         """Calculate confidence intervals for profit percentage using bootstrap sampling."""
         if returns_df.empty:
             return {"error": "No data available for confidence interval calculation"}
@@ -234,7 +235,7 @@ class BTC1093DayHoldAnalyzer:
             "n_bootstrap_samples": n_bootstrap,
         }
 
-    def analyze_temporal_patterns(self, returns_df: pd.DataFrame) -> Dict:
+    def analyze_temporal_patterns(self, returns_df: pd.DataFrame) -> dict:
         """Analyze profitability patterns across time periods."""
         if returns_df.empty:
             return {"error": "No data available for temporal analysis"}
@@ -286,7 +287,7 @@ class BTC1093DayHoldAnalyzer:
             "market_cycle_analysis": cycle_analysis,
         }
 
-    def run_full_analysis(self) -> Dict:
+    def run_full_analysis(self) -> dict:
         """Run the complete 1093-day buy-and-hold analysis."""
         print("🚀 Starting BTC-USD 1093-Day Buy-and-Hold Profitability Analysis")
         print("=" * 80)
@@ -334,7 +335,7 @@ class BTC1093DayHoldAnalyzer:
         print("\n✅ Analysis complete!")
         return results
 
-    def generate_report(self, analysis_results: Dict) -> str:
+    def generate_report(self, analysis_results: dict) -> str:
         """Generate a comprehensive financial research report."""
         if "error" in analysis_results:
             return f"❌ Analysis Error: {analysis_results['error']}"
@@ -501,7 +502,9 @@ class BTC1093DayHoldAnalyzer:
 def main():
     """Main execution function."""
     print("🚀 BTC-USD 1093-Day Buy-and-Hold Profitability Analysis")
-    print("📊 Analyzing what percentage of days would be profitable after 1093-day hold")
+    print(
+        "📊 Analyzing what percentage of days would be profitable after 1093-day hold"
+    )
     print()
 
     # Initialize analyzer

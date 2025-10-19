@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 import polars as pl
@@ -17,12 +17,12 @@ class StrategyResult(ABC):
 
     @property
     @abstractmethod
-    def metrics(self) -> Dict[str, float]:
+    def metrics(self) -> dict[str, float]:
         """Performance metrics."""
 
     @property
     @abstractmethod
-    def signals(self) -> Union[pd.DataFrame, pl.DataFrame]:
+    def signals(self) -> pd.DataFrame | pl.DataFrame:
         """Trading signals."""
 
 
@@ -34,7 +34,7 @@ class StrategyAnalyzerInterface(ABC):
         self,
         ticker: str,
         config: StrategyConfig,
-        data: Optional[Union[pd.DataFrame, pl.DataFrame]] = None,
+        data: pd.DataFrame | pl.DataFrame | None = None,
     ) -> StrategyResult:
         """Analyze a strategy for a given ticker."""
 
@@ -54,29 +54,29 @@ class StrategyExecutorInterface(ABC):
     async def execute(
         self,
         strategy_type: str,
-        tickers: List[str],
-        config: Dict[str, Any],
-        output_dir: Optional[Path] | None = None,
-    ) -> Dict[str, Any]:
+        tickers: list[str],
+        config: dict[str, Any],
+        output_dir: Path | None | None = None,
+    ) -> dict[str, Any]:
         """Execute a strategy for multiple tickers."""
 
     @abstractmethod
     async def execute_with_progress(
         self,
         strategy_type: str,
-        tickers: List[str],
-        config: Dict[str, Any],
+        tickers: list[str],
+        config: dict[str, Any],
         task_id: str,
         progress_tracker: "ProgressTrackerInterface",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Execute a strategy with progress tracking."""
 
     @abstractmethod
-    def get_supported_strategies(self) -> List[str]:
+    def get_supported_strategies(self) -> list[str]:
         """Get list of supported strategy types."""
 
     @abstractmethod
-    def validate_parameters(self, strategy_type: str, config: Dict[str, Any]) -> bool:
+    def validate_parameters(self, strategy_type: str, config: dict[str, Any]) -> bool:
         """Validate parameters for a specific strategy."""
 
 
@@ -84,15 +84,15 @@ class StrategyInterface(ABC):
     """Simplified interface for individual strategy implementations."""
 
     @abstractmethod
-    def validate_parameters(self, config: Dict[str, Any]) -> bool:
+    def validate_parameters(self, config: dict[str, Any]) -> bool:
         """Validate strategy-specific parameters."""
 
     @abstractmethod
-    def execute(self, config: Dict[str, Any], log: Any) -> List[Dict[str, Any]]:
+    def execute(self, config: dict[str, Any], log: Any) -> list[dict[str, Any]]:
         """Execute the strategy and return portfolio results."""
 
     @abstractmethod
-    def get_parameter_ranges(self) -> Dict[str, Any]:
+    def get_parameter_ranges(self) -> dict[str, Any]:
         """Get strategy-specific parameter ranges and defaults."""
 
     @abstractmethod

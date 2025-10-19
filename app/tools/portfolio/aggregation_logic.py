@@ -4,12 +4,10 @@ This module provides functions for aggregating portfolio data
 by ticker and strategy type.
 """
 
-from typing import Any, Dict
-
 import pandas as pd
 
 
-def aggregate_by_ticker(df: pd.DataFrame, ticker_aggregation: Dict, file_info: Dict):
+def aggregate_by_ticker(df: pd.DataFrame, ticker_aggregation: dict, file_info: dict):
     """Aggregate portfolio data by ticker symbol.
 
     Args:
@@ -85,7 +83,7 @@ def aggregate_by_ticker(df: pd.DataFrame, ticker_aggregation: Dict, file_info: D
 
 
 def aggregate_by_strategy(
-    df: pd.DataFrame, strategy_aggregation: Dict, file_info: Dict
+    df: pd.DataFrame, strategy_aggregation: dict, file_info: dict
 ):
     """Aggregate portfolio data by strategy type.
 
@@ -157,4 +155,3 @@ def aggregate_by_strategy(
             strategy_data["avg_return"] = (
                 (current_avg_ret * (current_files - 1)) + avg_ret
             ) / current_files
-

@@ -1,7 +1,7 @@
 """Utility functions for data caching and retrieval."""
 
 import os
-from typing import Generic, List, Optional, Tuple, TypeVar, Union
+from typing import Generic, TypeVar
 
 import numpy as np
 import polars as pl
@@ -28,7 +28,7 @@ class CacheConfig(TypedDict):
     """
 
     BASE_DIR: str
-    TICKER: Union[str, List[str]]
+    TICKER: str | list[str]
     FAST_PERIOD: int
     SLOW_PERIOD: int
     USE_SMA: bool
@@ -75,7 +75,7 @@ def get_ticker_prefix(config: CacheConfig) -> str:
     return ticker_prefix
 
 
-def get_cache_filepath(config: CacheConfig, analysis_type: str) -> Tuple[str, str]:
+def get_cache_filepath(config: CacheConfig, analysis_type: str) -> tuple[str, str]:
     """
     Generate filepath for analysis cache.
 
@@ -120,11 +120,11 @@ def get_cache_filepath(config: CacheConfig, analysis_type: str) -> Tuple[str, st
 
 def load_cached_analysis(
     filepath: str,
-    param_range: Optional[np.ndarray] | None = None,
+    param_range: np.ndarray | None | None = None,
     param_column: str = "Parameter",
-    param_range_2: Optional[np.ndarray] | None = None,
-    param_column_2: Optional[str] | None = None,
-) -> Optional[CacheResult[np.ndarray]]:
+    param_range_2: np.ndarray | None | None = None,
+    param_column_2: str | None | None = None,
+) -> CacheResult[np.ndarray] | None:
     """
     Load cached analysis results from a CSV file.
 
@@ -184,39 +184,36 @@ def load_cached_analysis(
                 "win_rate": win_rate_matrix.T,
             }
 
-        else:
-            # 1D analysis (e.g., stop loss or protective stop loss)
-            csv_params = df.get_column(param_column).unique().sort().to_numpy()
+        # 1D analysis (e.g., stop loss or protective stop loss)
+        csv_params = df.get_column(param_column).unique().sort().to_numpy()
 
-            if param_range is None:
-                param_range = csv_params
+        if param_range is None:
+            param_range = csv_params
 
-            # Initialize arrays
-            num_params = len(param_range)
-            returns_array = np.zeros(num_params)
-            win_rate_array = np.zeros(num_params)
-            sharpe_ratio_array = np.zeros(num_params)
-            trades_array = np.zeros(num_params)
+        # Initialize arrays
+        num_params = len(param_range)
+        returns_array = np.zeros(num_params)
+        win_rate_array = np.zeros(num_params)
+        sharpe_ratio_array = np.zeros(num_params)
+        trades_array = np.zeros(num_params)
 
-            # For each parameter value, find the closest match in CSV
-            for i, target_param in enumerate(param_range):
-                closest_param = csv_params[np.abs(csv_params - target_param).argmin()]
-                row = df.filter(pl.col(param_column) == closest_param).row(
-                    0, named=True
-                )
+        # For each parameter value, find the closest match in CSV
+        for i, target_param in enumerate(param_range):
+            closest_param = csv_params[np.abs(csv_params - target_param).argmin()]
+            row = df.filter(pl.col(param_column) == closest_param).row(0, named=True)
 
-                returns_array[i] = row.get("Total Return [%]", 0)
-                win_rate_array[i] = row.get("Win Rate [%]", 0)
-                sharpe_ratio_array[i] = row.get("Sharpe Ratio", 0)
-                trades_array[i] = row.get("Total Closed Trades", 0)
+            returns_array[i] = row.get("Total Return [%]", 0)
+            win_rate_array[i] = row.get("Win Rate [%]", 0)
+            sharpe_ratio_array[i] = row.get("Sharpe Ratio", 0)
+            trades_array[i] = row.get("Total Closed Trades", 0)
 
-            return {
-                "trades": trades_array,
-                "returns": returns_array,
-                "sharpe_ratio": sharpe_ratio_array,
-                "win_rate": win_rate_array,
-            }
+        return {
+            "trades": trades_array,
+            "returns": returns_array,
+            "sharpe_ratio": sharpe_ratio_array,
+            "win_rate": win_rate_array,
+        }
 
     except Exception as e:
-        print(f"Error loading cached analysis: {str(e)}")
+        print(f"Error loading cached analysis: {e!s}")
         return None

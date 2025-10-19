@@ -6,17 +6,18 @@ maintains compatibility with existing functionality.
 """
 
 import importlib.util
-import os
+from pathlib import Path
 import sys
 import unittest
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
+
 
 # Add the project root to the Python path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from app.strategies.ma_cross.config_types import Config
+
 
 # Import get_portfolios using importlib due to numeric filename
 spec = importlib.util.spec_from_file_location(

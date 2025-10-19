@@ -7,11 +7,10 @@ This script demonstrates the migration from 9 fragmented test runners to the
 single enhanced unified test runner with intelligent parallel execution.
 """
 
+from pathlib import Path
 import subprocess
 import sys
-import time
-from pathlib import Path
-from typing import Dict, List
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -37,7 +36,7 @@ class RunnerMigrationValidator:
 
         self.unified_runner = "/tests/run_unified_tests.py"
 
-    def validate_legacy_runners_exist(self) -> Dict[str, bool]:
+    def validate_legacy_runners_exist(self) -> dict[str, bool]:
         """Check which legacy runners still exist."""
         results = {}
 
@@ -52,7 +51,7 @@ class RunnerMigrationValidator:
 
         return results
 
-    def validate_unified_runner_capabilities(self) -> Dict[str, bool]:
+    def validate_unified_runner_capabilities(self) -> dict[str, bool]:
         """Validate that unified runner can replace all legacy functionality."""
         capabilities = {
             "basic_execution": False,
@@ -65,7 +64,7 @@ class RunnerMigrationValidator:
             "resource_management": False,
         }
 
-        print(f"\n🧪 Validating unified runner capabilities...")
+        print("\n🧪 Validating unified runner capabilities...")
 
         # Test basic execution
         try:
@@ -75,6 +74,7 @@ class RunnerMigrationValidator:
                 capture_output=True,
                 text=True,
                 timeout=10,
+                check=False,
             )
 
             if result.returncode == 0 and "unit" in result.stdout:
@@ -93,6 +93,7 @@ class RunnerMigrationValidator:
                 capture_output=True,
                 text=True,
                 timeout=10,
+                check=False,
             )
 
             if result.returncode == 0 and "-n" in result.stdout:
@@ -111,6 +112,7 @@ class RunnerMigrationValidator:
                 capture_output=True,
                 text=True,
                 timeout=10,
+                check=False,
             )
 
             if (
@@ -133,6 +135,7 @@ class RunnerMigrationValidator:
                 capture_output=True,
                 text=True,
                 timeout=10,
+                check=False,
             )
 
             if result.returncode == 0 and "--cov" in result.stdout:
@@ -151,6 +154,7 @@ class RunnerMigrationValidator:
                 capture_output=True,
                 text=True,
                 timeout=10,
+                check=False,
             )
 
             if result.returncode == 0 and (
@@ -178,6 +182,7 @@ class RunnerMigrationValidator:
                 capture_output=True,
                 text=True,
                 timeout=10,
+                check=False,
             )
 
             if result.returncode == 0 and "Concurrent" in result.stdout:
@@ -196,6 +201,7 @@ class RunnerMigrationValidator:
                 capture_output=True,
                 text=True,
                 timeout=10,
+                check=False,
             )
 
             if result.returncode == 0 and (
@@ -216,6 +222,7 @@ class RunnerMigrationValidator:
                 capture_output=True,
                 text=True,
                 timeout=10,
+                check=False,
             )
 
             if result.returncode == 0 and (
@@ -230,7 +237,7 @@ class RunnerMigrationValidator:
 
         return capabilities
 
-    def calculate_feature_coverage(self) -> Dict[str, float]:
+    def calculate_feature_coverage(self) -> dict[str, float]:
         """Calculate what percentage of legacy functionality is covered."""
 
         # Map legacy runners to their key features
@@ -266,10 +273,10 @@ class RunnerMigrationValidator:
 
         return coverage_results
 
-    def demonstrate_performance_improvements(self) -> Dict[str, any]:
+    def demonstrate_performance_improvements(self) -> dict[str, any]:
         """Demonstrate performance improvements of unified runner."""
 
-        print(f"\n⚡ Demonstrating performance improvements...")
+        print("\n⚡ Demonstrating performance improvements...")
 
         improvements = {
             "parallel_execution": "40%+ faster through intelligent worker allocation",
@@ -285,7 +292,7 @@ class RunnerMigrationValidator:
 
         return improvements
 
-    def generate_migration_report(self) -> Dict[str, any]:
+    def generate_migration_report(self) -> dict[str, any]:
         """Generate comprehensive migration report."""
 
         print("\n" + "=" * 80)
@@ -323,7 +330,7 @@ class RunnerMigrationValidator:
             "migration_status": "SUCCESS" if capability_percentage >= 75 else "PARTIAL",
         }
 
-        print(f"\n📊 Migration Summary:")
+        print("\n📊 Migration Summary:")
         print(
             f"🔄 Legacy Runners: {legacy_count}/{len(self.legacy_runners)} still exist"
         )
@@ -335,17 +342,17 @@ class RunnerMigrationValidator:
         print(f"🎯 Migration Status: {report['migration_status']}")
 
         if report["migration_status"] == "SUCCESS":
-            print(f"\n🎉 Phase 2 Migration Complete!")
+            print("\n🎉 Phase 2 Migration Complete!")
             print(
-                f"The unified runner successfully replaces 9 legacy test runners with:"
+                "The unified runner successfully replaces 9 legacy test runners with:"
             )
-            print(f"  • Intelligent parallel execution")
-            print(f"  • Smart test categorization")
-            print(f"  • Performance monitoring")
-            print(f"  • Resource management")
-            print(f"  • Enhanced reporting")
+            print("  • Intelligent parallel execution")
+            print("  • Smart test categorization")
+            print("  • Performance monitoring")
+            print("  • Resource management")
+            print("  • Enhanced reporting")
         else:
-            print(f"\n⚠️ Migration needs attention - some capabilities missing")
+            print("\n⚠️ Migration needs attention - some capabilities missing")
 
         return report
 
@@ -360,8 +367,7 @@ def main():
         # Exit with appropriate code
         if report["migration_status"] == "SUCCESS":
             return 0
-        else:
-            return 1
+        return 1
 
     except Exception as e:
         print(f"❌ Migration validation failed: {e}")

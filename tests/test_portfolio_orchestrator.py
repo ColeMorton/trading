@@ -6,17 +6,10 @@ the workflow of portfolio analysis.
 """
 
 import unittest
-from typing import Any, Dict, List
-from unittest.mock import MagicMock, Mock, call, patch
+from unittest.mock import Mock, patch
 
 from app.strategies.ma_cross.exceptions import MACrossExecutionError
-from app.tools.exceptions import (
-    ConfigurationError,
-    ExportError,
-    StrategyProcessingError,
-    SyntheticTickerError,
-    TradingSystemError,
-)
+from app.tools.exceptions import ConfigurationError, TradingSystemError
 from app.tools.orchestration.portfolio_orchestrator import PortfolioOrchestrator
 from app.tools.orchestration.ticker_processor import TickerProcessor
 
@@ -90,7 +83,7 @@ class TestPortfolioOrchestrator(unittest.TestCase):
 
         # The error context may handle errors gracefully and not re-raise
         # Test that the method completes and the mock was called
-        result = self.orchestrator._process_synthetic_configuration(self.config)
+        self.orchestrator._process_synthetic_configuration(self.config)
 
         # Verify the function was called
         mock_process_synthetic.assert_called_once_with(self.config, self.mock_log)
@@ -170,7 +163,7 @@ class TestPortfolioOrchestrator(unittest.TestCase):
 
         # The export method may handle errors gracefully and not raise exceptions
         # Test that the method completes even with mocked failures
-        result = self.orchestrator._export_results([self.sample_portfolio], self.config)
+        self.orchestrator._export_results([self.sample_portfolio], self.config)
 
         # Verify the export function was called
         mock_export.assert_called_once_with(

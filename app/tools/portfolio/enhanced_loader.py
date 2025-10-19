@@ -5,9 +5,10 @@ error handling, logging, and path resolution in a consistent way across the syst
 It follows SOLID principles and KISS (Keep It Simple, Stupid) design philosophy.
 """
 
+from collections.abc import Callable, Generator
 import contextlib
 import os
-from typing import Any, Callable, Dict, Generator, List
+from typing import Any
 
 from app.tools.portfolio.loader import load_portfolio as base_load_portfolio
 from app.tools.portfolio.paths import resolve_portfolio_file_path
@@ -25,9 +26,9 @@ class PortfolioLoadError(Exception):
 def load_portfolio_with_logging(
     portfolio_name: str,
     log: Callable[[str, str], None],
-    config: Dict[str, Any],
+    config: dict[str, Any],
     detailed_logging: bool = True,
-) -> List[StrategyConfig]:
+) -> list[StrategyConfig]:
     """Load a portfolio with standardized logging and error handling.
 
     This function follows:
@@ -73,7 +74,7 @@ def load_portfolio_with_logging(
         log(f"Path exists: {portfolio_path.exists()}", "info")
     except FileNotFoundError as e:
         log(f"Portfolio not found: {portfolio_name}", "error")
-        log(f"Error details: {str(e)}", "error")
+        log(f"Error details: {e!s}", "error")
         raise PortfolioLoadError(f"Portfolio not found: {portfolio_name}") from e
 
     try:
@@ -82,14 +83,14 @@ def load_portfolio_with_logging(
         log(f"Successfully loaded portfolio with {len(strategies)} entries")
         return strategies
     except Exception as e:
-        log(f"Failed to load portfolio: {str(e)}", "error")
-        raise PortfolioLoadError(f"Failed to load portfolio: {str(e)}") from e
+        log(f"Failed to load portfolio: {e!s}", "error")
+        raise PortfolioLoadError(f"Failed to load portfolio: {e!s}") from e
 
 
 @contextlib.contextmanager
 def portfolio_context(
-    portfolio_name: str, log: Callable[[str, str], None], config: Dict[str, Any]
-) -> Generator[List[StrategyConfig], None, None]:
+    portfolio_name: str, log: Callable[[str, str], None], config: dict[str, Any]
+) -> Generator[list[StrategyConfig], None, None]:
     """Context manager for portfolio loading with automatic error handling.
 
     This context manager follows:
@@ -117,9 +118,9 @@ def portfolio_context(
     except Exception as e:
         if not isinstance(e, PortfolioLoadError):
             # Catch and convert any non-PortfolioLoadError exceptions
-            log(f"Unexpected error in portfolio context: {str(e)}", "error")
+            log(f"Unexpected error in portfolio context: {e!s}", "error")
             raise PortfolioLoadError(
-                f"Unexpected error in portfolio context: {str(e)}"
+                f"Unexpected error in portfolio context: {e!s}"
             ) from e
         # Re-raise PortfolioLoadError exceptions
         raise

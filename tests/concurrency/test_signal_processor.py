@@ -9,13 +9,14 @@ Tests the standardized signal processor to ensure:
 4. Trade counting methodology correctness
 """
 
+from pathlib import Path
 import sys
 import unittest
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import polars as pl
+
 
 # Add parent directories to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -118,7 +119,7 @@ class TestSignalProcessor(unittest.TestCase):
         )
 
         # Total valid after RSI filtering
-        total_valid_rsi = len(valid_rsi_buy) + len(valid_rsi_sell)
+        len(valid_rsi_buy) + len(valid_rsi_sell)
 
         # The filtered count should make sense given our criteria
         self.assertIsInstance(filtered_count, int)

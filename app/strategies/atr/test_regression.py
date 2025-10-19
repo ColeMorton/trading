@@ -15,13 +15,9 @@ Focus: Regression prevention with specific tests for historical bugs
 """
 
 import unittest
-from datetime import datetime, timedelta
-from typing import Any, Dict, List
-from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
-import polars as pl
 
 from app.strategies.atr.tools.strategy_execution import (
     analyze_params,
@@ -297,7 +293,7 @@ class TestATRRegressionPrevention(unittest.TestCase):
         )
 
         # Check for duration-related fields
-        duration_fields = [key for key in result.keys() if "duration" in key.lower()]
+        duration_fields = [key for key in result if "duration" in key.lower()]
 
         for field in duration_fields:
             value = result[field]
@@ -311,7 +307,7 @@ class TestATRRegressionPrevention(unittest.TestCase):
             )
 
             # Should not be NaN or complex object
-            if isinstance(value, (int, float)):
+            if isinstance(value, int | float):
                 self.assertFalse(
                     np.isnan(value), f"Duration field {field} should not be NaN"
                 )
@@ -344,7 +340,7 @@ class TestATRRegressionPrevention(unittest.TestCase):
 
         if any(entry != "missing" for entry in signal_entries):
             # If Signal Entry field exists, it should not always be the same value
-            unique_entries = set(str(entry).lower() for entry in signal_entries)
+            unique_entries = {str(entry).lower() for entry in signal_entries}
 
             # CRITICAL REGRESSION CHECK: Should have variety in Signal Entry values
             # In realistic scenarios with different parameters, some should be true, some false

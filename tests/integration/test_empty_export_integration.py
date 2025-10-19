@@ -9,8 +9,8 @@ These tests use real file operations and verify the actual behavior of the syste
 when empty portfolios are encountered.
 """
 
-import tempfile
 from pathlib import Path
+import tempfile
 from unittest.mock import Mock
 
 import polars as pl
@@ -162,7 +162,7 @@ class TestEmptyExportIntegration:
         result = export_best_portfolios([], test_config, mock_log)
 
         # Verify function succeeded
-        assert result == True
+        assert result is True
 
         # Verify appropriate log messages
         log_messages = [msg[0] for msg in mock_log.messages]
@@ -226,7 +226,7 @@ class TestEmptyExportIntegration:
         result = orchestrator.run(test_config)
 
         # Verify orchestrator succeeded
-        assert result == True
+        assert result is True
 
         # Verify all three export types were created
         export_dirs = ["portfolios", "portfolios_filtered", "portfolios_best"]

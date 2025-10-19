@@ -6,11 +6,12 @@ returns, exit efficiency, and trade quality assessments with standardized
 precision and comprehensive validation.
 """
 
-import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+import logging
+from typing import Any
 
 import pandas as pd
+
 
 # Standardized precision constants across entire system
 STANDARD_PNL_PRECISION = 2  # Currency values: $13.17
@@ -29,7 +30,7 @@ class PositionCalculator:
     precision across the entire trading system.
     """
 
-    def __init__(self, logger: Optional[logging.Logger] = None):
+    def __init__(self, logger: logging.Logger | None = None):
         """Initialize the position calculator."""
         self.logger = logger or logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ class PositionCalculator:
         exit_price: float,
         position_size: float,
         direction: str = "Long",
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """
         Calculate P&L and return with standardized precision.
 
@@ -76,7 +77,7 @@ class PositionCalculator:
             return 0.0, 0.0
 
     def calculate_days_since_entry(
-        self, entry_timestamp: str, current_date: Optional[datetime] = None
+        self, entry_timestamp: str, current_date: datetime | None = None
     ) -> int:
         """
         Calculate days since position entry.
@@ -103,7 +104,7 @@ class PositionCalculator:
 
     def calculate_exit_efficiency(
         self, final_return: float, mfe: float
-    ) -> Optional[float]:
+    ) -> float | None:
         """
         Calculate exit efficiency with standardized precision.
 
@@ -140,17 +141,16 @@ class PositionCalculator:
 
             if excursion > 0:
                 return "Favorable"
-            elif excursion < 0:
+            if excursion < 0:
                 return "Adverse"
-            else:
-                return "Neutral"
+            return "Neutral"
 
         except Exception as e:
             self.logger.error(f"Error determining excursion status: {e}")
             return "Unknown"
 
     def assess_trade_quality(
-        self, mfe: float, mae: float, final_return: Optional[float] = None
+        self, mfe: float, mae: float, final_return: float | None = None
     ) -> str:
         """
         Assess trade quality based on MFE/MAE metrics.
@@ -184,14 +184,11 @@ class PositionCalculator:
                     return "Failed to Capture Upside"
 
             # Standard quality assessment
-            if risk_reward_ratio >= 3.0:
+            if risk_reward_ratio >= 3.0 or risk_reward_ratio >= 2.0:
                 return "Excellent"
-            elif risk_reward_ratio >= 2.0:
-                return "Excellent"
-            elif risk_reward_ratio >= 1.5:
+            if risk_reward_ratio >= 1.5:
                 return "Good"
-            else:
-                return "Poor"
+            return "Poor"
 
         except Exception as e:
             self.logger.error(f"Error assessing trade quality: {e}")
@@ -221,10 +218,10 @@ class PositionCalculator:
 
     def validate_calculation_consistency(
         self,
-        position_data: Dict[str, Any],
+        position_data: dict[str, Any],
         tolerance_pnl: float = 0.01,
         tolerance_return: float = 0.0001,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Validate all calculations in a position for consistency.
 
@@ -331,9 +328,9 @@ class PositionCalculator:
                                 "difference": eff_diff,
                             }
                         )
-                        results["corrected_values"][
-                            "Exit_Efficiency_Fixed"
-                        ] = expected_efficiency
+                        results["corrected_values"]["Exit_Efficiency_Fixed"] = (
+                            expected_efficiency
+                        )
 
             return results
 
@@ -341,12 +338,12 @@ class PositionCalculator:
             self.logger.error(f"Error in validation: {e}")
             return {
                 "valid": False,
-                "errors": [f"Validation error: {str(e)}"],
+                "errors": [f"Validation error: {e!s}"],
                 "warnings": [],
                 "corrected_values": {},
             }
 
-    def apply_standard_rounding(self, values_dict: Dict[str, Any]) -> Dict[str, Any]:
+    def apply_standard_rounding(self, values_dict: dict[str, Any]) -> dict[str, Any]:
         """
         Apply standardized rounding to a dictionary of values.
 
@@ -392,11 +389,11 @@ class PositionCalculator:
 
     def comprehensive_position_refresh(
         self,
-        position_data: Dict[str, Any],
-        mfe: Optional[float] = None,
-        mae: Optional[float] = None,
-        current_excursion: Optional[float] = None,
-    ) -> Dict[str, Any]:
+        position_data: dict[str, Any],
+        mfe: float | None = None,
+        mae: float | None = None,
+        current_excursion: float | None = None,
+    ) -> dict[str, Any]:
         """
         Perform comprehensive refresh of all calculated fields for a position.
 
@@ -532,7 +529,7 @@ _global_calculator = None
 
 
 def get_position_calculator(
-    logger: Optional[logging.Logger] = None,
+    logger: logging.Logger | None = None,
 ) -> PositionCalculator:
     """
     Get the global position calculator instance.
@@ -555,7 +552,7 @@ def calculate_position_pnl_return(
     exit_price: float,
     position_size: float = 1.0,
     direction: str = "Long",
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """Convenience function to calculate P&L and return."""
     calculator = get_position_calculator()
     return calculator.calculate_pnl_and_return(
@@ -563,18 +560,18 @@ def calculate_position_pnl_return(
     )
 
 
-def validate_position_data(position_data: Dict[str, Any]) -> Dict[str, Any]:
+def validate_position_data(position_data: dict[str, Any]) -> dict[str, Any]:
     """Convenience function to validate position data."""
     calculator = get_position_calculator()
     return calculator.validate_calculation_consistency(position_data)
 
 
 def refresh_position_calculations(
-    position_data: Dict[str, Any],
-    mfe: Optional[float] = None,
-    mae: Optional[float] = None,
-    current_excursion: Optional[float] = None,
-) -> Dict[str, Any]:
+    position_data: dict[str, Any],
+    mfe: float | None = None,
+    mae: float | None = None,
+    current_excursion: float | None = None,
+) -> dict[str, Any]:
     """Convenience function to refresh all position calculations."""
     calculator = get_position_calculator()
     return calculator.comprehensive_position_refresh(

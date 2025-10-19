@@ -16,6 +16,7 @@ import sys
 import numpy as np
 import polars as pl
 
+
 # Add the project root to Python path for module imports
 if __name__ == "__main__":
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
@@ -219,7 +220,7 @@ def run(config: CacheConfig) -> bool:
             )
             log(f"Stop loss sensitivity analysis exported to: {csv_filepath}")
         except Exception as csv_error:
-            log(f"Warning: Failed to export CSV: {str(csv_error)}", "warning")
+            log(f"Warning: Failed to export CSV: {csv_error!s}", "warning")
             # Continue with heatmap generation even if CSV export fails
 
         # Create heatmap figures
@@ -248,7 +249,7 @@ def run(config: CacheConfig) -> bool:
         return True
 
     except Exception as e:
-        log(f"Error during stop loss analysis: {str(e)}", "error")
+        log(f"Error during stop loss analysis: {e!s}", "error")
         log_close()
         raise
 
@@ -259,5 +260,5 @@ if __name__ == "__main__":
         if result:
             print("Stop loss analysis completed successfully!")
     except Exception as e:
-        print(f"Stop loss analysis failed: {str(e)}")
+        print(f"Stop loss analysis failed: {e!s}")
         raise

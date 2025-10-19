@@ -32,8 +32,7 @@ def backtest_rsi(data, rsi_window, rsi_oversold):
     # Check the number of trades
     if len(pf.trades) >= 21:  # Use len() to check the number of trades
         return pf.total_return()
-    else:
-        return None  # Return None if trades are less than 21
+    return None  # Return None if trades are less than 21
 
 
 # Define ranges for RSI windows and oversold values

@@ -1,6 +1,6 @@
 """Type definitions for concurrency analysis module."""
 
-from typing import Any, Dict, List, Literal, Optional, TypedDict, Union
+from typing import Any, Literal, TypedDict
 
 from typing_extensions import NotRequired
 
@@ -8,37 +8,37 @@ from typing_extensions import NotRequired
 class StrategyParameters(TypedDict):
     """Parameters for a trading strategy."""
 
-    ticker: Dict[str, Union[str, Any]]
-    timeframe: Dict[str, Union[str, Any]]
-    type: Dict[str, Union[str, Any]]
-    direction: Dict[str, Union[str, Any]]
-    fast_period: Dict[str, Union[int, str]]
-    slow_period: Dict[str, Union[int, str]]
-    signal_period: NotRequired[Dict[str, Union[int, str]]]  # Required for MACD
-    length: NotRequired[Dict[str, Union[int, str]]]  # Required for ATR
-    multiplier: NotRequired[Dict[str, Union[float, str]]]  # Required for ATR
-    rsi_period: NotRequired[Dict[str, Union[int, str]]]
-    rsi_threshold: NotRequired[Dict[str, Union[int, str]]]
-    allocation: NotRequired[Dict[str, Union[float, str]]]
-    stop_loss: NotRequired[Dict[str, Union[float, str]]]
+    ticker: dict[str, str | Any]
+    timeframe: dict[str, str | Any]
+    type: dict[str, str | Any]
+    direction: dict[str, str | Any]
+    fast_period: dict[str, int | str]
+    slow_period: dict[str, int | str]
+    signal_period: NotRequired[dict[str, int | str]]  # Required for MACD
+    length: NotRequired[dict[str, int | str]]  # Required for ATR
+    multiplier: NotRequired[dict[str, float | str]]  # Required for ATR
+    rsi_period: NotRequired[dict[str, int | str]]
+    rsi_threshold: NotRequired[dict[str, int | str]]
+    allocation: NotRequired[dict[str, float | str]]
+    stop_loss: NotRequired[dict[str, float | str]]
 
 
 class StrategyPerformance(TypedDict):
     """Performance metrics for a strategy."""
 
-    expectancy_per_month: Dict[str, Union[float, str]]
-    expectancy_per_trade: Dict[str, Union[float, str]]  # Expectancy per trade
+    expectancy_per_month: dict[str, float | str]
+    expectancy_per_trade: dict[str, float | str]  # Expectancy per trade
 
 
 class StrategyRiskMetrics(TypedDict):
     """Risk metrics for a strategy."""
 
-    var_95: Dict[str, Union[float, str]]
-    cvar_95: Dict[str, Union[float, str]]
-    var_99: Dict[str, Union[float, str]]
-    cvar_99: Dict[str, Union[float, str]]
-    risk_contribution: Dict[str, Union[float, str]]
-    alpha_to_portfolio: Dict[str, Union[float, str]]
+    var_95: dict[str, float | str]
+    cvar_95: dict[str, float | str]
+    var_99: dict[str, float | str]
+    cvar_99: dict[str, float | str]
+    risk_contribution: dict[str, float | str]
+    alpha_to_portfolio: dict[str, float | str]
 
 
 class SignalQualityMetrics(TypedDict):
@@ -67,43 +67,43 @@ class SignalQualityMetrics(TypedDict):
     signal_risk_adjusted_return: float
     signal_quality_score: float
     best_horizon: NotRequired[int]
-    horizon_metrics: NotRequired[Dict[str, Dict[str, Any]]]
+    horizon_metrics: NotRequired[dict[str, dict[str, Any]]]
 
 
 class TradeCharacteristics(TypedDict):
     """Trade characteristics for a strategy."""
 
-    avg_holding_period: Dict[str, Union[float, str]]
-    profit_factor: Dict[str, Union[float, str]]
-    avg_r_multiple: Dict[str, Union[float, str]]
-    max_favorable_excursion: Dict[str, Union[float, str]]
-    max_adverse_excursion: Dict[str, Union[float, str]]
+    avg_holding_period: dict[str, float | str]
+    profit_factor: dict[str, float | str]
+    avg_r_multiple: dict[str, float | str]
+    max_favorable_excursion: dict[str, float | str]
+    max_adverse_excursion: dict[str, float | str]
 
 
 class RiskAdjustedMetrics(TypedDict):
     """Risk-adjusted metrics for a strategy."""
 
-    signal_sharpe: Dict[str, Union[float, str]]
-    signal_sortino: Dict[str, Union[float, str]]
-    signal_calmar: Dict[str, Union[float, str]]
-    max_drawdown: Dict[str, Union[float, str]]
+    signal_sharpe: dict[str, float | str]
+    signal_sortino: dict[str, float | str]
+    signal_calmar: dict[str, float | str]
+    max_drawdown: dict[str, float | str]
 
 
 class OpportunityMetrics(TypedDict):
     """Opportunity metrics for a strategy."""
 
-    capital_efficiency: Dict[str, Union[float, str]]
-    opportunity_cost: Dict[str, Union[float, str]]
-    exclusivity_value: Dict[str, Union[float, str]]
+    capital_efficiency: dict[str, float | str]
+    opportunity_cost: dict[str, float | str]
+    exclusivity_value: dict[str, float | str]
 
 
 class MarketConditionPerformance(TypedDict):
     """Market condition performance for a strategy."""
 
-    bull_market: Dict[str, Union[float, str]]
-    bear_market: Dict[str, Union[float, str]]
-    high_volatility: Dict[str, Union[float, str]]
-    low_volatility: Dict[str, Union[float, str]]
+    bull_market: dict[str, float | str]
+    bear_market: dict[str, float | str]
+    high_volatility: dict[str, float | str]
+    low_volatility: dict[str, float | str]
 
 
 class SignalValueMetrics(TypedDict):
@@ -123,17 +123,17 @@ class Strategy(TypedDict):
     parameters: StrategyParameters
     # performance field removed as requested
     risk_metrics: StrategyRiskMetrics
-    efficiency: Dict[
+    efficiency: dict[
         str,
-        Union[Dict[str, Union[float, str]], Dict[str, Dict[str, Union[float, str]]]],
+        dict[str, float | str] | dict[str, dict[str, float | str]],
     ]
-    signals: Dict[str, Dict[str, Dict[str, Union[float, str]]]]
+    signals: dict[str, dict[str, dict[str, float | str]]]
     signal_value: NotRequired[SignalValueMetrics]  # Field for signal value metrics
     signal_quality_metrics: NotRequired[
         SignalQualityMetrics
     ]  # Field for signal quality metrics
     metrics: NotRequired[
-        Dict[str, Dict[str, Union[float, str]]]
+        dict[str, dict[str, float | str]]
     ]  # Field for all portfolio metrics from CSV
     allocation_score: float
     allocation: float
@@ -144,41 +144,41 @@ class Ticker(TypedDict):
     id: str
     # performance field removed as requested
     risk_metrics: StrategyRiskMetrics
-    allocation: Dict[str, Union[float, str]]
+    allocation: dict[str, float | str]
 
 
 class ConcurrencyMetrics(TypedDict):
     """Concurrency-related metrics."""
 
-    total_concurrent_periods: Dict[str, Union[int, str]]
-    concurrency_ratio: Dict[str, Union[float, str]]
-    exclusive_ratio: Dict[str, Union[float, str]]
-    inactive_ratio: Dict[str, Union[float, str]]
-    avg_concurrent_strategies: Dict[str, Union[float, str]]
-    max_concurrent_strategies: Dict[str, Union[int, str]]
+    total_concurrent_periods: dict[str, int | str]
+    concurrency_ratio: dict[str, float | str]
+    exclusive_ratio: dict[str, float | str]
+    inactive_ratio: dict[str, float | str]
+    avg_concurrent_strategies: dict[str, float | str]
+    max_concurrent_strategies: dict[str, int | str]
 
 
 class EfficiencyMetrics(TypedDict):
     """Efficiency-related metrics."""
 
-    efficiency_score: Dict[str, Union[float, str]]
-    expectancy: Dict[str, Union[float, str]]
-    multipliers: Dict[str, Dict[str, Union[float, str]]]
+    efficiency_score: dict[str, float | str]
+    expectancy: dict[str, float | str]
+    multipliers: dict[str, dict[str, float | str]]
 
 
 class RiskMetrics(TypedDict):
     """Portfolio risk metrics."""
 
-    portfolio_metrics: Dict[str, Dict[str, Union[float, str]]]
-    combined_risk: Dict[str, Dict[str, Union[float, str]]]
-    strategy_relationships: Dict[str, Dict[str, Union[float, str]]]
+    portfolio_metrics: dict[str, dict[str, float | str]]
+    combined_risk: dict[str, dict[str, float | str]]
+    strategy_relationships: dict[str, dict[str, float | str]]
 
 
 class SignalMetrics(TypedDict):
     """Signal-related metrics."""
 
-    monthly_statistics: Dict[str, Dict[str, Union[float, str]]]
-    summary: Dict[str, Dict[str, Union[float, str]]]
+    monthly_statistics: dict[str, dict[str, float | str]]
+    summary: dict[str, dict[str, float | str]]
 
 
 class MonteCarloMetrics(TypedDict):
@@ -193,8 +193,8 @@ class MonteCarloMetrics(TypedDict):
     stable_strategies_count: int
     stable_strategies_percentage: float
     average_stability_score: float
-    simulation_parameters: Dict[str, Any]
-    strategy_results: Dict[str, Dict[str, Any]]
+    simulation_parameters: dict[str, Any]
+    strategy_results: dict[str, dict[str, Any]]
     description: str
 
 
@@ -260,8 +260,8 @@ class LegacyRiskMetrics(TypedDict):
     """
 
     total_portfolio_risk: float
-    strategy_risk_contributions: Dict[str, float]
-    risk_overlaps: Dict[str, float]
+    strategy_risk_contributions: dict[str, float]
+    risk_overlaps: dict[str, float]
 
 
 class LegacySignalMetrics(TypedDict):
@@ -320,12 +320,12 @@ class ConcurrencyStats(TypedDict):
     efficiency_score: float
     avg_concurrent_strategies: float
     max_concurrent_strategies: int
-    strategy_correlations: Dict[str, float]
+    strategy_correlations: dict[str, float]
     avg_position_length: float
     risk_concentration_index: float
-    risk_metrics: Dict[str, float]
+    risk_metrics: dict[str, float]
     signal_metrics: LegacySignalMetrics
-    signal_quality_metrics: NotRequired[Dict[str, Any]]  # Signal quality metrics
+    signal_quality_metrics: NotRequired[dict[str, Any]]  # Signal quality metrics
     start_date: NotRequired[str]
     end_date: NotRequired[str]
 
@@ -348,15 +348,15 @@ class StrategyData(TypedDict):
         Any  # Using Any since numpy arrays aren't directly representable in TypedDict
     )
     returns: Any
-    parameters: NotRequired[Dict[str, Any]]
-    metrics: NotRequired[Dict[str, Any]]
+    parameters: NotRequired[dict[str, Any]]
+    metrics: NotRequired[dict[str, Any]]
 
 
 class ConcurrencyReport(TypedDict):
     """Complete concurrency analysis report."""
 
-    strategies: NotRequired[List[Strategy]]
-    ticker_metrics: NotRequired[Dict[str, Any]]
+    strategies: NotRequired[list[Strategy]]
+    ticker_metrics: NotRequired[dict[str, Any]]
     portfolio_metrics: PortfolioMetrics
 
 

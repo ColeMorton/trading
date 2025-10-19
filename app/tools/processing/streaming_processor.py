@@ -5,15 +5,16 @@ This module provides streaming capabilities for processing large CSV files
 with automatic chunking and memory-efficient data handling.
 """
 
+from collections.abc import Callable, Iterator
 import logging
-import os
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterator, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 import polars as pl
 
 from app.tools.processing.memory_optimizer import get_memory_optimizer
+
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +57,7 @@ class StreamingProcessor:
             "total_chunks_processed": 0,
         }
 
-    def should_stream(self, file_path: Union[str, Path]) -> bool:
+    def should_stream(self, file_path: str | Path) -> bool:
         """
         Determine if file should be streamed based on size.
 
@@ -75,11 +76,11 @@ class StreamingProcessor:
 
     def read_csv(
         self,
-        file_path: Union[str, Path],
-        columns: Optional[List[str]] = None,
-        dtypes: Optional[Dict[str, Any]] = None,
+        file_path: str | Path,
+        columns: list[str] | None = None,
+        dtypes: dict[str, Any] | None = None,
         **kwargs,
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+    ) -> pd.DataFrame | pl.DataFrame:
         """
         Read CSV file with automatic streaming for large files.
 
@@ -98,17 +99,16 @@ class StreamingProcessor:
         if self.should_stream(file_path):
             logger.info(f"Streaming large file: {file_path}")
             return self._read_csv_streaming(file_path, columns, dtypes, **kwargs)
-        else:
-            logger.debug(f"Reading file normally: {file_path}")
-            return self._read_csv_normal(file_path, columns, dtypes, **kwargs)
+        logger.debug(f"Reading file normally: {file_path}")
+        return self._read_csv_normal(file_path, columns, dtypes, **kwargs)
 
     def _read_csv_normal(
         self,
         file_path: Path,
-        columns: Optional[List[str]] = None,
-        dtypes: Optional[Dict[str, Any]] = None,
+        columns: list[str] | None = None,
+        dtypes: dict[str, Any] | None = None,
         **kwargs,
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+    ) -> pd.DataFrame | pl.DataFrame:
         """Read CSV file normally without streaming."""
         if self.use_polars:
             try:
@@ -134,10 +134,10 @@ class StreamingProcessor:
     def _read_csv_streaming(
         self,
         file_path: Path,
-        columns: Optional[List[str]] = None,
-        dtypes: Optional[Dict[str, Any]] = None,
+        columns: list[str] | None = None,
+        dtypes: dict[str, Any] | None = None,
         **kwargs,
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+    ) -> pd.DataFrame | pl.DataFrame:
         """Read CSV file using streaming with chunks."""
         self._stats["files_streamed"] += 1
 
@@ -157,23 +157,21 @@ class StreamingProcessor:
         if chunks:
             if isinstance(chunks[0], pl.DataFrame):
                 return pl.concat(chunks)
-            else:
-                return pd.concat(chunks, ignore_index=True)
+            return pd.concat(chunks, ignore_index=True)
 
         # Return empty DataFrame if no chunks
         if self.use_polars:
             return pl.DataFrame()
-        else:
-            return pd.DataFrame()
+        return pd.DataFrame()
 
     def stream_csv(
         self,
-        file_path: Union[str, Path],
-        columns: Optional[List[str]] = None,
-        dtypes: Optional[Dict[str, Any]] = None,
-        process_chunk: Optional[Callable] = None,
+        file_path: str | Path,
+        columns: list[str] | None = None,
+        dtypes: dict[str, Any] | None = None,
+        process_chunk: Callable | None = None,
         **kwargs,
-    ) -> Iterator[Union[pd.DataFrame, pl.DataFrame]]:
+    ) -> Iterator[pd.DataFrame | pl.DataFrame]:
         """
         Stream CSV file in chunks.
 
@@ -201,9 +199,9 @@ class StreamingProcessor:
     def _stream_csv_polars(
         self,
         file_path: Path,
-        columns: Optional[List[str]] = None,
-        dtypes: Optional[Dict[str, Any]] = None,
-        process_chunk: Optional[Callable] = None,
+        columns: list[str] | None = None,
+        dtypes: dict[str, Any] | None = None,
+        process_chunk: Callable | None = None,
         **kwargs,
     ) -> Iterator[pl.DataFrame]:
         """Stream CSV using Polars lazy evaluation."""
@@ -242,9 +240,9 @@ class StreamingProcessor:
     def _stream_csv_pandas(
         self,
         file_path: Path,
-        columns: Optional[List[str]] = None,
-        dtypes: Optional[Dict[str, Any]] = None,
-        process_chunk: Optional[Callable] = None,
+        columns: list[str] | None = None,
+        dtypes: dict[str, Any] | None = None,
+        process_chunk: Callable | None = None,
         **kwargs,
     ) -> Iterator[pd.DataFrame]:
         """Stream CSV using Pandas chunking."""
@@ -272,13 +270,13 @@ class StreamingProcessor:
 
     def process_directory(
         self,
-        directory: Union[str, Path],
+        directory: str | Path,
         pattern: str = "*.csv",
-        process_func: Callable[[Union[pd.DataFrame, pl.DataFrame]], Any] = None,
-        columns: Optional[List[str]] = None,
-        dtypes: Optional[Dict[str, Any]] = None,
+        process_func: Callable[[pd.DataFrame | pl.DataFrame], Any] | None = None,
+        columns: list[str] | None = None,
+        dtypes: dict[str, Any] | None = None,
         parallel: bool = False,
-    ) -> List[Any]:
+    ) -> list[Any]:
         """
         Process all CSV files in a directory with streaming support.
 
@@ -315,7 +313,7 @@ class StreamingProcessor:
 
         return results
 
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self) -> dict[str, int]:
         """Get processing statistics."""
         return self._stats.copy()
 
@@ -345,10 +343,10 @@ class CSVChunkProcessor:
 
     def aggregate_chunks(
         self,
-        file_path: Union[str, Path],
-        agg_func: Callable[[Union[pd.DataFrame, pl.DataFrame]], Dict[str, Any]],
-        combine_func: Callable[[List[Dict[str, Any]]], Any],
-        columns: Optional[List[str]] = None,
+        file_path: str | Path,
+        agg_func: Callable[[pd.DataFrame | pl.DataFrame], dict[str, Any]],
+        combine_func: Callable[[list[dict[str, Any]]], Any],
+        columns: list[str] | None = None,
     ) -> Any:
         """
         Aggregate data from chunks using custom functions.
@@ -372,12 +370,12 @@ class CSVChunkProcessor:
 
     def filter_large_file(
         self,
-        file_path: Union[str, Path],
+        file_path: str | Path,
         filter_func: Callable[
-            [Union[pd.DataFrame, pl.DataFrame]], Union[pd.DataFrame, pl.DataFrame]
+            [pd.DataFrame | pl.DataFrame], pd.DataFrame | pl.DataFrame
         ],
-        output_path: Union[str, Path],
-        columns: Optional[List[str]] = None,
+        output_path: str | Path,
+        columns: list[str] | None = None,
     ) -> int:
         """
         Filter large CSV file and write results.
@@ -426,16 +424,16 @@ class CSVChunkProcessor:
 
 # Convenience functions
 def stream_csv(
-    file_path: Union[str, Path], chunk_size: int = 10000, **kwargs
-) -> Iterator[Union[pd.DataFrame, pl.DataFrame]]:
+    file_path: str | Path, chunk_size: int = 10000, **kwargs
+) -> Iterator[pd.DataFrame | pl.DataFrame]:
     """Convenience function to stream CSV file."""
     processor = StreamingProcessor(chunk_size_rows=chunk_size)
     yield from processor.stream_csv(file_path, **kwargs)
 
 
 def read_large_csv(
-    file_path: Union[str, Path], threshold_mb: float = 5.0, **kwargs
-) -> Union[pd.DataFrame, pl.DataFrame]:
+    file_path: str | Path, threshold_mb: float = 5.0, **kwargs
+) -> pd.DataFrame | pl.DataFrame:
     """Convenience function to read CSV with automatic streaming."""
     processor = StreamingProcessor(streaming_threshold_mb=threshold_mb)
     return processor.read_csv(file_path, **kwargs)

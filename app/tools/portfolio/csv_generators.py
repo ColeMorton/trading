@@ -3,12 +3,12 @@
 This module provides functions for generating CSV output from portfolio data.
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
 import pandas as pd
 
 
-def generate_csv_output_for_portfolios(portfolios: List[Dict[str, Any]]) -> str:
+def generate_csv_output_for_portfolios(portfolios: list[dict[str, Any]]) -> str:
     """Generate CSV string output ready for copy/paste.
 
     Args:
@@ -22,4 +22,3 @@ def generate_csv_output_for_portfolios(portfolios: List[Dict[str, Any]]) -> str:
 
     df = pd.DataFrame(portfolios)
     return df.to_csv(index=False, lineterminator="\n").strip()
-

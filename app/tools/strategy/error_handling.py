@@ -5,10 +5,11 @@ This module provides standardized error handling across all strategy implementat
 eliminating duplication while maintaining strategy-specific error context.
 """
 
-import logging
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Union
+import logging
+from typing import Any
 
 
 class ErrorSeverity(Enum):
@@ -71,7 +72,7 @@ class StrategyError(Exception):
         message: str,
         error_code: StrategyErrorCode = StrategyErrorCode.UNKNOWN_ERROR,
         severity: ErrorSeverity = ErrorSeverity.ERROR,
-        context: Optional[Dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ):
         super().__init__(message)
         self.message = message
@@ -82,7 +83,7 @@ class StrategyError(Exception):
     def __str__(self) -> str:
         return f"[{self.error_code.value}] {self.message}"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert error to dictionary representation."""
         return {
             "message": self.message,
@@ -131,7 +132,7 @@ class ConfigurationError(StrategyError):
 class ErrorHandlerBase(ABC):
     """Base class for error handling strategies."""
 
-    def __init__(self, strategy_type: str, logger: Optional[logging.Logger] = None):
+    def __init__(self, strategy_type: str, logger: logging.Logger | None = None):
         self.strategy_type = strategy_type
         self.logger = logger or logging.getLogger(f"strategy.{strategy_type.lower()}")
         self.error_counts = {severity: 0 for severity in ErrorSeverity}
@@ -139,10 +140,10 @@ class ErrorHandlerBase(ABC):
     @abstractmethod
     def handle_error(
         self,
-        error: Union[Exception, StrategyError],
-        context: Optional[Dict[str, Any]] = None,
+        error: Exception | StrategyError,
+        context: dict[str, Any] | None = None,
         reraise: bool = False,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Handle an error according to the strategy's requirements."""
         pass
 
@@ -150,8 +151,8 @@ class ErrorHandlerBase(ABC):
         self,
         message: str,
         severity: ErrorSeverity = ErrorSeverity.ERROR,
-        error_code: Optional[StrategyErrorCode] = None,
-        context: Optional[Dict[str, Any]] = None,
+        error_code: StrategyErrorCode | None = None,
+        context: dict[str, Any] | None = None,
     ) -> None:
         """Log an error with standardized format."""
         self.error_counts[severity] += 1
@@ -178,7 +179,7 @@ class ErrorHandlerBase(ABC):
         elif severity == ErrorSeverity.CRITICAL:
             self.logger.critical(log_message)
 
-    def get_error_summary(self) -> Dict[str, int]:
+    def get_error_summary(self) -> dict[str, int]:
         """Get summary of error counts by severity."""
         return self.error_counts.copy()
 
@@ -193,7 +194,7 @@ class StandardErrorHandler(ErrorHandlerBase):
     def __init__(
         self,
         strategy_type: str,
-        logger: Optional[logging.Logger] = None,
+        logger: logging.Logger | None = None,
         fail_fast: bool = True,
         max_warnings: int = 100,
     ):
@@ -203,10 +204,10 @@ class StandardErrorHandler(ErrorHandlerBase):
 
     def handle_error(
         self,
-        error: Union[Exception, StrategyError],
-        context: Optional[Dict[str, Any]] = None,
+        error: Exception | StrategyError,
+        context: dict[str, Any] | None = None,
         reraise: bool = False,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Handle error with standard strategy."""
 
         # Convert to StrategyError if needed
@@ -256,7 +257,7 @@ class StandardErrorHandler(ErrorHandlerBase):
         return strategy_error.to_dict()
 
     def _convert_to_strategy_error(
-        self, error: Exception, context: Optional[Dict[str, Any]] = None
+        self, error: Exception, context: dict[str, Any] | None = None
     ) -> StrategyError:
         """Convert generic exception to StrategyError."""
         error_type = type(error).__name__
@@ -280,13 +281,12 @@ class StandardErrorHandler(ErrorHandlerBase):
             StrategyErrorCode.INVALID_DATA_FORMAT,
         ]:
             return DataError(message, error_code, ErrorSeverity.ERROR, context)
-        elif error_code in [
+        if error_code in [
             StrategyErrorCode.INVALID_PARAMETERS,
             StrategyErrorCode.MISSING_REQUIRED_PARAMETERS,
         ]:
             return ParameterError(message, error_code, ErrorSeverity.ERROR, context)
-        else:
-            return StrategyError(message, error_code, ErrorSeverity.ERROR, context)
+        return StrategyError(message, error_code, ErrorSeverity.ERROR, context)
 
 
 class PermissiveErrorHandler(ErrorHandlerBase):
@@ -295,19 +295,19 @@ class PermissiveErrorHandler(ErrorHandlerBase):
     def __init__(
         self,
         strategy_type: str,
-        logger: Optional[logging.Logger] = None,
+        logger: logging.Logger | None = None,
         collect_errors: bool = True,
     ):
         super().__init__(strategy_type, logger)
         self.collect_errors = collect_errors
-        self.collected_errors: List[Dict[str, Any]] = []
+        self.collected_errors: list[dict[str, Any]] = []
 
     def handle_error(
         self,
-        error: Union[Exception, StrategyError],
-        context: Optional[Dict[str, Any]] = None,
+        error: Exception | StrategyError,
+        context: dict[str, Any] | None = None,
         reraise: bool = False,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Handle error permissively."""
 
         # Convert to StrategyError if needed
@@ -341,7 +341,7 @@ class PermissiveErrorHandler(ErrorHandlerBase):
 
         return strategy_error.to_dict()
 
-    def get_collected_errors(self) -> List[Dict[str, Any]]:
+    def get_collected_errors(self) -> list[dict[str, Any]]:
         """Get all collected errors."""
         return self.collected_errors.copy()
 
@@ -373,7 +373,7 @@ class ErrorHandlerFactory:
         return cls._handlers[handler_type](strategy_type, **kwargs)
 
     @classmethod
-    def get_available_handlers(cls) -> List[str]:
+    def get_available_handlers(cls) -> list[str]:
         """Get list of available handler types."""
         return list(cls._handlers.keys())
 
@@ -387,12 +387,12 @@ def create_error_handler(
 
 
 def handle_strategy_error(
-    error: Union[Exception, StrategyError],
+    error: Exception | StrategyError,
     strategy_type: str,
-    log_function: Optional[Callable] = None,
-    context: Optional[Dict[str, Any]] = None,
+    log_function: Callable | None = None,
+    context: dict[str, Any] | None = None,
     reraise: bool = False,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """Handle a strategy error with standard error handling."""
     if log_function:
         # Use legacy log function approach
@@ -401,23 +401,22 @@ def handle_strategy_error(
                 f"[{error.error_code.value}] {error.message}", error.severity.value
             )
         else:
-            log_function(f"Error in {strategy_type}: {str(error)}", "error")
+            log_function(f"Error in {strategy_type}: {error!s}", "error")
 
         if reraise:
             raise error
         return None
-    else:
-        # Use standard error handler
-        handler = create_error_handler(strategy_type)
-        return handler.handle_error(error, context, reraise)
+    # Use standard error handler
+    handler = create_error_handler(strategy_type)
+    return handler.handle_error(error, context, reraise)
 
 
 def validate_data_sufficiency(
     data,
     min_rows: int,
     strategy_type: str,
-    required_columns: Optional[List[str]] = None,
-    error_handler: Optional[ErrorHandlerBase] = None,
+    required_columns: list[str] | None = None,
+    error_handler: ErrorHandlerBase | None = None,
 ) -> bool:
     """Validate data sufficiency for strategy operations."""
     try:
@@ -456,7 +455,7 @@ def validate_data_sufficiency(
 
     except Exception as e:
         error = DataError(
-            f"Data validation failed: {str(e)}",
+            f"Data validation failed: {e!s}",
             StrategyErrorCode.DATA_PROCESSING_FAILED,
             ErrorSeverity.ERROR,
         )
@@ -466,10 +465,10 @@ def validate_data_sufficiency(
 
 
 def validate_parameters(
-    parameters: Dict[str, Any],
-    required_params: List[str],
+    parameters: dict[str, Any],
+    required_params: list[str],
     strategy_type: str,
-    error_handler: Optional[ErrorHandlerBase] = None,
+    error_handler: ErrorHandlerBase | None = None,
 ) -> bool:
     """Validate strategy parameters."""
     try:
@@ -508,7 +507,7 @@ def validate_parameters(
 
     except Exception as e:
         error = ParameterError(
-            f"Parameter validation failed: {str(e)}",
+            f"Parameter validation failed: {e!s}",
             StrategyErrorCode.PARAMETER_VALIDATION_FAILED,
             ErrorSeverity.ERROR,
         )

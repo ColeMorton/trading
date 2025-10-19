@@ -8,7 +8,7 @@ Tests the hybrid MA+ATR signal generation functionality including:
 - Signal validation and error handling
 """
 
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
@@ -152,7 +152,7 @@ class TestATRParameterCombinations:
 
         for length, multiplier in valid_cases:
             is_valid, error = validate_atr_parameters(length, multiplier)
-            assert is_valid == True, f"Failed for valid case: ({length}, {multiplier})"
+            assert is_valid is True, f"Failed for valid case: ({length}, {multiplier})"
             assert error is None
 
         # Invalid length cases
@@ -164,7 +164,7 @@ class TestATRParameterCombinations:
 
         for length, multiplier, expected_error in invalid_length_cases:
             is_valid, error = validate_atr_parameters(length, multiplier)
-            assert is_valid == False, f"Should be invalid: ({length}, {multiplier})"
+            assert is_valid is False, f"Should be invalid: ({length}, {multiplier})"
             assert expected_error in error
 
         # Invalid multiplier cases
@@ -176,7 +176,7 @@ class TestATRParameterCombinations:
 
         for length, multiplier, expected_error in invalid_multiplier_cases:
             is_valid, error = validate_atr_parameters(length, multiplier)
-            assert is_valid == False, f"Should be invalid: ({length}, {multiplier})"
+            assert is_valid is False, f"Should be invalid: ({length}, {multiplier})"
             assert expected_error in error
 
 
@@ -250,9 +250,9 @@ class TestHybridSignalGeneration:
         # Simulate a price spike and then decline for ATR exit testing
         mid_point = len(price_data) // 2
         price_data.loc[price_data.index[mid_point:], "Close"] *= 1.2  # 20% spike
-        price_data.loc[
-            price_data.index[mid_point + 10 :], "Close"
-        ] *= 0.85  # Then decline
+        price_data.loc[price_data.index[mid_point + 10 :], "Close"] *= (
+            0.85  # Then decline
+        )
 
         # Mock SMA signals with entry at the spike
         sma_result = price_data.copy()
@@ -404,11 +404,11 @@ class TestSignalValidation:
             assert col in valid_data.columns
 
         # Check signal values are valid (-1, 0, 1)
-        valid_signals = set([-1, 0, 1])
+        valid_signals = {-1, 0, 1}
         assert set(valid_data["Signal"].unique()).issubset(valid_signals)
 
         # Check position values are valid (0, 1)
-        valid_positions = set([0, 1])
+        valid_positions = {0, 1}
         assert set(valid_data["Position"].unique()).issubset(valid_positions)
 
     def test_signal_consistency_checks(self):
@@ -423,7 +423,7 @@ class TestSignalValidation:
 
         # Check that position changes align with signals
         for i in range(1, len(consistent_data)):
-            prev_pos = consistent_data.loc[i - 1, "Position"]
+            consistent_data.loc[i - 1, "Position"]
             curr_pos = consistent_data.loc[i, "Position"]
             signal = consistent_data.loc[i, "Signal"]
 

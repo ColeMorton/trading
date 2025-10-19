@@ -5,8 +5,8 @@ This module implements sophisticated variance estimation techniques that provide
 robust estimates especially for strategies with limited data or time-varying volatility.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy import stats
@@ -20,12 +20,12 @@ class VarianceEstimate:
     """Container for variance estimation results."""
 
     value: float
-    confidence_interval: Tuple[float, float]
+    confidence_interval: tuple[float, float]
     method: str
     data_quality_score: float
     observations_used: int
-    effective_observations: Optional[float] | None = None
-    warnings: List[str] | None = None
+    effective_observations: float | None | None = None
+    warnings: list[str] | None = None
 
     def __post_init__(self):
         if self.warnings is None:
@@ -57,7 +57,7 @@ class VarianceEstimator:
 
     def validate_data_sufficiency(
         self, returns: np.ndarray, method: str
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """
         Validate minimum data requirements for variance estimation method.
 
@@ -88,7 +88,7 @@ class VarianceEstimator:
             return False, "All returns are zero - no variance to estimate"
 
         if np.any(np.isnan(returns)) or np.any(np.isinf(returns)):
-            return False, f"Returns contain NaN or infinite values"
+            return False, "Returns contain NaN or infinite values"
 
         return True, f"Data sufficient for {method}: {actual_obs} >= {min_obs}"
 
@@ -159,7 +159,9 @@ class VarianceEstimator:
 
         # Weighted average
         weights = [0.3, 0.2, 0.2, 0.15, 0.15]  # Sample size most important
-        quality_score = sum(w * f for w, f in zip(weights, quality_factors))
+        quality_score = sum(
+            w * f for w, f in zip(weights, quality_factors, strict=False)
+        )
 
         return max(0.0, min(1.0, quality_score))
 
@@ -206,7 +208,7 @@ class VarianceEstimator:
         )
 
     def rolling_variance(
-        self, returns: np.ndarray, window: Optional[int] | None = None
+        self, returns: np.ndarray, window: int | None | None = None
     ) -> VarianceEstimate:
         """
         Rolling window variance for time-varying volatility.
@@ -274,7 +276,7 @@ class VarianceEstimator:
         )
 
     def ewma_variance(
-        self, returns: np.ndarray, lambda_param: Optional[float] | None = None
+        self, returns: np.ndarray, lambda_param: float | None | None = None
     ) -> VarianceEstimate:
         """
         Exponentially Weighted Moving Average variance estimation.
@@ -412,8 +414,8 @@ class VarianceEstimator:
     def bayesian_variance(
         self,
         returns: np.ndarray,
-        prior_variance: Optional[float] | None = None,
-        prior_confidence: Optional[float] | None = None,
+        prior_variance: float | None | None = None,
+        prior_confidence: float | None | None = None,
     ) -> VarianceEstimate:
         """
         Bayesian variance estimation with informative priors.
@@ -558,7 +560,7 @@ class VarianceEstimator:
         return ewma_var
 
     def select_best_estimator(
-        self, returns: np.ndarray, methods: Optional[List[str]] | None = None
+        self, returns: np.ndarray, methods: list[str] | None | None = None
     ) -> VarianceEstimate:
         """
         Automatically select the best variance estimator based on data characteristics.
@@ -607,17 +609,15 @@ class VarianceEstimator:
                 selected_method = "ewma"
             elif "bayesian" in applicable_methods:
                 selected_method = "bayesian"
-        else:
-            # Large sample - consider stability
-            if quality_score > 0.7:
-                # High quality data - sample variance is fine
-                selected_method = "sample"
-            else:
-                # Lower quality - prefer robust methods
-                if "rolling" in applicable_methods:
-                    selected_method = "rolling"
-                elif "ewma" in applicable_methods:
-                    selected_method = "ewma"
+        # Large sample - consider stability
+        elif quality_score > 0.7:
+            # High quality data - sample variance is fine
+            selected_method = "sample"
+        # Lower quality - prefer robust methods
+        elif "rolling" in applicable_methods:
+            selected_method = "rolling"
+        elif "ewma" in applicable_methods:
+            selected_method = "ewma"
 
         # Fallback to first applicable method
         if selected_method is None:
@@ -631,24 +631,23 @@ class VarianceEstimator:
         # Call the selected method
         if selected_method == "sample":
             return self.sample_variance(returns)
-        elif selected_method == "rolling":
+        if selected_method == "rolling":
             return self.rolling_variance(returns)
-        elif selected_method == "ewma":
+        if selected_method == "ewma":
             return self.ewma_variance(returns)
-        elif selected_method == "bootstrap":
+        if selected_method == "bootstrap":
             return self.bootstrap_variance(returns)
-        elif selected_method == "bayesian":
+        if selected_method == "bayesian":
             return self.bayesian_variance(returns)
-        else:
-            raise RiskCalculationError(f"Unknown method selected: {selected_method}")
+        raise RiskCalculationError(f"Unknown method selected: {selected_method}")
 
 
 def estimate_portfolio_variance(
-    strategy_returns_list: List[np.ndarray],
-    strategy_names: List[str],
+    strategy_returns_list: list[np.ndarray],
+    strategy_names: list[str],
     method: str = "auto",
-    log: Callable[[str, str], None] = None,
-) -> Dict[str, VarianceEstimate]:
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, VarianceEstimate]:
     """
     Estimate variance for multiple strategies using advanced methods.
 
@@ -665,7 +664,9 @@ def estimate_portfolio_variance(
         RiskCalculationError: If estimation fails
     """
     if log is None:
-        log = lambda msg, level: print(f"[{level.upper()}] {msg}")
+
+        def log(msg, level):
+            return print(f"[{level.upper()}] {msg}")
 
     if len(strategy_returns_list) != len(strategy_names):
         raise RiskCalculationError(
@@ -675,7 +676,7 @@ def estimate_portfolio_variance(
     estimator = VarianceEstimator(log)
     variance_estimates = {}
 
-    for returns, name in zip(strategy_returns_list, strategy_names):
+    for returns, name in zip(strategy_returns_list, strategy_names, strict=False):
         try:
             if method == "auto":
                 estimate = estimator.select_best_estimator(returns)
@@ -703,9 +704,7 @@ def estimate_portfolio_variance(
             )
 
         except Exception as e:
-            log(f"Error estimating variance for {name}: {str(e)}", "error")
-            raise RiskCalculationError(
-                f"Variance estimation failed for {name}: {str(e)}"
-            )
+            log(f"Error estimating variance for {name}: {e!s}", "error")
+            raise RiskCalculationError(f"Variance estimation failed for {name}: {e!s}")
 
     return variance_estimates

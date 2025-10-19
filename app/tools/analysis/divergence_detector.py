@@ -6,12 +6,9 @@ analysis. Identifies statistical outliers and anomalies across multiple timefram
 """
 
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
-import pandas as pd
-from scipy import stats
 
 from ..config.statistical_analysis_config import SPDSConfig
 from ..models.statistical_analysis_models import (
@@ -19,7 +16,6 @@ from ..models.statistical_analysis_models import (
     ConfidenceLevel,
     DivergenceMetrics,
     DualLayerConvergence,
-    DualSourceConvergence,
     EquityAnalysis,
     StrategyDistributionAnalysis,
     TradeHistoryAnalysis,
@@ -35,7 +31,7 @@ class DivergenceDetector:
     - Strategy performance layer (equity curves or trade history)
     """
 
-    def __init__(self, config: SPDSConfig, logger: Optional[logging.Logger] = None):
+    def __init__(self, config: SPDSConfig, logger: logging.Logger | None = None):
         """
         Initialize the Divergence Detector
 
@@ -56,7 +52,7 @@ class DivergenceDetector:
     async def detect_asset_divergence(
         self,
         asset_analysis: AssetDistributionAnalysis,
-        current_position_data: Optional[Dict[str, Any]] = None,
+        current_position_data: dict[str, Any] | None = None,
     ) -> DivergenceMetrics:
         """
         Detect divergence in asset-level performance
@@ -132,7 +128,7 @@ class DivergenceDetector:
     async def detect_strategy_divergence(
         self,
         strategy_analysis: StrategyDistributionAnalysis,
-        current_position_data: Optional[Dict[str, Any]] = None,
+        current_position_data: dict[str, Any] | None = None,
     ) -> DivergenceMetrics:
         """
         Detect divergence in strategy-level performance
@@ -332,7 +328,7 @@ class DivergenceDetector:
         self,
         trade_history_analysis: TradeHistoryAnalysis,
         strategy_analysis: StrategyDistributionAnalysis,
-        current_position_data: Optional[Dict[str, Any]] = None,
+        current_position_data: dict[str, Any] | None = None,
     ) -> DivergenceMetrics:
         """
         Detect divergence specifically in trade history analysis
@@ -407,7 +403,7 @@ class DivergenceDetector:
         self,
         equity_analysis: EquityAnalysis,
         strategy_analysis: StrategyDistributionAnalysis,
-        current_position_data: Optional[Dict[str, Any]] = None,
+        current_position_data: dict[str, Any] | None = None,
     ) -> DivergenceMetrics:
         """
         Detect divergence specifically in equity curve analysis
@@ -494,10 +490,9 @@ class DivergenceDetector:
 
         if value < q25:
             return (value - q25) / iqr  # Negative value
-        elif value > q75:
+        if value > q75:
             return (value - q75) / iqr  # Positive value
-        else:
-            return (value - q25) / iqr - 0.5  # Normalized to [-0.5, 0.5] within IQR
+        return (value - q25) / iqr - 0.5  # Normalized to [-0.5, 0.5] within IQR
 
     def _estimate_percentile_rank(self, value: float, data_array: np.ndarray) -> float:
         """
@@ -534,7 +529,7 @@ class DivergenceDetector:
             percentile_rank = 50.0
 
         # Convert z-score to percentile using scipy
-        z_percentile = norm.cdf(z_score) * 100
+        norm.cdf(z_score) * 100
 
         # Combine z-score and empirical percentile
         z_score_weight = min(abs(z_score) / 3.0, 1.0)
@@ -564,7 +559,7 @@ class DivergenceDetector:
 
     def _detect_outlier(
         self, value: float, statistics: Any, percentiles: Any
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Detect if value is a statistical outlier"""
         # Method 1: Z-score test
         z_score = self._calculate_z_score(value, statistics.mean, statistics.std)
@@ -593,27 +588,25 @@ class DivergenceDetector:
         # Simplified estimation based on percentile extremity
         if percentile_rank > 90:
             return 3
-        elif percentile_rank > 80:
+        if percentile_rank > 80:
             return 2
-        elif percentile_rank > 70:
+        if percentile_rank > 70:
             return 1
-        else:
-            return 0
+        return 0
 
     def _determine_trend_direction(self, statistics: Any) -> str:
         """Determine trend direction based on distribution characteristics"""
         # Use skewness as trend indicator
         if statistics.skewness > 0.5:
             return "up"
-        elif statistics.skewness < -0.5:
+        if statistics.skewness < -0.5:
             return "down"
-        else:
-            return "neutral"
+        return "neutral"
 
     def _extract_current_strategy_performance(
         self,
         strategy_analysis: StrategyDistributionAnalysis,
-        current_position_data: Optional[Dict],
+        current_position_data: dict | None,
     ) -> float:
         """Extract current strategy performance metric"""
         # Try to get current performance from position data
@@ -643,16 +636,15 @@ class DivergenceDetector:
         """Classify convergence strength"""
         if convergence_score >= 0.85:
             return "strong"
-        elif convergence_score >= 0.70:
+        if convergence_score >= 0.70:
             return "moderate"
-        else:
-            return "weak"
+        return "weak"
 
     def _analyze_timeframe_agreement(
         self,
         asset_analysis: AssetDistributionAnalysis,
         strategy_analysis: StrategyDistributionAnalysis,
-    ) -> Tuple[int, int]:
+    ) -> tuple[int, int]:
         """Analyze agreement across timeframes (simplified)"""
         # In a full implementation, this would analyze multiple timeframes
         # For now, return simplified agreement based on data quality
@@ -678,7 +670,7 @@ class DivergenceDetector:
     def _extract_current_trade_performance(
         self,
         trade_history_analysis: TradeHistoryAnalysis,
-        current_position_data: Optional[Dict],
+        current_position_data: dict | None,
     ) -> float:
         """Extract current trade performance metric"""
         # Try to get current performance from position data
@@ -698,7 +690,7 @@ class DivergenceDetector:
     def _extract_current_equity_performance(
         self,
         equity_analysis: EquityAnalysis,
-        current_position_data: Optional[Dict],
+        current_position_data: dict | None,
     ) -> float:
         """Extract current equity curve performance metric"""
         # Try to get current performance from position data
@@ -797,7 +789,7 @@ class DivergenceDetector:
         asset_analysis: AssetDistributionAnalysis,
         trade_history_analysis: TradeHistoryAnalysis,
         equity_analysis: EquityAnalysis,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Calculate weights for each data source based on confidence and data quality"""
         weights = {}
 
@@ -830,10 +822,10 @@ class DivergenceDetector:
     def _calculate_weighted_convergence(
         self,
         base_convergence: float,
-        source_weights: Dict[str, float],
-        asset_trade_convergence: Optional[float],
-        asset_equity_convergence: Optional[float],
-        trade_equity_convergence: Optional[float],
+        source_weights: dict[str, float],
+        asset_trade_convergence: float | None,
+        asset_equity_convergence: float | None,
+        trade_equity_convergence: float | None,
     ) -> float:
         """Calculate weighted convergence score using source reliability weights"""
         if not (

@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 from unittest.mock import Mock, patch
 
 import polars as pl
-import pytest
 
 from app.strategies.ma_cross.tools.strategy_execution import execute_single_strategy
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
@@ -191,7 +190,7 @@ class TestMAcrossSmokeTest:
             mock_create.return_value = mock_strategy
 
             # Call with EMA as parameter but SMA in config
-            result = calculate_ma_and_signals(data, 20, 50, config_with_sma, log, "EMA")
+            calculate_ma_and_signals(data, 20, 50, config_with_sma, log, "EMA")
 
             # Verify SMA was used (from config, not parameter)
             mock_create.assert_called_once_with("SMA")
@@ -207,7 +206,7 @@ class TestMAcrossSmokeTest:
             mock_create.return_value = mock_strategy
 
             # Call with EMA as parameter and no STRATEGY_TYPE in config
-            result = calculate_ma_and_signals(data, 12, 26, config_no_type, log, "EMA")
+            calculate_ma_and_signals(data, 12, 26, config_no_type, log, "EMA")
 
             # Verify EMA was used (from parameter)
             mock_create.assert_called_once_with("EMA")

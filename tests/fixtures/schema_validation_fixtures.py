@@ -5,11 +5,9 @@ Provides sample data and test cases for validating the canonical 59-column schem
 """
 
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import pandas as pd
-
-from app.tools.portfolio.canonical_schema import CANONICAL_COLUMN_NAMES
 
 
 def create_compliant_sample_data() -> pd.DataFrame:
@@ -206,7 +204,7 @@ TEST_CASES = {
 }
 
 
-def get_test_case(case_name: str) -> Dict[str, Any]:
+def get_test_case(case_name: str) -> dict[str, Any]:
     """
     Get a specific test case by name.
 
@@ -225,12 +223,12 @@ def get_test_case(case_name: str) -> Dict[str, Any]:
     return test_case
 
 
-def get_all_test_cases() -> Dict[str, Dict[str, Any]]:
+def get_all_test_cases() -> dict[str, dict[str, Any]]:
     """Get all test cases with their data generated."""
-    return {name: get_test_case(name) for name in TEST_CASES.keys()}
+    return {name: get_test_case(name) for name in TEST_CASES}
 
 
-def create_test_csv_files(output_dir: Path) -> Dict[str, Path]:
+def create_test_csv_files(output_dir: Path) -> dict[str, Path]:
     """
     Create test CSV files for all test cases.
 
@@ -261,7 +259,7 @@ REFERENCE_FILES = [
 ]
 
 
-def validate_reference_files() -> Dict[str, Dict[str, Any]]:
+def validate_reference_files() -> dict[str, dict[str, Any]]:
     """
     Validate actual reference files to ensure they're compliant.
 
@@ -283,17 +281,17 @@ def validate_reference_files() -> Dict[str, Dict[str, Any]]:
 
 # Export for use in tests
 __all__ = [
-    "create_compliant_sample_data",
-    "create_missing_columns_data",
-    "create_extra_columns_data",
-    "create_wrong_order_data",
-    "create_wrong_column_count_data",
-    "create_empty_required_columns_data",
-    "create_type_mismatch_data",
-    "TEST_CASES",
-    "get_test_case",
-    "get_all_test_cases",
-    "create_test_csv_files",
-    "validate_reference_files",
     "REFERENCE_FILES",
+    "TEST_CASES",
+    "create_compliant_sample_data",
+    "create_empty_required_columns_data",
+    "create_extra_columns_data",
+    "create_missing_columns_data",
+    "create_test_csv_files",
+    "create_type_mismatch_data",
+    "create_wrong_column_count_data",
+    "create_wrong_order_data",
+    "get_all_test_cases",
+    "get_test_case",
+    "validate_reference_files",
 ]

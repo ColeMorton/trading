@@ -8,17 +8,17 @@ and providing progress tracking.
 Exit Criteria: RVOL(volume_Lookback) >= X AND Price Close < EMA(N)
 """
 
-import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Dict, List, Optional, Tuple
+import time
+from typing import Any
 
 import pandas as pd
 import polars as pl
 
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.get_data import get_data
-from app.tools.performance_tracker import timing_context
-from app.tools.portfolio.base_extended_schemas import SchemaTransformer, SchemaType
+from app.tools.portfolio.base_extended_schemas import SchemaTransformer
+
 
 try:
     from app.tools.processing.memory_optimizer import get_memory_optimizer
@@ -45,9 +45,9 @@ class VolumeParameterSweepEngine:
         enable_memory_optimization: bool = True,
         enable_progress_tracking: bool = True,
         max_workers: int = 4,
-        ema_periods: List[int] = None,
-        rvol_thresholds: List[float] = None,
-        volume_lookbacks: List[int] = None,
+        ema_periods: list[int] | None = None,
+        rvol_thresholds: list[float] | None = None,
+        volume_lookbacks: list[int] | None = None,
     ):
         """
         Initialize the Volume Parameter Sweep Engine.
@@ -89,7 +89,7 @@ class VolumeParameterSweepEngine:
             "memory_usage_mb": 0.0,
         }
 
-    def generate_volume_parameter_combinations(self) -> List[Tuple[int, float, int]]:
+    def generate_volume_parameter_combinations(self) -> list[tuple[int, float, int]]:
         """
         Generate volume parameter combinations for sensitivity analysis.
 
@@ -107,7 +107,7 @@ class VolumeParameterSweepEngine:
 
     def validate_volume_parameters(
         self, ema_period: int, rvol_threshold: float, volume_lookback: int
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """
         Validate volume parameters.
 
@@ -130,12 +130,12 @@ class VolumeParameterSweepEngine:
     def generate_hybrid_ma_volume_signals(
         self,
         data: pd.DataFrame,
-        ma_config: Dict[str, Any],
+        ma_config: dict[str, Any],
         ema_period: int,
         rvol_threshold: float,
         volume_lookback: int,
         log: callable,
-    ) -> Optional[pd.DataFrame]:
+    ) -> pd.DataFrame | None:
         """
         Generate hybrid MA entry + volume exit signals.
 
@@ -187,24 +187,24 @@ class VolumeParameterSweepEngine:
             use_sma = ma_config.get("USE_SMA", True)
 
             if use_sma:
-                signal_data[f"ma_short"] = (
+                signal_data["ma_short"] = (
                     signal_data["close"].rolling(window=fast_period).mean()
                 )
-                signal_data[f"ma_long"] = (
+                signal_data["ma_long"] = (
                     signal_data["close"].rolling(window=slow_period).mean()
                 )
             else:
-                signal_data[f"ma_short"] = (
+                signal_data["ma_short"] = (
                     signal_data["close"].ewm(span=fast_period).mean()
                 )
-                signal_data[f"ma_long"] = (
+                signal_data["ma_long"] = (
                     signal_data["close"].ewm(span=slow_period).mean()
                 )
 
             # Entry signal: MA crossover (short MA crosses above long MA)
             signal_data["ma_cross_entry"] = (
-                signal_data[f"ma_short"] > signal_data[f"ma_long"]
-            ) & (signal_data[f"ma_short"].shift(1) <= signal_data[f"ma_long"].shift(1))
+                signal_data["ma_short"] > signal_data["ma_long"]
+            ) & (signal_data["ma_short"].shift(1) <= signal_data["ma_long"].shift(1))
 
             # Calculate EMA for price exit condition
             signal_data[f"ema_{ema_period}"] = (
@@ -246,9 +246,9 @@ class VolumeParameterSweepEngine:
 
                 # Maintain position state from previous bar if no signal
                 elif i > 0:
-                    signal_data.iloc[
-                        i, signal_data.columns.get_loc("position")
-                    ] = signal_data.iloc[i - 1]["position"]
+                    signal_data.iloc[i, signal_data.columns.get_loc("position")] = (
+                        signal_data.iloc[i - 1]["position"]
+                    )
 
             # For compatibility, also keep separate entry/exit columns
             signal_data["entry"] = signal_data["ma_cross_entry"]
@@ -264,8 +264,8 @@ class VolumeParameterSweepEngine:
                 "Signal",
                 "entry",
                 "exit",
-                f"ma_short",
-                f"ma_long",
+                "ma_short",
+                "ma_long",
                 f"ema_{ema_period}",
                 "rvol",
                 # Don't include "position" as it's just for internal tracking
@@ -275,19 +275,19 @@ class VolumeParameterSweepEngine:
             return signal_data
 
         except Exception as e:
-            log(f"Error generating volume signals: {str(e)}", "error")
+            log(f"Error generating volume signals: {e!s}", "error")
             return None
 
     def process_single_volume_combination(
         self,
         ticker: str,
-        ma_config: Dict[str, Any],
+        ma_config: dict[str, Any],
         ema_period: int,
         rvol_threshold: float,
         volume_lookback: int,
         prices: pl.DataFrame,
         log: callable,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Process a single volume parameter combination.
 
@@ -374,7 +374,7 @@ class VolumeParameterSweepEngine:
                     stats_dict = portfolio.stats()
                 except Exception as e:
                     log(
-                        f"Failed to get portfolio stats for Volume({ema_period}, {rvol_threshold}, {volume_lookback}): {str(e)}",
+                        f"Failed to get portfolio stats for Volume({ema_period}, {rvol_threshold}, {volume_lookback}): {e!s}",
                         "error",
                     )
                     return None
@@ -430,7 +430,7 @@ class VolumeParameterSweepEngine:
 
         except Exception as e:
             log(
-                f"Error processing Volume({ema_period}, {rvol_threshold}, {volume_lookback}): {str(e)}",
+                f"Error processing Volume({ema_period}, {rvol_threshold}, {volume_lookback}): {e!s}",
                 "error",
             )
             self.sweep_stats["failed_combinations"] += 1
@@ -439,12 +439,12 @@ class VolumeParameterSweepEngine:
     def process_volume_parameter_chunk(
         self,
         ticker: str,
-        ma_config: Dict[str, Any],
-        parameter_chunk: List[Tuple[int, float, int]],
+        ma_config: dict[str, Any],
+        parameter_chunk: list[tuple[int, float, int]],
         prices: pl.DataFrame,
         log: callable,
         chunk_index: int,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Process a chunk of volume parameter combinations.
 
@@ -514,10 +514,10 @@ class VolumeParameterSweepEngine:
     def execute_volume_parameter_sweep(
         self,
         ticker: str,
-        ma_config: Dict[str, Any],
+        ma_config: dict[str, Any],
         log: callable,
         use_concurrent: bool = True,
-    ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         """
         Execute the complete volume parameter sweep analysis.
 
@@ -604,7 +604,7 @@ class VolumeParameterSweepEngine:
                                 "info",
                             )
                         except Exception as e:
-                            log(f"Chunk {chunk_index + 1} failed: {str(e)}", "error")
+                            log(f"Chunk {chunk_index + 1} failed: {e!s}", "error")
                             self.sweep_stats["failed_combinations"] += len(
                                 parameter_chunks[chunk_index]
                             )
@@ -636,7 +636,7 @@ class VolumeParameterSweepEngine:
                         process.memory_info().rss / 1024 / 1024
                     )
 
-            log(f"Volume parameter sweep completed:", "info")
+            log("Volume parameter sweep completed:", "info")
             log(
                 f"  Total combinations: {self.sweep_stats['total_combinations']}",
                 "info",
@@ -652,16 +652,16 @@ class VolumeParameterSweepEngine:
             return all_results, self.sweep_stats
 
         except Exception as e:
-            log(f"Volume parameter sweep failed: {str(e)}", "error")
+            log(f"Volume parameter sweep failed: {e!s}", "error")
             sweep_duration = time.time() - sweep_start_time
             self.sweep_stats["processing_time"] = sweep_duration
             return [], self.sweep_stats
 
     def validate_sweep_results(
         self,
-        results: List[Dict[str, Any]],
+        results: list[dict[str, Any]],
         log: callable,
-    ) -> Tuple[bool, List[str]]:
+    ) -> tuple[bool, list[str]]:
         """
         Validate the results of the volume parameter sweep.
 
@@ -742,7 +742,7 @@ class VolumeParameterSweepEngine:
 
 
 def create_volume_sweep_engine(
-    config: Dict[str, Any],
+    config: dict[str, Any],
     enable_memory_optimization: bool = True,
 ) -> VolumeParameterSweepEngine:
     """

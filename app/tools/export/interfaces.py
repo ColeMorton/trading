@@ -4,9 +4,10 @@ Export System Interfaces
 This module defines the interfaces and data structures for the unified export system.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Any
 
 import pandas as pd
 import polars as pl
@@ -34,13 +35,13 @@ class ExportContext:
         indent: JSON indentation level (default: 4)
     """
 
-    data: Union[pl.DataFrame, pd.DataFrame, Dict[str, Any], List[Dict[str, Any]]]
+    data: pl.DataFrame | pd.DataFrame | dict[str, Any] | list[dict[str, Any]]
     format: ExportFormat
     feature_path: str
-    config: Dict[str, Any]
-    filename: Optional[str] | None = None
-    log: Optional[Callable[[str, str], None]] = None
-    json_encoder: Optional[Type] | None = None
+    config: dict[str, Any]
+    filename: str | None | None = None
+    log: Callable[[str, str], None] | None = None
+    json_encoder: type | None | None = None
     indent: int = 4
 
 
@@ -58,7 +59,7 @@ class ExportResult:
     success: bool
     path: str
     rows_exported: int
-    error_message: Optional[str] | None = None
+    error_message: str | None | None = None
 
 
 class ExportStrategy:

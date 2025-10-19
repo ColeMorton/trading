@@ -7,17 +7,16 @@ interval plots, and performance distribution analysis.
 """
 
 import os
-from typing import Any, Dict, List, Optional, Tuple
 
-import matplotlib.patches as patches
+from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import polars as pl
-from matplotlib.gridspec import GridSpec
 from scipy import stats
 
 from app.strategies.monte_carlo.parameter_robustness import ParameterStabilityResult
+
 
 # Complete Color Palette Constants
 PRIMARY_DATA = "#26c6da"  # Cyan - Primary data
@@ -67,7 +66,7 @@ class ParameterStabilityVisualizer:
 
     def create_stability_heatmap(
         self,
-        results: List[ParameterStabilityResult],
+        results: list[ParameterStabilityResult],
         ticker: str,
         metric: str = "stability_score",
     ) -> None:
@@ -164,7 +163,7 @@ class ParameterStabilityVisualizer:
 
     def create_confidence_interval_plot(
         self,
-        results: List[ParameterStabilityResult],
+        results: list[ParameterStabilityResult],
         ticker: str,
         performance_metric: str = "Sharpe Ratio",
     ) -> None:
@@ -246,7 +245,7 @@ class ParameterStabilityVisualizer:
             for score in stability_scores
         ]
 
-        bars = ax2.bar(x_pos, stability_scores, color=colors, alpha=0.7)
+        ax2.bar(x_pos, stability_scores, color=colors, alpha=0.7)
         ax2.axhline(
             y=0.7,
             color=PRIMARY_DATA,
@@ -412,7 +411,7 @@ class ParameterStabilityVisualizer:
             stats_text,
             fontsize=9,
             verticalalignment="bottom",
-            bbox=dict(boxstyle="round", facecolor=BACKGROUND, alpha=0.5),
+            bbox={"boxstyle": "round", "facecolor": BACKGROUND, "alpha": 0.5},
         )
 
         plt.tight_layout()
@@ -424,7 +423,7 @@ class ParameterStabilityVisualizer:
         plt.close()
 
     def create_parameter_landscape_3d(
-        self, results: List[ParameterStabilityResult], ticker: str
+        self, results: list[ParameterStabilityResult], ticker: str
     ) -> None:
         """
         Create 3D landscape plot of parameter stability.
@@ -435,8 +434,6 @@ class ParameterStabilityVisualizer:
         """
         if not results:
             return
-
-        from mpl_toolkits.mplot3d import Axes3D
 
         fig = plt.figure(figsize=(12, 9))
         ax = fig.add_subplot(111, projection="3d")
@@ -472,7 +469,7 @@ class ParameterStabilityVisualizer:
                 short_mesh, long_mesh = np.meshgrid(short_grid, long_grid)
 
                 # Interpolate stability scores
-                points = list(zip(short_windows, long_windows))
+                points = list(zip(short_windows, long_windows, strict=False))
                 stability_mesh = griddata(
                     points, stability_scores, (short_mesh, long_mesh), method="cubic"
                 )
@@ -502,7 +499,7 @@ class ParameterStabilityVisualizer:
         plt.close()
 
     def create_regime_consistency_plot(
-        self, results: List[ParameterStabilityResult], ticker: str
+        self, results: list[ParameterStabilityResult], ticker: str
     ) -> None:
         """
         Create plot showing regime consistency across parameters.
@@ -530,7 +527,7 @@ class ParameterStabilityVisualizer:
             for r in regime_results
         ]
 
-        scatter = ax1.scatter(
+        ax1.scatter(
             stability_scores,
             regime_scores,
             c=range(len(regime_results)),
@@ -541,7 +538,7 @@ class ParameterStabilityVisualizer:
 
         # Add parameter labels for top performers
         top_indices = np.argsort(
-            [s + r for s, r in zip(stability_scores, regime_scores)]
+            [s + r for s, r in zip(stability_scores, regime_scores, strict=False)]
         )[-5:]
         for i in top_indices:
             ax1.annotate(
@@ -563,7 +560,8 @@ class ParameterStabilityVisualizer:
 
         # Plot 2: Combined score ranking
         combined_scores = [
-            0.7 * s + 0.3 * r for s, r in zip(stability_scores, regime_scores)
+            0.7 * s + 0.3 * r
+            for s, r in zip(stability_scores, regime_scores, strict=False)
         ]
         sorted_indices = np.argsort(combined_scores)[::-1]
 
@@ -582,7 +580,9 @@ class ParameterStabilityVisualizer:
         ax2.grid(True, alpha=0.3)
 
         # Add score values on bars
-        for i, (bar, score) in enumerate(zip(bars, sorted_scores[:top_10])):
+        for i, (bar, score) in enumerate(
+            zip(bars, sorted_scores[:top_10], strict=False)
+        ):
             ax2.text(
                 score + 0.01,
                 bar.get_y() + bar.get_height() / 2,
@@ -600,7 +600,7 @@ class ParameterStabilityVisualizer:
         plt.close()
 
     def create_comprehensive_report(
-        self, all_results: Dict[str, List[ParameterStabilityResult]]
+        self, all_results: dict[str, list[ParameterStabilityResult]]
     ) -> None:
         """
         Create comprehensive visualization report for all tickers.
@@ -635,7 +635,7 @@ class ParameterStabilityVisualizer:
 
 
 def visualize_monte_carlo_results(
-    results_file: str, output_dir: Optional[str] = None
+    results_file: str, output_dir: str | None = None
 ) -> None:
     """
     Convenience function to create visualizations from saved results.
@@ -647,7 +647,7 @@ def visualize_monte_carlo_results(
     if output_dir is None:
         output_dir = "png/monte_carlo/parameter_stability"
 
-    visualizer = ParameterStabilityVisualizer(output_dir)
+    ParameterStabilityVisualizer(output_dir)
 
     # Load results
     try:
@@ -741,7 +741,7 @@ def visualize_monte_carlo_results(
         print(f"Basic visualizations created in {output_dir}")
 
     except Exception as e:
-        print(f"Error creating visualizations: {str(e)}")
+        print(f"Error creating visualizations: {e!s}")
 
 
 if __name__ == "__main__":

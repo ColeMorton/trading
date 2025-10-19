@@ -5,8 +5,7 @@ Only tests functions that are actually implemented.
 
 import json
 import unittest
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock
 
 from app.concurrency.tools.optimization_report import (
     NumpyEncoder,

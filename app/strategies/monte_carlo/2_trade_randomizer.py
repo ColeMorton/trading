@@ -1,10 +1,10 @@
 import json
 import logging
 import os
-from typing import List
 
 import matplotlib.pyplot as plt
 import polars as pl
+
 
 TICKER = "BTC-USD"
 NUM_PERMUTATIONS = 1000
@@ -23,7 +23,7 @@ def load_trade_data(file_path: str) -> pl.DataFrame:
         logging.info(f"Loading trade data from {file_path}")
         return pl.read_csv(file_path)
     except Exception as e:
-        logging.error(f"Error loading trade data: {str(e)}")
+        logging.error(f"Error loading trade data: {e!s}")
         raise
 
 
@@ -36,7 +36,7 @@ def shuffle_trades(trades: pl.DataFrame) -> pl.DataFrame:
 
 def get_random_permutations(
     trades: pl.DataFrame, num_permutations: int
-) -> List[pl.DataFrame]:
+) -> list[pl.DataFrame]:
     """
     Generate a list of randomly shuffled trade permutations.
     """
@@ -44,7 +44,7 @@ def get_random_permutations(
     return [shuffle_trades(trades) for _ in range(num_permutations)]
 
 
-def calculate_cumulative_returns(trades: pl.DataFrame) -> List[float]:
+def calculate_cumulative_returns(trades: pl.DataFrame) -> list[float]:
     """
     Calculate cumulative returns for a series of trades.
     """
@@ -55,7 +55,7 @@ def calculate_cumulative_returns(trades: pl.DataFrame) -> List[float]:
     return cumulative_returns
 
 
-def plot_permutations(permutations: List[pl.DataFrame], original_trades: pl.DataFrame):
+def plot_permutations(permutations: list[pl.DataFrame], original_trades: pl.DataFrame):
     """
     Plot the cumulative returns of all permutations and the original trade sequence.
     """
@@ -127,7 +127,7 @@ def main():
 
         logging.info("Trade randomization and plotting completed successfully")
     except Exception as e:
-        logging.error(f"An error occurred: {str(e)}")
+        logging.error(f"An error occurred: {e!s}")
 
 
 if __name__ == "__main__":

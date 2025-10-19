@@ -10,10 +10,7 @@ parameter sensitivity analysis functionality including:
 """
 
 import os
-import tempfile
-from datetime import datetime, timedelta
-from typing import Any, Dict, List
-from unittest.mock import MagicMock, Mock, mock_open, patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
@@ -159,32 +156,28 @@ class TestATRParameterCombinations:
             atr_multiplier_range=(1.0, 5.0),
             atr_multiplier_step=2.0,
         )
-        expected_multipliers = [
-            1.0,
-            3.0,
-        ]  # 2 multipliers (5.0 would be at index 2*2.0 = 4.0 from 1.0, but range is exclusive)
         assert len(combinations) == 2 * 2  # 2 lengths × 2 multipliers
 
     def test_validate_atr_parameters(self):
         """Test ATR parameter validation."""
         # Valid parameters
         is_valid, error = validate_atr_parameters(14, 2.0)
-        assert is_valid == True
+        assert is_valid is True
         assert error is None
 
         # Invalid length (too small)
         is_valid, error = validate_atr_parameters(0, 2.0)
-        assert is_valid == False
+        assert is_valid is False
         assert "ATR length must be a positive integer" in error
 
         # Invalid multiplier (too small)
         is_valid, error = validate_atr_parameters(14, 0.0)
-        assert is_valid == False
+        assert is_valid is False
         assert "ATR multiplier must be positive" in error
 
         # Invalid multiplier (negative)
         is_valid, error = validate_atr_parameters(14, -1.0)
-        assert is_valid == False
+        assert is_valid is False
         assert "ATR multiplier must be positive" in error
 
 
@@ -275,7 +268,7 @@ class TestATRSignalProcessing:
         invalid_data = pd.DataFrame({"Invalid": [1, 2, 3]})
 
         with pytest.raises(ValueError, match="Missing required columns"):
-            result = generate_hybrid_ma_atr_signals(
+            generate_hybrid_ma_atr_signals(
                 invalid_data,
                 sample_ma_config,
                 atr_length=14,
@@ -569,10 +562,7 @@ class TestATRParameterSweepEngine:
         engine = create_atr_sweep_engine(sample_atr_config)
 
         # Create valid results using schema transformer to ensure compliance
-        from app.tools.portfolio.base_extended_schemas import (
-            SchemaTransformer,
-            SchemaType,
-        )
+        from app.tools.portfolio.base_extended_schemas import SchemaTransformer
 
         schema_transformer = SchemaTransformer()
 
@@ -657,7 +647,7 @@ class TestATRParameterSweepEngine:
 
         is_valid, errors = engine.validate_sweep_results(valid_results, mock_logger)
 
-        assert is_valid == True
+        assert is_valid is True
         assert len(errors) == 0
 
     def test_validate_sweep_results_empty(self, sample_atr_config, mock_logger):
@@ -666,7 +656,7 @@ class TestATRParameterSweepEngine:
 
         is_valid, errors = engine.validate_sweep_results([], mock_logger)
 
-        assert is_valid == False
+        assert is_valid is False
         assert len(errors) > 0
         assert "No results generated" in errors[0]
 
@@ -686,7 +676,7 @@ class TestATRParameterSweepEngine:
 
         is_valid, errors = engine.validate_sweep_results(invalid_results, mock_logger)
 
-        assert is_valid == False
+        assert is_valid is False
         assert len(errors) > 0
         assert any("missing Exit Fast Period" in error for error in errors)
 
@@ -735,7 +725,7 @@ class TestATRPortfolioExport:
             extended_portfolio, SchemaType.EXTENDED
         )
 
-        assert is_valid == True
+        assert is_valid is True
         assert len(errors) == 0
         assert extended_portfolio["Exit Fast Period"] == 14
         assert extended_portfolio["Exit Slow Period"] == 2.0
@@ -790,7 +780,6 @@ class TestATRAnalysisIntegration:
         # Execute complete workflow
         # Use spec-based import to handle numbered module name
         import importlib.util
-        import os
 
         module_path = os.path.join(
             os.path.dirname(__file__),
@@ -866,7 +855,6 @@ class TestATRAnalysisIntegration:
         """Test that ATR portfolios are exported in correct CSV format."""
         # Import the module with spec-based approach
         import importlib.util
-        import os
 
         module_path = os.path.join(
             os.path.dirname(__file__),
@@ -923,7 +911,7 @@ class TestATRAnalysisIntegration:
 
             success = export_atr_portfolios(portfolios, "TEST", config, mock_logger)
 
-            assert success == True
+            assert success is True
             mock_write_csv.assert_called_once()
 
             # Check that filtering was attempted

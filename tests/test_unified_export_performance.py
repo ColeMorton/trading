@@ -7,11 +7,10 @@ of the new unified export system against the legacy system.
 """
 
 import logging
+from pathlib import Path
 import shutil
 import tempfile
 import time
-from pathlib import Path
-from typing import Any, Dict, List
 
 import pandas as pd
 import polars as pl
@@ -19,13 +18,13 @@ import pytest
 
 from app.tools.export.unified_export import (
     ExportConfig,
-    ExportResult,
     UnifiedExportProcessor,
     export_portfolio_batch,
     export_portfolio_csv,
 )
 from app.tools.export_csv import export_portfolio_to_csv  # Legacy function
 from app.tools.portfolio.base_extended_schemas import SchemaType
+
 
 logger = logging.getLogger(__name__)
 
@@ -234,7 +233,8 @@ class TestUnifiedExportPerformance:
 
         # Test with invalid data
         result = processor.export_single(
-            data=None, filename="error_test.csv"  # Invalid data
+            data=None,
+            filename="error_test.csv",  # Invalid data
         )
 
         assert result.success is False
@@ -275,7 +275,7 @@ class TestUnifiedExportPerformance:
             # Performance comparison
             improvement = ((legacy_time - unified_time) / legacy_time) * 100
 
-            logger.info(f"Performance comparison:")
+            logger.info("Performance comparison:")
             logger.info(f"  Unified system: {unified_time:.4f}s")
             logger.info(f"  Legacy system: {legacy_time:.4f}s")
             logger.info(f"  Improvement: {improvement:.1f}%")

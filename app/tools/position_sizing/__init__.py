@@ -9,9 +9,10 @@ from .kelly_criterion import ConfidenceMetrics, KellyCriterionSizer, KellyMetric
 from .price_data_integration import PriceDataIntegration
 from .risk_allocation import RiskAllocationCalculator
 
+
 __all__ = [
-    "KellyCriterionSizer",
     "ConfidenceMetrics",
+    "KellyCriterionSizer",
     "KellyMetrics",
     "PriceDataIntegration",
     "RiskAllocationCalculator",

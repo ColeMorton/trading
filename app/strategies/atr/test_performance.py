@@ -14,12 +14,9 @@ Focus: Performance validation and resource efficiency testing
 """
 
 import gc
-import os
 import time
 import unittest
-from datetime import datetime, timedelta
-from typing import Any, Dict, List
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -309,7 +306,6 @@ class TestATRPerformanceMetrics(unittest.TestCase):
 
         # Execution time check
         execution_time = end_time - start_time
-        expected_combinations = 11 * 5  # 55 combinations
 
         self.assertLess(
             execution_time,
@@ -325,7 +321,6 @@ class TestATRPerformanceMetrics(unittest.TestCase):
     def test_concurrent_processing_performance(self):
         """Test performance with concurrent/parallel processing simulation."""
         # Simulate multiple concurrent ATR analyses
-        import threading
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
         def run_atr_analysis(ticker_id):
@@ -355,7 +350,7 @@ class TestATRPerformanceMetrics(unittest.TestCase):
         end_memory = self.process.memory_info().rss / 1024 / 1024
 
         execution_time = end_time - start_time
-        memory_usage = end_memory - start_memory
+        end_memory - start_memory
 
         # Verify all analyses completed successfully
         self.assertEqual(len(results), num_threads)
@@ -385,9 +380,9 @@ class TestATRPerformanceMetrics(unittest.TestCase):
 
         # Force errors during processing
         problematic_data = self.large_test_data.copy()
-        problematic_data.loc[
-            problematic_data.index[100:110], "Close"
-        ] = np.nan  # Inject NaN values
+        problematic_data.loc[problematic_data.index[100:110], "Close"] = (
+            np.nan
+        )  # Inject NaN values
 
         try:
             # Attempt analysis with problematic data
@@ -435,14 +430,14 @@ class TestATRPerformanceMetrics(unittest.TestCase):
         start_time = time.time()
         start_memory = self.process.memory_info().rss / 1024 / 1024
 
-        atr_series = calculate_atr(benchmark_data, 14)
+        calculate_atr(benchmark_data, 14)
 
         atr_time = time.time() - start_time
 
         # Signal Generation benchmark
         start_time = time.time()
 
-        signals_df = generate_signals(benchmark_data, 14, 2.0)
+        generate_signals(benchmark_data, 14, 2.0)
 
         signal_time = time.time() - start_time
         end_memory = self.process.memory_info().rss / 1024 / 1024

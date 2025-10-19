@@ -5,13 +5,12 @@ This module extends the ServiceCoordinator to include position sizing capabiliti
 integrating the PositionSizingOrchestrator with the existing strategy analysis pipeline.
 """
 
-import asyncio
-import time
 from concurrent.futures import ThreadPoolExecutor
 
 # API removed - creating local model definitions
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+import time
+from typing import Any
 
 
 @dataclass
@@ -30,8 +29,8 @@ class MACrossResponse:
     """MA Cross analysis response."""
 
     ticker: str
-    portfolios: List[Dict[str, Any]]
-    analysis_metadata: Dict[str, Any]
+    portfolios: list[dict[str, Any]]
+    analysis_metadata: dict[str, Any]
 
 
 @dataclass
@@ -41,7 +40,7 @@ class StrategyAnalysisRequest:
     ticker: str
     strategy_type: str
     timeframe: str = "D"
-    parameters: Dict[str, Any] = None
+    parameters: dict[str, Any] = None
 
 
 @dataclass
@@ -57,14 +56,14 @@ class PositionSizingRequest:
 class PositionSizingResponse:
     """Position sizing response."""
 
-    position_sizes: Dict[str, float]
-    risk_metrics: Dict[str, float]
+    position_sizes: dict[str, float]
+    risk_metrics: dict[str, float]
 
 
 class PositionSizingOrchestrator:
     """Position sizing orchestrator."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
 
     async def calculate_position_sizing(
@@ -102,9 +101,9 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
         config: ConfigurationInterface,
         logger: LoggingInterface,
         metrics: MonitoringInterface,
-        progress_tracker: Optional[ProgressTrackerInterface] = None,
-        executor: Optional[ThreadPoolExecutor] = None,
-        base_dir: Optional[str] = None,
+        progress_tracker: ProgressTrackerInterface | None = None,
+        executor: ThreadPoolExecutor | None = None,
+        base_dir: str | None = None,
     ):
         """Initialize the enhanced service coordinator with position sizing.
 
@@ -137,7 +136,7 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
 
     async def analyze_strategy_with_position_sizing(
         self, request: StrategyAnalysisRequest
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Execute strategy analysis with integrated position sizing calculations.
 
@@ -180,9 +179,9 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
                     # Create position sizing request
                     ps_request = PositionSizingRequest(
                         symbol=ticker,
-                        signal_type="entry"
-                        if latest_signal.get("position") > 0
-                        else "exit",
+                        signal_type=(
+                            "entry" if latest_signal.get("position") > 0 else "exit"
+                        ),
                         portfolio_type=PortfolioType.RISK_ON,  # Default to Risk On
                         entry_price=latest_signal.get("price"),
                         stop_loss_distance=0.05,  # Default 5% stop loss
@@ -215,17 +214,17 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
             }
 
         except Exception as e:
-            self.logger.log(f"Position sizing calculation failed: {str(e)}", "error")
+            self.logger.log(f"Position sizing calculation failed: {e!s}", "error")
             return {
                 "strategy_analysis": strategy_response,
                 "position_sizing": None,
-                "error": f"Position sizing failed: {str(e)}",
+                "error": f"Position sizing failed: {e!s}",
             }
 
     async def calculate_position_size_for_signal(
         self,
         symbol: str,
-        signal_data: Dict[str, Any],
+        signal_data: dict[str, Any],
         portfolio_type: PortfolioType = PortfolioType.RISK_ON,
     ) -> PositionSizingResponse:
         """
@@ -252,7 +251,7 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
         # Calculate and return position size
         return self.position_sizing.calculate_position_size(ps_request)
 
-    async def get_position_sizing_dashboard(self) -> Dict[str, Any]:
+    async def get_position_sizing_dashboard(self) -> dict[str, Any]:
         """
         Get the complete position sizing dashboard data.
 
@@ -287,10 +286,10 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
         self,
         symbol: str,
         position_value: float,
-        stop_loss_distance: Optional[float] = None,
-        entry_price: Optional[float] = None,
+        stop_loss_distance: float | None = None,
+        entry_price: float | None = None,
         portfolio_type: str = "Risk_On",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Process a new position entry through the position sizing system.
 
@@ -328,8 +327,8 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
         return result
 
     async def update_position_metrics(
-        self, symbol: str, updates: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, symbol: str, updates: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Update position metrics across all tracking systems.
 
@@ -349,7 +348,7 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
 
         return {"success": success, "symbol": symbol, "updates_applied": updates}
 
-    async def get_position_analysis(self, symbol: str) -> Dict[str, Any]:
+    async def get_position_analysis(self, symbol: str) -> dict[str, Any]:
         """
         Get comprehensive position analysis for a symbol.
 
@@ -362,8 +361,8 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
         return self.position_sizing.get_position_analysis(symbol)
 
     async def validate_excel_compatibility(
-        self, excel_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, excel_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Validate position sizing calculations against Excel formulas.
 
@@ -398,7 +397,7 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
         self.position_sizing_enabled = enabled
         self.logger.log(f"Position sizing {'enabled' if enabled else 'disabled'}")
 
-    async def get_risk_allocation_summary(self) -> Dict[str, Any]:
+    async def get_risk_allocation_summary(self) -> dict[str, Any]:
         """
         Get summary of risk allocation across all portfolios.
 
@@ -427,8 +426,8 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
         }
 
     async def sync_with_strategy_results(
-        self, strategy_results: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, strategy_results: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Synchronize position sizing with latest strategy analysis results.
 

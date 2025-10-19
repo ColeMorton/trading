@@ -5,9 +5,10 @@ This service provides a unified interface for running concurrency analysis
 on trading portfolios, following the modular service architecture pattern.
 """
 
+from collections.abc import Callable
 import logging
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 import polars as pl
 
@@ -19,11 +20,7 @@ from app.concurrency.tools.report import generate_json_report
 from app.concurrency.tools.runner import save_json_report
 from app.concurrency.tools.strategy_processor import process_strategies
 from app.concurrency.tools.visualization import plot_concurrency
-from app.tools.exceptions import (
-    ConfigurationError,
-    PortfolioLoadError,
-    TradingSystemError,
-)
+from app.tools.exceptions import TradingSystemError
 from app.tools.portfolio import StrategyConfig, load_portfolio
 
 
@@ -40,7 +37,7 @@ class ConcurrencyAnalysisEngine:
         enable_memory_optimization: bool = False,
         enable_visualization: bool = True,
         enable_optimization: bool = False,
-        log: Optional[Callable[[str, str], None]] = None,
+        log: Callable[[str, str], None] | None = None,
     ):
         """Initialize the concurrency analysis engine.
 
@@ -76,10 +73,10 @@ class ConcurrencyAnalysisEngine:
 
     def analyze_portfolio(
         self,
-        portfolio_path: Union[str, Path],
-        config_overrides: Optional[Dict[str, Any]] = None,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
-    ) -> Dict[str, Any]:
+        portfolio_path: str | Path,
+        config_overrides: dict[str, Any] | None = None,
+        progress_callback: Callable[[int, int], None] | None = None,
+    ) -> dict[str, Any]:
         """Analyze concurrency for a trading portfolio.
 
         Args:
@@ -118,16 +115,16 @@ class ConcurrencyAnalysisEngine:
             return self._run_standard_analysis(validated_config, progress_callback)
 
         except Exception as e:
-            error_msg = f"Concurrency analysis failed: {str(e)}"
+            error_msg = f"Concurrency analysis failed: {e!s}"
             self.log(error_msg, "error")
             raise TradingSystemError(error_msg) from e
 
     def analyze_strategies(
         self,
-        strategies: List[StrategyConfig],
-        config_overrides: Optional[Dict[str, Any]] = None,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
-    ) -> Dict[str, Any]:
+        strategies: list[StrategyConfig],
+        config_overrides: dict[str, Any] | None = None,
+        progress_callback: Callable[[int, int], None] | None = None,
+    ) -> dict[str, Any]:
         """Analyze concurrency for a list of strategies.
 
         Args:
@@ -168,15 +165,15 @@ class ConcurrencyAnalysisEngine:
             return report
 
         except Exception as e:
-            error_msg = f"Strategy concurrency analysis failed: {str(e)}"
+            error_msg = f"Strategy concurrency analysis failed: {e!s}"
             self.log(error_msg, "error")
             raise TradingSystemError(error_msg) from e
 
     def calculate_efficiency_metrics(
         self,
-        processed_data: Dict[str, pl.DataFrame],
+        processed_data: dict[str, pl.DataFrame],
         config: ConcurrencyConfig,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate efficiency metrics for processed strategy data.
 
         Args:
@@ -208,17 +205,17 @@ class ConcurrencyAnalysisEngine:
             return efficiency_metrics
 
         except Exception as e:
-            error_msg = f"Efficiency calculation failed: {str(e)}"
+            error_msg = f"Efficiency calculation failed: {e!s}"
             self.log(error_msg, "error")
             raise TradingSystemError(error_msg) from e
 
     def find_optimal_strategy_combination(
         self,
-        strategies: List[StrategyConfig],
+        strategies: list[StrategyConfig],
         min_strategies: int = 3,
-        max_permutations: Optional[int] = None,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
-    ) -> Dict[str, Any]:
+        max_permutations: int | None = None,
+        progress_callback: Callable[[int, int], None] | None = None,
+    ) -> dict[str, Any]:
         """Find optimal combination of strategies.
 
         Args:
@@ -250,15 +247,15 @@ class ConcurrencyAnalysisEngine:
             return optimization_results
 
         except Exception as e:
-            error_msg = f"Strategy optimization failed: {str(e)}"
+            error_msg = f"Strategy optimization failed: {e!s}"
             self.log(error_msg, "error")
             raise TradingSystemError(error_msg) from e
 
     def _run_standard_analysis(
         self,
         config: ConcurrencyConfig,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
-    ) -> Dict[str, Any]:
+        progress_callback: Callable[[int, int], None] | None = None,
+    ) -> dict[str, Any]:
         """Run standard concurrency analysis pipeline."""
         # Load portfolio
         portfolio_path = config["PORTFOLIO"]
@@ -286,10 +283,10 @@ class ConcurrencyAnalysisEngine:
 
     def _process_strategies(
         self,
-        strategies: List[StrategyConfig],
+        strategies: list[StrategyConfig],
         config: ConcurrencyConfig,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
-    ) -> Dict[str, pl.DataFrame]:
+        progress_callback: Callable[[int, int], None] | None = None,
+    ) -> dict[str, pl.DataFrame]:
         """Process strategies into analyzable data."""
         self.log(f"Processing {len(strategies)} strategies", "info")
 
@@ -307,9 +304,9 @@ class ConcurrencyAnalysisEngine:
 
     def _analyze_concurrency(
         self,
-        processed_data: Dict[str, pl.DataFrame],
+        processed_data: dict[str, pl.DataFrame],
         config: ConcurrencyConfig,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Run concurrency analysis on processed data."""
         self.log("Running concurrency analysis", "info")
 
@@ -321,9 +318,9 @@ class ConcurrencyAnalysisEngine:
 
     def _generate_report(
         self,
-        analysis_results: Dict[str, Any],
+        analysis_results: dict[str, Any],
         config: ConcurrencyConfig,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate analysis report."""
         self.log("Generating analysis report", "info")
 
@@ -336,7 +333,7 @@ class ConcurrencyAnalysisEngine:
                 report_path = save_json_report(report, config, self.log)
                 report["report_path"] = str(report_path)
             except Exception as e:
-                self.log(f"Failed to save report: {str(e)}", "warning")
+                self.log(f"Failed to save report: {e!s}", "warning")
 
         # Generate visualization if enabled
         if self.enable_visualization or config.get("VISUALIZATION", False):
@@ -345,16 +342,16 @@ class ConcurrencyAnalysisEngine:
                 if viz_path:
                     report["visualization_path"] = str(viz_path)
             except Exception as e:
-                self.log(f"Failed to generate visualization: {str(e)}", "warning")
+                self.log(f"Failed to generate visualization: {e!s}", "warning")
 
         self.log("Report generation completed", "info")
         return report
 
     def _generate_visualization(
         self,
-        analysis_results: Dict[str, Any],
+        analysis_results: dict[str, Any],
         config: ConcurrencyConfig,
-    ) -> Optional[Path]:
+    ) -> Path | None:
         """Generate visualization charts."""
         try:
             # Use existing visualization function
@@ -362,15 +359,15 @@ class ConcurrencyAnalysisEngine:
             self.log(f"Visualization saved to: {viz_path}", "info")
             return viz_path
         except Exception as e:
-            self.log(f"Visualization generation failed: {str(e)}", "warning")
+            self.log(f"Visualization generation failed: {e!s}", "warning")
             return None
 
     def _run_optimization(
         self,
-        strategies: List[StrategyConfig],
+        strategies: list[StrategyConfig],
         config: ConcurrencyConfig,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
-    ) -> Dict[str, Any]:
+        progress_callback: Callable[[int, int], None] | None = None,
+    ) -> dict[str, Any]:
         """Run permutation optimization using the dedicated service."""
         self.log(
             "Running strategy optimization using PermutationOptimizationService", "info"
@@ -429,7 +426,7 @@ class ConcurrencyAnalysisEngine:
             return optimization_results
 
     def _build_config(
-        self, config_overrides: Optional[Dict[str, Any]] = None
+        self, config_overrides: dict[str, Any] | None = None
     ) -> ConcurrencyConfig:
         """Build configuration with defaults and overrides."""
         # Start with default configuration
@@ -459,13 +456,13 @@ class ConcurrencyAnalysisEngine:
 
 # Convenience functions for direct usage
 def analyze_portfolio_concurrency(
-    portfolio_path: Union[str, Path],
-    config_overrides: Optional[Dict[str, Any]] = None,
+    portfolio_path: str | Path,
+    config_overrides: dict[str, Any] | None = None,
     enable_memory_optimization: bool = False,
     enable_visualization: bool = True,
     enable_optimization: bool = False,
-    progress_callback: Optional[Callable[[int, int], None]] = None,
-) -> Dict[str, Any]:
+    progress_callback: Callable[[int, int], None] | None = None,
+) -> dict[str, Any]:
     """Analyze concurrency for a portfolio file.
 
     This is a convenience function that creates and uses a ConcurrencyAnalysisEngine.
@@ -495,13 +492,13 @@ def analyze_portfolio_concurrency(
 
 
 def analyze_strategies_concurrency(
-    strategies: List[StrategyConfig],
-    config_overrides: Optional[Dict[str, Any]] = None,
+    strategies: list[StrategyConfig],
+    config_overrides: dict[str, Any] | None = None,
     enable_memory_optimization: bool = False,
     enable_visualization: bool = True,
     enable_optimization: bool = False,
-    progress_callback: Optional[Callable[[int, int], None]] = None,
-) -> Dict[str, Any]:
+    progress_callback: Callable[[int, int], None] | None = None,
+) -> dict[str, Any]:
     """Analyze concurrency for a list of strategies.
 
     This is a convenience function that creates and uses a ConcurrencyAnalysisEngine.

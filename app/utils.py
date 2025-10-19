@@ -5,9 +5,10 @@ This module provides core utility functions for data processing,
 visualization, and analysis.
 """
 
-import os
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple
+import os
+from typing import Any, Optional
 
 import numpy as np
 import polars as pl
@@ -15,8 +16,8 @@ import vectorbt as vbt
 
 
 def calculate_metrics(
-    trades: List[Tuple[float, float]], short: bool
-) -> Tuple[float, float, float]:
+    trades: list[tuple[float, float]], short: bool
+) -> tuple[float, float, float]:
     """Calculate performance metrics from a list of trades.
 
     Args:
@@ -87,13 +88,13 @@ def add_peak_labels(
             textcoords="offset points",
             ha="center",
             va="bottom",
-            bbox=dict(boxstyle="round,pad=0.5", fc="cyan", alpha=0.5),
-            arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=0"),
+            bbox={"boxstyle": "round,pad=0.5", "fc": "cyan", "alpha": 0.5},
+            arrowprops={"arrowstyle": "->", "connectionstyle": "arc3,rad=0"},
         )
 
 
 def backtest_strategy(
-    data: pl.DataFrame, config: Dict[str, Any], log: Callable[[str, str], None]
+    data: pl.DataFrame, config: dict[str, Any], log: Callable[[str, str], None]
 ) -> Optional["vbt.Portfolio"]:
     """Backtest the MA cross strategy.
 
@@ -150,7 +151,7 @@ def backtest_strategy(
         raise
 
 
-def get_filename(type: str, config: Dict[str, Any], path: str = "") -> str:
+def get_filename(type: str, config: dict[str, Any], path: str = "") -> str:
     """Generate filename based on configuration.
 
     Args:
@@ -186,7 +187,7 @@ def get_filename(type: str, config: Dict[str, Any], path: str = "") -> str:
 
 
 def get_path(
-    type: str, feature1: str, config: Dict[str, Any], feature2: str = ""
+    type: str, feature1: str, config: dict[str, Any], feature2: str = ""
 ) -> str:
     """Generate path based on configuration.
 

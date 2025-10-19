@@ -6,19 +6,20 @@ and Redis cache, with support for scheduled backups and point-in-time recovery.
 """
 
 import asyncio
+from datetime import datetime, timedelta
 import json
 import logging
 import os
+from pathlib import Path
 import shutil
 import subprocess
 import tempfile
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import redis.asyncio as redis
 
 from app.database.config import get_database_settings
+
 
 logger = logging.getLogger(__name__)
 
@@ -108,9 +109,7 @@ class BackupManager:
         logger.info(f"Running pg_dump to {dump_file}")
 
         try:
-            result = subprocess.run(
-                cmd, env=env, capture_output=True, text=True, check=True
-            )
+            subprocess.run(cmd, env=env, capture_output=True, text=True, check=True)
 
             logger.info("PostgreSQL backup completed successfully")
             return str(dump_file)
@@ -201,7 +200,7 @@ class BackupManager:
                 backup_path.name,
             ]
 
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            subprocess.run(cmd, capture_output=True, text=True, check=True)
 
             # Remove uncompressed directory
             shutil.rmtree(backup_path)
@@ -231,7 +230,7 @@ class BackupManager:
 
             # Load metadata
             metadata_file = extracted_path / "metadata.json"
-            with open(metadata_file, "r") as f:
+            with open(metadata_file) as f:
                 metadata = json.load(f)
 
             logger.info(f"Restoring backup from {metadata['timestamp']}")
@@ -266,7 +265,7 @@ class BackupManager:
         try:
             cmd = ["tar", "-xzf", str(backup_file), "-C", str(backup_file.parent)]
 
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            subprocess.run(cmd, capture_output=True, text=True, check=True)
 
             return extract_dir
 
@@ -303,9 +302,7 @@ class BackupManager:
         logger.info(f"Restoring PostgreSQL from {dump_file}")
 
         try:
-            result = subprocess.run(
-                cmd, env=env, capture_output=True, text=True, check=True
-            )
+            subprocess.run(cmd, env=env, capture_output=True, text=True, check=True)
 
             logger.info("PostgreSQL restore completed successfully")
 
@@ -335,7 +332,7 @@ class BackupManager:
             await redis_client.flushdb()
 
             # Load backup data
-            with open(redis_file, "r") as f:
+            with open(redis_file) as f:
                 redis_data = json.load(f)
 
             # Restore data
@@ -354,7 +351,7 @@ class BackupManager:
                     await redis_client.sadd(key, *value)
                 elif key_type == "zset":
                     # Convert list of [member, score] pairs to dict
-                    zset_data = {member: score for member, score in value}
+                    zset_data = dict(value)
                     await redis_client.zadd(key, zset_data)
 
                 # Set TTL if it was set in the original
@@ -369,7 +366,7 @@ class BackupManager:
             logger.error(f"Redis restore failed: {e}")
             raise RuntimeError(f"Redis restore failed: {e}")
 
-    async def list_backups(self) -> List[Dict[str, Any]]:
+    async def list_backups(self) -> list[dict[str, Any]]:
         """List available backups."""
         backups = []
 
@@ -389,7 +386,7 @@ class BackupManager:
                     subprocess.run(cmd, capture_output=True, check=True)
 
                     metadata_file = Path(temp_dir) / backup_file.stem / "metadata.json"
-                    with open(metadata_file, "r") as f:
+                    with open(metadata_file) as f:
                         metadata = json.load(f)
 
                     backups.append(
@@ -442,7 +439,7 @@ async def restore_backup(backup_file: str, force: bool = False) -> bool:
     return await manager.restore_backup(backup_file, force)
 
 
-async def list_backups() -> List[Dict[str, Any]]:
+async def list_backups() -> list[dict[str, Any]]:
     """Convenience function to list backups."""
     manager = BackupManager()
     return await manager.list_backups()
@@ -463,7 +460,7 @@ if __name__ == "__main__":
             print(
                 "  cleanup [days]    - Remove backups older than X days (default: 30)"
             )
-            return
+            return None
 
         command = sys.argv[1]
         manager = BackupManager()
@@ -477,7 +474,7 @@ if __name__ == "__main__":
             elif command == "restore":
                 if len(sys.argv) < 3:
                     print("Error: backup file required")
-                    return
+                    return None
 
                 backup_file = sys.argv[2]
                 force = "--force" in sys.argv
@@ -486,7 +483,7 @@ if __name__ == "__main__":
                     print(
                         "Warning: This will overwrite existing data. Use --force to confirm."
                     )
-                    return
+                    return None
 
                 await manager.restore_backup(backup_file, force=True)
                 print("Backup restored successfully")

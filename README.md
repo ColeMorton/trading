@@ -1,80 +1,168 @@
-# Trading Application
+# Trading Strategy Analysis Platform
 
-A comprehensive trading strategy analysis platform with GraphQL API, PostgreSQL database, and React frontend.
+A comprehensive platform for trading strategy analysis, backtesting, and portfolio optimization with both CLI and REST API interfaces.
 
 ## Features
 
-- **Strategy Analysis**: Moving average crossovers, MACD, RSI, and more
-- **Portfolio Management**: Risk analysis, performance metrics, and optimization
-- **Data Management**: Historical price data, backtesting results, and real-time monitoring
-- **GraphQL API**: Type-safe API with comprehensive schema
-- **React Frontend**: Modern PWA with offline capabilities
+- **Strategy Analysis**: Moving average crossovers, MACD, RSI, and custom strategies
+- **Portfolio Management**: Risk analysis, performance metrics, optimization
+- **Statistical Analysis**: Statistical Performance Divergence System (SPDS)
+- **Concurrency Analysis**: Multi-strategy correlation and portfolio construction
+- **REST API**: Full-featured async API with job queuing and real-time updates
+- **CLI Tools**: 47+ commands for comprehensive trading analysis
 
-## Development Setup
+## Quick Start
 
-### Prerequisites
-
-- Python 3.10+
-- Poetry
-- PostgreSQL 15+
-- Redis
-- Node.js 18+ (for frontend)
-
-### Quick Start
+### Option 1: Full Stack (API + Database)
 
 ```bash
 # Install dependencies
-make install
+poetry install
 
-# Install databases (macOS with Homebrew)
-make install-db
+# Start all services with Docker
+docker-compose up -d
 
-# Start local development
-make dev-local
+# Run database migrations
+docker-compose exec api alembic upgrade head
 
-# Or use Docker
-make docker-up
+# Test the API
+curl http://localhost:8000/health
+open http://localhost:8000/api/docs
 ```
 
-### Available Commands
+### Option 2: CLI Only
 
 ```bash
-make help           # Show all available commands
-make check-deps     # Check system dependencies
-make install-db     # Install PostgreSQL and Redis
-make start-local    # Start local database services
-make dev-local      # Start API with local databases
-make setup-db       # Setup database schema and migrate data
-make test-db        # Test database setup
-make backup         # Create database backup
+# Install dependencies
+poetry install
+
+# Run your first analysis
+poetry run trading-cli strategy run --ticker AAPL --strategy SMA
+
+# Check results
+ls data/raw/portfolios/
 ```
 
-## Architecture
+## Documentation
 
-- **Backend**: FastAPI + Strawberry GraphQL + PostgreSQL + Redis
-- **Frontend**: React 18 + TypeScript + Apollo Client + Vite
-- **Database**: PostgreSQL with Prisma ORM
-- **Caching**: Redis for session and query caching
-- **Deployment**: Docker containers with Docker Compose
-
-## API Documentation
-
-- **REST API**: http://localhost:8000/docs
-- **GraphQL Playground**: http://localhost:8000/graphql
-- **Health Checks**: http://localhost:8000/health
+- **[Master Index](INDEX.md)** - Complete navigation guide
+- **[Quick Start](docs/getting-started/QUICK_START.md)** - Get running in 5 minutes
+- **[API Documentation](docs/api/README.md)** - REST API reference
+- **[User Guide](docs/USER_GUIDE.md)** - Comprehensive guide
+- **[Development Guide](docs/development/DEVELOPMENT_GUIDE.md)** - For contributors
 
 ## Project Structure
 
 ```
-app/
-├── api/           # FastAPI REST API
-├── database/      # Database configuration and migrations
-├── sensylate/     # React frontend application
-└── tools/         # Shared utilities and tools
+trading/
+├── app/
+│   ├── api/              # REST API (FastAPI)
+│   ├── cli/              # Command-line interface
+│   ├── core/             # Core business logic
+│   ├── strategies/       # Trading strategies
+│   ├── tools/            # Analysis tools
+│   └── contexts/         # Domain contexts
+├── docs/                 # All documentation
+├── tests/                # Test suite
+├── data/                 # Data storage
+├── scripts/              # Utility scripts
+└── docker-compose.yml    # Docker configuration
+```
 
-csv/               # Historical data storage
-json/              # Configuration files
-scripts/           # Setup and utility scripts
+## Available Commands
+
+### Using Make
+
+```bash
+make help              # Show all commands
+make install           # Install dependencies
+make test              # Run test suite
+make format-python     # Format code
+make quality-analyze   # Check code quality
+make docker-up         # Start Docker services
+make dev-local         # Start API locally
+```
+
+### Using CLI
+
+```bash
+trading-cli --help              # Show all commands
+trading-cli strategy run        # Run strategy analysis
+trading-cli portfolio update    # Update portfolios
+trading-cli spds analyze        # Statistical analysis
+trading-cli concurrency analyze # Concurrency analysis
+```
+
+### Using API
+
+```bash
+# View interactive documentation
+open http://localhost:8000/api/docs
+
+# Create a strategy job
+curl -X POST http://localhost:8000/api/v1/strategy/run \
+  -H "X-API-Key: dev-key-000000000000000000000000" \
+  -H "Content-Type: application/json" \
+  -d '{"ticker":"BTC-USD","fast_period":20,"slow_period":50}'
+```
+
+## Key Technologies
+
+- **Python 3.10+** - Core language
+- **Poetry** - Dependency management
+- **FastAPI** - REST API framework
+- **ARQ** - Async job queue
+- **PostgreSQL** - Database
+- **Redis** - Caching and queuing
+- **Polars** - High-performance data processing
+- **VectorBT** - Backtesting engine
+- **Docker** - Containerization
+
+## Development Setup
+
+```bash
+# Clone repository
+git clone <repository-url>
+cd trading
+
+# Install dependencies
+poetry install
+
+# Install pre-commit hooks (for contributors)
+make pre-commit-install
+
+# Run tests
+make test
+
+# Format code
+make format-python
+```
+
+## Code Quality
+
+This project maintains high code quality standards:
+
+- **Black** - Code formatting
+- **isort** - Import sorting
+- **Ruff** - Fast, modern linting
+- **mypy** - Static type checking
+- **Pre-commit hooks** - Automated checks
+
+See [Code Quality Guide](docs/development/CODE_QUALITY.md) for details.
+
+## Testing
+
+```bash
+# Run all tests
+make test
+
+# Run specific test categories
+make test-unit
+make test-integration
+make test-api
+
+# Run with coverage
+make test-full
 ```
 
 ## Contributing
@@ -82,9 +170,23 @@ scripts/           # Setup and utility scripts
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests
+4. Run `make format-python` and `make test`
 5. Submit a pull request
+
+See [Development Guide](docs/development/DEVELOPMENT_GUIDE.md) for detailed contribution guidelines.
+
+## Resources
+
+- **Documentation Hub**: [docs/README.md](docs/README.md)
+- **Master Index**: [INDEX.md](INDEX.md)
+- **API Docs**: http://localhost:8000/api/docs (when running)
+- **Command Reference**: [docs/reference/COMMAND_REFERENCE.md](docs/reference/COMMAND_REFERENCE.md)
 
 ## License
 
-MIT License
+See LICENSE file for details.
+
+---
+
+**Ready to start?** See [Quick Start Guide](docs/getting-started/QUICK_START.md)
+**Need help?** Check [Master Index](INDEX.md) for complete navigation

@@ -7,7 +7,6 @@ the differences between 24/7 crypto markets and traditional stock market hours.
 
 from datetime import datetime, time
 from enum import Enum
-from typing import Dict, List, Optional, Union
 from zoneinfo import ZoneInfo
 
 import pandas as pd
@@ -25,7 +24,7 @@ class TradingHours:
     """Configuration for market trading hours and sessions."""
 
     def __init__(
-        self, start_time: str, end_time: str, timezone: str, trading_days: List[int]
+        self, start_time: str, end_time: str, timezone: str, trading_days: list[int]
     ):
         """Initialize trading hours configuration.
 
@@ -197,8 +196,8 @@ def filter_trading_hours_polars(
 
 
 def filter_trading_hours(
-    df: Union[pd.DataFrame, pl.DataFrame], market_type: MarketType
-) -> Union[pd.DataFrame, pl.DataFrame]:
+    df: pd.DataFrame | pl.DataFrame, market_type: MarketType
+) -> pd.DataFrame | pl.DataFrame:
     """Filter DataFrame to only include trading hours data (supports both pandas and polars).
 
     Args:
@@ -210,15 +209,14 @@ def filter_trading_hours(
     """
     if isinstance(df, pd.DataFrame):
         return filter_trading_hours_pandas(df, market_type)
-    elif isinstance(df, pl.DataFrame):
+    if isinstance(df, pl.DataFrame):
         return filter_trading_hours_polars(df, market_type)
-    else:
-        raise TypeError(f"Unsupported DataFrame type: {type(df)}")
+    raise TypeError(f"Unsupported DataFrame type: {type(df)}")
 
 
 def validate_4hour_bars(
-    df: Union[pd.DataFrame, pl.DataFrame], market_type: MarketType
-) -> Dict[str, Union[bool, int, str]]:
+    df: pd.DataFrame | pl.DataFrame, market_type: MarketType
+) -> dict[str, bool | int | str]:
     """Validate that 4-hour bars are appropriate for the market type.
 
     Args:
@@ -268,7 +266,7 @@ def validate_4hour_bars(
     return results
 
 
-def get_market_session_boundaries(market_type: MarketType) -> List[time]:
+def get_market_session_boundaries(market_type: MarketType) -> list[time]:
     """Get 4-hour session boundaries for a market type.
 
     Args:
@@ -287,18 +285,18 @@ def get_market_session_boundaries(market_type: MarketType) -> List[time]:
             time(16, 0),  # 16:00
             time(20, 0),  # 20:00
         ]
-    else:  # US_STOCK
-        # Trading-hour aligned boundaries for stocks (ET)
-        return [
-            time(9, 30),  # 09:30 (market open)
-            time(13, 30),  # 13:30 (4-hour mark)
-            time(16, 0),  # 16:00 (market close)
-        ]
+    # US_STOCK
+    # Trading-hour aligned boundaries for stocks (ET)
+    return [
+        time(9, 30),  # 09:30 (market open)
+        time(13, 30),  # 13:30 (4-hour mark)
+        time(16, 0),  # 16:00 (market close)
+    ]
 
 
 def validate_market_hours_data(
-    df: Union[pd.DataFrame, pl.DataFrame], market_type: MarketType
-) -> Dict[str, Union[bool, int, float]]:
+    df: pd.DataFrame | pl.DataFrame, market_type: MarketType
+) -> dict[str, bool | int | float]:
     """Validate that DataFrame contains appropriate market hours data.
 
     Args:
@@ -348,7 +346,7 @@ def validate_market_hours_data(
         df_copy["Date_dt"] = pd.to_datetime(df_copy["Date"])
 
     if market_type == MarketType.US_STOCK:
-        trading_hours = get_trading_hours(market_type)
+        get_trading_hours(market_type)
 
         if isinstance(df, pl.DataFrame):
             # Check for weekend data (Saturday=6, Sunday=7 in polars weekday)

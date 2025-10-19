@@ -4,14 +4,12 @@ This module provides ML-based pattern recognition capabilities for identifying
 recurring performance patterns and anomalies in trading strategies.
 """
 
-import logging
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+import logging
+from typing import Any
 
 import numpy as np
 import pandas as pd
-from scipy.spatial.distance import cosine, euclidean
 from sklearn.cluster import DBSCAN
 from sklearn.decomposition import PCA
 from sklearn.ensemble import IsolationForest
@@ -19,10 +17,10 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
 
 from app.tools.models.statistical_analysis_models import (
-    DivergenceResult,
     PositionData,
     StatisticalAnalysisResult,
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -34,11 +32,11 @@ class PatternMatch:
     position_id: str
     similarity_score: float
     pattern_type: str
-    historical_outcome: Optional[float] = None
+    historical_outcome: float | None = None
     confidence: float = 0.0
-    matched_features: List[str] = None
+    matched_features: list[str] = None
     recommendation: str = ""
-    expected_outcome: Optional[str] = None
+    expected_outcome: str | None = None
 
 
 @dataclass
@@ -49,7 +47,7 @@ class AnomalyDetectionResult:
     anomaly_score: float
     anomaly_type: str
     confidence: float
-    contributing_features: List[str]
+    contributing_features: list[str]
     recommendation: str
 
 
@@ -107,7 +105,7 @@ class PatternRecognitionML:
         ]
 
         # Historical patterns database
-        self.pattern_database: List[Dict[str, Any]] = []
+        self.pattern_database: list[dict[str, Any]] = []
         self.is_fitted = False
 
     def fit(self, historical_data: pd.DataFrame) -> None:
@@ -147,7 +145,7 @@ class PatternRecognitionML:
         position: PositionData,
         analysis: StatisticalAnalysisResult,
         top_k: int = 3,
-    ) -> List[PatternMatch]:
+    ) -> list[PatternMatch]:
         """Find similar historical patterns for a position.
 
         Args:
@@ -172,7 +170,7 @@ class PatternRecognitionML:
 
         # Create pattern matches
         matches = []
-        for i, (dist, idx) in enumerate(zip(distances[0], indices[0])):
+        for i, (dist, idx) in enumerate(zip(distances[0], indices[0], strict=False)):
             if i >= top_k:
                 break
 
@@ -256,7 +254,7 @@ class PatternRecognitionML:
             ),
         )
 
-    def identify_pattern_clusters(self) -> Dict[int, List[int]]:
+    def identify_pattern_clusters(self) -> dict[int, list[int]]:
         """Identify pattern clusters in historical data.
 
         Returns:
@@ -277,7 +275,7 @@ class PatternRecognitionML:
         return clusters
 
     def calculate_pattern_confidence(
-        self, pattern_matches: List[PatternMatch]
+        self, pattern_matches: list[PatternMatch]
     ) -> float:
         """Calculate overall confidence from pattern matches.
 
@@ -337,9 +335,11 @@ class PatternRecognitionML:
             position.mfe / max(position.mae, 0.001),
             position.exit_efficiency or 0,
             divergence.asset_layer.current_percentile if divergence.asset_layer else 50,
-            divergence.strategy_layer.current_percentile
-            if divergence.strategy_layer
-            else 50,
+            (
+                divergence.strategy_layer.current_percentile
+                if divergence.strategy_layer
+                else 50
+            ),
             divergence.dual_layer_convergence_score,
             divergence.statistical_rarity_score,
         ]
@@ -373,14 +373,13 @@ class PatternRecognitionML:
         """Classify pattern type based on features."""
         if row.get("return", 0) > 0.20:  # 20%+ return
             return "exceptional_winner"
-        elif row.get("return", 0) > 0.10:  # 10-20% return
+        if row.get("return", 0) > 0.10:  # 10-20% return
             return "strong_winner"
-        elif row.get("return", 0) > 0:
+        if row.get("return", 0) > 0:
             return "moderate_winner"
-        elif row.get("return", 0) > -0.05:  # -5% to 0%
+        if row.get("return", 0) > -0.05:  # -5% to 0%
             return "small_loss"
-        else:
-            return "significant_loss"
+        return "significant_loss"
 
     def _calculate_pattern_confidence_score(self, row: pd.Series) -> float:
         """Calculate confidence score for a pattern."""
@@ -396,7 +395,7 @@ class PatternRecognitionML:
 
     def _get_matched_features(
         self, current_features: np.ndarray, pattern_features: np.ndarray
-    ) -> List[str]:
+    ) -> list[str]:
         """Identify which features matched most closely."""
         if len(current_features) != len(self.feature_names):
             return []
@@ -413,25 +412,24 @@ class PatternRecognitionML:
         return top_features
 
     def _generate_recommendation(
-        self, pattern: Dict[str, Any], similarity_score: float
+        self, pattern: dict[str, Any], similarity_score: float
     ) -> str:
         """Generate recommendation based on pattern match."""
         pattern_type = pattern["pattern_type"]
-        outcome = pattern["outcome"]
+        pattern["outcome"]
 
         if pattern_type == "exceptional_winner" and similarity_score > 0.9:
             return "CAPTURE_GAINS_IMMEDIATELY"
-        elif (
+        if (
             pattern_type in ["exceptional_winner", "strong_winner"]
             and similarity_score > 0.8
         ):
             return "MONITOR_FOR_OPTIMAL_EXIT"
-        elif pattern_type == "significant_loss":
+        if pattern_type == "significant_loss":
             return "EXIT_ON_ANY_FAVORABLE_MOVEMENT"
-        else:
-            return "APPLY_STANDARD_STATISTICAL_THRESHOLDS"
+        return "APPLY_STANDARD_STATISTICAL_THRESHOLDS"
 
-    def _predict_outcome(self, pattern: Dict[str, Any], similarity_score: float) -> str:
+    def _predict_outcome(self, pattern: dict[str, Any], similarity_score: float) -> str:
         """Predict likely outcome based on pattern."""
         if similarity_score < self.min_similarity_threshold:
             return "Uncertain outcome due to low similarity"
@@ -441,14 +439,13 @@ class PatternRecognitionML:
 
         if pattern_type == "exceptional_winner":
             return f"Statistical exhaustion likely within 2-3 days (historical: {outcome:.1%})"
-        elif pattern_type == "strong_winner":
+        if pattern_type == "strong_winner":
             return f"Continued gains possible but monitor closely (historical: {outcome:.1%})"
-        elif pattern_type == "significant_loss":
+        if pattern_type == "significant_loss":
             return f"High risk of further losses (historical: {outcome:.1%})"
-        else:
-            return f"Moderate outcome expected (historical: {outcome:.1%})"
+        return f"Moderate outcome expected (historical: {outcome:.1%})"
 
-    def _identify_anomaly_features(self, features: np.ndarray) -> List[str]:
+    def _identify_anomaly_features(self, features: np.ndarray) -> list[str]:
         """Identify features contributing to anomaly."""
         # Calculate z-scores for each feature
         z_scores = np.abs((features - np.mean(features)) / (np.std(features) + 1e-8))
@@ -463,7 +460,7 @@ class PatternRecognitionML:
         ]
 
     def _classify_anomaly_type(
-        self, features: np.ndarray, contributing_features: List[str]
+        self, features: np.ndarray, contributing_features: list[str]
     ) -> str:
         """Classify type of anomaly based on features."""
         if not contributing_features:
@@ -471,15 +468,14 @@ class PatternRecognitionML:
 
         if "statistical_rarity" in contributing_features:
             return "statistical_outlier"
-        elif "mfe" in contributing_features or "return" in contributing_features:
+        if "mfe" in contributing_features or "return" in contributing_features:
             return "performance_outlier"
-        elif "duration_days" in contributing_features:
+        if "duration_days" in contributing_features:
             return "duration_outlier"
-        else:
-            return "multi_factor_anomaly"
+        return "multi_factor_anomaly"
 
     def _generate_anomaly_recommendation(
-        self, is_anomaly: bool, anomaly_type: str, contributing_features: List[str]
+        self, is_anomaly: bool, anomaly_type: str, contributing_features: list[str]
     ) -> str:
         """Generate recommendation for anomaly detection."""
         if not is_anomaly:
@@ -487,9 +483,8 @@ class PatternRecognitionML:
 
         if anomaly_type == "statistical_outlier":
             return "IMMEDIATE_EXIT - Statistical exhaustion detected"
-        elif anomaly_type == "performance_outlier":
+        if anomaly_type == "performance_outlier":
             return "CAPTURE_GAINS - Exceptional performance detected"
-        elif anomaly_type == "duration_outlier":
+        if anomaly_type == "duration_outlier":
             return "TIME_BASED_EXIT - Position held beyond normal duration"
-        else:
-            return "HEIGHTENED_MONITORING - Multiple anomaly factors detected"
+        return "HEIGHTENED_MONITORING - Multiple anomaly factors detected"

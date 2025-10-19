@@ -1,12 +1,12 @@
-import logging
 from datetime import datetime, timedelta
-from typing import List
+import logging
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import vectorbt as vbt
 import yfinance as yf
+
 
 # Configuration
 YEARS = 35  # Set timeframe in years for daily data
@@ -105,8 +105,8 @@ def calculate_expectancy(trades: vbt.portfolio.trades.Trades) -> float:
 
     # Import standardized expectancy calculation
     import os
-    import sys
     from pathlib import Path
+    import sys
 
     sys.path.append(str(Path(__file__).parent.parent))
     from tools.expectancy import calculate_expectancy_from_returns
@@ -137,7 +137,7 @@ def calculate_expectancy(trades: vbt.portfolio.trades.Trades) -> float:
 
 
 def parameter_sensitivity_analysis(
-    data: pd.DataFrame, distances: List[float]
+    data: pd.DataFrame, distances: list[float]
 ) -> pd.DataFrame:
     """Perform parameter sensitivity analysis."""
     logging.info("Starting parameter sensitivity analysis")

@@ -1,4 +1,4 @@
-from typing import Dict, List, TypedDict
+from typing import TypedDict
 
 
 class PortfolioAsset(TypedDict):
@@ -30,7 +30,7 @@ class PortfolioConfig(TypedDict):
     initial_value: float
     target_value: float
     use_target_value: bool
-    portfolio: List[PortfolioAsset]
+    portfolio: list[PortfolioAsset]
 
 
 class PortfolioMetrics(TypedDict):
@@ -88,7 +88,7 @@ class AnalysisOutput(TypedDict):
     """
 
     portfolio_metrics: PortfolioMetrics
-    asset_metrics: Dict[str, AssetMetrics]
+    asset_metrics: dict[str, AssetMetrics]
 
 
 class PositionSizingConfig(TypedDict):
@@ -103,7 +103,7 @@ class PositionSizingConfig(TypedDict):
 
     use_ema: bool
     ema_period: int
-    var_confidence_levels: List[float]
+    var_confidence_levels: list[float]
 
 
 class SizingAssetMetrics(TypedDict):
@@ -139,7 +139,7 @@ class SizingOutput(TypedDict):
     position_sizing_config: PositionSizingConfig
     total_leveraged_value: float
     initial_value: float
-    asset_metrics: List[SizingAssetMetrics]
+    asset_metrics: list[SizingAssetMetrics]
 
 
 class Results(TypedDict):

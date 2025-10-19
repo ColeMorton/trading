@@ -5,8 +5,6 @@ This module performs sensitivity analysis on slippage parameters, analyzing how 
 slippage percentages affect entry prices in trading signals.
 """
 
-from typing import List, Tuple
-
 import numpy as np
 import polars as pl
 
@@ -16,7 +14,7 @@ from app.utils import calculate_metrics
 
 def analyze_trades(
     data: pl.DataFrame, slippage: float, config: dict
-) -> List[Tuple[float, float]]:
+) -> list[tuple[float, float]]:
     """
     Analyze trades with slippage on entries.
 
@@ -34,7 +32,7 @@ def analyze_trades(
     close_prices = data["Close"].to_list()
     position = 0
     entry_price = 0.0
-    stop_loss = config.get("STOP_LOSS", None)
+    stop_loss = config.get("STOP_LOSS")
 
     for i in range(1, len(data)):
         # Entry logic

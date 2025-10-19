@@ -7,17 +7,19 @@ implementation that orchestrates the decomposed services.
 """
 
 import asyncio
-import time
-import traceback
 from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import ThreadPoolExecutor as ConcurrentExecutor
+from concurrent.futures import (
+    ThreadPoolExecutor,
+    ThreadPoolExecutor as ConcurrentExecutor,
+)
 
 # API removed - creating local model definitions
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+import time
+import traceback
+from typing import Any
 
 
 class StrategyTypeEnum(str, Enum):
@@ -46,8 +48,8 @@ class MACrossResponse:
     """MA Cross analysis response."""
 
     ticker: str
-    portfolios: List[Dict[str, Any]]
-    analysis_metadata: Dict[str, Any]
+    portfolios: list[dict[str, Any]]
+    analysis_metadata: dict[str, Any]
 
 
 @dataclass
@@ -57,8 +59,8 @@ class MACrossAsyncResponse:
     request_id: str
     ticker: str
     status: str
-    portfolios: List[Dict[str, Any]]
-    analysis_metadata: Dict[str, Any]
+    portfolios: list[dict[str, Any]]
+    analysis_metadata: dict[str, Any]
 
 
 @dataclass
@@ -78,7 +80,7 @@ class StrategyAnalysisRequest:
     ticker: str
     strategy_type: str
     timeframe: str = "D"
-    parameters: Dict[str, Any] = None
+    parameters: dict[str, Any] = None
 
 
 class MetricsCollector:
@@ -91,7 +93,7 @@ class MetricsCollector:
         """Record a metric."""
         self.metrics[name].append(value)
 
-    def get_metrics(self) -> Dict[str, List[float]]:
+    def get_metrics(self) -> dict[str, list[float]]:
         """Get all metrics."""
         return dict(self.metrics)
 
@@ -168,9 +170,9 @@ class ServiceCoordinator:
         config: ConfigurationInterface,
         logger: LoggingInterface,
         metrics: MonitoringInterface,
-        progress_tracker: Optional[ProgressTrackerInterface] = None,
-        executor: Optional[ThreadPoolExecutor] = None,
-        data_coordinator: Optional[StrategyDataCoordinator] = None,
+        progress_tracker: ProgressTrackerInterface | None = None,
+        executor: ThreadPoolExecutor | None = None,
+        data_coordinator: StrategyDataCoordinator | None = None,
     ):
         """Initialize the service coordinator with modular services and central data coordination."""
         self.strategy_factory = strategy_factory
@@ -234,9 +236,7 @@ class ServiceCoordinator:
         """
         # Start performance monitoring for the complete analysis
         ticker_count = len(request.ticker) if isinstance(request.ticker, list) else 1
-        with timing_context(
-            "strategy_analysis", throughput_items=ticker_count
-        ) as perf_metrics:
+        with timing_context("strategy_analysis", throughput_items=ticker_count):
             # Check cache first
             ticker_str = (
                 request.ticker
@@ -344,7 +344,7 @@ class ServiceCoordinator:
                 return response
 
             except Exception as e:
-                error_msg = f"Strategy analysis failed: {str(e)}"
+                error_msg = f"Strategy analysis failed: {e!s}"
                 log(error_msg, "error")
                 log(traceback.format_exc(), "error")
                 log_close()
@@ -406,9 +406,7 @@ class ServiceCoordinator:
         # Submit task to executor
         if hasattr(self.executor, "submit"):
             # Standard ThreadPoolExecutor
-            future = self.executor.submit(
-                self._execute_async_analysis, execution_id, request
-            )
+            self.executor.submit(self._execute_async_analysis, execution_id, request)
         else:
             # ConcurrentExecutor - use execute_analysis
             import threading
@@ -511,12 +509,12 @@ class ServiceCoordinator:
                 loop.close()
 
         except Exception as e:
-            error_msg = f"Async analysis failed: {str(e)}"
+            error_msg = f"Async analysis failed: {e!s}"
             self.result_aggregator.update_task_status(
                 execution_id, "failed", error_msg, error=error_msg
             )
 
-    async def get_analysis_status(self, execution_id: str) -> Dict[str, Any]:
+    async def get_analysis_status(self, execution_id: str) -> dict[str, Any]:
         """Get the status of an asynchronous analysis."""
         return await self.result_aggregator.get_task_status(execution_id)
 
@@ -526,8 +524,8 @@ class ServiceCoordinator:
 
     # Additional utility methods for interface compatibility
     def _collect_export_paths(
-        self, config: Dict[str, Any], strategy_types: List[str], log
-    ) -> Dict[str, List[str]]:
+        self, config: dict[str, Any], strategy_types: list[str], log
+    ) -> dict[str, list[str]]:
         """Legacy method for export path collection."""
         return self.portfolio_processor.collect_export_paths(
             config, strategy_types, log
@@ -535,7 +533,7 @@ class ServiceCoordinator:
 
     def _extract_strategy_identifiers(
         self, request: StrategyAnalysisRequest
-    ) -> List[str]:
+    ) -> list[str]:
         """Extract strategy identifiers from request for data snapshot creation."""
         identifiers = []
 
@@ -572,7 +570,7 @@ class ServiceCoordinator:
 
         return identifiers
 
-    def _extract_strategy_identifiers_from_ma_request(self, request) -> List[str]:
+    def _extract_strategy_identifiers_from_ma_request(self, request) -> list[str]:
         """Extract strategy identifiers from MACrossRequest for data snapshot creation."""
         identifiers = []
 

@@ -4,22 +4,19 @@ This module provides continuous learning capabilities for optimizing
 statistical thresholds based on historical performance data.
 """
 
-import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+import logging
+from typing import Any
 
 import numpy as np
 import pandas as pd
-from scipy.optimize import differential_evolution, minimize
+from scipy.optimize import differential_evolution
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel
-from sklearn.model_selection import cross_val_score
 
-from app.tools.models.statistical_analysis_models import (
-    ConfidenceLevel,
-    StatisticalThresholds,
-)
+from app.tools.models.statistical_analysis_models import StatisticalThresholds
+
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +41,7 @@ class OptimizationResult:
 
     optimal_thresholds: StatisticalThresholds
     expected_improvement: float
-    confidence_interval: Tuple[float, float]
+    confidence_interval: tuple[float, float]
     optimization_method: str
     convergence_achieved: bool
     iterations: int
@@ -81,7 +78,7 @@ class AdaptiveLearningEngine:
         self.optimization_window_days = optimization_window_days
 
         # Performance history
-        self.performance_history: List[ThresholdPerformance] = []
+        self.performance_history: list[ThresholdPerformance] = []
 
         # Gaussian Process for Bayesian optimization
         kernel = ConstantKernel(1.0) * RBF(length_scale=1.0)
@@ -90,7 +87,7 @@ class AdaptiveLearningEngine:
         )
 
         # Current best thresholds
-        self.best_thresholds: Optional[StatisticalThresholds] = None
+        self.best_thresholds: StatisticalThresholds | None = None
         self.best_performance: float = 0.0
 
     def optimize_thresholds(
@@ -166,7 +163,7 @@ class AdaptiveLearningEngine:
         )
 
     def analyze_threshold_performance(
-        self, trades: pd.DataFrame, threshold_ranges: Dict[str, Tuple[float, float]]
+        self, trades: pd.DataFrame, threshold_ranges: dict[str, tuple[float, float]]
     ) -> pd.DataFrame:
         """Analyze performance across threshold ranges.
 
@@ -200,7 +197,7 @@ class AdaptiveLearningEngine:
 
     def predict_performance_improvement(
         self, new_thresholds: StatisticalThresholds, confidence_level: float = 0.95
-    ) -> Tuple[float, Tuple[float, float]]:
+    ) -> tuple[float, tuple[float, float]]:
         """Predict performance improvement with confidence interval.
 
         Args:
@@ -230,8 +227,8 @@ class AdaptiveLearningEngine:
         return improvement, (lower, upper)
 
     def get_adaptive_recommendations(
-        self, current_performance: Dict[str, float]
-    ) -> Dict[str, Any]:
+        self, current_performance: dict[str, float]
+    ) -> dict[str, Any]:
         """Get adaptive recommendations based on current performance.
 
         Args:
@@ -260,9 +257,9 @@ class AdaptiveLearningEngine:
 
             # Suggest specific adjustments
             if current_performance.get("premature_exits", 0) > 0.2:
-                recommendations["threshold_adjustments"][
-                    "percentile_threshold"
-                ] = 5  # Increase
+                recommendations["threshold_adjustments"]["percentile_threshold"] = (
+                    5  # Increase
+                )
             if current_performance.get("late_exits", 0) > 0.2:
                 recommendations["threshold_adjustments"][
                     "percentile_threshold"
@@ -296,7 +293,7 @@ class AdaptiveLearningEngine:
 
     def _grid_search_optimization(
         self, trades: pd.DataFrame, current: StatisticalThresholds, target_metric: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Perform grid search optimization."""
         best_score = -np.inf
         best_thresholds = current
@@ -339,7 +336,7 @@ class AdaptiveLearningEngine:
 
     def _bayesian_optimization(
         self, trades: pd.DataFrame, current: StatisticalThresholds, target_metric: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Perform Bayesian optimization using Gaussian Process."""
         # Prepare training data from history
         if self.performance_history:
@@ -403,7 +400,7 @@ class AdaptiveLearningEngine:
 
     def _evaluate_threshold_performance(
         self, trades: pd.DataFrame, thresholds: StatisticalThresholds
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Evaluate performance of threshold configuration."""
         if len(trades) == 0:
             return {
@@ -570,8 +567,8 @@ class AdaptiveLearningEngine:
         )
 
     def _generate_threshold_configurations(
-        self, ranges: Dict[str, Tuple[float, float]]
-    ) -> List[Dict[str, Any]]:
+        self, ranges: dict[str, tuple[float, float]]
+    ) -> list[dict[str, Any]]:
         """Generate threshold configurations from ranges."""
         configs = []
 
@@ -603,7 +600,7 @@ class AdaptiveLearningEngine:
 
     def _calculate_confidence_interval(
         self, thresholds: StatisticalThresholds, trades: pd.DataFrame
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """Calculate confidence interval for threshold performance."""
         # Bootstrap confidence interval
         n_bootstrap = 100

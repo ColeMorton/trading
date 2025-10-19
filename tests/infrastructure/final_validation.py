@@ -7,7 +7,6 @@ Demonstrates all completed infrastructure improvements.
 import subprocess
 import sys
 import time
-from pathlib import Path
 
 
 def run_command(cmd: str, description: str) -> bool:
@@ -15,16 +14,15 @@ def run_command(cmd: str, description: str) -> bool:
     print(f"🧪 {description}")
     try:
         result = subprocess.run(
-            cmd, shell=True, capture_output=True, text=True, timeout=30
+            cmd, shell=True, capture_output=True, text=True, timeout=30, check=False
         )
         if result.returncode == 0:
             print(f"✅ {description} - PASSED")
             return True
-        else:
-            print(f"❌ {description} - FAILED")
-            if result.stderr:
-                print(f"   Error: {result.stderr[:200]}...")
-            return False
+        print(f"❌ {description} - FAILED")
+        if result.stderr:
+            print(f"   Error: {result.stderr[:200]}...")
+        return False
     except subprocess.TimeoutExpired:
         print(f"⏰ {description} - TIMEOUT")
         return False
@@ -83,10 +81,9 @@ def validate_test_infrastructure():
         print("   • Automated cleanup operational")
         print("   • 241 tests discoverable")
         return True
-    else:
-        print("⚠️  Some infrastructure tests failed")
-        print("   The core infrastructure is functional but may need minor adjustments")
-        return False
+    print("⚠️  Some infrastructure tests failed")
+    print("   The core infrastructure is functional but may need minor adjustments")
+    return False
 
 
 def demonstrate_improvements():

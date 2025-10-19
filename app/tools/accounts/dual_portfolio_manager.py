@@ -5,12 +5,12 @@ This module implements dual portfolio coordination separating Risk On positions
 vs Investment holdings as specified in Phase 2 of the position sizing migration plan.
 """
 
-import json
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import polars as pl
 
@@ -35,11 +35,11 @@ class PortfolioHolding:
     portfolio_type: PortfolioType
     position_value: float
     allocation_percentage: float  # Percentage of portfolio type
-    risk_amount: Optional[float] = None  # Risk amount for Risk On positions
-    stop_loss_distance: Optional[float] = None  # Stop loss for Risk On positions
-    entry_date: Optional[datetime] = None
+    risk_amount: float | None = None  # Risk amount for Risk On positions
+    stop_loss_distance: float | None = None  # Stop loss for Risk On positions
+    entry_date: datetime | None = None
     account_type: str = "IBKR"  # IBKR, Bybit, Cash
-    notes: Optional[str] = None
+    notes: str | None = None
 
 
 @dataclass
@@ -61,7 +61,7 @@ class PortfolioSummary:
 class DualPortfolioManager:
     """Service for managing dual portfolio coordination (Risk On vs Investment)."""
 
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(self, base_dir: str | None = None):
         """Initialize the dual portfolio manager.
 
         Args:
@@ -78,7 +78,7 @@ class DualPortfolioManager:
         self.drawdown_calculator = DrawdownCalculator(base_dir)
         self.strategies_integration = StrategiesCountIntegration(base_dir)
 
-    def _load_holdings(self) -> Dict[str, Any]:
+    def _load_holdings(self) -> dict[str, Any]:
         """Load portfolio holdings from JSON file.
 
         Returns:
@@ -88,12 +88,12 @@ class DualPortfolioManager:
             return {"holdings": [], "last_updated": None}
 
         try:
-            with open(self.holdings_file, "r") as f:
+            with open(self.holdings_file) as f:
                 return json.load(f)
         except (json.JSONDecodeError, FileNotFoundError):
             return {"holdings": [], "last_updated": None}
 
-    def _save_holdings(self, data: Dict[str, Any]) -> None:
+    def _save_holdings(self, data: dict[str, Any]) -> None:
         """Save portfolio holdings to JSON file.
 
         Args:
@@ -105,13 +105,13 @@ class DualPortfolioManager:
     def add_portfolio_holding(
         self,
         symbol: str,
-        portfolio_type: Union[PortfolioType, str],
+        portfolio_type: PortfolioType | str,
         position_value: float,
         allocation_percentage: float,
-        risk_amount: Optional[float] = None,
-        stop_loss_distance: Optional[float] = None,
+        risk_amount: float | None = None,
+        stop_loss_distance: float | None = None,
         account_type: str = "IBKR",
-        notes: Optional[str] = None,
+        notes: str | None = None,
     ) -> PortfolioHolding:
         """Add a new portfolio holding.
 
@@ -194,14 +194,14 @@ class DualPortfolioManager:
     def update_portfolio_holding(
         self,
         symbol: str,
-        portfolio_type: Optional[Union[PortfolioType, str]] = None,
-        position_value: Optional[float] = None,
-        allocation_percentage: Optional[float] = None,
-        risk_amount: Optional[float] = None,
-        stop_loss_distance: Optional[float] = None,
-        account_type: Optional[str] = None,
-        notes: Optional[str] = None,
-    ) -> Optional[PortfolioHolding]:
+        portfolio_type: PortfolioType | str | None = None,
+        position_value: float | None = None,
+        allocation_percentage: float | None = None,
+        risk_amount: float | None = None,
+        stop_loss_distance: float | None = None,
+        account_type: str | None = None,
+        notes: str | None = None,
+    ) -> PortfolioHolding | None:
         """Update an existing portfolio holding.
 
         Args:
@@ -263,7 +263,7 @@ class DualPortfolioManager:
 
         return None
 
-    def get_portfolio_holding(self, symbol: str) -> Optional[PortfolioHolding]:
+    def get_portfolio_holding(self, symbol: str) -> PortfolioHolding | None:
         """Get portfolio holding for a specific symbol.
 
         Args:
@@ -292,8 +292,8 @@ class DualPortfolioManager:
         return None
 
     def get_holdings_by_portfolio_type(
-        self, portfolio_type: Union[PortfolioType, str]
-    ) -> List[PortfolioHolding]:
+        self, portfolio_type: PortfolioType | str
+    ) -> list[PortfolioHolding]:
         """Get all holdings for a specific portfolio type.
 
         Args:
@@ -326,7 +326,7 @@ class DualPortfolioManager:
 
         return holdings
 
-    def get_all_holdings(self) -> List[PortfolioHolding]:
+    def get_all_holdings(self) -> list[PortfolioHolding]:
         """Get all portfolio holdings.
 
         Returns:
@@ -409,7 +409,7 @@ class DualPortfolioManager:
             last_updated=last_updated,
         )
 
-    def sync_with_external_services(self) -> Dict[str, Any]:
+    def sync_with_external_services(self) -> dict[str, Any]:
         """Synchronize dual portfolio with external services and validate consistency.
 
         Returns:
@@ -473,7 +473,7 @@ class DualPortfolioManager:
 
         return validation_results
 
-    def export_portfolio_to_csv(self, output_path: Optional[str] = None) -> str:
+    def export_portfolio_to_csv(self, output_path: str | None = None) -> str:
         """Export dual portfolio holdings to CSV format.
 
         Args:
@@ -499,9 +499,9 @@ class DualPortfolioManager:
                     "risk_amount": holding.risk_amount,
                     "stop_loss_distance": holding.stop_loss_distance,
                     "account_type": holding.account_type,
-                    "entry_date": holding.entry_date.isoformat()
-                    if holding.entry_date
-                    else None,
+                    "entry_date": (
+                        holding.entry_date.isoformat() if holding.entry_date else None
+                    ),
                     "notes": holding.notes,
                 }
             )
@@ -511,7 +511,7 @@ class DualPortfolioManager:
 
         return output_path
 
-    def import_portfolio_from_dict(self, portfolio_dict: Dict[str, Any]) -> None:
+    def import_portfolio_from_dict(self, portfolio_dict: dict[str, Any]) -> None:
         """Import portfolio holdings from dictionary (for Excel migration).
 
         Args:
@@ -579,7 +579,7 @@ class DualPortfolioManager:
 
         return False
 
-    def get_excel_compatible_summary(self) -> Dict[str, Any]:
+    def get_excel_compatible_summary(self) -> dict[str, Any]:
         """Get portfolio summary formatted for Excel integration.
 
         Returns:

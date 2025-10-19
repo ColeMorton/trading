@@ -4,7 +4,7 @@ MA Cross Strategy Implementation
 This module implements the MA Cross strategy using the Strategy Pattern.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from app.core.interfaces.strategy import StrategyInterface
 from app.tools.project_utils import get_project_root
@@ -17,7 +17,7 @@ class MACrossStrategy(StrategyInterface):
         """Get the strategy type identifier."""
         return "MA_CROSS"
 
-    def validate_parameters(self, config: Dict[str, Any]) -> bool:
+    def validate_parameters(self, config: dict[str, Any]) -> bool:
         """Validate MA Cross strategy parameters."""
         try:
             # Check required parameters
@@ -74,7 +74,7 @@ class MACrossStrategy(StrategyInterface):
         except Exception:
             return False
 
-    def get_parameter_ranges(self) -> Dict[str, Any]:
+    def get_parameter_ranges(self) -> dict[str, Any]:
         """Get MA Cross strategy parameter ranges and defaults."""
         return {
             "FAST_PERIOD_RANGE": {"min": [1, 1], "max": [199, 200], "default": [5, 89]},
@@ -87,7 +87,7 @@ class MACrossStrategy(StrategyInterface):
             "YEARS": {"min": 1, "max": 50, "default": 15},
         }
 
-    def execute(self, config: Dict[str, Any], log: Any) -> List[Dict[str, Any]]:
+    def execute(self, config: dict[str, Any], log: Any) -> list[dict[str, Any]]:
         """Execute MA Cross strategy analysis."""
         try:
             # Import the execute_strategy functions from ma_cross module
@@ -117,7 +117,7 @@ class MACrossStrategy(StrategyInterface):
             all_portfolio_dicts = []
 
             # Execute strategy for each strategy type
-            for i, strategy_type in enumerate(strategy_types):
+            for _i, strategy_type in enumerate(strategy_types):
                 log(f"Executing {strategy_type} strategy analysis")
 
                 # Execute the strategy using optimal execution method
@@ -141,7 +141,7 @@ class MACrossStrategy(StrategyInterface):
             return all_portfolio_dicts
 
         except Exception as e:
-            log(f"Error in MA Cross strategy execution: {str(e)}", "error")
+            log(f"Error in MA Cross strategy execution: {e!s}", "error")
             import traceback
 
             log(traceback.format_exc(), "error")

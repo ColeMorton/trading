@@ -5,8 +5,7 @@ This module tests the consolidated sensitivity analysis functionality to ensure
 it properly handles all strategy types while eliminating code duplication.
 """
 
-from typing import Any, Dict, List, Optional
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import polars as pl
 import pytest
@@ -75,7 +74,7 @@ class TestMASensitivityAnalyzer:
 
         assert params["fast_period"] == 10
         assert params["slow_period"] == 20
-        assert params["USE_SMA"] == True
+        assert params["USE_SMA"] is True
 
     def test_extract_strategy_parameters_alternative_names(self):
         """Test extracting parameters with alternative names."""
@@ -85,7 +84,7 @@ class TestMASensitivityAnalyzer:
 
         assert params["fast_period"] == 10
         assert params["slow_period"] == 20
-        assert params["USE_SMA"] == False
+        assert params["USE_SMA"] is False
 
     def test_extract_strategy_parameters_missing_short(self):
         """Test error when fast period is missing."""
@@ -117,7 +116,7 @@ class TestMASensitivityAnalyzer:
         )
 
         assert (
-            analyzer._check_data_sufficiency(data, fast_period=2, slow_period=3) == True
+            analyzer._check_data_sufficiency(data, fast_period=2, slow_period=3) is True
         )
 
     def test_check_data_sufficiency_insufficient(self):
@@ -130,7 +129,7 @@ class TestMASensitivityAnalyzer:
 
         assert (
             analyzer._check_data_sufficiency(data, fast_period=5, slow_period=10)
-            == False
+            is False
         )
 
     def test_format_parameters(self):
@@ -191,7 +190,7 @@ class TestMASensitivityAnalyzer:
 
         result = analyzer._check_signal_currency(data)
 
-        assert result == True
+        assert result is True
         mock_is_current.assert_called_once_with(data)
 
     def test_check_signal_currency_import_error(self):
@@ -204,7 +203,7 @@ class TestMASensitivityAnalyzer:
         with patch("builtins.__import__", side_effect=ImportError("Module not found")):
             result = analyzer._check_signal_currency(data)
 
-        assert result == False
+        assert result is False
 
 
 class TestMACDSensitivityAnalyzer:
@@ -270,7 +269,7 @@ class TestMACDSensitivityAnalyzer:
             analyzer._check_data_sufficiency(
                 data, fast_period=12, slow_period=26, signal_period=9
             )
-            == True
+            is True
         )
 
     def test_check_data_sufficiency_insufficient(self):
@@ -285,7 +284,7 @@ class TestMACDSensitivityAnalyzer:
             analyzer._check_data_sufficiency(
                 data, fast_period=12, slow_period=26, signal_period=9
             )
-            == False
+            is False
         )
 
     def test_format_parameters(self):
@@ -364,7 +363,7 @@ class TestMeanReversionSensitivityAnalyzer:
             {"Date": ["2023-01-01", "2023-01-02"], "Close": [100.0, 101.0]}
         )
 
-        assert analyzer._check_data_sufficiency(data, change_pct=0.05) == True
+        assert analyzer._check_data_sufficiency(data, change_pct=0.05) is True
 
     def test_check_data_sufficiency_insufficient(self):
         """Test data sufficiency check with no data."""
@@ -372,7 +371,7 @@ class TestMeanReversionSensitivityAnalyzer:
 
         data = pl.DataFrame()
 
-        assert analyzer._check_data_sufficiency(data, change_pct=0.05) == False
+        assert analyzer._check_data_sufficiency(data, change_pct=0.05) is False
 
     def test_format_parameters(self):
         """Test parameter formatting for logging."""
@@ -718,7 +717,7 @@ class TestAnalyzeParameterCombinationIntegration:
         assert result["Win Rate [%]"] == 65.0
         assert result["fast_period"] == 10
         assert result["slow_period"] == 20
-        assert result["Signal Entry"] == True
+        assert result["Signal Entry"] is True
 
         # Verify all components were called
         mock_calculate.assert_called_once()

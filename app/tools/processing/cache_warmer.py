@@ -5,18 +5,19 @@ This module implements intelligent cache warming based on historical access patt
 It analyzes usage patterns and proactively loads frequently accessed data into cache.
 """
 
-import asyncio
+from collections import defaultdict
+from collections.abc import Callable
+from dataclasses import dataclass
+from datetime import datetime
 import json
 import logging
+from pathlib import Path
 import threading
 import time
-from collections import Counter, defaultdict
-from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 from .cache_manager import IntelligentCacheManager
+
 
 logger = logging.getLogger(__name__)
 
@@ -42,17 +43,17 @@ class WarmingJob:
     data_generator: Callable[[], Any]
     priority: float
     estimated_time: float
-    last_warmed: Optional[datetime] = None
+    last_warmed: datetime | None = None
 
 
 class AccessTracker:
     """Tracks cache access patterns for intelligent warming."""
 
-    def __init__(self, history_file: Optional[Path] = None):
+    def __init__(self, history_file: Path | None = None):
         """Initialize access tracker."""
         self.history_file = history_file or Path("cache/access_history.json")
-        self.access_history: Dict[str, List[datetime]] = defaultdict(list)
-        self.cache_categories: Dict[str, str] = {}
+        self.access_history: dict[str, list[datetime]] = defaultdict(list)
+        self.cache_categories: dict[str, str] = {}
         self._lock = threading.Lock()
 
         # Load existing history
@@ -69,7 +70,7 @@ class AccessTracker:
             if len(self.access_history[cache_key]) > 1000:
                 self.access_history[cache_key] = self.access_history[cache_key][-1000:]
 
-    def get_access_patterns(self, min_accesses: int = 3) -> List[AccessPattern]:
+    def get_access_patterns(self, min_accesses: int = 3) -> list[AccessPattern]:
         """Get access patterns for keys with sufficient history."""
         patterns = []
 
@@ -123,7 +124,7 @@ class AccessTracker:
             return
 
         try:
-            with open(self.history_file, "r") as f:
+            with open(self.history_file) as f:
                 data = json.load(f)
 
             # Convert datetime strings back to datetime objects
@@ -165,7 +166,7 @@ class CacheWarmer:
     def __init__(
         self,
         cache_manager: IntelligentCacheManager,
-        access_tracker: Optional[AccessTracker] = None,
+        access_tracker: AccessTracker | None = None,
         warming_interval: int = 3600,  # 1 hour
         max_warming_time: int = 300,  # 5 minutes
         storage_limit_mb: float = 500.0,
@@ -177,8 +178,8 @@ class CacheWarmer:
         self.max_warming_time = max_warming_time
         self.storage_limit_mb = storage_limit_mb
 
-        self.warming_jobs: Dict[str, WarmingJob] = {}
-        self.data_generators: Dict[str, Dict[str, Any]] = {}
+        self.warming_jobs: dict[str, WarmingJob] = {}
+        self.data_generators: dict[str, dict[str, Any]] = {}
         self.warming_stats = {
             "jobs_completed": 0,
             "jobs_failed": 0,
@@ -270,7 +271,7 @@ class CacheWarmer:
         # Save access history
         self.access_tracker.save_history()
 
-    def _create_warming_jobs(self, patterns: List[AccessPattern]) -> List[WarmingJob]:
+    def _create_warming_jobs(self, patterns: list[AccessPattern]) -> list[WarmingJob]:
         """Create warming jobs from access patterns."""
         jobs = []
 
@@ -296,7 +297,7 @@ class CacheWarmer:
         jobs.sort(key=lambda j: j.priority, reverse=True)
         return jobs
 
-    def _find_data_generator(self, cache_key: str) -> Optional[Dict[str, Any]]:
+    def _find_data_generator(self, cache_key: str) -> dict[str, Any] | None:
         """Find a matching data generator for a cache key."""
         import fnmatch
 
@@ -306,7 +307,7 @@ class CacheWarmer:
 
         return None
 
-    def _execute_warming_jobs(self, jobs: List[WarmingJob]) -> Tuple[int, int]:
+    def _execute_warming_jobs(self, jobs: list[WarmingJob]) -> tuple[int, int]:
         """Execute warming jobs within time and storage limits."""
         completed = 0
         failed = 0
@@ -353,7 +354,7 @@ class CacheWarmer:
         except Exception:
             return 0.0
 
-    def get_warming_stats(self) -> Dict[str, Any]:
+    def get_warming_stats(self) -> dict[str, Any]:
         """Get cache warming statistics."""
         stats = self.warming_stats.copy()
         stats["cache_size_mb"] = self._get_cache_size_mb()
@@ -371,8 +372,8 @@ class CacheWarmer:
         return stats
 
     def trigger_immediate_warming(
-        self, cache_keys: Optional[List[str]] = None
-    ) -> Dict[str, bool]:
+        self, cache_keys: list[str] | None = None
+    ) -> dict[str, bool]:
         """Trigger immediate warming for specific keys or top patterns.
 
         Args:
@@ -466,11 +467,11 @@ def create_portfolio_generator(portfolio_analyzer):
 
 
 # Global cache warmer instance
-_global_cache_warmer: Optional[CacheWarmer] = None
+_global_cache_warmer: CacheWarmer | None = None
 
 
 def get_cache_warmer(
-    cache_manager: Optional[IntelligentCacheManager] = None, auto_start: bool = True
+    cache_manager: IntelligentCacheManager | None = None, auto_start: bool = True
 ) -> CacheWarmer:
     """Get or create global cache warmer instance."""
     global _global_cache_warmer
@@ -490,7 +491,7 @@ def get_cache_warmer(
 
 
 def configure_cache_warming(
-    cache_manager: Optional[IntelligentCacheManager] = None,
+    cache_manager: IntelligentCacheManager | None = None,
     warming_interval: int = 3600,
     max_warming_time: int = 300,
     storage_limit_mb: float = 500.0,

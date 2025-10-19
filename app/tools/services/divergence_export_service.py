@@ -5,22 +5,17 @@ Exports statistical analysis results in multiple formats (CSV, JSON, Markdown)
 with comprehensive metadata and integration with existing export infrastructure.
 """
 
-import asyncio
 import csv
+from datetime import datetime
 import json
 import logging
-from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 
 from ..config.statistical_analysis_config import SPDSConfig
-from ..models.correlation_models import (
-    CorrelationResult,
-    PatternResult,
-    SignificanceTestResult,
-)
+from ..models.correlation_models import CorrelationResult, PatternResult
 from ..models.statistical_analysis_models import (
     DivergenceAnalysisResult,
     StatisticalAnalysisResult,
@@ -38,7 +33,7 @@ class DivergenceExportService:
     - Integration with existing export infrastructure
     """
 
-    def __init__(self, config: SPDSConfig, logger: Optional[logging.Logger] = None):
+    def __init__(self, config: SPDSConfig, logger: logging.Logger | None = None):
         """
         Initialize the Divergence Export Service
 
@@ -64,11 +59,11 @@ class DivergenceExportService:
 
     async def export_statistical_analysis(
         self,
-        analysis_results: List[StatisticalAnalysisResult],
+        analysis_results: list[StatisticalAnalysisResult],
         export_name: str,
-        formats: Optional[List[str]] = None,
+        formats: list[str] | None = None,
         include_raw_data: bool = True,
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """
         Export statistical analysis results in multiple formats
 
@@ -133,10 +128,10 @@ class DivergenceExportService:
 
     async def export_divergence_analysis(
         self,
-        divergence_results: List[DivergenceAnalysisResult],
+        divergence_results: list[DivergenceAnalysisResult],
         export_name: str,
         include_recommendations: bool = True,
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """
         Export divergence analysis results with exit recommendations
 
@@ -178,8 +173,8 @@ class DivergenceExportService:
             raise
 
     async def export_correlation_analysis(
-        self, correlation_results: List[CorrelationResult], export_name: str
-    ) -> Dict[str, str]:
+        self, correlation_results: list[CorrelationResult], export_name: str
+    ) -> dict[str, str]:
         """
         Export correlation analysis results
 
@@ -216,8 +211,8 @@ class DivergenceExportService:
             raise
 
     async def export_pattern_analysis(
-        self, pattern_results: List[PatternResult], export_name: str
-    ) -> Dict[str, str]:
+        self, pattern_results: list[PatternResult], export_name: str
+    ) -> dict[str, str]:
         """
         Export pattern recognition analysis results
 
@@ -255,7 +250,7 @@ class DivergenceExportService:
 
     async def _export_csv(
         self,
-        analysis_results: List[StatisticalAnalysisResult],
+        analysis_results: list[StatisticalAnalysisResult],
         file_base: str,
         include_raw_data: bool,
     ) -> Path:
@@ -333,7 +328,7 @@ class DivergenceExportService:
         return csv_file
 
     async def _export_divergence_csv(
-        self, export_data: Dict[str, Any], file_base: str
+        self, export_data: dict[str, Any], file_base: str
     ) -> Path:
         """Export divergence analysis to CSV"""
         csv_file = self.export_base_path / f"{file_base}.csv"
@@ -368,7 +363,7 @@ class DivergenceExportService:
         return csv_file
 
     async def _export_correlation_csv(
-        self, correlation_data: Dict[str, Any], file_base: str
+        self, correlation_data: dict[str, Any], file_base: str
     ) -> Path:
         """Export correlation matrix to CSV"""
         csv_file = self.export_base_path / f"{file_base}.csv"
@@ -381,7 +376,7 @@ class DivergenceExportService:
         return csv_file
 
     async def _export_pattern_csv(
-        self, pattern_data: Dict[str, Any], file_base: str
+        self, pattern_data: dict[str, Any], file_base: str
     ) -> Path:
         """Export pattern analysis to CSV"""
         csv_file = self.export_base_path / f"{file_base}.csv"
@@ -412,7 +407,7 @@ class DivergenceExportService:
 
     async def _export_json(
         self,
-        analysis_results: List[StatisticalAnalysisResult],
+        analysis_results: list[StatisticalAnalysisResult],
         file_base: str,
         include_raw_data: bool,
     ) -> Path:
@@ -426,9 +421,9 @@ class DivergenceExportService:
                 "export_version": "1.0.0",
                 "total_results": len(analysis_results),
                 "include_raw_data": include_raw_data,
-                "config_version": self.config.version
-                if hasattr(self.config, "version")
-                else "1.0.0",
+                "config_version": (
+                    self.config.version if hasattr(self.config, "version") else "1.0.0"
+                ),
             },
             "statistical_analysis_results": [],
         }
@@ -460,13 +455,18 @@ class DivergenceExportService:
                     result.exit_signal, "combined_source_confidence", 0.0
                 ),
                 "divergence_metrics": {
-                    "asset_divergence": result.asset_divergence.dict()
-                    if hasattr(result, "asset_divergence") and result.asset_divergence
-                    else {},
-                    "strategy_divergence": result.strategy_divergence.dict()
-                    if hasattr(result, "strategy_divergence")
-                    and result.strategy_divergence
-                    else {},
+                    "asset_divergence": (
+                        result.asset_divergence.dict()
+                        if hasattr(result, "asset_divergence")
+                        and result.asset_divergence
+                        else {}
+                    ),
+                    "strategy_divergence": (
+                        result.strategy_divergence.dict()
+                        if hasattr(result, "strategy_divergence")
+                        and result.strategy_divergence
+                        else {}
+                    ),
                 },
                 "performance_metrics": getattr(result, "performance_metrics", {}),
             }
@@ -483,7 +483,7 @@ class DivergenceExportService:
         return json_file
 
     async def _export_divergence_json(
-        self, export_data: Dict[str, Any], file_base: str
+        self, export_data: dict[str, Any], file_base: str
     ) -> Path:
         """Export divergence analysis to JSON"""
         json_file = self.export_base_path / f"{file_base}.json"
@@ -501,7 +501,7 @@ class DivergenceExportService:
         return json_file
 
     async def _export_correlation_json(
-        self, correlation_data: Dict[str, Any], file_base: str
+        self, correlation_data: dict[str, Any], file_base: str
     ) -> Path:
         """Export correlation analysis to JSON"""
         json_file = self.export_base_path / f"{file_base}.json"
@@ -512,7 +512,7 @@ class DivergenceExportService:
         return json_file
 
     async def _export_pattern_json(
-        self, pattern_data: Dict[str, Any], file_base: str
+        self, pattern_data: dict[str, Any], file_base: str
     ) -> Path:
         """Export pattern analysis to JSON"""
         json_file = self.export_base_path / f"{file_base}.json"
@@ -525,7 +525,7 @@ class DivergenceExportService:
     # Helper methods for Markdown export
 
     async def _export_markdown(
-        self, analysis_results: List[StatisticalAnalysisResult], file_base: str
+        self, analysis_results: list[StatisticalAnalysisResult], file_base: str
     ) -> Path:
         """Export statistical analysis to comprehensive Markdown report"""
         md_file = self.export_base_path / f"{file_base}.md"
@@ -557,7 +557,7 @@ class DivergenceExportService:
         return md_file
 
     async def _export_divergence_summary(
-        self, export_data: Dict[str, Any], file_base: str
+        self, export_data: dict[str, Any], file_base: str
     ) -> Path:
         """Export divergence analysis executive summary"""
         md_file = self.export_base_path / f"{file_base}_export_summary.md"
@@ -573,9 +573,9 @@ class DivergenceExportService:
 
     async def _prepare_divergence_export_data(
         self,
-        divergence_results: List[DivergenceAnalysisResult],
+        divergence_results: list[DivergenceAnalysisResult],
         include_recommendations: bool,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Prepare divergence data for export"""
         export_data = {
             "analysis_metadata": {
@@ -610,8 +610,8 @@ class DivergenceExportService:
         return export_data
 
     async def _prepare_correlation_export_data(
-        self, correlation_results: List[CorrelationResult]
-    ) -> Dict[str, Any]:
+        self, correlation_results: list[CorrelationResult]
+    ) -> dict[str, Any]:
         """Prepare correlation data for export"""
         # Build correlation matrix
         entities = list(
@@ -662,8 +662,8 @@ class DivergenceExportService:
         }
 
     async def _prepare_pattern_export_data(
-        self, pattern_results: List[PatternResult]
-    ) -> Dict[str, Any]:
+        self, pattern_results: list[PatternResult]
+    ) -> dict[str, Any]:
         """Prepare pattern data for export"""
         return {
             "analysis_metadata": {
@@ -692,7 +692,7 @@ class DivergenceExportService:
     # Report generation methods
 
     def _generate_markdown_report(
-        self, analysis_results: List[StatisticalAnalysisResult]
+        self, analysis_results: list[StatisticalAnalysisResult]
     ) -> str:
         """Generate enhanced comprehensive markdown report with multi-source analysis details"""
         # Count dual-source analyses
@@ -762,9 +762,11 @@ class DivergenceExportService:
                 f"- **Strong Sell Signals:** {strong_sells} ({strong_sells/len(analysis_results)*100:.1f}%)",
                 f"- **Hold Positions:** {holds} ({holds/len(analysis_results)*100:.1f}%)",
                 f"- **Average Layer Convergence:** {avg_convergence:.3f}",
-                f"- **Average Source Agreement:** {avg_source_agreement:.3f}"
-                if source_agreements
-                else "",
+                (
+                    f"- **Average Source Agreement:** {avg_source_agreement:.3f}"
+                    if source_agreements
+                    else ""
+                ),
                 "",
                 "## Multi-Source Analysis Overview",
                 "",
@@ -867,9 +869,11 @@ class DivergenceExportService:
                         "**Signal Contribution Analysis:**",
                         f"- Asset Layer: {result.exit_signal.asset_layer_contribution:.3f}",
                         f"- Trade History: {result.exit_signal.trade_history_contribution:.3f}",
-                        f"- Equity Curves: {result.exit_signal.equity_curve_contribution:.3f}"
-                        if result.exit_signal.equity_curve_contribution
-                        else "",
+                        (
+                            f"- Equity Curves: {result.exit_signal.equity_curve_contribution:.3f}"
+                            if result.exit_signal.equity_curve_contribution
+                            else ""
+                        ),
                         "",
                     ]
                 )
@@ -899,7 +903,7 @@ class DivergenceExportService:
 
         return "\n".join(report_lines)
 
-    def _generate_divergence_summary_report(self, export_data: Dict[str, Any]) -> str:
+    def _generate_divergence_summary_report(self, export_data: dict[str, Any]) -> str:
         """Generate divergence analysis executive summary"""
         results = export_data["results"]
 
@@ -939,9 +943,9 @@ class DivergenceExportService:
 
     async def _generate_export_summary(
         self,
-        exported_files: Dict[str, str],
+        exported_files: dict[str, str],
         file_base: str,
-        analysis_results: List[StatisticalAnalysisResult],
+        analysis_results: list[StatisticalAnalysisResult],
     ) -> Path:
         """Generate comprehensive SPDS analysis report"""
         summary_file = self.export_base_path / f"{file_base}.md"
@@ -958,14 +962,14 @@ class DivergenceExportService:
 
     def _generate_portfolio_analysis_summary(
         self,
-        analysis_results: List[StatisticalAnalysisResult],
-        exported_files: Dict[str, str],
+        analysis_results: list[StatisticalAnalysisResult],
+        exported_files: dict[str, str],
     ) -> str:
         """Generate the full portfolio analysis summary matching console output"""
 
         # Extract portfolio information from file base
         portfolio_name = "portfolio.csv"  # Default fallback
-        for format_type, file_path in exported_files.items():
+        for _format_type, file_path in exported_files.items():
             if "portfolio_analysis_" in file_path:
                 # Extract portfolio name from file path
                 parts = file_path.split("portfolio_analysis_")
@@ -1078,9 +1082,11 @@ class DivergenceExportService:
         sorted_results = sorted(
             analysis_results,
             key=lambda x: signal_priority.get(
-                x.exit_signal.signal_type.value
-                if hasattr(x.exit_signal, "signal_type")
-                else str(x.exit_signal),
+                (
+                    x.exit_signal.signal_type.value
+                    if hasattr(x.exit_signal, "signal_type")
+                    else str(x.exit_signal)
+                ),
                 6,
             ),
         )
@@ -1137,7 +1143,7 @@ class DivergenceExportService:
         return "\n".join(summary_lines)
 
     def _generate_fallback_markdown_report(
-        self, analysis_results: List[StatisticalAnalysisResult], file_base: str
+        self, analysis_results: list[StatisticalAnalysisResult], file_base: str
     ) -> str:
         """Generate simple fallback markdown report when comprehensive report fails"""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -1147,7 +1153,7 @@ class DivergenceExportService:
             "",
             f"**Generated**: {timestamp}",
             f"**Portfolio**: {file_base}.csv",
-            f"**Analysis Type**: Statistical Performance Divergence System (SPDS)",
+            "**Analysis Type**: Statistical Performance Divergence System (SPDS)",
             f"**Total Positions**: {len(analysis_results)}",
             "",
             "---",
@@ -1191,8 +1197,8 @@ class DivergenceExportService:
 
     def _generate_comprehensive_spds_report(
         self,
-        analysis_results: List[StatisticalAnalysisResult],
-        exported_files: Dict[str, str],
+        analysis_results: list[StatisticalAnalysisResult],
+        exported_files: dict[str, str],
         file_base: str,
     ) -> str:
         """Generate comprehensive institutional-quality SPDS analysis report"""
@@ -1267,8 +1273,8 @@ class DivergenceExportService:
         immediate_exits = signal_distribution.get("EXIT_IMMEDIATELY", 0)
         strong_sells = signal_distribution.get("STRONG_SELL", 0)
         sells = signal_distribution.get("SELL", 0)
-        holds = signal_distribution.get("HOLD", 0)
-        time_exits = signal_distribution.get("TIME_EXIT", 0)
+        signal_distribution.get("HOLD", 0)
+        signal_distribution.get("TIME_EXIT", 0)
 
         # Signal priority for sorting
         signal_priority = {
@@ -1284,9 +1290,11 @@ class DivergenceExportService:
             analysis_results,
             key=lambda x: (
                 signal_priority.get(
-                    x.exit_signal.signal_type.value
-                    if hasattr(x.exit_signal, "signal_type")
-                    else str(x.exit_signal),
+                    (
+                        x.exit_signal.signal_type.value
+                        if hasattr(x.exit_signal, "signal_type")
+                        else str(x.exit_signal)
+                    ),
                     6,
                 ),
                 -(
@@ -1308,7 +1316,7 @@ class DivergenceExportService:
             performance_metrics = getattr(result, "performance_metrics", {})
             if performance_metrics and "current_return" in performance_metrics:
                 perf_val = performance_metrics["current_return"]
-                if isinstance(perf_val, (int, float)):
+                if isinstance(perf_val, int | float):
                     performance_values.append(perf_val)
                     total_performance += perf_val
                     if perf_val > 0:
@@ -1323,7 +1331,7 @@ class DivergenceExportService:
             "",
             f"**Generated**: {datetime.now().strftime('%B %d, %Y %H:%M:%S')}  ",
             f"**Portfolio**: {portfolio_name}  ",
-            f"**Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0  ",
+            "**Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0  ",
             f"**Total Positions**: {total_results}  ",
             f"**Analysis Confidence**: {'High (Multi-source validation enabled)' if confidence_rate > 0.6 else 'Medium (Single-source analysis)'}",
             "",
@@ -1368,7 +1376,7 @@ class DivergenceExportService:
                     perf_val = performance_metrics["current_return"]
                     performance = (
                         f"{perf_val:+.2%}"
-                        if isinstance(perf_val, (int, float))
+                        if isinstance(perf_val, int | float)
                         else str(perf_val)
                     )
 
@@ -1416,7 +1424,7 @@ class DivergenceExportService:
                     perf_val = performance_metrics["current_return"]
                     performance = (
                         f"{perf_val:+.2%}"
-                        if isinstance(perf_val, (int, float))
+                        if isinstance(perf_val, int | float)
                         else str(perf_val)
                     )
 
@@ -1441,12 +1449,16 @@ class DivergenceExportService:
                         "**B. Risk-Adjusted Return Analysis:**",
                         "```",
                         f"Current Return: {performance}",
-                        f"Risk-Adjusted Return: {float(performance.replace('%','').replace('+','')) * 0.81:.1f}% (volatility-adjusted)"
-                        if performance != "N/A"
-                        else "Risk-Adjusted Return: N/A",
-                        f"Maximum Favorable Excursion (MFE): {float(performance.replace('%','').replace('+','')) * 1.1:.1f}%"
-                        if performance != "N/A"
-                        else "Maximum Favorable Excursion (MFE): N/A",
+                        (
+                            f"Risk-Adjusted Return: {float(performance.replace('%','').replace('+','')) * 0.81:.1f}% (volatility-adjusted)"
+                            if performance != "N/A"
+                            else "Risk-Adjusted Return: N/A"
+                        ),
+                        (
+                            f"Maximum Favorable Excursion (MFE): {float(performance.replace('%','').replace('+','')) * 1.1:.1f}%"
+                            if performance != "N/A"
+                            else "Maximum Favorable Excursion (MFE): N/A"
+                        ),
                         f"Current MFE Capture Ratio: {91 + exit_immediately_count:.1f}% (Near-optimal exit zone)",
                         f"Maximum Adverse Excursion (MAE): -{8 + exit_immediately_count:.1f}%",
                         f"Return/Risk Ratio: {4.5 + (exit_immediately_count * 0.1):.1f}:1 (Excellent - protect gains)",
@@ -1487,7 +1499,7 @@ class DivergenceExportService:
                     perf_val = performance_metrics["current_return"]
                     performance = (
                         f"{perf_val:+.2%}"
-                        if isinstance(perf_val, (int, float))
+                        if isinstance(perf_val, int | float)
                         else str(perf_val)
                     )
 
@@ -1515,9 +1527,11 @@ class DivergenceExportService:
                         "",
                         "**Stage 1 (Immediate - Next 5 Trading Days):**",
                         f"- Reduce position by {40 + strong_sell_count * 5}% at current levels",
-                        f"- Target average exit price: {float(performance.replace('%','').replace('+','')) * 0.98:.1f}% return"
-                        if performance != "N/A"
-                        else "- Target average exit price: Current market levels",
+                        (
+                            f"- Target average exit price: {float(performance.replace('%','').replace('+','')) * 0.98:.1f}% return"
+                            if performance != "N/A"
+                            else "- Target average exit price: Current market levels"
+                        ),
                         "- Use any intraday strength for execution",
                         "",
                         "**Stage 2 (Tactical - Next 10 Trading Days):**",
@@ -1526,13 +1540,17 @@ class DivergenceExportService:
                         "- Implement collar strategy (protective put + covered call) on remaining position",
                         "",
                         "**Alternative Scenarios:**",
-                        f"- **Bull Case**: Sector momentum continues, potential for {float(performance.replace('%','').replace('+','')) * 1.15:.0f}% returns"
-                        if performance != "N/A"
-                        else "- **Bull Case**: Continued sector momentum possible",
+                        (
+                            f"- **Bull Case**: Sector momentum continues, potential for {float(performance.replace('%','').replace('+','')) * 1.15:.0f}% returns"
+                            if performance != "N/A"
+                            else "- **Bull Case**: Continued sector momentum possible"
+                        ),
                         f"- **Bear Case**: Mean reversion could trigger {10 + strong_sell_count * 2}-{15 + strong_sell_count * 2}% decline",
-                        f"- **Base Case**: Mean reversion to {float(performance.replace('%','').replace('+','')) * 0.65:.0f}-{float(performance.replace('%','').replace('+','')) * 0.75:.0f}% range within 60 days"
-                        if performance != "N/A"
-                        else "- **Base Case**: Mean reversion expected within 60 days",
+                        (
+                            f"- **Base Case**: Mean reversion to {float(performance.replace('%','').replace('+','')) * 0.65:.0f}-{float(performance.replace('%','').replace('+','')) * 0.75:.0f}% range within 60 days"
+                            if performance != "N/A"
+                            else "- **Base Case**: Mean reversion expected within 60 days"
+                        ),
                         "",
                         "---",
                         "",
@@ -1565,7 +1583,7 @@ class DivergenceExportService:
                         perf_val = performance_metrics["current_return"]
                         performance = (
                             f"{perf_val:+.2%}"
-                            if isinstance(perf_val, (int, float))
+                            if isinstance(perf_val, int | float)
                             else str(perf_val)
                         )
 
@@ -1581,7 +1599,7 @@ class DivergenceExportService:
                             "",
                             "#### Performance Analysis",
                             "```",
-                            f"Statistical Metrics:",
+                            "Statistical Metrics:",
                             f"Percentile Rank: 8{2 + sell_count}.{sell_count + 1}% (Above 80% threshold)",
                             f"Z-Score: +{1.8 + (sell_count * 0.05):.2f} (Approaching 2.0 threshold)",
                             f"Sharpe Ratio: {2.5 + (sell_count * 0.1):.2f} (Strong risk-adjusted returns)",
@@ -1590,9 +1608,11 @@ class DivergenceExportService:
                             "",
                             "**Recommended Action:**",
                             f"- **Trim Position**: Reduce by {35 + sell_count * 5}-{45 + sell_count * 5}% over next 2 weeks",
-                            f"- **Target Exit Range**: {float(performance.replace('%','').replace('+','')) * 0.9:.0f}-{float(performance.replace('%','').replace('+','')) * 0.95:.0f}% return levels"
-                            if performance != "N/A"
-                            else "- **Target Exit Range**: Current to 5% below current levels",
+                            (
+                                f"- **Target Exit Range**: {float(performance.replace('%','').replace('+','')) * 0.9:.0f}-{float(performance.replace('%','').replace('+','')) * 0.95:.0f}% return levels"
+                                if performance != "N/A"
+                                else "- **Target Exit Range**: Current to 5% below current levels"
+                            ),
                             f"- **Stop Loss**: -{15 + sell_count * 2}% from current gains",
                             "",
                             "---",
@@ -1612,25 +1632,37 @@ class DivergenceExportService:
                 "```",
                 "Portfolio-Level Metrics:",
                 f"Total Return: {total_performance:+.2%}",
-                f"Sharpe Ratio: {2.41:.2f} (Excellent)"
-                if total_performance > 1.0
-                else f"Sharpe Ratio: {1.85:.2f} (Good)",
+                (
+                    f"Sharpe Ratio: {2.41:.2f} (Excellent)"
+                    if total_performance > 1.0
+                    else f"Sharpe Ratio: {1.85:.2f} (Good)"
+                ),
                 f"Maximum Drawdown: -{8 + (immediate_exits * 0.5):.1f}% (Well-controlled)",
-                f"Win Rate: {success_rate:.1%} (Strong hit rate)"
-                if success_rate > 0.7
-                else f"Win Rate: {success_rate:.1%} (Moderate hit rate)",
-                f"Average Winner: +{avg_performance * 1.4:.1f}%"
-                if avg_performance > 0
-                else "Average Winner: +15.7%",
-                f"Average Loser: -{avg_performance * 0.3:.1f}%"
-                if avg_performance > 0
-                else "Average Loser: -4.2%",
-                f"Profit Factor: {3.84 if success_rate > 0.7 else 2.95:.2f} (Strong)"
-                if success_rate > 0.6
-                else f"Profit Factor: {2.45:.2f} (Moderate)",
-                f"Calmar Ratio: {2.78 if total_performance > 1.0 else 2.15:.2f} (Risk-adjusted excellence)"
-                if total_performance > 0.5
-                else f"Calmar Ratio: {1.85:.2f} (Good)",
+                (
+                    f"Win Rate: {success_rate:.1%} (Strong hit rate)"
+                    if success_rate > 0.7
+                    else f"Win Rate: {success_rate:.1%} (Moderate hit rate)"
+                ),
+                (
+                    f"Average Winner: +{avg_performance * 1.4:.1f}%"
+                    if avg_performance > 0
+                    else "Average Winner: +15.7%"
+                ),
+                (
+                    f"Average Loser: -{avg_performance * 0.3:.1f}%"
+                    if avg_performance > 0
+                    else "Average Loser: -4.2%"
+                ),
+                (
+                    f"Profit Factor: {3.84 if success_rate > 0.7 else 2.95:.2f} (Strong)"
+                    if success_rate > 0.6
+                    else f"Profit Factor: {2.45:.2f} (Moderate)"
+                ),
+                (
+                    f"Calmar Ratio: {2.78 if total_performance > 1.0 else 2.15:.2f} (Risk-adjusted excellence)"
+                    if total_performance > 0.5
+                    else f"Calmar Ratio: {1.85:.2f} (Good)"
+                ),
                 "```",
                 "",
             ]
@@ -1661,9 +1693,11 @@ class DivergenceExportService:
             [
                 "",
                 "**Expected Portfolio Impact:**",
-                f"- Realized Gains: +{total_performance * 0.6:.1f}% return capture"
-                if total_performance > 0
-                else "- Realized Gains: Significant return protection",
+                (
+                    f"- Realized Gains: +{total_performance * 0.6:.1f}% return capture"
+                    if total_performance > 0
+                    else "- Realized Gains: Significant return protection"
+                ),
                 "- Risk Reduction: 34% decrease in portfolio volatility",
                 "- Cash Raised: Available for redeployment",
                 "",
@@ -1791,7 +1825,7 @@ class DivergenceExportService:
                 perf_val = performance_metrics["current_return"]
                 performance = (
                     f"{perf_val:+.2%}"
-                    if isinstance(perf_val, (int, float))
+                    if isinstance(perf_val, int | float)
                     else str(perf_val)
                 )
 
@@ -1886,7 +1920,7 @@ class DivergenceExportService:
 
     async def export_json(
         self,
-        results: List[StatisticalAnalysisResult],
+        results: list[StatisticalAnalysisResult],
         portfolio_name: str,
         include_raw_data: bool = True,
     ) -> str:
@@ -1901,7 +1935,7 @@ class DivergenceExportService:
 
     async def export_csv(
         self,
-        results: List[StatisticalAnalysisResult],
+        results: list[StatisticalAnalysisResult],
         portfolio_name: str,
         include_raw_data: bool = True,
     ) -> str:
@@ -1915,7 +1949,7 @@ class DivergenceExportService:
         return str(csv_path)
 
     async def export_markdown(
-        self, results: List[StatisticalAnalysisResult], portfolio_name: str
+        self, results: list[StatisticalAnalysisResult], portfolio_name: str
     ) -> str:
         """Public method to export analysis results as Markdown"""
         clean_name = (

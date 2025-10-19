@@ -5,7 +5,6 @@ This module tests the consolidated portfolio filtering functionality to ensure
 it properly handles all strategy types while eliminating code duplication.
 """
 
-from typing import Any, Dict, List
 from unittest.mock import Mock, patch
 
 import polars as pl
@@ -37,7 +36,7 @@ class TestPortfolioFilterConfig:
 
         display_prefs = config.get_display_preferences()
         assert display_prefs["sort_by"] == "Total Return [%]"
-        assert display_prefs["sort_asc"] == False
+        assert display_prefs["sort_asc"] is False
 
     def test_macd_configuration(self):
         """Test MACD strategy configuration."""
@@ -395,7 +394,7 @@ class TestFilterAndExportPortfolios:
 
         result = filter_and_export_portfolios(df, config, mock_log)
 
-        assert result == True
+        assert result is True
         mock_export.assert_called_once()
 
         # Verify export was called with correct parameters
@@ -413,7 +412,7 @@ class TestFilterAndExportPortfolios:
 
         result = filter_and_export_portfolios(df, config, mock_log)
 
-        assert result == False
+        assert result is False
         mock_export.assert_not_called()
         mock_log.assert_called_with("No filtered portfolios to export", "warning")
 
@@ -430,7 +429,7 @@ class TestFilterAndExportPortfolios:
 
         result = filter_and_export_portfolios(df, config, mock_log)
 
-        assert result == False
+        assert result is False
 
 
 class TestConvenienceFunctions:

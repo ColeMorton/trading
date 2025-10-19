@@ -5,11 +5,11 @@ This module implements position value tracking from manual IBKR trade fills
 as specified in Phase 2 of the position sizing migration plan.
 """
 
-import json
 from dataclasses import dataclass
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import polars as pl
 
@@ -20,11 +20,11 @@ class PositionEntry:
 
     symbol: str
     position_value: float  # Manual entry from IBKR fill
-    max_drawdown: Optional[float] = None  # Manual entry: distance to stop loss
-    current_position: Optional[float] = None  # Manual entry from broker positions
-    entry_date: Optional[datetime] = None
+    max_drawdown: float | None = None  # Manual entry: distance to stop loss
+    current_position: float | None = None  # Manual entry from broker positions
+    entry_date: datetime | None = None
     account_type: str = "IBKR"  # Default to IBKR
-    id: Optional[int] = None
+    id: int | None = None
 
 
 @dataclass
@@ -33,8 +33,8 @@ class PositionSummary:
 
     total_position_value: float
     position_count: int
-    largest_position: Optional[PositionEntry]
-    smallest_position: Optional[PositionEntry]
+    largest_position: PositionEntry | None
+    smallest_position: PositionEntry | None
     average_position_size: float
     total_max_drawdown: float
     last_updated: datetime
@@ -43,7 +43,7 @@ class PositionSummary:
 class PositionValueTracker:
     """Service for tracking manual IBKR trade fill amounts and position values."""
 
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(self, base_dir: str | None = None):
         """Initialize the position value tracker.
 
         Args:
@@ -54,7 +54,7 @@ class PositionValueTracker:
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.positions_file = self.data_dir / "manual_positions.json"
 
-    def _load_positions(self) -> Dict[str, Any]:
+    def _load_positions(self) -> dict[str, Any]:
         """Load position entries from JSON file.
 
         Returns:
@@ -64,12 +64,12 @@ class PositionValueTracker:
             return {"positions": [], "last_updated": None}
 
         try:
-            with open(self.positions_file, "r") as f:
+            with open(self.positions_file) as f:
                 return json.load(f)
         except (json.JSONDecodeError, FileNotFoundError):
             return {"positions": [], "last_updated": None}
 
-    def _save_positions(self, data: Dict[str, Any]) -> None:
+    def _save_positions(self, data: dict[str, Any]) -> None:
         """Save position entries to JSON file.
 
         Args:
@@ -82,8 +82,8 @@ class PositionValueTracker:
         self,
         symbol: str,
         position_value: float,
-        max_drawdown: Optional[float] = None,
-        current_position: Optional[float] = None,
+        max_drawdown: float | None = None,
+        current_position: float | None = None,
         account_type: str = "IBKR",
     ) -> PositionEntry:
         """Add a new position entry from manual IBKR trade fill.
@@ -145,10 +145,10 @@ class PositionValueTracker:
     def update_position_entry(
         self,
         symbol: str,
-        position_value: Optional[float] = None,
-        max_drawdown: Optional[float] = None,
-        current_position: Optional[float] = None,
-    ) -> Optional[PositionEntry]:
+        position_value: float | None = None,
+        max_drawdown: float | None = None,
+        current_position: float | None = None,
+    ) -> PositionEntry | None:
         """Update an existing position entry.
 
         Args:
@@ -192,7 +192,7 @@ class PositionValueTracker:
 
         return None
 
-    def get_position_entry(self, symbol: str) -> Optional[PositionEntry]:
+    def get_position_entry(self, symbol: str) -> PositionEntry | None:
         """Get position entry for a specific symbol.
 
         Args:
@@ -218,7 +218,7 @@ class PositionValueTracker:
 
         return None
 
-    def get_all_positions(self) -> List[PositionEntry]:
+    def get_all_positions(self) -> list[PositionEntry]:
         """Get all position entries.
 
         Returns:
@@ -313,7 +313,7 @@ class PositionValueTracker:
 
         return False
 
-    def get_positions_by_account(self, account_type: str) -> List[PositionEntry]:
+    def get_positions_by_account(self, account_type: str) -> list[PositionEntry]:
         """Get all positions for a specific account type.
 
         Args:
@@ -325,7 +325,7 @@ class PositionValueTracker:
         all_positions = self.get_all_positions()
         return [p for p in all_positions if p.account_type == account_type]
 
-    def export_positions_to_csv(self, output_path: Optional[str] = None) -> str:
+    def export_positions_to_csv(self, output_path: str | None = None) -> str:
         """Export position entries to CSV format.
 
         Args:
@@ -349,9 +349,9 @@ class PositionValueTracker:
                     "max_drawdown": position.max_drawdown,
                     "current_position": position.current_position,
                     "account_type": position.account_type,
-                    "entry_date": position.entry_date.isoformat()
-                    if position.entry_date
-                    else None,
+                    "entry_date": (
+                        position.entry_date.isoformat() if position.entry_date else None
+                    ),
                     "id": position.id,
                 }
             )
@@ -361,7 +361,7 @@ class PositionValueTracker:
 
         return output_path
 
-    def import_positions_from_dict(self, positions_dict: Dict[str, Any]) -> None:
+    def import_positions_from_dict(self, positions_dict: dict[str, Any]) -> None:
         """Import position entries from dictionary (for Excel migration).
 
         Args:
@@ -391,7 +391,7 @@ class PositionValueTracker:
 
     def validate_position_totals(
         self, expected_total: float, tolerance: float = 0.01
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Validate total position value against expected value.
 
         Args:
@@ -410,16 +410,15 @@ class PositionValueTracker:
                 True,
                 f"Position total validation passed: ${summary.total_position_value:.2f}",
             )
-        else:
-            return (
-                False,
-                f"Position total validation failed: "
-                f"Expected ${expected_total:.2f}, "
-                f"Calculated ${summary.total_position_value:.2f}, "
-                f"Difference ${difference:.2f} exceeds tolerance ${tolerance_amount:.2f}",
-            )
+        return (
+            False,
+            f"Position total validation failed: "
+            f"Expected ${expected_total:.2f}, "
+            f"Calculated ${summary.total_position_value:.2f}, "
+            f"Difference ${difference:.2f} exceeds tolerance ${tolerance_amount:.2f}",
+        )
 
-    def get_position_risk_exposure(self) -> Dict[str, float]:
+    def get_position_risk_exposure(self) -> dict[str, float]:
         """Calculate risk exposure for all positions based on max drawdown.
 
         Returns:

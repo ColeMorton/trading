@@ -354,6 +354,7 @@ lint-help:
 	@echo "Individual Linters (check only):"
 	@echo "  lint-black   - Check code formatting with Black"
 	@echo "  lint-isort   - Check import sorting with isort"
+	@echo "  lint-ruff    - Check code with Ruff (fast, modern linter)"
 	@echo "  lint-flake8  - Check code style with Flake8"
 	@echo "  lint-mypy    - Check type hints with mypy"
 	@echo "  lint-pylint  - Check code quality with pylint"
@@ -363,6 +364,7 @@ lint-help:
 	@echo "Code Formatters (auto-fix):"
 	@echo "  format-black - Auto-format code with Black"
 	@echo "  format-isort - Auto-sort imports with isort"
+	@echo "  format-ruff  - Auto-fix issues with Ruff"
 	@echo ""
 	@echo "Aggregate Commands:"
 	@echo "  lint-python    - Run all Python linters (check only)"
@@ -379,6 +381,7 @@ lint-help:
 	@echo "  make lint-python       # Check all code quality issues"
 	@echo "  make format-python     # Auto-fix formatting issues"
 	@echo "  make lint-all          # Complete code quality check"
+	@echo "  make lint-ruff         # Quick modern linting with Ruff"
 
 # Individual Python linters (check only)
 lint-black:
@@ -390,6 +393,11 @@ lint-isort:
 	@echo "Checking import sorting with isort..."
 	poetry run isort --check-only --diff app tests
 	@echo "✅ isort check complete"
+
+lint-ruff:
+	@echo "Checking code with Ruff..."
+	poetry run ruff check app tests
+	@echo "✅ Ruff check complete"
 
 lint-flake8:
 	@echo "Checking code style with Flake8..."
@@ -427,11 +435,16 @@ format-isort:
 	poetry run isort app tests
 	@echo "✅ isort formatting complete"
 
+format-ruff:
+	@echo "Auto-fixing issues with Ruff..."
+	poetry run ruff check --fix app tests
+	@echo "✅ Ruff auto-fix complete"
+
 # Aggregate Python commands
-lint-python: lint-black lint-isort lint-flake8 lint-mypy
+lint-python: lint-black lint-isort lint-ruff lint-mypy
 	@echo "✅ All Python linting checks complete"
 
-format-python: format-isort format-black
+format-python: format-isort format-black format-ruff
 	@echo "✅ All Python formatting complete"
 
 # Security and code quality scanning
@@ -472,3 +485,20 @@ pre-commit-run:
 	@echo "Running pre-commit hooks on all files..."
 	poetry run pre-commit run --all-files
 	@echo "✅ Pre-commit hooks complete"
+
+# Code quality improvement (gradual fix)
+quality-analyze:
+	@echo "Analyzing code quality issues..."
+	python scripts/fix_code_quality.py --analyze
+
+quality-fix-safe:
+	@echo "Auto-fixing safe issues..."
+	python scripts/fix_code_quality.py --fix-safe
+
+quality-track:
+	@echo "Tracking code quality progress..."
+	python scripts/fix_code_quality.py --track
+
+quality-status:
+	@echo "Quick code quality status..."
+	python scripts/fix_code_quality.py

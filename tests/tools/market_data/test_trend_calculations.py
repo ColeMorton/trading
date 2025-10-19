@@ -86,7 +86,7 @@ class TestTrendMetricsCalculation:
 
         for key in expected_keys:
             assert key in result
-            assert isinstance(result[key], (int, float))
+            assert isinstance(result[key], int | float)
             assert not np.isnan(result[key])
 
         # For uptrend, current price should be above moving averages
@@ -440,7 +440,7 @@ class TestTrendErrorHandling:
             assert True  # Expected behavior
         else:
             # If calculation succeeds, verify no NaN values
-            for key, value in result.items():
+            for _key, value in result.items():
                 assert not np.isnan(value)
 
     def test_trend_calculation_exception(self, analyzer):
@@ -462,8 +462,8 @@ class TestTrendErrorHandling:
 
         # Should return default values or handle gracefully
         assert isinstance(result, dict)
-        for key, value in result.items():
-            assert isinstance(value, (int, float))
+        for _key, value in result.items():
+            assert isinstance(value, int | float)
 
     def test_default_trend_metrics(self, analyzer):
         """Test default trend metrics structure."""
@@ -526,7 +526,7 @@ class TestTrendIntegration:
 
         for key in trend_keys:
             assert key in result
-            assert isinstance(result[key], (int, float))
+            assert isinstance(result[key], int | float)
             assert not np.isnan(result[key])
 
 

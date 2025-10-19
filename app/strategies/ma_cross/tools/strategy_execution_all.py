@@ -3,7 +3,7 @@
 This version returns ALL analyzed portfolios, not just the best ones.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from app.strategies.ma_cross.config_types import Config
 from app.tools.get_config import get_config
@@ -18,7 +18,7 @@ from app.tools.portfolio.schema_detection import (
 
 def process_ticker_portfolios_all(
     ticker: str, config: Config, log: callable
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Process portfolios for a single ticker and return ALL analyzed portfolios.
 
     Args:
@@ -123,7 +123,7 @@ def execute_strategy_all(
     strategy_type: str,
     log: callable,
     progress_tracker: Optional["ProgressTracker"] = None,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Execute a trading strategy for all tickers and return ALL analyzed portfolios.
 
     Args:

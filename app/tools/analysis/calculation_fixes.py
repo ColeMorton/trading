@@ -17,13 +17,12 @@ Date: July 2025
 """
 
 import logging
-import warnings
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
 from scipy import stats
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -39,7 +38,7 @@ class CalculationValidator:
         self.validation_errors = []
         self.warnings = []
 
-    def validate_portfolio_data(self, positions: pd.DataFrame) -> Dict[str, Any]:
+    def validate_portfolio_data(self, positions: pd.DataFrame) -> dict[str, Any]:
         """
         Validate portfolio data structure and consistency
 
@@ -113,12 +112,16 @@ class CalculationValidator:
             "total_positions": len(positions),
             "open_positions": len(positions[positions["Status"] == "Open"]),
             "closed_positions": len(positions[positions["Status"] == "Closed"]),
-            "mean_return": positions["Current_Unrealized_PnL"].mean()
-            if "Current_Unrealized_PnL" in positions.columns
-            else None,
-            "std_return": positions["Current_Unrealized_PnL"].std()
-            if "Current_Unrealized_PnL" in positions.columns
-            else None,
+            "mean_return": (
+                positions["Current_Unrealized_PnL"].mean()
+                if "Current_Unrealized_PnL" in positions.columns
+                else None
+            ),
+            "std_return": (
+                positions["Current_Unrealized_PnL"].std()
+                if "Current_Unrealized_PnL" in positions.columns
+                else None
+            ),
         }
 
         return validation_results
@@ -156,7 +159,7 @@ class PortfolioAggregationFixes:
             # Correct: Equal weighted average
             return valid_positions["Current_Unrealized_PnL"].mean()
 
-        elif method == "value_weighted":
+        if method == "value_weighted":
             # Value weighted by position size
             if "Position_Size" not in valid_positions.columns:
                 logger.warning(
@@ -168,7 +171,7 @@ class PortfolioAggregationFixes:
             weighted_returns = valid_positions["Current_Unrealized_PnL"] * weights
             return weighted_returns.sum() / weights.sum()
 
-        elif method == "position_weighted":
+        if method == "position_weighted":
             # Weight by entry price (approximating position value)
             if "Avg_Entry_Price" not in valid_positions.columns:
                 logger.warning(
@@ -182,13 +185,12 @@ class PortfolioAggregationFixes:
             weighted_returns = valid_positions["Current_Unrealized_PnL"] * weights
             return weighted_returns.sum() / weights.sum()
 
-        else:
-            raise ValueError(f"Unknown method: {method}")
+        raise ValueError(f"Unknown method: {method}")
 
     @staticmethod
     def calculate_portfolio_metrics_correct(
         positions: pd.DataFrame,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """
         Calculate comprehensive portfolio metrics with proper methodology
 
@@ -201,10 +203,10 @@ class PortfolioAggregationFixes:
         metrics = {}
 
         # Correct portfolio return calculation
-        metrics[
-            "total_return_equal_weighted"
-        ] = PortfolioAggregationFixes.calculate_portfolio_return_correct(
-            positions, "equal_weighted"
+        metrics["total_return_equal_weighted"] = (
+            PortfolioAggregationFixes.calculate_portfolio_return_correct(
+                positions, "equal_weighted"
+            )
         )
 
         # Success rate calculation
@@ -247,9 +249,9 @@ class PercentileCalculationFixes:
     @staticmethod
     def calculate_holding_period_percentiles(
         historical_returns: pd.Series,
-        holding_periods: List[int],
+        holding_periods: list[int],
         confidence_level: float = 0.95,
-    ) -> Dict[int, Dict[str, float]]:
+    ) -> dict[int, dict[str, float]]:
         """
         Calculate percentiles for specific holding periods
 
@@ -350,8 +352,8 @@ class MAECalculationFixes:
         mae: float,
         current_return: float,
         entry_price: float,
-        position_data: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        position_data: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Validate MAE calculation consistency
 
@@ -455,7 +457,7 @@ class SharpeRatioFixes:
         return sharpe_ratio
 
     @staticmethod
-    def validate_sharpe_ratio(sharpe_ratio: float, context: str = "") -> Dict[str, Any]:
+    def validate_sharpe_ratio(sharpe_ratio: float, context: str = "") -> dict[str, Any]:
         """
         Validate Sharpe ratio for reasonableness
 
@@ -579,8 +581,8 @@ class EdgeCaseHandling:
 
     @staticmethod
     def validate_extreme_values(
-        values: Dict[str, float], bounds: Dict[str, Tuple[float, float]]
-    ) -> Dict[str, Any]:
+        values: dict[str, float], bounds: dict[str, tuple[float, float]]
+    ) -> dict[str, Any]:
         """
         Validate values against expected bounds
 
@@ -625,8 +627,8 @@ class SPDSCalculationCorrector:
         self.edge_case_handler = EdgeCaseHandling()
 
     def correct_portfolio_analysis(
-        self, positions: pd.DataFrame, historical_returns: Optional[pd.Series] = None
-    ) -> Dict[str, Any]:
+        self, positions: pd.DataFrame, historical_returns: pd.Series | None = None
+    ) -> dict[str, Any]:
         """
         Apply comprehensive corrections to portfolio analysis
 
@@ -679,7 +681,7 @@ class SPDSCalculationCorrector:
 
         # Apply MAE/MFE corrections
         mae_corrections = []
-        for idx, position in positions.iterrows():
+        for _idx, position in positions.iterrows():
             if all(
                 col in position
                 for col in [

@@ -4,7 +4,8 @@ RSI Heatmap Module
 This module contains functions for analyzing RSI parameter sensitivity.
 """
 
-from typing import Any, Callable, Dict
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -22,11 +23,11 @@ from app.tools.stats_converter import convert_stats
 
 def analyze_rsi_parameters(
     data: pl.DataFrame,
-    config: Dict[str, Any],
+    config: dict[str, Any],
     rsi_thresholds: np.ndarray,
     rsi_windows: np.ndarray,
     log: Callable,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """
     Analyze RSI parameters across different thresholds and window lengths.
 
@@ -115,7 +116,7 @@ def analyze_rsi_parameters(
             portfolios.append(stats)
 
             # Calculate relative metrics ONLY IF RELATIVE is True
-            for metric in matrices.keys():
+            for metric in matrices:
                 current = float(
                     stats.get(
                         {
@@ -135,9 +136,9 @@ def analyze_rsi_parameters(
                     else:
                         matrices[metric][j, i] = current - baseline
                 else:
-                    matrices[metric][
-                        j, i
-                    ] = current  # Use absolute value when RELATIVE is False
+                    matrices[metric][j, i] = (
+                        current  # Use absolute value when RELATIVE is False
+                    )
 
             if log:
                 log(f"Analyzed RSI window {window}, threshold {threshold}")

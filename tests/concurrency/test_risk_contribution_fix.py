@@ -5,8 +5,6 @@ These tests verify that the new implementation correctly calculates
 risk contributions that sum to 100%.
 """
 
-from typing import Dict, List
-
 import numpy as np
 import polars as pl
 import pytest
@@ -228,7 +226,7 @@ class TestRiskContributionCalculator:
         data_list = []
         position_arrays = []
 
-        for i in range(n_strategies):
+        for _i in range(n_strategies):
             prices = 100 + np.cumsum(np.random.randn(n_periods) * 0.5)
             positions = np.ones(n_periods)
             position_arrays.append(positions)

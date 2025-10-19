@@ -7,8 +7,6 @@ This tutorial uses the :class:`~skfolio.optimization.MeanRisk` optimization to f
 ensemble of portfolios belonging to the Mean-Variance efficient frontier (pareto font).
 """
 
-from typing import Tuple
-
 from plotly.io import show
 from skfolio import PerfMeasure, RatioMeasure, RiskMeasure
 from skfolio.datasets import load_sp500_dataset
@@ -19,7 +17,7 @@ from sklearn.model_selection import train_test_split
 from app.tools.setup_logging import setup_logging
 
 
-def create_efficient_frontier() -> Tuple[bool, str]:
+def create_efficient_frontier() -> tuple[bool, str]:
     """
     Create and analyze the efficient frontier using Mean-Risk optimization.
 
@@ -43,7 +41,7 @@ def create_efficient_frontier() -> Tuple[bool, str]:
         model = MeanRisk(
             risk_measure=RiskMeasure.VARIANCE,
             efficient_frontier_size=30,  # Using 30 portfolios as specified
-            portfolio_params=dict(name="Variance"),
+            portfolio_params={"name": "Variance"},
         )
 
         # Fit model and predict
@@ -90,7 +88,7 @@ def create_efficient_frontier() -> Tuple[bool, str]:
         return True, "Efficient frontier analysis completed successfully"
 
     except Exception as e:
-        error_msg = f"Error in efficient frontier analysis: {str(e)}"
+        error_msg = f"Error in efficient frontier analysis: {e!s}"
         log(error_msg, "error")
         log_close()
         raise Exception(error_msg)

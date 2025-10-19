@@ -5,6 +5,7 @@ import polars as pl
 
 from app.strategies.monte_carlo.utils import calculate_performance_metrics, get_data
 
+
 TICKER = "BTC-USD"
 BASE_INITIAL_PORTFOLIO_VALUE = 10000
 

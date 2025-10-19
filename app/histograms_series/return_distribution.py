@@ -1,19 +1,21 @@
 import json
-import sys
 from pathlib import Path
-from typing import Any, TypedDict
+import sys
+from typing import TypedDict
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 from scipy.stats import norm, percentileofscore
+import seaborn as sns
 from typing_extensions import NotRequired
+
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from app.tools.download_data import download_data
 from app.tools.setup_logging import setup_logging
+
 
 # Complete Color Palette Constants
 PRIMARY_DATA = "#26c6da"  # Cyan - Primary data
@@ -91,7 +93,7 @@ class DataConfig(TypedDict):
 def load_config(file_path="config.json"):
     """Load configuration settings from a JSON file."""
     log(f"Loading configuration from file: {file_path}")
-    with open(file_path, "r") as file:
+    with open(file_path) as file:
         config = json.load(file)
     log("Configuration loaded successfully.")
     return config
@@ -349,7 +351,7 @@ def plot_return_distribution(
             verticalalignment="top",
             horizontalalignment="right",
             fontsize=8,
-            bbox=dict(facecolor=BACKGROUND, alpha=0.7),
+            bbox={"facecolor": BACKGROUND, "alpha": 0.7},
         )
 
     ax.text(
@@ -565,9 +567,11 @@ def export_return_distribution_json(
                 "historical_probability": float(historical_prob),
                 "market_implied_probability": float(market_prob),
                 "difference": float(difference),
-                "risk_assessment": "Market overpricing risk"
-                if difference > 0
-                else "Market underpricing risk",
+                "risk_assessment": (
+                    "Market overpricing risk"
+                    if difference > 0
+                    else "Market underpricing risk"
+                ),
             },
             "custom_period_statistics": {
                 "expected_return": expected_return,
@@ -634,7 +638,9 @@ def main():
 
         # Calculate returns and plot for each timeframe
         timeframes = ["2W", "W", "3D", "D"]
-        for i, (timeframe, ax) in enumerate(zip(timeframes, axs.flatten())):
+        for _i, (timeframe, ax) in enumerate(
+            zip(timeframes, axs.flatten(), strict=False)
+        ):
             # Get the last adjusted close price and the one before the resampled period
             current_close = data.Close.iloc[-1]
 
@@ -651,11 +657,10 @@ def main():
                     previous_close = data.Close.iloc[-8]  # 7 trading days ago
                 elif timeframe == "2W":
                     previous_close = data.Close.iloc[-15]  # 14 trading days ago
-            else:
-                if timeframe == "W":
-                    previous_close = data.Close.iloc[-6]  # 5 trading days ago
-                elif timeframe == "2W":
-                    previous_close = data.Close.iloc[-11]  # 10 trading days ago
+            elif timeframe == "W":
+                previous_close = data.Close.iloc[-6]  # 5 trading days ago
+            elif timeframe == "2W":
+                previous_close = data.Close.iloc[-11]  # 10 trading days ago
 
             # Calculate the current return
             current_return = (current_close - previous_close) / previous_close

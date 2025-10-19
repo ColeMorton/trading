@@ -5,21 +5,19 @@ Validates statistical models for overfitting prevention, robustness testing,
 and model risk assessment with comprehensive diagnostic capabilities.
 """
 
+from collections.abc import Callable
+from datetime import datetime
 import logging
+from typing import Any
 import warnings
-from datetime import datetime, timedelta
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
-import pandas as pd
-from scipy import stats
-from scipy.stats import anderson, jarque_bera, kstest, shapiro
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import LinearRegression, Ridge
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from sklearn.model_selection import TimeSeriesSplit, cross_val_score, validation_curve
+from scipy.stats import jarque_bera, shapiro
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import TimeSeriesSplit
 from statsmodels.stats.diagnostic import acorr_ljungbox, het_breuschpagan
-from statsmodels.tsa.stattools import adfuller, kpss
+from statsmodels.tsa.stattools import adfuller
 
 from ..config.statistical_analysis_config import SPDSConfig
 from ..models.correlation_models import (
@@ -42,7 +40,7 @@ class StatisticalModelValidator:
     - Model complexity assessment
     """
 
-    def __init__(self, config: SPDSConfig, logger: Optional[logging.Logger] = None):
+    def __init__(self, config: SPDSConfig, logger: logging.Logger | None = None):
         """
         Initialize the Statistical Model Validator
 
@@ -71,8 +69,8 @@ class StatisticalModelValidator:
     async def validate_model(
         self,
         model: Any,
-        training_data: Dict[str, Any],
-        validation_data: Optional[Dict[str, Any]] = None,
+        training_data: dict[str, Any],
+        validation_data: dict[str, Any] | None = None,
         model_name: str = "statistical_model",
     ) -> ModelValidationResult:
         """
@@ -188,8 +186,8 @@ class StatisticalModelValidator:
     async def validate_threshold_model(
         self,
         threshold_function: Callable,
-        performance_data: Dict[str, Any],
-        threshold_params: Dict[str, float],
+        performance_data: dict[str, Any],
+        threshold_params: dict[str, float],
     ) -> ModelValidationResult:
         """
         Validate a threshold-based model
@@ -259,10 +257,10 @@ class StatisticalModelValidator:
     async def detect_overfitting(
         self,
         model: Any,
-        training_data: Dict[str, Any],
-        validation_data: Dict[str, Any],
+        training_data: dict[str, Any],
+        validation_data: dict[str, Any],
         complexity_penalty: float = 0.1,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Detect overfitting in trained models
 
@@ -325,8 +323,8 @@ class StatisticalModelValidator:
             raise
 
     async def test_model_assumptions(
-        self, residuals: np.ndarray, features: Optional[np.ndarray] = None
-    ) -> Dict[str, SignificanceTestResult]:
+        self, residuals: np.ndarray, features: np.ndarray | None = None
+    ) -> dict[str, SignificanceTestResult]:
         """
         Test statistical assumptions of models
 
@@ -368,8 +366,8 @@ class StatisticalModelValidator:
     # Helper methods
 
     def _prepare_model_data(
-        self, data: Dict[str, Any]
-    ) -> Tuple[np.ndarray, np.ndarray]:
+        self, data: dict[str, Any]
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Prepare data for model validation"""
         if "features" in data and "targets" in data:
             X = np.array(data["features"])
@@ -395,7 +393,7 @@ class StatisticalModelValidator:
 
     async def _perform_cross_validation(
         self, model: Any, X: np.ndarray, y: np.ndarray
-    ) -> List[float]:
+    ) -> list[float]:
         """Perform time series cross-validation"""
         try:
             if len(X) < self.min_sample_size:
@@ -485,15 +483,14 @@ class StatisticalModelValidator:
         """Estimate model complexity"""
         if hasattr(model, "n_estimators"):  # Random Forest
             return min(model.n_estimators / 100, 1.0)
-        elif hasattr(model, "coef_"):  # Linear models
+        if hasattr(model, "coef_"):  # Linear models
             n_features = (
                 len(model.coef_) if model.coef_.ndim == 1 else model.coef_.shape[1]
             )
             return min(n_features / 50, 1.0)
-        elif hasattr(model, "support_vectors_"):  # SVM
+        if hasattr(model, "support_vectors_"):  # SVM
             return min(len(model.support_vectors_) / 100, 1.0)
-        else:
-            return 0.5  # Default complexity
+        return 0.5  # Default complexity
 
     async def _test_model_assumptions(
         self,
@@ -502,7 +499,7 @@ class StatisticalModelValidator:
         y_train: np.ndarray,
         X_val: np.ndarray,
         y_val: np.ndarray,
-    ) -> Dict[str, Optional[SignificanceTestResult]]:
+    ) -> dict[str, SignificanceTestResult | None]:
         """Test model assumptions"""
         assumption_tests = {}
 
@@ -583,9 +580,9 @@ class StatisticalModelValidator:
     async def _assess_regime_robustness(
         self,
         model: Any,
-        training_data: Dict[str, Any],
-        validation_data: Optional[Dict[str, Any]],
-    ) -> Dict[str, float]:
+        training_data: dict[str, Any],
+        validation_data: dict[str, Any] | None,
+    ) -> dict[str, float]:
         """Assess model robustness across different regimes"""
         try:
             # Simplified regime analysis
@@ -605,15 +602,14 @@ class StatisticalModelValidator:
 
     async def _evaluate_out_of_sample_performance(
         self, model: Any, X_val: np.ndarray, y_val: np.ndarray
-    ) -> Optional[float]:
+    ) -> float | None:
         """Evaluate out-of-sample performance"""
         try:
             if hasattr(model, "predict"):
                 y_pred = model.predict(X_val)
                 score = r2_score(y_val, y_pred)
                 return max(0, score)
-            else:
-                return None
+            return None
 
         except Exception as e:
             self.logger.warning(f"Out-of-sample evaluation failed: {e}")
@@ -630,8 +626,8 @@ class StatisticalModelValidator:
         overfitting_score: float,
         complexity_score: float,
         stability_score: float,
-        assumption_tests: Dict[str, Any],
-    ) -> List[str]:
+        assumption_tests: dict[str, Any],
+    ) -> list[str]:
         """Generate model improvement recommendations"""
         recommendations = []
 
@@ -687,20 +683,19 @@ class StatisticalModelValidator:
             and stability_score >= 0.8
         ):
             return "excellent"
-        elif (
+        if (
             validation_score >= 0.7
             and overfitting_score <= 0.5
             and stability_score >= 0.7
         ):
             return "good"
-        elif (
+        if (
             validation_score >= 0.6
             and overfitting_score <= 0.7
             and stability_score >= 0.6
         ):
             return "acceptable"
-        else:
-            return "poor"
+        return "poor"
 
     def _clone_model(self, model: Any) -> Any:
         """Clone a model for cross-validation"""
@@ -710,9 +705,8 @@ class StatisticalModelValidator:
                 model_class = type(model)
                 params = model.get_params()
                 return model_class(**params)
-            else:
-                # Generic model - return a simple replacement
-                return LinearRegression()
+            # Generic model - return a simple replacement
+            return LinearRegression()
         except:
             return LinearRegression()
 
@@ -870,21 +864,20 @@ class StatisticalModelValidator:
         """Classify significance level"""
         if p_value < 0.01:
             return SignificanceLevel.HIGHLY_SIGNIFICANT
-        elif p_value < 0.05:
+        if p_value < 0.05:
             return SignificanceLevel.SIGNIFICANT
-        elif p_value < 0.10:
+        if p_value < 0.10:
             return SignificanceLevel.MARGINALLY_SIGNIFICANT
-        else:
-            return SignificanceLevel.NOT_SIGNIFICANT
+        return SignificanceLevel.NOT_SIGNIFICANT
 
     # Threshold model validation methods
 
     async def _prepare_threshold_validation_data(
         self,
-        performance_data: Dict[str, Any],
+        performance_data: dict[str, Any],
         threshold_function: Callable,
-        threshold_params: Dict[str, float],
-    ) -> Dict[str, Any]:
+        threshold_params: dict[str, float],
+    ) -> dict[str, Any]:
         """Prepare data for threshold model validation"""
         return {
             "returns": performance_data.get("returns", []),
@@ -896,9 +889,9 @@ class StatisticalModelValidator:
     async def _cross_validate_threshold_model(
         self,
         threshold_function: Callable,
-        validation_data: Dict[str, Any],
-        threshold_params: Dict[str, float],
-    ) -> List[float]:
+        validation_data: dict[str, Any],
+        threshold_params: dict[str, float],
+    ) -> list[float]:
         """Cross-validate threshold model"""
         returns = validation_data.get("returns", [])
 
@@ -925,14 +918,14 @@ class StatisticalModelValidator:
         return scores
 
     def _evaluate_threshold_performance(
-        self, returns: List[float], thresholds: Dict[str, float]
+        self, returns: list[float], thresholds: dict[str, float]
     ) -> float:
         """Evaluate threshold performance"""
         if not returns:
             return 0.0
 
         # Simple performance metric based on returns captured
-        percentiles = [np.percentile(returns, p) for p in [50, 75, 90, 95]]
+        [np.percentile(returns, p) for p in [50, 75, 90, 95]]
 
         # Score based on how well thresholds align with percentiles
         alignment_score = 0.0
@@ -953,8 +946,8 @@ class StatisticalModelValidator:
     async def _test_threshold_stability(
         self,
         threshold_function: Callable,
-        validation_data: Dict[str, Any],
-        threshold_params: Dict[str, float],
+        validation_data: dict[str, Any],
+        threshold_params: dict[str, float],
     ) -> float:
         """Test stability of threshold model"""
         returns = validation_data.get("returns", [])
@@ -989,9 +982,9 @@ class StatisticalModelValidator:
     async def _test_threshold_robustness(
         self,
         threshold_function: Callable,
-        validation_data: Dict[str, Any],
-        threshold_params: Dict[str, float],
-    ) -> Dict[str, float]:
+        validation_data: dict[str, Any],
+        threshold_params: dict[str, float],
+    ) -> dict[str, float]:
         """Test robustness of threshold model"""
         # Simplified robustness testing
         return {
@@ -1003,7 +996,7 @@ class StatisticalModelValidator:
         }
 
     async def _assess_threshold_overfitting(
-        self, validation_data: Dict[str, Any], threshold_params: Dict[str, float]
+        self, validation_data: dict[str, Any], threshold_params: dict[str, float]
     ) -> float:
         """Assess overfitting in threshold model"""
         # Threshold models are less prone to overfitting
@@ -1012,7 +1005,7 @@ class StatisticalModelValidator:
         num_params = len(threshold_params)
         param_extremity = 0.0
 
-        for threshold_name, threshold_value in threshold_params.items():
+        for _threshold_name, threshold_value in threshold_params.items():
             if threshold_value > 98 or threshold_value < 2:  # Very extreme thresholds
                 param_extremity += 1.0
 
@@ -1026,8 +1019,8 @@ class StatisticalModelValidator:
         return overfitting_score
 
     async def _generate_threshold_recommendations(
-        self, cv_scores: List[float], overfitting_score: float, stability_score: float
-    ) -> List[str]:
+        self, cv_scores: list[float], overfitting_score: float, stability_score: float
+    ) -> list[str]:
         """Generate recommendations for threshold model"""
         recommendations = []
 
@@ -1055,7 +1048,7 @@ class StatisticalModelValidator:
 
     def _generate_overfitting_recommendations(
         self, overfitting_score: float, r2_gap: float, complexity: float
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate overfitting-specific recommendations"""
         recommendations = []
 

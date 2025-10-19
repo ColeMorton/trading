@@ -7,10 +7,10 @@ functionality for profile inheritance and validation.
 
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
+from pydantic import BaseModel, Field, field_validator
 import yaml
-from pydantic import BaseModel, Field, validator
 
 from ..models.base import BaseConfig
 from ..models.concurrency import ConcurrencyAnalysisConfig, ConcurrencyConfig
@@ -27,7 +27,7 @@ class ProfileMetadata(BaseModel):
     """Metadata for configuration profiles."""
 
     name: str = Field(description="Profile name")
-    description: Optional[str] = Field(default=None, description="Profile description")
+    description: str | None = Field(default=None, description="Profile description")
     created_at: datetime = Field(
         default_factory=datetime.now, description="Creation timestamp"
     )
@@ -35,10 +35,10 @@ class ProfileMetadata(BaseModel):
         default_factory=datetime.now, description="Last update timestamp"
     )
     version: str = Field(default="1.0", description="Profile version")
-    tags: List[str] = Field(
+    tags: list[str] = Field(
         default_factory=list, description="Profile tags for organization"
     )
-    author: Optional[str] = Field(default=None, description="Profile author")
+    author: str | None = Field(default=None, description="Profile author")
     is_template: bool = Field(
         default=False, description="Whether this is a base template profile"
     )
@@ -48,15 +48,14 @@ class Profile(BaseModel):
     """A configuration profile with metadata and inheritance support."""
 
     metadata: ProfileMetadata = Field(description="Profile metadata")
-    inherits_from: Optional[str] = Field(
-        default=None, description="Parent profile name"
-    )
+    inherits_from: str | None = Field(default=None, description="Parent profile name")
     config_type: str = Field(
         description="Type of configuration (strategy, portfolio, concurrency)"
     )
-    config: Dict[str, Any] = Field(description="Configuration data")
+    config: dict[str, Any] = Field(description="Configuration data")
 
-    @validator("config_type")
+    @field_validator("config_type")
+    @classmethod
     def validate_config_type(cls, v):
         """Validate config type is supported."""
         valid_types = {
@@ -136,7 +135,7 @@ class ProfileConfig(BaseModel):
         default_factory=lambda: Path(__file__).parent.parent / "profiles",
         description="Directory containing profile files",
     )
-    default_profile: Optional[str] = Field(
+    default_profile: str | None = Field(
         default=None, description="Default profile name to use"
     )
     auto_save: bool = Field(
@@ -146,7 +145,8 @@ class ProfileConfig(BaseModel):
         default=5, ge=0, description="Number of backup copies to keep"
     )
 
-    @validator("profiles_dir", pre=True)
+    @field_validator("profiles_dir", mode="before")
+    @classmethod
     def validate_profiles_dir(cls, v):
         """Ensure profiles directory exists."""
         if isinstance(v, str):

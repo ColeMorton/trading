@@ -6,15 +6,14 @@ Tests the integration of PortfolioAnalysisService with CLI commands to ensure
 end-to-end functionality works correctly in realistic scenarios.
 """
 
+from pathlib import Path
 import tempfile
 import unittest
-from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pandas as pd
 from typer.testing import CliRunner
 
-from app.cli.commands.strategy import app as strategy_app
 from app.cli.services.portfolio_analysis_service import PortfolioAnalysisService
 
 
@@ -69,9 +68,7 @@ class TestPortfolioAnalysisIntegration(unittest.TestCase):
         # Create multiple portfolio files
         tickers_data = {}
         for ticker in ["AAPL", "MSFT", "GOOGL"]:
-            ticker_rows = [
-                row for i, row in enumerate(portfolio_data["Ticker"]) if row == ticker
-            ]
+            [row for i, row in enumerate(portfolio_data["Ticker"]) if row == ticker]
             ticker_df_data = {}
             for key, values in portfolio_data.items():
                 ticker_df_data[key] = [
@@ -440,7 +437,7 @@ class TestPortfolioAnalysisServiceEdgeCases(unittest.TestCase):
 
         with patch("builtins.print"):
             df = service.aggregate_portfolios_best(["AAPL"])
-            sorted_df = service.sort_portfolios(df, "Score", ascending=False)
+            service.sort_portfolios(df, "Score", ascending=False)
             stats = service._calculate_stats(df)
 
         # Should handle non-numeric data gracefully

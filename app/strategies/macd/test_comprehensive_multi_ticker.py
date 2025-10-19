@@ -8,10 +8,10 @@ This test validates:
 4. Data integrity and structure
 """
 
-import os
-import sys
 from datetime import datetime
 from pathlib import Path
+import sys
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
@@ -161,7 +161,7 @@ def test_comprehensive_macd_functionality():
         # Test 3: Filter portfolios
         print("\nTest 3: Portfolio filtering")
         if ticker_results:
-            ticker = list(ticker_results.keys())[0]
+            ticker = next(iter(ticker_results.keys()))
             portfolios_df = ticker_results[ticker]
 
             filter_config = config.copy()
@@ -207,7 +207,7 @@ def test_comprehensive_macd_functionality():
                     )
                 except Exception as e:
                     results.record_test(
-                        "Filtered portfolio export", False, f"Export failed: {str(e)}"
+                        "Filtered portfolio export", False, f"Export failed: {e!s}"
                     )
             else:
                 results.record_test(
@@ -264,7 +264,7 @@ def test_comprehensive_macd_functionality():
                     )
                 except Exception as e:
                     results.record_test(
-                        "Best portfolio export", False, f"Export failed: {str(e)}"
+                        "Best portfolio export", False, f"Export failed: {e!s}"
                     )
             else:
                 results.record_test(
@@ -296,7 +296,9 @@ def test_comprehensive_macd_functionality():
         # USE_CURRENT=True may not generate portfolios if no current signals
         # Just verify it runs without error
         results.record_test(
-            "USE_CURRENT=True execution", True, ""  # Pass if no exception
+            "USE_CURRENT=True execution",
+            True,
+            "",  # Pass if no exception
         )
 
         # Test 6: Verify standard directory structure

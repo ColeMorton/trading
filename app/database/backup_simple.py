@@ -6,16 +6,16 @@ and Redis cache without Prisma dependency.
 """
 
 import asyncio
+from datetime import datetime
 import json
 import logging
 import os
+from pathlib import Path
 import shutil
 import subprocess
-from datetime import datetime
-from pathlib import Path
-from typing import Optional
 
 import redis.asyncio as redis
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -120,9 +120,7 @@ class SimpleBackupManager:
         logger.info(f"Running pg_dump to {dump_file}")
 
         try:
-            result = subprocess.run(
-                cmd, env=env, capture_output=True, text=True, check=True
-            )
+            subprocess.run(cmd, env=env, capture_output=True, text=True, check=True)
 
             logger.info("PostgreSQL backup completed successfully")
             return str(dump_file)
@@ -212,7 +210,7 @@ class SimpleBackupManager:
                 backup_path.name,
             ]
 
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            subprocess.run(cmd, capture_output=True, text=True, check=True)
 
             # Remove uncompressed directory
             shutil.rmtree(backup_path)
@@ -241,9 +239,8 @@ class SimpleBackupManager:
                 logger.info("Test backup cleaned up")
 
                 return True
-            else:
-                logger.error("Test backup file not found")
-                return False
+            logger.error("Test backup file not found")
+            return False
 
         except Exception as e:
             logger.error(f"Backup system test failed: {e}")
@@ -274,7 +271,7 @@ if __name__ == "__main__":
             print("Commands:")
             print("  create [name]  - Create a new backup")
             print("  test           - Test backup system")
-            return
+            return None
 
         command = sys.argv[1]
         manager = SimpleBackupManager()

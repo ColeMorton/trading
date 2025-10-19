@@ -4,11 +4,12 @@ This package provides comprehensive testing for the MA Cross concurrency analysi
 including unit tests, integration tests, performance tests, and test utilities.
 """
 
-import json
-import tempfile
 from datetime import datetime, timedelta
+import json
 from pathlib import Path
+import tempfile
 from typing import Any, Dict, List, Optional
+
 
 # Test data directory
 TEST_DATA_DIR = Path(__file__).parent / "test_data"
@@ -38,7 +39,7 @@ TEST_CONFIGS = {
 
 
 def create_test_portfolio(
-    strategies: List[Dict[str, Any]], format: str = "json"
+    strategies: list[dict[str, Any]], format: str = "json"
 ) -> str:
     """Create a temporary test portfolio file.
 
@@ -66,7 +67,7 @@ def create_test_portfolio(
 
 def create_test_price_data(
     ticker: str, days: int = 365, start_price: float = 100.0, volatility: float = 0.02
-) -> Dict[str, List[float]]:
+) -> dict[str, list[float]]:
     """Create synthetic price data for testing.
 
     Args:
@@ -100,7 +101,7 @@ def create_test_price_data(
 
 def create_test_strategies(
     count: int = 3, strategy_type: str = "SMA"
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Create test strategy configurations.
 
     Args:
@@ -142,8 +143,8 @@ def create_test_strategies(
 
 # Export test utilities
 __all__ = [
-    "TEST_DATA_DIR",
     "TEST_CONFIGS",
+    "TEST_DATA_DIR",
     "create_test_portfolio",
     "create_test_price_data",
     "create_test_strategies",

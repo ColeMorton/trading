@@ -6,7 +6,7 @@ single ticker and multiple ticker analysis. It includes functionality for parame
 sensitivity analysis and portfolio filtering.
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
 import polars as pl
 
@@ -60,14 +60,9 @@ from app.tools.portfolio_results import (
 from app.tools.project_utils import get_project_root
 
 # Use centralized error handling
-from app.tools.strategy.error_handling import (
-    ErrorSeverity,
-    StrategyErrorCode,
-    create_error_handler,
-    handle_strategy_error,
-)
 from app.tools.strategy.types import StrategyConfig as Config
 from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_types
+
 
 # Config management is now handled by ConfigService
 
@@ -99,8 +94,8 @@ CONFIG: Config = {
 
 # Using standardized strategy utilities from app.tools.strategy_utils
 def filter_portfolios(
-    portfolios: List[Dict[str, Any]], config: Config, log
-) -> List[Dict[str, Any]]:
+    portfolios: list[dict[str, Any]], config: Config, log
+) -> list[dict[str, Any]]:
     """Filter portfolios based on configuration.
 
     Args:
@@ -156,7 +151,7 @@ def filter_portfolios(
         normalized_portfolios = normalize_stop_loss(validated_stop_loss, log)
 
         # If we have entry prices, calculate stop loss levels
-        if "ENTRY_PRICES" in config and config["ENTRY_PRICES"]:
+        if config.get("ENTRY_PRICES"):
             normalized_portfolios = calculate_stop_loss_levels(
                 normalized_portfolios, config["ENTRY_PRICES"], log
             )
@@ -201,7 +196,7 @@ def filter_portfolios(
 # Using the standardized synthetic_ticker module instead of local implementation
 
 
-def execute_all_strategies(config: Config, log) -> List[Dict[str, Any]]:
+def execute_all_strategies(config: Config, log) -> list[dict[str, Any]]:
     """Execute all strategies and collect results.
 
     Args:
@@ -306,11 +301,10 @@ def run(config: Config = CONFIG, external_log=None, progress_update_fn=None) -> 
         log_wrapper.__self__ = external_log
 
         return _run_with_log(config, log_wrapper, progress_update_fn)
-    else:
-        with logging_context(
-            module_name="ma_cross", log_file="1_get_portfolios.log"
-        ) as log:
-            return _run_with_log(config, log, progress_update_fn)
+    with logging_context(
+        module_name="ma_cross", log_file="1_get_portfolios.log"
+    ) as log:
+        return _run_with_log(config, log, progress_update_fn)
 
 
 def _run_with_log(config: Config, log, progress_update_fn=None) -> bool:
@@ -343,7 +337,7 @@ def _run_with_log(config: Config, log, progress_update_fn=None) -> bool:
         Exception: MACrossError,
     },
 )
-def run_strategies(config: Dict[str, Any] = None) -> bool:
+def run_strategies(config: dict[str, Any] | None = None) -> bool:
     """Run analysis with strategies specified in STRATEGY_TYPES in sequence.
 
     Returns:

@@ -6,7 +6,6 @@ against various benchmark strategies.
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -24,7 +23,7 @@ class BenchmarkConfig:
     strategy_type: str = "buy_and_hold"
     rebalance_frequency: str = "none"  # none, daily, weekly, monthly
     allocation_method: str = "equal_weight"  # equal_weight, market_cap, custom
-    custom_weights: Optional[Dict[str, float]] = None
+    custom_weights: dict[str, float] | None = None
 
 
 @dataclass
@@ -63,7 +62,7 @@ class BenchmarkComparisonService:
         end_date: str,
         init_cash: float = 10000.0,
         fees: float = 0.001,
-        symbols: Optional[List[str]] = None,
+        symbols: list[str] | None = None,
     ) -> "vbt.Portfolio":
         """
         Create benchmark portfolio based on configuration.
@@ -125,8 +124,7 @@ class BenchmarkComparisonService:
                             f"Could not create benchmark. Primary symbol '{original_symbol}' and fallback symbols "
                             f"({', '.join(fallback_symbols)}) all failed. Check your date range and network connectivity."
                         ) from e
-                    else:
-                        raise
+                    raise
 
             elif benchmark_config.strategy_type == "equal_weighted_portfolio":
                 if not symbols:
@@ -141,7 +139,7 @@ class BenchmarkComparisonService:
                 except Exception as e:
                     # For multi-asset benchmarks, try with subset of working symbols
                     self._log(
-                        f"Equal weighted benchmark failed, attempting with valid symbols only",
+                        "Equal weighted benchmark failed, attempting with valid symbols only",
                         "warning",
                     )
 
@@ -173,10 +171,9 @@ class BenchmarkComparisonService:
                             fees,
                             benchmark_config,
                         )
-                    else:
-                        raise ValueError(
-                            "No valid symbols available for equal weighted benchmark"
-                        ) from e
+                    raise ValueError(
+                        "No valid symbols available for equal weighted benchmark"
+                    ) from e
 
             elif benchmark_config.strategy_type == "custom_weighted_portfolio":
                 if not symbols or not benchmark_config.custom_weights:
@@ -196,9 +193,7 @@ class BenchmarkComparisonService:
             # Re-raise validation errors with original message
             raise
         except Exception as e:
-            self._log(
-                f"Unexpected error creating benchmark portfolio: {str(e)}", "error"
-            )
+            self._log(f"Unexpected error creating benchmark portfolio: {e!s}", "error")
             self._log(
                 "Suggestion: Check network connectivity, date ranges, and symbol validity",
                 "info",
@@ -284,18 +279,18 @@ class BenchmarkComparisonService:
             )
 
         except Exception as e:
-            self._log(f"Error comparing portfolios: {str(e)}", "error")
+            self._log(f"Error comparing portfolios: {e!s}", "error")
             raise
 
     def create_multi_asset_benchmark(
         self,
-        symbols: List[str],
+        symbols: list[str],
         start_date: str,
         end_date: str,
         init_cash: float = 10000.0,
         fees: float = 0.001,
         allocation_method: str = "equal_weight",
-    ) -> Tuple["vbt.Portfolio", pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    ) -> tuple["vbt.Portfolio", pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """
         Create benchmark from multiple assets with specified allocation.
 
@@ -329,7 +324,7 @@ class BenchmarkComparisonService:
                 else:
                     common_dates = common_dates.intersection(set(dates))
 
-            common_dates = sorted(list(common_dates))
+            common_dates = sorted(common_dates)
             self._log(f"Found {len(common_dates)} common trading days")
 
             # Create aligned price DataFrame
@@ -380,7 +375,7 @@ class BenchmarkComparisonService:
             return benchmark_portfolio, close_pd, entries_pd, sizes_pd
 
         except Exception as e:
-            self._log(f"Error creating multi-asset benchmark: {str(e)}", "error")
+            self._log(f"Error creating multi-asset benchmark: {e!s}", "error")
             raise
 
     def _create_buy_and_hold_benchmark(
@@ -395,7 +390,7 @@ class BenchmarkComparisonService:
                 data = get_data(symbol, config, self._log)
             except Exception as e:
                 self._log(
-                    f"Failed to fetch data for benchmark symbol '{symbol}': {str(e)}",
+                    f"Failed to fetch data for benchmark symbol '{symbol}': {e!s}",
                     "error",
                 )
                 self._log(
@@ -434,7 +429,7 @@ class BenchmarkComparisonService:
 
             except Exception as e:
                 self._log(
-                    f"Failed to process price data for '{symbol}': {str(e)}", "error"
+                    f"Failed to process price data for '{symbol}': {e!s}", "error"
                 )
                 raise ValueError(
                     f"Invalid price data format for benchmark symbol '{symbol}'"
@@ -469,7 +464,7 @@ class BenchmarkComparisonService:
 
             except Exception as e:
                 self._log(
-                    f"Failed to create VectorBT portfolio for '{symbol}': {str(e)}",
+                    f"Failed to create VectorBT portfolio for '{symbol}': {e!s}",
                     "error",
                 )
                 raise ValueError(
@@ -486,16 +481,14 @@ class BenchmarkComparisonService:
             raise
         except Exception as e:
             self._log(
-                f"Unexpected error creating buy and hold benchmark for '{symbol}': {str(e)}",
+                f"Unexpected error creating buy and hold benchmark for '{symbol}': {e!s}",
                 "error",
             )
-            raise ValueError(
-                f"Benchmark creation failed due to unexpected error"
-            ) from e
+            raise ValueError("Benchmark creation failed due to unexpected error") from e
 
     def _create_equal_weighted_benchmark(
         self,
-        symbols: List[str],
+        symbols: list[str],
         start_date: str,
         end_date: str,
         init_cash: float,
@@ -510,7 +503,7 @@ class BenchmarkComparisonService:
 
     def _create_custom_weighted_benchmark(
         self,
-        symbols: List[str],
+        symbols: list[str],
         start_date: str,
         end_date: str,
         init_cash: float,

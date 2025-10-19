@@ -8,8 +8,7 @@ This test suite covers MAStrategyService and MACDStrategyService with focus on:
 - Proper isolation through mocking
 """
 
-from typing import Any, Dict
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -63,15 +62,15 @@ class TestMAStrategyService:
 
         assert legacy_config["TICKER"] == ["AAPL"]
         assert legacy_config["STRATEGY_TYPES"] == ["SMA"]
-        assert legacy_config["USE_YEARS"] == False
+        assert legacy_config["USE_YEARS"] is False
         assert legacy_config["YEARS"] == 15
-        assert legacy_config["MULTI_TICKER"] == False
-        assert legacy_config["USE_SCANNER"] == False
-        assert legacy_config["USE_GBM"] == False
+        assert legacy_config["MULTI_TICKER"] is False
+        assert legacy_config["USE_SCANNER"] is False
+        assert legacy_config["USE_GBM"] is False
         assert "MINIMUMS" in legacy_config
-        assert legacy_config["USE_CURRENT"] == False
+        assert legacy_config["USE_CURRENT"] is False
         assert legacy_config["SORT_BY"] == "Score"
-        assert legacy_config["SORT_ASC"] == False
+        assert legacy_config["SORT_ASC"] is False
 
     def test_convert_config_to_legacy_ema_multiple_tickers(
         self, ma_service, base_strategy_config
@@ -86,7 +85,7 @@ class TestMAStrategyService:
 
         assert legacy_config["TICKER"] == ["AAPL", "MSFT", "GOOGL"]
         assert legacy_config["STRATEGY_TYPES"] == ["EMA"]
-        assert legacy_config["MULTI_TICKER"] == True
+        assert legacy_config["MULTI_TICKER"] is True
 
     def test_convert_config_to_legacy_mixed_strategies(
         self, ma_service, base_strategy_config
@@ -131,7 +130,7 @@ class TestMAStrategyService:
 
         legacy_config = ma_service.convert_config_to_legacy(config)
 
-        assert legacy_config["USE_SYNTHETIC"] == True
+        assert legacy_config["USE_SYNTHETIC"] is True
         assert legacy_config["TICKER_1"] == "STRK"
         assert legacy_config["TICKER_2"] == "MSTR"
 
@@ -161,7 +160,7 @@ class TestMAStrategyService:
 
         legacy_config = ma_service.convert_config_to_legacy(config)
 
-        assert legacy_config["USE_CURRENT"] == True
+        assert legacy_config["USE_CURRENT"] is True
 
     @patch("app.cli.services.strategy_services.importlib")
     def test_execute_strategy_success(
@@ -178,7 +177,7 @@ class TestMAStrategyService:
 
         result = ma_service.execute_strategy(config)
 
-        assert result == True
+        assert result is True
         mock_importlib.import_module.assert_called_once_with(
             "app.strategies.ma_cross.1_get_portfolios"
         )
@@ -197,7 +196,7 @@ class TestMAStrategyService:
 
         result = ma_service.execute_strategy(config)
 
-        assert result == False
+        assert result is False
         mock_rprint.assert_called_once()
         assert "Error executing MA Cross strategy" in str(mock_rprint.call_args)
 
@@ -216,7 +215,7 @@ class TestMAStrategyService:
 
         result = ma_service.execute_strategy(config)
 
-        assert result == True
+        assert result is True
         # Verify the legacy config conversion handled string ticker correctly
         mock_run.assert_called_once()
         call_args = mock_run.call_args[0][0]
@@ -285,14 +284,14 @@ class TestMACDStrategyService:
         assert legacy_config["SIGNAL_PERIOD"] == 5  # Fallback value
         assert legacy_config["STEP"] == 2
         assert legacy_config["DIRECTION"] == "Long"
-        assert legacy_config["USE_CURRENT"] == False
-        assert legacy_config["USE_HOURLY"] == False
-        assert legacy_config["USE_YEARS"] == False
+        assert legacy_config["USE_CURRENT"] is False
+        assert legacy_config["USE_HOURLY"] is False
+        assert legacy_config["USE_YEARS"] is False
         assert legacy_config["YEARS"] == 15
-        assert legacy_config["REFRESH"] == True
-        assert legacy_config["MULTI_TICKER"] == False
+        assert legacy_config["REFRESH"] is True
+        assert legacy_config["MULTI_TICKER"] is False
         assert legacy_config["SORT_BY"] == "Score"
-        assert legacy_config["SORT_ASC"] == False
+        assert legacy_config["SORT_ASC"] is False
 
     def test_convert_config_to_legacy_missing_parameters(self, macd_service):
         """Test config conversion fails with missing MACD parameters."""
@@ -335,7 +334,7 @@ class TestMACDStrategyService:
         legacy_config = macd_service.convert_config_to_legacy(config)
 
         assert legacy_config["TICKER"] == ["AAPL", "MSFT", "GOOGL"]
-        assert legacy_config["MULTI_TICKER"] == True
+        assert legacy_config["MULTI_TICKER"] is True
 
     @patch("app.cli.services.strategy_services.importlib")
     def test_execute_strategy_success(
@@ -352,7 +351,7 @@ class TestMACDStrategyService:
 
         result = macd_service.execute_strategy(config)
 
-        assert result == True
+        assert result is True
         mock_importlib.import_module.assert_called_once_with(
             "app.strategies.macd.1_get_portfolios"
         )
@@ -370,7 +369,7 @@ class TestMACDStrategyService:
 
         result = macd_service.execute_strategy(config)
 
-        assert result == False
+        assert result is False
         mock_rprint.assert_called_once()
         assert "Error executing MACD strategy" in str(mock_rprint.call_args)
 
@@ -389,7 +388,7 @@ class TestMACDStrategyService:
 
         result = macd_service.execute_strategy(config)
 
-        assert result == False
+        assert result is False
         mock_rprint.assert_called_once()
         assert "Error executing MACD strategy" in str(mock_rprint.call_args)
 
@@ -420,8 +419,8 @@ class TestMACDStrategyService:
 
         legacy_config = macd_service.convert_config_to_legacy(config)
 
-        assert legacy_config["USE_HOURLY"] == True
-        assert legacy_config["USE_YEARS"] == True
+        assert legacy_config["USE_HOURLY"] is True
+        assert legacy_config["USE_YEARS"] is True
         assert legacy_config["YEARS"] == 5
 
 

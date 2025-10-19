@@ -15,14 +15,10 @@ These tests validate:
 
 import tempfile
 import unittest
-from datetime import datetime, timedelta
-from decimal import Decimal
-from pathlib import Path
 
 import pandas as pd
-import pytest
 
-from app.exceptions import CalculationError, DataNotFoundError, ValidationError
+from app.exceptions import DataNotFoundError, ValidationError
 from app.services import PositionService
 from app.services.position_service import TradingSystemConfig
 from app.tools.position_calculator import get_position_calculator
@@ -274,7 +270,7 @@ class TestDataConsistencyValidation(unittest.TestCase):
         self.assertEqual(total_position_size, expected_total_size)
 
         # Close first position and validate aggregation consistency
-        result = self.service.close_position(
+        self.service.close_position(
             position_uuid=position_uuids[0],
             portfolio_name=portfolio_name,
             exit_price=165.00,
@@ -334,8 +330,8 @@ class TestDataConsistencyValidation(unittest.TestCase):
 
         # Get updated state
         updated_position = self.service.get_position(position_uuid, portfolio_name)
-        updated_mfe = updated_position["Max_Favourable_Excursion"]
-        updated_mae = updated_position["Max_Adverse_Excursion"]
+        updated_position["Max_Favourable_Excursion"]
+        updated_position["Max_Adverse_Excursion"]
 
         # MFE/MAE should remain consistent for same time period
         # Note: We compare with recalculated values since service method doesn't update position directly
@@ -343,7 +339,7 @@ class TestDataConsistencyValidation(unittest.TestCase):
         self.assertAlmostEqual(initial_mae, mae_recalc, places=6)
 
         # Close position and validate final state consistency
-        close_result = self.service.close_position(
+        self.service.close_position(
             position_uuid=position_uuid,
             portfolio_name=portfolio_name,
             exit_price=160.00,
@@ -515,7 +511,7 @@ class TestDataConsistencyValidation(unittest.TestCase):
 
         # Validate precision handling - allow for floating point precision limitations
         expected_pnl = exit_price - 150.123456
-        expected_return = expected_pnl / 150.123456
+        expected_pnl / 150.123456
 
         # Use more lenient precision for very small numbers due to floating point arithmetic
         # For extremely small differences, we expect rounding to zero

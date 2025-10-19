@@ -12,18 +12,15 @@ Key Features:
 - Integration with existing MA Cross parameter testing framework
 """
 
-import json
+from collections.abc import Callable
+from dataclasses import dataclass, field
 import os
 import random
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import polars as pl
-from scipy import stats
 
-from app.strategies.ma_cross.config.parameter_testing import ParameterTestingConfig
-from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.get_data import download_data
 from app.tools.setup_logging import setup_logging
 from app.tools.strategy.sensitivity_analysis import analyze_window_combination
@@ -62,14 +59,14 @@ class MonteCarloConfig:
 class ParameterStabilityResult:
     """Results of parameter stability analysis."""
 
-    parameter_combination: Tuple[int, int]  # (fast_period, slow_period)
-    base_performance: Dict[str, float]  # Performance on original data
-    monte_carlo_results: List[Dict[str, Any]]  # Results from all simulations
+    parameter_combination: tuple[int, int]  # (fast_period, slow_period)
+    base_performance: dict[str, float]  # Performance on original data
+    monte_carlo_results: list[dict[str, Any]]  # Results from all simulations
 
     # Statistical measures
-    performance_mean: Dict[str, float] = field(default_factory=dict)
-    performance_std: Dict[str, float] = field(default_factory=dict)
-    confidence_intervals: Dict[str, Tuple[float, float]] = field(default_factory=dict)
+    performance_mean: dict[str, float] = field(default_factory=dict)
+    performance_std: dict[str, float] = field(default_factory=dict)
+    confidence_intervals: dict[str, tuple[float, float]] = field(default_factory=dict)
 
     # Stability metrics
     stability_score: float = 0.0
@@ -94,7 +91,7 @@ class ParameterRobustnessAnalyzer:
     bootstrap sampling and Monte Carlo simulation methods.
     """
 
-    def __init__(self, mc_config: MonteCarloConfig, log: Optional[Callable] = None):
+    def __init__(self, mc_config: MonteCarloConfig, log: Callable | None = None):
         """
         Initialize the parameter robustness analyzer.
 
@@ -104,10 +101,10 @@ class ParameterRobustnessAnalyzer:
         """
         self.mc_config = mc_config
         self.log = log or print
-        self.results: List[ParameterStabilityResult] = []
+        self.results: list[ParameterStabilityResult] = []
 
     def bootstrap_prices(
-        self, data: pl.DataFrame, seed: Optional[int] = None
+        self, data: pl.DataFrame, seed: int | None = None
     ) -> pl.DataFrame:
         """
         Create bootstrap sample of price data using block bootstrap method.
@@ -160,7 +157,7 @@ class ParameterRobustnessAnalyzer:
 
         return bootstrap_sample.sort("Date")
 
-    def add_parameter_noise(self, short: int, long: int) -> Tuple[int, int]:
+    def add_parameter_noise(self, short: int, long: int) -> tuple[int, int]:
         """
         Add small random variations to parameters for robustness testing.
 
@@ -196,7 +193,7 @@ class ParameterRobustnessAnalyzer:
         # Calculate rolling metrics
         data = data.with_columns(
             [
-                ((pl.col("Close") / pl.col("Close").shift(1) - 1)).alias("Returns"),
+                (pl.col("Close") / pl.col("Close").shift(1) - 1).alias("Returns"),
             ]
         )
 
@@ -234,8 +231,8 @@ class ParameterRobustnessAnalyzer:
         return data
 
     def calculate_performance_stability(
-        self, results: List[Dict[str, Any]]
-    ) -> Dict[str, float]:
+        self, results: list[dict[str, Any]]
+    ) -> dict[str, float]:
         """
         Calculate stability metrics from Monte Carlo results.
 
@@ -282,7 +279,7 @@ class ParameterRobustnessAnalyzer:
         }
 
     def analyze_parameter_robustness(
-        self, ticker: str, fast_period: int, slow_period: int, config: Dict[str, Any]
+        self, ticker: str, fast_period: int, slow_period: int, config: dict[str, Any]
     ) -> ParameterStabilityResult:
         """
         Perform Monte Carlo robustness analysis for a specific parameter combination.
@@ -357,7 +354,7 @@ class ParameterRobustnessAnalyzer:
                     successful_simulations += 1
 
             except Exception as e:
-                self.log(f"Simulation {simulation} failed: {str(e)}", "warning")
+                self.log(f"Simulation {simulation} failed: {e!s}", "warning")
                 continue
 
             # Progress logging
@@ -396,8 +393,8 @@ class ParameterRobustnessAnalyzer:
         return result
 
     def _calculate_statistical_measures(
-        self, results: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, results: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Calculate statistical measures for Monte Carlo results."""
         if not results:
             return {
@@ -440,7 +437,7 @@ class ParameterRobustnessAnalyzer:
             "confidence_intervals": confidence_intervals,
         }
 
-    def _calculate_regime_consistency(self, results: List[Dict[str, Any]]) -> float:
+    def _calculate_regime_consistency(self, results: list[dict[str, Any]]) -> float:
         """Calculate consistency across different market regimes."""
         if not results:
             return 0.0
@@ -453,7 +450,7 @@ class ParameterRobustnessAnalyzer:
             performance = result.get("Total Return [%]", 0)
 
             # Weight performance by regime presence
-            for regime, count in regime_dist.items():
+            for regime, _count in regime_dist.items():
                 if regime not in regime_performances:
                     regime_performances[regime] = []
                 regime_performances[regime].append(performance)
@@ -525,11 +522,11 @@ class ParameterRobustnessAnalyzer:
 
 
 def run_parameter_robustness_analysis(
-    tickers: List[str],
-    parameter_ranges: Dict[str, List[int]],
-    strategy_config: Dict[str, Any],
-    mc_config: Optional[MonteCarloConfig] = None,
-) -> Dict[str, List[ParameterStabilityResult]]:
+    tickers: list[str],
+    parameter_ranges: dict[str, list[int]],
+    strategy_config: dict[str, Any],
+    mc_config: MonteCarloConfig | None = None,
+) -> dict[str, list[ParameterStabilityResult]]:
     """
     Run comprehensive parameter robustness analysis across multiple tickers.
 

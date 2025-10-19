@@ -14,9 +14,7 @@ FIXED IN: app/cli/commands/concurrency.py (lines 1220-1281)
 """
 
 import json
-import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -36,9 +34,9 @@ class TestPortfolioSizeBugRegression:
             {
                 "strategy_id": f"TEST_SMA_{i}_{i+10}",
                 "ticker": "TEST",
-                "strategy_type": "SMA"
-                if i % 3 != 0
-                else ("EMA" if i % 3 == 1 else "MACD"),
+                "strategy_type": (
+                    "SMA" if i % 3 != 0 else ("EMA" if i % 3 == 1 else "MACD")
+                ),
                 "fast_period": 10 + i * 5,
                 "slow_period": 50 + i * 10,
                 "score": 1.5 - (i * 0.03),
@@ -131,9 +129,9 @@ class TestPortfolioSizeBugRegression:
         assert len(portfolio_subsets[9]) == 9
 
         # Verify they're actually different subsets
-        assert set(s["strategy_id"] for s in portfolio_subsets[5]) != set(
+        assert {s["strategy_id"] for s in portfolio_subsets[5]} != {
             s["strategy_id"] for s in portfolio_subsets[9]
-        )
+        }
 
     def test_metrics_should_differ_across_portfolio_sizes(self):
         """
@@ -189,12 +187,6 @@ class TestPortfolioSizeBugRegression:
         This should NEVER happen again.
         """
         # Simulate the buggy behavior (what we DON'T want)
-        buggy_metrics = {
-            "efficiency_score": 0.0729,
-            "diversification": 0.411,
-            "independence": 0.291,
-            "activity": 0.995,
-        }
 
         # In a proper implementation, these should be different
         size_5 = {"efficiency_score": 0.1234, "diversification": 0.600}

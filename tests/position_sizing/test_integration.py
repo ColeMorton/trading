@@ -5,9 +5,7 @@ Tests integration between CVaR calculator, Kelly criterion, allocation optimizer
 and risk allocation systems with realistic data.
 """
 
-from unittest.mock import Mock, patch
-
-import pytest
+from unittest.mock import patch
 
 from app.tools.allocation.efficient_frontier_integration import AllocationOptimizer
 from app.tools.position_sizing.kelly_criterion import KellyCriterionSizer

@@ -15,8 +15,9 @@ Classes:
     VolatilityAggregator: Correct volatility aggregation methods
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -41,9 +42,9 @@ class DrawdownComponents:
     """Components of drawdown calculation."""
 
     max_drawdown: float
-    peak_date: Optional[str]
-    trough_date: Optional[str]
-    recovery_date: Optional[str]
+    peak_date: str | None
+    trough_date: str | None
+    recovery_date: str | None
     drawdown_duration: int
     recovery_duration: int
     equity_curve: np.ndarray
@@ -81,7 +82,7 @@ class RiskMetricsValidator:
         csv_max_drawdown: float,
         json_max_drawdown: float,
         ticker: str,
-        log: Optional[Callable[[str, str], None]] = None,
+        log: Callable[[str, str], None] | None = None,
     ) -> RiskValidationResult:
         """
         Validate max drawdown calculation against CSV data.
@@ -156,11 +157,11 @@ class RiskMetricsValidator:
 
     def validate_volatility_aggregation(
         self,
-        individual_volatilities: List[float],
-        individual_correlations: List[List[float]],
+        individual_volatilities: list[float],
+        individual_correlations: list[list[float]],
         aggregated_volatility: float,
-        allocation_weights: List[float],
-        log: Optional[Callable[[str, str], None]] = None,
+        allocation_weights: list[float],
+        log: Callable[[str, str], None] | None = None,
     ) -> RiskValidationResult:
         """
         Validate portfolio volatility aggregation using proper portfolio theory.
@@ -261,7 +262,7 @@ class RiskMetricsValidator:
             )
 
         except Exception as e:
-            error_message = f"Error in volatility validation: {str(e)}"
+            error_message = f"Error in volatility validation: {e!s}"
             if log:
                 log(error_message, "error")
 
@@ -278,10 +279,10 @@ class RiskMetricsValidator:
 
     def validate_risk_contributions(
         self,
-        individual_risk_contributions: List[float],
+        individual_risk_contributions: list[float],
         portfolio_total_risk: float,
-        strategy_names: List[str],
-        log: Optional[Callable[[str, str], None]] = None,
+        strategy_names: list[str],
+        log: Callable[[str, str], None] | None = None,
     ) -> RiskValidationResult:
         """
         Validate that individual risk contributions sum to total portfolio risk.
@@ -345,7 +346,9 @@ class RiskMetricsValidator:
 
             if not is_valid and strategy_names:
                 log("Individual risk contributions:", "info")
-                for name, contrib in zip(strategy_names, individual_risk_contributions):
+                for name, contrib in zip(
+                    strategy_names, individual_risk_contributions, strict=False
+                ):
                     log(
                         f"  {name}: {contrib:.4f} ({contrib/portfolio_total_risk:.1%} of total)",
                         "info",
@@ -365,9 +368,9 @@ class RiskMetricsValidator:
     def validate_all_risk_metrics(
         self,
         csv_data: pd.DataFrame,
-        json_metrics: Dict[str, Any],
-        log: Optional[Callable[[str, str], None]] = None,
-    ) -> Dict[str, RiskValidationResult]:
+        json_metrics: dict[str, Any],
+        log: Callable[[str, str], None] | None = None,
+    ) -> dict[str, RiskValidationResult]:
         """
         Comprehensive validation of all risk metrics.
 
@@ -426,7 +429,7 @@ class RiskMetricsValidator:
                 )
 
         except Exception as e:
-            error_message = f"Error in comprehensive risk validation: {str(e)}"
+            error_message = f"Error in comprehensive risk validation: {e!s}"
             if log:
                 log(error_message, "error")
 
@@ -455,9 +458,9 @@ class DrawdownCalculator:
 
     def calculate_portfolio_max_drawdown(
         self,
-        strategy_equity_curves: List[np.ndarray],
-        allocation_weights: List[float],
-        log: Optional[Callable[[str, str], None]] = None,
+        strategy_equity_curves: list[np.ndarray],
+        allocation_weights: list[float],
+        log: Callable[[str, str], None] | None = None,
     ) -> DrawdownComponents:
         """
         Calculate portfolio max drawdown using proper equity curve combination.
@@ -493,7 +496,7 @@ class DrawdownCalculator:
         portfolio_equity = np.zeros(len(strategy_equity_curves[0]))
 
         for i, (curve, allocation) in enumerate(
-            zip(strategy_equity_curves, normalized_weights)
+            zip(strategy_equity_curves, normalized_weights, strict=False)
         ):
             if len(curve) != len(portfolio_equity):
                 raise ValueError(
@@ -550,7 +553,7 @@ class DrawdownCalculator:
         )
 
     def calculate_individual_drawdown(
-        self, equity_curve: np.ndarray, log: Optional[Callable[[str, str], None]] = None
+        self, equity_curve: np.ndarray, log: Callable[[str, str], None] | None = None
     ) -> DrawdownComponents:
         """
         Calculate drawdown for an individual strategy equity curve.
@@ -619,10 +622,10 @@ class VolatilityAggregator:
 
     def calculate_portfolio_volatility(
         self,
-        individual_volatilities: List[float],
+        individual_volatilities: list[float],
         correlation_matrix: np.ndarray,
-        allocation_weights: List[float],
-        log: Optional[Callable[[str, str], None]] = None,
+        allocation_weights: list[float],
+        log: Callable[[str, str], None] | None = None,
     ) -> float:
         """
         Calculate portfolio volatility using proper portfolio theory.
@@ -680,11 +683,11 @@ class VolatilityAggregator:
 
     def calculate_risk_contributions(
         self,
-        individual_volatilities: List[float],
+        individual_volatilities: list[float],
         correlation_matrix: np.ndarray,
-        allocation_weights: List[float],
-        log: Optional[Callable[[str, str], None]] = None,
-    ) -> List[float]:
+        allocation_weights: list[float],
+        log: Callable[[str, str], None] | None = None,
+    ) -> list[float]:
         """
         Calculate risk contributions for each strategy.
 

@@ -6,7 +6,7 @@ Domain-specific assertions for trading system testing that provide
 clear, meaningful error messages for common test scenarios.
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -160,7 +160,7 @@ def assert_ma_calculations_accurate(
                 )
 
 
-def assert_portfolio_data_valid(portfolios: List[Dict[str, Any]]) -> None:
+def assert_portfolio_data_valid(portfolios: list[dict[str, Any]]) -> None:
     """
     Assert that portfolio data has required fields and valid values.
 
@@ -187,14 +187,14 @@ def assert_portfolio_data_valid(portfolios: List[Dict[str, Any]]) -> None:
 
         # Validate data types and ranges
         if (
-            not isinstance(portfolio["Total Trades"], (int, float))
+            not isinstance(portfolio["Total Trades"], int | float)
             or portfolio["Total Trades"] < 0
         ):
             raise AssertionError(
                 f"Portfolio {i} has invalid Total Trades: {portfolio['Total Trades']}"
             )
 
-        if not isinstance(portfolio["Win Rate [%]"], (int, float)) or not (
+        if not isinstance(portfolio["Win Rate [%]"], int | float) or not (
             0 <= portfolio["Win Rate [%]"] <= 100
         ):
             raise AssertionError(
@@ -202,7 +202,7 @@ def assert_portfolio_data_valid(portfolios: List[Dict[str, Any]]) -> None:
             )
 
         if (
-            not isinstance(portfolio["Profit Factor"], (int, float))
+            not isinstance(portfolio["Profit Factor"], int | float)
             or portfolio["Profit Factor"] < 0
         ):
             raise AssertionError(
@@ -211,7 +211,7 @@ def assert_portfolio_data_valid(portfolios: List[Dict[str, Any]]) -> None:
 
 
 def assert_export_paths_correct(
-    actual_path: str, expected_base: str, config: Dict[str, Any]
+    actual_path: str, expected_base: str, config: dict[str, Any]
 ) -> None:
     """
     Assert that export paths are generated correctly based on configuration.
@@ -247,9 +247,9 @@ def assert_export_paths_correct(
 
 
 def assert_filtering_criteria_applied(
-    original_portfolios: List[Dict[str, Any]],
-    filtered_portfolios: List[Dict[str, Any]],
-    filter_config: Dict[str, Any],
+    original_portfolios: list[dict[str, Any]],
+    filtered_portfolios: list[dict[str, Any]],
+    filter_config: dict[str, Any],
 ) -> None:
     """
     Assert that filtering criteria were properly applied.

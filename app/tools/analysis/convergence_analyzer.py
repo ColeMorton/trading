@@ -5,17 +5,15 @@ Analyzes convergence across multiple dimensions including timeframes,
 strategies, and statistical measures with cross-validation capabilities.
 """
 
-import asyncio
-import logging
 from datetime import datetime, timedelta
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
 from scipy import stats
-from scipy.stats import pearsonr, spearmanr
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from scipy.stats import pearsonr
 
 from ..config.statistical_analysis_config import SPDSConfig
 from ..models.correlation_models import ConvergenceAnalysisResult, SignificanceLevel
@@ -33,7 +31,7 @@ class ConvergenceAnalyzer:
     - Cross-validation of convergence patterns
     """
 
-    def __init__(self, config: SPDSConfig, logger: Optional[logging.Logger] = None):
+    def __init__(self, config: SPDSConfig, logger: logging.Logger | None = None):
         """
         Initialize the Convergence Analyzer
 
@@ -63,8 +61,8 @@ class ConvergenceAnalyzer:
         self,
         strategy_name: str,
         ticker: str,
-        timeframes: Optional[List[str]] = None,
-        convergence_metrics: Optional[List[str]] = None,
+        timeframes: list[str] | None = None,
+        convergence_metrics: list[str] | None = None,
     ) -> ConvergenceAnalysisResult:
         """
         Analyze convergence across multiple timeframes
@@ -168,10 +166,10 @@ class ConvergenceAnalyzer:
 
     async def analyze_cross_strategy_convergence(
         self,
-        strategies: List[str],
+        strategies: list[str],
         ticker: str,
         timeframe: str = "D",
-        convergence_metrics: Optional[List[str]] = None,
+        convergence_metrics: list[str] | None = None,
     ) -> ConvergenceAnalysisResult:
         """
         Analyze convergence across multiple strategies
@@ -272,8 +270,8 @@ class ConvergenceAnalyzer:
 
     async def analyze_statistical_convergence(
         self,
-        data_sources: Dict[str, Dict[str, Any]],
-        statistical_measures: Optional[List[str]] = None,
+        data_sources: dict[str, dict[str, Any]],
+        statistical_measures: list[str] | None = None,
     ) -> ConvergenceAnalysisResult:
         """
         Analyze convergence between different statistical measures
@@ -356,8 +354,8 @@ class ConvergenceAnalyzer:
     # Helper methods
 
     async def _load_multi_timeframe_data(
-        self, strategy_name: str, ticker: str, timeframes: List[str]
-    ) -> Dict[str, Dict[str, Any]]:
+        self, strategy_name: str, ticker: str, timeframes: list[str]
+    ) -> dict[str, dict[str, Any]]:
         """Load data for multiple timeframes"""
         timeframe_data = {}
 
@@ -387,8 +385,8 @@ class ConvergenceAnalyzer:
         return timeframe_data
 
     async def _load_multi_strategy_data(
-        self, strategies: List[str], ticker: str, timeframe: str
-    ) -> Dict[str, Dict[str, Any]]:
+        self, strategies: list[str], ticker: str, timeframe: str
+    ) -> dict[str, dict[str, Any]]:
         """Load data for multiple strategies"""
         strategy_data = {}
 
@@ -416,7 +414,7 @@ class ConvergenceAnalyzer:
 
     async def _load_trade_history_data(
         self, strategy_name: str, ticker: str, timeframe: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Load trade history data"""
         # Simplified implementation - would integrate with TradeHistoryAnalyzer
         trade_file = (
@@ -431,9 +429,9 @@ class ConvergenceAnalyzer:
                 return {
                     "returns": returns.tolist(),
                     "volatility": returns.std(),
-                    "sharpe_ratio": returns.mean() / returns.std()
-                    if returns.std() > 0
-                    else 0,
+                    "sharpe_ratio": (
+                        returns.mean() / returns.std() if returns.std() > 0 else 0
+                    ),
                     "percentiles": {
                         "p25": returns.quantile(0.25),
                         "p50": returns.quantile(0.50),
@@ -453,7 +451,7 @@ class ConvergenceAnalyzer:
 
     async def _load_equity_data(
         self, strategy_name: str, ticker: str, timeframe: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Load equity curve data"""
         # Search for equity files
         for equity_path in self.config.EQUITY_DATA_PATHS:
@@ -471,9 +469,9 @@ class ConvergenceAnalyzer:
                     return {
                         "returns": returns.tolist(),
                         "volatility": returns.std(),
-                        "sharpe_ratio": returns.mean() / returns.std()
-                        if returns.std() > 0
-                        else 0,
+                        "sharpe_ratio": (
+                            returns.mean() / returns.std() if returns.std() > 0 else 0
+                        ),
                         "percentiles": {
                             "p25": returns.quantile(0.25),
                             "p50": returns.quantile(0.50),
@@ -493,10 +491,10 @@ class ConvergenceAnalyzer:
 
     async def _calculate_metric_convergence(
         self,
-        timeframe_data: Dict[str, Dict[str, Any]],
+        timeframe_data: dict[str, dict[str, Any]],
         metric: str,
-        timeframes: List[str],
-    ) -> Dict[str, Any]:
+        timeframes: list[str],
+    ) -> dict[str, Any]:
         """Calculate convergence for a specific metric across timeframes"""
         metric_values = []
         valid_timeframes = []
@@ -567,10 +565,10 @@ class ConvergenceAnalyzer:
 
     async def _calculate_strategy_metric_convergence(
         self,
-        strategy_data: Dict[str, Dict[str, Any]],
+        strategy_data: dict[str, dict[str, Any]],
         metric: str,
-        strategies: List[str],
-    ) -> Dict[str, Any]:
+        strategies: list[str],
+    ) -> dict[str, Any]:
         """Calculate convergence for a metric across strategies"""
         metric_values = []
         valid_strategies = []
@@ -639,12 +637,12 @@ class ConvergenceAnalyzer:
         }
 
     async def _calculate_statistical_measure_convergence(
-        self, data_sources: Dict[str, Dict[str, Any]], measure: str
-    ) -> Dict[str, Any]:
+        self, data_sources: dict[str, dict[str, Any]], measure: str
+    ) -> dict[str, Any]:
         """Calculate convergence between statistical measures"""
         measure_values = []
 
-        for source_name, source_data in data_sources.items():
+        for _source_name, source_data in data_sources.items():
             if measure in source_data:
                 if isinstance(source_data[measure], dict):
                     # For nested measures like percentiles
@@ -678,12 +676,12 @@ class ConvergenceAnalyzer:
         }
 
     async def _analyze_convergence_stability(
-        self, data: Dict[str, Dict[str, Any]], dimensions: List[str], metrics: List[str]
+        self, data: dict[str, dict[str, Any]], dimensions: list[str], metrics: list[str]
     ) -> float:
         """Analyze stability of convergence over time"""
         stability_scores = []
 
-        for metric in metrics:
+        for _metric in metrics:
             # Calculate rolling convergence scores
             rolling_scores = []
 
@@ -716,21 +714,21 @@ class ConvergenceAnalyzer:
         return np.mean(stability_scores) if stability_scores else 0.5
 
     async def _analyze_strategy_convergence_stability(
-        self, data: Dict[str, Dict[str, Any]], strategies: List[str], metrics: List[str]
+        self, data: dict[str, dict[str, Any]], strategies: list[str], metrics: list[str]
     ) -> float:
         """Analyze stability of strategy convergence"""
         return await self._analyze_convergence_stability(data, strategies, metrics)
 
     async def _analyze_statistical_convergence_stability(
-        self, data: Dict[str, Dict[str, Any]], measures: List[str]
+        self, data: dict[str, dict[str, Any]], measures: list[str]
     ) -> float:
         """Analyze stability of statistical measure convergence"""
         # Simplified stability analysis for statistical measures
         return 0.7  # Default stability score
 
     async def _identify_divergence_periods(
-        self, data: Dict[str, Dict[str, Any]], dimensions: List[str], metrics: List[str]
-    ) -> List[Dict[str, Any]]:
+        self, data: dict[str, dict[str, Any]], dimensions: list[str], metrics: list[str]
+    ) -> list[dict[str, Any]]:
         """Identify periods of significant divergence"""
         divergence_periods = []
 
@@ -776,21 +774,21 @@ class ConvergenceAnalyzer:
         return divergence_periods
 
     async def _identify_strategy_divergence_periods(
-        self, data: Dict[str, Dict[str, Any]], strategies: List[str], metrics: List[str]
-    ) -> List[Dict[str, Any]]:
+        self, data: dict[str, dict[str, Any]], strategies: list[str], metrics: list[str]
+    ) -> list[dict[str, Any]]:
         """Identify periods of strategy divergence"""
         return await self._identify_divergence_periods(data, strategies, metrics)
 
     async def _identify_statistical_divergence_periods(
-        self, data: Dict[str, Dict[str, Any]], measures: List[str]
-    ) -> List[Dict[str, Any]]:
+        self, data: dict[str, dict[str, Any]], measures: list[str]
+    ) -> list[dict[str, Any]]:
         """Identify periods of statistical measure divergence"""
         # Simplified implementation
         return []
 
     async def _cross_validate_convergence(
-        self, data: Dict[str, Dict[str, Any]], dimensions: List[str], metrics: List[str]
-    ) -> Dict[str, float]:
+        self, data: dict[str, dict[str, Any]], dimensions: list[str], metrics: list[str]
+    ) -> dict[str, float]:
         """Cross-validate convergence analysis"""
         cv_scores = {}
 
@@ -823,18 +821,18 @@ class ConvergenceAnalyzer:
         return cv_scores
 
     async def _cross_validate_strategy_convergence(
-        self, data: Dict[str, Dict[str, Any]], strategies: List[str], metrics: List[str]
-    ) -> Dict[str, float]:
+        self, data: dict[str, dict[str, Any]], strategies: list[str], metrics: list[str]
+    ) -> dict[str, float]:
         """Cross-validate strategy convergence"""
         return await self._cross_validate_convergence(data, strategies, metrics)
 
     async def _test_convergence_significance(
-        self, metric_convergences: Dict[str, Dict[str, Any]]
+        self, metric_convergences: dict[str, dict[str, Any]]
     ) -> float:
         """Test statistical significance of convergence"""
         convergence_scores = []
 
-        for metric, convergence_data in metric_convergences.items():
+        for _metric, convergence_data in metric_convergences.items():
             score = convergence_data.get("convergence_score", 0.0)
             convergence_scores.append(score)
 
@@ -851,7 +849,7 @@ class ConvergenceAnalyzer:
         return max(0.001, min(1.0, p_value))
 
     def _calculate_current_divergence_level(
-        self, divergence_periods: List[Dict[str, Any]]
+        self, divergence_periods: list[dict[str, Any]]
     ) -> float:
         """Calculate current level of divergence"""
         if not divergence_periods:
@@ -868,7 +866,7 @@ class ConvergenceAnalyzer:
         return 0.0
 
     def _analyze_divergence_trend(
-        self, divergence_periods: List[Dict[str, Any]]
+        self, divergence_periods: list[dict[str, Any]]
     ) -> str:
         """Analyze trend in divergence over time"""
         if len(divergence_periods) < 2:
@@ -882,7 +880,7 @@ class ConvergenceAnalyzer:
         if len(recent_severities) >= 2:
             if recent_severities[-1] > recent_severities[0] * 1.2:
                 return "increasing"
-            elif recent_severities[-1] < recent_severities[0] * 0.8:
+            if recent_severities[-1] < recent_severities[0] * 0.8:
                 return "decreasing"
 
         return "stable"
@@ -891,9 +889,8 @@ class ConvergenceAnalyzer:
         """Classify statistical significance"""
         if p_value < 0.01:
             return SignificanceLevel.HIGHLY_SIGNIFICANT
-        elif p_value < 0.05:
+        if p_value < 0.05:
             return SignificanceLevel.SIGNIFICANT
-        elif p_value < 0.10:
+        if p_value < 0.10:
             return SignificanceLevel.MARGINALLY_SIGNIFICANT
-        else:
-            return SignificanceLevel.NOT_SIGNIFICANT
+        return SignificanceLevel.NOT_SIGNIFICANT

@@ -1,4 +1,5 @@
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
+from typing import Any
 
 import polars as pl
 
@@ -11,10 +12,10 @@ def analyze_parameter_sensitivity(
     data: pl.DataFrame,
     short_windows: list[int],
     long_windows: list[int],
-    config: Dict[str, Any],
+    config: dict[str, Any],
     log: Callable,
     progress_update_fn=None,
-) -> Optional[pl.DataFrame]:
+) -> pl.DataFrame | None:
     """
     Perform parameter sensitivity analysis and export results.
 
@@ -97,7 +98,7 @@ def analyze_parameter_sensitivity(
         return None
 
 
-def export_results(df: pl.DataFrame, config: Dict[str, Any], log: Callable) -> None:
+def export_results(df: pl.DataFrame, config: dict[str, Any], log: Callable) -> None:
     """
     Export analysis results to CSV.
 

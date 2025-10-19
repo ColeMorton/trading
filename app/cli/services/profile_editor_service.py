@@ -5,9 +5,9 @@ This service provides profile editing functionality with proper separation of co
 following TDD principles and clean architecture patterns.
 """
 
-import shutil
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+import shutil
+from typing import Any
 
 
 class ProfileEditorService:
@@ -17,7 +17,7 @@ class ProfileEditorService:
         """Initialize with config manager dependency."""
         self.config_manager = config_manager
 
-    def load_profile(self, profile_name: str) -> Dict[str, Any]:
+    def load_profile(self, profile_name: str) -> dict[str, Any]:
         """
         Load profile data with proper error handling.
 
@@ -56,7 +56,7 @@ class ProfileEditorService:
         return backup_path
 
     def set_field_value(
-        self, profile_data: Dict[str, Any], field_path: str, value: str
+        self, profile_data: dict[str, Any], field_path: str, value: str
     ) -> None:
         """
         Set field value with proper validation and type conversion.
@@ -98,22 +98,21 @@ class ProfileEditorService:
         """
         if field_name == "ticker":
             return [t.strip() for t in value.split(",")]
-        elif field_name == "win_rate":
+        if field_name == "win_rate":
             float_value = float(value)
             if not 0 <= float_value <= 1:
                 raise ValueError("win_rate must be between 0 and 1")
             return float_value
-        elif field_name == "trades":
+        if field_name == "trades":
             int_value = int(value)
             if int_value < 0:
                 raise ValueError("trades must be non-negative")
             return int_value
-        elif field_name in ["strategy_types"]:
+        if field_name in ["strategy_types"]:
             return [t.strip() for t in value.split(",")]
-        else:
-            return value
+        return value
 
-    def save_profile(self, profile_name: str, profile_data: Dict[str, Any]) -> None:
+    def save_profile(self, profile_name: str, profile_data: dict[str, Any]) -> None:
         """
         Save profile data.
 
@@ -124,8 +123,8 @@ class ProfileEditorService:
         self.config_manager.profile_manager.save_profile(profile_name, profile_data)
 
     def get_editable_fields(
-        self, profile_data: Dict[str, Any]
-    ) -> List[Tuple[str, Any]]:
+        self, profile_data: dict[str, Any]
+    ) -> list[tuple[str, Any]]:
         """
         Extract editable fields from profile data.
 

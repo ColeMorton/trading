@@ -5,7 +5,7 @@ This module provides functions for processing ATR Trailing Stop strategies
 in the concurrency analysis framework.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import polars as pl
 

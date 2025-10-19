@@ -18,10 +18,9 @@ Key test scenarios:
 - Dry-run with batch parameters
 """
 
-import tempfile
-from datetime import datetime
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, call, patch
+import tempfile
+from unittest.mock import Mock, patch
 
 import pytest
 from typer.testing import CliRunner
@@ -61,7 +60,7 @@ def create_mock_strategy_config_batch(ticker=None, strategy_types=None, **kwargs
 
     # Batch-specific attributes
     mock_config.batch = kwargs.get("batch", False)
-    mock_config.batch_size = kwargs.get("batch_size", None)
+    mock_config.batch_size = kwargs.get("batch_size")
     mock_config.batch_file_path = kwargs.get("batch_file_path", "data/raw/batch.csv")
 
     # Standard attributes
@@ -317,7 +316,8 @@ config:
         """Test that command-line batch size overrides profile setting."""
         # Profile has batch_size=2, command specifies batch_size=5
         mock_config = create_mock_strategy_config_batch(
-            batch=True, batch_size=5  # Should be overridden
+            batch=True,
+            batch_size=5,  # Should be overridden
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 

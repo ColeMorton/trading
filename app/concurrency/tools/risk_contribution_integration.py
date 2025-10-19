@@ -6,13 +6,14 @@ analysis system and the new mathematically correct risk contribution calculator.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
 from app.concurrency.tools.risk_contribution_calculator import (
     calculate_risk_contributions_fixed,
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -34,19 +35,13 @@ def integrate_fixed_risk_calculations(analysis_module):
 
     if original_calculate_risk:
         # Replace with fixed version
-        setattr(
-            analysis_module,
-            "calculate_risk_contributions",
-            calculate_risk_contributions_fixed,
+        analysis_module.calculate_risk_contributions = (
+            calculate_risk_contributions_fixed
         )
         logger.info("Integrated fixed risk contribution calculator")
 
         # Store original for rollback
-        setattr(
-            analysis_module,
-            "_original_calculate_risk_contributions",
-            original_calculate_risk,
-        )
+        analysis_module._original_calculate_risk_contributions = original_calculate_risk
     else:
         logger.warning("Could not find calculate_risk_contributions to patch")
 
@@ -63,18 +58,18 @@ def rollback_to_original_calculations(analysis_module):
     )
 
     if original_func:
-        setattr(analysis_module, "calculate_risk_contributions", original_func)
+        analysis_module.calculate_risk_contributions = original_func
         logger.info("Rolled back to original risk contribution calculator")
     else:
         logger.warning("No original function found to rollback to")
 
 
 def compare_risk_calculations(
-    position_arrays: List[np.ndarray],
-    data_list: List[Any],
-    strategy_allocations: List[float],
-    strategy_configs: Optional[List[Dict[str, Any]]] = None,
-) -> Dict[str, Any]:
+    position_arrays: list[np.ndarray],
+    data_list: list[Any],
+    strategy_allocations: list[float],
+    strategy_configs: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     """
     Compare the original and fixed risk contribution calculations.
 
@@ -133,9 +128,9 @@ def compare_risk_calculations(
         comparison["comparison"]["original_sum_pct"] = f"{original_sum * 100:.2f}%"
         comparison["comparison"]["fixed_sum_pct"] = f"{fixed_sum * 100:.2f}%"
         comparison["comparison"]["sum_difference"] = original_sum - fixed_sum
-        comparison["comparison"][
-            "sum_difference_pct"
-        ] = f"{(original_sum - fixed_sum) * 100:.2f}%"
+        comparison["comparison"]["sum_difference_pct"] = (
+            f"{(original_sum - fixed_sum) * 100:.2f}%"
+        )
 
         # Compare individual contributions
         strategy_comparison = []
@@ -171,7 +166,7 @@ def compare_risk_calculations(
 
 def validate_portfolio_risk_contributions(
     portfolio_path: str, use_fixed: bool = True
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Validate risk contributions for a specific portfolio.
 
@@ -192,7 +187,7 @@ def validate_portfolio_risk_contributions(
 
 
 def create_risk_contribution_report(
-    risk_metrics: Dict[str, Any], output_path: Optional[str] | None = None
+    risk_metrics: dict[str, Any], output_path: str | None | None = None
 ) -> str:
     """
     Create a formatted report of risk contributions.

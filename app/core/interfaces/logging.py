@@ -1,8 +1,8 @@
 """Logging interface definition."""
 
-import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+import logging
+from typing import Any
 
 
 class LoggingInterface(ABC):
@@ -13,7 +13,7 @@ class LoggingInterface(ABC):
         """Get a logger instance for the given name."""
 
     @abstractmethod
-    def configure(self, config: Optional[Dict[str, Any]] = None) -> None:
+    def configure(self, config: dict[str, Any] | None = None) -> None:
         """Configure logging settings."""
 
     @abstractmethod

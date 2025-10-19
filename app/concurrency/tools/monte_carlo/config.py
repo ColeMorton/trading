@@ -5,10 +5,11 @@ Provides configuration classes and validation for Monte Carlo parameter
 robustness analysis integrated with the concurrency framework.
 """
 
-import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Optional
+import sys
+from typing import Any
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
@@ -32,7 +33,7 @@ class MonteCarloConfig:
     max_parameters_to_test: int = 10
 
     @classmethod
-    def from_dict(cls, config_dict: Dict[str, Any]) -> "MonteCarloConfig":
+    def from_dict(cls, config_dict: dict[str, Any]) -> "MonteCarloConfig":
         """Create MonteCarloConfig from configuration dictionary.
 
         Args:
@@ -48,7 +49,7 @@ class MonteCarloConfig:
             max_parameters_to_test=config_dict.get("MC_MAX_PARAMETERS_TO_TEST", 10),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert MonteCarloConfig to dictionary with MC_ prefixes.
 
         Returns:
@@ -88,7 +89,7 @@ class MonteCarloConfig:
 
 
 def create_monte_carlo_config(
-    base_config: Optional[Dict[str, Any]] = None
+    base_config: dict[str, Any] | None = None,
 ) -> MonteCarloConfig:
     """Create Monte Carlo configuration from base configuration.
 

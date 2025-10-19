@@ -5,12 +5,11 @@ Focused service for exporting data to various formats.
 Extracted from larger services for better maintainability.
 """
 
-import csv
+from datetime import datetime
 import json
 import logging
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 import polars as pl
@@ -32,9 +31,9 @@ class DataExportService:
 
     def __init__(
         self,
-        config: Optional[SPDSConfig] = None,
-        logger: Optional[logging.Logger] = None,
-        base_export_path: Optional[Path] = None,
+        config: SPDSConfig | None = None,
+        logger: logging.Logger | None = None,
+        base_export_path: Path | None = None,
     ):
         """Initialize the data export service."""
         self.config = config or get_spds_config()
@@ -46,11 +45,11 @@ class DataExportService:
 
     def export_to_csv(
         self,
-        data: Union[pd.DataFrame, pl.DataFrame, List[Dict[str, Any]], Dict[str, Any]],
+        data: pd.DataFrame | pl.DataFrame | list[dict[str, Any]] | dict[str, Any],
         filename: str,
-        subfolder: Optional[str] = None,
+        subfolder: str | None = None,
         include_timestamp: bool = False,
-        custom_headers: Optional[List[str]] = None,
+        custom_headers: list[str] | None = None,
     ) -> Path:
         """Export data to CSV format."""
         export_path = self._get_export_path(
@@ -87,14 +86,14 @@ class DataExportService:
             return export_path
 
         except Exception as e:
-            self.logger.error(f"CSV export failed: {str(e)}")
+            self.logger.error(f"CSV export failed: {e!s}")
             raise
 
     def export_to_json(
         self,
-        data: Union[Dict[str, Any], List[Dict[str, Any]], pd.DataFrame, pl.DataFrame],
+        data: dict[str, Any] | list[dict[str, Any]] | pd.DataFrame | pl.DataFrame,
         filename: str,
-        subfolder: Optional[str] = None,
+        subfolder: str | None = None,
         include_timestamp: bool = False,
         pretty_print: bool = True,
         include_metadata: bool = True,
@@ -106,11 +105,11 @@ class DataExportService:
 
         try:
             # Convert data to JSON-serializable format
-            if isinstance(data, (pd.DataFrame, pl.DataFrame)):
+            if isinstance(data, pd.DataFrame | pl.DataFrame):
                 if isinstance(data, pl.DataFrame):
                     data = data.to_pandas()
                 json_data = data.to_dict(orient="records")
-            elif isinstance(data, (dict, list)):
+            elif isinstance(data, dict | list):
                 json_data = data
             else:
                 raise ValueError(f"Unsupported data type for JSON export: {type(data)}")
@@ -121,9 +120,9 @@ class DataExportService:
                     "metadata": {
                         "export_timestamp": datetime.now().isoformat(),
                         "data_type": type(data).__name__,
-                        "record_count": len(json_data)
-                        if isinstance(json_data, list)
-                        else 1,
+                        "record_count": (
+                            len(json_data) if isinstance(json_data, list) else 1
+                        ),
                         "exported_by": "DataExportService",
                     },
                     "data": json_data,
@@ -142,17 +141,17 @@ class DataExportService:
             return export_path
 
         except Exception as e:
-            self.logger.error(f"JSON export failed: {str(e)}")
+            self.logger.error(f"JSON export failed: {e!s}")
             raise
 
     def export_to_markdown(
         self,
-        data: Union[Dict[str, Any], List[Dict[str, Any]]],
+        data: dict[str, Any] | list[dict[str, Any]],
         filename: str,
-        subfolder: Optional[str] = None,
+        subfolder: str | None = None,
         include_timestamp: bool = False,
-        title: Optional[str] = None,
-        sections: Optional[Dict[str, Any]] = None,
+        title: str | None = None,
+        sections: dict[str, Any] | None = None,
     ) -> Path:
         """Export data to Markdown format."""
         export_path = self._get_export_path(
@@ -245,18 +244,16 @@ class DataExportService:
             return export_path
 
         except Exception as e:
-            self.logger.error(f"Markdown export failed: {str(e)}")
+            self.logger.error(f"Markdown export failed: {e!s}")
             raise
 
     def export_to_excel(
         self,
-        data: Union[
-            Dict[str, Union[pd.DataFrame, pl.DataFrame]], pd.DataFrame, pl.DataFrame
-        ],
+        data: dict[str, pd.DataFrame | pl.DataFrame] | pd.DataFrame | pl.DataFrame,
         filename: str,
-        subfolder: Optional[str] = None,
+        subfolder: str | None = None,
         include_timestamp: bool = False,
-        sheet_names: Optional[List[str]] = None,
+        sheet_names: list[str] | None = None,
     ) -> Path:
         """Export data to Excel format."""
         export_path = self._get_export_path(
@@ -292,14 +289,14 @@ class DataExportService:
             return export_path
 
         except Exception as e:
-            self.logger.error(f"Excel export failed: {str(e)}")
+            self.logger.error(f"Excel export failed: {e!s}")
             raise
 
     def export_to_parquet(
         self,
-        data: Union[pd.DataFrame, pl.DataFrame],
+        data: pd.DataFrame | pl.DataFrame,
         filename: str,
-        subfolder: Optional[str] = None,
+        subfolder: str | None = None,
         include_timestamp: bool = False,
         compression: str = "snappy",
     ) -> Path:
@@ -322,18 +319,18 @@ class DataExportService:
             return export_path
 
         except Exception as e:
-            self.logger.error(f"Parquet export failed: {str(e)}")
+            self.logger.error(f"Parquet export failed: {e!s}")
             raise
 
     def export_multiple_formats(
         self,
-        data: Union[pd.DataFrame, pl.DataFrame, Dict[str, Any], List[Dict[str, Any]]],
+        data: pd.DataFrame | pl.DataFrame | dict[str, Any] | list[dict[str, Any]],
         base_filename: str,
-        formats: List[str],
-        subfolder: Optional[str] = None,
+        formats: list[str],
+        subfolder: str | None = None,
         include_timestamp: bool = False,
         **kwargs,
-    ) -> Dict[str, Path]:
+    ) -> dict[str, Path]:
         """Export data to multiple formats."""
         export_paths = {}
 
@@ -352,12 +349,12 @@ class DataExportService:
                         data, base_filename, subfolder, include_timestamp, **kwargs
                     )
                 elif format_type.lower() == "excel" or format_type.lower() == "xlsx":
-                    if isinstance(data, (pd.DataFrame, pl.DataFrame)):
+                    if isinstance(data, pd.DataFrame | pl.DataFrame):
                         export_paths["excel"] = self.export_to_excel(
                             data, base_filename, subfolder, include_timestamp, **kwargs
                         )
                 elif format_type.lower() == "parquet":
-                    if isinstance(data, (pd.DataFrame, pl.DataFrame)):
+                    if isinstance(data, pd.DataFrame | pl.DataFrame):
                         export_paths["parquet"] = self.export_to_parquet(
                             data, base_filename, subfolder, include_timestamp, **kwargs
                         )
@@ -365,14 +362,14 @@ class DataExportService:
                     self.logger.warning(f"Unsupported export format: {format_type}")
 
             except Exception as e:
-                self.logger.error(f"Export to {format_type} failed: {str(e)}")
+                self.logger.error(f"Export to {format_type} failed: {e!s}")
 
         return export_paths
 
     def _get_export_path(
         self,
         filename: str,
-        subfolder: Optional[str],
+        subfolder: str | None,
         extension: str,
         include_timestamp: bool,
     ) -> Path:
@@ -397,10 +394,9 @@ class DataExportService:
             export_dir = self.base_export_path / subfolder
             export_dir.mkdir(parents=True, exist_ok=True)
             return export_dir / filename
-        else:
-            return self.base_export_path / filename
+        return self.base_export_path / filename
 
-    def get_export_summary(self, export_paths: Dict[str, Path]) -> Dict[str, Any]:
+    def get_export_summary(self, export_paths: dict[str, Path]) -> dict[str, Any]:
         """Get summary information about exported files."""
         summary = {
             "total_files": len(export_paths),
@@ -427,9 +423,8 @@ class DataExportService:
         """Format file size in human-readable format."""
         if size_bytes < 1024:
             return f"{size_bytes} B"
-        elif size_bytes < 1024 * 1024:
+        if size_bytes < 1024 * 1024:
             return f"{size_bytes / 1024:.1f} KB"
-        elif size_bytes < 1024 * 1024 * 1024:
+        if size_bytes < 1024 * 1024 * 1024:
             return f"{size_bytes / (1024 * 1024):.1f} MB"
-        else:
-            return f"{size_bytes / (1024 * 1024 * 1024):.1f} GB"
+        return f"{size_bytes / (1024 * 1024 * 1024):.1f} GB"

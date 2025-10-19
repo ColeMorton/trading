@@ -5,10 +5,9 @@ Provides functionality to compare sector ETF performance using SMA strategy scor
 generating cross-comparison matrices for sector opportunity identification.
 """
 
-import json
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 from rich.console import Console
@@ -35,11 +34,9 @@ class SectorComparisonEngine:
 
     def __init__(
         self,
-        data_directory: Union[
-            str, Path
-        ] = "/Users/colemorton/Projects/trading/data/raw",
-        date: Optional[str] = None,
-        benchmark_ticker: Optional[str] = None,
+        data_directory: str | Path = "/Users/colemorton/Projects/trading/data/raw",
+        date: str | None = None,
+        benchmark_ticker: str | None = None,
     ):
         """
         Initialize sector comparison engine.
@@ -58,7 +55,7 @@ class SectorComparisonEngine:
         self.console = Console()
         self.logger = ConsoleLogger()
 
-    def get_available_dates(self) -> List[str]:
+    def get_available_dates(self) -> list[str]:
         """
         Get list of available dates in portfolios_best directory.
 
@@ -75,7 +72,7 @@ class SectorComparisonEngine:
 
         return sorted(dates, reverse=True)  # Newest first
 
-    def get_latest_date(self) -> Optional[str]:
+    def get_latest_date(self) -> str | None:
         """
         Get the latest available date from portfolios_best directory.
 
@@ -85,7 +82,7 @@ class SectorComparisonEngine:
         available_dates = self.get_available_dates()
         return available_dates[0] if available_dates else None
 
-    def resolve_target_date(self) -> Optional[str]:
+    def resolve_target_date(self) -> str | None:
         """
         Resolve the target date to use for data loading.
 
@@ -95,9 +92,8 @@ class SectorComparisonEngine:
         if self.date:
             # Use specified date
             return self.date
-        else:
-            # Use latest available date
-            return self.get_latest_date()
+        # Use latest available date
+        return self.get_latest_date()
 
     def get_data_directory(self, use_dated: bool = True) -> Path:
         """
@@ -118,15 +114,14 @@ class SectorComparisonEngine:
                     sector_files = list(dated_dir.glob("XL*_D_SMA.csv"))
                     if sector_files:
                         return dated_dir
-                    else:
-                        self.logger.debug(
-                            f"Dated directory {target_date} exists but contains no sector ETF files"
-                        )
+                    self.logger.debug(
+                        f"Dated directory {target_date} exists but contains no sector ETF files"
+                    )
 
         # Fallback to regular portfolios directory
         return self.portfolios_dir
 
-    def load_benchmark_data(self) -> Optional[Dict]:
+    def load_benchmark_data(self) -> dict | None:
         """
         Load benchmark data if benchmark_ticker is specified.
 
@@ -171,7 +166,7 @@ class SectorComparisonEngine:
 
             except Exception as e:
                 self.logger.error(
-                    f"Error loading benchmark {self.benchmark_ticker}: {str(e)}"
+                    f"Error loading benchmark {self.benchmark_ticker}: {e!s}"
                 )
 
         self.logger.warning(f"Benchmark file not found: {benchmark_file}")
@@ -184,7 +179,6 @@ class SectorComparisonEngine:
         Returns:
             True if all sector data exists for today, False otherwise
         """
-        from datetime import datetime
 
         current_date = datetime.now().strftime("%Y%m%d")
         current_dir = self.portfolios_best_dir / current_date
@@ -195,7 +189,7 @@ class SectorComparisonEngine:
 
         # Check if all 11 sector ETF files exist
         missing_sectors = []
-        for ticker in self.SECTOR_MAPPING.keys():
+        for ticker in self.SECTOR_MAPPING:
             sector_file = current_dir / f"{ticker}_D_SMA.csv"
             if not sector_file.exists():
                 missing_sectors.append(ticker)
@@ -232,7 +226,7 @@ class SectorComparisonEngine:
         self.logger.debug("Current sector data is fresh and complete")
         return False
 
-    def load_sector_data(self) -> Dict[str, pd.DataFrame]:
+    def load_sector_data(self) -> dict[str, pd.DataFrame]:
         """
         Load SMA portfolio data for all sector ETFs.
 
@@ -259,7 +253,7 @@ class SectorComparisonEngine:
                 else:
                     self.logger.warning("No dated directories found in portfolios_best")
 
-        for ticker in self.SECTOR_MAPPING.keys():
+        for ticker in self.SECTOR_MAPPING:
             portfolio_file = data_dir / f"{ticker}_D_SMA.csv"
 
             if portfolio_file.exists():
@@ -272,7 +266,7 @@ class SectorComparisonEngine:
                         self.logger.warning(f"Empty or invalid data for {ticker}")
                         missing_tickers.append(ticker)
                 except Exception as e:
-                    self.logger.error(f"Error loading {ticker}: {str(e)}")
+                    self.logger.error(f"Error loading {ticker}: {e!s}")
                     missing_tickers.append(ticker)
             else:
                 self.logger.warning(
@@ -289,8 +283,8 @@ class SectorComparisonEngine:
         return sector_data
 
     def extract_best_strategies(
-        self, sector_data: Dict[str, pd.DataFrame]
-    ) -> List[Dict]:
+        self, sector_data: dict[str, pd.DataFrame]
+    ) -> list[dict]:
         """
         Extract the best performing strategy for each sector based on Score.
 
@@ -333,7 +327,7 @@ class SectorComparisonEngine:
 
         return results
 
-    def rank_sectors(self, strategies: List[Dict]) -> List[Dict]:
+    def rank_sectors(self, strategies: list[dict]) -> list[dict]:
         """
         Rank sectors by Score and add ranking information.
 
@@ -377,7 +371,7 @@ class SectorComparisonEngine:
             )
         return sorted_strategies
 
-    def generate_comparison_matrix(self) -> List[Dict]:
+    def generate_comparison_matrix(self) -> list[dict]:
         """
         Generate complete sector comparison matrix.
 
@@ -395,7 +389,7 @@ class SectorComparisonEngine:
             available_dates = self.get_available_dates()
             if available_dates:
                 self.logger.error(
-                    f"No sector data loaded. Try running: trading-cli strategy run -p sectors_current"
+                    "No sector data loaded. Try running: trading-cli strategy run -p sectors_current"
                 )
                 self.logger.error(f"Available dates: {', '.join(available_dates[:5])}")
             else:
@@ -419,7 +413,7 @@ class SectorComparisonEngine:
         return ranked_results
 
     def export_to_json(
-        self, comparison_data: List[Dict], output_file: Union[str, Path]
+        self, comparison_data: list[dict], output_file: str | Path
     ) -> bool:
         """
         Export comparison data to JSON file.
@@ -442,11 +436,11 @@ class SectorComparisonEngine:
             return True
 
         except Exception as e:
-            self.logger.error(f"Error exporting to JSON: {str(e)}")
+            self.logger.error(f"Error exporting to JSON: {e!s}")
             return False
 
     def export_to_csv(
-        self, comparison_data: List[Dict], output_file: Union[str, Path]
+        self, comparison_data: list[dict], output_file: str | Path
     ) -> bool:
         """
         Export comparison data to CSV file.
@@ -473,5 +467,5 @@ class SectorComparisonEngine:
             return True
 
         except Exception as e:
-            self.logger.error(f"Error exporting to CSV: {str(e)}")
+            self.logger.error(f"Error exporting to CSV: {e!s}")
             return False

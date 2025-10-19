@@ -13,13 +13,10 @@ through to file system effects:
 These tests ensure the entire pipeline works correctly in realistic usage scenarios.
 """
 
-import os
-import tempfile
-import time
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+import tempfile
+from unittest.mock import Mock, patch
 
-import pandas as pd
 import polars as pl
 import pytest
 from typer.testing import CliRunner
@@ -59,7 +56,7 @@ class TestCompleteStrategyWorkflows:
     @pytest.fixture
     def mock_price_data(self):
         """Realistic price data for testing."""
-        from datetime import datetime, timedelta
+        from datetime import datetime
 
         start_date = datetime(2023, 1, 1)
         end_date = datetime(2023, 12, 31)
@@ -158,9 +155,7 @@ config:
     ):
         """Test complete SMA strategy workflow from CLI command to file export."""
         # Setup test environment
-        profile_file = self.create_test_profile(
-            temp_workspace, realistic_profile_content
-        )
+        self.create_test_profile(temp_workspace, realistic_profile_content)
 
         # Setup mocks
         mock_config = Mock()
@@ -643,9 +638,8 @@ class TestCompleteErrorRecoveryWorkflows:
         def get_data_side_effect(ticker, *args, **kwargs):
             if ticker == "INVALID":
                 return None
-            else:
-                # Return minimal valid data
-                return pl.DataFrame({"Date": [pl.date(2023, 1, 1)], "Close": [100.0]})
+            # Return minimal valid data
+            return pl.DataFrame({"Date": [pl.date(2023, 1, 1)], "Close": [100.0]})
 
         mock_get_data.side_effect = get_data_side_effect
 
@@ -737,7 +731,7 @@ class TestRealisticDataProcessingWorkflows:
         price_data = []
         base_price = 100.0
 
-        for i, date in enumerate(dates):
+        for i, _date in enumerate(dates):
             # Add trend, seasonality, and random volatility
             trend = i * 0.01  # Small upward trend
             seasonality = math.sin(2 * math.pi * i / 252) * 5  # Annual cycle

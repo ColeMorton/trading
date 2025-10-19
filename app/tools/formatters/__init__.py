@@ -20,19 +20,20 @@ from app.tools.formatters.text_formatters import (
     parse_duration_to_hours,
 )
 
+
 __all__ = [
-    # Numeric formatters
-    "format_percentage",
-    "format_currency",
-    "format_score",
-    "format_win_rate",
-    "format_ratio",
-    # Text formatters
-    "format_duration",
-    "parse_duration_to_hours",
-    "format_average_duration",
-    "format_status",
-    "format_signal_status",
     # Style formatters
     "create_section_header",
+    "format_average_duration",
+    "format_currency",
+    # Text formatters
+    "format_duration",
+    # Numeric formatters
+    "format_percentage",
+    "format_ratio",
+    "format_score",
+    "format_signal_status",
+    "format_status",
+    "format_win_rate",
+    "parse_duration_to_hours",
 ]

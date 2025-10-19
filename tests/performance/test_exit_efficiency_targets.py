@@ -4,21 +4,15 @@ This module validates that the Statistical Performance Divergence System
 achieves the target performance improvements specified in the implementation plan.
 """
 
-import asyncio
-from datetime import datetime, timedelta
-from typing import Any, Dict, List
-from unittest.mock import Mock, patch
+from typing import Any
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
 import pytest
 
 from app.tools.config.statistical_analysis_config import StatisticalAnalysisConfig
-from app.tools.models.statistical_analysis_models import (
-    ConfidenceLevel,
-    PositionData,
-    StatisticalAnalysisResult,
-)
+from app.tools.models.statistical_analysis_models import ConfidenceLevel, PositionData
 from app.tools.services.statistical_analysis_service import StatisticalAnalysisService
 
 
@@ -48,7 +42,7 @@ class PerformanceValidator:
 
         return 0.0
 
-    def calculate_portfolio_health_score(self, metrics: Dict[str, float]) -> float:
+    def calculate_portfolio_health_score(self, metrics: dict[str, float]) -> float:
         """Calculate composite portfolio health score."""
         weights = {
             "exit_efficiency": 25,
@@ -73,13 +67,13 @@ class PerformanceValidator:
         )
 
         # Calculate weighted score
-        score = sum(normalized[key] * weights[key] for key in weights.keys())
+        score = sum(normalized[key] * weights[key] for key in weights)
 
         return score
 
     def validate_performance_targets(
-        self, current_metrics: Dict[str, float]
-    ) -> Dict[str, Any]:
+        self, current_metrics: dict[str, float]
+    ) -> dict[str, Any]:
         """Validate performance against all targets."""
         results = {
             "exit_efficiency": {
@@ -162,7 +156,7 @@ def excellent_trade_data():
     maes = []
     exit_efficiencies = []
 
-    for i in range(n_trades):
+    for _i in range(n_trades):
         # 70% winners with good MFE capture
         if np.random.random() < 0.70:
             ret = np.random.uniform(0.08, 0.35)  # 8-35% winners
@@ -312,13 +306,12 @@ class TestExitEfficiencyTargets:
                 # Mock exit efficiency calculation from statistical analysis
                 if hasattr(result.exit_signals, "exit_efficiency_score"):
                     exit_efficiencies.append(result.exit_signals.exit_efficiency_score)
-                else:
-                    # Calculate from divergence scores
-                    if result.divergence_analysis:
-                        score = result.divergence_analysis.dual_layer_convergence_score
-                        # Higher convergence = better exit efficiency
-                        efficiency = 0.6 + (score * 0.3)  # Scale to 60-90%
-                        exit_efficiencies.append(efficiency)
+                # Calculate from divergence scores
+                elif result.divergence_analysis:
+                    score = result.divergence_analysis.dual_layer_convergence_score
+                    # Higher convergence = better exit efficiency
+                    efficiency = 0.6 + (score * 0.3)  # Scale to 60-90%
+                    exit_efficiencies.append(efficiency)
 
         if exit_efficiencies:
             avg_efficiency = np.mean(exit_efficiencies)
@@ -478,15 +471,21 @@ class TestSystemIntegrationPerformance:
         )
 
         # Check each target
-        assert validation_results["exit_efficiency"][
+        assert validation_results[
+            "exit_efficiency"
+        ][
             "meets_target"
         ], f"Exit efficiency target not met: {validation_results['exit_efficiency']['current']:.1%}"
 
-        assert validation_results["portfolio_health"][
+        assert validation_results[
+            "portfolio_health"
+        ][
             "meets_target"
         ], f"Portfolio health target not met: {validation_results['portfolio_health']['current']:.0f}"
 
-        assert validation_results["sharpe_improvement"][
+        assert validation_results[
+            "sharpe_improvement"
+        ][
             "meets_target"
         ], f"Sharpe improvement target not met: {validation_results['sharpe_improvement']['improvement_pct']:.1%}"
 

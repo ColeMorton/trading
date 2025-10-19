@@ -4,7 +4,7 @@ Signal generation module for protective stop loss analysis.
 This module handles the creation and manipulation of trading signals.
 """
 
-from typing import Callable, Optional
+from collections.abc import Callable
 
 import numpy as np
 
@@ -43,8 +43,8 @@ def find_last_negative_candle(
     price: np.ndarray,
     entries: np.ndarray,
     short: bool,
-    stop_loss: Optional[float] | None = None,
-    log: Optional[Callable] | None = None,
+    stop_loss: float | None | None = None,
+    log: Callable | None | None = None,
 ) -> int:
     """
     Find the last candle where any trade has negative PnL, checking at each candle

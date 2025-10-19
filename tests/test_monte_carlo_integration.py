@@ -8,15 +8,15 @@ This test suite covers end-to-end integration testing, including:
 - Runner integration and workflow
 """
 
-import json
+from pathlib import Path
 import sys
 import tempfile
-from pathlib import Path
 from unittest.mock import Mock, patch
 
 import numpy as np
 import polars as pl
 import pytest
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
@@ -26,7 +26,6 @@ from app.concurrency.tools.monte_carlo.config import create_monte_carlo_config
 from app.concurrency.tools.monte_carlo.manager import PortfolioMonteCarloManager
 from app.concurrency.tools.report.generator import generate_json_report
 from app.concurrency.tools.runner import run_analysis
-from app.concurrency.tools.types import ConcurrencyConfig
 
 
 class TestMonteCarloReportIntegration:
@@ -255,7 +254,7 @@ class TestMonteCarloRunnerIntegration:
             strategies=mock_strategies_for_runner, log=Mock(), config=test_config
         )
 
-        assert result == True
+        assert result is True
         mock_save_report.assert_called_once()
 
     def test_monte_carlo_config_creation_from_runner_config(self, test_config):
@@ -341,10 +340,6 @@ class TestMonteCarloCSVPortfolioIntegration:
     def test_csv_field_name_handling(self):
         """Test that CSV field names are properly handled in Monte Carlo."""
         # Create temporary CSV content
-        csv_content = """Ticker,Strategy Type,Fast Period,Slow Period,Signal Period
-BTC-USD,SMA,10,20,
-ETH-USD,MACD,12,26,9
-BTC-USD,EMA,14,28,"""
 
         # Parse CSV format strategies (simulating CSV loading)
         csv_strategies = [
@@ -401,7 +396,7 @@ BTC-USD,EMA,14,28,"""
                 "Ticker": "BTC-USD",
                 "Strategy Type": "MACD",
                 "Fast Period": 12,
-                "Slow Period": 26
+                "Slow Period": 26,
                 # Missing Signal Period
             }
         ]
@@ -412,7 +407,7 @@ BTC-USD,EMA,14,28,"""
         strategies_with_ids = manager._assign_strategy_ids(strategies)
 
         # Should default to 0 for missing signal period
-        strategy_id = list(strategies_with_ids.keys())[0]
+        strategy_id = next(iter(strategies_with_ids.keys()))
         assert "_0" in strategy_id
 
 
@@ -435,7 +430,7 @@ ETH-USD,EMA,15,30,"""
     def test_complete_workflow(self, mock_load_portfolio, mock_download):
         """Test complete Monte Carlo workflow from CSV to report."""
         with tempfile.TemporaryDirectory() as temp_dir:
-            temp_path = Path(temp_dir)
+            Path(temp_dir)
 
             # Mock portfolio loading
             mock_strategies = [
@@ -479,13 +474,15 @@ ETH-USD,EMA,15,30,"""
             }
 
             # Mock the concurrency analysis components
-            with patch(
-                "app.concurrency.tools.runner.process_strategies"
-            ) as mock_process, patch(
-                "app.concurrency.tools.runner.analyze_concurrency"
-            ) as mock_analyze, patch(
-                "app.concurrency.tools.runner.save_json_report"
-            ) as mock_save:
+            with (
+                patch(
+                    "app.concurrency.tools.runner.process_strategies"
+                ) as mock_process,
+                patch(
+                    "app.concurrency.tools.runner.analyze_concurrency"
+                ) as mock_analyze,
+                patch("app.concurrency.tools.runner.save_json_report") as mock_save,
+            ):
                 # Setup mocks
                 mock_process.return_value = ([], mock_strategies)
 
@@ -512,7 +509,7 @@ ETH-USD,EMA,15,30,"""
                     strategies=mock_strategies, log=Mock(), config=config
                 )
 
-                assert result == True
+                assert result is True
                 mock_save.assert_called_once()
 
                 # Verify that the report includes Monte Carlo results
@@ -537,7 +534,7 @@ ETH-USD,EMA,15,30,"""
 
         # Test strategy ID generation
         strategies_with_ids = manager._assign_strategy_ids([original_strategy])
-        strategy_id = list(strategies_with_ids.keys())[0]
+        strategy_id = next(iter(strategies_with_ids.keys()))
 
         # Should match the format from the CSV example
         expected_id = "BTC-USD_MACD_14_23_13"

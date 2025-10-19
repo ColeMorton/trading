@@ -5,7 +5,7 @@ This module contains functions for visualizing protective stop loss analysis res
 through plots and heatmaps.
 """
 
-from typing import Callable, Dict, List, Tuple
+from collections.abc import Callable
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,7 +13,7 @@ import plotly.graph_objects as go
 
 
 def plot_results(
-    results: List[Tuple[int, float, int, float]],
+    results: list[tuple[int, float, int, float]],
     ticker: str,
     config: dict,
     log: Callable,
@@ -27,7 +27,7 @@ def plot_results(
         config (dict): The configuration dictionary
         log (Callable): Logging function
     """
-    holding_periods, returns, num_positions, expectancies = zip(*results)
+    holding_periods, returns, num_positions, expectancies = zip(*results, strict=False)
 
     fig, ax1 = plt.subplots(figsize=(12, 6))
 
@@ -65,10 +65,10 @@ def plot_results(
 
 
 def create_protective_stop_loss_heatmap(
-    metric_matrices: Dict[str, np.ndarray],
+    metric_matrices: dict[str, np.ndarray],
     holding_period_range: np.ndarray,
     ticker: str,
-) -> Dict[str, go.Figure]:
+) -> dict[str, go.Figure]:
     """
     Create heatmap visualizations for protective stop loss parameter analysis.
 
@@ -98,16 +98,17 @@ def create_protective_stop_loss_heatmap(
                 z=heatmap_data,
                 x=holding_period_range,
                 colorscale="ice",
-                colorbar=dict(
-                    title=dict(
-                        text=metric_name.capitalize().replace("_", " "), side="right"
-                    ),
-                    thickness=20,
-                    len=0.9,
-                    tickformat=(
+                colorbar={
+                    "title": {
+                        "text": metric_name.capitalize().replace("_", " "),
+                        "side": "right",
+                    },
+                    "thickness": 20,
+                    "len": 0.9,
+                    "tickformat": (
                         ".1%" if metric_name in ["returns", "win_rate"] else None
                     ),
-                ),
+                },
                 hoverongaps=False,
                 hovertemplate=(
                     "Holding Period: %{x:.0f} days<br>"
@@ -128,30 +129,30 @@ def create_protective_stop_loss_heatmap(
         title_text = f'{ticker} Protective Stop Loss Sensitivity Analysis<br><sub>{metric_name.capitalize().replace("_", " ")}</sub>'
 
         fig.update_layout(
-            title=dict(
-                text=title_text,
-                x=0.5,
-                xanchor="center",
-                y=0.95,
-                yanchor="top",
-                font=dict(size=16),
-            ),
-            xaxis=dict(
-                title=dict(text="Holding Period (Days)", font=dict(size=14)),
-                tickmode="array",
-                ticktext=[
+            title={
+                "text": title_text,
+                "x": 0.5,
+                "xanchor": "center",
+                "y": 0.95,
+                "yanchor": "top",
+                "font": {"size": 16},
+            },
+            xaxis={
+                "title": {"text": "Holding Period (Days)", "font": {"size": 14}},
+                "tickmode": "array",
+                "ticktext": [
                     f"{int(x)}" for x in holding_period_range
                 ],  # Show all ticks as integers
-                tickvals=holding_period_range,
-                showgrid=True,
-                gridwidth=1,
-                gridcolor="rgba(128, 128, 128, 0.2)",
-            ),
-            yaxis=dict(showticklabels=False, showgrid=False, fixedrange=True),
+                "tickvals": holding_period_range,
+                "showgrid": True,
+                "gridwidth": 1,
+                "gridcolor": "rgba(128, 128, 128, 0.2)",
+            },
+            yaxis={"showticklabels": False, "showgrid": False, "fixedrange": True},
             plot_bgcolor="white",
             paper_bgcolor="white",
             autosize=True,
-            margin=dict(l=50, r=50, t=100, b=50),
+            margin={"l": 50, "r": 50, "t": 100, "b": 50},
         )
 
         figures[metric_name] = fig

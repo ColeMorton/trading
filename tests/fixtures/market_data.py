@@ -7,7 +7,6 @@ actual trading scenarios for comprehensive testing.
 """
 
 from datetime import datetime, timedelta
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -18,7 +17,7 @@ def create_realistic_price_data(
     ticker: str,
     days: int = 100,
     start_price: float = 100.0,
-    start_date: Optional[datetime] = None,
+    start_date: datetime | None = None,
     volatility: float = 0.02,
     trend: float = 0.0005,
 ) -> pl.DataFrame:

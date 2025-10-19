@@ -14,19 +14,17 @@ The test suite includes:
 - Performance benchmarking
 """
 
-import json
-import time
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+import time
+from typing import Any
 
 import numpy as np
 import polars as pl
-import pytest
 
 from app.concurrency.tools.concurrency_analysis import ConcurrencyAnalysis
 from app.tools.portfolio import StrategyConfig
-from app.tools.setup_logging import setup_logging
 
 
 class TestPortfolioBuilder:
@@ -34,7 +32,7 @@ class TestPortfolioBuilder:
 
     @staticmethod
     def create_simple_test_portfolio() -> (
-        Tuple[List[pl.DataFrame], List[StrategyConfig], Dict[str, Any]]
+        tuple[list[pl.DataFrame], list[StrategyConfig], dict[str, Any]]
     ):
         """Create a simple portfolio with hand-calculated expected results.
 
@@ -180,7 +178,7 @@ class DataIntegrityValidator:
         self.tolerance = tolerance
         self.validation_results = []
 
-    def validate_risk_contributions(self, stats: Dict[str, Any]) -> bool:
+    def validate_risk_contributions(self, stats: dict[str, Any]) -> bool:
         """Validate that risk contributions sum to 100%.
 
         Args:
@@ -193,9 +191,7 @@ class DataIntegrityValidator:
         risk_metrics = stats.get("risk_metrics", {})
 
         # Find all risk contribution keys
-        risk_contrib_keys = [
-            k for k in risk_metrics.keys() if k.endswith("_risk_contrib")
-        ]
+        risk_contrib_keys = [k for k in risk_metrics if k.endswith("_risk_contrib")]
 
         if not risk_contrib_keys:
             # Fallback to old format for backwards compatibility
@@ -221,7 +217,7 @@ class DataIntegrityValidator:
 
         return is_valid
 
-    def validate_win_rates(self, stats: Dict[str, Any]) -> bool:
+    def validate_win_rates(self, stats: dict[str, Any]) -> bool:
         """Validate win rate calculations.
 
         Args:
@@ -264,7 +260,7 @@ class DataIntegrityValidator:
 
         return all_valid
 
-    def validate_expectancy(self, stats: Dict[str, Any]) -> bool:
+    def validate_expectancy(self, stats: dict[str, Any]) -> bool:
         """Validate expectancy calculations.
 
         Args:
@@ -300,7 +296,7 @@ class DataIntegrityValidator:
         return all_valid
 
     def validate_signal_processing(
-        self, data_list: List[pl.DataFrame], stats: Dict[str, Any]
+        self, data_list: list[pl.DataFrame], stats: dict[str, Any]
     ) -> bool:
         """Validate signal processing counts.
 
@@ -313,8 +309,8 @@ class DataIntegrityValidator:
         """
         all_valid = True
 
-        for i, (df, (strategy_id, strategy_stats)) in enumerate(
-            zip(data_list, stats.get("strategies", {}).items())
+        for _i, (df, (strategy_id, strategy_stats)) in enumerate(
+            zip(data_list, stats.get("strategies", {}).items(), strict=False)
         ):
             # Count position changes in original data
             positions = df["Position"].to_list()
@@ -340,7 +336,7 @@ class DataIntegrityValidator:
 
         return all_valid
 
-    def generate_report(self) -> Dict[str, Any]:
+    def generate_report(self) -> dict[str, Any]:
         """Generate validation report.
 
         Returns:
@@ -368,7 +364,7 @@ class PerformanceBenchmark:
 
     def benchmark_calculation(
         self, name: str, func: callable, iterations: int = 100
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Benchmark a calculation function.
 
         Args:
@@ -402,7 +398,7 @@ class PerformanceBenchmark:
 
     def compare_implementations(
         self, old_func: callable, new_func: callable, name: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Compare old and new implementations.
 
         Args:
@@ -544,7 +540,7 @@ class TestConcurrencyIntegrationPhase5:
 
         # Save outputs
         json_path = Path("json/concurrency/test_portfolio.json")
-        csv_path = Path("data/raw/portfolios_best/test_portfolio.csv")
+        Path("data/raw/portfolios_best/test_portfolio.csv")
 
         # Load and compare outputs
         if json_path.exists():
@@ -648,9 +644,7 @@ class TestConcurrencyIntegrationPhase5:
 
         # Validate risk contributions sum to 1.0 (approximately)
         risk_metrics = stats.get("risk_metrics", {})
-        risk_contrib_keys = [
-            k for k in risk_metrics.keys() if k.endswith("_risk_contrib")
-        ]
+        risk_contrib_keys = [k for k in risk_metrics if k.endswith("_risk_contrib")]
         if risk_contrib_keys:
             total_risk = sum(risk_metrics[key] for key in risk_contrib_keys)
             assert (

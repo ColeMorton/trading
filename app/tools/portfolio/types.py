@@ -5,7 +5,8 @@ strategy parameters, and format specifications. These types are used throughout
 the portfolio tools to ensure type safety and consistent data structures.
 """
 
-from typing import Any, Callable, Dict, List, Optional, TypedDict
+from collections.abc import Callable
+from typing import Any, TypedDict
 
 from typing_extensions import NotRequired
 
@@ -105,7 +106,7 @@ class PortfolioFormat(TypedDict):
 
     format_type: str
     validator: Callable[[str], bool]
-    loader: Callable[[str, Callable, Dict], List[StrategyConfig]]
+    loader: Callable[[str, Callable, dict], list[StrategyConfig]]
 
 
 class PortfolioResult(TypedDict):
@@ -147,5 +148,5 @@ class PortfolioResult(TypedDict):
 
 
 # Type aliases for common data structures
-PortfolioList = List[Dict[str, Any]]
-StrategyList = List[StrategyConfig]
+PortfolioList = list[dict[str, Any]]
+StrategyList = list[StrategyConfig]

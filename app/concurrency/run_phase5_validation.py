@@ -5,12 +5,13 @@ This script runs the complete Phase 5 validation suite to ensure all
 concurrency calculation fixes work correctly together.
 """
 
-import json
-import sys
 from datetime import datetime
+import json
 from pathlib import Path
+import sys
 
 import polars as pl
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent

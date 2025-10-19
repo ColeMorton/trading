@@ -5,13 +5,10 @@ This module provides transaction cost estimation and integration for the SPDS
 scoring system, enabling cost-aware signal generation and turnover optimization.
 """
 
-import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional, Tuple
-
-import numpy as np
-import pandas as pd
+import logging
+from typing import Any
 
 
 @dataclass
@@ -37,7 +34,7 @@ class TransactionCostAnalyzer:
     transaction costs, market liquidity, and trading frequency.
     """
 
-    def __init__(self, logger: Optional[logging.Logger] = None):
+    def __init__(self, logger: logging.Logger | None = None):
         """
         Initialize transaction cost analyzer.
 
@@ -52,13 +49,13 @@ class TransactionCostAnalyzer:
         self.impact_factor = 0.3  # Market impact scaling factor
 
         # Turnover tracking for penalty calculation
-        self.signal_history: Dict[str, list] = {}
+        self.signal_history: dict[str, list] = {}
 
     def estimate_transaction_costs(
         self,
         ticker: str,
         signal: str,
-        volume_metrics: Dict[str, Any],
+        volume_metrics: dict[str, Any],
         current_price: float = 100.0,
     ) -> TransactionCostEstimate:
         """
@@ -190,12 +187,11 @@ class TransactionCostAnalyzer:
         """Calculate penalty for trading illiquid stocks."""
         if liquidity_score >= 70:
             return 0.0  # No penalty for liquid stocks
-        elif liquidity_score >= 50:
+        if liquidity_score >= 50:
             return 1.0  # Small penalty
-        elif liquidity_score >= 30:
+        if liquidity_score >= 30:
             return 3.0  # Moderate penalty
-        else:
-            return 6.0  # High penalty for illiquid stocks
+        return 6.0  # High penalty for illiquid stocks
 
     def _calculate_turnover_penalty(self, ticker: str, signal: str) -> float:
         """Calculate penalty for high turnover (frequent signal changes)."""
@@ -224,12 +220,11 @@ class TransactionCostAnalyzer:
         # Penalty based on frequency of changes
         if signal_changes >= 10:  # >10 changes per month
             return 8.0  # High turnover penalty
-        elif signal_changes >= 5:  # >5 changes per month
+        if signal_changes >= 5:  # >5 changes per month
             return 4.0  # Moderate turnover penalty
-        elif signal_changes >= 3:  # >3 changes per month
+        if signal_changes >= 3:  # >3 changes per month
             return 2.0  # Low turnover penalty
-        else:
-            return 0.0  # No penalty for low turnover
+        return 0.0  # No penalty for low turnover
 
     def _adjust_confidence_for_costs(self, total_cost_bps: float) -> float:
         """Adjust confidence level based on transaction costs."""
@@ -265,7 +260,7 @@ class TransactionCostAnalyzer:
         original_signal: str,
         original_confidence: float,
         cost_estimate: TransactionCostEstimate,
-    ) -> Tuple[str, float, str]:
+    ) -> tuple[str, float, str]:
         """
         Adjust trading signal based on transaction cost analysis.
 
@@ -356,7 +351,7 @@ class TransactionCostAnalyzer:
             cost_adjusted_confidence=0.9,
         )
 
-    def get_cost_analysis_summary(self) -> Dict[str, Any]:
+    def get_cost_analysis_summary(self) -> dict[str, Any]:
         """Get summary of transaction cost analysis across all tickers."""
         try:
             summary = {
@@ -400,7 +395,7 @@ class TransactionCostAnalyzer:
 
 
 def create_transaction_cost_analyzer(
-    logger: Optional[logging.Logger] = None,
+    logger: logging.Logger | None = None,
 ) -> TransactionCostAnalyzer:
     """Factory function to create transaction cost analyzer."""
     return TransactionCostAnalyzer(logger)

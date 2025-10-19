@@ -5,12 +5,12 @@ saving aggregation results to CSV.
 """
 
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import pandas as pd
 
 
-def extract_file_metadata(filename: str) -> Dict[str, str]:
+def extract_file_metadata(filename: str) -> dict[str, str]:
     """Extract metadata from portfolio filename.
 
     Args:
@@ -36,7 +36,7 @@ def extract_file_metadata(filename: str) -> Dict[str, str]:
     return metadata
 
 
-def save_aggregation_csv(aggregation_results: Dict[str, Any], output_path: Path):
+def save_aggregation_csv(aggregation_results: dict[str, Any], output_path: Path):
     """Save aggregation results to CSV format.
 
     Args:
@@ -85,4 +85,3 @@ def save_aggregation_csv(aggregation_results: Dict[str, Any], output_path: Path)
     # Convert to DataFrame and save
     df = pd.DataFrame(rows)
     df.to_csv(output_path, index=False)
-

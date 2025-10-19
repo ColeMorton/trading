@@ -9,10 +9,9 @@ import json
 import os
 import tempfile
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pandas as pd
-import pytest
 import vectorbt as vbt
 
 from app.tools.trade_history_exporter import (
@@ -73,7 +72,7 @@ class TestTradeHistoryExporter(unittest.TestCase):
         """Create a mock VectorBT portfolio for testing."""
         # Create sample data for portfolio
         dates = pd.date_range("2023-01-01", periods=100, freq="D")
-        prices = pd.Series([100 + i * 0.5 for i in range(100)], index=dates)
+        pd.Series([100 + i * 0.5 for i in range(100)], index=dates)
 
         # Create mock trades DataFrame with integer indices (like VectorBT returns)
         trade_data = {
@@ -389,7 +388,7 @@ class TestTradeHistoryExporter(unittest.TestCase):
             self.assertTrue(os.path.exists(expected_path))
 
             # Check JSON structure
-            with open(expected_path, "r") as f:
+            with open(expected_path) as f:
                 data = json.load(f)
 
             self.assertIn("metadata", data)
@@ -714,9 +713,9 @@ class TestTradeHistoryExporter(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             config = self.test_configs["sma_config"].copy()
             config["BASE_DIR"] = temp_dir
-            config[
-                "EXPORT_TRADE_HISTORY"
-            ] = False  # Should not affect the function directly
+            config["EXPORT_TRADE_HISTORY"] = (
+                False  # Should not affect the function directly
+            )
 
             # First export
             success1 = export_trade_history(

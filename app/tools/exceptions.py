@@ -5,13 +5,13 @@ following the Single Responsibility Principle by separating error types
 by their domain and purpose.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class TradingSystemError(Exception):
     """Base exception for all trading system errors."""
 
-    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+    def __init__(self, message: str, details: dict[str, Any] | None = None):
         """Initialize with message and optional details dictionary.
 
         Args:

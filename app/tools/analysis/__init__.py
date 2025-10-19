@@ -8,4 +8,5 @@ from .bootstrap_validator import BootstrapValidator
 from .divergence_detector import DivergenceDetector
 from .trade_history_analyzer import TradeHistoryAnalyzer
 
-__all__ = ["DivergenceDetector", "TradeHistoryAnalyzer", "BootstrapValidator"]
+
+__all__ = ["BootstrapValidator", "DivergenceDetector", "TradeHistoryAnalyzer"]

@@ -7,18 +7,17 @@ exit signal generation, and backtesting parameter export.
 import asyncio
 import json
 import logging
-import sys
 from pathlib import Path
-from typing import List, Optional
 
-import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
+import typer
 
 from ..config import ConfigLoader
 from ..models.spds import SPDSConfig
 from ..utils import resolve_portfolio_path
+
 
 # Create SPDS sub-app
 app = typer.Typer(
@@ -76,19 +75,19 @@ def _detect_available_data_sources(portfolio: str) -> dict:
 @app.command()
 def analyze(
     ctx: typer.Context,
-    parameter: Optional[str] = typer.Argument(
+    parameter: str | None = typer.Argument(
         None,
         help='Analysis parameter: portfolio file (e.g., "risk_on.csv"), ticker (e.g., "AMD"), strategy (e.g., "TSLA_SMA_15_25"), or position UUID (e.g., "TSLA_SMA_15_25_20250710")',
     ),
-    portfolio: Optional[str] = typer.Option(
+    portfolio: str | None = typer.Option(
         None,
         "--portfolio",
         help="Portfolio file name (e.g., 'protected', 'risk_on.csv')",
     ),
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
-    data_source: Optional[str] = typer.Option(
+    data_source: str | None = typer.Option(
         None,
         "--data-source",
         help="Data source mode: 'trade-history', 'equity-curves', 'both', or 'auto' (default: auto)",
@@ -101,12 +100,12 @@ def analyze(
         "--detailed/--no-detailed",
         help="Show detailed component scores breakdown",
     ),
-    components: Optional[str] = typer.Option(
+    components: str | None = typer.Option(
         None,
         "--components",
         help="Show specific components: 'risk,momentum,trend,risk-adj,mean-rev,volume' (comma-separated)",
     ),
-    save_results: Optional[str] = typer.Option(
+    save_results: str | None = typer.Option(
         None, "--save-results", help="Save results to file (JSON format)"
     ),
     export_backtesting: bool = typer.Option(
@@ -169,7 +168,7 @@ def analyze(
                 "[yellow]💡 Use either: 'trading-cli spds analyze risk_on.csv' OR 'trading-cli spds analyze --portfolio risk_on.csv'[/yellow]"
             )
             raise typer.Exit(1)
-        elif portfolio:
+        if portfolio:
             parameter = portfolio
             if global_verbose:
                 rprint(f"[dim]Using portfolio flag: {portfolio}[/dim]")
@@ -186,7 +185,6 @@ def analyze(
             raise typer.Exit(1)
 
         # Import enhanced parameter parsing and analysis components
-        from ...tools.enhanced_test_analyzer import create_test_analyzer
         from ...tools.parameter_parser import ParameterType, parse_spds_parameter
 
         # Parse the input parameter to detect type and extract components
@@ -226,30 +224,29 @@ def analyze(
                     global_quiet,
                 )
             )
-        else:
-            # Use enhanced parameter analysis
-            return asyncio.run(
-                _analyze_enhanced_parameter_mode(
-                    parsed_param,
-                    data_source,
-                    profile,
-                    output_format,
-                    detailed,
-                    components,
-                    save_results,
-                    export_backtesting,
-                    percentile_threshold,
-                    dual_layer_threshold,
-                    sample_size_min,
-                    confidence_level,
-                    global_verbose,
-                    global_quiet,
-                )
+        # Use enhanced parameter analysis
+        return asyncio.run(
+            _analyze_enhanced_parameter_mode(
+                parsed_param,
+                data_source,
+                profile,
+                output_format,
+                detailed,
+                components,
+                save_results,
+                export_backtesting,
+                percentile_threshold,
+                dual_layer_threshold,
+                sample_size_min,
+                confidence_level,
+                global_verbose,
+                global_quiet,
             )
+        )
 
     except FileNotFoundError as e:
         rprint(f"[red]❌ File not found: {e}[/red]")
-        rprint(f"[yellow]💡 Available portfolios:[/yellow]")
+        rprint("[yellow]💡 Available portfolios:[/yellow]")
         list_portfolios()
         raise typer.Exit(1)
     except Exception as e:
@@ -265,10 +262,10 @@ def export(
     portfolio: str = typer.Argument(
         ..., help='Portfolio filename (e.g., "risk_on.csv")'
     ),
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
-    data_source: Optional[str] = typer.Option(
+    data_source: str | None = typer.Option(
         None,
         "--data-source",
         help="Data source mode: 'trade-history', 'equity-curves', 'both', or 'auto' (default: auto)",
@@ -276,7 +273,7 @@ def export(
     format: str = typer.Option(
         "all", "--format", help="Export format: all, json, csv, markdown"
     ),
-    output_dir: Optional[str] = typer.Option(
+    output_dir: str | None = typer.Option(
         None, "--output-dir", help="Output directory for exports"
     ),
 ):
@@ -371,10 +368,6 @@ def export(
 
         # Import SPDS modules
         from ...tools.portfolio_analyzer import PortfolioStatisticalAnalyzer
-        from ...tools.services.backtesting_parameter_export_service import (
-            BacktestingParameterExportService,
-        )
-        from ...tools.services.divergence_export_service import DivergenceExportService
 
         # Run analysis
         analyzer = PortfolioStatisticalAnalyzer(portfolio, use_trade_history)
@@ -476,8 +469,7 @@ def health():
         if total_issues > 0:
             rprint(f"⚠️ Found {total_issues} issues that may need attention")
             raise typer.Exit(1)
-        else:
-            rprint("✅ No issues detected - SPDS system is healthy")
+        rprint("✅ No issues detected - SPDS system is healthy")
 
     except Exception as e:
         rprint(f"[red]❌ Health check failed: {e}[/red]")
@@ -598,12 +590,12 @@ def interactive():
 # Enhanced parameter analysis functions
 async def _analyze_portfolio_mode(
     portfolio: str,
-    data_source: Optional[str],
-    profile: Optional[str],
+    data_source: str | None,
+    profile: str | None,
     output_format: str,
     detailed: bool,
-    components: Optional[str],
-    save_results: Optional[str],
+    components: str | None,
+    save_results: str | None,
     export_backtesting: bool,
     percentile_threshold: int,
     dual_layer_threshold: float,
@@ -680,10 +672,10 @@ async def _analyze_portfolio_mode(
 
     # Load configuration
     if profile:
-        config = loader.load_from_profile(profile, SPDSConfig, overrides)
+        loader.load_from_profile(profile, SPDSConfig, overrides)
     else:
         # Use default SPDS profile
-        config = loader.load_from_profile("spds_default", SPDSConfig, overrides)
+        loader.load_from_profile("spds_default", SPDSConfig, overrides)
 
     if global_verbose:
         rprint(f"[dim]Analyzing portfolio: {portfolio}[/dim]")
@@ -691,10 +683,7 @@ async def _analyze_portfolio_mode(
 
     # Import SPDS modules
     from ...tools.config.statistical_analysis_config import StatisticalAnalysisConfig
-    from ...tools.portfolio_analyzer import (
-        PortfolioStatisticalAnalyzer,
-        analyze_portfolio,
-    )
+    from ...tools.portfolio_analyzer import PortfolioStatisticalAnalyzer
 
     # Create SPDS config from CLI config
     spds_config = StatisticalAnalysisConfig.create(portfolio, use_trade_history)
@@ -753,37 +742,34 @@ async def _analyze_portfolio_mode(
             True,  # Always export backtesting parameters
         )
         return _output_json_results(results, summary, save_results)
-    else:
-        analyzer = PortfolioStatisticalAnalyzer(portfolio, use_trade_history)
-        results = await _run_analyzer_analysis(analyzer, detailed)
-        summary = analyzer.get_summary_report(results)
+    analyzer = PortfolioStatisticalAnalyzer(portfolio, use_trade_history)
+    results = await _run_analyzer_analysis(analyzer, detailed)
+    summary = analyzer.get_summary_report(results)
 
-        # ALWAYS export to all formats automatically (including backtesting parameters)
-        await _export_all_formats(
-            results,
-            summary,
-            analyzer,
-            portfolio,
-            spds_config,
-            True,  # Always export backtesting parameters
-        )
+    # ALWAYS export to all formats automatically (including backtesting parameters)
+    await _export_all_formats(
+        results,
+        summary,
+        analyzer,
+        portfolio,
+        spds_config,
+        True,  # Always export backtesting parameters
+    )
 
-        if output_format == "summary":
-            return _output_summary_results(summary)
-        else:  # table format
-            return _output_table_results(
-                results, summary, analyzer, detailed, components
-            )
+    if output_format == "summary":
+        return _output_summary_results(summary)
+    # table format
+    return _output_table_results(results, summary, analyzer, detailed, components)
 
 
 async def _analyze_enhanced_parameter_mode(
     parsed_param,
-    data_source: Optional[str],
-    profile: Optional[str],
+    data_source: str | None,
+    profile: str | None,
     output_format: str,
     detailed: bool,
-    components: Optional[str],
-    save_results: Optional[str],
+    components: str | None,
+    save_results: str | None,
     export_backtesting: bool,
     percentile_threshold: int,
     dual_layer_threshold: float,
@@ -968,10 +954,10 @@ async def _analyze_enhanced_parameter_mode(
     # Output results
     if output_format == "json":
         return _output_json_results(results, summary, save_results)
-    elif output_format == "summary":
+    if output_format == "summary":
         return _output_summary_results(summary)
-    else:  # table format
-        return _output_table_results(results, summary, analyzer, detailed, components)
+    # table format
+    return _output_table_results(results, summary, analyzer, detailed, components)
 
 
 # Helper async functions
@@ -989,8 +975,7 @@ async def _run_analyzer_analysis(analyzer, detailed: bool = False):
         and "detailed" in analyzer.analyze.__code__.co_varnames
     ):
         return await analyzer.analyze(detailed=detailed)
-    else:
-        return await analyzer.analyze()
+    return await analyzer.analyze()
 
 
 async def _run_export_operations(results, summary, portfolio, format, config):
@@ -1007,15 +992,15 @@ async def _run_export_operations(results, summary, portfolio, format, config):
     results_list = list(results.values()) if isinstance(results, dict) else results
 
     # Export based on format
-    if format == "all" or format == "json":
+    if format in ("all", "json"):
         await export_service.export_json(results_list, portfolio)
         rprint("[green]✅ JSON export completed[/green]")
 
-    if format == "all" or format == "csv":
+    if format in ("all", "csv"):
         await export_service.export_csv(results_list, portfolio)
         rprint("[green]✅ CSV export completed[/green]")
 
-    if format == "all" or format == "markdown":
+    if format in ("all", "markdown"):
         await export_service.export_markdown(results_list, portfolio)
         rprint("[green]✅ Markdown export completed[/green]")
 
@@ -1058,18 +1043,18 @@ async def _export_all_formats(
             rprint(
                 f"[yellow]⚠️ Export validation failed: {len(issues)} issues found[/yellow]"
             )
-            rprint(f"[yellow]🔧 Generating fallback exports...[/yellow]")
+            rprint("[yellow]🔧 Generating fallback exports...[/yellow]")
 
             # Generate fallback exports using position data
             fallback_success = validator.generate_fallback_exports(portfolio)
             if fallback_success:
-                rprint(f"[green]✅ Fallback exports generated successfully[/green]")
+                rprint("[green]✅ Fallback exports generated successfully[/green]")
             else:
-                rprint(f"[red]❌ Fallback export generation failed[/red]")
+                rprint("[red]❌ Fallback export generation failed[/red]")
                 for issue in issues:
                     rprint(f"[red]   - {issue}[/red]")
         else:
-            rprint(f"[green]✅ Export validation passed[/green]")
+            rprint("[green]✅ Export validation passed[/green]")
 
     except Exception as e:
         rprint(f"[yellow]⚠️ Export warning: {e}[/yellow]")
@@ -1079,15 +1064,15 @@ async def _export_all_formats(
             from ...tools.services.export_validator import ExportValidator
 
             validator = ExportValidator()
-            rprint(f"[yellow]🔧 Attempting fallback export generation...[/yellow]")
+            rprint("[yellow]🔧 Attempting fallback export generation...[/yellow]")
             fallback_success = validator.generate_fallback_exports(portfolio)
             if fallback_success:
-                rprint(f"[green]✅ Fallback exports generated successfully[/green]")
+                rprint("[green]✅ Fallback exports generated successfully[/green]")
         except Exception as fallback_error:
             rprint(f"[red]❌ Fallback export failed: {fallback_error}[/red]")
 
 
-def _output_json_results(results, summary, save_path: Optional[str] = None):
+def _output_json_results(results, summary, save_path: str | None = None):
     """Output results in JSON format"""
     output_data = {"summary": summary, "results": results}
 
@@ -1113,7 +1098,7 @@ def _output_summary_results(summary):
 
 
 def _output_table_results(
-    results, summary, analyzer, detailed: bool = False, components: Optional[str] = None
+    results, summary, analyzer, detailed: bool = False, components: str | None = None
 ):
     """Output results in table format"""
     # Create results table
@@ -1306,7 +1291,7 @@ def _check_spds_configuration():
             StatisticalAnalysisConfig,
         )
 
-        config = StatisticalAnalysisConfig.create("test.csv", False)
+        StatisticalAnalysisConfig.create("test.csv", False)
         result["details"].append("SPDS configuration loaded successfully")
     except Exception as e:
         result["issues"] += 1
@@ -1330,7 +1315,7 @@ def _check_spds_dependencies():
         try:
             __import__(module_name)
             result["details"].append(f"Module available: {module_name}")
-        except ImportError as e:
+        except ImportError:
             result["issues"] += 1
             result["details"].append(f"Missing SPDS module: {module_name}")
             result["status"] = "warning"
@@ -1467,7 +1452,7 @@ def _validate_data_source_mapping(portfolio: str, global_verbose: bool = False):
         fallback_count = len(validation_results["fallback_strategies"])
         total_count = validation_results["total_strategies"]
 
-        rprint(f"[dim]Data Source Mapping Results:[/dim]")
+        rprint("[dim]Data Source Mapping Results:[/dim]")
         rprint(
             f"[dim]  • Trade History Available: {matched_count}/{total_count} strategies[/dim]"
         )
@@ -1476,7 +1461,7 @@ def _validate_data_source_mapping(portfolio: str, global_verbose: bool = False):
         )
 
         if global_verbose and fallback_count > 0:
-            rprint(f"[dim]📈 Strategies using equity fallback (first 5):[/dim]")
+            rprint("[dim]📈 Strategies using equity fallback (first 5):[/dim]")
             for strategy in validation_results["fallback_strategies"][:5]:
                 rprint(
                     f"[dim]  • {strategy['ticker']} ({strategy['parsed_strategy']}) - {strategy['status']}[/dim]"
@@ -1485,7 +1470,7 @@ def _validate_data_source_mapping(portfolio: str, global_verbose: bool = False):
                 rprint(f"[dim]  • ... and {fallback_count - 5} more[/dim]")
 
         if global_verbose and matched_count > 0:
-            rprint(f"[dim]✅ Strategies with trade history (first 3):[/dim]")
+            rprint("[dim]✅ Strategies with trade history (first 3):[/dim]")
             for strategy in validation_results["matched_strategies"][:3]:
                 rprint(
                     f"[dim]  • {strategy['ticker']} ({strategy['parsed_strategy']}) - {strategy['status']}[/dim]"

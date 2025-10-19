@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass
@@ -23,7 +23,7 @@ class PortfolioMetrics:
     calmar_ratio: float
     value_at_risk: float
     conditional_value_at_risk: float
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
 
 @dataclass
@@ -31,15 +31,15 @@ class PortfolioConfig:
     """Portfolio configuration."""
 
     name: str
-    tickers: List[str]
-    weights: Optional[Dict[str, float]] = None
+    tickers: list[str]
+    weights: dict[str, float] | None = None
     rebalance_frequency: str = "monthly"
-    start_date: Optional[datetime] | None = None
-    end_date: Optional[datetime] | None = None
+    start_date: datetime | None | None = None
+    end_date: datetime | None | None = None
     initial_capital: float = 100000
     commission: float = 0.001
     slippage: float = 0.001
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
 
 @dataclass
@@ -53,4 +53,4 @@ class AllocationConfig:
     use_stop_loss: bool = True
     stop_loss_percent: float = 0.05
     use_position_sizing: bool = True
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None

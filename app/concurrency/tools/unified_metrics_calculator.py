@@ -19,11 +19,12 @@ Classes:
     MetricsValidator: Validate calculated metrics against source data
 """
 
-import json
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -55,13 +56,13 @@ class CalculationResult:
     """Result of unified metrics calculation."""
 
     success: bool
-    metrics: Dict[str, Any]
-    data_sources: Dict[str, str]
-    validation_results: Dict[str, Any]
-    reconciliation_report: Optional[ReconciliationReport]
-    calculation_metadata: Dict[str, Any]
-    warnings: List[str] = field(default_factory=list)
-    errors: List[str] = field(default_factory=list)
+    metrics: dict[str, Any]
+    data_sources: dict[str, str]
+    validation_results: dict[str, Any]
+    reconciliation_report: ReconciliationReport | None
+    calculation_metadata: dict[str, Any]
+    warnings: list[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
 
 class UnifiedMetricsCalculator:
@@ -96,10 +97,10 @@ class UnifiedMetricsCalculator:
 
     def calculate_unified_metrics(
         self,
-        csv_path: Union[str, Path] = None,
-        json_data: Dict[str, Any] = None,
+        csv_path: str | Path | None = None,
+        json_data: dict[str, Any] | None = None,
         portfolio_data: Any | None = None,
-        log: Optional[Callable[[str, str], None]] = None,
+        log: Callable[[str, str], None] | None = None,
     ) -> CalculationResult:
         """
         Calculate unified portfolio metrics using CSV as source of truth.
@@ -197,7 +198,7 @@ class UnifiedMetricsCalculator:
                 )
 
         except Exception as e:
-            error_msg = f"Error in unified metrics calculation: {str(e)}"
+            error_msg = f"Error in unified metrics calculation: {e!s}"
             result.errors.append(error_msg)
             if log:
                 log(error_msg, "error")
@@ -206,9 +207,9 @@ class UnifiedMetricsCalculator:
 
     def _load_and_validate_csv(
         self,
-        csv_path: Union[str, Path],
-        log: Optional[Callable[[str, str], None]] = None,
-    ) -> Dict[str, Any]:
+        csv_path: str | Path,
+        log: Callable[[str, str], None] | None = None,
+    ) -> dict[str, Any]:
         """Load and validate CSV data."""
         try:
             # Load CSV
@@ -242,7 +243,7 @@ class UnifiedMetricsCalculator:
             }
 
         except Exception as e:
-            error_msg = f"Error loading CSV data: {str(e)}"
+            error_msg = f"Error loading CSV data: {e!s}"
             return {
                 "success": False,
                 "errors": [error_msg],
@@ -251,9 +252,9 @@ class UnifiedMetricsCalculator:
 
     def _validate_json_structure(
         self,
-        json_data: Dict[str, Any],
-        log: Optional[Callable[[str, str], None]] = None,
-    ) -> Dict[str, Any]:
+        json_data: dict[str, Any],
+        log: Callable[[str, str], None] | None = None,
+    ) -> dict[str, Any]:
         """Validate JSON data structure."""
         validation = {"valid": True, "warnings": [], "errors": []}
 
@@ -295,10 +296,10 @@ class UnifiedMetricsCalculator:
     def _calculate_metrics(
         self,
         csv_metrics: Any | None = None,
-        json_data: Dict[str, Any] = None,
+        json_data: dict[str, Any] | None = None,
         portfolio_data: Any | None = None,
-        log: Optional[Callable[[str, str], None]] = None,
-    ) -> Dict[str, Any]:
+        log: Callable[[str, str], None] | None = None,
+    ) -> dict[str, Any]:
         """Calculate unified metrics using available data sources."""
         unified_metrics = {
             "calculation_method": "unified_pipeline",
@@ -357,9 +358,9 @@ class UnifiedMetricsCalculator:
 
     def _supplement_with_json_metrics(
         self,
-        unified_metrics: Dict[str, Any],
-        json_data: Dict[str, Any],
-        log: Optional[Callable[[str, str], None]] = None,
+        unified_metrics: dict[str, Any],
+        json_data: dict[str, Any],
+        log: Callable[[str, str], None] | None = None,
     ) -> None:
         """Supplement CSV-based metrics with additional JSON-only metrics."""
         # Add advanced metrics that might only be in JSON
@@ -387,8 +388,8 @@ class UnifiedMetricsCalculator:
             log("Supplemented CSV metrics with JSON-only advanced metrics", "info")
 
     def _enhance_metrics(
-        self, metrics: Dict[str, Any], log: Optional[Callable[[str, str], None]] = None
-    ) -> Dict[str, Any]:
+        self, metrics: dict[str, Any], log: Callable[[str, str], None] | None = None
+    ) -> dict[str, Any]:
         """Enhance metrics with additional calculations."""
         enhanced_metrics = metrics.copy()
 
@@ -400,7 +401,7 @@ class UnifiedMetricsCalculator:
         }
 
         # Calculate additional portfolio-level metrics if ticker data available
-        if "ticker_metrics" in enhanced_metrics and enhanced_metrics["ticker_metrics"]:
+        if enhanced_metrics.get("ticker_metrics"):
             portfolio_enhancements = self._calculate_portfolio_enhancements(
                 enhanced_metrics["ticker_metrics"], log
             )
@@ -410,9 +411,9 @@ class UnifiedMetricsCalculator:
 
     def _calculate_portfolio_enhancements(
         self,
-        ticker_metrics: Dict[str, Dict[str, float]],
-        log: Optional[Callable[[str, str], None]] = None,
-    ) -> Dict[str, Any]:
+        ticker_metrics: dict[str, dict[str, float]],
+        log: Callable[[str, str], None] | None = None,
+    ) -> dict[str, Any]:
         """Calculate enhanced portfolio-level metrics from ticker data."""
         enhancements = {}
 
@@ -424,7 +425,7 @@ class UnifiedMetricsCalculator:
             win_rates = []
             trade_counts = []
 
-            for ticker, metrics in ticker_metrics.items():
+            for _ticker, metrics in ticker_metrics.items():
                 if "total_return_pct" in metrics:
                     returns.append(metrics["total_return_pct"])
                 if "sharpe_ratio" in metrics:
@@ -487,15 +488,15 @@ class UnifiedMetricsCalculator:
 
         except Exception as e:
             if log:
-                log(f"Error calculating portfolio enhancements: {str(e)}", "warning")
+                log(f"Error calculating portfolio enhancements: {e!s}", "warning")
 
         return enhancements
 
     def _perform_reconciliation(
         self,
         csv_metrics: Any,
-        json_data: Dict[str, Any],
-        log: Optional[Callable[[str, str], None]] = None,
+        json_data: dict[str, Any],
+        log: Callable[[str, str], None] | None = None,
     ) -> ReconciliationReport:
         """Perform reconciliation between CSV and JSON data."""
         if log:
@@ -518,10 +519,10 @@ class UnifiedMetricsCalculator:
 
     def _apply_corrections(
         self,
-        metrics: Dict[str, Any],
+        metrics: dict[str, Any],
         reconciliation: ReconciliationReport,
-        log: Optional[Callable[[str, str], None]] = None,
-    ) -> Dict[str, Any]:
+        log: Callable[[str, str], None] | None = None,
+    ) -> dict[str, Any]:
         """Apply automatic corrections based on reconciliation results."""
         corrected_metrics = metrics.copy()
 
@@ -542,9 +543,9 @@ class UnifiedMetricsCalculator:
                     # Use CSV value as the correction
                     if ticker in corrected_metrics.get("ticker_metrics", {}):
                         metric_key = discrepancy.metric_name
-                        corrected_metrics["ticker_metrics"][ticker][
-                            metric_key
-                        ] = discrepancy.csv_value
+                        corrected_metrics["ticker_metrics"][ticker][metric_key] = (
+                            discrepancy.csv_value
+                        )
                         corrections_applied += 1
 
         if corrections_applied > 0 and log:
@@ -561,10 +562,10 @@ class UnifiedMetricsCalculator:
 
     def _perform_risk_validation(
         self,
-        metrics: Dict[str, Any],
-        csv_path: Union[str, Path],
-        log: Optional[Callable[[str, str], None]] = None,
-    ) -> Dict[str, Any]:
+        metrics: dict[str, Any],
+        csv_path: str | Path,
+        log: Callable[[str, str], None] | None = None,
+    ) -> dict[str, Any]:
         """Perform risk metrics validation."""
         try:
             # Load CSV data for validation
@@ -582,7 +583,7 @@ class UnifiedMetricsCalculator:
             }
 
         except Exception as e:
-            error_msg = f"Error in risk validation: {str(e)}"
+            error_msg = f"Error in risk validation: {e!s}"
             if log:
                 log(error_msg, "warning")
 
@@ -591,8 +592,8 @@ class UnifiedMetricsCalculator:
     def _perform_final_validation(
         self,
         result: CalculationResult,
-        log: Optional[Callable[[str, str], None]] = None,
-    ) -> Dict[str, Any]:
+        log: Callable[[str, str], None] | None = None,
+    ) -> dict[str, Any]:
         """Perform final validation of the entire calculation result."""
         validation = {
             "overall_valid": True,
@@ -662,16 +663,16 @@ class UnifiedMetricsCalculator:
 
         except Exception as e:
             validation["overall_valid"] = False
-            validation["issues"].append(f"Validation error: {str(e)}")
+            validation["issues"].append(f"Validation error: {e!s}")
             if log:
-                log(f"Error in final validation: {str(e)}", "error")
+                log(f"Error in final validation: {e!s}", "error")
 
         return validation
 
 
 def export_unified_metrics(
     calculation_result: CalculationResult,
-    output_path: Union[str, Path],
+    output_path: str | Path,
     format_type: str = "json",
     include_validation: bool = True,
 ) -> bool:
@@ -701,9 +702,9 @@ def export_unified_metrics(
             }
 
             if include_validation:
-                export_data[
-                    "validation_results"
-                ] = calculation_result.validation_results
+                export_data["validation_results"] = (
+                    calculation_result.validation_results
+                )
                 if calculation_result.reconciliation_report:
                     # Convert reconciliation report to dict
                     export_data["reconciliation_summary"] = {
@@ -732,5 +733,5 @@ def export_unified_metrics(
         return True
 
     except Exception as e:
-        print(f"Error exporting unified metrics: {str(e)}")
+        print(f"Error exporting unified metrics: {e!s}")
         return False

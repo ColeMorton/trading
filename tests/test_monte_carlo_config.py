@@ -5,13 +5,13 @@ This test suite covers configuration validation, error handling,
 bootstrap sampling configuration, and edge cases in Monte Carlo analysis.
 """
 
-import sys
 from pathlib import Path
-from unittest.mock import Mock, patch
+import sys
 
 import numpy as np
 import polars as pl
 import pytest
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
@@ -38,7 +38,7 @@ class TestMonteCarloConfig:
         assert config.num_simulations == 100
         assert config.confidence_level == 0.95
         assert config.max_parameters_to_test == 10
-        assert config.include_in_reports == False
+        assert config.include_in_reports is False
 
     def test_custom_configuration(self):
         """Test custom configuration values."""
@@ -52,7 +52,7 @@ class TestMonteCarloConfig:
         assert config.num_simulations == 50
         assert config.confidence_level == 0.99
         assert config.max_parameters_to_test == 5
-        assert config.include_in_reports == True
+        assert config.include_in_reports is True
 
     def test_configuration_validation(self):
         """Test configuration parameter validation via validate method."""
@@ -111,7 +111,7 @@ class TestMonteCarloConfig:
         assert config.num_simulations == 75
         assert config.confidence_level == 0.99
         assert config.max_parameters_to_test == 8
-        assert config.include_in_reports == True
+        assert config.include_in_reports is True
 
     def test_create_monte_carlo_config_with_defaults(self):
         """Test creating configuration with partial input (using defaults)."""
@@ -440,7 +440,7 @@ class TestMonteCarloEdgeCases:
         np.random.seed(42)
         n_days = 30
         prices = [100.0]
-        for i in range(n_days - 1):
+        for _i in range(n_days - 1):
             # Extreme volatility (±50% daily moves)
             change = np.random.choice([-0.5, 0.5])
             new_price = max(prices[-1] * (1 + change), 1.0)  # Prevent negative

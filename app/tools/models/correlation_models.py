@@ -7,10 +7,9 @@ and statistical significance testing with type safety and validation.
 
 from datetime import date, datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
-import numpy as np
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 
 class CorrelationType(str, Enum):
@@ -55,10 +54,10 @@ class CorrelationResult(BaseModel):
         description="Correlation coefficient", ge=-1, le=1
     )
     p_value: float = Field(description="Statistical p-value", ge=0, le=1)
-    confidence_interval_lower: Optional[float] = Field(
+    confidence_interval_lower: float | None = Field(
         description="Lower confidence interval", default=None
     )
-    confidence_interval_upper: Optional[float] = Field(
+    confidence_interval_upper: float | None = Field(
         description="Upper confidence interval", default=None
     )
 
@@ -72,7 +71,7 @@ class CorrelationResult(BaseModel):
 
     # Sample information
     sample_size: int = Field(description="Sample size used", gt=0)
-    effective_sample_size: Optional[int] = Field(
+    effective_sample_size: int | None = Field(
         description="Effective sample size (adjusted)", default=None
     )
 
@@ -88,25 +87,23 @@ class CorrelationResult(BaseModel):
     calculation_timestamp: datetime = Field(
         description="When correlation was calculated"
     )
-    data_period_start: Optional[date] = Field(
+    data_period_start: date | None = Field(
         description="Start of data period", default=None
     )
-    data_period_end: Optional[date] = Field(
-        description="End of data period", default=None
-    )
+    data_period_end: date | None = Field(description="End of data period", default=None)
 
 
 class CorrelationMatrix(BaseModel):
     """Correlation matrix with metadata"""
 
-    entities: List[str] = Field(description="List of entities in the matrix")
+    entities: list[str] = Field(description="List of entities in the matrix")
     correlation_type: CorrelationType = Field(description="Type of correlation")
 
     # Matrix data
-    matrix: Dict[str, Dict[str, float]] = Field(
+    matrix: dict[str, dict[str, float]] = Field(
         description="Correlation matrix as nested dict"
     )
-    p_value_matrix: Optional[Dict[str, Dict[str, float]]] = Field(
+    p_value_matrix: dict[str, dict[str, float]] | None = Field(
         description="P-value matrix", default=None
     )
 
@@ -123,13 +120,13 @@ class CorrelationMatrix(BaseModel):
 
     # Sample information
     sample_size: int = Field(description="Sample size used", gt=0)
-    matrix_rank: Optional[int] = Field(description="Matrix rank", default=None)
-    condition_number: Optional[float] = Field(
+    matrix_rank: int | None = Field(description="Matrix rank", default=None)
+    condition_number: float | None = Field(
         description="Matrix condition number", default=None
     )
 
     # Quality metrics
-    missing_pairs: List[str] = Field(
+    missing_pairs: list[str] = Field(
         description="Pairs with insufficient data", default_factory=list
     )
     calculation_timestamp: datetime = Field(description="Matrix calculation timestamp")
@@ -138,32 +135,32 @@ class CorrelationMatrix(BaseModel):
 class CrossStrategyCorrelation(BaseModel):
     """Cross-strategy correlation analysis results"""
 
-    strategies_analyzed: List[str] = Field(
+    strategies_analyzed: list[str] = Field(
         description="Strategies included in analysis"
     )
     timeframe: str = Field(description="Analysis timeframe")
 
     # Correlation results
-    correlation_matrices: Dict[str, CorrelationMatrix] = Field(
+    correlation_matrices: dict[str, CorrelationMatrix] = Field(
         description="Matrices by correlation type"
     )
-    pairwise_correlations: List[CorrelationResult] = Field(
+    pairwise_correlations: list[CorrelationResult] = Field(
         description="Individual pair correlations"
     )
 
     # Analysis insights
-    strongest_correlations: List[Dict[str, Any]] = Field(
+    strongest_correlations: list[dict[str, Any]] = Field(
         description="Strongest correlations found"
     )
-    correlation_clusters: List[List[str]] = Field(
+    correlation_clusters: list[list[str]] = Field(
         description="Groups of highly correlated strategies"
     )
 
     # Stability analysis
-    correlation_stability: Dict[str, float] = Field(
+    correlation_stability: dict[str, float] = Field(
         description="Stability scores by pair"
     )
-    regime_changes: List[Dict[str, Any]] = Field(description="Detected regime changes")
+    regime_changes: list[dict[str, Any]] = Field(description="Detected regime changes")
 
     # Performance implications
     diversification_score: float = Field(
@@ -183,18 +180,18 @@ class TimeframeCorrelation(BaseModel):
 
     strategy_name: str = Field(description="Strategy analyzed")
     ticker: str = Field(description="Ticker analyzed")
-    timeframes: List[str] = Field(description="Timeframes included")
+    timeframes: list[str] = Field(description="Timeframes included")
 
     # Correlation analysis
-    timeframe_correlations: Dict[str, CorrelationResult] = Field(
+    timeframe_correlations: dict[str, CorrelationResult] = Field(
         description="Correlations between timeframes"
     )
-    correlation_hierarchy: Dict[str, Dict[str, float]] = Field(
+    correlation_hierarchy: dict[str, dict[str, float]] = Field(
         description="Hierarchical correlation structure"
     )
 
     # Lead-lag analysis
-    lead_lag_relationships: Dict[str, Dict[str, Any]] = Field(
+    lead_lag_relationships: dict[str, dict[str, Any]] = Field(
         description="Lead-lag analysis results"
     )
     optimal_timeframe: str = Field(description="Timeframe with strongest signal")
@@ -203,7 +200,7 @@ class TimeframeCorrelation(BaseModel):
     convergence_score: float = Field(
         description="Multi-timeframe convergence score", ge=0, le=1
     )
-    divergence_periods: List[Dict[str, Any]] = Field(
+    divergence_periods: list[dict[str, Any]] = Field(
         description="Periods of timeframe divergence"
     )
 
@@ -218,23 +215,23 @@ class DynamicCorrelation(BaseModel):
     correlation_type: CorrelationType = Field(description="Type of correlation")
 
     # Rolling correlation data
-    rolling_correlations: List[float] = Field(
+    rolling_correlations: list[float] = Field(
         description="Time series of correlation values"
     )
-    timestamps: List[datetime] = Field(description="Timestamps for correlation values")
+    timestamps: list[datetime] = Field(description="Timestamps for correlation values")
     window_size: int = Field(description="Rolling window size", gt=0)
 
     # Statistical analysis
     correlation_mean: float = Field(description="Mean correlation over period")
     correlation_std: float = Field(description="Standard deviation of correlations")
-    correlation_trend: Dict[str, Any] = Field(description="Trend analysis results")
+    correlation_trend: dict[str, Any] = Field(description="Trend analysis results")
 
     # Regime detection
-    regime_changes: List[int] = Field(description="Indices of regime changes")
-    regime_periods: List[Dict[str, Any]] = Field(
+    regime_changes: list[int] = Field(description="Indices of regime changes")
+    regime_periods: list[dict[str, Any]] = Field(
         description="Identified regime periods"
     )
-    current_regime: Dict[str, Any] = Field(description="Current correlation regime")
+    current_regime: dict[str, Any] = Field(description="Current correlation regime")
 
     # Stability metrics
     stability_score: float = Field(
@@ -263,22 +260,22 @@ class PatternResult(BaseModel):
     )
 
     # Pattern data
-    pattern_data: Dict[str, Any] = Field(description="Pattern-specific data")
+    pattern_data: dict[str, Any] = Field(description="Pattern-specific data")
     pattern_duration: int = Field(description="Pattern duration in periods", gt=0)
     pattern_frequency: float = Field(description="Pattern frequency in dataset")
 
     # Context
-    entities_involved: List[str] = Field(description="Entities exhibiting the pattern")
+    entities_involved: list[str] = Field(description="Entities exhibiting the pattern")
     timeframe: str = Field(description="Timeframe of pattern")
 
     # Historical context
-    similar_patterns: List[str] = Field(
+    similar_patterns: list[str] = Field(
         description="IDs of similar historical patterns"
     )
-    pattern_outcome: Optional[str] = Field(
+    pattern_outcome: str | None = Field(
         description="Historical outcome of pattern", default=None
     )
-    success_rate: Optional[float] = Field(
+    success_rate: float | None = Field(
         description="Historical success rate", default=None
     )
 
@@ -296,11 +293,11 @@ class SignificanceTestResult(BaseModel):
     # Test statistics
     test_statistic: float = Field(description="Test statistic value")
     p_value: float = Field(description="P-value", ge=0, le=1)
-    critical_value: Optional[float] = Field(description="Critical value", default=None)
+    critical_value: float | None = Field(description="Critical value", default=None)
 
     # Test parameters
     alpha: float = Field(description="Significance level", gt=0, lt=1, default=0.05)
-    degrees_of_freedom: Optional[int] = Field(
+    degrees_of_freedom: int | None = Field(
         description="Degrees of freedom", default=None
     )
 
@@ -313,22 +310,20 @@ class SignificanceTestResult(BaseModel):
     )
 
     # Effect size
-    effect_size: Optional[float] = Field(
-        description="Effect size measure", default=None
-    )
-    effect_size_interpretation: Optional[str] = Field(
+    effect_size: float | None = Field(description="Effect size measure", default=None)
+    effect_size_interpretation: str | None = Field(
         description="Effect size interpretation", default=None
     )
 
     # Test assumptions
-    assumptions_met: Dict[str, bool] = Field(description="Test assumption validation")
-    assumption_warnings: List[str] = Field(
+    assumptions_met: dict[str, bool] = Field(description="Test assumption validation")
+    assumption_warnings: list[str] = Field(
         description="Assumption violations", default_factory=list
     )
 
     # Sample information
     sample_size: int = Field(description="Sample size", gt=0)
-    power: Optional[float] = Field(description="Statistical power", default=None)
+    power: float | None = Field(description="Statistical power", default=None)
 
     # Metadata
     test_timestamp: datetime = Field(description="Test execution timestamp")
@@ -343,9 +338,9 @@ class MultipleTestingCorrection(BaseModel):
     corrected_alpha: float = Field(description="Corrected alpha level")
 
     # Correction results
-    original_p_values: List[float] = Field(description="Original p-values")
-    corrected_p_values: List[float] = Field(description="Corrected p-values")
-    rejected_hypotheses: List[bool] = Field(description="Rejection decisions")
+    original_p_values: list[float] = Field(description="Original p-values")
+    corrected_p_values: list[float] = Field(description="Corrected p-values")
+    rejected_hypotheses: list[bool] = Field(description="Rejection decisions")
 
     # Summary statistics
     total_tests: int = Field(description="Total number of tests", gt=0)
@@ -365,8 +360,8 @@ class ThresholdOptimizationResult(BaseModel):
     optimization_method: str = Field(description="Optimization method used")
 
     # Optimal thresholds
-    optimal_thresholds: Dict[str, float] = Field(description="Optimal threshold values")
-    threshold_confidence: Dict[str, float] = Field(
+    optimal_thresholds: dict[str, float] = Field(description="Optimal threshold values")
+    threshold_confidence: dict[str, float] = Field(
         description="Confidence in each threshold"
     )
 
@@ -383,10 +378,10 @@ class ThresholdOptimizationResult(BaseModel):
     optimization_duration_seconds: float = Field(description="Optimization time")
 
     # Validation
-    cross_validation_score: Optional[float] = Field(
+    cross_validation_score: float | None = Field(
         description="Cross-validation score", default=None
     )
-    out_of_sample_performance: Optional[float] = Field(
+    out_of_sample_performance: float | None = Field(
         description="Out-of-sample performance", default=None
     )
 
@@ -405,7 +400,7 @@ class ThresholdOptimizationResult(BaseModel):
 class ConvergenceAnalysisResult(BaseModel):
     """Multi-dimensional convergence analysis result"""
 
-    analysis_dimensions: List[str] = Field(
+    analysis_dimensions: list[str] = Field(
         description="Dimensions analyzed (timeframes, strategies, etc.)"
     )
     convergence_type: str = Field(description="Type of convergence analysis")
@@ -414,7 +409,7 @@ class ConvergenceAnalysisResult(BaseModel):
     overall_convergence_score: float = Field(
         description="Overall convergence score", ge=0, le=1
     )
-    dimensional_convergence: Dict[str, float] = Field(
+    dimensional_convergence: dict[str, float] = Field(
         description="Convergence by dimension"
     )
     convergence_stability: float = Field(
@@ -422,7 +417,7 @@ class ConvergenceAnalysisResult(BaseModel):
     )
 
     # Divergence analysis
-    divergence_periods: List[Dict[str, Any]] = Field(
+    divergence_periods: list[dict[str, Any]] = Field(
         description="Periods of significant divergence"
     )
     current_divergence_level: float = Field(
@@ -431,10 +426,10 @@ class ConvergenceAnalysisResult(BaseModel):
     divergence_trend: str = Field(description="Divergence trend direction")
 
     # Cross-validation
-    cross_timeframe_validation: Dict[str, float] = Field(
+    cross_timeframe_validation: dict[str, float] = Field(
         description="Cross-timeframe validation scores"
     )
-    cross_strategy_validation: Dict[str, float] = Field(
+    cross_strategy_validation: dict[str, float] = Field(
         description="Cross-strategy validation scores"
     )
 
@@ -460,10 +455,10 @@ class ModelValidationResult(BaseModel):
 
     # Validation scores
     validation_score: float = Field(description="Primary validation score", ge=0, le=1)
-    cross_validation_scores: List[float] = Field(
+    cross_validation_scores: list[float] = Field(
         description="Cross-validation fold scores"
     )
-    out_of_sample_score: Optional[float] = Field(
+    out_of_sample_score: float | None = Field(
         description="Out-of-sample validation score", default=None
     )
 
@@ -475,13 +470,13 @@ class ModelValidationResult(BaseModel):
     )
 
     # Statistical tests
-    normality_test: Optional[SignificanceTestResult] = Field(
+    normality_test: SignificanceTestResult | None = Field(
         description="Normality test result", default=None
     )
-    stationarity_test: Optional[SignificanceTestResult] = Field(
+    stationarity_test: SignificanceTestResult | None = Field(
         description="Stationarity test result", default=None
     )
-    independence_test: Optional[SignificanceTestResult] = Field(
+    independence_test: SignificanceTestResult | None = Field(
         description="Independence test result", default=None
     )
 
@@ -489,7 +484,7 @@ class ModelValidationResult(BaseModel):
     performance_stability: float = Field(
         description="Performance stability score", ge=0, le=1
     )
-    regime_robustness: Dict[str, float] = Field(
+    regime_robustness: dict[str, float] = Field(
         description="Performance across different regimes"
     )
 
@@ -497,7 +492,7 @@ class ModelValidationResult(BaseModel):
     statistical_model_quality: str = Field(
         description="Overall model quality assessment"
     )
-    recommendations: List[str] = Field(description="Model improvement recommendations")
+    recommendations: list[str] = Field(description="Model improvement recommendations")
     deployment_readiness: bool = Field(
         description="Whether model is ready for deployment"
     )

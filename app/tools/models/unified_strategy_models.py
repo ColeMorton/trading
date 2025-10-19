@@ -15,16 +15,15 @@ Key Features:
 - Backward compatibility with existing models
 """
 
-import json
-import logging
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+import json
+import logging
+from typing import Any
 
 import numpy as np
-import pandas as pd
+
 
 logger = logging.getLogger(__name__)
 
@@ -81,11 +80,11 @@ class DataLineage:
     """Tracks the lineage and sources of strategy data"""
 
     source_type: DataSourceType
-    file_path: Optional[str] = None
-    last_modified: Optional[datetime] = None
+    file_path: str | None = None
+    last_modified: datetime | None = None
     version: str = DataModelVersion.V2_0.value
-    checksum: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    checksum: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -106,11 +105,11 @@ class PerformanceMetrics:
         # Ensure all values are finite numbers
         for field_name in ["current_return", "mfe", "mae", "unrealized_pnl"]:
             value = getattr(self, field_name)
-            if not isinstance(value, (int, float)) or not np.isfinite(value):
+            if not isinstance(value, int | float) or not np.isfinite(value):
                 logger.warning(f"Invalid {field_name}: {value}, setting to 0.0")
                 setattr(self, field_name, 0.0)
 
-    def validate_constraints(self) -> List[ValidationResult]:
+    def validate_constraints(self) -> list[ValidationResult]:
         """Validate mathematical constraints between metrics"""
         results = []
 
@@ -196,7 +195,7 @@ class StatisticalMetrics:
             logger.warning(f"Invalid p_value: {self.p_value}, clamping to [0, 1]")
             self.p_value = max(0, min(1, self.p_value))
 
-    def validate_consistency(self) -> List[ValidationResult]:
+    def validate_consistency(self) -> list[ValidationResult]:
         """Validate consistency between statistical metrics"""
         results = []
 
@@ -332,7 +331,7 @@ class UnifiedStrategyData:
     strategy_name: str
     ticker: str
     timeframe: str = "D"
-    position_uuid: Optional[str] = None
+    position_uuid: str | None = None
 
     # Structured metrics (with built-in validation)
     performance: PerformanceMetrics = field(default_factory=PerformanceMetrics)
@@ -345,18 +344,18 @@ class UnifiedStrategyData:
     generation_timestamp: str = field(
         default_factory=lambda: datetime.now().isoformat()
     )
-    data_lineage: List[DataLineage] = field(default_factory=list)
-    validation_results: List[ValidationResult] = field(default_factory=list)
+    data_lineage: list[DataLineage] = field(default_factory=list)
+    validation_results: list[ValidationResult] = field(default_factory=list)
 
     # Raw data for advanced analysis
-    raw_returns: Optional[List[float]] = None
-    raw_analysis_data: Optional[Dict[str, Any]] = None
+    raw_returns: list[float] | None = None
+    raw_analysis_data: dict[str, Any] | None = None
 
     def __post_init__(self):
         """Perform validation after initialization"""
         self.validate()
 
-    def validate(self, auto_fix: bool = True) -> List[ValidationResult]:
+    def validate(self, auto_fix: bool = True) -> list[ValidationResult]:
         """
         Comprehensive validation of all strategy data.
 
@@ -402,7 +401,7 @@ class UnifiedStrategyData:
 
         return all_results
 
-    def _apply_auto_fixes(self, validation_results: List[ValidationResult]):
+    def _apply_auto_fixes(self, validation_results: list[ValidationResult]):
         """Apply automatic fixes for validation issues where possible"""
         for result in validation_results:
             if (
@@ -428,7 +427,7 @@ class UnifiedStrategyData:
         )
 
     def add_data_lineage(
-        self, source_type: DataSourceType, file_path: Optional[str] = None, **metadata
+        self, source_type: DataSourceType, file_path: str | None = None, **metadata
     ):
         """Add data lineage information"""
         lineage = DataLineage(
@@ -439,7 +438,7 @@ class UnifiedStrategyData:
         )
         self.data_lineage.append(lineage)
 
-    def to_legacy_strategy_data(self) -> Dict[str, Any]:
+    def to_legacy_strategy_data(self) -> dict[str, Any]:
         """
         Convert to legacy StrategyData format for backward compatibility.
 
@@ -491,7 +490,7 @@ class UnifiedStrategyData:
 
     @classmethod
     def from_legacy_strategy_data(
-        cls, legacy_data: Dict[str, Any]
+        cls, legacy_data: dict[str, Any]
     ) -> "UnifiedStrategyData":
         """
         Create UnifiedStrategyData from legacy StrategyData format.
@@ -567,7 +566,7 @@ class UnifiedStrategyData:
 
         return unified_data
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization"""
         return asdict(self)
 
@@ -576,7 +575,7 @@ class UnifiedStrategyData:
         return json.dumps(self.to_dict(), default=str, indent=2)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "UnifiedStrategyData":
+    def from_dict(cls, data: dict[str, Any]) -> "UnifiedStrategyData":
         """Create from dictionary (deserialization)"""
         # Handle nested structures
         if "performance" in data and isinstance(data["performance"], dict):
@@ -667,7 +666,7 @@ def migrate_legacy_strategy_data(legacy_data: Any) -> UnifiedStrategyData:
     """
     if isinstance(legacy_data, dict):
         return UnifiedStrategyData.from_legacy_strategy_data(legacy_data)
-    elif hasattr(legacy_data, "__dict__"):
+    if hasattr(legacy_data, "__dict__"):
         # Convert dataclass or object to dict first
         if hasattr(legacy_data, "to_dict"):
             legacy_dict = legacy_data.to_dict()
@@ -678,5 +677,4 @@ def migrate_legacy_strategy_data(legacy_data: Any) -> UnifiedStrategyData:
                 else vars(legacy_data)
             )
         return UnifiedStrategyData.from_legacy_strategy_data(legacy_dict)
-    else:
-        raise ValueError(f"Cannot migrate legacy data of type: {type(legacy_data)}")
+    raise ValueError(f"Cannot migrate legacy data of type: {type(legacy_data)}")

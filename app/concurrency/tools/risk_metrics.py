@@ -1,13 +1,15 @@
 """Risk metrics calculation for concurrency analysis."""
 
+from collections.abc import Callable
 import os
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 import pandas as pd
 import polars as pl
 
 from app.tools.stop_loss_simulator import apply_stop_loss_to_returns
+
 
 # Import fixed implementations
 try:
@@ -35,10 +37,10 @@ USE_FIXED_DRAWDOWN_CALC = os.getenv("USE_FIXED_DRAWDOWN_CALC", "true").lower() =
 
 
 def calculate_portfolio_max_drawdown_fixed(
-    strategy_equity_curves: List[np.ndarray],
-    allocation_weights: List[float],
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, Any]:
+    strategy_equity_curves: list[np.ndarray],
+    allocation_weights: list[float],
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, Any]:
     """
     Calculate portfolio max drawdown using proper equity curve combination.
 
@@ -69,18 +71,17 @@ def calculate_portfolio_max_drawdown_fixed(
             "recovery_duration": drawdown_components.recovery_duration,
             "equity_curve": drawdown_components.equity_curve,
         }
-    else:
-        # Fallback to legacy calculation
-        return calculate_portfolio_max_drawdown_legacy(
-            strategy_equity_curves, allocation_weights, log
-        )
+    # Fallback to legacy calculation
+    return calculate_portfolio_max_drawdown_legacy(
+        strategy_equity_curves, allocation_weights, log
+    )
 
 
 def calculate_portfolio_max_drawdown_legacy(
-    strategy_equity_curves: List[np.ndarray],
-    allocation_weights: List[float],
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, Any]:
+    strategy_equity_curves: list[np.ndarray],
+    allocation_weights: list[float],
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, Any]:
     """
     Legacy portfolio max drawdown calculation (understated).
 
@@ -108,7 +109,9 @@ def calculate_portfolio_max_drawdown_legacy(
         weighted_dd = (
             sum(
                 dd * weight
-                for dd, weight in zip(individual_drawdowns, allocation_weights)
+                for dd, weight in zip(
+                    individual_drawdowns, allocation_weights, strict=False
+                )
             )
             / total_allocation
         )
@@ -122,10 +125,10 @@ def calculate_portfolio_max_drawdown_legacy(
 
 
 def calculate_portfolio_volatility_fixed(
-    individual_volatilities: List[float],
+    individual_volatilities: list[float],
     correlation_matrix: np.ndarray,
-    allocation_weights: List[float],
-    log: Optional[Callable[[str, str], None]] = None,
+    allocation_weights: list[float],
+    log: Callable[[str, str], None] | None = None,
 ) -> float:
     """
     Calculate portfolio volatility using proper portfolio theory.
@@ -147,36 +150,36 @@ def calculate_portfolio_volatility_fixed(
         return aggregator.calculate_portfolio_volatility(
             individual_volatilities, correlation_matrix, allocation_weights, log
         )
+    # Fallback to simple weighted average (incorrect but functional)
+    if not individual_volatilities or not allocation_weights:
+        return 0.0
+
+    total_allocation = sum(allocation_weights)
+    if total_allocation > 0:
+        weights = [w / total_allocation for w in allocation_weights]
+        weighted_vol = sum(
+            vol * weight
+            for vol, weight in zip(individual_volatilities, weights, strict=False)
+        )
     else:
-        # Fallback to simple weighted average (incorrect but functional)
-        if not individual_volatilities or not allocation_weights:
-            return 0.0
+        weighted_vol = np.mean(individual_volatilities)
 
-        total_allocation = sum(allocation_weights)
-        if total_allocation > 0:
-            weights = [w / total_allocation for w in allocation_weights]
-            weighted_vol = sum(
-                vol * weight for vol, weight in zip(individual_volatilities, weights)
-            )
-        else:
-            weighted_vol = np.mean(individual_volatilities)
+    if log:
+        log(
+            f"Legacy volatility calculation: {weighted_vol:.4f} (may be inaccurate)",
+            "warning",
+        )
 
-        if log:
-            log(
-                f"Legacy volatility calculation: {weighted_vol:.4f} (may be inaccurate)",
-                "warning",
-            )
-
-        return weighted_vol
+    return weighted_vol
 
 
 def calculate_portfolio_var_fixed(
-    strategy_returns: List[np.ndarray],
-    allocation_weights: List[float],
-    confidence_levels: List[float] = [0.95, 0.99],
+    strategy_returns: list[np.ndarray],
+    allocation_weights: list[float],
+    confidence_levels: list[float] | None = None,
     method: str = "historical",
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, float]:
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, float]:
     """
     Calculate portfolio Value at Risk (VaR) using proper methodology.
 
@@ -196,6 +199,8 @@ def calculate_portfolio_var_fixed(
     Returns:
         Dictionary with VaR metrics at different confidence levels
     """
+    if confidence_levels is None:
+        confidence_levels = [0.95, 0.99]
     try:
         if not strategy_returns or not allocation_weights:
             return {}
@@ -297,18 +302,18 @@ def calculate_portfolio_var_fixed(
         return var_results
 
     except Exception as e:
-        error_message = f"Error calculating portfolio VaR: {str(e)}"
+        error_message = f"Error calculating portfolio VaR: {e!s}"
         if log:
             log(error_message, "error")
         return {"error": error_message}
 
 
 def calculate_component_var(
-    strategy_returns: List[np.ndarray],
-    allocation_weights: List[float],
+    strategy_returns: list[np.ndarray],
+    allocation_weights: list[float],
     confidence_level: float = 0.95,
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, float]:
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, float]:
     """
     Calculate component VaR for each strategy in the portfolio.
 
@@ -384,9 +389,9 @@ def calculate_component_var(
 
                 # Component VaR = weight * marginal VaR
                 component_var = normalized_weights[i] * marginal_var
-                component_vars[
-                    f"strategy_{i+1}_component_var_{confidence_pct}"
-                ] = component_var
+                component_vars[f"strategy_{i+1}_component_var_{confidence_pct}"] = (
+                    component_var
+                )
 
                 if log:
                     log(
@@ -417,7 +422,7 @@ def calculate_component_var(
         return component_vars
 
     except Exception as e:
-        error_message = f"Error calculating component VaR: {str(e)}"
+        error_message = f"Error calculating component VaR: {e!s}"
         if log:
             log(error_message, "error")
         return {"error": error_message}
@@ -425,9 +430,9 @@ def calculate_component_var(
 
 def validate_risk_metrics(
     csv_data: pd.DataFrame,
-    json_metrics: Dict[str, Any],
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, Any]:
+    json_metrics: dict[str, Any],
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, Any]:
     """
     Validate risk metrics against CSV data to detect calculation issues.
 
@@ -445,19 +450,18 @@ def validate_risk_metrics(
     if VALIDATION_AVAILABLE:
         validator = RiskMetricsValidator(strict_mode=True)
         return validator.validate_all_risk_metrics(csv_data, json_metrics, log)
-    else:
-        if log:
-            log("Risk metrics validation not available", "warning")
-        return {"validation_available": False}
+    if log:
+        log("Risk metrics validation not available", "warning")
+    return {"validation_available": False}
 
 
 def calculate_risk_contributions(
-    position_arrays: List[np.ndarray],
-    data_list: List[pl.DataFrame],
-    strategy_allocations: List[float],
+    position_arrays: list[np.ndarray],
+    data_list: list[pl.DataFrame],
+    strategy_allocations: list[float],
     log: Callable[[str, str], None],
-    strategy_configs: List[Dict[str, Any]] = None,
-) -> Dict[str, float]:
+    strategy_configs: list[dict[str, Any]] | None = None,
+) -> dict[str, float]:
     """Calculate risk contribution metrics for concurrent strategies.
 
     Uses position-weighted volatility and correlation to determine how much
@@ -490,17 +494,16 @@ def calculate_risk_contributions(
         return calculate_risk_contributions_fixed(
             position_arrays, data_list, strategy_allocations, log, strategy_configs
         )
-    else:
-        raise ImportError("Fixed risk contribution implementation not available")
+    raise ImportError("Fixed risk contribution implementation not available")
 
 
 def calculate_risk_contributions_legacy(
-    position_arrays: List[np.ndarray],
-    data_list: List[pl.DataFrame],
-    strategy_allocations: List[float],
+    position_arrays: list[np.ndarray],
+    data_list: list[pl.DataFrame],
+    strategy_allocations: list[float],
     log: Callable[[str, str], None],
-    strategy_configs: List[Dict[str, Any]] = None,
-) -> Dict[str, float]:
+    strategy_configs: list[dict[str, Any]] | None = None,
+) -> dict[str, float]:
     """Legacy risk contribution calculation (deprecated).
 
     This function is kept for reference but should not be used.
@@ -525,7 +528,7 @@ def calculate_risk_contributions_legacy(
         log(f"Calculating risk contributions for {n_strategies} strategies", "info")
 
         # Initialize risk contributions dictionary
-        risk_contributions: Dict[str, float] = {}
+        risk_contributions: dict[str, float] = {}
 
         # Calculate returns and volatilities for each strategy
         log("Calculating strategy returns and volatilities", "info")
@@ -876,5 +879,5 @@ def calculate_risk_contributions_legacy(
         return risk_contributions
 
     except Exception as e:
-        log(f"Error calculating risk contributions: {str(e)}", "error")
+        log(f"Error calculating risk contributions: {e!s}", "error")
         raise

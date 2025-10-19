@@ -4,9 +4,10 @@ This module provides functionality for generating reports that compare
 the full strategy set with the optimal subset identified through permutation analysis.
 """
 
+from collections.abc import Callable
 import json
 from pathlib import Path
-from typing import Any, Callable, Dict, List
+from typing import Any
 
 from app.concurrency.tools.strategy_id import generate_strategy_id
 from app.concurrency.tools.types import ConcurrencyConfig
@@ -21,23 +22,23 @@ class NumpyEncoder(json.JSONEncoder):
 
         if obj is None:
             return 1  # Convert None to 1 for best_horizon (default horizon)
-        elif isinstance(obj, (np.integer, np.int64, np.int32, np.int16, np.int8)):
+        if isinstance(obj, np.integer | np.int64 | np.int32 | np.int16 | np.int8):
             return int(obj)
-        elif isinstance(obj, (np.floating, np.float64, np.float32, np.float16)):
+        if isinstance(obj, np.floating | np.float64 | np.float32 | np.float16):
             return float(obj)
-        elif isinstance(obj, (np.ndarray,)):
+        if isinstance(obj, np.ndarray):
             return obj.tolist()
-        return super(NumpyEncoder, self).default(obj)
+        return super().default(obj)
 
 
 def generate_optimization_report(
-    all_strategies: List[StrategyConfig],
-    all_stats: Dict[str, Any],
-    optimal_strategies: List[StrategyConfig],
-    optimal_stats: Dict[str, Any],
+    all_strategies: list[StrategyConfig],
+    all_stats: dict[str, Any],
+    optimal_strategies: list[StrategyConfig],
+    optimal_stats: dict[str, Any],
     config: ConcurrencyConfig,
     log: Callable[[str, str], None],
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Generate a report comparing all strategies with the optimal subset.
 
     Args:
@@ -143,7 +144,7 @@ def generate_optimization_report(
 
 
 def save_optimization_report(
-    report: Dict[str, Any], config: ConcurrencyConfig, log: Callable[[str, str], None]
+    report: dict[str, Any], config: ConcurrencyConfig, log: Callable[[str, str], None]
 ) -> Path:
     """Save optimization report to file.
 
@@ -177,5 +178,5 @@ def save_optimization_report(
         return report_path
 
     except Exception as e:
-        log(f"Error saving optimization report: {str(e)}", "error")
-        raise IOError(f"Failed to save optimization report: {str(e)}")
+        log(f"Error saving optimization report: {e!s}", "error")
+        raise OSError(f"Failed to save optimization report: {e!s}")

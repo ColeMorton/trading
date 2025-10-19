@@ -167,7 +167,7 @@ class TestFactoryIntegrationWithExistingCode:
             mock_positions.return_value = data.with_columns(pl.lit(0).alias("Signal"))
 
             # Test with SMA passed as parameter
-            result = calculate_ma_and_signals(data, 20, 50, config, log, "SMA")
+            calculate_ma_and_signals(data, 20, 50, config, log, "SMA")
 
             # Verify SMA was used
             mock_mas.assert_called_with(data, 20, 50, True, log)
@@ -193,7 +193,7 @@ class TestFactoryIntegrationWithExistingCode:
             mock_positions.return_value = data.with_columns(pl.lit(0).alias("Signal"))
 
             # Pass SMA as parameter but config says EMA
-            result = calculate_ma_and_signals(data, 12, 26, config, log, "SMA")
+            calculate_ma_and_signals(data, 12, 26, config, log, "SMA")
 
             # Verify EMA was used (config overrides parameter)
             mock_mas.assert_called_with(data, 12, 26, False, log)

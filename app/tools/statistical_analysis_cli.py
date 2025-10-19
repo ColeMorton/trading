@@ -26,9 +26,9 @@ import argparse
 import asyncio
 import json
 import logging
-import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+import sys
+
 
 # Configure logging
 logging.basicConfig(
@@ -160,7 +160,7 @@ Examples:
 
         return parser
 
-    async def run(self, args: Optional[list] = None) -> int:
+    async def run(self, args: list | None = None) -> int:
         """Run the CLI application"""
         try:
             parsed_args = self.parser.parse_args(args)
@@ -174,17 +174,16 @@ Examples:
             # Route to appropriate handler
             if parsed_args.demo:
                 return await self._handle_demo()
-            elif parsed_args.show_config:
+            if parsed_args.show_config:
                 return self._handle_show_config(parsed_args)
-            elif parsed_args.list_portfolios:
+            if parsed_args.list_portfolios:
                 return self._handle_list_portfolios()
-            elif parsed_args.interactive:
+            if parsed_args.interactive:
                 return await self._handle_interactive_mode()
-            elif parsed_args.portfolio:
+            if parsed_args.portfolio:
                 return await self._handle_portfolio_analysis(parsed_args)
-            else:
-                self.parser.print_help()
-                return 0
+            self.parser.print_help()
+            return 0
 
         except KeyboardInterrupt:
             print("\n⚠️  Operation cancelled by user")
@@ -235,29 +234,28 @@ Examples:
                     args.export_backtesting_parameters,
                 )
                 return self._output_json_results(results, summary, args.save_results)
-            else:
-                analyzer = PortfolioStatisticalAnalyzer(portfolio, use_trade_history)
-                results = await analyzer.analyze()
-                summary = analyzer.get_summary_report(results)
+            analyzer = PortfolioStatisticalAnalyzer(portfolio, use_trade_history)
+            results = await analyzer.analyze()
+            summary = analyzer.get_summary_report(results)
 
-                # ALWAYS export to all formats automatically
-                await self._export_all_formats(
-                    results,
-                    summary,
-                    analyzer,
-                    portfolio,
-                    config,
-                    args.export_backtesting_parameters,
-                )
+            # ALWAYS export to all formats automatically
+            await self._export_all_formats(
+                results,
+                summary,
+                analyzer,
+                portfolio,
+                config,
+                args.export_backtesting_parameters,
+            )
 
-                if args.output_format == "summary":
-                    return self._output_summary_results(summary)
-                else:  # table format
-                    return self._output_table_results(results, summary, analyzer)
+            if args.output_format == "summary":
+                return self._output_summary_results(summary)
+            # table format
+            return self._output_table_results(results, summary, analyzer)
 
         except FileNotFoundError as e:
             print(f"❌ File not found: {e}")
-            print(f"💡 Available portfolios:")
+            print("💡 Available portfolios:")
             self._handle_list_portfolios()
             return 1
         except Exception as e:
@@ -283,27 +281,35 @@ Examples:
         return config
 
     def _output_json_results(
-        self, results: Dict, summary: Dict, save_path: Optional[str] = None
+        self, results: dict, summary: dict, save_path: str | None = None
     ) -> int:
         """Output results in JSON format"""
         output_data = {
             "summary": summary,
             "results": {
                 name: {
-                    "strategy_name": result.strategy_name
-                    if hasattr(result, "strategy_name")
-                    else name,
+                    "strategy_name": (
+                        result.strategy_name
+                        if hasattr(result, "strategy_name")
+                        else name
+                    ),
                     "ticker": result.ticker if hasattr(result, "ticker") else "Unknown",
-                    "exit_signal": result.exit_signal.signal_type.value
-                    if hasattr(result, "exit_signal") and result.exit_signal
-                    else "HOLD",
-                    "confidence": result.overall_confidence
-                    if hasattr(result, "overall_confidence")
-                    else 0.5,
-                    "dual_layer_score": result.dual_layer_convergence.convergence_score
-                    if hasattr(result, "dual_layer_convergence")
-                    and result.dual_layer_convergence
-                    else 0.0,
+                    "exit_signal": (
+                        result.exit_signal.signal_type.value
+                        if hasattr(result, "exit_signal") and result.exit_signal
+                        else "HOLD"
+                    ),
+                    "confidence": (
+                        result.overall_confidence
+                        if hasattr(result, "overall_confidence")
+                        else 0.5
+                    ),
+                    "dual_layer_score": (
+                        result.dual_layer_convergence.convergence_score
+                        if hasattr(result, "dual_layer_convergence")
+                        and result.dual_layer_convergence
+                        else 0.0
+                    ),
                 }
                 for name, result in results.items()
             },
@@ -320,7 +326,7 @@ Examples:
 
         return 0
 
-    def _output_summary_results(self, summary: Dict) -> int:
+    def _output_summary_results(self, summary: dict) -> int:
         """Output summary results"""
         print("📈 Portfolio Analysis Summary")
         print("=" * 40)
@@ -354,7 +360,7 @@ Examples:
         return 0
 
     def _output_table_results(
-        self, results: Dict, summary: Dict, analyzer: PortfolioStatisticalAnalyzer
+        self, results: dict, summary: dict, analyzer: PortfolioStatisticalAnalyzer
     ) -> int:
         """Output detailed table results"""
         # Summary first
@@ -511,7 +517,7 @@ Examples:
                 df = pd.read_csv(portfolio_file)
                 print(f"   Strategies: {len(df)}")
             except:
-                print(f"   Strategies: Unknown (file read error)")
+                print("   Strategies: Unknown (file read error)")
             print()
 
         print("💡 Usage:")
@@ -624,8 +630,8 @@ Examples:
 
     async def _export_all_formats(
         self,
-        results: Dict,
-        summary: Dict,
+        results: dict,
+        summary: dict,
         analyzer: PortfolioStatisticalAnalyzer,
         portfolio: str,
         config: StatisticalAnalysisConfig,
@@ -643,7 +649,7 @@ Examples:
             validation_results = self._validate_analysis_data_quality(analysis_results)
 
             # Report validation results
-            print(f"📊 Data Quality Validation:")
+            print("📊 Data Quality Validation:")
             print(f"   Total Results: {validation_results['total_results']}")
             print(f"   Meaningful Data: {validation_results['meaningful_data_count']}")
             print(f"   Quality Score: {validation_results['data_quality_score']:.1%}")
@@ -653,7 +659,7 @@ Examples:
 
             if not validation_results["is_valid"]:
                 print(
-                    f"   ⚠️  Warning: Data quality below threshold - some results may contain placeholder data"
+                    "   ⚠️  Warning: Data quality below threshold - some results may contain placeholder data"
                 )
 
             # 3. Initialize export service and export to JSON/CSV
@@ -679,7 +685,7 @@ Examples:
             )
 
             # Report successful exports
-            print(f"📄 Portfolio analysis exported to:")
+            print("📄 Portfolio analysis exported to:")
             for format_type, file_path in exported_files.items():
                 print(f"   {format_type.upper()}: {file_path}")
 
@@ -705,7 +711,7 @@ Examples:
                         parameters_data=parameters_data, export_name=portfolio_name
                     )
 
-                    print(f"🔧 Backtesting parameters exported to:")
+                    print("🔧 Backtesting parameters exported to:")
                     for format_type, file_path in parameter_files.items():
                         print(f"   {format_type.upper()}: {file_path}")
 
@@ -717,7 +723,7 @@ Examples:
             print(f"⚠️  Failed to export portfolio analysis: {e}")
             logger.error(f"Export failed: {e}")
 
-    def _convert_to_analysis_results(self, results: Dict, summary: Dict) -> list:
+    def _convert_to_analysis_results(self, results: dict, summary: dict) -> list:
         """Convert portfolio analysis results to LegacyStatisticalAnalysisResult format"""
         from datetime import datetime
 
@@ -956,9 +962,11 @@ Examples:
                 # Create a minimal fallback result to avoid empty exports
                 fallback_result = LegacyStatisticalAnalysisResult(
                     strategy_name=strategy_name,
-                    ticker=strategy_name.split("_")[0]
-                    if "_" in strategy_name
-                    else "Unknown",
+                    ticker=(
+                        strategy_name.split("_")[0]
+                        if "_" in strategy_name
+                        else "Unknown"
+                    ),
                     timeframe="D",
                     analysis_timestamp=datetime.now(),
                     sample_size=0,
@@ -1014,7 +1022,7 @@ Examples:
         try:
             import math
 
-            import scipy.stats as stats
+            from scipy import stats
 
             # Base p-value from z-score (two-tailed test)
             if abs(z_score) > 0:
@@ -1072,23 +1080,21 @@ Examples:
             # Fallback if scipy is not available - use basic calculation
             if abs(z_score) > 2.58:  # 99% confidence
                 return 0.01
-            elif abs(z_score) > 1.96:  # 95% confidence
+            if abs(z_score) > 1.96:  # 95% confidence
                 return 0.05
-            elif abs(z_score) > 1.64:  # 90% confidence
+            if abs(z_score) > 1.64:  # 90% confidence
                 return 0.10
-            else:
-                return 0.20
+            return 0.20
         except Exception as e:
             logger.warning(f"Error calculating p-value: {e}")
             # Safe fallback based on sample size
             if sample_size >= 30:
                 return 0.05
-            elif sample_size >= 15:
+            if sample_size >= 15:
                 return 0.10
-            else:
-                return 0.20
+            return 0.20
 
-    def _validate_analysis_data_quality(self, analysis_results: list) -> Dict[str, any]:
+    def _validate_analysis_data_quality(self, analysis_results: list) -> dict[str, any]:
         """Validate that analysis results contain meaningful data, not just placeholders"""
         validation_results = {
             "total_results": len(analysis_results),
@@ -1189,14 +1195,13 @@ Examples:
 
     def _export_markdown_report(
         self,
-        results: Dict,
-        summary: Dict,
+        results: dict,
+        summary: dict,
         analyzer: PortfolioStatisticalAnalyzer,
         portfolio: str,
     ) -> None:
         """Export portfolio analysis report to markdown"""
         try:
-            from datetime import datetime
             from pathlib import Path
 
             # Create output directory
@@ -1222,7 +1227,7 @@ Examples:
             print(f"⚠️  Failed to export markdown report: {e}")
 
     def _generate_markdown_content(
-        self, results: Dict, summary: Dict, analyzer: PortfolioStatisticalAnalyzer
+        self, results: dict, summary: dict, analyzer: PortfolioStatisticalAnalyzer
     ) -> str:
         """Generate markdown content for the portfolio analysis report"""
         from datetime import datetime
@@ -1293,7 +1298,7 @@ Examples:
         if summary["holds"] > 0:
             content += f"- ✅ **{summary['holds']} strategies can continue (HOLD)**\n"
 
-        content += f"""
+        content += """
 ## 📋 Detailed Analysis Results
 
 | Strategy | Ticker | Signal | Confidence | Recommendation |
@@ -1314,7 +1319,7 @@ Examples:
 
             content += f"| {strategy_name} | {ticker} | {signal_icon} {signal} | {confidence:.1f}% | {recommendation} |\n"
 
-        content += f"""
+        content += """
 ## 💡 Legend
 
 - 🚨 **EXIT_IMMEDIATELY** - Statistical exhaustion detected

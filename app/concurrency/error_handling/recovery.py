@@ -4,10 +4,11 @@ Provides policies and functions for handling recoverable errors,
 including retry strategies, fallback operations, and graceful degradation.
 """
 
-import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, List, Optional, Type
+import time
+from typing import Any
 
 from .exceptions import ConcurrencyError
 
@@ -39,10 +40,10 @@ class ErrorRecoveryPolicy:
     max_retries: int = 3
     retry_delay: float = 1.0
     backoff_factor: float = 2.0
-    fallback_func: Optional[Callable] | None = None
-    default_value: Optional[Any] | None = None
+    fallback_func: Callable | None | None = None
+    default_value: Any | None | None = None
     action_on_failure: RecoveryAction = RecoveryAction.RAISE_ERROR
-    applicable_exceptions: List[Type[Exception]] | None = None
+    applicable_exceptions: list[type[Exception]] | None = None
 
     def __post_init__(self):
         if self.applicable_exceptions is None:
@@ -94,10 +95,10 @@ def create_recovery_policy(
     max_retries: int = 3,
     retry_delay: float = 1.0,
     backoff_factor: float = 2.0,
-    fallback_func: Optional[Callable] | None = None,
-    default_value: Optional[Any] | None = None,
+    fallback_func: Callable | None | None = None,
+    default_value: Any | None | None = None,
     action_on_failure: RecoveryAction = RecoveryAction.RAISE_ERROR,
-    applicable_exceptions: Optional[List[Type[Exception]]] | None = None,
+    applicable_exceptions: list[type[Exception]] | None | None = None,
 ) -> ErrorRecoveryPolicy:
     """Create a custom error recovery policy.
 
@@ -129,7 +130,7 @@ def create_recovery_policy(
 def apply_error_recovery(
     func: Callable,
     policy: ErrorRecoveryPolicy,
-    log: Optional[Callable[[str, str], None]] = None,
+    log: Callable[[str, str], None] | None = None,
     operation: str = "operation",
     *args,
     **kwargs,
@@ -169,7 +170,7 @@ def apply_error_recovery(
 
                 if attempt < policy.max_retries:
                     log_message(
-                        f"Attempt {attempt + 1} failed for {operation}: {str(e)}. "
+                        f"Attempt {attempt + 1} failed for {operation}: {e!s}. "
                         f"Retrying in {current_delay:.1f} seconds...",
                         "warning",
                     )
@@ -193,7 +194,7 @@ def apply_error_recovery(
         except tuple(policy.applicable_exceptions) as e:
             last_exception = e
             log_message(
-                f"Using fallback for {operation} due to error: {str(e)}", "warning"
+                f"Using fallback for {operation} due to error: {e!s}", "warning"
             )
 
             if policy.fallback_func:
@@ -201,7 +202,7 @@ def apply_error_recovery(
                     return policy.fallback_func(*args, **kwargs)
                 except Exception as fallback_error:
                     log_message(
-                        f"Fallback also failed for {operation}: {str(fallback_error)}",
+                        f"Fallback also failed for {operation}: {fallback_error!s}",
                         "error",
                     )
                     last_exception = fallback_error
@@ -211,7 +212,7 @@ def apply_error_recovery(
             return func(*args, **kwargs)
         except tuple(policy.applicable_exceptions) as e:
             last_exception = e
-            log_message(f"Skipping {operation} due to error: {str(e)}", "warning")
+            log_message(f"Skipping {operation} due to error: {e!s}", "warning")
 
     elif policy.strategy == RecoveryStrategy.PARTIAL:
         try:
@@ -219,7 +220,7 @@ def apply_error_recovery(
         except tuple(policy.applicable_exceptions) as e:
             last_exception = e
             log_message(
-                f"Partial execution for {operation} due to error: {str(e)}", "warning"
+                f"Partial execution for {operation} due to error: {e!s}", "warning"
             )
 
             # Try to extract partial results
@@ -235,24 +236,23 @@ def apply_error_recovery(
         log_message(f"Continuing after failed {operation}", "info")
         return None
 
-    elif policy.action_on_failure == RecoveryAction.RETURN_PARTIAL:
+    if policy.action_on_failure == RecoveryAction.RETURN_PARTIAL:
         log_message(f"Returning partial result for {operation}", "info")
         return getattr(last_exception, "partial_result", None)
 
-    elif policy.action_on_failure == RecoveryAction.USE_DEFAULT:
+    if policy.action_on_failure == RecoveryAction.USE_DEFAULT:
         log_message(f"Using default value for {operation}", "info")
         return policy.default_value
 
-    elif policy.action_on_failure == RecoveryAction.RAISE_ERROR:
+    if policy.action_on_failure == RecoveryAction.RAISE_ERROR:
         if last_exception:
             raise last_exception
-        else:
-            raise ConcurrencyError(f"Recovery failed for {operation}")
+        raise ConcurrencyError(f"Recovery failed for {operation}")
 
     return None
 
 
-def get_recovery_policy(operation_type: str) -> Optional[ErrorRecoveryPolicy]:
+def get_recovery_policy(operation_type: str) -> ErrorRecoveryPolicy | None:
     """Get the default recovery policy for an operation type.
 
     Args:
@@ -265,7 +265,7 @@ def get_recovery_policy(operation_type: str) -> Optional[ErrorRecoveryPolicy]:
 
 
 def create_fallback_function(
-    default_value: Any, log_message: Optional[str] | None = None
+    default_value: Any, log_message: str | None | None = None
 ) -> Callable:
     """Create a simple fallback function that returns a default value.
 
@@ -300,7 +300,7 @@ def create_retry_policy(
     max_retries: int = 3,
     retry_delay: float = 1.0,
     backoff_factor: float = 2.0,
-    exceptions: Optional[List[Type[Exception]]] | None = None,
+    exceptions: list[type[Exception]] | None | None = None,
 ) -> ErrorRecoveryPolicy:
     """Create a retry-based recovery policy.
 
@@ -324,7 +324,7 @@ def create_retry_policy(
 
 
 def create_skip_policy(
-    exceptions: Optional[List[Type[Exception]]] | None = None,
+    exceptions: list[type[Exception]] | None | None = None,
 ) -> ErrorRecoveryPolicy:
     """Create a skip-based recovery policy.
 

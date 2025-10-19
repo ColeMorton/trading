@@ -7,9 +7,8 @@ Replaces the complex configuration system with a straightforward approach.
 
 import json
 import os
-from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .models.spds_models import ConfidenceLevel, SPDSConfig
 
@@ -33,7 +32,7 @@ class SPDSConfigManager:
         self.env_prefix = "SPDS_"
 
         # Cache for loaded configurations
-        self._config_cache: Dict[str, SPDSConfig] = {}
+        self._config_cache: dict[str, SPDSConfig] = {}
 
     def get_default_config(self) -> SPDSConfig:
         """Get default SPDS configuration."""
@@ -82,7 +81,7 @@ class SPDSConfigManager:
         if not config_path.exists():
             raise FileNotFoundError(f"Configuration file not found: {config_path}")
 
-        with open(config_path, "r") as f:
+        with open(config_path) as f:
             config_data = json.load(f)
 
         config = SPDSConfig.from_dict(config_data)
@@ -99,7 +98,7 @@ class SPDSConfigManager:
             json.dump(config.to_dict(), f, indent=2)
 
     def create_config_with_overrides(
-        self, base_config: SPDSConfig, overrides: Dict[str, Any]
+        self, base_config: SPDSConfig, overrides: dict[str, Any]
     ) -> SPDSConfig:
         """Create configuration with runtime overrides."""
         config_data = base_config.to_dict()
@@ -108,14 +107,11 @@ class SPDSConfigManager:
         for key, value in overrides.items():
             if key in config_data:
                 config_data[key] = value
-            else:
-                # Handle nested keys (e.g., "percentile_thresholds.exit_immediately")
-                if "." in key:
-                    main_key, sub_key = key.split(".", 1)
-                    if main_key in config_data and isinstance(
-                        config_data[main_key], dict
-                    ):
-                        config_data[main_key][sub_key] = value
+            # Handle nested keys (e.g., "percentile_thresholds.exit_immediately")
+            elif "." in key:
+                main_key, sub_key = key.split(".", 1)
+                if main_key in config_data and isinstance(config_data[main_key], dict):
+                    config_data[main_key][sub_key] = value
 
         return SPDSConfig.from_dict(config_data)
 
@@ -123,11 +119,10 @@ class SPDSConfigManager:
         """Load default configuration or create it if it doesn't exist."""
         if self.default_config_file.exists():
             return self.load_config_from_file(str(self.default_config_file))
-        else:
-            # Create default configuration
-            config = SPDSConfig.create_default()
-            self.save_config_to_file(config, str(self.default_config_file))
-            return config
+        # Create default configuration
+        config = SPDSConfig.create_default()
+        self.save_config_to_file(config, str(self.default_config_file))
+        return config
 
     def _apply_environment_overrides(self, config: SPDSConfig) -> SPDSConfig:
         """Apply environment variable overrides to configuration."""
@@ -169,14 +164,13 @@ class SPDSConfigManager:
 
         if overrides:
             return self.create_config_with_overrides(config, overrides)
-        else:
-            return config
+        return config
 
     def clear_cache(self):
         """Clear the configuration cache."""
         self._config_cache.clear()
 
-    def get_cache_info(self) -> Dict[str, Any]:
+    def get_cache_info(self) -> dict[str, Any]:
         """Get information about the configuration cache."""
         return {
             "cached_configs": len(self._config_cache),
@@ -187,7 +181,7 @@ class SPDSConfigManager:
 
 
 # Global configuration manager instance
-_config_manager: Optional[SPDSConfigManager] = None
+_config_manager: SPDSConfigManager | None = None
 
 
 def get_config_manager() -> SPDSConfigManager:
@@ -233,7 +227,7 @@ def save_config_to_file(config: SPDSConfig, config_file: str):
 
 
 def create_config_with_overrides(
-    base_config: SPDSConfig, overrides: Dict[str, Any]
+    base_config: SPDSConfig, overrides: dict[str, Any]
 ) -> SPDSConfig:
     """Create configuration with runtime overrides."""
     return get_config_manager().create_config_with_overrides(base_config, overrides)
@@ -311,7 +305,7 @@ class SPDSPresets:
 
 
 # Configuration validation utilities
-def validate_config(config: SPDSConfig) -> List[str]:
+def validate_config(config: SPDSConfig) -> list[str]:
     """Validate SPDS configuration and return list of issues."""
     issues = []
 
@@ -345,17 +339,19 @@ def validate_config(config: SPDSConfig) -> List[str]:
     return issues
 
 
-def get_config_summary(config: SPDSConfig) -> Dict[str, Any]:
+def get_config_summary(config: SPDSConfig) -> dict[str, Any]:
     """Get a summary of configuration settings."""
     return {
-        "analysis_mode": "aggressive"
-        if config.percentile_thresholds["exit_immediately"] < 90
-        else "conservative",
+        "analysis_mode": (
+            "aggressive"
+            if config.percentile_thresholds["exit_immediately"] < 90
+            else "conservative"
+        ),
         "confidence_level": config.confidence_level.value,
         "data_source": "trade_history" if config.use_trade_history else "equity_curves",
-        "performance_mode": "fast"
-        if config.bootstrap_iterations < 500
-        else "comprehensive",
+        "performance_mode": (
+            "fast" if config.bootstrap_iterations < 500 else "comprehensive"
+        ),
         "parallel_processing": config.parallel_processing,
         "caching_enabled": config.enable_caching,
         "export_directory": config.export_directory,
@@ -365,17 +361,17 @@ def get_config_summary(config: SPDSConfig) -> Dict[str, Any]:
 
 # Export commonly used functions and classes
 __all__ = [
-    "SPDSConfigManager",
     "SPDSConfig",
+    "SPDSConfigManager",
     "SPDSPresets",
+    "create_config_with_overrides",
     "get_config_manager",
+    "get_config_summary",
     "get_default_config",
     "get_portfolio_config",
-    "get_strategy_config",
     "get_position_config",
+    "get_strategy_config",
     "load_config_from_file",
     "save_config_to_file",
-    "create_config_with_overrides",
     "validate_config",
-    "get_config_summary",
 ]

@@ -5,11 +5,9 @@ This module tests the convert_parameters_to_legacy function and related
 parameter mapping functionality in isolation.
 """
 
-from typing import Any, Dict
 from unittest.mock import MagicMock, patch
 
 import numpy as np
-import pytest
 
 from app.portfolio_synthesis.review import run
 
@@ -43,22 +41,17 @@ class TestParameterConversionLogic:
             "BASE_DIR": "/tmp",
         }
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_ma_and_signals"
-        ) as mock_calc_ma, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ), patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df, patch(
-            "app.tools.plotting.create_portfolio_plot_files"
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+            ) as mock_calc_ma,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs"),
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df,
+            patch("app.tools.plotting.create_portfolio_plot_files"),
         ):
             # Setup mocks
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
@@ -83,9 +76,9 @@ class TestParameterConversionLogic:
             mock_get_config.assert_called_once()
             enhanced_config = mock_get_config.call_args[0][0]
 
-            assert enhanced_config["USE_HOURLY"] == True
-            assert enhanced_config["USE_4HOUR"] == False
-            assert enhanced_config["USE_2DAY"] == False
+            assert enhanced_config["USE_HOURLY"] is True
+            assert enhanced_config["USE_4HOUR"] is False
+            assert enhanced_config["USE_2DAY"] is False
 
     def test_timeframe_conversion_4hour(self):
         """Test timeframe '4hour' converts to correct legacy flags."""
@@ -96,22 +89,17 @@ class TestParameterConversionLogic:
             "BASE_DIR": "/tmp",
         }
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_ma_and_signals"
-        ) as mock_calc_ma, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ), patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df, patch(
-            "app.tools.plotting.create_portfolio_plot_files"
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+            ) as mock_calc_ma,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs"),
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df,
+            patch("app.tools.plotting.create_portfolio_plot_files"),
         ):
             # Setup mocks
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
@@ -136,9 +124,9 @@ class TestParameterConversionLogic:
             mock_get_config.assert_called_once()
             enhanced_config = mock_get_config.call_args[0][0]
 
-            assert enhanced_config["USE_HOURLY"] == False
-            assert enhanced_config["USE_4HOUR"] == True
-            assert enhanced_config["USE_2DAY"] == False
+            assert enhanced_config["USE_HOURLY"] is False
+            assert enhanced_config["USE_4HOUR"] is True
+            assert enhanced_config["USE_2DAY"] is False
 
     def test_timeframe_conversion_2day(self):
         """Test timeframe '2day' converts to correct legacy flags."""
@@ -149,22 +137,17 @@ class TestParameterConversionLogic:
             "BASE_DIR": "/tmp",
         }
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_ma_and_signals"
-        ) as mock_calc_ma, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ), patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df, patch(
-            "app.tools.plotting.create_portfolio_plot_files"
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+            ) as mock_calc_ma,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs"),
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df,
+            patch("app.tools.plotting.create_portfolio_plot_files"),
         ):
             # Setup mocks
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
@@ -189,9 +172,9 @@ class TestParameterConversionLogic:
             mock_get_config.assert_called_once()
             enhanced_config = mock_get_config.call_args[0][0]
 
-            assert enhanced_config["USE_HOURLY"] == False
-            assert enhanced_config["USE_4HOUR"] == False
-            assert enhanced_config["USE_2DAY"] == True
+            assert enhanced_config["USE_HOURLY"] is False
+            assert enhanced_config["USE_4HOUR"] is False
+            assert enhanced_config["USE_2DAY"] is True
 
     def test_timeframe_conversion_daily_default(self):
         """Test timeframe 'daily' (default) converts to all false flags."""
@@ -202,22 +185,17 @@ class TestParameterConversionLogic:
             "BASE_DIR": "/tmp",
         }
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_ma_and_signals"
-        ) as mock_calc_ma, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ), patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df, patch(
-            "app.tools.plotting.create_portfolio_plot_files"
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+            ) as mock_calc_ma,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs"),
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df,
+            patch("app.tools.plotting.create_portfolio_plot_files"),
         ):
             # Setup mocks
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
@@ -242,9 +220,9 @@ class TestParameterConversionLogic:
             mock_get_config.assert_called_once()
             enhanced_config = mock_get_config.call_args[0][0]
 
-            assert enhanced_config["USE_HOURLY"] == False
-            assert enhanced_config["USE_4HOUR"] == False
-            assert enhanced_config["USE_2DAY"] == False
+            assert enhanced_config["USE_HOURLY"] is False
+            assert enhanced_config["USE_4HOUR"] is False
+            assert enhanced_config["USE_2DAY"] is False
 
     def test_strategy_type_conversion_sma(self):
         """Test strategy_type 'SMA' converts to USE_SMA=True."""
@@ -255,22 +233,17 @@ class TestParameterConversionLogic:
             "BASE_DIR": "/tmp",
         }
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_ma_and_signals"
-        ) as mock_calc_ma, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ), patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df, patch(
-            "app.tools.plotting.create_portfolio_plot_files"
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+            ) as mock_calc_ma,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs"),
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df,
+            patch("app.tools.plotting.create_portfolio_plot_files"),
         ):
             # Setup mocks
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
@@ -295,7 +268,7 @@ class TestParameterConversionLogic:
             mock_get_config.assert_called_once()
             enhanced_config = mock_get_config.call_args[0][0]
 
-            assert enhanced_config["USE_SMA"] == True
+            assert enhanced_config["USE_SMA"] is True
             assert enhanced_config["STRATEGY_TYPE"] == "SMA"
 
     def test_strategy_type_conversion_non_sma(self):
@@ -309,24 +282,26 @@ class TestParameterConversionLogic:
                     "BASE_DIR": "/tmp",
                 }
 
-                with patch(
-                    "app.portfolio_synthesis.review.setup_logging"
-                ) as mock_logging, patch(
-                    "app.portfolio_synthesis.review.get_config"
-                ) as mock_get_config, patch(
-                    "app.portfolio_synthesis.review.get_data"
-                ) as mock_get_data, patch(
-                    "app.portfolio_synthesis.review.calculate_ma_and_signals"
-                ) as mock_calc_ma, patch(
-                    "app.portfolio_synthesis.review.calculate_macd_and_signals"
-                ) as mock_calc_macd, patch(
-                    "app.portfolio_synthesis.review.backtest_strategy"
-                ) as mock_backtest, patch(
-                    "app.portfolio_synthesis.review.os.makedirs"
-                ), patch(
-                    "app.portfolio_synthesis.review.pl.DataFrame"
-                ) as mock_df, patch(
-                    "app.tools.plotting.create_portfolio_plot_files"
+                with (
+                    patch(
+                        "app.portfolio_synthesis.review.setup_logging"
+                    ) as mock_logging,
+                    patch(
+                        "app.portfolio_synthesis.review.get_config"
+                    ) as mock_get_config,
+                    patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+                    patch(
+                        "app.portfolio_synthesis.review.calculate_ma_and_signals"
+                    ) as mock_calc_ma,
+                    patch(
+                        "app.portfolio_synthesis.review.calculate_macd_and_signals"
+                    ) as mock_calc_macd,
+                    patch(
+                        "app.portfolio_synthesis.review.backtest_strategy"
+                    ) as mock_backtest,
+                    patch("app.portfolio_synthesis.review.os.makedirs"),
+                    patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df,
+                    patch("app.tools.plotting.create_portfolio_plot_files"),
                 ):
                     # Setup mocks
                     mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
@@ -354,7 +329,7 @@ class TestParameterConversionLogic:
                     mock_get_config.assert_called_once()
                     enhanced_config = mock_get_config.call_args[0][0]
 
-                    assert enhanced_config["USE_SMA"] == False
+                    assert enhanced_config["USE_SMA"] is False
                     assert enhanced_config["STRATEGY_TYPE"] == strategy_type
 
     def test_signal_period_conversion(self):
@@ -368,22 +343,17 @@ class TestParameterConversionLogic:
 
         test_signal_period = 14
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_ma_and_signals"
-        ) as mock_calc_ma, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ), patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df, patch(
-            "app.tools.plotting.create_portfolio_plot_files"
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+            ) as mock_calc_ma,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs"),
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df,
+            patch("app.tools.plotting.create_portfolio_plot_files"),
         ):
             # Setup mocks
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
@@ -419,22 +389,17 @@ class TestParameterConversionLogic:
             "BASE_DIR": "/tmp",
         }
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_macd_and_signals"
-        ) as mock_calc_macd, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ), patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df, patch(
-            "app.tools.plotting.create_portfolio_plot_files"
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_macd_and_signals"
+            ) as mock_calc_macd,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs"),
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df,
+            patch("app.tools.plotting.create_portfolio_plot_files"),
         ):
             # Setup mocks
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
@@ -465,12 +430,12 @@ class TestParameterConversionLogic:
             enhanced_config = mock_get_config.call_args[0][0]
 
             # Verify timeframe conversion
-            assert enhanced_config["USE_HOURLY"] == False
-            assert enhanced_config["USE_4HOUR"] == True
-            assert enhanced_config["USE_2DAY"] == False
+            assert enhanced_config["USE_HOURLY"] is False
+            assert enhanced_config["USE_4HOUR"] is True
+            assert enhanced_config["USE_2DAY"] is False
 
             # Verify strategy type conversion
-            assert enhanced_config["USE_SMA"] == False
+            assert enhanced_config["USE_SMA"] is False
             assert enhanced_config["STRATEGY_TYPE"] == "MACD"
 
             # Verify signal period

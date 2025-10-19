@@ -11,8 +11,9 @@ processed by splitting them into their component tickers.
 """
 
 import os
-import sys
 from pathlib import Path
+import sys
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -35,11 +36,12 @@ from app.tools.exceptions import (
     TradingSystemError,
 )
 from app.tools.logging_context import logging_context
-from app.tools.portfolio import PortfolioLoadError  # Using specific error type
-from app.tools.portfolio import load_portfolio_with_logging  # Using enhanced loader
+from app.tools.portfolio import (
+    PortfolioLoadError,  # Using specific error type
+    load_portfolio_with_logging,  # Using enhanced loader
+)
 from app.tools.portfolio.allocation import (
     calculate_position_sizes,
-    distribute_missing_allocations,
     ensure_allocation_sum_100_percent,
     get_allocation_summary,
     normalize_allocations,
@@ -65,6 +67,7 @@ from app.tools.portfolio_results import (
 from app.tools.project_utils import get_project_root
 from app.tools.strategy_utils import filter_portfolios_by_signal
 from app.tools.synthetic_ticker import detect_synthetic_ticker, process_synthetic_ticker
+
 
 # Default Configuration
 config = {
@@ -338,7 +341,7 @@ def _execute_portfolio_processing(
 
         # Validate and normalize allocation value
         allocation = strategy.get(allocation_field)
-        if allocation is not None and allocation != "" and allocation != "None":
+        if allocation is not None and allocation not in ("", "None"):
             try:
                 allocation_value = float(allocation)
                 if 0 <= allocation_value <= 100:
@@ -357,7 +360,7 @@ def _execute_portfolio_processing(
 
         # Validate and normalize stop loss value using the stop_loss utility
         stop_loss = strategy.get(stop_loss_field)
-        if stop_loss is not None and stop_loss != "" and stop_loss != "None":
+        if stop_loss is not None and stop_loss not in ("", "None"):
             # Use the validate_stop_loss function on a single-item list
             validated_data = validate_stop_loss([strategy], log)
             if validated_data and validated_data[0].get(stop_loss_field) is not None:
@@ -386,7 +389,7 @@ def _execute_portfolio_processing(
                     )
                 except SyntheticTickerError as e:
                     log(
-                        f"Invalid synthetic ticker format: {ticker} - {str(e)}",
+                        f"Invalid synthetic ticker format: {ticker} - {e!s}",
                         "warning",
                     )
 
@@ -407,38 +410,28 @@ def _execute_portfolio_processing(
                     if (
                         "Allocation [%]" not in portfolio_result
                         or portfolio_result["Allocation [%]"] is None
-                    ):
-                        if (
-                            allocation is not None
-                            and allocation != ""
-                            and allocation != "None"
-                        ):
-                            try:
-                                portfolio_result["Allocation [%]"] = float(allocation)
-                            except (ValueError, TypeError):
-                                log(
-                                    f"Invalid allocation value for {ticker}: {allocation}",
-                                    "warning",
-                                )
-                                portfolio_result["Allocation [%]"] = None
+                    ) and (allocation is not None and allocation not in ("", "None")):
+                        try:
+                            portfolio_result["Allocation [%]"] = float(allocation)
+                        except (ValueError, TypeError):
+                            log(
+                                f"Invalid allocation value for {ticker}: {allocation}",
+                                "warning",
+                            )
+                            portfolio_result["Allocation [%]"] = None
 
                     if (
                         "Stop Loss [%]" not in portfolio_result
                         or portfolio_result["Stop Loss [%]"] is None
-                    ):
-                        if (
-                            stop_loss is not None
-                            and stop_loss != ""
-                            and stop_loss != "None"
-                        ):
-                            try:
-                                portfolio_result["Stop Loss [%]"] = float(stop_loss)
-                            except (ValueError, TypeError):
-                                log(
-                                    f"Invalid stop loss value for {ticker}: {stop_loss}",
-                                    "warning",
-                                )
-                                portfolio_result["Stop Loss [%]"] = None
+                    ) and (stop_loss is not None and stop_loss not in ("", "None")):
+                        try:
+                            portfolio_result["Stop Loss [%]"] = float(stop_loss)
+                        except (ValueError, TypeError):
+                            log(
+                                f"Invalid stop loss value for {ticker}: {stop_loss}",
+                                "warning",
+                            )
+                            portfolio_result["Stop Loss [%]"] = None
 
                     # Ensure Last Position Open Date and Last Position Close Date are preserved
                     if (
@@ -447,10 +440,9 @@ def _execute_portfolio_processing(
                         or portfolio_result["Last Position Open Date"] == ""
                     ):
                         last_open_date = strategy.get("Last Position Open Date")
-                        if (
-                            last_open_date is not None
-                            and last_open_date != ""
-                            and last_open_date != "None"
+                        if last_open_date is not None and last_open_date not in (
+                            "",
+                            "None",
                         ):
                             portfolio_result["Last Position Open Date"] = last_open_date
                         else:
@@ -462,14 +454,13 @@ def _execute_portfolio_processing(
                         or portfolio_result["Last Position Close Date"] == ""
                     ):
                         last_close_date = strategy.get("Last Position Close Date")
-                        if (
-                            last_close_date is not None
-                            and last_close_date != ""
-                            and last_close_date != "None"
+                        if last_close_date is not None and last_close_date not in (
+                            "",
+                            "None",
                         ):
-                            portfolio_result[
-                                "Last Position Close Date"
-                            ] = last_close_date
+                            portfolio_result["Last Position Close Date"] = (
+                                last_close_date
+                            )
                         else:
                             portfolio_result["Last Position Close Date"] = None
 
@@ -501,7 +492,7 @@ def _execute_portfolio_processing(
                         continue
                     # Convert complex objects to strings for DataFrame compatibility
                     if value is not None and not isinstance(
-                        value, (str, int, float, bool)
+                        value, str | int | float | bool
                     ):
                         # Check if it's an EquityData object specifically
                         if hasattr(value, "__class__") and "EquityData" in str(
@@ -546,7 +537,7 @@ def _execute_portfolio_processing(
             try:
                 sorted_portfolios = sort_portfolios(clean_portfolios, local_config)
             except Exception as e:
-                log(f"ERROR: Failed to sort portfolios: {str(e)}", "error")
+                log(f"ERROR: Failed to sort portfolios: {e!s}", "error")
                 return False
 
             # Use standardized utility to display all portfolio strategies
@@ -657,7 +648,7 @@ if __name__ == "__main__":
             )
             use_extended = schema_version == SchemaVersion.EXTENDED
         except Exception as e:
-            print(f"Error detecting schema version: {str(e)}")
+            print(f"Error detecting schema version: {e!s}")
             use_extended = True  # Default to extended schema on error for safety
     else:
         print(f"Portfolio file not found: {portfolio_path}")

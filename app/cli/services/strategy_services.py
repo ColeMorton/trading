@@ -5,9 +5,9 @@ This module provides strategy-specific service implementations that
 wrap underlying strategy modules with consistent CLI-compatible interfaces.
 """
 
-import importlib
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Union
+import importlib
+from typing import Any
 
 from rich import print as rprint
 
@@ -36,7 +36,7 @@ class BaseStrategyService(ABC):
         pass
 
     @abstractmethod
-    def convert_config_to_legacy(self, config: StrategyConfig) -> Dict[str, Any]:
+    def convert_config_to_legacy(self, config: StrategyConfig) -> dict[str, Any]:
         """
         Convert CLI configuration to legacy format expected by strategy module.
 
@@ -49,7 +49,7 @@ class BaseStrategyService(ABC):
         pass
 
     @abstractmethod
-    def get_supported_strategy_types(self) -> List[str]:
+    def get_supported_strategy_types(self) -> list[str]:
         """Get list of strategy types supported by this service."""
         pass
 
@@ -76,16 +76,15 @@ class MAStrategyService(BaseStrategyService):
                     external_log=self.console,
                     progress_update_fn=progress_update_fn,
                 )
-            elif self.console:
+            if self.console:
                 return run(legacy_config, external_log=self.console)
-            else:
-                return run(legacy_config)
+            return run(legacy_config)
 
         except Exception as e:
             rprint(f"[red]Error executing MA Cross strategy: {e}[/red]")
             return False
 
-    def convert_config_to_legacy(self, config: StrategyConfig) -> Dict[str, Any]:
+    def convert_config_to_legacy(self, config: StrategyConfig) -> dict[str, Any]:
         """Convert CLI config to MA Cross legacy format."""
         # Convert ticker to list format
         ticker_list = (
@@ -130,9 +129,9 @@ class MAStrategyService(BaseStrategyService):
         if config.minimums.trades is not None:
             legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
         if config.minimums.expectancy_per_trade is not None:
-            legacy_config["MINIMUMS"][
-                "EXPECTANCY_PER_TRADE"
-            ] = config.minimums.expectancy_per_trade
+            legacy_config["MINIMUMS"]["EXPECTANCY_PER_TRADE"] = (
+                config.minimums.expectancy_per_trade
+            )
         if config.minimums.profit_factor is not None:
             legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
         if config.minimums.sortino_ratio is not None:
@@ -218,8 +217,8 @@ class MAStrategyService(BaseStrategyService):
 
         # Pass global progress allocation for accurate multi-ticker progress calculation
         if hasattr(config, "_GLOBAL_PROGRESS_PER_TICKER"):
-            legacy_config["_GLOBAL_PROGRESS_PER_TICKER"] = getattr(
-                config, "_GLOBAL_PROGRESS_PER_TICKER"
+            legacy_config["_GLOBAL_PROGRESS_PER_TICKER"] = (
+                config._GLOBAL_PROGRESS_PER_TICKER
             )
         elif (
             hasattr(config, "__dict__")
@@ -241,7 +240,7 @@ class MAStrategyService(BaseStrategyService):
 
         return legacy_config
 
-    def get_supported_strategy_types(self) -> List[str]:
+    def get_supported_strategy_types(self) -> list[str]:
         """Get supported strategy types for MA Cross."""
         return ["SMA", "EMA"]
 
@@ -268,16 +267,15 @@ class MACDStrategyService(BaseStrategyService):
                     external_log=self.console,
                     progress_update_fn=progress_update_fn,
                 )
-            elif self.console:
+            if self.console:
                 return run(legacy_config, external_log=self.console)
-            else:
-                return run(legacy_config)
+            return run(legacy_config)
 
         except Exception as e:
             rprint(f"[red]Error executing MACD strategy: {e}[/red]")
             return False
 
-    def convert_config_to_legacy(self, config: StrategyConfig) -> Dict[str, Any]:
+    def convert_config_to_legacy(self, config: StrategyConfig) -> dict[str, Any]:
         """Convert CLI config to MACD legacy format with direct YAML parameter mapping."""
         # Convert ticker to list format
         ticker_list = (
@@ -323,14 +321,14 @@ class MACDStrategyService(BaseStrategyService):
             and not has_global_new_format
             and not has_legacy_format
         ):
-            rprint(f"[red]Missing required MACD parameters[/red]")
+            rprint("[red]Missing required MACD parameters[/red]")
             rprint(
-                f"[yellow]Ensure your profile contains either:\n"
+                "[yellow]Ensure your profile contains either:\n"
                 + "Strategy-specific: strategy_params.MACD.fast_period_min/max, slow_period_min/max, signal_period_min/max\n"
                 + "Global format: fast_period_min/max, slow_period_min/max, signal_period_min/max\n"
                 + "OR Legacy format: short_window_start/end, long_window_start/end, signal_window_start/end[/yellow]"
             )
-            raise ValueError(f"Incomplete MACD configuration")
+            raise ValueError("Incomplete MACD configuration")
 
         try:
             # Extract parameters with priority: strategy-specific > global new format > legacy format
@@ -403,9 +401,9 @@ class MACDStrategyService(BaseStrategyService):
                 legacy_config["USE_SYNTHETIC"] = True
                 legacy_config["TICKER_1"] = config.synthetic.ticker_1
                 legacy_config["TICKER_2"] = config.synthetic.ticker_2
-                legacy_config[
-                    "MULTI_TICKER"
-                ] = False  # Synthetic pairs are treated as single ticker
+                legacy_config["MULTI_TICKER"] = (
+                    False  # Synthetic pairs are treated as single ticker
+                )
             else:
                 # For normal mode, set TICKER as usual
                 legacy_config["TICKER"] = ticker_list
@@ -420,9 +418,9 @@ class MACDStrategyService(BaseStrategyService):
         if config.minimums.trades is not None:
             legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
         if config.minimums.expectancy_per_trade is not None:
-            legacy_config["MINIMUMS"][
-                "EXPECTANCY_PER_TRADE"
-            ] = config.minimums.expectancy_per_trade
+            legacy_config["MINIMUMS"]["EXPECTANCY_PER_TRADE"] = (
+                config.minimums.expectancy_per_trade
+            )
         if config.minimums.profit_factor is not None:
             legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
         if config.minimums.sortino_ratio is not None:
@@ -434,7 +432,7 @@ class MACDStrategyService(BaseStrategyService):
 
         return legacy_config
 
-    def get_supported_strategy_types(self) -> List[str]:
+    def get_supported_strategy_types(self) -> list[str]:
         """Get supported strategy types for MACD."""
         return ["MACD"]
 
@@ -477,7 +475,7 @@ class ATRStrategyService(BaseStrategyService):
             rprint(f"[red]Error executing ATR strategy: {e}[/red]")
             return False
 
-    def convert_config_to_legacy(self, config: StrategyConfig) -> Dict[str, Any]:
+    def convert_config_to_legacy(self, config: StrategyConfig) -> dict[str, Any]:
         """Convert CLI configuration to ATR legacy format."""
         try:
             # Handle ticker list based on config type
@@ -527,9 +525,9 @@ class ATRStrategyService(BaseStrategyService):
                 legacy_config["USE_SYNTHETIC"] = True
                 legacy_config["TICKER_1"] = config.synthetic.ticker_1
                 legacy_config["TICKER_2"] = config.synthetic.ticker_2
-                legacy_config[
-                    "MULTI_TICKER"
-                ] = False  # Synthetic pairs are treated as single ticker
+                legacy_config["MULTI_TICKER"] = (
+                    False  # Synthetic pairs are treated as single ticker
+                )
             else:
                 # For normal mode, set TICKER as usual
                 legacy_config["TICKER"] = ticker_list
@@ -545,9 +543,9 @@ class ATRStrategyService(BaseStrategyService):
         if config.minimums.trades is not None:
             legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
         if config.minimums.expectancy_per_trade is not None:
-            legacy_config["MINIMUMS"][
-                "EXPECTANCY_PER_TRADE"
-            ] = config.minimums.expectancy_per_trade
+            legacy_config["MINIMUMS"]["EXPECTANCY_PER_TRADE"] = (
+                config.minimums.expectancy_per_trade
+            )
         if config.minimums.profit_factor is not None:
             legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
         if config.minimums.sortino_ratio is not None:
@@ -559,7 +557,7 @@ class ATRStrategyService(BaseStrategyService):
 
         return legacy_config
 
-    def get_supported_strategy_types(self) -> List[str]:
+    def get_supported_strategy_types(self) -> list[str]:
         """Get supported strategy types for ATR."""
         return ["ATR"]
 
@@ -586,16 +584,15 @@ class SMAAtrStrategyService(BaseStrategyService):
                     external_log=self.console,
                     progress_update_fn=progress_update_fn,
                 )
-            elif self.console:
+            if self.console:
                 return run(legacy_config, external_log=self.console)
-            else:
-                return run(legacy_config)
+            return run(legacy_config)
 
         except Exception as e:
             rprint(f"[red]Error executing SMA_ATR strategy: {e}[/red]")
             return False
 
-    def convert_config_to_legacy(self, config: StrategyConfig) -> Dict[str, Any]:
+    def convert_config_to_legacy(self, config: StrategyConfig) -> dict[str, Any]:
         """Convert CLI config to SMA_ATR legacy format."""
         # Convert ticker to list format
         ticker_list = (
@@ -675,9 +672,9 @@ class SMAAtrStrategyService(BaseStrategyService):
         if config.minimums.trades is not None:
             legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
         if config.minimums.expectancy_per_trade is not None:
-            legacy_config["MINIMUMS"][
-                "EXPECTANCY_PER_TRADE"
-            ] = config.minimums.expectancy_per_trade
+            legacy_config["MINIMUMS"]["EXPECTANCY_PER_TRADE"] = (
+                config.minimums.expectancy_per_trade
+            )
         if config.minimums.profit_factor is not None:
             legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
         if config.minimums.sortino_ratio is not None:
@@ -736,6 +733,6 @@ class SMAAtrStrategyService(BaseStrategyService):
 
         return legacy_config
 
-    def get_supported_strategy_types(self) -> List[str]:
+    def get_supported_strategy_types(self) -> list[str]:
         """Get supported strategy types for SMA_ATR."""
         return ["SMA_ATR"]

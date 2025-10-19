@@ -11,9 +11,7 @@ The Extended Schema is the canonical format that all exports should target.
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
-
-from typing_extensions import TypedDict
+from typing import Any
 
 
 class ColumnDataType(Enum):
@@ -56,7 +54,7 @@ class BasePortfolioSchema:
     """
 
     # Base column definitions (60 columns)
-    COLUMNS: List[ColumnDefinition] = [
+    COLUMNS: list[ColumnDefinition] = [
         # Core Strategy Configuration (7 columns - no Allocation or Stop Loss)
         ColumnDefinition(
             "Ticker",
@@ -432,7 +430,7 @@ class BasePortfolioSchema:
     ]
 
     @classmethod
-    def get_column_names(cls) -> List[str]:
+    def get_column_names(cls) -> list[str]:
         """Get ordered list of base column names."""
         return [col.name for col in cls.COLUMNS]
 
@@ -442,17 +440,17 @@ class BasePortfolioSchema:
         return len(cls.COLUMNS)
 
     @classmethod
-    def get_column_types(cls) -> Dict[str, ColumnDataType]:
+    def get_column_types(cls) -> dict[str, ColumnDataType]:
         """Get mapping of column names to their data types."""
         return {col.name: col.data_type for col in cls.COLUMNS}
 
     @classmethod
-    def get_required_columns(cls) -> List[str]:
+    def get_required_columns(cls) -> list[str]:
         """Get list of non-nullable column names."""
         return [col.name for col in cls.COLUMNS if not col.nullable]
 
     @classmethod
-    def get_column_descriptions(cls) -> Dict[str, str]:
+    def get_column_descriptions(cls) -> dict[str, str]:
         """Get mapping of column names to their descriptions."""
         return {col.name: col.description for col in cls.COLUMNS}
 
@@ -466,7 +464,7 @@ class ExtendedPortfolioSchema:
     """
 
     # Extended column definitions (64 columns)
-    COLUMNS: List[ColumnDefinition] = [
+    COLUMNS: list[ColumnDefinition] = [
         # Start with all base schema columns
         *BasePortfolioSchema.COLUMNS,
         # Add the four additional columns at the end
@@ -497,7 +495,7 @@ class ExtendedPortfolioSchema:
     ]
 
     @classmethod
-    def get_column_names(cls) -> List[str]:
+    def get_column_names(cls) -> list[str]:
         """Get ordered list of extended column names."""
         return [col.name for col in cls.COLUMNS]
 
@@ -507,22 +505,22 @@ class ExtendedPortfolioSchema:
         return len(cls.COLUMNS)
 
     @classmethod
-    def get_column_types(cls) -> Dict[str, ColumnDataType]:
+    def get_column_types(cls) -> dict[str, ColumnDataType]:
         """Get mapping of column names to their data types."""
         return {col.name: col.data_type for col in cls.COLUMNS}
 
     @classmethod
-    def get_required_columns(cls) -> List[str]:
+    def get_required_columns(cls) -> list[str]:
         """Get list of non-nullable column names."""
         return [col.name for col in cls.COLUMNS if not col.nullable]
 
     @classmethod
-    def get_column_descriptions(cls) -> Dict[str, str]:
+    def get_column_descriptions(cls) -> dict[str, str]:
         """Get mapping of column names to their descriptions."""
         return {col.name: col.description for col in cls.COLUMNS}
 
     @classmethod
-    def validate_column_order(cls, columns: List[str]) -> bool:
+    def validate_column_order(cls, columns: list[str]) -> bool:
         """
         Validate that columns are in the correct canonical order.
 
@@ -538,7 +536,7 @@ class ExtendedPortfolioSchema:
         return columns == canonical_names
 
     @classmethod
-    def validate_column_completeness(cls, columns: List[str]) -> Dict[str, List[str]]:
+    def validate_column_completeness(cls, columns: list[str]) -> dict[str, list[str]]:
         """
         Validate that all canonical columns are present.
 
@@ -566,10 +564,10 @@ class FilteredPortfolioSchema:
     """
 
     @classmethod
-    def get_column_names(cls) -> List[str]:
+    def get_column_names(cls) -> list[str]:
         """Get ordered list of filtered schema column names."""
         # Start with Metric Type, then add all Extended schema columns
-        return ["Metric Type"] + ExtendedPortfolioSchema.get_column_names()
+        return ["Metric Type", *ExtendedPortfolioSchema.get_column_names()]
 
     @classmethod
     def get_column_count(cls) -> int:
@@ -580,7 +578,7 @@ class FilteredPortfolioSchema:
 class SchemaTransformer:
     """Comprehensive utilities for transforming between schema versions."""
 
-    def detect_schema_type(self, portfolio: Dict[str, Any]) -> SchemaType:
+    def detect_schema_type(self, portfolio: dict[str, Any]) -> SchemaType:
         """
         Detect which schema type the portfolio represents.
 
@@ -617,7 +615,7 @@ class SchemaTransformer:
 
         return SchemaType.UNKNOWN
 
-    def _get_default_values(self, existing_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _get_default_values(self, existing_data: dict[str, Any]) -> dict[str, Any]:
         """Get default values for missing columns."""
         return {
             "Ticker": existing_data.get("Ticker", "UNKNOWN"),
@@ -689,13 +687,13 @@ class SchemaTransformer:
 
     def transform_to_extended(
         self,
-        portfolio: Dict[str, Any],
-        allocation_pct: Optional[float] = None,
-        stop_loss_pct: Optional[float] = None,
-        last_position_open_date: Optional[str] = None,
-        last_position_close_date: Optional[str] = None,
+        portfolio: dict[str, Any],
+        allocation_pct: float | None = None,
+        stop_loss_pct: float | None = None,
+        last_position_open_date: str | None = None,
+        last_position_close_date: str | None = None,
         force_analysis_defaults: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Transform portfolio to extended schema.
 
@@ -713,7 +711,7 @@ class SchemaTransformer:
         defaults = self._get_default_values(portfolio)
 
         # Start with defaults, then override with actual data
-        extended: Dict[str, Any] = {}
+        extended: dict[str, Any] = {}
         for col in ExtendedPortfolioSchema.get_column_names():
             # For analysis exports, force allocation/stop loss/position dates to None regardless of source data
             if force_analysis_defaults and col in [
@@ -742,14 +740,14 @@ class SchemaTransformer:
 
     def transform_to_filtered(
         self,
-        portfolio: Dict[str, Any],
+        portfolio: dict[str, Any],
         metric_type: str = "Most Total Return [%]",
-        allocation_pct: Optional[float] = None,
-        stop_loss_pct: Optional[float] = None,
-        last_position_open_date: Optional[str] = None,
-        last_position_close_date: Optional[str] = None,
+        allocation_pct: float | None = None,
+        stop_loss_pct: float | None = None,
+        last_position_open_date: str | None = None,
+        last_position_close_date: str | None = None,
         force_analysis_defaults: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Transform portfolio to filtered schema.
 
@@ -783,17 +781,17 @@ class SchemaTransformer:
 
     def normalize_to_schema(
         self,
-        portfolio: Dict[str, Any],
+        portfolio: dict[str, Any],
         target_schema: SchemaType,
         metric_type: str = "Most Total Return [%]",
-        atr_stop_length: Optional[int] = None,
-        atr_stop_multiplier: Optional[float] = None,
-        allocation_pct: Optional[float] = None,
-        stop_loss_pct: Optional[float] = None,
-        last_position_open_date: Optional[str] = None,
-        last_position_close_date: Optional[str] = None,
+        atr_stop_length: int | None = None,
+        atr_stop_multiplier: float | None = None,
+        allocation_pct: float | None = None,
+        stop_loss_pct: float | None = None,
+        last_position_open_date: str | None = None,
+        last_position_close_date: str | None = None,
         force_analysis_defaults: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Normalize portfolio to target schema type.
 
@@ -823,7 +821,7 @@ class SchemaTransformer:
                     base[col] = defaults.get(col)
             return base
 
-        elif target_schema == SchemaType.EXTENDED:
+        if target_schema == SchemaType.EXTENDED:
             return self.transform_to_extended(
                 portfolio,
                 allocation_pct,
@@ -833,7 +831,7 @@ class SchemaTransformer:
                 force_analysis_defaults,
             )
 
-        elif target_schema == SchemaType.FILTERED:
+        if target_schema == SchemaType.FILTERED:
             return self.transform_to_filtered(
                 portfolio,
                 metric_type,
@@ -844,12 +842,11 @@ class SchemaTransformer:
                 force_analysis_defaults,
             )
 
-        else:
-            raise ValueError(f"Unknown target schema type: {target_schema}")
+        raise ValueError(f"Unknown target schema type: {target_schema}")
 
     def validate_schema(
-        self, portfolio: Dict[str, Any], expected_schema: SchemaType
-    ) -> tuple[bool, List[str]]:
+        self, portfolio: dict[str, Any], expected_schema: SchemaType
+    ) -> tuple[bool, list[str]]:
         """
         Validate portfolio against expected schema.
 
@@ -893,7 +890,7 @@ class SchemaTransformer:
         return len(errors) == 0, errors
 
     @staticmethod
-    def base_to_extended(base_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def base_to_extended(base_data: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Transform base schema data to extended schema (backward compatibility).
 
@@ -908,8 +905,8 @@ class SchemaTransformer:
 
     @staticmethod
     def extended_to_filtered(
-        extended_data: List[Dict[str, Any]], metric_type: str = "Most Total Return [%]"
-    ) -> List[Dict[str, Any]]:
+        extended_data: list[dict[str, Any]], metric_type: str = "Most Total Return [%]"
+    ) -> list[dict[str, Any]]:
         """
         Transform extended schema data to filtered schema (backward compatibility).
 
@@ -927,7 +924,7 @@ class SchemaTransformer:
         ]
 
     @staticmethod
-    def detect_schema_type_from_columns(columns: List[str]) -> str:
+    def detect_schema_type_from_columns(columns: list[str]) -> str:
         """
         Detect which schema type the columns represent (backward compatibility).
 
@@ -1009,6 +1006,6 @@ assert all(
 class PortfolioSchemaValidationError(Exception):
     """Exception raised when portfolio data doesn't conform to schema."""
 
-    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+    def __init__(self, message: str, details: dict[str, Any] | None = None):
         super().__init__(message)
         self.details = details or {}

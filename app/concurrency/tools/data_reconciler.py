@@ -18,11 +18,12 @@ Classes:
     MetricComparator: Compare individual metrics between sources
 """
 
-import json
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -50,7 +51,7 @@ class ReconciliationResult:
     entity_type: str  # 'ticker', 'strategy', 'portfolio'
     total_metrics_compared: int
     metrics_within_tolerance: int
-    discrepancies: List[MetricDiscrepancy] = field(default_factory=list)
+    discrepancies: list[MetricDiscrepancy] = field(default_factory=list)
     overall_quality_score: float = 0.0
     reconciliation_status: str = "unknown"  # 'excellent', 'good', 'poor', 'failed'
 
@@ -62,13 +63,13 @@ class ReconciliationReport:
     report_timestamp: str
     csv_source: str
     json_source: str
-    overall_summary: Dict[str, Any] = field(default_factory=dict)
-    ticker_results: List[ReconciliationResult] = field(default_factory=list)
-    strategy_results: List[ReconciliationResult] = field(default_factory=list)
-    portfolio_result: Optional[ReconciliationResult] | None = None
-    critical_issues: List[str] = field(default_factory=list)
-    recommendations: List[str] = field(default_factory=list)
-    data_quality_assessment: Dict[str, Any] = field(default_factory=dict)
+    overall_summary: dict[str, Any] = field(default_factory=dict)
+    ticker_results: list[ReconciliationResult] = field(default_factory=list)
+    strategy_results: list[ReconciliationResult] = field(default_factory=list)
+    portfolio_result: ReconciliationResult | None | None = None
+    critical_issues: list[str] = field(default_factory=list)
+    recommendations: list[str] = field(default_factory=list)
+    data_quality_assessment: dict[str, Any] = field(default_factory=dict)
 
 
 class DataReconciler:
@@ -80,7 +81,7 @@ class DataReconciler:
     of ensuring JSON outputs reflect CSV reality.
     """
 
-    def __init__(self, tolerance_config: Dict[str, float] = None):
+    def __init__(self, tolerance_config: dict[str, float] | None = None):
         """
         Initialize the data reconciler.
 
@@ -112,11 +113,11 @@ class DataReconciler:
 
     def reconcile_data(
         self,
-        csv_metrics: Dict[str, Any],
-        json_metrics: Dict[str, Any],
+        csv_metrics: dict[str, Any],
+        json_metrics: dict[str, Any],
         csv_source_path: str = "unknown",
         json_source_path: str = "unknown",
-        log: Optional[Callable[[str, str], None]] = None,
+        log: Callable[[str, str], None] | None = None,
     ) -> ReconciliationReport:
         """
         Perform comprehensive data reconciliation.
@@ -196,7 +197,7 @@ class DataReconciler:
                 )
 
         except Exception as e:
-            error_msg = f"Error during data reconciliation: {str(e)}"
+            error_msg = f"Error during data reconciliation: {e!s}"
             if log:
                 log(error_msg, "error")
             report.critical_issues.append(error_msg)
@@ -205,14 +206,14 @@ class DataReconciler:
 
     def _reconcile_ticker_metrics(
         self,
-        csv_ticker_metrics: Dict[str, Dict[str, float]],
-        json_ticker_metrics: Dict[str, Any],
-        log: Optional[Callable[[str, str], None]] = None,
-    ) -> List[ReconciliationResult]:
+        csv_ticker_metrics: dict[str, dict[str, float]],
+        json_ticker_metrics: dict[str, Any],
+        log: Callable[[str, str], None] | None = None,
+    ) -> list[ReconciliationResult]:
         """Reconcile ticker-level metrics."""
         results = []
 
-        for ticker in csv_ticker_metrics.keys():
+        for ticker in csv_ticker_metrics:
             if log:
                 log(f"Reconciling ticker: {ticker}", "info")
 
@@ -284,17 +285,17 @@ class DataReconciler:
 
     def _reconcile_strategy_metrics(
         self,
-        csv_strategy_metrics: Dict[str, Dict[str, float]],
-        json_strategy_metrics: Dict[str, Any],
-        log: Optional[Callable[[str, str], None]] = None,
-    ) -> List[ReconciliationResult]:
+        csv_strategy_metrics: dict[str, dict[str, float]],
+        json_strategy_metrics: dict[str, Any],
+        log: Callable[[str, str], None] | None = None,
+    ) -> list[ReconciliationResult]:
         """Reconcile strategy-level metrics."""
         results = []
 
         # Note: This is a simplified implementation
         # In practice, strategy mapping between CSV and JSON might be complex
 
-        for strategy in csv_strategy_metrics.keys():
+        for strategy in csv_strategy_metrics:
             if log:
                 log(f"Reconciling strategy: {strategy}", "info")
 
@@ -318,9 +319,9 @@ class DataReconciler:
 
     def _reconcile_portfolio_metrics(
         self,
-        csv_portfolio_summary: Dict[str, float],
-        json_portfolio_metrics: Dict[str, Any],
-        log: Optional[Callable[[str, str], None]] = None,
+        csv_portfolio_summary: dict[str, float],
+        json_portfolio_metrics: dict[str, Any],
+        log: Callable[[str, str], None] | None = None,
     ) -> ReconciliationResult:
         """Reconcile portfolio-level metrics."""
         if log:
@@ -334,11 +335,7 @@ class DataReconciler:
         )
 
         # Extract relevant JSON metrics from nested structure
-        json_signals = (
-            json_portfolio_metrics.get("signals", {})
-            .get("summary", {})
-            .get("total", {})
-        )
+        (json_portfolio_metrics.get("signals", {}).get("summary", {}).get("total", {}))
         json_portfolio_metrics.get("efficiency", {})
 
         # Portfolio metric mappings
@@ -366,7 +363,7 @@ class DataReconciler:
                     # Handle percentage conversions
                     if (
                         "pct" in csv_key
-                        and isinstance(json_value, (int, float))
+                        and isinstance(json_value, int | float)
                         and json_value <= 1.0
                     ):
                         json_value *= 100
@@ -404,7 +401,7 @@ class DataReconciler:
 
     def _compare_metric_values(
         self, metric_name: str, csv_value: float, json_value: float, entity_id: str
-    ) -> Optional[MetricDiscrepancy]:
+    ) -> MetricDiscrepancy | None:
         """
         Compare two metric values and return discrepancy if significant.
 
@@ -485,20 +482,19 @@ class DataReconciler:
         """Determine reconciliation status based on quality score."""
         if quality_score >= 0.95:
             return "excellent"
-        elif quality_score >= 0.85:
+        if quality_score >= 0.85:
             return "good"
-        elif quality_score >= 0.70:
+        if quality_score >= 0.70:
             return "fair"
-        elif quality_score >= 0.50:
+        if quality_score >= 0.50:
             return "poor"
-        else:
-            return "failed"
+        return "failed"
 
     def _generate_overall_summary(
         self,
         report: ReconciliationReport,
-        log: Optional[Callable[[str, str], None]] = None,
-    ) -> Dict[str, Any]:
+        log: Callable[[str, str], None] | None = None,
+    ) -> dict[str, Any]:
         """Generate overall summary statistics."""
         summary = {}
 
@@ -559,8 +555,8 @@ class DataReconciler:
     def _identify_critical_issues(
         self,
         report: ReconciliationReport,
-        log: Optional[Callable[[str, str], None]] = None,
-    ) -> List[str]:
+        log: Callable[[str, str], None] | None = None,
+    ) -> list[str]:
         """Identify critical issues requiring immediate attention."""
         critical_issues = []
 
@@ -610,8 +606,8 @@ class DataReconciler:
     def _generate_recommendations(
         self,
         report: ReconciliationReport,
-        log: Optional[Callable[[str, str], None]] = None,
-    ) -> List[str]:
+        log: Callable[[str, str], None] | None = None,
+    ) -> list[str]:
         """Generate recommendations for fixing discrepancies."""
         recommendations = []
 
@@ -689,8 +685,8 @@ class DataReconciler:
     def _assess_data_quality(
         self,
         report: ReconciliationReport,
-        log: Optional[Callable[[str, str], None]] = None,
-    ) -> Dict[str, Any]:
+        log: Callable[[str, str], None] | None = None,
+    ) -> dict[str, Any]:
         """Assess overall data quality based on reconciliation results."""
         assessment = {}
 
@@ -725,9 +721,7 @@ class DataReconciler:
             "discrepancies_by_severity", {}
         ).get("severe", 0) + report.overall_summary.get(
             "discrepancies_by_severity", {}
-        ).get(
-            "critical", 0
-        )
+        ).get("critical", 0)
 
         # Trustworthiness decreases with severity of discrepancies
         base_trustworthiness = 1.0 - (total_discrepancies / total_metrics)
@@ -756,7 +750,7 @@ class DataReconciler:
 
 def export_reconciliation_report(
     report: ReconciliationReport,
-    output_path: Union[str, Path],
+    output_path: str | Path,
     format_type: str = "json",
 ) -> bool:
     """
@@ -818,5 +812,5 @@ def export_reconciliation_report(
         return True
 
     except Exception as e:
-        print(f"Error exporting reconciliation report: {str(e)}")
+        print(f"Error exporting reconciliation report: {e!s}")
         return False

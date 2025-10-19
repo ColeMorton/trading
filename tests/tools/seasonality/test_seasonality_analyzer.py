@@ -5,15 +5,12 @@ Incorrect calculations could lead to wrong investment decisions.
 """
 
 import numpy as np
-import pandas as pd
-import pytest
 from scipy import stats as scipy_stats
 
 
 def get_analyzer_class():
     """Late import to avoid circular dependency."""
     # Import models first to break circular chain
-    from app.cli.models.seasonality import PatternType, SeasonalityPattern
     from app.tools.seasonality_analyzer import SeasonalityAnalyzer
 
     return SeasonalityAnalyzer
@@ -44,7 +41,7 @@ class TestSeasonalityAnalyzerInitialization:
         SeasonalityAnalyzer = get_analyzer_class()
 
         SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        get_pattern_type()
 
         analyzer = SeasonalityAnalyzer(
             confidence_level=0.99, min_sample_size=20, time_period_days=5

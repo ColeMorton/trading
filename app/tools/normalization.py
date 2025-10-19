@@ -5,8 +5,8 @@ This module provides standardized methods for normalizing metrics and data,
 ensuring consistency across the entire application.
 """
 
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -14,14 +14,15 @@ import polars as pl
 
 from app.tools.setup_logging import setup_logging
 
+
 # Type variable for generic functions
-T = TypeVar("T", np.ndarray, pd.Series, List[float])
+T = TypeVar("T", np.ndarray, pd.Series, list[float])
 
 
 class Normalizer:
     """Class for standardized data normalization."""
 
-    def __init__(self, log: Optional[Callable[[str, str], None]] = None):
+    def __init__(self, log: Callable[[str, str], None] | None = None):
         """Initialize the Normalizer class.
 
         Args:
@@ -34,7 +35,7 @@ class Normalizer:
             self.log = log
 
     def min_max_scale(
-        self, data: T, feature_range: Tuple[float, float] = (0, 1), clip: bool = True
+        self, data: T, feature_range: tuple[float, float] = (0, 1), clip: bool = True
     ) -> T:
         """Scale data to a specified range using min-max scaling.
 
@@ -75,10 +76,9 @@ class Normalizer:
                 constant_value = (feature_range[0] + feature_range[1]) / 2
                 if is_series:
                     return pd.Series([constant_value] * len(values), index=data.index)
-                elif is_list:
+                if is_list:
                     return [constant_value] * len(values)
-                else:
-                    return np.full_like(values, constant_value)
+                return np.full_like(values, constant_value)
 
             # Calculate min and max
             data_min = np.min(values)
@@ -91,10 +91,9 @@ class Normalizer:
                 constant_value = (feature_range[0] + feature_range[1]) / 2
                 if is_series:
                     return pd.Series([constant_value] * len(values), index=data.index)
-                elif is_list:
+                if is_list:
                     return [constant_value] * len(values)
-                else:
-                    return np.full_like(values, constant_value)
+                return np.full_like(values, constant_value)
 
             # Scale to [0, 1]
             scaled = (values - data_min) / data_range
@@ -110,16 +109,15 @@ class Normalizer:
             # Return in the same format as input
             if is_series:
                 return pd.Series(scaled, index=data.index)
-            elif is_list:
+            if is_list:
                 return scaled.tolist()
-            else:
-                return scaled
+            return scaled
         except Exception as e:
-            self.log(f"Error in min_max_scale: {str(e)}", "error")
+            self.log(f"Error in min_max_scale: {e!s}", "error")
             return data
 
     def z_score_normalize(
-        self, data: T, clip: bool = False, clip_range: Tuple[float, float] = (-3, 3)
+        self, data: T, clip: bool = False, clip_range: tuple[float, float] = (-3, 3)
     ) -> T:
         """Normalize data using z-score (standard score) normalization.
 
@@ -156,10 +154,9 @@ class Normalizer:
                 # Return 0 (mean of z-score distribution)
                 if is_series:
                     return pd.Series([0.0] * len(values), index=data.index)
-                elif is_list:
+                if is_list:
                     return [0.0] * len(values)
-                else:
-                    return np.zeros_like(values)
+                return np.zeros_like(values)
 
             # Calculate mean and standard deviation
             mean = np.mean(values)
@@ -173,10 +170,9 @@ class Normalizer:
                 # Return 0 (mean of z-score distribution)
                 if is_series:
                     return pd.Series([0.0] * len(values), index=data.index)
-                elif is_list:
+                if is_list:
                     return [0.0] * len(values)
-                else:
-                    return np.zeros_like(values)
+                return np.zeros_like(values)
 
             # Calculate z-scores
             z_scores = (values - mean) / std
@@ -188,20 +184,19 @@ class Normalizer:
             # Return in the same format as input
             if is_series:
                 return pd.Series(z_scores, index=data.index)
-            elif is_list:
+            if is_list:
                 return z_scores.tolist()
-            else:
-                return z_scores
+            return z_scores
         except Exception as e:
-            self.log(f"Error in z_score_normalize: {str(e)}", "error")
+            self.log(f"Error in z_score_normalize: {e!s}", "error")
             return data
 
     def robust_scale(
         self,
         data: T,
-        quantile_range: Tuple[float, float] = (0.25, 0.75),
+        quantile_range: tuple[float, float] = (0.25, 0.75),
         clip: bool = False,
-        clip_range: Tuple[float, float] = (-3, 3),
+        clip_range: tuple[float, float] = (-3, 3),
     ) -> T:
         """Scale data using robust scaling based on quantiles.
 
@@ -241,10 +236,9 @@ class Normalizer:
                 # Return 0 (center of robust scale distribution)
                 if is_series:
                     return pd.Series([0.0] * len(values), index=data.index)
-                elif is_list:
+                if is_list:
                     return [0.0] * len(values)
-                else:
-                    return np.zeros_like(values)
+                return np.zeros_like(values)
 
             # Calculate quantiles
             q_low, q_high = np.percentile(
@@ -257,10 +251,9 @@ class Normalizer:
                 # Return 0 (center of robust scale distribution)
                 if is_series:
                     return pd.Series([0.0] * len(values), index=data.index)
-                elif is_list:
+                if is_list:
                     return [0.0] * len(values)
-                else:
-                    return np.zeros_like(values)
+                return np.zeros_like(values)
 
             # Calculate median
             median = np.median(values)
@@ -275,20 +268,19 @@ class Normalizer:
             # Return in the same format as input
             if is_series:
                 return pd.Series(scaled, index=data.index)
-            elif is_list:
+            if is_list:
                 return scaled.tolist()
-            else:
-                return scaled
+            return scaled
         except Exception as e:
-            self.log(f"Error in robust_scale: {str(e)}", "error")
+            self.log(f"Error in robust_scale: {e!s}", "error")
             return data
 
     def normalize_metrics(
         self,
-        metrics: Dict[str, Any],
+        metrics: dict[str, Any],
         method: str = "min_max",
-        feature_range: Tuple[float, float] = (0, 1),
-    ) -> Dict[str, Any]:
+        feature_range: tuple[float, float] = (0, 1),
+    ) -> dict[str, Any]:
         """Normalize a dictionary of metrics.
 
         Args:
@@ -322,7 +314,7 @@ class Normalizer:
             # Normalize each metric
             for key, value in metrics.items():
                 # Skip non-numeric values and metrics that shouldn't be normalized
-                if not isinstance(value, (int, float)) or key not in numeric_metrics:
+                if not isinstance(value, int | float) or key not in numeric_metrics:
                     normalized[key] = value
                     continue
 
@@ -342,16 +334,16 @@ class Normalizer:
 
             return normalized
         except Exception as e:
-            self.log(f"Error normalizing metrics: {str(e)}", "error")
+            self.log(f"Error normalizing metrics: {e!s}", "error")
             return metrics
 
     def normalize_dataframe(
         self,
-        df: Union[pd.DataFrame, pl.DataFrame],
-        columns: List[str],
+        df: pd.DataFrame | pl.DataFrame,
+        columns: list[str],
         method: str = "min_max",
-        feature_range: Tuple[float, float] = (0, 1),
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+        feature_range: tuple[float, float] = (0, 1),
+    ) -> pd.DataFrame | pl.DataFrame:
         """Normalize selected columns in a DataFrame.
 
         Args:
@@ -406,10 +398,9 @@ class Normalizer:
             # Convert back to polars if needed
             if is_polars:
                 return pl.from_pandas(normalized)
-            else:
-                return normalized
+            return normalized
         except Exception as e:
-            self.log(f"Error normalizing DataFrame: {str(e)}", "error")
+            self.log(f"Error normalizing DataFrame: {e!s}", "error")
             return df
 
 
@@ -417,10 +408,10 @@ class Normalizer:
 
 
 def min_max_normalize(
-    data: Union[np.ndarray, pd.Series, List[float]],
-    feature_range: Tuple[float, float] = (0, 1),
-    log: Optional[Callable] | None = None,
-) -> Union[np.ndarray, pd.Series, List[float]]:
+    data: np.ndarray | pd.Series | list[float],
+    feature_range: tuple[float, float] = (0, 1),
+    log: Callable | None | None = None,
+) -> np.ndarray | pd.Series | list[float]:
     """Normalize data to a specified range using min-max scaling.
 
     Args:
@@ -436,9 +427,9 @@ def min_max_normalize(
 
 
 def z_score_normalize(
-    data: Union[np.ndarray, pd.Series, List[float]],
-    log: Optional[Callable] | None = None,
-) -> Union[np.ndarray, pd.Series, List[float]]:
+    data: np.ndarray | pd.Series | list[float],
+    log: Callable | None | None = None,
+) -> np.ndarray | pd.Series | list[float]:
     """Normalize data using z-score (standard score) normalization.
 
     Args:
@@ -453,11 +444,11 @@ def z_score_normalize(
 
 
 def normalize_metrics_dict(
-    metrics: Dict[str, Any],
+    metrics: dict[str, Any],
     method: str = "min_max",
-    feature_range: Tuple[float, float] = (0, 1),
-    log: Optional[Callable] | None = None,
-) -> Dict[str, Any]:
+    feature_range: tuple[float, float] = (0, 1),
+    log: Callable | None | None = None,
+) -> dict[str, Any]:
     """Normalize a dictionary of metrics.
 
     Args:

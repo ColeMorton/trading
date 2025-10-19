@@ -6,12 +6,10 @@ portfolio analysis system, following the established testing framework patterns.
 Integrated into the existing test infrastructure for the trading platform.
 """
 
-import os
-import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List
-from unittest.mock import MagicMock, Mock, patch
+import tempfile
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
@@ -19,9 +17,7 @@ import polars as pl
 import pytest
 
 from app.strategies.ma_cross.exceptions import MACrossError
-from app.tools.logging_context import logging_context
 from app.tools.orchestration.portfolio_orchestrator import PortfolioOrchestrator
-from app.tools.project_utils import get_project_root
 
 
 @pytest.mark.e2e
@@ -166,7 +162,7 @@ class TestMACrossPortfolioComprehensive:
 
         def mock_download_func(ticker, *args, **kwargs):
             # Handle special ticker names for filenames
-            clean_ticker = ticker.replace("=", "_").replace("-", "_")
+            ticker.replace("=", "_").replace("-", "_")
             data = realistic_market_data(ticker)
             data.set_index("Date", inplace=True)
             return data
@@ -308,7 +304,7 @@ class TestMACrossPortfolioComprehensive:
         except Exception as e:
             # If it raises an exception, it should be a known type
             assert isinstance(
-                e, (MACrossError, ValueError, KeyError)
+                e, MACrossError | ValueError | KeyError
             ), f"Unexpected exception type: {type(e)}"
 
     def test_use_current_false_behavior(
@@ -391,7 +387,7 @@ class TestMACrossPortfolioComprehensive:
             except Exception as e:
                 # If it raises an exception, it should be a known error type
                 assert isinstance(
-                    e, (MACrossError, ConnectionError)
+                    e, MACrossError | ConnectionError
                 ), f"Unexpected exception: {type(e)}"
 
     def test_special_character_ticker_handling(

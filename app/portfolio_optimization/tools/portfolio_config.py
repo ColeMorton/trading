@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-from typing import List, TypedDict
+from typing import TypedDict
 
 
 class PortfolioAsset(TypedDict):
@@ -32,7 +32,7 @@ class PortfolioConfig(TypedDict):
     initial_value: float
     target_value: float
     use_target_value: bool
-    portfolio: List[PortfolioAsset]
+    portfolio: list[PortfolioAsset]
 
 
 def load_portfolio_config(portfolio_name: str) -> PortfolioConfig:
@@ -82,7 +82,7 @@ def get_portfolio_value(config: PortfolioConfig) -> float:
     )
 
 
-def get_portfolio_tickers(config: PortfolioConfig) -> List[str]:
+def get_portfolio_tickers(config: PortfolioConfig) -> list[str]:
     """Extract ticker symbols from portfolio configuration.
 
     Args:

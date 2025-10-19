@@ -12,8 +12,9 @@ Key Components:
     - Parameter stability metrics and scoring
 """
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 
@@ -44,7 +45,7 @@ class MonteCarloManager:
     def __init__(
         self,
         n_simulations: int = 10000,
-        confidence_levels: List[float] = None,
+        confidence_levels: list[float] | None = None,
         horizon_days: int = 252,
         use_bootstrap: bool = True,
     ):
@@ -76,9 +77,9 @@ class MonteCarloManager:
 
     def run_portfolio_simulation(
         self,
-        portfolio_data: List[Dict[str, Any]],
-        progress_callback: Optional[Callable[[int], None]] = None,
-    ) -> Dict[str, Any]:
+        portfolio_data: list[dict[str, Any]],
+        progress_callback: Callable[[int], None] | None = None,
+    ) -> dict[str, Any]:
         """Run Monte Carlo simulation on portfolio.
 
         Args:
@@ -122,10 +123,10 @@ class MonteCarloManager:
             }
 
         except Exception as e:
-            raise RuntimeError(f"Monte Carlo simulation failed: {str(e)}")
+            raise RuntimeError(f"Monte Carlo simulation failed: {e!s}")
 
     def _calculate_portfolio_returns(
-        self, portfolio_data: List[Dict[str, Any]]
+        self, portfolio_data: list[dict[str, Any]]
     ) -> np.ndarray:
         """Calculate historical portfolio returns.
 
@@ -141,7 +142,7 @@ class MonteCarloManager:
     def _run_return_simulations(
         self,
         historical_returns: np.ndarray,
-        progress_callback: Optional[Callable[[int], None]] = None,
+        progress_callback: Callable[[int], None] | None = None,
     ) -> np.ndarray:
         """Run Monte Carlo simulations on returns."""
         n_days = self.horizon_days
@@ -178,7 +179,7 @@ class MonteCarloManager:
 
     def _calculate_risk_metrics(
         self, simulated_returns: np.ndarray
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Calculate VaR and CVaR from simulated returns."""
         final_returns = simulated_returns[:, -1]  # Terminal values
 
@@ -196,7 +197,7 @@ class MonteCarloManager:
 
         return risk_metrics
 
-    def _generate_forecast(self, simulated_returns: np.ndarray) -> Dict[str, float]:
+    def _generate_forecast(self, simulated_returns: np.ndarray) -> dict[str, float]:
         """Generate forecast statistics from simulations."""
         final_returns = simulated_returns[:, -1]
 
@@ -210,7 +211,7 @@ class MonteCarloManager:
             "probability_positive": np.mean(final_returns > 0),
         }
 
-    def _calculate_portfolio_stats(self, returns: np.ndarray) -> Dict[str, float]:
+    def _calculate_portfolio_stats(self, returns: np.ndarray) -> dict[str, float]:
         """Calculate portfolio statistics."""
         # Annualized statistics
         expected_return = np.mean(returns) * 252
@@ -235,11 +236,11 @@ class MonteCarloManager:
         output_dir.mkdir(parents=True, exist_ok=True)
         # Implementation would save simulation data
 
-    def create_visualization(self, results: Dict[str, Any]) -> Path:
+    def create_visualization(self, results: dict[str, Any]) -> Path:
         """Create visualization of Monte Carlo results."""
         # Use existing visualization infrastructure
         viz_config = MonteCarloVisualizationConfig()
-        visualizer = PortfolioMonteCarloVisualizer(viz_config)
+        PortfolioMonteCarloVisualizer(viz_config)
 
         # Create appropriate visualizations
         output_path = Path("./monte_carlo_visualizations")
@@ -252,17 +253,17 @@ class MonteCarloManager:
 
 
 __all__ = [
+    "BootstrapSampler",
     "MonteCarloAnalyzer",
     "MonteCarloConfig",
+    "MonteCarloManager",  # Added the new manager
     "MonteCarloPortfolioResult",
-    "ParameterStabilityResult",
-    "BootstrapSampler",
-    "PortfolioMonteCarloManager",
     "MonteCarloProgressTracker",
     "MonteCarloVisualizationConfig",
+    "ParameterStabilityResult",
+    "PortfolioMonteCarloManager",
     "PortfolioMonteCarloVisualizer",
     "create_bootstrap_sampler",
     "create_monte_carlo_config",
     "create_monte_carlo_visualizations",
-    "MonteCarloManager",  # Added the new manager
 ]

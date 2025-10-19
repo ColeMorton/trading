@@ -5,11 +5,10 @@ Analyzes correlations between strategies, tickers, and timeframes using
 Pearson, Spearman, and Kendall correlation methods for cross-strategy analysis.
 """
 
-import asyncio
+from datetime import datetime
 import logging
-from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -17,13 +16,7 @@ from scipy import stats
 from scipy.stats import kendalltau, pearsonr, spearmanr
 
 from ..config.statistical_analysis_config import SPDSConfig
-from ..models.correlation_models import (
-    CorrelationMatrix,
-    CorrelationResult,
-    CorrelationType,
-    CrossStrategyCorrelation,
-    TimeframeCorrelation,
-)
+from ..models.correlation_models import CorrelationType
 
 
 class CorrelationAnalyzer:
@@ -37,7 +30,7 @@ class CorrelationAnalyzer:
     - Dynamic correlation tracking over time
     """
 
-    def __init__(self, config: SPDSConfig, logger: Optional[logging.Logger] = None):
+    def __init__(self, config: SPDSConfig, logger: logging.Logger | None = None):
         """
         Initialize the Correlation Analyzer
 
@@ -60,10 +53,10 @@ class CorrelationAnalyzer:
 
     async def analyze_cross_strategy_correlations(
         self,
-        strategies: List[str],
+        strategies: list[str],
         timeframe: str = "D",
-        correlation_types: List[CorrelationType] = None,
-    ) -> Dict[str, Any]:
+        correlation_types: list[CorrelationType] | None = None,
+    ) -> dict[str, Any]:
         """
         Analyze correlations between different strategies
 
@@ -129,9 +122,9 @@ class CorrelationAnalyzer:
     async def analyze_ticker_correlations(
         self,
         strategy_name: str,
-        tickers: Optional[List[str]] = None,
+        tickers: list[str] | None = None,
         timeframe: str = "D",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Analyze correlations between different tickers for a single strategy
 
@@ -193,8 +186,8 @@ class CorrelationAnalyzer:
             raise
 
     async def analyze_timeframe_correlations(
-        self, strategy_name: str, ticker: str, timeframes: Optional[List[str]] = None
-    ) -> Dict[str, Any]:
+        self, strategy_name: str, ticker: str, timeframes: list[str] | None = None
+    ) -> dict[str, Any]:
         """
         Analyze correlations across different timeframes
 
@@ -256,8 +249,8 @@ class CorrelationAnalyzer:
             raise
 
     async def analyze_dynamic_correlations(
-        self, strategies: List[str], window_size: int = 50, step_size: int = 10
-    ) -> Dict[str, Any]:
+        self, strategies: list[str], window_size: int = 50, step_size: int = 10
+    ) -> dict[str, Any]:
         """
         Analyze how correlations change over time using rolling windows
 
@@ -316,8 +309,8 @@ class CorrelationAnalyzer:
     # Helper methods
 
     async def _load_strategy_performance_data(
-        self, strategies: List[str], timeframe: str
-    ) -> Dict[str, pd.Series]:
+        self, strategies: list[str], timeframe: str
+    ) -> dict[str, pd.Series]:
         """Load performance data for multiple strategies"""
         strategy_data = {}
 
@@ -342,8 +335,8 @@ class CorrelationAnalyzer:
         return strategy_data
 
     async def _load_ticker_performance_data(
-        self, strategy_name: str, tickers: List[str], timeframe: str
-    ) -> Dict[str, pd.Series]:
+        self, strategy_name: str, tickers: list[str], timeframe: str
+    ) -> dict[str, pd.Series]:
         """Load performance data for multiple tickers for a single strategy"""
         ticker_data = {}
 
@@ -368,8 +361,8 @@ class CorrelationAnalyzer:
         return ticker_data
 
     async def _load_timeframe_performance_data(
-        self, strategy_name: str, ticker: str, timeframes: List[str]
-    ) -> Dict[str, pd.Series]:
+        self, strategy_name: str, ticker: str, timeframes: list[str]
+    ) -> dict[str, pd.Series]:
         """Load performance data across multiple timeframes"""
         timeframe_data = {}
 
@@ -395,7 +388,7 @@ class CorrelationAnalyzer:
 
     async def _load_trade_history_returns(
         self, strategy_name: str, timeframe: str
-    ) -> Optional[pd.Series]:
+    ) -> pd.Series | None:
         """Load returns from trade history data"""
         # Simplified implementation - in production would search across multiple tickers
         trade_files = list(
@@ -420,7 +413,7 @@ class CorrelationAnalyzer:
 
     async def _load_equity_returns(
         self, strategy_name: str, timeframe: str
-    ) -> Optional[pd.Series]:
+    ) -> pd.Series | None:
         """Load returns from equity curve data"""
         # Search for equity files across configured paths
         for equity_path in self.config.EQUITY_DATA_PATHS:
@@ -444,7 +437,7 @@ class CorrelationAnalyzer:
 
     async def _load_trade_history_returns_for_ticker(
         self, strategy_name: str, ticker: str, timeframe: str
-    ) -> Optional[pd.Series]:
+    ) -> pd.Series | None:
         """Load trade returns for specific strategy and ticker"""
         trade_file = (
             Path(self.config.TRADE_HISTORY_PATH) / f"{ticker}_{strategy_name}.csv"
@@ -468,7 +461,7 @@ class CorrelationAnalyzer:
 
     async def _load_equity_returns_for_ticker(
         self, strategy_name: str, ticker: str, timeframe: str
-    ) -> Optional[pd.Series]:
+    ) -> pd.Series | None:
         """Load equity returns for specific strategy and ticker"""
         for equity_path in self.config.EQUITY_DATA_PATHS:
             # Try the correct naming pattern: {strategy_name}.csv
@@ -488,8 +481,8 @@ class CorrelationAnalyzer:
         return None
 
     async def _calculate_correlation_matrix(
-        self, data: Dict[str, pd.Series], correlation_type: CorrelationType
-    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+        self, data: dict[str, pd.Series], correlation_type: CorrelationType
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Calculate correlation matrix using specified method"""
         # Align data to common indices
         aligned_data = pd.DataFrame(data).dropna()
@@ -529,9 +522,9 @@ class CorrelationAnalyzer:
                     correlation_results[f"{col1}_{col2}"] = {
                         "correlation": corr,
                         "p_value": p_value,
-                        "significance": "significant"
-                        if p_value < 0.05
-                        else "not_significant",
+                        "significance": (
+                            "significant" if p_value < 0.05 else "not_significant"
+                        ),
                         "strength": self._classify_correlation_strength(abs(corr)),
                         "sample_size": len(x),
                     }
@@ -542,16 +535,15 @@ class CorrelationAnalyzer:
         """Classify correlation strength"""
         if correlation >= self.strong_correlation_threshold:
             return "strong"
-        elif correlation >= self.moderate_correlation_threshold:
+        if correlation >= self.moderate_correlation_threshold:
             return "moderate"
-        elif correlation >= self.weak_correlation_threshold:
+        if correlation >= self.weak_correlation_threshold:
             return "weak"
-        else:
-            return "negligible"
+        return "negligible"
 
     def _identify_strongest_correlations(
-        self, correlation_results: Dict[str, Dict], entities: List[str]
-    ) -> List[Dict[str, Any]]:
+        self, correlation_results: dict[str, dict], entities: list[str]
+    ) -> list[dict[str, Any]]:
         """Identify the strongest correlations"""
         strongest = []
 
@@ -578,8 +570,8 @@ class CorrelationAnalyzer:
         return strongest[:10]  # Return top 10 strongest correlations
 
     async def _analyze_correlation_stability(
-        self, strategies: List[str], timeframe: str
-    ) -> Dict[str, Any]:
+        self, strategies: list[str], timeframe: str
+    ) -> dict[str, Any]:
         """Analyze how stable correlations are over time"""
         # Simplified implementation - in production would use rolling correlations
         return {
@@ -588,8 +580,8 @@ class CorrelationAnalyzer:
         }
 
     async def _calculate_rolling_correlations(
-        self, data: Dict[str, pd.Series], window_size: int, step_size: int
-    ) -> Dict[str, List[float]]:
+        self, data: dict[str, pd.Series], window_size: int, step_size: int
+    ) -> dict[str, list[float]]:
         """Calculate rolling correlations between strategies"""
         # Align data
         aligned_data = pd.DataFrame(data).dropna()
@@ -628,8 +620,8 @@ class CorrelationAnalyzer:
         return rolling_correlations
 
     def _identify_correlation_regime_changes(
-        self, rolling_correlations: Dict[str, List[float]]
-    ) -> Dict[str, List[int]]:
+        self, rolling_correlations: dict[str, list[float]]
+    ) -> dict[str, list[int]]:
         """Identify significant changes in correlation regimes"""
         regime_changes = {}
 
@@ -650,8 +642,8 @@ class CorrelationAnalyzer:
         return regime_changes
 
     def _calculate_correlation_volatility(
-        self, rolling_correlations: Dict[str, List[float]]
-    ) -> Dict[str, float]:
+        self, rolling_correlations: dict[str, list[float]]
+    ) -> dict[str, float]:
         """Calculate volatility of correlations"""
         volatility = {}
 
@@ -664,8 +656,8 @@ class CorrelationAnalyzer:
         return volatility
 
     def _analyze_correlation_trends(
-        self, rolling_correlations: Dict[str, List[float]]
-    ) -> Dict[str, Dict[str, Any]]:
+        self, rolling_correlations: dict[str, list[float]]
+    ) -> dict[str, dict[str, Any]]:
         """Analyze trends in correlations"""
         trends = {}
 
@@ -681,9 +673,9 @@ class CorrelationAnalyzer:
                     "slope": slope,
                     "trend_direction": "increasing" if slope > 0 else "decreasing",
                     "trend_strength": abs(r_value),
-                    "trend_significance": "significant"
-                    if p_value < 0.05
-                    else "not_significant",
+                    "trend_significance": (
+                        "significant" if p_value < 0.05 else "not_significant"
+                    ),
                     "initial_correlation": correlations[0],
                     "final_correlation": correlations[-1],
                     "correlation_change": correlations[-1] - correlations[0],
@@ -696,7 +688,7 @@ class CorrelationAnalyzer:
 
         return trends
 
-    async def _detect_strategy_tickers(self, strategy_name: str) -> List[str]:
+    async def _detect_strategy_tickers(self, strategy_name: str) -> list[str]:
         """Auto-detect tickers for a strategy"""
         tickers = set()
 
@@ -730,8 +722,8 @@ class CorrelationAnalyzer:
         return list(tickers)[:20]  # Limit to 20 tickers for performance
 
     async def _analyze_sector_correlations(
-        self, ticker_data: Dict[str, pd.Series], tickers: List[str]
-    ) -> Dict[str, Any]:
+        self, ticker_data: dict[str, pd.Series], tickers: list[str]
+    ) -> dict[str, Any]:
         """Analyze correlations by sector/theme (simplified implementation)"""
         # Simplified sector analysis - in production would use external sector data
         sector_analysis = {
@@ -754,8 +746,8 @@ class CorrelationAnalyzer:
         }
 
     async def _analyze_asset_correlations(
-        self, ticker_data: Dict[str, pd.Series], tickers: List[str], timeframe: str
-    ) -> Dict[str, Any]:
+        self, ticker_data: dict[str, pd.Series], tickers: list[str], timeframe: str
+    ) -> dict[str, Any]:
         """Analyze correlation with underlying asset performance"""
         # Simplified implementation - would load actual asset price data
         return {
@@ -764,8 +756,8 @@ class CorrelationAnalyzer:
         }
 
     def _analyze_timeframe_hierarchy(
-        self, correlation_results: Dict[str, Any], timeframes: List[str]
-    ) -> Dict[str, Any]:
+        self, correlation_results: dict[str, Any], timeframes: list[str]
+    ) -> dict[str, Any]:
         """Analyze correlation patterns across timeframe hierarchy"""
         # Simplified hierarchy analysis
         return {
@@ -775,8 +767,8 @@ class CorrelationAnalyzer:
         }
 
     async def _analyze_lead_lag_relationships(
-        self, timeframe_data: Dict[str, pd.Series], timeframes: List[str]
-    ) -> Dict[str, Any]:
+        self, timeframe_data: dict[str, pd.Series], timeframes: list[str]
+    ) -> dict[str, Any]:
         """Analyze lead-lag relationships between timeframes"""
         # Simplified lead-lag analysis
         return {

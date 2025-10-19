@@ -5,7 +5,7 @@ This module coordinates the analysis of protective stop loss strategies,
 integrating signal generation, metrics calculation, and results export.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import polars as pl
 

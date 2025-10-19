@@ -5,8 +5,8 @@ This module contains functions for creating heatmap visualizations of RSI parame
 """
 
 import numpy as np
-import plotly.graph_objects as go
 from numpy.typing import NDArray
+import plotly.graph_objects as go
 from typing_extensions import TypedDict
 
 
@@ -122,9 +122,9 @@ def create_rsi_heatmap(
 
         # Create hover text matrix handling NaN values
         hover_text = []
-        for window, row in zip(rsi_windows, display_matrix):
+        for window, row in zip(rsi_windows, display_matrix, strict=False):
             row_text = []
-            for threshold, value in zip(rsi_thresholds, row):
+            for threshold, value in zip(rsi_thresholds, row, strict=False):
                 if np.isnan(value):
                     text = (
                         f"RSI Window: {window:.0f}<br>"
@@ -154,31 +154,31 @@ def create_rsi_heatmap(
                 showscale=True,
                 hovertext=hover_text,
                 hoverinfo="text",
-                colorbar=dict(
-                    title=f"{metric_name.capitalize().replace('_', ' ')} {title_suffix}",
-                    tickformat=format_info["format"],
-                ),
+                colorbar={
+                    "title": f"{metric_name.capitalize().replace('_', ' ')} {title_suffix}",
+                    "tickformat": format_info["format"],
+                },
             )
         )
 
         title_text = f'{ticker} - RSI Parameter Sensitivity: {metric_name.capitalize().replace("_", " ")}'
         fig.update_layout(
-            title=dict(text=title_text, x=0.5, xanchor="center"),
-            xaxis=dict(
-                title="RSI Threshold",
-                tickmode="array",
-                ticktext=[f"{x:.0f}" for x in rsi_thresholds],
-                tickvals=rsi_thresholds,
-                tickangle=0,
-            ),
-            yaxis=dict(
-                title="RSI Window Length",
-                tickmode="array",
-                ticktext=[f"{x:.0f}" for x in rsi_windows],
-                tickvals=rsi_windows,
-            ),
+            title={"text": title_text, "x": 0.5, "xanchor": "center"},
+            xaxis={
+                "title": "RSI Threshold",
+                "tickmode": "array",
+                "ticktext": [f"{x:.0f}" for x in rsi_thresholds],
+                "tickvals": rsi_thresholds,
+                "tickangle": 0,
+            },
+            yaxis={
+                "title": "RSI Window Length",
+                "tickmode": "array",
+                "ticktext": [f"{x:.0f}" for x in rsi_windows],
+                "tickvals": rsi_windows,
+            },
             autosize=True,
-            margin=dict(l=50, r=50, t=100, b=50),
+            margin={"l": 50, "r": 50, "t": 100, "b": 50},
         )
 
         figures[metric_name] = fig

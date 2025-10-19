@@ -12,12 +12,9 @@ Focus: Fast execution, isolated testing of pure calculation logic
 """
 
 import unittest
-from datetime import datetime, timedelta
-from typing import Any, Dict
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from app.strategies.atr.tools.strategy_execution import (
     analyze_params,
@@ -166,7 +163,7 @@ class TestATRDirectionSupport(unittest.TestCase):
         # Check that trailing stops are below price (for long positions)
         for i in range(len(result)):
             stop = result["ATR_Trailing_Stop"].iloc[i]
-            close = result["Close"].iloc[i]
+            result["Close"].iloc[i]
             if not pd.isna(stop):
                 # For long positions, trailing stop should generally be below close price
                 # (allowing some tolerance for volatility)
@@ -195,7 +192,7 @@ class TestATRDirectionSupport(unittest.TestCase):
         # Check that trailing stops are above price (for short positions)
         for i in range(len(result)):
             stop = result["ATR_Trailing_Stop"].iloc[i]
-            close = result["Close"].iloc[i]
+            result["Close"].iloc[i]
             if not pd.isna(stop):
                 # For short positions, trailing stop should generally be above close price
                 # (allowing some tolerance for volatility)

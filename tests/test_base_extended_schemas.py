@@ -5,8 +5,6 @@ Tests schema definitions, transformations, detection, and edge cases
 to ensure 100% code coverage and robust schema handling.
 """
 
-from typing import Any, Dict, List
-
 import polars as pl
 import pytest
 
@@ -120,15 +118,15 @@ class TestBackwardCompatibility:
 
     def test_canonical_aliases(self):
         """Test that canonical aliases work correctly."""
-        assert CANONICAL_SCHEMA == ExtendedPortfolioSchema
+        assert ExtendedPortfolioSchema == CANONICAL_SCHEMA
         assert CanonicalPortfolioSchema == ExtendedPortfolioSchema
         assert CANONICAL_COLUMN_COUNT == 64
-        assert CANONICAL_COLUMN_NAMES == ExtendedPortfolioSchema.get_column_names()
+        assert ExtendedPortfolioSchema.get_column_names() == CANONICAL_COLUMN_NAMES
 
     def test_canonical_usage_patterns(self):
         """Test common usage patterns with canonical constants."""
         # Test accessing column count
-        assert CANONICAL_COLUMN_COUNT == len(CANONICAL_COLUMN_NAMES)
+        assert len(CANONICAL_COLUMN_NAMES) == CANONICAL_COLUMN_COUNT
 
         # Test schema class properties
         assert hasattr(CANONICAL_SCHEMA, "COLUMNS")

@@ -6,14 +6,15 @@ SMA, EMA, and MACD strategies, including proper parameter handling and
 signal period support for MACD.
 """
 
-import sys
 from datetime import datetime, timedelta
 from pathlib import Path
+import sys
 from unittest.mock import Mock
 
 import numpy as np
 import polars as pl
 import pytest
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
@@ -167,15 +168,15 @@ class TestMonteCarloStrategies:
             # Check that signal period is being used in calculations
             # This is verified by ensuring the base performance is calculated correctly
             base_perf = param_result.base_performance
-            assert isinstance(base_perf["total_return"], (int, float))
-            assert isinstance(base_perf["sharpe_ratio"], (int, float))
-            assert isinstance(base_perf["max_drawdown"], (int, float))
+            assert isinstance(base_perf["total_return"], int | float)
+            assert isinstance(base_perf["sharpe_ratio"], int | float)
+            assert isinstance(base_perf["max_drawdown"], int | float)
 
             # Verify confidence intervals are calculated
             if hasattr(param_result, "confidence_intervals"):
                 ci = param_result.confidence_intervals
                 if ci:  # May be empty dict if no results
-                    for metric, (lower, upper) in ci.items():
+                    for _metric, (lower, upper) in ci.items():
                         assert lower <= upper
 
     def test_macd_signal_window_variations(self, analyzer, test_data):
@@ -247,7 +248,7 @@ class TestMonteCarloStrategies:
 
         # Results should be different (unless by coincidence)
         # We check that at least one metric differs significantly
-        performance_differs = (
+        (
             abs(sma_perf["total_return"] - ema_perf["total_return"]) > 0.001
             or abs(sma_perf["total_return"] - macd_perf["total_return"]) > 0.001
             or abs(ema_perf["total_return"] - macd_perf["total_return"]) > 0.001
@@ -401,8 +402,8 @@ class TestStrategySpecificBehavior:
 
         # On strong uptrend, should capture some positive return
         # (though exact value depends on crossover timing)
-        assert isinstance(base_performance["total_return"], (int, float))
-        assert isinstance(base_performance["sharpe_ratio"], (int, float))
+        assert isinstance(base_performance["total_return"], int | float)
+        assert isinstance(base_performance["sharpe_ratio"], int | float)
 
     def test_macd_signal_generation(self, trend_data):
         """Test that MACD generates signals with proper signal line."""

@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class MetricType(Enum):
@@ -24,7 +24,7 @@ class MonitoringInterface(ABC):
         method: str,
         status_code: int,
         duration: float,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """Track API request metrics."""
 
@@ -34,34 +34,34 @@ class MonitoringInterface(ABC):
         operation: str,
         duration: float,
         success: bool,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """Track operation metrics."""
 
     @abstractmethod
     def increment_counter(
-        self, name: str, value: float = 1, labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float = 1, labels: dict[str, str] | None = None
     ) -> None:
         """Increment a counter metric."""
 
     @abstractmethod
     def set_gauge(
-        self, name: str, value: float, labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float, labels: dict[str, str] | None = None
     ) -> None:
         """Set a gauge metric."""
 
     @abstractmethod
     def observe_histogram(
-        self, name: str, value: float, labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float, labels: dict[str, str] | None = None
     ) -> None:
         """Observe a histogram metric."""
 
     @abstractmethod
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> dict[str, Any]:
         """Get all current metrics."""
 
     @abstractmethod
-    def health_check(self) -> Dict[str, Any]:
+    def health_check(self) -> dict[str, Any]:
         """Perform health check and return status."""
 
     @abstractmethod
@@ -70,6 +70,6 @@ class MonitoringInterface(ABC):
         name: str,
         metric_type: MetricType,
         description: str,
-        labels: Optional[List[str]] | None = None,
+        labels: list[str] | None | None = None,
     ) -> None:
         """Register a new metric."""

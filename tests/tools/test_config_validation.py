@@ -5,8 +5,6 @@ This module tests the configuration validation system including schema validatio
 EQUITY_DATA configuration handling, and error cases.
 """
 
-from unittest.mock import Mock
-
 import pytest
 
 from app.tools.config_validation import (
@@ -250,7 +248,7 @@ class TestConfigurationLogging:
 
         config = {"EQUITY_DATA": {"EXPORT": False, "METRIC": "mean"}}
 
-        result = log_configuration_validation(config, mock_log)
+        log_configuration_validation(config, mock_log)
 
         # Check logging messages
         info_messages = [msg for msg, level in log_messages if level == "info"]
@@ -267,7 +265,7 @@ class TestConfigurationLogging:
 
         config = {"EQUITY_DATA": {"EXPORT": "invalid", "METRIC": "invalid_metric"}}
 
-        result = log_configuration_validation(config, mock_log)
+        log_configuration_validation(config, mock_log)
 
         # Check that warnings were logged
         warning_messages = [msg for msg, level in log_messages if level == "warning"]

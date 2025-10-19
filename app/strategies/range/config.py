@@ -4,7 +4,7 @@ This module defines the configuration settings for the Range High Break trading 
 It includes settings for data retrieval, range length, and candle lookback parameters.
 """
 
-from typing import Any, TypedDict
+from typing import TypedDict
 
 from typing_extensions import NotRequired
 

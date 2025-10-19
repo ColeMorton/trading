@@ -11,7 +11,7 @@ Key Features:
 - Validation and error handling
 """
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 
 def generate_strategy_uuid(
@@ -20,7 +20,7 @@ def generate_strategy_uuid(
     fast_period: int,
     slow_period: int,
     signal_period: int = 0,
-    entry_date: Optional[str] = None,
+    entry_date: str | None = None,
 ) -> str:
     """Generate standardized strategy UUID.
 
@@ -51,13 +51,12 @@ def generate_strategy_uuid(
         raise ValueError("Fast period must be less than slow period")
 
     # Clean entry date to YYYYMMDD format if provided
-    if entry_date:
-        if isinstance(entry_date, str):
-            if " " in entry_date:
-                entry_date = entry_date.split(" ")[0]
-            # Convert YYYY-MM-DD to YYYYMMDD for consistency
-            if "-" in entry_date and len(entry_date) == 10:
-                entry_date = entry_date.replace("-", "")
+    if entry_date and isinstance(entry_date, str):
+        if " " in entry_date:
+            entry_date = entry_date.split(" ")[0]
+        # Convert YYYY-MM-DD to YYYYMMDD for consistency
+        if "-" in entry_date and len(entry_date) == 10:
+            entry_date = entry_date.replace("-", "")
 
     # Normalize strategy type
     strategy_upper = strategy_type.upper()
@@ -152,7 +151,7 @@ def generate_strategy_id(
     )
 
 
-def parse_strategy_uuid(strategy_uuid: str) -> Dict[str, Any]:
+def parse_strategy_uuid(strategy_uuid: str) -> dict[str, Any]:
     """Parse a strategy UUID into its component parts.
 
     Supports both old and new formats for backward compatibility.
@@ -254,49 +253,48 @@ def parse_strategy_uuid(strategy_uuid: str) -> Dict[str, Any]:
             # No entry date
             entry_date = None
 
-    else:
-        # MACD, ATR, or other strategies that may use signal_period
-        if len(remaining_parts) < 2:
-            raise ValueError(
-                f"Invalid {strategy_type} strategy UUID format: {strategy_uuid}"
-            )
-        elif len(remaining_parts) == 2:
-            # Might be old format SMA/EMA with signal_period, or new format for non-SMA/EMA
-            fast_period = remaining_parts[0]
-            slow_period = remaining_parts[1]
-            signal_period = "0"  # Default
-            entry_date = None
-        elif len(remaining_parts) == 3:
-            # Could be: [short, long, signal] or [short, long, entry_date]
-            fast_period = remaining_parts[0]
-            slow_period = remaining_parts[1]
+    # MACD, ATR, or other strategies that may use signal_period
+    elif len(remaining_parts) < 2:
+        raise ValueError(
+            f"Invalid {strategy_type} strategy UUID format: {strategy_uuid}"
+        )
+    elif len(remaining_parts) == 2:
+        # Might be old format SMA/EMA with signal_period, or new format for non-SMA/EMA
+        fast_period = remaining_parts[0]
+        slow_period = remaining_parts[1]
+        signal_period = "0"  # Default
+        entry_date = None
+    elif len(remaining_parts) == 3:
+        # Could be: [short, long, signal] or [short, long, entry_date]
+        fast_period = remaining_parts[0]
+        slow_period = remaining_parts[1]
 
-            # Try to determine if third part is signal_period or entry_date
-            third_part = remaining_parts[2]
-            if (third_part.count("-") == 2 and len(third_part) == 10) or (
-                len(third_part) == 8 and third_part.isdigit()
-            ):
-                # Looks like YYYY-MM-DD (old format) or YYYYMMDD (new format)
-                signal_period = "0"
-                entry_date = third_part
-            else:
-                signal_period = third_part
-                entry_date = None
+        # Try to determine if third part is signal_period or entry_date
+        third_part = remaining_parts[2]
+        if (third_part.count("-") == 2 and len(third_part) == 10) or (
+            len(third_part) == 8 and third_part.isdigit()
+        ):
+            # Looks like YYYY-MM-DD (old format) or YYYYMMDD (new format)
+            signal_period = "0"
+            entry_date = third_part
         else:
-            # Has signal_period and possibly entry_date
-            fast_period = remaining_parts[0]
-            slow_period = remaining_parts[1]
-            signal_period = remaining_parts[2]
+            signal_period = third_part
+            entry_date = None
+    else:
+        # Has signal_period and possibly entry_date
+        fast_period = remaining_parts[0]
+        slow_period = remaining_parts[1]
+        signal_period = remaining_parts[2]
 
-            # Check for entry date
-            if len(remaining_parts) >= 4:
-                entry_date_parts = remaining_parts[3:]
-                if len(entry_date_parts) == 3:  # YYYY-MM-DD split by underscores
-                    entry_date = "-".join(entry_date_parts)
-                else:
-                    entry_date = remaining_parts[3]
+        # Check for entry date
+        if len(remaining_parts) >= 4:
+            entry_date_parts = remaining_parts[3:]
+            if len(entry_date_parts) == 3:  # YYYY-MM-DD split by underscores
+                entry_date = "-".join(entry_date_parts)
             else:
-                entry_date = None
+                entry_date = remaining_parts[3]
+        else:
+            entry_date = None
 
     # Convert numeric values to appropriate types
     try:
@@ -339,8 +337,8 @@ def is_valid_strategy_uuid(strategy_uuid: str) -> bool:
 
 
 def extract_strategy_components(
-    strategy_config: Dict[str, Any]
-) -> Tuple[str, str, int, int, int]:
+    strategy_config: dict[str, Any],
+) -> tuple[str, str, int, int, int]:
     """Extract strategy components from a configuration dictionary.
 
     Args:
@@ -383,7 +381,7 @@ def extract_strategy_components(
     return ticker, strategy_type, fast_period, slow_period, signal_period
 
 
-def generate_strategy_id_from_config(strategy_config: Dict[str, Any]) -> str:
+def generate_strategy_id_from_config(strategy_config: dict[str, Any]) -> str:
     """Generate a standardized strategy ID from a strategy configuration.
 
     Args:
@@ -409,7 +407,7 @@ def generate_strategy_id_from_config(strategy_config: Dict[str, Any]) -> str:
 
 
 def _get_config_value(
-    config: Dict[str, Any], possible_keys: list, default: Any = None
+    config: dict[str, Any], possible_keys: list, default: Any = None
 ) -> Any:
     """Get a value from a config dictionary, checking multiple possible keys.
 
@@ -436,7 +434,7 @@ def _get_config_value(
     )
 
 
-def _get_strategy_type(config: Dict[str, Any]) -> str:
+def _get_strategy_type(config: dict[str, Any]) -> str:
     """Determine the strategy type from a configuration dictionary.
 
     Args:
@@ -461,15 +459,14 @@ def _get_strategy_type(config: Dict[str, Any]) -> str:
     # Infer from configuration
     if "SIGNAL_PERIOD" in config or "signal_period" in config:
         return "MACD"
-    elif ("LENGTH" in config or "length" in config) and (
+    if ("LENGTH" in config or "length" in config) and (
         "MULTIPLIER" in config or "multiplier" in config
     ):
         return "ATR"
-    elif "USE_SMA" in config or "Use_SMA" in config:
+    if "USE_SMA" in config or "Use_SMA" in config:
         use_sma = _get_config_value(config, ["USE_SMA", "Use_SMA"])
         return "SMA" if use_sma else "EMA"
-    else:
-        # Fail fast - no default strategy type allowed
-        raise ValueError(
-            "Strategy type cannot be determined. Must be explicitly specified (STRATEGY_TYPE, Strategy Type, or MA Type field required)."
-        )
+    # Fail fast - no default strategy type allowed
+    raise ValueError(
+        "Strategy type cannot be determined. Must be explicitly specified (STRATEGY_TYPE, Strategy Type, or MA Type field required)."
+    )

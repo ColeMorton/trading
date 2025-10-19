@@ -6,24 +6,23 @@ Comprehensive health check for the Statistical Performance Divergence System.
 Validates system components, data integrity, and export functionality.
 """
 
-import json
-import logging
-import sys
 from datetime import datetime
+import logging
 from pathlib import Path
-from typing import Dict, List, Tuple
+import sys
 
 import pandas as pd
-import typer
 from rich.console import Console
 from rich.table import Table
+import typer
+
 
 # Setup
 console = Console()
 logger = logging.getLogger(__name__)
 
 
-def check_directory_structure() -> Tuple[bool, List[str]]:
+def check_directory_structure() -> tuple[bool, list[str]]:
     """Check that required directories exist."""
     required_dirs = [
         "data/raw/positions",
@@ -43,7 +42,7 @@ def check_directory_structure() -> Tuple[bool, List[str]]:
     return len(issues) == 0, issues
 
 
-def check_portfolio_files() -> Tuple[bool, List[str]]:
+def check_portfolio_files() -> tuple[bool, list[str]]:
     """Check that portfolio files exist and are readable."""
     portfolio_files = [
         "data/raw/positions/live_signals.csv",
@@ -74,7 +73,7 @@ def check_portfolio_files() -> Tuple[bool, List[str]]:
     return len(found_files) > 0, issues
 
 
-def check_export_functionality() -> Tuple[bool, List[str]]:
+def check_export_functionality() -> tuple[bool, list[str]]:
     """Test export functionality with validation."""
     issues = []
 
@@ -112,7 +111,7 @@ def check_export_functionality() -> Tuple[bool, List[str]]:
     return len(issues) == 0, issues
 
 
-def check_cli_functionality() -> Tuple[bool, List[str]]:
+def check_cli_functionality() -> tuple[bool, list[str]]:
     """Check CLI functionality."""
     issues = []
 
@@ -135,7 +134,7 @@ def check_cli_functionality() -> Tuple[bool, List[str]]:
     return len(issues) == 0, issues
 
 
-def check_data_quality() -> Tuple[bool, List[str]]:
+def check_data_quality() -> tuple[bool, list[str]]:
     """Check data quality in portfolio files."""
     issues = []
 
@@ -184,7 +183,7 @@ def check_data_quality() -> Tuple[bool, List[str]]:
     return len(issues) == 0, issues
 
 
-def run_comprehensive_health_check() -> Dict[str, Tuple[bool, List[str]]]:
+def run_comprehensive_health_check() -> dict[str, tuple[bool, list[str]]]:
     """Run all health checks."""
     checks = {
         "Directory Structure": check_directory_structure,
@@ -204,7 +203,7 @@ def run_comprehensive_health_check() -> Dict[str, Tuple[bool, List[str]]]:
     return results
 
 
-def display_health_results(results: Dict[str, Tuple[bool, List[str]]]):
+def display_health_results(results: dict[str, tuple[bool, list[str]]]):
     """Display health check results in a nice format."""
     table = Table(title="🏥 SPDS System Health Check", show_header=True)
     table.add_column("Component", style="cyan", no_wrap=True)

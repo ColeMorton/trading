@@ -7,9 +7,9 @@ export formats, and framework-specific templates.
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 from .statistical_analysis_models import ConfidenceLevel, DataSource
 
@@ -52,42 +52,42 @@ class DeterministicExitCriteria(BaseModel):
     description: str = Field(description="Human-readable criteria description")
 
     # Percentage-based criteria
-    take_profit_pct: Optional[float] = Field(
+    take_profit_pct: float | None = Field(
         description="Take profit percentage", default=None
     )
-    stop_loss_pct: Optional[float] = Field(
+    stop_loss_pct: float | None = Field(
         description="Stop loss percentage", default=None
     )
-    trailing_stop_pct: Optional[float] = Field(
+    trailing_stop_pct: float | None = Field(
         description="Trailing stop percentage", default=None
     )
 
     # Price-level criteria (calculated from entry price)
-    take_profit_price_multiplier: Optional[float] = Field(
+    take_profit_price_multiplier: float | None = Field(
         description="Price multiplier for take profit", default=None
     )
-    stop_loss_price_multiplier: Optional[float] = Field(
+    stop_loss_price_multiplier: float | None = Field(
         description="Price multiplier for stop loss", default=None
     )
 
     # Time-based criteria
-    max_holding_days: Optional[int] = Field(
+    max_holding_days: int | None = Field(
         description="Maximum holding period", default=None
     )
-    min_holding_days: Optional[int] = Field(
+    min_holding_days: int | None = Field(
         description="Minimum holding period", default=None
     )
 
     # VaR-based criteria
-    var_threshold_pct: Optional[float] = Field(
+    var_threshold_pct: float | None = Field(
         description="VaR threshold percentage", default=None
     )
-    var_lookback_days: Optional[int] = Field(
+    var_lookback_days: int | None = Field(
         description="VaR calculation lookback", default=None
     )
 
     # Multi-condition logic
-    condition_logic: Optional[str] = Field(
+    condition_logic: str | None = Field(
         description="Logic for multi-condition exits", default=None
     )
     priority: int = Field(description="Exit criteria priority", ge=1, default=1)
@@ -100,7 +100,7 @@ class StrategyParameters(BaseModel):
     ticker: str = Field(description="Asset ticker")
 
     # Primary exit criteria
-    exit_criteria: List[DeterministicExitCriteria] = Field(
+    exit_criteria: list[DeterministicExitCriteria] = Field(
         description="List of exit criteria"
     )
 
@@ -110,7 +110,7 @@ class StrategyParameters(BaseModel):
     statistical_validity: ConfidenceLevel = Field(description="Statistical validity")
 
     # Market context
-    market_regime: Optional[MarketRegime] = Field(
+    market_regime: MarketRegime | None = Field(
         description="Market regime classification", default=None
     )
     volatility_adjustment: float = Field(
@@ -122,7 +122,7 @@ class StrategyParameters(BaseModel):
         description="Source percentile", ge=0, le=100
     )
     data_source: DataSource = Field(description="Primary data source")
-    analysis_timeframes: List[str] = Field(description="Timeframes included")
+    analysis_timeframes: list[str] = Field(description="Timeframes included")
 
     # Quality indicators
     parameter_stability_score: float = Field(
@@ -179,14 +179,14 @@ class BacktraderParameters(BaseModel):
     min_days: int = Field(description="Minimum holding days", ge=0)
 
     # Backtrader-specific settings
-    stake: Union[int, float] = Field(description="Position size", default=1000)
+    stake: int | float = Field(description="Position size", default=1000)
     commission: float = Field(description="Commission rate", ge=0, default=0.001)
-    margin: Optional[float] = Field(description="Margin requirement", default=None)
+    margin: float | None = Field(description="Margin requirement", default=None)
     mult: float = Field(description="Multiplier for futures", default=1.0)
 
     # Order execution settings
     order_type: str = Field(description="Default order type", default="Market")
-    valid_days: Optional[int] = Field(description="Order validity days", default=None)
+    valid_days: int | None = Field(description="Order validity days", default=None)
 
     # Template generation
     generate_full_strategy: bool = Field(
@@ -216,7 +216,7 @@ class ZiplineParameters(BaseModel):
     slippage_spread: float = Field(description="Slippage spread", ge=0, default=0.0005)
 
     # Universe and scheduling
-    universe: List[str] = Field(description="Trading universe", default_factory=list)
+    universe: list[str] = Field(description="Trading universe", default_factory=list)
     rebalance_frequency: str = Field(
         description="Rebalancing frequency", default="daily"
     )
@@ -236,10 +236,10 @@ class ParameterValidationResult(BaseModel):
 
     # Validation status
     is_valid: bool = Field(description="Overall validation status")
-    validation_errors: List[str] = Field(
+    validation_errors: list[str] = Field(
         description="Validation error messages", default_factory=list
     )
-    validation_warnings: List[str] = Field(
+    validation_warnings: list[str] = Field(
         description="Validation warnings", default_factory=list
     )
 
@@ -267,16 +267,16 @@ class ExportTemplate(BaseModel):
 
     # Template content
     template_code: str = Field(description="Generated template code")
-    imports_required: List[str] = Field(
+    imports_required: list[str] = Field(
         description="Required imports", default_factory=list
     )
-    dependencies: List[str] = Field(
+    dependencies: list[str] = Field(
         description="Package dependencies", default_factory=list
     )
 
     # Usage instructions
     usage_instructions: str = Field(description="How to use the template")
-    example_usage: Optional[str] = Field(description="Example usage code", default=None)
+    example_usage: str | None = Field(description="Example usage code", default=None)
 
     # Metadata
     generated_timestamp: datetime = Field(description="Generation timestamp")
@@ -290,37 +290,37 @@ class MultiFrameworkExport(BaseModel):
     source_parameters: StrategyParameters = Field(description="Source parameters")
 
     # Framework-specific exports
-    vectorbt_export: Optional[VectorBTParameters] = Field(
+    vectorbt_export: VectorBTParameters | None = Field(
         description="VectorBT parameters", default=None
     )
-    backtrader_export: Optional[BacktraderParameters] = Field(
+    backtrader_export: BacktraderParameters | None = Field(
         description="Backtrader parameters", default=None
     )
-    zipline_export: Optional[ZiplineParameters] = Field(
+    zipline_export: ZiplineParameters | None = Field(
         description="Zipline parameters", default=None
     )
 
     # Templates
-    vectorbt_template: Optional[ExportTemplate] = Field(
+    vectorbt_template: ExportTemplate | None = Field(
         description="VectorBT template", default=None
     )
-    backtrader_template: Optional[ExportTemplate] = Field(
+    backtrader_template: ExportTemplate | None = Field(
         description="Backtrader template", default=None
     )
-    zipline_template: Optional[ExportTemplate] = Field(
+    zipline_template: ExportTemplate | None = Field(
         description="Zipline template", default=None
     )
 
     # Validation results
-    validation_results: Dict[str, ParameterValidationResult] = Field(
+    validation_results: dict[str, ParameterValidationResult] = Field(
         description="Validation results by framework", default_factory=dict
     )
 
     # Export summary
-    successful_exports: List[BacktestingFramework] = Field(
+    successful_exports: list[BacktestingFramework] = Field(
         description="Successful exports", default_factory=list
     )
-    failed_exports: List[BacktestingFramework] = Field(
+    failed_exports: list[BacktestingFramework] = Field(
         description="Failed exports", default_factory=list
     )
     export_timestamp: datetime = Field(description="Export timestamp")
@@ -343,21 +343,21 @@ class ParameterSetCollection(BaseModel):
     )
 
     # Market regime parameters
-    bull_market_parameters: Optional[StrategyParameters] = Field(
+    bull_market_parameters: StrategyParameters | None = Field(
         description="Bull market parameters", default=None
     )
-    bear_market_parameters: Optional[StrategyParameters] = Field(
+    bear_market_parameters: StrategyParameters | None = Field(
         description="Bear market parameters", default=None
     )
-    sideways_market_parameters: Optional[StrategyParameters] = Field(
+    sideways_market_parameters: StrategyParameters | None = Field(
         description="Sideways market parameters", default=None
     )
 
     # Volatility-adjusted parameters
-    high_volatility_parameters: Optional[StrategyParameters] = Field(
+    high_volatility_parameters: StrategyParameters | None = Field(
         description="High volatility parameters", default=None
     )
-    low_volatility_parameters: Optional[StrategyParameters] = Field(
+    low_volatility_parameters: StrategyParameters | None = Field(
         description="Low volatility parameters", default=None
     )
 
@@ -369,7 +369,7 @@ class ParameterSetCollection(BaseModel):
     next_review_date: datetime = Field(description="Next review date")
 
     # Performance tracking
-    performance_baseline: Optional[Dict[str, float]] = Field(
+    performance_baseline: dict[str, float] | None = Field(
         description="Performance baseline metrics", default=None
     )
     optimization_target: str = Field(
@@ -380,23 +380,23 @@ class ParameterSetCollection(BaseModel):
 class BacktestingConfigExport(BaseModel):
     """Complete backtesting configuration export"""
 
-    export_metadata: Dict[str, Any] = Field(description="Export metadata")
+    export_metadata: dict[str, Any] = Field(description="Export metadata")
 
     # Strategy parameters
-    strategy_parameters: Dict[str, ParameterSetCollection] = Field(
+    strategy_parameters: dict[str, ParameterSetCollection] = Field(
         description="Parameters by strategy"
     )
 
     # Global settings
-    global_settings: Dict[str, Any] = Field(description="Global backtesting settings")
+    global_settings: dict[str, Any] = Field(description="Global backtesting settings")
 
     # Export files
-    file_exports: Dict[str, str] = Field(description="Exported file paths by format")
+    file_exports: dict[str, str] = Field(description="Exported file paths by format")
 
     # Validation summary
     total_strategies: int = Field(description="Total strategies", ge=0)
     valid_strategies: int = Field(description="Valid strategies", ge=0)
-    framework_compatibility: Dict[str, int] = Field(
+    framework_compatibility: dict[str, int] = Field(
         description="Compatibility count by framework"
     )
 

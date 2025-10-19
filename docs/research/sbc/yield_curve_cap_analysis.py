@@ -8,9 +8,8 @@ and whether this behavior is mathematically sound.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-from sbc_yield_curve_calculator import MarketConditions, SBCYieldCurveCalculator
+from sbc_yield_curve_calculator import SBCYieldCurveCalculator
 
 
 def analyze_cap_behavior():
@@ -311,24 +310,24 @@ def evaluate_cap_rationale():
     print(f"   - Effective return: {max_uncapped/(100-max_uncapped)*100:.0f}%")
 
     # Treasury implications
-    print(f"\n2. Treasury safety implications:")
+    print("\n2. Treasury safety implications:")
     print(
         f"   - At {max_uncapped:.1f}% discount: Protocol gets ${100-max_uncapped:.1f}, owes $100 SBC"
     )
     print(f"   - WBTC needs to appreciate {100/(100-max_uncapped):.1f}x to break even")
-    print(f"   - Historical WBTC 3-year: ~3.4x appreciation")
+    print("   - Historical WBTC 3-year: ~3.4x appreciation")
 
     if max_uncapped > 95:
-        print(f"   - ⚠️  Uncapped discount exceeds sustainable levels")
-        print(f"   - 95% cap provides safety margin")
+        print("   - ⚠️  Uncapped discount exceeds sustainable levels")
+        print("   - 95% cap provides safety margin")
     else:
-        print(f"   - ✅ Uncapped discount within reasonable bounds")
+        print("   - ✅ Uncapped discount within reasonable bounds")
 
     # Market reasonableness
-    print(f"\n3. Market reasonableness:")
-    print(f"   - 95% discount = paying $5 to get $100 of future SBC")
-    print(f"   - This is extreme but not unreasonable for 3-year lock")
-    print(f"   - Cap prevents >95% discounts that could destabilize treasury")
+    print("\n3. Market reasonableness:")
+    print("   - 95% discount = paying $5 to get $100 of future SBC")
+    print("   - This is extreme but not unreasonable for 3-year lock")
+    print("   - Cap prevents >95% discounts that could destabilize treasury")
 
 
 if __name__ == "__main__":

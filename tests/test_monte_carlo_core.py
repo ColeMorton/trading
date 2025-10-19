@@ -5,15 +5,15 @@ This test suite covers the core Monte Carlo parameter robustness analysis engine
 including bootstrap sampling, parameter stability analysis, and performance calculations.
 """
 
-import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict
+import sys
 from unittest.mock import Mock
 
 import numpy as np
 import polars as pl
 import pytest
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
@@ -37,7 +37,7 @@ class TestMonteCarloConfig:
         assert config.num_simulations == 100
         assert config.confidence_level == 0.95
         assert config.max_parameters_to_test == 10
-        assert config.include_in_reports == False
+        assert config.include_in_reports is False
 
     def test_custom_config(self):
         """Test custom configuration values."""
@@ -104,7 +104,7 @@ class TestMonteCarloAnalyzer:
 
         # Generate realistic price series
         prices = [base_price]
-        for i in range(n_days - 1):
+        for _i in range(n_days - 1):
             change = np.random.normal(0.001, 0.02)
             new_price = prices[-1] * (1 + change)
             prices.append(float(new_price))

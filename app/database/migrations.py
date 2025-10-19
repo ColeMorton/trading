@@ -5,17 +5,18 @@ This module contains scripts to migrate existing CSV/JSON data to PostgreSQL.
 """
 
 import asyncio
-import json
-import logging
 from datetime import datetime
 from decimal import Decimal
+import json
+import logging
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import pandas as pd
 from prisma import Prisma
 
 from app.database.config import get_database_settings
+
 
 logger = logging.getLogger(__name__)
 
@@ -136,7 +137,7 @@ class DataMigrator:
         """Determine asset class based on symbol patterns."""
         if "-USD" in symbol:
             return "CRYPTO"
-        elif symbol in [
+        if symbol in [
             "SPY",
             "QQQ",
             "IWM",
@@ -153,10 +154,9 @@ class DataMigrator:
             "XLRE",
         ]:
             return "ETF"
-        elif "=F" in symbol:
+        if "=F" in symbol:
             return "COMMODITY"
-        else:
-            return "STOCK"
+        return "STOCK"
 
     async def migrate_prices(self, batch_size: int = 1000):
         """Migrate price data from CSV files."""
@@ -242,7 +242,7 @@ class DataMigrator:
 
         for json_file in json_dir.glob("*.json"):
             try:
-                with open(json_file, "r") as f:
+                with open(json_file) as f:
                     portfolio_data = json.load(f)
 
                 if isinstance(portfolio_data, list):
@@ -267,7 +267,7 @@ class DataMigrator:
 
         logger.info(f"Migrated {configs_created} strategy configurations")
 
-    async def _create_strategy_configuration(self, config: Dict[str, Any]):
+    async def _create_strategy_configuration(self, config: dict[str, Any]):
         """Create a strategy configuration from JSON data."""
         try:
             # Extract configuration details
@@ -413,7 +413,7 @@ class DataMigrator:
 
             # Create a basic backtest result (you'll need to map all the columns
             # properly)
-            result_data = {
+            {
                 "strategyConfigId": "placeholder",  # You'll need to implement proper lookup
                 "runDate": datetime.now(),
                 "startDate": pd.to_datetime(

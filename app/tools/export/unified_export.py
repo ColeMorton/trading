@@ -15,15 +15,15 @@ Key Performance Improvements:
 - Parallel batch processing support
 """
 
-import hashlib
-import json
-import logging
-import time
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+import hashlib
+import logging
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+import time
+from typing import Any
 
 import pandas as pd
 import polars as pl
@@ -36,6 +36,7 @@ from app.tools.portfolio.base_extended_schemas import (
     SchemaType,
 )
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -45,7 +46,7 @@ class ExportConfig:
 
     output_dir: str
     schema_type: SchemaType = SchemaType.EXTENDED
-    filename_pattern: Optional[str] = None
+    filename_pattern: str | None = None
     preserve_original_format: bool = False
     enable_performance_monitoring: bool = True
     max_workers: int = 4
@@ -62,12 +63,12 @@ class ExportResult:
     """Result of an export operation."""
 
     success: bool
-    file_path: Optional[str] = None
+    file_path: str | None = None
     execution_time: float = 0.0
     row_count: int = 0
     column_count: int = 0
-    error_message: Optional[str] = None
-    performance_metrics: Dict[str, float] = field(default_factory=dict)
+    error_message: str | None = None
+    performance_metrics: dict[str, float] = field(default_factory=dict)
 
 
 @dataclass
@@ -91,7 +92,7 @@ class PerformanceMetrics:
     file_write_time: float = 0.0
     total_time: float = 0.0
     cache_hit: bool = False
-    cache_type: Optional[str] = None
+    cache_type: str | None = None
 
 
 class AdvancedCache:
@@ -100,11 +101,11 @@ class AdvancedCache:
     def __init__(self, ttl_minutes: int = 60, max_entries: int = 1000):
         self.ttl_minutes = ttl_minutes
         self.max_entries = max_entries
-        self._cache: Dict[str, CacheEntry] = {}
+        self._cache: dict[str, CacheEntry] = {}
         self._hit_count = 0
         self._miss_count = 0
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         """Get value from cache with TTL validation."""
         if key not in self._cache:
             self._miss_count += 1
@@ -158,7 +159,7 @@ class AdvancedCache:
         for key, _ in sorted_entries[:evict_count]:
             del self._cache[key]
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache performance statistics."""
         total_requests = self._hit_count + self._miss_count
         hit_ratio = self._hit_count / max(total_requests, 1)
@@ -185,8 +186,8 @@ class PerformanceMonitor:
     def __init__(self, enable_alerts: bool = False, threshold_ms: float = 100.0):
         self.enable_alerts = enable_alerts
         self.threshold_ms = threshold_ms
-        self._metrics_history: List[PerformanceMetrics] = []
-        self._alert_callbacks: List[Callable] = []
+        self._metrics_history: list[PerformanceMetrics] = []
+        self._alert_callbacks: list[Callable] = []
 
     def record_metrics(self, metrics: PerformanceMetrics):
         """Record performance metrics and check for alerts."""
@@ -207,7 +208,7 @@ class PerformanceMonitor:
             except Exception as e:
                 logger.error(f"Alert callback failed: {e}")
 
-    def get_performance_summary(self) -> Dict[str, Any]:
+    def get_performance_summary(self) -> dict[str, Any]:
         """Get comprehensive performance summary."""
         if not self._metrics_history:
             return {"message": "No performance data available"}
@@ -241,7 +242,7 @@ class PerformanceMonitor:
 
     def _count_recent_alerts(self) -> int:
         """Count alerts in the last hour."""
-        threshold_time = datetime.now() - timedelta(hours=1)
+        datetime.now() - timedelta(hours=1)
         return sum(
             1 for m in self._metrics_history if m.total_time * 1000 > self.threshold_ms
         )
@@ -278,7 +279,7 @@ class UnifiedExportProcessor:
         )
 
         # Existing caches
-        self._column_cache: Dict[SchemaType, List[str]] = {}
+        self._column_cache: dict[SchemaType, list[str]] = {}
 
         # Initialize schema column cache
         self._initialize_column_cache()
@@ -309,11 +310,11 @@ class UnifiedExportProcessor:
 
     def export_single(
         self,
-        data: Union[pl.DataFrame, pd.DataFrame],
+        data: pl.DataFrame | pd.DataFrame,
         filename: str,
-        ticker: Optional[str] = None,
-        strategy_type: Optional[str] = None,
-        metric_type: Optional[str] = None,
+        ticker: str | None = None,
+        strategy_type: str | None = None,
+        metric_type: str | None = None,
     ) -> ExportResult:
         """
         Export a single DataFrame to CSV with optimized performance.
@@ -402,9 +403,11 @@ class UnifiedExportProcessor:
                 file_path=str(file_path),
                 execution_time=metrics.total_time,
                 row_count=len(validated_data),
-                column_count=len(validated_data.columns)
-                if hasattr(validated_data, "columns")
-                else validated_data.width,
+                column_count=(
+                    len(validated_data.columns)
+                    if hasattr(validated_data, "columns")
+                    else validated_data.width
+                ),
                 performance_metrics=self._metrics_to_dict(metrics),
             )
 
@@ -418,7 +421,7 @@ class UnifiedExportProcessor:
             return result
 
         except Exception as e:
-            logger.error(f"Export failed for {filename}: {str(e)}")
+            logger.error(f"Export failed for {filename}: {e!s}")
             return ExportResult(
                 success=False,
                 error_message=str(e),
@@ -427,10 +430,8 @@ class UnifiedExportProcessor:
 
     def export_batch(
         self,
-        export_jobs: List[
-            Tuple[Union[pl.DataFrame, pd.DataFrame], str, Dict[str, Any]]
-        ],
-    ) -> List[ExportResult]:
+        export_jobs: list[tuple[pl.DataFrame | pd.DataFrame, str, dict[str, Any]]],
+    ) -> list[ExportResult]:
         """
         Export multiple DataFrames in parallel for improved performance.
 
@@ -467,7 +468,7 @@ class UnifiedExportProcessor:
                         results.append(result)
                     except Exception as e:
                         data, filename, kwargs = future_to_job[future]
-                        logger.error(f"Batch export failed for {filename}: {str(e)}")
+                        logger.error(f"Batch export failed for {filename}: {e!s}")
                         results.append(
                             ExportResult(success=False, error_message=str(e))
                         )
@@ -475,7 +476,7 @@ class UnifiedExportProcessor:
         return results
 
     def _determine_target_schema(
-        self, filename: str, strategy_type: Optional[str]
+        self, filename: str, strategy_type: str | None
     ) -> SchemaType:
         """Determine target schema based on filename and context."""
         filename_lower = filename.lower()
@@ -486,19 +487,18 @@ class UnifiedExportProcessor:
             or "portfolios_best" in filename_lower
         ):
             return SchemaType.FILTERED
-        elif "portfolios" in filename_lower:
+        if "portfolios" in filename_lower:
             return SchemaType.BASE
-        else:
-            # Default to extended for backward compatibility
-            return self.config.schema_type
+        # Default to extended for backward compatibility
+        return self.config.schema_type
 
     def _validate_and_transform_schema_cached(
         self,
-        data: Union[pl.DataFrame, pd.DataFrame],
+        data: pl.DataFrame | pd.DataFrame,
         target_schema: SchemaType,
-        metric_type: Optional[str] = None,
+        metric_type: str | None = None,
         content_hash: str = "",
-    ) -> Tuple[Union[pl.DataFrame, pd.DataFrame], bool]:
+    ) -> tuple[pl.DataFrame | pd.DataFrame, bool]:
         """
         Phase 4: Enhanced schema validation with advanced caching.
 
@@ -529,19 +529,17 @@ class UnifiedExportProcessor:
 
     def _validate_and_transform_schema(
         self,
-        data: Union[pl.DataFrame, pd.DataFrame],
+        data: pl.DataFrame | pd.DataFrame,
         target_schema: SchemaType,
-        metric_type: Optional[str] = None,
-    ) -> Union[pl.DataFrame, pd.DataFrame]:
+        metric_type: str | None = None,
+    ) -> pl.DataFrame | pd.DataFrame:
         """
         Legacy schema validation method (kept for compatibility).
         """
         # Detect current schema
         is_polars = isinstance(data, pl.DataFrame)
         columns = data.columns if is_polars else list(data.columns)
-        current_schema_str = self.schema_transformer.detect_schema_type_from_columns(
-            columns
-        )
+        self.schema_transformer.detect_schema_type_from_columns(columns)
 
         # Convert to DataFrame list format for transformation
         if is_polars:
@@ -580,8 +578,8 @@ class UnifiedExportProcessor:
     def _generate_filename(
         self,
         base_filename: str,
-        ticker: Optional[str] = None,
-        strategy_type: Optional[str] = None,
+        ticker: str | None = None,
+        strategy_type: str | None = None,
         schema_type: SchemaType = SchemaType.EXTENDED,
     ) -> str:
         """Generate optimized filename with consistent naming convention."""
@@ -599,9 +597,7 @@ class UnifiedExportProcessor:
 
         return base_filename
 
-    def _write_csv_optimized(
-        self, data: Union[pl.DataFrame, pd.DataFrame], file_path: Path
-    ):
+    def _write_csv_optimized(self, data: pl.DataFrame | pd.DataFrame, file_path: Path):
         """Write CSV with optimized performance."""
         if isinstance(data, pl.DataFrame):
             # Use Polars native CSV writer for better performance
@@ -612,21 +608,20 @@ class UnifiedExportProcessor:
                 str(file_path), index=False, float_format="%.6f", date_format="%Y-%m-%d"
             )
 
-    def _generate_data_hash(self, data: Union[pl.DataFrame, pd.DataFrame]) -> str:
+    def _generate_data_hash(self, data: pl.DataFrame | pd.DataFrame) -> str:
         """Generate hash for caching purposes."""
         if isinstance(data, pl.DataFrame):
             # Use shape and column names for hash
             return f"pl_{data.shape}_{hash(tuple(data.columns))}"
-        else:
-            return f"pd_{data.shape}_{hash(tuple(data.columns))}"
+        return f"pd_{data.shape}_{hash(tuple(data.columns))}"
 
     def _generate_content_hash(
         self,
-        data: Union[pl.DataFrame, pd.DataFrame],
+        data: pl.DataFrame | pd.DataFrame,
         filename: str,
-        ticker: Optional[str] = None,
-        strategy_type: Optional[str] = None,
-        metric_type: Optional[str] = None,
+        ticker: str | None = None,
+        strategy_type: str | None = None,
+        metric_type: str | None = None,
     ) -> str:
         """Phase 4: Generate comprehensive content hash for export caching."""
         # Create hash from data structure and parameters
@@ -636,7 +631,7 @@ class UnifiedExportProcessor:
         combined = f"{data_repr}_{params}"
         return hashlib.md5(combined.encode()).hexdigest()
 
-    def _metrics_to_dict(self, metrics: PerformanceMetrics) -> Dict[str, Any]:
+    def _metrics_to_dict(self, metrics: PerformanceMetrics) -> dict[str, Any]:
         """Phase 4: Convert metrics to dictionary with enhanced cache information."""
         return {
             "schema_validation_time": metrics.schema_validation_time,
@@ -648,7 +643,7 @@ class UnifiedExportProcessor:
             "cache_type": metrics.cache_type,
         }
 
-    def invalidate_cache(self, content_hash: Optional[str] = None):
+    def invalidate_cache(self, content_hash: str | None = None):
         """Phase 4: Invalidate cache entries."""
         if content_hash:
             self._schema_cache.invalidate_by_content(content_hash)
@@ -663,7 +658,7 @@ class UnifiedExportProcessor:
         """Phase 4: Add custom performance alert callback."""
         self._performance_monitor.add_alert_callback(callback)
 
-    def get_cache_diagnostics(self) -> Dict[str, Any]:
+    def get_cache_diagnostics(self) -> dict[str, Any]:
         """Phase 4: Get detailed cache diagnostics for troubleshooting."""
         return {
             "schema_cache": self._schema_cache.get_stats(),
@@ -680,7 +675,7 @@ class UnifiedExportProcessor:
             },
         }
 
-    def get_performance_summary(self) -> Dict[str, Any]:
+    def get_performance_summary(self) -> dict[str, Any]:
         """Phase 4: Get comprehensive performance statistics with advanced caching metrics."""
         # Get base performance metrics from monitor
         performance_data = self._performance_monitor.get_performance_summary()
@@ -738,7 +733,7 @@ class UnifiedExportProcessor:
 
 # Convenience functions for backward compatibility
 def export_portfolio_csv(
-    data: Union[pl.DataFrame, pd.DataFrame],
+    data: pl.DataFrame | pd.DataFrame,
     output_dir: str,
     filename: str,
     schema_type: SchemaType = SchemaType.EXTENDED,
@@ -755,10 +750,10 @@ def export_portfolio_csv(
 
 
 def export_portfolio_batch(
-    export_jobs: List[Tuple[Union[pl.DataFrame, pd.DataFrame], str, Dict[str, Any]]],
+    export_jobs: list[tuple[pl.DataFrame | pd.DataFrame, str, dict[str, Any]]],
     output_dir: str,
     **kwargs,
-) -> List[ExportResult]:
+) -> list[ExportResult]:
     """
     Convenience function for batch portfolio export.
 

@@ -4,10 +4,10 @@ This module provides functions for determining and filtering portfolio status
 based on signals and open trades.
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
 
-def determine_portfolio_status(portfolio: Dict[str, Any]) -> str:
+def determine_portfolio_status(portfolio: dict[str, Any]) -> str:
     """Determine portfolio status based on signals and open trades.
 
     Args:
@@ -22,17 +22,16 @@ def determine_portfolio_status(portfolio: Dict[str, Any]) -> str:
 
     if signal_entry:
         return "Entry"
-    elif signal_exit:
+    if signal_exit:
         return "Exit"
-    elif total_open_trades == 1 or (
+    if total_open_trades == 1 or (
         isinstance(total_open_trades, str) and total_open_trades == "1"
     ):
         return "Active"
-    else:
-        return "Inactive"
+    return "Inactive"
 
 
-def filter_entry_strategies(portfolios: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def filter_entry_strategies(portfolios: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Filter portfolios to only Entry status strategies.
 
     Args:
@@ -42,4 +41,3 @@ def filter_entry_strategies(portfolios: List[Dict[str, Any]]) -> List[Dict[str, 
         Filtered list containing only Entry status portfolios
     """
     return [p for p in portfolios if determine_portfolio_status(p) == "Entry"]
-

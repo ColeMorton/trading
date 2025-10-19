@@ -8,7 +8,7 @@ file operations, and complete execution flows.
 import json
 import os
 import tempfile
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -35,23 +35,18 @@ class TestPortfolioReviewFlowIntegration:
         mock_portfolio.value.return_value.index = ["2023-01-01", "2023-01-02"]
         mock_portfolio.value.return_value.values = [1000, 1050]
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_ma_and_signals"
-        ) as mock_calc_ma, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ) as mock_makedirs, patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df_class, patch(
-            "app.tools.plotting.create_portfolio_plot_files"
-        ) as mock_plot:
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+            ) as mock_calc_ma,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs") as mock_makedirs,
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df_class,
+            patch("app.tools.plotting.create_portfolio_plot_files") as mock_plot,
+        ):
             # Setup mocks
             mock_log = MagicMock()
             mock_logging.return_value = (mock_log, MagicMock(), None, None)
@@ -75,7 +70,7 @@ class TestPortfolioReviewFlowIntegration:
             )
 
             # Verify complete workflow execution
-            assert result == True
+            assert result is True
 
             # Verify function call sequence
             mock_get_config.assert_called_once()
@@ -88,7 +83,7 @@ class TestPortfolioReviewFlowIntegration:
             # Verify SMA strategy path was taken (not MACD)
             enhanced_config = mock_get_config.call_args[0][0]
             assert enhanced_config["STRATEGY_TYPE"] == "SMA"
-            assert enhanced_config["USE_SMA"] == True
+            assert enhanced_config["USE_SMA"] is True
 
             # Verify file operations
             mock_makedirs.assert_called_once()
@@ -112,23 +107,18 @@ class TestPortfolioReviewFlowIntegration:
         mock_portfolio.value.return_value.index = ["2023-01-01", "2023-01-02"]
         mock_portfolio.value.return_value.values = [1000, 1100]
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_macd_and_signals"
-        ) as mock_calc_macd, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ) as mock_makedirs, patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df_class, patch(
-            "app.tools.plotting.create_portfolio_plot_files"
-        ) as mock_plot:
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_macd_and_signals"
+            ) as mock_calc_macd,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs"),
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df_class,
+            patch("app.tools.plotting.create_portfolio_plot_files") as mock_plot,
+        ):
             # Setup mocks
             mock_log = MagicMock()
             mock_logging.return_value = (mock_log, MagicMock(), None, None)
@@ -152,7 +142,7 @@ class TestPortfolioReviewFlowIntegration:
             )
 
             # Verify complete workflow execution
-            assert result == True
+            assert result is True
 
             # Verify MACD-specific function calls
             mock_calc_macd.assert_called_once()
@@ -167,9 +157,9 @@ class TestPortfolioReviewFlowIntegration:
             # Verify MACD strategy configuration
             enhanced_config = mock_get_config.call_args[0][0]
             assert enhanced_config["STRATEGY_TYPE"] == "MACD"
-            assert enhanced_config["USE_SMA"] == False
+            assert enhanced_config["USE_SMA"] is False
             assert enhanced_config["SIGNAL_PERIOD"] == 14
-            assert enhanced_config["USE_4HOUR"] == True
+            assert enhanced_config["USE_4HOUR"] is True
 
     def test_portfolio_file_processing_workflow(self):
         """Test complete workflow for portfolio JSON file processing."""
@@ -202,11 +192,12 @@ class TestPortfolioReviewFlowIntegration:
             mock_portfolio = MagicMock()
             mock_portfolio.stats.return_value = {}
 
-            with patch(
-                "app.portfolio_synthesis.review.setup_logging"
-            ) as mock_logging, patch(
-                "app.portfolio_synthesis.review.process_strategy"
-            ) as mock_process_strategy:
+            with (
+                patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+                patch(
+                    "app.portfolio_synthesis.review.process_strategy"
+                ) as mock_process_strategy,
+            ):
                 # Setup mocks
                 mock_log = MagicMock()
                 mock_logging.return_value = (mock_log, MagicMock(), None, None)
@@ -216,7 +207,7 @@ class TestPortfolioReviewFlowIntegration:
                 result = run(portfolio_file=temp_file_path)
 
                 # Verify portfolio file processing
-                assert result == True
+                assert result is True
 
                 # Verify process_strategy was called for each strategy
                 assert mock_process_strategy.call_count == 2
@@ -229,19 +220,19 @@ class TestPortfolioReviewFlowIntegration:
                 # First strategy (SMA, hourly)
                 config1 = call_configs[0]
                 assert config1["TICKER"] == "STOCK1"
-                assert config1["USE_HOURLY"] == True
+                assert config1["USE_HOURLY"] is True
                 assert config1["FAST_PERIOD"] == 5
                 assert config1["SLOW_PERIOD"] == 15
-                assert config1["USE_SMA"] == True
+                assert config1["USE_SMA"] is True
                 assert config1["STRATEGY_TYPE"] == "SMA"
 
                 # Second strategy (MACD, daily)
                 config2 = call_configs[1]
                 assert config2["TICKER"] == "STOCK2"
-                assert config2["USE_HOURLY"] == False
+                assert config2["USE_HOURLY"] is False
                 assert config2["FAST_PERIOD"] == 12
                 assert config2["SLOW_PERIOD"] == 26
-                assert config2["USE_SMA"] == False
+                assert config2["USE_SMA"] is False
                 assert config2["STRATEGY_TYPE"] == "MACD"
 
         finally:
@@ -249,22 +240,17 @@ class TestPortfolioReviewFlowIntegration:
 
     def test_updated_config_dictionaries_integration(self):
         """Test that updated config dictionaries work correctly."""
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_ma_and_signals"
-        ) as mock_calc_ma, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ), patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df_class, patch(
-            "app.portfolio_synthesis.review.create_portfolio_plot_files"
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+            ) as mock_calc_ma,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs"),
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df_class,
+            patch("app.portfolio_synthesis.review.create_portfolio_plot_files"),
         ):
             # Setup mocks
             mock_log = MagicMock()
@@ -289,7 +275,7 @@ class TestPortfolioReviewFlowIntegration:
             result = run(config_dict=CONFIG_OP)
 
             # Verify execution succeeded
-            assert result == True
+            assert result is True
 
             # Verify enhanced config contains both new and legacy parameters
             mock_get_config.assert_called_once()
@@ -314,13 +300,11 @@ class TestPortfolioReviewFlowIntegration:
             "BASE_DIR": "/tmp",
         }
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data:
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+        ):
             # Setup mocks
             mock_log = MagicMock()
             mock_logging.return_value = (mock_log, MagicMock(), None, None)
@@ -352,11 +336,13 @@ class TestPortfolioReviewFlowIntegration:
         mock_data = MagicMock()
         mock_portfolio = MagicMock()
 
-        with patch("app.portfolio_synthesis.review.get_data") as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_ma_and_signals"
-        ) as mock_calc_ma, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest:
+        with (
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+            ) as mock_calc_ma,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+        ):
             # Setup mocks
             mock_log = MagicMock()
             mock_get_data.return_value = mock_data
@@ -395,11 +381,13 @@ class TestPortfolioReviewFlowIntegration:
         mock_data = MagicMock()
         mock_portfolio = MagicMock()
 
-        with patch("app.portfolio_synthesis.review.get_data") as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_macd_and_signals"
-        ) as mock_calc_macd, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest:
+        with (
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_macd_and_signals"
+            ) as mock_calc_macd,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+        ):
             # Setup mocks
             mock_log = MagicMock()
             mock_get_data.return_value = mock_data
@@ -441,23 +429,18 @@ class TestPortfolioReviewFlowIntegration:
         mock_value_series.values = [1000, 1050]
         mock_portfolio.value.return_value = mock_value_series
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_ma_and_signals"
-        ) as mock_calc_ma, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ) as mock_makedirs, patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df_class, patch(
-            "app.tools.plotting.create_portfolio_plot_files"
-        ) as mock_plot:
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+            ) as mock_calc_ma,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs") as mock_makedirs,
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df_class,
+            patch("app.tools.plotting.create_portfolio_plot_files") as mock_plot,
+        ):
             # Setup mocks
             mock_log = MagicMock()
             mock_logging.return_value = (mock_log, MagicMock(), None, None)
@@ -490,4 +473,4 @@ class TestPortfolioReviewFlowIntegration:
             # Verify plotting
             mock_plot.assert_called_once_with(mock_portfolio, mock_config, mock_log)
 
-            assert result == True
+            assert result is True

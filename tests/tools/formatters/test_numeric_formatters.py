@@ -1,6 +1,5 @@
 """Tests for numeric formatting functions."""
 
-import pytest
 from rich.text import Text
 
 from app.tools.formatters.numeric_formatters import (

@@ -5,17 +5,18 @@ This module provides optimized conversions between Polars and Pandas DataFrames
 with lazy evaluation, caching, and memory-efficient transformations.
 """
 
+import contextlib
 import functools
 import hashlib
 import logging
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
-import numpy as np
+from cachetools import LRUCache
 import pandas as pd
 import polars as pl
-from cachetools import LRUCache
 
 from app.tools.processing.memory_optimizer import get_memory_optimizer
+
 
 logger = logging.getLogger(__name__)
 
@@ -29,9 +30,7 @@ class ConversionCache:
         self._hits = 0
         self._misses = 0
 
-    def _generate_key(
-        self, df: Union[pd.DataFrame, pl.DataFrame], target_type: str
-    ) -> str:
+    def _generate_key(self, df: pd.DataFrame | pl.DataFrame, target_type: str) -> str:
         """Generate cache key based on DataFrame content and target type."""
         # Use shape and column names for quick hash
         if isinstance(df, pd.DataFrame):
@@ -39,13 +38,11 @@ class ConversionCache:
         else:
             key_data = f"polars_{df.shape}_{sorted(df.columns)}_{target_type}"
 
-        return hashlib.md5(
-            key_data.encode(), usedforsecurity=False
-        ).hexdigest()  # nosec B324
+        return hashlib.md5(key_data.encode(), usedforsecurity=False).hexdigest()  # nosec B324
 
     def get(
-        self, df: Union[pd.DataFrame, pl.DataFrame], target_type: str
-    ) -> Optional[Union[pd.DataFrame, pl.DataFrame]]:
+        self, df: pd.DataFrame | pl.DataFrame, target_type: str
+    ) -> pd.DataFrame | pl.DataFrame | None:
         """Get cached conversion if available."""
         key = self._generate_key(df, target_type)
         result = self.cache.get(key)
@@ -60,15 +57,15 @@ class ConversionCache:
 
     def put(
         self,
-        source_df: Union[pd.DataFrame, pl.DataFrame],
+        source_df: pd.DataFrame | pl.DataFrame,
         target_type: str,
-        result_df: Union[pd.DataFrame, pl.DataFrame],
+        result_df: pd.DataFrame | pl.DataFrame,
     ):
         """Store conversion result in cache."""
         key = self._generate_key(source_df, target_type)
         self.cache[key] = result_df
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         total = self._hits + self._misses
         hit_rate = self._hits / total if total > 0 else 0
@@ -148,7 +145,7 @@ class DataConverter:
 
     def to_pandas(
         self,
-        df: Union[pd.DataFrame, pl.DataFrame, pl.LazyFrame],
+        df: pd.DataFrame | pl.DataFrame | pl.LazyFrame,
         optimize_memory: bool = True,
     ) -> pd.DataFrame:
         """
@@ -196,8 +193,8 @@ class DataConverter:
         raise TypeError(f"Unsupported DataFrame type: {type(df)}")
 
     def to_polars(
-        self, df: Union[pd.DataFrame, pl.DataFrame, pl.LazyFrame], lazy: bool = False
-    ) -> Union[pl.DataFrame, pl.LazyFrame]:
+        self, df: pd.DataFrame | pl.DataFrame | pl.LazyFrame, lazy: bool = False
+    ) -> pl.DataFrame | pl.LazyFrame:
         """
         Convert DataFrame to Polars format.
 
@@ -209,10 +206,10 @@ class DataConverter:
             Polars DataFrame or LazyFrame
         """
         # Already Polars
-        if isinstance(df, (pl.DataFrame, pl.LazyFrame)):
+        if isinstance(df, pl.DataFrame | pl.LazyFrame):
             if lazy and isinstance(df, pl.DataFrame):
                 return df.lazy()
-            elif not lazy and isinstance(df, pl.LazyFrame):
+            if not lazy and isinstance(df, pl.LazyFrame):
                 return df.collect()
             return df
 
@@ -256,15 +253,15 @@ class DataConverter:
             for col in result.columns:
                 # Downcast numeric types
                 if result[col].dtype in ["int64", "float64"]:
-                    try:
+                    with contextlib.suppress(Exception):
                         result[col] = pd.to_numeric(
                             result[col],
-                            downcast="integer"
-                            if "int" in str(result[col].dtype)
-                            else "float",
+                            downcast=(
+                                "integer"
+                                if "int" in str(result[col].dtype)
+                                else "float"
+                            ),
                         )
-                    except:
-                        pass
 
             return result
 
@@ -294,10 +291,9 @@ class DataConverter:
                 values = df[col].to_numpy()
 
                 # Handle missing values
-                if df[col].isna().any():
-                    if "int" in str(df[col].dtype):
-                        # Convert to float for null support
-                        values = values.astype("float64")
+                if df[col].isna().any() and "int" in str(df[col].dtype):
+                    # Convert to float for null support
+                    values = values.astype("float64")
 
                 data_dict[col] = values
 
@@ -309,10 +305,10 @@ class DataConverter:
 
     def convert_chunked(
         self,
-        source_df: Union[pd.DataFrame, pl.DataFrame],
+        source_df: pd.DataFrame | pl.DataFrame,
         target_type: str,
         chunk_size: int = 10000,
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+    ) -> pd.DataFrame | pl.DataFrame:
         """
         Convert large DataFrame in chunks to manage memory.
 
@@ -351,13 +347,12 @@ class DataConverter:
         # Combine chunks
         if target_type == "pandas":
             return pd.concat(chunks, ignore_index=True)
-        else:
-            return pl.concat(chunks)
+        return pl.concat(chunks)
 
     def create_lazy_pipeline(
         self,
-        df: Union[pd.DataFrame, pl.DataFrame],
-        operations: List[Tuple[str, Dict[str, Any]]],
+        df: pd.DataFrame | pl.DataFrame,
+        operations: list[tuple[str, dict[str, Any]]],
     ) -> pl.LazyFrame:
         """
         Create a lazy evaluation pipeline for efficient processing.
@@ -387,7 +382,7 @@ class DataConverter:
 
         return lazy_df
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get conversion statistics."""
         stats = self._stats.copy()
 
@@ -400,16 +395,16 @@ class DataConverter:
 class BatchConverter:
     """Convert multiple DataFrames efficiently in batches."""
 
-    def __init__(self, converter: Optional[DataConverter] = None):
+    def __init__(self, converter: DataConverter | None = None):
         """Initialize batch converter."""
         self.converter = converter or DataConverter()
 
     def convert_batch(
         self,
-        dataframes: List[Union[pd.DataFrame, pl.DataFrame]],
+        dataframes: list[pd.DataFrame | pl.DataFrame],
         target_type: str,
         parallel: bool = False,
-    ) -> List[Union[pd.DataFrame, pl.DataFrame]]:
+    ) -> list[pd.DataFrame | pl.DataFrame]:
         """
         Convert a batch of DataFrames.
 
@@ -445,26 +440,25 @@ class BatchConverter:
 
 
 # Convenience functions
-def to_pandas(df: Union[pd.DataFrame, pl.DataFrame, pl.LazyFrame]) -> pd.DataFrame:
+def to_pandas(df: pd.DataFrame | pl.DataFrame | pl.LazyFrame) -> pd.DataFrame:
     """Convert any DataFrame to Pandas format."""
     converter = DataConverter()
     return converter.to_pandas(df)
 
 
 def to_polars(
-    df: Union[pd.DataFrame, pl.DataFrame], lazy: bool = False
-) -> Union[pl.DataFrame, pl.LazyFrame]:
+    df: pd.DataFrame | pl.DataFrame, lazy: bool = False
+) -> pl.DataFrame | pl.LazyFrame:
     """Convert any DataFrame to Polars format."""
     converter = DataConverter()
     return converter.to_polars(df, lazy=lazy)
 
 
 @functools.lru_cache(maxsize=128)
-def get_optimized_dtype_mapping(from_format: str, to_format: str) -> Dict[str, Any]:
+def get_optimized_dtype_mapping(from_format: str, to_format: str) -> dict[str, Any]:
     """Get optimized dtype mapping between formats."""
     if from_format == "polars" and to_format == "pandas":
         return DataConverter.POLARS_TO_PANDAS_DTYPE
-    elif from_format == "pandas" and to_format == "polars":
+    if from_format == "pandas" and to_format == "polars":
         return DataConverter.PANDAS_TO_POLARS_DTYPE
-    else:
-        return {}
+    return {}

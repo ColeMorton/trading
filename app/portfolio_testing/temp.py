@@ -5,6 +5,7 @@ import pandas as pd
 import riskfolio as rp
 import yfinance as yf
 
+
 warnings.filterwarnings("ignore")
 pd.options.display.float_format = "{:.4%}".format
 

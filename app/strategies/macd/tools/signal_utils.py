@@ -4,8 +4,6 @@ Signal Utility Functions
 This module provides utility functions for MACD cross signal processing.
 """
 
-from typing import Dict, List
-
 import polars as pl
 
 
@@ -26,7 +24,7 @@ def is_signal_current(data: pl.DataFrame) -> bool:
 
 
 def check_signal_match(
-    signals: List[Dict], fast_period: int, slow_period: int, signal_period: int
+    signals: list[dict], fast_period: int, slow_period: int, signal_period: int
 ) -> bool:
     """Check if a specific parameter combination exists in current signals.
 
@@ -67,7 +65,4 @@ def validate_window_combination(
         return False
 
     # Signal period should be less than both
-    if signal_period >= fast_period or signal_period >= slow_period:
-        return False
-
-    return True
+    return not (signal_period >= fast_period or signal_period >= slow_period)

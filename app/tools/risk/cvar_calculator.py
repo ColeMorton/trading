@@ -6,19 +6,16 @@ and @data/raw/strategies/ backtests for validation.
 """
 
 import json
-import os
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import polars as pl
-
-from app.tools.data_types import DataConfig
 
 
 class CVaRCalculator:
     """Implements Excel B12/E11 CVaR calculations using concurrency analysis data."""
 
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(self, base_dir: str | None = None):
         """Initialize CVaR calculator with base directory.
 
         Args:
@@ -28,7 +25,7 @@ class CVaRCalculator:
         self.concurrency_dir = self.base_dir / "json" / "concurrency"
         self.strategies_dir = self.base_dir / "csv" / "strategies"
 
-    def _load_json_file(self, file_path: Path) -> Dict:
+    def _load_json_file(self, file_path: Path) -> dict:
         """Load JSON file and return parsed data.
 
         Args:
@@ -44,7 +41,7 @@ class CVaRCalculator:
         if not file_path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
 
-        with open(file_path, "r") as f:
+        with open(file_path) as f:
             return json.load(f)
 
     def calculate_trading_cvar(self) -> float:
@@ -95,7 +92,7 @@ class CVaRCalculator:
         except KeyError as e:
             raise KeyError(f"Missing expected key in portfolio.json: {e}")
 
-    def get_portfolio_risk_metrics(self) -> Dict[str, float]:
+    def get_portfolio_risk_metrics(self) -> dict[str, float]:
         """Get comprehensive portfolio risk metrics.
 
         Returns:
@@ -148,7 +145,7 @@ class CVaRCalculator:
 
         return pl.read_csv(strategy_file)
 
-    def validate_cvar_calculations(self) -> Tuple[bool, Dict[str, Any]]:
+    def validate_cvar_calculations(self) -> tuple[bool, dict[str, Any]]:
         """Validate CVaR calculations by cross-referencing with backtest data.
 
         Returns:

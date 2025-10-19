@@ -4,7 +4,7 @@ MACD Strategy Implementation
 This module implements the MACD strategy using the Strategy Pattern.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from app.core.interfaces.strategy import StrategyInterface
 from app.tools.project_utils import get_project_root
@@ -17,7 +17,7 @@ class MACDStrategy(StrategyInterface):
         """Get the strategy type identifier."""
         return "MACD"
 
-    def validate_parameters(self, config: Dict[str, Any]) -> bool:
+    def validate_parameters(self, config: dict[str, Any]) -> bool:
         """Validate MACD strategy parameters."""
         try:
             # Check required parameters
@@ -61,19 +61,16 @@ class MACDStrategy(StrategyInterface):
                 return False
 
             # Validate step size is reasonable
-            if step > min(
+            return not step > min(
                 short_end - short_start,
                 long_end - long_start,
                 signal_end - signal_start,
-            ):
-                return False
-
-            return True
+            )
 
         except Exception:
             return False
 
-    def get_parameter_ranges(self) -> Dict[str, Any]:
+    def get_parameter_ranges(self) -> dict[str, Any]:
         """Get MACD strategy parameter validation ranges (no defaults)."""
         return {
             "SHORT_WINDOW_START": {"min": 1, "max": 50},
@@ -89,7 +86,7 @@ class MACDStrategy(StrategyInterface):
             "YEARS": {"min": 1, "max": 50},
         }
 
-    def execute(self, config: Dict[str, Any], log: Any) -> List[Dict[str, Any]]:
+    def execute(self, config: dict[str, Any], log: Any) -> list[dict[str, Any]]:
         """Execute MACD strategy analysis."""
         try:
             # Import the MACD strategy execution functions
@@ -116,17 +113,16 @@ class MACDStrategy(StrategyInterface):
             if portfolios:
                 log(f"First portfolio keys: {list(portfolios[0].keys())}")
                 return portfolios
-            else:
-                return []
+            return []
 
         except Exception as e:
-            log(f"Error in MACD strategy execution: {str(e)}", "error")
+            log(f"Error in MACD strategy execution: {e!s}", "error")
             import traceback
 
             log(traceback.format_exc(), "error")
             return []
 
-    def _convert_config_to_macd_format(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def _convert_config_to_macd_format(self, config: dict[str, Any]) -> dict[str, Any]:
         """Convert API config format to MACD Next config format."""
         # Get ticker(s) - required parameter
         ticker = config["TICKER"]  # Fail fast if missing

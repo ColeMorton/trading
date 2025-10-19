@@ -10,7 +10,6 @@ formula rather than the R-ratio based formula that can produce inflated values.
 """
 
 import os
-from typing import Dict, List, Tuple, Union
 
 import numpy as np
 
@@ -63,8 +62,8 @@ class ExpectancyCalculator:
         return calculate_expectancy(win_rate, avg_win, avg_loss)
 
     def calculate_from_returns(
-        self, returns: Union[List[float], np.ndarray], legacy_mode: bool = False
-    ) -> Tuple[float, Dict[str, float]]:
+        self, returns: list[float] | np.ndarray, legacy_mode: bool = False
+    ) -> tuple[float, dict[str, float]]:
         """Calculate expectancy from a series of returns.
 
         Args:
@@ -112,10 +111,10 @@ class ExpectancyCalculator:
 
     def calculate_with_stop_loss(
         self,
-        returns: Union[List[float], np.ndarray],
+        returns: list[float] | np.ndarray,
         stop_loss: float,
         direction: str = "Long",
-    ) -> Tuple[float, Dict[str, float]]:
+    ) -> tuple[float, dict[str, float]]:
         """Calculate expectancy with stop loss applied.
 
         Args:

@@ -5,15 +5,16 @@ This module provides specialized performance tracking for the trading strategy p
 including strategy execution monitoring, portfolio analysis tracking, and optimization insights.
 """
 
-import logging
-import threading
-import time
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+import logging
+import threading
+import time
+from typing import Any
 
 import psutil
+
 
 # API removed - creating local performance monitoring functionality
 
@@ -26,13 +27,13 @@ class OperationMetrics:
 
     operation_name: str
     start_time: float
-    end_time: Optional[float] = None
-    duration: Optional[float] = None
-    memory_before: Optional[float] = None
-    memory_after: Optional[float] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    end_time: float | None = None
+    duration: float | None = None
+    memory_before: float | None = None
+    memory_after: float | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "operation_name": self.operation_name,
@@ -53,8 +54,8 @@ class PerformanceMonitor:
         self.metrics = defaultdict(list)
         self.timings = defaultdict(list)
         self.start_time = time.time()
-        self._active_operations: Dict[str, OperationMetrics] = {}
-        self._completed_operations: List[OperationMetrics] = []
+        self._active_operations: dict[str, OperationMetrics] = {}
+        self._completed_operations: list[OperationMetrics] = []
         self._operation_counter = 0
 
     def record_metric(self, name: str, value: float):
@@ -65,11 +66,11 @@ class PerformanceMonitor:
         """Record a timing measurement."""
         self.timings[name].append(duration)
 
-    def get_metrics(self) -> Dict[str, List[float]]:
+    def get_metrics(self) -> dict[str, list[float]]:
         """Get all recorded metrics."""
         return dict(self.metrics)
 
-    def get_timings(self) -> Dict[str, List[float]]:
+    def get_timings(self) -> dict[str, list[float]]:
         """Get all recorded timings."""
         return dict(self.timings)
 
@@ -96,7 +97,7 @@ class PerformanceMonitor:
         self._active_operations[operation_id] = operation
         return operation_id
 
-    def end_operation(self, operation_id: str) -> Optional[OperationMetrics]:
+    def end_operation(self, operation_id: str) -> OperationMetrics | None:
         """End tracking an operation and return metrics."""
         operation = self._active_operations.pop(operation_id, None)
         if not operation:
@@ -125,7 +126,7 @@ class PerformanceMonitor:
 
         return operation
 
-    def get_recent_metrics(self, limit: int = 20) -> List[OperationMetrics]:
+    def get_recent_metrics(self, limit: int = 20) -> list[OperationMetrics]:
         """Get recent completed operation metrics."""
         return (
             self._completed_operations[-limit:] if limit else self._completed_operations
@@ -167,7 +168,7 @@ def monitor_performance(operation_name=None, track_throughput=False):
                 name = operation_name if operation_name is not None else func.__name__
                 monitor.record_timing(name, duration)
                 return result
-            except Exception as e:
+            except Exception:
                 duration = time.time() - start_time
                 name = operation_name if operation_name is not None else func.__name__
                 monitor.record_timing(f"{name}_error", duration)
@@ -181,15 +182,14 @@ def monitor_performance(operation_name=None, track_throughput=False):
         func = operation_name
         operation_name = None
         return decorator(func)
-    else:
-        # Parameterized usage: @monitor_performance("name", track_throughput=True)
-        return decorator
+    # Parameterized usage: @monitor_performance("name", track_throughput=True)
+    return decorator
 
 
 class timing_context:
     """Context manager for timing operations."""
 
-    def __init__(self, name: str, monitor: Optional[PerformanceMonitor] = None):
+    def __init__(self, name: str, monitor: PerformanceMonitor | None = None):
         self.name = name
         self.monitor = monitor or get_performance_monitor()
         self.start_time = None
@@ -213,8 +213,8 @@ class StrategyExecutionMetrics:
     ticker_count: int
     parameter_combinations: int
     concurrent_execution: bool
-    batch_size: Optional[int] = None
-    worker_count: Optional[int] = None
+    batch_size: int | None = None
+    worker_count: int | None = None
     portfolios_generated: int = 0
     portfolios_filtered: int = 0
     execution_time: float = 0.0
@@ -249,7 +249,7 @@ class StrategyExecutionMetrics:
 
         return max(0.0, base_score + concurrency_bonus - memory_penalty - error_penalty)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert metrics to dictionary for reporting."""
         return {
             "execution_id": self.execution_id,
@@ -283,9 +283,9 @@ class StrategyPerformanceTracker:
 
     def __init__(self):
         self.performance_monitor = get_performance_monitor()
-        self._execution_metrics: Dict[str, StrategyExecutionMetrics] = {}
+        self._execution_metrics: dict[str, StrategyExecutionMetrics] = {}
         self._lock = threading.Lock()
-        self._optimization_insights: List[Dict[str, Any]] = []
+        self._optimization_insights: list[dict[str, Any]] = []
 
     def start_strategy_execution(
         self,
@@ -294,8 +294,8 @@ class StrategyPerformanceTracker:
         ticker_count: int,
         parameter_combinations: int,
         concurrent_execution: bool,
-        batch_size: Optional[int] = None,
-        worker_count: Optional[int] = None,
+        batch_size: int | None = None,
+        worker_count: int | None = None,
     ) -> None:
         """Start tracking a strategy execution."""
         metrics = StrategyExecutionMetrics(
@@ -350,10 +350,9 @@ class StrategyPerformanceTracker:
 
     def end_strategy_execution(
         self, execution_id: str
-    ) -> Optional[StrategyExecutionMetrics]:
+    ) -> StrategyExecutionMetrics | None:
         """End tracking and finalize metrics for a strategy execution."""
         # End underlying performance monitoring
-        operation_id = f"strategy_execution_{execution_id}"
         perf_metrics = None
 
         # Try to find the operation by partial match since we use a different naming scheme
@@ -480,7 +479,7 @@ class StrategyPerformanceTracker:
                 f"Optimization insight: {insight['message']} - {insight['recommendation']}",
             )
 
-    def get_execution_history(self, limit: int = 20) -> List[Dict[str, Any]]:
+    def get_execution_history(self, limit: int = 20) -> list[dict[str, Any]]:
         """Get recent strategy execution history."""
         recent_metrics = self.performance_monitor.get_recent_metrics(limit=limit)
 
@@ -494,8 +493,8 @@ class StrategyPerformanceTracker:
         return [m.to_dict() for m in strategy_metrics]
 
     def get_optimization_insights(
-        self, execution_id: Optional[str] = None, limit: int = 10
-    ) -> List[Dict[str, Any]]:
+        self, execution_id: str | None = None, limit: int = 10
+    ) -> list[dict[str, Any]]:
         """Get optimization insights, optionally filtered by execution ID."""
         insights = (
             self._optimization_insights[-limit:]
@@ -508,7 +507,7 @@ class StrategyPerformanceTracker:
 
         return insights
 
-    def get_performance_summary(self, hours: int = 24) -> Dict[str, Any]:
+    def get_performance_summary(self, hours: int = 24) -> dict[str, Any]:
         """Get a performance summary for the specified time period."""
         cutoff_time = datetime.now() - timedelta(hours=hours)
 

@@ -5,13 +5,15 @@ Orchestrates Monte Carlo parameter robustness testing across multiple tickers
 in a portfolio using concurrent processing with proper resource management.
 """
 
-import sys
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+import sys
+from typing import Any
 
 import polars as pl
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
@@ -42,16 +44,14 @@ class MonteCarloProgressTracker:
 
     total_tickers: int = 0
     completed_tickers: int = 0
-    current_ticker: Optional[str] = None
-    start_time: Optional[float] = None
-    errors: List[Dict[str, Any]] = field(default_factory=list)
+    current_ticker: str | None = None
+    start_time: float | None = None
+    errors: list[dict[str, Any]] = field(default_factory=list)
 
     def update(self, ticker: str, status: str = "processing") -> None:
         """Update progress for a ticker."""
         self.current_ticker = ticker
-        if status == "completed":
-            self.completed_tickers += 1
-        elif status == "error":
+        if status in ("completed", "error"):
             self.completed_tickers += 1
 
     def add_error(self, ticker: str, error: Exception) -> None:
@@ -77,8 +77,8 @@ class MonteCarloAnalysisError(ConcurrencyError):
     def __init__(
         self,
         message: str,
-        ticker: Optional[str] = None,
-        context: Optional[Dict[str, Any]] = None,
+        ticker: str | None = None,
+        context: dict[str, Any] | None = None,
     ):
         super().__init__(message, context)
         self.ticker = ticker
@@ -97,8 +97,8 @@ class PortfolioMonteCarloManager:
     def __init__(
         self,
         config: MonteCarloConfig,
-        max_workers: Optional[int] = None,
-        log: Optional[Callable[[str, str], None]] = None,
+        max_workers: int | None = None,
+        log: Callable[[str, str], None] | None = None,
     ):
         """Initialize the portfolio Monte Carlo manager.
 
@@ -112,15 +112,15 @@ class PortfolioMonteCarloManager:
         self.log = log or self._default_log
         self.analyzer = MonteCarloAnalyzer(config, log)
         self.progress_tracker = MonteCarloProgressTracker()
-        self.results: Dict[str, MonteCarloPortfolioResult] = {}
+        self.results: dict[str, MonteCarloPortfolioResult] = {}
 
     def _default_log(self, message: str, level: str = "info") -> None:
         """Default logging function."""
         print(f"[{level.upper()}] {message}")
 
     def analyze_portfolio(
-        self, portfolio_strategies: List[Dict[str, Any]]
-    ) -> Dict[str, MonteCarloPortfolioResult]:
+        self, portfolio_strategies: list[dict[str, Any]]
+    ) -> dict[str, MonteCarloPortfolioResult]:
         """Analyze parameter robustness for individual strategies in portfolio.
 
         Args:
@@ -175,7 +175,7 @@ class PortfolioMonteCarloManager:
                 except Exception as e:
                     self.progress_tracker.add_error(strategy_id, e)
                     self.progress_tracker.update(strategy_id, "error")
-                    self.log(f"Error analyzing {strategy_id}: {str(e)}", "error")
+                    self.log(f"Error analyzing {strategy_id}: {e!s}", "error")
 
         # Log summary
         self._log_analysis_summary()
@@ -183,8 +183,8 @@ class PortfolioMonteCarloManager:
         return self.results
 
     def _assign_strategy_ids(
-        self, portfolio_strategies: List[Dict[str, Any]]
-    ) -> Dict[str, Dict[str, Any]]:
+        self, portfolio_strategies: list[dict[str, Any]]
+    ) -> dict[str, dict[str, Any]]:
         """Assign unique IDs to each strategy for individual analysis.
 
         Args:
@@ -248,8 +248,8 @@ class PortfolioMonteCarloManager:
         return strategies_with_ids
 
     def _analyze_strategy_with_error_handling(
-        self, strategy_id: str, strategy: Dict[str, Any]
-    ) -> Optional[MonteCarloPortfolioResult]:
+        self, strategy_id: str, strategy: dict[str, Any]
+    ) -> MonteCarloPortfolioResult | None:
         """Analyze a single strategy with error handling.
 
         Args:
@@ -318,14 +318,14 @@ class PortfolioMonteCarloManager:
             raise
         except Exception as e:
             raise MonteCarloAnalysisError(
-                f"Monte Carlo analysis failed for {strategy_id}: {str(e)}",
+                f"Monte Carlo analysis failed for {strategy_id}: {e!s}",
                 ticker=ticker,
                 context={"strategy": strategy},
             )
 
     def _generate_parameter_variations(
-        self, base_parameters: List[Tuple[int, int]]
-    ) -> List[Tuple[int, int]]:
+        self, base_parameters: list[tuple[int, int]]
+    ) -> list[tuple[int, int]]:
         """Generate parameter variations around base parameters for a single strategy.
 
         Args:
@@ -355,14 +355,14 @@ class PortfolioMonteCarloManager:
                     variations.add((new_short, new_long))
 
         # Limit total variations to respect configuration
-        variations_list = sorted(list(variations))
+        variations_list = sorted(variations)
         max_variations = min(self.config.max_parameters_to_test, len(variations_list))
 
         return variations_list[:max_variations]
 
     def _group_strategies_by_ticker(
-        self, portfolio_strategies: List[Dict[str, Any]]
-    ) -> Dict[str, List[Dict[str, Any]]]:
+        self, portfolio_strategies: list[dict[str, Any]]
+    ) -> dict[str, list[dict[str, Any]]]:
         """Group strategies by ticker symbol."""
         ticker_strategies = {}
 
@@ -388,8 +388,8 @@ class PortfolioMonteCarloManager:
         return ticker_strategies
 
     def _analyze_ticker_with_error_handling(
-        self, ticker: str, strategies: List[Dict[str, Any]]
-    ) -> Optional[MonteCarloPortfolioResult]:
+        self, ticker: str, strategies: list[dict[str, Any]]
+    ) -> MonteCarloPortfolioResult | None:
         """Analyze a single ticker with error handling.
 
         Args:
@@ -425,12 +425,12 @@ class PortfolioMonteCarloManager:
 
         except Exception as e:
             raise MonteCarloAnalysisError(
-                f"Monte Carlo analysis failed for {ticker}: {str(e)}",
+                f"Monte Carlo analysis failed for {ticker}: {e!s}",
                 ticker=ticker,
                 context={"strategies_count": len(strategies)},
             )
 
-    def _download_ticker_data(self, ticker: str) -> Optional[pl.DataFrame]:
+    def _download_ticker_data(self, ticker: str) -> pl.DataFrame | None:
         """Download price data for ticker.
 
         Args:
@@ -469,12 +469,12 @@ class PortfolioMonteCarloManager:
             return data
 
         except Exception as e:
-            self.log(f"Error downloading data for {ticker}: {str(e)}", "error")
+            self.log(f"Error downloading data for {ticker}: {e!s}", "error")
             return None
 
     def _extract_parameter_combinations(
-        self, strategies: List[Dict[str, Any]]
-    ) -> List[Tuple[int, int]]:
+        self, strategies: list[dict[str, Any]]
+    ) -> list[tuple[int, int]]:
         """Extract and expand parameter combinations for robustness testing.
 
         Args:
@@ -508,8 +508,8 @@ class PortfolioMonteCarloManager:
                 ma_type
                 and short
                 and long
-                and isinstance(short, (int, float))
-                and isinstance(long, (int, float))
+                and isinstance(short, int | float)
+                and isinstance(long, int | float)
             ):
                 base_combinations.add((int(short), int(long)))
 
@@ -532,7 +532,7 @@ class PortfolioMonteCarloManager:
                         expanded_combinations.add((new_short, new_long))
 
         # Limit total combinations to respect configuration
-        combinations_list = sorted(list(expanded_combinations))
+        combinations_list = sorted(expanded_combinations)
         max_combinations = min(
             self.config.max_parameters_to_test, len(combinations_list)
         )
@@ -546,7 +546,7 @@ class PortfolioMonteCarloManager:
         errors = len(self.progress_tracker.errors)
         successful = completed - errors
 
-        self.log(f"\nMonte Carlo Analysis Summary:", "info")
+        self.log("\nMonte Carlo Analysis Summary:", "info")
         self.log(f"  Total tickers: {total}", "info")
         self.log(f"  Successful: {successful}", "info")
         self.log(f"  Failed: {errors}", "info")
@@ -561,7 +561,7 @@ class PortfolioMonteCarloManager:
                     f"  ... and {len(self.progress_tracker.errors) - 5} more", "warning"
                 )
 
-    def get_portfolio_stability_metrics(self) -> Dict[str, float]:
+    def get_portfolio_stability_metrics(self) -> dict[str, float]:
         """Calculate portfolio-wide stability metrics.
 
         Returns:
@@ -578,7 +578,7 @@ class PortfolioMonteCarloManager:
         robustness_scores = []
         stable_tickers = 0
 
-        for ticker, result in self.results.items():
+        for _ticker, result in self.results.items():
             stability_scores.append(result.portfolio_stability_score)
 
             # Calculate average robustness across all parameters for this ticker
@@ -593,19 +593,22 @@ class PortfolioMonteCarloManager:
                     stable_tickers += 1
 
         return {
-            "portfolio_stability_score": sum(stability_scores) / len(stability_scores)
-            if stability_scores
-            else 0.0,
-            "average_parameter_robustness": sum(robustness_scores)
-            / len(robustness_scores)
-            if robustness_scores
-            else 0.0,
-            "stable_tickers_percentage": (stable_tickers / len(self.results)) * 100
-            if self.results
-            else 0.0,
+            "portfolio_stability_score": (
+                sum(stability_scores) / len(stability_scores)
+                if stability_scores
+                else 0.0
+            ),
+            "average_parameter_robustness": (
+                sum(robustness_scores) / len(robustness_scores)
+                if robustness_scores
+                else 0.0
+            ),
+            "stable_tickers_percentage": (
+                (stable_tickers / len(self.results)) * 100 if self.results else 0.0
+            ),
         }
 
-    def get_recommendations(self) -> List[Dict[str, Any]]:
+    def get_recommendations(self) -> list[dict[str, Any]]:
         """Get parameter recommendations based on Monte Carlo analysis.
 
         Returns:
@@ -620,9 +623,11 @@ class PortfolioMonteCarloManager:
                         "ticker": ticker,
                         "recommended_parameters": result.recommended_parameters,
                         "stability_score": result.portfolio_stability_score,
-                        "confidence": "high"
-                        if result.portfolio_stability_score > 0.8
-                        else "medium",
+                        "confidence": (
+                            "high"
+                            if result.portfolio_stability_score > 0.8
+                            else "medium"
+                        ),
                         "parameter_count": len(result.parameter_results),
                     }
                 )

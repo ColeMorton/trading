@@ -6,10 +6,11 @@ minimizing conversions between polars and pandas and implementing
 efficient batch processing techniques.
 """
 
-import time
+from collections.abc import Callable
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Callable, List, Optional, Tuple, TypeVar, Union
+import time
+from typing import Any, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -18,6 +19,7 @@ import polars as pl
 from app.tools.error_handling import ErrorHandler
 from app.tools.setup_logging import setup_logging
 
+
 # Type variable for generic functions
 T = TypeVar("T")
 
@@ -25,7 +27,7 @@ T = TypeVar("T")
 class DataProcessor:
     """Class for optimized data processing."""
 
-    def __init__(self, log: Optional[Callable[[str, str], None]] = None):
+    def __init__(self, log: Callable[[str, str], None] | None = None):
         """Initialize the DataProcessor class.
 
         Args:
@@ -49,7 +51,7 @@ class DataProcessor:
         # Initialize cache for intermediate results
         self._cache = {}
 
-    def ensure_polars(self, df: Union[pd.DataFrame, pl.DataFrame]) -> pl.DataFrame:
+    def ensure_polars(self, df: pd.DataFrame | pl.DataFrame) -> pl.DataFrame:
         """Ensure a DataFrame is a polars DataFrame.
 
         Args:
@@ -63,7 +65,7 @@ class DataProcessor:
             return pl.from_pandas(df)
         return df
 
-    def ensure_pandas(self, df: Union[pd.DataFrame, pl.DataFrame]) -> pd.DataFrame:
+    def ensure_pandas(self, df: pd.DataFrame | pl.DataFrame) -> pd.DataFrame:
         """Ensure a DataFrame is a pandas DataFrame.
 
         Args:
@@ -79,10 +81,10 @@ class DataProcessor:
 
     def process_in_native_format(
         self,
-        df: Union[pd.DataFrame, pl.DataFrame],
+        df: pd.DataFrame | pl.DataFrame,
         process_pandas: Callable[[pd.DataFrame], pd.DataFrame],
         process_polars: Callable[[pl.DataFrame], pl.DataFrame],
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+    ) -> pd.DataFrame | pl.DataFrame:
         """Process a DataFrame using the appropriate function for its type.
 
         This avoids unnecessary conversions between pandas and polars.
@@ -99,25 +101,24 @@ class DataProcessor:
             if isinstance(df, pd.DataFrame):
                 self.log("Processing in pandas format", "debug")
                 return process_pandas(df)
-            elif isinstance(df, pl.DataFrame):
+            if isinstance(df, pl.DataFrame):
                 self.log("Processing in polars format", "debug")
                 return process_polars(df)
-            else:
-                raise TypeError(f"Unsupported DataFrame type: {type(df)}")
+            raise TypeError(f"Unsupported DataFrame type: {type(df)}")
         except Exception as e:
-            self.log(f"Error in process_in_native_format: {str(e)}", "error")
+            self.log(f"Error in process_in_native_format: {e!s}", "error")
             # Return the original DataFrame on error
             return df
 
     def batch_process(
         self,
-        dfs: List[Union[pd.DataFrame, pl.DataFrame]],
+        dfs: list[pd.DataFrame | pl.DataFrame],
         process_func: Callable[
-            [Union[pd.DataFrame, pl.DataFrame]], Union[pd.DataFrame, pl.DataFrame]
+            [pd.DataFrame | pl.DataFrame], pd.DataFrame | pl.DataFrame
         ],
         batch_size: int = 10,
         parallel: bool = False,
-    ) -> List[Union[pd.DataFrame, pl.DataFrame]]:
+    ) -> list[pd.DataFrame | pl.DataFrame]:
         """Process a list of DataFrames in batches.
 
         Args:
@@ -175,17 +176,17 @@ class DataProcessor:
 
             return results
         except Exception as e:
-            self.log(f"Error in batch_process: {str(e)}", "error")
+            self.log(f"Error in batch_process: {e!s}", "error")
             # Return the original DataFrames on error
             return dfs
 
     def _process_batch(
         self,
-        batch: List[Union[pd.DataFrame, pl.DataFrame]],
+        batch: list[pd.DataFrame | pl.DataFrame],
         process_func: Callable[
-            [Union[pd.DataFrame, pl.DataFrame]], Union[pd.DataFrame, pl.DataFrame]
+            [pd.DataFrame | pl.DataFrame], pd.DataFrame | pl.DataFrame
         ],
-    ) -> List[Union[pd.DataFrame, pl.DataFrame]]:
+    ) -> list[pd.DataFrame | pl.DataFrame]:
         """Process a batch of DataFrames.
 
         Args:
@@ -222,9 +223,7 @@ class DataProcessor:
         self.log(f"Caching intermediate result with key: {key}", "debug")
         self._cache[key] = result
 
-    def get_cached_result(
-        self, key: str, default: Optional[T] | None = None
-    ) -> Optional[T]:
+    def get_cached_result(self, key: str, default: T | None | None = None) -> T | None:
         """Get a cached intermediate result.
 
         Args:
@@ -246,10 +245,10 @@ class DataProcessor:
 
     def optimize_dataframe(
         self,
-        df: Union[pd.DataFrame, pl.DataFrame],
+        df: pd.DataFrame | pl.DataFrame,
         categorical_threshold: int = 50,
-        date_columns: Optional[List[str]] | None = None,
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+        date_columns: list[str] | None | None = None,
+    ) -> pd.DataFrame | pl.DataFrame:
         """Optimize a DataFrame for memory usage.
 
         Args:
@@ -272,7 +271,7 @@ class DataProcessor:
                 ),
             )
         except Exception as e:
-            self.log(f"Error optimizing DataFrame: {str(e)}", "error")
+            self.log(f"Error optimizing DataFrame: {e!s}", "error")
             # Return the original DataFrame on error
             return df
 
@@ -280,7 +279,7 @@ class DataProcessor:
         self,
         df: pd.DataFrame,
         categorical_threshold: int = 50,
-        date_columns: Optional[List[str]] | None = None,
+        date_columns: list[str] | None | None = None,
     ) -> pd.DataFrame:
         """Optimize a pandas DataFrame for memory usage.
 
@@ -315,13 +314,12 @@ class DataProcessor:
                     result[col] = result[col].astype(np.uint16)
                 elif col_max < 4294967296:
                     result[col] = result[col].astype(np.uint32)
-            else:
-                if col_min > -128 and col_max < 128:
-                    result[col] = result[col].astype(np.int8)
-                elif col_min > -32768 and col_max < 32768:
-                    result[col] = result[col].astype(np.int16)
-                elif col_min > -2147483648 and col_max < 2147483648:
-                    result[col] = result[col].astype(np.int32)
+            elif col_min > -128 and col_max < 128:
+                result[col] = result[col].astype(np.int8)
+            elif col_min > -32768 and col_max < 32768:
+                result[col] = result[col].astype(np.int16)
+            elif col_min > -2147483648 and col_max < 2147483648:
+                result[col] = result[col].astype(np.int32)
 
         # Optimize float columns
         for col in result.select_dtypes(include=["float"]).columns:
@@ -339,7 +337,7 @@ class DataProcessor:
         self,
         df: pl.DataFrame,
         categorical_threshold: int = 50,
-        date_columns: Optional[List[str]] | None = None,
+        date_columns: list[str] | None | None = None,
     ) -> pl.DataFrame:
         """Optimize a polars DataFrame for memory usage.
 
@@ -382,15 +380,14 @@ class DataProcessor:
                         expressions.append(col_expr.cast(pl.UInt32))
                     else:
                         expressions.append(col_expr)
+                elif col_min > -128 and col_max < 128:
+                    expressions.append(col_expr.cast(pl.Int8))
+                elif col_min > -32768 and col_max < 32768:
+                    expressions.append(col_expr.cast(pl.Int16))
+                elif col_min > -2147483648 and col_max < 2147483648:
+                    expressions.append(col_expr.cast(pl.Int32))
                 else:
-                    if col_min > -128 and col_max < 128:
-                        expressions.append(col_expr.cast(pl.Int8))
-                    elif col_min > -32768 and col_max < 32768:
-                        expressions.append(col_expr.cast(pl.Int16))
-                    elif col_min > -2147483648 and col_max < 2147483648:
-                        expressions.append(col_expr.cast(pl.Int32))
-                    else:
-                        expressions.append(col_expr)
+                    expressions.append(col_expr)
 
             # Optimize float columns
             elif dtype in [pl.Float64, pl.Float32]:
@@ -413,11 +410,11 @@ class DataProcessor:
 
     def efficient_join(
         self,
-        left: Union[pd.DataFrame, pl.DataFrame],
-        right: Union[pd.DataFrame, pl.DataFrame],
-        on: Union[str, List[str]],
+        left: pd.DataFrame | pl.DataFrame,
+        right: pd.DataFrame | pl.DataFrame,
+        on: str | list[str],
         how: str = "inner",
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+    ) -> pd.DataFrame | pl.DataFrame:
         """Efficiently join two DataFrames.
 
         Args:
@@ -435,32 +432,31 @@ class DataProcessor:
                 # Both are pandas, use pandas join
                 self.log("Joining pandas DataFrames", "debug")
                 return left.merge(right, on=on, how=how)
-            elif isinstance(left, pl.DataFrame) and isinstance(right, pl.DataFrame):
+            if isinstance(left, pl.DataFrame) and isinstance(right, pl.DataFrame):
                 # Both are polars, use polars join
                 self.log("Joining polars DataFrames", "debug")
                 return left.join(right, on=on, how=how)
-            elif isinstance(left, pd.DataFrame):
+            if isinstance(left, pd.DataFrame):
                 # Convert right to pandas
                 self.log("Converting right DataFrame to pandas for join", "debug")
                 right_pd = self.ensure_pandas(right)
                 return left.merge(right_pd, on=on, how=how)
-            else:
-                # Convert left to polars
-                self.log("Converting left DataFrame to polars for join", "debug")
-                left_pl = self.ensure_polars(left)
-                return left_pl.join(right, on=on, how=how)
+            # Convert left to polars
+            self.log("Converting left DataFrame to polars for join", "debug")
+            left_pl = self.ensure_polars(left)
+            return left_pl.join(right, on=on, how=how)
         except Exception as e:
-            self.log(f"Error in efficient_join: {str(e)}", "error")
+            self.log(f"Error in efficient_join: {e!s}", "error")
             # Return the left DataFrame on error
             return left
 
     def extract_signals_and_returns(
         self,
-        data: Union[pd.DataFrame, pl.DataFrame],
+        data: pd.DataFrame | pl.DataFrame,
         signal_column: str = "Signal",
         return_column: str = "Return",
         date_column: str = "Date",
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Efficiently extract signals and returns from a DataFrame.
 
         Args:
@@ -492,13 +488,13 @@ class DataProcessor:
 
             return signals, returns
         except Exception as e:
-            self.log(f"Error extracting signals and returns: {str(e)}", "error")
+            self.log(f"Error extracting signals and returns: {e!s}", "error")
             # Return empty arrays on error
             return np.array([]), np.array([])
 
     def convert_hourly_to_4hour(
-        self, df: Union[pd.DataFrame, pl.DataFrame], ticker: Optional[str] = None
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+        self, df: pd.DataFrame | pl.DataFrame, ticker: str | None = None
+    ) -> pd.DataFrame | pl.DataFrame:
         """Convert 1-hour OHLC data to 4-hour OHLC bars with market-aware logic.
 
         Args:
@@ -515,21 +511,20 @@ class DataProcessor:
 
                 market_type = detect_market_type(ticker)
                 return self.convert_hourly_to_4hour_market_aware(df, market_type)
-            else:
-                # Legacy conversion for backward compatibility
-                return self.process_in_native_format(
-                    df,
-                    lambda pandas_df: self._convert_pandas_hourly_to_4hour(pandas_df),
-                    lambda polars_df: self._convert_polars_hourly_to_4hour(polars_df),
-                )
+            # Legacy conversion for backward compatibility
+            return self.process_in_native_format(
+                df,
+                lambda pandas_df: self._convert_pandas_hourly_to_4hour(pandas_df),
+                lambda polars_df: self._convert_polars_hourly_to_4hour(polars_df),
+            )
         except Exception as e:
-            self.log(f"Error converting hourly to 4-hour data: {str(e)}", "error")
+            self.log(f"Error converting hourly to 4-hour data: {e!s}", "error")
             # Return the original DataFrame on error
             return df
 
     def convert_hourly_to_4hour_market_aware(
-        self, df: Union[pd.DataFrame, pl.DataFrame], market_type
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+        self, df: pd.DataFrame | pl.DataFrame, market_type
+    ) -> pd.DataFrame | pl.DataFrame:
         """Convert 1-hour OHLC data to 4-hour OHLC bars with market-specific logic.
 
         Args:
@@ -556,16 +551,16 @@ class DataProcessor:
                     lambda pandas_df: self._convert_pandas_stock_to_4hour(pandas_df),
                     lambda polars_df: self._convert_polars_stock_to_4hour(polars_df),
                 )
-            else:  # CRYPTO or other 24/7 markets
-                # For crypto: use standard UTC-aligned 4-hour conversion
-                self.log("Using standard 4-hour conversion for 24/7 market", "info")
-                return self.process_in_native_format(
-                    df,
-                    lambda pandas_df: self._convert_pandas_hourly_to_4hour(pandas_df),
-                    lambda polars_df: self._convert_polars_hourly_to_4hour(polars_df),
-                )
+            # CRYPTO or other 24/7 markets
+            # For crypto: use standard UTC-aligned 4-hour conversion
+            self.log("Using standard 4-hour conversion for 24/7 market", "info")
+            return self.process_in_native_format(
+                df,
+                lambda pandas_df: self._convert_pandas_hourly_to_4hour(pandas_df),
+                lambda polars_df: self._convert_polars_hourly_to_4hour(polars_df),
+            )
         except Exception as e:
-            self.log(f"Error in market-aware 4-hour conversion: {str(e)}", "error")
+            self.log(f"Error in market-aware 4-hour conversion: {e!s}", "error")
             # Return the original DataFrame on error
             return df
 
@@ -832,8 +827,8 @@ class DataProcessor:
         return four_hour_data
 
     def convert_daily_to_2day(
-        self, df: Union[pd.DataFrame, pl.DataFrame], ticker: Optional[str] = None
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+        self, df: pd.DataFrame | pl.DataFrame, ticker: str | None = None
+    ) -> pd.DataFrame | pl.DataFrame:
         """Convert daily OHLC data to 2-day OHLC bars with market-aware logic.
 
         Args:
@@ -850,21 +845,20 @@ class DataProcessor:
 
                 market_type = detect_market_type(ticker)
                 return self.convert_daily_to_2day_market_aware(df, market_type)
-            else:
-                # Standard conversion
-                return self.process_in_native_format(
-                    df,
-                    lambda pandas_df: self._convert_pandas_daily_to_2day(pandas_df),
-                    lambda polars_df: self._convert_polars_daily_to_2day(polars_df),
-                )
+            # Standard conversion
+            return self.process_in_native_format(
+                df,
+                lambda pandas_df: self._convert_pandas_daily_to_2day(pandas_df),
+                lambda polars_df: self._convert_polars_daily_to_2day(polars_df),
+            )
         except Exception as e:
-            self.log(f"Error converting daily to 2-day data: {str(e)}", "error")
+            self.log(f"Error converting daily to 2-day data: {e!s}", "error")
             # Return the original DataFrame on error
             return df
 
     def convert_daily_to_2day_market_aware(
-        self, df: Union[pd.DataFrame, pl.DataFrame], market_type
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+        self, df: pd.DataFrame | pl.DataFrame, market_type
+    ) -> pd.DataFrame | pl.DataFrame:
         """Convert daily OHLC data to 2-day OHLC bars with market-specific logic.
 
         Args:
@@ -888,16 +882,16 @@ class DataProcessor:
                     lambda pandas_df: self._convert_pandas_stock_to_2day(pandas_df),
                     lambda polars_df: self._convert_polars_stock_to_2day(polars_df),
                 )
-            else:  # CRYPTO or other 24/7 markets
-                # For crypto: use standard calendar day 2-day conversion
-                self.log("Using standard 2-day conversion for 24/7 market", "info")
-                return self.process_in_native_format(
-                    df,
-                    lambda pandas_df: self._convert_pandas_daily_to_2day(pandas_df),
-                    lambda polars_df: self._convert_polars_daily_to_2day(polars_df),
-                )
+            # CRYPTO or other 24/7 markets
+            # For crypto: use standard calendar day 2-day conversion
+            self.log("Using standard 2-day conversion for 24/7 market", "info")
+            return self.process_in_native_format(
+                df,
+                lambda pandas_df: self._convert_pandas_daily_to_2day(pandas_df),
+                lambda polars_df: self._convert_polars_daily_to_2day(polars_df),
+            )
         except Exception as e:
-            self.log(f"Error in market-aware 2-day conversion: {str(e)}", "error")
+            self.log(f"Error in market-aware 2-day conversion: {e!s}", "error")
             # Return the original DataFrame on error
             return df
 
@@ -1163,7 +1157,7 @@ class DataProcessor:
 
     def time_operation(
         self, operation: Callable[..., T], *args, **kwargs
-    ) -> Tuple[T, float]:
+    ) -> tuple[T, float]:
         """Time the execution of an operation.
 
         Args:
@@ -1190,7 +1184,7 @@ class DataProcessor:
 
 
 def ensure_polars(
-    df: Union[pd.DataFrame, pl.DataFrame], log: Optional[Callable] | None = None
+    df: pd.DataFrame | pl.DataFrame, log: Callable | None | None = None
 ) -> pl.DataFrame:
     """Ensure a DataFrame is a polars DataFrame.
 
@@ -1206,7 +1200,7 @@ def ensure_polars(
 
 
 def ensure_pandas(
-    df: Union[pd.DataFrame, pl.DataFrame], log: Optional[Callable] | None = None
+    df: pd.DataFrame | pl.DataFrame, log: Callable | None | None = None
 ) -> pd.DataFrame:
     """Ensure a DataFrame is a pandas DataFrame.
 
@@ -1222,8 +1216,8 @@ def ensure_pandas(
 
 
 def optimize_dataframe(
-    df: Union[pd.DataFrame, pl.DataFrame], log: Optional[Callable] | None = None
-) -> Union[pd.DataFrame, pl.DataFrame]:
+    df: pd.DataFrame | pl.DataFrame, log: Callable | None | None = None
+) -> pd.DataFrame | pl.DataFrame:
     """Optimize a DataFrame for memory usage.
 
     Args:
@@ -1238,10 +1232,10 @@ def optimize_dataframe(
 
 
 def convert_hourly_to_4hour(
-    df: Union[pd.DataFrame, pl.DataFrame],
-    log: Optional[Callable] | None = None,
-    ticker: Optional[str] = None,
-) -> Union[pd.DataFrame, pl.DataFrame]:
+    df: pd.DataFrame | pl.DataFrame,
+    log: Callable | None | None = None,
+    ticker: str | None = None,
+) -> pd.DataFrame | pl.DataFrame:
     """Convert 1-hour OHLC data to 4-hour OHLC bars with market-aware logic.
 
     Args:
@@ -1257,10 +1251,10 @@ def convert_hourly_to_4hour(
 
 
 def convert_daily_to_2day(
-    df: Union[pd.DataFrame, pl.DataFrame],
-    log: Optional[Callable] | None = None,
-    ticker: Optional[str] = None,
-) -> Union[pd.DataFrame, pl.DataFrame]:
+    df: pd.DataFrame | pl.DataFrame,
+    log: Callable | None | None = None,
+    ticker: str | None = None,
+) -> pd.DataFrame | pl.DataFrame:
     """Convert daily OHLC data to 2-day OHLC bars with market-aware logic.
 
     Args:

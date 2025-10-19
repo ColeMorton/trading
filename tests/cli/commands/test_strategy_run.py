@@ -11,19 +11,15 @@ This test suite covers the `trading-cli strategy sweep` command with focus on:
 - Profile integration
 """
 
-import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, call, patch
+import tempfile
+from unittest.mock import Mock, patch
 
 import pytest
 from typer.testing import CliRunner
 
 from app.cli.commands.strategy import app as strategy_app
-from app.cli.models.strategy import (
-    StrategyExecutionSummary,
-    StrategyPortfolioResults,
-    StrategyType,
-)
+from app.cli.models.strategy import StrategyExecutionSummary, StrategyType
 
 
 def create_mock_execution_summary(ticker="AAPL", strategy_type="SMA", **kwargs):
@@ -575,7 +571,7 @@ config:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command without profile
-        result = cli_runner.invoke(
+        cli_runner.invoke(
             strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA"]
         )
 
@@ -593,7 +589,8 @@ config:
         """Test sweep command handles string ticker input correctly."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker="AAPL", strategy_types=[StrategyType.SMA]  # String ticker
+            ticker="AAPL",
+            strategy_types=[StrategyType.SMA],  # String ticker
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 

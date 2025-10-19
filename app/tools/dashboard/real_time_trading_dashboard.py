@@ -6,12 +6,11 @@ real-time divergence analysis, and automated signal generation.
 """
 
 import asyncio
-import json
-import logging
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -19,11 +18,7 @@ import pandas as pd
 from ..analysis.automated_exit_signal_generator import AutomatedExitSignalGenerator
 from ..analysis.real_time_position_analyzer import RealTimePositionAnalyzer
 from ..config.statistical_analysis_config import SPDSConfig
-from ..models.statistical_analysis_models import (
-    ExitSignal,
-    SignificanceLevel,
-    StatisticalAnalysisResult,
-)
+from ..models.statistical_analysis_models import StatisticalAnalysisResult
 from ..services.statistical_analysis_service import StatisticalAnalysisService
 
 
@@ -62,8 +57,8 @@ class DashboardSignal:
     target_timeframe: str
     risk_level: str
     statistical_significance: str
-    pattern_match: Optional[str] = None
-    expected_outcome: Optional[str] = None
+    pattern_match: str | None = None
+    expected_outcome: str | None = None
 
 
 @dataclass
@@ -99,7 +94,7 @@ class RealTimeTradingDashboard:
         statistical_service: StatisticalAnalysisService,
         position_analyzer: RealTimePositionAnalyzer,
         signal_generator: AutomatedExitSignalGenerator,
-        logger: Optional[logging.Logger] = None,
+        logger: logging.Logger | None = None,
     ):
         """
         Initialize the Real-Time Trading Dashboard
@@ -124,8 +119,8 @@ class RealTimeTradingDashboard:
 
         # Dashboard state
         self.is_running = False
-        self.current_positions: Dict[str, PositionSnapshot] = {}
-        self.current_signals: Dict[str, DashboardSignal] = {}
+        self.current_positions: dict[str, PositionSnapshot] = {}
+        self.current_signals: dict[str, DashboardSignal] = {}
         self.dashboard_stats = DashboardStats(
             total_positions=0,
             immediate_exits=0,
@@ -170,7 +165,7 @@ class RealTimeTradingDashboard:
         self.is_running = False
         self.logger.info("Real-time trading dashboard stopped")
 
-    async def get_dashboard_data(self) -> Dict[str, Any]:
+    async def get_dashboard_data(self) -> dict[str, Any]:
         """
         Get current dashboard data for API consumption
 
@@ -191,16 +186,18 @@ class RealTimeTradingDashboard:
                 },
                 "stats": asdict(self.dashboard_stats),
                 "last_update": datetime.now().isoformat(),
-                "dashboard_health": "HEALTHY"
-                if self.dashboard_stats.high_priority_alerts <= 3
-                else "ALERTS",
+                "dashboard_health": (
+                    "HEALTHY"
+                    if self.dashboard_stats.high_priority_alerts <= 3
+                    else "ALERTS"
+                ),
             }
 
         except Exception as e:
             self.logger.error(f"Dashboard data retrieval failed: {e}")
             raise
 
-    async def get_position_detail(self, position_id: str) -> Optional[Dict[str, Any]]:
+    async def get_position_detail(self, position_id: str) -> dict[str, Any] | None:
         """
         Get detailed analysis for a specific position
 
@@ -347,7 +344,7 @@ class RealTimeTradingDashboard:
         try:
             analysis_tasks = []
 
-            for position_id, position in self.current_positions.items():
+            for _position_id, position in self.current_positions.items():
                 task = self._analyze_single_position(position)
                 analysis_tasks.append(task)
 
@@ -633,7 +630,8 @@ class RealTimeTradingDashboard:
             )
             + "║",
             f"║ ├─ Dual-Layer Score: {signal.dual_layer_score:.2f} | "
-            f"Confidence: {signal.confidence:.1%}".ljust(self.console_width - 5) + "║",
+            f"Confidence: {signal.confidence:.1%}".ljust(self.console_width - 5)
+            + "║",
             f"║ ├─ PnL: {position.unrealized_pnl_pct:.1%} | "
             f"MFE: {position.mfe:.1%} | Days: {position.days_held}".ljust(
                 self.console_width - 5
@@ -693,21 +691,19 @@ class RealTimeTradingDashboard:
         """Assess risk level based on signal characteristics"""
         if signal.signal_confidence >= 0.90:
             return "LOW"
-        elif signal.signal_confidence >= 0.75:
+        if signal.signal_confidence >= 0.75:
             return "MEDIUM"
-        else:
-            return "HIGH"
+        return "HIGH"
 
     def _predict_outcome(self, signal: StatisticalAnalysisResult) -> str:
         """Predict likely outcome based on signal"""
         if "IMMEDIATELY" in signal.exit_signal:
             return "Statistical exhaustion likely"
-        elif "STRONG" in signal.exit_signal:
+        if "STRONG" in signal.exit_signal:
             return "Near-term reversal expected"
-        elif signal.exit_signal == "SELL":
+        if signal.exit_signal == "SELL":
             return "Moderate profit capture recommended"
-        else:
-            return "Continue monitoring"
+        return "Continue monitoring"
 
     async def _calculate_portfolio_health(self) -> float:
         """Calculate overall portfolio health score"""
@@ -739,7 +735,7 @@ class RealTimeTradingDashboard:
 
     async def _generate_position_recommendations(
         self, position: PositionSnapshot
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate specific recommendations for a position"""
         recommendations = []
 
@@ -763,7 +759,7 @@ class RealTimeTradingDashboard:
 
     async def _get_position_historical_context(
         self, position: PositionSnapshot
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get historical context for position"""
         return {
             "similar_trades_count": 15,  # Placeholder

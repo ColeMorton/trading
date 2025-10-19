@@ -1,13 +1,13 @@
 """Statistics visualization utilities for concurrency analysis."""
 
-from typing import Callable, Dict
+from collections.abc import Callable
 
 from app.concurrency.tools.types import ConcurrencyStats
 
 
 def create_stats_annotation(
     stats: ConcurrencyStats, log: Callable[[str, str], None]
-) -> Dict:
+) -> dict:
     """Create annotation with concurrency statistics.
 
     Args:
@@ -112,16 +112,12 @@ def create_stats_annotation(
         # Add strategy risk contributions and alpha values
         log("Processing strategy risk contributions and alphas", "info")
         strategy_nums = sorted(
-            list(
-                {
-                    k.split("_")[1]
-                    for k in risk_metrics.keys()
-                    if k.startswith("strategy_")
-                    and (
-                        k.endswith("_risk_contrib") or k.endswith("_alpha_to_portfolio")
-                    )
-                }
-            )
+            {
+                k.split("_")[1]
+                for k in risk_metrics
+                if k.startswith("strategy_")
+                and (k.endswith("_risk_contrib") or k.endswith("_alpha_to_portfolio"))
+            }
         )
 
         for strategy_num in strategy_nums:
@@ -189,7 +185,7 @@ def create_stats_annotation(
             "y": 1.0,
             "text": stats_text,
             "showarrow": False,
-            "font": dict(size=10),
+            "font": {"size": 10},
             "align": "left",
             "bgcolor": "rgba(255,255,255,0.8)",
             "bordercolor": "black",
@@ -200,5 +196,5 @@ def create_stats_annotation(
         return annotation
 
     except Exception as e:
-        log(f"Error creating statistics annotation: {str(e)}", "error")
+        log(f"Error creating statistics annotation: {e!s}", "error")
         raise

@@ -5,9 +5,8 @@ This service provides functionality to aggregate and analyze portfolio data
 from CSV files for dry-run analysis commands.
 """
 
-import csv
+import contextlib
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 from rich import print as rprint
@@ -20,7 +19,7 @@ class PortfolioAnalysisService:
         self,
         base_dir: str = "/Users/colemorton/Projects/trading",
         use_current: bool = False,
-        custom_date: Optional[str] = None,
+        custom_date: str | None = None,
     ):
         """Initialize the service with base directory path, current mode flag, and optional custom date."""
         self.base_dir = Path(base_dir)
@@ -37,7 +36,7 @@ class PortfolioAnalysisService:
 
         return datetime.now().strftime("%Y%m%d")
 
-    def aggregate_portfolios_best(self, tickers: List[str]) -> pd.DataFrame:
+    def aggregate_portfolios_best(self, tickers: list[str]) -> pd.DataFrame:
         """
         Aggregate all portfolios_best CSV files for the given tickers.
 
@@ -99,11 +98,11 @@ class PortfolioAnalysisService:
                 )
                 if self.custom_date:
                     rprint(
-                        f"[dim]Try a different date or remove --date to search the general portfolios_best directory[/dim]"
+                        "[dim]Try a different date or remove --date to search the general portfolios_best directory[/dim]"
                     )
                 else:
                     rprint(
-                        f"[dim]Try without --current to search the general portfolios_best directory[/dim]"
+                        "[dim]Try without --current to search the general portfolios_best directory[/dim]"
                     )
             else:
                 rprint("[yellow]No valid portfolio data found for any tickers[/yellow]")
@@ -206,7 +205,7 @@ class PortfolioAnalysisService:
 
         return combined_df
 
-    def _discover_all_current_files(self) -> List[Path]:
+    def _discover_all_current_files(self) -> list[Path]:
         """
         Discover all CSV files in the current date directory.
 
@@ -235,7 +234,7 @@ class PortfolioAnalysisService:
 
         return sorted(portfolio_files)
 
-    def _find_ticker_files(self, ticker: str) -> List[Path]:
+    def _find_ticker_files(self, ticker: str) -> list[Path]:
         """
         Find all portfolio_best files for a given ticker.
 
@@ -317,16 +316,14 @@ class PortfolioAnalysisService:
             return df
 
         # Convert to numeric if possible for proper sorting
-        try:
+        with contextlib.suppress(Exception):
             df[sort_by] = pd.to_numeric(df[sort_by], errors="coerce")
-        except:
-            pass
 
         return df.sort_values(
             by=sort_by, ascending=ascending, na_position="last"
         ).reset_index(drop=True)
 
-    def format_for_display(self, df: pd.DataFrame, top_n: int = 50) -> Dict:
+    def format_for_display(self, df: pd.DataFrame, top_n: int = 50) -> dict:
         """
         Format dataframe data for display purposes.
 
@@ -358,7 +355,7 @@ class PortfolioAnalysisService:
 
         return {"top_results": top_results, "all_results": df, "stats": stats}
 
-    def _calculate_stats(self, df: pd.DataFrame) -> Dict:
+    def _calculate_stats(self, df: pd.DataFrame) -> dict:
         """Calculate summary statistics from the dataframe."""
         if df.empty:
             return {
@@ -597,7 +594,7 @@ class PortfolioAnalysisService:
 
         return standardized_df
 
-    def get_display_columns(self) -> List[str]:
+    def get_display_columns(self) -> list[str]:
         """Get the key columns to display in the summary table."""
         return [
             "Ticker",  # Position 1
@@ -613,7 +610,7 @@ class PortfolioAnalysisService:
             "Total Trades",  # Position 9
         ]
 
-    def export_to_csv(self, df: pd.DataFrame, output_dir: str) -> Tuple[bool, str]:
+    def export_to_csv(self, df: pd.DataFrame, output_dir: str) -> tuple[bool, str]:
         """
         Export DataFrame to timestamped CSV file.
 

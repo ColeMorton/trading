@@ -16,9 +16,7 @@ COVERAGE:
 """
 
 import json
-import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, call, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from typer.testing import CliRunner
@@ -225,9 +223,7 @@ class TestConcurrencyConstructCommand:
         mock_loader.load_strategies_for_asset.return_value = high_score_strategies
         mock_review.return_value = True
 
-        result = runner.invoke(
-            concurrency_app, ["construct", "TEST", "--min-score", "1.4"]
-        )
+        runner.invoke(concurrency_app, ["construct", "TEST", "--min-score", "1.4"])
 
         # Verify load was called with correct min_score
         mock_loader.load_strategies_for_asset.assert_called_once()
@@ -277,7 +273,7 @@ class TestConcurrencyConstructCommand:
         mock_review.side_effect = mock_review_impl
 
         with patch("app.cli.commands.concurrency.Path.cwd", return_value=tmp_path):
-            result = runner.invoke(concurrency_app, ["construct", "TEST"])
+            runner.invoke(concurrency_app, ["construct", "TEST"])
 
         # Should have created 3 files (one for each size: 5, 7, 9)
         assert len(created_files) == 3
@@ -327,7 +323,7 @@ class TestConcurrencyConstructCommand:
                 "score_filtered_strategies": 10,
             }
 
-            result = runner.invoke(concurrency_app, ["construct", "-t1", "NVDA"])
+            runner.invoke(concurrency_app, ["construct", "-t1", "NVDA"])
 
             # Should work as single asset
             # (May need to check if this is the desired behavior)
@@ -364,7 +360,7 @@ class TestConcurrencyConstructCommand:
                 }
                 mock_review.return_value = True
 
-                result = runner.invoke(
+                runner.invoke(
                     concurrency_app, ["construct", "TEST", "--format", "table"]
                 )
 
@@ -451,7 +447,7 @@ class TestConstructPortfolioSizeComparison:
 
         mock_review.side_effect = mock_review_side_effect
 
-        result = runner.invoke(concurrency_app, ["construct", "TEST"])
+        runner.invoke(concurrency_app, ["construct", "TEST"])
 
         # Should analyze 3 different portfolio sizes
         assert call_count["count"] == 3
@@ -507,7 +503,7 @@ class TestConstructPortfolioSizeComparison:
                     True,
                 )[1]
 
-                result = runner.invoke(concurrency_app, ["construct", "TEST"])
+                runner.invoke(concurrency_app, ["construct", "TEST"])
 
                 # Should only test size 5 (exact match)
                 assert call_count["count"] == 1
@@ -563,7 +559,6 @@ class TestConstructDiversificationSorting:
         mock_review.return_value = True
 
         # Capture the sorted strategies
-        captured_portfolio = {}
 
         def capture_review(filename, config_overrides=None):
             # Would need to capture the actual portfolio data written to file
@@ -625,7 +620,7 @@ class TestConstructErrorScenarios:
                     mock_report.exists.return_value = False
                     mock_path.cwd.return_value.joinpath.return_value = mock_report
 
-                    result = runner.invoke(concurrency_app, ["construct", "TEST"])
+                    runner.invoke(concurrency_app, ["construct", "TEST"])
 
                     # Should handle missing report gracefully
 

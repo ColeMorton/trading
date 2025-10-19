@@ -15,7 +15,7 @@ Short:
 It includes functionality for parameter sensitivity analysis and portfolio filtering.
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
 from app.strategies.macd.config_types import PortfolioConfig
 from app.strategies.macd.exceptions import (
@@ -95,11 +95,8 @@ def run(
         log_wrapper.__self__ = external_log
 
         return _run_with_log(config, log_wrapper, progress_update_fn)
-    else:
-        with logging_context(
-            module_name="macd", log_file="1_get_portfolios.log"
-        ) as log:
-            return _run_with_log(config, log, progress_update_fn)
+    with logging_context(module_name="macd", log_file="1_get_portfolios.log") as log:
+        return _run_with_log(config, log, progress_update_fn)
 
 
 def _run_with_log(config: PortfolioConfig, log, progress_update_fn=None) -> bool:
@@ -145,7 +142,7 @@ def _run_with_log(config: PortfolioConfig, log, progress_update_fn=None) -> bool
         Exception: MACDError,
     },
 )
-def run_strategies(config: Dict[str, Any] = None) -> bool:
+def run_strategies(config: dict[str, Any] | None = None) -> bool:
     """Run analysis with strategies specified in STRATEGY_TYPES in sequence.
 
     This function is similar to the run function in ma_cross/1_get_portfolios.py,
@@ -177,9 +174,9 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
             return True
 
         # Prepare config
-        config_copy[
-            "USE_MA"
-        ] = False  # Ensure USE_MA is set correctly for MACD filename suffix
+        config_copy["USE_MA"] = (
+            False  # Ensure USE_MA is set correctly for MACD filename suffix
+        )
 
         # SAFEGUARD: Trade history export is not available for MACD strategy
         # to prevent generating thousands of JSON files due to parameter sweep combinations.

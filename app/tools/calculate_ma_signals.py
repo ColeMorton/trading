@@ -1,11 +1,9 @@
-from typing import Dict, Tuple
-
 import polars as pl
 
 
 def calculate_ma_signals(
-    data: pl.DataFrame, config: Dict
-) -> Tuple[pl.Series, pl.Series]:
+    data: pl.DataFrame, config: dict
+) -> tuple[pl.Series, pl.Series]:
     """
     Generate entry and exit signals based on the strategy configuration.
     A signal is generated when the fast MA is above/below the slow MA on the last trading day.

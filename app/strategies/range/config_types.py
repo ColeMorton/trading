@@ -5,7 +5,7 @@ This module provides centralized TypedDict definitions for configuration
 across the Range High Break strategy modules.
 """
 
-from typing import List, Optional, TypedDict, Union
+from typing import TypedDict
 
 from typing_extensions import NotRequired
 
@@ -31,7 +31,7 @@ class PortfolioConfig(TypedDict, total=False):
         TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
     """
 
-    TICKER: Union[str, List[str]]
+    TICKER: str | list[str]
     WINDOWS: int
     BASE_DIR: str
     USE_CURRENT: NotRequired[bool]

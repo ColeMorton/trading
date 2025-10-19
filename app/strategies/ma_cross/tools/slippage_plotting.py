@@ -4,7 +4,7 @@ Slippage Plotting Module
 This module contains functions for visualizing slippage analysis results through plots.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import matplotlib.pyplot as plt
 import polars as pl
@@ -43,7 +43,7 @@ def plot_results(ticker: str, results_df: pl.DataFrame, log: Callable) -> None:
     # Add vertical lines at target levels
     colors = ["green", "yellow", "red"]
     lines = []  # Store line objects for legend
-    for (label, target), color in zip(target_levels.items(), colors):
+    for (label, target), color in zip(target_levels.items(), colors, strict=False):
         # Find the first slippage percentage where Total Return drops below target
         mask = results_df["Total Return"] <= target
         if mask.any():

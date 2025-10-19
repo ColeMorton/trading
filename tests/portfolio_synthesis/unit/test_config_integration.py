@@ -5,7 +5,6 @@ This module tests how parameters from config_dict and function parameters
 interact, including precedence rules and parameter extraction.
 """
 
-from typing import Any, Dict
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -28,22 +27,17 @@ class TestConfigIntegration:
             "SIGNAL_PERIOD": 21,  # Should override function signal_period
         }
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_macd_and_signals"
-        ) as mock_calc_macd, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ), patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df, patch(
-            "app.tools.plotting.create_portfolio_plot_files"
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_macd_and_signals"
+            ) as mock_calc_macd,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs"),
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df,
+            patch("app.tools.plotting.create_portfolio_plot_files"),
         ):
             # Setup mocks
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
@@ -74,12 +68,12 @@ class TestConfigIntegration:
             enhanced_config = mock_get_config.call_args[0][0]
 
             # Verify config_dict parameters were used for conversion
-            assert enhanced_config["USE_4HOUR"] == True  # From TIMEFRAME: "4hour"
-            assert enhanced_config["USE_HOURLY"] == False
-            assert enhanced_config["USE_2DAY"] == False
+            assert enhanced_config["USE_4HOUR"] is True  # From TIMEFRAME: "4hour"
+            assert enhanced_config["USE_HOURLY"] is False
+            assert enhanced_config["USE_2DAY"] is False
 
             assert enhanced_config["STRATEGY_TYPE"] == "MACD"  # From config_dict
-            assert enhanced_config["USE_SMA"] == False  # MACD != SMA
+            assert enhanced_config["USE_SMA"] is False  # MACD != SMA
             assert enhanced_config["SIGNAL_PERIOD"] == 21  # From config_dict
 
     def test_function_parameters_fill_missing_config_dict_values(self):
@@ -93,22 +87,17 @@ class TestConfigIntegration:
             # STRATEGY_TYPE and SIGNAL_PERIOD missing
         }
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_ma_and_signals"
-        ) as mock_calc_ma, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ), patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df, patch(
-            "app.tools.plotting.create_portfolio_plot_files"
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+            ) as mock_calc_ma,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs"),
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df,
+            patch("app.tools.plotting.create_portfolio_plot_files"),
         ):
             # Setup mocks
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
@@ -139,13 +128,13 @@ class TestConfigIntegration:
             enhanced_config = mock_get_config.call_args[0][0]
 
             # Verify timeframe from config_dict was used
-            assert enhanced_config["USE_HOURLY"] == True  # From config_dict
-            assert enhanced_config["USE_4HOUR"] == False
-            assert enhanced_config["USE_2DAY"] == False
+            assert enhanced_config["USE_HOURLY"] is True  # From config_dict
+            assert enhanced_config["USE_4HOUR"] is False
+            assert enhanced_config["USE_2DAY"] is False
 
             # Verify strategy type from function parameter was used
             assert enhanced_config["STRATEGY_TYPE"] == "EMA"  # From function param
-            assert enhanced_config["USE_SMA"] == False  # EMA != SMA
+            assert enhanced_config["USE_SMA"] is False  # EMA != SMA
 
             # Verify signal period from function parameter was used
             assert enhanced_config["SIGNAL_PERIOD"] == 14  # From function param
@@ -160,22 +149,17 @@ class TestConfigIntegration:
             # No modern parameters (TIMEFRAME, STRATEGY_TYPE, SIGNAL_PERIOD)
         }
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_ma_and_signals"
-        ) as mock_calc_ma, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ), patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df, patch(
-            "app.tools.plotting.create_portfolio_plot_files"
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+            ) as mock_calc_ma,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs"),
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df,
+            patch("app.tools.plotting.create_portfolio_plot_files"),
         ):
             # Setup mocks
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
@@ -206,13 +190,13 @@ class TestConfigIntegration:
             enhanced_config = mock_get_config.call_args[0][0]
 
             # Verify timeframe from function parameter
-            assert enhanced_config["USE_2DAY"] == True  # From function param
-            assert enhanced_config["USE_HOURLY"] == False
-            assert enhanced_config["USE_4HOUR"] == False
+            assert enhanced_config["USE_2DAY"] is True  # From function param
+            assert enhanced_config["USE_HOURLY"] is False
+            assert enhanced_config["USE_4HOUR"] is False
 
             # Verify strategy type from function parameter
             assert enhanced_config["STRATEGY_TYPE"] == "ATR"  # From function param
-            assert enhanced_config["USE_SMA"] == False  # ATR != SMA
+            assert enhanced_config["USE_SMA"] is False  # ATR != SMA
 
             # Verify signal period from function parameter
             assert enhanced_config["SIGNAL_PERIOD"] == 7  # From function param
@@ -229,22 +213,17 @@ class TestConfigIntegration:
             "SOME_CUSTOM_FIELD": "custom_value",
         }
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_ma_and_signals"
-        ) as mock_calc_ma, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ), patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df, patch(
-            "app.tools.plotting.create_portfolio_plot_files"
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+            ) as mock_calc_ma,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs"),
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df,
+            patch("app.tools.plotting.create_portfolio_plot_files"),
         ):
             # Setup mocks
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
@@ -280,7 +259,7 @@ class TestConfigIntegration:
             assert enhanced_config["SLOW_PERIOD"] == 35
             assert enhanced_config["BASE_DIR"] == "/custom/path"
             assert enhanced_config["YEARS"] == 5
-            assert enhanced_config["USE_YEARS"] == True
+            assert enhanced_config["USE_YEARS"] is True
             assert enhanced_config["SOME_CUSTOM_FIELD"] == "custom_value"
 
             # New legacy parameters should be added
@@ -298,22 +277,17 @@ class TestConfigIntegration:
             "BASE_DIR": "/tmp",
         }
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_ma_and_signals"
-        ) as mock_calc_ma, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ), patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df, patch(
-            "app.tools.plotting.create_portfolio_plot_files"
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+            ) as mock_calc_ma,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs"),
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df,
+            patch("app.tools.plotting.create_portfolio_plot_files"),
         ):
             # Setup mocks
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
@@ -339,13 +313,13 @@ class TestConfigIntegration:
             enhanced_config = mock_get_config.call_args[0][0]
 
             # Verify default timeframe (daily)
-            assert enhanced_config["USE_HOURLY"] == False
-            assert enhanced_config["USE_4HOUR"] == False
-            assert enhanced_config["USE_2DAY"] == False
+            assert enhanced_config["USE_HOURLY"] is False
+            assert enhanced_config["USE_4HOUR"] is False
+            assert enhanced_config["USE_2DAY"] is False
 
             # Verify default strategy type (SMA)
             assert enhanced_config["STRATEGY_TYPE"] == "SMA"
-            assert enhanced_config["USE_SMA"] == True
+            assert enhanced_config["USE_SMA"] is True
 
             # Verify default signal period (9)
             assert enhanced_config["SIGNAL_PERIOD"] == 9
@@ -365,22 +339,17 @@ class TestConfigIntegration:
             "SIGNAL_PERIOD": 15,  # Modern/Both
         }
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data, patch(
-            "app.portfolio_synthesis.review.calculate_macd_and_signals"
-        ) as mock_calc_macd, patch(
-            "app.portfolio_synthesis.review.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.portfolio_synthesis.review.os.makedirs"
-        ), patch(
-            "app.portfolio_synthesis.review.pl.DataFrame"
-        ) as mock_df, patch(
-            "app.tools.plotting.create_portfolio_plot_files"
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            patch(
+                "app.portfolio_synthesis.review.calculate_macd_and_signals"
+            ) as mock_calc_macd,
+            patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
+            patch("app.portfolio_synthesis.review.os.makedirs"),
+            patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df,
+            patch("app.tools.plotting.create_portfolio_plot_files"),
         ):
             # Setup mocks
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
@@ -406,13 +375,13 @@ class TestConfigIntegration:
             enhanced_config = mock_get_config.call_args[0][0]
 
             # Modern TIMEFRAME should override legacy USE_HOURLY
-            assert enhanced_config["USE_4HOUR"] == True  # From TIMEFRAME conversion
-            assert enhanced_config["USE_HOURLY"] == False  # Overridden by conversion
-            assert enhanced_config["USE_2DAY"] == False
+            assert enhanced_config["USE_4HOUR"] is True  # From TIMEFRAME conversion
+            assert enhanced_config["USE_HOURLY"] is False  # Overridden by conversion
+            assert enhanced_config["USE_2DAY"] is False
 
             # Modern STRATEGY_TYPE should override legacy USE_SMA
             assert enhanced_config["STRATEGY_TYPE"] == "MACD"  # From modern param
-            assert enhanced_config["USE_SMA"] == False  # Overridden (MACD != SMA)
+            assert enhanced_config["USE_SMA"] is False  # Overridden (MACD != SMA)
 
             # Signal period should remain as specified
             assert enhanced_config["SIGNAL_PERIOD"] == 15
@@ -423,11 +392,10 @@ class TestConfigIntegration:
 
         # This should cause an error since TICKER is required
         # But we want to test the parameter extraction logic
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config:
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+        ):
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
 
             # Mock get_config to simulate what would happen
@@ -456,8 +424,8 @@ class TestConfigIntegration:
                     enhanced_config = mock_get_config.call_args[0][0]
 
                     # Should contain converted function parameters
-                    assert enhanced_config["USE_HOURLY"] == True
-                    assert enhanced_config["USE_SMA"] == False
+                    assert enhanced_config["USE_HOURLY"] is True
+                    assert enhanced_config["USE_SMA"] is False
                     assert enhanced_config["STRATEGY_TYPE"] == "EMA"
                     assert enhanced_config["SIGNAL_PERIOD"] == 12
 

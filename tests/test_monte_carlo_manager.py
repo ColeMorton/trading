@@ -6,14 +6,14 @@ analysis, strategy ID generation, parallel processing, and integration
 with the concurrency framework.
 """
 
-import sys
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+import sys
 from unittest.mock import Mock, patch
 
 import numpy as np
 import polars as pl
 import pytest
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
@@ -245,7 +245,7 @@ class TestPortfolioMonteCarloManager:
         macd_results = {k: v for k, v in results.items() if "MACD" in k}
         assert len(macd_results) == 1
 
-        macd_id = list(macd_results.keys())[0]
+        macd_id = next(iter(macd_results.keys()))
         assert "_9" in macd_id  # Should include signal period
 
     @patch("app.concurrency.tools.monte_carlo.manager.download_price_data")
@@ -262,8 +262,7 @@ class TestPortfolioMonteCarloManager:
                         "Close": [100.0, 101.0],
                     }
                 )
-            else:
-                raise Exception("Download failed")
+            raise Exception("Download failed")
 
         mock_download.side_effect = side_effect
 
@@ -515,10 +514,10 @@ class TestPortfolioMonteCarloIntegration:
 
         # Should handle CSV field names correctly
         assert len(strategies_with_ids) == 1
-        strategy_id = list(strategies_with_ids.keys())[0]
+        strategy_id = next(iter(strategies_with_ids.keys()))
 
         # Should include all parameters including signal period
-        assert "BTC-USD_MACD_12_26_9" == strategy_id
+        assert strategy_id == "BTC-USD_MACD_12_26_9"
 
     def test_error_aggregation(self):
         """Test that errors are properly aggregated across strategies."""
@@ -569,14 +568,14 @@ class TestMonteCarloManagerEdgeCases:
         incomplete_portfolio = [
             {
                 "ticker": "BTC-USD",
-                "Strategy Type": "SMA"
+                "Strategy Type": "SMA",
                 # Missing Window Short and Window Long
             }
         ]
 
         # Should handle gracefully or raise appropriate error
         strategies_with_ids = manager._assign_strategy_ids(incomplete_portfolio)
-        strategy_id = list(strategies_with_ids.keys())[0]
+        strategy_id = next(iter(strategies_with_ids.keys()))
 
         # Should use fallback values
         assert "X" in strategy_id or "Y" in strategy_id

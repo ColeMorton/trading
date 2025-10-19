@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 import polars as pl
@@ -21,7 +21,7 @@ class DataAccessService(DataAccessInterface):
     def __init__(
         self,
         config: ConfigurationInterface,
-        logger: Optional[LoggingInterface] | None = None,
+        logger: LoggingInterface | None | None = None,
     ):
         self._config = config
         self._logger = logger
@@ -34,10 +34,10 @@ class DataAccessService(DataAccessInterface):
     def get_prices(
         self,
         ticker: str,
-        start_date: Optional[datetime] | None = None,
-        end_date: Optional[datetime] | None = None,
+        start_date: datetime | None | None = None,
+        end_date: datetime | None | None = None,
         interval: str = "1d",
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+    ) -> pd.DataFrame | pl.DataFrame:
         """Get price data for a ticker."""
         # Try to load from cache first
         file_path = self._get_price_file_path(ticker, interval)
@@ -54,15 +54,14 @@ class DataAccessService(DataAccessInterface):
                 data = self._filter_by_date(data, start_date, end_date)
 
             return data
-        else:
-            # Download if not cached
-            return self.download_data(ticker, start_date, end_date, interval)
+        # Download if not cached
+        return self.download_data(ticker, start_date, end_date, interval)
 
     def save_prices(
         self,
-        data: Union[pd.DataFrame, pl.DataFrame],
+        data: pd.DataFrame | pl.DataFrame,
         ticker: str,
-        path: Optional[Path] | None = None,
+        path: Path | None | None = None,
     ) -> Path:
         """Save price data to storage."""
         if path is None:
@@ -83,7 +82,7 @@ class DataAccessService(DataAccessInterface):
 
         return path
 
-    def list_available_tickers(self) -> List[str]:
+    def list_available_tickers(self) -> list[str]:
         """List all available tickers in storage."""
         tickers = set()
 
@@ -92,9 +91,9 @@ class DataAccessService(DataAccessInterface):
             ticker = file_path.stem.split("_")[0]
             tickers.add(ticker)
 
-        return sorted(list(tickers))
+        return sorted(tickers)
 
-    def get_last_update_time(self, ticker: str) -> Optional[datetime]:
+    def get_last_update_time(self, ticker: str) -> datetime | None:
         """Get last update time for ticker data."""
         file_path = self._get_price_file_path(ticker, "1d")
 
@@ -111,7 +110,7 @@ class DataAccessService(DataAccessInterface):
         end_date: datetime,
         interval: str = "1d",
         force: bool = False,
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+    ) -> pd.DataFrame | pl.DataFrame:
         """Download data from external source."""
         file_path = self._get_price_file_path(ticker, interval)
 
@@ -156,7 +155,7 @@ class DataAccessService(DataAccessInterface):
                 )
             raise
 
-    def validate_data(self, data: Union[pd.DataFrame, pl.DataFrame]) -> bool:
+    def validate_data(self, data: pd.DataFrame | pl.DataFrame) -> bool:
         """Validate data integrity."""
         if isinstance(data, pl.DataFrame):
             # Polars validation
@@ -165,15 +164,14 @@ class DataAccessService(DataAccessInterface):
 
             required_columns = ["Open", "High", "Low", "Close", "Volume"]
             return all(col in data.columns for col in required_columns)
-        else:
-            # Pandas validation
-            if data.empty:
-                return False
+        # Pandas validation
+        if data.empty:
+            return False
 
-            required_columns = ["Open", "High", "Low", "Close", "Volume"]
-            return all(col in data.columns for col in required_columns)
+        required_columns = ["Open", "High", "Low", "Close", "Volume"]
+        return all(col in data.columns for col in required_columns)
 
-    def get_data_info(self, ticker: str) -> Dict[str, Any]:
+    def get_data_info(self, ticker: str) -> dict[str, Any]:
         """Get metadata about ticker data."""
         info = {
             "ticker": ticker,
@@ -224,10 +222,10 @@ class DataAccessService(DataAccessInterface):
 
     def _filter_by_date(
         self,
-        data: Union[pd.DataFrame, pl.DataFrame],
-        start_date: Optional[datetime],
-        end_date: Optional[datetime],
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+        data: pd.DataFrame | pl.DataFrame,
+        start_date: datetime | None,
+        end_date: datetime | None,
+    ) -> pd.DataFrame | pl.DataFrame:
         """Filter data by date range."""
         if isinstance(data, pl.DataFrame):
             if start_date:

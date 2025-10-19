@@ -5,11 +5,7 @@ This module tests the ExportManager class and its format-specific handlers.
 """
 
 import json
-import os
-from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List
-from unittest.mock import Mock, call, patch
+from unittest.mock import Mock, patch
 
 import pandas as pd
 import polars as pl
@@ -99,7 +95,7 @@ class TestExportManager:
         with (
             patch("os.makedirs"),
             patch("os.path.exists", return_value=False),
-            patch("builtins.open", create=True) as mock_open,
+            patch("builtins.open", create=True),
             patch("json.dump") as mock_json_dump,
         ):
             context = ExportContext(
@@ -139,7 +135,7 @@ class TestExportManager:
                 log=log,
             )
 
-            result = manager.export(context)
+            manager.export(context)
 
             # Check that mkdir was called with parent=True
             mock_mkdir.assert_called_with(parents=True, exist_ok=True)
@@ -184,14 +180,14 @@ class TestExportManager:
             def default(self, obj):
                 if isinstance(obj, np.ndarray):
                     return obj.tolist()
-                elif isinstance(obj, np.integer):
+                if isinstance(obj, np.integer):
                     return int(obj)
                 return super().default(obj)
 
         with (
             patch("os.makedirs"),
             patch("os.path.exists", return_value=False),
-            patch("builtins.open", create=True) as mock_open,
+            patch("builtins.open", create=True),
             patch("json.dump") as mock_json_dump,
         ):
             context = ExportContext(
@@ -355,7 +351,7 @@ class TestCSVExporter:
                 log=log,
             )
 
-            result = exporter.export(context)
+            exporter.export(context)
 
             # Check that warnings were logged for missing metrics
             warning_calls = [
@@ -386,7 +382,7 @@ class TestJSONExporter:
 
         with (
             patch("pathlib.Path.mkdir"),
-            patch("builtins.open", create=True) as mock_open,
+            patch("builtins.open", create=True),
             patch("json.dump") as mock_json_dump,
         ):
             context = ExportContext(
@@ -398,7 +394,7 @@ class TestJSONExporter:
                 log=log,
             )
 
-            result = exporter.export(context)
+            exporter.export(context)
 
             # Check that indent was passed
             _, kwargs = mock_json_dump.call_args

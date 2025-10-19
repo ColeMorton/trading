@@ -5,8 +5,6 @@ This module contains functions for generating protective stop loss exit signals
 based on holding period and PnL conditions.
 """
 
-from typing import Optional
-
 import numpy as np
 
 
@@ -15,7 +13,7 @@ def psl_exit(
     entries: np.ndarray,
     holding_period: int,
     short: bool,
-    stop_loss: Optional[float] | None = None,
+    stop_loss: float | None | None = None,
 ) -> np.ndarray:
     """
     Generate Price Stop Loss (PSL) exit signals.
@@ -55,11 +53,10 @@ def psl_exit(
                 if price[i] >= entry_price * (1 + stop_loss):
                     exit_signal[i] = 1
                     entry_indices[i:] = -1
-            else:
-                # For longs, exit if price falls below entry by stop loss percentage
-                if price[i] <= entry_price * (1 - stop_loss):
-                    exit_signal[i] = 1
-                    entry_indices[i:] = -1
+            # For longs, exit if price falls below entry by stop loss percentage
+            elif price[i] <= entry_price * (1 - stop_loss):
+                exit_signal[i] = 1
+                entry_indices[i:] = -1
 
         # Then check PnL condition for positions that have reached holding period
         if entry_indices[i] >= 0:

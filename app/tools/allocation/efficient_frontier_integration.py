@@ -5,11 +5,8 @@ This module integrates with @app/portfolio_review/efficient_frontier.py for auto
 allocation calculations and price data fetching.
 """
 
-import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-
-import polars as pl
+import sys
 
 from app.tools.data_types import DataConfig
 from app.tools.get_data import get_data
@@ -18,7 +15,7 @@ from app.tools.get_data import get_data
 class AllocationOptimizer:
     """Integrates with efficient frontier analysis for automated allocation calculations."""
 
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(self, base_dir: str | None = None):
         """Initialize allocation optimizer.
 
         Args:
@@ -30,8 +27,8 @@ class AllocationOptimizer:
         )
 
     def _run_efficient_frontier_analysis(
-        self, assets: List[str], half_rule: bool = True
-    ) -> Dict[str, any]:
+        self, assets: list[str], half_rule: bool = True
+    ) -> dict[str, any]:
         """Run efficient frontier analysis for given assets.
 
         Args:
@@ -89,8 +86,8 @@ class AllocationOptimizer:
             sys.path.remove(str(efficient_frontier_dir))
 
     def calculate_max_allocation_percentage(
-        self, assets: List[str], use_sortino: bool = True, apply_half_rule: bool = True
-    ) -> Dict[str, float]:
+        self, assets: list[str], use_sortino: bool = True, apply_half_rule: bool = True
+    ) -> dict[str, float]:
         """Run efficient frontier analysis and return optimized allocation percentages.
 
         Args:
@@ -107,7 +104,7 @@ class AllocationOptimizer:
             # Use half rule results if available
             if use_sortino and "sortino_half_rule" in results:
                 return results["sortino_half_rule"]
-            elif not use_sortino and "sharpe_half_rule" in results:
+            if not use_sortino and "sharpe_half_rule" in results:
                 return results["sharpe_half_rule"]
 
         # Fall back to raw weights
@@ -122,7 +119,7 @@ class AllocationOptimizer:
 
         return allocation
 
-    def get_prices(self, symbol: str, config: Optional[DataConfig] = None) -> float:
+    def get_prices(self, symbol: str, config: DataConfig | None = None) -> float:
         """Fetch current price using existing @app/tools/get_data.py infrastructure.
 
         Args:
@@ -154,13 +151,12 @@ class AllocationOptimizer:
             # Get latest close price
             if len(data) > 0:
                 return float(data["Close"].tail(1).item())
-            else:
-                raise ValueError(f"No price data available for {symbol}")
+            raise ValueError(f"No price data available for {symbol}")
 
         except Exception as e:
-            raise ValueError(f"Failed to fetch price for {symbol}: {str(e)}")
+            raise ValueError(f"Failed to fetch price for {symbol}: {e!s}")
 
-    def get_multiple_prices(self, symbols: List[str]) -> Dict[str, float]:
+    def get_multiple_prices(self, symbols: list[str]) -> dict[str, float]:
         """Fetch current prices for multiple symbols.
 
         Args:
@@ -180,8 +176,8 @@ class AllocationOptimizer:
         return prices
 
     def calculate_position_values(
-        self, allocations: Dict[str, float], total_allocation_amount: float
-    ) -> Dict[str, float]:
+        self, allocations: dict[str, float], total_allocation_amount: float
+    ) -> dict[str, float]:
         """Calculate position values based on allocations and total amount.
 
         Args:
@@ -197,7 +193,7 @@ class AllocationOptimizer:
 
         return position_values
 
-    def get_efficient_frontier_metrics(self, assets: List[str]) -> Dict[str, any]:
+    def get_efficient_frontier_metrics(self, assets: list[str]) -> dict[str, any]:
         """Get comprehensive efficient frontier analysis metrics.
 
         Args:
@@ -224,8 +220,8 @@ class AllocationOptimizer:
         }
 
     def validate_allocation_constraints(
-        self, allocations: Dict[str, float], tolerance: float = 0.01
-    ) -> Tuple[bool, str]:
+        self, allocations: dict[str, float], tolerance: float = 0.01
+    ) -> tuple[bool, str]:
         """Validate that allocations sum to approximately 100% and meet constraints.
 
         Args:

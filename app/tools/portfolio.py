@@ -4,19 +4,20 @@ This module provides utilities for loading and processing portfolio data,
 with standardized error handling and logging.
 """
 
+from collections.abc import Callable
+from contextlib import contextmanager
 import csv
 import json
 import os
-from contextlib import contextmanager
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 from app.concurrency.tools.strategy_id import generate_strategy_id
 from app.tools.exceptions import PortfolioLoadError
 
 
 def process_portfolio_strategies(
-    strategies: List[Dict[str, Any]], log: Callable
-) -> List[Dict[str, Any]]:
+    strategies: list[dict[str, Any]], log: Callable
+) -> list[dict[str, Any]]:
     """Process portfolio strategies and assign strategy IDs.
 
     Args:
@@ -40,7 +41,7 @@ def process_portfolio_strategies(
                 log(f"Generated strategy ID for strategy {i+1}: {strategy_id}", "debug")
             except ValueError as e:
                 log(
-                    f"Could not generate strategy ID for strategy {i+1}: {str(e)}",
+                    f"Could not generate strategy ID for strategy {i+1}: {e!s}",
                     "warning",
                 )
 
@@ -85,7 +86,7 @@ def resolve_portfolio_path(portfolio_name: str, base_dir: str = ".") -> str:
     return portfolio_path
 
 
-def load_csv_portfolio(file_path: str, config: Dict[str, Any]) -> List[Dict[str, Any]]:
+def load_csv_portfolio(file_path: str, config: dict[str, Any]) -> list[dict[str, Any]]:
     """Load portfolio data from a CSV file.
 
     Detects and handles both Base Schema and Extended Schema formats:
@@ -110,12 +111,12 @@ def load_csv_portfolio(file_path: str, config: Dict[str, Any]) -> List[Dict[str,
         )
 
         # First load the raw CSV data
-        with open(file_path, "r", newline="", encoding="utf-8") as f:
+        with open(file_path, newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             raw_data = list(reader)
 
         # Get a logging function if available in config
-        log_func = config.get("log_func", None)
+        log_func = config.get("log_func")
 
         # Detect schema version
         try:
@@ -125,7 +126,7 @@ def load_csv_portfolio(file_path: str, config: Dict[str, Any]) -> List[Dict[str,
         except Exception as e:
             if log_func:
                 log_func(
-                    f"Error detecting schema version, using raw data: {str(e)}",
+                    f"Error detecting schema version, using raw data: {e!s}",
                     "warning",
                 )
             return raw_data
@@ -143,7 +144,7 @@ def load_csv_portfolio(file_path: str, config: Dict[str, Any]) -> List[Dict[str,
             return normalized_data
         except Exception as e:
             if log_func:
-                log_func(f"Error normalizing data, using raw data: {str(e)}", "warning")
+                log_func(f"Error normalizing data, using raw data: {e!s}", "warning")
             return raw_data
 
     except FileNotFoundError:
@@ -153,12 +154,12 @@ def load_csv_portfolio(file_path: str, config: Dict[str, Any]) -> List[Dict[str,
             f"Permission denied when accessing CSV file: {file_path}"
         )
     except csv.Error as e:
-        raise PortfolioLoadError(f"CSV parsing error: {str(e)}")
+        raise PortfolioLoadError(f"CSV parsing error: {e!s}")
     except Exception as e:
-        raise PortfolioLoadError(f"Unexpected error loading CSV file: {str(e)}")
+        raise PortfolioLoadError(f"Unexpected error loading CSV file: {e!s}")
 
 
-def load_json_portfolio(file_path: str, config: Dict[str, Any]) -> List[Dict[str, Any]]:
+def load_json_portfolio(file_path: str, config: dict[str, Any]) -> list[dict[str, Any]]:
     """Load portfolio data from a JSON file.
 
     Args:
@@ -172,16 +173,15 @@ def load_json_portfolio(file_path: str, config: Dict[str, Any]) -> List[Dict[str
         PortfolioLoadError: If the JSON file cannot be loaded
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             data = json.load(f)
 
             # Handle different JSON formats
             if isinstance(data, list):
                 return data
-            elif isinstance(data, dict) and "strategies" in data:
+            if isinstance(data, dict) and "strategies" in data:
                 return data["strategies"]
-            else:
-                raise PortfolioLoadError(f"Unsupported JSON format in {file_path}")
+            raise PortfolioLoadError(f"Unsupported JSON format in {file_path}")
     except FileNotFoundError:
         raise PortfolioLoadError(f"JSON file not found: {file_path}")
     except PermissionError:
@@ -189,16 +189,16 @@ def load_json_portfolio(file_path: str, config: Dict[str, Any]) -> List[Dict[str
             f"Permission denied when accessing JSON file: {file_path}"
         )
     except json.JSONDecodeError as e:
-        raise PortfolioLoadError(f"JSON parsing error: {str(e)}")
+        raise PortfolioLoadError(f"JSON parsing error: {e!s}")
     except Exception as e:
-        raise PortfolioLoadError(f"Unexpected error loading JSON file: {str(e)}")
+        raise PortfolioLoadError(f"Unexpected error loading JSON file: {e!s}")
 
 
 def load_portfolio_with_logging(
     portfolio_name: str,
-    log: Callable[[str, Optional[str]], None],
-    config: Dict[str, Any],
-) -> List[Dict[str, Any]]:
+    log: Callable[[str, str | None], None],
+    config: dict[str, Any],
+) -> list[dict[str, Any]]:
     """Load portfolio data with logging.
 
     Args:
@@ -241,10 +241,10 @@ def load_portfolio_with_logging(
 
         return processed_data
     except PortfolioLoadError as e:
-        log(f"Portfolio load error: {str(e)}", "error")
+        log(f"Portfolio load error: {e!s}", "error")
         raise
     except Exception as e:
-        error_msg = f"Unexpected error loading portfolio: {str(e)}"
+        error_msg = f"Unexpected error loading portfolio: {e!s}"
         log(error_msg, "error")
         raise PortfolioLoadError(error_msg)
 
@@ -252,8 +252,8 @@ def load_portfolio_with_logging(
 @contextmanager
 def portfolio_context(
     portfolio_name: str,
-    log: Callable[[str, Optional[str]], None],
-    config: Dict[str, Any],
+    log: Callable[[str, str | None], None],
+    config: dict[str, Any],
 ):
     """Context manager for portfolio loading and error handling.
 
@@ -296,12 +296,10 @@ def portfolio_context(
         # Yield the processed portfolio data
         yield processed_data
     except FileNotFoundError as e:
-        raise PortfolioLoadError(f"Portfolio file not found: {str(e)}")
+        raise PortfolioLoadError(f"Portfolio file not found: {e!s}")
     except PermissionError as e:
-        raise PortfolioLoadError(
-            f"Permission denied when accessing portfolio: {str(e)}"
-        )
+        raise PortfolioLoadError(f"Permission denied when accessing portfolio: {e!s}")
     except ValueError as e:
-        raise PortfolioLoadError(f"Invalid portfolio data: {str(e)}")
+        raise PortfolioLoadError(f"Invalid portfolio data: {e!s}")
     except Exception as e:
-        raise PortfolioLoadError(f"Unexpected error loading portfolio: {str(e)}")
+        raise PortfolioLoadError(f"Unexpected error loading portfolio: {e!s}")

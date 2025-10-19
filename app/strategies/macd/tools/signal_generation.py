@@ -5,7 +5,7 @@ This module handles the generation of trading signals based on
 MACD cross strategy parameters.
 """
 
-from typing import Callable, Dict, Optional
+from collections.abc import Callable
 
 import polars as pl
 
@@ -38,8 +38,8 @@ def calculate_macd(
     )
 
     # Count valid EMA points
-    valid_short_ema = data.select(pl.col("EMA_short").is_not_null()).sum().item()
-    valid_long_ema = data.select(pl.col("EMA_long").is_not_null()).sum().item()
+    data.select(pl.col("EMA_short").is_not_null()).sum().item()
+    data.select(pl.col("EMA_long").is_not_null()).sum().item()
     # EMA validation logging removed for performance
 
     # Calculate MACD line
@@ -51,14 +51,14 @@ def calculate_macd(
     )
 
     # Count valid MACD and Signal Line points
-    valid_macd = data.select(pl.col("MACD").is_not_null()).sum().item()
-    valid_signal = data.select(pl.col("Signal_Line").is_not_null()).sum().item()
+    data.select(pl.col("MACD").is_not_null()).sum().item()
+    data.select(pl.col("Signal_Line").is_not_null()).sum().item()
     # MACD validation logging removed for performance
 
     return data
 
 
-def generate_macd_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataFrame]:
+def generate_macd_signals(data: pl.DataFrame, config: dict) -> pl.DataFrame | None:
     """Generate trading signals based on MACD cross strategy parameters.
 
     Args:
@@ -133,23 +133,23 @@ def generate_macd_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataF
         )
 
         # Log signal conversion statistics
-        non_zero_signals = data.filter(pl.col("Signal") != 0).height
+        data.filter(pl.col("Signal") != 0).height
         # Signal generation logging removed for performance
 
         # Check if there's a current entry or exit signal
         last_row = data.tail(1)
-        current_signal = last_row.select("Signal").item() != 0
+        last_row.select("Signal").item() != 0
 
         # Determine if there's an exit signal (MACD crossing Signal Line in
         # opposite direction)
         if direction == "long":
-            exit_signal = (
+            (
                 last_row.select("MACD").item() < last_row.select("Signal_Line").item()
                 and data.tail(2).head(1).select("MACD").item()
                 >= data.tail(2).head(1).select("Signal_Line").item()
             )
         else:
-            exit_signal = (
+            (
                 last_row.select("MACD").item() > last_row.select("Signal_Line").item()
                 and data.tail(2).head(1).select("MACD").item()
                 <= data.tail(2).head(1).select("Signal_Line").item()
@@ -168,13 +168,13 @@ def generate_macd_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataF
 
         return data
 
-    except Exception as e:
+    except Exception:
         # Error logging removed for performance
         return None
 
 
 def get_current_signals(
-    data: pl.DataFrame, config: Dict, log: Callable
+    data: pl.DataFrame, config: dict, log: Callable
 ) -> pl.DataFrame:
     """Get current signals for MACD parameter combinations.
 
@@ -252,7 +252,7 @@ def get_current_signals(
 
             except Exception as e:
                 log(
-                    f"Failed to process parameters {fast_period}/{slow_period}/{signal_period}: {str(e)}",
+                    f"Failed to process parameters {fast_period}/{slow_period}/{signal_period}: {e!s}",
                     "warning",
                 )
                 continue
@@ -270,7 +270,7 @@ def get_current_signals(
         )
 
     except Exception as e:
-        log(f"Failed to get current signals: {str(e)}", "error")
+        log(f"Failed to get current signals: {e!s}", "error")
         return pl.DataFrame(
             schema={
                 "Fast Period": pl.Int32,
@@ -281,7 +281,7 @@ def get_current_signals(
         )
 
 
-def generate_current_signals(config: Dict, log: Callable) -> pl.DataFrame:
+def generate_current_signals(config: dict, log: Callable) -> pl.DataFrame:
     """Generate current trading signals based on MACD parameters.
 
     Args:
@@ -321,7 +321,7 @@ def generate_current_signals(config: Dict, log: Callable) -> pl.DataFrame:
         return current_signals
 
     except Exception as e:
-        log(f"Failed to generate current signals: {str(e)}", "error")
+        log(f"Failed to generate current signals: {e!s}", "error")
         return pl.DataFrame(
             schema={
                 "Fast Period": pl.Int32,

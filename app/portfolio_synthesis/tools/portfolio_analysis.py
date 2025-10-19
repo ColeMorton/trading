@@ -8,8 +8,6 @@ This module provides core functionality for analyzing portfolios including:
 - Performance metrics calculation
 """
 
-from typing import Dict, List, Tuple
-
 import numpy as np
 import pandas as pd
 import polars as pl
@@ -19,8 +17,8 @@ from app.tools.get_data import get_data
 
 
 def prepare_data(
-    symbols: List[str], config: Dict, log
-) -> Tuple[Dict[str, pl.DataFrame], Dict[str, pd.DataFrame]]:
+    symbols: list[str], config: dict, log
+) -> tuple[dict[str, pl.DataFrame], dict[str, pd.DataFrame]]:
     """
     Download and prepare data for all symbols.
 
@@ -32,8 +30,8 @@ def prepare_data(
     Returns:
         Tuple containing polars and pandas DataFrames dictionaries
     """
-    data_dict: Dict[str, pl.DataFrame] = {}
-    pandas_data_dict: Dict[str, pd.DataFrame] = {}
+    data_dict: dict[str, pl.DataFrame] = {}
+    pandas_data_dict: dict[str, pd.DataFrame] = {}
 
     for symbol in symbols:
         log(f"Downloading data for {symbol}")
@@ -58,7 +56,7 @@ def prepare_data(
     return data_dict, pandas_data_dict
 
 
-def find_common_dates(data_dict: Dict[str, pl.DataFrame], log) -> List:
+def find_common_dates(data_dict: dict[str, pl.DataFrame], log) -> list:
     """Find common date range across all symbols."""
     common_dates = None
     for df in data_dict.values():
@@ -67,13 +65,13 @@ def find_common_dates(data_dict: Dict[str, pl.DataFrame], log) -> List:
             common_dates = set(dates)
         else:
             common_dates = common_dates.intersection(set(dates))
-    common_dates = sorted(list(common_dates))
+    common_dates = sorted(common_dates)
     log(f"Date range: {common_dates[0]} to {common_dates[-1]}")
     return common_dates
 
 
 def create_pricesframe(
-    common_dates: List, data_dict: Dict[str, pl.DataFrame], config: Dict, log
+    common_dates: list, data_dict: dict[str, pl.DataFrame], config: dict, log
 ) -> pd.DataFrame:
     """Create aligned price DataFrame for all strategies."""
     price_df = pl.DataFrame({"Date": pl.Series(common_dates).cast(pl.Datetime("ns"))})
@@ -95,8 +93,8 @@ def create_pricesframe(
 
 
 def create_benchmark_data(
-    common_dates: List, data_dict: Dict[str, pl.DataFrame], symbols: List[str], log
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    common_dates: list, data_dict: dict[str, pl.DataFrame], symbols: list[str], log
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Create benchmark portfolio data."""
     benchmark_close = pl.DataFrame(
         {"Date": pl.Series(common_dates).cast(pl.Datetime("ns"))}
@@ -139,7 +137,7 @@ def create_benchmark_data(
     return benchmark_close_pd, benchmark_entries_pd, benchmark_sizes_pd
 
 
-def calculate_risk_metrics(returns: np.ndarray) -> Dict[str, float]:
+def calculate_risk_metrics(returns: np.ndarray) -> dict[str, float]:
     """Calculate VaR and CVaR risk metrics."""
     var_99 = np.percentile(returns, 1)  # 1st percentile for 99% VaR
     cvar_99 = returns[returns <= var_99].mean()
@@ -156,11 +154,11 @@ def calculate_risk_metrics(returns: np.ndarray) -> Dict[str, float]:
 
 def check_open_positions(
     portfolio: "vbt.Portfolio", price_df_pd: pd.DataFrame, log
-) -> List[Tuple[str, float]]:
+) -> list[tuple[str, float]]:
     """Check which strategies have open positions at the end."""
     positions = portfolio.positions.values[-1]
     open_positions = []
-    for strategy_name, position in zip(price_df_pd.columns, positions):
+    for strategy_name, position in zip(price_df_pd.columns, positions, strict=False):
         if position != 0:
             open_positions.append((strategy_name, position))
             log(f"{strategy_name}: {position:.2f} units")

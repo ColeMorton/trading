@@ -4,12 +4,11 @@ Format-Specific Export Implementations
 This module contains concrete implementations of export strategies for different formats.
 """
 
+from datetime import datetime
 import json
 import logging
 import os
-from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Union
 
 import pandas as pd
 import polars as pl
@@ -89,7 +88,7 @@ class CSVExporter(ExportStrategy):
             )
 
         except Exception as e:
-            error_msg = f"Failed to export CSV: {str(e)}"
+            error_msg = f"Failed to export CSV: {e!s}"
             if context.log:
                 context.log(error_msg, "error")
             logging.error(error_msg)
@@ -98,9 +97,7 @@ class CSVExporter(ExportStrategy):
                 success=False, path="", rows_exported=0, error_message=error_msg
             )
 
-    def _prepare_dataframe(
-        self, context: ExportContext
-    ) -> Union[pl.DataFrame, pd.DataFrame]:
+    def _prepare_dataframe(self, context: ExportContext) -> pl.DataFrame | pd.DataFrame:
         """Convert data to DataFrame and ensure canonical schema compliance.
 
         Args:
@@ -115,7 +112,7 @@ class CSVExporter(ExportStrategy):
         data = context.data
 
         # Convert to DataFrame first
-        if isinstance(data, (pl.DataFrame, pd.DataFrame)):
+        if isinstance(data, pl.DataFrame | pd.DataFrame):
             df = data
         elif isinstance(data, list) and all(isinstance(item, dict) for item in data):
             df = pl.DataFrame(data)
@@ -130,8 +127,8 @@ class CSVExporter(ExportStrategy):
         return self._ensure_canonical_schema_compliance(df, context)
 
     def _ensure_canonical_schema_compliance(
-        self, df: Union[pl.DataFrame, pd.DataFrame], context: ExportContext
-    ) -> Union[pl.DataFrame, pd.DataFrame]:
+        self, df: pl.DataFrame | pd.DataFrame, context: ExportContext
+    ) -> pl.DataFrame | pd.DataFrame:
         """Ensure DataFrame complies with canonical 59-column schema.
 
         Args:
@@ -181,7 +178,7 @@ class CSVExporter(ExportStrategy):
 
         except Exception as e:
             if context.log:
-                context.log(f"Schema validation failed: {str(e)}", "error")
+                context.log(f"Schema validation failed: {e!s}", "error")
 
         # Ensure canonical column order and completeness
         canonical_df = self._apply_canonical_column_order(df_pandas, context)
@@ -189,8 +186,7 @@ class CSVExporter(ExportStrategy):
         # Convert back to original format
         if was_polars:
             return pl.from_pandas(canonical_df)
-        else:
-            return canonical_df
+        return canonical_df
 
     def _apply_canonical_column_order(
         self, df: pd.DataFrame, context: ExportContext
@@ -313,7 +309,7 @@ class CSVExporter(ExportStrategy):
             "Total Period": 0.0,
         }
 
-        default_value = defaults.get(column_name, None)
+        default_value = defaults.get(column_name)
         return pd.Series([default_value] * num_rows, name=column_name)
 
     def _create_export_directory(self, context: ExportContext) -> Path:
@@ -354,10 +350,8 @@ class CSVExporter(ExportStrategy):
 
         except Exception as e:
             if context.log:
-                context.log(
-                    f"Failed to create directory {export_path}: {str(e)}", "error"
-                )
-            raise ExportIOError(f"Failed to create directory: {str(e)}")
+                context.log(f"Failed to create directory {export_path}: {e!s}", "error")
+            raise ExportIOError(f"Failed to create directory: {e!s}")
 
     def _generate_filename(self, context: ExportContext) -> str:
         """Generate filename based on configuration.
@@ -411,7 +405,7 @@ class CSVExporter(ExportStrategy):
         return f"{filename}.csv" if filename else "export.csv"
 
     def _validate_metrics(
-        self, df: Union[pl.DataFrame, pd.DataFrame], context: ExportContext
+        self, df: pl.DataFrame | pd.DataFrame, context: ExportContext
     ) -> None:
         """Validate and log missing risk metrics.
 
@@ -532,7 +526,7 @@ class JSONExporter(ExportStrategy):
             )
 
         except Exception as e:
-            error_msg = f"Failed to export JSON: {str(e)}"
+            error_msg = f"Failed to export JSON: {e!s}"
             if context.log:
                 context.log(error_msg, "error")
             logging.error(error_msg)
@@ -541,7 +535,7 @@ class JSONExporter(ExportStrategy):
                 success=False, path="", rows_exported=0, error_message=error_msg
             )
 
-    def _prepare_json_data(self, context: ExportContext) -> Union[Dict, List]:
+    def _prepare_json_data(self, context: ExportContext) -> dict | list:
         """Convert data to JSON-serializable format.
 
         Args:
@@ -553,7 +547,7 @@ class JSONExporter(ExportStrategy):
         data = context.data
 
         # If already dict or list, return as is
-        if isinstance(data, (dict, list)):
+        if isinstance(data, dict | list):
             return data
 
         # Convert Polars DataFrame to list of dicts
@@ -598,10 +592,8 @@ class JSONExporter(ExportStrategy):
             return export_path
         except Exception as e:
             if context.log:
-                context.log(
-                    f"Failed to create directory {export_path}: {str(e)}", "error"
-                )
-            raise ExportIOError(f"Failed to create directory: {str(e)}")
+                context.log(f"Failed to create directory {export_path}: {e!s}", "error")
+            raise ExportIOError(f"Failed to create directory: {e!s}")
 
     def _generate_filename(self, context: ExportContext) -> str:
         """Generate filename based on configuration.
@@ -652,7 +644,7 @@ class JSONExporter(ExportStrategy):
         # Add extension
         return f"{filename}.json" if filename else "export.json"
 
-    def _count_records(self, data: Union[Dict, List]) -> int:
+    def _count_records(self, data: dict | list) -> int:
         """Count number of records in the data.
 
         Args:
@@ -663,7 +655,7 @@ class JSONExporter(ExportStrategy):
         """
         if isinstance(data, list):
             return len(data)
-        elif isinstance(data, dict):
+        if isinstance(data, dict):
             # For dict, count non-metadata keys or return 1
             return 1
         return 0

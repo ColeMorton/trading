@@ -6,7 +6,6 @@ Extracted from the larger analysis service for better maintainability.
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -14,7 +13,6 @@ import polars as pl
 
 from app.tools.config.statistical_analysis_config import SPDSConfig, get_spds_config
 from app.tools.models.statistical_analysis_models import (
-    ConfidenceLevel,
     DivergenceMetrics,
     DualLayerConvergence,
     DualSourceConvergence,
@@ -34,8 +32,8 @@ class DivergenceDetector:
 
     def __init__(
         self,
-        config: Optional[SPDSConfig] = None,
-        logger: Optional[logging.Logger] = None,
+        config: SPDSConfig | None = None,
+        logger: logging.Logger | None = None,
     ):
         """Initialize the divergence detector."""
         self.config = config or get_spds_config()
@@ -148,7 +146,7 @@ class DivergenceDetector:
         except:
             return 1.0
 
-    def _extract_layer_metrics(self, data: pd.DataFrame) -> Dict[str, float]:
+    def _extract_layer_metrics(self, data: pd.DataFrame) -> dict[str, float]:
         """Extract metrics from a layer."""
         if data.empty:
             return {}
@@ -165,13 +163,13 @@ class DivergenceDetector:
             "max": float(series.max()),
         }
 
-    def _extract_source_metrics(self, data: pd.DataFrame) -> Dict[str, float]:
+    def _extract_source_metrics(self, data: pd.DataFrame) -> dict[str, float]:
         """Extract metrics from a source."""
         return self._extract_layer_metrics(data)
 
     def _identify_divergence_areas(
         self, data1: pd.DataFrame, data2: pd.DataFrame
-    ) -> List[str]:
+    ) -> list[str]:
         """Identify areas of divergence between datasets."""
         divergence_areas = []
 

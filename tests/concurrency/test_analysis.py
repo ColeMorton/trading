@@ -4,8 +4,6 @@ Only tests functions that are actually implemented with correct signatures.
 """
 
 import unittest
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock, Mock, patch
 
 import numpy as np
 import pandas as pd

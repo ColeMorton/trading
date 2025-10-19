@@ -3,14 +3,14 @@
 This module provides utilities for working with trading strategies.
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
 from app.concurrency.tools.strategy_id import generate_strategy_id, is_valid_strategy_id
 
 
 def get_strategy_types(
-    config: Dict[str, Any], log_func=None, default_type: str = "SMA"
-) -> List[str]:
+    config: dict[str, Any], log_func=None, default_type: str = "SMA"
+) -> list[str]:
     """Get strategy types from config with defaults.
 
     Args:
@@ -37,11 +37,11 @@ def get_strategy_types(
 
 
 def filter_portfolios_by_signal(
-    portfolios: List[Dict[str, Any]],
-    config: Dict[str, Any],
+    portfolios: list[dict[str, Any]],
+    config: dict[str, Any],
     log_func=None,
     signal_field: str = "Signal Entry",
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Filter portfolios based on signal field.
 
     Args:
@@ -73,7 +73,7 @@ def filter_portfolios_by_signal(
     return filtered
 
 
-def determine_strategy_type(strategy_config: Dict[str, Any], log_func=None) -> str:
+def determine_strategy_type(strategy_config: dict[str, Any], log_func=None) -> str:
     """Determine the strategy type from configuration.
 
     Args:
@@ -107,7 +107,7 @@ def determine_strategy_type(strategy_config: Dict[str, Any], log_func=None) -> s
     return str(strategy_type)
 
 
-def get_required_fields_for_strategy(strategy_type: str) -> List[str]:
+def get_required_fields_for_strategy(strategy_type: str) -> list[str]:
     """Get required fields for a specific strategy type.
 
     Args:
@@ -118,14 +118,14 @@ def get_required_fields_for_strategy(strategy_type: str) -> List[str]:
     """
     if strategy_type == "ATR":
         return ["TICKER", "LENGTH", "MULTIPLIER"]
-    elif strategy_type == "MACD":
+    if strategy_type == "MACD":
         return ["TICKER", "FAST_PERIOD", "SLOW_PERIOD", "SIGNAL_PERIOD"]
-    else:  # Default to MA strategy
-        return ["TICKER", "FAST_PERIOD", "SLOW_PERIOD"]
+    # Default to MA strategy
+    return ["TICKER", "FAST_PERIOD", "SLOW_PERIOD"]
 
 
 def validate_strategy_config(
-    strategy_config: Dict[str, Any], strategy_index: int = 0, log_func=None
+    strategy_config: dict[str, Any], strategy_index: int = 0, log_func=None
 ) -> bool:
     """Validate a strategy configuration.
 
@@ -197,7 +197,7 @@ def validate_strategy_config(
 
 
 def get_strategy_id(
-    strategy_config: Dict[str, Any], strategy_index: int = 0, log_func=None
+    strategy_config: dict[str, Any], strategy_index: int = 0, log_func=None
 ) -> str:
     """Get or generate a strategy ID for a strategy configuration.
 
@@ -221,7 +221,7 @@ def get_strategy_id(
                     "debug",
                 )
             return str(strategy_id)
-        elif log_func:
+        if log_func:
             log_func(
                 f"Invalid existing strategy ID for strategy {strategy_index}: {strategy_id}",
                 "warning",
@@ -239,7 +239,7 @@ def get_strategy_id(
     except ValueError as e:
         if log_func:
             log_func(
-                f"Could not generate strategy ID for strategy {strategy_index}: {str(e)}",
+                f"Could not generate strategy ID for strategy {strategy_index}: {e!s}",
                 "warning",
             )
 

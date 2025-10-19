@@ -5,15 +5,13 @@ This module provides unified strategy dispatch functionality, routing
 CLI commands to appropriate strategy services based on configuration.
 """
 
-import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type, Union
+import time
+from typing import Any
 
-from rich import print as rprint
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from rich.text import Text
 
 from app.tools.console_logging import ConsoleLogger, PerformanceAwareConsoleLogger
 from app.tools.project_utils import get_project_root
@@ -52,7 +50,7 @@ class StrategyDispatcher:
         """
         self.console = console or ConsoleLogger()
         # Initialize services with console logger
-        self._services: Dict[str, BaseStrategyService] = {
+        self._services: dict[str, BaseStrategyService] = {
             "MA": MAStrategyService(console=self.console),
             "MACD": MACDStrategyService(console=self.console),
             "ATR": ATRStrategyService(console=self.console),
@@ -70,8 +68,8 @@ class StrategyDispatcher:
         self.batch_service = None  # Will be initialized when needed
 
     def _extract_strategy_parameters(
-        self, config: StrategyConfig, strategy_type: Union[StrategyType, str]
-    ) -> Dict[str, Optional[int]]:
+        self, config: StrategyConfig, strategy_type: StrategyType | str
+    ) -> dict[str, int | None]:
         """
         Extract strategy-specific parameters from StrategyConfig with proper fallback hierarchy.
 
@@ -186,7 +184,7 @@ class StrategyDispatcher:
 
     def _analyze_cached_results(
         self, config: StrategyConfig, resume_analysis
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         PHASE 1: Analyze cached results from existing CSV files.
 
@@ -433,7 +431,7 @@ class StrategyDispatcher:
         return analysis
 
     def _display_cached_results_summary(
-        self, analysis: Dict[str, Any], config: StrategyConfig
+        self, analysis: dict[str, Any], config: StrategyConfig
     ):
         """
         PHASE 2: Display comprehensive Rich CLI summary for cached results.
@@ -531,7 +529,7 @@ class StrategyDispatcher:
             console.print()
 
     def _calculate_parameter_combinations(
-        self, config: StrategyConfig, strategy_type: Union[StrategyType, str]
+        self, config: StrategyConfig, strategy_type: StrategyType | str
     ) -> int:
         """
         Calculate expected parameter combinations for a strategy type.
@@ -567,7 +565,7 @@ class StrategyDispatcher:
 
                 return total_combinations
 
-            elif strategy_value == "MACD":
+            if strategy_value == "MACD":
                 # MACD strategy: fast_period × slow_period × signal_period (with slow > fast constraint)
                 fast_min, fast_max = params["fast_min"], params["fast_max"]
                 slow_min, slow_max = params["slow_min"], params["slow_max"]
@@ -584,7 +582,7 @@ class StrategyDispatcher:
                 signal_combinations = signal_max - signal_min + 1
                 return valid_fast_slow_pairs * signal_combinations
 
-            elif strategy_value == "ATR":
+            if strategy_value == "ATR":
                 # ATR strategy: Based on ATR-specific parameters or conservative estimate
                 if (
                     config.atr_length_min
@@ -604,10 +602,9 @@ class StrategyDispatcher:
                         + 1
                     )
                     return length_combinations * multiplier_combinations
-                else:
-                    return 500  # Conservative estimate for ATR
+                return 500  # Conservative estimate for ATR
 
-            elif strategy_value == "SMA_ATR":
+            if strategy_value == "SMA_ATR":
                 # SMA_ATR strategy: Combines SMA periods and ATR parameters
                 # Extract parameters using proper hierarchy
                 params = self._extract_strategy_parameters(config, strategy_type)
@@ -670,7 +667,7 @@ class StrategyDispatcher:
 
                 # Debug logging for parameter calculation
                 if hasattr(self.console, "debug"):
-                    self.console.debug(f"SMA_ATR parameter calculation:")
+                    self.console.debug("SMA_ATR parameter calculation:")
                     self.console.debug(
                         f"  SMA combinations (step={sma_step}): {sma_combinations}"
                     )
@@ -684,16 +681,15 @@ class StrategyDispatcher:
 
                 return total
 
-            else:
-                # Unknown strategy type - return conservative estimate
-                return 100
+            # Unknown strategy type - return conservative estimate
+            return 100
 
         except Exception:
             # If calculation fails, return conservative estimate
             return 100
 
     def _calculate_actual_current_signal_combinations(
-        self, config: StrategyConfig, strategy_type: Union[StrategyType, str]
+        self, config: StrategyConfig, strategy_type: StrategyType | str
     ) -> int:
         """
         Calculate actual current signal combinations when USE_CURRENT mode is enabled.
@@ -1127,9 +1123,11 @@ class StrategyDispatcher:
         summary.successful_strategies = 1 if success else 0
         summary.total_strategies = 1
         summary.strategy_types = [
-            config.strategy_types[0].value
-            if hasattr(config.strategy_types[0], "value")
-            else str(config.strategy_types[0])
+            (
+                config.strategy_types[0].value
+                if hasattr(config.strategy_types[0], "value")
+                else str(config.strategy_types[0])
+            )
         ]
 
         # Process tickers
@@ -1141,9 +1139,11 @@ class StrategyDispatcher:
         # Extract actual portfolio results from generated files
         if success:
             portfolio_result = self._extract_portfolio_results_from_files(
-                ticker=summary.tickers_processed[0]
-                if summary.tickers_processed
-                else "Unknown",
+                ticker=(
+                    summary.tickers_processed[0]
+                    if summary.tickers_processed
+                    else "Unknown"
+                ),
                 strategy_type=summary.strategy_types[0],
                 config=config,
             )
@@ -1360,7 +1360,7 @@ class StrategyDispatcher:
         ) and (total_combinations > 10 or use_current_mode)
 
         if should_show_progress:
-            strategy_names_str = ", ".join(strategy_details)
+            ", ".join(strategy_details)
             progress_description = f"📊 Processing {total_combinations:,} combinations across {len(config.strategy_types)} strategies × {ticker_count} tickers"
             if use_current_mode:
                 progress_description += " - current signals only"
@@ -1394,7 +1394,7 @@ class StrategyDispatcher:
                 )
 
                 # Execute each strategy with progress update function
-                for i, strategy_type in enumerate(config.strategy_types):
+                for _i, strategy_type in enumerate(config.strategy_types):
                     strategy_name = (
                         strategy_type.value
                         if hasattr(strategy_type, "value")
@@ -1408,9 +1408,9 @@ class StrategyDispatcher:
 
                     # Add global progress allocation for accurate multi-ticker progress
                     if hasattr(single_config, "__dict__"):
-                        single_config.__dict__[
-                            "_GLOBAL_PROGRESS_PER_TICKER"
-                        ] = global_progress_per_ticker
+                        single_config.__dict__["_GLOBAL_PROGRESS_PER_TICKER"] = (
+                            global_progress_per_ticker
+                        )
                     else:
                         # Fallback for dict-like configs
                         single_config._GLOBAL_PROGRESS_PER_TICKER = (
@@ -1436,12 +1436,16 @@ class StrategyDispatcher:
                     # Create portfolio result for this strategy execution
                     if success:
                         portfolio_result = self._extract_portfolio_results_from_files(
-                            ticker=summary.tickers_processed[0]
-                            if summary.tickers_processed
-                            else "Unknown",
-                            strategy_type=strategy_type.value
-                            if hasattr(strategy_type, "value")
-                            else str(strategy_type),
+                            ticker=(
+                                summary.tickers_processed[0]
+                                if summary.tickers_processed
+                                else "Unknown"
+                            ),
+                            strategy_type=(
+                                strategy_type.value
+                                if hasattr(strategy_type, "value")
+                                else str(strategy_type)
+                            ),
                             config=single_config,
                         )
                         summary.add_portfolio_result(portfolio_result)
@@ -1461,7 +1465,7 @@ class StrategyDispatcher:
                     progress.update(task, completed=total_combinations)
         else:
             # Fallback execution without holistic progress for small jobs or basic console
-            for i, strategy_type in enumerate(config.strategy_types):
+            for _i, strategy_type in enumerate(config.strategy_types):
                 strategy_name = (
                     strategy_type.value
                     if hasattr(strategy_type, "value")
@@ -1490,12 +1494,16 @@ class StrategyDispatcher:
                 # Create portfolio result for this strategy execution
                 if success:
                     portfolio_result = self._extract_portfolio_results_from_files(
-                        ticker=summary.tickers_processed[0]
-                        if summary.tickers_processed
-                        else "Unknown",
-                        strategy_type=strategy_type.value
-                        if hasattr(strategy_type, "value")
-                        else str(strategy_type),
+                        ticker=(
+                            summary.tickers_processed[0]
+                            if summary.tickers_processed
+                            else "Unknown"
+                        ),
+                        strategy_type=(
+                            strategy_type.value
+                            if hasattr(strategy_type, "value")
+                            else str(strategy_type)
+                        ),
                         config=single_config,
                     )
                     summary.add_portfolio_result(portfolio_result)
@@ -1506,7 +1514,7 @@ class StrategyDispatcher:
                 else:
                     self.console.error(f"{strategy_type} strategy failed")
 
-        total_success = all(results)
+        all(results)
         successful_count = sum(results)
 
         # Update summary with final statistics
@@ -1533,7 +1541,7 @@ class StrategyDispatcher:
         return summary
 
     def _create_single_strategy_config(
-        self, original_config: StrategyConfig, strategy_type: Union[StrategyType, str]
+        self, original_config: StrategyConfig, strategy_type: StrategyType | str
     ) -> StrategyConfig:
         """
         Create a single-strategy configuration from a multi-strategy config.
@@ -1564,8 +1572,8 @@ class StrategyDispatcher:
         return single_config
 
     def _determine_single_service(
-        self, strategy_type: Union[StrategyType, str]
-    ) -> Union[BaseStrategyService, None]:
+        self, strategy_type: StrategyType | str
+    ) -> BaseStrategyService | None:
         """
         Determine service for a single strategy type.
 
@@ -1584,19 +1592,18 @@ class StrategyDispatcher:
         # Route to appropriate service
         if strategy_value == StrategyType.MACD.value:
             return self._services["MACD"]
-        elif strategy_value in [StrategyType.SMA.value, StrategyType.EMA.value]:
+        if strategy_value in [StrategyType.SMA.value, StrategyType.EMA.value]:
             return self._services["MA"]
-        elif strategy_value == StrategyType.ATR.value:
+        if strategy_value == StrategyType.ATR.value:
             return self._services["ATR"]
-        elif strategy_value == StrategyType.SMA_ATR.value:
+        if strategy_value == StrategyType.SMA_ATR.value:
             return self._services["SMA_ATR"]
-        else:
-            self.console.error(f"Unsupported strategy type: {strategy_value}")
-            return None
+        self.console.error(f"Unsupported strategy type: {strategy_value}")
+        return None
 
     def _determine_service(
-        self, strategy_types: List[Union[StrategyType, str]]
-    ) -> Union[BaseStrategyService, None]:
+        self, strategy_types: list[StrategyType | str]
+    ) -> BaseStrategyService | None:
         """
         Determine which service to use based on strategy types.
 
@@ -1648,11 +1655,11 @@ class StrategyDispatcher:
         self.console.debug("Supported strategy types: SMA, EMA, MACD, ATR, SMA_ATR")
         return None
 
-    def get_available_services(self) -> List[str]:
+    def get_available_services(self) -> list[str]:
         """Get list of available strategy services."""
         return list(self._services.keys())
 
-    def get_supported_strategy_types(self) -> Dict[str, List[str]]:
+    def get_supported_strategy_types(self) -> dict[str, list[str]]:
         """Get mapping of services to their supported strategy types."""
         return {
             service_name: service.get_supported_strategy_types()
@@ -1660,7 +1667,7 @@ class StrategyDispatcher:
         }
 
     def validate_strategy_compatibility(
-        self, strategy_types: List[Union[StrategyType, str]]
+        self, strategy_types: list[StrategyType | str]
     ) -> bool:
         """
         Validate that strategy types are compatible with available services.
@@ -1712,7 +1719,7 @@ class StrategyDispatcher:
 
     def _convert_config_to_legacy_for_skip_mode(
         self, config: StrategyConfig
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Convert StrategyConfig to legacy format for PortfolioOrchestrator in skip mode.
 
@@ -1752,9 +1759,9 @@ class StrategyDispatcher:
         if config.minimums.trades is not None:
             legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
         if config.minimums.expectancy_per_trade is not None:
-            legacy_config["MINIMUMS"][
-                "EXPECTANCY_PER_TRADE"
-            ] = config.minimums.expectancy_per_trade
+            legacy_config["MINIMUMS"]["EXPECTANCY_PER_TRADE"] = (
+                config.minimums.expectancy_per_trade
+            )
         if config.minimums.profit_factor is not None:
             legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
         if config.minimums.sortino_ratio is not None:
@@ -1766,7 +1773,7 @@ class StrategyDispatcher:
 
     def _convert_strategy_config_to_legacy(
         self, config: StrategyConfig
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Convert StrategyConfig to legacy format for resume analysis.
 
@@ -1795,9 +1802,11 @@ class StrategyDispatcher:
             "USE_4HOUR": config.use_4hour,
             "USE_2DAY": config.use_2day,
             "USE_CURRENT": config.use_current,
-            "USE_DATE": getattr(config.filter, "date_filter", None)
-            if hasattr(config, "filter")
-            else None,
+            "USE_DATE": (
+                getattr(config.filter, "date_filter", None)
+                if hasattr(config, "filter")
+                else None
+            ),
             "DIRECTION": getattr(config, "direction", "Long"),
             "REFRESH": getattr(config, "refresh", True),
         }
@@ -1877,7 +1886,7 @@ class StrategyDispatcher:
         return legacy_config
 
     def _convert_legacy_to_strategy_config(
-        self, legacy_config: Dict[str, Any], original_config: StrategyConfig
+        self, legacy_config: dict[str, Any], original_config: StrategyConfig
     ) -> StrategyConfig:
         """
         Convert filtered legacy config back to StrategyConfig format.

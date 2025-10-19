@@ -4,14 +4,14 @@ Simple Test for Monte Carlo Parameter Robustness Core Functionality
 This script tests the core Monte Carlo functionality without heavy dependencies.
 """
 
-import sys
 from pathlib import Path
+import sys
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from typing import Any, Dict
 
 import numpy as np
 import polars as pl
@@ -43,7 +43,7 @@ def create_mock_data(n_periods: int = 500) -> pl.DataFrame:
 
     # Create OHLCV data
     data = []
-    for i, (date, price) in enumerate(zip(dates, prices)):
+    for i, (date, price) in enumerate(zip(dates, prices, strict=False)):
         high = price * (1 + abs(np.random.normal(0, 0.005)))
         low = price * (1 - abs(np.random.normal(0, 0.005)))
         open_price = prices[i - 1] if i > 0 else price
@@ -290,19 +290,19 @@ def test_config_validation():
         num_simulations=100, confidence_level=0.95, bootstrap_block_size=63
     )
 
-    analyzer = ParameterRobustnessAnalyzer(valid_config)
+    ParameterRobustnessAnalyzer(valid_config)
     print(f"  Valid config created: simulations={valid_config.num_simulations}")
 
     # Test invalid configurations
     try:
-        invalid_config = MonteCarloConfig(
+        MonteCarloConfig(
             num_simulations=0,  # Invalid
             confidence_level=1.5,  # Invalid
             bootstrap_block_size=-10,  # Invalid
         )
         print("  ⚠️  Invalid config was accepted (this may be expected)")
     except Exception as e:
-        print(f"  ✓ Invalid config rejected: {str(e)}")
+        print(f"  ✓ Invalid config rejected: {e!s}")
 
     print("  ✓ Configuration validation test completed")
 
@@ -329,7 +329,7 @@ def main():
             test()
             passed_tests += 1
         except Exception as e:
-            print(f"  ❌ Test failed: {str(e)}")
+            print(f"  ❌ Test failed: {e!s}")
             import traceback
 
             traceback.print_exc()

@@ -7,17 +7,18 @@ This is a refactored version that uses the new unified modules for metrics calcu
 normalization, error handling, and data processing.
 """
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 import polars as pl
 
 from app.tools.data_processing import DataProcessor
 from app.tools.error_handling import ErrorHandler, validate_dataframe
-from app.tools.metrics_calculation import MetricsCalculator
-from app.tools.metrics_calculation import calculate_signal_metrics as calc_metrics
 from app.tools.metrics_calculation import (
+    MetricsCalculator,
+    calculate_signal_metrics as calc_metrics,
     calculate_signal_quality_metrics as calc_quality_metrics,
 )
 from app.tools.normalization import Normalizer
@@ -32,7 +33,7 @@ class SignalMetrics:
     with the old API while leveraging the new optimized implementations.
     """
 
-    def __init__(self, log: Optional[Callable[[str, str], None]] = None):
+    def __init__(self, log: Callable[[str, str], None] | None = None):
         """Initialize the SignalMetrics class.
 
         Args:
@@ -54,10 +55,10 @@ class SignalMetrics:
 
     def calculate_frequency_metrics(
         self,
-        data: Union[pl.DataFrame, pd.DataFrame],
+        data: pl.DataFrame | pd.DataFrame,
         signal_column: str = "Signal",
         date_column: str = "Date",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate signal frequency metrics.
 
         Args:
@@ -77,18 +78,18 @@ class SignalMetrics:
                 data, signal_column, date_column
             )
         except Exception as e:
-            self.log(f"Error calculating signal frequency metrics: {str(e)}", "error")
+            self.log(f"Error calculating signal frequency metrics: {e!s}", "error")
             return self.metrics_calculator._get_empty_frequency_metrics()
 
     def calculate_quality_metrics(
         self,
-        signals_df: Union[pl.DataFrame, pd.DataFrame],
-        returns_df: Union[pl.DataFrame, pd.DataFrame],
+        signals_df: pl.DataFrame | pd.DataFrame,
+        returns_df: pl.DataFrame | pd.DataFrame,
         strategy_id: str,
         signal_column: str = "signal",
         return_column: str = "return",
         date_column: str = "Date",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate signal quality metrics.
 
         Args:
@@ -123,18 +124,18 @@ class SignalMetrics:
             return metrics
         except Exception as e:
             self.log(
-                f"Error calculating signal quality metrics for {strategy_id}: {str(e)}",
+                f"Error calculating signal quality metrics for {strategy_id}: {e!s}",
                 "error",
             )
             return {"signal_count": 0, "signal_quality_score": 0.0}
 
     def calculate_portfolio_metrics(
         self,
-        data_list: List[Union[pl.DataFrame, pd.DataFrame]],
-        strategy_ids: List[str],
+        data_list: list[pl.DataFrame | pd.DataFrame],
+        strategy_ids: list[str],
         signal_column: str = "Signal",
         date_column: str = "Date",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate portfolio-level signal metrics.
 
         Args:
@@ -161,7 +162,7 @@ class SignalMetrics:
             )
         except Exception as e:
             self.log(
-                f"Error calculating portfolio-level signal metrics: {str(e)}", "error"
+                f"Error calculating portfolio-level signal metrics: {e!s}", "error"
             )
             return {
                 "portfolio_mean_signals_per_month": 0.0,
@@ -177,8 +178,8 @@ class SignalMetrics:
 
 
 def calculate_signal_metrics(
-    aligned_data: List[pl.DataFrame], log: Optional[Callable] | None = None
-) -> Dict[str, Any]:
+    aligned_data: list[pl.DataFrame], log: Callable | None | None = None
+) -> dict[str, Any]:
     """Calculate signal metrics for all strategies (legacy function).
 
     Args:
@@ -196,7 +197,7 @@ def calculate_signal_quality_metrics(
     returns_df: pl.DataFrame,
     strategy_id: str,
     log: Callable[[str, str], None],
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Calculate signal quality metrics for a strategy (legacy function).
 
     Args:

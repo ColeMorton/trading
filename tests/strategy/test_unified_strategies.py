@@ -5,14 +5,12 @@ This module tests the unified strategy implementations to ensure they properly
 extend BaseStrategy and implement StrategyInterface correctly.
 """
 
-from typing import Any, Dict
 from unittest.mock import Mock, patch
 
 import polars as pl
 import pytest
 
 from app.core.interfaces.strategy import StrategyInterface
-from app.tools.exceptions import StrategyError
 from app.tools.strategy.base import BaseStrategy
 from app.tools.strategy.unified_strategies import (
     UnifiedMACDStrategy,

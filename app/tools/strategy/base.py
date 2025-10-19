@@ -7,7 +7,8 @@ all strategy implementations.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
+from typing import Any
 
 import polars as pl
 
@@ -27,7 +28,7 @@ class BaseStrategy(ABC):
         data: pl.DataFrame,
         fast_period: int,
         slow_period: int,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         log: Callable[[str, str], None],
     ) -> pl.DataFrame:
         """
@@ -82,7 +83,7 @@ class BaseStrategy(ABC):
         return True
 
     def validate_data(
-        self, data: Optional[pl.DataFrame], log: Callable[[str, str], None]
+        self, data: pl.DataFrame | None, log: Callable[[str, str], None]
     ) -> bool:
         """
         Validate input data.

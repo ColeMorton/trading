@@ -5,7 +5,7 @@ This module provides a simple interface for running concurrency analysis
 with configurable calculation fixes.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import polars as pl
 
@@ -17,7 +17,7 @@ from app.tools.portfolio import StrategyConfig
 class ConcurrencyAnalysis:
     """Wrapper class for concurrency analysis with configurable fixes."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         """Initialize with configuration.
 
         Args:
@@ -35,8 +35,8 @@ class ConcurrencyAnalysis:
         return log_func
 
     def analyze(
-        self, data_list: List[pl.DataFrame], config_list: List[StrategyConfig]
-    ) -> Dict[str, Any]:
+        self, data_list: list[pl.DataFrame], config_list: list[StrategyConfig]
+    ) -> dict[str, Any]:
         """Run concurrency analysis on provided data.
 
         Args:
@@ -50,7 +50,7 @@ class ConcurrencyAnalysis:
         stats, _ = analyze_concurrency(data_list, config_list, self.log)
         return stats
 
-    def run(self) -> Dict[str, Any]:
+    def run(self) -> dict[str, Any]:
         """Run analysis using portfolio from config.
 
         Returns:

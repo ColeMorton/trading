@@ -5,7 +5,8 @@ This module handles the processing of individual tickers and coordinates
 strategy execution for multiple tickers.
 """
 
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import Any
 
 from app.strategies.ma_cross.exceptions import (
     MACrossDataError,
@@ -35,10 +36,10 @@ class TickerProcessor:
 
     def execute_strategy(
         self,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         strategy_type: str,
-        progress_update_fn: Optional[Any] | None = None,
-    ) -> List[Dict[str, Any]]:
+        progress_update_fn: Any | None | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Execute a strategy for all configured tickers.
 
@@ -69,7 +70,7 @@ class TickerProcessor:
             # Store original ticker count and calculate global total for progress calculation
             original_ticker_count = len(tickers)
             # Each ticker should contribute an equal share of the global progress
-            global_progress_per_ticker = config.get("_GLOBAL_PROGRESS_PER_TICKER", None)
+            global_progress_per_ticker = config.get("_GLOBAL_PROGRESS_PER_TICKER")
 
             for ticker in tickers:
                 self.log(f"Processing ticker: {ticker}")
@@ -80,9 +81,9 @@ class TickerProcessor:
                 # Preserve original ticker count and global progress allocation for accurate progress calculation
                 ticker_config["_ORIGINAL_TICKER_COUNT"] = original_ticker_count
                 if global_progress_per_ticker is not None:
-                    ticker_config[
-                        "_GLOBAL_PROGRESS_PER_TICKER"
-                    ] = global_progress_per_ticker
+                    ticker_config["_GLOBAL_PROGRESS_PER_TICKER"] = (
+                        global_progress_per_ticker
+                    )
 
                 # Use unified signal processing that supports both MA and MACD
                 portfolios_df = process_ticker_portfolios(
@@ -107,9 +108,9 @@ class TickerProcessor:
     def process_ticker(
         self,
         ticker: str,
-        config: Dict[str, Any],
-        progress_tracker: Optional[Any] | None = None,
-    ) -> Optional[Dict[str, Any]]:
+        config: dict[str, Any],
+        progress_tracker: Any | None | None = None,
+    ) -> dict[str, Any] | None:
         """
         Process a single ticker through the portfolio analysis pipeline.
 
@@ -140,8 +141,7 @@ class TickerProcessor:
             if portfolios_df is not None and len(portfolios_df) > 0:
                 # Return the first (best) portfolio as a dictionary
                 return portfolios_df.to_dicts()[0]
-            else:
-                return None
+            return None
 
     def _format_ticker(self, ticker: str, use_synthetic: bool) -> str:
         """
@@ -159,7 +159,7 @@ class TickerProcessor:
         return ticker
 
     def _extract_synthetic_components(
-        self, ticker: str, config: Dict[str, Any]
+        self, ticker: str, config: dict[str, Any]
     ) -> None:
         """
         Extract components from synthetic ticker and update config.

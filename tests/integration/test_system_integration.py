@@ -7,12 +7,11 @@ validation, and mathematical safeguards work properly.
 """
 
 import os
-import tempfile
 from pathlib import Path
+import tempfile
 from unittest.mock import Mock, patch
 
 import pandas as pd
-import pytest
 
 from app.strategies.tools.summary_processing import _generate_spds_compatible_entries
 from app.tools.portfolio.schema_validation import SchemaValidator
@@ -211,7 +210,7 @@ MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:
         ]
 
         # Test Filtered Schema (63 columns - Extended + Metric Type)
-        filtered_columns = ["Metric Type"] + extended_columns
+        filtered_columns = ["Metric Type", *extended_columns]
 
         # Create test DataFrames
         extended_df = pd.DataFrame({col: [1] for col in extended_columns})
@@ -236,81 +235,79 @@ MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:
             log_messages.append((message, level))
 
         # Test case 1: No exit signals (division by zero)
-        with patch(
-            "app.tools.portfolio_results.filter_open_trades"
-        ) as mock_filter_open:
-            with patch(
+        with (
+            patch("app.tools.portfolio_results.filter_open_trades") as mock_filter_open,
+            patch(
                 "app.tools.portfolio_results.filter_signal_entries"
-            ) as mock_filter_entries:
-                mock_filter_open.return_value = []  # No open trades
-                mock_filter_entries.return_value = []  # No signal entries
+            ) as mock_filter_entries,
+        ):
+            mock_filter_open.return_value = []  # No open trades
+            mock_filter_entries.return_value = []  # No signal entries
 
-                # Create mock portfolios
-                portfolios = [
-                    {
-                        "Ticker": "AAPL",
-                        "Score": 1.0,
-                        "Signal Entry": False,
-                        "Signal Exit": False,
-                    },
-                    {
-                        "Ticker": "MSFT",
-                        "Score": 1.1,
-                        "Signal Entry": False,
-                        "Signal Exit": False,
-                    },
-                ]
+            # Create mock portfolios
+            portfolios = [
+                {
+                    "Ticker": "AAPL",
+                    "Score": 1.0,
+                    "Signal Entry": False,
+                    "Signal Exit": False,
+                },
+                {
+                    "Ticker": "MSFT",
+                    "Score": 1.1,
+                    "Signal Entry": False,
+                    "Signal Exit": False,
+                },
+            ]
 
-                # Test the calculation
-                calculate_breadth_metrics(portfolios, [], [], mock_log)
+            # Test the calculation
+            calculate_breadth_metrics(portfolios, [], [], mock_log)
 
-                # Verify that the calculation doesn't result in infinity
-                breadth_messages = [
-                    msg for msg, _ in log_messages if "Breadth Momentum" in msg
-                ]
-                assert len(breadth_messages) > 0
+            # Verify that the calculation doesn't result in infinity
+            breadth_messages = [
+                msg for msg, _ in log_messages if "Breadth Momentum" in msg
+            ]
+            assert len(breadth_messages) > 0
 
-                # Should show 0.0000 instead of inf
-                assert "0.0000" in breadth_messages[0]
-                assert "inf" not in breadth_messages[0]
+            # Should show 0.0000 instead of inf
+            assert "0.0000" in breadth_messages[0]
+            assert "inf" not in breadth_messages[0]
 
         # Test case 2: Normal calculation with exit signals
         log_messages.clear()
-        with patch(
-            "app.tools.portfolio_results.filter_open_trades"
-        ) as mock_filter_open:
-            with patch(
+        with (
+            patch("app.tools.portfolio_results.filter_open_trades") as mock_filter_open,
+            patch(
                 "app.tools.portfolio_results.filter_signal_entries"
-            ) as mock_filter_entries:
-                mock_filter_open.return_value = [{"Ticker": "AAPL"}]  # 1 open trade
-                mock_filter_entries.return_value = [
-                    {"Ticker": "MSFT"}
-                ]  # 1 signal entry
+            ) as mock_filter_entries,
+        ):
+            mock_filter_open.return_value = [{"Ticker": "AAPL"}]  # 1 open trade
+            mock_filter_entries.return_value = [{"Ticker": "MSFT"}]  # 1 signal entry
 
-                portfolios = [
-                    {
-                        "Ticker": "AAPL",
-                        "Score": 1.0,
-                        "Signal Entry": False,
-                        "Signal Exit": True,
-                    },
-                    {
-                        "Ticker": "MSFT",
-                        "Score": 1.1,
-                        "Signal Entry": True,
-                        "Signal Exit": False,
-                    },
-                ]
+            portfolios = [
+                {
+                    "Ticker": "AAPL",
+                    "Score": 1.0,
+                    "Signal Entry": False,
+                    "Signal Exit": True,
+                },
+                {
+                    "Ticker": "MSFT",
+                    "Score": 1.1,
+                    "Signal Entry": True,
+                    "Signal Exit": False,
+                },
+            ]
 
-                calculate_breadth_metrics(
-                    portfolios, [{"Ticker": "AAPL"}], [{"Ticker": "MSFT"}], mock_log
-                )
+            calculate_breadth_metrics(
+                portfolios, [{"Ticker": "AAPL"}], [{"Ticker": "MSFT"}], mock_log
+            )
 
-                breadth_messages = [
-                    msg for msg, _ in log_messages if "Breadth Momentum" in msg
-                ]
-                assert len(breadth_messages) > 0
-                assert "1.0000" in breadth_messages[0]  # 1 entry / 1 exit = 1.0
+            breadth_messages = [
+                msg for msg, _ in log_messages if "Breadth Momentum" in msg
+            ]
+            assert len(breadth_messages) > 0
+            assert "1.0000" in breadth_messages[0]  # 1 entry / 1 exit = 1.0
 
     def test_full_integration_workflow(self):
         """Test the complete integration workflow from portfolio to SPDS."""

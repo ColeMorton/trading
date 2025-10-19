@@ -5,12 +5,13 @@ Provides various test execution modes and reporting options.
 """
 
 import argparse
+from datetime import datetime
 import json
+from pathlib import Path
 import sys
 import time
 import unittest
-from datetime import datetime
-from pathlib import Path
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -104,7 +105,7 @@ def discover_tests(test_type=None, pattern=None):
                 suite.addTests(module_suite)
         return suite
 
-    elif test_type == "integration":
+    if test_type == "integration":
         pattern = "test_integration.py"
 
     elif test_type == "performance":
@@ -160,8 +161,7 @@ def run_tests(args):
     # Exit with appropriate code
     if test_result.wasSuccessful():
         return 0
-    else:
-        return 1
+    return 1
 
 
 def main():

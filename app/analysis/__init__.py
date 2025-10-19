@@ -11,4 +11,5 @@ from .quantitative_analysis import (
     StrategyMetrics,
 )
 
-__all__ = ["QuantitativeAnalyzer", "StrategyMetrics", "PortfolioAnalysis"]
+
+__all__ = ["PortfolioAnalysis", "QuantitativeAnalyzer", "StrategyMetrics"]

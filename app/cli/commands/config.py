@@ -5,16 +5,15 @@ This module provides CLI commands for managing configuration profiles,
 settings, and system configuration.
 """
 
-from pathlib import Path
-from typing import List, Optional
+import builtins
 
-import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
+import typer
 
-from ..config import ConfigLoader, ConfigManager
-from ..models.base import BaseConfig
+from ..config import ConfigManager
+
 
 # Create config sub-app
 app = typer.Typer(
@@ -128,7 +127,7 @@ def verify_defaults():
             for profile_name in required_profiles:
                 try:
                     # Try to load the profile to verify it exists and is valid
-                    profile = config_manager.profile_manager.load_profile(profile_name)
+                    config_manager.profile_manager.load_profile(profile_name)
                     verified_profiles.append(profile_name)
                 except Exception:
                     rprint(
@@ -178,7 +177,7 @@ def set_default(
 @app.command()
 def edit(
     profile_name: str = typer.Argument(help="Profile name to edit"),
-    set_field: List[str] = typer.Option(
+    set_field: builtins.list[str] = typer.Option(
         [], "--set-field", help="Set field value (format: field.path value)"
     ),
     interactive: bool = typer.Option(
@@ -256,7 +255,6 @@ def edit(
 
 def _display_profile_summary(profile_data: dict) -> None:
     """Display a summary of the profile configuration."""
-    import json
 
     # Simple display for now
     rprint("[dim]Profile data loaded and ready for editing[/dim]")
@@ -285,7 +283,7 @@ def _run_interactive_editor(
                 editor_service.save_profile(profile_name, profile_data)
                 rprint(f"[green]Profile saved successfully: {profile_name}[/green]")
                 break
-            elif 1 <= choice_num <= len(editable_fields):
+            if 1 <= choice_num <= len(editable_fields):
                 # Edit selected field
                 field_name, current_value = editable_fields[choice_num - 1]
                 new_value = input(
@@ -312,9 +310,9 @@ def _run_interactive_editor(
 
 @app.command()
 def validate(
-    profile_name: Optional[str] = typer.Argument(
+    profile_name: str | None = typer.Argument(
         None, help="Profile name to validate (validates all if not specified)"
-    )
+    ),
 ):
     """Validate configuration profiles."""
     try:

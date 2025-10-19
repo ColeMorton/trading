@@ -4,9 +4,10 @@ Provides specialized context managers that wrap common operations with
 appropriate error handling, logging, and recovery mechanisms.
 """
 
-import traceback
+from collections.abc import Callable
 from contextlib import contextmanager
-from typing import Any, Callable, Dict, List, Optional, Type
+import traceback
+from typing import Any
 
 from .exceptions import (
     ConcurrencyError,
@@ -21,10 +22,10 @@ from .registry import track_error
 def concurrency_error_context(
     operation: str,
     log: Callable[[str, str], None],
-    error_mapping: Optional[Dict[Type[Exception], Type[ConcurrencyError]]] = None,
+    error_mapping: dict[type[Exception], type[ConcurrencyError]] | None = None,
     reraise: bool = True,
-    recovery_func: Optional[Callable[[], Any]] = None,
-    context_data: Optional[Dict[str, Any]] = None,
+    recovery_func: Callable[[], Any] | None = None,
+    context_data: dict[str, Any] | None = None,
 ):
     """Generic error context manager for concurrency operations.
 
@@ -55,7 +56,7 @@ def concurrency_error_context(
         track_error(e, operation, context_data)
 
         # Log the error with full context
-        log(f"Error in {operation}: {str(e)}", "error")
+        log(f"Error in {operation}: {e!s}", "error")
         log(f"Error context: {context_data}", "debug")
         log(f"Traceback: {traceback.format_exc()}", "debug")
 
@@ -67,18 +68,18 @@ def concurrency_error_context(
                 log(f"Recovery successful for {operation}", "info")
                 return recovery_result
             except Exception as recovery_error:
-                log(f"Recovery failed for {operation}: {str(recovery_error)}", "error")
+                log(f"Recovery failed for {operation}: {recovery_error!s}", "error")
 
         # Map to appropriate concurrency exception
         if type(e) in error_mapping:
             concurrency_exception = error_mapping[type(e)]
             raise concurrency_exception(
-                f"Error in {operation}: {str(e)}", context=context_data
+                f"Error in {operation}: {e!s}", context=context_data
             ) from e
         elif not isinstance(e, ConcurrencyError):
             # Wrap in generic ConcurrencyError if not already a concurrency exception
             raise ConcurrencyError(
-                f"Error in {operation}: {str(e)}", context=context_data
+                f"Error in {operation}: {e!s}", context=context_data
             ) from e
         elif reraise:
             raise
@@ -86,11 +87,11 @@ def concurrency_error_context(
 
 @contextmanager
 def strategy_processing_context(
-    strategy_id: Optional[str],
+    strategy_id: str | None,
     operation: str,
     log: Callable[[str, str], None],
     reraise: bool = True,
-    recovery_func: Optional[Callable[[], Any]] = None,
+    recovery_func: Callable[[], Any] | None = None,
 ):
     """Context manager for strategy processing operations.
 
@@ -128,12 +129,12 @@ def strategy_processing_context(
 
 @contextmanager
 def permutation_analysis_context(
-    permutation_count: Optional[int],
-    current_permutation: Optional[int],
+    permutation_count: int | None,
+    current_permutation: int | None,
     operation: str,
     log: Callable[[str, str], None],
     reraise: bool = True,
-    recovery_func: Optional[Callable[[], Any]] = None,
+    recovery_func: Callable[[], Any] | None = None,
 ):
     """Context manager for permutation analysis operations.
 
@@ -176,12 +177,12 @@ def permutation_analysis_context(
 
 @contextmanager
 def report_generation_context(
-    report_type: Optional[str],
-    output_path: Optional[str],
+    report_type: str | None,
+    output_path: str | None,
     operation: str,
     log: Callable[[str, str], None],
     reraise: bool = True,
-    recovery_func: Optional[Callable[[], Any]] = None,
+    recovery_func: Callable[[], Any] | None = None,
 ):
     """Context manager for report generation operations.
 
@@ -230,7 +231,7 @@ def batch_operation_context(
     total_items: int,
     log: Callable[[str, str], None],
     continue_on_error: bool = True,
-    max_failures: Optional[int] | None = None,
+    max_failures: int | None | None = None,
 ):
     """Context manager for batch operations that process multiple items.
 
@@ -250,7 +251,7 @@ def batch_operation_context(
 
     class BatchErrorTracker:
         def __init__(self):
-            self.errors: List[Dict[str, Any]] = []
+            self.errors: list[dict[str, Any]] = []
             self.successes: int = 0
             self.failures: int = 0
 
@@ -260,8 +261,8 @@ def batch_operation_context(
         def record_error(
             self,
             error: Exception,
-            item_index: Optional[int] | None = None,
-            item_data: Optional[Any] | None = None,
+            item_index: int | None | None = None,
+            item_data: Any | None | None = None,
         ):
             self.failures += 1
             error_info = {
@@ -274,7 +275,7 @@ def batch_operation_context(
             self.errors.append(error_info)
 
             # Log individual error
-            log(f"Batch error [{self.failures}/{total_items}]: {str(error)}", "error")
+            log(f"Batch error [{self.failures}/{total_items}]: {error!s}", "error")
 
             # Check if we should stop
             if max_failures and self.failures >= max_failures:
@@ -288,7 +289,7 @@ def batch_operation_context(
                     },
                 )
 
-        def get_summary(self) -> Dict[str, Any]:
+        def get_summary(self) -> dict[str, Any]:
             return {
                 "total_items": total_items,
                 "successes": self.successes,
@@ -315,8 +316,8 @@ def batch_operation_context(
             log(f"Batch operation had {tracker.failures} failures", "warning")
 
     except Exception as e:
-        log(f"Batch operation failed: {operation} - {str(e)}", "error")
+        log(f"Batch operation failed: {operation} - {e!s}", "error")
         raise ConcurrencyError(
-            f"Batch operation '{operation}' failed: {str(e)}",
+            f"Batch operation '{operation}' failed: {e!s}",
             context=tracker.get_summary(),
         ) from e

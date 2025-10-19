@@ -3,7 +3,7 @@
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from app.core.interfaces import ConfigurationInterface
 
@@ -11,8 +11,8 @@ from app.core.interfaces import ConfigurationInterface
 class ConfigurationService(ConfigurationInterface):
     """Concrete implementation of configuration service."""
 
-    def __init__(self, config_path: Optional[Path] | None = None):
-        self._config: Dict[str, Any] = {}
+    def __init__(self, config_path: Path | None | None = None):
+        self._config: dict[str, Any] = {}
         self._config_path = config_path
         self._environment = os.getenv("ENVIRONMENT", "development")
 
@@ -46,14 +46,14 @@ class ConfigurationService(ConfigurationInterface):
 
         config[keys[-1]] = value
 
-    def get_section(self, section: str) -> Dict[str, Any]:
+    def get_section(self, section: str) -> dict[str, Any]:
         """Get entire configuration section."""
         return self._config.get(section, {})
 
     def load_from_file(self, path: Path) -> None:
         """Load configuration from file."""
         if path.suffix == ".json":
-            with open(path, "r") as f:
+            with open(path) as f:
                 self._config = json.load(f)
         elif path.suffix in [".yaml", ".yml"]:
             # Add YAML support if needed
@@ -66,7 +66,7 @@ class ConfigurationService(ConfigurationInterface):
         with open(path, "w") as f:
             json.dump(self._config, f, indent=2)
 
-    def merge(self, config: Dict[str, Any]) -> None:
+    def merge(self, config: dict[str, Any]) -> None:
         """Merge configuration with existing."""
         self._deep_merge(self._config, config)
 
@@ -80,7 +80,7 @@ class ConfigurationService(ConfigurationInterface):
         """Get current environment (dev, test, prod)."""
         return self._environment
 
-    def list_keys(self, prefix: Optional[str] | None = None) -> List[str]:
+    def list_keys(self, prefix: str | None | None = None) -> list[str]:
         """List all configuration keys."""
         keys = []
         self._collect_keys(self._config, keys, prefix or "")
@@ -93,7 +93,7 @@ class ConfigurationService(ConfigurationInterface):
         else:
             self._load_defaults()
 
-    def _deep_merge(self, base: Dict, update: Dict) -> None:
+    def _deep_merge(self, base: dict, update: dict) -> None:
         """Deep merge two dictionaries."""
         for key, value in update.items():
             if key in base and isinstance(base[key], dict) and isinstance(value, dict):
@@ -101,7 +101,7 @@ class ConfigurationService(ConfigurationInterface):
             else:
                 base[key] = value
 
-    def _collect_keys(self, config: Dict, keys: List[str], prefix: str) -> None:
+    def _collect_keys(self, config: dict, keys: list[str], prefix: str) -> None:
         """Recursively collect all keys."""
         for key, value in config.items():
             full_key = f"{prefix}.{key}" if prefix else key

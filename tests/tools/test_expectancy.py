@@ -4,7 +4,6 @@ Tests for the expectancy calculation module.
 
 import unittest
 
-import numpy as np
 import pandas as pd
 
 from app.tools.expectancy import (

@@ -5,7 +5,6 @@ This module tests the standardized error handling patterns implemented
 in Phase 6 of the MA Cross optimization plan.
 """
 
-from typing import Any, Dict
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
@@ -164,29 +163,33 @@ class TestTickerProcessorErrorHandling:
 
     def test_strategy_execution_error_handling(self, ticker_processor, mock_log):
         """Test error handling in strategy execution."""
-        with patch.object(ticker_processor, "log", mock_log):
-            with patch(
+        with (
+            patch.object(ticker_processor, "log", mock_log),
+            patch(
                 "app.strategies.ma_cross.tools.strategy_execution.execute_strategy"
-            ) as mock_execute:
-                mock_execute.side_effect = Exception("Execution failed")
+            ) as mock_execute,
+        ):
+            mock_execute.side_effect = Exception("Execution failed")
 
-                with pytest.raises(MACrossExecutionError) as exc_info:
-                    ticker_processor.execute_strategy({"TICKER": ["BTC-USD"]}, "SMA")
+            with pytest.raises(MACrossExecutionError) as exc_info:
+                ticker_processor.execute_strategy({"TICKER": ["BTC-USD"]}, "SMA")
 
-                assert "Execution failed" in str(exc_info.value)
+            assert "Execution failed" in str(exc_info.value)
 
     def test_ticker_processing_error_handling(self, ticker_processor, mock_log):
         """Test error handling in ticker processing."""
-        with patch.object(ticker_processor, "log", mock_log):
-            with patch(
+        with (
+            patch.object(ticker_processor, "log", mock_log),
+            patch(
                 "app.strategies.ma_cross.tools.strategy_execution.process_single_ticker"
-            ) as mock_process:
-                mock_process.side_effect = Exception("Processing failed")
+            ) as mock_process,
+        ):
+            mock_process.side_effect = Exception("Processing failed")
 
-                with pytest.raises(MACrossDataError) as exc_info:
-                    ticker_processor.process_ticker("BTC-USD", {})
+            with pytest.raises(MACrossDataError) as exc_info:
+                ticker_processor.process_ticker("BTC-USD", {})
 
-                assert "Processing failed" in str(exc_info.value)
+            assert "Processing failed" in str(exc_info.value)
 
     def test_synthetic_ticker_extraction_success(self, ticker_processor, mock_log):
         """Test successful synthetic ticker component extraction."""
@@ -231,7 +234,6 @@ class TestMainScriptErrorHandling:
     def test_run_function_error_decoration(self):
         """Test that run function has proper error decoration."""
         import importlib.util
-        import sys
 
         # Load the module with a numeric name
         spec = importlib.util.spec_from_file_location(
@@ -249,7 +251,6 @@ class TestMainScriptErrorHandling:
     def test_run_strategies_function_error_decoration(self):
         """Test that run_strategies function has proper error decoration."""
         import importlib.util
-        import sys
 
         # Load the module with a numeric name
         spec = importlib.util.spec_from_file_location(

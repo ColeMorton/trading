@@ -16,6 +16,7 @@ import asyncio
 import logging
 from pathlib import Path
 
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -80,7 +81,7 @@ async def demo_simplified_interface():
                 summary = analyzer.get_summary_report(results)
 
                 # Display results
-                print(f"\n   Results:")
+                print("\n   Results:")
                 print(f"   - Total strategies: {summary['total_strategies']}")
                 print(f"   - Immediate exits: {summary['immediate_exits']}")
                 print(f"   - Strong sells: {summary['strong_sells']}")
@@ -100,7 +101,7 @@ async def demo_simplified_interface():
                     if len(exit_immediately) > 3:
                         print(f"     ... and {len(exit_immediately) - 3} more")
             else:
-                print(f"   ⚠️  Required files not found - skipping analysis")
+                print("   ⚠️  Required files not found - skipping analysis")
 
         except Exception as e:
             print(f"   ❌ Error: {e}")
@@ -122,7 +123,7 @@ async def demo_quick_analysis():
             "risk_on.csv", use_trade_history=True
         )
 
-        print(f"✅ Analysis complete!")
+        print("✅ Analysis complete!")
         print(f"   Portfolio: {summary['portfolio']}")
         print(f"   Strategies analyzed: {summary['total_strategies']}")
         print(f"   Signal distribution: {summary['signal_distribution']}")
@@ -158,22 +159,22 @@ def demo_configuration():
     )
 
     # Show automatic path resolution
-    print(f"\n📂 Automatic path resolution:")
+    print("\n📂 Automatic path resolution:")
     print(f"   Portfolio path: {config1.get_portfolio_file_path()}")
     print(f"   Trade history path: {config1.get_trade_history_file_path()}")
 
     # Show what the old complex interface looked like vs new simple interface
-    print(f"\n🔄 Interface Comparison:")
-    print(f"   OLD (complex): StatisticalAnalysisService(config=SPDSConfig(")
-    print(f"      USE_TRADE_HISTORY=True,")
-    print(f"      TRADE_HISTORY_PATH='./data/raw/positions/',")
-    print(f"      PERCENTILE_THRESHOLD=95,")
-    print(f"      DUAL_LAYER_THRESHOLD=0.85,")
-    print(f"      ... 20+ more parameters")
-    print(f"   ))")
-    print(f"")
+    print("\n🔄 Interface Comparison:")
+    print("   OLD (complex): StatisticalAnalysisService(config=SPDSConfig(")
+    print("      USE_TRADE_HISTORY=True,")
+    print("      TRADE_HISTORY_PATH='./data/raw/positions/',")
+    print("      PERCENTILE_THRESHOLD=95,")
+    print("      DUAL_LAYER_THRESHOLD=0.85,")
+    print("      ... 20+ more parameters")
+    print("   ))")
+    print("")
     print(
-        f"   NEW (simple): PortfolioStatisticalAnalyzer('risk_on.csv', use_trade_history=True)"
+        "   NEW (simple): PortfolioStatisticalAnalyzer('risk_on.csv', use_trade_history=True)"
     )
 
 

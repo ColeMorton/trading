@@ -5,8 +5,8 @@ This module handles the processing of portfolio data for single tickers,
 including loading existing data and analyzing parameter sensitivity.
 """
 
+from collections.abc import Callable
 import os
-from typing import Callable, Dict, List, Optional, Union
 
 import numpy as np
 import polars as pl
@@ -20,7 +20,7 @@ from app.tools.get_data import get_data
 
 def process_single_ticker(
     ticker: str, config: dict, log: Callable, progress_update_fn=None
-) -> Optional[pl.DataFrame]:
+) -> pl.DataFrame | None:
     """
     Process portfolio analysis for a single ticker.
 
@@ -35,7 +35,7 @@ def process_single_ticker(
     config_copy = config.copy()
     config_copy["TICKER"] = ticker
 
-    if config.get("REFRESH", True) == False:
+    if config.get("REFRESH", True) is False:
         # Construct file path using BASE_DIR
         file_name = f'{ticker}{"_H" if config.get("USE_HOURLY", False) else "_D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}'
         directory = os.path.join(config["BASE_DIR"], "csv", "portfolios")
@@ -136,7 +136,7 @@ def process_single_ticker(
     )
 
 
-def normalize_portfolio_data(portfolios: List[Dict]) -> List[Dict]:
+def normalize_portfolio_data(portfolios: list[dict]) -> list[dict]:
     """
     Normalize portfolio data to ensure consistent data types across CSV sources.
 
@@ -161,10 +161,7 @@ def normalize_portfolio_data(portfolios: List[Dict]) -> List[Dict]:
 
         for key, value in portfolio.items():
             # Handle None string literals
-            if value == "None":
-                normalized_portfolio[key] = None
-            # Handle empty strings (convert to None for consistency)
-            elif value == "":
+            if value in ("None", ""):
                 normalized_portfolio[key] = None
             # Handle boolean string representations
             elif value == "False":
@@ -179,7 +176,7 @@ def normalize_portfolio_data(portfolios: List[Dict]) -> List[Dict]:
     return normalized_portfolios
 
 
-def get_portfolio_schema() -> Dict[str, pl.DataType]:
+def get_portfolio_schema() -> dict[str, pl.DataType]:
     """
     Define explicit Polars schema for portfolio DataFrames to prevent type inference conflicts.
 

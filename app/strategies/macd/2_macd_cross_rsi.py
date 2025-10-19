@@ -1,11 +1,11 @@
-import sys
 from pathlib import Path
-from typing import List, Tuple
+import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
 import polars as pl
 from scipy.signal import find_peaks
+
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent.parent
@@ -17,6 +17,7 @@ from app.tools.calculate_rsi import calculate_rsi
 from app.tools.get_data import get_data
 from app.tools.setup_logging import setup_logging
 
+
 log, log_close, _, _ = setup_logging(
     module_name="macd_rsi", log_file="2_macd_cross_rsi.log"
 )
@@ -24,7 +25,7 @@ log, log_close, _, _ = setup_logging(
 
 def backtest(
     data: pl.DataFrame, rsi_threshold: int, config: PortfolioConfig
-) -> List[Tuple[float, float]]:
+) -> list[tuple[float, float]]:
     log(f"Running backtest with RSI threshold: {rsi_threshold}")
     position, entry_price = 0, 0
     trades = []
@@ -40,24 +41,21 @@ def backtest(
                 log(
                     f"Entered long position at price: {entry_price}, RSI: {data['RSI'][i]}"
                 )
-        elif position == 1:
-            if (
-                data["MACD"][i] < data["Signal_Line"][i]
-                and data["MACD"][i - 1] >= data["Signal_Line"][i - 1]
-            ):
-                position, exit_price = 0, data["Close"][i]
-                trades.append((entry_price, exit_price))
-                log(
-                    f"Exited long position at price: {exit_price}, RSI: {data['RSI'][i]}"
-                )
+        elif position == 1 and (
+            data["MACD"][i] < data["Signal_Line"][i]
+            and data["MACD"][i - 1] >= data["Signal_Line"][i - 1]
+        ):
+            position, exit_price = 0, data["Close"][i]
+            trades.append((entry_price, exit_price))
+            log(f"Exited long position at price: {exit_price}, RSI: {data['RSI'][i]}")
 
     log(f"Total trades: {len(trades)}")
     return trades
 
 
 def calculate_metrics(
-    trades: List[Tuple[float, float]]
-) -> Tuple[float, float, float, int]:
+    trades: list[tuple[float, float]],
+) -> tuple[float, float, float, int]:
     log("Starting metrics calculation")
     if not trades:
         return 0, 0, 0, 0
@@ -120,8 +118,8 @@ def add_peak_labels(
             textcoords="offset points",
             ha="center",
             va="bottom",
-            bbox=dict(boxstyle="round,pad=0.5", fc="cyan", alpha=0.5),
-            arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=0"),
+            bbox={"boxstyle": "round,pad=0.5", "fc": "cyan", "alpha": 0.5},
+            arrowprops={"arrowstyle": "->", "connectionstyle": "arc3,rad=0"},
         )
 
 

@@ -12,23 +12,18 @@ This test suite validates the Phase 4 enhancements to the unified export system:
 import shutil
 import tempfile
 import time
-from datetime import datetime, timedelta
-from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pandas as pd
-import polars as pl
 import pytest
 
 from app.tools.export.unified_export import (
     AdvancedCache,
-    CacheEntry,
     ExportConfig,
     PerformanceMetrics,
     PerformanceMonitor,
     UnifiedExportProcessor,
 )
-from app.tools.portfolio.base_extended_schemas import SchemaType
 
 
 class TestAdvancedCache:

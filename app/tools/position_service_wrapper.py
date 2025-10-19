@@ -8,6 +8,7 @@ by wrapping the unified PositionService with the old interface.
 from app.services import PositionService
 from app.services.position_service import TradingSystemConfig
 
+
 # Global service instance
 _position_service = None
 

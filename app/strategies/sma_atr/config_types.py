@@ -4,7 +4,7 @@ SMA_ATR Strategy Configuration Types
 This module defines configuration types and structures for the SMA_ATR strategy.
 """
 
-from typing import Any, Dict, List, Optional, Tuple, TypedDict, Union
+from typing import Any, TypedDict
 
 
 class Config(TypedDict, total=False):
@@ -16,25 +16,25 @@ class Config(TypedDict, total=False):
     """
 
     # Ticker Configuration
-    TICKER: Union[str, List[str]]
-    TICKER_1: Optional[str]  # For synthetic pairs
-    TICKER_2: Optional[str]  # For synthetic pairs
+    TICKER: str | list[str]
+    TICKER_1: str | None  # For synthetic pairs
+    TICKER_2: str | None  # For synthetic pairs
 
     # SMA Parameters
-    FAST_PERIOD_RANGE: Tuple[int, int]  # Fast SMA period range
-    SLOW_PERIOD_RANGE: Tuple[int, int]  # Slow SMA period range
-    FAST_PERIOD: Optional[int]  # Specific fast period (for single execution)
-    SLOW_PERIOD: Optional[int]  # Specific slow period (for single execution)
+    FAST_PERIOD_RANGE: tuple[int, int]  # Fast SMA period range
+    SLOW_PERIOD_RANGE: tuple[int, int]  # Slow SMA period range
+    FAST_PERIOD: int | None  # Specific fast period (for single execution)
+    SLOW_PERIOD: int | None  # Specific slow period (for single execution)
 
     # ATR Parameters
-    ATR_LENGTH_RANGE: Tuple[int, int]  # ATR length range
-    ATR_MULTIPLIER_RANGE: Tuple[float, float]  # ATR multiplier range
+    ATR_LENGTH_RANGE: tuple[int, int]  # ATR length range
+    ATR_MULTIPLIER_RANGE: tuple[float, float]  # ATR multiplier range
     ATR_MULTIPLIER_STEP: float  # Step size for ATR multiplier sweep
-    ATR_LENGTH: Optional[int]  # Specific ATR length (for single execution)
-    ATR_MULTIPLIER: Optional[float]  # Specific ATR multiplier (for single execution)
+    ATR_LENGTH: int | None  # Specific ATR length (for single execution)
+    ATR_MULTIPLIER: float | None  # Specific ATR multiplier (for single execution)
 
     # Strategy Configuration
-    STRATEGY_TYPES: List[str]
+    STRATEGY_TYPES: list[str]
     STRATEGY_TYPE: str
     DIRECTION: str  # "Long" or "Short"
 
@@ -43,26 +43,26 @@ class Config(TypedDict, total=False):
     USE_4HOUR: bool
     USE_2DAY: bool
     USE_YEARS: bool
-    YEARS: Optional[int]
+    YEARS: int | None
     USE_SYNTHETIC: bool
     USE_CURRENT: bool
-    USE_DATE: Optional[str]
+    USE_DATE: str | None
 
     # Scanner Configuration
     USE_SCANNER: bool
-    SCANNER_LIST: Optional[str]
+    SCANNER_LIST: str | None
 
     # Risk Management
     USE_STOP_LOSS: bool
-    STOP_LOSS_PERCENT: Optional[float]
+    STOP_LOSS_PERCENT: float | None
 
     # Filtering and Quality Control
-    MINIMUMS: Dict[str, Any]
+    MINIMUMS: dict[str, Any]
     USE_GBM: bool
 
     # Portfolio Management
-    ALLOCATION: Optional[float]
-    ACCOUNT_VALUE: Optional[float]
+    ALLOCATION: float | None
+    ACCOUNT_VALUE: float | None
 
     # Output Configuration
     SORT_BY: str

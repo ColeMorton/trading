@@ -3,7 +3,7 @@
 This module provides functionality for creating strategy objects from configuration and statistics.
 """
 
-from typing import Any, Dict, TypedDict
+from typing import Any, TypedDict
 
 # Import types from the parent module
 from app.concurrency.tools.types import (
@@ -23,7 +23,7 @@ class StrategyParameter(TypedDict):
 
 
 def create_strategy_object(
-    config: Dict[str, Any], index: int, stats: Dict[str, Any]
+    config: dict[str, Any], index: int, stats: dict[str, Any]
 ) -> Strategy:
     """Create a strategy object with the optimized structure.
 
@@ -346,7 +346,7 @@ def create_strategy_object(
                 # Try to find the CSV file
                 csv_path = os.path.join("data/raw/strategies", "DAILY_test.csv")
                 if os.path.exists(csv_path):
-                    with open(csv_path, "r") as f:
+                    with open(csv_path) as f:
                         reader = csv.DictReader(f)
                         for row in reader:
                             if row.get("Ticker") == ticker:

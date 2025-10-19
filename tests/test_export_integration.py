@@ -5,8 +5,6 @@ This module tests the integration of the new export system with existing
 components like PortfolioOrchestrator.
 """
 
-import os
-import shutil
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -166,7 +164,7 @@ class TestExportIntegration:
         today = datetime.now().strftime("%Y%m%d")
 
         with (
-            patch("pathlib.Path.mkdir") as mock_mkdir,
+            patch("pathlib.Path.mkdir"),
             patch("os.access", return_value=True),
             patch("builtins.open", create=True),
             patch("json.dump"),
@@ -351,7 +349,7 @@ class TestExportSystemRealFiles:
         assert export_file.exists()
 
         # Read back and verify content
-        with open(export_file, "r") as f:
+        with open(export_file) as f:
             loaded_data = json.load(f)
 
         assert loaded_data["strategy"] == "MA Cross"

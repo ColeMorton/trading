@@ -5,12 +5,11 @@ Financial analytics engine for MA parameter sweep analysis, providing
 comprehensive performance metrics, rankings, and optimization recommendations.
 """
 
+from dataclasses import dataclass
 import json
 import math
 import os
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 
 @dataclass
@@ -119,15 +118,14 @@ class SweepPerformanceData:
         if data_points < 500:
             # Very low confidence: harsh penalty for insufficient data
             return 0.3 + 0.2 * (data_points / 500) ** 2
-        elif data_points < 1000:
+        if data_points < 1000:
             # Low confidence: moderate penalty
             return 0.5 + 0.3 * ((data_points - 500) / 500) ** 1.5
-        elif data_points < 2000:
+        if data_points < 2000:
             # Moderate confidence: light penalty
             return 0.8 + 0.2 * ((data_points - 1000) / 1000)
-        else:
-            # High confidence: full score
-            return 1.0
+        # High confidence: full score
+        return 1.0
 
 
 @dataclass
@@ -152,11 +150,11 @@ class SweepAnalyticsEngine:
     def __init__(self, analysis_dir: str = "data/outputs/ma_cross/analysis"):
         """Initialize analytics engine."""
         self.analysis_dir = analysis_dir
-        self.performance_data: List[SweepPerformanceData] = []
-        self.statistics: Dict[str, SweepStatistics] = {}
+        self.performance_data: list[SweepPerformanceData] = []
+        self.statistics: dict[str, SweepStatistics] = {}
 
     def load_sweep_data(
-        self, tickers: List[str], periods: List[int], ma_type: str
+        self, tickers: list[str], periods: list[int], ma_type: str
     ) -> int:
         """Load analytics data from JSON files for given sweep parameters."""
         loaded_count = 0
@@ -169,7 +167,7 @@ class SweepAnalyticsEngine:
                     )
 
                     if os.path.exists(json_path):
-                        with open(json_path, "r") as f:
+                        with open(json_path) as f:
                             data = json.load(f)
 
                         # Extract analytics data
@@ -234,7 +232,7 @@ class SweepAnalyticsEngine:
                         self.performance_data.append(perf_data)
                         loaded_count += 1
 
-                except Exception as e:
+                except Exception:
                     # Skip corrupted/missing files
                     continue
 
@@ -245,8 +243,8 @@ class SweepAnalyticsEngine:
         return loaded_count
 
     def _validate_and_sanitize_metrics(
-        self, metrics: Dict[str, float], ticker: str, period: int
-    ) -> Dict[str, float]:
+        self, metrics: dict[str, float], ticker: str, period: int
+    ) -> dict[str, float]:
         """Enhanced validation and sanitization of financial metrics."""
         validated = {}
         warnings = []
@@ -391,18 +389,22 @@ class SweepAnalyticsEngine:
                         std_dev=std_val,
                         q1=q1_val,
                         q3=q3_val,
-                        best_period=period_map[max_val]
-                        if metric_key != "max_drawdown"
-                        else period_map[min_val],
-                        worst_period=period_map[min_val]
-                        if metric_key != "max_drawdown"
-                        else period_map[max_val],
+                        best_period=(
+                            period_map[max_val]
+                            if metric_key != "max_drawdown"
+                            else period_map[min_val]
+                        ),
+                        worst_period=(
+                            period_map[min_val]
+                            if metric_key != "max_drawdown"
+                            else period_map[max_val]
+                        ),
                     )
-                except Exception as e:
+                except Exception:
                     # Skip this metric if calculations fail
                     continue
 
-    def _sanitize_numeric_value(self, value: Any) -> Optional[float]:
+    def _sanitize_numeric_value(self, value: Any) -> float | None:
         """Sanitize and validate numeric values for statistics calculations."""
         try:
             # Convert to float
@@ -420,7 +422,7 @@ class SweepAnalyticsEngine:
         except (ValueError, TypeError, OverflowError):
             return None
 
-    def _robust_median(self, sorted_values: List[float]) -> float:
+    def _robust_median(self, sorted_values: list[float]) -> float:
         """Calculate median using robust method to avoid fraction issues."""
         n = len(sorted_values)
         if n == 0:
@@ -429,13 +431,12 @@ class SweepAnalyticsEngine:
         if n % 2 == 1:
             # Odd number of values
             return float(sorted_values[n // 2])
-        else:
-            # Even number of values - average the two middle values
-            mid1 = sorted_values[n // 2 - 1]
-            mid2 = sorted_values[n // 2]
-            return float((mid1 + mid2) / 2.0)
+        # Even number of values - average the two middle values
+        mid1 = sorted_values[n // 2 - 1]
+        mid2 = sorted_values[n // 2]
+        return float((mid1 + mid2) / 2.0)
 
-    def _robust_std_dev(self, values: List[float], mean_val: float) -> float:
+    def _robust_std_dev(self, values: list[float], mean_val: float) -> float:
         """Calculate standard deviation using robust method."""
         if len(values) <= 1:
             return 0.0
@@ -449,7 +450,7 @@ class SweepAnalyticsEngine:
 
     def get_top_performers(
         self, metric: str, count: int = 3
-    ) -> List[SweepPerformanceData]:
+    ) -> list[SweepPerformanceData]:
         """Get top performers by specified metric."""
         if metric == "risk_adjusted_score":
             sorted_data = sorted(
@@ -467,13 +468,13 @@ class SweepAnalyticsEngine:
 
         return sorted_data[:count]
 
-    def get_ranked_performance(self) -> List[SweepPerformanceData]:
+    def get_ranked_performance(self) -> list[SweepPerformanceData]:
         """Get all periods ranked by risk-adjusted score."""
         return sorted(
             self.performance_data, key=lambda x: x.risk_adjusted_score, reverse=True
         )
 
-    def get_risk_categories(self) -> Dict[str, List[SweepPerformanceData]]:
+    def get_risk_categories(self) -> dict[str, list[SweepPerformanceData]]:
         """Categorize periods by risk level."""
         if not self.performance_data:
             return {"low": [], "medium": [], "high": []}
@@ -494,7 +495,7 @@ class SweepAnalyticsEngine:
 
         return categories
 
-    def get_optimization_recommendations(self) -> Dict[str, SweepPerformanceData]:
+    def get_optimization_recommendations(self) -> dict[str, SweepPerformanceData]:
         """Generate optimization recommendations for different strategy types."""
         if not self.performance_data:
             return {}
@@ -541,7 +542,7 @@ class SweepAnalyticsEngine:
 
         return recommendations
 
-    def get_outlier_analysis(self) -> Dict[str, List[SweepPerformanceData]]:
+    def get_outlier_analysis(self) -> dict[str, list[SweepPerformanceData]]:
         """Identify statistical outliers in performance."""
         outliers = {"exceptional": [], "underperforming": []}
 

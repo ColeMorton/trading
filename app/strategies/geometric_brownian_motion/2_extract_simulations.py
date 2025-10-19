@@ -1,6 +1,5 @@
 import csv
 from io import StringIO
-from typing import List, Tuple
 
 import numpy as np
 import polars as pl
@@ -9,6 +8,7 @@ from app.tools.get_config import get_config
 
 # from app.utils import get_path, get_filename, save_csv
 from app.utils import get_filename, get_path
+
 
 # Default Configuration
 CONFIG = {
@@ -35,7 +35,7 @@ config = get_config(CONFIG)
 config["USE_GBM"] = False
 
 
-def read_csv_data(csv_content: str) -> Tuple[List[str], List[List[float]]]:
+def read_csv_data(csv_content: str) -> tuple[list[str], list[list[float]]]:
     csv_file = StringIO(csv_content)
     csv_reader = csv.reader(csv_file)
     header = next(csv_reader)  # Read header
@@ -53,11 +53,11 @@ def read_csv_data(csv_content: str) -> Tuple[List[str], List[List[float]]]:
     return timestamps, prices
 
 
-def calculate_performance(prices: List[float]) -> float:
+def calculate_performance(prices: list[float]) -> float:
     return (prices[-1] - prices[0]) / prices[0] * 100
 
 
-def extract_simulations(csv_content: str) -> Tuple[dict, pl.DataFrame]:
+def extract_simulations(csv_content: str) -> tuple[dict, pl.DataFrame]:
     timestamps, simulations = read_csv_data(csv_content)
     performances = [calculate_performance(sim) for sim in simulations]
 
@@ -139,7 +139,7 @@ filename = get_filename("csv", config)
 path = get_path("csv", "geometric_brownian_motion", config, "simulations")
 fullpath = f"{path}/{filename}"
 
-with open(fullpath, "r") as file:
+with open(fullpath) as file:
     csv_content = file.read()
 
 # Extract simulations

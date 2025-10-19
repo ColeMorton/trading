@@ -5,7 +5,8 @@ to enable accurate covariance matrix calculation for portfolio risk metrics. Fol
 fail-fast approach with meaningful exceptions instead of fallback mechanisms.
 """
 
-from typing import Any, Callable, Dict, List, Tuple
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 import polars as pl
@@ -26,7 +27,7 @@ from .data_alignment import find_common_dates
     },
 )
 def validate_return_series_data(
-    portfolios: List[Dict[str, Any]], log: Callable[[str, str], None]
+    portfolios: list[dict[str, Any]], log: Callable[[str, str], None]
 ) -> None:
     """Validate portfolio data for return series alignment.
 
@@ -117,7 +118,7 @@ def calculate_return_series(
         return result
 
     except Exception as e:
-        raise DataAlignmentError(f"Return series calculation failed: {str(e)}")
+        raise DataAlignmentError(f"Return series calculation failed: {e!s}")
 
 
 @handle_errors(
@@ -129,10 +130,10 @@ def calculate_return_series(
     },
 )
 def align_return_series(
-    portfolio_returns: List[Tuple[str, pl.DataFrame]],
+    portfolio_returns: list[tuple[str, pl.DataFrame]],
     log: Callable[[str, str], None],
     min_observations: int = 30,
-) -> Tuple[pl.DataFrame, List[str]]:
+) -> tuple[pl.DataFrame, list[str]]:
     """Align return series across multiple strategies to common time periods.
 
     Args:
@@ -196,7 +197,7 @@ def align_return_series(
 
         # Add date column back
         returns_matrix = returns_matrix.with_columns(common_dates.select("Date"))
-        returns_matrix = returns_matrix.select(["Date"] + strategy_names)
+        returns_matrix = returns_matrix.select(["Date", *strategy_names])
 
         log(
             f"Successfully aligned {len(strategy_names)} return series with {len(returns_matrix)} observations",
@@ -205,7 +206,7 @@ def align_return_series(
         return returns_matrix, strategy_names
 
     except Exception as e:
-        raise DataAlignmentError(f"Failed to create aligned returns matrix: {str(e)}")
+        raise DataAlignmentError(f"Failed to create aligned returns matrix: {e!s}")
 
 
 @handle_errors(
@@ -214,7 +215,7 @@ def align_return_series(
 )
 def validate_return_matrix(
     returns_matrix: pl.DataFrame,
-    strategy_names: List[str],
+    strategy_names: list[str],
     log: Callable[[str, str], None],
 ) -> None:
     """Validate aligned return matrix for quality and completeness.
@@ -275,10 +276,10 @@ def validate_return_matrix(
     },
 )
 def align_portfolio_returns(
-    portfolios: List[Dict[str, Any]],
+    portfolios: list[dict[str, Any]],
     log: Callable[[str, str], None],
     min_observations: int = 30,
-) -> Tuple[pl.DataFrame, List[str]]:
+) -> tuple[pl.DataFrame, list[str]]:
     """Main function to align return series across portfolio strategies.
 
     Args:
@@ -317,7 +318,7 @@ def align_portfolio_returns(
                     df = pl.read_csv(portfolio["data_path"])
                 except Exception as e:
                     raise DataAlignmentError(
-                        f"Failed to load data from {portfolio['data_path']}: {str(e)}"
+                        f"Failed to load data from {portfolio['data_path']}: {e!s}"
                     )
             elif "data" in portfolio:
                 # Use provided DataFrame
@@ -343,9 +344,9 @@ def align_portfolio_returns(
 
 def get_alignment_summary(
     returns_matrix: pl.DataFrame,
-    strategy_names: List[str],
+    strategy_names: list[str],
     log: Callable[[str, str], None],
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Generate summary statistics for aligned return matrix.
 
     Args:

@@ -9,7 +9,7 @@ Note: For long positions, slippage represents an increase in entry price above t
       We represent this as negative values where -5% means entering 5% above the signal price.
 """
 
-from typing import Any, TypedDict
+from typing import TypedDict
 
 import numpy as np
 import polars as pl
@@ -144,7 +144,7 @@ def run(config: Config = config) -> bool:
         return True
 
     except Exception as e:
-        log(f"Execution failed: {str(e)}", "error")
+        log(f"Execution failed: {e!s}", "error")
         log_close()
         raise
 
@@ -155,5 +155,5 @@ if __name__ == "__main__":
         if result:
             print("Execution completed successfully!")
     except Exception as e:
-        print(f"Execution failed: {str(e)}")
+        print(f"Execution failed: {e!s}")
         raise

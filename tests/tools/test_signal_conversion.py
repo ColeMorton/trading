@@ -3,9 +3,7 @@ Tests for the signal conversion module.
 """
 
 import unittest
-from datetime import datetime, timedelta
 
-import numpy as np
 import pandas as pd
 import polars as pl
 

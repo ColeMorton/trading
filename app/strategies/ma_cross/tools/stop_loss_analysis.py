@@ -4,7 +4,8 @@ Stop Loss Analysis Module
 This module contains functions for analyzing stop loss parameter sensitivity.
 """
 
-from typing import Any, Callable, Dict
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 import polars as pl
@@ -18,10 +19,10 @@ from app.tools.stats_converter import convert_stats
 
 def analyze_stop_loss_parameters(
     data: pl.DataFrame,
-    config: Dict[str, Any],
+    config: dict[str, Any],
     stop_loss_range: np.ndarray,
     log: Callable,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """
     Analyze stop loss parameters across different percentages.
 
@@ -162,7 +163,7 @@ def analyze_stop_loss_parameters(
             )
 
             # Percentage changes for ratios and factors
-            for metric_name, array, baseline_val, current_val in [
+            for _metric_name, array, baseline_val, current_val in [
                 (
                     "score",
                     score_array,

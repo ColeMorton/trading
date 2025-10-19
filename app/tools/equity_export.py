@@ -5,11 +5,9 @@ This module handles the export of equity curve data to CSV files with proper
 directory structure and file naming conventions according to the specification.
 """
 
-import os
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
-
-import pandas as pd
+from typing import Any
 
 from app.tools.equity_data_extractor import EquityData
 from app.tools.exceptions import ExportError, TradingSystemError
@@ -21,7 +19,7 @@ def generate_equity_filename(
     strategy_type: str,
     fast_period: int,
     slow_period: int,
-    signal_period: Optional[int] = None,
+    signal_period: int | None = None,
 ) -> str:
     """
     Generate equity data filename according to specification.
@@ -59,7 +57,7 @@ def get_equity_file_path(
     strategy_type: str,
     fast_period: int,
     slow_period: int,
-    signal_period: Optional[int] = None,
+    signal_period: int | None = None,
 ) -> Path:
     """
     Get the full file path for equity data export.
@@ -86,7 +84,7 @@ def equity_file_exists(
     strategy_type: str,
     fast_period: int,
     slow_period: int,
-    signal_period: Optional[int] = None,
+    signal_period: int | None = None,
 ) -> bool:
     """
     Check if equity data file already exists for the given strategy.
@@ -156,7 +154,7 @@ def ensure_export_directory_exists(
         export_dir.mkdir(parents=True, exist_ok=True)
         log(f"Ensured export directory exists: {export_dir}", "debug")
     except Exception as e:
-        error_msg = f"Failed to create export directory {export_dir}: {str(e)}"
+        error_msg = f"Failed to create export directory {export_dir}: {e!s}"
         log(error_msg, "error")
         raise ExportError(error_msg) from e
 
@@ -167,7 +165,7 @@ def export_equity_data_to_csv(
     strategy_type: str,
     fast_period: int,
     slow_period: int,
-    signal_period: Optional[int],
+    signal_period: int | None,
     log: Callable[[str, str], None],
     overwrite: bool = True,
 ) -> bool:
@@ -223,18 +221,16 @@ def export_equity_data_to_csv(
         return True
 
     except Exception as e:
-        error_msg = (
-            f"Failed to export equity data for {ticker} {strategy_type}: {str(e)}"
-        )
+        error_msg = f"Failed to export equity data for {ticker} {strategy_type}: {e!s}"
         log(error_msg, "error")
         raise ExportError(error_msg) from e
 
 
 def export_equity_data_batch(
-    portfolios: List[Dict[str, Any]],
+    portfolios: list[dict[str, Any]],
     log: Callable[[str, str], None],
-    config: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    config: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     Export equity data for a batch of portfolios.
 
@@ -322,7 +318,7 @@ def export_equity_data_batch(
                 results["skipped_count"] += 1
 
         except Exception as e:
-            error_msg = f"Error exporting equity data for portfolio {portfolio.get('Ticker', 'Unknown')}: {str(e)}"
+            error_msg = f"Error exporting equity data for portfolio {portfolio.get('Ticker', 'Unknown')}: {e!s}"
             log(error_msg, "error")
             results["errors"].append(error_msg)
             results["error_count"] += 1
@@ -395,7 +391,7 @@ def get_equity_export_file_path(
     strategy_type: str,
     fast_period: int,
     slow_period: int,
-    signal_period: Optional[int] = None,
+    signal_period: int | None = None,
 ) -> Path:
     """
     Get the full file path for equity data export.
@@ -433,7 +429,6 @@ def cleanup_old_equity_files(
     """
     try:
         import time
-        from datetime import datetime, timedelta
 
         export_dir = get_equity_export_directory(strategy_type)
 
@@ -451,7 +446,7 @@ def cleanup_old_equity_files(
                     log(f"Deleted old equity file: {file_path}", "debug")
                 except Exception as e:
                     log(
-                        f"Failed to delete old equity file {file_path}: {str(e)}",
+                        f"Failed to delete old equity file {file_path}: {e!s}",
                         "warning",
                     )
 
@@ -464,5 +459,5 @@ def cleanup_old_equity_files(
         return deleted_count
 
     except Exception as e:
-        log(f"Error during equity file cleanup for {strategy_type}: {str(e)}", "error")
+        log(f"Error during equity file cleanup for {strategy_type}: {e!s}", "error")
         return 0

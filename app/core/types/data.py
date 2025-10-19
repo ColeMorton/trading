@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 import pandas as pd
 import polars as pl
@@ -29,7 +29,7 @@ class OHLCVData:
     """OHLCV data container with DataFrame."""
 
     ticker: str
-    data: Union[pd.DataFrame, pl.DataFrame]
+    data: pd.DataFrame | pl.DataFrame
     interval: str
     start_date: datetime
     end_date: datetime
@@ -56,7 +56,7 @@ class Signal:
     signal_type: SignalType
     price: float
     confidence: float = 1.0
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
 
 @dataclass
@@ -66,12 +66,12 @@ class Trade:
     id: str
     ticker: str
     entry_time: datetime
-    exit_time: Optional[datetime]
+    exit_time: datetime | None
     entry_price: float
-    exit_price: Optional[float]
+    exit_price: float | None
     quantity: float
     side: PositionSide
-    pnl: Optional[float] | None = None
-    pnl_percent: Optional[float] | None = None
+    pnl: float | None | None = None
+    pnl_percent: float | None | None = None
     commission: float = 0.0
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None

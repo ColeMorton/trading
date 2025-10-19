@@ -6,15 +6,13 @@ with existing strategy entry points, enabling gradual migration while maintainin
 backward compatibility.
 """
 
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
-
-import polars as pl
+from collections.abc import Callable
+from typing import Any
 
 from app.core.interfaces.strategy import StrategyInterface
 from app.tools.exceptions import StrategyError
 from app.tools.strategy.factory import StrategyFactory
-from app.tools.strategy.unified_config import ConfigFactory, ConfigValidator
+from app.tools.strategy.unified_config import ConfigFactory
 
 
 class StrategyAdapter:
@@ -32,9 +30,9 @@ class StrategyAdapter:
     def execute_strategy_by_type(
         self,
         strategy_type: str,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         log: Callable[[str, str], None],
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Execute a strategy by type using the unified strategy framework.
 
@@ -66,10 +64,9 @@ class StrategyAdapter:
 
                 # Execute using the unified interface
                 return strategy.execute(config, log)
-            else:
-                # Fallback to legacy strategy execution for backward compatibility
-                log(f"Using legacy strategy execution for {strategy_type}", "warning")
-                return self._execute_legacy_strategy(strategy, config, log)
+            # Fallback to legacy strategy execution for backward compatibility
+            log(f"Using legacy strategy execution for {strategy_type}", "warning")
+            return self._execute_legacy_strategy(strategy, config, log)
 
         except Exception as e:
             raise StrategyError(f"Failed to execute strategy {strategy_type}: {e}")
@@ -88,15 +85,15 @@ class StrategyAdapter:
         return mapping.get(strategy_type.upper(), strategy_type.upper())
 
     def _execute_legacy_strategy(
-        self, strategy, config: Dict[str, Any], log: Callable[[str, str], None]
-    ) -> List[Dict[str, Any]]:
+        self, strategy, config: dict[str, Any], log: Callable[[str, str], None]
+    ) -> list[dict[str, Any]]:
         """Execute legacy strategy that doesn't implement StrategyInterface."""
         # This is a fallback for strategies that haven't been migrated yet
         # In practice, this would delegate to the original strategy execution logic
         log("Legacy strategy execution not implemented in adapter", "warning")
         return []
 
-    def get_strategy_parameter_ranges(self, strategy_type: str) -> Dict[str, Any]:
+    def get_strategy_parameter_ranges(self, strategy_type: str) -> dict[str, Any]:
         """
         Get parameter ranges for a strategy type using unified configuration system.
 
@@ -125,7 +122,7 @@ class StrategyAdapter:
                     ranges[key] = {"options": ["Long", "Short"], "default": value}
                 elif isinstance(value, bool):
                     ranges[key] = {"type": "bool", "default": value}
-                elif isinstance(value, (int, float)):
+                elif isinstance(value, int | float):
                     ranges[key] = {"default": value}
                 else:
                     ranges[key] = {"default": value}
@@ -140,13 +137,12 @@ class StrategyAdapter:
 
                 if isinstance(strategy, StrategyInterface):
                     return strategy.get_parameter_ranges()
-                else:
-                    return self._get_default_parameter_ranges(strategy_type)
+                return self._get_default_parameter_ranges(strategy_type)
 
             except Exception:
                 return self._get_default_parameter_ranges(strategy_type)
 
-    def _get_default_parameter_ranges(self, strategy_type: str) -> Dict[str, Any]:
+    def _get_default_parameter_ranges(self, strategy_type: str) -> dict[str, Any]:
         """Get default parameter ranges for legacy strategies."""
         defaults = {
             "SMA": {
@@ -167,7 +163,7 @@ class StrategyAdapter:
         return defaults.get(strategy_type.upper(), {})
 
     def validate_strategy_parameters(
-        self, strategy_type: str, config: Dict[str, Any]
+        self, strategy_type: str, config: dict[str, Any]
     ) -> bool:
         """
         Validate parameters for a strategy type using unified configuration system.
@@ -192,14 +188,13 @@ class StrategyAdapter:
 
                 if isinstance(strategy, StrategyInterface):
                     return strategy.validate_parameters(config)
-                else:
-                    return self._validate_legacy_parameters(strategy_type, config)
+                return self._validate_legacy_parameters(strategy_type, config)
 
             except Exception:
                 return False
 
     def _validate_legacy_parameters(
-        self, strategy_type: str, config: Dict[str, Any]
+        self, strategy_type: str, config: dict[str, Any]
     ) -> bool:
         """Basic parameter validation for legacy strategies."""
         required_params = ["FAST_PERIOD", "SLOW_PERIOD"]
@@ -219,7 +214,7 @@ class StrategyAdapter:
 
         return True
 
-    def get_available_strategies(self) -> List[str]:
+    def get_available_strategies(self) -> list[str]:
         """Get list of all available strategy types."""
         return self.factory.get_available_strategies()
 

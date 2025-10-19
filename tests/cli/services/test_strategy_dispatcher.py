@@ -9,7 +9,7 @@ This test suite covers StrategyDispatcher with focus on:
 - Service availability and mapping
 """
 
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -155,42 +155,42 @@ class TestStrategyDispatcher:
         strategy_types = [StrategyType.SMA]
         is_compatible = dispatcher.validate_strategy_compatibility(strategy_types)
 
-        assert is_compatible == True
+        assert is_compatible is True
 
     def test_validate_strategy_compatibility_valid_ema(self, dispatcher):
         """Test strategy compatibility validation for valid EMA."""
         strategy_types = [StrategyType.EMA]
         is_compatible = dispatcher.validate_strategy_compatibility(strategy_types)
 
-        assert is_compatible == True
+        assert is_compatible is True
 
     def test_validate_strategy_compatibility_valid_macd(self, dispatcher):
         """Test strategy compatibility validation for valid MACD."""
         strategy_types = [StrategyType.MACD]
         is_compatible = dispatcher.validate_strategy_compatibility(strategy_types)
 
-        assert is_compatible == True
+        assert is_compatible is True
 
     def test_validate_strategy_compatibility_valid_mixed_ma(self, dispatcher):
         """Test strategy compatibility validation for mixed MA strategies."""
         strategy_types = [StrategyType.SMA, StrategyType.EMA]
         is_compatible = dispatcher.validate_strategy_compatibility(strategy_types)
 
-        assert is_compatible == True
+        assert is_compatible is True
 
     def test_validate_strategy_compatibility_invalid_strategy(self, dispatcher):
         """Test strategy compatibility validation for invalid strategy."""
         strategy_types = ["INVALID_STRATEGY"]
         is_compatible = dispatcher.validate_strategy_compatibility(strategy_types)
 
-        assert is_compatible == False
+        assert is_compatible is False
 
     def test_validate_strategy_compatibility_empty_list(self, dispatcher):
         """Test strategy compatibility validation for empty strategy list."""
         strategy_types = []
         is_compatible = dispatcher.validate_strategy_compatibility(strategy_types)
 
-        assert is_compatible == False
+        assert is_compatible is False
 
     @patch.object(MAStrategyService, "execute_strategy")
     def test_execute_strategy_sma_success(self, mock_execute, dispatcher, base_config):
@@ -201,7 +201,7 @@ class TestStrategyDispatcher:
 
         result = dispatcher.execute_strategy(config)
 
-        assert result == True
+        assert result is True
         mock_execute.assert_called_once_with(config)
 
     @patch.object(MACDStrategyService, "execute_strategy")
@@ -213,7 +213,7 @@ class TestStrategyDispatcher:
 
         result = dispatcher.execute_strategy(config)
 
-        assert result == True
+        assert result is True
         mock_execute.assert_called_once_with(config)
 
     @patch.object(MAStrategyService, "execute_strategy")
@@ -225,7 +225,7 @@ class TestStrategyDispatcher:
 
         result = dispatcher.execute_strategy(config)
 
-        assert result == False
+        assert result is False
         mock_execute.assert_called_once_with(config)
 
     @patch("app.cli.services.strategy_dispatcher.rprint")
@@ -237,7 +237,7 @@ class TestStrategyDispatcher:
 
         # Test validation method
         is_compatible = dispatcher.validate_strategy_compatibility(["INVALID_STRATEGY"])
-        assert is_compatible == False
+        assert is_compatible is False
 
     @patch.object(MAStrategyService, "execute_strategy")
     def test_execute_strategy_mixed_ma_strategies(
@@ -250,7 +250,7 @@ class TestStrategyDispatcher:
 
         result = dispatcher.execute_strategy(config)
 
-        assert result == True
+        assert result is True
         mock_execute.assert_called_once_with(config)
 
     @patch.object(MACDStrategyService, "execute_strategy")
@@ -265,7 +265,7 @@ class TestStrategyDispatcher:
 
         result = dispatcher.execute_strategy(config)
 
-        assert result == True
+        assert result is True
         mock_execute.assert_called_once_with(config)
         # Should show warning about multiple strategy types with MACD
         mock_rprint.assert_called()
@@ -330,7 +330,7 @@ class TestStrategyDispatcherEdgeCases:
             service = dispatcher._determine_service(strategy_types)
             # Should either return a service or None, but not crash
             assert service is None or isinstance(
-                service, (MAStrategyService, MACDStrategyService)
+                service, MAStrategyService | MACDStrategyService
             )
         except (AttributeError, TypeError):
             # This is acceptable - the function may not handle None gracefully
@@ -366,7 +366,7 @@ class TestStrategyDispatcherEdgeCases:
         try:
             result = dispatcher.execute_strategy(config)
             # If it handles the exception, result should be False
-            assert result == False
+            assert result is False
         except RuntimeError:
             # If it lets the exception propagate, that's also acceptable
             pass
@@ -441,7 +441,7 @@ class TestStrategyDispatcherPerformance:
         start_time = time.time()
         for _ in range(1000):
             is_compatible = dispatcher.validate_strategy_compatibility(strategy_types)
-            assert is_compatible == True
+            assert is_compatible is True
         end_time = time.time()
 
         # Should complete in reasonable time
@@ -464,7 +464,7 @@ class TestStrategyDispatcherPerformance:
         start_time = time.time()
         for _ in range(100):
             result = dispatcher.execute_strategy(config)
-            assert result == True
+            assert result is True
         end_time = time.time()
 
         # Should complete quickly (overhead should be minimal)

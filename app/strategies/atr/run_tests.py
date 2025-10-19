@@ -26,11 +26,11 @@ Options:
 """
 
 import argparse
-import subprocess
+from pathlib import Path
 import sys
 import time
 import unittest
-from pathlib import Path
+
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
@@ -202,12 +202,12 @@ class ATRTestRunner:
 
         if result.failures:
             print(f"\nFAILURES ({len(result.failures)}):")
-            for test, traceback in result.failures:
+            for test, _traceback in result.failures:
                 print(f"  - {test}")
 
         if result.errors:
             print(f"\nERRORS ({len(result.errors)}):")
-            for test, traceback in result.errors:
+            for test, _traceback in result.errors:
                 print(f"  - {test}")
 
         # Success rate
@@ -231,7 +231,7 @@ class ATRTestRunner:
             # Generate HTML coverage report
             try:
                 cov.html_report(directory="coverage_html")
-                print(f"\nHTML coverage report generated in 'coverage_html/' directory")
+                print("\nHTML coverage report generated in 'coverage_html/' directory")
             except Exception as e:
                 print(f"Warning: Could not generate HTML coverage report: {e}")
 
@@ -243,11 +243,10 @@ class ATRTestRunner:
         success = len(result.failures) == 0 and len(result.errors) == 0
 
         if success:
-            print(f"\n🎉 ALL TESTS PASSED! 🎉")
+            print("\n🎉 ALL TESTS PASSED! 🎉")
             return True
-        else:
-            print(f"\n❌ TESTS FAILED - See details above")
-            return False
+        print("\n❌ TESTS FAILED - See details above")
+        return False
 
     def _generate_benchmark_report(self):
         """Generate benchmark performance report."""
@@ -272,7 +271,10 @@ class ATRTestRunner:
         )
 
     def run_specific_test(
-        self, test_class_name: str, test_method_name: str = None, verbose: bool = False
+        self,
+        test_class_name: str,
+        test_method_name: str | None = None,
+        verbose: bool = False,
     ):
         """Run a specific test class or method."""
 

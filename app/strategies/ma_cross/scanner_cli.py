@@ -6,14 +6,15 @@ maintaining backwards compatibility while using the new core functionality.
 """
 
 import sys
-from typing import Any, Dict
+from typing import Any
 
 from app.strategies.ma_cross.scanner_adapter import ScannerAdapter
 from app.tools.config_service import ConfigService
 from app.tools.setup_logging import setup_logging
 
+
 # Default Configuration (for backwards compatibility)
-DEFAULT_CONFIG: Dict[str, Any] = {
+DEFAULT_CONFIG: dict[str, Any] = {
     "PORTFOLIO": "DAILY.csv",
     "USE_HOURLY": False,
     "REFRESH": True,
@@ -21,7 +22,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
 }
 
 
-def validate_config(config: Dict[str, Any]) -> None:
+def validate_config(config: dict[str, Any]) -> None:
     """
     Validate configuration settings.
 
@@ -37,7 +38,7 @@ def validate_config(config: Dict[str, Any]) -> None:
         raise ValueError("DIRECTION must be either 'Long' or 'Short'")
 
 
-def process_scanner(config: Dict[str, Any]) -> bool:
+def process_scanner(config: dict[str, Any]) -> bool:
     """
     Process scanner using the new adapter architecture.
 
@@ -108,7 +109,7 @@ def process_scanner(config: Dict[str, Any]) -> bool:
         return True
 
     except Exception as e:
-        log(f"Error processing scanner: {str(e)}", "error")
+        log(f"Error processing scanner: {e!s}", "error")
         log_close()
         raise
 
@@ -129,13 +130,13 @@ def main():
             sys.exit(1)
 
     except ValueError as ve:
-        print(f"Configuration error: {str(ve)}")
+        print(f"Configuration error: {ve!s}")
         sys.exit(1)
     except FileNotFoundError as fe:
-        print(f"File error: {str(fe)}")
+        print(f"File error: {fe!s}")
         sys.exit(1)
     except Exception as e:
-        print(f"Execution failed: {str(e)}")
+        print(f"Execution failed: {e!s}")
         sys.exit(1)
 
 

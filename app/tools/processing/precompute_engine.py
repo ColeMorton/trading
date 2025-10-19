@@ -5,21 +5,21 @@ This module implements result pre-computation for the 20 most common parameter c
 to provide instant responses for frequently requested analyses.
 """
 
-import asyncio
+from collections import Counter, defaultdict
+from collections.abc import Callable
+from dataclasses import dataclass
+from datetime import datetime, timedelta
 import hashlib
 import json
 import logging
-import pickle
+from pathlib import Path
 import threading
 import time
-from collections import Counter, defaultdict
-from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
 from .cache_manager import IntelligentCacheManager
 from .performance_monitor import get_performance_monitor
+
 
 logger = logging.getLogger(__name__)
 
@@ -31,11 +31,11 @@ class ParameterCombination:
     strategy_type: str
     ticker: str
     timeframe: str
-    parameters: Dict[str, Any]
+    parameters: dict[str, Any]
     access_count: int = 0
-    last_accessed: Optional[datetime] = None
-    computation_time_ms: Optional[float] = None
-    result_size_mb: Optional[float] = None
+    last_accessed: datetime | None = None
+    computation_time_ms: float | None = None
+    result_size_mb: float | None = None
 
 
 @dataclass
@@ -47,21 +47,21 @@ class PrecomputeJob:
     estimated_time_ms: float
     job_id: str
     status: str = "pending"  # pending, running, completed, failed
-    result_cache_key: Optional[str] = None
-    error_message: Optional[str] = None
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    result_cache_key: str | None = None
+    error_message: str | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
 
 
 class UsageAnalyzer:
     """Analyzes usage patterns to identify common parameter combinations."""
 
-    def __init__(self, usage_file: Optional[Path] = None):
+    def __init__(self, usage_file: Path | None = None):
         """Initialize usage analyzer."""
         self.usage_file = usage_file or Path("cache/usage_analysis.json")
-        self.request_history: List[Dict[str, Any]] = []
+        self.request_history: list[dict[str, Any]] = []
         self.combination_counter: Counter = Counter()
-        self.parameter_patterns: Dict[str, Dict[str, Counter]] = defaultdict(
+        self.parameter_patterns: dict[str, dict[str, Counter]] = defaultdict(
             lambda: defaultdict(Counter)
         )
         self._lock = threading.Lock()
@@ -74,7 +74,7 @@ class UsageAnalyzer:
         strategy_type: str,
         ticker: str,
         timeframe: str,
-        parameters: Dict[str, Any],
+        parameters: dict[str, Any],
         computation_time_ms: float = 0.0,
         result_size_mb: float = 0.0,
     ):
@@ -113,7 +113,7 @@ class UsageAnalyzer:
 
     def get_top_combinations(
         self, limit: int = 20, min_requests: int = 3
-    ) -> List[ParameterCombination]:
+    ) -> list[ParameterCombination]:
         """Get the most frequently requested parameter combinations."""
         with self._lock:
             # Filter combinations with sufficient requests
@@ -152,8 +152,8 @@ class UsageAnalyzer:
             return combinations
 
     def get_parameter_insights(
-        self, strategy_type: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, strategy_type: str | None = None
+    ) -> dict[str, Any]:
         """Get insights about parameter usage patterns."""
         with self._lock:
             if strategy_type:
@@ -161,7 +161,7 @@ class UsageAnalyzer:
             else:
                 patterns = dict(self.parameter_patterns)
 
-            insights: Dict[str, Any] = {}
+            insights: dict[str, Any] = {}
             for strat_type, params in patterns.items():
                 insights[strat_type] = {}
 
@@ -189,7 +189,7 @@ class UsageAnalyzer:
         strategy_type: str,
         ticker: str,
         timeframe: str,
-        parameters: Dict[str, Any],
+        parameters: dict[str, Any],
     ) -> str:
         """Create a unique key for a parameter combination."""
         # Sort parameters for consistent key generation
@@ -197,7 +197,7 @@ class UsageAnalyzer:
         key_data = f"{strategy_type}|{ticker}|{timeframe}|{sorted_params}"
         return hashlib.md5(key_data.encode(), usedforsecurity=False).hexdigest()
 
-    def _parse_combination_key(self, combo_key: str) -> Optional[Dict[str, Any]]:
+    def _parse_combination_key(self, combo_key: str) -> dict[str, Any] | None:
         """Parse combination key back to components (reverse lookup)."""
         # This requires searching through request history to find matching combination
         for request in reversed(self.request_history):  # Start with most recent
@@ -218,7 +218,7 @@ class UsageAnalyzer:
 
         return None
 
-    def _find_recent_request(self, combo_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _find_recent_request(self, combo_data: dict[str, Any]) -> dict[str, Any]:
         """Find the most recent request for a combination."""
         for request in reversed(self.request_history):
             if (
@@ -231,7 +231,7 @@ class UsageAnalyzer:
 
         return {}
 
-    def _get_last_access_time(self, combo_key: str) -> Optional[datetime]:
+    def _get_last_access_time(self, combo_key: str) -> datetime | None:
         """Get the last access time for a combination."""
         for request in reversed(self.request_history):
             test_key = self._create_combination_key(
@@ -252,7 +252,7 @@ class UsageAnalyzer:
             return
 
         try:
-            with open(self.usage_file, "r") as f:
+            with open(self.usage_file) as f:
                 data = json.load(f)
 
             self.request_history = data.get("request_history", [])
@@ -311,8 +311,8 @@ class PrecomputeEngine:
 
     def __init__(
         self,
-        cache_manager: Optional[IntelligentCacheManager] = None,
-        usage_analyzer: Optional[UsageAnalyzer] = None,
+        cache_manager: IntelligentCacheManager | None = None,
+        usage_analyzer: UsageAnalyzer | None = None,
         precompute_interval: int = 3600,  # 1 hour
         max_precompute_time: int = 1800,  # 30 minutes
         result_ttl: int = 86400,  # 24 hours
@@ -324,8 +324,8 @@ class PrecomputeEngine:
         self.max_precompute_time = max_precompute_time
         self.result_ttl = result_ttl
 
-        self.strategy_executors: Dict[str, Callable] = {}
-        self.precompute_jobs: Dict[str, PrecomputeJob] = {}
+        self.strategy_executors: dict[str, Callable] = {}
+        self.precompute_jobs: dict[str, PrecomputeJob] = {}
         self.precompute_stats = {
             "jobs_completed": 0,
             "jobs_failed": 0,
@@ -353,7 +353,7 @@ class PrecomputeEngine:
         strategy_type: str,
         ticker: str,
         timeframe: str,
-        parameters: Dict[str, Any],
+        parameters: dict[str, Any],
         computation_time_ms: float = 0.0,
         result_size_mb: float = 0.0,
     ):
@@ -438,8 +438,8 @@ class PrecomputeEngine:
         self.usage_analyzer.save_usage_data()
 
     def _create_precompute_jobs(
-        self, combinations: List[ParameterCombination]
-    ) -> List[PrecomputeJob]:
+        self, combinations: list[ParameterCombination]
+    ) -> list[PrecomputeJob]:
         """Create pre-compute jobs from parameter combinations."""
         jobs = []
 
@@ -477,7 +477,7 @@ class PrecomputeEngine:
         jobs.sort(key=lambda j: j.priority, reverse=True)
         return jobs
 
-    def _execute_precompute_jobs(self, jobs: List[PrecomputeJob]) -> Tuple[int, int]:
+    def _execute_precompute_jobs(self, jobs: list[PrecomputeJob]) -> tuple[int, int]:
         """Execute pre-compute jobs within time limit."""
         completed = 0
         failed = 0
@@ -581,8 +581,8 @@ class PrecomputeEngine:
         strategy_type: str,
         ticker: str,
         timeframe: str,
-        parameters: Dict[str, Any],
-    ) -> Optional[Any]:
+        parameters: dict[str, Any],
+    ) -> Any | None:
         """Check if a pre-computed result exists for the given parameters."""
         if not self.cache_manager:
             return None
@@ -606,7 +606,7 @@ class PrecomputeEngine:
             logger.debug(f"Failed to retrieve pre-computed result: {e}")
             return None
 
-    def trigger_immediate_precompute(self, limit: int = 5) -> Dict[str, str]:
+    def trigger_immediate_precompute(self, limit: int = 5) -> dict[str, str]:
         """Trigger immediate pre-computation for top combinations."""
         if not self.cache_manager:
             return {"error": "No cache manager available"}
@@ -643,12 +643,12 @@ class PrecomputeEngine:
                 job.status = "failed"
                 job.error_message = str(e)
                 job.completed_at = datetime.now()
-                results[job.job_id] = f"failed - {str(e)}"
+                results[job.job_id] = f"failed - {e!s}"
                 self.precompute_jobs[job.job_id] = job
 
         return results
 
-    def get_precompute_status(self) -> Dict[str, Any]:
+    def get_precompute_status(self) -> dict[str, Any]:
         """Get pre-computation status and statistics."""
         top_combinations = self.usage_analyzer.get_top_combinations(limit=10)
         usage_insights = self.usage_analyzer.get_parameter_insights()
@@ -663,9 +663,9 @@ class PrecomputeEngine:
                     "ticker": combo.ticker,
                     "timeframe": combo.timeframe,
                     "access_count": combo.access_count,
-                    "last_accessed": combo.last_accessed.isoformat()
-                    if combo.last_accessed
-                    else None,
+                    "last_accessed": (
+                        combo.last_accessed.isoformat() if combo.last_accessed else None
+                    ),
                     "computation_time_ms": combo.computation_time_ms,
                 }
                 for combo in top_combinations
@@ -685,11 +685,11 @@ class PrecomputeEngine:
 
 
 # Global pre-compute engine instance
-_global_precompute_engine: Optional[PrecomputeEngine] = None
+_global_precompute_engine: PrecomputeEngine | None = None
 
 
 def get_precompute_engine(
-    cache_manager: Optional[IntelligentCacheManager] = None, auto_start: bool = False
+    cache_manager: IntelligentCacheManager | None = None, auto_start: bool = False
 ) -> PrecomputeEngine:
     """Get or create global pre-compute engine instance."""
     global _global_precompute_engine
@@ -704,7 +704,7 @@ def get_precompute_engine(
 
 
 def configure_precomputing(
-    cache_manager: Optional[IntelligentCacheManager] = None,
+    cache_manager: IntelligentCacheManager | None = None,
     precompute_interval: int = 3600,
     max_precompute_time: int = 1800,
     result_ttl: int = 86400,

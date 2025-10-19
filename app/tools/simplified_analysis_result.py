@@ -7,7 +7,7 @@ StatisticalAnalysisResult model.
 """
 
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -35,7 +35,7 @@ class SimpleAnalysisResult(BaseModel):
     analysis_mode: str = Field(description="Type of analysis performed")
 
     # Additional metrics (flexible)
-    metrics: Dict[str, Any] = Field(
+    metrics: dict[str, Any] = Field(
         default_factory=dict, description="Additional analysis metrics"
     )
 
@@ -46,7 +46,7 @@ class SimpleAnalysisResult(BaseModel):
         use_enum_values = True
 
 
-def convert_to_standard_result(simple_result: SimpleAnalysisResult) -> Dict[str, Any]:
+def convert_to_standard_result(simple_result: SimpleAnalysisResult) -> dict[str, Any]:
     """
     Convert SimpleAnalysisResult to a format compatible with existing output functions.
 

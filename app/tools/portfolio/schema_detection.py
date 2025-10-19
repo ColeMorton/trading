@@ -11,18 +11,13 @@ It handles schema versions:
 The module migrates all data to the canonical Extended schema to ensure consistency.
 """
 
+from collections.abc import Callable
 import csv
 import io
 import os
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
-from app.tools.portfolio.base_extended_schemas import (
-    BasePortfolioSchema,
-    ExtendedPortfolioSchema,
-    FilteredPortfolioSchema,
-    SchemaTransformer,
-    SchemaType,
-)
+from app.tools.portfolio.base_extended_schemas import SchemaTransformer, SchemaType
 
 
 # Backward compatibility aliases
@@ -34,7 +29,7 @@ class SchemaVersion:
     CANONICAL = SchemaType.FILTERED  # Keep old meaning of canonical as filtered
 
 
-def detect_schema_version(csv_data: List[Dict[str, Any]]) -> SchemaVersion:
+def detect_schema_version(csv_data: list[dict[str, Any]]) -> SchemaVersion:
     """Detect the schema version of a portfolio CSV file.
 
     Args:
@@ -54,13 +49,12 @@ def detect_schema_version(csv_data: List[Dict[str, Any]]) -> SchemaVersion:
 
     if schema_type == SchemaType.FILTERED:
         return SchemaVersion.CANONICAL  # Filtered is considered canonical
-    elif schema_type == SchemaType.EXTENDED:
+    if schema_type == SchemaType.EXTENDED:
         return SchemaVersion.EXTENDED
-    elif schema_type == SchemaType.BASE:
+    if schema_type == SchemaType.BASE:
         return SchemaVersion.BASE
-    else:
-        # Fallback for unknown schemas
-        return SchemaVersion.BASE
+    # Fallback for unknown schemas
+    return SchemaVersion.BASE
 
 
 def detect_schema_version_from_file(file_path: str) -> SchemaVersion:
@@ -79,7 +73,7 @@ def detect_schema_version_from_file(file_path: str) -> SchemaVersion:
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
 
-    with open(file_path, "r", newline="", encoding="utf-8") as f:
+    with open(file_path, newline="", encoding="utf-8") as f:
         # Read the header row to detect the schema version
         reader = csv.reader(f)
         header = next(reader, None)
@@ -94,9 +88,9 @@ def detect_schema_version_from_file(file_path: str) -> SchemaVersion:
             schema_type = SchemaTransformer.detect_schema_type_from_columns(header)
             if schema_type == "filtered":
                 return SchemaVersion.CANONICAL  # Filtered is considered canonical
-            elif schema_type == "extended":
+            if schema_type == "extended":
                 return SchemaVersion.EXTENDED
-            elif schema_type == "base":
+            if schema_type == "base":
                 return SchemaVersion.BASE
         except ImportError:
             pass  # Fall back to legacy detection
@@ -114,7 +108,7 @@ def detect_schema_version_from_file(file_path: str) -> SchemaVersion:
         return SchemaVersion.BASE
 
 
-def detect_schema_version_from_headers(headers: List[str]) -> SchemaVersion:
+def detect_schema_version_from_headers(headers: list[str]) -> SchemaVersion:
     """Detect the schema version from CSV headers.
 
     Args:
@@ -135,10 +129,10 @@ def detect_schema_version_from_headers(headers: List[str]) -> SchemaVersion:
 
 
 def normalize_portfolio_data(
-    csv_data: List[Dict[str, Any]],
-    schema_version: Optional[SchemaVersion] | None = None,
-    log: Optional[Callable[[str, Optional[str]], None]] = None,
-) -> List[Dict[str, Any]]:
+    csv_data: list[dict[str, Any]],
+    schema_version: SchemaVersion | None | None = None,
+    log: Callable[[str, str | None], None] | None = None,
+) -> list[dict[str, Any]]:
     """Normalize portfolio data to the canonical 61-column schema.
 
     This function migrates data from any schema version to the canonical schema:
@@ -182,10 +176,9 @@ def normalize_portfolio_data(
                         "info",
                     )
                 return _transform_to_canonical_schema(csv_data, schema_version, log)
-            else:
-                if log:
-                    log("Data already in canonical schema format", "info")
-                return csv_data.copy()
+            if log:
+                log("Data already in canonical schema format", "info")
+            return csv_data.copy()
         except ImportError:
             if log:
                 log("Data already in canonical schema format", "info")
@@ -196,10 +189,10 @@ def normalize_portfolio_data(
 
 
 def _transform_to_canonical_schema(
-    csv_data: List[Dict[str, Any]],
+    csv_data: list[dict[str, Any]],
     current_schema: SchemaVersion,
-    log: Optional[Callable[[str, Optional[str]], None]] = None,
-) -> List[Dict[str, Any]]:
+    log: Callable[[str, str | None], None] | None = None,
+) -> list[dict[str, Any]]:
     """
     Transform data from any schema to the canonical 61-column schema.
 
@@ -250,10 +243,6 @@ def _transform_to_canonical_schema(
         "FAST_PERIOD": "Fast Period",
         "SLOW_PERIOD": "Slow Period",
         "SIGNAL_PERIOD": "Signal Period",
-        # Legacy parameter names for backwards compatibility
-        "FAST_PERIOD": "Fast Period",
-        "SLOW_PERIOD": "Slow Period",
-        "SIGNAL_PERIOD": "Signal Period",
         "STOP_LOSS": "Stop Loss [%]",
         "SIGNAL_ENTRY": "Signal Entry",
         "SIGNAL_EXIT": "Signal Exit",
@@ -295,7 +284,7 @@ def _transform_to_canonical_schema(
 
 
 def _get_canonical_default_value(
-    column_name: str, source_row: Dict[str, Any], source_schema: SchemaVersion
+    column_name: str, source_row: dict[str, Any], source_schema: SchemaVersion
 ) -> Any:
     """
     Get appropriate default value for a missing canonical column.
@@ -323,10 +312,6 @@ def _get_canonical_default_value(
         "Ticker": source_row.get("Ticker") or source_row.get("TICKER") or "UNKNOWN",
         "Allocation [%]": None,
         "Strategy Type": "SMA",
-        "Fast Period": 20,
-        "Slow Period": 50,
-        "Signal Period": 0,
-        # Legacy column names for backwards compatibility during import
         "Fast Period": 20,
         "Slow Period": 50,
         "Signal Period": 0,
@@ -385,14 +370,14 @@ def _get_canonical_default_value(
         "Total Period": 0.0,
     }
 
-    return defaults.get(column_name, None)
+    return defaults.get(column_name)
 
 
 # Legacy functions preserved for backward compatibility
 def ensure_allocation_sum_100_percent(
-    portfolio_list: List[Dict[str, Any]],
-    log: Optional[Callable[[str, Optional[str]], None]] = None,
-) -> List[Dict[str, Any]]:
+    portfolio_list: list[dict[str, Any]],
+    log: Callable[[str, str | None], None] | None = None,
+) -> list[dict[str, Any]]:
     """
     Ensure portfolio allocations sum to 100%.
 
@@ -416,7 +401,7 @@ def ensure_allocation_sum_100_percent(
 
     for portfolio in portfolio_list:
         allocation = portfolio.get(allocation_field)
-        if allocation is not None and allocation != "" and allocation != "None":
+        if allocation is not None and allocation not in ("", "None"):
             try:
                 total_allocation += float(allocation)
             except (ValueError, TypeError):
@@ -432,7 +417,7 @@ def ensure_allocation_sum_100_percent(
 
             for portfolio in portfolio_list:
                 allocation = portfolio.get(allocation_field)
-                if allocation is None or allocation == "" or allocation == "None":
+                if allocation is None or allocation in ("", "None"):
                     portfolio[allocation_field] = equal_allocation
 
             if log:
@@ -445,9 +430,9 @@ def ensure_allocation_sum_100_percent(
 
 
 def convert_to_extended_schema_csv(
-    portfolio_list: List[Dict[str, Any]],
+    portfolio_list: list[dict[str, Any]],
     ticker: str = "",
-    log: Optional[Callable[[str, Optional[str]], None]] = None,
+    log: Callable[[str, str | None], None] | None = None,
 ) -> str:
     """
     Convert portfolio list to extended schema CSV string.
@@ -470,7 +455,6 @@ def convert_to_extended_schema_csv(
 
     # Convert to CSV string
     import csv
-    import io
 
     output = io.StringIO()
 

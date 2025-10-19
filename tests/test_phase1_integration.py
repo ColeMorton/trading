@@ -114,20 +114,16 @@ class TestPhase1Integration:
     def test_memory_optimization_validation(self):
         """Validate memory optimization improvements."""
         # Simulate old pipeline with multiple conversions
-        data = [{"ticker": f"TICK{i}", "value": i} for i in range(100)]
+        [{"ticker": f"TICK{i}", "value": i} for i in range(100)]
 
         # Old approach: multiple conversions
         conversions_old = 0
-        temp_df = data  # Dict -> DataFrame
         conversions_old += 1
-        temp_dict = temp_df  # DataFrame -> Dict
         conversions_old += 1
-        final_df = temp_dict  # Dict -> DataFrame again
         conversions_old += 1
 
         # New approach: single conversion
         conversions_new = 0
-        final_result = data  # Keep as dict until final conversion
         conversions_new += 1  # Single conversion at the end
 
         # New approach should have fewer conversions

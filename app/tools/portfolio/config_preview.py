@@ -137,4 +137,3 @@ def show_portfolio_synthesis_config_preview(
 
     console.console.print(table)
     console.warning("This is a dry run. Use --no-dry-run to execute.")
-

@@ -5,7 +5,8 @@ This module handles the calculation and organization of performance metrics
 for protective stop loss analysis.
 """
 
-from typing import Any, Callable, Dict
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 import vectorbt as vbt
@@ -52,9 +53,9 @@ def calculate_portfolio_metrics(
 def create_portfolio_stats(
     portfolio: "vbt.Portfolio",
     holding_period: int,
-    config: Dict[str, Any],
+    config: dict[str, Any],
     log: Callable[[str, str], None],
-) -> Dict:
+) -> dict:
     """
     Create portfolio statistics dictionary with holding period information.
 
@@ -73,7 +74,7 @@ def create_portfolio_stats(
     return converted_stats
 
 
-def create_filename(config: Dict) -> str:
+def create_filename(config: dict) -> str:
     """
     Create standardized filename for exporting results.
 

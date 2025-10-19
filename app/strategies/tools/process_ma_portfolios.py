@@ -6,7 +6,7 @@ for a given ticker, including data retrieval, signal calculation, and backtestin
 It supports both regular tickers and synthetic tickers (identified by an underscore).
 """
 
-from typing import Callable, Optional, Tuple
+from collections.abc import Callable
 
 import polars as pl
 
@@ -17,21 +17,22 @@ from app.tools.get_data import get_data
 
 def process_ma_portfolios(
     ticker: str,
-    sma_fast: Optional[int],
-    sma_slow: Optional[int],
-    ema_fast: Optional[int],
-    ema_slow: Optional[int],
+    sma_fast: int | None,
+    sma_slow: int | None,
+    ema_fast: int | None,
+    ema_slow: int | None,
     config: dict,
     log: Callable,
-) -> Optional[
-    Tuple[
-        Optional[pl.DataFrame],
-        Optional[pl.DataFrame],
+) -> (
+    tuple[
+        pl.DataFrame | None,
+        pl.DataFrame | None,
         dict,
-        Optional[pl.DataFrame],
-        Optional[pl.DataFrame],
+        pl.DataFrame | None,
+        pl.DataFrame | None,
     ]
-]:
+    | None
+):
     """
     Process SMA and/or EMA portfolios for a given ticker.
 
@@ -64,9 +65,9 @@ def process_ma_portfolios(
         if isinstance(data_result, tuple):
             data, synthetic_ticker = data_result  # Unpack tuple
             log(f"Received synthetic ticker data for {synthetic_ticker}")
-            strategy_config[
-                "TICKER"
-            ] = synthetic_ticker  # Update config with synthetic ticker
+            strategy_config["TICKER"] = (
+                synthetic_ticker  # Update config with synthetic ticker
+            )
         else:
             data = data_result
 
@@ -122,11 +123,10 @@ def process_ma_portfolios(
         # Return results if at least one strategy was processed
         if sma_portfolio is not None or ema_portfolio is not None:
             return sma_portfolio, ema_portfolio, strategy_config, sma_data, ema_data
-        else:
-            log(f"No valid strategies processed for {current_ticker}", "error")
-            return None
+        log(f"No valid strategies processed for {current_ticker}", "error")
+        return None
 
     except Exception as e:
-        error_msg = f"Failed to process {current_ticker}: {str(e)}"
+        error_msg = f"Failed to process {current_ticker}: {e!s}"
         log(error_msg, "error")
         raise Exception(error_msg) from e

@@ -5,8 +5,8 @@ This module provides functions for generating and processing heatmaps
 from portfolio data for the EMA cross strategy.
 """
 
-import os
 from datetime import datetime
+import os
 
 import polars as pl
 
@@ -106,5 +106,5 @@ def process_heatmap_data(config: dict, log) -> bool:
         return True
 
     except Exception as e:
-        log(f"Execution failed: {str(e)}", "error")
+        log(f"Execution failed: {e!s}", "error")
         raise

@@ -9,6 +9,7 @@ import vectorbt as vbt
 from app.tools.get_config import get_config
 from app.utils import get_filename, get_path
 
+
 # Logging setup
 log_dir = "logs"
 if not os.path.exists(log_dir):
@@ -204,6 +205,6 @@ else:
         # plt.savefig(f'images/geometric_brownian_motion/{TICKER}_gbm_equity_curves.png')
         # print("Equity curves visualization saved to images/geometric_brownian_motion/equity_curves.png")
     except Exception as e:
-        print(f"Error while plotting equity curves: {str(e)}")
+        print(f"Error while plotting equity curves: {e!s}")
 
 print("Script execution completed.")

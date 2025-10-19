@@ -5,15 +5,10 @@ This module handles portfolio analysis for the SMA_ATR strategy, which combines
 SMA crossovers for entry signals and ATR trailing stops for exit signals.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from app.tools.entry_point import run_from_command_line
 from app.tools.error_decorators import handle_errors
-from app.tools.exceptions import (
-    ConfigurationError,
-    PortfolioLoadError,
-    StrategyProcessingError,
-)
 from app.tools.logging_context import logging_context
 from app.tools.orchestration.portfolio_orchestrator import PortfolioOrchestrator
 from app.tools.portfolio.allocation import (
@@ -40,14 +35,9 @@ from app.tools.portfolio_results import (
     sort_portfolios,
 )
 from app.tools.project_utils import get_project_root
-from app.tools.strategy.error_handling import (
-    ErrorSeverity,
-    StrategyErrorCode,
-    create_error_handler,
-    handle_strategy_error,
-)
+from app.tools.strategy.error_handling import handle_strategy_error
 from app.tools.strategy.types import StrategyConfig as Config
-from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_types
+from app.tools.strategy_utils import filter_portfolios_by_signal
 
 from .exceptions import (
     SMAAtrConfigurationError,
@@ -55,7 +45,7 @@ from .exceptions import (
     SMAAtrExecutionError,
     SMAAtrPortfolioError,
 )
-from .tools.strategy_execution import execute_strategy
+
 
 # Default configuration for SMA_ATR strategy (optimized for 10x performance)
 CONFIG: Config = {
@@ -84,8 +74,8 @@ CONFIG: Config = {
 
 
 def filter_portfolios(
-    portfolios: List[Dict[str, Any]], config: Config, log
-) -> List[Dict[str, Any]]:
+    portfolios: list[dict[str, Any]], config: Config, log
+) -> list[dict[str, Any]]:
     """Filter portfolios based on configuration.
 
     Args:
@@ -131,7 +121,7 @@ def filter_portfolios(
         normalized_portfolios = normalize_stop_loss(validated_stop_loss, log)
 
         # If we have entry prices, calculate stop loss levels
-        if "ENTRY_PRICES" in config and config["ENTRY_PRICES"]:
+        if config.get("ENTRY_PRICES"):
             normalized_portfolios = calculate_stop_loss_levels(
                 normalized_portfolios, config["ENTRY_PRICES"], log
             )
@@ -175,10 +165,10 @@ def filter_portfolios(
 
 @handle_errors(SMAAtrError)
 def run(
-    config: Optional[Dict[str, Any]] = None,
-    error_handler: Optional[Any] = None,
-    external_log: Optional[Any] = None,
-    progress_update_fn: Optional[Any] = None,
+    config: dict[str, Any] | None = None,
+    error_handler: Any | None = None,
+    external_log: Any | None = None,
+    progress_update_fn: Any | None = None,
 ) -> bool:
     """Run the SMA_ATR strategy execution workflow.
 
@@ -208,12 +198,11 @@ def run(
             def log_wrapper(msg, level="info"):
                 if hasattr(external_log, level):
                     getattr(external_log, level)(msg)
+                # Fallback to info level if specific level doesn't exist
+                elif hasattr(external_log, "info"):
+                    external_log.info(f"[{level.upper()}] {msg}")
                 else:
-                    # Fallback to info level if specific level doesn't exist
-                    if hasattr(external_log, "info"):
-                        external_log.info(f"[{level.upper()}] {msg}")
-                    else:
-                        log(msg, level)
+                    log(msg, level)
 
             log = log_wrapper
 

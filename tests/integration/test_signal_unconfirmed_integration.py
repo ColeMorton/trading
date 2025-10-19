@@ -7,15 +7,9 @@ calculated, processed, and exported in CSV files.
 
 import os
 import tempfile
-from pathlib import Path
-from typing import Dict, List, Tuple
-from unittest.mock import Mock, patch
 
 import polars as pl
-import pytest
 
-from app.strategies.tools.summary_processing import process_ticker_portfolios
-from app.tools.config_service import ConfigService
 from app.tools.stats_converter import convert_stats
 from app.tools.strategy.signal_utils import calculate_signal_unconfirmed
 
@@ -30,8 +24,6 @@ class TestSignalUnconfirmedIntegration:
 
         # Import to verify function signature exists
         import inspect
-
-        from app.tools.stats_converter import convert_stats
 
         # Check that signal_unconfirmed is in the function signature
         sig = inspect.signature(convert_stats)

@@ -5,10 +5,8 @@ This module provides beautiful Rich CLI formatting for moving average analytics 
 including tables, color coding, and visual indicators.
 """
 
-from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
-from rich import print as rprint
 from rich.box import ROUNDED
 from rich.console import Console
 from rich.panel import Panel
@@ -23,7 +21,7 @@ class MADisplayFormatter:
         """Initialize formatter with console."""
         self.console = console or Console()
 
-    def display_complete_analysis(self, metrics: Dict[str, Any]) -> None:
+    def display_complete_analysis(self, metrics: dict[str, Any]) -> None:
         """Display complete analysis with all sections."""
         self._display_summary_header(metrics["summary"])
         self._display_risk_metrics_table(metrics["risk_metrics"])
@@ -31,7 +29,7 @@ class MADisplayFormatter:
         self._display_trend_analysis_table(metrics["trend_metrics"])
         self._display_statistical_summary(metrics["statistical_metrics"])
 
-    def _display_summary_header(self, summary: Dict[str, Any]) -> None:
+    def _display_summary_header(self, summary: dict[str, Any]) -> None:
         """Display summary header panel."""
         start_date = summary["start_date"]
         end_date = summary["end_date"]
@@ -65,7 +63,7 @@ class MADisplayFormatter:
         self.console.print(panel)
         self.console.print()  # Add spacing
 
-    def _display_risk_metrics_table(self, risk_metrics: Dict[str, float]) -> None:
+    def _display_risk_metrics_table(self, risk_metrics: dict[str, float]) -> None:
         """Display risk metrics in a formatted table."""
         table = Table(
             title="⚠️ Risk & Risk-Adjusted Performance Analysis",
@@ -110,7 +108,10 @@ class MADisplayFormatter:
         volatility = risk_metrics["volatility"]
         vol_rating = self._rate_volatility(volatility)
         table.add_row(
-            "📊 Volatility (Annual)", f"{volatility:.2f}%", vol_rating, "15-25% Moderate"
+            "📊 Volatility (Annual)",
+            f"{volatility:.2f}%",
+            vol_rating,
+            "15-25% Moderate",
         )
 
         # VaR 95%
@@ -134,7 +135,7 @@ class MADisplayFormatter:
         self.console.print(table)
         self.console.print()  # Add spacing
 
-    def _display_performance_metrics_table(self, performance: Dict[str, float]) -> None:
+    def _display_performance_metrics_table(self, performance: dict[str, float]) -> None:
         """Display performance metrics in a formatted table."""
         table = Table(
             title="💰 Performance Metrics",
@@ -182,7 +183,7 @@ class MADisplayFormatter:
         self.console.print(table)
         self.console.print()  # Add spacing
 
-    def _display_trend_analysis_table(self, trend_metrics: Dict[str, Any]) -> None:
+    def _display_trend_analysis_table(self, trend_metrics: dict[str, Any]) -> None:
         """Display trend analysis in a formatted table."""
         table = Table(
             title="📈 Trend Analysis",
@@ -230,7 +231,7 @@ class MADisplayFormatter:
         self.console.print(table)
         self.console.print()  # Add spacing
 
-    def _display_statistical_summary(self, stats: Dict[str, float]) -> None:
+    def _display_statistical_summary(self, stats: dict[str, float]) -> None:
         """Display statistical summary in a compact format."""
         # Create a summary panel with key statistics
         mean_return = stats["mean_return"] * 100  # Convert to percentage
@@ -259,170 +260,156 @@ class MADisplayFormatter:
         """Rate Sharpe ratio with color and emoji."""
         if sharpe >= 2.0:
             return Text("🔥 Excellent", style="bright_green")
-        elif sharpe >= 1.5:
+        if sharpe >= 1.5:
             return Text("📈 Very Good", style="green")
-        elif sharpe >= 1.0:
+        if sharpe >= 1.0:
             return Text("✅ Good", style="yellow")
-        elif sharpe >= 0.5:
+        if sharpe >= 0.5:
             return Text("⚖️ Fair", style="yellow")
-        else:
-            return Text("📉 Poor", style="red")
+        return Text("📉 Poor", style="red")
 
     def _rate_sortino_ratio(self, sortino: float) -> Text:
         """Rate Sortino ratio with color and emoji."""
         if sortino >= 2.5:
             return Text("🔥 Excellent", style="bright_green")
-        elif sortino >= 2.0:
+        if sortino >= 2.0:
             return Text("📈 Very Good", style="green")
-        elif sortino >= 1.5:
+        if sortino >= 1.5:
             return Text("✅ Good", style="yellow")
-        elif sortino >= 1.0:
+        if sortino >= 1.0:
             return Text("⚖️ Fair", style="yellow")
-        else:
-            return Text("📉 Poor", style="red")
+        return Text("📉 Poor", style="red")
 
     def _rate_max_drawdown(self, drawdown: float) -> Text:
         """Rate max drawdown with color and emoji."""
         if drawdown <= 5:
             return Text("✅ Excellent", style="bright_green")
-        elif drawdown <= 10:
+        if drawdown <= 10:
             return Text("📈 Good", style="green")
-        elif drawdown <= 20:
+        if drawdown <= 20:
             return Text("⚠️ Moderate", style="yellow")
-        elif drawdown <= 30:
+        if drawdown <= 30:
             return Text("📉 High", style="yellow")
-        else:
-            return Text("🚨 Very High", style="red")
+        return Text("🚨 Very High", style="red")
 
     def _rate_volatility(self, volatility: float) -> Text:
         """Rate volatility with color and emoji."""
         if volatility <= 10:
             return Text("😴 Very Low", style="green")
-        elif volatility <= 20:
+        if volatility <= 20:
             return Text("📈 Low", style="yellow")
-        elif volatility <= 30:
+        if volatility <= 30:
             return Text("⚖️ Moderate", style="yellow")
-        elif volatility <= 40:
+        if volatility <= 40:
             return Text("📊 High", style="red")
-        else:
-            return Text("🌪️ Very High", style="bright_red")
+        return Text("🌪️ Very High", style="bright_red")
 
     def _format_var_display(self, var: float) -> Text:
         """Format VaR display with appropriate color."""
         if var >= -1:
             return Text("✅ Low Risk", style="green")
-        elif var >= -3:
+        if var >= -3:
             return Text("⚠️ Moderate", style="yellow")
-        elif var >= -5:
+        if var >= -5:
             return Text("📉 High Risk", style="yellow")
-        else:
-            return Text("🚨 Very High", style="red")
+        return Text("🚨 Very High", style="red")
 
     def _rate_return(self, return_pct: float) -> Text:
         """Rate total return with color and emoji."""
         if return_pct >= 50:
             return Text("🔥 Exceptional", style="bright_green")
-        elif return_pct >= 20:
+        if return_pct >= 20:
             return Text("📈 Strong", style="green")
-        elif return_pct >= 10:
+        if return_pct >= 10:
             return Text("✅ Good", style="yellow")
-        elif return_pct >= 0:
+        if return_pct >= 0:
             return Text("⚖️ Positive", style="yellow")
-        else:
-            return Text("📉 Negative", style="red")
+        return Text("📉 Negative", style="red")
 
     def _rate_annual_return(self, return_pct: float) -> Text:
         """Rate annualized return with color and emoji."""
         if return_pct >= 20:
             return Text("🔥 Excellent", style="bright_green")
-        elif return_pct >= 15:
+        if return_pct >= 15:
             return Text("📈 Very Good", style="green")
-        elif return_pct >= 10:
+        if return_pct >= 10:
             return Text("✅ Good", style="yellow")
-        elif return_pct >= 5:
+        if return_pct >= 5:
             return Text("⚖️ Fair", style="yellow")
-        else:
-            return Text("📉 Poor", style="red")
+        return Text("📉 Poor", style="red")
 
     def _rate_calmar_ratio(self, calmar: float) -> Text:
         """Rate Calmar ratio with color and emoji."""
         if calmar >= 3:
             return Text("🔥 Excellent", style="bright_green")
-        elif calmar >= 2:
+        if calmar >= 2:
             return Text("📈 Very Good", style="green")
-        elif calmar >= 1:
+        if calmar >= 1:
             return Text("✅ Good", style="yellow")
-        elif calmar >= 0.5:
+        if calmar >= 0.5:
             return Text("⚖️ Fair", style="yellow")
-        else:
-            return Text("📉 Poor", style="red")
+        return Text("📉 Poor", style="red")
 
     def _rate_information_ratio(self, info_ratio: float) -> Text:
         """Rate Information ratio with color and emoji."""
         if info_ratio >= 1.0:
             return Text("🔥 Excellent", style="bright_green")
-        elif info_ratio >= 0.75:
+        if info_ratio >= 0.75:
             return Text("📈 Very Good", style="green")
-        elif info_ratio >= 0.5:
+        if info_ratio >= 0.5:
             return Text("✅ Good", style="yellow")
-        elif info_ratio >= 0.25:
+        if info_ratio >= 0.25:
             return Text("⚖️ Fair", style="yellow")
-        else:
-            return Text("📉 Poor", style="red")
+        return Text("📉 Poor", style="red")
 
     def _format_trend_direction(self, direction: str) -> Text:
         """Format trend direction with appropriate emoji and color."""
         if direction == "Upward":
             return Text("🎯 Bullish", style="green")
-        elif direction == "Downward":
+        if direction == "Downward":
             return Text("🎯 Bearish", style="red")
-        else:
-            return Text("🎯 Neutral", style="yellow")
+        return Text("🎯 Neutral", style="yellow")
 
     def _format_trend_strength(self, strength: str) -> Text:
         """Format trend strength with emoji and color."""
         if strength in ["Very Strong", "Strong"]:
             return Text("🔥 Strong", style="green")
-        elif strength == "Moderate":
+        if strength == "Moderate":
             return Text("⚖️ Moderate", style="yellow")
-        else:
-            return Text("📊 Weak", style="yellow")
+        return Text("📊 Weak", style="yellow")
 
     def _rate_r_squared(self, r_squared: float) -> Text:
         """Rate R-squared with color and emoji."""
         if r_squared >= 0.8:
             return Text("✅ Excellent Fit", style="bright_green")
-        elif r_squared >= 0.6:
+        if r_squared >= 0.6:
             return Text("📈 Good Fit", style="green")
-        elif r_squared >= 0.4:
+        if r_squared >= 0.4:
             return Text("⚖️ Moderate Fit", style="yellow")
-        elif r_squared >= 0.2:
+        if r_squared >= 0.2:
             return Text("📊 Weak Fit", style="yellow")
-        else:
-            return Text("📉 Poor Fit", style="red")
+        return Text("📉 Poor Fit", style="red")
 
     def _rate_smoothness(self, smoothness: float) -> Text:
         """Rate smoothness factor with color and emoji."""
         if smoothness >= 0.9:
             return Text("🌊 Very Smooth", style="green")
-        elif smoothness >= 0.8:
+        if smoothness >= 0.8:
             return Text("📈 Smooth", style="yellow")
-        elif smoothness >= 0.7:
+        if smoothness >= 0.7:
             return Text("⚖️ Moderate", style="yellow")
-        else:
-            return Text("📊 Volatile", style="red")
+        return Text("📊 Volatile", style="red")
 
     def _format_slope_indicator(self, slope: float) -> Text:
         """Format slope indicator with appropriate emoji."""
         if slope > 0.001:
             return Text("📈 Rising", style="green")
-        elif slope < -0.001:
+        if slope < -0.001:
             return Text("📉 Falling", style="red")
-        else:
-            return Text("➡️ Flat", style="yellow")
+        return Text("➡️ Flat", style="yellow")
 
     # Period Analysis Display Methods
-    def display_period_analysis(self, period_metrics: Dict[str, Any]) -> None:
+    def display_period_analysis(self, period_metrics: dict[str, Any]) -> None:
         """Display complete period analysis with all sections."""
         asset_info = period_metrics.get("asset_info", {})
         self._display_rolling_performance_table(
@@ -436,8 +423,8 @@ class MADisplayFormatter:
 
     def _display_rolling_performance_table(
         self,
-        rolling_performance: Dict[str, Dict[str, float]],
-        asset_info: Dict[str, Any] = None,
+        rolling_performance: dict[str, dict[str, float]],
+        asset_info: dict[str, Any] | None = None,
     ) -> None:
         """Display rolling performance metrics table."""
         # Add asset type note to title if available
@@ -463,9 +450,11 @@ class MADisplayFormatter:
         if "weekly" in rolling_performance:
             weekly = rolling_performance["weekly"]
             table.add_row(
-                asset_info.get("period_labels", {}).get("weekly", "🗓️ Weekly (5d)")
-                if asset_info
-                else "🗓️ Weekly (5d)",
+                (
+                    asset_info.get("period_labels", {}).get("weekly", "🗓️ Weekly (5d)")
+                    if asset_info
+                    else "🗓️ Weekly (5d)"
+                ),
                 f"{weekly['avg_return']:+.2f}%",
                 f"{weekly['avg_sharpe']:.2f}",
                 f"{weekly['avg_volatility']:.1f}%",
@@ -477,9 +466,13 @@ class MADisplayFormatter:
         if "monthly" in rolling_performance:
             monthly = rolling_performance["monthly"]
             table.add_row(
-                asset_info.get("period_labels", {}).get("monthly", "📅 Monthly (21d)")
-                if asset_info
-                else "📅 Monthly (21d)",
+                (
+                    asset_info.get("period_labels", {}).get(
+                        "monthly", "📅 Monthly (21d)"
+                    )
+                    if asset_info
+                    else "📅 Monthly (21d)"
+                ),
                 f"{monthly['avg_return']:+.2f}%",
                 f"{monthly['avg_sharpe']:.2f}",
                 f"{monthly['avg_volatility']:.1f}%",
@@ -490,7 +483,7 @@ class MADisplayFormatter:
         self.console.print(table)
         self.console.print()  # Add spacing
 
-    def _display_seasonality_patterns_table(self, seasonality: Dict[str, Any]) -> None:
+    def _display_seasonality_patterns_table(self, seasonality: dict[str, Any]) -> None:
         """Display seasonality patterns table."""
         patterns = seasonality.get("patterns", {})
 
@@ -573,7 +566,7 @@ class MADisplayFormatter:
         self.console.print()  # Add spacing
 
     def _display_period_comparison_summary(
-        self, comparison: Dict[str, Any], asset_info: Dict[str, Any] = None
+        self, comparison: dict[str, Any], asset_info: dict[str, Any] | None = None
     ) -> None:
         """Display period comparison summary panel."""
         # Get dynamic labels
@@ -642,7 +635,7 @@ class MADisplayFormatter:
         self.console.print()  # Add spacing
 
     def _display_calendar_patterns_table(
-        self, calendar_analysis: Dict[str, Any]
+        self, calendar_analysis: dict[str, Any]
     ) -> None:
         """Display calendar patterns (day of week, month of year effects)."""
         table = Table(
@@ -699,7 +692,7 @@ class MADisplayFormatter:
         self.console.print()  # Add spacing
 
 
-def display_ma_analysis(metrics: Dict[str, Any], console: Console = None) -> None:
+def display_ma_analysis(metrics: dict[str, Any], console: Console = None) -> None:
     """
     Convenience function to display complete MA analysis.
 
@@ -712,7 +705,7 @@ def display_ma_analysis(metrics: Dict[str, Any], console: Console = None) -> Non
 
 
 def display_ma_period_analysis(
-    period_metrics: Dict[str, Any], console: Console = None
+    period_metrics: dict[str, Any], console: Console = None
 ) -> None:
     """
     Convenience function to display period-specific MA analysis.

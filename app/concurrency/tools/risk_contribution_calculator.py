@@ -9,12 +9,13 @@ Includes Phase 4 enhancements: advanced variance estimation and strict validatio
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import polars as pl
 
 from app.tools.exceptions import PortfolioVarianceError, RiskCalculationError
+
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +32,8 @@ class RiskContributionCalculator:
 
     @staticmethod
     def calculate_portfolio_metrics(
-        returns: np.ndarray, weights: np.ndarray, strategy_names: List[str]
-    ) -> Dict[str, Any]:
+        returns: np.ndarray, weights: np.ndarray, strategy_names: list[str]
+    ) -> dict[str, Any]:
         """
         Calculate complete portfolio risk metrics with correct risk contributions.
 
@@ -190,15 +191,15 @@ class RiskContributionCalculator:
         logger.info(
             f"Risk contributions calculated - Total: {total_contribution*100:.2f}%"
         )
-        for name, contrib in zip(strategy_names, risk_contributions_pct):
+        for name, contrib in zip(strategy_names, risk_contributions_pct, strict=False):
             logger.info(f"  {name}: {contrib*100:.2f}%")
 
         return risk_metrics
 
     @staticmethod
     def validate_risk_contributions(
-        risk_contributions: Dict[str, float]
-    ) -> Tuple[bool, str]:
+        risk_contributions: dict[str, float],
+    ) -> tuple[bool, str]:
         """
         Validate that risk contributions sum to approximately 100%.
 
@@ -212,19 +213,18 @@ class RiskContributionCalculator:
 
         if np.isclose(total, 1.0, rtol=1e-3):  # 0.1% tolerance
             return True, f"Risk contributions valid: {total*100:.2f}%"
-        else:
-            return (
-                False,
-                f"Risk contributions invalid: {total*100:.2f}% (expected 100%)",
-            )
+        return (
+            False,
+            f"Risk contributions invalid: {total*100:.2f}% (expected 100%)",
+        )
 
     @staticmethod
     def calculate_portfolio_metrics_from_returns(
         portfolio_returns: np.ndarray,
         strategy_returns: np.ndarray,
         weights: np.ndarray,
-        strategy_names: List[str],
-    ) -> Dict[str, Any]:
+        strategy_names: list[str],
+    ) -> dict[str, Any]:
         """
         Calculate portfolio metrics directly from portfolio return series.
 
@@ -333,8 +333,8 @@ class RiskContributionCalculator:
 
     @staticmethod
     def calculate_portfolio_metrics_with_cov(
-        cov_matrix: np.ndarray, weights: np.ndarray, strategy_names: List[str]
-    ) -> Dict[str, Any]:
+        cov_matrix: np.ndarray, weights: np.ndarray, strategy_names: list[str]
+    ) -> dict[str, Any]:
         """
         Calculate portfolio metrics using a pre-computed covariance matrix.
 
@@ -498,7 +498,7 @@ class RiskContributionCalculator:
         logger.info(
             f"Risk contributions calculated - Total: {total_contribution*100:.2f}%"
         )
-        for name, contrib in zip(strategy_names, risk_contributions_pct):
+        for name, contrib in zip(strategy_names, risk_contributions_pct, strict=False):
             logger.info(f"  {name}: {contrib*100:.2f}%")
 
         return risk_metrics
@@ -507,11 +507,11 @@ class RiskContributionCalculator:
     def calculate_portfolio_metrics_enhanced(
         returns: np.ndarray,
         weights: np.ndarray,
-        strategy_names: List[str],
+        strategy_names: list[str],
         variance_method: str = "auto",
         validation_level: str = "strict",
-        log: Optional[Any] | None = None,
-    ) -> Dict[str, Any]:
+        log: Any | None | None = None,
+    ) -> dict[str, Any]:
         """
         Calculate portfolio risk metrics using enhanced variance estimation and validation.
 
@@ -533,7 +533,9 @@ class RiskContributionCalculator:
             RiskCalculationError: If calculation fails with enhanced diagnostics
         """
         if log is None:
-            log = lambda msg, level: logger.info(f"[{level.upper()}] {msg}")
+
+            def log(msg, level):
+                return logger.info(f"[{level.upper()}] {msg}")
 
         try:
             # Import Phase 4 modules
@@ -684,7 +686,7 @@ class RiskContributionCalculator:
                 )
 
             except Exception as e:
-                log(f"Could not calculate confidence intervals: {str(e)}", "warning")
+                log(f"Could not calculate confidence intervals: {e!s}", "warning")
                 risk_metrics["portfolio_volatility_ci"] = None
 
             log("Enhanced portfolio risk calculation completed successfully", "info")
@@ -692,23 +694,23 @@ class RiskContributionCalculator:
 
         except (RiskCalculationError, PortfolioVarianceError) as e:
             # Re-raise specific risk calculation errors
-            log(f"Enhanced risk calculation failed: {str(e)}", "error")
+            log(f"Enhanced risk calculation failed: {e!s}", "error")
             raise e
         except Exception as e:
             # Convert unexpected errors to RiskCalculationError with context
-            error_msg = f"Unexpected error in enhanced risk calculation: {str(e)}"
+            error_msg = f"Unexpected error in enhanced risk calculation: {e!s}"
             log(error_msg, "error")
             raise RiskCalculationError(error_msg)
 
     @staticmethod
     def calculate_risk_metrics_from_dataframes(
-        position_arrays: List[np.ndarray],
-        data_list: List[Any],  # List[pl.DataFrame]
-        strategy_allocations: List[float],
-        strategy_names: List[str],
-        strategy_configs: Optional[List[Dict[str, Any]]] = None,
+        position_arrays: list[np.ndarray],
+        data_list: list[Any],  # List[pl.DataFrame]
+        strategy_allocations: list[float],
+        strategy_names: list[str],
+        strategy_configs: list[dict[str, Any]] | None = None,
         use_portfolio_returns: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Calculate risk metrics from position arrays and price data using aligned return series.
 
@@ -741,7 +743,7 @@ class RiskContributionCalculator:
                 # Prepare portfolio data for return alignment
                 portfolios = []
                 for i, (df, position_array, strategy_name) in enumerate(
-                    zip(data_list, position_arrays, strategy_names)
+                    zip(data_list, position_arrays, strategy_names, strict=False)
                 ):
                     # Add position data to dataframe for return calculation
                     df_with_position = df.with_columns(
@@ -917,18 +919,18 @@ class RiskContributionCalculator:
             except Exception as e:
                 # Convert unexpected errors to RiskCalculationError
                 raise RiskCalculationError(
-                    f"Unexpected error in risk calculation: {str(e)}"
+                    f"Unexpected error in risk calculation: {e!s}"
                 )
 
 
 def calculate_risk_contributions_fixed(
-    position_arrays: List[np.ndarray],
-    data_list: List[Any],  # List[pl.DataFrame]
-    strategy_allocations: List[float],
+    position_arrays: list[np.ndarray],
+    data_list: list[Any],  # List[pl.DataFrame]
+    strategy_allocations: list[float],
     log: Any,  # Callable[[str, str], None]
-    strategy_configs: Optional[List[Dict[str, Any]]] = None,
-    use_portfolio_returns: Optional[bool] | None = None,
-) -> Dict[str, float]:
+    strategy_configs: list[dict[str, Any]] | None = None,
+    use_portfolio_returns: bool | None | None = None,
+) -> dict[str, float]:
     """
     Fixed version of calculate_risk_contributions that ensures contributions sum to 100%.
 
@@ -1135,5 +1137,5 @@ def calculate_risk_contributions_fixed(
         return risk_contributions
 
     except Exception as e:
-        log(f"Error calculating risk contributions: {str(e)}", "error")
+        log(f"Error calculating risk contributions: {e!s}", "error")
         raise

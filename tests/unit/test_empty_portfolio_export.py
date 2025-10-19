@@ -10,7 +10,6 @@ consistent file structure.
 """
 
 import tempfile
-from pathlib import Path
 from unittest.mock import Mock, patch
 
 import polars as pl
@@ -55,7 +54,7 @@ class TestEmptyPortfolioExportUnit:
             result = export_best_portfolios([], temp_config, mock_log)
 
             # Verify function returns True (success)
-            assert result == True
+            assert result is True
 
             # Verify logging message for empty portfolios
             mock_log.assert_any_call(
@@ -74,11 +73,14 @@ class TestEmptyPortfolioExportUnit:
         """Test that deduplication is skipped for empty portfolios."""
 
         # Mock the export_portfolios and deduplicate functions
-        with patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
-        ) as mock_export, patch(
-            "app.tools.portfolio.collection.deduplicate_and_aggregate_portfolios"
-        ) as mock_dedup:
+        with (
+            patch(
+                "app.tools.strategy.export_portfolios.export_portfolios"
+            ) as mock_export,
+            patch(
+                "app.tools.portfolio.collection.deduplicate_and_aggregate_portfolios"
+            ) as mock_dedup,
+        ):
             mock_export.return_value = (pl.DataFrame(), True)
 
             # Call function with empty portfolio list
@@ -89,7 +91,7 @@ class TestEmptyPortfolioExportUnit:
 
             # Verify export was still called
             mock_export.assert_called_once()
-            assert result == True
+            assert result is True
 
     def test_export_best_portfolios_with_data_calls_deduplication(
         self, temp_config, mock_log
@@ -112,13 +114,15 @@ class TestEmptyPortfolioExportUnit:
         ]
 
         # Mock the functions
-        with patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
-        ) as mock_export, patch(
-            "app.tools.portfolio.collection.deduplicate_and_aggregate_portfolios"
-        ) as mock_dedup, patch(
-            "app.tools.portfolio.collection.sort_portfolios"
-        ) as mock_sort:
+        with (
+            patch(
+                "app.tools.strategy.export_portfolios.export_portfolios"
+            ) as mock_export,
+            patch(
+                "app.tools.portfolio.collection.deduplicate_and_aggregate_portfolios"
+            ) as mock_dedup,
+            patch("app.tools.portfolio.collection.sort_portfolios") as mock_sort,
+        ):
             mock_export.return_value = (pl.DataFrame(sample_portfolios), True)
             mock_dedup.return_value = sample_portfolios
             mock_sort.return_value = sample_portfolios
@@ -130,7 +134,7 @@ class TestEmptyPortfolioExportUnit:
             mock_dedup.assert_called_once()
             mock_sort.assert_called_once()
             mock_export.assert_called_once()
-            assert result == True
+            assert result is True
 
     def test_portfolio_orchestrator_empty_export_raw_portfolios(
         self, temp_config, mock_log
@@ -211,28 +215,31 @@ class TestEmptyPortfolioExportUnit:
         orchestrator = PortfolioOrchestrator(mock_log)
 
         # Mock all the workflow methods
-        with patch.object(
-            orchestrator, "_initialize_configuration", return_value=temp_config
-        ), patch.object(
-            orchestrator, "_process_synthetic_configuration", return_value=temp_config
-        ), patch.object(
-            orchestrator, "_get_strategies", return_value=["SMA"]
-        ), patch.object(
-            orchestrator, "_execute_strategies", return_value=[]
-        ), patch.object(
-            orchestrator, "_export_raw_portfolios"
-        ) as mock_export_raw, patch.object(
-            orchestrator, "_filter_and_process_portfolios", return_value=[]
-        ), patch.object(
-            orchestrator, "_export_filtered_portfolios"
-        ) as mock_export_filtered, patch.object(
-            orchestrator, "_export_results"
-        ) as mock_export_results:
+        with (
+            patch.object(
+                orchestrator, "_initialize_configuration", return_value=temp_config
+            ),
+            patch.object(
+                orchestrator,
+                "_process_synthetic_configuration",
+                return_value=temp_config,
+            ),
+            patch.object(orchestrator, "_get_strategies", return_value=["SMA"]),
+            patch.object(orchestrator, "_execute_strategies", return_value=[]),
+            patch.object(orchestrator, "_export_raw_portfolios") as mock_export_raw,
+            patch.object(
+                orchestrator, "_filter_and_process_portfolios", return_value=[]
+            ),
+            patch.object(
+                orchestrator, "_export_filtered_portfolios"
+            ) as mock_export_filtered,
+            patch.object(orchestrator, "_export_results") as mock_export_results,
+        ):
             # Run the orchestrator
             result = orchestrator.run(temp_config)
 
             # Verify workflow completed successfully
-            assert result == True
+            assert result is True
 
             # Verify all export methods were called with empty lists
             mock_export_raw.assert_called_once_with([], temp_config)
@@ -287,7 +294,7 @@ class TestEmptyPortfolioExportUnit:
         )
 
         # Verify export succeeded
-        assert success == True
+        assert success is True
         assert isinstance(result_df, pl.DataFrame)
         assert len(result_df) == 0  # No data rows
         assert len(result_df.columns) > 0  # Has columns
@@ -304,7 +311,7 @@ class TestEmptyPortfolioExportUnit:
         ) as mock_export:
             mock_export.return_value = (pl.DataFrame(), True)
 
-            result = export_best_portfolios([], temp_config, mock_log)
+            export_best_portfolios([], temp_config, mock_log)
 
             # Verify specific logging for empty portfolios
             mock_log.assert_any_call(
@@ -349,7 +356,7 @@ class TestEmptyPortfolioExportUnit:
 
             # Verify configuration wasn't permanently modified
             assert temp_config.get("SORT_BY") == original_sort_by
-            assert result == True
+            assert result is True
 
 
 class TestEmptyPortfolioErrorHandling:
@@ -423,7 +430,7 @@ class TestEmptyPortfolioErrorHandling:
 
             # May succeed or fail depending on export_portfolios implementation
             try:
-                result = export_best_portfolios([], incomplete_config, mock_log)
+                export_best_portfolios([], incomplete_config, mock_log)
                 # If it succeeds, verify it was called
                 mock_export.assert_called_once()
             except (KeyError, Exception):

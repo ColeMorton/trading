@@ -1,8 +1,9 @@
 """Progress tracking interface definition."""
 
 from abc import ABC, abstractmethod
+from collections.abc import AsyncIterator
 from datetime import datetime
-from typing import Any, AsyncIterator, Dict, Optional
+from typing import Any
 
 
 class ProgressUpdate(ABC):
@@ -34,7 +35,7 @@ class ProgressTrackerInterface(ABC):
 
     @abstractmethod
     async def track(
-        self, task_id: str, operation: str, total_items: Optional[int] | None = None
+        self, task_id: str, operation: str, total_items: int | None | None = None
     ) -> None:
         """Start tracking a new operation."""
 
@@ -53,7 +54,7 @@ class ProgressTrackerInterface(ABC):
         """Mark a task as failed."""
 
     @abstractmethod
-    async def get_status(self, task_id: str) -> Optional[Dict[str, Any]]:
+    async def get_status(self, task_id: str) -> dict[str, Any] | None:
         """Get current status of a task."""
 
     @abstractmethod

@@ -6,12 +6,12 @@ Runs tests in organized layers with clear reporting and different
 execution strategies for different test types.
 """
 
-import os
+from io import StringIO
+from pathlib import Path
 import sys
 import time
 import unittest
-from io import StringIO
-from pathlib import Path
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
@@ -82,13 +82,13 @@ class TestRunner:
         print(f"   Time: {results['time']:.2f}s")
 
         if not results["success"]:
-            print(f"\n❌ FAILURE DETAILS:")
+            print("\n❌ FAILURE DETAILS:")
             print(results["details"])
 
     def print_final_summary(self):
         """Print final test execution summary."""
         print(f"\n{'='*60}")
-        print(f"📋 FINAL TEST SUMMARY")
+        print("📋 FINAL TEST SUMMARY")
         print(f"{'='*60}")
 
         total_tests = sum(r["tests_run"] for r in self.results.values())
@@ -106,7 +106,7 @@ class TestRunner:
         print(f"Total Skipped: {total_skipped}")
         print(f"Total Time: {self.total_time:.2f}s")
 
-        print(f"\n📈 LAYER BREAKDOWN:")
+        print("\n📈 LAYER BREAKDOWN:")
         for layer_name, results in self.results.items():
             status_icon = "✅" if results["success"] else "❌"
             print(
@@ -148,29 +148,24 @@ def run_all_redesigned_tests():
         ("E2E", "test_*_scenarios.py"),
     ]
 
-    all_success = True
-
     for layer_name, pattern in layers:
         try:
             success = runner.run_test_layer(layer_name, pattern, verbosity=1)
             if not success:
-                all_success = False
                 print(
                     f"\n⚠️  {layer_name} tests failed - continuing with remaining layers..."
                 )
         except Exception as e:
-            print(f"\n💥 Error running {layer_name} tests: {str(e)}")
-            all_success = False
+            print(f"\n💥 Error running {layer_name} tests: {e!s}")
 
     # Print final summary
     final_success = runner.print_final_summary()
 
     if final_success:
-        print(f"\n🎉 ALL TESTS PASSED! Test suite execution completed successfully.")
+        print("\n🎉 ALL TESTS PASSED! Test suite execution completed successfully.")
         return True
-    else:
-        print(f"\n💔 SOME TESTS FAILED. Review failure details above.")
-        return False
+    print("\n💔 SOME TESTS FAILED. Review failure details above.")
+    return False
 
 
 def run_comparison_with_old_tests():
@@ -203,7 +198,9 @@ def run_comparison_with_old_tests():
     if new_success and old_success:
         print("✨ Both test suites pass - migration ready!")
     elif new_success and not old_success:
-        print("🔧 New tests pass but old tests fail - this is expected during migration")
+        print(
+            "🔧 New tests pass but old tests fail - this is expected during migration"
+        )
     elif not new_success and old_success:
         print("⚠️  Old tests pass but new tests fail - need to fix new implementation")
     else:

@@ -6,8 +6,6 @@ It provides a centralized way to register and create strategies, making it easy
 to extend the system with new strategy types.
 """
 
-from typing import Dict, List, Type
-
 from app.tools.exceptions import StrategyError
 from app.tools.strategy.base import BaseStrategy
 from app.tools.strategy.concrete import (
@@ -33,7 +31,7 @@ class StrategyFactory:
     """
 
     _instance = None
-    _strategies: Dict[str, Type[BaseStrategy]] = {}
+    _strategies: dict[str, type[BaseStrategy]] = {}
 
     def __new__(cls):
         """Implement singleton pattern."""
@@ -62,7 +60,7 @@ class StrategyFactory:
             "MACD_CROSS": UnifiedMACDStrategy,
         }
 
-    def register_strategy(self, strategy_type: str, strategy_class: Type[BaseStrategy]):
+    def register_strategy(self, strategy_type: str, strategy_class: type[BaseStrategy]):
         """
         Register a new strategy type with the factory.
 
@@ -105,10 +103,9 @@ class StrategyFactory:
         # Handle both class constructors and callable factories
         if callable(strategy_factory) and not isinstance(strategy_factory, type):
             return strategy_factory()
-        else:
-            return strategy_factory()
+        return strategy_factory()
 
-    def get_available_strategies(self) -> List[str]:
+    def get_available_strategies(self) -> list[str]:
         """
         Get a list of all available strategy types.
 

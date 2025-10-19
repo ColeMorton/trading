@@ -4,19 +4,20 @@ This module provides functionality for generating and analyzing permutations
 of trading strategies to find the most efficient combinations.
 """
 
-import time
+from collections.abc import Callable
 from itertools import combinations
-from typing import Any, Callable, Dict, List, Optional, Tuple
+import time
+from typing import Any
 
 from app.tools.portfolio import StrategyConfig
 
 
 def generate_strategy_permutations(
-    strategies: List[StrategyConfig],
+    strategies: list[StrategyConfig],
     min_strategies: int = 3,
-    max_strategies: Optional[int] = None,
-    max_permutations: Optional[int] = None,
-) -> List[List[StrategyConfig]]:
+    max_strategies: int | None = None,
+    max_permutations: int | None = None,
+) -> list[list[StrategyConfig]]:
     """Generate all valid permutations of strategies with at least min_strategies per permutation.
 
     Args:
@@ -66,11 +67,11 @@ def generate_strategy_permutations(
 
 
 def analyze_permutation(
-    permutation: List[StrategyConfig],
+    permutation: list[StrategyConfig],
     process_strategies_func: Callable,
     analyze_concurrency_func: Callable,
     log: Callable[[str, str], None],
-) -> Tuple[Dict[str, Any], List[Any]]:
+) -> tuple[dict[str, Any], list[Any]]:
     """Analyze a single permutation of strategies.
 
     Args:
@@ -109,13 +110,13 @@ def analyze_permutation(
 
 
 def find_optimal_permutation(
-    strategies: List[StrategyConfig],
+    strategies: list[StrategyConfig],
     process_strategies_func: Callable,
     analyze_concurrency_func: Callable,
     log: Callable[[str, str], None],
     min_strategies: int = 3,
-    max_permutations: Optional[int] | None = None,
-) -> Tuple[List[StrategyConfig], Dict[str, Any], List[Any]]:
+    max_permutations: int | None | None = None,
+) -> tuple[list[StrategyConfig], dict[str, Any], list[Any]]:
     """Find the optimal permutation of strategies based on risk-adjusted efficiency score.
 
     The efficiency_score used for comparison is a comprehensive metric that includes:
@@ -216,7 +217,7 @@ def find_optimal_permutation(
                 )
 
         except Exception as e:
-            log(f"Error analyzing permutation {i+1}: {str(e)}", "error")
+            log(f"Error analyzing permutation {i+1}: {e!s}", "error")
             continue
 
     # Log final results
@@ -227,6 +228,5 @@ def find_optimal_permutation(
             "info",
         )
         return best_permutation, best_stats, best_aligned_data
-    else:
-        log("No valid permutations found", "error")
-        raise ValueError("No valid permutations found")
+    log("No valid permutations found", "error")
+    raise ValueError("No valid permutations found")

@@ -8,9 +8,9 @@ aggregation, and management operations.
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
-from pydantic import BaseModel, Field, model_validator, root_validator, validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from .base import BaseConfig
 
@@ -58,10 +58,10 @@ class PortfolioProcessingConfig(PortfolioConfig):
     """Configuration for detailed portfolio processing and aggregation."""
 
     # Input/output directories
-    input_dir: Optional[Path] = Field(
+    input_dir: Path | None = Field(
         default=None, description="Input directory for portfolio files"
     )
-    output_dir: Optional[Path] = Field(
+    output_dir: Path | None = Field(
         default=None, description="Output directory for processed results"
     )
 
@@ -102,7 +102,8 @@ class PortfolioProcessingConfig(PortfolioConfig):
         default=True, description="Include signal entries filtering"
     )
 
-    @validator("input_dir", "output_dir", pre=True)
+    @field_validator("input_dir", "output_dir", mode="before")
+    @classmethod
     def validate_directories(cls, v):
         """Validate directory paths."""
         if v is not None:
@@ -163,22 +164,21 @@ class ReviewStrategyConfig(BaseModel):
     direction: Direction = Field(
         default=Direction.LONG, description="Trading direction"
     )
-    stop_loss: Optional[float] = Field(
+    stop_loss: float | None = Field(
         default=None, gt=0, description="Stop loss percentage"
     )
     position_size: float = Field(default=1.0, gt=0, description="Position size")
     use_hourly: bool = Field(default=False, description="Use hourly timeframe")
-    rsi_window: Optional[int] = Field(
-        default=None, gt=0, description="RSI window period"
-    )
-    rsi_threshold: Optional[int] = Field(
+    rsi_window: int | None = Field(default=None, gt=0, description="RSI window period")
+    rsi_threshold: int | None = Field(
         default=None, ge=0, le=100, description="RSI threshold"
     )
     signal_period: int = Field(
         default=9, gt=0, description="Signal line window for MACD"
     )
 
-    @validator("slow_period")
+    @field_validator("slow_period")
+    @classmethod
     def validate_window_relationship(cls, v, values):
         """Ensure slow period is greater than fast period."""
         if "fast_period" in values and v <= values["fast_period"]:
@@ -189,20 +189,19 @@ class ReviewStrategyConfig(BaseModel):
 class BenchmarkConfig(BaseModel):
     """Configuration for benchmark comparison."""
 
-    symbol: Optional[str] = Field(
-        default=None, description="Benchmark symbol (e.g., SPY)"
-    )
+    symbol: str | None = Field(default=None, description="Benchmark symbol (e.g., SPY)")
     benchmark_type: BenchmarkType = Field(
         default=BenchmarkType.BUY_AND_HOLD, description="Benchmark type"
     )
-    custom_weights: Optional[Dict[str, float]] = Field(
+    custom_weights: dict[str, float] | None = Field(
         default=None, description="Custom weights for strategies"
     )
     rebalance_frequency: str = Field(
         default="none", description="Rebalancing frequency"
     )
 
-    @validator("custom_weights")
+    @field_validator("custom_weights")
+    @classmethod
     def validate_weights_sum(cls, v):
         """Validate that custom weights sum to 1.0."""
         if v is not None:
@@ -263,11 +262,11 @@ class RawDataExportConfig(BaseModel):
         default=Path("data/outputs/portfolio"),
         description="Base output directory for raw data exports (data/ subdirectory will be created)",
     )
-    export_formats: List[RawDataExportFormat] = Field(
+    export_formats: list[RawDataExportFormat] = Field(
         default=[RawDataExportFormat.CSV, RawDataExportFormat.JSON],
         description="Export formats to generate",
     )
-    data_types: List[RawDataType] = Field(
+    data_types: list[RawDataType] = Field(
         default=[RawDataType.ALL], description="Data types to export"
     )
     include_vectorbt_object: bool = Field(
@@ -287,21 +286,21 @@ class PortfolioSynthesisConfig(BaseConfig):
     """Configuration for portfolio synthesis operations."""
 
     # Strategy configuration
-    strategies: Union[List[ReviewStrategyConfig], str] = Field(
+    strategies: list[ReviewStrategyConfig] | str = Field(
         default_factory=list,
         description="List of strategies to analyze or CSV filename in data/raw/strategies/",
     )
-    raw_strategies: Optional[str] = Field(
+    raw_strategies: str | None = Field(
         default=None,
         description="CSV filename in data/raw/strategies/ to load strategies from",
     )
 
     # Date range (determined by data availability)
-    start_date: Optional[str] = Field(
+    start_date: str | None = Field(
         default=None,
         description="Analysis start date (YYYY-MM-DD) - determined by data intersection if not specified",
     )
-    end_date: Optional[str] = Field(
+    end_date: str | None = Field(
         default=None,
         description="Analysis end date (YYYY-MM-DD) - determined by data intersection if not specified",
     )
@@ -313,7 +312,7 @@ class PortfolioSynthesisConfig(BaseConfig):
     )
 
     # Benchmark configuration
-    benchmark: Optional[BenchmarkConfig] = Field(
+    benchmark: BenchmarkConfig | None = Field(
         default=None, description="Benchmark configuration"
     )
 
@@ -362,7 +361,7 @@ class PortfolioSynthesisConfig(BaseConfig):
         default=False,
         description="Enable parallel processing for multi-strategy analysis",
     )
-    max_workers: Optional[int] = Field(
+    max_workers: int | None = Field(
         default=None,
         gt=0,
         description="Maximum number of parallel workers (default: auto)",
@@ -379,7 +378,8 @@ class PortfolioSynthesisConfig(BaseConfig):
 
         return self
 
-    @validator("start_date", "end_date")
+    @field_validator("start_date", "end_date")
+    @classmethod
     def validate_date_format(cls, v):
         """Validate date format."""
         try:
@@ -388,7 +388,8 @@ class PortfolioSynthesisConfig(BaseConfig):
             raise ValueError("Date must be in YYYY-MM-DD format")
         return v
 
-    @validator("end_date")
+    @field_validator("end_date")
+    @classmethod
     def validate_date_order(cls, v, values):
         """Ensure end_date is after start_date."""
         if "start_date" in values:
@@ -398,7 +399,8 @@ class PortfolioSynthesisConfig(BaseConfig):
                 raise ValueError("end_date must be after start_date")
         return v
 
-    @validator("raw_strategies")
+    @field_validator("raw_strategies")
+    @classmethod
     def validate_raw_strategies(cls, v):
         """Validate raw_strategies CSV file path."""
         if v is not None:
@@ -408,7 +410,8 @@ class PortfolioSynthesisConfig(BaseConfig):
                 raise ValueError(f"Raw strategies CSV file does not exist: {csv_path}")
         return v
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def handle_strategies_string(cls, values):
         """Convert strategies string to list by loading from CSV."""
         strategies = values.get("strategies")
@@ -453,19 +456,18 @@ class PortfolioSynthesisConfig(BaseConfig):
         return len(self.strategies) == 1
 
     @property
-    def unique_tickers(self) -> List[str]:
+    def unique_tickers(self) -> list[str]:
         """Get list of unique tickers."""
-        return list(set(strategy.ticker for strategy in self.strategies))
+        return list({strategy.ticker for strategy in self.strategies})
 
     @property
     def analysis_type(self) -> PortfolioAnalysisType:
         """Determine the analysis type based on configuration."""
         if len(self.strategies) == 1:
             return PortfolioAnalysisType.SINGLE
-        elif self.benchmark is not None:
+        if self.benchmark is not None:
             return PortfolioAnalysisType.COMPARISON
-        else:
-            return PortfolioAnalysisType.MULTI
+        return PortfolioAnalysisType.MULTI
 
     @property
     def portfolio_name(self) -> str:
@@ -474,17 +476,16 @@ class PortfolioSynthesisConfig(BaseConfig):
             strategy = self.strategies[0]
             # Format: ticker_strategy_fast_slow (e.g., btc_ema_11_17)
             return f"{strategy.ticker.lower().replace('-', '_')}_{strategy.strategy_type.value.lower()}_{strategy.fast_period}_{strategy.slow_period}"
-        elif self.raw_strategies:
+        if self.raw_strategies:
             # Use the CSV name as portfolio name
             return self.raw_strategies.lower()
-        else:
-            # Multi-strategy: use unique tickers
-            tickers = "_".join(
-                sorted([t.lower().replace("-", "_") for t in self.unique_tickers])
-            )
-            if len(tickers) > 50:  # Truncate if too long
-                return f"multi_{len(self.unique_tickers)}_strategies"
-            return f"multi_{tickers}"
+        # Multi-strategy: use unique tickers
+        tickers = "_".join(
+            sorted([t.lower().replace("-", "_") for t in self.unique_tickers])
+        )
+        if len(tickers) > 50:  # Truncate if too long
+            return f"multi_{len(self.unique_tickers)}_strategies"
+        return f"multi_{tickers}"
 
     def get_base_output_dir(self) -> Path:
         """Get the base output directory using unified 3-layer structure."""
@@ -510,9 +511,7 @@ class PortfolioSynthesisConfig(BaseConfig):
         """Get the metadata file path."""
         return self.get_base_output_dir() / "metadata.json"
 
-    def generate_metadata(
-        self, execution_time: Optional[float] = None
-    ) -> Dict[str, Any]:
+    def generate_metadata(self, execution_time: float | None = None) -> dict[str, Any]:
         """Generate metadata for this portfolio synthesis run."""
         from datetime import datetime
 
@@ -548,14 +547,16 @@ class PortfolioSynthesisConfig(BaseConfig):
                 }
                 for strategy in self.strategies
             ],
-            "benchmark": {
-                "symbol": self.benchmark.symbol if self.benchmark else None,
-                "benchmark_type": self.benchmark.benchmark_type.value
+            "benchmark": (
+                {
+                    "symbol": self.benchmark.symbol if self.benchmark else None,
+                    "benchmark_type": (
+                        self.benchmark.benchmark_type.value if self.benchmark else None
+                    ),
+                }
                 if self.benchmark
-                else None,
-            }
-            if self.benchmark
-            else None,
+                else None
+            ),
             "execution_info": {
                 "timestamp": datetime.now().isoformat(),
                 "execution_time_seconds": execution_time,

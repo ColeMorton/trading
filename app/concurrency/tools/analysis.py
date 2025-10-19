@@ -1,6 +1,6 @@
 """Core analysis functionality for concurrency analysis."""
 
-from typing import Callable, List, Tuple
+from collections.abc import Callable
 
 import polars as pl
 
@@ -19,9 +19,9 @@ from app.tools.portfolio import StrategyConfig
 
 
 def validate_inputs(
-    data_list: List[pl.DataFrame],
-    config_list: List[StrategyConfig],
-    log: Callable[[str, str], None] = None,
+    data_list: list[pl.DataFrame],
+    config_list: list[StrategyConfig],
+    log: Callable[[str, str], None] | None = None,
 ) -> None:
     """Validate input data and configurations.
 
@@ -47,14 +47,14 @@ def validate_inputs(
 
 
 def compile_statistics(
-    aligned_data: List[pl.DataFrame],
-    position_metrics: Tuple,
+    aligned_data: list[pl.DataFrame],
+    position_metrics: tuple,
     risk_metrics: dict,
-    efficiency_metrics: Tuple[float, float, float, float, float, float],
+    efficiency_metrics: tuple[float, float, float, float, float, float],
     signal_metrics: dict,
     signal_quality_metrics: dict,
-    strategy_expectancies: List[float],
-    strategy_efficiencies: List[Tuple[float, float, float, float]],
+    strategy_expectancies: list[float],
+    strategy_efficiencies: list[tuple[float, float, float, float]],
     log: Callable[[str, str], None],
 ) -> ConcurrencyStats:
     """Compile analysis statistics.
@@ -102,7 +102,7 @@ def compile_statistics(
         # Store individual strategy efficiency metrics
         strategy_efficiency_metrics = {}
         for idx, ((efficiency, div, ind, act), expectancy) in enumerate(
-            zip(strategy_efficiencies, strategy_expectancies), 1
+            zip(strategy_efficiencies, strategy_expectancies, strict=False), 1
         ):
             strategy_efficiency_metrics.update(
                 {
@@ -147,15 +147,15 @@ def compile_statistics(
         return stats
 
     except Exception as e:
-        log(f"Error compiling statistics: {str(e)}", "error")
+        log(f"Error compiling statistics: {e!s}", "error")
         raise
 
 
 def analyze_concurrency(
-    data_list: List[pl.DataFrame],
-    config_list: List[StrategyConfig],
+    data_list: list[pl.DataFrame],
+    config_list: list[StrategyConfig],
     log: Callable[[str, str], None],
-) -> Tuple[ConcurrencyStats, List[pl.DataFrame]]:
+) -> tuple[ConcurrencyStats, list[pl.DataFrame]]:
     """Analyze concurrent positions across multiple strategies."""
     stats = {}
     signal_metrics = {}
@@ -214,7 +214,9 @@ def analyze_concurrency(
             )
         else:
             # Log individual allocations when they are provided
-            for config, allocation in zip(config_list, strategy_allocations):
+            for config, allocation in zip(
+                config_list, strategy_allocations, strict=False
+            ):
                 ticker = config.get("TICKER", "unknown")
                 log(f"Using allocation {allocation:.2f}% for {ticker}", "info")
         risk_metrics = calculate_risk_contributions(
@@ -396,7 +398,7 @@ def analyze_concurrency(
                     strategy_quality_metrics[strategy_id] = strategy_metrics
             except Exception as e:
                 log(
-                    f"Error calculating signal quality metrics for strategy {i}: {str(e)}",
+                    f"Error calculating signal quality metrics for strategy {i}: {e!s}",
                     "error",
                 )
 
@@ -430,9 +432,7 @@ def analyze_concurrency(
                     "Allocation-weighted aggregate signal quality metrics added", "info"
                 )
         except Exception as e:
-            log(
-                f"Error calculating aggregate signal quality metrics: {str(e)}", "error"
-            )
+            log(f"Error calculating aggregate signal quality metrics: {e!s}", "error")
 
         # Extract adjusted expectancies and efficiencies for allocation
 
@@ -539,7 +539,7 @@ def analyze_concurrency(
         return stats, aligned_data
 
     except Exception as e:
-        log(f"Error during analysis: {str(e)}", "error")
+        log(f"Error during analysis: {e!s}", "error")
         # Ensure stats is defined even if an error occurs
         stats = {
             "total_periods": 0,

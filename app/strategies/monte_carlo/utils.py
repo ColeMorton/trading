@@ -1,21 +1,20 @@
 import json
-from typing import List
 
 import numpy as np
 import polars as pl
 
 
 def get_data(ticker: str) -> pl.DataFrame:
-    with open(f"json/monte_carlo/{ticker}_ema_cross_permutations.json", "r") as file:
+    with open(f"json/monte_carlo/{ticker}_ema_cross_permutations.json") as file:
         return json.load(file)
 
 
-def calculate_cumulative_return(returns: List[float]) -> float:
+def calculate_cumulative_return(returns: list[float]) -> float:
     """Calculate the cumulative return of a sequence of trades."""
     return np.prod(1 + np.array(returns)) - 1
 
 
-def calculate_max_drawdown(returns: List[float]) -> float:
+def calculate_max_drawdown(returns: list[float]) -> float:
     """Calculate the maximum drawdown of a sequence of trades."""
     cumulative = np.cumprod(1 + np.array(returns))
     peak = np.maximum.accumulate(cumulative)
@@ -23,7 +22,7 @@ def calculate_max_drawdown(returns: List[float]) -> float:
     return np.min(drawdown)
 
 
-def calculate_sharpe_ratio(returns: List[float], risk_free_rate: float = 0.02) -> float:
+def calculate_sharpe_ratio(returns: list[float], risk_free_rate: float = 0.02) -> float:
     """Calculate the Sharpe ratio of a sequence of trades."""
     excess_returns = (
         np.array(returns) - risk_free_rate / 252
@@ -32,14 +31,14 @@ def calculate_sharpe_ratio(returns: List[float], risk_free_rate: float = 0.02) -
 
 
 def calculate_final_portfolio_value(
-    returns: List[float], initial_value: float
+    returns: list[float], initial_value: float
 ) -> float:
     """Calculate the final portfolio value given a sequence of returns."""
     return initial_value * np.prod(1 + np.array(returns))
 
 
 def calculate_loss_streak_probability(
-    returns: List[float], streak_length: int = 3
+    returns: list[float], streak_length: int = 3
 ) -> float:
     """Calculate the probability of encountering a loss streak of a given length."""
     loss_streaks = [1 if r < 0 else 0 for r in returns]

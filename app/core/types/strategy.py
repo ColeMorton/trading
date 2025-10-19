@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 import polars as pl
@@ -14,10 +14,10 @@ class StrategyParameters:
 
     strategy_type: str
     timeframe: str
-    parameters: Dict[str, Any]
-    filters: Optional[Dict[str, Any]] = None
-    risk_management: Optional[Dict[str, Any]] = None
-    metadata: Optional[Dict[str, Any]] = None
+    parameters: dict[str, Any]
+    filters: dict[str, Any] | None = None
+    risk_management: dict[str, Any] | None = None
+    metadata: dict[str, Any] | None = None
 
 
 @dataclass
@@ -28,11 +28,11 @@ class BacktestResult:
     ticker: str
     start_date: datetime
     end_date: datetime
-    metrics: Dict[str, float]
-    trades: Union[pd.DataFrame, pl.DataFrame]
-    equity_curve: Union[pd.DataFrame, pl.DataFrame]
-    signals: Union[pd.DataFrame, pl.DataFrame]
-    metadata: Optional[Dict[str, Any]] = None
+    metrics: dict[str, float]
+    trades: pd.DataFrame | pl.DataFrame
+    equity_curve: pd.DataFrame | pl.DataFrame
+    signals: pd.DataFrame | pl.DataFrame
+    metadata: dict[str, Any] | None = None
 
 
 @dataclass
@@ -41,8 +41,8 @@ class OptimizationResult:
 
     strategy_type: str
     ticker: str
-    best_params: Dict[str, Any]
-    best_metrics: Dict[str, float]
-    all_results: List[Dict[str, Any]]
+    best_params: dict[str, Any]
+    best_metrics: dict[str, float]
+    all_results: list[dict[str, Any]]
     optimization_time: float
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None

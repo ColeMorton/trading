@@ -5,22 +5,17 @@ Converts statistical analysis results to deterministic backtesting parameters
 for VectorBT, Backtrader, Zipline, and other frameworks.
 """
 
-import asyncio
-import csv
+from datetime import datetime
 import json
 import logging
-from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
 from ..config.statistical_analysis_config import SPDSConfig
-from ..models.statistical_analysis_models import (
-    DivergenceAnalysisResult,
-    StatisticalAnalysisResult,
-)
+from ..models.statistical_analysis_models import StatisticalAnalysisResult
 
 
 class BacktestingParameterExportService:
@@ -41,7 +36,7 @@ class BacktestingParameterExportService:
     - Poor (<1.2): Weak or no edge - requires optimization
     """
 
-    def __init__(self, config: SPDSConfig, logger: Optional[logging.Logger] = None):
+    def __init__(self, config: SPDSConfig, logger: logging.Logger | None = None):
         """
         Initialize the Backtesting Parameter Export Service
 
@@ -77,10 +72,10 @@ class BacktestingParameterExportService:
 
     async def generate_deterministic_parameters(
         self,
-        analysis_results: List[StatisticalAnalysisResult],
+        analysis_results: list[StatisticalAnalysisResult],
         confidence_level: float = 0.90,
         export_name: str = "strategy_parameters",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Generate deterministic exit criteria from statistical analysis
 
@@ -135,8 +130,8 @@ class BacktestingParameterExportService:
             raise
 
     async def export_all_frameworks(
-        self, parameters_data: Dict[str, Any], export_name: str
-    ) -> Dict[str, str]:
+        self, parameters_data: dict[str, Any], export_name: str
+    ) -> dict[str, str]:
         """
         Export parameters to all supported backtesting frameworks
 
@@ -198,7 +193,7 @@ class BacktestingParameterExportService:
             raise
 
     async def export_vectorbt_parameters(
-        self, parameters_data: Dict[str, Any], file_base: str
+        self, parameters_data: dict[str, Any], file_base: str
     ) -> Path:
         """
         Export VectorBT-compatible parameter dictionary
@@ -249,7 +244,7 @@ class BacktestingParameterExportService:
             raise
 
     async def export_backtrader_templates(
-        self, parameters_data: Dict[str, Any], file_base: str
+        self, parameters_data: dict[str, Any], file_base: str
     ) -> Path:
         """
         Export Backtrader strategy class templates
@@ -281,7 +276,7 @@ class BacktestingParameterExportService:
             raise
 
     async def export_zipline_templates(
-        self, parameters_data: Dict[str, Any], file_base: str
+        self, parameters_data: dict[str, Any], file_base: str
     ) -> Path:
         """
         Export Zipline algorithm templates
@@ -313,7 +308,7 @@ class BacktestingParameterExportService:
             raise
 
     async def export_generic_csv(
-        self, parameters_data: Dict[str, Any], file_base: str
+        self, parameters_data: dict[str, Any], file_base: str
     ) -> Path:
         """
         Export parameters to CSV format for batch backtesting
@@ -374,7 +369,7 @@ class BacktestingParameterExportService:
             raise
 
     async def export_generic_json(
-        self, parameters_data: Dict[str, Any], file_base: str
+        self, parameters_data: dict[str, Any], file_base: str
     ) -> Path:
         """
         Export parameters to JSON format
@@ -422,7 +417,7 @@ class BacktestingParameterExportService:
 
     async def _generate_strategy_parameters(
         self, analysis_result: StatisticalAnalysisResult, confidence_level: float
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate deterministic parameters for a single strategy"""
 
         # Extract statistical data
@@ -654,7 +649,7 @@ class BacktestingParameterExportService:
 
         return parameters
 
-    def _estimate_returns_from_metrics(self, metrics: Dict[str, Any]) -> List[float]:
+    def _estimate_returns_from_metrics(self, metrics: dict[str, Any]) -> list[float]:
         """Estimate returns distribution from available metrics"""
         # Fallback estimation based on available metrics
         current_return = metrics.get("current_return", 0.0)
@@ -674,7 +669,7 @@ class BacktestingParameterExportService:
                 -mae * (p / 100) for p in percentiles[:3]
             ]  # Negative MAE scaling
 
-            base_returns = [current_return] + mfe_percentiles + mae_percentiles
+            base_returns = [current_return, *mfe_percentiles, *mae_percentiles]
             return base_returns
 
         # Fallback using volatility regime data instead of arbitrary values
@@ -684,7 +679,7 @@ class BacktestingParameterExportService:
 
         return [low_vol, low_vol * 2, low_vol * 3, high_vol, -low_vol, -low_vol * 1.5]
 
-    def _estimate_durations_from_metrics(self, metrics: Dict[str, Any]) -> List[int]:
+    def _estimate_durations_from_metrics(self, metrics: dict[str, Any]) -> list[int]:
         """Estimate duration distribution from available metrics and market analysis"""
 
         # Extract available information
@@ -750,7 +745,7 @@ class BacktestingParameterExportService:
 
         # Ensure minimum spread and realistic values
         base_durations = [max(1, min(120, d)) for d in base_durations]
-        base_durations = sorted(list(set(base_durations)))  # Remove duplicates and sort
+        base_durations = sorted(set(base_durations))  # Remove duplicates and sort
 
         # Ensure we have at least 5 duration points for statistical analysis
         while len(base_durations) < 5:
@@ -760,7 +755,7 @@ class BacktestingParameterExportService:
 
     def _calculate_real_atr_from_equity_curve(
         self, strategy_name: str, ticker: str, period: int = 14
-    ) -> Optional[float]:
+    ) -> float | None:
         """Calculate real ATR from equity curve data and corresponding price data"""
 
         try:
@@ -803,10 +798,10 @@ class BacktestingParameterExportService:
             return atr_percentage
 
         except Exception as e:
-            self.logger.error(f"Error calculating real ATR for {ticker}: {str(e)}")
+            self.logger.error(f"Error calculating real ATR for {ticker}: {e!s}")
             return None
 
-    def _classify_profit_factor(self, profit_factor: float) -> Dict[str, Any]:
+    def _classify_profit_factor(self, profit_factor: float) -> dict[str, Any]:
         """
         Classify profit factor using comprehensive 5-tier grading system.
 
@@ -824,7 +819,7 @@ class BacktestingParameterExportService:
                 "tier": 1,
                 "risk_profile": "Low - Very tight stops acceptable",
             }
-        elif profit_factor >= 2.0:
+        if profit_factor >= 2.0:
             return {
                 "grade": "Excellent",
                 "description": "Strong edge with consistent profitability",
@@ -832,7 +827,7 @@ class BacktestingParameterExportService:
                 "tier": 2,
                 "risk_profile": "Low - Tighter stops acceptable",
             }
-        elif profit_factor >= 1.5:
+        if profit_factor >= 1.5:
             return {
                 "grade": "Good",
                 "description": "Solid performance with meaningful edge",
@@ -840,7 +835,7 @@ class BacktestingParameterExportService:
                 "tier": 3,
                 "risk_profile": "Medium - Standard stop management",
             }
-        elif profit_factor >= 1.2:
+        if profit_factor >= 1.2:
             return {
                 "grade": "Acceptable",
                 "description": "Minimal edge requiring careful management",
@@ -848,16 +843,15 @@ class BacktestingParameterExportService:
                 "tier": 4,
                 "risk_profile": "Medium-High - Slightly wider stops needed",
             }
-        else:
-            return {
-                "grade": "Poor",
-                "description": "Weak or no edge - requires optimization",
-                "adjustment_factor": 1.05,
-                "tier": 5,
-                "risk_profile": "High - Wider stops essential",
-            }
+        return {
+            "grade": "Poor",
+            "description": "Weak or no edge - requires optimization",
+            "adjustment_factor": 1.05,
+            "tier": 5,
+            "risk_profile": "High - Wider stops essential",
+        }
 
-    def get_profit_factor_classification(self, profit_factor: float) -> Dict[str, Any]:
+    def get_profit_factor_classification(self, profit_factor: float) -> dict[str, Any]:
         """
         Public utility function for external profit factor classification access.
 
@@ -871,9 +865,9 @@ class BacktestingParameterExportService:
 
     def _calculate_optimal_trailing_stop(
         self,
-        returns_data: List[float],
+        returns_data: list[float],
         confidence_level: float,
-        strategy_metrics: Optional[Dict[str, Any]] = None,
+        strategy_metrics: dict[str, Any] | None = None,
     ) -> float:
         """Calculate optimal trailing stop percentage using real ATR from equity curves"""
 
@@ -894,7 +888,7 @@ class BacktestingParameterExportService:
             base_volatility = real_atr
 
             # Apply confidence-based multiplier
-            confidence_model = self.statistical_models.get("confidence_model", {})
+            self.statistical_models.get("confidence_model", {})
             high_conf_threshold = self.confidence_bounds["high_confidence"]
 
             if confidence_level >= high_conf_threshold:
@@ -915,7 +909,7 @@ class BacktestingParameterExportService:
             volatility = np.std(returns_data)
 
             # Use confidence model instead of arbitrary multipliers
-            confidence_model = self.statistical_models.get("confidence_model", {})
+            self.statistical_models.get("confidence_model", {})
             high_conf_threshold = self.confidence_bounds["high_confidence"]
 
             # Calculate multiplier based on statistical confidence interval
@@ -932,32 +926,29 @@ class BacktestingParameterExportService:
                 f"Using equity curve volatility for {ticker}: volatility={volatility:.4f}, multiplier={trailing_multiplier}, base_stop={base_stop:.4f}"
             )
 
+        # Strategy-specific fallback calculation using performance metrics
+        elif strategy_metrics:
+            current_return = strategy_metrics.get("current_return", 0.02)
+            sample_size = strategy_metrics.get("sample_size", 1000)
+
+            # Strategy-specific volatility estimation
+            estimated_volatility = abs(current_return) * (0.3 + (sample_size / 10000))
+
+            # Strategy-specific multiplier based on confidence
+            base_multiplier = 1.5 if confidence_level >= 0.9 else 1.2
+
+            base_stop = estimated_volatility * base_multiplier
+
+            self.logger.info(
+                f"Using synthetic volatility for {ticker}: estimated_volatility={estimated_volatility:.4f}, base_stop={base_stop:.4f}"
+            )
         else:
-            # Strategy-specific fallback calculation using performance metrics
-            if strategy_metrics:
-                current_return = strategy_metrics.get("current_return", 0.02)
-                sample_size = strategy_metrics.get("sample_size", 1000)
+            # Last resort - use confidence-based calculation
+            base_stop = 0.05 + (confidence_level * 0.05)  # 5-10% range
 
-                # Strategy-specific volatility estimation
-                estimated_volatility = abs(current_return) * (
-                    0.3 + (sample_size / 10000)
-                )
-
-                # Strategy-specific multiplier based on confidence
-                base_multiplier = 1.5 if confidence_level >= 0.9 else 1.2
-
-                base_stop = estimated_volatility * base_multiplier
-
-                self.logger.info(
-                    f"Using synthetic volatility for {ticker}: estimated_volatility={estimated_volatility:.4f}, base_stop={base_stop:.4f}"
-                )
-            else:
-                # Last resort - use confidence-based calculation
-                base_stop = 0.05 + (confidence_level * 0.05)  # 5-10% range
-
-                self.logger.info(
-                    f"Using fallback calculation for {ticker}: base_stop={base_stop:.4f}"
-                )
+            self.logger.info(
+                f"Using fallback calculation for {ticker}: base_stop={base_stop:.4f}"
+            )
 
         # Apply data-driven strategy adjustments if metrics available
         if strategy_metrics:
@@ -1030,9 +1021,9 @@ class BacktestingParameterExportService:
 
     def _calculate_optimal_exit_levels(
         self,
-        returns_data: List[float],
-        durations_data: List[int],
-        performance_metrics: Dict[str, Any],
+        returns_data: list[float],
+        durations_data: list[int],
+        performance_metrics: dict[str, Any],
         analysis_result: Any,
         confidence_level: float,
     ) -> tuple[float, float]:
@@ -1231,7 +1222,7 @@ class BacktestingParameterExportService:
 
         return take_profit, stop_loss
 
-    def _initialize_market_regime_detector(self) -> Dict[str, Any]:
+    def _initialize_market_regime_detector(self) -> dict[str, Any]:
         """
         Initialize market regime detection system using statistical models
         """
@@ -1247,7 +1238,7 @@ class BacktestingParameterExportService:
             self.logger.warning(f"Market regime detector initialization failed: {e}")
             return {"initialized": False}
 
-    def _initialize_statistical_models(self) -> Dict[str, Any]:
+    def _initialize_statistical_models(self) -> dict[str, Any]:
         """
         Initialize statistical models for parameter generation
         """
@@ -1263,7 +1254,7 @@ class BacktestingParameterExportService:
             self.logger.warning(f"Statistical models initialization failed: {e}")
             return {"initialized": False}
 
-    def _compute_confidence_bounds(self) -> Dict[str, float]:
+    def _compute_confidence_bounds(self) -> dict[str, float]:
         """
         Compute dynamic confidence bounds based on statistical theory
         """
@@ -1276,7 +1267,7 @@ class BacktestingParameterExportService:
             "preferred_sample_power": 100,  # Statistical power analysis
         }
 
-    def _compute_volatility_regimes(self) -> Dict[str, float]:
+    def _compute_volatility_regimes(self) -> dict[str, float]:
         """
         Compute volatility regime thresholds using statistical distribution analysis
         """
@@ -1287,7 +1278,7 @@ class BacktestingParameterExportService:
             "normal_volatility_range": (0.015, 0.04),
         }
 
-    def _compute_duration_statistics(self) -> Dict[str, Any]:
+    def _compute_duration_statistics(self) -> dict[str, Any]:
         """
         Compute trade duration statistics from empirical market data analysis
 
@@ -1328,7 +1319,7 @@ class BacktestingParameterExportService:
             },
         }
 
-    def _compute_risk_metrics(self) -> Dict[str, float]:
+    def _compute_risk_metrics(self) -> dict[str, float]:
         """
         Compute risk management thresholds using quantitative risk models
         """
@@ -1340,7 +1331,7 @@ class BacktestingParameterExportService:
             "take_profit_bounds": (0.01, 0.50),  # 1% to 50%
         }
 
-    def _create_volatility_model(self) -> Dict[str, Any]:
+    def _create_volatility_model(self) -> dict[str, Any]:
         """
         Create statistical volatility model for regime detection
         """
@@ -1350,7 +1341,7 @@ class BacktestingParameterExportService:
             "regime_threshold": 2.0,  # 2 standard deviations
         }
 
-    def _create_trend_model(self) -> Dict[str, Any]:
+    def _create_trend_model(self) -> dict[str, Any]:
         """
         Create trend detection model using statistical analysis
         """
@@ -1360,7 +1351,7 @@ class BacktestingParameterExportService:
             "min_trend_strength": 0.3,
         }
 
-    def _create_momentum_model(self) -> Dict[str, Any]:
+    def _create_momentum_model(self) -> dict[str, Any]:
         """
         Create momentum model for market regime analysis
         """
@@ -1370,7 +1361,7 @@ class BacktestingParameterExportService:
             "threshold_percentiles": [25, 75],
         }
 
-    def _create_confidence_model(self) -> Dict[str, Any]:
+    def _create_confidence_model(self) -> dict[str, Any]:
         """
         Create confidence interval model for parameter generation
         """
@@ -1382,9 +1373,9 @@ class BacktestingParameterExportService:
 
     def _calculate_momentum_exit_threshold(
         self,
-        returns_data: List[float],
-        durations_data: List[int],
-        performance_metrics: Dict[str, Any],
+        returns_data: list[float],
+        durations_data: list[int],
+        performance_metrics: dict[str, Any],
     ) -> float:
         """
         Calculate dynamic momentum exit threshold based on historical data
@@ -1399,8 +1390,7 @@ class BacktestingParameterExportService:
             # Find momentum reversal patterns - look for significant trend changes
             # Use rolling window to detect momentum shifts
             window_size = min(10, len(returns_array) // 3)
-            if window_size < 3:
-                window_size = 3
+            window_size = max(window_size, 3)
 
             momentum_changes = []
             for i in range(window_size, len(returns_array)):
@@ -1448,7 +1438,7 @@ class BacktestingParameterExportService:
             return 0.02
 
     def _calculate_trend_exit_threshold(
-        self, returns_data: List[float], performance_metrics: Dict[str, Any]
+        self, returns_data: list[float], performance_metrics: dict[str, Any]
     ) -> float:
         """
         Calculate dynamic trend exit threshold based on trend strength analysis
@@ -1460,12 +1450,11 @@ class BacktestingParameterExportService:
             returns_array = np.array(returns_data)
 
             # Calculate trend strength using linear regression slope
-            x = np.arange(len(returns_array))
+            np.arange(len(returns_array))
 
             # Calculate rolling trend strengths
             window_size = min(15, len(returns_array) // 2)
-            if window_size < 5:
-                window_size = 5
+            window_size = max(window_size, 5)
 
             trend_weakening_points = []
             for i in range(window_size, len(returns_array)):
@@ -1499,8 +1488,8 @@ class BacktestingParameterExportService:
 
     def _calculate_statistical_min_days(
         self,
-        performance_metrics: Dict[str, Any],
-        returns_data: Optional[List[float]] = None,
+        performance_metrics: dict[str, Any],
+        returns_data: list[float] | None = None,
     ) -> int:
         """
         Calculate statistically valid minimum holding days based on volatility analysis
@@ -1550,8 +1539,8 @@ class BacktestingParameterExportService:
 
     def _calculate_statistical_max_days(
         self,
-        performance_metrics: Dict[str, Any],
-        returns_data: Optional[List[float]] = None,
+        performance_metrics: dict[str, Any],
+        returns_data: list[float] | None = None,
         confidence_level: float = 0.9,
     ) -> int:
         """
@@ -1617,7 +1606,7 @@ class BacktestingParameterExportService:
             self.logger.warning(f"Error calculating statistical max days: {e}")
             return 90  # Conservative fallback
 
-    def _calculate_skewness(self, data: List[float]) -> float:
+    def _calculate_skewness(self, data: list[float]) -> float:
         """Calculate skewness of returns distribution"""
         try:
             if len(data) < 3:
@@ -1638,7 +1627,7 @@ class BacktestingParameterExportService:
         except Exception:
             return 0.0
 
-    def _create_percentile_model(self) -> Dict[str, Any]:
+    def _create_percentile_model(self) -> dict[str, Any]:
         """
         Create percentile calculation model with bootstrap confidence intervals
         """
@@ -1648,7 +1637,7 @@ class BacktestingParameterExportService:
             "percentiles": [10, 25, 50, 75, 90, 95],
         }
 
-    def _create_threshold_model(self) -> Dict[str, Any]:
+    def _create_threshold_model(self) -> dict[str, Any]:
         """
         Create adaptive threshold model based on data characteristics
         """
@@ -1659,7 +1648,7 @@ class BacktestingParameterExportService:
             "scaling_factor": "robust",
         }
 
-    def _create_risk_model(self) -> Dict[str, Any]:
+    def _create_risk_model(self) -> dict[str, Any]:
         """
         Create quantitative risk model for parameter bounds
         """
@@ -1685,15 +1674,14 @@ class BacktestingParameterExportService:
 
         if sample_size >= preferred_sample and confidence >= high_threshold:
             return "HIGH"
-        elif sample_size >= min_sample and confidence >= medium_threshold:
+        if sample_size >= min_sample and confidence >= medium_threshold:
             return "MEDIUM"
-        else:
-            return "LOW"
+        return "LOW"
 
     # Template generation methods
 
     def _generate_vectorbt_python_file(
-        self, parameters: Dict[str, Any], metadata: Dict[str, Any]
+        self, parameters: dict[str, Any], metadata: dict[str, Any]
     ) -> str:
         """Generate VectorBT-compatible Python file"""
 
@@ -1766,7 +1754,7 @@ framework_compatibility = {{
         return content
 
     def _generate_backtrader_template(
-        self, parameters: Dict[str, Any], metadata: Dict[str, Any]
+        self, parameters: dict[str, Any], metadata: dict[str, Any]
     ) -> str:
         """Generate Backtrader strategy class template"""
 
@@ -1876,7 +1864,7 @@ import datetime
 
 # Strategy registry for easy access
 strategy_registry = {{
-{chr(10).join(f'    "{strategy_key}": {strategy_key.replace("-", "_").replace(".", "_")}ExitStrategy,' for strategy_key in parameters.keys())}
+{chr(10).join(f'    "{strategy_key}": {strategy_key.replace("-", "_").replace(".", "_")}ExitStrategy,' for strategy_key in parameters)}
 }}
 
 # Usage example
@@ -1891,7 +1879,7 @@ def create_strategy(strategy_key):
         return content
 
     def _generate_zipline_template(
-        self, parameters: Dict[str, Any], metadata: Dict[str, Any]
+        self, parameters: dict[str, Any], metadata: dict[str, Any]
     ) -> str:
         """Generate Zipline algorithm template"""
 
@@ -2014,7 +2002,7 @@ def reset_position_tracking(context):
         return content
 
     async def _generate_parameter_validation_report(
-        self, parameters_data: Dict[str, Any], file_base: str
+        self, parameters_data: dict[str, Any], file_base: str
     ) -> Path:
         """Generate parameter validation report"""
         report_file = self.export_base_path / f"{file_base}_validation_report.md"
@@ -2110,8 +2098,8 @@ These parameters have limited statistical support. Not recommended for productio
         return report_file
 
     async def export_backtesting_parameters(
-        self, results_list: List[StatisticalAnalysisResult], portfolio: str
-    ) -> Dict[str, str]:
+        self, results_list: list[StatisticalAnalysisResult], portfolio: str
+    ) -> dict[str, str]:
         """
         Export backtesting parameters from statistical analysis results
 

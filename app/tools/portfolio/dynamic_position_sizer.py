@@ -4,19 +4,17 @@ This module provides adaptive position sizing capabilities that adjust
 allocation based on statistical analysis and performance metrics.
 """
 
-import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+import logging
 
 import numpy as np
 import pandas as pd
-from scipy.stats import norm
 
 from app.tools.models.statistical_analysis_models import (
-    DivergenceResult,
     PositionData,
     StatisticalAnalysisResult,
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +38,7 @@ class PortfolioSizingResult:
     """Result of portfolio-wide position sizing analysis."""
 
     total_capital: float
-    recommendations: List[PositionSizeRecommendation]
+    recommendations: list[PositionSizeRecommendation]
     risk_budget_utilization: float
     expected_portfolio_volatility: float
     diversification_score: float
@@ -83,10 +81,10 @@ class DynamicPositionSizer:
 
     def calculate_portfolio_sizing(
         self,
-        positions: List[PositionData],
-        analysis_results: List[StatisticalAnalysisResult],
+        positions: list[PositionData],
+        analysis_results: list[StatisticalAnalysisResult],
         total_capital: float,
-        historical_data: Optional[pd.DataFrame] = None,
+        historical_data: pd.DataFrame | None = None,
     ) -> PortfolioSizingResult:
         """Calculate optimal position sizes for entire portfolio.
 
@@ -103,7 +101,7 @@ class DynamicPositionSizer:
 
         recommendations = []
 
-        for pos, analysis in zip(positions, analysis_results):
+        for pos, analysis in zip(positions, analysis_results, strict=False):
             recommendation = self.calculate_position_size(
                 pos, analysis, total_capital, historical_data
             )
@@ -133,7 +131,7 @@ class DynamicPositionSizer:
         position: PositionData,
         analysis: StatisticalAnalysisResult,
         total_capital: float,
-        historical_data: Optional[pd.DataFrame] = None,
+        historical_data: pd.DataFrame | None = None,
     ) -> PositionSizeRecommendation:
         """Calculate optimal position size for a single position.
 
@@ -199,7 +197,7 @@ class DynamicPositionSizer:
         self,
         position: PositionData,
         analysis: StatisticalAnalysisResult,
-        historical_data: Optional[pd.DataFrame],
+        historical_data: pd.DataFrame | None,
     ) -> float:
         """Calculate Kelly criterion position size."""
         if not analysis.return_distribution:
@@ -281,7 +279,7 @@ class DynamicPositionSizer:
         self,
         position: PositionData,
         analysis: StatisticalAnalysisResult,
-        historical_data: Optional[pd.DataFrame],
+        historical_data: pd.DataFrame | None,
     ) -> float:
         """Calculate volatility-adjusted position size."""
         # Get recent volatility
@@ -432,8 +430,7 @@ class DynamicPositionSizer:
 
         if confidence_factors:
             return np.mean(confidence_factors)
-        else:
-            return 0.5  # Moderate confidence as default
+        return 0.5  # Moderate confidence as default
 
     def _assess_position_risk_level(
         self, position: PositionData, analysis: StatisticalAnalysisResult
@@ -467,10 +464,9 @@ class DynamicPositionSizer:
         # Classify risk level
         if risk_score >= 4:
             return "HIGH"
-        elif risk_score >= 2:
+        if risk_score >= 2:
             return "MEDIUM"
-        else:
-            return "LOW"
+        return "LOW"
 
     def _get_statistical_basis(self, analysis: StatisticalAnalysisResult) -> str:
         """Get statistical basis for sizing decision."""
@@ -491,8 +487,8 @@ class DynamicPositionSizer:
         return ", ".join(basis_elements) if basis_elements else "limited_data"
 
     def _calculate_portfolio_metrics(
-        self, recommendations: List[PositionSizeRecommendation], total_capital: float
-    ) -> Dict[str, float]:
+        self, recommendations: list[PositionSizeRecommendation], total_capital: float
+    ) -> dict[str, float]:
         """Calculate portfolio-level metrics."""
         total_allocation = sum(rec.recommended_size for rec in recommendations)
 
@@ -520,10 +516,10 @@ class DynamicPositionSizer:
 
     def _apply_portfolio_constraints(
         self,
-        recommendations: List[PositionSizeRecommendation],
+        recommendations: list[PositionSizeRecommendation],
         total_capital: float,
-        portfolio_metrics: Dict[str, float],
-    ) -> List[PositionSizeRecommendation]:
+        portfolio_metrics: dict[str, float],
+    ) -> list[PositionSizeRecommendation]:
         """Apply portfolio-level constraints to position sizes."""
         # Check if total allocation exceeds limits
         total_allocation = sum(rec.recommended_size for rec in recommendations)
@@ -543,7 +539,6 @@ class DynamicPositionSizer:
 
             for rec in recommendations:
                 if rec.recommended_size > max_single_position:
-                    old_size = rec.recommended_size
                     rec.recommended_size = max_single_position
                     rec.rationale += f"; Capped at {max_single_position*100:.0f}% for diversification"
 

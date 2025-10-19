@@ -6,8 +6,9 @@ ensuring consistent application of filters across the entire application.
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
+from typing import Any, TypeVar, Union
 
 import numpy as np
 import pandas as pd
@@ -15,9 +16,10 @@ import polars as pl
 
 from app.tools.setup_logging import setup_logging
 
+
 # Type definitions
 DataFrame = Union[pl.DataFrame, pd.DataFrame]
-FilterResult = Dict[str, Any]
+FilterResult = dict[str, Any]
 T = TypeVar("T")
 
 
@@ -25,7 +27,7 @@ class FilterInterface(ABC):
     """Abstract base class for all signal filters."""
 
     @abstractmethod
-    def apply(self, data: DataFrame, config: Dict[str, Any]) -> DataFrame:
+    def apply(self, data: DataFrame, config: dict[str, Any]) -> DataFrame:
         """Apply the filter to the data.
 
         Args:
@@ -37,7 +39,7 @@ class FilterInterface(ABC):
         """
 
     @abstractmethod
-    def get_filter_stats(self) -> Dict[str, Any]:
+    def get_filter_stats(self) -> dict[str, Any]:
         """Get statistics about the filter application.
 
         Returns:
@@ -48,7 +50,7 @@ class FilterInterface(ABC):
 class BaseFilter(FilterInterface):
     """Base class for signal filters with common functionality."""
 
-    def __init__(self, name: str, log: Optional[Callable[[str, str], None]] = None):
+    def __init__(self, name: str, log: Callable[[str, str], None] | None = None):
         """Initialize the filter.
 
         Args:
@@ -70,7 +72,7 @@ class BaseFilter(FilterInterface):
         self.filtered_signals = 0
         self.rejection_reasons = {}
 
-    def get_filter_stats(self) -> Dict[str, Any]:
+    def get_filter_stats(self) -> dict[str, Any]:
         """Get statistics about the filter application.
 
         Returns:
@@ -129,7 +131,7 @@ class BaseFilter(FilterInterface):
 class RSIFilter(BaseFilter):
     """Filter signals based on RSI values."""
 
-    def __init__(self, log: Optional[Callable[[str, str], None]] = None):
+    def __init__(self, log: Callable[[str, str], None] | None = None):
         """Initialize the RSI filter.
 
         Args:
@@ -137,7 +139,7 @@ class RSIFilter(BaseFilter):
         """
         super().__init__("RSI", log)
 
-    def apply(self, data: DataFrame, config: Dict[str, Any]) -> DataFrame:
+    def apply(self, data: DataFrame, config: dict[str, Any]) -> DataFrame:
         """Apply RSI filter to signals.
 
         Args:
@@ -217,7 +219,7 @@ class RSIFilter(BaseFilter):
 class VolumeFilter(BaseFilter):
     """Filter signals based on volume thresholds."""
 
-    def __init__(self, log: Optional[Callable[[str, str], None]] = None):
+    def __init__(self, log: Callable[[str, str], None] | None = None):
         """Initialize the volume filter.
 
         Args:
@@ -225,7 +227,7 @@ class VolumeFilter(BaseFilter):
         """
         super().__init__("Volume", log)
 
-    def apply(self, data: DataFrame, config: Dict[str, Any]) -> DataFrame:
+    def apply(self, data: DataFrame, config: dict[str, Any]) -> DataFrame:
         """Apply volume filter to signals.
 
         Args:
@@ -291,7 +293,7 @@ class VolumeFilter(BaseFilter):
 class VolatilityFilter(BaseFilter):
     """Filter signals based on volatility (ATR) thresholds."""
 
-    def __init__(self, log: Optional[Callable[[str, str], None]] = None):
+    def __init__(self, log: Callable[[str, str], None] | None = None):
         """Initialize the volatility filter.
 
         Args:
@@ -299,7 +301,7 @@ class VolatilityFilter(BaseFilter):
         """
         super().__init__("Volatility", log)
 
-    def apply(self, data: DataFrame, config: Dict[str, Any]) -> DataFrame:
+    def apply(self, data: DataFrame, config: dict[str, Any]) -> DataFrame:
         """Apply volatility filter to signals.
 
         Args:
@@ -388,7 +390,7 @@ class VolatilityFilter(BaseFilter):
 class SignalFilterPipeline:
     """Pipeline for applying multiple filters to signals in sequence."""
 
-    def __init__(self, log: Optional[Callable[[str, str], None]] = None):
+    def __init__(self, log: Callable[[str, str], None] | None = None):
         """Initialize the signal filter pipeline.
 
         Args:
@@ -403,8 +405,8 @@ class SignalFilterPipeline:
             self.log = log
 
         # Initialize filters
-        self.filters: List[FilterInterface] = []
-        self.filter_stats: List[Dict[str, Any]] = []
+        self.filters: list[FilterInterface] = []
+        self.filter_stats: list[dict[str, Any]] = []
 
     def add_filter(self, filter_obj: FilterInterface) -> None:
         """Add a filter to the pipeline.
@@ -415,7 +417,7 @@ class SignalFilterPipeline:
         self.filters.append(filter_obj)
         self.log(f"Added {filter_obj.name} filter to pipeline", "info")
 
-    def apply_filters(self, data: DataFrame, config: Dict[str, Any]) -> DataFrame:
+    def apply_filters(self, data: DataFrame, config: dict[str, Any]) -> DataFrame:
         """Apply all filters in the pipeline.
 
         Args:
@@ -440,7 +442,7 @@ class SignalFilterPipeline:
         self.log("Filter pipeline complete", "info")
         return filtered_data
 
-    def get_pipeline_stats(self) -> Dict[str, Any]:
+    def get_pipeline_stats(self) -> dict[str, Any]:
         """Get statistics about the filter pipeline.
 
         Returns:
@@ -467,7 +469,7 @@ class SignalFilterPipeline:
 
 # Factory function to create a standard filter pipeline
 def create_standard_filter_pipeline(
-    log: Optional[Callable[[str, str], None]] = None
+    log: Callable[[str, str], None] | None = None,
 ) -> SignalFilterPipeline:
     """Create a standard filter pipeline with common filters.
 
@@ -490,10 +492,10 @@ def create_standard_filter_pipeline(
 # Convenience function for filtering signals
 def filter_signals(
     data: DataFrame,
-    config: Dict[str, Any],
-    log: Optional[Callable[[str, str], None]] = None,
-    custom_pipeline: Optional[SignalFilterPipeline] | None = None,
-) -> Tuple[DataFrame, Dict[str, Any]]:
+    config: dict[str, Any],
+    log: Callable[[str, str], None] | None = None,
+    custom_pipeline: SignalFilterPipeline | None | None = None,
+) -> Tuple[DataFrame, dict[str, Any]]:
     """Filter signals using a standard or custom filter pipeline.
 
     Args:

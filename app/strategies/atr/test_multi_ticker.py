@@ -14,9 +14,7 @@ Focus: Multi-ticker behavior and current signal detection logic
 """
 
 import unittest
-from datetime import datetime, timedelta
-from typing import Any, Dict, List
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -185,7 +183,7 @@ class TestMultiTickerATRAnalysis(unittest.TestCase):
         # Different tickers should produce different performance metrics
         # (unless they have identical price patterns)
         total_returns = [r["Total Return [%]"] for r in results.values()]
-        win_rates = [r["Win Rate [%]"] for r in results.values()]
+        [r["Win Rate [%]"] for r in results.values()]
 
         # Some variation in results is expected across different market patterns
         self.assertTrue(
@@ -316,9 +314,9 @@ class TestATRUSECurrentBehavior(unittest.TestCase):
         base_price = 100.0
 
         # Stable period, then strong move up
-        for i in range(40):
+        for _i in range(40):
             prices.append(base_price + np.random.normal(0, 1))
-        for i in range(10):  # Strong move up at end
+        for _i in range(10):  # Strong move up at end
             prices.append(prices[-1] + 2 + np.random.normal(0, 0.5))
 
         # Create OHLC data
@@ -386,7 +384,7 @@ class TestATRUSECurrentBehavior(unittest.TestCase):
 
             # Test with USE_CURRENT=True
             config_true = {"USE_CURRENT": True}
-            detected_signal = is_signal_current(signals_df, config_true)
+            is_signal_current(signals_df, config_true)
 
             # Should match expected signal logic
             if expected_signal:

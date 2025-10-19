@@ -7,7 +7,7 @@ independent of any specific framework or serialization format.
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass
@@ -20,9 +20,9 @@ class AnalysisConfig:
     direction: str = "Long"
 
     # Window parameters
-    fast_period: Optional[int] | None = None
-    slow_period: Optional[int] | None = None
-    windows: Optional[int] | None = None  # For permutation scanning
+    fast_period: int | None | None = None
+    slow_period: int | None | None = None
+    windows: int | None | None = None  # For permutation scanning
 
     # Data parameters
     use_years: bool = False
@@ -30,8 +30,8 @@ class AnalysisConfig:
 
     # Advanced features
     use_synthetic: bool = False
-    ticker_1: Optional[str] | None = None
-    ticker_2: Optional[str] | None = None
+    ticker_1: str | None | None = None
+    ticker_2: str | None | None = None
     use_gbm: bool = False
 
     @property
@@ -39,7 +39,7 @@ class AnalysisConfig:
         """Derive use_sma from strategy_type for backward compatibility."""
         return self.strategy_type == "SMA"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary format compatible with existing tools."""
         config = {
             "TICKER": self.ticker,
@@ -71,21 +71,21 @@ class SignalInfo:
     """Information about a detected signal."""
 
     # Support both old and new field names
-    ma_type: Optional[str] | None = None  # "SMA" or "EMA"
-    fast_period: Optional[int] | None = None
-    slow_period: Optional[int] | None = None
-    signal_date: Optional[datetime] | None = None
-    signal_type: Optional[str] | None = None  # "BUY" or "SELL"
+    ma_type: str | None | None = None  # "SMA" or "EMA"
+    fast_period: int | None | None = None
+    slow_period: int | None | None = None
+    signal_date: datetime | None | None = None
+    signal_type: str | None | None = None  # "BUY" or "SELL"
     current: bool = False
 
     # Alternative fields for compatibility
-    date: Optional[str] | None = None
-    signal_entry: Optional[bool] | None = None
-    signal_exit: Optional[bool] | None = None
-    current_position: Optional[int] | None = None
-    price: Optional[float] | None = None
+    date: str | None | None = None
+    signal_entry: bool | None | None = None
+    signal_exit: bool | None | None = None
+    current_position: int | None | None = None
+    price: float | None | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary format."""
         # Return new format if available
         if self.ma_type is not None:
@@ -93,21 +93,20 @@ class SignalInfo:
                 "ma_type": self.ma_type,
                 "fast_period": self.fast_period,
                 "slow_period": self.slow_period,
-                "signal_date": self.signal_date.isoformat()
-                if self.signal_date
-                else None,
+                "signal_date": (
+                    self.signal_date.isoformat() if self.signal_date else None
+                ),
                 "signal_type": self.signal_type,
                 "current": self.current,
             }
         # Return old format for compatibility
-        else:
-            return {
-                "date": self.date,
-                "signal_entry": self.signal_entry,
-                "signal_exit": self.signal_exit,
-                "current_position": self.current_position,
-                "price": self.price,
-            }
+        return {
+            "date": self.date,
+            "signal_entry": self.signal_entry,
+            "signal_exit": self.signal_exit,
+            "current_position": self.current_position,
+            "price": self.price,
+        }
 
 
 @dataclass
@@ -115,14 +114,14 @@ class TickerResult:
     """Result for a single ticker analysis."""
 
     ticker: str
-    signals: List[SignalInfo] = field(default_factory=list)
-    error: Optional[str] | None = None
+    signals: list[SignalInfo] = field(default_factory=list)
+    error: str | None | None = None
     processing_time: float = 0.0
 
     # Portfolio metrics (optional, for backtesting results)
-    strategy_type: Optional[str] | None = None
-    fast_period: Optional[int] | None = None
-    slow_period: Optional[int] | None = None
+    strategy_type: str | None | None = None
+    fast_period: int | None | None = None
+    slow_period: int | None | None = None
     total_trades: int = 0
     total_return_pct: float = 0.0
     sharpe_ratio: float = 0.0
@@ -139,11 +138,11 @@ class TickerResult:
         return any(signal.current for signal in self.signals)
 
     @property
-    def current_signals(self) -> List[SignalInfo]:
+    def current_signals(self) -> list[SignalInfo]:
         """Get only current signals."""
         return [s for s in self.signals if s.current]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary format."""
         result = {
             "ticker": self.ticker,
@@ -179,13 +178,13 @@ class TickerResult:
 class AnalysisResult:
     """Complete result of MA Cross analysis."""
 
-    tickers: List[TickerResult] = field(default_factory=list)
+    tickers: list[TickerResult] = field(default_factory=list)
     total_processing_time: float = 0.0
     analysis_date: datetime = field(default_factory=datetime.now)
-    config: Optional[AnalysisConfig] | None = None
+    config: AnalysisConfig | None | None = None
 
     @property
-    def tickers_with_signals(self) -> List[TickerResult]:
+    def tickers_with_signals(self) -> list[TickerResult]:
         """Get only tickers that have current signals."""
         return [t for t in self.tickers if t.has_current_signal]
 
@@ -195,11 +194,11 @@ class AnalysisResult:
         return sum(len(t.current_signals) for t in self.tickers)
 
     @property
-    def results(self) -> List[TickerResult]:
+    def results(self) -> list[TickerResult]:
         """Backward compatibility property for tests."""
         return self.tickers
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary format."""
         return {
             "tickers": [t.to_dict() for t in self.tickers],

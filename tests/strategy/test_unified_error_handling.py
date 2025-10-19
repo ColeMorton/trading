@@ -6,7 +6,6 @@ it properly handles all error scenarios across trading strategies.
 """
 
 import logging
-from typing import Any, Dict, List
 from unittest.mock import Mock, patch
 
 import polars as pl
@@ -212,7 +211,7 @@ class TestStandardErrorHandler:
         handler = StandardErrorHandler("SMA", fail_fast=True, max_warnings=50)
 
         assert handler.strategy_type == "SMA"
-        assert handler.fail_fast == True
+        assert handler.fail_fast is True
         assert handler.max_warnings == 50
 
     def test_handle_strategy_error(self):
@@ -346,7 +345,7 @@ class TestPermissiveErrorHandler:
         handler = PermissiveErrorHandler("MACD", collect_errors=True)
 
         assert handler.strategy_type == "MACD"
-        assert handler.collect_errors == True
+        assert handler.collect_errors is True
         assert handler.collected_errors == []
 
     def test_handle_error_permissively(self):
@@ -425,7 +424,7 @@ class TestErrorHandlerFactory:
         )
 
         assert isinstance(handler, StandardErrorHandler)
-        assert handler.fail_fast == False
+        assert handler.fail_fast is False
         assert handler.max_warnings == 200
 
     def test_create_unknown_handler_type(self):
@@ -451,7 +450,7 @@ class TestConvenienceFunctions:
 
         assert isinstance(handler, StandardErrorHandler)
         assert handler.strategy_type == "SMA"
-        assert handler.fail_fast == True
+        assert handler.fail_fast is True
 
     def test_handle_strategy_error_with_log_function(self):
         """Test handle_strategy_error with log function."""
@@ -502,7 +501,7 @@ class TestValidationFunctions:
             data, min_rows=2, strategy_type="SMA", required_columns=["Date", "Close"]
         )
 
-        assert result == True
+        assert result is True
 
     def test_validate_data_sufficiency_insufficient_rows(self):
         """Test data validation with insufficient rows."""
@@ -510,7 +509,7 @@ class TestValidationFunctions:
 
         result = validate_data_sufficiency(data, min_rows=5, strategy_type="SMA")
 
-        assert result == False
+        assert result is False
 
     def test_validate_data_sufficiency_missing_columns(self):
         """Test data validation with missing columns."""
@@ -525,7 +524,7 @@ class TestValidationFunctions:
             required_columns=["Date", "Close", "Volume"],
         )
 
-        assert result == False
+        assert result is False
 
     def test_validate_data_sufficiency_with_error_handler(self):
         """Test data validation with error handler."""
@@ -536,7 +535,7 @@ class TestValidationFunctions:
             data, min_rows=5, strategy_type="SMA", error_handler=handler
         )
 
-        assert result == False
+        assert result is False
         assert handler.error_counts[ErrorSeverity.WARNING] == 1
 
     def test_validate_parameters_success(self):
@@ -545,7 +544,7 @@ class TestValidationFunctions:
 
         result = validate_parameters(parameters, ["fast_period", "slow_period"], "MACD")
 
-        assert result == True
+        assert result is True
 
     def test_validate_parameters_missing_required(self):
         """Test parameter validation with missing required parameters."""
@@ -553,7 +552,7 @@ class TestValidationFunctions:
 
         result = validate_parameters(parameters, ["fast_period", "slow_period"], "MACD")
 
-        assert result == False
+        assert result is False
 
     def test_validate_parameters_none_values(self):
         """Test parameter validation with None values."""
@@ -561,7 +560,7 @@ class TestValidationFunctions:
 
         result = validate_parameters(parameters, ["fast_period", "slow_period"], "MACD")
 
-        assert result == False
+        assert result is False
 
     def test_validate_parameters_with_error_handler(self):
         """Test parameter validation with error handler."""
@@ -572,7 +571,7 @@ class TestValidationFunctions:
             parameters, ["fast_period", "slow_period"], "MACD", handler
         )
 
-        assert result == False
+        assert result is False
         assert handler.error_counts[ErrorSeverity.ERROR] == 1
 
 

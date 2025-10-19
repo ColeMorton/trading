@@ -12,9 +12,9 @@ Author: Claude Code Analysis
 Date: July 2025
 """
 
-import os
-import sys
 from pathlib import Path
+import sys
+
 
 # Add the project root to Python path
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -23,6 +23,7 @@ import logging
 from typing import Any
 
 import numpy as np
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -46,7 +47,7 @@ class PercentileRankFixer:
             # Validate input value
             if (
                 value is None
-                or not isinstance(value, (int, float))
+                or not isinstance(value, int | float)
                 or not np.isfinite(value)
             ):
                 self.logger.warning(
@@ -64,63 +65,92 @@ class PercentileRankFixer:
                 percentile_values = [
                     (
                         5,
-                        float(percentiles.p5)
-                        if hasattr(percentiles, "p5") and percentiles.p5 is not None
-                        else None,
+                        (
+                            float(percentiles.p5)
+                            if hasattr(percentiles, "p5") and percentiles.p5 is not None
+                            else None
+                        ),
                     ),
                     (
                         10,
-                        float(percentiles.p10)
-                        if hasattr(percentiles, "p10") and percentiles.p10 is not None
-                        else None,
+                        (
+                            float(percentiles.p10)
+                            if hasattr(percentiles, "p10")
+                            and percentiles.p10 is not None
+                            else None
+                        ),
                     ),
                     (
                         25,
-                        float(percentiles.p25)
-                        if hasattr(percentiles, "p25") and percentiles.p25 is not None
-                        else None,
+                        (
+                            float(percentiles.p25)
+                            if hasattr(percentiles, "p25")
+                            and percentiles.p25 is not None
+                            else None
+                        ),
                     ),
                     (
                         50,
-                        float(percentiles.p50)
-                        if hasattr(percentiles, "p50") and percentiles.p50 is not None
-                        else None,
+                        (
+                            float(percentiles.p50)
+                            if hasattr(percentiles, "p50")
+                            and percentiles.p50 is not None
+                            else None
+                        ),
                     ),
                     (
                         70,
-                        float(percentiles.p70)
-                        if hasattr(percentiles, "p70") and percentiles.p70 is not None
-                        else None,
+                        (
+                            float(percentiles.p70)
+                            if hasattr(percentiles, "p70")
+                            and percentiles.p70 is not None
+                            else None
+                        ),
                     ),
                     (
                         75,
-                        float(percentiles.p75)
-                        if hasattr(percentiles, "p75") and percentiles.p75 is not None
-                        else None,
+                        (
+                            float(percentiles.p75)
+                            if hasattr(percentiles, "p75")
+                            and percentiles.p75 is not None
+                            else None
+                        ),
                     ),
                     (
                         80,
-                        float(percentiles.p80)
-                        if hasattr(percentiles, "p80") and percentiles.p80 is not None
-                        else None,
+                        (
+                            float(percentiles.p80)
+                            if hasattr(percentiles, "p80")
+                            and percentiles.p80 is not None
+                            else None
+                        ),
                     ),
                     (
                         90,
-                        float(percentiles.p90)
-                        if hasattr(percentiles, "p90") and percentiles.p90 is not None
-                        else None,
+                        (
+                            float(percentiles.p90)
+                            if hasattr(percentiles, "p90")
+                            and percentiles.p90 is not None
+                            else None
+                        ),
                     ),
                     (
                         95,
-                        float(percentiles.p95)
-                        if hasattr(percentiles, "p95") and percentiles.p95 is not None
-                        else None,
+                        (
+                            float(percentiles.p95)
+                            if hasattr(percentiles, "p95")
+                            and percentiles.p95 is not None
+                            else None
+                        ),
                     ),
                     (
                         99,
-                        float(percentiles.p99)
-                        if hasattr(percentiles, "p99") and percentiles.p99 is not None
-                        else None,
+                        (
+                            float(percentiles.p99)
+                            if hasattr(percentiles, "p99")
+                            and percentiles.p99 is not None
+                            else None
+                        ),
                     ),
                 ]
             except (AttributeError, TypeError, ValueError) as e:
@@ -256,7 +286,7 @@ class PercentileRankFixer:
         self.logger.info(f"Applying fix to {divergence_detector_file}")
 
         # Read the current file
-        with open(divergence_detector_file, "r") as f:
+        with open(divergence_detector_file) as f:
             content = f.read()
 
         # Create backup
@@ -396,9 +426,8 @@ class PercentileRankFixer:
             self.logger.info("✅ Fix applied successfully to divergence_detector.py")
             self.logger.info("   Added P70 and P80 percentiles to the extraction logic")
             return True
-        else:
-            self.logger.error("❌ Could not find the target code section to fix")
-            return False
+        self.logger.error("❌ Could not find the target code section to fix")
+        return False
 
 
 if __name__ == "__main__":
@@ -409,9 +438,9 @@ if __name__ == "__main__":
 
     # Apply the fix to the actual file
     if fixer.apply_fix_to_divergence_detector():
-        print(f"\n🎉 SMCI signal generation bug has been fixed!")
+        print("\n🎉 SMCI signal generation bug has been fixed!")
         print(f"   Fixed percentile rank: {fixed_rank:.2f}")
-        print(f"   This should now properly trigger SELL signals for values > P70")
+        print("   This should now properly trigger SELL signals for values > P70")
     else:
-        print(f"\n❌ Failed to apply fix to divergence_detector.py")
-        print(f"   Manual intervention required")
+        print("\n❌ Failed to apply fix to divergence_detector.py")
+        print("   Manual intervention required")

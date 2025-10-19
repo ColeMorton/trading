@@ -12,19 +12,15 @@ Design Principles:
 - Dependency Inversion: Depend on abstractions, not concrete implementations
 """
 
-import asyncio
-import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
+import uuid
 
 import pandas as pd
 import polars as pl
 from pydantic import BaseModel, ConfigDict, Field
-
-from app.core.interfaces.strategy import StrategyConfig, StrategyResult
-from app.core.types.strategy import BacktestResult, StrategyParameters
 
 
 class UnifiedStrategyConfig(BaseModel):
@@ -36,33 +32,31 @@ class UnifiedStrategyConfig(BaseModel):
     strategy_type: str = Field(
         ..., description="Strategy type (MA_CROSS, MACD, RSI, etc.)"
     )
-    ticker: Union[str, List[str]] = Field(
-        ..., description="Ticker symbol(s) to analyze"
-    )
+    ticker: str | list[str] = Field(..., description="Ticker symbol(s) to analyze")
     timeframe: str = Field(default="D", description="Timeframe (D, H, etc.)")
 
     # Strategy-Specific Parameters
-    parameters: Dict[str, Any] = Field(
+    parameters: dict[str, Any] = Field(
         default_factory=dict, description="Strategy-specific parameters"
     )
 
     # Data Parameters
-    data_years: Optional[float] = Field(
+    data_years: float | None = Field(
         default=None, description="Years of historical data"
     )
     use_synthetic: bool = Field(default=False, description="Use synthetic ticker pairs")
 
     # Risk Management
-    risk_management: Dict[str, Any] = Field(
+    risk_management: dict[str, Any] = Field(
         default_factory=dict, description="Risk management settings"
     )
-    stop_loss: Optional[float] = Field(default=None, description="Stop loss percentage")
-    allocation: Optional[float] = Field(
+    stop_loss: float | None = Field(default=None, description="Stop loss percentage")
+    allocation: float | None = Field(
         default=None, description="Position allocation percentage"
     )
 
     # Filtering and Selection
-    filtering_criteria: Dict[str, Any] = Field(
+    filtering_criteria: dict[str, Any] = Field(
         default_factory=dict, description="Portfolio filtering criteria"
     )
     sort_by: str = Field(
@@ -79,10 +73,10 @@ class UnifiedStrategyConfig(BaseModel):
     )
 
     # Output Options
-    output_dir: Optional[Path] = Field(
+    output_dir: Path | None = Field(
         default=None, description="Output directory for results"
     )
-    export_formats: List[str] = Field(
+    export_formats: list[str] = Field(
         default_factory=lambda: ["csv"], description="Export formats"
     )
 
@@ -92,10 +86,10 @@ class UnifiedStrategyConfig(BaseModel):
         if strategy_type == "MA_CROSS":
             required_params = ["fast_period", "slow_period"]
             return all(param in self.parameters for param in required_params)
-        elif strategy_type == "MACD":
+        if strategy_type == "MACD":
             required_params = ["short_period", "long_period", "signal_period"]
             return all(param in self.parameters for param in required_params)
-        elif strategy_type == "RSI":
+        if strategy_type == "RSI":
             required_params = ["rsi_window", "oversold", "overbought"]
             return all(param in self.parameters for param in required_params)
         return True
@@ -114,38 +108,38 @@ class UnifiedStrategyResult(BaseModel):
     execution_time: float = Field(..., description="Execution time in seconds")
 
     # Core Results
-    metrics: Dict[str, float] = Field(..., description="Performance metrics")
-    signals: Union[pd.DataFrame, pl.DataFrame, Dict[str, Any]] = Field(
+    metrics: dict[str, float] = Field(..., description="Performance metrics")
+    signals: pd.DataFrame | pl.DataFrame | dict[str, Any] = Field(
         ..., description="Trading signals"
     )
 
     # Backtest Results
-    equity_curve: Optional[Union[pd.DataFrame, pl.DataFrame]] = Field(default=None)
-    trades: Optional[Union[pd.DataFrame, pl.DataFrame]] = Field(default=None)
+    equity_curve: pd.DataFrame | pl.DataFrame | None = Field(default=None)
+    trades: pd.DataFrame | pl.DataFrame | None = Field(default=None)
 
     # Portfolio Analysis (for multi-parameter strategies)
-    best_parameters: Optional[Dict[str, Any]] = Field(default=None)
-    all_results: Optional[List[Dict[str, Any]]] = Field(default=None)
+    best_parameters: dict[str, Any] | None = Field(default=None)
+    all_results: list[dict[str, Any]] | None = Field(default=None)
 
     # Risk Analysis
-    risk_metrics: Optional[Dict[str, float]] = Field(default=None)
-    drawdown_analysis: Optional[Dict[str, float]] = Field(default=None)
+    risk_metrics: dict[str, float] | None = Field(default=None)
+    drawdown_analysis: dict[str, float] | None = Field(default=None)
 
     # Export Information
-    export_paths: Optional[Dict[str, Path]] = Field(default=None)
+    export_paths: dict[str, Path] | None = Field(default=None)
 
     @property
-    def sharpe_ratio(self) -> Optional[float]:
+    def sharpe_ratio(self) -> float | None:
         """Get Sharpe ratio from metrics."""
         return self.metrics.get("Sharpe Ratio")
 
     @property
-    def total_return(self) -> Optional[float]:
+    def total_return(self) -> float | None:
         """Get total return from metrics."""
         return self.metrics.get("Total Return [%]")
 
     @property
-    def win_rate(self) -> Optional[float]:
+    def win_rate(self) -> float | None:
         """Get win rate from metrics."""
         return self.metrics.get("Win Rate [%]")
 
@@ -173,13 +167,13 @@ class AbstractStrategy(ABC):
 
     @property
     @abstractmethod
-    def required_parameters(self) -> List[str]:
+    def required_parameters(self) -> list[str]:
         """Return list of required parameters for this strategy."""
         pass
 
     @property
     @abstractmethod
-    def default_parameters(self) -> Dict[str, Any]:
+    def default_parameters(self) -> dict[str, Any]:
         """Return default parameters for this strategy."""
         pass
 
@@ -193,7 +187,7 @@ class AbstractStrategy(ABC):
         self,
         ticker: str,
         config: UnifiedStrategyConfig,
-        data: Optional[Union[pd.DataFrame, pl.DataFrame]] = None,
+        data: pd.DataFrame | pl.DataFrame | None = None,
     ) -> UnifiedStrategyResult:
         """Execute strategy for a single ticker with specific parameters."""
         pass
@@ -203,17 +197,17 @@ class AbstractStrategy(ABC):
         self,
         ticker: str,
         config: UnifiedStrategyConfig,
-        parameter_ranges: Dict[str, List[Any]],
+        parameter_ranges: dict[str, list[Any]],
     ) -> UnifiedStrategyResult:
         """Execute parameter optimization for a single ticker."""
         pass
 
     async def execute_portfolio(
         self,
-        tickers: List[str],
+        tickers: list[str],
         config: UnifiedStrategyConfig,
-        progress_callback: Optional[callable] = None,
-    ) -> List[UnifiedStrategyResult]:
+        progress_callback: callable | None = None,
+    ) -> list[UnifiedStrategyResult]:
         """Execute strategy for multiple tickers (portfolio analysis)."""
         results = []
 
@@ -227,7 +221,7 @@ class AbstractStrategy(ABC):
                 results.append(result)
             except Exception as e:
                 # Log error and continue with next ticker
-                self._log_error(f"Error executing {ticker}: {str(e)}")
+                self._log_error(f"Error executing {ticker}: {e!s}")
                 continue
 
         return results
@@ -252,7 +246,7 @@ class AbstractStrategy(ABC):
 class StrategyFactory:
     """Factory for creating strategy instances."""
 
-    _strategies: Dict[str, type] = {}
+    _strategies: dict[str, type] = {}
 
     @classmethod
     def register_strategy(cls, strategy_type: str, strategy_class: type) -> None:
@@ -269,12 +263,12 @@ class StrategyFactory:
         return strategy_class()
 
     @classmethod
-    def get_supported_strategies(cls) -> List[str]:
+    def get_supported_strategies(cls) -> list[str]:
         """Get list of supported strategy types."""
         return list(cls._strategies.keys())
 
     @classmethod
-    def list_strategies(cls) -> Dict[str, Dict[str, Any]]:
+    def list_strategies(cls) -> dict[str, dict[str, Any]]:
         """Get detailed information about all strategies."""
         strategies = {}
 
@@ -307,8 +301,8 @@ class UnifiedStrategyExecutor:
         self,
         strategy_type: str,
         config: UnifiedStrategyConfig,
-        progress_callback: Optional[callable] = None,
-    ) -> Union[UnifiedStrategyResult, List[UnifiedStrategyResult]]:
+        progress_callback: callable | None = None,
+    ) -> UnifiedStrategyResult | list[UnifiedStrategyResult]:
         """
         Execute a strategy with unified configuration.
 
@@ -331,31 +325,30 @@ class UnifiedStrategyExecutor:
         if isinstance(config.ticker, str):
             # Single ticker execution
             return await strategy.execute_single(config.ticker, config)
-        else:
-            # Portfolio execution
-            return await strategy.execute_portfolio(
-                config.ticker, config, progress_callback
-            )
+        # Portfolio execution
+        return await strategy.execute_portfolio(
+            config.ticker, config, progress_callback
+        )
 
     async def optimize(
         self,
         strategy_type: str,
         ticker: str,
         config: UnifiedStrategyConfig,
-        parameter_ranges: Dict[str, List[Any]],
+        parameter_ranges: dict[str, list[Any]],
     ) -> UnifiedStrategyResult:
         """Execute parameter optimization for a strategy."""
         strategy = self.factory.create_strategy(strategy_type)
         return await strategy.execute_optimization(ticker, config, parameter_ranges)
 
-    def get_strategy_info(self, strategy_type: str) -> Dict[str, Any]:
+    def get_strategy_info(self, strategy_type: str) -> dict[str, Any]:
         """Get information about a specific strategy."""
         strategies = self.factory.list_strategies()
         if strategy_type not in strategies:
             raise ValueError(f"Unknown strategy type: {strategy_type}")
         return strategies[strategy_type]
 
-    def list_supported_strategies(self) -> Dict[str, Dict[str, Any]]:
+    def list_supported_strategies(self) -> dict[str, dict[str, Any]]:
         """List all supported strategies with their information."""
         return self.factory.list_strategies()
 

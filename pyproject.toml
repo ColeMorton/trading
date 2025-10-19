@@ -53,6 +53,11 @@ plotly = "5.24.1"
 anywidget = "^0.9.0"
 jsonschema = "^4.25.1"
 jsonschema-specifications = "^2025.4.1"
+arq = "^0.25.0"
+bcrypt = "^4.0.0"
+psycopg2-binary = "^2.9.0"
+greenlet = "^3.0.0"
+sqlmodel = "^0.0.27"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
@@ -60,6 +65,7 @@ pytest-asyncio = "^1.0.0"
 pytest-cov = "^6.1.1"
 black = "^24.0.0"
 isort = "^5.13.0"
+ruff = "^0.8.0"
 flake8 = "^7.0.0"
 flake8-docstrings = "^1.7.0"
 flake8-bugbear = "^24.0.0"
@@ -164,3 +170,79 @@ max-line-length = 88
 min_confidence = 80
 paths = ["app", "tests"]
 exclude = ["*/migrations/*", "*/tests/*"]
+
+[tool.ruff]
+# Ruff configuration - modern, fast Python linter
+line-length = 88
+target-version = "py310"
+
+# Exclude directories
+extend-exclude = [
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "build",
+    "dist",
+    "__pycache__",
+    "node_modules",
+]
+
+[tool.ruff.lint]
+# Enable specific rule sets
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # isort
+    "N",     # pep8-naming
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "C4",    # flake8-comprehensions
+    "SIM",   # flake8-simplify
+    "RET",   # flake8-return
+    "PTH",   # flake8-use-pathlib
+    "TD",    # flake8-todos
+    "FIX",   # flake8-fixme
+    "ERA",   # eradicate (commented out code)
+    "PL",    # pylint
+    "RUF",   # ruff-specific rules
+]
+
+# Ignore specific rules
+ignore = [
+    "E501",    # line too long (handled by black)
+    "TD002",   # missing TODO author
+    "TD003",   # missing TODO link
+    "FIX002",  # line contains TODO
+    "PLR0913", # too many arguments
+    "PLR2004", # magic value comparison
+    "RET504",  # unnecessary variable assignment before return
+    "SIM108",  # use ternary operator (sometimes less readable)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Allow unused imports in __init__.py files
+"__init__.py" = ["F401", "E402"]
+# Relax some rules for tests
+"tests/**/*.py" = ["PLR2004", "S101", "S105", "S106"]
+# Relax rules for scripts
+"scripts/**/*.py" = ["T201", "S101"]
+
+[tool.ruff.lint.isort]
+# Make isort compatible with black
+combine-as-imports = true
+force-sort-within-sections = true
+known-first-party = ["app"]
+lines-after-imports = 2
+
+[tool.ruff.lint.mccabe]
+# Maximum cyclomatic complexity
+max-complexity = 10
+
+[tool.ruff.format]
+# Use Black-compatible formatting
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"

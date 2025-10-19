@@ -4,10 +4,9 @@ Tools configuration models.
 This module defines Pydantic models for tools commands configuration.
 """
 
-from pathlib import Path
-from typing import List, Literal, Optional
+from typing import Literal
 
-from pydantic import BaseModel, Field, validator
+from pydantic import Field, field_validator
 
 from .base import BaseConfig
 
@@ -15,7 +14,7 @@ from .base import BaseConfig
 class SchemaConfig(BaseConfig):
     """Configuration for schema operations."""
 
-    file_path: Optional[str] = Field(
+    file_path: str | None = Field(
         None, description="Path to file for schema detection/conversion"
     )
     target_schema: str = Field(
@@ -23,7 +22,7 @@ class SchemaConfig(BaseConfig):
     )
     validate_only: bool = Field(False, description="Only validate, don't convert")
     strict_mode: bool = Field(True, description="Strict validation mode")
-    output_file: Optional[str] = Field(
+    output_file: str | None = Field(
         None, description="Output file path for conversions"
     )
 
@@ -31,10 +30,10 @@ class SchemaConfig(BaseConfig):
 class ValidationConfig(BaseConfig):
     """Configuration for data validation."""
 
-    file_paths: List[str] = Field(
+    file_paths: list[str] = Field(
         default_factory=list, description="List of file paths to validate"
     )
-    directory: Optional[str] = Field(
+    directory: str | None = Field(
         None, description="Directory to validate all CSV files"
     )
     schema_validation: bool = Field(True, description="Enable schema validation")
@@ -43,9 +42,7 @@ class ValidationConfig(BaseConfig):
     output_format: str = Field(
         "table", description="Output format: table, json, summary"
     )
-    save_report: Optional[str] = Field(
-        None, description="Save validation report to file"
-    )
+    save_report: str | None = Field(None, description="Save validation report to file")
 
 
 class ExportMADataConfig(BaseConfig):
@@ -54,18 +51,20 @@ class ExportMADataConfig(BaseConfig):
     ticker: str = Field(..., description="Ticker symbol (e.g., AAPL, BTC-USD)")
     period: int = Field(..., description="Moving average period", gt=0)
     ma_type: Literal["SMA", "EMA"] = Field("SMA", description="Moving average type")
-    output_dir: Optional[str] = Field(
+    output_dir: str | None = Field(
         None, description="Custom output directory (default: data/raw/ma_cross/prices/)"
     )
 
-    @validator("ticker")
+    @field_validator("ticker")
+    @classmethod
     def validate_ticker(cls, v):
         """Validate ticker symbol format."""
         if not v or len(v.strip()) == 0:
             raise ValueError("Ticker symbol cannot be empty")
         return v.strip().upper()
 
-    @validator("period")
+    @field_validator("period")
+    @classmethod
     def validate_period(cls, v):
         """Validate period is reasonable."""
         if v < 1:
@@ -78,14 +77,14 @@ class ExportMADataConfig(BaseConfig):
 class ExportMADataSweepConfig(BaseConfig):
     """Configuration for moving average data export sweep analysis."""
 
-    tickers: List[str] = Field(
+    tickers: list[str] = Field(
         ..., description="List of ticker symbols (e.g., ['AAPL', 'BTC-USD'])"
     )
     period_min: int = Field(..., description="Minimum MA period for sweep", gt=0)
     period_max: int = Field(..., description="Maximum MA period for sweep", gt=0)
     period_step: int = Field(1, description="Step size for period sweep", gt=0)
     ma_type: Literal["SMA", "EMA"] = Field("SMA", description="Moving average type")
-    output_dir: Optional[str] = Field(
+    output_dir: str | None = Field(
         None, description="Custom output directory (default: data/raw/ma_cross/prices/)"
     )
     show_stats: bool = Field(True, description="Display analytics for each export")
@@ -96,7 +95,8 @@ class ExportMADataSweepConfig(BaseConfig):
         "none", description="Period analysis detail: none, compact, summary, full"
     )
 
-    @validator("tickers")
+    @field_validator("tickers")
+    @classmethod
     def validate_tickers(cls, v):
         """Validate ticker symbols list."""
         if not v or len(v) == 0:
@@ -111,7 +111,8 @@ class ExportMADataSweepConfig(BaseConfig):
 
         return cleaned_tickers
 
-    @validator("period_max")
+    @field_validator("period_max")
+    @classmethod
     def validate_period_max(cls, v, values):
         """Validate period_max is greater than period_min."""
         if "period_min" in values and v <= values["period_min"]:
@@ -120,7 +121,8 @@ class ExportMADataSweepConfig(BaseConfig):
             raise ValueError("period_max cannot exceed 5000 days")
         return v
 
-    @validator("period_min")
+    @field_validator("period_min")
+    @classmethod
     def validate_period_min(cls, v):
         """Validate period_min is reasonable."""
         if v < 1:
@@ -129,7 +131,8 @@ class ExportMADataSweepConfig(BaseConfig):
             raise ValueError("period_min cannot exceed 5000 days")
         return v
 
-    @validator("period_step")
+    @field_validator("period_step")
+    @classmethod
     def validate_period_step(cls, v, values):
         """Validate period_step is reasonable."""
         if v < 1:
@@ -143,7 +146,7 @@ class ExportMADataSweepConfig(BaseConfig):
 
         return v
 
-    def get_period_range(self) -> List[int]:
+    def get_period_range(self) -> list[int]:
         """Get the list of periods for the sweep."""
         return list(range(self.period_min, self.period_max + 1, self.period_step))
 
@@ -163,4 +166,4 @@ class HealthConfig(BaseConfig):
     output_format: str = Field(
         "table", description="Output format: table, json, summary"
     )
-    save_report: Optional[str] = Field(None, description="Save health report to file")
+    save_report: str | None = Field(None, description="Save health report to file")

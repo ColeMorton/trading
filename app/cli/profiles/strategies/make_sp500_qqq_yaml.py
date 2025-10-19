@@ -8,6 +8,7 @@ import pandas as pd
 import requests
 import yaml
 
+
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -41,7 +42,7 @@ def get_sp500_from_wikipedia():
             break
     if df is None:
         raise RuntimeError("Could not parse S&P 500 table from Wikipedia.")
-    symbol_col = [c for c in df.columns if "symbol" in str(c).lower()][0]
+    symbol_col = next(c for c in df.columns if "symbol" in str(c).lower())
     symbols = df[symbol_col].astype(str).tolist()
     return [normalize_to_yahoo(s) for s in symbols]
 

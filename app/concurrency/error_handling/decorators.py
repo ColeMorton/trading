@@ -4,10 +4,11 @@ Provides decorators for common error handling patterns including validation,
 retry logic, and error transformation.
 """
 
+from collections.abc import Callable
+from functools import wraps
 import inspect
 import time
-from functools import wraps
-from typing import Any, Callable, Dict, Optional, Tuple, Type
+from typing import Any
 
 from .exceptions import ConcurrencyError, ValidationError
 from .registry import track_error
@@ -15,10 +16,10 @@ from .registry import track_error
 
 def handle_concurrency_errors(
     operation: str,
-    error_mapping: Optional[Dict[Type[Exception], Type[ConcurrencyError]]] = None,
+    error_mapping: dict[type[Exception], type[ConcurrencyError]] | None = None,
     reraise: bool = True,
     log_errors: bool = True,
-    context_func: Optional[Callable[..., Dict[str, Any]]] = None,
+    context_func: Callable[..., dict[str, Any]] | None = None,
 ):
     """Decorator for standardized error handling in concurrency functions.
 
@@ -71,9 +72,7 @@ def handle_concurrency_errors(
 
                 # Log error if logging is enabled and log function is available
                 if log_errors and log_func:
-                    log_func(
-                        f"Error in {operation} ({func.__name__}): {str(e)}", "error"
-                    )
+                    log_func(f"Error in {operation} ({func.__name__}): {e!s}", "error")
                     if context_data:
                         log_func(f"Error context: {context_data}", "debug")
 
@@ -82,15 +81,15 @@ def handle_concurrency_errors(
                 if type(e) in error_mapping_to_use:
                     concurrency_exception = error_mapping_to_use[type(e)]
                     raise concurrency_exception(
-                        f"Error in {operation}: {str(e)}", context=context_data
+                        f"Error in {operation}: {e!s}", context=context_data
                     ) from e
-                elif not isinstance(e, ConcurrencyError) and reraise:
+                if not isinstance(e, ConcurrencyError) and reraise:
                     # Wrap in generic ConcurrencyError if not already a concurrency
                     # exception
                     raise ConcurrencyError(
-                        f"Error in {operation}: {str(e)}", context=context_data
+                        f"Error in {operation}: {e!s}", context=context_data
                     ) from e
-                elif reraise:
+                if reraise:
                     raise
 
                 return None
@@ -143,7 +142,7 @@ def validate_inputs(**validation_rules):
                         if isinstance(e, ValidationError):
                             raise
                         raise ValidationError(
-                            f"Validation error for parameter '{param_name}': {str(e)}",
+                            f"Validation error for parameter '{param_name}': {e!s}",
                             field_name=param_name,
                             actual_value=value,
                             context={"function": func.__name__},
@@ -169,7 +168,7 @@ def retry_on_failure(
     max_retries: int = 3,
     delay: float = 1.0,
     backoff_factor: float = 2.0,
-    exceptions: Tuple[Type[Exception], ...] = (Exception,),
+    exceptions: tuple[type[Exception], ...] = (Exception,),
     log_retries: bool = True,
 ):
     """Decorator for retry logic on function failures.
@@ -210,7 +209,7 @@ def retry_on_failure(
                     if attempt < max_retries:
                         if log_retries and log_func:
                             log_func(
-                                f"Attempt {attempt + 1} failed for {func.__name__}: {str(e)}. "
+                                f"Attempt {attempt + 1} failed for {func.__name__}: {e!s}. "
                                 f"Retrying in {current_delay:.1f} seconds...",
                                 "warning",
                             )
@@ -232,6 +231,7 @@ def retry_on_failure(
             # This should never be reached, but just in case
             if last_exception:
                 raise last_exception
+            return None
 
         return wrapper
 
@@ -241,7 +241,7 @@ def retry_on_failure(
 def track_performance(
     operation: str,
     log_performance: bool = True,
-    performance_threshold: Optional[float] | None = None,
+    performance_threshold: float | None | None = None,
 ):
     """Decorator for tracking function performance.
 

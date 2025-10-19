@@ -5,14 +5,13 @@ This module provides the main entry point and command structure for the
 unified trading CLI system.
 """
 
-import sys
 from pathlib import Path
-from typing import Optional
+import sys
 
-import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
+import typer
 
 from .commands import (
     concurrency,
@@ -26,6 +25,7 @@ from .commands import (
     trade_history,
 )
 from .config import ConfigLoader, ConfigManager
+
 
 # Initialize Typer app
 app = typer.Typer(
@@ -85,7 +85,7 @@ def status():
     """Show system status and configuration."""
     try:
         config_manager = ConfigManager()
-        loader = ConfigLoader()
+        ConfigLoader()
 
         # Create status table
         table = Table(
@@ -156,7 +156,7 @@ def init():
     """Initialize the trading CLI with default profiles and configuration."""
     try:
         config_manager = ConfigManager()
-        loader = ConfigLoader()
+        ConfigLoader()
 
         rprint("[bold]Initializing Trading CLI...[/bold]")
 
@@ -178,7 +178,7 @@ def init():
             for profile_name in required_profiles:
                 try:
                     # Try to load the profile to verify it exists and is valid
-                    profile = config_manager.profile_manager.load_profile(profile_name)
+                    config_manager.profile_manager.load_profile(profile_name)
                     verified_profiles.append(profile_name)
                 except Exception:
                     rprint(
@@ -211,7 +211,7 @@ def pinescript(
         ...,
         help="CSV filename (with or without .csv extension). Searches in data/raw/strategies/",
     ),
-    ticker: Optional[str] = typer.Option(
+    ticker: str | None = typer.Option(
         None,
         "--ticker",
         "-t",
@@ -291,7 +291,7 @@ def pinescript(
         # Show generation info (unless quiet)
         if not quiet:
             if verbose:
-                rprint(f"[cyan]Generating PineScript indicator...[/cyan]")
+                rprint("[cyan]Generating PineScript indicator...[/cyan]")
                 rprint(f"[dim]Source: {csv_path}[/dim]")
                 rprint(f"[dim]Output: {output_path}[/dim]")
             else:
@@ -309,7 +309,7 @@ def pinescript(
         if dry_run:
             code = generator.generate(output_path=None)
             if not quiet:
-                rprint(f"[yellow]DRY RUN - No files written[/yellow]")
+                rprint("[yellow]DRY RUN - No files written[/yellow]")
         else:
             code = generator.generate(output_path=str(output_path))
 
@@ -317,13 +317,13 @@ def pinescript(
         if quiet:
             # Quiet mode: minimal output
             if dry_run:
-                rprint(f"[yellow]DRY RUN[/yellow]")
+                rprint("[yellow]DRY RUN[/yellow]")
             else:
-                rprint(f"[green]Success[/green]")
+                rprint("[green]Success[/green]")
                 rprint(f"{output_path}")
         else:
             # Default comprehensive preview
-            rprint(f"[green]Successfully generated PineScript indicator![/green]")
+            rprint("[green]Successfully generated PineScript indicator![/green]")
 
             if not dry_run:
                 rprint(f"\n[cyan]Output File:[/cyan] {output_path}")
@@ -384,11 +384,11 @@ def pinescript(
                 )
                 console.print(usage_panel)
             else:
-                rprint(f"\n[yellow]Remove --dry-run to write the file[/yellow]")
+                rprint("\n[yellow]Remove --dry-run to write the file[/yellow]")
 
         # Verbose additions (if not quiet)
         if verbose and not quiet:
-            rprint(f"\n[bold cyan]Detailed Breakdown:[/bold cyan]")
+            rprint("\n[bold cyan]Detailed Breakdown:[/bold cyan]")
             for ticker_name in stats["tickers"]:
                 count = stats["strategies_per_ticker"][ticker_name]
                 types = stats["strategy_types_per_ticker"][ticker_name]
@@ -425,7 +425,7 @@ def main(
         "-q",
         help="Suppress all output except success/failure messages",
     ),
-    profiles_dir: Optional[Path] = typer.Option(
+    profiles_dir: Path | None = typer.Option(
         None, "--profiles-dir", help="Custom profiles directory"
     ),
 ):

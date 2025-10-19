@@ -17,17 +17,17 @@ Key Features:
 """
 
 import asyncio
-import threading
-import time
 from collections import defaultdict, deque
-from contextlib import asynccontextmanager
+from collections.abc import Callable
+from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Union
+import threading
+import time
+from typing import Any
 
 import numpy as np
-import pandas as pd
 import psutil
 from pydantic import BaseModel, Field
 
@@ -61,10 +61,10 @@ class PerformanceMetric:
     timestamp: datetime
     metric_type: MetricType
     value: float
-    context: Dict[str, Any] = field(default_factory=dict)
+    context: dict[str, Any] = field(default_factory=dict)
     level: PerformanceLevel = PerformanceLevel.GOOD
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "timestamp": self.timestamp.isoformat(),
@@ -89,7 +89,7 @@ class SystemResourceSnapshot:
     network_bytes_recv: int
     active_threads: int
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "timestamp": self.timestamp.isoformat(),
@@ -112,12 +112,12 @@ class StrategyExecutionMetrics:
     ticker: str
     execution_id: str
     start_time: datetime
-    end_time: Optional[datetime] = None
-    execution_time: Optional[float] = None
-    memory_peak: Optional[float] = None
-    cpu_usage_avg: Optional[float] = None
-    result_metrics: Optional[Dict[str, float]] = None
-    error: Optional[str] = None
+    end_time: datetime | None = None
+    execution_time: float | None = None
+    memory_peak: float | None = None
+    cpu_usage_avg: float | None = None
+    result_metrics: dict[str, float] | None = None
+    error: str | None = None
 
     @property
     def is_completed(self) -> bool:
@@ -129,7 +129,7 @@ class StrategyExecutionMetrics:
         """Check if execution was successful."""
         return self.is_completed and self.error is None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "strategy_type": self.strategy_type,
@@ -157,9 +157,9 @@ class PerformanceAlert(BaseModel):
     metric_value: float = Field(..., description="Metric value that triggered alert")
     threshold: float = Field(..., description="Threshold that was exceeded")
     timestamp: datetime = Field(default_factory=datetime.now)
-    context: Dict[str, Any] = Field(default_factory=dict)
+    context: dict[str, Any] = Field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "alert_id": self.alert_id,
@@ -239,7 +239,7 @@ class PerformanceMonitor:
         # Performance data storage
         self.metrics_history: deque = deque(maxlen=max_metrics_history)
         self.resource_history: deque = deque(maxlen=max_metrics_history)
-        self.execution_metrics: Dict[str, StrategyExecutionMetrics] = {}
+        self.execution_metrics: dict[str, StrategyExecutionMetrics] = {}
         self.alerts: deque = deque(maxlen=1000)
 
         # Performance statistics
@@ -255,7 +255,7 @@ class PerformanceMonitor:
 
         # Configuration
         self.thresholds = PerformanceThresholds()
-        self.alert_callbacks: List[Callable] = []
+        self.alert_callbacks: list[Callable] = []
 
         # Monitoring state
         self._monitoring_active = False
@@ -279,16 +279,14 @@ class PerformanceMonitor:
 
         if self._resource_monitor_task:
             self._resource_monitor_task.cancel()
-            try:
+            with suppress(asyncio.CancelledError):
                 await self._resource_monitor_task
-            except asyncio.CancelledError:
-                pass
 
         print("Performance monitoring stopped")
 
     @asynccontextmanager
     async def monitor_execution(
-        self, strategy_type: str, ticker: str, execution_id: str = None
+        self, strategy_type: str, ticker: str, execution_id: str | None = None
     ):
         """
         Context manager for monitoring strategy execution.
@@ -373,7 +371,7 @@ class PerformanceMonitor:
         self,
         metric_type: MetricType,
         value: float,
-        context: Dict[str, Any] = None,
+        context: dict[str, Any] | None = None,
         level: PerformanceLevel = PerformanceLevel.GOOD,
     ):
         """Record a performance metric."""
@@ -401,7 +399,7 @@ class PerformanceMonitor:
 
     def get_recent_metrics(
         self, metric_type: MetricType = None, minutes: int = 60
-    ) -> List[PerformanceMetric]:
+    ) -> list[PerformanceMetric]:
         """Get recent metrics within specified time window."""
         cutoff_time = datetime.now() - timedelta(minutes=minutes)
 
@@ -421,7 +419,7 @@ class PerformanceMonitor:
 
         return filtered_metrics
 
-    def get_execution_summary(self, hours: int = 24) -> Dict[str, Any]:
+    def get_execution_summary(self, hours: int = 24) -> dict[str, Any]:
         """Get execution summary for specified time period."""
         cutoff_time = datetime.now() - timedelta(hours=hours)
 
@@ -478,9 +476,9 @@ class PerformanceMonitor:
             "failed_executions": len(failed),
             "success_rate": (len(successful) / len(recent_executions)) * 100,
             "avg_execution_time": np.mean(execution_times) if execution_times else 0.0,
-            "median_execution_time": np.median(execution_times)
-            if execution_times
-            else 0.0,
+            "median_execution_time": (
+                np.median(execution_times) if execution_times else 0.0
+            ),
             "max_execution_time": np.max(execution_times) if execution_times else 0.0,
             "avg_memory_peak": np.mean(memory_peaks) if memory_peaks else 0.0,
             "avg_cpu_usage": np.mean(cpu_averages) if cpu_averages else 0.0,
@@ -490,7 +488,7 @@ class PerformanceMonitor:
             ),
         }
 
-    def get_system_health(self) -> Dict[str, Any]:
+    def get_system_health(self) -> dict[str, Any]:
         """Get current system health status."""
         # Current resource usage
         memory = psutil.virtual_memory()
@@ -687,7 +685,7 @@ class PerformanceMonitor:
         message: str,
         metric_value: float,
         threshold: float,
-        context: Dict[str, Any] = None,
+        context: dict[str, Any] | None = None,
     ):
         """Create a performance alert."""
         alert = PerformanceAlert(
@@ -765,7 +763,7 @@ async def monitor_strategy_execution(
 
 
 def setup_performance_monitoring(
-    enable_alerting: bool = True, alert_callback: Optional[Callable] = None
+    enable_alerting: bool = True, alert_callback: Callable | None = None
 ):
     """
     Set up performance monitoring with optional alerting.
@@ -782,7 +780,7 @@ def setup_performance_monitoring(
     print("Performance monitoring configured and started")
 
 
-async def get_performance_dashboard() -> Dict[str, Any]:
+async def get_performance_dashboard() -> dict[str, Any]:
     """Get comprehensive performance dashboard data."""
     return {
         "system_health": performance_monitor.get_system_health(),

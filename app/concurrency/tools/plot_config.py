@@ -1,8 +1,6 @@
 """Configuration constants for visualization."""
 
-from typing import Dict, List
-
-STRATEGY_COLORS: List[str] = [
+STRATEGY_COLORS: list[str] = [
     "rgba(9,30,135,0.6)",  # dark blue
     "rgba(25,75,165,0.6)",  # medium-dark blue
     "rgba(65,105,185,0.6)",  # medium blue
@@ -11,7 +9,7 @@ STRATEGY_COLORS: List[str] = [
 ]
 
 
-def get_heatmap_config(y_position: float = 0.08, colorbar_len: float = 0.18) -> Dict:
+def get_heatmap_config(y_position: float = 0.08, colorbar_len: float = 0.18) -> dict:
     """Get heatmap configuration.
 
     Args:
@@ -25,11 +23,11 @@ def get_heatmap_config(y_position: float = 0.08, colorbar_len: float = 0.18) -> 
         "colorscale": "ice",
         "showscale": True,
         "name": "Active Strategies",
-        "colorbar": dict(
-            len=colorbar_len,
-            y=y_position,
-            yanchor="middle",
-            thickness=20,
-            ticks="outside",
-        ),
+        "colorbar": {
+            "len": colorbar_len,
+            "y": y_position,
+            "yanchor": "middle",
+            "thickness": 20,
+            "ticks": "outside",
+        },
     }

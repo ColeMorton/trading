@@ -1,9 +1,9 @@
 """Concrete implementation of portfolio management interface."""
 
-import json
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 import polars as pl
@@ -24,9 +24,9 @@ class ConcretePortfolio(Portfolio):
         self,
         ticker: str,
         strategy: str,
-        metrics: Dict[str, float],
+        metrics: dict[str, float],
         created_at: datetime,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ):
         self._ticker = ticker
         self._strategy = strategy
@@ -43,7 +43,7 @@ class ConcretePortfolio(Portfolio):
         return self._strategy
 
     @property
-    def metrics(self) -> Dict[str, float]:
+    def metrics(self) -> dict[str, float]:
         return self._metrics
 
     @property
@@ -57,8 +57,8 @@ class MetricFilter(PortfolioFilter):
     def __init__(
         self,
         metric_name: str,
-        min_value: Optional[float] | None = None,
-        max_value: Optional[float] | None = None,
+        min_value: float | None | None = None,
+        max_value: float | None | None = None,
     ):
         self.metric_name = metric_name
         self.min_value = min_value
@@ -73,10 +73,7 @@ class MetricFilter(PortfolioFilter):
         if self.min_value is not None and value < self.min_value:
             return False
 
-        if self.max_value is not None and value > self.max_value:
-            return False
-
-        return True
+        return not (self.max_value is not None and value > self.max_value)
 
 
 class PortfolioManager(PortfolioManagerInterface):
@@ -85,7 +82,7 @@ class PortfolioManager(PortfolioManagerInterface):
     def __init__(
         self,
         data_access: DataAccessInterface,
-        logger: Optional[LoggingInterface] | None = None,
+        logger: LoggingInterface | None | None = None,
     ):
         self._data_access = data_access
         self._logger = logger
@@ -96,7 +93,7 @@ class PortfolioManager(PortfolioManagerInterface):
             raise FileNotFoundError(f"Portfolio file not found: {path}")
 
         if path.suffix == ".json":
-            with open(path, "r") as f:
+            with open(path) as f:
                 data = json.load(f)
         elif path.suffix == ".csv":
             # Load CSV and convert to portfolio format
@@ -126,8 +123,8 @@ class PortfolioManager(PortfolioManagerInterface):
             self._logger.get_logger(__name__).info(f"Saved portfolio to {path}")
 
     def list_portfolios(
-        self, directory: Path, pattern: Optional[str] | None = None
-    ) -> List[Portfolio]:
+        self, directory: Path, pattern: str | None | None = None
+    ) -> list[Portfolio]:
         """List all portfolios in a directory."""
         if not directory.exists():
             return []
@@ -150,8 +147,8 @@ class PortfolioManager(PortfolioManagerInterface):
         return portfolios
 
     def filter_portfolios(
-        self, portfolios: List[Portfolio], filters: List[PortfolioFilter]
-    ) -> List[Portfolio]:
+        self, portfolios: list[Portfolio], filters: list[PortfolioFilter]
+    ) -> list[Portfolio]:
         """Filter portfolios based on criteria."""
         result = portfolios
 
@@ -162,8 +159,8 @@ class PortfolioManager(PortfolioManagerInterface):
         return result
 
     def aggregate_portfolios(
-        self, portfolios: List[Portfolio]
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+        self, portfolios: list[Portfolio]
+    ) -> pd.DataFrame | pl.DataFrame:
         """Aggregate multiple portfolios into a summary."""
         if not portfolios:
             return pd.DataFrame()
@@ -189,8 +186,8 @@ class PortfolioManager(PortfolioManagerInterface):
         return df
 
     def get_best_portfolios(
-        self, portfolios: List[Portfolio], metric: str = "sharpe_ratio", top_n: int = 10
-    ) -> List[Portfolio]:
+        self, portfolios: list[Portfolio], metric: str = "sharpe_ratio", top_n: int = 10
+    ) -> list[Portfolio]:
         """Get best performing portfolios by metric."""
         # Sort portfolios by metric
         sorted_portfolios = sorted(
@@ -222,7 +219,7 @@ class PortfolioManager(PortfolioManagerInterface):
         # Access through data access service config
         return False  # Default to pandas for now
 
-    def _dict_to_portfolio(self, data: Dict[str, Any]) -> Portfolio:
+    def _dict_to_portfolio(self, data: dict[str, Any]) -> Portfolio:
         """Convert dictionary to portfolio."""
         return ConcretePortfolio(
             ticker=data["ticker"],
@@ -236,7 +233,7 @@ class PortfolioManager(PortfolioManagerInterface):
             metadata=data.get("metadata", {}),
         )
 
-    def _portfolio_to_dict(self, portfolio: Portfolio) -> Dict[str, Any]:
+    def _portfolio_to_dict(self, portfolio: Portfolio) -> dict[str, Any]:
         """Convert portfolio to dictionary."""
         return {
             "ticker": portfolio.ticker,
@@ -246,7 +243,7 @@ class PortfolioManager(PortfolioManagerInterface):
             "metadata": getattr(portfolio, "_metadata", {}),
         }
 
-    def _csv_to_portfolio_dict(self, df: pd.DataFrame) -> Dict[str, Any]:
+    def _csv_to_portfolio_dict(self, df: pd.DataFrame) -> dict[str, Any]:
         """Convert CSV DataFrame to portfolio dictionary."""
         # Assume first row contains portfolio data
         row = df.iloc[0].to_dict()

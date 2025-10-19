@@ -5,13 +5,11 @@ This module integrates Total Strategies count from @json/concurrency/portfolio.j
 as specified in Phase 2 of the position sizing migration plan.
 """
 
-import json
 from dataclasses import dataclass
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
-
-from app.tools.data_types import DataConfig
+from typing import Any
 
 
 @dataclass
@@ -31,7 +29,7 @@ class StrategiesCountData:
 class StrategiesCountIntegration:
     """Service for sourcing Total Strategies count from concurrency portfolio analysis."""
 
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(self, base_dir: str | None = None):
         """Initialize the strategies count integration.
 
         Args:
@@ -41,7 +39,7 @@ class StrategiesCountIntegration:
         self.concurrency_dir = self.base_dir / "json" / "concurrency"
         self.portfolio_file = self.concurrency_dir / "portfolio.json"
 
-    def _load_portfolio_json(self) -> Dict[str, Any]:
+    def _load_portfolio_json(self) -> dict[str, Any]:
         """Load portfolio concurrency analysis JSON file.
 
         Returns:
@@ -55,7 +53,7 @@ class StrategiesCountIntegration:
             raise FileNotFoundError(f"Portfolio file not found: {self.portfolio_file}")
 
         try:
-            with open(self.portfolio_file, "r") as f:
+            with open(self.portfolio_file) as f:
                 return json.load(f)
         except json.JSONDecodeError as e:
             raise json.JSONDecodeError(
@@ -117,7 +115,7 @@ class StrategiesCountIntegration:
         except KeyError as e:
             raise KeyError(f"Missing expected key in portfolio.json: {e}")
 
-    def get_concurrency_metrics(self) -> Dict[str, Any]:
+    def get_concurrency_metrics(self) -> dict[str, Any]:
         """Get concurrency metrics from portfolio.json.
 
         Returns:
@@ -144,7 +142,7 @@ class StrategiesCountIntegration:
         except KeyError as e:
             raise KeyError(f"Missing expected concurrency key in portfolio.json: {e}")
 
-    def get_monte_carlo_metrics(self) -> Dict[str, Any]:
+    def get_monte_carlo_metrics(self) -> dict[str, Any]:
         """Get Monte Carlo simulation metrics from portfolio.json.
 
         Returns:
@@ -168,7 +166,7 @@ class StrategiesCountIntegration:
 
     def validate_strategies_count(
         self, expected_count: int, tolerance: int = 0
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Validate strategies count against expected value.
 
         Args:
@@ -183,16 +181,15 @@ class StrategiesCountIntegration:
 
         if difference <= tolerance:
             return True, f"Strategies count validation passed: {actual_count}"
-        else:
-            return (
-                False,
-                f"Strategies count validation failed: "
-                f"Expected {expected_count}, "
-                f"Got {actual_count}, "
-                f"Difference {difference} exceeds tolerance {tolerance}",
-            )
+        return (
+            False,
+            f"Strategies count validation failed: "
+            f"Expected {expected_count}, "
+            f"Got {actual_count}, "
+            f"Difference {difference} exceeds tolerance {tolerance}",
+        )
 
-    def calculate_strategy_utilization_metrics(self) -> Dict[str, float]:
+    def calculate_strategy_utilization_metrics(self) -> dict[str, float]:
         """Calculate strategy utilization metrics for position sizing.
 
         Returns:
@@ -230,7 +227,7 @@ class StrategiesCountIntegration:
             * 100,
         }
 
-    def get_excel_compatible_metrics(self) -> Dict[str, Any]:
+    def get_excel_compatible_metrics(self) -> dict[str, Any]:
         """Get metrics formatted for Excel integration.
 
         Returns:
@@ -251,7 +248,7 @@ class StrategiesCountIntegration:
             "Last_Updated": strategies_data.last_updated.strftime("%Y-%m-%d %H:%M:%S"),
         }
 
-    def export_strategies_data_to_csv(self, output_path: Optional[str] = None) -> str:
+    def export_strategies_data_to_csv(self, output_path: str | None = None) -> str:
         """Export strategies count data to CSV format.
 
         Args:
@@ -275,7 +272,7 @@ class StrategiesCountIntegration:
 
         return output_path
 
-    def get_strategy_allocation_basis(self) -> Dict[str, float]:
+    def get_strategy_allocation_basis(self) -> dict[str, float]:
         """Get strategy count data for allocation calculations.
 
         This provides the denominator for per-strategy allocation calculations
@@ -296,7 +293,7 @@ class StrategiesCountIntegration:
             "allocation_efficiency_factor": strategies_data.average_stability_score,
         }
 
-    def validate_file_freshness(self, max_age_hours: int = 24) -> Tuple[bool, str]:
+    def validate_file_freshness(self, max_age_hours: int = 24) -> tuple[bool, str]:
         """Validate that portfolio.json file is recent enough for position sizing.
 
         Args:
@@ -314,13 +311,12 @@ class StrategiesCountIntegration:
 
         if age_hours <= max_age_hours:
             return True, f"File is fresh: {age_hours:.1f} hours old"
-        else:
-            return (
-                False,
-                f"File is stale: {age_hours:.1f} hours old (max {max_age_hours} hours)",
-            )
+        return (
+            False,
+            f"File is stale: {age_hours:.1f} hours old (max {max_age_hours} hours)",
+        )
 
-    def get_comprehensive_summary(self) -> Dict[str, Any]:
+    def get_comprehensive_summary(self) -> dict[str, Any]:
         """Get comprehensive summary for position sizing dashboard.
 
         Returns:

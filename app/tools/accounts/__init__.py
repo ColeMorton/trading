@@ -18,6 +18,7 @@ from .strategies_count_integration import (
     StrategiesCountIntegration,
 )
 
+
 __all__ = [
     "AccountBalance",
     "DrawdownCalculator",

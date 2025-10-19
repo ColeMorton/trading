@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -9,8 +9,9 @@ from app.tools.get_data import download_data
 from app.tools.setup_logging import setup_logging
 from app.utils import backtest_strategy
 
+
 # Configuration
-default_config: Dict[str, Any] = {
+default_config: dict[str, Any] = {
     "YEARS": 30,  # Set timeframe in years for daily data
     "USE_HOURLY": False,  # Set to False for daily data
     "USE_SYNTHETIC": False,  # Toggle between synthetic and original ticker
@@ -39,15 +40,13 @@ def calculate_max_drawdown(prices: np.ndarray) -> float:
     peak = prices[0]
     max_drawdown = 0
     for price in prices:
-        if price > peak:
-            peak = price
+        peak = max(price, peak)
         drawdown = (peak - price) / peak
-        if drawdown > max_drawdown:
-            max_drawdown = drawdown
+        max_drawdown = max(drawdown, max_drawdown)
     return max_drawdown
 
 
-def run(config: Dict[str, Any]) -> bool:
+def run(config: dict[str, Any]) -> bool:
     """
     Generate trade data for Monte Carlo analysis.
 
@@ -138,7 +137,7 @@ def run(config: Dict[str, Any]) -> bool:
         return True
 
     except Exception as e:
-        log(f"Error generating trade data: {str(e)}", "error")
+        log(f"Error generating trade data: {e!s}", "error")
         log_close()
         raise
 
@@ -149,5 +148,5 @@ if __name__ == "__main__":
         if result:
             print("Trade data generation completed successfully!")
     except Exception as e:
-        print(f"Trade data generation failed: {str(e)}")
+        print(f"Trade data generation failed: {e!s}")
         raise

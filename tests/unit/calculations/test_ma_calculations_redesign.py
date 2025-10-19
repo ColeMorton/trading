@@ -7,12 +7,8 @@ Principles: Behavior-driven, fast execution, isolated
 """
 
 import unittest
-from datetime import datetime, timedelta
-from typing import Any, Dict
 
 import numpy as np
-import pandas as pd
-import polars as pl
 
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from tests.fixtures.market_data import create_realistic_price_data
@@ -175,11 +171,16 @@ class TestMACalculationsIntegration(unittest.TestCase):
         """Test signal accuracy in trending market conditions."""
         # Create uptrending market data
         trending_data = create_realistic_price_data(
-            ticker="TSLA", days=50, start_price=100.0, trend=0.001  # Slight uptrend
+            ticker="TSLA",
+            days=50,
+            start_price=100.0,
+            trend=0.001,  # Slight uptrend
         )
 
         config = {"TICKER": "TSLA", "STRATEGY_TYPE": "SMA", "USE_CURRENT": False}
-        log = lambda msg, level="info": None
+
+        def log(msg, level="info"):
+            return None
 
         result = calculate_ma_and_signals(trending_data, 10, 20, config, log)
 
@@ -193,7 +194,7 @@ class TestMACalculationsIntegration(unittest.TestCase):
             signals = result[result["Signal"] != 0]
 
         # Check for signals - may legitimately be zero for some data patterns
-        signal_count = len(signals)
+        len(signals)
         # Instead of requiring signals, verify the calculation completed successfully
         self.assertIn("Signal", result.columns)
         self.assertIn("Position", result.columns)
@@ -210,7 +211,9 @@ class TestMACalculationsIntegration(unittest.TestCase):
         )
 
         config = {"TICKER": "SPY", "STRATEGY_TYPE": "EMA", "USE_CURRENT": False}
-        log = lambda msg, level="info": None
+
+        def log(msg, level="info"):
+            return None
 
         result = calculate_ma_and_signals(sideways_data, 12, 26, config, log)
 

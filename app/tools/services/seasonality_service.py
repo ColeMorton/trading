@@ -1,12 +1,10 @@
 """Service layer for seasonality analysis."""
 
-import json
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Dict, List, Optional
 
 import pandas as pd
-import polars as pl
 from rich.console import Console
 from rich.progress import (
     BarColumn,
@@ -18,7 +16,6 @@ from rich.progress import (
 from rich.table import Table
 
 from app.cli.models.seasonality import (
-    PatternType,
     SeasonalityConfig,
     SeasonalityPattern,
     SeasonalityResult,
@@ -44,7 +41,7 @@ class SeasonalityService:
         self.prices_dir = Path("data/raw/prices")
         self.output_dir = Path("data/raw/seasonality")
 
-    def run_analysis(self) -> Dict[str, SeasonalityResult]:
+    def run_analysis(self) -> dict[str, SeasonalityResult]:
         """Run seasonality analysis for configured tickers.
 
         Returns:
@@ -83,7 +80,7 @@ class SeasonalityService:
                         results[ticker] = result
                         self._save_result(result)
                 except Exception as e:
-                    self.console.print(f"[red]Error analyzing {ticker}: {str(e)}[/red]")
+                    self.console.print(f"[red]Error analyzing {ticker}: {e!s}[/red]")
 
                 progress.advance(task)
 
@@ -103,22 +100,21 @@ class SeasonalityService:
 
         return results
 
-    def _get_tickers_to_analyze(self) -> List[str]:
+    def _get_tickers_to_analyze(self) -> list[str]:
         """Get list of tickers to analyze."""
         if self.config.tickers:
             # Use specified tickers
             return self.config.tickers
-        else:
-            # Get all available tickers from price data directory
-            tickers = []
-            for file_path in self.prices_dir.glob("*_D.csv"):
-                ticker = file_path.stem.replace("_D", "")
-                tickers.append(ticker)
-            return sorted(tickers)
+        # Get all available tickers from price data directory
+        tickers = []
+        for file_path in self.prices_dir.glob("*_D.csv"):
+            ticker = file_path.stem.replace("_D", "")
+            tickers.append(ticker)
+        return sorted(tickers)
 
     def _analyze_ticker(
         self, ticker: str, _retry: bool = False
-    ) -> Optional[SeasonalityResult]:
+    ) -> SeasonalityResult | None:
         """Analyze seasonality for a single ticker.
 
         Args:
@@ -180,13 +176,12 @@ class SeasonalityService:
                     )
                     # Retry analysis with newly downloaded data
                     return self._analyze_ticker(ticker, _retry=True)
-                else:
-                    self.console.print(f"[red]No data available for {ticker}[/red]")
-                    return None
+                self.console.print(f"[red]No data available for {ticker}[/red]")
+                return None
 
             except Exception as e:
                 self.console.print(
-                    f"[red]Failed to download data for {ticker}: {str(e)}[/red]"
+                    f"[red]Failed to download data for {ticker}: {e!s}[/red]"
                 )
                 return None
 
@@ -250,7 +245,7 @@ class SeasonalityService:
         self._export_json(result)
 
         # Also save CSV for backward compatibility
-        if self.config.output_format == "csv" or self.config.output_format == "both":
+        if self.config.output_format in ("csv", "both"):
             self._export_csv(result)
 
     def _export_json(self, result: SeasonalityResult) -> None:
@@ -287,28 +282,34 @@ class SeasonalityService:
                 "std_dev_pct": round(pattern.std_dev, 4),
                 "win_rate": round(pattern.win_rate, 4),
                 "sample_size": pattern.sample_size,
-                "sharpe_ratio": round(pattern.sharpe_ratio, 4)
-                if pattern.sharpe_ratio
-                else None,
-                "sortino_ratio": round(pattern.sortino_ratio, 4)
-                if pattern.sortino_ratio
-                else None,
-                "max_drawdown_pct": round(pattern.max_drawdown, 4)
-                if pattern.max_drawdown
-                else None,
+                "sharpe_ratio": (
+                    round(pattern.sharpe_ratio, 4) if pattern.sharpe_ratio else None
+                ),
+                "sortino_ratio": (
+                    round(pattern.sortino_ratio, 4) if pattern.sortino_ratio else None
+                ),
+                "max_drawdown_pct": (
+                    round(pattern.max_drawdown, 4) if pattern.max_drawdown else None
+                ),
                 "statistical_significance": round(pattern.statistical_significance, 4),
                 "p_value": round(pattern.p_value, 4) if pattern.p_value else None,
                 "confidence_interval": {
-                    "lower": round(pattern.confidence_interval_lower, 4)
-                    if pattern.confidence_interval_lower
-                    else None,
-                    "upper": round(pattern.confidence_interval_upper, 4)
-                    if pattern.confidence_interval_upper
-                    else None,
+                    "lower": (
+                        round(pattern.confidence_interval_lower, 4)
+                        if pattern.confidence_interval_lower
+                        else None
+                    ),
+                    "upper": (
+                        round(pattern.confidence_interval_upper, 4)
+                        if pattern.confidence_interval_upper
+                        else None
+                    ),
                 },
-                "consistency_score": round(pattern.consistency_score, 4)
-                if pattern.consistency_score
-                else None,
+                "consistency_score": (
+                    round(pattern.consistency_score, 4)
+                    if pattern.consistency_score
+                    else None
+                ),
                 "skewness": round(pattern.skewness, 4) if pattern.skewness else None,
                 "kurtosis": round(pattern.kurtosis, 4) if pattern.kurtosis else None,
             }
@@ -354,47 +355,61 @@ class SeasonalityService:
             },
             "summary_statistics": {
                 "seasonal_strength": round(result.overall_seasonal_strength, 4),
-                "overall_consistency": round(
-                    sum(p.consistency_score or 0 for p in monthly_patterns)
-                    / len(monthly_patterns),
-                    4,
-                )
-                if monthly_patterns
-                else None,
-                "best_month": {
-                    "period": best_month.period,
-                    "avg_return": round(best_month.average_return, 4),
-                    "win_rate": round(best_month.win_rate, 4),
-                    "sharpe_ratio": round(best_month.sharpe_ratio, 4)
-                    if best_month.sharpe_ratio
-                    else None,
-                }
-                if best_month
-                else None,
-                "worst_month": {
-                    "period": worst_month.period,
-                    "avg_return": round(worst_month.average_return, 4),
-                    "win_rate": round(worst_month.win_rate, 4),
-                    "sharpe_ratio": round(worst_month.sharpe_ratio, 4)
-                    if worst_month.sharpe_ratio
-                    else None,
-                }
-                if worst_month
-                else None,
-                "best_day": {
-                    "period": best_day.period,
-                    "avg_return": round(best_day.average_return, 4),
-                    "win_rate": round(best_day.win_rate, 4),
-                }
-                if best_day
-                else None,
-                "worst_day": {
-                    "period": worst_day.period,
-                    "avg_return": round(worst_day.average_return, 4),
-                    "win_rate": round(worst_day.win_rate, 4),
-                }
-                if worst_day
-                else None,
+                "overall_consistency": (
+                    round(
+                        sum(p.consistency_score or 0 for p in monthly_patterns)
+                        / len(monthly_patterns),
+                        4,
+                    )
+                    if monthly_patterns
+                    else None
+                ),
+                "best_month": (
+                    {
+                        "period": best_month.period,
+                        "avg_return": round(best_month.average_return, 4),
+                        "win_rate": round(best_month.win_rate, 4),
+                        "sharpe_ratio": (
+                            round(best_month.sharpe_ratio, 4)
+                            if best_month.sharpe_ratio
+                            else None
+                        ),
+                    }
+                    if best_month
+                    else None
+                ),
+                "worst_month": (
+                    {
+                        "period": worst_month.period,
+                        "avg_return": round(worst_month.average_return, 4),
+                        "win_rate": round(worst_month.win_rate, 4),
+                        "sharpe_ratio": (
+                            round(worst_month.sharpe_ratio, 4)
+                            if worst_month.sharpe_ratio
+                            else None
+                        ),
+                    }
+                    if worst_month
+                    else None
+                ),
+                "best_day": (
+                    {
+                        "period": best_day.period,
+                        "avg_return": round(best_day.average_return, 4),
+                        "win_rate": round(best_day.win_rate, 4),
+                    }
+                    if best_day
+                    else None
+                ),
+                "worst_day": (
+                    {
+                        "period": worst_day.period,
+                        "avg_return": round(worst_day.average_return, 4),
+                        "win_rate": round(worst_day.win_rate, 4),
+                    }
+                    if worst_day
+                    else None
+                ),
             },
             "monthly_patterns": [pattern_to_dict(p) for p in monthly_patterns],
             "weekly_patterns": [pattern_to_dict(p) for p in weekly_patterns],
@@ -807,13 +822,17 @@ class SeasonalityService:
         strength_label = (
             "Very Strong"
             if strength > 0.8
-            else "Strong"
-            if strength > 0.6
-            else "Moderate"
-            if strength > 0.4
-            else "Weak"
-            if strength > 0.2
-            else "Very Weak"
+            else (
+                "Strong"
+                if strength > 0.6
+                else (
+                    "Moderate"
+                    if strength > 0.4
+                    else "Weak"
+                    if strength > 0.2
+                    else "Very Weak"
+                )
+            )
         )
         stars = "★" * min(int(strength * 5), 5) + "☆" * (5 - min(int(strength * 5), 5))
         strength_color = (
@@ -870,7 +889,7 @@ class SeasonalityService:
 
         self.console.print()
 
-    def _display_summary(self, results: Dict[str, SeasonalityResult]) -> None:
+    def _display_summary(self, results: dict[str, SeasonalityResult]) -> None:
         """Display summary of analysis results.
 
         Args:
@@ -922,7 +941,7 @@ class SeasonalityService:
             f"\n[green]✓ Analysis complete. Results saved to {self.output_dir}[/green]"
         )
 
-    def _export_summary(self, results: Dict[str, SeasonalityResult]) -> None:
+    def _export_summary(self, results: dict[str, SeasonalityResult]) -> None:
         """Export summary analysis results to CSV file.
 
         Args:

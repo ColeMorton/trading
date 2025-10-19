@@ -5,11 +5,12 @@ This module provides automated cross-validation between CSV backtest results
 and JSON portfolio metrics to catch calculation discrepancies in real-time.
 """
 
-import json
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -23,9 +24,9 @@ class CrossValidationConfig:
     """Configuration for cross-validation checks."""
 
     csv_path: str
-    json_metrics: Dict[str, Any]
-    output_path: Optional[str] | None = None
-    tolerances: Optional[Dict[str, float]] = None
+    json_metrics: dict[str, Any]
+    output_path: str | None | None = None
+    tolerances: dict[str, float] | None = None
     auto_fix: bool = False
     generate_report: bool = True
 
@@ -48,7 +49,7 @@ class TickerComparison:
     """Comparison of metrics for a specific ticker."""
 
     ticker: str
-    metrics: List[MetricComparison]
+    metrics: list[MetricComparison]
     overall_score: float  # 0-1, percentage of metrics within tolerance
 
 
@@ -59,9 +60,9 @@ class CrossValidationReport:
     timestamp: str
     csv_path: str
     validation_summary: ValidationSummary
-    ticker_comparisons: List[TickerComparison]
-    portfolio_level_issues: List[str]
-    recommendations: List[str]
+    ticker_comparisons: list[TickerComparison]
+    portfolio_level_issues: list[str]
+    recommendations: list[str]
     data_quality_score: float  # 0-1, overall data quality
 
 
@@ -76,7 +77,7 @@ class CSVJSONCrossValidator:
     - Signal count reconciliation
     """
 
-    def __init__(self, log: Optional[Callable[[str, str], None]] = None):
+    def __init__(self, log: Callable[[str, str], None] | None = None):
         """Initialize the cross-validator with logging."""
         if log is None:
             self.log, _, _, _ = setup_logging(
@@ -104,9 +105,7 @@ class CSVJSONCrossValidator:
             csv_data = pd.read_csv(config.csv_path)
             self.log(f"Loaded CSV data with {len(csv_data)} strategies", "info")
         except Exception as e:
-            raise ValueError(
-                f"Failed to load CSV data from {config.csv_path}: {str(e)}"
-            )
+            raise ValueError(f"Failed to load CSV data from {config.csv_path}: {e!s}")
 
         # Run basic validation checks
         validation_summary = self.validator.validate_all(
@@ -157,9 +156,9 @@ class CSVJSONCrossValidator:
     def _compare_ticker_metrics(
         self,
         csv_data: pd.DataFrame,
-        json_metrics: Dict[str, Any],
-        tolerances: Dict[str, float],
-    ) -> List[TickerComparison]:
+        json_metrics: dict[str, Any],
+        tolerances: dict[str, float],
+    ) -> list[TickerComparison]:
         """Compare metrics at the ticker level."""
         self.log("Performing ticker-level metric comparisons", "info")
 
@@ -273,8 +272,8 @@ class CSVJSONCrossValidator:
         return ticker_comparisons
 
     def _identify_portfolio_issues(
-        self, csv_data: pd.DataFrame, json_metrics: Dict[str, Any]
-    ) -> List[str]:
+        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any]
+    ) -> list[str]:
         """Identify specific issues at the portfolio level."""
         issues = []
 
@@ -363,17 +362,17 @@ class CSVJSONCrossValidator:
                 )
 
         except Exception as e:
-            issues.append(f"Error identifying portfolio issues: {str(e)}")
-            self.log(f"Error in portfolio issue identification: {str(e)}", "error")
+            issues.append(f"Error identifying portfolio issues: {e!s}")
+            self.log(f"Error in portfolio issue identification: {e!s}", "error")
 
         return issues
 
     def _generate_recommendations(
         self,
         validation_summary: ValidationSummary,
-        ticker_comparisons: List[TickerComparison],
-        portfolio_issues: List[str],
-    ) -> List[str]:
+        ticker_comparisons: list[TickerComparison],
+        portfolio_issues: list[str],
+    ) -> list[str]:
         """Generate actionable recommendations based on validation results."""
         recommendations = []
 
@@ -446,7 +445,7 @@ class CSVJSONCrossValidator:
     def _calculate_data_quality_score(
         self,
         validation_summary: ValidationSummary,
-        ticker_comparisons: List[TickerComparison],
+        ticker_comparisons: list[TickerComparison],
     ) -> float:
         """Calculate an overall data quality score (0-1)."""
         # Base score from validation success rate
@@ -474,7 +473,7 @@ class CSVJSONCrossValidator:
 
         return final_score
 
-    def _get_nested_value(self, data: Dict[str, Any], path: str, default: Any) -> Any:
+    def _get_nested_value(self, data: dict[str, Any], path: str, default: Any) -> Any:
         """Get a nested value from a dictionary using dot notation."""
         try:
             keys = path.split(".")
@@ -508,14 +507,14 @@ class CSVJSONCrossValidator:
             self.log(f"Cross-validation report saved to {output_path}", "info")
 
         except Exception as e:
-            self.log(f"Error generating report file: {str(e)}", "error")
+            self.log(f"Error generating report file: {e!s}", "error")
 
     def _generate_markdown_report(
         self, report: CrossValidationReport, output_file: Path
     ) -> None:
         """Generate a markdown format report."""
         with open(output_file, "w") as f:
-            f.write(f"# CSV-JSON Cross-Validation Report\n\n")
+            f.write("# CSV-JSON Cross-Validation Report\n\n")
             f.write(f"**Generated:** {report.timestamp}\n")
             f.write(f"**CSV Source:** {report.csv_path}\n")
             f.write(
@@ -523,7 +522,7 @@ class CSVJSONCrossValidator:
             )
 
             # Validation Summary
-            f.write(f"## Validation Summary\n\n")
+            f.write("## Validation Summary\n\n")
             vs = report.validation_summary
             f.write(f"- **Total Checks:** {vs.total_checks}\n")
             f.write(f"- **Passed:** {vs.passed_checks}\n")
@@ -534,7 +533,7 @@ class CSVJSONCrossValidator:
             # Failed Checks
             failed_checks = [r for r in vs.results if not r.passed]
             if failed_checks:
-                f.write(f"### Failed Validation Checks\n\n")
+                f.write("### Failed Validation Checks\n\n")
                 for result in failed_checks:
                     f.write(f"**{result.check_name}** ({result.severity})\n")
                     f.write(f"- Expected: {result.expected_value}\n")
@@ -543,7 +542,7 @@ class CSVJSONCrossValidator:
 
             # Ticker Comparisons
             if report.ticker_comparisons:
-                f.write(f"## Ticker-Level Comparisons\n\n")
+                f.write("## Ticker-Level Comparisons\n\n")
                 for tc in report.ticker_comparisons:
                     f.write(f"### {tc.ticker} (Score: {tc.overall_score:.2f})\n\n")
                     for metric in tc.metrics:
@@ -555,14 +554,14 @@ class CSVJSONCrossValidator:
 
             # Portfolio Issues
             if report.portfolio_level_issues:
-                f.write(f"## Portfolio-Level Issues\n\n")
+                f.write("## Portfolio-Level Issues\n\n")
                 for issue in report.portfolio_level_issues:
                     f.write(f"- {issue}\n")
                 f.write("\n")
 
             # Recommendations
             if report.recommendations:
-                f.write(f"## Recommendations\n\n")
+                f.write("## Recommendations\n\n")
                 for rec in report.recommendations:
                     f.write(f"1. {rec}\n")
                 f.write("\n")
@@ -570,10 +569,10 @@ class CSVJSONCrossValidator:
 
 def run_cross_validation(
     csv_path: str,
-    json_metrics: Dict[str, Any],
-    output_path: Optional[str] | None = None,
-    tolerances: Optional[Dict[str, float]] = None,
-    log: Optional[Callable[[str, str], None]] = None,
+    json_metrics: dict[str, Any],
+    output_path: str | None | None = None,
+    tolerances: dict[str, float] | None = None,
+    log: Callable[[str, str], None] | None = None,
 ) -> CrossValidationReport:
     """
     Convenience function to run cross-validation.

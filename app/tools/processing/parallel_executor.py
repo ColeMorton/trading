@@ -3,16 +3,18 @@ Optimized parallel execution with dynamic ThreadPool sizing and resource monitor
 Designed for trading system workloads with intelligent resource adaptation.
 """
 
+from collections.abc import Callable, Iterable
+from concurrent.futures import Future, ThreadPoolExecutor, as_completed
+from dataclasses import dataclass
 import functools
 import logging
 import os
-import time
-from concurrent.futures import Future, ThreadPoolExecutor, as_completed
-from dataclasses import dataclass
 from threading import RLock
-from typing import Any, Callable, Dict, Iterable, List, Optional, TypeVar, Union
+import time
+from typing import Any, TypeVar
 
 import psutil
+
 
 T = TypeVar("T")
 
@@ -39,7 +41,7 @@ class AdaptiveThreadPoolExecutor:
     def __init__(
         self,
         min_workers: int = 2,
-        max_workers: Optional[int] = None,
+        max_workers: int | None = None,
         workload_type: str = "mixed",  # 'cpu_bound', 'io_bound', 'mixed'
         memory_limit_mb: int = 2048,
         monitor_interval: float = 5.0,
@@ -52,7 +54,7 @@ class AdaptiveThreadPoolExecutor:
 
         self.logger = logging.getLogger(__name__)
         self._lock = RLock()
-        self._executor: Optional[ThreadPoolExecutor] = None
+        self._executor: ThreadPoolExecutor | None = None
         self._metrics = ExecutorMetrics()
         self._last_resize_time = 0.0
         self._resize_cooldown = 10.0  # Seconds between resizes
@@ -126,7 +128,7 @@ class AdaptiveThreadPoolExecutor:
         if cpu_usage > 90 and self._current_workers < self.max_workers:
             self.logger.info(f"High CPU usage ({cpu_usage:.1f}%), considering scale up")
             return True
-        elif cpu_usage < 30 and self._current_workers > self.min_workers:
+        if cpu_usage < 30 and self._current_workers > self.min_workers:
             self.logger.info(
                 f"Low CPU usage ({cpu_usage:.1f}%), considering scale down"
             )
@@ -189,7 +191,7 @@ class AdaptiveThreadPoolExecutor:
                 result = fn(*args, **kwargs)
                 self._update_metrics(time.time() - start_time, True)
                 return result
-            except Exception as e:
+            except Exception:
                 self._update_metrics(time.time() - start_time, False)
                 raise
 
@@ -202,7 +204,7 @@ class AdaptiveThreadPoolExecutor:
         self,
         fn: Callable[..., T],
         *iterables,
-        timeout: Optional[float] = None,
+        timeout: float | None = None,
         chunksize: int = 1,
     ) -> Iterable[T]:
         """Execute function over iterables in parallel."""
@@ -214,11 +216,11 @@ class AdaptiveThreadPoolExecutor:
     def batch_process(
         self,
         fn: Callable[[Any], T],
-        items: List[Any],
-        batch_size: Optional[int] = None,
-        timeout: Optional[float] = None,
-        progress_callback: Optional[Callable[[int], None]] = None,
-    ) -> List[T]:
+        items: list[Any],
+        batch_size: int | None = None,
+        timeout: float | None = None,
+        progress_callback: Callable[[int], None] | None = None,
+    ) -> list[T]:
         """
         Process items in batches for optimal performance.
 
@@ -255,7 +257,7 @@ class AdaptiveThreadPoolExecutor:
             batch_index, batch_items = batch_index_and_items
             batch_results = []
             items_in_batch = len(batch_items)
-            for i, item in enumerate(batch_items):
+            for _i, item in enumerate(batch_items):
                 result = fn(item)
                 batch_results.append(result)
                 # Call progress callback for each completed item
@@ -317,14 +319,14 @@ class AdaptiveThreadPoolExecutor:
 
 
 # Global executor instances for different workload types
-_executors: Dict[str, AdaptiveThreadPoolExecutor] = {}
+_executors: dict[str, AdaptiveThreadPoolExecutor] = {}
 _executor_lock = RLock()
 
 
 def get_executor(
     workload_type: str = "mixed",
     min_workers: int = 2,
-    max_workers: Optional[int] = None,
+    max_workers: int | None = None,
 ) -> AdaptiveThreadPoolExecutor:
     """
     Get a shared executor instance for the specified workload type.
@@ -359,8 +361,8 @@ def shutdown_all_executors():
 
 
 def parallel_ticker_analysis(
-    tickers: List[str], analysis_fn: Callable[[str], T], timeout: Optional[float] = None
-) -> Dict[str, T]:
+    tickers: list[str], analysis_fn: Callable[[str], T], timeout: float | None = None
+) -> dict[str, T]:
     """
     Analyze multiple tickers in parallel.
 
@@ -390,12 +392,12 @@ def parallel_ticker_analysis(
 
 
 def parallel_parameter_sweep(
-    parameter_combinations: List[Dict[str, Any]],
-    strategy_fn: Callable[[Dict[str, Any]], T],
-    batch_size: Optional[int] = None,
-    timeout: Optional[float] = None,
-    progress_callback: Optional[Callable[[int], None]] = None,
-) -> List[T]:
+    parameter_combinations: list[dict[str, Any]],
+    strategy_fn: Callable[[dict[str, Any]], T],
+    batch_size: int | None = None,
+    timeout: float | None = None,
+    progress_callback: Callable[[int], None] | None = None,
+) -> list[T]:
     """
     Execute parameter sweep in parallel batches.
 

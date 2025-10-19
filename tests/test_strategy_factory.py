@@ -8,8 +8,7 @@ This test suite ensures that the strategy factory pattern correctly:
 4. Handles errors gracefully
 """
 
-from typing import Any, Dict
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import polars as pl
 import pytest
@@ -235,7 +234,7 @@ class TestSMAStrategy:
             mock_positions.return_value = data
 
             # Execute strategy
-            result = strategy.calculate(data, 5, 10, config, log)
+            strategy.calculate(data, 5, 10, config, log)
 
             # Verify calls
             mock_mas.assert_called_once_with(data, 5, 10, True, log)
@@ -271,7 +270,7 @@ class TestSMAStrategy:
             )
             mock_positions.return_value = data
 
-            result = strategy.calculate(data, 5, 10, config, log)
+            strategy.calculate(data, 5, 10, config, log)
 
             # Verify RSI was calculated
             mock_rsi.assert_called_once_with(data, 14)
@@ -301,7 +300,7 @@ class TestSMAStrategy:
             mock_signals.return_value = (entries, pl.Series([False] * 10))
             mock_positions.return_value = data
 
-            result = strategy.calculate(data, 3, 6, config, log)
+            strategy.calculate(data, 3, 6, config, log)
 
             # Verify short direction in log
             log.assert_any_call(
@@ -336,7 +335,7 @@ class TestEMAStrategy:
             )
             mock_positions.return_value = data
 
-            result = strategy.calculate(data, 12, 26, config, log)
+            strategy.calculate(data, 12, 26, config, log)
 
             # Verify EMA was used (use_sma=False)
             mock_mas.assert_called_once_with(data, 12, 26, False, log)
@@ -414,7 +413,7 @@ class TestStrategyIntegration:
         # Mock all the dependencies
         with (
             patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
-            patch("app.tools.strategy.concrete.calculate_rsi") as mock_rsi,
+            patch("app.tools.strategy.concrete.calculate_rsi"),
             patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
             patch(
                 "app.tools.strategy.concrete.convert_signals_to_positions"

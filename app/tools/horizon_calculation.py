@@ -5,24 +5,26 @@ This module provides efficient calculation of horizon metrics with caching
 and optimized data processing for improved performance.
 """
 
-import time
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, TypeVar
+import time
+from typing import Any, TypeVar
 
 import numpy as np
 
 from app.tools.setup_logging import setup_logging
 
+
 # Type definitions
 T = TypeVar("T")
-HorizonMetrics = Dict[str, Dict[str, float]]
-HorizonCache = Dict[str, Dict[int, np.ndarray]]
+HorizonMetrics = dict[str, dict[str, float]]
+HorizonCache = dict[str, dict[int, np.ndarray]]
 
 
 class HorizonCalculator:
     """Class for efficient calculation of horizon metrics with caching."""
 
-    def __init__(self, log: Optional[Callable[[str, str], None]] = None):
+    def __init__(self, log: Callable[[str, str], None] | None = None):
         """Initialize the HorizonCalculator class.
 
         Args:
@@ -46,7 +48,7 @@ class HorizonCalculator:
         self._cache_hits = 0
         self._cache_misses = 0
 
-    def get_cache_stats(self) -> Dict[str, int]:
+    def get_cache_stats(self) -> dict[str, int]:
         """Get cache statistics.
 
         Returns:
@@ -82,7 +84,7 @@ class HorizonCalculator:
         self,
         signals: np.ndarray,
         returns: np.ndarray,
-        horizons: List[int] | None = None,
+        horizons: list[int] | None = None,
         min_sample_size: int = 20,
         use_cache: bool = True,
     ) -> HorizonMetrics:
@@ -206,12 +208,12 @@ class HorizonCalculator:
 
             return results
         except Exception as e:
-            self.log(f"Error calculating horizon metrics: {str(e)}", "error")
+            self.log(f"Error calculating horizon metrics: {e!s}", "error")
             return {}
 
     def _calculate_horizon_returns(
         self, positions: np.ndarray, returns: np.ndarray, horizon: int
-    ) -> List[float]:
+    ) -> list[float]:
         """Calculate returns over a specific horizon for all positions.
 
         Args:
@@ -223,7 +225,7 @@ class HorizonCalculator:
             List[float]: List of horizon returns
         """
         # Pre-allocate list with estimated size
-        estimated_size = max(100, len(positions) // 10)  # Rough estimate
+        max(100, len(positions) // 10)  # Rough estimate
         horizon_returns = []
         horizon_returns_append = (
             horizon_returns.append
@@ -244,7 +246,7 @@ class HorizonCalculator:
 
         return horizon_returns
 
-    def _calculate_metrics_from_returns(self, returns: np.ndarray) -> Dict[str, float]:
+    def _calculate_metrics_from_returns(self, returns: np.ndarray) -> dict[str, float]:
         """Calculate metrics from an array of returns.
 
         Args:
@@ -267,8 +269,8 @@ class HorizonCalculator:
         }
 
     def find_best_horizon(
-        self, horizon_metrics: HorizonMetrics, config: Dict[str, Any] = None
-    ) -> Optional[int]:
+        self, horizon_metrics: HorizonMetrics, config: dict[str, Any] | None = None
+    ) -> int | None:
         """Find the best performing time horizon.
 
         Args:
@@ -331,7 +333,7 @@ class HorizonCalculator:
 
             return best_horizon
         except Exception as e:
-            self.log(f"Error finding best horizon: {str(e)}", "error")
+            self.log(f"Error finding best horizon: {e!s}", "error")
             return None
 
 
@@ -340,7 +342,7 @@ _horizon_calculator = None
 
 
 def get_horizon_calculator(
-    log: Optional[Callable[[str, str], None]] = None
+    log: Callable[[str, str], None] | None = None,
 ) -> HorizonCalculator:
     """Get or create the singleton HorizonCalculator instance.
 
@@ -359,10 +361,10 @@ def get_horizon_calculator(
 def calculate_horizon_metrics(
     signals: np.ndarray,
     returns: np.ndarray,
-    horizons: List[int] | None = None,
+    horizons: list[int] | None = None,
     min_sample_size: int = 20,
     use_cache: bool = True,
-    log: Optional[Callable[[str, str], None]] = None,
+    log: Callable[[str, str], None] | None = None,
 ) -> HorizonMetrics:
     """Calculate horizon metrics using the singleton calculator.
 
@@ -385,9 +387,9 @@ def calculate_horizon_metrics(
 
 def find_best_horizon(
     horizon_metrics: HorizonMetrics,
-    config: Dict[str, Any] = None,
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Optional[int]:
+    config: dict[str, Any] | None = None,
+    log: Callable[[str, str], None] | None = None,
+) -> int | None:
     """Find the best horizon using the singleton calculator.
 
     Args:
@@ -402,7 +404,7 @@ def find_best_horizon(
     return calculator.find_best_horizon(horizon_metrics, config)
 
 
-def get_cache_stats(log: Optional[Callable[[str, str], None]] = None) -> Dict[str, int]:
+def get_cache_stats(log: Callable[[str, str], None] | None = None) -> dict[str, int]:
     """Get cache statistics from the singleton calculator.
 
     Args:
@@ -415,7 +417,7 @@ def get_cache_stats(log: Optional[Callable[[str, str], None]] = None) -> Dict[st
     return calculator.get_cache_stats()
 
 
-def reset_cache(log: Optional[Callable[[str, str], None]] = None) -> None:
+def reset_cache(log: Callable[[str, str], None] | None = None) -> None:
     """Reset the cache in the singleton calculator.
 
     Args:

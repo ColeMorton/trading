@@ -6,9 +6,10 @@ eliminating duplication while maintaining strategy-specific behavior through
 polymorphism and configuration.
 """
 
-import os
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, List, Optional, Union
+from collections.abc import Callable
+import os
+from typing import Any
 
 import polars as pl
 
@@ -16,6 +17,7 @@ from app.tools.backtest_strategy import backtest_strategy
 from app.tools.stats_converter import convert_stats
 
 from .signal_processing import _detect_strategy_type
+
 
 # Get configuration
 USE_FIXED_SIGNAL_PROC = os.getenv("USE_FIXED_SIGNAL_PROC", "true").lower() == "true"
@@ -39,8 +41,8 @@ class SensitivityAnalyzerBase(ABC):
 
     @abstractmethod
     def _calculate_signals(
-        self, data: pl.DataFrame, strategy_config: Dict[str, Any], log: Callable
-    ) -> Optional[pl.DataFrame]:
+        self, data: pl.DataFrame, strategy_config: dict[str, Any], log: Callable
+    ) -> pl.DataFrame | None:
         """Calculate signals for the strategy with given parameters.
 
         Args:
@@ -66,7 +68,7 @@ class SensitivityAnalyzerBase(ABC):
         pass
 
     @abstractmethod
-    def _extract_strategy_parameters(self, **kwargs) -> Dict[str, Any]:
+    def _extract_strategy_parameters(self, **kwargs) -> dict[str, Any]:
         """Extract strategy-specific parameters from kwargs.
 
         Returns:
@@ -77,10 +79,10 @@ class SensitivityAnalyzerBase(ABC):
     def analyze_parameter_combination(
         self,
         data: pl.DataFrame,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         log: Callable,
         **strategy_params,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Analyze a single parameter combination using unified logic.
 
         Args:
@@ -142,10 +144,6 @@ class SensitivityAnalyzerBase(ABC):
                 "slow_period": "Slow Period",
                 "signal_period": "Signal Period",
                 "change_pct": "Change PCT",
-                # Legacy mappings for backwards compatibility
-                "fast_period": "Fast Period",
-                "slow_period": "Slow Period",
-                "signal_period": "Signal Period",
             }
 
             for param, value in strategy_params.items():
@@ -167,7 +165,7 @@ class SensitivityAnalyzerBase(ABC):
         except Exception as e:
             param_str = self._format_parameters(**strategy_params)
             log(
-                f"Failed to process {self.strategy_type} parameters {param_str}: {str(e)}",
+                f"Failed to process {self.strategy_type} parameters {param_str}: {e!s}",
                 "warning",
             )
             return None
@@ -175,12 +173,12 @@ class SensitivityAnalyzerBase(ABC):
     def analyze_parameter_combinations(
         self,
         data: pl.DataFrame,
-        parameter_sets: List[Dict[str, Any]],
-        config: Dict[str, Any],
+        parameter_sets: list[dict[str, Any]],
+        config: dict[str, Any],
         log: Callable,
         parallel: bool = True,
         progress_update_fn=None,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Analyze multiple parameter combinations using unified logic.
 
         Args:
@@ -203,7 +201,7 @@ class SensitivityAnalyzerBase(ABC):
 
             # Sequential processing with external progress tracking
             portfolios = []
-            for i, params in enumerate(parameter_sets):
+            for _i, params in enumerate(parameter_sets):
                 result = self.analyze_parameter_combination(data, config, log, **params)
                 if result is not None:
                     portfolios.append(result)
@@ -221,7 +219,7 @@ class SensitivityAnalyzerBase(ABC):
 
         # Sequential processing for small sets or when parallel is disabled
         portfolios = []
-        for i, params in enumerate(parameter_sets):
+        for _i, params in enumerate(parameter_sets):
             result = self.analyze_parameter_combination(data, config, log, **params)
             if result is not None:
                 portfolios.append(result)
@@ -231,11 +229,11 @@ class SensitivityAnalyzerBase(ABC):
     def _analyze_combinations_parallel(
         self,
         data: pl.DataFrame,
-        parameter_sets: List[Dict[str, Any]],
-        config: Dict[str, Any],
+        parameter_sets: list[dict[str, Any]],
+        config: dict[str, Any],
         log: Callable,
         progress_update_fn=None,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Analyze parameter combinations using parallel processing."""
         try:
             from app.tools.console_logging import PerformanceAwareConsoleLogger
@@ -250,8 +248,8 @@ class SensitivityAnalyzerBase(ABC):
 
                 # Create wrapper function without progress update (handled by parallel executor)
                 def strategy_wrapper_with_external_progress(
-                    params: Dict[str, Any]
-                ) -> Optional[Dict[str, Any]]:
+                    params: dict[str, Any],
+                ) -> dict[str, Any] | None:
                     result = self.analyze_parameter_combination(
                         data, config, log, **params
                     )
@@ -313,8 +311,8 @@ class SensitivityAnalyzerBase(ABC):
                         start_time = time.time()
 
                         def strategy_wrapper_with_progress(
-                            params: Dict[str, Any]
-                        ) -> Optional[Dict[str, Any]]:
+                            params: dict[str, Any],
+                        ) -> dict[str, Any] | None:
                             nonlocal completed_count
                             result = self.analyze_parameter_combination(
                                 data, config, log, **params
@@ -411,8 +409,8 @@ class SensitivityAnalyzerBase(ABC):
 
                     # Create wrapper function for strategy analysis
                     def strategy_wrapper(
-                        params: Dict[str, Any]
-                    ) -> Optional[Dict[str, Any]]:
+                        params: dict[str, Any],
+                    ) -> dict[str, Any] | None:
                         return self.analyze_parameter_combination(
                             data, config, log, **params
                         )
@@ -461,11 +459,11 @@ class SensitivityAnalyzerBase(ABC):
     def _analyze_combinations_sequential(
         self,
         data: pl.DataFrame,
-        parameter_sets: List[Dict[str, Any]],
-        config: Dict[str, Any],
+        parameter_sets: list[dict[str, Any]],
+        config: dict[str, Any],
         log: Callable,
         progress_update_fn=None,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Fallback sequential processing."""
         portfolios = []
         for params in parameter_sets:
@@ -518,8 +516,8 @@ class MASensitivityAnalyzer(SensitivityAnalyzerBase):
         self.ma_type = ma_type
 
     def _calculate_signals(
-        self, data: pl.DataFrame, strategy_config: Dict[str, Any], log: Callable
-    ) -> Optional[pl.DataFrame]:
+        self, data: pl.DataFrame, strategy_config: dict[str, Any], log: Callable
+    ) -> pl.DataFrame | None:
         """Calculate MA signals."""
         try:
             from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
@@ -544,7 +542,7 @@ class MASensitivityAnalyzer(SensitivityAnalyzerBase):
         except ImportError:
             return False
 
-    def _extract_strategy_parameters(self, **kwargs) -> Dict[str, Any]:
+    def _extract_strategy_parameters(self, **kwargs) -> dict[str, Any]:
         """Extract MA-specific parameters."""
         # Support both new and legacy parameter names
         fast_period = (
@@ -605,8 +603,8 @@ class MACDSensitivityAnalyzer(SensitivityAnalyzerBase):
         super().__init__("MACD")
 
     def _calculate_signals(
-        self, data: pl.DataFrame, strategy_config: Dict[str, Any], log: Callable
-    ) -> Optional[pl.DataFrame]:
+        self, data: pl.DataFrame, strategy_config: dict[str, Any], log: Callable
+    ) -> pl.DataFrame | None:
         """Calculate MACD signals."""
         try:
             from app.strategies.macd.tools.signal_generation import (
@@ -626,7 +624,7 @@ class MACDSensitivityAnalyzer(SensitivityAnalyzerBase):
         except ImportError:
             return False
 
-    def _extract_strategy_parameters(self, **kwargs) -> Dict[str, Any]:
+    def _extract_strategy_parameters(self, **kwargs) -> dict[str, Any]:
         """Extract MACD-specific parameters."""
         # Support both new and legacy parameter names
         fast_period = kwargs.get("fast_period") or kwargs.get("fast_period")
@@ -682,8 +680,8 @@ class MeanReversionSensitivityAnalyzer(SensitivityAnalyzerBase):
         super().__init__("MEAN_REVERSION")
 
     def _calculate_signals(
-        self, data: pl.DataFrame, strategy_config: Dict[str, Any], log: Callable
-    ) -> Optional[pl.DataFrame]:
+        self, data: pl.DataFrame, strategy_config: dict[str, Any], log: Callable
+    ) -> pl.DataFrame | None:
         """Calculate Mean Reversion signals."""
         try:
             from app.strategies.mean_reversion.tools.signal_generation import (
@@ -705,7 +703,7 @@ class MeanReversionSensitivityAnalyzer(SensitivityAnalyzerBase):
         except ImportError:
             return False
 
-    def _extract_strategy_parameters(self, **kwargs) -> Dict[str, Any]:
+    def _extract_strategy_parameters(self, **kwargs) -> dict[str, Any]:
         """Extract Mean Reversion-specific parameters."""
         change_pct = kwargs.get("change_pct")
 
@@ -759,7 +757,7 @@ class SensitivityAnalyzerFactory:
         return cls._analyzers[strategy_type]()
 
     @classmethod
-    def get_supported_strategies(cls) -> List[str]:
+    def get_supported_strategies(cls) -> list[str]:
         """Get list of supported strategy types."""
         return list(cls._analyzers.keys())
 
@@ -767,11 +765,11 @@ class SensitivityAnalyzerFactory:
 # Convenience functions for backward compatibility
 def analyze_parameter_combination(
     data: pl.DataFrame,
-    config: Dict[str, Any],
+    config: dict[str, Any],
     log: Callable,
-    strategy_type: str = None,
+    strategy_type: str | None = None,
     **strategy_params,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """Analyze a parameter combination using unified sensitivity analysis.
 
     Args:
@@ -793,13 +791,13 @@ def analyze_parameter_combination(
 
 def analyze_parameter_combinations(
     data: pl.DataFrame,
-    parameter_sets: List[Dict[str, Any]],
-    config: Dict[str, Any],
+    parameter_sets: list[dict[str, Any]],
+    config: dict[str, Any],
     log: Callable,
-    strategy_type: str = None,
+    strategy_type: str | None = None,
     parallel: bool = True,
     progress_update_fn=None,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Analyze multiple parameter combinations using unified sensitivity analysis.
 
     Args:
@@ -830,13 +828,13 @@ def analyze_parameter_combinations(
 # Strategy-specific convenience functions for backward compatibility
 def analyze_window_combination(
     data: pl.DataFrame,
-    fast_period: int = None,
-    slow_period: int = None,
-    short: int = None,
-    long: int = None,
-    config: Dict[str, Any] = None,
-    log: Callable = None,
-) -> Optional[Dict[str, Any]]:
+    fast_period: int | None = None,
+    slow_period: int | None = None,
+    short: int | None = None,
+    long: int | None = None,
+    config: dict[str, Any] | None = None,
+    log: Callable | None = None,
+) -> dict[str, Any] | None:
     """Analyze MA window combination (supports both new and legacy parameter names).
 
     Args:
@@ -869,12 +867,12 @@ def analyze_window_combination(
 
 def analyze_macd_combination(
     data: pl.DataFrame,
-    fast_period: int = None,
-    slow_period: int = None,
-    signal_period: int = None,
-    config: Dict[str, Any] = None,
-    log: Callable = None,
-) -> Optional[Dict[str, Any]]:
+    fast_period: int | None = None,
+    slow_period: int | None = None,
+    signal_period: int | None = None,
+    config: dict[str, Any] | None = None,
+    log: Callable | None = None,
+) -> dict[str, Any] | None:
     """Analyze MACD parameter combination (supports both new and legacy parameter names).
 
     Args:
@@ -913,8 +911,8 @@ def analyze_macd_combination(
 
 
 def analyze_mean_reversion_combination(
-    data: pl.DataFrame, change_pct: float, config: Dict[str, Any], log: Callable
-) -> Optional[Dict[str, Any]]:
+    data: pl.DataFrame, change_pct: float, config: dict[str, Any], log: Callable
+) -> dict[str, Any] | None:
     """Analyze Mean Reversion parameter combination (convenience function).
 
     Args:
@@ -934,10 +932,10 @@ def analyze_mean_reversion_combination(
 
 def analyze_single_portfolio(
     signal_data: pl.DataFrame,
-    config: Dict[str, Any],
+    config: dict[str, Any],
     log: Callable,
-    strategy_type: str = None,
-) -> Optional[Dict[str, Any]]:
+    strategy_type: str | None = None,
+) -> dict[str, Any] | None:
     """Analyze a single portfolio with pre-generated signals.
 
     This function performs portfolio analysis on signal data that has already been generated,
@@ -990,5 +988,5 @@ def analyze_single_portfolio(
         return converted_stats
 
     except Exception as e:
-        log(f"Failed to analyze single portfolio: {str(e)}", "error")
+        log(f"Failed to analyze single portfolio: {e!s}", "error")
         return None

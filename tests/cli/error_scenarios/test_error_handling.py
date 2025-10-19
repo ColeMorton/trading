@@ -13,11 +13,12 @@ This test suite validates robust error handling across the CLI system:
 These tests ensure the system fails gracefully and provides meaningful error messages.
 """
 
+import contextlib
 import json
 import os
-import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+import tempfile
+from unittest.mock import Mock, patch
 
 import polars as pl
 import pytest
@@ -439,10 +440,8 @@ class TestFileSystemErrorHandling:
                 yield restricted_dir
             finally:
                 # Restore permissions for cleanup
-                try:
+                with contextlib.suppress(Exception):
                     os.chmod(restricted_dir, 0o755)
-                except:
-                    pass
 
     def test_missing_profile_file_handling(self, cli_runner):
         """Test handling of missing profile files."""

@@ -3,7 +3,6 @@ Unit tests for the normalization module.
 """
 
 import unittest
-from typing import Any, Dict
 
 import numpy as np
 import pandas as pd
@@ -106,7 +105,7 @@ class TestNormalization(unittest.TestCase):
         result = self.normalizer.z_score_normalize(self.test_list)
         expected = [-1.41421356, -0.70710678, 0.0, 0.70710678, 1.41421356]
         self.assertEqual(len(result), len(expected))
-        for r, e in zip(result, expected):
+        for r, e in zip(result, expected, strict=False):
             self.assertAlmostEqual(r, e, places=6)
 
     def test_robust_scale(self):

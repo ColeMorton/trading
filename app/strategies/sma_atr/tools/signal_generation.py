@@ -5,7 +5,8 @@ This module handles the generation of current signals for SMA_ATR strategies,
 which combine SMA crossovers for entry signals with ATR trailing stops.
 """
 
-from typing import Any, Callable, Dict
+from collections.abc import Callable
+from typing import Any
 
 import polars as pl
 
@@ -13,7 +14,7 @@ from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.get_data import get_data
 
 
-def generate_current_signals(config: Dict[str, Any], log: Callable) -> pl.DataFrame:
+def generate_current_signals(config: dict[str, Any], log: Callable) -> pl.DataFrame:
     """
     Generate current SMA_ATR signals for configured tickers.
 
@@ -91,9 +92,9 @@ def generate_current_signals(config: Dict[str, Any], log: Callable) -> pl.DataFr
 
                     # Check if we have a current entry signal
                     has_current_signal = False
-                    if direction == "Long" and signal == 1:
-                        has_current_signal = True
-                    elif direction == "Short" and signal == -1:
+                    if (direction == "Long" and signal == 1) or (
+                        direction == "Short" and signal == -1
+                    ):
                         has_current_signal = True
 
                     if has_current_signal:
@@ -132,9 +133,8 @@ def generate_current_signals(config: Dict[str, Any], log: Callable) -> pl.DataFr
                 "info",
             )
             return signals_df
-        else:
-            log(f"No current SMA_ATR signals found for {ticker}", "info")
-            return pl.DataFrame()
+        log(f"No current SMA_ATR signals found for {ticker}", "info")
+        return pl.DataFrame()
 
     except Exception as e:
         log(f"Error generating SMA_ATR current signals: {e}", "error")

@@ -8,8 +8,9 @@ Implements the Chain of Responsibility pattern for extensible filtering.
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Optional
 
 import polars as pl
 
@@ -34,10 +35,10 @@ class PortfolioFilter(ABC):
     @abstractmethod
     def apply(
         self,
-        df: Union[pl.DataFrame, List[Dict[str, Any]]],
-        config: Dict[str, Any],
+        df: pl.DataFrame | list[dict[str, Any]],
+        config: dict[str, Any],
         log: Callable,
-    ) -> Union[pl.DataFrame, List[Dict[str, Any]]]:
+    ) -> pl.DataFrame | list[dict[str, Any]]:
         """Apply the filter to the data."""
 
     def set_next(self, next_filter: "PortfolioFilter") -> "PortfolioFilter":
@@ -47,10 +48,10 @@ class PortfolioFilter(ABC):
 
     def _apply_next(
         self,
-        df: Union[pl.DataFrame, List[Dict[str, Any]]],
-        config: Dict[str, Any],
+        df: pl.DataFrame | list[dict[str, Any]],
+        config: dict[str, Any],
         log: Callable,
-    ) -> Union[pl.DataFrame, List[Dict[str, Any]]]:
+    ) -> pl.DataFrame | list[dict[str, Any]]:
         """Apply the next filter in the chain."""
         if self._next_filter:
             return self._next_filter.apply(df, config, log)
@@ -62,10 +63,10 @@ class InvalidMetricsFilter(PortfolioFilter):
 
     def apply(
         self,
-        df: Union[pl.DataFrame, List[Dict[str, Any]]],
-        config: Dict[str, Any],
+        df: pl.DataFrame | list[dict[str, Any]],
+        config: dict[str, Any],
         log: Callable,
-    ) -> Union[pl.DataFrame, List[Dict[str, Any]]]:
+    ) -> pl.DataFrame | list[dict[str, Any]]:
         """Apply invalid metrics filtering."""
         # Convert to DataFrame if needed
         if isinstance(df, list):
@@ -133,10 +134,10 @@ class MinimumsFilter(PortfolioFilter):
 
     def apply(
         self,
-        df: Union[pl.DataFrame, List[Dict[str, Any]]],
-        config: Dict[str, Any],
+        df: pl.DataFrame | list[dict[str, Any]],
+        config: dict[str, Any],
         log: Callable,
-    ) -> Union[pl.DataFrame, List[Dict[str, Any]]]:
+    ) -> pl.DataFrame | list[dict[str, Any]]:
         """Apply MINIMUMS filtering."""
 
         # Check if MINIMUMS configuration exists
@@ -232,8 +233,8 @@ class PortfolioFilterService:
         self.invalid_metrics_filter.set_next(self.minimums_filter)
 
     def filter_portfolios_dataframe(
-        self, df: pl.DataFrame, config: Dict[str, Any], log: Callable
-    ) -> Optional[pl.DataFrame]:
+        self, df: pl.DataFrame, config: dict[str, Any], log: Callable
+    ) -> pl.DataFrame | None:
         """
         Filter portfolios provided as a Polars DataFrame.
 
@@ -256,16 +257,16 @@ class PortfolioFilterService:
         result = self.invalid_metrics_filter.apply(df, config, log)
 
         # Handle the case where result is empty
-        if isinstance(result, list) and not result:
-            return None
-        elif isinstance(result, pl.DataFrame) and len(result) == 0:
+        if (isinstance(result, list) and not result) or (
+            isinstance(result, pl.DataFrame) and len(result) == 0
+        ):
             return None
 
         return result
 
     def filter_portfolios_list(
-        self, portfolios: List[Dict[str, Any]], config: Dict[str, Any], log: Callable
-    ) -> Optional[List[Dict[str, Any]]]:
+        self, portfolios: list[dict[str, Any]], config: dict[str, Any], log: Callable
+    ) -> list[dict[str, Any]] | None:
         """
         Filter portfolios provided as a list of dictionaries.
 
@@ -288,9 +289,9 @@ class PortfolioFilterService:
         result = self.invalid_metrics_filter.apply(portfolios, config, log)
 
         # Handle the case where result is empty
-        if isinstance(result, list) and not result:
-            return None
-        elif isinstance(result, pl.DataFrame) and len(result) == 0:
+        if (isinstance(result, list) and not result) or (
+            isinstance(result, pl.DataFrame) and len(result) == 0
+        ):
             return None
 
         # Ensure we return a list
@@ -299,7 +300,7 @@ class PortfolioFilterService:
 
         return result
 
-    def create_custom_chain(self, filters: List[PortfolioFilter]) -> PortfolioFilter:
+    def create_custom_chain(self, filters: list[PortfolioFilter]) -> PortfolioFilter:
         """
         Create a custom filter chain.
 
@@ -320,7 +321,7 @@ class PortfolioFilterService:
 
 # Legacy compatibility functions for easy migration
 def apply_minimums_filter_to_dataframe(
-    df: pl.DataFrame, config: Dict[str, Any], log: Callable
+    df: pl.DataFrame, config: dict[str, Any], log: Callable
 ) -> pl.DataFrame:
     """
     Legacy compatibility function for DataFrame filtering.
@@ -334,8 +335,8 @@ def apply_minimums_filter_to_dataframe(
 
 
 def apply_minimums_filter_to_list(
-    portfolios: List[Dict[str, Any]], config: Dict[str, Any], log: Callable
-) -> List[Dict[str, Any]]:
+    portfolios: list[dict[str, Any]], config: dict[str, Any], log: Callable
+) -> list[dict[str, Any]]:
     """
     Legacy compatibility function for list filtering.
 

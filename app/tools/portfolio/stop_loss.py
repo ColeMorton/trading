@@ -10,14 +10,16 @@ The module implements functionality for:
 3. Applying stop loss rules to trading strategies
 """
 
+from collections.abc import Callable
 from decimal import ROUND_HALF_UP, Decimal
-from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
+from typing import Any, TypeVar
+
 
 # Type variable for generic portfolio data
-T = TypeVar("T", Dict[str, Any], Dict[str, Union[str, float, int, None]])
+T = TypeVar("T", dict[str, Any], dict[str, str | float | int | None])
 
 
-def get_stop_loss_field_name(row: Dict[str, Any]) -> str:
+def get_stop_loss_field_name(row: dict[str, Any]) -> str:
     """Get the stop loss field name from a row.
 
     Handles different variations of the stop loss field name.
@@ -38,8 +40,8 @@ def get_stop_loss_field_name(row: Dict[str, Any]) -> str:
 
 
 def validate_stop_loss(
-    portfolio_data: List[T], log: Optional[Callable[[str, Optional[str]], None]] = None
-) -> List[Dict[str, Any]]:
+    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None
+) -> list[dict[str, Any]]:
     """Validate stop loss values in portfolio data.
 
     Checks that stop loss values are valid numbers between 0 and 100.
@@ -90,8 +92,8 @@ def validate_stop_loss(
 
 
 def normalize_stop_loss(
-    portfolio_data: List[T], log: Optional[Callable[[str, Optional[str]], None]] = None
-) -> List[Dict[str, Any]]:
+    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None
+) -> list[dict[str, Any]]:
     """Normalize stop loss values in portfolio data.
 
     Ensures all rows have a stop loss field with proper formatting.
@@ -135,10 +137,10 @@ def normalize_stop_loss(
 
 
 def calculate_stop_loss_levels(
-    portfolio_data: List[T],
-    entry_prices: Dict[str, float],
-    log: Optional[Callable[[str, Optional[str]], None]] = None,
-) -> List[Dict[str, Any]]:
+    portfolio_data: list[T],
+    entry_prices: dict[str, float],
+    log: Callable[[str, str | None], None] | None = None,
+) -> list[dict[str, Any]]:
     """Calculate stop loss levels based on entry prices.
 
     Args:
@@ -167,8 +169,7 @@ def calculate_stop_loss_levels(
 
         if (
             stop_loss is not None
-            and stop_loss != ""
-            and stop_loss != "None"
+            and stop_loss not in ("", "None")
             and entry_price is not None
         ):
             try:
@@ -217,11 +218,11 @@ def calculate_stop_loss_levels(
 
 
 def apply_stop_loss_rules(
-    strategy: Dict[str, Any],
-    prices: Dict[str, List[Dict[str, Any]]],
+    strategy: dict[str, Any],
+    prices: dict[str, list[dict[str, Any]]],
     use_candle_close: bool = True,
-    log: Optional[Callable[[str, Optional[str]], None]] = None,
-) -> Dict[str, Any]:
+    log: Callable[[str, str | None], None] | None = None,
+) -> dict[str, Any]:
     """Apply stop loss rules to a strategy based on price data.
 
     Args:
@@ -302,18 +303,14 @@ def apply_stop_loss_rules(
                 stop_price = candle.get("close")
                 stop_date = candle.get("date")
                 break
-        else:
-            # Check intracandle (high/low)
-            if direction == "LONG" and candle.get("low") <= stop_level:
-                stop_triggered = True
-                stop_price = stop_level
-                stop_date = candle.get("date")
-                break
-            elif direction == "SHORT" and candle.get("high") >= stop_level:
-                stop_triggered = True
-                stop_price = stop_level
-                stop_date = candle.get("date")
-                break
+        # Check intracandle (high/low)
+        elif (direction == "LONG" and candle.get("low") <= stop_level) or (
+            direction == "SHORT" and candle.get("high") >= stop_level
+        ):
+            stop_triggered = True
+            stop_price = stop_level
+            stop_date = candle.get("date")
+            break
 
     if stop_triggered:
         updated_strategy["stop_triggered"] = True
@@ -326,8 +323,8 @@ def apply_stop_loss_rules(
 
 
 def get_stop_loss_summary(
-    portfolio_data: List[T], log: Optional[Callable[[str, Optional[str]], None]] = None
-) -> Dict[str, Any]:
+    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None
+) -> dict[str, Any]:
     """Get a summary of stop loss statistics for the portfolio.
 
     Args:

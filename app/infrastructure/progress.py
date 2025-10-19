@@ -2,9 +2,10 @@
 
 import asyncio
 from collections import defaultdict
+from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, AsyncIterator, Dict, Optional
+from typing import Any
 
 from app.core.interfaces import ProgressTrackerInterface, ProgressUpdate
 
@@ -39,12 +40,12 @@ class ProgressTracker(ProgressTrackerInterface):
     """Concrete implementation of progress tracking service."""
 
     def __init__(self):
-        self._tasks: Dict[str, Dict[str, Any]] = {}
-        self._subscribers: Dict[str, List[asyncio.Queue]] = defaultdict(list)
+        self._tasks: dict[str, dict[str, Any]] = {}
+        self._subscribers: dict[str, List[asyncio.Queue]] = defaultdict(list)
         self._lock = asyncio.Lock()
 
     async def track(
-        self, task_id: str, operation: str, total_items: Optional[int] | None = None
+        self, task_id: str, operation: str, total_items: int | None | None = None
     ) -> None:
         """Start tracking a new operation."""
         async with self._lock:
@@ -121,7 +122,7 @@ class ProgressTracker(ProgressTrackerInterface):
             # Notify subscribers
             await self._notify_subscribers(task_id)
 
-    async def get_status(self, task_id: str) -> Optional[Dict[str, Any]]:
+    async def get_status(self, task_id: str) -> dict[str, Any] | None:
         """Get current status of a task."""
         async with self._lock:
             return self._tasks.get(task_id)

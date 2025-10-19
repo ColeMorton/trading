@@ -1,6 +1,7 @@
 """Core position sizing calculations."""
 
-from typing import Callable, Dict, List, Tuple, TypedDict
+from collections.abc import Callable
+from typing import TypedDict
 
 import numpy as np
 import yfinance as yf
@@ -65,8 +66,8 @@ def get_returns(ticker: str) -> np.ndarray:
 
 
 def calculate_var_cvar(
-    returns: np.ndarray, confidence_levels: List[float]
-) -> Dict[float, Tuple[float, float]]:
+    returns: np.ndarray, confidence_levels: list[float]
+) -> dict[float, tuple[float, float]]:
     """Calculate VaR and CVaR for given returns at multiple confidence levels.
 
     Args:
@@ -85,8 +86,8 @@ def calculate_var_cvar(
 
 
 def calculate_position_sizes(
-    assets: List[Asset], config: PositionSizingConfig, log: Callable[[str, str], None]
-) -> List[AssetMetrics]:
+    assets: list[Asset], config: PositionSizingConfig, log: Callable[[str, str], None]
+) -> list[AssetMetrics]:
     """Calculate optimal position sizes for multiple assets.
 
     Args:
@@ -197,5 +198,5 @@ def calculate_position_sizes(
         return results
 
     except Exception as e:
-        log(f"Error in position size calculations: {str(e)}", "error")
+        log(f"Error in position size calculations: {e!s}", "error")
         raise

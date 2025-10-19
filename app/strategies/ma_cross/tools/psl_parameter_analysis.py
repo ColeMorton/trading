@@ -5,7 +5,7 @@ This module handles the analysis of protective stop loss parameters and their im
 on strategy performance.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 import polars as pl

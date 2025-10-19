@@ -5,13 +5,13 @@ Unified service for creating portfolio analysis visualizations,
 integrating with the existing headless plotting system.
 """
 
-import os
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+import os
+from typing import Optional
 
 import plotly.graph_objects as go
-import vectorbt as vbt
 from plotly.subplots import make_subplots
+import vectorbt as vbt
 
 from app.contexts.portfolio.services.benchmark_comparison_service import (
     ComparisonMetrics,
@@ -105,7 +105,7 @@ class ChartStyleConfig:
         b = int(hex_color[4:6], 16)
         return f"rgba({r},{g},{b},{opacity})"
 
-    def get_fill_color(self, semantic_type: str, opacity: float = None) -> str:
+    def get_fill_color(self, semantic_type: str, opacity: float | None = None) -> str:
         """Get fill color with opacity for semantic meaning."""
         base_color = self.get_financial_color(semantic_type)
         opacity = opacity or self.fill_opacity
@@ -130,11 +130,11 @@ class PlotConfig:
 class VisualizationResults:
     """Results from visualization generation."""
 
-    plot_paths: List[str]
-    html_files: List[str]
-    png_files: List[str]
+    plot_paths: list[str]
+    html_files: list[str]
+    png_files: list[str]
     success: bool
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
 
 class PortfolioVisualizationService:
@@ -157,7 +157,9 @@ class PortfolioVisualizationService:
         self.logger = logger
         self.plot_paths = []
 
-    def _get_line_style(self, color: str, width: int = None, dash: str = None) -> dict:
+    def _get_line_style(
+        self, color: str, width: int | None = None, dash: str | None = None
+    ) -> dict:
         """Get consistent line styling."""
         style = {
             "color": color,
@@ -167,12 +169,12 @@ class PortfolioVisualizationService:
             style["dash"] = dash
         return style
 
-    def _get_marker_style(self, color: str, size: int = None) -> dict:
+    def _get_marker_style(self, color: str, size: int | None = None) -> dict:
         """Get consistent marker styling."""
         return {"color": color, "size": size or self.config.chart_style.marker_size}
 
     def _get_layout_style(
-        self, title: str, height: int = None, width: int = None
+        self, title: str, height: int | None = None, width: int | None = None
     ) -> dict:
         """Get consistent layout styling."""
         return {
@@ -196,8 +198,8 @@ class PortfolioVisualizationService:
         self,
         portfolio: "vbt.Portfolio",
         benchmark_portfolio: Optional["vbt.Portfolio"] = None,
-        risk_metrics: Optional[RiskMetrics] = None,
-        comparison_metrics: Optional[ComparisonMetrics] = None,
+        risk_metrics: RiskMetrics | None = None,
+        comparison_metrics: ComparisonMetrics | None = None,
         title_prefix: str = "Portfolio",
     ) -> VisualizationResults:
         """
@@ -289,7 +291,7 @@ class PortfolioVisualizationService:
             )
 
         except Exception as e:
-            self._log(f"Error creating portfolio plots: {str(e)}", "error")
+            self._log(f"Error creating portfolio plots: {e!s}", "error")
             return VisualizationResults(
                 plot_paths=[],
                 html_files=[],
@@ -300,7 +302,7 @@ class PortfolioVisualizationService:
 
     def _create_portfolio_value_chart(
         self, portfolio: "vbt.Portfolio", title_prefix: str
-    ) -> List[str]:
+    ) -> list[str]:
         """Create portfolio value chart."""
         try:
             portfolio_value = portfolio.value()
@@ -331,12 +333,12 @@ class PortfolioVisualizationService:
             return self._save_plot(fig, "portfolio_value")
 
         except Exception as e:
-            self._log(f"Error creating portfolio value chart: {str(e)}", "error")
+            self._log(f"Error creating portfolio value chart: {e!s}", "error")
             return []
 
     def _create_cumulative_returns_chart(
         self, portfolio: "vbt.Portfolio", title_prefix: str
-    ) -> List[str]:
+    ) -> list[str]:
         """Create cumulative returns chart."""
         try:
             portfolio_returns = portfolio.returns()
@@ -368,12 +370,12 @@ class PortfolioVisualizationService:
             return self._save_plot(fig, "cumulative_returns")
 
         except Exception as e:
-            self._log(f"Error creating cumulative returns chart: {str(e)}", "error")
+            self._log(f"Error creating cumulative returns chart: {e!s}", "error")
             return []
 
     def _create_drawdowns_chart(
         self, portfolio: "vbt.Portfolio", title_prefix: str
-    ) -> List[str]:
+    ) -> list[str]:
         """Create drawdowns chart with correct calculation."""
         try:
             # Use proven drawdown calculation from _create_drawdown_analysis_chart
@@ -412,12 +414,12 @@ class PortfolioVisualizationService:
             return self._save_plot(fig, "drawdowns")
 
         except Exception as e:
-            self._log(f"Error creating drawdowns chart: {str(e)}", "error")
+            self._log(f"Error creating drawdowns chart: {e!s}", "error")
             return []
 
     def _create_underwater_curve_chart(
         self, portfolio: "vbt.Portfolio", title_prefix: str
-    ) -> List[str]:
+    ) -> list[str]:
         """Create underwater curve chart with correct calculation."""
         try:
             # Use proven drawdown calculation (underwater curve is same as drawdowns)
@@ -451,15 +453,15 @@ class PortfolioVisualizationService:
             return self._save_plot(fig, "underwater_curve")
 
         except Exception as e:
-            self._log(f"Error creating underwater curve chart: {str(e)}", "error")
+            self._log(f"Error creating underwater curve chart: {e!s}", "error")
             return []
 
     def _create_benchmark_comparison_chart(
         self,
         portfolio: "vbt.Portfolio",
         benchmark_portfolio: "vbt.Portfolio",
-        comparison_metrics: Optional[ComparisonMetrics] = None,
-    ) -> List[str]:
+        comparison_metrics: ComparisonMetrics | None = None,
+    ) -> list[str]:
         """Create benchmark comparison chart."""
         try:
             # Get data
@@ -501,22 +503,24 @@ class PortfolioVisualizationService:
             annotations = []
             if comparison_metrics:
                 annotations.append(
-                    dict(
-                        x=0.02,
-                        y=0.98,
-                        xref="paper",
-                        yref="paper",
-                        text=f"Excess Return: {comparison_metrics.excess_return:.2%}<br>"
+                    {
+                        "x": 0.02,
+                        "y": 0.98,
+                        "xref": "paper",
+                        "yref": "paper",
+                        "text": f"Excess Return: {comparison_metrics.excess_return:.2%}<br>"
                         f"Information Ratio: {comparison_metrics.information_ratio:.2f}<br>"
                         f"Correlation: {comparison_metrics.correlation:.2f}",
-                        showarrow=False,
-                        align="left",
-                        bgcolor=self.config.chart_style.hex_to_rgba(
+                        "showarrow": False,
+                        "align": "left",
+                        "bgcolor": self.config.chart_style.hex_to_rgba(
                             self.config.chart_style.background, 0.8
                         ),
-                        bordercolor=self.config.chart_style.get_text_color("primary"),
-                        borderwidth=1,
-                    )
+                        "bordercolor": self.config.chart_style.get_text_color(
+                            "primary"
+                        ),
+                        "borderwidth": 1,
+                    }
                 )
 
             # Apply consistent styling
@@ -535,12 +539,12 @@ class PortfolioVisualizationService:
             return self._save_plot(fig, "benchmark_comparison")
 
         except Exception as e:
-            self._log(f"Error creating benchmark comparison: {str(e)}", "error")
+            self._log(f"Error creating benchmark comparison: {e!s}", "error")
             return []
 
     def _create_risk_metrics_chart(
         self, risk_metrics: RiskMetrics, title_prefix: str
-    ) -> List[str]:
+    ) -> list[str]:
         """Create risk metrics visualization."""
         try:
             # Create subplots for different risk metrics
@@ -638,12 +642,12 @@ class PortfolioVisualizationService:
             return self._save_plot(fig, "risk_metrics")
 
         except Exception as e:
-            self._log(f"Error creating risk metrics chart: {str(e)}", "error")
+            self._log(f"Error creating risk metrics chart: {e!s}", "error")
             return []
 
     def _create_drawdown_analysis_chart(
         self, portfolio: "vbt.Portfolio", title_prefix: str
-    ) -> List[str]:
+    ) -> list[str]:
         """Create detailed drawdown analysis chart."""
         try:
             # Get portfolio value and calculate drawdowns
@@ -713,12 +717,12 @@ class PortfolioVisualizationService:
             return self._save_plot(fig, "drawdown_analysis")
 
         except Exception as e:
-            self._log(f"Error creating drawdown analysis: {str(e)}", "error")
+            self._log(f"Error creating drawdown analysis: {e!s}", "error")
             return []
 
     def _create_returns_distribution_chart(
         self, portfolio: "vbt.Portfolio", title_prefix: str
-    ) -> List[str]:
+    ) -> list[str]:
         """Create returns distribution analysis chart."""
         try:
             # Get returns
@@ -746,7 +750,7 @@ class PortfolioVisualizationService:
             )
 
             # Q-Q plot vs normal distribution
-            import scipy.stats as stats
+            from scipy import stats
 
             (osm, osr), (slope, intercept, r) = stats.probplot(
                 returns.values, dist="norm", plot=None
@@ -758,7 +762,7 @@ class PortfolioVisualizationService:
                     y=osr,
                     mode="markers",
                     name="Sample Quantiles",
-                    marker=dict(color=self.config.chart_style.tertiary_data, size=4),
+                    marker={"color": self.config.chart_style.tertiary_data, "size": 4},
                 ),
                 row=1,
                 col=2,
@@ -773,9 +777,10 @@ class PortfolioVisualizationService:
                     y=line_y,
                     mode="lines",
                     name=f"Normal Line (R²={r**2:.3f})",
-                    line=dict(
-                        color=self.config.chart_style.negative_color, dash="dash"
-                    ),
+                    line={
+                        "color": self.config.chart_style.negative_color,
+                        "dash": "dash",
+                    },
                 ),
                 row=1,
                 col=2,
@@ -791,12 +796,12 @@ class PortfolioVisualizationService:
             return self._save_plot(fig, "returns_distribution")
 
         except Exception as e:
-            self._log(f"Error creating returns distribution: {str(e)}", "error")
+            self._log(f"Error creating returns distribution: {e!s}", "error")
             return []
 
     def _create_returns_histogram_chart(
         self, portfolio: "vbt.Portfolio", title_prefix: str
-    ) -> List[str]:
+    ) -> list[str]:
         """Create returns distribution histogram chart."""
         try:
             # Get returns
@@ -830,19 +835,19 @@ class PortfolioVisualizationService:
             return self._save_plot(fig, "returns_histogram")
 
         except Exception as e:
-            self._log(f"Error creating returns histogram: {str(e)}", "error")
+            self._log(f"Error creating returns histogram: {e!s}", "error")
             return []
 
     def _create_qq_plot_chart(
         self, portfolio: "vbt.Portfolio", title_prefix: str
-    ) -> List[str]:
+    ) -> list[str]:
         """Create Q-Q plot vs normal distribution chart."""
         try:
             # Get returns
             returns = portfolio.returns().dropna()
 
             # Q-Q plot vs normal distribution
-            import scipy.stats as stats
+            from scipy import stats
 
             (osm, osr), (slope, intercept, r) = stats.probplot(
                 returns.values, dist="norm", plot=None
@@ -893,10 +898,10 @@ class PortfolioVisualizationService:
             return self._save_plot(fig, "qq_plot")
 
         except Exception as e:
-            self._log(f"Error creating Q-Q plot: {str(e)}", "error")
+            self._log(f"Error creating Q-Q plot: {e!s}", "error")
             return []
 
-    def _save_plot(self, fig: go.Figure, filename: str) -> List[str]:
+    def _save_plot(self, fig: go.Figure, filename: str) -> list[str]:
         """Save plot in configured formats."""
         saved_files = []
 
@@ -918,12 +923,10 @@ class PortfolioVisualizationService:
                     saved_files.append(png_path)
                     self._log(f"Saved PNG plot: {png_path}")
                 except Exception as e:
-                    self._log(
-                        f"Could not save PNG (Kaleido issue): {str(e)}", "warning"
-                    )
+                    self._log(f"Could not save PNG (Kaleido issue): {e!s}", "warning")
 
         except Exception as e:
-            self._log(f"Error saving plot {filename}: {str(e)}", "error")
+            self._log(f"Error saving plot {filename}: {e!s}", "error")
 
         return saved_files
 

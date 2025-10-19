@@ -16,8 +16,9 @@ Classes:
     CorrelationMatrix: Robust correlation matrix construction and validation
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -29,8 +30,8 @@ class CorrelationResult:
     correlation: float
     observations: int
     valid: bool
-    p_value: Optional[float] | None = None
-    confidence_interval: Optional[Tuple[float, float]] = None
+    p_value: float | None | None = None
+    confidence_interval: tuple[float, float] | None = None
     message: str = ""
 
 
@@ -39,7 +40,7 @@ class CorrelationMatrixResult:
     """Result of correlation matrix calculation."""
 
     matrix: np.ndarray
-    labels: List[str]
+    labels: list[str]
     observations: int
     valid_pairs: int
     total_pairs: int
@@ -75,7 +76,7 @@ class CorrelationCalculator:
         series1: np.ndarray,
         series2: np.ndarray,
         method: str = "pearson",
-        log: Optional[Callable[[str, str], None]] = None,
+        log: Callable[[str, str], None] | None = None,
     ) -> CorrelationResult:
         """
         Calculate correlation between two time series with robust handling.
@@ -190,7 +191,7 @@ class CorrelationCalculator:
             )
 
         except Exception as e:
-            error_message = f"Error calculating correlation: {str(e)}"
+            error_message = f"Error calculating correlation: {e!s}"
             if log:
                 log(error_message, "error")
 
@@ -200,7 +201,7 @@ class CorrelationCalculator:
 
     def _remove_outliers(
         self, series1: np.ndarray, series2: np.ndarray, threshold: float = 3.0
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """
         Remove outliers using z-score threshold.
 
@@ -223,7 +224,7 @@ class CorrelationCalculator:
 
     def _calculate_confidence_interval(
         self, correlation: float, n: int, confidence_level: float = 0.95
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """
         Calculate confidence interval for Pearson correlation using Fisher's z-transformation.
 
@@ -278,9 +279,9 @@ class CorrelationCalculator:
     def calculate_covariance_matrix(
         self,
         data_matrix: np.ndarray,
-        labels: List[str],
-        log: Optional[Callable[[str, str], None]] = None,
-    ) -> Tuple[np.ndarray, Dict[str, Any]]:
+        labels: list[str],
+        log: Callable[[str, str], None] | None = None,
+    ) -> tuple[np.ndarray, dict[str, Any]]:
         """
         Calculate covariance matrix from data matrix.
 
@@ -365,7 +366,7 @@ class CorrelationCalculator:
             return cov_matrix, diagnostics
 
         except Exception as e:
-            error_msg = f"Error calculating covariance matrix: {str(e)}"
+            error_msg = f"Error calculating covariance matrix: {e!s}"
             if log:
                 log(error_msg, "error")
 
@@ -387,7 +388,7 @@ class CorrelationCalculator:
 
     def apply_shrinkage_estimator(
         self, sample_cov: np.ndarray, shrinkage_target: str = "constant_correlation"
-    ) -> Tuple[np.ndarray, float]:
+    ) -> tuple[np.ndarray, float]:
         """Apply shrinkage estimator to covariance matrix.
 
         Args:
@@ -456,9 +457,9 @@ class CorrelationMatrix:
     def calculate_matrix(
         self,
         data_matrix: np.ndarray,
-        labels: List[str],
+        labels: list[str],
         method: str = "pearson",
-        log: Optional[Callable[[str, str], None]] = None,
+        log: Callable[[str, str], None] | None = None,
     ) -> CorrelationMatrixResult:
         """
         Calculate correlation matrix from data matrix.
@@ -546,7 +547,7 @@ class CorrelationMatrix:
     def _regularize_matrix(
         self,
         correlation_matrix: np.ndarray,
-        log: Optional[Callable[[str, str], None]] = None,
+        log: Callable[[str, str], None] | None = None,
     ) -> np.ndarray:
         """
         Regularize correlation matrix to ensure positive definiteness.
@@ -592,17 +593,16 @@ class CorrelationMatrix:
                     )
 
                 return regularized_matrix
-            else:
-                if log:
-                    log(
-                        f"Correlation matrix is positive definite (min eigenvalue: {min_eigenval:.2e})",
-                        "info",
-                    )
-                return correlation_matrix
+            if log:
+                log(
+                    f"Correlation matrix is positive definite (min eigenvalue: {min_eigenval:.2e})",
+                    "info",
+                )
+            return correlation_matrix
 
         except Exception as e:
             if log:
-                log(f"Error in matrix regularization: {str(e)}", "error")
+                log(f"Error in matrix regularization: {e!s}", "error")
             return correlation_matrix
 
 
@@ -611,7 +611,7 @@ def calculate_rolling_correlation(
     series2: np.ndarray,
     window: int = 30,
     min_periods: int = 20,
-    log: Optional[Callable[[str, str], None]] = None,
+    log: Callable[[str, str], None] | None = None,
 ) -> np.ndarray:
     """
     Calculate rolling correlation between two time series.

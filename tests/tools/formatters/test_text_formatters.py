@@ -115,35 +115,35 @@ class TestFormatAverageDuration:
         """Test formatting average duration with days and hours."""
         # 125 hours = 5 days and 5 hours
         result = format_average_duration(125.0)
-        assert "5d 5h" == result
+        assert result == "5d 5h"
 
     def test_days_only(self):
         """Test formatting average duration with exact days."""
         # 72 hours = 3 days
         result = format_average_duration(72.0)
-        assert "3d" == result
+        assert result == "3d"
 
     def test_hours_only(self):
         """Test formatting average duration with only hours."""
         # 15 hours
         result = format_average_duration(15.0)
-        assert "15h" == result
+        assert result == "15h"
 
     def test_zero_hours(self):
         """Test formatting zero hours."""
         result = format_average_duration(0.0)
-        assert "0h" == result
+        assert result == "0h"
 
     def test_negative_hours(self):
         """Test formatting negative hours (should return 0h)."""
         result = format_average_duration(-10.0)
-        assert "0h" == result
+        assert result == "0h"
 
     def test_fractional_hours_rounds_down(self):
         """Test that fractional hours are rounded down."""
         # 25.8 hours = 1 day and 1 hour (fractional part ignored)
         result = format_average_duration(25.8)
-        assert "1d 1h" == result
+        assert result == "1d 1h"
 
 
 class TestFormatStatus:

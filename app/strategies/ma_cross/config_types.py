@@ -7,9 +7,10 @@ across the MA cross strategy modules.
 Updated for Phase 2: Integration with new ParameterTestingConfig system.
 """
 
-from typing import Dict, List, Literal, Optional, TypedDict, Union
+from typing import Literal, TypedDict
 
 from typing_extensions import NotRequired
+
 
 # Import new configuration system for migration path
 try:
@@ -75,7 +76,7 @@ class HeatmapConfig(TypedDict, total=False):
     BASE_DIR: str
     USE_CURRENT: NotRequired[bool]
     USE_BEST_PORTFOLIO: NotRequired[bool]
-    STRATEGY_TYPES: NotRequired[List[str]]
+    STRATEGY_TYPES: NotRequired[list[str]]
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
     USE_HOURLY: NotRequired[bool]
@@ -133,7 +134,7 @@ class Config(TypedDict, total=False):
     """
 
     # Required Fields
-    TICKER: Union[str, List[str]]
+    TICKER: str | list[str]
     WINDOWS: int
     SCANNER_LIST: str
     BASE_DIR: str
@@ -143,7 +144,7 @@ class Config(TypedDict, total=False):
     REFRESH: NotRequired[bool]
 
     # Moving Average Options
-    STRATEGY_TYPES: NotRequired[List[str]]
+    STRATEGY_TYPES: NotRequired[list[str]]
     DIRECTION: NotRequired[str]
 
     # Data Options
@@ -158,7 +159,7 @@ class Config(TypedDict, total=False):
 
     # Portfolio Analysis Options
     USE_CURRENT: NotRequired[bool]
-    MINIMUMS: NotRequired[Dict[str, Union[int, float]]]
+    MINIMUMS: NotRequired[dict[str, int | float]]
     SORT_BY: NotRequired[str]
     ALLOCATION: NotRequired[float]  # Allocation percentage (0-100)
     STOP_LOSS: NotRequired[float]  # Stop loss percentage (0-100)
@@ -229,7 +230,7 @@ def migrate_from_new_config(new_config: "ParameterTestingConfig") -> Config:
     return new_config.to_dict()
 
 
-def validate_config_compatibility(config: Dict) -> List[str]:
+def validate_config_compatibility(config: dict) -> list[str]:
     """
     Validate that a configuration is compatible with both systems.
 
@@ -266,6 +267,6 @@ def validate_config_compatibility(config: Dict) -> List[str]:
                     ]
                 )
         except Exception as e:
-            warnings.append(f"New config validation failed: {str(e)}")
+            warnings.append(f"New config validation failed: {e!s}")
 
     return warnings

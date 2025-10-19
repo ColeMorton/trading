@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 import polars as pl
@@ -21,10 +21,10 @@ from app.core.interfaces import (
 class ConcreteStrategyConfig(StrategyConfig):
     """Concrete implementation of strategy configuration."""
 
-    def __init__(self, config_dict: Dict[str, Any]):
+    def __init__(self, config_dict: dict[str, Any]):
         self._config = config_dict
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return self._config
 
 
@@ -33,20 +33,20 @@ class ConcreteStrategyResult(StrategyResult):
 
     def __init__(
         self,
-        metrics: Dict[str, float],
-        signals: Union[pd.DataFrame, pl.DataFrame],
-        metadata: Optional[Dict[str, Any]] = None,
+        metrics: dict[str, float],
+        signals: pd.DataFrame | pl.DataFrame,
+        metadata: dict[str, Any] | None = None,
     ):
         self._metrics = metrics
         self._signals = signals
         self._metadata = metadata or {}
 
     @property
-    def metrics(self) -> Dict[str, float]:
+    def metrics(self) -> dict[str, float]:
         return self._metrics
 
     @property
-    def signals(self) -> Union[pd.DataFrame, pl.DataFrame]:
+    def signals(self) -> pd.DataFrame | pl.DataFrame:
         return self._signals
 
 
@@ -56,7 +56,7 @@ class StrategyAnalyzer(StrategyAnalyzerInterface):
     def __init__(
         self,
         data_access: DataAccessInterface,
-        logger: Optional[LoggingInterface] | None = None,
+        logger: LoggingInterface | None | None = None,
     ):
         self._data_access = data_access
         self._logger = logger
@@ -67,7 +67,7 @@ class StrategyAnalyzer(StrategyAnalyzerInterface):
         self,
         ticker: str,
         config: StrategyConfig,
-        data: Optional[Union[pd.DataFrame, pl.DataFrame]] = None,
+        data: pd.DataFrame | pl.DataFrame | None = None,
     ) -> StrategyResult:
         """Analyze a strategy for a given ticker."""
         # Get data if not provided
@@ -102,12 +102,12 @@ class StrategyAnalyzer(StrategyAnalyzerInterface):
         # Validate based on strategy type
         if strategy_type == "ma_cross":
             return all(key in config_dict for key in ["fast_period", "slow_period"])
-        elif strategy_type == "macd":
+        if strategy_type == "macd":
             return all(
                 key in config_dict
                 for key in ["fast_period", "slow_period", "signal_period"]
             )
-        elif strategy_type == "rsi":
+        if strategy_type == "rsi":
             return "period" in config_dict
 
         return True
@@ -134,8 +134,8 @@ class StrategyAnalyzer(StrategyAnalyzerInterface):
     def _analyze_ma_cross(
         self,
         ticker: str,
-        data: Union[pd.DataFrame, pl.DataFrame],
-        config: Dict[str, Any],
+        data: pd.DataFrame | pl.DataFrame,
+        config: dict[str, Any],
     ) -> StrategyResult:
         """Analyze MA Cross strategy."""
         # This is a simplified implementation
@@ -227,8 +227,8 @@ class StrategyAnalyzer(StrategyAnalyzerInterface):
     def _analyze_macd(
         self,
         ticker: str,
-        data: Union[pd.DataFrame, pl.DataFrame],
-        config: Dict[str, Any],
+        data: pd.DataFrame | pl.DataFrame,
+        config: dict[str, Any],
     ) -> StrategyResult:
         """Analyze MACD strategy."""
         # Placeholder implementation
@@ -238,8 +238,8 @@ class StrategyAnalyzer(StrategyAnalyzerInterface):
     def _analyze_rsi(
         self,
         ticker: str,
-        data: Union[pd.DataFrame, pl.DataFrame],
-        config: Dict[str, Any],
+        data: pd.DataFrame | pl.DataFrame,
+        config: dict[str, Any],
     ) -> StrategyResult:
         """Analyze RSI strategy."""
         # Placeholder implementation
@@ -254,7 +254,7 @@ class StrategyExecutor(StrategyExecutorInterface):
         self,
         analyzer: StrategyAnalyzerInterface,
         progress_tracker: ProgressTrackerInterface,
-        logger: Optional[LoggingInterface] | None = None,
+        logger: LoggingInterface | None | None = None,
     ):
         self._analyzer = analyzer
         self._progress_tracker = progress_tracker
@@ -263,10 +263,10 @@ class StrategyExecutor(StrategyExecutorInterface):
     async def execute(
         self,
         strategy_type: str,
-        tickers: List[str],
-        config: Dict[str, Any],
-        output_dir: Optional[Path] | None = None,
-    ) -> Dict[str, Any]:
+        tickers: list[str],
+        config: dict[str, Any],
+        output_dir: Path | None | None = None,
+    ) -> dict[str, Any]:
         """Execute a strategy for multiple tickers."""
         task_id = f"{strategy_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
@@ -278,11 +278,11 @@ class StrategyExecutor(StrategyExecutorInterface):
     async def execute_with_progress(
         self,
         strategy_type: str,
-        tickers: List[str],
-        config: Dict[str, Any],
+        tickers: list[str],
+        config: dict[str, Any],
         task_id: str,
         progress_tracker: ProgressTrackerInterface,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Execute a strategy with progress tracking."""
         # Start tracking
         await progress_tracker.track(
@@ -343,11 +343,11 @@ class StrategyExecutor(StrategyExecutorInterface):
             },
         }
 
-    def get_supported_strategies(self) -> List[str]:
+    def get_supported_strategies(self) -> list[str]:
         """Get list of supported strategy types."""
         return ["ma_cross", "macd", "rsi", "mean_reversion", "range"]
 
-    def validate_parameters(self, strategy_type: str, config: Dict[str, Any]) -> bool:
+    def validate_parameters(self, strategy_type: str, config: dict[str, Any]) -> bool:
         """Validate parameters for a specific strategy."""
         # Create temporary config and validate
         strategy_config = ConcreteStrategyConfig(

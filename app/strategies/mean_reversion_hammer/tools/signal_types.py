@@ -4,7 +4,7 @@ Signal Type Definitions
 This module provides type definitions for mean reversion signal generation.
 """
 
-from typing import Literal, TypedDict
+from typing import TypedDict
 
 from typing_extensions import NotRequired
 

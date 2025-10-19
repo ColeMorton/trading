@@ -594,9 +594,8 @@ class TestStrategyRunEdgeCases:
         mock_logging.return_value.__exit__ = Mock()
         mock_get_config.side_effect = lambda x: x
         # Simulate timeout exception
-        import socket
 
-        mock_get_data.side_effect = socket.timeout("Connection timed out")
+        mock_get_data.side_effect = TimeoutError("Connection timed out")
 
         result = cli_runner.invoke(
             strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
@@ -1404,8 +1403,8 @@ class TestStrategyRunTimeframeParameters:
 
         assert result.exit_code == 0
         # Verify config has 4-hour settings
-        assert captured_config.get("USE_4HOUR") == True
-        assert captured_config.get("USE_HOURLY") == True
+        assert captured_config.get("USE_4HOUR") is True
+        assert captured_config.get("USE_HOURLY") is True
 
 
 class TestStrategyRunDirectionAndMarketType:

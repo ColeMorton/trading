@@ -5,8 +5,7 @@ This module tests the consolidated signal processing functionality to ensure
 it properly handles all strategy types while eliminating code duplication.
 """
 
-from typing import Any, Dict
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import polars as pl
 import pytest
@@ -249,7 +248,7 @@ class TestUnifiedSignalProcessing:
         mock_log = Mock()
         config = {"TICKER": "AAPL", "STRATEGY_TYPE": "MACD"}
 
-        result = process_current_signals("AAPL", config, mock_log)
+        process_current_signals("AAPL", config, mock_log)
 
         mock_create.assert_called_once_with("MACD")
         mock_processor.process_current_signals.assert_called_once_with(

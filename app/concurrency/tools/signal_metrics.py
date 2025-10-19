@@ -4,9 +4,10 @@ This module provides functionality for calculating signal metrics
 to analyze the frequency and distribution of trading signals.
 """
 
+from collections.abc import Callable
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
 import polars as pl
@@ -15,13 +16,14 @@ from app.tools.setup_logging import setup_logging
 
 from .signal_processor import SignalDefinition, SignalProcessor
 
+
 # Get configuration
 USE_FIXED_SIGNAL_PROC = os.getenv("USE_FIXED_SIGNAL_PROC", "true").lower() == "true"
 
 
 def calculate_signal_metrics(
-    aligned_data: List[pl.DataFrame], log: Optional[callable] | None = None
-) -> Dict[str, Any]:
+    aligned_data: list[pl.DataFrame], log: Callable | None = None
+) -> dict[str, Any]:
     """Calculate signal metrics for all strategies.
 
     Args:
@@ -66,14 +68,10 @@ def calculate_signal_metrics(
                 )
 
                 # Get comprehensive signal counts
-                signal_counts = signal_processor.get_comprehensive_counts(
-                    df_pd, signal_def
-                )
+                signal_processor.get_comprehensive_counts(df_pd, signal_def)
 
                 # Use position signals for time-based analysis (consistent with legacy)
-                position_count = signal_processor.count_position_signals(
-                    df_pd, signal_def
-                )
+                signal_processor.count_position_signals(df_pd, signal_def)
                 _, filtered_signals_df = signal_processor.count_filtered_signals(
                     df_pd, signal_def
                 )
@@ -236,7 +234,7 @@ def calculate_signal_metrics(
         return metrics
 
     except Exception as e:
-        log(f"Error calculating signal metrics: {str(e)}", "error")
+        log(f"Error calculating signal metrics: {e!s}", "error")
         # Return empty metrics on error
         return {
             "mean_signals": 0,
@@ -253,7 +251,7 @@ def calculate_signal_metrics(
 
 
 def _calculate_unique_portfolio_signals(
-    all_signals: List[pd.DataFrame], log: callable
+    all_signals: list[pd.DataFrame], log: callable
 ) -> pd.DataFrame:
     """
     Calculate unique portfolio signals by removing duplicates across strategies.
@@ -290,7 +288,7 @@ def _calculate_unique_portfolio_signals(
 
         # Create DataFrame with unique signal dates
         if unique_signal_dates:
-            unique_dates_sorted = sorted(list(unique_signal_dates))
+            unique_dates_sorted = sorted(unique_signal_dates)
             unique_signals = pd.DataFrame(
                 index=pd.DatetimeIndex(unique_dates_sorted), data={"unique_signal": 1}
             )
@@ -305,5 +303,5 @@ def _calculate_unique_portfolio_signals(
         return unique_signals
 
     except Exception as e:
-        log(f"Error calculating unique portfolio signals: {str(e)}", "error")
+        log(f"Error calculating unique portfolio signals: {e!s}", "error")
         return pd.DataFrame()

@@ -5,8 +5,9 @@ This module provides functionality for simulating the effects of stop losses
 on signal returns and adjusting signal quality metrics accordingly.
 """
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -17,8 +18,8 @@ def apply_stop_loss_to_returns(
     returns: np.ndarray,
     signals: np.ndarray,
     stop_loss: float,
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Tuple[np.ndarray, np.ndarray]:
+    log: Callable[[str, str], None] | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
     """Apply stop loss to returns based on signals.
 
     This function simulates the effect of a stop loss on returns by truncating
@@ -66,9 +67,7 @@ def apply_stop_loss_to_returns(
     # Create arrays to track position-specific data
     position_ids = np.zeros_like(signals)  # Unique ID for each position
     current_position_id = 0
-    position_cumulative_returns = (
-        {}
-    )  # Dictionary to track cumulative returns by position ID
+    position_cumulative_returns = {}  # Dictionary to track cumulative returns by position ID
 
     # Assign position IDs and initialize tracking
     for i in range(len(positions)):
@@ -153,8 +152,8 @@ def calculate_stop_loss_adjusted_metrics(
     returns: np.ndarray,
     signals: np.ndarray,
     stop_loss: float,
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, Any]:
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, Any]:
     """Calculate metrics adjusted for stop loss effects.
 
     Args:
@@ -309,9 +308,9 @@ def calculate_stop_loss_adjusted_metrics(
 def compare_stop_loss_levels(
     returns: np.ndarray,
     signals: np.ndarray,
-    stop_loss_levels: List[float],
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, Dict[str, Any]]:
+    stop_loss_levels: list[float],
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, dict[str, Any]]:
     """Compare different stop loss levels.
 
     Args:
@@ -353,11 +352,11 @@ def compare_stop_loss_levels(
 def find_optimal_stop_loss(
     returns: np.ndarray,
     signals: np.ndarray,
-    stop_loss_range: Tuple[float, float] = (0.01, 0.20),
+    stop_loss_range: tuple[float, float] = (0.01, 0.20),
     step: float = 0.01,
     optimization_metric: str = "adjusted_avg_return",
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, Any]:
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, Any]:
     """Find the optimal stop loss level based on a specified metric.
 
     Args:
@@ -428,12 +427,12 @@ def find_optimal_stop_loss(
 
 
 def apply_stop_loss_to_signal_quality_metrics(
-    metrics: Dict[str, Any],
+    metrics: dict[str, Any],
     returns: np.ndarray,
     signals: np.ndarray,
     stop_loss: float,
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, Any]:
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, Any]:
     """Apply stop loss effects to signal quality metrics.
 
     Args:

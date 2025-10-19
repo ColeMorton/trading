@@ -5,11 +5,10 @@ This module tests the integration of equity data extraction with the existing
 strategy processing pipeline for SMA, EMA, and MACD strategies.
 """
 
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from app.strategies.tools.summary_processing import (
     _extract_equity_data_if_enabled,

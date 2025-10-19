@@ -7,12 +7,10 @@ and handles different test requirements (servers, dependencies, etc.)
 """
 
 import json
-import os
+from pathlib import Path
 import subprocess
 import sys
 import time
-from pathlib import Path
-from typing import Dict, List, Tuple
 
 
 class TestRunner:
@@ -24,8 +22,8 @@ class TestRunner:
         self.start_time = time.time()
 
     def run_command(
-        self, cmd: List[str], description: str, timeout: int = 300
-    ) -> Tuple[bool, str]:
+        self, cmd: list[str], description: str, timeout: int = 300
+    ) -> tuple[bool, str]:
         """Run a command and return success status and output."""
         print(f"\n{'='*60}")
         print(f"Running: {description}")
@@ -39,6 +37,7 @@ class TestRunner:
                 capture_output=True,
                 text=True,
                 timeout=timeout,
+                check=False,
             )
 
             success = result.returncode == 0
@@ -73,7 +72,7 @@ class TestRunner:
             )
             return False, f"Timeout after {timeout} seconds"
         except Exception as e:
-            print(f"❌ ERROR: {str(e)}")
+            print(f"❌ ERROR: {e!s}")
             self.results.append(
                 {
                     "description": description,

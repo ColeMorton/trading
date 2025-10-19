@@ -4,11 +4,7 @@ This module provides comprehensive integration testing for the complete
 statistical analysis workflow including all Phase 4 components.
 """
 
-import json
-import os
-import tempfile
-from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
@@ -19,7 +15,6 @@ from app.tools.ml.adaptive_learning_engine import AdaptiveLearningEngine
 from app.tools.ml.pattern_recognition_ml import PatternRecognitionML
 from app.tools.models.statistical_analysis_models import (
     ConfidenceLevel,
-    DivergenceResult,
     PositionData,
     StatisticalAnalysisResult,
     StatisticalThresholds,
@@ -301,7 +296,7 @@ class TestStatisticalAnalysisIntegration:
 
         # Create mock analysis results
         analysis_results = []
-        for pos in sample_positions:
+        for _pos in sample_positions:
             mock_analysis = Mock(spec=StatisticalAnalysisResult)
             mock_analysis.return_distribution = Mock()
             mock_analysis.return_distribution.win_rate = 0.65
@@ -398,7 +393,7 @@ class TestStatisticalAnalysisIntegration:
         baseline_efficiency = 0.57
         target_efficiency = 0.85
 
-        improvement = (avg_exit_efficiency - baseline_efficiency) / (
+        (avg_exit_efficiency - baseline_efficiency) / (
             target_efficiency - baseline_efficiency
         )
 
@@ -463,7 +458,6 @@ class TestStatisticalAnalysisIntegration:
         """Test memory optimization integration."""
 
         # Enable memory optimization in config
-        optimized_config = sample_config
 
         # Test large dataset processing
         large_historical_data = pd.concat(
@@ -472,8 +466,8 @@ class TestStatisticalAnalysisIntegration:
 
         # Initialize components with memory optimization
         ml_engine = PatternRecognitionML()
-        optimizer = CrossStrategyOptimizer()
-        sizer = DynamicPositionSizer()
+        CrossStrategyOptimizer()
+        DynamicPositionSizer()
 
         # Test ML engine with large dataset
         try:
@@ -508,10 +502,10 @@ class TestStatisticalAnalysisIntegration:
                 )
 
                 # Should work with trade history
-                assert service.config.USE_TRADE_HISTORY == True
+                assert service.config.USE_TRADE_HISTORY is True
         else:
             # Should fallback to equity data
-            assert service.config.FALLBACK_TO_EQUITY == True
+            assert service.config.FALLBACK_TO_EQUITY is True
 
 
 class TestPerformanceValidation:

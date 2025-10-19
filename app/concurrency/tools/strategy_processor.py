@@ -5,7 +5,7 @@ This module handles the preparation and processing of strategy data for concurre
 It processes both MACD and MA cross strategies, calculating signals and positions.
 """
 
-from typing import Callable, List, Tuple
+from collections.abc import Callable
 
 import pandas as pd
 import polars as pl
@@ -22,10 +22,10 @@ from app.tools.strategy_utils import determine_strategy_type, validate_strategy_
 
 
 def process_strategies(
-    strategies: List[StrategyConfig],
+    strategies: list[StrategyConfig],
     log: Callable[[str, str], None],
-    main_config: dict = None,
-) -> Tuple[List[pl.DataFrame], List[StrategyConfig]]:
+    main_config: dict | None = None,
+) -> tuple[list[pl.DataFrame], list[StrategyConfig]]:
     """Process multiple trading strategies and prepare their data for concurrency analysis.
 
     Args:
@@ -326,7 +326,7 @@ def process_strategies(
                             "info",
                         )
                     except Exception as e:
-                        log(f"Error restoring ATR columns: {str(e)}", "error")
+                        log(f"Error restoring ATR columns: {e!s}", "error")
                         # Continue without the ATR columns rather than failing
                         log("Continuing without ATR visualization data", "warning")
 
@@ -356,7 +356,7 @@ def process_strategies(
 
             except Exception as e:
                 log(
-                    f"Error processing strategy {i} ({strategy_config['TICKER']}): {str(e)}",
+                    f"Error processing strategy {i} ({strategy_config['TICKER']}): {e!s}",
                     "error",
                 )
                 raise
@@ -365,5 +365,5 @@ def process_strategies(
         return strategy_data, strategies
 
     except Exception as e:
-        log(f"Error in strategy processing: {str(e)}", "error")
+        log(f"Error in strategy processing: {e!s}", "error")
         raise

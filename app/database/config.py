@@ -5,15 +5,15 @@ This module provides database configuration and connection management
 for PostgreSQL with connection pooling and health checks.
 """
 
-import logging
 from functools import lru_cache
-from typing import Optional
+import logging
 
 import asyncpg
-import redis.asyncio as redis
 from prisma import Prisma
 from pydantic import ConfigDict, PostgresDsn, RedisDsn
 from pydantic_settings import BaseSettings
+import redis.asyncio as redis
+
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ class DatabaseSettings(BaseSettings):
     )
 
 
-@lru_cache()
+@lru_cache
 def get_database_settings() -> DatabaseSettings:
     """Get cached database settings."""
     return DatabaseSettings()
@@ -64,9 +64,9 @@ class DatabaseManager:
 
     def __init__(self):
         self.settings = get_database_settings()
-        self.prisma: Optional[Prisma] | None = None
-        self.redis_client: Optional[redis.Redis] | None = None
-        self._connection_pool: Optional[asyncpg.Pool] | None = None
+        self.prisma: Prisma | None | None = None
+        self.redis_client: redis.Redis | None | None = None
+        self._connection_pool: asyncpg.Pool | None | None = None
 
     async def initialize(self):
         """Initialize database connections."""
@@ -218,7 +218,7 @@ async def get_database_manager() -> DatabaseManager:
     return db_manager
 
 
-async def get_prisma() -> Optional[Prisma]:
+async def get_prisma() -> Prisma | None:
     """Dependency to get Prisma client."""
     if not db_manager.prisma:
         logger.warning("Prisma client not available - database features disabled")
@@ -226,7 +226,7 @@ async def get_prisma() -> Optional[Prisma]:
     return db_manager.prisma
 
 
-async def get_redis() -> Optional[redis.Redis]:
+async def get_redis() -> redis.Redis | None:
     """Dependency to get Redis client."""
     if not db_manager.redis_client:
         logger.warning("Redis client not available - caching features disabled")

@@ -5,8 +5,9 @@ This module provides standardized functions for calculating metrics
 across both signals and trades, eliminating duplicate calculation logic.
 """
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -19,7 +20,7 @@ from app.tools.setup_logging import setup_logging
 class MetricsCalculator:
     """Class for calculating unified metrics for both signals and trades."""
 
-    def __init__(self, log: Optional[Callable[[str, str], None]] = None):
+    def __init__(self, log: Callable[[str, str], None] | None = None):
         """Initialize the MetricsCalculator class.
 
         Args:
@@ -36,9 +37,9 @@ class MetricsCalculator:
     def calculate_return_metrics(
         self,
         returns: np.ndarray,
-        positions: Optional[np.ndarray] | None = None,
+        positions: np.ndarray | None | None = None,
         annualization_factor: int = 252,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate return-based metrics.
 
         Args:
@@ -167,15 +168,15 @@ class MetricsCalculator:
                 "value_at_risk_95": var_95,
             }
         except Exception as e:
-            self.log(f"Error calculating return metrics: {str(e)}", "error")
+            self.log(f"Error calculating return metrics: {e!s}", "error")
             return self._get_empty_return_metrics()
 
     def calculate_frequency_metrics(
         self,
-        data: Union[pl.DataFrame, pd.DataFrame],
+        data: pl.DataFrame | pd.DataFrame,
         signal_column: str = "Signal",
         date_column: str = "Date",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate signal frequency metrics.
 
         Args:
@@ -253,16 +254,16 @@ class MetricsCalculator:
             return self._get_empty_frequency_metrics()
 
         except Exception as e:
-            self.log(f"Error calculating signal frequency metrics: {str(e)}", "error")
+            self.log(f"Error calculating signal frequency metrics: {e!s}", "error")
             return self._get_empty_frequency_metrics()
 
     def calculate_horizon_metrics(
         self,
         signals: np.ndarray,
         returns: np.ndarray,
-        horizons: List[int] | None = None,
+        horizons: list[int] | None = None,
         min_sample_size: int = 20,
-    ) -> Dict[str, Dict[str, float]]:
+    ) -> dict[str, dict[str, float]]:
         """Calculate performance metrics for different time horizons.
 
         Args:
@@ -350,12 +351,12 @@ class MetricsCalculator:
 
             return results
         except Exception as e:
-            self.log(f"Error calculating horizon metrics: {str(e)}", "error")
+            self.log(f"Error calculating horizon metrics: {e!s}", "error")
             return {}
 
     def find_best_horizon(
-        self, horizon_metrics: Dict[str, Dict[str, float]], min_sample_size: int = 20
-    ) -> Optional[int]:
+        self, horizon_metrics: dict[str, dict[str, float]], min_sample_size: int = 20
+    ) -> int | None:
         """Find the best performing time horizon.
 
         Args:
@@ -394,7 +395,7 @@ class MetricsCalculator:
 
             return best_horizon
         except Exception as e:
-            self.log(f"Error finding best horizon: {str(e)}", "error")
+            self.log(f"Error finding best horizon: {e!s}", "error")
             return None
 
     def calculate_quality_score(
@@ -425,18 +426,18 @@ class MetricsCalculator:
 
             return float(score)
         except Exception as e:
-            self.log(f"Error calculating quality score: {str(e)}", "error")
+            self.log(f"Error calculating quality score: {e!s}", "error")
             return 0.0
 
     def calculate_signal_quality_metrics(
         self,
-        signals_df: Union[pl.DataFrame, pd.DataFrame],
-        returns_df: Union[pl.DataFrame, pd.DataFrame],
+        signals_df: pl.DataFrame | pd.DataFrame,
+        returns_df: pl.DataFrame | pd.DataFrame,
         strategy_id: str,
         signal_column: str = "signal",
         return_column: str = "return",
         date_column: str = "Date",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate signal quality metrics.
 
         Args:
@@ -533,7 +534,7 @@ class MetricsCalculator:
             return metrics
         except Exception as e:
             self.log(
-                f"Error calculating signal quality metrics for {strategy_id}: {str(e)}",
+                f"Error calculating signal quality metrics for {strategy_id}: {e!s}",
                 "error",
             )
             # Return a more complete default dictionary with all expected fields
@@ -549,11 +550,11 @@ class MetricsCalculator:
 
     def calculate_portfolio_metrics(
         self,
-        data_list: List[Union[pl.DataFrame, pd.DataFrame]],
-        strategy_ids: List[str],
+        data_list: list[pl.DataFrame | pd.DataFrame],
+        strategy_ids: list[str],
         signal_column: str = "Signal",
         date_column: str = "Date",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate portfolio-level signal metrics.
 
         Args:
@@ -572,7 +573,9 @@ class MetricsCalculator:
             metrics = {}
 
             # Calculate strategy-specific metrics
-            for i, (df, strategy_id) in enumerate(zip(data_list, strategy_ids), 1):
+            for _i, (df, strategy_id) in enumerate(
+                zip(data_list, strategy_ids, strict=False), 1
+            ):
                 strategy_metrics = self.calculate_frequency_metrics(
                     df, signal_column, date_column
                 )
@@ -647,7 +650,7 @@ class MetricsCalculator:
 
         except Exception as e:
             self.log(
-                f"Error calculating portfolio-level signal metrics: {str(e)}", "error"
+                f"Error calculating portfolio-level signal metrics: {e!s}", "error"
             )
             return {
                 "portfolio_mean_signals_per_month": 0.0,
@@ -658,7 +661,7 @@ class MetricsCalculator:
                 "portfolio_total_signals": 0,
             }
 
-    def _get_empty_return_metrics(self) -> Dict[str, Any]:
+    def _get_empty_return_metrics(self) -> dict[str, Any]:
         """Get empty return metrics dictionary.
 
         Returns:
@@ -683,7 +686,7 @@ class MetricsCalculator:
             "value_at_risk_95": 0.0,
         }
 
-    def _get_empty_frequency_metrics(self) -> Dict[str, Any]:
+    def _get_empty_frequency_metrics(self) -> dict[str, Any]:
         """Get empty frequency metrics dictionary.
 
         Returns:
@@ -710,8 +713,8 @@ def calculate_metrics_for_strategy(
     returns: np.ndarray,
     signals: np.ndarray,
     strategy_id: str,
-    log: Optional[Callable] | None = None,
-) -> Dict[str, Any]:
+    log: Callable | None | None = None,
+) -> dict[str, Any]:
     """Calculate metrics for a strategy (unified function).
 
     Args:
@@ -758,8 +761,8 @@ def calculate_metrics_for_strategy(
 
 
 def calculate_signal_metrics(
-    aligned_data: List[pl.DataFrame], log: Optional[Callable] | None = None
-) -> Dict[str, Any]:
+    aligned_data: list[pl.DataFrame], log: Callable | None | None = None
+) -> dict[str, Any]:
     """Calculate signal metrics for all strategies (legacy function).
 
     Args:
@@ -785,7 +788,7 @@ def calculate_signal_quality_metrics(
     returns_df: pl.DataFrame,
     strategy_id: str,
     log: Callable[[str, str], None],
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Calculate signal quality metrics for a strategy (legacy function).
 
     Args:

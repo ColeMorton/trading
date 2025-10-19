@@ -5,13 +5,13 @@ This module provides the core functionality for managing YAML-based
 configuration profiles with inheritance and validation.
 """
 
-import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+import shutil
+from typing import Any
 
-import yaml
 from pydantic import ValidationError
+import yaml
 
 from ..models.base import BaseConfig
 from .profiles import Profile, ProfileConfig, ProfileMetadata
@@ -20,21 +20,21 @@ from .profiles import Profile, ProfileConfig, ProfileMetadata
 class ProfileManager:
     """Manages configuration profiles with inheritance and validation."""
 
-    def __init__(self, config: Optional[ProfileConfig] = None):
+    def __init__(self, config: ProfileConfig | None = None):
         """Initialize the profile manager.
 
         Args:
             config: Profile management configuration
         """
         self.config = config or ProfileConfig()
-        self._cache: Dict[str, Profile] = {}
+        self._cache: dict[str, Profile] = {}
 
     @property
     def profiles_dir(self) -> Path:
         """Get the profiles directory."""
         return self.config.profiles_dir
 
-    def list_profiles(self) -> List[str]:
+    def list_profiles(self) -> list[str]:
         """List all available profile names (searches recursively)."""
         if not self.profiles_dir.exists():
             return []
@@ -57,7 +57,7 @@ class ProfileManager:
             return False
 
         # Search recursively for the profile
-        for file_path in self.profiles_dir.rglob(f"{name}.yaml"):
+        for _file_path in self.profiles_dir.rglob(f"{name}.yaml"):
             return True
         return False
 
@@ -108,7 +108,7 @@ class ProfileManager:
             raise FileNotFoundError(f"Profile '{name}' not found")
 
         try:
-            with open(profile_path, "r") as f:
+            with open(profile_path) as f:
                 content = f.read()
 
             profile = Profile.from_yaml(content)
@@ -130,7 +130,7 @@ class ProfileManager:
         except Exception as e:
             raise ValueError(f"Error loading profile '{name}': {e}")
 
-    def save_profile(self, profile: Profile, name: Optional[str] = None) -> Path:
+    def save_profile(self, profile: Profile, name: str | None = None) -> Path:
         """Save a profile to disk.
 
         Args:
@@ -186,7 +186,7 @@ class ProfileManager:
 
         return True
 
-    def resolve_inheritance(self, profile: Profile) -> Dict[str, Any]:
+    def resolve_inheritance(self, profile: Profile) -> dict[str, Any]:
         """Resolve profile inheritance chain and return merged configuration.
 
         Args:
@@ -248,11 +248,11 @@ class ProfileManager:
         self,
         name: str,
         config_type: str,
-        config: Dict[str, Any],
-        description: Optional[str] = None,
-        inherits_from: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        author: Optional[str] = None,
+        config: dict[str, Any],
+        description: str | None = None,
+        inherits_from: str | None = None,
+        tags: list[str] | None = None,
+        author: str | None = None,
     ) -> Profile:
         """Create a new profile.
 
@@ -309,7 +309,7 @@ class ProfileManager:
         for backup in backups[self.config.backup_count :]:
             backup.unlink()
 
-    def _resolve_portfolio_reference(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def _resolve_portfolio_reference(self, config: dict[str, Any]) -> dict[str, Any]:
         """Resolve portfolio_reference by loading strategies from referenced portfolio file.
 
         Args:
@@ -337,7 +337,7 @@ class ProfileManager:
             )
 
         try:
-            with open(portfolio_path, "r") as f:
+            with open(portfolio_path) as f:
                 portfolio_data = yaml.safe_load(f)
         except yaml.YAMLError as e:
             raise ValidationError(
@@ -363,8 +363,8 @@ class ProfileManager:
         return resolved_config
 
     def _merge_configs(
-        self, base: Dict[str, Any], override: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, base: dict[str, Any], override: dict[str, Any]
+    ) -> dict[str, Any]:
         """Merge two configuration dictionaries."""
         result = base.copy()
 
@@ -384,16 +384,16 @@ class ProfileManager:
 class ConfigManager:
     """High-level configuration management interface."""
 
-    def __init__(self, profile_config: Optional[ProfileConfig] = None):
+    def __init__(self, profile_config: ProfileConfig | None = None):
         """Initialize the configuration manager.
 
         Args:
             profile_config: Profile management configuration
         """
         self.profile_manager = ProfileManager(profile_config)
-        self._default_profile: Optional[str] = None
+        self._default_profile: str | None = None
 
-    def get_default_profile(self) -> Optional[str]:
+    def get_default_profile(self) -> str | None:
         """Get the default profile name."""
         if self._default_profile:
             return self._default_profile
@@ -402,7 +402,7 @@ class ConfigManager:
         config_path = self.profile_manager.profiles_dir / "config.yaml"
         if config_path.exists():
             try:
-                with open(config_path, "r") as f:
+                with open(config_path) as f:
                     config = yaml.safe_load(f)
                 return config.get("default_profile")
             except Exception:
@@ -426,8 +426,8 @@ class ConfigManager:
 
     def load_config(
         self,
-        profile_name: Optional[str] = None,
-        config_overrides: Optional[Dict[str, Any]] = None,
+        profile_name: str | None = None,
+        config_overrides: dict[str, Any] | None = None,
     ) -> BaseConfig:
         """Load and validate configuration.
 

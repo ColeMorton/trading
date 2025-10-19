@@ -11,14 +11,16 @@ The module implements the following special cases:
    so the sum equals 100%
 """
 
+from collections.abc import Callable
 from decimal import ROUND_HALF_UP, Decimal
-from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
+from typing import Any, TypeVar
+
 
 # Type variable for generic portfolio data
-T = TypeVar("T", Dict[str, Any], Dict[str, Union[str, float, int, None]])
+T = TypeVar("T", dict[str, Any], dict[str, str | float | int | None])
 
 
-def get_allocation_field_name(row: Dict[str, Any]) -> str:
+def get_allocation_field_name(row: dict[str, Any]) -> str:
     """Get the allocation field name from a row.
 
     Handles different variations of the allocation field name.
@@ -39,8 +41,8 @@ def get_allocation_field_name(row: Dict[str, Any]) -> str:
 
 
 def validate_allocations(
-    portfolio_data: List[T], log: Optional[Callable[[str, Optional[str]], None]] = None
-) -> List[Dict[str, Any]]:
+    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None
+) -> list[dict[str, Any]]:
     """Validate allocation values in portfolio data.
 
     Checks that allocation values are valid numbers between 0 and 100.
@@ -91,8 +93,8 @@ def validate_allocations(
 
 
 def normalize_allocations(
-    portfolio_data: List[T], log: Optional[Callable[[str, Optional[str]], None]] = None
-) -> List[Dict[str, Any]]:
+    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None
+) -> list[dict[str, Any]]:
     """Normalize allocation values in portfolio data.
 
     Ensures all rows have an allocation field with proper formatting.
@@ -136,8 +138,8 @@ def normalize_allocations(
 
 
 def distribute_missing_allocations(
-    portfolio_data: List[T], log: Optional[Callable[[str, Optional[str]], None]] = None
-) -> List[Dict[str, Any]]:
+    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None
+) -> list[dict[str, Any]]:
     """Distribute equal allocations to rows with missing allocation values.
 
     Handles the case where some rows have allocation values and others don't.
@@ -168,7 +170,7 @@ def distribute_missing_allocations(
             continue
 
         value = row[allocation_field]
-        if value is not None and value != "" and value != "None":
+        if value is not None and value not in ("", "None"):
             try:
                 allocation_value = float(value)
                 row[allocation_field] = allocation_value  # Ensure it's a float
@@ -213,8 +215,8 @@ def distribute_missing_allocations(
 
 
 def ensure_allocation_sum_100_percent(
-    portfolio_data: List[T], log: Optional[Callable[[str, Optional[str]], None]] = None
-) -> List[Dict[str, Any]]:
+    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None
+) -> list[dict[str, Any]]:
     """Ensure the sum of all allocations equals 100%.
 
     This function handles the following cases:
@@ -248,11 +250,7 @@ def ensure_allocation_sum_100_percent(
             continue
 
         allocation_value = row[allocation_field]
-        if (
-            allocation_value is not None
-            and allocation_value != ""
-            and allocation_value != "None"
-        ):
+        if allocation_value is not None and allocation_value not in ("", "None"):
             # Try to convert to float to ensure it's a valid number
             try:
                 float_value = float(allocation_value)
@@ -279,7 +277,7 @@ def ensure_allocation_sum_100_percent(
     allocation_sum = 0.0
     for row in normalized_data:
         value = row[allocation_field]
-        if value is not None and value != "" and value != "None":
+        if value is not None and value not in ("", "None"):
             try:
                 allocation_sum += float(value)
             except (ValueError, TypeError):
@@ -329,7 +327,7 @@ def ensure_allocation_sum_100_percent(
         # Adjust allocations
         for row in normalized_data:
             value = row[allocation_field]
-            if value is not None and value != "" and value != "None":
+            if value is not None and value not in ("", "None"):
                 try:
                     row[allocation_field] = float(value) * scale_factor
                 except (ValueError, TypeError):
@@ -345,10 +343,10 @@ def ensure_allocation_sum_100_percent(
 
 
 def calculate_position_sizes(
-    portfolio_data: List[T],
+    portfolio_data: list[T],
     account_value: float,
-    log: Optional[Callable[[str, Optional[str]], None]] = None,
-) -> List[Dict[str, Any]]:
+    log: Callable[[str, str | None], None] | None = None,
+) -> list[dict[str, Any]]:
     """Calculate position sizes based on allocations and account value.
 
     Args:
@@ -369,7 +367,7 @@ def calculate_position_sizes(
     # Add position size to each row
     for row in normalized_data:
         allocation = row.get(allocation_field)
-        if allocation is not None and allocation != "" and allocation != "None":
+        if allocation is not None and allocation not in ("", "None"):
             try:
                 allocation_decimal = (
                     float(allocation) / 100.0
@@ -396,8 +394,8 @@ def calculate_position_sizes(
 
 
 def get_allocation_summary(
-    portfolio_data: List[T], log: Optional[Callable[[str, Optional[str]], None]] = None
-) -> Dict[str, Any]:
+    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None
+) -> dict[str, Any]:
     """Get a summary of allocation statistics for the portfolio.
 
     Args:

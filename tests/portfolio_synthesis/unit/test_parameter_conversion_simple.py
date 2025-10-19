@@ -28,13 +28,11 @@ class TestParameterConversionSimple:
             "SIGNAL_PERIOD": 21,  # Should override function parameter
         }
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data:
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+        ):
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
             mock_get_config.return_value = mock_config_dict
             mock_get_data.side_effect = Exception("Stop execution here for testing")
@@ -53,11 +51,11 @@ class TestParameterConversionSimple:
             enhanced_config = mock_get_config.call_args[0][0]
 
             # Verify conversions based on config_dict values, not function parameters
-            assert enhanced_config["USE_4HOUR"] == True  # From "4hour" in config_dict
-            assert enhanced_config["USE_HOURLY"] == False
-            assert enhanced_config["USE_2DAY"] == False
+            assert enhanced_config["USE_4HOUR"] is True  # From "4hour" in config_dict
+            assert enhanced_config["USE_HOURLY"] is False
+            assert enhanced_config["USE_2DAY"] is False
             assert enhanced_config["STRATEGY_TYPE"] == "MACD"
-            assert enhanced_config["USE_SMA"] == False  # MACD != SMA
+            assert enhanced_config["USE_SMA"] is False  # MACD != SMA
             assert enhanced_config["SIGNAL_PERIOD"] == 21
 
     def test_parameter_conversion_function_param_fallback(self):
@@ -70,13 +68,11 @@ class TestParameterConversionSimple:
             # No modern parameters - should use function parameters
         }
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data:
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+        ):
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
             mock_get_config.return_value = mock_config_dict
             mock_get_data.side_effect = Exception("Stop execution here for testing")
@@ -95,11 +91,11 @@ class TestParameterConversionSimple:
             enhanced_config = mock_get_config.call_args[0][0]
 
             # Verify conversions based on function parameters
-            assert enhanced_config["USE_HOURLY"] == True  # From "hourly" function param
-            assert enhanced_config["USE_4HOUR"] == False
-            assert enhanced_config["USE_2DAY"] == False
+            assert enhanced_config["USE_HOURLY"] is True  # From "hourly" function param
+            assert enhanced_config["USE_4HOUR"] is False
+            assert enhanced_config["USE_2DAY"] is False
             assert enhanced_config["STRATEGY_TYPE"] == "EMA"
-            assert enhanced_config["USE_SMA"] == False  # EMA != SMA
+            assert enhanced_config["USE_SMA"] is False  # EMA != SMA
             assert enhanced_config["SIGNAL_PERIOD"] == 14
 
     @pytest.mark.parametrize(
@@ -122,13 +118,11 @@ class TestParameterConversionSimple:
             "BASE_DIR": "/tmp",
         }
 
-        with patch(
-            "app.portfolio_synthesis.review.setup_logging"
-        ) as mock_logging, patch(
-            "app.portfolio_synthesis.review.get_config"
-        ) as mock_get_config, patch(
-            "app.portfolio_synthesis.review.get_data"
-        ) as mock_get_data:
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+        ):
             mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
             mock_get_config.return_value = mock_config_dict
             mock_get_data.side_effect = Exception("Stop execution here for testing")
@@ -162,28 +156,22 @@ class TestParameterConversionSimple:
             expected_use_sma,
             expected_strategy_type,
         ) in strategy_conversions:
-            with self.subTest(strategy_type=strategy_type):
-                with patch(
-                    "app.portfolio_synthesis.review.setup_logging"
-                ) as mock_logging, patch(
-                    "app.portfolio_synthesis.review.get_config"
-                ) as mock_get_config, patch(
-                    "app.portfolio_synthesis.review.get_data"
-                ) as mock_get_data:
-                    mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
-                    mock_get_config.return_value = mock_config_dict
-                    mock_get_data.side_effect = Exception(
-                        "Stop execution here for testing"
-                    )
+            with (
+                self.subTest(strategy_type=strategy_type),
+                patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+                patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+                patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            ):
+                mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
+                mock_get_config.return_value = mock_config_dict
+                mock_get_data.side_effect = Exception("Stop execution here for testing")
 
-                    with pytest.raises(
-                        Exception, match="Stop execution here for testing"
-                    ):
-                        run(config_dict=mock_config_dict, strategy_type=strategy_type)
+                with pytest.raises(Exception, match="Stop execution here for testing"):
+                    run(config_dict=mock_config_dict, strategy_type=strategy_type)
 
-                    enhanced_config = mock_get_config.call_args[0][0]
-                    assert enhanced_config["USE_SMA"] == expected_use_sma
-                    assert enhanced_config["STRATEGY_TYPE"] == expected_strategy_type
+                enhanced_config = mock_get_config.call_args[0][0]
+                assert enhanced_config["USE_SMA"] == expected_use_sma
+                assert enhanced_config["STRATEGY_TYPE"] == expected_strategy_type
 
     def test_signal_period_conversion(self):
         """Test signal period parameter conversion."""
@@ -197,27 +185,21 @@ class TestParameterConversionSimple:
         test_signal_periods = [5, 9, 14, 21, 30]
 
         for signal_period in test_signal_periods:
-            with self.subTest(signal_period=signal_period):
-                with patch(
-                    "app.portfolio_synthesis.review.setup_logging"
-                ) as mock_logging, patch(
-                    "app.portfolio_synthesis.review.get_config"
-                ) as mock_get_config, patch(
-                    "app.portfolio_synthesis.review.get_data"
-                ) as mock_get_data:
-                    mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
-                    mock_get_config.return_value = mock_config_dict
-                    mock_get_data.side_effect = Exception(
-                        "Stop execution here for testing"
-                    )
+            with (
+                self.subTest(signal_period=signal_period),
+                patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+                patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+                patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            ):
+                mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
+                mock_get_config.return_value = mock_config_dict
+                mock_get_data.side_effect = Exception("Stop execution here for testing")
 
-                    with pytest.raises(
-                        Exception, match="Stop execution here for testing"
-                    ):
-                        run(config_dict=mock_config_dict, signal_period=signal_period)
+                with pytest.raises(Exception, match="Stop execution here for testing"):
+                    run(config_dict=mock_config_dict, signal_period=signal_period)
 
-                    enhanced_config = mock_get_config.call_args[0][0]
-                    assert enhanced_config["SIGNAL_PERIOD"] == signal_period
+                enhanced_config = mock_get_config.call_args[0][0]
+                assert enhanced_config["SIGNAL_PERIOD"] == signal_period
 
     def test_combined_parameter_conversion(self):
         """Test combined parameter conversion scenarios."""
@@ -271,33 +253,27 @@ class TestParameterConversionSimple:
         }
 
         for test_case in test_cases:
-            with self.subTest(test_case=test_case):
-                with patch(
-                    "app.portfolio_synthesis.review.setup_logging"
-                ) as mock_logging, patch(
-                    "app.portfolio_synthesis.review.get_config"
-                ) as mock_get_config, patch(
-                    "app.portfolio_synthesis.review.get_data"
-                ) as mock_get_data:
-                    mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
-                    mock_get_config.return_value = mock_config_dict
-                    mock_get_data.side_effect = Exception(
-                        "Stop execution here for testing"
+            with (
+                self.subTest(test_case=test_case),
+                patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+                patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+                patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+            ):
+                mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
+                mock_get_config.return_value = mock_config_dict
+                mock_get_data.side_effect = Exception("Stop execution here for testing")
+
+                with pytest.raises(Exception, match="Stop execution here for testing"):
+                    run(
+                        config_dict=mock_config_dict,
+                        timeframe=test_case["timeframe"],
+                        strategy_type=test_case["strategy_type"],
+                        signal_period=test_case["signal_period"],
                     )
 
-                    with pytest.raises(
-                        Exception, match="Stop execution here for testing"
-                    ):
-                        run(
-                            config_dict=mock_config_dict,
-                            timeframe=test_case["timeframe"],
-                            strategy_type=test_case["strategy_type"],
-                            signal_period=test_case["signal_period"],
-                        )
+                enhanced_config = mock_get_config.call_args[0][0]
 
-                    enhanced_config = mock_get_config.call_args[0][0]
-
-                    for key, expected_value in test_case["expected"].items():
-                        assert (
-                            enhanced_config[key] == expected_value
-                        ), f"Expected {key}={expected_value}, got {enhanced_config[key]}"
+                for key, expected_value in test_case["expected"].items():
+                    assert (
+                        enhanced_config[key] == expected_value
+                    ), f"Expected {key}={expected_value}, got {enhanced_config[key]}"

@@ -11,11 +11,12 @@ Key Features:
 - Backup and rollback capabilities
 """
 
-import logging
-import shutil
+import contextlib
 from datetime import datetime
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+import shutil
+from typing import Any
 
 import pandas as pd
 
@@ -26,7 +27,9 @@ from ..validators.data_quality_validator import DataQualityValidator
 class DataMigrationManager:
     """Manager for data migration and cleanup operations."""
 
-    def __init__(self, base_dir: Path = None, logger: Optional[logging.Logger] = None):
+    def __init__(
+        self, base_dir: Path | None = None, logger: logging.Logger | None = None
+    ):
         """
         Initialize migration manager.
 
@@ -42,7 +45,7 @@ class DataMigrationManager:
         self.positions_dir = self.base_dir / "csv" / "positions"
         self.backup_dir = self.base_dir / "backups" / "data_migration"
 
-    def migrate_all_portfolios(self, create_backup: bool = True) -> Dict[str, Any]:
+    def migrate_all_portfolios(self, create_backup: bool = True) -> dict[str, Any]:
         """
         Migrate all portfolio files to current data quality standards.
 
@@ -104,7 +107,7 @@ class DataMigrationManager:
                 )
 
         # Summary
-        self.logger.info(f"Migration complete:")
+        self.logger.info("Migration complete:")
         self.logger.info(
             f"  Successfully migrated: {len(results['migrated_files'])} files"
         )
@@ -113,7 +116,7 @@ class DataMigrationManager:
 
         return results
 
-    def migrate_single_portfolio(self, file_path: Path) -> Dict[str, Any]:
+    def migrate_single_portfolio(self, file_path: Path) -> dict[str, Any]:
         """
         Migrate a single portfolio file to current standards.
 
@@ -176,7 +179,7 @@ class DataMigrationManager:
 
     def _apply_comprehensive_migration(
         self, df: pd.DataFrame
-    ) -> Tuple[pd.DataFrame, List[str]]:
+    ) -> tuple[pd.DataFrame, list[str]]:
         """
         Apply comprehensive migration fixes to a DataFrame.
 
@@ -216,7 +219,7 @@ class DataMigrationManager:
 
         return df_migrated, fixes_applied
 
-    def _fix_uuid_formats(self, df: pd.DataFrame) -> List[str]:
+    def _fix_uuid_formats(self, df: pd.DataFrame) -> list[str]:
         """Fix UUID formats for SMA/EMA strategies."""
         fixes = []
 
@@ -263,7 +266,7 @@ class DataMigrationManager:
 
         return fixes
 
-    def _fix_trade_type(self, df: pd.DataFrame) -> List[str]:
+    def _fix_trade_type(self, df: pd.DataFrame) -> list[str]:
         """Populate missing Trade_Type fields."""
         fixes = []
 
@@ -280,7 +283,7 @@ class DataMigrationManager:
 
         return fixes
 
-    def _standardize_precision(self, df: pd.DataFrame) -> List[str]:
+    def _standardize_precision(self, df: pd.DataFrame) -> list[str]:
         """Standardize numerical precision to 6 decimal places."""
         fixes = []
 
@@ -311,7 +314,7 @@ class DataMigrationManager:
 
         return fixes
 
-    def _fix_scientific_notation(self, df: pd.DataFrame) -> List[str]:
+    def _fix_scientific_notation(self, df: pd.DataFrame) -> list[str]:
         """Convert scientific notation to decimal format."""
         fixes = []
 
@@ -334,7 +337,7 @@ class DataMigrationManager:
 
         return fixes
 
-    def _fix_data_types(self, df: pd.DataFrame) -> List[str]:
+    def _fix_data_types(self, df: pd.DataFrame) -> list[str]:
         """Ensure proper data types for all columns."""
         fixes = []
 
@@ -342,12 +345,10 @@ class DataMigrationManager:
         int_columns = ["Fast_Period", "Slow_Period", "Signal_Period"]
         for col in int_columns:
             if col in df.columns:
-                try:
+                with contextlib.suppress(Exception):
                     df[col] = (
                         pd.to_numeric(df[col], errors="coerce").fillna(0).astype(int)
                     )
-                except:
-                    pass
 
         # Ensure string columns are strings
         string_columns = [
@@ -408,8 +409,8 @@ class DataMigrationManager:
 
 
 def migrate_portfolio_data(
-    base_dir: str = None, create_backup: bool = True
-) -> Dict[str, Any]:
+    base_dir: str | None = None, create_backup: bool = True
+) -> dict[str, Any]:
     """
     Convenience function to migrate all portfolio data.
 
@@ -424,7 +425,7 @@ def migrate_portfolio_data(
     return manager.migrate_all_portfolios(create_backup)
 
 
-def validate_all_portfolios(base_dir: str = None) -> Dict[str, Any]:
+def validate_all_portfolios(base_dir: str | None = None) -> dict[str, Any]:
     """
     Convenience function to validate all portfolio files.
 

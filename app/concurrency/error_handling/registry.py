@@ -4,13 +4,13 @@ Provides centralized error tracking, analysis, and reporting capabilities
 for monitoring the health and performance of concurrency operations.
 """
 
-import json
-import threading
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+import threading
+from typing import Any
 
 
 @dataclass
@@ -21,12 +21,12 @@ class ErrorRecord:
     operation: str
     error_type: str
     error_message: str
-    context: Dict[str, Any]
+    context: dict[str, Any]
     module: str = "concurrency"
     severity: str = "error"
     resolved: bool = False
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert error record to dictionary."""
         return {
             "timestamp": self.timestamp.isoformat(),
@@ -45,14 +45,14 @@ class ErrorStats:
     """Statistics about errors in the system."""
 
     total_errors: int = 0
-    errors_by_type: Dict[str, int] = field(default_factory=dict)
-    errors_by_operation: Dict[str, int] = field(default_factory=dict)
-    errors_by_hour: Dict[str, int] = field(default_factory=dict)
-    most_common_errors: List[tuple] = field(default_factory=list)
+    errors_by_type: dict[str, int] = field(default_factory=dict)
+    errors_by_operation: dict[str, int] = field(default_factory=dict)
+    errors_by_hour: dict[str, int] = field(default_factory=dict)
+    most_common_errors: list[tuple] = field(default_factory=list)
     error_rate: float = 0.0
-    last_error_time: Optional[datetime] | None = None
+    last_error_time: datetime | None | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert error stats to dictionary."""
         return {
             "total_errors": self.total_errors,
@@ -77,15 +77,15 @@ class ErrorRegistry:
             max_records: Maximum number of error records to keep in memory
         """
         self.max_records = max_records
-        self.errors: List[ErrorRecord] = []
-        self.operation_counts: Dict[str, int] = defaultdict(int)
+        self.errors: list[ErrorRecord] = []
+        self.operation_counts: dict[str, int] = defaultdict(int)
         self._lock = threading.Lock()
 
     def record_error(
         self,
         error: Exception,
         operation: str,
-        context: Optional[Dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
         severity: str = "error",
     ) -> None:
         """Record an error in the registry.
@@ -166,7 +166,7 @@ class ErrorRegistry:
                 last_error_time=recent_errors[-1].timestamp if recent_errors else None,
             )
 
-    def get_errors_by_operation(self, operation: str) -> List[ErrorRecord]:
+    def get_errors_by_operation(self, operation: str) -> list[ErrorRecord]:
         """Get all errors for a specific operation.
 
         Args:
@@ -178,7 +178,7 @@ class ErrorRegistry:
         with self._lock:
             return [error for error in self.errors if error.operation == operation]
 
-    def get_errors_by_type(self, error_type: str) -> List[ErrorRecord]:
+    def get_errors_by_type(self, error_type: str) -> list[ErrorRecord]:
         """Get all errors of a specific type.
 
         Args:
@@ -255,7 +255,7 @@ class ErrorRegistry:
             with open(file_path, "w") as f:
                 json.dump(export_data, f, indent=2)
 
-    def get_error_summary(self) -> Dict[str, Any]:
+    def get_error_summary(self) -> dict[str, Any]:
         """Get a summary of all errors in the registry.
 
         Returns:
@@ -289,7 +289,7 @@ class ErrorRegistry:
 
 
 # Global error registry instance
-_global_registry: Optional[ErrorRegistry] | None = None
+_global_registry: ErrorRegistry | None | None = None
 _registry_lock = threading.Lock()
 
 
@@ -310,7 +310,7 @@ def get_error_registry() -> ErrorRegistry:
 def track_error(
     error: Exception,
     operation: str,
-    context: Optional[Dict[str, Any]] = None,
+    context: dict[str, Any] | None = None,
     severity: str = "error",
 ) -> None:
     """Track an error in the global registry.

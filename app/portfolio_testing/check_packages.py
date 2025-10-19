@@ -2,12 +2,11 @@ import sys
 
 import pkg_resources
 
+
 print("Python version:", sys.version)
 
 installed_packages = pkg_resources.working_set
-installed_packages_list = sorted(
-    ["%s==%s" % (i.key, i.version) for i in installed_packages]
-)
+installed_packages_list = sorted([f"{i.key}=={i.version}" for i in installed_packages])
 
 print("\nInstalled packages:")
 for package in installed_packages_list:

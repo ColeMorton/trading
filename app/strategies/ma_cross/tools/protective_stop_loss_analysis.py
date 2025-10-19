@@ -10,4 +10,5 @@ from app.strategies.ma_cross.tools.psl_analysis import (
     analyze_protective_stop_loss_parameters,
 )
 
-__all__ = ["analyze_protective_stop_loss_parameters", "analyze_holding_periods"]
+
+__all__ = ["analyze_holding_periods", "analyze_protective_stop_loss_parameters"]

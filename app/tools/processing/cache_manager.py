@@ -3,18 +3,15 @@ Intelligent file-based cache manager for trading system performance optimization
 Provides timestamp-based invalidation and efficient caching for signals, portfolios, and computations.
 """
 
+from dataclasses import dataclass
 import hashlib
 import json
 import logging
 import os
+from pathlib import Path
 import pickle  # nosec B403 - Used for trusted internal cache data only
 import time
-from dataclasses import dataclass
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
-
-import polars as pl
+from typing import Any
 
 
 @dataclass
@@ -27,7 +24,7 @@ class CacheEntry:
     accessed_at: float
     size_bytes: int
     ttl_seconds: int
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
 
 
 class IntelligentCacheManager:
@@ -60,7 +57,7 @@ class IntelligentCacheManager:
         self._metadata = self._load_metadata()
 
     def _generate_cache_key(
-        self, category: str, identifier: str, params: Optional[Dict[str, Any]] = None
+        self, category: str, identifier: str, params: dict[str, Any] | None = None
     ) -> str:
         """Generate a unique cache key from category, identifier, and parameters."""
         key_data = {
@@ -79,13 +76,13 @@ class IntelligentCacheManager:
         """Get the file path for a cache entry."""
         return self.cache_dir / category / f"{cache_key}{extension}"
 
-    def _load_metadata(self) -> Dict[str, CacheEntry]:
+    def _load_metadata(self) -> dict[str, CacheEntry]:
         """Load cache metadata from disk."""
         if not self.metadata_file.exists():
             return {}
 
         try:
-            with open(self.metadata_file, "r") as f:
+            with open(self.metadata_file) as f:
                 data = json.load(f)
 
             metadata = {}
@@ -175,9 +172,9 @@ class IntelligentCacheManager:
         self,
         category: str,
         identifier: str,
-        params: Optional[Dict[str, Any]] = None,
-        source_files: Optional[List[str]] = None,
-    ) -> Optional[Any]:
+        params: dict[str, Any] | None = None,
+        source_files: list[str] | None = None,
+    ) -> Any | None:
         """
         Retrieve data from cache with automatic invalidation.
 
@@ -239,9 +236,9 @@ class IntelligentCacheManager:
         category: str,
         identifier: str,
         data: Any,
-        params: Optional[Dict[str, Any]] = None,
-        ttl_hours: Optional[int] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        params: dict[str, Any] | None = None,
+        ttl_hours: int | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """
         Store data in cache.
@@ -339,7 +336,7 @@ class IntelligentCacheManager:
 
         self.logger.info(f"Removed {len(expired_keys)} expired cache entries")
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         total_entries = len(self._metadata)
         total_size = sum(entry.size_bytes for entry in self._metadata.values())
@@ -384,9 +381,9 @@ def get_cache_manager() -> IntelligentCacheManager:
 def cache_signals(
     ticker: str,
     timeframe: str,
-    ma_config: Dict[str, Any],
+    ma_config: dict[str, Any],
     signals_data: Any,
-    source_files: Optional[List[str]] = None,
+    source_files: list[str] | None = None,
 ) -> str:
     """Cache calculated signals for a ticker."""
     cache = get_cache_manager()
@@ -404,9 +401,9 @@ def cache_signals(
 def get_cached_signals(
     ticker: str,
     timeframe: str,
-    ma_config: Dict[str, Any],
-    source_files: Optional[List[str]] = None,
-) -> Optional[Any]:
+    ma_config: dict[str, Any],
+    source_files: list[str] | None = None,
+) -> Any | None:
     """Retrieve cached signals for a ticker."""
     cache = get_cache_manager()
     identifier = f"{ticker}_{timeframe}"
@@ -420,9 +417,9 @@ def get_cached_signals(
 
 def cache_portfolio_results(
     strategy_name: str,
-    portfolio_config: Dict[str, Any],
+    portfolio_config: dict[str, Any],
     results_data: Any,
-    source_files: Optional[List[str]] = None,
+    source_files: list[str] | None = None,
 ) -> str:
     """Cache portfolio analysis results."""
     cache = get_cache_manager()
@@ -438,9 +435,9 @@ def cache_portfolio_results(
 
 def get_cached_portfolio_results(
     strategy_name: str,
-    portfolio_config: Dict[str, Any],
-    source_files: Optional[List[str]] = None,
-) -> Optional[Any]:
+    portfolio_config: dict[str, Any],
+    source_files: list[str] | None = None,
+) -> Any | None:
     """Retrieve cached portfolio results."""
     cache = get_cache_manager()
     return cache.get(
@@ -452,7 +449,7 @@ def get_cached_portfolio_results(
 
 
 def cache_computation(
-    computation_name: str, params: Dict[str, Any], result_data: Any, ttl_hours: int = 6
+    computation_name: str, params: dict[str, Any], result_data: Any, ttl_hours: int = 6
 ) -> str:
     """Cache expensive computation results."""
     cache = get_cache_manager()
@@ -468,9 +465,9 @@ def cache_computation(
 
 def get_cached_computation(
     computation_name: str,
-    params: Dict[str, Any],
-    source_files: Optional[List[str]] = None,
-) -> Optional[Any]:
+    params: dict[str, Any],
+    source_files: list[str] | None = None,
+) -> Any | None:
     """Retrieve cached computation results."""
     cache = get_cache_manager()
     return cache.get(

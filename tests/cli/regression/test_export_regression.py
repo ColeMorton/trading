@@ -12,15 +12,13 @@ This test suite prevents regression of specific export issues that were recently
 These tests ensure that previously fixed bugs do not reoccur.
 """
 
-import os
-import tempfile
 from pathlib import Path
+import tempfile
 from unittest.mock import Mock, patch
 
 import polars as pl
 import pytest
 
-from app.tools.export_csv import export_csv
 from app.tools.strategy.export_portfolios import export_portfolios
 
 
@@ -84,7 +82,7 @@ class TestExportDirectoryRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # CRITICAL: Verify file was exported to correct directory
         correct_path = Path(temp_export_dir) / "data" / "raw" / "portfolios_best"
@@ -120,7 +118,7 @@ class TestExportDirectoryRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Verify file was exported to correct directory
         correct_path = Path(temp_export_dir) / "data" / "raw" / "portfolios_filtered"
@@ -146,7 +144,7 @@ class TestExportDirectoryRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Verify file was exported to feature_dir location
         feature_path = (
@@ -241,7 +239,7 @@ class TestMetricTypeColumnRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # CRITICAL: Verify Metric Type column is present
         assert (
@@ -273,7 +271,7 @@ class TestMetricTypeColumnRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Verify Metric Type column is present
         assert "Metric Type" in df.columns
@@ -298,7 +296,7 @@ class TestMetricTypeColumnRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # CRITICAL: Verify diverse metric types are preserved
         metric_types = df["Metric Type"].unique().to_list()
@@ -345,7 +343,7 @@ class TestMetricTypeColumnRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # If dual normalization was occurring, the Metric Type column would be stripped
         assert (
@@ -413,7 +411,7 @@ class TestFilenameGenerationRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Verify correct filename for best portfolios
         export_path = Path(temp_export_dir) / "data" / "raw" / "portfolios_best"
@@ -454,7 +452,7 @@ class TestFilenameGenerationRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Verify correct filename for filtered portfolios
         export_path = Path(temp_export_dir) / "data" / "raw" / "portfolios_filtered"
@@ -515,7 +513,7 @@ class TestFilenameGenerationRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Verify filename does not have specific strategy suffix
         export_path = Path(temp_export_dir) / "data" / "raw" / "portfolios"
@@ -554,7 +552,7 @@ class TestFilenameGenerationRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Verify that the config was processed correctly
         # The export should succeed and produce correct filename
@@ -642,7 +640,7 @@ class TestSortingConsistencyRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # CRITICAL: Verify portfolios are sorted by Score descending
         scores = df["Score"].to_list()
@@ -689,7 +687,7 @@ class TestSortingConsistencyRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Verify EMA portfolios are also sorted by Score descending
         scores = df["Score"].to_list()
@@ -760,7 +758,7 @@ class TestSortingConsistencyRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Verify mixed strategy portfolios are sorted consistently
         scores = df["Score"].to_list()
@@ -837,7 +835,7 @@ class TestCBREAggregationRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # CRITICAL: Verify CBRE data is present
         cbre_rows = df.filter(pl.col("Ticker") == "CBRE")
@@ -878,7 +876,7 @@ class TestCBREAggregationRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Verify CBRE numerical data is consistent
         cbre_rows = df.filter(pl.col("Ticker") == "CBRE")
@@ -886,9 +884,9 @@ class TestCBREAggregationRegression:
 
         # Verify numerical fields are valid
         for _, row in enumerate(cbre_rows.to_dicts()):
-            assert isinstance(row["Total Trades"], (int, float))
-            assert isinstance(row["Win Rate [%]"], (int, float))
-            assert isinstance(row["Score"], (int, float))
+            assert isinstance(row["Total Trades"], int | float)
+            assert isinstance(row["Win Rate [%]"], int | float)
+            assert isinstance(row["Score"], int | float)
 
             # Verify values are reasonable (not corrupted during aggregation)
             assert 0 <= row["Win Rate [%]"] <= 100
@@ -943,7 +941,7 @@ class TestCBREAggregationRegression:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
 
         # Verify both tickers are present
         tickers = df["Ticker"].unique().to_list()

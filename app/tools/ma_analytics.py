@@ -5,9 +5,7 @@ This module provides comprehensive financial analysis for moving average data,
 including risk metrics, performance statistics, and trend analysis.
 """
 
-import math
-from datetime import datetime, timedelta
-from typing import Any, Dict, Tuple
+from typing import Any
 
 import numpy as np
 import polars as pl
@@ -39,7 +37,7 @@ class MAAnalytics:
         returns = close_prices.pct_change().drop_nulls()
         return returns
 
-    def calculate_all_metrics(self) -> Dict[str, Any]:
+    def calculate_all_metrics(self) -> dict[str, Any]:
         """Calculate all financial metrics and return as dictionary."""
         return {
             "summary": self._get_data_summary(),
@@ -49,7 +47,7 @@ class MAAnalytics:
             "statistical_metrics": self._calculate_statistical_metrics(),
         }
 
-    def _get_data_summary(self) -> Dict[str, Any]:
+    def _get_data_summary(self) -> dict[str, Any]:
         """Get basic data summary information."""
         dates = self.ma_data.select("Date").to_series()
 
@@ -95,7 +93,7 @@ class MAAnalytics:
             "date_range_days": date_range_days,
         }
 
-    def _calculate_risk_metrics(self) -> Dict[str, float]:
+    def _calculate_risk_metrics(self) -> dict[str, float]:
         """Calculate risk-related metrics."""
         returns_np = self.returns.to_numpy()
 
@@ -114,7 +112,7 @@ class MAAnalytics:
             "cvar_95": self._calculate_cvar(returns_np, 0.95),
         }
 
-    def _calculate_performance_metrics(self) -> Dict[str, float]:
+    def _calculate_performance_metrics(self) -> dict[str, float]:
         """Calculate performance-related metrics."""
         if len(self.returns) == 0:
             return self._get_zero_metrics("performance")
@@ -139,7 +137,7 @@ class MAAnalytics:
             "information_ratio": self._calculate_information_ratio(returns_np),
         }
 
-    def _calculate_trend_metrics(self) -> Dict[str, Any]:
+    def _calculate_trend_metrics(self) -> dict[str, Any]:
         """Calculate trend analysis metrics."""
         if len(self.prices) < 2:
             return {
@@ -157,18 +155,16 @@ class MAAnalytics:
         slope, r_squared = self._calculate_linear_regression(x, prices_np)
 
         return {
-            "trend_direction": "Upward"
-            if slope > 0
-            else "Downward"
-            if slope < 0
-            else "Sideways",
+            "trend_direction": (
+                "Upward" if slope > 0 else "Downward" if slope < 0 else "Sideways"
+            ),
             "trend_strength": self._categorize_trend_strength(r_squared),
             "r_squared": r_squared,
             "smoothness_factor": self._calculate_smoothness_factor(prices_np),
             "linear_slope": slope,
         }
 
-    def _calculate_statistical_metrics(self) -> Dict[str, float]:
+    def _calculate_statistical_metrics(self) -> dict[str, float]:
         """Calculate statistical metrics."""
         if len(self.returns) == 0:
             return self._get_zero_metrics("statistical")
@@ -257,7 +253,7 @@ class MAAnalytics:
     # Trend calculation methods
     def _calculate_linear_regression(
         self, x: np.ndarray, y: np.ndarray
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """Calculate linear regression slope and R-squared."""
         if len(x) < 2:
             return 0.0, 0.0
@@ -268,7 +264,7 @@ class MAAnalytics:
         sum_y = np.sum(y)
         sum_xy = np.sum(x * y)
         sum_x2 = np.sum(x * x)
-        sum_y2 = np.sum(y * y)
+        np.sum(y * y)
 
         slope = (n * sum_xy - sum_x * sum_y) / (n * sum_x2 - sum_x * sum_x)
 
@@ -285,14 +281,13 @@ class MAAnalytics:
         """Categorize trend strength based on R-squared."""
         if r_squared >= 0.8:
             return "Very Strong"
-        elif r_squared >= 0.6:
+        if r_squared >= 0.6:
             return "Strong"
-        elif r_squared >= 0.4:
+        if r_squared >= 0.4:
             return "Moderate"
-        elif r_squared >= 0.2:
+        if r_squared >= 0.2:
             return "Weak"
-        else:
-            return "Very Weak"
+        return "Very Weak"
 
     def _calculate_smoothness_factor(self, prices: np.ndarray) -> float:
         """Calculate smoothness factor (1 - relative volatility)."""
@@ -335,7 +330,7 @@ class MAAnalytics:
             else 0.0
         )
 
-    def _get_zero_metrics(self, category: str) -> Dict[str, float]:
+    def _get_zero_metrics(self, category: str) -> dict[str, float]:
         """Return dictionary of zero metrics for a category when no data is available."""
         if category == "risk":
             return {
@@ -346,7 +341,7 @@ class MAAnalytics:
                 "var_95": 0.0,
                 "cvar_95": 0.0,
             }
-        elif category == "performance":
+        if category == "performance":
             return {
                 "total_return": 0.0,
                 "annualized_return": 0.0,
@@ -354,7 +349,7 @@ class MAAnalytics:
                 "calmar_ratio": 0.0,
                 "information_ratio": 0.0,
             }
-        elif category == "statistical":
+        if category == "statistical":
             return {
                 "mean_return": 0.0,
                 "std_deviation": 0.0,
@@ -369,7 +364,7 @@ class MAAnalytics:
 
 def analyze_ma_data(
     ma_data: pl.DataFrame, ticker: str, period: int, ma_type: str
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Convenience function to analyze MA data and return all metrics.
 

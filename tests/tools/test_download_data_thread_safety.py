@@ -5,9 +5,9 @@ This test suite ensures that concurrent data downloads don't experience
 column name contamination or other thread safety issues.
 """
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from unittest.mock import MagicMock, Mock, patch
 
 import pandas as pd
@@ -80,8 +80,7 @@ class TestDownloadDataThreadSafety:
                 # Return data with wrong ticker in column names
                 wrong_ticker = "TSM"  # Contamination from first download
                 return self.create_mock_yfinance_data(wrong_ticker)
-            else:
-                return self.create_mock_yfinance_data(ticker)
+            return self.create_mock_yfinance_data(ticker)
 
         mock_yf_download.side_effect = mock_download_with_contamination
 
@@ -248,7 +247,7 @@ class TestDownloadDataThreadSafety:
             for future in as_completed(futures):
                 ticker = futures[future]
                 try:
-                    result = future.result()
+                    future.result()
                     results.append(ticker)
                 except Exception as e:
                     errors.append((ticker, str(e)))
@@ -371,7 +370,7 @@ class TestConcurrentStrategyExecution:
         mock_log = Mock()
 
         # Execute strategy concurrently
-        results = execute_strategy_concurrent(
+        execute_strategy_concurrent(
             strategy_config, "SMA", mock_log, None, max_workers=4
         )
 

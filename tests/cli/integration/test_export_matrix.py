@@ -12,17 +12,13 @@ This prevents regression of export issues like directory paths, metric type colu
 filename generation, and ensures consistent behavior across all combinations.
 """
 
-import os
-import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+import tempfile
+from unittest.mock import Mock, patch
 
 import polars as pl
 import pytest
 
-from app.cli.models.strategy import StrategyType
-from app.tools.export_csv import export_csv
-from app.tools.portfolio.base_extended_schemas import SchemaType
 from app.tools.strategy.export_portfolios import export_portfolios
 
 
@@ -156,7 +152,7 @@ class TestExportTypeMatrix:
             )
 
         # Verify export success
-        assert success == True
+        assert success is True
         assert len(df) == 2
 
         # Verify file was created in correct location
@@ -188,7 +184,7 @@ class TestExportTypeMatrix:
             )
 
         # Verify export success
-        assert success == True
+        assert success is True
         assert len(df) == 2
 
         # Verify Metric Type column is preserved
@@ -219,7 +215,7 @@ class TestExportTypeMatrix:
             )
 
         # Verify export success
-        assert success == True
+        assert success is True
         assert len(df) == 2
 
         # Verify Metric Type column is present for best portfolios
@@ -255,7 +251,7 @@ class TestExportTypeMatrix:
             )
 
         # Verify export success
-        assert success == True
+        assert success is True
         assert len(df) == 2
 
         # Verify file was created in correct location
@@ -286,7 +282,7 @@ class TestExportTypeMatrix:
             )
 
         # Verify export success and schema
-        assert success == True
+        assert success is True
         assert len(df) == 2
         assert "Metric Type" in df.columns
 
@@ -317,7 +313,7 @@ class TestExportTypeMatrix:
             )
 
         # Verify export success and schema
-        assert success == True
+        assert success is True
         assert len(df) == 2
         assert "Metric Type" in df.columns
 
@@ -343,7 +339,7 @@ class TestExportTypeMatrix:
             )
 
         # Verify export success
-        assert success == True
+        assert success is True
         assert len(df) == 2
 
         # Verify MACD-specific columns are handled
@@ -379,7 +375,7 @@ class TestExportTypeMatrix:
             )
 
         # Verify export success and filtered schema
-        assert success == True
+        assert success is True
         assert len(df) == 2
         assert "Metric Type" in df.columns
 
@@ -410,7 +406,7 @@ class TestExportTypeMatrix:
             )
 
         # Verify export success and best schema
-        assert success == True
+        assert success is True
         assert len(df) == 2
         assert "Metric Type" in df.columns
 
@@ -442,7 +438,7 @@ class TestExportTypeMatrix:
             )
 
         # Verify export success
-        assert success == True
+        assert success is True
         assert len(df) == 4  # 2 SMA + 2 EMA
 
         # Verify both strategy types are present
@@ -484,7 +480,7 @@ class TestExportTypeMatrix:
             )
 
         # Verify export success
-        assert success == True
+        assert success is True
         assert len(df) == 6  # 3 tickers × 2 portfolios each
 
         # Verify all tickers are present
@@ -524,7 +520,7 @@ class TestExportTypeMatrix:
             )
 
         # Verify export success
-        assert success == True
+        assert success is True
         assert len(df) == 2
 
         # Verify synthetic ticker is preserved
@@ -635,7 +631,7 @@ class TestExportTypeMatrix:
             )
 
         # Verify all combinations work
-        assert success == True
+        assert success is True
         assert len(df) == 1
 
         # Verify export type specific requirements
@@ -750,7 +746,7 @@ class TestExportSchemaConsistency:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
         assert len(df) == 1
 
         # Verify key columns are preserved
@@ -782,7 +778,7 @@ class TestExportSchemaConsistency:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
         assert len(df) == 1
 
         # Verify Metric Type column is present and preserved
@@ -818,7 +814,7 @@ class TestExportSchemaConsistency:
                 log=Mock(),
             )
 
-        assert success == True
+        assert success is True
         assert len(df) == 1
 
         # Verify Metric Type column is present and preserved
@@ -863,7 +859,7 @@ class TestExportSchemaConsistency:
                     log=Mock(),
                 )
 
-            assert success == True
+            assert success is True
             column_orders[export_type] = df.columns.to_list()
 
         # Verify that common columns appear in consistent order
@@ -904,7 +900,7 @@ class TestExportSchemaConsistency:
                     log=Mock(),
                 )
 
-            assert success == True
+            assert success is True
             dataframes[export_type] = df
 
         # Verify that common columns have consistent data types

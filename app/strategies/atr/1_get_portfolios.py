@@ -15,7 +15,7 @@ The ATR trailing stop is calculated as:
 It includes functionality for parameter sensitivity analysis and portfolio filtering.
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
 from app.strategies.atr.config_types import ATRConfig
 from app.strategies.atr.exceptions import (
@@ -93,9 +93,8 @@ def run(config: ATRConfig = None, external_log=None, progress_update_fn=None) ->
         log_wrapper.__self__ = external_log
 
         return _run_with_log(config, log_wrapper, progress_update_fn)
-    else:
-        with logging_context(module_name="atr", log_file="1_get_portfolios.log") as log:
-            return _run_with_log(config, log, progress_update_fn)
+    with logging_context(module_name="atr", log_file="1_get_portfolios.log") as log:
+        return _run_with_log(config, log, progress_update_fn)
 
 
 def _run_with_log(config: ATRConfig, log, progress_update_fn=None) -> bool:
@@ -132,7 +131,7 @@ def _run_with_log(config: ATRConfig, log, progress_update_fn=None) -> bool:
         Exception: ATRError,
     },
 )
-def run_strategies(config: Dict[str, Any] = None) -> bool:
+def run_strategies(config: dict[str, Any] | None = None) -> bool:
     """Run analysis with ATR strategy parameters.
 
     This function is similar to the run function in other strategy modules,

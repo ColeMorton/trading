@@ -5,7 +5,7 @@ This module handles the generation of current trading signals based on
 mean reversion hammer strategy parameters.
 """
 
-from typing import Callable, Dict, List, Optional
+from collections.abc import Callable
 
 import polars as pl
 
@@ -19,7 +19,7 @@ from app.tools.get_config import get_config
 from app.tools.get_data import get_data
 
 
-def calculate_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataFrame]:
+def calculate_signals(data: pl.DataFrame, config: dict) -> pl.DataFrame | None:
     """Calculate trading signals based on hammer pattern parameters.
 
     Args:
@@ -111,12 +111,12 @@ def calculate_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataFrame
         return data
 
     except Exception as e:
-        print(f"Signal calculation error: {str(e)}")
+        print(f"Signal calculation error: {e!s}")
         return None
 
 
 def get_current_signals(
-    data: pl.DataFrame, change_pcts: List[float], config: Dict, log: Callable
+    data: pl.DataFrame, change_pcts: list[float], config: dict, log: Callable
 ) -> pl.DataFrame:
     """
     Get current signals for all parameter combinations.
@@ -146,9 +146,7 @@ def get_current_signals(
                     if current:
                         signals.append({"Change PCT": float(change_pct)})
             except Exception as e:
-                log(
-                    f"Failed to process parameter {change_pct:.2f}: {str(e)}", "warning"
-                )
+                log(f"Failed to process parameter {change_pct:.2f}: {e!s}", "warning")
                 continue
 
         # Create DataFrame with explicit schema
@@ -202,7 +200,7 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
         return current_signals
 
     except Exception as e:
-        log(f"Failed to generate current signals: {str(e)}", "error")
+        log(f"Failed to generate current signals: {e!s}", "error")
         return pl.DataFrame(schema={"Change PCT": pl.Float64})
 
 

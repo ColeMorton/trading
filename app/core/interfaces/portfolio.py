@@ -3,7 +3,6 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Union
 
 import pandas as pd
 import polars as pl
@@ -24,7 +23,7 @@ class Portfolio(ABC):
 
     @property
     @abstractmethod
-    def metrics(self) -> Dict[str, float]:
+    def metrics(self) -> dict[str, float]:
         """Performance metrics."""
 
     @property
@@ -50,26 +49,26 @@ class PortfolioManagerInterface(ABC):
 
     @abstractmethod
     def list_portfolios(
-        self, directory: Path, pattern: Optional[str] | None = None
-    ) -> List[Portfolio]:
+        self, directory: Path, pattern: str | None | None = None
+    ) -> list[Portfolio]:
         """List all portfolios in a directory."""
 
     @abstractmethod
     def filter_portfolios(
-        self, portfolios: List[Portfolio], filters: List[PortfolioFilter]
-    ) -> List[Portfolio]:
+        self, portfolios: list[Portfolio], filters: list[PortfolioFilter]
+    ) -> list[Portfolio]:
         """Filter portfolios based on criteria."""
 
     @abstractmethod
     def aggregate_portfolios(
-        self, portfolios: List[Portfolio]
-    ) -> Union[pd.DataFrame, pl.DataFrame]:
+        self, portfolios: list[Portfolio]
+    ) -> pd.DataFrame | pl.DataFrame:
         """Aggregate multiple portfolios into a summary."""
 
     @abstractmethod
     def get_best_portfolios(
-        self, portfolios: List[Portfolio], metric: str = "sharpe_ratio", top_n: int = 10
-    ) -> List[Portfolio]:
+        self, portfolios: list[Portfolio], metric: str = "sharpe_ratio", top_n: int = 10
+    ) -> list[Portfolio]:
         """Get best performing portfolios by metric."""
 
     @abstractmethod

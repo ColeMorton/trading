@@ -6,7 +6,6 @@ This demonstrates unit testing the refactored service layer
 created during the TDD REFACTOR phase.
 """
 
-import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
 

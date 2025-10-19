@@ -6,13 +6,12 @@ and automated metrics for position sizing as specified in Phase 2.
 """
 
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from typing_extensions import TypedDict
 
-from .base_extended_schemas import ColumnDataType, ColumnDefinition, SchemaType
+from .base_extended_schemas import ColumnDataType, ColumnDefinition
 
 
 class PositionSizingDataType(Enum):
@@ -31,10 +30,10 @@ class PositionSizingColumn(ColumnDefinition):
 
     is_manual_entry: bool = False  # True if manually entered
     is_auto_calculated: bool = False  # True if automatically calculated
-    excel_formula: Optional[str] = None  # Excel formula reference
-    data_source: Optional[
-        str
-    ] = None  # Source of the data (e.g., 'IBKR', 'portfolio.json')
+    excel_formula: str | None = None  # Excel formula reference
+    data_source: str | None = (
+        None  # Source of the data (e.g., 'IBKR', 'portfolio.json')
+    )
 
 
 class PositionSizingSchemaType(Enum):
@@ -306,7 +305,7 @@ class PositionSizingSchema:
     ]
 
     @classmethod
-    def get_all_columns(cls) -> List[PositionSizingColumn]:
+    def get_all_columns(cls) -> list[PositionSizingColumn]:
         """Get all position sizing schema columns.
 
         Returns:
@@ -324,7 +323,7 @@ class PositionSizingSchema:
         return all_columns
 
     @classmethod
-    def get_manual_entry_columns(cls) -> List[PositionSizingColumn]:
+    def get_manual_entry_columns(cls) -> list[PositionSizingColumn]:
         """Get columns that require manual data entry.
 
         Returns:
@@ -333,7 +332,7 @@ class PositionSizingSchema:
         return [col for col in cls.get_all_columns() if col.is_manual_entry]
 
     @classmethod
-    def get_auto_calculated_columns(cls) -> List[PositionSizingColumn]:
+    def get_auto_calculated_columns(cls) -> list[PositionSizingColumn]:
         """Get columns that are automatically calculated.
 
         Returns:
@@ -342,7 +341,7 @@ class PositionSizingSchema:
         return [col for col in cls.get_all_columns() if col.is_auto_calculated]
 
     @classmethod
-    def get_columns_by_source(cls, data_source: str) -> List[PositionSizingColumn]:
+    def get_columns_by_source(cls, data_source: str) -> list[PositionSizingColumn]:
         """Get columns by data source.
 
         Args:
@@ -354,7 +353,7 @@ class PositionSizingSchema:
         return [col for col in cls.get_all_columns() if col.data_source == data_source]
 
     @classmethod
-    def get_schema_summary(cls) -> Dict[str, Any]:
+    def get_schema_summary(cls) -> dict[str, Any]:
         """Get summary of the position sizing schema.
 
         Returns:
@@ -407,7 +406,7 @@ class PositionSizingPortfolioRow(TypedDict):
     Position_Value: float
     Stop_Loss_Distance: float
     Max_Risk_Amount: float
-    Current_Position: Optional[float]
+    Current_Position: float | None
     Account_Type: str
 
     # Portfolio coordination fields
@@ -436,8 +435,8 @@ class PositionSizingPortfolioRow(TypedDict):
 
     # Price data fields
     Current_Price: float
-    Entry_Price: Optional[float]
-    Stop_Loss_Price: Optional[float]
+    Entry_Price: float | None
+    Stop_Loss_Price: float | None
 
     # Efficient frontier fields
     Max_Allocation_Percentage: float
@@ -450,18 +449,18 @@ class PositionSizingDataValidation:
     """Data validation results for position sizing schema."""
 
     is_valid: bool
-    validation_errors: List[str]
-    manual_entry_missing: List[str]
-    calculation_errors: List[str]
-    data_source_issues: List[str]
-    excel_formula_matches: Dict[str, bool]
+    validation_errors: list[str]
+    manual_entry_missing: list[str]
+    calculation_errors: list[str]
+    data_source_issues: list[str]
+    excel_formula_matches: dict[str, bool]
 
 
 class PositionSizingSchemaValidator:
     """Validator for position sizing schema data."""
 
     @staticmethod
-    def validate_row(row_data: Dict[str, Any]) -> PositionSizingDataValidation:
+    def validate_row(row_data: dict[str, Any]) -> PositionSizingDataValidation:
         """Validate a portfolio row against position sizing schema.
 
         Args:
@@ -478,7 +477,7 @@ class PositionSizingSchemaValidator:
 
         schema = PositionSizingSchema()
         manual_columns = schema.get_manual_entry_columns()
-        auto_columns = schema.get_auto_calculated_columns()
+        schema.get_auto_calculated_columns()
 
         # Validate manual entry fields
         for col in manual_columns:
@@ -486,11 +485,11 @@ class PositionSizingSchemaValidator:
                 missing_manual.append(col.name)
             elif col.data_type == ColumnDataType.PERCENTAGE:
                 value = row_data[col.name]
-                if isinstance(value, (int, float)) and (value < 0 or value > 1):
+                if isinstance(value, int | float) and (value < 0 or value > 1):
                     errors.append(f"{col.name} percentage must be between 0 and 1")
             elif col.data_type == ColumnDataType.CURRENCY:
                 value = row_data[col.name]
-                if isinstance(value, (int, float)) and value < 0:
+                if isinstance(value, int | float) and value < 0:
                     errors.append(f"{col.name} currency value cannot be negative")
 
         # Validate calculated fields against Excel formulas

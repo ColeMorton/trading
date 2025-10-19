@@ -5,10 +5,6 @@ This module tests the unified configuration system to ensure it properly
 consolidates configuration patterns and provides consistent validation.
 """
 
-import tempfile
-from pathlib import Path
-from typing import Any, Dict
-
 import pytest
 
 from app.tools.strategy.unified_config import (
@@ -18,7 +14,6 @@ from app.tools.strategy.unified_config import (
     MACDConfig,
     MAConfig,
     MeanReversionConfig,
-    RangeConfig,
     create_ma_config,
     create_macd_config,
     get_default_strategy_config,
@@ -56,7 +51,7 @@ class TestBasePortfolioConfig:
         assert config["TICKER"] == ["AAPL", "MSFT"]
         assert config["DIRECTION"] == "Long"
         assert config["FAST_PERIOD"] == 10
-        assert config["USE_RSI"] == False
+        assert config["USE_RSI"] is False
 
 
 class TestStrategySpecificConfigs:
@@ -77,7 +72,7 @@ class TestStrategySpecificConfigs:
         assert config["FAST_PERIOD"] == 5
 
         # Test MA-specific fields
-        assert config["USE_SMA"] == True
+        assert config["USE_SMA"] is True
 
     def test_macd_config_inheritance(self):
         """Test that MACDConfig properly inherits from BasePortfolioConfig."""
@@ -129,7 +124,7 @@ class TestConfigValidator:
 
         result = ConfigValidator.validate_base_config(config)
 
-        assert result["is_valid"] == True
+        assert result["is_valid"] is True
         assert len(result["errors"]) == 0
 
     def test_validate_base_config_missing_required(self):
@@ -141,7 +136,7 @@ class TestConfigValidator:
 
         result = ConfigValidator.validate_base_config(config)
 
-        assert result["is_valid"] == False
+        assert result["is_valid"] is False
         assert "TICKER is required" in result["errors"]
 
     def test_validate_base_config_invalid_windows(self):
@@ -155,7 +150,7 @@ class TestConfigValidator:
 
         result = ConfigValidator.validate_base_config(config)
 
-        assert result["is_valid"] == False
+        assert result["is_valid"] is False
         assert "FAST_PERIOD must be less than SLOW_PERIOD" in result["errors"]
         assert "SLOW_PERIOD" in result["suggestions"]
 
@@ -165,7 +160,7 @@ class TestConfigValidator:
 
         result = ConfigValidator.validate_base_config(config)
 
-        assert result["is_valid"] == False
+        assert result["is_valid"] is False
         assert "DIRECTION must be 'Long' or 'Short'" in result["errors"]
         assert result["suggestions"]["DIRECTION"] == "Long"
 
@@ -181,7 +176,7 @@ class TestConfigValidator:
 
         result = ConfigValidator.validate_ma_config(config)
 
-        assert result["is_valid"] == True
+        assert result["is_valid"] is True
 
     def test_validate_macd_config_valid(self):
         """Test MACD configuration validation with required fields."""
@@ -195,7 +190,7 @@ class TestConfigValidator:
 
         result = ConfigValidator.validate_macd_config(config)
 
-        assert result["is_valid"] == True
+        assert result["is_valid"] is True
 
     def test_validate_macd_config_missing_signal_window(self):
         """Test MACD validation fails without SIGNAL_PERIOD."""
@@ -203,13 +198,13 @@ class TestConfigValidator:
             "TICKER": "AAPL",
             "BASE_DIR": "/tmp",
             "FAST_PERIOD": 12,
-            "SLOW_PERIOD": 26
+            "SLOW_PERIOD": 26,
             # Missing SIGNAL_PERIOD
         }
 
         result = ConfigValidator.validate_macd_config(config)
 
-        assert result["is_valid"] == False
+        assert result["is_valid"] is False
         assert any(
             "MACD strategy requires SIGNAL_PERIOD" in error
             for error in result["errors"]
@@ -228,7 +223,7 @@ class TestConfigValidator:
 
         result = ConfigValidator.validate_base_config(config)
 
-        assert result["is_valid"] == False
+        assert result["is_valid"] is False
         assert "RSI_WINDOW must be between 5 and 50" in result["errors"]
         assert "RSI_THRESHOLD must be between 0 and 100" in result["errors"]
         assert "Years must be between 0.1 and 50" in result["errors"]
@@ -268,15 +263,15 @@ class TestConfigFactory:
         }
 
         result = ConfigFactory.validate_config("SMA", config)
-        assert result["is_valid"] == True
+        assert result["is_valid"] is True
 
         result = ConfigFactory.validate_config("MACD", config)
-        assert result["is_valid"] == False  # Missing SIGNAL_PERIOD
+        assert result["is_valid"] is False  # Missing SIGNAL_PERIOD
 
     def test_get_default_config(self):
         """Test getting default configurations."""
         sma_defaults = ConfigFactory.get_default_config("SMA")
-        assert sma_defaults["USE_SMA"] == True
+        assert sma_defaults["USE_SMA"] is True
         assert sma_defaults["FAST_PERIOD"] == 10
         assert sma_defaults["DIRECTION"] == "Long"
 
@@ -303,7 +298,7 @@ class TestConvenienceFunctions:
         config = create_ma_config(TICKER="AAPL", BASE_DIR="/tmp", USE_SMA=True)
 
         assert config["TICKER"] == "AAPL"
-        assert config["USE_SMA"] == True
+        assert config["USE_SMA"] is True
 
     def test_create_macd_config_convenience(self):
         """Test convenience function for creating MACD config."""
@@ -322,7 +317,7 @@ class TestConvenienceFunctions:
         }
 
         result = validate_strategy_config("SMA", config)
-        assert result["is_valid"] == True
+        assert result["is_valid"] is True
 
     def test_get_default_strategy_config_convenience(self):
         """Test convenience function for getting defaults."""
@@ -350,7 +345,7 @@ class TestConfigurationMigration:
         }
 
         result = ConfigValidator.validate_base_config(legacy_config)
-        assert result["is_valid"] == True
+        assert result["is_valid"] is True
 
     def test_parameter_range_validation(self):
         """Test parameter range validation for sweep configurations."""
@@ -365,7 +360,7 @@ class TestConfigurationMigration:
         }
 
         result = ConfigValidator.validate_base_config(config)
-        assert result["is_valid"] == True
+        assert result["is_valid"] is True
 
     def test_invalid_parameter_ranges(self):
         """Test validation fails for invalid parameter ranges."""
@@ -377,7 +372,7 @@ class TestConfigurationMigration:
         }
 
         result = ConfigValidator.validate_base_config(config)
-        assert result["is_valid"] == False
+        assert result["is_valid"] is False
         assert (
             "SHORT_WINDOW_START must be less than SHORT_WINDOW_END" in result["errors"]
         )
@@ -388,18 +383,6 @@ class TestConfigurationDeduplication:
 
     def test_common_fields_consolidated(self):
         """Test that common fields are available across all strategy configs."""
-        common_fields = [
-            "TICKER",
-            "BASE_DIR",
-            "USE_CURRENT",
-            "USE_HOURLY",
-            "REFRESH",
-            "DIRECTION",
-            "FAST_PERIOD",
-            "SLOW_PERIOD",
-            "SORT_BY",
-            "DISPLAY_RESULTS",
-        ]
 
         # Test that all strategy-specific configs inherit these fields
         for strategy_type in ["SMA", "EMA", "MACD", "MEAN_REVERSION", "RANGE"]:
@@ -430,11 +413,11 @@ class TestConfigurationDeduplication:
         # All strategies should validate the base configuration consistently
         for strategy_type in ["SMA", "EMA"]:
             result = ConfigFactory.validate_config(strategy_type, base_config)
-            assert result["is_valid"] == True
+            assert result["is_valid"] is True
 
         # MACD should fail because it needs SIGNAL_PERIOD
         macd_result = ConfigFactory.validate_config("MACD", base_config)
-        assert macd_result["is_valid"] == False
+        assert macd_result["is_valid"] is False
 
 
 if __name__ == "__main__":

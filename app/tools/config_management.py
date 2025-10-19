@@ -6,11 +6,11 @@ application components, with validation, documentation, and preset support.
 """
 
 import copy
+from datetime import datetime
 import json
 import os
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union, get_type_hints
+from typing import Any, TypeVar, Union, get_type_hints
 
 from typing_extensions import Protocol
 
@@ -23,7 +23,7 @@ class ConfigProtocol(Protocol):
 
 
 T = TypeVar("T", bound=ConfigProtocol)
-ConfigDict = Dict[str, Any]
+ConfigDict = dict[str, Any]
 
 
 class ConfigValidationError(Exception):
@@ -33,7 +33,7 @@ class ConfigValidationError(Exception):
 class ConfigManager:
     """Centralized configuration manager for all application components."""
 
-    def __init__(self, name: str, config_dir: Optional[Union[str, Path]] = None):
+    def __init__(self, name: str, config_dir: str | Path | None = None):
         """Initialize the configuration manager.
 
         Args:
@@ -52,12 +52,12 @@ class ConfigManager:
         os.makedirs(self.config_dir, exist_ok=True)
 
         # Initialize configuration storage
-        self.configs: Dict[str, ConfigDict] = {}
-        self.config_schemas: Dict[
-            str, Type[Any]
+        self.configs: dict[str, ConfigDict] = {}
+        self.config_schemas: dict[
+            str, type[Any]
         ] = {}  # Changed from Type[TypedDict] to Type[Any]
-        self.config_docs: Dict[str, Dict[str, str]] = {}
-        self.config_presets: Dict[str, Dict[str, ConfigDict]] = {}
+        self.config_docs: dict[str, dict[str, str]] = {}
+        self.config_presets: dict[str, dict[str, ConfigDict]] = {}
 
         self.logger.info(
             f"Configuration manager initialized with config directory: {self.config_dir}"
@@ -74,9 +74,9 @@ class ConfigManager:
     def register_config_schema(
         self,
         config_name: str,
-        schema_class: Type[Any],  # Changed from Type[T] to Type[Any]
-        documentation: Optional[Dict[str, str]] = None,
-        default_config: Optional[Dict[str, Any]] = None,
+        schema_class: type[Any],  # Changed from Type[T] to Type[Any]
+        documentation: dict[str, str] | None = None,
+        default_config: dict[str, Any] | None = None,
     ) -> None:
         """Register a configuration schema with the manager.
 
@@ -132,7 +132,7 @@ class ConfigManager:
         self,
         preset_name: str,
         config_name: str,
-        preset_config: Dict[str, Any],
+        preset_config: dict[str, Any],
         description: str = "",
     ) -> None:
         """Register a configuration preset.
@@ -183,7 +183,7 @@ class ConfigManager:
 
         self.logger.info(f"Applied preset '{preset_name}' to {config_name}")
 
-    def list_presets(self, config_name: str) -> List[Dict[str, Any]]:
+    def list_presets(self, config_name: str) -> list[dict[str, Any]]:
         """List available presets for a configuration section.
 
         Args:
@@ -204,7 +204,7 @@ class ConfigManager:
             for name, info in self.config_presets[config_name].items()
         ]
 
-    def set_config(self, config_name: str, config: Dict[str, Any]) -> None:
+    def set_config(self, config_name: str, config: dict[str, Any]) -> None:
         """Set configuration values for a section.
 
         Args:
@@ -223,7 +223,7 @@ class ConfigManager:
 
         self.logger.info(f"Updated configuration for {config_name}")
 
-    def update_config(self, config_name: str, updates: Dict[str, Any]) -> None:
+    def update_config(self, config_name: str, updates: dict[str, Any]) -> None:
         """Update specific configuration values for a section.
 
         Args:
@@ -244,7 +244,7 @@ class ConfigManager:
         # Validate and store
         self.set_config(config_name, updated_config)
 
-    def get_config(self, config_name: str) -> Dict[str, Any]:
+    def get_config(self, config_name: str) -> dict[str, Any]:
         """Get configuration values for a section.
 
         Args:
@@ -261,7 +261,7 @@ class ConfigManager:
 
         return copy.deepcopy(self.configs[config_name])
 
-    def get_typed_config(self, config_name: str, config_type: Type[Any]) -> Any:
+    def get_typed_config(self, config_name: str, config_type: type[Any]) -> Any:
         """Get configuration values as a typed dictionary.
 
         Args:
@@ -278,19 +278,19 @@ class ConfigManager:
         # Use the type directly without trying to evaluate it as an expression
         return config_type(config)  # type: ignore
 
-    def get_combined_config(self) -> Dict[str, Any]:
+    def get_combined_config(self) -> dict[str, Any]:
         """Get a combined configuration with all sections.
 
         Returns:
             Dict[str, Any]: Combined configuration
         """
         combined = {}
-        for name, config in self.configs.items():
+        for _name, config in self.configs.items():
             combined.update(config)
 
         return combined
 
-    def _validate_config(self, config_name: str, config: Dict[str, Any]) -> None:
+    def _validate_config(self, config_name: str, config: dict[str, Any]) -> None:
         """Validate configuration against its schema.
 
         Args:
@@ -352,16 +352,15 @@ class ConfigManager:
                                 f"Field '{field}' in {config_name} configuration has invalid type. "
                                 f"Expected list, got {type(value)}"
                             )
-                else:
-                    # Simple type check
-                    if not isinstance(value, field_type) and field_type is not Any:
-                        raise ConfigValidationError(
-                            f"Field '{field}' in {config_name} configuration has invalid type. "
-                            f"Expected {field_type}, got {type(value)}"
-                        )
+                # Simple type check
+                elif not isinstance(value, field_type) and field_type is not Any:
+                    raise ConfigValidationError(
+                        f"Field '{field}' in {config_name} configuration has invalid type. "
+                        f"Expected {field_type}, got {type(value)}"
+                    )
 
     def load_from_file(
-        self, config_name: str, filepath: Optional[Union[str, Path]] = None
+        self, config_name: str, filepath: str | Path | None = None
     ) -> bool:
         """Load configuration from a JSON file.
 
@@ -376,7 +375,7 @@ class ConfigManager:
             filepath = self.config_dir / f"{config_name}.json"
 
         try:
-            with open(filepath, "r") as f:
+            with open(filepath) as f:
                 config_data = json.load(f)
 
             self.set_config(config_name, config_data)
@@ -384,13 +383,13 @@ class ConfigManager:
             return True
         except Exception as e:
             self.logger.error(
-                f"Error loading configuration for {config_name}: {str(e)}",
+                f"Error loading configuration for {config_name}: {e!s}",
                 exc_info=True,
             )
             return False
 
     def save_to_file(
-        self, config_name: str, filepath: Optional[Union[str, Path]] = None
+        self, config_name: str, filepath: str | Path | None = None
     ) -> bool:
         """Save configuration to a JSON file.
 
@@ -416,7 +415,7 @@ class ConfigManager:
             return True
         except Exception as e:
             self.logger.error(
-                f"Error saving configuration for {config_name}: {str(e)}", exc_info=True
+                f"Error saving configuration for {config_name}: {e!s}", exc_info=True
             )
             return False
 
@@ -446,7 +445,7 @@ class ConfigManager:
 
         return success
 
-    def get_config_documentation(self, config_name: str) -> Dict[str, str]:
+    def get_config_documentation(self, config_name: str) -> dict[str, str]:
         """Get documentation for a configuration section.
 
         Args:
@@ -463,7 +462,7 @@ class ConfigManager:
 
         return copy.deepcopy(self.config_docs[config_name])
 
-    def get_config_schema(self, config_name: str) -> Dict[str, str]:
+    def get_config_schema(self, config_name: str) -> dict[str, str]:
         """Get schema information for a configuration section.
 
         Args:
@@ -494,7 +493,7 @@ _config_manager = None
 
 
 def get_config_manager(
-    name: str = "global", config_dir: Optional[Union[str, Path]] = None
+    name: str = "global", config_dir: str | Path | None = None
 ) -> ConfigManager:
     """Get or create the singleton ConfigManager instance.
 
@@ -513,9 +512,9 @@ def get_config_manager(
 
 def register_config_schema(
     config_name: str,
-    schema_class: Type[Any],  # Changed from Type[T] to Type[Any]
-    documentation: Optional[Dict[str, str]] = None,
-    default_config: Optional[Dict[str, Any]] = None,
+    schema_class: type[Any],  # Changed from Type[T] to Type[Any]
+    documentation: dict[str, str] | None = None,
+    default_config: dict[str, Any] | None = None,
 ) -> None:
     """Register a configuration schema with the global manager.
 
@@ -531,7 +530,7 @@ def register_config_schema(
     )
 
 
-def get_config(config_name: str) -> Dict[str, Any]:
+def get_config(config_name: str) -> dict[str, Any]:
     """Get configuration values from the global manager.
 
     Args:
@@ -544,7 +543,7 @@ def get_config(config_name: str) -> Dict[str, Any]:
     return manager.get_config(config_name)
 
 
-def update_config(config_name: str, updates: Dict[str, Any]) -> None:
+def update_config(config_name: str, updates: dict[str, Any]) -> None:
     """Update configuration values in the global manager.
 
     Args:
@@ -555,7 +554,7 @@ def update_config(config_name: str, updates: Dict[str, Any]) -> None:
     manager.update_config(config_name, updates)
 
 
-def load_config(config_name: str, filepath: Optional[Union[str, Path]] = None) -> bool:
+def load_config(config_name: str, filepath: str | Path | None = None) -> bool:
     """Load configuration from a file using the global manager.
 
     Args:
@@ -569,7 +568,7 @@ def load_config(config_name: str, filepath: Optional[Union[str, Path]] = None) -
     return manager.load_from_file(config_name, filepath)
 
 
-def save_config(config_name: str, filepath: Optional[Union[str, Path]] = None) -> bool:
+def save_config(config_name: str, filepath: str | Path | None = None) -> bool:
     """Save configuration to a file using the global manager.
 
     Args:
@@ -586,7 +585,7 @@ def save_config(config_name: str, filepath: Optional[Union[str, Path]] = None) -
 def register_preset(
     preset_name: str,
     config_name: str,
-    preset_config: Dict[str, Any],
+    preset_config: dict[str, Any],
     description: str = "",
 ) -> None:
     """Register a configuration preset with the global manager.
@@ -612,7 +611,7 @@ def apply_preset(config_name: str, preset_name: str) -> None:
     manager.apply_preset(config_name, preset_name)
 
 
-def list_presets(config_name: str) -> List[Dict[str, Any]]:
+def list_presets(config_name: str) -> list[dict[str, Any]]:
     """List available presets for a configuration section.
 
     Args:
@@ -628,7 +627,7 @@ def list_presets(config_name: str) -> List[Dict[str, Any]]:
 # Simple utility functions for direct use without ConfigManager
 
 
-def apply_config_defaults(config: Dict[str, Any]) -> Dict[str, Any]:
+def apply_config_defaults(config: dict[str, Any]) -> dict[str, Any]:
     """Apply default values to configuration (migrated from get_config.py).
 
     This function applies the same defaults that were previously in get_config.py,
@@ -643,7 +642,7 @@ def apply_config_defaults(config: Dict[str, Any]) -> Dict[str, Any]:
     result = config.copy()
 
     # Handle synthetic ticker logic
-    if result.get("USE_SYNTHETIC", False) == True:
+    if result.get("USE_SYNTHETIC", False) is True:
         result["TICKER"] = f"{result['TICKER_1']}_{result['TICKER_2']}"
 
     # Set default BASE_DIR
@@ -651,7 +650,7 @@ def apply_config_defaults(config: Dict[str, Any]) -> Dict[str, Any]:
         result["BASE_DIR"] = "."
 
     # Set default PERIOD
-    if not result.get("PERIOD") and result.get("USE_YEARS", False) == False:
+    if not result.get("PERIOD") and result.get("USE_YEARS", False) is False:
         result["PERIOD"] = "max"
 
     # Set default RSI_WINDOW
@@ -665,7 +664,7 @@ def apply_config_defaults(config: Dict[str, Any]) -> Dict[str, Any]:
     return result
 
 
-def normalize_config(config: Dict[str, Any]) -> Dict[str, Any]:
+def normalize_config(config: dict[str, Any]) -> dict[str, Any]:
     """Normalize configuration by ensuring standard fields are present and paths are absolute.
 
     This now includes the functionality from get_config.py for a complete normalization.
@@ -687,8 +686,8 @@ def normalize_config(config: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def merge_configs(
-    base_config: Dict[str, Any], overrides: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+    base_config: dict[str, Any], overrides: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """Merge a base configuration with overrides.
 
     Args:
@@ -737,10 +736,9 @@ def resolve_portfolio_filename(portfolio_name: str) -> str:
 
     if yaml_path.exists():
         return f"{base_name}.yaml"
-    elif csv_path.exists():
+    if csv_path.exists():
         return f"{base_name}.csv"
-    elif json_path.exists():
+    if json_path.exists():
         return f"{base_name}.json"
-    else:
-        # Default to CSV if we can't determine
-        return f"{base_name}.csv"
+    # Default to CSV if we can't determine
+    return f"{base_name}.csv"

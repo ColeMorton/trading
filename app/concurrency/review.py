@@ -20,9 +20,10 @@ Configuration Options:
 """
 
 import logging
-import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+import sys
+from typing import Any
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -48,8 +49,8 @@ from app.tools.config_service import ConfigService
 from app.tools.entry_point import run_from_command_line
 from app.tools.error_context import error_context
 from app.tools.error_decorators import handle_errors
-from app.tools.exceptions import ConfigurationError as SystemConfigurationError
 from app.tools.exceptions import (
+    ConfigurationError as SystemConfigurationError,
     PortfolioLoadError,
     SyntheticTickerError,
     TradingSystemError,
@@ -78,6 +79,7 @@ from app.tools.synthetic_ticker import (
     process_synthetic_ticker,
 )
 
+
 # Default configuration
 DEFAULT_CONFIG: ConcurrencyConfig = get_default_config()
 
@@ -91,7 +93,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = get_default_config()
         Exception: TradingSystemError,
     },
 )
-def run_analysis(config: Dict[str, Any]) -> bool:
+def run_analysis(config: dict[str, Any]) -> bool:
     """Run concurrency analysis with the given configuration.
 
     Args:
@@ -168,9 +170,8 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                     "Concurrency analysis completed successfully using service!", "info"
                 )
                 return True
-            else:
-                log("Concurrency analysis failed", "error")
-                return False
+            log("Concurrency analysis failed", "error")
+            return False
 
         except ImportError as e:
             log(
@@ -369,7 +370,7 @@ def run_analysis(config: Dict[str, Any]) -> bool:
 
                                 except SyntheticTickerError as e:
                                     log(
-                                        f"Invalid synthetic ticker format: {ticker} - {str(e)}",
+                                        f"Invalid synthetic ticker format: {ticker} - {e!s}",
                                         "warning",
                                     )
 
@@ -407,10 +408,10 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                 f"Execution mode: {validated_config.get('EXECUTION_MODE', ExecutionMode.SAME_PERIOD.value)}",
                 "info",
             )
-            log(f"Using allocations only from CSV file", "info")
-            log(f"Using stop losses only from CSV file", "info")
-            log(f"Correlation filtering disabled", "info")
-            log(f"Concurrency limits disabled", "info")
+            log("Using allocations only from CSV file", "info")
+            log("Using stop losses only from CSV file", "info")
+            log("Correlation filtering disabled", "info")
+            log("Concurrency limits disabled", "info")
 
             # Enable trade history export for concurrency analysis
             # This is the only entry point where trade history export should be available
@@ -421,13 +422,12 @@ def run_analysis(config: Dict[str, Any]) -> bool:
             if result:
                 log("Concurrency analysis completed successfully!", "info")
                 return True
-            else:
-                log("Concurrency analysis failed", "error")
-                return False
+            log("Concurrency analysis failed", "error")
+            return False
 
 
 def run_concurrency_review(
-    portfolio_name: str, config_overrides: Optional[Dict[str, Any]] = None
+    portfolio_name: str, config_overrides: dict[str, Any] | None = None
 ) -> bool:
     """Run concurrency review with a specific portfolio file and configuration overrides.
 

@@ -4,8 +4,6 @@ Signal Utility Functions
 This module provides utility functions for mean reversion signal processing.
 """
 
-from typing import Dict, List
-
 import polars as pl
 
 
@@ -25,7 +23,7 @@ def is_signal_current(data: pl.DataFrame) -> bool:
     return bool(last_row["Signal"].item() != 0)
 
 
-def check_signal_match(signals: List[Dict], change_pct: float) -> bool:
+def check_signal_match(signals: list[dict], change_pct: float) -> bool:
     """Check if a specific parameter exists in current signals.
 
     Args:
@@ -35,7 +33,4 @@ def check_signal_match(signals: List[Dict], change_pct: float) -> bool:
     Returns:
         bool: True if parameter exists in signals
     """
-    for signal in signals:
-        if signal["Change PCT"] == change_pct:
-            return True
-    return False
+    return any(signal["Change PCT"] == change_pct for signal in signals)

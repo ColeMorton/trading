@@ -16,10 +16,11 @@ CLI Usage:
     trading-cli positions validate-equity --portfolio protected --output-format json
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
 import pandas as pd
 
@@ -71,7 +72,7 @@ class ValidationResult:
     unrealized_pnl: float
     estimated_fees: float
     validation_timestamp: str
-    recommendations: List[str]
+    recommendations: list[str]
 
 
 @dataclass
@@ -111,8 +112,8 @@ class PositionEquityValidator:
 
     def __init__(
         self,
-        config: Optional[ValidationConfig] = None,
-        log: Optional[Callable[[str, str], None]] = None,
+        config: ValidationConfig | None = None,
+        log: Callable[[str, str], None] | None = None,
     ):
         """
         Initialize the validator.
@@ -203,11 +204,11 @@ class PositionEquityValidator:
             return result
 
         except Exception as e:
-            error_msg = f"Failed to validate portfolio {portfolio_name}: {str(e)}"
+            error_msg = f"Failed to validate portfolio {portfolio_name}: {e!s}"
             self.log(error_msg, "error")
             raise TradingSystemError(error_msg) from e
 
-    def validate_all_portfolios(self) -> Dict[str, ValidationResult]:
+    def validate_all_portfolios(self) -> dict[str, ValidationResult]:
         """
         Validate all available portfolios.
 
@@ -227,14 +228,14 @@ class PositionEquityValidator:
                 result = self.validate_portfolio(portfolio_name)
                 results[portfolio_name] = result
             except Exception as e:
-                self.log(f"Failed to validate {portfolio_name}: {str(e)}", "error")
+                self.log(f"Failed to validate {portfolio_name}: {e!s}", "error")
                 continue
 
         return results
 
     def generate_validation_report(
-        self, results: Dict[str, ValidationResult], output_format: str = "console"
-    ) -> Optional[str]:
+        self, results: dict[str, ValidationResult], output_format: str = "console"
+    ) -> str | None:
         """
         Generate comprehensive validation report.
 
@@ -248,12 +249,11 @@ class PositionEquityValidator:
         if output_format == "console":
             self._print_console_report(results)
             return None
-        elif output_format == "json":
+        if output_format == "json":
             return self._generate_json_report(results)
-        elif output_format == "csv":
+        if output_format == "csv":
             return self._generate_csv_report(results)
-        else:
-            raise ValueError(f"Unsupported output format: {output_format}")
+        raise ValueError(f"Unsupported output format: {output_format}")
 
     def _load_position_data(self, portfolio_name: str) -> pd.DataFrame:
         """Load position data from CSV file."""
@@ -281,7 +281,7 @@ class PositionEquityValidator:
 
         return df
 
-    def _calculate_position_metrics(self, positions_df: pd.DataFrame) -> Dict[str, Any]:
+    def _calculate_position_metrics(self, positions_df: pd.DataFrame) -> dict[str, Any]:
         """Calculate comprehensive position metrics."""
         closed_positions = positions_df[positions_df["Status"] == "Closed"]
         open_positions = positions_df[positions_df["Status"] == "Open"]
@@ -311,7 +311,7 @@ class PositionEquityValidator:
             "estimated_fees": estimated_fees,
         }
 
-    def _calculate_equity_metrics(self, equity_df: pd.DataFrame) -> Dict[str, Any]:
+    def _calculate_equity_metrics(self, equity_df: pd.DataFrame) -> dict[str, Any]:
         """Calculate equity curve metrics."""
         starting_equity = equity_df["equity"].iloc[0]
         final_equity = equity_df["equity"].iloc[-1]
@@ -334,14 +334,13 @@ class PositionEquityValidator:
 
         if error_percentage < thresholds["excellent"]:
             return ValidationStatus.EXCELLENT
-        elif error_percentage < thresholds["good"]:
+        if error_percentage < thresholds["good"]:
             return ValidationStatus.GOOD
-        elif error_percentage < thresholds["warning"]:
+        if error_percentage < thresholds["warning"]:
             return ValidationStatus.WARNING
-        else:
-            return ValidationStatus.CRITICAL
+        return ValidationStatus.CRITICAL
 
-    def _get_adjusted_thresholds(self, num_positions: int) -> Dict[str, float]:
+    def _get_adjusted_thresholds(self, num_positions: int) -> dict[str, float]:
         """Get size-adjusted thresholds for validation with sophisticated adjustment logic."""
         base_thresholds = {
             "excellent": self.config.excellent_threshold,
@@ -384,10 +383,10 @@ class PositionEquityValidator:
     def _generate_recommendations(
         self,
         error_percentage: float,
-        position_metrics: Dict[str, Any],
-        equity_metrics: Dict[str, Any],
+        position_metrics: dict[str, Any],
+        equity_metrics: dict[str, Any],
         difference: float,
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate actionable recommendations based on validation results."""
         recommendations = []
 
@@ -461,7 +460,7 @@ class PositionEquityValidator:
 
         return recommendations
 
-    def _print_console_report(self, results: Dict[str, ValidationResult]) -> None:
+    def _print_console_report(self, results: dict[str, ValidationResult]) -> None:
         """Print formatted validation report to console."""
         print("\n" + "=" * 80)
         print("📊 POSITION EQUITY VALIDATION REPORT")
@@ -528,7 +527,7 @@ class PositionEquityValidator:
                 for rec in result.recommendations:
                     print(f"  • {rec}")
 
-    def _generate_json_report(self, results: Dict[str, ValidationResult]) -> str:
+    def _generate_json_report(self, results: dict[str, ValidationResult]) -> str:
         """Generate JSON format validation report."""
         import json
 
@@ -558,7 +557,7 @@ class PositionEquityValidator:
 
         return json.dumps(report_data, indent=2)
 
-    def _generate_csv_report(self, results: Dict[str, ValidationResult]) -> str:
+    def _generate_csv_report(self, results: dict[str, ValidationResult]) -> str:
         """Generate CSV format validation report."""
         import io
 
@@ -593,8 +592,8 @@ class PositionEquityValidator:
 
 def validate_portfolio_equity(
     portfolio_name: str,
-    config: Optional[ValidationConfig] = None,
-    log: Optional[Callable[[str, str], None]] = None,
+    config: ValidationConfig | None = None,
+    log: Callable[[str, str], None] | None = None,
 ) -> ValidationResult:
     """
     Convenience function for validating a single portfolio.
@@ -615,10 +614,10 @@ def validate_portfolio_equity(
 
 
 def validate_all_portfolios(
-    config: Optional[ValidationConfig] = None,
-    log: Optional[Callable[[str, str], None]] = None,
+    config: ValidationConfig | None = None,
+    log: Callable[[str, str], None] | None = None,
     output_format: str = "console",
-) -> Dict[str, ValidationResult]:
+) -> dict[str, ValidationResult]:
     """
     Convenience function for validating all portfolios.
 

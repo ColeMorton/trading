@@ -19,9 +19,10 @@ Classes:
     CSVValidator: Validate CSV data quality and completeness
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -32,25 +33,25 @@ class CSVLoadResult:
     """Result of CSV loading operation."""
 
     success: bool
-    data: Optional[pd.DataFrame]
+    data: pd.DataFrame | None
     schema_detected: str
     rows_loaded: int
-    columns_detected: List[str]
-    missing_columns: List[str]
+    columns_detected: list[str]
+    missing_columns: list[str]
     data_quality_score: float
-    warnings: List[str]
-    errors: List[str]
+    warnings: list[str]
+    errors: list[str]
 
 
 @dataclass
 class CSVMetrics:
     """Portfolio metrics extracted from CSV data."""
 
-    ticker_metrics: Dict[str, Dict[str, float]]
-    portfolio_summary: Dict[str, float]
-    strategy_breakdown: Dict[str, Dict[str, float]]
-    data_quality: Dict[str, Any]
-    extraction_metadata: Dict[str, Any]
+    ticker_metrics: dict[str, dict[str, float]]
+    portfolio_summary: dict[str, float]
+    strategy_breakdown: dict[str, dict[str, float]]
+    data_quality: dict[str, Any]
+    extraction_metadata: dict[str, Any]
 
 
 class CSVLoader:
@@ -132,8 +133,8 @@ class CSVLoader:
 
     def load_csv(
         self,
-        csv_path: Union[str, Path],
-        log: Optional[Callable[[str, str], None]] = None,
+        csv_path: str | Path,
+        log: Callable[[str, str], None] | None = None,
     ) -> CSVLoadResult:
         """
         Load and validate CSV backtest data.
@@ -176,7 +177,7 @@ class CSVLoader:
                 except UnicodeDecodeError:
                     continue
                 except Exception as e:
-                    errors_list.append(f"Error reading with {encoding}: {str(e)}")
+                    errors_list.append(f"Error reading with {encoding}: {e!s}")
 
             if data is None:
                 return CSVLoadResult(
@@ -188,7 +189,7 @@ class CSVLoader:
                     missing_columns=[],
                     data_quality_score=0.0,
                     warnings=warnings_list,
-                    errors=errors_list + ["Failed to read CSV with any encoding"],
+                    errors=[*errors_list, "Failed to read CSV with any encoding"],
                 )
 
             # Detect schema
@@ -232,7 +233,7 @@ class CSVLoader:
             )
 
         except Exception as e:
-            error_msg = f"Unexpected error loading CSV: {str(e)}"
+            error_msg = f"Unexpected error loading CSV: {e!s}"
             if log:
                 log(error_msg, "error")
 
@@ -245,10 +246,10 @@ class CSVLoader:
                 missing_columns=[],
                 data_quality_score=0.0,
                 warnings=warnings_list,
-                errors=errors_list + [error_msg],
+                errors=[*errors_list, error_msg],
             )
 
-    def _detect_schema(self, columns: List[str]) -> str:
+    def _detect_schema(self, columns: list[str]) -> str:
         """
         Detect the schema type based on column names.
 
@@ -277,7 +278,7 @@ class CSVLoader:
         return best_match
 
     def _clean_data(
-        self, data: pd.DataFrame, warnings_list: List[str], errors_list: List[str]
+        self, data: pd.DataFrame, warnings_list: list[str], errors_list: list[str]
     ) -> pd.DataFrame:
         """
         Clean and validate CSV data.
@@ -337,7 +338,7 @@ class CSVLoader:
                     cleaned_data[col] = pd.to_datetime(cleaned_data[col])
                 except Exception as e:
                     warnings_list.append(
-                        f"Could not parse dates in column {col}: {str(e)}"
+                        f"Could not parse dates in column {col}: {e!s}"
                     )
 
         # Validate data ranges
@@ -346,7 +347,7 @@ class CSVLoader:
         return cleaned_data
 
     def _validate_data_ranges(
-        self, data: pd.DataFrame, warnings_list: List[str], errors_list: List[str]
+        self, data: pd.DataFrame, warnings_list: list[str], errors_list: list[str]
     ) -> None:
         """
         Validate that data values are within reasonable ranges.
@@ -469,7 +470,7 @@ class CSVMetricsExtractor:
         self.aggregation_method = aggregation_method
 
     def extract_metrics(
-        self, csv_data: pd.DataFrame, log: Optional[Callable[[str, str], None]] = None
+        self, csv_data: pd.DataFrame, log: Callable[[str, str], None] | None = None
     ) -> CSVMetrics:
         """
         Extract comprehensive metrics from CSV data.
@@ -524,7 +525,7 @@ class CSVMetricsExtractor:
             )
 
         except Exception as e:
-            error_msg = f"Error extracting metrics from CSV: {str(e)}"
+            error_msg = f"Error extracting metrics from CSV: {e!s}"
             if log:
                 log(error_msg, "error")
 
@@ -538,8 +539,8 @@ class CSVMetricsExtractor:
             )
 
     def _extract_ticker_metrics(
-        self, csv_data: pd.DataFrame, log: Optional[Callable[[str, str], None]] = None
-    ) -> Dict[str, Dict[str, float]]:
+        self, csv_data: pd.DataFrame, log: Callable[[str, str], None] | None = None
+    ) -> dict[str, dict[str, float]]:
         """Extract metrics aggregated by ticker."""
         if "Ticker" not in csv_data.columns:
             return {}
@@ -570,41 +571,40 @@ class CSVMetricsExtractor:
                     # Use different aggregation methods based on column type
                     if col == "Total Trades":
                         # Sum total trades
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(ticker_data[col].sum())
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(ticker_data[col].sum())
+                        )
                     elif col in ["Max Drawdown %"]:
                         # Use maximum for drawdown
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(ticker_data[col].max())
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(ticker_data[col].max())
+                        )
+                    # Use weighted average for other metrics
+                    elif (
+                        self.aggregation_method == "trade_weighted"
+                        and "Total Trades" in ticker_data.columns
+                    ):
+                        weights = ticker_data["Total Trades"]
+                        weighted_avg = np.average(
+                            ticker_data[col].dropna(),
+                            weights=weights[ticker_data[col].notna()],
+                        )
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(weighted_avg)
+                        )
                     else:
-                        # Use weighted average for other metrics
-                        if (
-                            self.aggregation_method == "trade_weighted"
-                            and "Total Trades" in ticker_data.columns
-                        ):
-                            weights = ticker_data["Total Trades"]
-                            weighted_avg = np.average(
-                                ticker_data[col].dropna(),
-                                weights=weights[ticker_data[col].notna()],
-                            )
-                            metrics[
-                                col.lower().replace(" ", "_").replace("%", "_pct")
-                            ] = float(weighted_avg)
-                        else:
-                            # Simple average
-                            metrics[
-                                col.lower().replace(" ", "_").replace("%", "_pct")
-                            ] = float(ticker_data[col].mean())
+                        # Simple average
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(ticker_data[col].mean())
+                        )
 
             ticker_metrics[ticker] = metrics
 
         return ticker_metrics
 
     def _calculate_portfolio_summary(
-        self, csv_data: pd.DataFrame, log: Optional[Callable[[str, str], None]] = None
-    ) -> Dict[str, float]:
+        self, csv_data: pd.DataFrame, log: Callable[[str, str], None] | None = None
+    ) -> dict[str, float]:
         """Calculate portfolio-level summary metrics."""
         summary = {}
 
@@ -655,8 +655,8 @@ class CSVMetricsExtractor:
         return summary
 
     def _extract_strategy_breakdown(
-        self, csv_data: pd.DataFrame, log: Optional[Callable[[str, str], None]] = None
-    ) -> Dict[str, Dict[str, float]]:
+        self, csv_data: pd.DataFrame, log: Callable[[str, str], None] | None = None
+    ) -> dict[str, dict[str, float]]:
         """Extract metrics broken down by strategy."""
         if "Strategy" not in csv_data.columns:
             return {}
@@ -684,17 +684,17 @@ class CSVMetricsExtractor:
             for col in numeric_columns:
                 if col in strategy_data.columns:
                     if col == "Total Trades":
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(strategy_data[col].sum())
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(strategy_data[col].sum())
+                        )
                     elif col == "Max Drawdown %":
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(strategy_data[col].max())
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(strategy_data[col].max())
+                        )
                     else:
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(strategy_data[col].mean())
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(strategy_data[col].mean())
+                        )
 
             # Add strategy-specific metrics
             if "Ticker" in strategy_data.columns:
@@ -705,8 +705,8 @@ class CSVMetricsExtractor:
         return strategy_metrics
 
     def _assess_data_quality(
-        self, csv_data: pd.DataFrame, log: Optional[Callable[[str, str], None]] = None
-    ) -> Dict[str, Any]:
+        self, csv_data: pd.DataFrame, log: Callable[[str, str], None] | None = None
+    ) -> dict[str, Any]:
         """Assess data quality of the CSV data."""
         quality = {}
 
@@ -759,7 +759,7 @@ class CSVMetricsExtractor:
 
         return quality
 
-    def _get_date_range(self, csv_data: pd.DataFrame) -> Dict[str, str]:
+    def _get_date_range(self, csv_data: pd.DataFrame) -> dict[str, str]:
         """Get date range from CSV data."""
         date_range = {}
 
@@ -792,7 +792,7 @@ class CSVValidator:
     it meets quality standards for use as source of truth.
     """
 
-    def __init__(self, tolerance_levels: Dict[str, float] = None):
+    def __init__(self, tolerance_levels: dict[str, float] | None = None):
         """
         Initialize the CSV validator.
 
@@ -808,8 +808,8 @@ class CSVValidator:
         }
 
     def validate_csv_data(
-        self, csv_data: pd.DataFrame, log: Optional[Callable[[str, str], None]] = None
-    ) -> Dict[str, Any]:
+        self, csv_data: pd.DataFrame, log: Callable[[str, str], None] | None = None
+    ) -> dict[str, Any]:
         """
         Perform comprehensive validation of CSV data.
 
@@ -861,17 +861,17 @@ class CSVValidator:
 
         except Exception as e:
             validation_results["overall_valid"] = False
-            validation_results["errors"].append(f"Validation error: {str(e)}")
+            validation_results["errors"].append(f"Validation error: {e!s}")
             if log:
-                log(f"CSV validation failed: {str(e)}", "error")
+                log(f"CSV validation failed: {e!s}", "error")
 
         return validation_results
 
     def _check_completeness(
         self,
         csv_data: pd.DataFrame,
-        results: Dict[str, Any],
-        log: Optional[Callable[[str, str], None]] = None,
+        results: dict[str, Any],
+        log: Callable[[str, str], None] | None = None,
     ) -> None:
         """Check data completeness."""
         results["checks_performed"].append("completeness")
@@ -904,8 +904,8 @@ class CSVValidator:
     def _check_data_ranges(
         self,
         csv_data: pd.DataFrame,
-        results: Dict[str, Any],
-        log: Optional[Callable[[str, str], None]] = None,
+        results: dict[str, Any],
+        log: Callable[[str, str], None] | None = None,
     ) -> None:
         """Check that data values are within reasonable ranges."""
         results["checks_performed"].append("data_ranges")
@@ -939,8 +939,8 @@ class CSVValidator:
     def _check_data_consistency(
         self,
         csv_data: pd.DataFrame,
-        results: Dict[str, Any],
-        log: Optional[Callable[[str, str], None]] = None,
+        results: dict[str, Any],
+        log: Callable[[str, str], None] | None = None,
     ) -> None:
         """Check internal data consistency."""
         results["checks_performed"].append("data_consistency")
@@ -973,8 +973,8 @@ class CSVValidator:
     def _check_duplicates(
         self,
         csv_data: pd.DataFrame,
-        results: Dict[str, Any],
-        log: Optional[Callable[[str, str], None]] = None,
+        results: dict[str, Any],
+        log: Callable[[str, str], None] | None = None,
     ) -> None:
         """Check for duplicate entries."""
         results["checks_performed"].append("duplicates")
@@ -986,7 +986,7 @@ class CSVValidator:
                     f"Found {duplicates.sum()} duplicate Ticker-Strategy combinations"
                 )
 
-    def _calculate_quality_score(self, results: Dict[str, Any]) -> float:
+    def _calculate_quality_score(self, results: dict[str, Any]) -> float:
         """Calculate overall data quality score."""
         # Start with perfect score
         score = 1.0

@@ -5,35 +5,26 @@ This module provides a memory-optimized version of the concurrency analysis
 runner that integrates with the system's memory optimization framework.
 """
 
-import json
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 import polars as pl
 
 from app.concurrency.tools.analysis import analyze_concurrency
-from app.concurrency.tools.optimization_report import (
-    generate_optimization_report,
-    save_optimization_report,
-)
 from app.concurrency.tools.permutation import find_optimal_permutation
 from app.concurrency.tools.report import generate_json_report
 from app.concurrency.tools.strategy_id import generate_strategy_id
 from app.concurrency.tools.strategy_processor import process_strategies
 from app.concurrency.tools.types import ConcurrencyConfig
-from app.concurrency.tools.visualization import plot_concurrency
 from app.tools.portfolio import StrategyConfig, load_portfolio
-from app.tools.processing.data_converter import DataConverter, to_pandas, to_polars
+from app.tools.processing.data_converter import DataConverter
 
 # Import memory optimization framework
-from app.tools.processing.memory_optimizer import (
-    configure_memory_optimizer,
-    get_memory_optimizer,
-)
+from app.tools.processing.memory_optimizer import configure_memory_optimizer
 from app.tools.processing.mmap_accessor import MMapCSVReader, get_mmap_accessor
-from app.tools.processing.streaming_processor import StreamingProcessor, read_large_csv
-from app.tools.setup_logging import setup_logging
+from app.tools.processing.streaming_processor import StreamingProcessor
 
 
 class MemoryOptimizedConcurrencyRunner:
@@ -89,8 +80,8 @@ class MemoryOptimizedConcurrencyRunner:
     def run_analysis(
         self,
         config: ConcurrencyConfig,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
-    ) -> Dict[str, Any]:
+        progress_callback: Callable[[int, int], None] | None = None,
+    ) -> dict[str, Any]:
         """Run memory-optimized concurrency analysis.
 
         Args:
@@ -127,13 +118,11 @@ class MemoryOptimizedConcurrencyRunner:
             return report
 
         except Exception as e:
-            raise RuntimeError(
-                f"Memory-optimized concurrency analysis failed: {str(e)}"
-            )
+            raise RuntimeError(f"Memory-optimized concurrency analysis failed: {e!s}")
 
     def _load_portfolio_optimized(
         self, config: ConcurrencyConfig
-    ) -> List[StrategyConfig]:
+    ) -> list[StrategyConfig]:
         """Load portfolio with memory optimization."""
         portfolio_path = self._get_portfolio_path(config)
 
@@ -150,23 +139,22 @@ class MemoryOptimizedConcurrencyRunner:
             else:
                 # For JSON files, fall back to regular loading
                 df = load_portfolio(str(portfolio_path))
+        # Use memory-mapped reading for efficient access
+        elif portfolio_path.suffix.lower() == ".csv":
+            with MMapCSVReader(str(portfolio_path)) as reader:
+                # Read all rows with memory mapping
+                df = reader.read_rows(0, reader.get_row_count())
         else:
-            # Use memory-mapped reading for efficient access
-            if portfolio_path.suffix.lower() == ".csv":
-                with MMapCSVReader(str(portfolio_path)) as reader:
-                    # Read all rows with memory mapping
-                    df = reader.read_rows(0, reader.get_row_count())
-            else:
-                df = load_portfolio(str(portfolio_path))
+            df = load_portfolio(str(portfolio_path))
 
         return df
 
     def _process_strategies_optimized(
         self,
-        strategies: List[StrategyConfig],
+        strategies: list[StrategyConfig],
         config: ConcurrencyConfig,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
-    ) -> Dict[str, pl.DataFrame]:
+        progress_callback: Callable[[int, int], None] | None = None,
+    ) -> dict[str, pl.DataFrame]:
         """Process strategies with memory optimization."""
         if not self.enable_optimization:
             return process_strategies(strategies, config)
@@ -204,7 +192,7 @@ class MemoryOptimizedConcurrencyRunner:
 
     def _process_single_strategy_optimized(
         self, strategy: StrategyConfig, config: ConcurrencyConfig
-    ) -> Optional[pl.DataFrame]:
+    ) -> pl.DataFrame | None:
         """Process a single strategy with memory optimization."""
         try:
             # Use DataFrame pooling if available
@@ -225,7 +213,7 @@ class MemoryOptimizedConcurrencyRunner:
         except Exception as e:
             # Log error but continue processing
             print(
-                f"Error processing strategy {strategy.get('ticker', 'Unknown')}: {str(e)}"
+                f"Error processing strategy {strategy.get('ticker', 'Unknown')}: {e!s}"
             )
             return None
 
@@ -233,8 +221,8 @@ class MemoryOptimizedConcurrencyRunner:
         self,
         strategy: StrategyConfig,
         config: ConcurrencyConfig,
-        pooled_df: Optional[pl.DataFrame] = None,
-    ) -> Optional[pl.DataFrame]:
+        pooled_df: pl.DataFrame | None = None,
+    ) -> pl.DataFrame | None:
         """Execute strategy processing logic."""
         # This would integrate with the existing strategy processing logic
         # from app.concurrency.tools.strategy_processor
@@ -249,8 +237,8 @@ class MemoryOptimizedConcurrencyRunner:
             return None
 
     def _analyze_concurrency_optimized(
-        self, processed_data: Dict[str, pl.DataFrame], config: ConcurrencyConfig
-    ) -> Dict[str, Any]:
+        self, processed_data: dict[str, pl.DataFrame], config: ConcurrencyConfig
+    ) -> dict[str, Any]:
         """Run concurrency analysis with memory optimization."""
         if not self.enable_optimization:
             return analyze_concurrency(processed_data, config)
@@ -276,8 +264,8 @@ class MemoryOptimizedConcurrencyRunner:
         return results
 
     def _generate_report_optimized(
-        self, analysis_results: Dict[str, Any], config: ConcurrencyConfig
-    ) -> Dict[str, Any]:
+        self, analysis_results: dict[str, Any], config: ConcurrencyConfig
+    ) -> dict[str, Any]:
         """Generate report with memory optimization."""
         if not self.enable_optimization:
             return generate_json_report(analysis_results, config)
@@ -293,10 +281,10 @@ class MemoryOptimizedConcurrencyRunner:
 
     def _run_optimization_optimized(
         self,
-        strategies: List[StrategyConfig],
+        strategies: list[StrategyConfig],
         config: ConcurrencyConfig,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
-    ) -> Dict[str, Any]:
+        progress_callback: Callable[[int, int], None] | None = None,
+    ) -> dict[str, Any]:
         """Run permutation optimization with memory efficiency."""
         if not self.enable_optimization:
             return find_optimal_permutation(strategies, config)
@@ -356,16 +344,18 @@ class MemoryOptimizedConcurrencyRunner:
             parameter_grid=parameter_grid,
             strategy_name="concurrency_optimization",
             output_dir="./optimization_results/",
-            max_memory_mb=self.memory_optimizer.memory_threshold_mb
-            if self.memory_optimizer
-            else 1000.0,
+            max_memory_mb=(
+                self.memory_optimizer.memory_threshold_mb
+                if self.memory_optimizer
+                else 1000.0
+            ),
             chunk_size=50,
         )
 
         # Process optimization results
         return self._process_optimization_results(results, strategies)
 
-    def _optimize_report_memory(self, report: Dict[str, Any]) -> Dict[str, Any]:
+    def _optimize_report_memory(self, report: dict[str, Any]) -> dict[str, Any]:
         """Optimize report memory usage."""
         # Remove large unnecessary data structures
         optimized_report = {}
@@ -390,10 +380,10 @@ class MemoryOptimizedConcurrencyRunner:
 
     def _generate_optimization_parameters(
         self,
-        strategies: List[StrategyConfig],
+        strategies: list[StrategyConfig],
         min_strategies: int,
         max_permutations: int,
-    ) -> Dict[str, List]:
+    ) -> dict[str, list]:
         """Generate parameter grid for optimization."""
         from itertools import combinations
 
@@ -411,8 +401,8 @@ class MemoryOptimizedConcurrencyRunner:
         return {"strategies": strategy_combinations}
 
     def _process_optimization_results(
-        self, results: pl.DataFrame, original_strategies: List[StrategyConfig]
-    ) -> Dict[str, Any]:
+        self, results: pl.DataFrame, original_strategies: list[StrategyConfig]
+    ) -> dict[str, Any]:
         """Process optimization results into final format."""
         # Find best result
         best_idx = results["efficiency_score"].arg_max()
@@ -451,8 +441,8 @@ class MemoryOptimizedConcurrencyRunner:
 # Legacy compatibility function
 def run_memory_optimized_analysis(
     config: ConcurrencyConfig,
-    progress_callback: Optional[Callable[[int, int], None]] = None,
-) -> Dict[str, Any]:
+    progress_callback: Callable[[int, int], None] | None = None,
+) -> dict[str, Any]:
     """Run memory-optimized concurrency analysis.
 
     This function provides backward compatibility with the existing

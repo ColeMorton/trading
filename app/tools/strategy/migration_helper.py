@@ -5,9 +5,8 @@ This module provides helper functions to ease the migration from legacy strategy
 implementations to the unified strategy framework.
 """
 
-import sys
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import Any
 
 from app.tools.exceptions import StrategyError
 from app.tools.strategy.strategy_adapter import adapter
@@ -15,10 +14,10 @@ from app.tools.strategy.strategy_adapter import adapter
 
 def migrate_strategy_execution(
     strategy_type: str,
-    config: Dict[str, Any],
+    config: dict[str, Any],
     log: Callable[[str, str], None],
-    fallback_module: Optional[str] = None,
-) -> List[Dict[str, Any]]:
+    fallback_module: str | None = None,
+) -> list[dict[str, Any]]:
     """
     Execute a strategy using the unified framework with fallback to legacy implementation.
 
@@ -70,8 +69,8 @@ def migrate_strategy_execution(
 
 
 def _execute_legacy_fallback(
-    module_path: str, config: Dict[str, Any], log: Callable[[str, str], None]
-) -> List[Dict[str, Any]]:
+    module_path: str, config: dict[str, Any], log: Callable[[str, str], None]
+) -> list[dict[str, Any]]:
     """Execute legacy strategy implementation as fallback."""
     try:
         # Dynamically import the legacy module
@@ -93,8 +92,8 @@ def _execute_legacy_fallback(
 
 
 def validate_unified_parameters(
-    strategy_type: str, config: Dict[str, Any]
-) -> Dict[str, Any]:
+    strategy_type: str, config: dict[str, Any]
+) -> dict[str, Any]:
     """
     Validate parameters using the unified strategy framework.
 
@@ -133,8 +132,8 @@ def validate_unified_parameters(
 
 
 def _generate_validation_errors(
-    config: Dict[str, Any], ranges: Dict[str, Any]
-) -> List[str]:
+    config: dict[str, Any], ranges: dict[str, Any]
+) -> list[str]:
     """Generate specific validation error messages."""
     errors = []
 
@@ -164,8 +163,8 @@ def _generate_validation_errors(
 
 
 def _generate_parameter_suggestions(
-    config: Dict[str, Any], ranges: Dict[str, Any]
-) -> Dict[str, Any]:
+    config: dict[str, Any], ranges: dict[str, Any]
+) -> dict[str, Any]:
     """Generate parameter suggestions for invalid configurations."""
     suggestions = {}
 
@@ -184,9 +183,7 @@ def _generate_parameter_suggestions(
     return suggestions
 
 
-def create_migration_wrapper(
-    strategy_type: str, legacy_module_path: Optional[str] = None
-):
+def create_migration_wrapper(strategy_type: str, legacy_module_path: str | None = None):
     """
     Create a migration wrapper function for a specific strategy.
 
@@ -202,7 +199,7 @@ def create_migration_wrapper(
     """
 
     def decorator(original_func):
-        def wrapper(config: Dict[str, Any], log: Callable[[str, str], None]):
+        def wrapper(config: dict[str, Any], log: Callable[[str, str], None]):
             try:
                 # Try unified execution
                 return migrate_strategy_execution(
@@ -219,7 +216,7 @@ def create_migration_wrapper(
 
 
 # Convenience functions for common migration scenarios
-def migrate_ma_cross_execution(config: Dict[str, Any], log: Callable[[str, str], None]):
+def migrate_ma_cross_execution(config: dict[str, Any], log: Callable[[str, str], None]):
     """Migrate MA Cross strategy execution to unified framework."""
     # Strategy type must be explicitly specified - no defaults or USE_SMA fallbacks
     strategy_type = config.get(
@@ -230,7 +227,7 @@ def migrate_ma_cross_execution(config: Dict[str, Any], log: Callable[[str, str],
     )
 
 
-def migrate_macd_execution(config: Dict[str, Any], log: Callable[[str, str], None]):
+def migrate_macd_execution(config: dict[str, Any], log: Callable[[str, str], None]):
     """Migrate MACD strategy execution to unified framework."""
     return migrate_strategy_execution(
         "MACD", config, log, "app.strategies.macd.tools.strategy_execution"

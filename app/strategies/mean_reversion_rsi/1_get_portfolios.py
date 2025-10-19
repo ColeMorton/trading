@@ -71,7 +71,7 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
                         log=log,
                     )
                 except (ValueError, PortfolioExportError) as e:
-                    log(f"Failed to export portfolios for {ticker}: {str(e)}", "error")
+                    log(f"Failed to export portfolios for {ticker}: {e!s}", "error")
                     continue
 
             # Filter portfolios for individual ticker
@@ -90,7 +90,7 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
                     )
                 except (ValueError, PortfolioExportError) as e:
                     log(
-                        f"Failed to export filtered portfolios for {ticker}: {str(e)}",
+                        f"Failed to export filtered portfolios for {ticker}: {e!s}",
                         "error",
                     )
 
@@ -98,7 +98,7 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
         return True
 
     except Exception as e:
-        log(f"Execution failed: {str(e)}", "error")
+        log(f"Execution failed: {e!s}", "error")
         log_close()
         raise
 
@@ -112,5 +112,5 @@ if __name__ == "__main__":
         run({**config_copy, "DIRECTION": "Long"})  # Run Long strategy
         run({**config_copy, "DIRECTION": "Short"})  # Run Short strategy
     except Exception as e:
-        print(f"Execution failed: {str(e)}")
+        print(f"Execution failed: {e!s}")
         raise

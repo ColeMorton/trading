@@ -6,10 +6,10 @@ divergence analysis and live market data integration.
 """
 
 import asyncio
+from datetime import datetime
 import logging
-from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -37,7 +37,7 @@ class RealTimePositionAnalyzer:
         self,
         config: SPDSConfig,
         statistical_service: StatisticalAnalysisService,
-        logger: Optional[logging.Logger] = None,
+        logger: logging.Logger | None = None,
     ):
         """
         Initialize the Real-Time Position Analyzer
@@ -53,7 +53,7 @@ class RealTimePositionAnalyzer:
 
         # Analysis configuration
         self.analysis_cache_ttl = 30  # Cache TTL in seconds
-        self.position_cache: Dict[str, Tuple[datetime, RealTimePositionAnalysis]] = {}
+        self.position_cache: dict[str, tuple[datetime, RealTimePositionAnalysis]] = {}
 
         # Risk assessment thresholds
         self.high_risk_threshold = 0.85
@@ -69,9 +69,9 @@ class RealTimePositionAnalyzer:
     async def analyze_position_real_time(
         self,
         position_id: str,
-        position_data: Dict[str, Any],
+        position_data: dict[str, Any],
         force_refresh: bool = False,
-    ) -> Optional[RealTimePositionAnalysis]:
+    ) -> RealTimePositionAnalysis | None:
         """
         Analyze a position in real-time with caching
 
@@ -111,7 +111,7 @@ class RealTimePositionAnalyzer:
 
     async def analyze_position_comprehensive(
         self, position_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Perform comprehensive analysis including historical context
 
@@ -157,8 +157,8 @@ class RealTimePositionAnalyzer:
             return None
 
     async def analyze_portfolio_positions(
-        self, position_ids: List[str]
-    ) -> Dict[str, Optional[RealTimePositionAnalysis]]:
+        self, position_ids: list[str]
+    ) -> dict[str, RealTimePositionAnalysis | None]:
         """
         Analyze multiple positions in parallel
 
@@ -184,7 +184,9 @@ class RealTimePositionAnalyzer:
                     *[task for _, task in analysis_tasks], return_exceptions=True
                 )
 
-                for (position_id, _), result in zip(analysis_tasks, task_results):
+                for (position_id, _), result in zip(
+                    analysis_tasks, task_results, strict=False
+                ):
                     if isinstance(result, Exception):
                         self.logger.warning(
                             f"Analysis failed for {position_id}: {result}"
@@ -199,7 +201,7 @@ class RealTimePositionAnalyzer:
             self.logger.error(f"Portfolio analysis failed: {e}")
             return {}
 
-    async def get_position_alerts(self, position_id: str) -> List[Dict[str, Any]]:
+    async def get_position_alerts(self, position_id: str) -> list[dict[str, Any]]:
         """
         Get real-time alerts for a position
 
@@ -273,8 +275,8 @@ class RealTimePositionAnalyzer:
             return []
 
     async def _perform_position_analysis(
-        self, position_data: Dict[str, Any]
-    ) -> Optional[RealTimePositionAnalysis]:
+        self, position_data: dict[str, Any]
+    ) -> RealTimePositionAnalysis | None:
         """Perform core position analysis"""
         try:
             # Extract position details
@@ -336,7 +338,7 @@ class RealTimePositionAnalyzer:
             self.logger.error(f"Position analysis failed: {e}")
             return None
 
-    async def _load_position_data(self, position_id: str) -> Optional[Dict[str, Any]]:
+    async def _load_position_data(self, position_id: str) -> dict[str, Any] | None:
         """Load position data from trade history"""
         try:
             # Search for position in trade history files
@@ -366,10 +368,11 @@ class RealTimePositionAnalyzer:
                             "timeframe": row.get("Timeframe", "D"),
                             "entry_price": entry_price,
                             "current_price": current_price,
-                            "unrealized_pnl_pct": (current_price - entry_price)
-                            / entry_price
-                            if entry_price > 0
-                            else 0.0,
+                            "unrealized_pnl_pct": (
+                                (current_price - entry_price) / entry_price
+                                if entry_price > 0
+                                else 0.0
+                            ),
                             "mfe": row.get("MFE", 0.0),
                             "mae": row.get("MAE", 0.0),
                             "days_held": row.get("Days_Since_Entry", 0),
@@ -391,8 +394,8 @@ class RealTimePositionAnalyzer:
             return None
 
     async def _analyze_historical_context(
-        self, position_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, position_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Analyze historical context for the position"""
         try:
             strategy_name = position_data["strategy_name"]
@@ -415,9 +418,9 @@ class RealTimePositionAnalyzer:
                 "total_historical_trades": len(historical_trades),
                 "average_return": np.mean(returns) if returns else 0.0,
                 "average_duration": np.mean(durations) if durations else 0.0,
-                "success_rate": sum(1 for r in returns if r > 0) / len(returns)
-                if returns
-                else 0.0,
+                "success_rate": (
+                    sum(1 for r in returns if r > 0) / len(returns) if returns else 0.0
+                ),
                 "best_return": max(returns) if returns else 0.0,
                 "worst_return": min(returns) if returns else 0.0,
                 "return_volatility": np.std(returns) if returns else 0.0,
@@ -434,11 +437,11 @@ class RealTimePositionAnalyzer:
             return {"historical_data_available": False, "error": str(e)}
 
     async def _perform_risk_assessment(
-        self, position_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, position_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Perform comprehensive risk assessment"""
         try:
-            unrealized_pnl_pct = position_data.get("unrealized_pnl_pct", 0.0)
+            position_data.get("unrealized_pnl_pct", 0.0)
             mfe = position_data.get("mfe", 0.0)
             mae = position_data.get("mae", 0.0)
             days_held = position_data.get("days_held", 0)
@@ -483,8 +486,8 @@ class RealTimePositionAnalyzer:
             return {"overall_risk_score": 0.5, "risk_level": "UNKNOWN", "error": str(e)}
 
     async def _analyze_position_patterns(
-        self, position_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, position_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Analyze patterns in position performance"""
         try:
             # Pattern analysis would integrate with PatternRecognitionSystem
@@ -512,9 +515,9 @@ class RealTimePositionAnalyzer:
                 "pattern_type": pattern_type,
                 "pattern_confidence": pattern_confidence,
                 "mfe_mae_ratio": mfe / abs(mae) if mae < 0 else float("inf"),
-                "performance_trend": "positive"
-                if unrealized_pnl_pct > 0
-                else "negative",
+                "performance_trend": (
+                    "positive" if unrealized_pnl_pct > 0 else "negative"
+                ),
                 "pattern_strength": min(
                     1.0, abs(unrealized_pnl_pct) * 5
                 ),  # Scale to 0-1
@@ -530,7 +533,7 @@ class RealTimePositionAnalyzer:
 
     async def _load_historical_trades(
         self, strategy_name: str, ticker: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Load historical completed trades"""
         try:
             positions_path = Path(self.config.TRADE_HISTORY_PATH)
@@ -576,10 +579,9 @@ class RealTimePositionAnalyzer:
         """Assess risk level based on statistical analysis"""
         if statistical_result.signal_confidence >= self.high_risk_threshold:
             return "HIGH"
-        elif statistical_result.signal_confidence >= self.medium_risk_threshold:
+        if statistical_result.signal_confidence >= self.medium_risk_threshold:
             return "MEDIUM"
-        else:
-            return "LOW"
+        return "LOW"
 
     def _predict_position_outcome(
         self, statistical_result: StatisticalAnalysisResult
@@ -587,16 +589,15 @@ class RealTimePositionAnalyzer:
         """Predict likely position outcome"""
         if "IMMEDIATELY" in statistical_result.exit_signal:
             return "Statistical exhaustion - immediate exit recommended"
-        elif "STRONG" in statistical_result.exit_signal:
+        if "STRONG" in statistical_result.exit_signal:
             return "Near-term reversal likely - exit within 2-3 days"
-        elif statistical_result.exit_signal == "SELL":
+        if statistical_result.exit_signal == "SELL":
             return "Moderate profit capture opportunity"
-        else:
-            return "Continue monitoring for optimal exit timing"
+        return "Continue monitoring for optimal exit timing"
 
     def _generate_risk_recommendations(
         self, risk_level: str, risk_score: float
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate risk-based recommendations"""
         recommendations = []
 
@@ -629,7 +630,7 @@ class RealTimePositionAnalyzer:
 
         return recommendations
 
-    def get_analysis_stats(self) -> Dict[str, Any]:
+    def get_analysis_stats(self) -> dict[str, Any]:
         """Get analyzer performance statistics"""
         cache_hit_rate = self.cache_hits / max(1, self.analysis_count)
 

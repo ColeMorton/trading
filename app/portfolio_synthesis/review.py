@@ -10,6 +10,7 @@ from app.tools.get_data import get_data
 from app.tools.setup_logging import setup_logging
 from app.utils import backtest_strategy
 
+
 # Verified conversions:
 # "hourly" → USE_HOURLY=True, USE_4HOUR=False, USE_2DAY=False
 # "4hour"  → USE_HOURLY=False, USE_4HOUR=True, USE_2DAY=False
@@ -173,7 +174,7 @@ def process_strategy(config, log):
         portfolio = backtest_strategy(data, config, log)
         return portfolio
     except Exception as e:
-        log(f"Error processing strategy: {str(e)}", "error")
+        log(f"Error processing strategy: {e!s}", "error")
         return None
 
 
@@ -236,7 +237,7 @@ def run(
         # Handle portfolio file if provided
         if portfolio_file and os.path.exists(portfolio_file):
             log(f"Loading portfolio from {portfolio_file}")
-            with open(portfolio_file, "r") as f:
+            with open(portfolio_file) as f:
                 portfolio_data = json.load(f)
 
             results = []
@@ -274,7 +275,7 @@ def run(
             return True
 
         # Handle direct config dictionary
-        elif config_dict:
+        if config_dict:
             # Extract parameters from config_dict if they exist, otherwise use function parameters
             config_timeframe = config_dict.get("TIMEFRAME", timeframe)
             config_strategy_type = config_dict.get("STRATEGY_TYPE", strategy_type)
@@ -349,7 +350,7 @@ def run(
         return True
 
     except Exception as e:
-        log(f"Error during portfolio review: {str(e)}", "error")
+        log(f"Error during portfolio review: {e!s}", "error")
         log_close()
         raise
 
@@ -360,5 +361,5 @@ if __name__ == "__main__":
         if result:
             print("Portfolio review completed successfully!")
     except Exception as e:
-        print(f"Portfolio review failed: {str(e)}")
+        print(f"Portfolio review failed: {e!s}")
         raise

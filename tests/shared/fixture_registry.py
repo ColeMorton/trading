@@ -3,11 +3,9 @@ Smart fixture dependency injection system for automated resolution.
 Phase 3: Testing Infrastructure Consolidation
 """
 
+from collections.abc import Callable
 import inspect
-from typing import Any, Callable, Dict, List, Set
-from unittest.mock import MagicMock
-
-import pytest
+from typing import Any
 
 
 class FixtureRegistry:
@@ -16,16 +14,16 @@ class FixtureRegistry:
     """
 
     def __init__(self):
-        self.fixtures: Dict[str, Dict[str, Any]] = {}
-        self.dependencies: Dict[str, Set[str]] = {}
-        self.cached_fixtures: Dict[str, Any] = {}
-        self.resolution_order: List[str] = []
+        self.fixtures: dict[str, dict[str, Any]] = {}
+        self.dependencies: dict[str, set[str]] = {}
+        self.cached_fixtures: dict[str, Any] = {}
+        self.resolution_order: list[str] = []
 
     def register_fixture(
         self,
         name: str,
         factory: Callable,
-        dependencies: List[str] = None,
+        dependencies: list[str] | None = None,
         scope: str = "function",
         cache: bool = False,
     ):
@@ -50,12 +48,12 @@ class FixtureRegistry:
         }
         self.dependencies[name] = set(dependencies)
 
-    def _auto_detect_dependencies(self, factory: Callable) -> List[str]:
+    def _auto_detect_dependencies(self, factory: Callable) -> list[str]:
         """Automatically detect fixture dependencies from function signature."""
         signature = inspect.signature(factory)
         dependencies = []
 
-        for param_name, param in signature.parameters.items():
+        for param_name, _param in signature.parameters.items():
             # Skip self parameter
             if param_name == "self":
                 continue
@@ -65,7 +63,7 @@ class FixtureRegistry:
 
         return dependencies
 
-    def resolve_dependencies(self, fixture_name: str) -> Dict[str, Any]:
+    def resolve_dependencies(self, fixture_name: str) -> dict[str, Any]:
         """
         Automatically resolve and inject fixture dependencies.
 
@@ -97,7 +95,9 @@ class FixtureRegistry:
 
         return resolved_deps
 
-    def create_fixture(self, fixture_name: str, dependencies: Dict[str, Any] = None):
+    def create_fixture(
+        self, fixture_name: str, dependencies: dict[str, Any] | None = None
+    ):
         """
         Create fixture instance with resolved dependencies.
 
@@ -122,10 +122,10 @@ class FixtureRegistry:
             return factory(**dependencies)
         except Exception as e:
             raise RuntimeError(
-                f"Failed to create fixture '{fixture_name}': {str(e)}"
+                f"Failed to create fixture '{fixture_name}': {e!s}"
             ) from e
 
-    def get_resolution_order(self) -> List[str]:
+    def get_resolution_order(self) -> list[str]:
         """
         Get optimal resolution order for fixtures based on dependencies.
 
@@ -160,7 +160,7 @@ class FixtureRegistry:
         self.resolution_order = order
         return order
 
-    def clear_cache(self, fixture_names: List[str] = None):
+    def clear_cache(self, fixture_names: list[str] | None = None):
         """
         Clear cached fixtures.
 
@@ -173,7 +173,7 @@ class FixtureRegistry:
             for name in fixture_names:
                 self.cached_fixtures.pop(name, None)
 
-    def validate_dependencies(self) -> Dict[str, List[str]]:
+    def validate_dependencies(self) -> dict[str, list[str]]:
         """
         Validate all fixture dependencies and return any issues.
 
@@ -195,7 +195,7 @@ class FixtureRegistry:
                 self.get_resolution_order()
             except ValueError as e:
                 if fixture_name in str(e):
-                    fixture_issues.append(f"Circular dependency: {str(e)}")
+                    fixture_issues.append(f"Circular dependency: {e!s}")
 
             if fixture_issues:
                 issues[fixture_name] = fixture_issues
@@ -244,7 +244,7 @@ def get_fixture_registry() -> FixtureRegistry:
 def register_fixture(
     name: str,
     factory: Callable,
-    dependencies: List[str] = None,
+    dependencies: list[str] | None = None,
     scope: str = "function",
     cache: bool = False,
 ):
@@ -278,7 +278,7 @@ class FixtureComposer:
     def __init__(self, registry: FixtureRegistry):
         self.registry = registry
 
-    def create_api_test_suite(self) -> Dict[str, Any]:
+    def create_api_test_suite(self) -> dict[str, Any]:
         """Create complete API test suite with all dependencies."""
         return {
             "api_client": self.registry.create_fixture("api_client"),
@@ -287,7 +287,7 @@ class FixtureComposer:
             "environment": self.registry.create_fixture("api_environment"),
         }
 
-    def create_strategy_test_suite(self) -> Dict[str, Any]:
+    def create_strategy_test_suite(self) -> dict[str, Any]:
         """Create complete strategy test suite with market data."""
         return {
             "market_data": self.registry.create_fixture("sample_market_data"),
@@ -296,7 +296,7 @@ class FixtureComposer:
             "signals": self.registry.create_fixture("test_signals"),
         }
 
-    def create_performance_test_suite(self) -> Dict[str, Any]:
+    def create_performance_test_suite(self) -> dict[str, Any]:
         """Create performance testing suite with monitoring."""
         return {
             "timer": self.registry.create_fixture("performance_timer"),

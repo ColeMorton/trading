@@ -9,14 +9,13 @@ Author: Financial Research Analysis
 Date: 2025-09-21
 """
 
-import json
-import warnings
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+import warnings
 
-import numpy as np
 import pandas as pd
+
 
 warnings.filterwarnings("ignore")
 
@@ -29,7 +28,7 @@ class BTCMonthlyConsistencyAnalyzer:
         self.data_dir = Path(data_dir)
         self.results = {}
 
-    def load_ma_data(self, period: int) -> Optional[pd.DataFrame]:
+    def load_ma_data(self, period: int) -> pd.DataFrame | None:
         """Load MA data for specific period."""
         try:
             file_path = self.data_dir / f"BTC-USD_{period}.csv"
@@ -55,7 +54,7 @@ class BTCMonthlyConsistencyAnalyzer:
 
         return monthly_returns
 
-    def analyze_period_consistency(self, period: int) -> Dict:
+    def analyze_period_consistency(self, period: int) -> dict:
         """Analyze monthly consistency for a specific MA period."""
         # Load data
         df = self.load_ma_data(period)
@@ -105,7 +104,7 @@ class BTCMonthlyConsistencyAnalyzer:
             "data_points": len(df),
         }
 
-    def get_available_periods(self) -> List[int]:
+    def get_available_periods(self) -> list[int]:
         """Get list of available MA periods."""
         periods = []
         for file_path in self.data_dir.glob("BTC-USD_*.csv"):
@@ -117,7 +116,7 @@ class BTCMonthlyConsistencyAnalyzer:
 
         return sorted(periods)
 
-    def find_first_consistent_period(self, max_periods_to_test: int = None) -> Dict:
+    def find_first_consistent_period(self, max_periods_to_test: int = None) -> dict:
         """Find the first (lowest) period with consistent monthly growth."""
         available_periods = self.get_available_periods()
 
@@ -144,7 +143,7 @@ class BTCMonthlyConsistencyAnalyzer:
 
             if result["status"] == "analyzed":
                 if result["is_consistent"]:
-                    print(f"✅ CONSISTENT (0 declining months)")
+                    print("✅ CONSISTENT (0 declining months)")
                     if first_consistent is None:
                         first_consistent = result
                         print(f"🎯 FIRST CONSISTENT PERIOD FOUND: {period}")
@@ -163,7 +162,7 @@ class BTCMonthlyConsistencyAnalyzer:
             "analysis_date": datetime.now().isoformat(),
         }
 
-    def generate_detailed_report(self, analysis_results: Dict) -> str:
+    def generate_detailed_report(self, analysis_results: dict) -> str:
         """Generate detailed financial research report."""
         report = []
         report.append("=" * 100)
@@ -181,7 +180,7 @@ class BTCMonthlyConsistencyAnalyzer:
             report.append("-" * 50)
             report.append(f"✅ OPTIMAL MA PERIOD FOUND: {optimal_period} days")
             report.append(
-                f"📊 This is the lowest period achieving 100% monthly consistency"
+                "📊 This is the lowest period achieving 100% monthly consistency"
             )
             report.append(f"🔍 Tested {total_tested} different MA periods")
             report.append("")
@@ -260,10 +259,10 @@ class BTCMonthlyConsistencyAnalyzer:
                 f"• Monthly Performance: {avg_return:+.2f}% average return with {volatility:.2f}% volatility"
             )
             report.append(
-                f"• Risk Profile: Eliminates all monthly drawdowns while preserving trend"
+                "• Risk Profile: Eliminates all monthly drawdowns while preserving trend"
             )
             report.append(
-                f"• Strategic Value: Optimal for monthly rebalancing strategies"
+                "• Strategic Value: Optimal for monthly rebalancing strategies"
             )
             report.append(
                 f"• Market Insight: Bitcoin requires {optimal_period}-day smoothing for consistent monthly appreciation"

@@ -5,26 +5,16 @@ Generates comprehensive markdown reports with statistical analysis insights,
 performance summaries, and actionable recommendations.
 """
 
-import asyncio
-import json
+from datetime import datetime
 import logging
-from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
-import pandas as pd
 
 from ..config.statistical_analysis_config import SPDSConfig
-from ..models.correlation_models import (
-    CorrelationResult,
-    PatternResult,
-    SignificanceTestResult,
-)
-from ..models.statistical_analysis_models import (
-    DivergenceAnalysisResult,
-    StatisticalAnalysisResult,
-)
+from ..models.correlation_models import CorrelationResult, PatternResult
+from ..models.statistical_analysis_models import StatisticalAnalysisResult
 
 
 class StatisticalAnalysisReportGenerator:
@@ -39,7 +29,7 @@ class StatisticalAnalysisReportGenerator:
     - Exportable charts and visualizations
     """
 
-    def __init__(self, config: SPDSConfig, logger: Optional[logging.Logger] = None):
+    def __init__(self, config: SPDSConfig, logger: logging.Logger | None = None):
         """
         Initialize the Statistical Analysis Report Generator
 
@@ -65,7 +55,7 @@ class StatisticalAnalysisReportGenerator:
 
     async def generate_comprehensive_report(
         self,
-        analysis_results: List[StatisticalAnalysisResult],
+        analysis_results: list[StatisticalAnalysisResult],
         report_name: str = "statistical_analysis_report",
         report_style: str = "detailed",
     ) -> str:
@@ -112,7 +102,7 @@ class StatisticalAnalysisReportGenerator:
 
     async def generate_performance_report(
         self,
-        performance_data: Dict[str, Any],
+        performance_data: dict[str, Any],
         report_name: str = "performance_analysis",
     ) -> str:
         """
@@ -142,7 +132,7 @@ class StatisticalAnalysisReportGenerator:
 
     async def generate_exit_efficiency_report(
         self,
-        efficiency_data: Dict[str, Any],
+        efficiency_data: dict[str, Any],
         report_name: str = "exit_efficiency_analysis",
     ) -> str:
         """
@@ -172,7 +162,7 @@ class StatisticalAnalysisReportGenerator:
 
     async def generate_correlation_report(
         self,
-        correlation_results: List[CorrelationResult],
+        correlation_results: list[CorrelationResult],
         report_name: str = "correlation_analysis",
     ) -> str:
         """
@@ -204,7 +194,7 @@ class StatisticalAnalysisReportGenerator:
 
     async def generate_pattern_analysis_report(
         self,
-        pattern_results: List[PatternResult],
+        pattern_results: list[PatternResult],
         report_name: str = "pattern_analysis",
     ) -> str:
         """
@@ -235,7 +225,7 @@ class StatisticalAnalysisReportGenerator:
     # Report content generation methods
 
     async def _generate_executive_summary_report(
-        self, analysis_results: List[StatisticalAnalysisResult]
+        self, analysis_results: list[StatisticalAnalysisResult]
     ) -> str:
         """Generate executive summary report"""
 
@@ -301,7 +291,7 @@ class StatisticalAnalysisReportGenerator:
 - Recommendation: {position.exit_recommendation}
 """
 
-        content += f"""
+        content += """
 ### Strong Sell Signals (2-3 Trading Days)
 """
 
@@ -355,7 +345,7 @@ class StatisticalAnalysisReportGenerator:
         return content
 
     async def _generate_detailed_report(
-        self, analysis_results: List[StatisticalAnalysisResult]
+        self, analysis_results: list[StatisticalAnalysisResult]
     ) -> str:
         """Generate detailed analysis report"""
 
@@ -447,7 +437,7 @@ class StatisticalAnalysisReportGenerator:
         return content
 
     async def _generate_technical_report(
-        self, analysis_results: List[StatisticalAnalysisResult]
+        self, analysis_results: list[StatisticalAnalysisResult]
     ) -> str:
         """Generate technical deep-dive report"""
 
@@ -569,7 +559,7 @@ class StatisticalAnalysisReportGenerator:
         return content
 
     async def _generate_summary_section(
-        self, analysis_results: List[StatisticalAnalysisResult]
+        self, analysis_results: list[StatisticalAnalysisResult]
     ) -> str:
         """Generate summary section"""
         immediate_exits = sum(
@@ -591,7 +581,7 @@ class StatisticalAnalysisReportGenerator:
 """
 
     async def _generate_signal_group_section(
-        self, signal_type: str, positions: List[StatisticalAnalysisResult]
+        self, signal_type: str, positions: list[StatisticalAnalysisResult]
     ) -> str:
         """Generate section for signal group"""
 
@@ -624,7 +614,7 @@ class StatisticalAnalysisReportGenerator:
         return content
 
     async def _generate_performance_report_content(
-        self, performance_data: Dict[str, Any]
+        self, performance_data: dict[str, Any]
     ) -> str:
         """Generate performance report content"""
 
@@ -665,7 +655,7 @@ class StatisticalAnalysisReportGenerator:
 """
 
     async def _generate_exit_efficiency_content(
-        self, efficiency_data: Dict[str, Any]
+        self, efficiency_data: dict[str, Any]
     ) -> str:
         """Generate exit efficiency report content"""
 
@@ -706,7 +696,7 @@ class StatisticalAnalysisReportGenerator:
 """
 
     async def _generate_correlation_report_content(
-        self, correlation_results: List[CorrelationResult]
+        self, correlation_results: list[CorrelationResult]
     ) -> str:
         """Generate correlation analysis report content"""
 
@@ -760,7 +750,7 @@ class StatisticalAnalysisReportGenerator:
         return content
 
     async def _generate_pattern_report_content(
-        self, pattern_results: List[PatternResult]
+        self, pattern_results: list[PatternResult]
     ) -> str:
         """Generate pattern analysis report content"""
 
@@ -830,7 +820,7 @@ class StatisticalAnalysisReportGenerator:
 
         return content
 
-    def _format_attribution_table(self, attribution: Dict[str, Any]) -> str:
+    def _format_attribution_table(self, attribution: dict[str, Any]) -> str:
         """Format attribution data as table"""
         if not attribution:
             return "No attribution data available."
@@ -847,7 +837,7 @@ class StatisticalAnalysisReportGenerator:
 
         return table
 
-    def _format_efficiency_table(self, efficiency: Dict[str, float]) -> str:
+    def _format_efficiency_table(self, efficiency: dict[str, float]) -> str:
         """Format efficiency data as table"""
         if not efficiency:
             return "No efficiency data available."

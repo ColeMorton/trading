@@ -6,11 +6,13 @@ concurrency analysis system, addressing the root causes identified in the
 performance discrepancy investigation.
 """
 
-import json
-import sys
+from collections.abc import Callable
 from dataclasses import dataclass, field
+import json
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional
+import sys
+from typing import Any
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -68,7 +70,7 @@ class ConcurrencyDefaults:
     )
 
     # Variance Estimation Parameters
-    VARIANCE_ESTIMATION_PARAMS: Dict[str, Any] = field(
+    VARIANCE_ESTIMATION_PARAMS: dict[str, Any] = field(
         default_factory=lambda: {
             "rolling_window": None,  # Auto-calculate rolling window size
             "ewma_lambda": None,  # Auto-optimize EWMA decay parameter
@@ -86,7 +88,7 @@ class ConcurrencyDefaults:
     )
 
     # Data Quality Thresholds
-    DATA_QUALITY_THRESHOLDS: Dict[str, Dict[str, float]] = field(
+    DATA_QUALITY_THRESHOLDS: dict[str, dict[str, float]] = field(
         default_factory=lambda: {
             "strict": {
                 "min_observations": 50,
@@ -125,7 +127,7 @@ class ConcurrencyDefaults:
     VISUALIZATION: bool = False
     CSV_USE_HOURLY: bool = False
     SORT_BY: str = "score"
-    REPORT_INCLUDES: Dict[str, bool] = field(
+    REPORT_INCLUDES: dict[str, bool] = field(
         default_factory=lambda: {
             "TICKER_METRICS": True,
             "STRATEGIES": True,
@@ -135,10 +137,10 @@ class ConcurrencyDefaults:
     ENSURE_COUNTERPART: bool = True
     INITIAL_VALUE: float = 10000.0
     TARGET_VAR: float = 0.05
-    MAX_RISK: Dict[str, float] = field(default_factory=lambda: {"STRATEGY": 100.0})
+    MAX_RISK: dict[str, float] = field(default_factory=lambda: {"STRATEGY": 100.0})
 
 
-def get_default_config() -> Dict[str, Any]:
+def get_default_config() -> dict[str, Any]:
     """Get default configuration as a dictionary.
 
     Returns:
@@ -158,8 +160,8 @@ def get_default_config() -> Dict[str, Any]:
 
 
 def validate_config(
-    config: Dict[str, Any], log: Optional[Callable[[str, str], None]] = None
-) -> Dict[str, Any]:
+    config: dict[str, Any], log: Callable[[str, str], None] | None = None
+) -> dict[str, Any]:
     """Validate and normalize configuration.
 
     Args:
@@ -191,7 +193,7 @@ def validate_config(
 
     # Default Stop Loss
     if (
-        not isinstance(validated["DEFAULT_STOP_LOSS"], (int, float))
+        not isinstance(validated["DEFAULT_STOP_LOSS"], int | float)
         or validated["DEFAULT_STOP_LOSS"] <= 0
         or validated["DEFAULT_STOP_LOSS"] >= 1
     ):
@@ -284,9 +286,9 @@ def validate_config(
 
 
 def save_config_to_file(
-    config: Dict[str, Any],
+    config: dict[str, Any],
     file_path: str,
-    log: Optional[Callable[[str, str], None]] = None,
+    log: Callable[[str, str], None] | None = None,
 ) -> bool:
     """Save configuration to a JSON file.
 
@@ -313,14 +315,14 @@ def save_config_to_file(
 
     except Exception as e:
         if log:
-            log(f"Error saving configuration to {file_path}: {str(e)}", "error")
+            log(f"Error saving configuration to {file_path}: {e!s}", "error")
 
         return False
 
 
 def load_config_from_file(
-    file_path: str, log: Optional[Callable[[str, str], None]] = None
-) -> Dict[str, Any]:
+    file_path: str, log: Callable[[str, str], None] | None = None
+) -> dict[str, Any]:
     """Load configuration from a JSON file.
 
     Args:
@@ -341,7 +343,7 @@ def load_config_from_file(
             return get_default_config()
 
         # Read configuration from file
-        with open(file_path, "r") as f:
+        with open(file_path) as f:
             config = json.load(f)
 
         if log:
@@ -352,12 +354,12 @@ def load_config_from_file(
 
     except Exception as e:
         if log:
-            log(f"Error loading configuration from {file_path}: {str(e)}", "error")
+            log(f"Error loading configuration from {file_path}: {e!s}", "error")
 
         return get_default_config()
 
 
-def get_optimized_config_for_mstr() -> Dict[str, Any]:
+def get_optimized_config_for_mstr() -> dict[str, Any]:
     """Get optimized configuration for MSTR strategies.
 
     This configuration addresses the root causes identified in the
@@ -417,7 +419,7 @@ def get_optimized_config_for_mstr() -> Dict[str, Any]:
 # === MONTE CARLO CONFIGURATION ADDITIONS ===
 
 
-def get_monte_carlo_defaults() -> Dict[str, Any]:
+def get_monte_carlo_defaults() -> dict[str, Any]:
     """Get minimal Monte Carlo configuration defaults.
 
     Returns:
@@ -436,7 +438,7 @@ def get_monte_carlo_defaults() -> Dict[str, Any]:
     }
 
 
-def add_monte_carlo_to_defaults(config: Dict[str, Any]) -> Dict[str, Any]:
+def add_monte_carlo_to_defaults(config: dict[str, Any]) -> dict[str, Any]:
     """Add Monte Carlo configuration to existing configuration.
 
     Args:

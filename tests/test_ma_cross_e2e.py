@@ -5,12 +5,9 @@ This module provides complete workflow testing for the MA Cross strategy
 analysis system, verifying the entire pipeline from configuration to results.
 """
 
-import json
 import os
 import tempfile
-from pathlib import Path
-from typing import Any, Dict, List
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import polars as pl
 import pytest
@@ -146,9 +143,7 @@ class TestCompleteWorkflow(TestMACrossWorkflowE2E):
             patch(
                 "app.tools.orchestration.ticker_processor.execute_strategy"
             ) as mock_execute_strategy,
-            patch(
-                "app.tools.portfolio.collection.export_best_portfolios"
-            ) as mock_export,
+            patch("app.tools.portfolio.collection.export_best_portfolios"),
             patch(
                 "app.tools.orchestration.portfolio_orchestrator.filter_portfolios"
             ) as mock_filter,
@@ -185,9 +180,7 @@ class TestCompleteWorkflow(TestMACrossWorkflowE2E):
             patch(
                 "app.tools.orchestration.ticker_processor.execute_strategy"
             ) as mock_execute_strategy,
-            patch(
-                "app.tools.portfolio.collection.export_best_portfolios"
-            ) as mock_export,
+            patch("app.tools.portfolio.collection.export_best_portfolios"),
             patch(
                 "app.tools.orchestration.portfolio_orchestrator.filter_portfolios"
             ) as mock_filter,
@@ -226,9 +219,7 @@ class TestCompleteWorkflow(TestMACrossWorkflowE2E):
             patch(
                 "app.tools.orchestration.ticker_processor.execute_strategy"
             ) as mock_execute_strategy,
-            patch(
-                "app.tools.portfolio.collection.export_best_portfolios"
-            ) as mock_export,
+            patch("app.tools.portfolio.collection.export_best_portfolios"),
             patch(
                 "app.tools.orchestration.portfolio_orchestrator.filter_portfolios"
             ) as mock_filter,
@@ -262,9 +253,7 @@ class TestCompleteWorkflow(TestMACrossWorkflowE2E):
             patch(
                 "app.tools.orchestration.ticker_processor.execute_strategy"
             ) as mock_execute_strategy,
-            patch(
-                "app.tools.portfolio.collection.export_best_portfolios"
-            ) as mock_export,
+            patch("app.tools.portfolio.collection.export_best_portfolios"),
             patch(
                 "app.tools.orchestration.portfolio_orchestrator.filter_portfolios"
             ) as mock_filter,

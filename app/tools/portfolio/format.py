@@ -5,7 +5,8 @@ This module provides functions for converting between different portfolio format
 and standardizing column names and data types.
 """
 
-from typing import Any, Callable, Dict, List
+from collections.abc import Callable
+from typing import Any
 
 import polars as pl
 
@@ -41,11 +42,6 @@ def standardize_portfolio_columns(
         "fast_period": "FAST_PERIOD",
         "Slow Period": "SLOW_PERIOD",
         "slow_period": "SLOW_PERIOD",
-        # Legacy window columns (backwards compatibility)
-        "Fast Period": "FAST_PERIOD",
-        "fast_period": "FAST_PERIOD",
-        "Slow Period": "SLOW_PERIOD",
-        "slow_period": "SLOW_PERIOD",
         # Strategy type columns
         "Use SMA": "USE_SMA",
         "use_sma": "USE_SMA",
@@ -73,9 +69,6 @@ def standardize_portfolio_columns(
         "RSI Threshold": "RSI_THRESHOLD",
         "rsi_threshold": "RSI_THRESHOLD",
         # MACD columns (new naming convention)
-        "Signal Period": "SIGNAL_PERIOD",
-        "signal_period": "SIGNAL_PERIOD",
-        # Legacy MACD columns (backwards compatibility)
         "Signal Period": "SIGNAL_PERIOD",
         "signal_period": "SIGNAL_PERIOD",
         # Signal entry/exit columns
@@ -110,8 +103,8 @@ def standardize_portfolio_columns(
 
 
 def convert_csv_to_strategy_config(
-    df: pl.DataFrame, log: Callable[[str, str], None], config: Dict[str, Any]
-) -> List[Dict[str, Any]]:
+    df: pl.DataFrame, log: Callable[[str, str], None], config: dict[str, Any]
+) -> list[dict[str, Any]]:
     """
     Convert a CSV DataFrame to a list of strategy configurations.
 
@@ -151,7 +144,6 @@ def convert_csv_to_strategy_config(
         direction = row.get("DIRECTION", "Long")
 
         # Determine if this is a MACD strategy
-        is_macd = strategy_type == "MACD" or "SIGNAL_PERIOD" in row
 
         # Create strategy configuration with consistent type fields
         strategy_config = {
@@ -189,18 +181,18 @@ def convert_csv_to_strategy_config(
 
         # Add window parameters if available
         # Check new standardized names first, then legacy names for backward compatibility
-        if "FAST_PERIOD" in row and row["FAST_PERIOD"] is not None:
-            strategy_config["FAST_PERIOD"] = int(row["FAST_PERIOD"])
-        elif "FAST_PERIOD" in row and row["FAST_PERIOD"] is not None:
+        if ("FAST_PERIOD" in row and row["FAST_PERIOD"] is not None) or (
+            "FAST_PERIOD" in row and row["FAST_PERIOD"] is not None
+        ):
             strategy_config["FAST_PERIOD"] = int(row["FAST_PERIOD"])
         elif "SMA_FAST" in row and row["SMA_FAST"] is not None and use_sma:
             strategy_config["FAST_PERIOD"] = int(row["SMA_FAST"])
         elif "EMA_FAST" in row and row["EMA_FAST"] is not None and not use_sma:
             strategy_config["FAST_PERIOD"] = int(row["EMA_FAST"])
 
-        if "SLOW_PERIOD" in row and row["SLOW_PERIOD"] is not None:
-            strategy_config["SLOW_PERIOD"] = int(row["SLOW_PERIOD"])
-        elif "SLOW_PERIOD" in row and row["SLOW_PERIOD"] is not None:
+        if ("SLOW_PERIOD" in row and row["SLOW_PERIOD"] is not None) or (
+            "SLOW_PERIOD" in row and row["SLOW_PERIOD"] is not None
+        ):
             strategy_config["SLOW_PERIOD"] = int(row["SLOW_PERIOD"])
         elif "SMA_SLOW" in row and row["SMA_SLOW"] is not None and use_sma:
             strategy_config["SLOW_PERIOD"] = int(row["SMA_SLOW"])
@@ -387,22 +379,6 @@ def convert_csv_to_strategy_config(
         portfolio_stats = {}
 
         # Keys that are already directly added to strategy_config
-        strategy_config_keys = [
-            "TICKER",
-            "DIRECTION",
-            "FAST_PERIOD",
-            "SLOW_PERIOD",
-            "SIGNAL_PERIOD",
-            "USE_HOURLY",
-            "USE_RSI",
-            "RSI_WINDOW",
-            "RSI_THRESHOLD",
-            "STOP_LOSS",
-            "POSITION_SIZE",
-            "BASE_DIR",
-            "REFRESH",
-            "ALLOCATION",
-        ]
 
         # Add ALL columns from the CSV row to portfolio_stats
         for key, value in row.items():

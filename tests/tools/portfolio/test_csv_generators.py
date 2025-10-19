@@ -1,7 +1,5 @@
 """Tests for CSV generation functions."""
 
-import pytest
-
 from app.tools.portfolio.csv_generators import generate_csv_output_for_portfolios
 
 
@@ -192,4 +190,3 @@ class TestGenerateCsvOutputForPortfolios:
         assert "FB" in result
         assert "True" in result or "true" in result.lower()
         assert "False" in result or "false" in result.lower()
-

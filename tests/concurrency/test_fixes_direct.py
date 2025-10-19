@@ -3,13 +3,14 @@
 Direct test of concurrency calculation fixes.
 """
 
-import os
-import sys
 from datetime import datetime
+import os
 from pathlib import Path
+import sys
 
 import numpy as np
 import polars as pl
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -22,7 +23,6 @@ os.environ["USE_FIXED_WIN_RATE_CALC"] = "true"
 os.environ["USE_FIXED_SIGNAL_PROC"] = "true"
 
 from app.concurrency.tools.risk_metrics import calculate_risk_contributions
-from app.tools.setup_logging import setup_logging
 
 
 def test_risk_calc_fix():

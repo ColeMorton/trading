@@ -6,8 +6,7 @@ robust statistical estimates with confidence intervals.
 """
 
 import logging
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -25,7 +24,7 @@ class BootstrapValidator:
     bootstrap resampling with confidence interval calculation.
     """
 
-    def __init__(self, config: SPDSConfig, logger: Optional[logging.Logger] = None):
+    def __init__(self, config: SPDSConfig, logger: logging.Logger | None = None):
         """
         Initialize the Bootstrap Validator
 
@@ -51,7 +50,7 @@ class BootstrapValidator:
 
     async def validate_sample(
         self,
-        data: Union[pd.Series, np.ndarray, List[float]],
+        data: pd.Series | np.ndarray | list[float],
         statistic: str = "mean",
         confidence_level: float = 0.95,
     ) -> BootstrapResults:
@@ -112,9 +111,9 @@ class BootstrapValidator:
 
     async def validate_strategy_performance(
         self,
-        returns: Union[pd.Series, np.ndarray, List[float]],
+        returns: pd.Series | np.ndarray | list[float],
         confidence_level: float = 0.95,
-    ) -> Dict[str, BootstrapResults]:
+    ) -> dict[str, BootstrapResults]:
         """
         Validate multiple statistics for strategy performance
 
@@ -147,10 +146,10 @@ class BootstrapValidator:
 
     async def compare_distributions(
         self,
-        sample1: Union[pd.Series, np.ndarray, List[float]],
-        sample2: Union[pd.Series, np.ndarray, List[float]],
+        sample1: pd.Series | np.ndarray | list[float],
+        sample2: pd.Series | np.ndarray | list[float],
         confidence_level: float = 0.95,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Compare two distributions using bootstrap methods
 
@@ -216,7 +215,7 @@ class BootstrapValidator:
         bootstrap_estimates = []
         sample_size = min(len(data), self.sample_size)
 
-        for i in range(self.n_iterations):
+        for _i in range(self.n_iterations):
             # Resample with replacement
             bootstrap_sample = self.random_state.choice(
                 data, size=sample_size, replace=True
@@ -249,7 +248,7 @@ class BootstrapValidator:
         sample_size1 = min(len(sample1_clean), self.sample_size)
         sample_size2 = min(len(sample2_clean), self.sample_size)
 
-        for i in range(self.n_iterations):
+        for _i in range(self.n_iterations):
             # Bootstrap both samples
             bootstrap1 = self.random_state.choice(
                 sample1_clean, size=sample_size1, replace=True
@@ -277,28 +276,27 @@ class BootstrapValidator:
         """
         if statistic == "mean":
             return float(np.mean(data))
-        elif statistic == "median":
+        if statistic == "median":
             return float(np.median(data))
-        elif statistic == "std":
+        if statistic == "std":
             return float(np.std(data))
-        elif statistic == "sharpe_ratio":
+        if statistic == "sharpe_ratio":
             mean_return = np.mean(data)
             std_return = np.std(data)
             return float(mean_return / std_return) if std_return > 0 else 0.0
-        elif statistic == "max":
+        if statistic == "max":
             return float(np.max(data))
-        elif statistic == "min":
+        if statistic == "min":
             return float(np.min(data))
-        elif statistic == "skewness":
+        if statistic == "skewness":
             return float(stats.skew(data)) if len(data) > 2 else 0.0
-        elif statistic == "kurtosis":
+        if statistic == "kurtosis":
             return float(stats.kurtosis(data)) if len(data) > 3 else 0.0
-        else:
-            raise ValueError(f"Unsupported statistic: {statistic}")
+        raise ValueError(f"Unsupported statistic: {statistic}")
 
     def _calculate_confidence_intervals(
         self, bootstrap_estimates: np.ndarray, confidence_level: float
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """
         Calculate confidence intervals from bootstrap estimates
 
@@ -320,7 +318,7 @@ class BootstrapValidator:
 
     def assess_sample_adequacy(
         self, sample_size: int, required_precision: float = 0.1
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Assess whether sample size is adequate for bootstrap validation
 

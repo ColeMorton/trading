@@ -6,7 +6,6 @@ to ensure correct signal prediction based on moving average positions.
 """
 
 import polars as pl
-import pytest
 
 from app.tools.strategy.signal_utils import calculate_signal_unconfirmed
 
@@ -307,7 +306,7 @@ class TestCalculateSignalUnconfirmed:
                 "MA_FAST": [110.0],
                 "MA_SLOW": [100.0],
                 "Signal": [1],
-                "Position": [0]
+                "Position": [0],
                 # No Signal Entry/Exit columns
             }
         )

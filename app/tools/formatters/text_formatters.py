@@ -29,16 +29,13 @@ def format_duration(value) -> Text:
                 time_part = parts[2]
                 hours = int(time_part.split(":")[0])
                 return Text(f"{days}d {hours}h", style="blue")
-            else:
-                return Text(f"{days}d", style="blue")
-        else:
-            # Handle time-only format "HH:MM:SS"
-            time_parts = duration_str.split(":")
-            if len(time_parts) >= 2:
-                hours = int(float(time_parts[0]))
-                return Text(f"{hours}h", style="blue")
-            else:
-                return Text(str(value)[:10], style="dim")  # Truncate long values
+            return Text(f"{days}d", style="blue")
+        # Handle time-only format "HH:MM:SS"
+        time_parts = duration_str.split(":")
+        if len(time_parts) >= 2:
+            hours = int(float(time_parts[0]))
+            return Text(f"{hours}h", style="blue")
+        return Text(str(value)[:10], style="dim")  # Truncate long values
     except (ValueError, TypeError, IndexError):
         return Text(str(value)[:10], style="dim")  # Truncate and show as-is
 
@@ -105,10 +102,8 @@ def format_average_duration(hours: float) -> str:
     if days > 0:
         if remaining_hours > 0:
             return f"{days}d {remaining_hours}h"
-        else:
-            return f"{days}d"
-    else:
-        return f"{remaining_hours}h"
+        return f"{days}d"
+    return f"{remaining_hours}h"
 
 
 def format_status(status: str) -> Text:
@@ -122,15 +117,17 @@ def format_status(status: str) -> Text:
     """
     if status == "Entry":
         return Text("🎯 Entry", style="green")
-    elif status == "Active":
+    if status == "Active":
         return Text("🔒 Active", style="blue")
-    elif status == "Exit":
+    if status == "Exit":
         return Text("🚪 Exit", style="red")
-    else:  # Inactive
-        return Text("Inactive", style="white")
+    # Inactive
+    return Text("Inactive", style="white")
 
 
-def format_signal_status(entry: bool, exit: bool, unconfirmed: str = None) -> Text:
+def format_signal_status(
+    entry: bool, exit: bool, unconfirmed: str | None = None
+) -> Text:
     """Format signal status with appropriate icons and colors.
 
     Args:
@@ -143,9 +140,8 @@ def format_signal_status(entry: bool, exit: bool, unconfirmed: str = None) -> Te
     """
     if entry:
         return Text("🎯 ENTRY", style="bright_green bold")
-    elif exit:
+    if exit:
         return Text("🚪 EXIT", style="red bold")
-    elif unconfirmed and str(unconfirmed).lower() not in ["none", "n/a", ""]:
+    if unconfirmed and str(unconfirmed).lower() not in ["none", "n/a", ""]:
         return Text("⏳ PENDING", style="yellow")
-    else:
-        return Text("🔒 HOLD", style="blue")
+    return Text("🔒 HOLD", style="blue")

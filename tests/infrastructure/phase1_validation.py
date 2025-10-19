@@ -4,9 +4,9 @@ Phase 1 Validation Script: Configuration Emergency Repair & Unification
 Tests the success criteria for Phase 1 implementation.
 """
 
+from pathlib import Path
 import subprocess
 import sys
-from pathlib import Path
 
 
 def check_pytest_syntax():
@@ -17,13 +17,14 @@ def check_pytest_syntax():
             capture_output=True,
             text=True,
             timeout=30,
+            check=False,
         )
         # Check if collection completed (even with errors)
         if "collected" in result.stdout:
             return True, "pytest.ini syntax valid - test collection working"
         return False, f"pytest.ini syntax issues: {result.stderr}"
     except Exception as e:
-        return False, f"pytest.ini validation failed: {str(e)}"
+        return False, f"pytest.ini validation failed: {e!s}"
 
 
 def check_configuration_consolidation():
@@ -53,7 +54,11 @@ def check_makefile_integration():
     """Verify make test command uses unified runner"""
     try:
         result = subprocess.run(
-            ["make", "test-quick"], capture_output=True, text=True, timeout=60
+            ["make", "test-quick"],
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
         )
 
         # Check if make command uses unified runner
@@ -61,7 +66,7 @@ def check_makefile_integration():
             return True, "Makefile integration successful - uses unified test runner"
         return False, f"Makefile not using unified runner: {result.stderr}"
     except Exception as e:
-        return False, f"Makefile validation failed: {str(e)}"
+        return False, f"Makefile validation failed: {e!s}"
 
 
 def check_coverage_configuration():
@@ -101,7 +106,7 @@ def main():
             print(f"{status}: {message}")
             results.append(success)
         except Exception as e:
-            print(f"❌ ERROR: {str(e)}")
+            print(f"❌ ERROR: {e!s}")
             results.append(False)
 
     # Summary
@@ -118,9 +123,8 @@ def main():
         print("🎉 Phase 1 SUCCESS: Configuration consolidation achieved!")
         print("📋 Ready to proceed to Phase 2: Test Runner Consolidation")
         return 0
-    else:
-        print("⚠️  Phase 1 INCOMPLETE: Some issues need resolution")
-        return 1
+    print("⚠️  Phase 1 INCOMPLETE: Some issues need resolution")
+    return 1
 
 
 if __name__ == "__main__":

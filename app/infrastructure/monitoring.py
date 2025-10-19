@@ -1,10 +1,10 @@
 """Concrete implementation of monitoring interface."""
 
-import statistics
-import time
 from collections import defaultdict
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+import statistics
+import time
+from typing import Any
 
 from app.core.interfaces import ConfigurationInterface, MetricType, MonitoringInterface
 
@@ -13,19 +13,19 @@ class Metric:
     """Base metric class."""
 
     def __init__(
-        self, name: str, description: str, labels: Optional[List[str]] | None = None
+        self, name: str, description: str, labels: list[str] | None | None = None
     ):
         self.name = name
         self.description = description
         self.labels = labels or []
         self._values = defaultdict(lambda: 0)
 
-    def get_value(self, labels: Optional[Dict[str, str]] = None) -> float:
+    def get_value(self, labels: dict[str, str] | None = None) -> float:
         """Get metric value."""
         key = self._make_key(labels)
         return self._values[key]
 
-    def _make_key(self, labels: Optional[Dict[str, str]] = None) -> str:
+    def _make_key(self, labels: dict[str, str] | None = None) -> str:
         """Create key from labels."""
         if not labels:
             return ""
@@ -35,7 +35,7 @@ class Metric:
 class Counter(Metric):
     """Counter metric - only increases."""
 
-    def increment(self, value: float = 1, labels: Optional[Dict[str, str]] = None):
+    def increment(self, value: float = 1, labels: dict[str, str] | None = None):
         """Increment counter."""
         key = self._make_key(labels)
         self._values[key] += value
@@ -44,7 +44,7 @@ class Counter(Metric):
 class Gauge(Metric):
     """Gauge metric - can increase or decrease."""
 
-    def set(self, value: float, labels: Optional[Dict[str, str]] = None):
+    def set(self, value: float, labels: dict[str, str] | None = None):
         """Set gauge value."""
         key = self._make_key(labels)
         self._values[key] = value
@@ -54,17 +54,17 @@ class Histogram(Metric):
     """Histogram metric - tracks distribution."""
 
     def __init__(
-        self, name: str, description: str, labels: Optional[List[str]] | None = None
+        self, name: str, description: str, labels: list[str] | None | None = None
     ):
         super().__init__(name, description, labels)
         self._observations = defaultdict(list)
 
-    def observe(self, value: float, labels: Optional[Dict[str, str]] = None):
+    def observe(self, value: float, labels: dict[str, str] | None = None):
         """Record observation."""
         key = self._make_key(labels)
         self._observations[key].append(value)
 
-    def get_stats(self, labels: Optional[Dict[str, str]] = None) -> Dict[str, float]:
+    def get_stats(self, labels: dict[str, str] | None = None) -> dict[str, float]:
         """Get statistics for observations."""
         key = self._make_key(labels)
         observations = self._observations[key]
@@ -95,9 +95,9 @@ class Histogram(Metric):
 class MonitoringService(MonitoringInterface):
     """Concrete implementation of monitoring service."""
 
-    def __init__(self, config: Optional[ConfigurationInterface] | None = None):
+    def __init__(self, config: ConfigurationInterface | None | None = None):
         self._config = config
-        self._metrics: Dict[str, Metric] = {}
+        self._metrics: dict[str, Metric] = {}
         self._request_histogram = None
         self._operation_histogram = None
         self._initialize_default_metrics()
@@ -108,7 +108,7 @@ class MonitoringService(MonitoringInterface):
         method: str,
         status_code: int,
         duration: float,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """Track API request metrics."""
         # Increment request counter
@@ -129,7 +129,7 @@ class MonitoringService(MonitoringInterface):
         operation: str,
         duration: float,
         success: bool,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """Track operation metrics."""
         # Increment operation counter
@@ -147,7 +147,7 @@ class MonitoringService(MonitoringInterface):
         )
 
     def increment_counter(
-        self, name: str, value: float = 1, labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float = 1, labels: dict[str, str] | None = None
     ) -> None:
         """Increment a counter metric."""
         metric = self._get_or_create_metric(name, MetricType.COUNTER)
@@ -155,7 +155,7 @@ class MonitoringService(MonitoringInterface):
             metric.increment(value, labels)
 
     def set_gauge(
-        self, name: str, value: float, labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float, labels: dict[str, str] | None = None
     ) -> None:
         """Set a gauge metric."""
         metric = self._get_or_create_metric(name, MetricType.GAUGE)
@@ -163,19 +163,19 @@ class MonitoringService(MonitoringInterface):
             metric.set(value, labels)
 
     def observe_histogram(
-        self, name: str, value: float, labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float, labels: dict[str, str] | None = None
     ) -> None:
         """Observe a histogram metric."""
         metric = self._get_or_create_metric(name, MetricType.HISTOGRAM)
         if isinstance(metric, Histogram):
             metric.observe(value, labels)
 
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> dict[str, Any]:
         """Get all current metrics."""
         result = {}
 
         for name, metric in self._metrics.items():
-            if isinstance(metric, Counter) or isinstance(metric, Gauge):
+            if isinstance(metric, Counter | Gauge):
                 result[name] = metric._values
             elif isinstance(metric, Histogram):
                 result[name] = {
@@ -185,7 +185,7 @@ class MonitoringService(MonitoringInterface):
 
         return result
 
-    def health_check(self) -> Dict[str, Any]:
+    def health_check(self) -> dict[str, Any]:
         """Perform health check and return status."""
         return {
             "status": "healthy",
@@ -201,7 +201,7 @@ class MonitoringService(MonitoringInterface):
         name: str,
         metric_type: MetricType,
         description: str,
-        labels: Optional[List[str]] | None = None,
+        labels: list[str] | None | None = None,
     ) -> None:
         """Register a new metric."""
         if name in self._metrics:
@@ -252,7 +252,7 @@ class MonitoringService(MonitoringInterface):
             self.register_metric(name, metric_type, f"Auto-created {metric_type.value}")
         return self._metrics[name]
 
-    def _parse_labels(self, key: str) -> Dict[str, str]:
+    def _parse_labels(self, key: str) -> dict[str, str]:
         """Parse label key back to dict."""
         if not key:
             return {}

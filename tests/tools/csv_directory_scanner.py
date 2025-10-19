@@ -6,9 +6,7 @@ exported CSV files conform to the canonical 59-column schema.
 """
 
 import csv
-import os
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 from app.tools.portfolio.canonical_schema import (
     CANONICAL_COLUMN_COUNT,
@@ -19,7 +17,7 @@ from app.tools.portfolio.canonical_schema import (
 class CSVDirectoryScanner:
     """Scanner for validating CSV files across project directories."""
 
-    def __init__(self, base_path: str, log_function: Optional[callable] = None):
+    def __init__(self, base_path: str, log_function: callable | None = None):
         """Initialize the scanner.
 
         Args:
@@ -39,7 +37,7 @@ class CSVDirectoryScanner:
             "data/raw/prices",
         ]
 
-    def scan_all_directories(self) -> Dict[str, Dict]:
+    def scan_all_directories(self) -> dict[str, dict]:
         """Scan all CSV directories and validate schema compliance.
 
         Returns:
@@ -60,7 +58,7 @@ class CSVDirectoryScanner:
 
         return results
 
-    def _scan_directory(self, directory_path: Path) -> Dict:
+    def _scan_directory(self, directory_path: Path) -> dict:
         """Scan a single directory for CSV files and validate them.
 
         Args:
@@ -92,7 +90,7 @@ class CSVDirectoryScanner:
 
         return directory_result
 
-    def _validate_csv_file(self, file_path: Path) -> Dict:
+    def _validate_csv_file(self, file_path: Path) -> dict:
         """Validate a single CSV file for schema compliance.
 
         Args:
@@ -112,7 +110,7 @@ class CSVDirectoryScanner:
         }
 
         try:
-            with open(file_path, "r", newline="", encoding="utf-8") as f:
+            with open(file_path, newline="", encoding="utf-8") as f:
                 reader = csv.reader(f)
                 headers = next(reader, None)
 
@@ -144,7 +142,7 @@ class CSVDirectoryScanner:
                     file_result["issues"].append("No data rows")
 
         except Exception as e:
-            file_result["issues"].append(f"Error reading file: {str(e)}")
+            file_result["issues"].append(f"Error reading file: {e!s}")
 
         return file_result
 
@@ -183,7 +181,7 @@ class CSVDirectoryScanner:
         path_str = str(file_path).lower()
         return any(indicator in path_str for indicator in price_data_indicators)
 
-    def _validate_portfolio_schema(self, headers: List[str]) -> Dict:
+    def _validate_portfolio_schema(self, headers: list[str]) -> dict:
         """Validate portfolio file schema against canonical standard.
 
         Args:
@@ -231,7 +229,7 @@ class CSVDirectoryScanner:
 
         return validation_result
 
-    def _validate_price_data_schema(self, headers: List[str]) -> Dict:
+    def _validate_price_data_schema(self, headers: list[str]) -> dict:
         """Validate price data file schema.
 
         Args:
@@ -260,7 +258,7 @@ class CSVDirectoryScanner:
 
         return validation_result
 
-    def generate_compliance_report(self, scan_results: Dict[str, Dict]) -> str:
+    def generate_compliance_report(self, scan_results: dict[str, dict]) -> str:
         """Generate a human-readable compliance report.
 
         Args:

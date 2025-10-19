@@ -60,7 +60,7 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
         return True
 
     except Exception as e:
-        log(f"Execution failed: {str(e)}", "error")
+        log(f"Execution failed: {e!s}", "error")
         log_close()
         raise
 
@@ -71,5 +71,5 @@ if __name__ == "__main__":
         if result:
             print("Execution completed successfully!")
     except Exception as e:
-        print(f"Execution failed: {str(e)}")
+        print(f"Execution failed: {e!s}")
         raise

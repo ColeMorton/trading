@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from datetime import datetime
-from typing import Callable, Dict, List
 
 import numpy as np
 import polars as pl
@@ -14,9 +14,9 @@ from app.tools.strategy.types import StrategyConfig as Config
 
 def get_current_signals(
     data: pl.DataFrame,
-    fast_periods: List[int],
-    slow_periods: List[int],
-    config: Dict,
+    fast_periods: list[int],
+    slow_periods: list[int],
+    config: dict,
     log: Callable,
 ) -> pl.DataFrame:
     """

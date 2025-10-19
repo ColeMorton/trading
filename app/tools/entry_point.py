@@ -4,15 +4,16 @@ This module provides utilities for creating standardized entry points
 for trading system modules.
 """
 
+from collections.abc import Callable
 import sys
-from typing import Any, Callable, Dict
+from typing import Any
 
 from app.tools.error_context import error_context
 
 
 def run_from_command_line(
     run_func: Callable,
-    config: Dict[str, Any],
+    config: dict[str, Any],
     operation_name: str,
     exit_on_failure: bool = True,
 ) -> bool:

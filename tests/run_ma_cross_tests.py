@@ -7,12 +7,12 @@ designed for both local development and continuous integration environments.
 
 import argparse
 import json
-import os
+from pathlib import Path
 import subprocess
 import sys
 import time
-from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
+
 
 # Add project root to Python path
 project_root = Path(__file__).parent.parent
@@ -90,7 +90,7 @@ class MACrossTestRunner:
             },
         }
 
-    def run_test_suite(self, suite_name: str) -> Dict[str, Any]:
+    def run_test_suite(self, suite_name: str) -> dict[str, Any]:
         """
         Run a specific test suite.
 
@@ -145,7 +145,7 @@ class MACrossTestRunner:
         self._print_suite_summary(results)
         return results
 
-    def _run_test_file(self, file_path: Path, timeout: int) -> Dict[str, Any]:
+    def _run_test_file(self, file_path: Path, timeout: int) -> dict[str, Any]:
         """
         Run tests in a specific file.
 
@@ -192,6 +192,7 @@ class MACrossTestRunner:
                 capture_output=True,
                 text=True,
                 timeout=timeout,
+                check=False,
             )
 
             # Parse the output
@@ -207,8 +208,8 @@ class MACrossTestRunner:
             file_result["errors"].append(f"Test file timed out after {timeout} seconds")
             print(f"  ❌ TIMEOUT after {timeout} seconds")
         except Exception as e:
-            file_result["errors"].append(f"Failed to run test file: {str(e)}")
-            print(f"  ❌ ERROR: {str(e)}")
+            file_result["errors"].append(f"Failed to run test file: {e!s}")
+            print(f"  ❌ ERROR: {e!s}")
 
         file_result["duration"] = time.time() - file_result["start_time"]
 
@@ -223,7 +224,7 @@ class MACrossTestRunner:
 
         return file_result
 
-    def _parse_pytest_output(self, stdout: str, stderr: str) -> Dict[str, Any]:
+    def _parse_pytest_output(self, stdout: str, stderr: str) -> dict[str, Any]:
         """
         Parse pytest output to extract test counts.
 
@@ -278,7 +279,7 @@ class MACrossTestRunner:
 
         return result
 
-    def _print_suite_summary(self, results: Dict[str, Any]) -> None:
+    def _print_suite_summary(self, results: dict[str, Any]) -> None:
         """Print summary for a test suite."""
         print(f"\n{'='*60}")
         print(f"{results['suite'].upper()} Test Suite Summary")
@@ -298,7 +299,7 @@ class MACrossTestRunner:
                 for error in results["errors"]:
                     print(f"  • {error}")
 
-    def run_all_suites(self, suite_filter: List[str] = None) -> Dict[str, Any]:
+    def run_all_suites(self, suite_filter: list[str] | None = None) -> dict[str, Any]:
         """
         Run all test suites or a filtered subset.
 
@@ -343,7 +344,7 @@ class MACrossTestRunner:
         self._print_overall_summary(overall_results)
         return overall_results
 
-    def _print_overall_summary(self, results: Dict[str, Any]) -> None:
+    def _print_overall_summary(self, results: dict[str, Any]) -> None:
         """Print overall test summary."""
         print(f"\n{'='*80}")
         print("MA CROSS MODULE TEST SUMMARY")
@@ -370,7 +371,9 @@ class MACrossTestRunner:
 
         print(f"{'='*80}")
 
-    def generate_report(self, results: Dict[str, Any], output_file: str = None) -> None:
+    def generate_report(
+        self, results: dict[str, Any], output_file: str | None = None
+    ) -> None:
         """
         Generate a detailed test report.
 
@@ -457,7 +460,7 @@ def main():
         print("\n\nTest run interrupted by user")
         sys.exit(130)
     except Exception as e:
-        print(f"\nTest runner error: {str(e)}")
+        print(f"\nTest runner error: {e!s}")
         sys.exit(1)
 
 

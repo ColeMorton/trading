@@ -5,8 +5,6 @@ This module handles the selection of the best portfolio based on consistent
 Fast Period/Slow Period combinations in top performing portfolios.
 """
 
-from typing import List, Optional
-
 import polars as pl
 
 from app.strategies.ma_cross.config_types import Config
@@ -22,7 +20,7 @@ from app.tools.portfolio.strategy_types import derive_use_sma
 
 def get_best_portfolios_per_strategy_type(
     portfolios: pl.DataFrame, config: Config, log: callable
-) -> List[dict]:
+) -> list[dict]:
     """
     Get the best portfolio for each strategy type based on consistent parameter combinations.
 
@@ -104,13 +102,13 @@ def get_best_portfolios_per_strategy_type(
         return best_portfolios
 
     except Exception as e:
-        log(f"Error in get_best_portfolios_per_strategy_type: {str(e)}", "error")
+        log(f"Error in get_best_portfolios_per_strategy_type: {e!s}", "error")
         return []
 
 
 def get_best_portfolio(
     portfolios: pl.DataFrame, config: Config, log: callable
-) -> Optional[dict]:
+) -> dict | None:
     """
     Legacy compatibility function - returns single best portfolio.
 
@@ -131,7 +129,7 @@ def get_best_portfolio(
 
 def _get_best_single_strategy_portfolio(
     portfolios: pl.DataFrame, config: Config, log: callable
-) -> Optional[dict]:
+) -> dict | None:
     """
     Internal function to get best portfolio for a single strategy type.
 
@@ -172,7 +170,7 @@ def _get_best_single_strategy_portfolio(
         # Check other required columns with detected column names
         if not fast_period_col or not slow_period_col:
             log("Missing required period columns in portfolios DataFrame", "error")
-            log(f"Required: Fast/Slow period columns", "info")
+            log("Required: Fast/Slow period columns", "info")
             log(f"Available columns: {', '.join(portfolios.columns)}", "info")
             return None
 
@@ -215,7 +213,7 @@ def _get_best_single_strategy_portfolio(
         # Function to check if combination appears enough times
         def check_combination_frequency(
             df: pl.DataFrame, required_count: int
-        ) -> Optional[tuple]:
+        ) -> tuple | None:
             combinations = df.select([fast_col, slow_col]).to_dicts()
             combo_count = {}
             for combo in combinations:
@@ -455,5 +453,5 @@ def _get_best_single_strategy_portfolio(
         return None
 
     except Exception as e:
-        log(f"Error in get_best_portfolio: {str(e)}", "error")
+        log(f"Error in get_best_portfolio: {e!s}", "error")
         return None

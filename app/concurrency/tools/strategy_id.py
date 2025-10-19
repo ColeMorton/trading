@@ -4,23 +4,22 @@ This module provides functions for generating and parsing standardized strategy 
 used throughout the concurrency analysis system.
 """
 
-import sys
 from pathlib import Path
-from typing import Any, Dict
+import sys
+from typing import Any
+
 
 # Add the tools module to the path so we can import uuid_utils
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from app.tools.uuid_utils import extract_strategy_components
-from app.tools.uuid_utils import generate_strategy_id as _generate_strategy_id
 from app.tools.uuid_utils import (
     generate_strategy_id_from_config as _generate_strategy_id_from_config,
+    is_valid_strategy_uuid as _is_valid_strategy_uuid,
+    parse_strategy_uuid as _parse_strategy_uuid,
 )
-from app.tools.uuid_utils import is_valid_strategy_uuid as _is_valid_strategy_uuid
-from app.tools.uuid_utils import parse_strategy_uuid as _parse_strategy_uuid
 
 
-def generate_strategy_id(strategy_config: Dict[str, Any]) -> str:
+def generate_strategy_id(strategy_config: dict[str, Any]) -> str:
     """Generate a standardized strategy ID from a strategy configuration.
 
     Args:
@@ -36,7 +35,7 @@ def generate_strategy_id(strategy_config: Dict[str, Any]) -> str:
     return _generate_strategy_id_from_config(strategy_config)
 
 
-def parse_strategy_id(strategy_id: str) -> Dict[str, Any]:
+def parse_strategy_id(strategy_id: str) -> dict[str, Any]:
     """Parse a strategy ID into its component parts.
 
     Args:

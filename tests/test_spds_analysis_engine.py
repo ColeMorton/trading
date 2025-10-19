@@ -6,14 +6,12 @@ Tests the new simplified 3-layer architecture against the documented
 critical paths and validates performance improvements.
 """
 
-import asyncio
-import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+import sys
 
-import numpy as np
 import pandas as pd
 import pytest
+
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -116,7 +114,7 @@ class TestSPDSAnalysisEngine:
 
         # Should contain at least one result
         if results:
-            result = list(results.values())[0]
+            result = next(iter(results.values()))
             assert isinstance(result, AnalysisResult)
             assert "AAPL" in result.ticker
             assert "SMA" in result.strategy_name
@@ -137,7 +135,7 @@ class TestSPDSAnalysisEngine:
 
         # Should handle single position analysis
         if results:
-            result = list(results.values())[0]
+            result = next(iter(results.values()))
             assert isinstance(result, AnalysisResult)
             assert result.position_uuid == "AAPL_SMA_20_50_20250101"
 
@@ -346,8 +344,8 @@ class TestSPDSAnalysisEnginePerformance:
         assert isinstance(results, dict)
         assert execution_time < 10.0  # Should complete within 10 seconds
 
-        print(f"Large portfolio analysis:")
-        print(f"  Positions: 100")
+        print("Large portfolio analysis:")
+        print("  Positions: 100")
         print(f"  Results: {len(results)}")
         print(f"  Time: {execution_time:.3f}s")
         print(f"  Rate: {len(results) / execution_time:.1f} positions/second")
@@ -376,7 +374,7 @@ class TestSPDSAnalysisEnginePerformance:
         final_memory = process.memory_info().rss / 1024 / 1024  # MB
         memory_increase = final_memory - initial_memory
 
-        print(f"Memory usage:")
+        print("Memory usage:")
         print(f"  Initial: {initial_memory:.1f} MB")
         print(f"  Final: {final_memory:.1f} MB")
         print(f"  Increase: {memory_increase:.1f} MB")

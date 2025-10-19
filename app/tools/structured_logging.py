@@ -6,18 +6,20 @@ logging across all signal processing modules with defined log levels, formats,
 and context-rich information.
 """
 
+from collections.abc import Callable
+from datetime import datetime
+from functools import wraps
 import inspect
 import json
 import logging
 import os
+from pathlib import Path
 import platform
 import socket
 import time
 import traceback
-from datetime import datetime
-from functools import wraps
-from pathlib import Path
-from typing import Any, Callable, Dict, Tuple, Union
+from typing import Any
+
 
 # Define log levels with standardized names
 LOG_LEVELS = {
@@ -55,9 +57,9 @@ class StructuredLogger:
     def __init__(
         self,
         name: str,
-        log_dir: Union[str, Path] = None,
+        log_dir: str | Path | None = None,
         log_file: str | None = None,
-        level: Union[str, int] = "INFO",
+        level: str | int = "INFO",
         format_type: str = "detailed",
         include_console: bool = True,
         json_format: bool = False,
@@ -149,7 +151,7 @@ class StructuredLogger:
         """
         return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-    def _get_caller_info(self) -> Dict[str, Any]:
+    def _get_caller_info(self) -> dict[str, Any]:
         """Get information about the caller of the logging function.
 
         Returns:
@@ -166,7 +168,7 @@ class StructuredLogger:
         }
 
     def _format_json_log(
-        self, level: str, message: str, context: Dict[str, Any] = None
+        self, level: str, message: str, context: dict[str, Any] | None = None
     ) -> str:
         """Format a log entry as JSON.
 
@@ -199,7 +201,7 @@ class StructuredLogger:
 
         return json.dumps(log_data)
 
-    def debug(self, message: str, context: Dict[str, Any] = None) -> None:
+    def debug(self, message: str, context: dict[str, Any] | None = None) -> None:
         """Log a debug message.
 
         Args:
@@ -213,7 +215,7 @@ class StructuredLogger:
         else:
             self.logger.debug(message)
 
-    def info(self, message: str, context: Dict[str, Any] = None) -> None:
+    def info(self, message: str, context: dict[str, Any] | None = None) -> None:
         """Log an info message.
 
         Args:
@@ -227,7 +229,7 @@ class StructuredLogger:
         else:
             self.logger.info(message)
 
-    def warning(self, message: str, context: Dict[str, Any] = None) -> None:
+    def warning(self, message: str, context: dict[str, Any] | None = None) -> None:
         """Log a warning message.
 
         Args:
@@ -242,7 +244,10 @@ class StructuredLogger:
             self.logger.warning(message)
 
     def error(
-        self, message: str, context: Dict[str, Any] = None, exc_info: bool = False
+        self,
+        message: str,
+        context: dict[str, Any] | None = None,
+        exc_info: bool = False,
     ) -> None:
         """Log an error message.
 
@@ -264,7 +269,10 @@ class StructuredLogger:
             self.logger.error(message, exc_info=exc_info)
 
     def critical(
-        self, message: str, context: Dict[str, Any] = None, exc_info: bool = False
+        self,
+        message: str,
+        context: dict[str, Any] | None = None,
+        exc_info: bool = False,
     ) -> None:
         """Log a critical message.
 
@@ -286,7 +294,7 @@ class StructuredLogger:
             self.logger.critical(message, exc_info=exc_info)
 
     def log(
-        self, message: str, level: str = "info", context: Dict[str, Any] = None
+        self, message: str, level: str = "info", context: dict[str, Any] | None = None
     ) -> None:
         """Generic logging function with level as string.
 
@@ -408,7 +416,7 @@ def log_method(logger: StructuredLogger | None = None):
 
                 # Log error
                 logger.error(
-                    f"Method failed: {func.__name__} in {execution_time:.4f} seconds - {str(e)}",
+                    f"Method failed: {func.__name__} in {execution_time:.4f} seconds - {e!s}",
                     exc_info=True,
                 )
                 raise
@@ -424,9 +432,9 @@ _loggers = {}
 
 def get_logger(
     name: str,
-    log_dir: Union[str, Path] = None,
+    log_dir: str | Path | None = None,
     log_file: str | None = None,
-    level: Union[str, int] = "INFO",
+    level: str | int = "INFO",
     format_type: str = "detailed",
     include_console: bool = True,
     json_format: bool = False,
@@ -470,13 +478,13 @@ def get_logger(
 
 def create_logger(
     name: str,
-    log_dir: Union[str, Path] = None,
+    log_dir: str | Path | None = None,
     log_file: str | None = None,
-    level: Union[str, int] = "INFO",
+    level: str | int = "INFO",
     format_type: str = "detailed",
     include_console: bool = True,
     json_format: bool = False,
-) -> Tuple[Callable[[str, str], None], Callable[[], float], StructuredLogger]:
+) -> tuple[Callable[[str, str], None], Callable[[], float], StructuredLogger]:
     """Create a structured logger and return convenience functions.
 
     Args:
@@ -505,7 +513,9 @@ def create_logger(
     )
 
     # Create convenience functions
-    def log(message: str, level: str = "info", context: Dict[str, Any] = None) -> None:
+    def log(
+        message: str, level: str = "info", context: dict[str, Any] | None = None
+    ) -> None:
         logger.log(message, level, context)
 
     def log_execution_time(reset: bool = False) -> float:

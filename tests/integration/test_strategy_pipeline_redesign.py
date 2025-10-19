@@ -6,11 +6,11 @@ Focus: Test complete workflows and component interactions
 Principles: Test real scenarios, minimal mocking, behavior validation
 """
 
+from datetime import datetime
 import os
 import tempfile
 import unittest
-from datetime import datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import polars as pl
 
@@ -21,7 +21,6 @@ from tests.fixtures.market_data import (
     create_realistic_price_data,
 )
 from tests.utils.assertions import (
-    assert_export_paths_correct,
     assert_filtering_criteria_applied,
     assert_portfolio_data_valid,
 )
@@ -113,9 +112,9 @@ class TestMACrossStrategyPipeline(unittest.TestCase):
         # Manually set last price to create strong signal
         # Convert to pandas temporarily for easier manipulation, then back to Polars
         price_data_pandas = price_data.to_pandas()
-        price_data_pandas.iloc[
-            -1, price_data_pandas.columns.get_loc("Close")
-        ] *= 1.1  # 10% jump
+        price_data_pandas.iloc[-1, price_data_pandas.columns.get_loc("Close")] *= (
+            1.1  # 10% jump
+        )
         price_data = pl.from_pandas(price_data_pandas)
 
         mock_fetch.return_value = price_data

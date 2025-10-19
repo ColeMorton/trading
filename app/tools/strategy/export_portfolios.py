@@ -5,7 +5,8 @@ This module handles the export of portfolio data to CSV files using the
 centralized export functionality.
 """
 
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
+from typing import Any
 
 import polars as pl
 
@@ -19,17 +20,16 @@ from app.tools.portfolio.base_extended_schemas import (
     SchemaTransformer,
     SchemaType,
 )
-from app.tools.portfolio.schema_detection import ensure_allocation_sum_100_percent
 from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS
 from app.tools.portfolio.strategy_utils import get_strategy_type_for_export
 
 
 def _validate_portfolio_schema(
-    portfolio: Dict,
+    portfolio: dict,
     expected_schema: SchemaType,
     transformer: SchemaTransformer,
-    log: Optional[Callable] = None,
-) -> tuple[bool, List[str]]:
+    log: Callable | None = None,
+) -> tuple[bool, list[str]]:
     """
     Perform mandatory schema validation before export.
 
@@ -65,8 +65,8 @@ def _validate_portfolio_schema(
 
 
 def _validate_canonical_ordering(
-    df: pl.DataFrame, expected_schema: SchemaType, log: Optional[Callable] = None
-) -> tuple[bool, List[str]]:
+    df: pl.DataFrame, expected_schema: SchemaType, log: Callable | None = None
+) -> tuple[bool, list[str]]:
     """
     Perform strict canonical ordering validation on DataFrame.
 
@@ -99,7 +99,9 @@ def _validate_canonical_ordering(
         )
 
     # Check column ordering
-    for i, (actual, expected) in enumerate(zip(columns, expected_columns)):
+    for i, (actual, expected) in enumerate(
+        zip(columns, expected_columns, strict=False)
+    ):
         if actual != expected:
             errors.append(
                 f"Column ordering error at position {i}: expected '{expected}', got '{actual}'"
@@ -199,7 +201,7 @@ class ExportTypeRouter:
         return SchemaType.EXTENDED  # Default fallback
 
     @classmethod
-    def get_export_config(cls, export_type: str) -> Dict[str, Any]:
+    def get_export_config(cls, export_type: str) -> dict[str, Any]:
         """
         Get complete export configuration for the given export type.
 
@@ -240,7 +242,7 @@ def _get_target_schema_type(export_type: str) -> SchemaType:
     return ExportTypeRouter.get_target_schema_type(export_type)
 
 
-def _get_schema_column_names(schema_type: SchemaType) -> List[str]:
+def _get_schema_column_names(schema_type: SchemaType) -> list[str]:
     """
     Get column names for the specified schema type.
 
@@ -252,13 +254,12 @@ def _get_schema_column_names(schema_type: SchemaType) -> List[str]:
     """
     if schema_type == SchemaType.BASE:
         return BasePortfolioSchema.get_column_names()
-    elif schema_type == SchemaType.EXTENDED:
+    if schema_type == SchemaType.EXTENDED:
         return ExtendedPortfolioSchema.get_column_names()
-    elif schema_type == SchemaType.FILTERED:
+    if schema_type == SchemaType.FILTERED:
         return FilteredPortfolioSchema.get_column_names()
-    else:
-        # Default to Extended schema for unknown types
-        return ExtendedPortfolioSchema.get_column_names()
+    # Default to Extended schema for unknown types
+    return ExtendedPortfolioSchema.get_column_names()
 
 
 class PortfolioExportError(Exception):
@@ -275,13 +276,13 @@ VALID_EXPORT_TYPES = {
 
 
 def export_portfolios(
-    portfolios: List[Dict],
+    portfolios: list[dict],
     config: ExportConfig,
     export_type: str,
-    csv_filename: Optional[str] | None = None,
-    log: Optional[Callable] | None = None,
+    csv_filename: str | None | None = None,
+    log: Callable | None | None = None,
     feature_dir: str = "",  # Default to empty string for direct export to data/raw/strategies/
-) -> Tuple[pl.DataFrame, bool]:
+) -> tuple[pl.DataFrame, bool]:
     """Convert portfolio dictionaries to Polars DataFrame and export to CSV.
 
     Args:
@@ -629,13 +630,12 @@ def export_portfolios(
             if isinstance(ticker, list):
                 if len(ticker) == 1:
                     ticker = ticker[0]
-                else:
-                    # For multiple tickers, each portfolio should already have its
-                    # ticker
-                    if "Ticker" not in df.columns:
-                        raise PortfolioExportError(
-                            "Missing Ticker column for multiple ticker export"
-                        )
+                # For multiple tickers, each portfolio should already have its
+                # ticker
+                elif "Ticker" not in df.columns:
+                    raise PortfolioExportError(
+                        "Missing Ticker column for multiple ticker export"
+                    )
 
             # Add or update Ticker column if it's a single ticker
             if isinstance(ticker, str):
@@ -682,16 +682,14 @@ def export_portfolios(
                 except PortfolioSchemaValidationError as e:
                     validation_failures += 1
                     if log:
-                        log(
-                            f"Schema validation failed for portfolio: {str(e)}", "error"
-                        )
+                        log(f"Schema validation failed for portfolio: {e!s}", "error")
                     # Re-raise validation errors as they are critical
                     raise
 
                 except Exception as e:
                     if log:
                         log(
-                            f"Schema normalization failed for portfolio: {str(e)}",
+                            f"Schema normalization failed for portfolio: {e!s}",
                             "warning",
                         )
                     # Fall back to original portfolio if normalization fails
@@ -789,7 +787,7 @@ def export_portfolios(
                 except Exception as e:
                     if log:
                         log(
-                            f"Failed to convert column '{col}' to Int64: {str(e)}",
+                            f"Failed to convert column '{col}' to Int64: {e!s}",
                             "warning",
                         )
 
@@ -802,7 +800,7 @@ def export_portfolios(
                 except Exception as e:
                     if log:
                         log(
-                            f"Failed to convert column '{col}' to Float64: {str(e)}",
+                            f"Failed to convert column '{col}' to Float64: {e!s}",
                             "warning",
                         )
 
@@ -827,7 +825,7 @@ def export_portfolios(
                 except Exception as e:
                     if log:
                         log(
-                            f"Failed to convert column '{col}' to Float64: {str(e)}",
+                            f"Failed to convert column '{col}' to Float64: {e!s}",
                             "warning",
                         )
 
@@ -857,7 +855,7 @@ def export_portfolios(
 
         # Default behavior: when feature_dir is empty, use export_type as directory
         # When feature_dir is "strategies", export directly to /data/raw/strategies/
-        if feature_dir == "" or feature_dir == "strategies":
+        if feature_dir in ("", "strategies"):
             # Skip the export_type (feature2) to avoid creating a subdirectory
             return export_csv(
                 data=df,
@@ -868,19 +866,18 @@ def export_portfolios(
                 log=log,
                 target_schema=target_schema_type,
             )
-        else:
-            # Legacy case for other feature directories (e.g., ma_cross)
-            return export_csv(
-                data=df,
-                feature1=feature1,
-                config=config,
-                feature2=export_type,  # Use original export_type to maintain correct subdirectories
-                filename=csv_filename,
-                log=log,
-                target_schema=target_schema_type,
-            )
+        # Legacy case for other feature directories (e.g., ma_cross)
+        return export_csv(
+            data=df,
+            feature1=feature1,
+            config=config,
+            feature2=export_type,  # Use original export_type to maintain correct subdirectories
+            filename=csv_filename,
+            log=log,
+            target_schema=target_schema_type,
+        )
     except Exception as e:
-        error_msg = f"Failed to export portfolios: {str(e)}"
+        error_msg = f"Failed to export portfolios: {e!s}"
         if log:
             log(error_msg, "error")
         raise PortfolioExportError(error_msg) from e

@@ -4,10 +4,9 @@ This module provides portfolio-level optimization capabilities that analyze
 correlations and performance across multiple strategies.
 """
 
+from dataclasses import dataclass
 import logging
 import warnings
-from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -18,6 +17,7 @@ from app.tools.models.statistical_analysis_models import (
     PositionData,
     StatisticalAnalysisResult,
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -38,13 +38,13 @@ class StrategyCorrelation:
 class PortfolioOptimizationResult:
     """Result of portfolio optimization."""
 
-    optimal_weights: Dict[str, float]
+    optimal_weights: dict[str, float]
     expected_return: float
     expected_risk: float
     sharpe_ratio: float
     correlation_benefit: float
     diversification_ratio: float
-    recommendations: List[str]
+    recommendations: list[str]
 
 
 class CrossStrategyOptimizer:
@@ -62,7 +62,7 @@ class CrossStrategyOptimizer:
         min_correlation_threshold: float = 0.3,
         max_position_weight: float = 0.4,
         min_position_weight: float = 0.05,
-        target_return: Optional[float] = None,
+        target_return: float | None = None,
     ):
         """Initialize cross-strategy optimizer.
 
@@ -79,8 +79,8 @@ class CrossStrategyOptimizer:
 
     def optimize_portfolio(
         self,
-        positions: List[PositionData],
-        analysis_results: List[StatisticalAnalysisResult],
+        positions: list[PositionData],
+        analysis_results: list[StatisticalAnalysisResult],
         historical_returns: pd.DataFrame,
     ) -> PortfolioOptimizationResult:
         """Optimize portfolio allocation across strategies.
@@ -130,7 +130,7 @@ class CrossStrategyOptimizer:
 
         return PortfolioOptimizationResult(
             optimal_weights=dict(
-                zip([p.position_id for p in positions], optimal_weights)
+                zip([p.position_id for p in positions], optimal_weights, strict=False)
             ),
             expected_return=portfolio_metrics["expected_return"],
             expected_risk=portfolio_metrics["risk"],
@@ -141,8 +141,8 @@ class CrossStrategyOptimizer:
         )
 
     def analyze_strategy_correlations(
-        self, positions: List[PositionData], historical_returns: pd.DataFrame
-    ) -> List[StrategyCorrelation]:
+        self, positions: list[PositionData], historical_returns: pd.DataFrame
+    ) -> list[StrategyCorrelation]:
         """Analyze correlations between all strategy pairs.
 
         Args:
@@ -207,10 +207,10 @@ class CrossStrategyOptimizer:
 
     def calculate_diversification_benefit(
         self,
-        positions: List[PositionData],
+        positions: list[PositionData],
         weights: np.ndarray,
         historical_returns: pd.DataFrame,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Calculate diversification benefits of portfolio.
 
         Args:
@@ -256,7 +256,7 @@ class CrossStrategyOptimizer:
         }
 
     def _calculate_correlation_matrix(
-        self, positions: List[PositionData], historical_returns: pd.DataFrame
+        self, positions: list[PositionData], historical_returns: pd.DataFrame
     ) -> np.ndarray:
         """Calculate correlation matrix for positions."""
         n = len(positions)
@@ -280,13 +280,13 @@ class CrossStrategyOptimizer:
 
     def _calculate_expected_returns(
         self,
-        positions: List[PositionData],
-        analysis_results: List[StatisticalAnalysisResult],
+        positions: list[PositionData],
+        analysis_results: list[StatisticalAnalysisResult],
     ) -> np.ndarray:
         """Calculate expected returns for each position."""
         expected_returns = []
 
-        for pos, analysis in zip(positions, analysis_results):
+        for pos, analysis in zip(positions, analysis_results, strict=False):
             # Use statistical analysis to estimate expected return
             if analysis.return_distribution:
                 # Use median return as expected return
@@ -300,7 +300,7 @@ class CrossStrategyOptimizer:
         return np.array(expected_returns)
 
     def _calculate_covariance_matrix(
-        self, positions: List[PositionData], historical_returns: pd.DataFrame
+        self, positions: list[PositionData], historical_returns: pd.DataFrame
     ) -> np.ndarray:
         """Calculate covariance matrix for positions."""
         # Build returns matrix
@@ -369,16 +369,15 @@ class CrossStrategyOptimizer:
 
         if result.success:
             return result.x
-        else:
-            logger.warning("Optimization failed, using equal weights")
-            return initial_weights
+        logger.warning("Optimization failed, using equal weights")
+        return initial_weights
 
     def _calculate_portfolio_metrics(
         self,
         weights: np.ndarray,
         expected_returns: np.ndarray,
         covariance_matrix: np.ndarray,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Calculate portfolio performance metrics."""
         # Portfolio return
         portfolio_return = weights @ expected_returns
@@ -406,7 +405,7 @@ class CrossStrategyOptimizer:
 
     def _analyze_correlation_benefits(
         self, correlation_matrix: np.ndarray, weights: np.ndarray
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Analyze benefits from correlation structure."""
         # Average correlation
         n = len(weights)
@@ -444,11 +443,11 @@ class CrossStrategyOptimizer:
 
     def _generate_recommendations(
         self,
-        positions: List[PositionData],
+        positions: list[PositionData],
         weights: np.ndarray,
         correlation_matrix: np.ndarray,
-        portfolio_metrics: Dict[str, float],
-    ) -> List[str]:
+        portfolio_metrics: dict[str, float],
+    ) -> list[str]:
         """Generate portfolio optimization recommendations."""
         recommendations = []
 
@@ -494,7 +493,7 @@ class CrossStrategyOptimizer:
             )
 
         # Position-specific recommendations
-        for i, (pos, weight) in enumerate(zip(positions, weights)):
+        for i, (pos, weight) in enumerate(zip(positions, weights, strict=False)):
             if weight < self.min_position_weight * 1.5:
                 recommendations.append(
                     f"Consider removing {pos.strategy_name} (weight: {weight:.1%})"
@@ -526,7 +525,7 @@ class CrossStrategyOptimizer:
         return pd.Series(dtype=float)
 
     def _single_position_result(
-        self, position: Optional[PositionData]
+        self, position: PositionData | None
     ) -> PortfolioOptimizationResult:
         """Create result for single position portfolio."""
         if position:
@@ -539,13 +538,12 @@ class CrossStrategyOptimizer:
                 diversification_ratio=1.0,
                 recommendations=["Single position - no optimization possible"],
             )
-        else:
-            return PortfolioOptimizationResult(
-                optimal_weights={},
-                expected_return=0.0,
-                expected_risk=0.0,
-                sharpe_ratio=0.0,
-                correlation_benefit=0.0,
-                diversification_ratio=1.0,
-                recommendations=["No positions to optimize"],
-            )
+        return PortfolioOptimizationResult(
+            optimal_weights={},
+            expected_return=0.0,
+            expected_risk=0.0,
+            sharpe_ratio=0.0,
+            correlation_benefit=0.0,
+            diversification_ratio=1.0,
+            recommendations=["No positions to optimize"],
+        )

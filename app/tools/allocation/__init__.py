@@ -2,6 +2,7 @@
 
 from .efficient_frontier_integration import AllocationOptimizer
 
+
 __all__ = [
     "AllocationOptimizer",
 ]

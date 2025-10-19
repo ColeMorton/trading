@@ -5,11 +5,11 @@ This module implements manual account balance entry system for IBKR, Bybit, and 
 accounts, providing Net Worth calculation as specified in the migration plan.
 """
 
-import json
 from dataclasses import dataclass
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import polars as pl
 
@@ -21,7 +21,7 @@ class AccountBalance:
     account_type: str  # 'IBKR', 'Bybit', 'Cash'
     balance: float
     updated_at: datetime
-    id: Optional[int] = None
+    id: int | None = None
 
 
 @dataclass
@@ -33,13 +33,13 @@ class NetWorthCalculation:
     bybit_balance: float
     cash_balance: float
     last_updated: datetime
-    account_breakdown: Dict[str, float]
+    account_breakdown: dict[str, float]
 
 
 class ManualAccountBalanceService:
     """Service for managing manual account balance entries and net worth calculations."""
 
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(self, base_dir: str | None = None):
         """Initialize the manual account balance service.
 
         Args:
@@ -50,7 +50,7 @@ class ManualAccountBalanceService:
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.balances_file = self.data_dir / "manual_balances.json"
 
-    def _load_balances(self) -> Dict[str, Any]:
+    def _load_balances(self) -> dict[str, Any]:
         """Load account balances from JSON file.
 
         Returns:
@@ -60,12 +60,12 @@ class ManualAccountBalanceService:
             return {"balances": [], "last_updated": None}
 
         try:
-            with open(self.balances_file, "r") as f:
+            with open(self.balances_file) as f:
                 return json.load(f)
         except (json.JSONDecodeError, FileNotFoundError):
             return {"balances": [], "last_updated": None}
 
-    def _save_balances(self, data: Dict[str, Any]) -> None:
+    def _save_balances(self, data: dict[str, Any]) -> None:
         """Save account balances to JSON file.
 
         Args:
@@ -134,7 +134,7 @@ class ManualAccountBalanceService:
             id=len(data["balances"]),
         )
 
-    def get_account_balance(self, account_type: str) -> Optional[AccountBalance]:
+    def get_account_balance(self, account_type: str) -> AccountBalance | None:
         """Get current balance for a specific account type.
 
         Args:
@@ -156,7 +156,7 @@ class ManualAccountBalanceService:
 
         return None
 
-    def get_all_account_balances(self) -> List[AccountBalance]:
+    def get_all_account_balances(self) -> list[AccountBalance]:
         """Get all current account balances.
 
         Returns:
@@ -205,8 +205,7 @@ class ManualAccountBalanceService:
                 cash_balance = balance.balance
 
             # Track most recent update
-            if balance.updated_at > last_updated:
-                last_updated = balance.updated_at
+            last_updated = max(balance.updated_at, last_updated)
 
         total_net_worth = ibkr_balance + bybit_balance + cash_balance
 
@@ -220,8 +219,8 @@ class ManualAccountBalanceService:
         )
 
     def update_multiple_balances(
-        self, balances: Dict[str, float]
-    ) -> Dict[str, AccountBalance]:
+        self, balances: dict[str, float]
+    ) -> dict[str, AccountBalance]:
         """Update multiple account balances at once.
 
         Args:
@@ -237,7 +236,7 @@ class ManualAccountBalanceService:
 
         return results
 
-    def export_balances_to_csv(self, output_path: Optional[str] = None) -> str:
+    def export_balances_to_csv(self, output_path: str | None = None) -> str:
         """Export account balances to CSV format.
 
         Args:
@@ -268,7 +267,7 @@ class ManualAccountBalanceService:
 
         return output_path
 
-    def import_balances_from_dict(self, balances_dict: Dict[str, Any]) -> None:
+    def import_balances_from_dict(self, balances_dict: dict[str, Any]) -> None:
         """Import account balances from dictionary (for Excel migration).
 
         Args:
@@ -282,12 +281,12 @@ class ManualAccountBalanceService:
             }
         """
         for account_type, balance in balances_dict.items():
-            if isinstance(balance, (int, float)) and balance >= 0:
+            if isinstance(balance, int | float) and balance >= 0:
                 self.update_account_balance(account_type, float(balance))
 
     def validate_net_worth_calculation(
         self, expected_net_worth: float, tolerance: float = 0.01
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Validate net worth calculation against expected value.
 
         Args:
@@ -306,16 +305,15 @@ class ManualAccountBalanceService:
                 True,
                 f"Net worth validation passed: ${calculated.total_net_worth:.2f}",
             )
-        else:
-            return (
-                False,
-                f"Net worth validation failed: "
-                f"Expected ${expected_net_worth:.2f}, "
-                f"Calculated ${calculated.total_net_worth:.2f}, "
-                f"Difference ${difference:.2f} exceeds tolerance ${tolerance_amount:.2f}",
-            )
+        return (
+            False,
+            f"Net worth validation failed: "
+            f"Expected ${expected_net_worth:.2f}, "
+            f"Calculated ${calculated.total_net_worth:.2f}, "
+            f"Difference ${difference:.2f} exceeds tolerance ${tolerance_amount:.2f}",
+        )
 
-    def get_account_summary(self) -> Dict[str, Any]:
+    def get_account_summary(self) -> dict[str, Any]:
         """Get comprehensive account summary for reporting.
 
         Returns:

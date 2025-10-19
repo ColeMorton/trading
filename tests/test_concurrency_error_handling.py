@@ -4,42 +4,33 @@ Tests all components of the unified error handling framework including
 exceptions, context managers, decorators, recovery mechanisms, and registry.
 """
 
+from datetime import datetime, timedelta
 import json
+from pathlib import Path
 import tempfile
 import time
-from datetime import datetime, timedelta
-from pathlib import Path
-from unittest.mock import Mock, call, patch
+from unittest.mock import Mock, call
 
 import pytest
 
 from app.concurrency.error_handling import (  # Exceptions; Context managers; Decorators; Recovery; Registry
-    ConcurrencyAnalysisError,
     ConcurrencyError,
-    DataAlignmentError,
     ErrorRecord,
-    ErrorRecoveryPolicy,
     ErrorRegistry,
-    ErrorStats,
-    OptimizationError,
     PermutationAnalysisError,
     RecoveryAction,
     RecoveryStrategy,
-    ReportGenerationError,
     StrategyProcessingError,
     ValidationError,
-    VisualizationError,
     apply_error_recovery,
     batch_operation_context,
     concurrency_error_context,
     create_fallback_function,
     create_recovery_policy,
-    get_error_registry,
     get_error_stats,
     get_recovery_policy,
     handle_concurrency_errors,
     permutation_analysis_context,
-    report_generation_context,
     require_fields,
     retry_on_failure,
     strategy_processing_context,
@@ -161,7 +152,7 @@ class TestContextManagers:
         log_mock = Mock()
 
         with batch_operation_context("batch test", 5, log_mock) as tracker:
-            for i in range(5):
+            for _i in range(5):
                 tracker.record_success()
 
         summary = tracker.get_summary()
@@ -190,13 +181,15 @@ class TestContextManagers:
         """Test batch operation context exceeding max failures."""
         log_mock = Mock()
 
-        with pytest.raises(ConcurrencyError):
-            with batch_operation_context(
+        with (
+            pytest.raises(ConcurrencyError),
+            batch_operation_context(
                 "batch test", 5, log_mock, max_failures=2
-            ) as tracker:
-                tracker.record_error(ValueError("Error 1"))
-                tracker.record_error(ValueError("Error 2"))
-                tracker.record_error(ValueError("Error 3"))  # Should trigger exception
+            ) as tracker,
+        ):
+            tracker.record_error(ValueError("Error 1"))
+            tracker.record_error(ValueError("Error 2"))
+            tracker.record_error(ValueError("Error 3"))  # Should trigger exception
 
 
 class TestDecorators:
@@ -543,7 +536,7 @@ class TestErrorRegistry:
             registry.export_errors(export_path)
 
             # Verify export file contents
-            with open(export_path, "r") as f:
+            with open(export_path) as f:
                 data = json.load(f)
 
             assert "errors" in data
@@ -610,7 +603,7 @@ class TestGlobalRegistry:
 
             # Verify export file exists and contains data
             assert Path(export_path).exists()
-            with open(export_path, "r") as f:
+            with open(export_path) as f:
                 data = json.load(f)
             assert "errors" in data
             assert "stats" in data

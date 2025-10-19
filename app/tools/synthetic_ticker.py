@@ -4,12 +4,12 @@ This module provides utilities for processing synthetic tickers,
 which are combinations of two individual tickers.
 """
 
-from typing import Any, Dict, Tuple
+from typing import Any
 
 from app.tools.exceptions import SyntheticTickerError
 
 
-def process_synthetic_ticker(ticker: str) -> Tuple[str, str]:
+def process_synthetic_ticker(ticker: str) -> tuple[str, str]:
     """Process a synthetic ticker string into its components.
 
     Args:
@@ -44,7 +44,7 @@ def create_synthetic_ticker(ticker1: str, ticker2: str) -> str:
     return f"{ticker1}_{ticker2}"
 
 
-def process_synthetic_config(config: Dict[str, Any], log_func=None) -> Dict[str, Any]:
+def process_synthetic_config(config: dict[str, Any], log_func=None) -> dict[str, Any]:
     """Process configuration for synthetic ticker handling.
 
     Args:

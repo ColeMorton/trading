@@ -12,14 +12,14 @@ Features:
 - Batch processing functions
 """
 
-import logging
-import os
-import sys
 from datetime import datetime
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+import sys
+from typing import Any
 
 import pandas as pd
+
 
 # Add the parent directory to the Python path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -29,16 +29,16 @@ from app.tools.position_service_wrapper import (
     TradingSystemConfig,
     add_position_to_portfolio,
     assess_trade_quality,
-    create_position_record,
     get_config,
     validate_strategy_type,
     validate_ticker,
 )
 
+
 logger = logging.getLogger(__name__)
 
 
-def validate_position_data(position: Dict[str, Any]) -> List[str]:
+def validate_position_data(position: dict[str, Any]) -> list[str]:
     """Validate position data and return list of validation errors."""
     errors = []
 
@@ -90,20 +90,20 @@ def validate_position_data(position: Dict[str, Any]) -> List[str]:
     return errors
 
 
-def normalize_position_data(position: Dict[str, Any]) -> Dict[str, Any]:
+def normalize_position_data(position: dict[str, Any]) -> dict[str, Any]:
     """Normalize position data to standard format."""
     normalized = position.copy()
 
     # Normalize ticker to uppercase
-    if "Ticker" in normalized and normalized["Ticker"]:
+    if normalized.get("Ticker"):
         normalized["Ticker"] = str(normalized["Ticker"]).upper()
 
     # Normalize strategy type to uppercase
-    if "Strategy_Type" in normalized and normalized["Strategy_Type"]:
+    if normalized.get("Strategy_Type"):
         normalized["Strategy_Type"] = str(normalized["Strategy_Type"]).upper()
 
     # Normalize direction to title case
-    if "Direction" in normalized and normalized["Direction"]:
+    if normalized.get("Direction"):
         normalized["Direction"] = str(normalized["Direction"]).title()
 
     # Convert numeric fields
@@ -151,7 +151,7 @@ def normalize_position_data(position: Dict[str, Any]) -> Dict[str, Any]:
 
 def get_portfolio_summary(
     portfolio_name: str, config: TradingSystemConfig = None
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get summary statistics for a portfolio."""
     if config is None:
         config = get_config()
@@ -190,9 +190,9 @@ def get_portfolio_summary(
             risk_metrics = {
                 "avg_mfe": float(mfe_col.mean()),
                 "avg_mae": float(mae_col.mean()),
-                "avg_mfe_mae_ratio": float((mfe_col / mae_col).mean())
-                if not mae_col.empty
-                else None,
+                "avg_mfe_mae_ratio": (
+                    float((mfe_col / mae_col).mean()) if not mae_col.empty else None
+                ),
             }
 
     # Performance metrics for closed positions
@@ -222,8 +222,8 @@ def get_portfolio_summary(
 
 
 def compare_portfolios(
-    portfolio_names: List[str], config: TradingSystemConfig = None
-) -> Dict[str, Any]:
+    portfolio_names: list[str], config: TradingSystemConfig = None
+) -> dict[str, Any]:
     """Compare multiple portfolios and return comparative analysis."""
     if config is None:
         config = get_config()
@@ -264,7 +264,9 @@ def compare_portfolios(
 
 
 def export_portfolio_summary(
-    portfolio_name: str, output_file: str = None, config: TradingSystemConfig = None
+    portfolio_name: str,
+    output_file: str | None = None,
+    config: TradingSystemConfig = None,
 ):
     """Export portfolio summary to JSON file."""
     if config is None:
@@ -322,7 +324,7 @@ def bulk_update_trade_quality(
 
 def find_duplicate_positions(
     portfolio_name: str, config: TradingSystemConfig = None
-) -> List[str]:
+) -> list[str]:
     """Find duplicate positions in a portfolio based on UUID."""
     if config is None:
         config = get_config()
@@ -377,7 +379,7 @@ def remove_duplicate_positions(
 
 
 def merge_portfolios(
-    source_portfolios: List[str],
+    source_portfolios: list[str],
     target_portfolio: str,
     config: TradingSystemConfig = None,
 ) -> int:
@@ -432,7 +434,7 @@ def quick_add_position(
     )
 
 
-def list_portfolios(config: TradingSystemConfig = None) -> List[str]:
+def list_portfolios(config: TradingSystemConfig = None) -> list[str]:
     """List all available portfolio files."""
     if config is None:
         config = get_config()
@@ -448,8 +450,8 @@ def list_portfolios(config: TradingSystemConfig = None) -> List[str]:
 
 
 def get_position_by_uuid(
-    uuid: str, portfolio_name: str = None, config: TradingSystemConfig = None
-) -> Optional[Dict[str, Any]]:
+    uuid: str, portfolio_name: str | None = None, config: TradingSystemConfig = None
+) -> dict[str, Any] | None:
     """Get a specific position by UUID from a portfolio or search all portfolios."""
     if config is None:
         config = get_config()
@@ -474,8 +476,6 @@ def get_position_by_uuid(
 def main():
     """Main CLI entry point for trade history utilities."""
     import argparse
-    import json
-    import sys
 
     parser = argparse.ArgumentParser(
         description="Trade History Utilities - Portfolio management and analysis",
@@ -636,21 +636,21 @@ Examples:
             # Strategy breakdown
             strategies = summary.get("strategy_breakdown", {})
             if strategies:
-                print(f"\nStrategy Breakdown:")
+                print("\nStrategy Breakdown:")
                 for strategy, count in strategies.items():
                     print(f"  {strategy}: {count}")
 
             # Trade quality breakdown
             quality = summary.get("trade_quality_breakdown", {})
             if quality:
-                print(f"\nTrade Quality:")
+                print("\nTrade Quality:")
                 for qual, count in quality.items():
                     print(f"  {qual}: {count}")
 
             # Performance metrics
             performance = summary.get("performance_metrics", {})
             if performance:
-                print(f"\nPerformance Metrics:")
+                print("\nPerformance Metrics:")
                 if performance.get("win_rate") is not None:
                     print(f"  Win rate: {performance['win_rate']:.2%}")
                 if performance.get("avg_return") is not None:
@@ -661,7 +661,7 @@ Examples:
             # Risk metrics
             risk = summary.get("risk_metrics", {})
             if risk:
-                print(f"\nRisk Metrics:")
+                print("\nRisk Metrics:")
                 if risk.get("avg_mfe") is not None:
                     print(f"  Average MFE: {risk['avg_mfe']:.2%}")
                 if risk.get("avg_mae") is not None:

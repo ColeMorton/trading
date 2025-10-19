@@ -6,22 +6,18 @@ and MACD strategies with various configuration options.
 """
 
 from pathlib import Path
-from typing import List, Optional, Union
 
 import pandas as pd
-import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
+import typer
 
 from app.tools.console_logging import ConsoleLogger, PerformanceAwareConsoleLogger
 from app.tools.portfolio.csv_generators import generate_csv_output_for_portfolios
 
 from ..config import ConfigLoader
 from ..models.strategy import (
-    MACDConfig,
-    MACrossConfig,
-    MarketType,
     StrategyConfig,
     StrategyExecutionSummary,
     StrategyPortfolioResults,
@@ -29,14 +25,11 @@ from ..models.strategy import (
 from ..services import StrategyDispatcher
 from .strategy_utils import (
     build_configuration_overrides,
-    convert_to_legacy_config,
-    display_results_table,
-    display_sweep_results_table,
     handle_command_error,
     show_config_preview,
-    show_execution_progress,
     validate_parameter_relationships,
 )
+
 
 # Create strategy sub-app
 app = typer.Typer(
@@ -53,18 +46,18 @@ def run(
     ),
     fast: int = typer.Option(..., "--fast", "-f", help="Fast moving average period"),
     slow: int = typer.Option(..., "--slow", "-s", help="Slow moving average period"),
-    signal: Optional[int] = typer.Option(
+    signal: int | None = typer.Option(
         None, "--signal", help="Signal period (for MACD strategies only)"
     ),
     strategy: str = typer.Option(
         "SMA", "--strategy", help="Strategy type: SMA, EMA, or MACD"
     ),
-    years: Optional[int] = typer.Option(
+    years: int | None = typer.Option(
         None, "--years", "-y", help="Number of years of historical data"
     ),
     use_4hour: bool = typer.Option(False, "--use-4hour", help="Use 4-hour timeframe"),
     use_2day: bool = typer.Option(False, "--use-2day", help="Use 2-day timeframe"),
-    market_type: Optional[str] = typer.Option(
+    market_type: str | None = typer.Option(
         None, "--market-type", help="Market type: crypto, us_stock, or auto"
     ),
     direction: str = typer.Option(
@@ -110,9 +103,9 @@ def run(
         if years:
             rprint(f"[cyan]History:[/cyan] {years} years")
         if use_4hour:
-            rprint(f"[cyan]Timeframe:[/cyan] 4-hour")
+            rprint("[cyan]Timeframe:[/cyan] 4-hour")
         elif use_2day:
-            rprint(f"[cyan]Timeframe:[/cyan] 2-day")
+            rprint("[cyan]Timeframe:[/cyan] 2-day")
         rprint("")
 
         if dry_run:
@@ -247,19 +240,17 @@ def run(
                 ]:
                     return (
                         f"{value:.2f}%"
-                        if isinstance(value, (int, float))
+                        if isinstance(value, int | float)
                         else str(value)
                     )
                 if key in ["Sharpe Ratio", "Sortino Ratio"]:
                     return (
-                        f"{value:.3f}"
-                        if isinstance(value, (int, float))
-                        else str(value)
+                        f"{value:.3f}" if isinstance(value, int | float) else str(value)
                     )
                 if key == "Expectancy":
                     return (
                         f"${value:.2f}"
-                        if isinstance(value, (int, float))
+                        if isinstance(value, int | float)
                         else str(value)
                     )
                 if isinstance(value, float):
@@ -320,11 +311,11 @@ def run(
 
             # Display trade statistics if available
             if num_trades > 0:
-                rprint(f"\n[bold]Trade Statistics:[/bold]")
+                rprint("\n[bold]Trade Statistics:[/bold]")
                 # Calculate wins/losses from win rate and total trades
                 win_rate_val = result.get("Win Rate [%]", 0)
                 if win_rate_val not in ["N/A", None] and isinstance(
-                    win_rate_val, (int, float)
+                    win_rate_val, int | float
                 ):
                     wins = int(num_trades * (win_rate_val / 100))
                     losses = num_trades - wins
@@ -347,7 +338,7 @@ def run(
 
             # Display equity curve info
             if "Equity Final [$]" in result:
-                rprint(f"\n[bold]Equity Curve:[/bold]")
+                rprint("\n[bold]Equity Curve:[/bold]")
                 rprint(
                     f"  Starting Equity: ${result.get('Equity Start [$]', 1000):.2f}"
                 )
@@ -355,7 +346,7 @@ def run(
                 rprint(f"  Peak Equity: ${result.get('Equity Peak [$]', 0):.2f}")
 
             # Display raw CSV data for copy/paste into portfolio files
-            rprint(f"\n[bold cyan]📋 Raw CSV Data (ready for copy/paste):[/bold cyan]")
+            rprint("\n[bold cyan]📋 Raw CSV Data (ready for copy/paste):[/bold cyan]")
             csv_output = generate_csv_output_for_portfolios([result])
 
             # Use plain print to avoid Rich formatting/wrapping for clean copy/paste
@@ -382,10 +373,10 @@ def run(
 @app.command()
 def sweep(
     ctx: typer.Context,
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
-    ticker: Optional[List[str]] = typer.Option(
+    ticker: list[str] | None = typer.Option(
         None,
         "--ticker",
         "--ticker-1",
@@ -393,25 +384,25 @@ def sweep(
         "-t1",
         help="Ticker symbols to analyze (multiple args or comma-separated: --ticker AAPL,MSFT or --ticker AAPL --ticker MSFT)",
     ),
-    ticker_2: Optional[str] = typer.Option(
+    ticker_2: str | None = typer.Option(
         None,
         "--ticker-2",
         "-t2",
         help="Second ticker for synthetic pair analysis (automatically enables synthetic mode)",
     ),
-    strategy_type: Optional[List[str]] = typer.Option(
+    strategy_type: list[str] | None = typer.Option(
         None,
         "--strategy",
         "-s",
         help="Strategy types: SMA, MACD (default strategies), EMA, ATR (specialized - explicit only, can be used multiple times)",
     ),
-    min_trades: Optional[int] = typer.Option(
+    min_trades: int | None = typer.Option(
         None, "--min-trades", help="Minimum number of trades filter"
     ),
-    min_win_rate: Optional[float] = typer.Option(
+    min_win_rate: float | None = typer.Option(
         None, "--min-win-rate", help="Minimum win rate filter (0.0 to 1.0)"
     ),
-    years: Optional[int] = typer.Option(
+    years: int | None = typer.Option(
         None,
         "--years",
         "-y",
@@ -420,75 +411,75 @@ def sweep(
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Preview configuration without executing"
     ),
-    use_4hour: Optional[bool] = typer.Option(
+    use_4hour: bool | None = typer.Option(
         None,
         "--use-4hour",
         help="Use 4-hour timeframe data (converted from 1-hour data)",
     ),
-    use_2day: Optional[bool] = typer.Option(
+    use_2day: bool | None = typer.Option(
         None,
         "--use-2day",
         help="Use 2-day timeframe data (converted from daily data)",
     ),
-    market_type: Optional[str] = typer.Option(
+    market_type: str | None = typer.Option(
         None,
         "--market-type",
         help="Market type: crypto, us_stock, or auto (automatic detection)",
     ),
-    direction: Optional[str] = typer.Option(
+    direction: str | None = typer.Option(
         None,
         "--direction",
         "-d",
         help="Trading direction: Long or Short (default: Long)",
     ),
-    skip_analysis: Optional[bool] = typer.Option(
+    skip_analysis: bool | None = typer.Option(
         None,
         "--skip-analysis",
         help="Skip data download and analysis, assume portfolio files exist in data/raw/portfolios/",
     ),
-    fast_min: Optional[int] = typer.Option(
+    fast_min: int | None = typer.Option(
         None, "--fast-min", help="Minimum fast period for sweep"
     ),
-    fast_max: Optional[int] = typer.Option(
+    fast_max: int | None = typer.Option(
         None, "--fast-max", help="Maximum fast period for sweep"
     ),
-    slow_min: Optional[int] = typer.Option(
+    slow_min: int | None = typer.Option(
         None, "--slow-min", help="Minimum slow period for sweep"
     ),
-    slow_max: Optional[int] = typer.Option(
+    slow_max: int | None = typer.Option(
         None, "--slow-max", help="Maximum slow period for sweep"
     ),
-    signal_min: Optional[int] = typer.Option(
+    signal_min: int | None = typer.Option(
         None, "--signal-min", help="Minimum signal period for sweep"
     ),
-    signal_max: Optional[int] = typer.Option(
+    signal_max: int | None = typer.Option(
         None, "--signal-max", help="Maximum signal period for sweep"
     ),
-    entry_fast: Optional[int] = typer.Option(
+    entry_fast: int | None = typer.Option(
         None,
         "--entry-fast",
         "-ef",
         help="Lock entry strategy fast period to specific value (sets both min and max)",
     ),
-    entry_slow: Optional[int] = typer.Option(
+    entry_slow: int | None = typer.Option(
         None,
         "--entry-slow",
         "-esl",
         help="Lock entry strategy slow period to specific value (sets both min and max)",
     ),
-    entry_signal: Optional[int] = typer.Option(
+    entry_signal: int | None = typer.Option(
         None,
         "--entry-signal",
         "-esi",
         help="Lock entry strategy signal period to specific value (sets both min and max, MACD only)",
     ),
-    date: Optional[str] = typer.Option(
+    date: str | None = typer.Option(
         None,
         "--date",
         "-d",
         help="Filter by entry signals triggered on specific date (YYYYMMDD format, e.g., 20250811). Overrides --current if both specified.",
     ),
-    use_current: Optional[bool] = typer.Option(
+    use_current: bool | None = typer.Option(
         None,
         "--use-current",
         help="Filter to only current entry signals (active positions for today). Overridden by --date if both specified.",
@@ -523,7 +514,7 @@ def sweep(
         "--batch/--no-batch",
         help="Enable batch processing mode for large ticker lists",
     ),
-    batch_size: Optional[int] = typer.Option(
+    batch_size: int | None = typer.Option(
         None,
         "--batch-size",
         help="Maximum number of tickers to process per execution when batch mode is enabled",
@@ -718,10 +709,10 @@ def sweep(
 @app.command()
 def review(
     ctx: typer.Context,
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
-    ticker: Optional[List[str]] = typer.Option(
+    ticker: list[str] | None = typer.Option(
         None,
         "--ticker",
         "-t",
@@ -735,7 +726,7 @@ def review(
         "--current",
         help="Analyze current day signals from date-specific directory",
     ),
-    date: Optional[str] = typer.Option(
+    date: str | None = typer.Option(
         None,
         "--date",
         help="Analyze signals from specific date directory (YYYYMMDD format, e.g., 20250816). Overrides --current flag.",
@@ -793,8 +784,8 @@ def review(
 
         # Validate date parameter if provided
         if date:
-            import re
             from pathlib import Path
+            import re
 
             # Validate YYYYMMDD format
             if not re.match(r"^\d{8}$", date):
@@ -811,7 +802,7 @@ def review(
             if not date_dir.exists():
                 rprint(f"[red]Error: Date directory not found: {date_dir}[/red]")
                 rprint(
-                    f"[dim]Available date directories can be found in data/raw/portfolios_best/[/dim]"
+                    "[dim]Available date directories can be found in data/raw/portfolios_best/[/dim]"
                 )
                 raise typer.Exit(1)
 
@@ -934,7 +925,7 @@ def review(
 
             if global_verbose:
                 rprint(
-                    f"[dim]Auto-discovery mode enabled - will scan current day directory[/dim]"
+                    "[dim]Auto-discovery mode enabled - will scan current day directory[/dim]"
                 )
 
         # Display configuration
@@ -944,15 +935,15 @@ def review(
         # Show mode and profile information
         if ticker_filtering_active:
             if batch:
-                rprint(f"📋 [white]Mode: Batch Processing[/white]")
+                rprint("📋 [white]Mode: Batch Processing[/white]")
             elif profile:
                 rprint(f"📋 [white]Mode: Ticker Filtering (Profile: {profile})[/white]")
             else:
-                rprint(f"📋 [white]Mode: Ticker Filtering[/white]")
+                rprint("📋 [white]Mode: Ticker Filtering[/white]")
         elif profile:
             rprint(f"📋 [white]Profile: {profile}[/white]")
         else:
-            rprint(f"📋 [white]Mode: Auto-Discovery[/white]")
+            rprint("📋 [white]Mode: Auto-Discovery[/white]")
 
         # Show analysis type with date if applicable
         from datetime import datetime
@@ -975,7 +966,7 @@ def review(
                     f"📊 [white]Analysis Type: portfolios_best ({date_label}, auto-discovery)[/white]"
                 )
         else:
-            rprint(f"📊 [white]Analysis Type: portfolios_best[/white]")
+            rprint("📊 [white]Analysis Type: portfolios_best[/white]")
 
         # Show tickers
         if ticker_filtering_active:
@@ -985,7 +976,7 @@ def review(
         elif profile:
             rprint(f"🎯 [white]Tickers: {', '.join(ticker_list)}[/white]")
         else:
-            rprint(f"🎯 [white]Tickers: Auto-discovered from current day files[/white]")
+            rprint("🎯 [white]Tickers: Auto-discovered from current day files[/white]")
 
         rprint(f"📈 [white]Display: Top {top_n} results[/white]")
         rprint(f"🔢 [white]Sort By: {sort_by}[/white]")
@@ -1043,13 +1034,13 @@ def review(
 
             # Summary statistics
             stats = display_data["stats"]
-            rprint(f"\n[bold green]✨ Analysis Complete![/bold green]")
+            rprint("\n[bold green]✨ Analysis Complete![/bold green]")
             rprint(
                 f"📈 [cyan]{stats['total_portfolios']} portfolios analyzed successfully[/cyan]"
             )
 
             if stats["total_portfolios"] > 0:
-                rprint(f"\n💡 [bold yellow]Key Insights:[/bold yellow]")
+                rprint("\n💡 [bold yellow]Key Insights:[/bold yellow]")
                 rprint(
                     f"🏆 [white]Best Opportunity: {stats['best_ticker']} ({stats['best_return']:+.2f}%)[/white]"
                 )
@@ -1059,7 +1050,7 @@ def review(
                 )
 
             # Raw CSV output section
-            rprint(f"\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
+            rprint("\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
             csv_output = analysis_service.generate_csv_output(
                 display_data["all_results"]
             )
@@ -1412,10 +1403,10 @@ def sector_compare(
     format: str = typer.Option(
         "table", "--format", "-f", help="Output format: table, json, csv"
     ),
-    export: Optional[str] = typer.Option(
+    export: str | None = typer.Option(
         None, "--export", "-e", help="Export results to file"
     ),
-    date: Optional[str] = typer.Option(
+    date: str | None = typer.Option(
         None,
         "--date",
         "-d",
@@ -1427,7 +1418,7 @@ def sector_compare(
     explain_columns: bool = typer.Option(
         False, "--explain-columns", help="Explain all column meanings and exit"
     ),
-    vs_benchmark: Optional[str] = typer.Option(
+    vs_benchmark: str | None = typer.Option(
         None,
         "--vs-benchmark",
         help="Compare against benchmark (SPY, BTC-USD, or any ticker)",
@@ -1445,7 +1436,6 @@ def sector_compare(
     Generates a cross-comparison matrix of all 11 sector ETFs (XLK, XLY, etc.)
     ranked by their best SMA Score values across all parameter combinations.
     """
-    from pathlib import Path
 
     from app.tools.sector_comparison import SectorComparisonEngine
 
@@ -1503,11 +1493,11 @@ def sector_compare(
 
                 except Exception as e:
                     console.print(
-                        f"[red]✗[/red] Error during sector data generation: {str(e)}"
+                        f"[red]✗[/red] Error during sector data generation: {e!s}"
                     )
                     console.print("[yellow]Continuing with existing data...[/yellow]")
                     if verbose:
-                        console.print(f"[red]Full error: {str(e)}[/red]")
+                        console.print(f"[red]Full error: {e!s}[/red]")
 
         # Initialize sector comparison engine
         engine = SectorComparisonEngine(date=date, benchmark_ticker=vs_benchmark)
@@ -1576,7 +1566,7 @@ def sector_compare(
                 else:
                     console.print(f"• [bold white]{label}:[/bold white] {description}")
 
-            console.print(f"\n[bold yellow]💡 Key Insights:[/bold yellow]")
+            console.print("\n[bold yellow]💡 Key Insights:[/bold yellow]")
             console.print(
                 "• Higher Score values indicate better overall strategy performance"
             )

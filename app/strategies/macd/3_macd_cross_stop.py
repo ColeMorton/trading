@@ -1,13 +1,13 @@
-import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Tuple
+import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
 import polars as pl
-import yfinance as yf
 from scipy.signal import find_peaks
+import yfinance as yf
+
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent.parent
@@ -19,6 +19,7 @@ from app.tools.calculate_macd_signals import calculate_macd_signals
 from app.tools.calculate_rsi import calculate_rsi
 from app.tools.get_data import get_data
 from app.tools.setup_logging import setup_logging
+
 
 log, log_close, _, _ = setup_logging(
     module_name="macd_stop", log_file="3_macd_cross_stop.log"
@@ -47,7 +48,7 @@ def backtest(
     stop_loss_percentage: float,
     config: PortfolioConfig,
     rsi_threshold: int = 70,
-) -> List[Tuple[float, float]]:
+) -> list[tuple[float, float]]:
     position, entry_price = 0, 0
     trades = []
 
@@ -62,21 +63,17 @@ def backtest(
                     and data["RSI"][i] <= rsi_threshold
                 ):
                     position, entry_price = -1, data["Close"][i]
-            else:
-                # Long entry condition
-                if (
-                    data["MACD"][i] > data["Signal"][i]
-                    and data["MACD"][i - 1] <= data["Signal"][i - 1]
-                    and data["RSI"][i] is not None
-                    and data["RSI"][i] >= rsi_threshold
-                ):
-                    position, entry_price = 1, data["Close"][i]
+            # Long entry condition
+            elif (
+                data["MACD"][i] > data["Signal"][i]
+                and data["MACD"][i - 1] <= data["Signal"][i - 1]
+                and data["RSI"][i] is not None
+                and data["RSI"][i] >= rsi_threshold
+            ):
+                position, entry_price = 1, data["Close"][i]
         elif position == 1:
             # Long exit condition
-            if data["Close"][i] < entry_price * (1 - stop_loss_percentage / 100):
-                position, exit_price = 0, data["Close"][i]
-                trades.append((entry_price, exit_price))
-            elif (
+            if data["Close"][i] < entry_price * (1 - stop_loss_percentage / 100) or (
                 data["MACD"][i] < data["Signal"][i]
                 and data["MACD"][i - 1] >= data["Signal"][i - 1]
             ):
@@ -84,10 +81,7 @@ def backtest(
                 trades.append((entry_price, exit_price))
         elif position == -1:
             # Short exit condition
-            if data["Close"][i] > entry_price * (1 + stop_loss_percentage / 100):
-                position, exit_price = 0, data["Close"][i]
-                trades.append((entry_price, exit_price))
-            elif (
+            if data["Close"][i] > entry_price * (1 + stop_loss_percentage / 100) or (
                 data["MACD"][i] > data["Signal"][i]
                 and data["MACD"][i - 1] <= data["Signal"][i - 1]
             ):
@@ -98,8 +92,8 @@ def backtest(
 
 
 def calculate_metrics(
-    trades: List[Tuple[float, float]], config: PortfolioConfig
-) -> Tuple[float, float, float]:
+    trades: list[tuple[float, float]], config: PortfolioConfig
+) -> tuple[float, float, float]:
     if not trades:
         return 0, 0, 0
 
@@ -164,8 +158,8 @@ def add_peak_labels(
             textcoords="offset points",
             ha="center",
             va="bottom",
-            bbox=dict(boxstyle="round,pad=0.5", fc="cyan", alpha=0.5),
-            arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=0"),
+            bbox={"boxstyle": "round,pad=0.5", "fc": "cyan", "alpha": 0.5},
+            arrowprops={"arrowstyle": "->", "connectionstyle": "arc3,rad=0"},
         )
 
 

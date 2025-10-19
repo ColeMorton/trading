@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -29,16 +29,16 @@ class SeasonalityPattern(BaseModel):
     win_rate: float
     sample_size: int
     statistical_significance: float
-    p_value: Optional[float] = None
-    confidence_interval_lower: Optional[float] = None
-    confidence_interval_upper: Optional[float] = None
-    sharpe_ratio: Optional[float] = None
-    sortino_ratio: Optional[float] = None
-    max_drawdown: Optional[float] = None
-    consistency_score: Optional[float] = None
-    skewness: Optional[float] = None
-    kurtosis: Optional[float] = None
-    period_number: Optional[int] = None
+    p_value: float | None = None
+    confidence_interval_lower: float | None = None
+    confidence_interval_upper: float | None = None
+    sharpe_ratio: float | None = None
+    sortino_ratio: float | None = None
+    max_drawdown: float | None = None
+    consistency_score: float | None = None
+    skewness: float | None = None
+    kurtosis: float | None = None
+    period_number: int | None = None
 
 
 class SeasonalityResult(BaseModel):
@@ -49,19 +49,19 @@ class SeasonalityResult(BaseModel):
     data_start_date: datetime
     data_end_date: datetime
     total_periods: int
-    patterns: List[SeasonalityPattern]
+    patterns: list[SeasonalityPattern]
     overall_seasonal_strength: float = Field(
         description="Overall strength of seasonal patterns (0-1)"
     )
-    strongest_pattern: Optional[SeasonalityPattern] = None
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    strongest_pattern: SeasonalityPattern | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class SeasonalityConfig(BaseConfig):
     """Configuration for seasonality analysis."""
 
     config_type: str = "seasonality"
-    tickers: Optional[List[str]] = Field(
+    tickers: list[str] | None = Field(
         default=None, description="Specific tickers to analyze"
     )
     min_years: float = Field(default=3.0, description="Minimum years of data required")
@@ -130,7 +130,7 @@ class PortfolioSeasonalityConfig(BaseConfig):
         default=21,
         description="Default time period in days when no signal entry exists",
     )
-    time_period_days: Optional[int] = Field(
+    time_period_days: int | None = Field(
         default=None,
         description="Override time period for ALL tickers (ignores signal entry and default)",
     )
@@ -168,7 +168,7 @@ class PortfolioSeasonalityConfig(BaseConfig):
 
     @field_validator("time_period_days")
     @classmethod
-    def validate_time_period(cls, v: Optional[int]) -> Optional[int]:
+    def validate_time_period(cls, v: int | None) -> int | None:
         """Validate time period is positive."""
         if v is not None:
             if v <= 0:
@@ -199,7 +199,7 @@ class SeasonalityExpectancyConfig(BaseConfig):
     """Configuration for seasonality expectancy analysis."""
 
     config_type: str = "seasonality_expectancy"
-    tickers: Optional[List[str]] = Field(
+    tickers: list[str] | None = Field(
         default=None, description="Specific tickers to analyze"
     )
     days: int = Field(default=30, description="Number of days for hold period")

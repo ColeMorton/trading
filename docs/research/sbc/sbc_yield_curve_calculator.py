@@ -7,12 +7,9 @@ This script validates the insight that the SBC yield curve should mirror
 the 1093-day SMA's extremely low volatility characteristics.
 """
 
-import math
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -182,7 +179,7 @@ class SBCYieldCurveCalculator:
         # Sanity check only (not artificial cap)
         return min(total_discount, self.MAX_DISCOUNT_SANITY)
 
-    def get_discount_breakdown(self, vesting_days: int) -> Dict[str, float]:
+    def get_discount_breakdown(self, vesting_days: int) -> dict[str, float]:
         """Get detailed breakdown of discount calculation"""
         expected_appreciation = self.calculate_expected_appreciation(vesting_days)
         time_premium = self.calculate_time_premium(vesting_days)
@@ -199,7 +196,7 @@ class SBCYieldCurveCalculator:
             "vesting_days": vesting_days,
         }
 
-    def get_yield_curve(self, vesting_days_list: List[int]) -> pd.DataFrame:
+    def get_yield_curve(self, vesting_days_list: list[int]) -> pd.DataFrame:
         """Generate complete yield curve for given vesting periods"""
         results = []
 
@@ -239,7 +236,7 @@ class YieldCurveAnalyzer:
 
         return self.calculator.get_yield_curve(vesting_periods)
 
-    def analyze_curve_stability(self) -> Dict[str, float]:
+    def analyze_curve_stability(self) -> dict[str, float]:
         """Analyze the stability characteristics of the yield curve"""
         curve_df = self.generate_standard_curve()
 
@@ -297,7 +294,7 @@ class YieldCurveAnalyzer:
 
         return pd.DataFrame(results)
 
-    def compare_to_sma_volatility(self) -> Dict[str, float]:
+    def compare_to_sma_volatility(self) -> dict[str, float]:
         """Compare yield curve volatility to SMA characteristics"""
         stability_metrics = self.analyze_curve_stability()
 

@@ -5,13 +5,11 @@ This module provides signal detection functions specific to ATR trailing stop st
 determining current entry and exit signals based on price vs trailing stop levels.
 """
 
-from typing import Dict, Optional
-
 import pandas as pd
 import polars as pl
 
 
-def is_signal_current(signals: pl.DataFrame, config: Optional[Dict] = None) -> bool:
+def is_signal_current(signals: pl.DataFrame, config: dict | None = None) -> bool:
     """
     Check if there is a valid ATR entry signal on the last trading day.
     An ATR entry signal occurs when close >= ATR_Trailing_Stop.
@@ -55,9 +53,7 @@ def is_signal_current(signals: pl.DataFrame, config: Optional[Dict] = None) -> b
         return False
 
 
-def is_exit_signal_current(
-    signals: pl.DataFrame, config: Optional[Dict] = None
-) -> bool:
+def is_exit_signal_current(signals: pl.DataFrame, config: dict | None = None) -> bool:
     """
     Check if there is a valid ATR exit signal on the last trading day.
     An ATR exit signal occurs when close < ATR_Trailing_Stop.
@@ -101,7 +97,7 @@ def is_exit_signal_current(
         return False
 
 
-def get_current_atr_stop_level(signals: pl.DataFrame) -> Optional[float]:
+def get_current_atr_stop_level(signals: pl.DataFrame) -> float | None:
     """
     Get the current ATR trailing stop level from the latest data.
 
@@ -124,7 +120,7 @@ def get_current_atr_stop_level(signals: pl.DataFrame) -> Optional[float]:
         return None
 
 
-def get_signal_strength(signals: pl.DataFrame) -> Dict[str, float]:
+def get_signal_strength(signals: pl.DataFrame) -> dict[str, float]:
     """
     Calculate signal strength metrics for ATR strategy.
 

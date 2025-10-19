@@ -3,16 +3,15 @@ Automated resource cleanup framework to prevent test pollution.
 Phase 3: Testing Infrastructure Consolidation
 """
 
+from collections.abc import Callable
+from contextlib import contextmanager
 import os
+from pathlib import Path
 import shutil
 import tempfile
 import threading
 import time
-import weakref
-from contextlib import contextmanager
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Set
-from unittest.mock import MagicMock
+from typing import Any
 
 import pytest
 
@@ -24,13 +23,13 @@ class ResourceCleanupManager:
     """
 
     def __init__(self):
-        self.tracked_resources: Dict[str, Dict[str, Any]] = {}
-        self.cleanup_handlers: Dict[str, Callable] = {}
-        self.temp_directories: Set[Path] = set()
-        self.temp_files: Set[Path] = set()
-        self.mock_objects: Set[Any] = set()
-        self.database_sessions: List[Any] = []
-        self.network_connections: List[Any] = []
+        self.tracked_resources: dict[str, dict[str, Any]] = {}
+        self.cleanup_handlers: dict[str, Callable] = {}
+        self.temp_directories: set[Path] = set()
+        self.temp_files: set[Path] = set()
+        self.mock_objects: set[Any] = set()
+        self.database_sessions: list[Any] = []
+        self.network_connections: list[Any] = []
         self._lock = threading.Lock()
 
     def register_resource(
@@ -112,7 +111,7 @@ class ResourceCleanupManager:
                 print(f"Warning: Failed to cleanup resource {resource_id}: {e}")
                 return False
 
-    def cleanup_all_resources(self, resource_type: str = None):
+    def cleanup_all_resources(self, resource_type: str | None = None):
         """
         Clean up all tracked resources, optionally filtered by type.
 
@@ -176,7 +175,7 @@ class ResourceCleanupManager:
                 print(f"Warning: Failed to cleanup database session: {e}")
         self.database_sessions.clear()
 
-    def get_resource_stats(self) -> Dict[str, Any]:
+    def get_resource_stats(self) -> dict[str, Any]:
         """Get statistics about tracked resources."""
         with self._lock:
             total_resources = len(self.tracked_resources)
@@ -324,7 +323,7 @@ class DatabaseCleanup:
     """Database-specific cleanup utilities."""
 
     @staticmethod
-    def cleanup_test_tables(session, table_names: List[str]):
+    def cleanup_test_tables(session, table_names: list[str]):
         """Clean up specific test tables."""
         for table_name in table_names:
             try:
@@ -335,7 +334,7 @@ class DatabaseCleanup:
                 session.rollback()
 
     @staticmethod
-    def cleanup_test_data(session, cleanup_queries: List[str]):
+    def cleanup_test_data(session, cleanup_queries: list[str]):
         """Execute cleanup queries."""
         for query in cleanup_queries:
             try:

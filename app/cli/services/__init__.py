@@ -13,10 +13,11 @@ from .strategy_services import (
     MAStrategyService,
 )
 
+
 __all__ = [
-    "StrategyDispatcher",
-    "BaseStrategyService",
-    "MAStrategyService",
-    "MACDStrategyService",
     "ATRStrategyService",
+    "BaseStrategyService",
+    "MACDStrategyService",
+    "MAStrategyService",
+    "StrategyDispatcher",
 ]

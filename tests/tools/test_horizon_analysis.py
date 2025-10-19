@@ -59,7 +59,7 @@ class TestHorizonAnalysis(unittest.TestCase):
         signals = np.array([0, 1, 0, 0, 1, 0, 0, -1, 0, 0])
 
         # Expected positions (shifted by 1)
-        expected_positions = np.array([0, 0, 1, 0, 0, 1, 0, 0, -1, 0])
+        np.array([0, 0, 1, 0, 0, 1, 0, 0, -1, 0])
 
         # Returns that would make some positions profitable and others not
         returns = np.array(

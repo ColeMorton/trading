@@ -3,8 +3,6 @@
 import tempfile
 from unittest.mock import Mock, patch
 
-import pytest
-
 from app.tools.portfolio import PositionSizingPortfolioIntegration
 
 
@@ -113,14 +111,17 @@ class TestPositionSizingPortfolioIntegration:
         }
 
         # Mock external dependencies
-        with patch.multiple(
-            self.integration.cvar_calculator,
-            calculate_trading_cvar=Mock(return_value=-0.025),
-            calculate_investment_cvar=Mock(return_value=-0.018),
-        ), patch.object(
-            self.integration.price_integration,
-            "get_current_price",
-            side_effect=[150.0, 800.0, 45000.0],  # Prices for AAPL, TSLA, BTC-USD
+        with (
+            patch.multiple(
+                self.integration.cvar_calculator,
+                calculate_trading_cvar=Mock(return_value=-0.025),
+                calculate_investment_cvar=Mock(return_value=-0.018),
+            ),
+            patch.object(
+                self.integration.price_integration,
+                "get_current_price",
+                side_effect=[150.0, 800.0, 45000.0],  # Prices for AAPL, TSLA, BTC-USD
+            ),
         ):
             df = self.integration.create_position_sizing_portfolio(
                 tickers, manual_data_by_ticker
@@ -259,20 +260,26 @@ class TestPositionSizingPortfolioIntegration:
         tickers = ["AAPL"]
 
         # Mock dependencies to avoid external calls
-        with patch.multiple(
-            self.integration.cvar_calculator,
-            calculate_trading_cvar=Mock(return_value=-0.02),
-            calculate_investment_cvar=Mock(return_value=-0.015),
-        ), patch.object(
-            self.integration.price_integration, "get_current_price", return_value=150.0
-        ), patch.object(
-            self.integration.strategies_integration,
-            "get_strategies_count_data",
-            return_value=Mock(
-                total_strategies_analyzed=17,
-                stable_strategies_count=12,
-                avg_concurrent_strategies=9.5,
-                max_concurrent_strategies=17,
+        with (
+            patch.multiple(
+                self.integration.cvar_calculator,
+                calculate_trading_cvar=Mock(return_value=-0.02),
+                calculate_investment_cvar=Mock(return_value=-0.015),
+            ),
+            patch.object(
+                self.integration.price_integration,
+                "get_current_price",
+                return_value=150.0,
+            ),
+            patch.object(
+                self.integration.strategies_integration,
+                "get_strategies_count_data",
+                return_value=Mock(
+                    total_strategies_analyzed=17,
+                    stable_strategies_count=12,
+                    avg_concurrent_strategies=9.5,
+                    max_concurrent_strategies=17,
+                ),
             ),
         ):
             export_data = self.integration.generate_excel_compatible_export(tickers)

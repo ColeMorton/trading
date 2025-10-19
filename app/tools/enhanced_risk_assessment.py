@@ -7,15 +7,14 @@ This module provides advanced risk assessment capabilities including:
 - Volatility regime detection and adjustment
 """
 
-import json
-import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+import json
+import logging
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import numpy as np
-import pandas as pd
 import yfinance as yf
 
 
@@ -86,7 +85,7 @@ class DynamicRiskFreeRateProvider:
         self.logger.warning(f"Using fallback risk-free rate: {fallback_rate.rate:.3%}")
         return fallback_rate
 
-    def _fetch_live_treasury_rate(self) -> Optional[RiskFreeRateData]:
+    def _fetch_live_treasury_rate(self) -> RiskFreeRateData | None:
         """Fetch live Treasury rate data."""
         try:
             # Fetch 3-month Treasury bill rate (^IRX)
@@ -114,7 +113,7 @@ class DynamicRiskFreeRateProvider:
             self.logger.error(f"Failed to fetch live Treasury rate: {e}")
             return None
 
-    def _get_cached_rate(self) -> Optional[RiskFreeRateData]:
+    def _get_cached_rate(self) -> RiskFreeRateData | None:
         """Load cached rate data."""
         cache_file = self.cache_dir / "risk_free_rate.json"
 
@@ -122,7 +121,7 @@ class DynamicRiskFreeRateProvider:
             if not cache_file.exists():
                 return None
 
-            with open(cache_file, "r") as f:
+            with open(cache_file) as f:
                 data = json.load(f)
 
             return RiskFreeRateData(
@@ -196,8 +195,8 @@ class MarketBetaCalculator:
         self.logger = logging.getLogger(__name__)
 
     def calculate_beta(
-        self, ticker: str, returns: Optional[np.ndarray] = None
-    ) -> Dict[str, float]:
+        self, ticker: str, returns: np.ndarray | None = None
+    ) -> dict[str, float]:
         """
         Calculate market beta and related metrics.
 
@@ -266,16 +265,16 @@ class MarketBetaCalculator:
                 "systematic_risk": float(systematic_risk),
                 "idiosyncratic_risk": float(max(0, idiosyncratic_risk)),
                 "total_risk": float(total_risk),
-                "systematic_risk_pct": float(systematic_risk / total_risk)
-                if total_risk > 0
-                else 0.0,
+                "systematic_risk_pct": (
+                    float(systematic_risk / total_risk) if total_risk > 0 else 0.0
+                ),
             }
 
         except Exception as e:
             self.logger.error(f"Beta calculation failed for {ticker}: {e}")
             return self._default_beta_metrics()
 
-    def _default_beta_metrics(self) -> Dict[str, float]:
+    def _default_beta_metrics(self) -> dict[str, float]:
         """Return default beta metrics when calculation fails."""
         return {
             "beta": 1.0,
@@ -313,7 +312,7 @@ class VolatilityRegimeDetector:
             "crisis": 50,
         }
 
-    def detect_regime(self) -> Tuple[str, float, Dict[str, Any]]:
+    def detect_regime(self) -> tuple[str, float, dict[str, Any]]:
         """
         Detect current volatility regime.
 
@@ -358,7 +357,7 @@ class VolatilityRegimeDetector:
             self.logger.error(f"VIX regime detection failed: {e}")
             return self._default_regime()
 
-    def _get_threshold_adjustments(self, regime: str) -> Dict[str, float]:
+    def _get_threshold_adjustments(self, regime: str) -> dict[str, float]:
         """Get enhanced threshold adjustments for different market regimes."""
         adjustments = {
             "very_low": {
@@ -394,7 +393,7 @@ class VolatilityRegimeDetector:
         }
         return adjustments.get(regime, adjustments["normal"])
 
-    def _get_weight_adjustments(self, regime: str) -> Dict[str, float]:
+    def _get_weight_adjustments(self, regime: str) -> dict[str, float]:
         """Get enhanced weight adjustments for different market regimes."""
         adjustments = {
             "very_low": {
@@ -440,7 +439,7 @@ class VolatilityRegimeDetector:
         }
         return adjustments.get(regime, adjustments["normal"])
 
-    def _default_regime(self) -> Tuple[str, float, Dict[str, Any]]:
+    def _default_regime(self) -> tuple[str, float, dict[str, Any]]:
         """Return default regime when detection fails."""
         return (
             "normal",

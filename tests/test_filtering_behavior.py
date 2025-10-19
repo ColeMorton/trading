@@ -7,11 +7,11 @@ to ensure that the consolidated PortfolioFilterService maintains identical behav
 
 # Mock the required imports to avoid circular dependencies during testing
 import sys
-from typing import Any, Callable, Dict, List
 from unittest.mock import MagicMock, Mock
 
 import polars as pl
 import pytest
+
 
 # Mock the modules to avoid import issues
 sys.modules["app.tools.portfolio.schema_detection"] = MagicMock()

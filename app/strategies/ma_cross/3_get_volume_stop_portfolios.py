@@ -16,7 +16,7 @@ Key Features:
 
 import os
 import time
-from typing import Any, Dict, List
+from typing import Any
 
 import polars as pl
 
@@ -26,10 +26,11 @@ from app.strategies.ma_cross.tools.volume_parameter_sweep import (
 from app.tools.cache_utils import CacheConfig
 from app.tools.entry_point import run_from_command_line
 from app.tools.logging_context import logging_context
-from app.tools.portfolio.base_extended_schemas import SchemaTransformer, SchemaType
+from app.tools.portfolio.base_extended_schemas import SchemaTransformer
 from app.tools.portfolio.filtering_service import PortfolioFilterService
 from app.tools.portfolio_results import sort_portfolios
 from app.tools.project_utils import get_project_root
+
 
 # Volume-specific configuration based on proven MA Cross settings
 default_config: CacheConfig = {
@@ -84,7 +85,7 @@ def execute_volume_analysis_for_ticker(
     ticker: str,
     config: CacheConfig,
     log: callable,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Execute ATR parameter sensitivity analysis for a single ticker.
 
@@ -102,7 +103,8 @@ def execute_volume_analysis_for_ticker(
     try:
         # Create volume parameter sweep engine
         sweep_engine = create_volume_sweep_engine(
-            config, enable_memory_optimization=True  # Use sensible default
+            config,
+            enable_memory_optimization=True,  # Use sensible default
         )
 
         # Prepare MA Cross configuration for fixed entry parameters
@@ -135,7 +137,7 @@ def execute_volume_analysis_for_ticker(
             len(ema_periods) * len(rvol_thresholds) * len(volume_lookbacks)
         )
 
-        log(f"Volume parameter ranges:", "info")
+        log("Volume parameter ranges:", "info")
         log(f"  EMA Periods: {config.get('EMA_PERIODS', [])}", "info")
         log(f"  RVOL Thresholds: {config.get('RVOL_THRESHOLDS', [])}", "info")
         log(f"  Volume Lookbacks: {config.get('VOLUME_LOOKBACKS', [])}", "info")
@@ -183,7 +185,7 @@ def execute_volume_analysis_for_ticker(
         return portfolio_results
 
     except Exception as e:
-        log(f"Volume analysis failed for {ticker}: {str(e)}", "error")
+        log(f"Volume analysis failed for {ticker}: {e!s}", "error")
         import traceback
 
         log(f"Error details: {traceback.format_exc()}", "error")
@@ -191,7 +193,7 @@ def execute_volume_analysis_for_ticker(
 
 
 def export_volume_portfolios(
-    portfolios: List[Dict[str, Any]],
+    portfolios: list[dict[str, Any]],
     ticker: str,
     config: CacheConfig,
     log: callable,
@@ -290,7 +292,7 @@ def export_volume_portfolios(
         return True
 
     except Exception as e:
-        log(f"Failed to export volume portfolios for {ticker}: {str(e)}", "error")
+        log(f"Failed to export volume portfolios for {ticker}: {e!s}", "error")
         return False
 
 

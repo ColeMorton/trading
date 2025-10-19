@@ -8,10 +8,9 @@ and probabilistic exit signal generation with type safety and validation.
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Literal
 
-import numpy as np
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class SignalType(str, Enum):
@@ -104,10 +103,10 @@ class AssetDistributionAnalysis(BaseModel):
     var_metrics: VaRMetrics
 
     # Current performance context
-    current_return: Optional[float] = Field(
+    current_return: float | None = Field(
         description="Current period return", default=None
     )
-    current_percentile: Optional[float] = Field(
+    current_percentile: float | None = Field(
         description="Current return percentile rank", default=None
     )
 
@@ -191,16 +190,16 @@ class DualSourceConvergence(BaseModel):
     """Convergence analysis between trade history and equity curve data"""
 
     # Convergence metrics
-    return_correlation: Optional[float] = Field(
+    return_correlation: float | None = Field(
         description="Correlation between trade returns and equity returns",
         ge=-1,
         le=1,
         default=None,
     )
-    performance_agreement: Optional[float] = Field(
+    performance_agreement: float | None = Field(
         description="Agreement in performance ranking", ge=0, le=1, default=None
     )
-    risk_agreement: Optional[float] = Field(
+    risk_agreement: float | None = Field(
         description="Agreement in risk assessment", ge=0, le=1, default=None
     )
 
@@ -216,7 +215,7 @@ class DualSourceConvergence(BaseModel):
     has_significant_divergence: bool = Field(
         description="Flag for significant divergence between sources"
     )
-    divergence_explanation: Optional[str] = Field(
+    divergence_explanation: str | None = Field(
         description="Explanation of divergence if present", default=None
     )
 
@@ -227,20 +226,20 @@ class StrategyDistributionAnalysis(BaseModel):
     strategy_name: str = Field(description="Strategy identifier")
     ticker: str = Field(description="Asset ticker symbol")
     timeframe: str = Field(description="Analysis timeframe")
-    data_sources_used: List[DataSource] = Field(
+    data_sources_used: list[DataSource] = Field(
         description="Data sources used in analysis"
     )
 
     # Dual-source analysis results
-    trade_history_analysis: Optional[TradeHistoryAnalysis] = Field(
+    trade_history_analysis: TradeHistoryAnalysis | None = Field(
         description="Trade history analysis results", default=None
     )
-    equity_analysis: Optional[EquityAnalysis] = Field(
+    equity_analysis: EquityAnalysis | None = Field(
         description="Equity curve analysis results", default=None
     )
 
     # Source convergence (when both sources available)
-    dual_source_convergence: Optional[DualSourceConvergence] = Field(
+    dual_source_convergence: DualSourceConvergence | None = Field(
         description="Convergence analysis between trade history and equity data",
         default=None,
     )
@@ -251,28 +250,26 @@ class StrategyDistributionAnalysis(BaseModel):
     var_metrics: VaRMetrics = Field(description="Combined/primary risk metrics")
 
     # Combined strategy metrics (derived from best available source or combination)
-    win_rate: Optional[float] = Field(description="Win rate", ge=0, le=1, default=None)
-    profit_factor: Optional[float] = Field(
-        description="Profit factor", ge=0, default=None
-    )
-    sharpe_ratio: Optional[float] = Field(description="Sharpe ratio", default=None)
-    max_drawdown: Optional[float] = Field(
+    win_rate: float | None = Field(description="Win rate", ge=0, le=1, default=None)
+    profit_factor: float | None = Field(description="Profit factor", ge=0, default=None)
+    sharpe_ratio: float | None = Field(description="Sharpe ratio", default=None)
+    max_drawdown: float | None = Field(
         description="Maximum drawdown", le=0, default=None
     )
 
     # Legacy fields for backward compatibility
-    mfe_statistics: Optional[StatisticalMetrics] = Field(
+    mfe_statistics: StatisticalMetrics | None = Field(
         description="MFE statistics (legacy)", default=None
     )
-    mae_statistics: Optional[StatisticalMetrics] = Field(
+    mae_statistics: StatisticalMetrics | None = Field(
         description="MAE statistics (legacy)", default=None
     )
-    duration_statistics: Optional[StatisticalMetrics] = Field(
+    duration_statistics: StatisticalMetrics | None = Field(
         description="Trade duration statistics (legacy)", default=None
     )
 
     # Bootstrap validation for small samples
-    bootstrap_results: Optional[BootstrapResults] = Field(
+    bootstrap_results: BootstrapResults | None = Field(
         description="Bootstrap validation results", default=None
     )
 
@@ -285,7 +282,7 @@ class StrategyDistributionAnalysis(BaseModel):
     )
 
     # Multi-source confidence (new)
-    analysis_agreement_score: Optional[float] = Field(
+    analysis_agreement_score: float | None = Field(
         description="Agreement score between multiple sources", ge=0, le=1, default=None
     )
     combined_confidence: float = Field(
@@ -326,10 +323,10 @@ class DualLayerConvergence(BaseModel):
     )
 
     # Individual strategy source percentiles (when available)
-    trade_history_percentile: Optional[float] = Field(
+    trade_history_percentile: float | None = Field(
         description="Trade history layer percentile", ge=0, le=100, default=None
     )
-    equity_curve_percentile: Optional[float] = Field(
+    equity_curve_percentile: float | None = Field(
         description="Equity curve layer percentile", ge=0, le=100, default=None
     )
 
@@ -342,18 +339,18 @@ class DualLayerConvergence(BaseModel):
     )
 
     # Multi-source convergence (new for dual-source analysis)
-    asset_trade_convergence: Optional[float] = Field(
+    asset_trade_convergence: float | None = Field(
         description="Asset-Trade History convergence", ge=0, le=1, default=None
     )
-    asset_equity_convergence: Optional[float] = Field(
+    asset_equity_convergence: float | None = Field(
         description="Asset-Equity convergence", ge=0, le=1, default=None
     )
-    trade_equity_convergence: Optional[float] = Field(
+    trade_equity_convergence: float | None = Field(
         description="Trade History-Equity convergence", ge=0, le=1, default=None
     )
 
     # Triple-layer convergence (when all sources available)
-    triple_layer_convergence: Optional[float] = Field(
+    triple_layer_convergence: float | None = Field(
         description="Asset-Trade History-Equity convergence", ge=0, le=1, default=None
     )
 
@@ -367,7 +364,7 @@ class DualLayerConvergence(BaseModel):
     )
 
     # Source reliability weighting
-    source_weights: Dict[str, float] = Field(
+    source_weights: dict[str, float] = Field(
         description="Weights assigned to each data source", default_factory=dict
     )
     weighted_convergence_score: float = Field(
@@ -396,10 +393,10 @@ class ProbabilisticExitSignal(BaseModel):
     asset_layer_contribution: float = Field(
         description="Asset layer signal contribution", ge=0, le=1
     )
-    trade_history_contribution: Optional[float] = Field(
+    trade_history_contribution: float | None = Field(
         description="Trade history signal contribution", ge=0, le=1, default=None
     )
-    equity_curve_contribution: Optional[float] = Field(
+    equity_curve_contribution: float | None = Field(
         description="Equity curve signal contribution", ge=0, le=1, default=None
     )
 
@@ -407,7 +404,7 @@ class ProbabilisticExitSignal(BaseModel):
     dual_layer_score: float = Field(
         description="Dual-layer convergence contribution", ge=0, le=1
     )
-    triple_layer_score: Optional[float] = Field(
+    triple_layer_score: float | None = Field(
         description="Triple-layer convergence contribution", ge=0, le=1, default=None
     )
     timeframe_score: float = Field(
@@ -418,7 +415,7 @@ class ProbabilisticExitSignal(BaseModel):
     )
 
     # Source agreement scoring (new)
-    intra_strategy_consistency: Optional[float] = Field(
+    intra_strategy_consistency: float | None = Field(
         description="Consistency between trade history and equity analysis",
         ge=0,
         le=1,
@@ -437,7 +434,7 @@ class ProbabilisticExitSignal(BaseModel):
     )
 
     # Multi-source confidence (new)
-    data_source_confidence: Dict[str, float] = Field(
+    data_source_confidence: dict[str, float] = Field(
         description="Confidence by data source", default_factory=dict
     )
     combined_source_confidence: float = Field(
@@ -445,18 +442,16 @@ class ProbabilisticExitSignal(BaseModel):
     )
 
     # Expected outcomes
-    expected_upside: Optional[float] = Field(
+    expected_upside: float | None = Field(
         description="Expected additional upside %", default=None
     )
-    expected_timeline: Optional[str] = Field(
+    expected_timeline: str | None = Field(
         description="Expected timeline for signal", default=None
     )
-    risk_warning: Optional[str] = Field(
-        description="Risk warning message", default=None
-    )
+    risk_warning: str | None = Field(description="Risk warning message", default=None)
 
     # Source divergence warnings (new)
-    source_divergence_warning: Optional[str] = Field(
+    source_divergence_warning: str | None = Field(
         description="Warning about divergence between data sources", default=None
     )
 
@@ -491,7 +486,8 @@ class TradeHistoryMetrics(BaseModel):
         description="Average MFE capture ratio", ge=0, le=1
     )
 
-    @validator("closed_trades")
+    @field_validator("closed_trades")
+    @classmethod
     def validate_closed_trades(cls, v, values):
         if "total_trades" in values and v > values["total_trades"]:
             raise ValueError("Closed trades cannot exceed total trades")
@@ -521,10 +517,10 @@ class StatisticalAnalysisResult(BaseModel):
     )
 
     # Source-specific divergence (new)
-    trade_history_divergence: Optional[DivergenceMetrics] = Field(
+    trade_history_divergence: DivergenceMetrics | None = Field(
         description="Trade history specific divergence", default=None
     )
-    equity_curve_divergence: Optional[DivergenceMetrics] = Field(
+    equity_curve_divergence: DivergenceMetrics | None = Field(
         description="Equity curve specific divergence", default=None
     )
 
@@ -539,7 +535,7 @@ class StatisticalAnalysisResult(BaseModel):
     )
 
     # Legacy trade history context (maintained for compatibility)
-    trade_history_metrics: Optional[TradeHistoryMetrics] = Field(
+    trade_history_metrics: TradeHistoryMetrics | None = Field(
         description="Trade history metrics (legacy)", default=None
     )
 
@@ -555,7 +551,7 @@ class StatisticalAnalysisResult(BaseModel):
     source_agreement_summary: str = Field(
         description="Summary of agreement/divergence between data sources"
     )
-    data_quality_assessment: Dict[str, str] = Field(
+    data_quality_assessment: dict[str, str] = Field(
         description="Quality assessment for each data source", default_factory=dict
     )
 
@@ -563,12 +559,12 @@ class StatisticalAnalysisResult(BaseModel):
     configuration_hash: str = Field(
         description="Configuration hash for reproducibility"
     )
-    data_sources_used: List[DataSource] = Field(
+    data_sources_used: list[DataSource] = Field(
         description="Data sources used in analysis"
     )
 
     # Raw analysis data for backtesting parameter generation
-    raw_analysis_data: Optional[Dict[str, Any]] = Field(
+    raw_analysis_data: dict[str, Any] | None = Field(
         description="Raw analysis data including returns and durations for backtesting parameter generation",
         default=None,
     )
@@ -587,23 +583,21 @@ class StatisticalAnalysisResult(BaseModel):
         """Legacy sample_size property for backward compatibility"""
         if self.strategy_analysis.trade_history_analysis:
             return self.strategy_analysis.trade_history_analysis.total_trades
-        elif self.strategy_analysis.equity_analysis:
+        if self.strategy_analysis.equity_analysis:
             return self.strategy_analysis.statistics.count
-        else:
-            return self.strategy_analysis.statistics.count
+        return self.strategy_analysis.statistics.count
 
     @property
     def sample_size_confidence(self) -> float:
         """Legacy sample_size_confidence property for backward compatibility"""
         if self.strategy_analysis.trade_history_analysis:
             return self.strategy_analysis.trade_history_analysis.confidence_score
-        elif self.strategy_analysis.equity_analysis:
+        if self.strategy_analysis.equity_analysis:
             return self.strategy_analysis.equity_analysis.confidence_score
-        else:
-            return self.strategy_analysis.confidence_score
+        return self.strategy_analysis.confidence_score
 
     @property
-    def performance_metrics(self) -> Dict[str, Any]:
+    def performance_metrics(self) -> dict[str, Any]:
         """Legacy performance_metrics property for backward compatibility"""
         metrics = {}
 
@@ -665,16 +659,17 @@ class BacktestingParameters(BaseModel):
     # Derivation details
     derivation_date: datetime = Field(description="Parameter derivation timestamp")
     data_source: DataSource = Field(description="Primary data source used")
-    timeframes_analyzed: List[str] = Field(
+    timeframes_analyzed: list[str] = Field(
         description="Timeframes included in analysis"
     )
 
     # Framework compatibility
-    framework_compatibility: Dict[str, bool] = Field(
+    framework_compatibility: dict[str, bool] = Field(
         description="Backtesting framework compatibility"
     )
 
-    @validator("min_holding_days")
+    @field_validator("min_holding_days")
+    @classmethod
     def validate_min_max_days(cls, v, values):
         if "max_holding_days" in values and v >= values["max_holding_days"]:
             raise ValueError(
@@ -686,25 +681,23 @@ class BacktestingParameters(BaseModel):
 class BacktestingExportResult(BaseModel):
     """Result of backtesting parameter export"""
 
-    strategy_parameters: Dict[str, BacktestingParameters] = Field(
+    strategy_parameters: dict[str, BacktestingParameters] = Field(
         description="Parameters by strategy"
     )
 
     # Export metadata
     export_timestamp: datetime = Field(description="Export timestamp")
     export_format: str = Field(description="Export format used")
-    target_framework: Optional[str] = Field(
+    target_framework: str | None = Field(
         description="Target backtesting framework", default=None
     )
 
     # Export files
-    csv_file_path: Optional[str] = Field(
-        description="CSV export file path", default=None
-    )
-    json_file_path: Optional[str] = Field(
+    csv_file_path: str | None = Field(description="CSV export file path", default=None)
+    json_file_path: str | None = Field(
         description="JSON export file path", default=None
     )
-    python_file_path: Optional[str] = Field(
+    python_file_path: str | None = Field(
         description="Python export file path", default=None
     )
 
@@ -739,11 +732,13 @@ class LegacyStatisticalAnalysisResult:
     signal_confidence: float
     exit_recommendation: str
     target_exit_timeframe: str
-    statistical_significance: Any  # Will use SignificanceLevel enum from correlation_models
+    statistical_significance: (
+        Any  # Will use SignificanceLevel enum from correlation_models
+    )
     p_value: float
-    divergence_metrics: Optional[Dict[str, Any]] = None
-    performance_metrics: Optional[Dict[str, Any]] = None
-    raw_analysis_data: Optional[Dict[str, Any]] = None
+    divergence_metrics: dict[str, Any] | None = None
+    performance_metrics: dict[str, Any] | None = None
+    raw_analysis_data: dict[str, Any] | None = None
 
 
 @dataclass
@@ -757,7 +752,7 @@ class DivergenceAnalysisResult:
     exit_signal: str
     confidence: float
     analysis_timestamp: datetime
-    metrics: Dict[str, float]
+    metrics: dict[str, float]
 
 
 @dataclass

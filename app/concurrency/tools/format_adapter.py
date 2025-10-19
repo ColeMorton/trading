@@ -7,7 +7,7 @@ and a standardized internal representation.
 import csv
 import json
 from pathlib import Path
-from typing import Any, Dict, List, cast
+from typing import Any, cast
 
 from app.concurrency.config import (
     CsvStrategyRow,
@@ -18,7 +18,7 @@ from app.concurrency.config import (
 )
 
 
-class UnifiedStrategy(Dict[str, Any]):
+class UnifiedStrategy(dict[str, Any]):
     """Unified internal representation of a trading strategy."""
 
 
@@ -53,7 +53,7 @@ def convert_csv_strategy(row: CsvStrategyRow) -> UnifiedStrategy:
     }
 
     for csv_field, unified_field in optional_fields.items():
-        if csv_field in row and row[csv_field]:
+        if row.get(csv_field):
             strategy[unified_field] = row[csv_field]
 
     return strategy
@@ -114,7 +114,7 @@ def convert_macd_strategy(strategy: JsonMacdStrategy) -> UnifiedStrategy:
     return unified
 
 
-def load_portfolio(file_path: str) -> List[UnifiedStrategy]:
+def load_portfolio(file_path: str) -> list[UnifiedStrategy]:
     """Load and convert a portfolio file to unified format.
 
     Args:
@@ -142,16 +142,15 @@ def load_portfolio(file_path: str) -> List[UnifiedStrategy]:
                     convert_macd_strategy(cast(JsonMacdStrategy, strategy))
                     for strategy in data
                 ]
-            else:  # application/json+ma
-                return [
-                    convert_ma_strategy(cast(JsonMaStrategy, strategy))
-                    for strategy in data
-                ]
+            # application/json+ma
+            return [
+                convert_ma_strategy(cast(JsonMaStrategy, strategy)) for strategy in data
+            ]
 
     raise FileFormatError(f"Unsupported format: {format_info.content_type}")
 
 
-def save_portfolio(strategies: List[UnifiedStrategy], file_path: str) -> None:
+def save_portfolio(strategies: list[UnifiedStrategy], file_path: str) -> None:
     """Save strategies in unified format to a portfolio file.
 
     Args:

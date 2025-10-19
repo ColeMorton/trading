@@ -11,16 +11,14 @@ ATR trailing stop parameter sensitivity analysis workflow including:
 """
 
 import importlib
-import json
-import os
 import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, mock_open, patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
 import polars as pl
 import pytest
+
 
 atr_module = importlib.import_module(
     "app.strategies.ma_cross.3_get_atr_stop_portfolios"
@@ -44,7 +42,7 @@ def sample_price_data():
     trends = [0.0002, -0.0001, 0.0003, -0.0002]  # Different trend rates
 
     returns = []
-    for i, date in enumerate(dates):
+    for i, _date in enumerate(dates):
         # Determine which trend period we're in
         trend_idx = 0
         for j, change_point in enumerate(trend_changes[1:], 1):
@@ -278,12 +276,11 @@ class TestCompleteATRWorkflow:
             call_count[0] += 1
             if call_count[0] % 3 == 0:  # Fail every 3rd call
                 return None
-            else:
-                pandas_data = sample_price_data.to_pandas()
-                result = pandas_data.copy()
-                result["Signal"] = [0] * len(pandas_data)
-                result["Position"] = [0] * len(pandas_data)
-                return result
+            pandas_data = sample_price_data.to_pandas()
+            result = pandas_data.copy()
+            result["Signal"] = [0] * len(pandas_data)
+            result["Position"] = [0] * len(pandas_data)
+            return result
 
         mock_sma.side_effect = mock_sma_with_failures
 
@@ -293,9 +290,7 @@ class TestCompleteATRWorkflow:
 
         # Should have some results but not all (due to failures)
         expected_total = 3 * 3  # 9 combinations
-        expected_successful = expected_total - (
-            expected_total // 3
-        )  # Minus failures (every 3rd fails)
+        expected_total - (expected_total // 3)  # Minus failures (every 3rd fails)
 
         # For testing, let's be more flexible and just check we have some results
         assert len(results) >= 0  # Should not crash, may have 0 results if all fail
@@ -335,7 +330,7 @@ class TestATRPortfolioExportIntegration:
                         sample_atr_portfolios, "AAPL", config, mock_logger
                     )
 
-                    assert success == True
+                    assert success is True
 
                     # Verify filtering was applied
                     mock_filter_instance.filter_portfolios_list.assert_called_once_with(
@@ -375,7 +370,7 @@ class TestATRPortfolioExportIntegration:
                 )
 
                 # Should still succeed but with fewer portfolios
-                assert success == True
+                assert success is True
                 mock_write_csv.assert_called_once()
 
                 # Check that filtering log messages were generated
@@ -418,7 +413,7 @@ class TestATRPortfolioExportIntegration:
                         sample_atr_portfolios, "AAPL", config, mock_logger
                     )
 
-                    assert success == True
+                    assert success is True
                     assert written_data is not None
 
                     # Verify sorting was applied (ascending order by Total Return)
@@ -448,13 +443,13 @@ class TestATRPortfolioExportIntegration:
             is_valid, errors = schema_transformer.validate_schema(
                 portfolio, SchemaType.EXTENDED
             )
-            assert is_valid == True, f"Schema validation failed: {errors}"
+            assert is_valid is True, f"Schema validation failed: {errors}"
 
     def test_export_empty_portfolios_handling(self, comprehensive_config, mock_logger):
         """Test handling of empty portfolio list in export."""
         success = export_atr_portfolios([], "AAPL", comprehensive_config, mock_logger)
 
-        assert success == False
+        assert success is False
 
         # Should log warning about no portfolios
         warning_calls = [
@@ -480,7 +475,7 @@ class TestATRAnalysisMemoryIntegration:
         )
 
         # Verify memory optimization settings
-        assert engine.enable_memory_optimization == True
+        assert engine.enable_memory_optimization is True
 
         # Check that memory optimizer is available (if the module exists)
         if engine.memory_optimizer is not None:
@@ -584,7 +579,7 @@ class TestATRErrorHandlingIntegration:
                 sample_atr_portfolios, "TEST", config, mock_logger
             )
 
-            assert success == False
+            assert success is False
 
             # Should log error
             error_calls = [

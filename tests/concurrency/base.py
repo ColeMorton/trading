@@ -4,12 +4,12 @@ Provides common functionality and fixtures for all concurrency tests.
 """
 
 import json
+from pathlib import Path
 import shutil
 import tempfile
+from typing import Any
 import unittest
-from pathlib import Path
-from typing import Any, Dict, List, Optional
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 from app.concurrency.config import ConcurrencyConfig
 from app.concurrency.error_handling import get_error_registry
@@ -58,7 +58,7 @@ class ConcurrencyTestCase(unittest.TestCase):
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
     def create_portfolio_file(
-        self, strategies: List[Dict[str, Any]], filename: str = "test_portfolio.json"
+        self, strategies: list[dict[str, Any]], filename: str = "test_portfolio.json"
     ) -> str:
         """Create a portfolio file in the test directory.
 
@@ -100,7 +100,7 @@ class ConcurrencyTestCase(unittest.TestCase):
 
         return str(file_path)
 
-    def assert_report_exists(self, portfolio_name: str) -> Dict[str, Any]:
+    def assert_report_exists(self, portfolio_name: str) -> dict[str, Any]:
         """Assert that a JSON report was created and return its contents.
 
         Args:
@@ -115,7 +115,7 @@ class ConcurrencyTestCase(unittest.TestCase):
         with open(report_path) as f:
             return json.load(f)
 
-    def assert_optimization_report_exists(self, portfolio_name: str) -> Dict[str, Any]:
+    def assert_optimization_report_exists(self, portfolio_name: str) -> dict[str, Any]:
         """Assert that an optimization report was created.
 
         Args:
@@ -137,8 +137,8 @@ class ConcurrencyTestCase(unittest.TestCase):
             return json.load(f)
 
     def create_mock_price_data(
-        self, tickers: List[str], periods: int = 100
-    ) -> Dict[str, Dict[str, List[float]]]:
+        self, tickers: list[str], periods: int = 100
+    ) -> dict[str, dict[str, list[float]]]:
         """Create mock price data for testing.
 
         Args:
@@ -178,7 +178,7 @@ class MockDataMixin:
         fast_period: int = 10,
         slow_period: int = 30,
         allocation: float = 100.0,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create a mock MA strategy configuration."""
         return {
             "ticker": ticker,
@@ -197,7 +197,7 @@ class MockDataMixin:
         slow_period: int = 26,
         signal_period: int = 9,
         allocation: float = 100.0,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create a mock MACD strategy configuration."""
         return {
             "ticker": ticker,
@@ -211,7 +211,7 @@ class MockDataMixin:
         }
 
     @staticmethod
-    def create_mock_signals(periods: int = 100, signal_rate: float = 0.3) -> List[int]:
+    def create_mock_signals(periods: int = 100, signal_rate: float = 0.3) -> list[int]:
         """Create mock trading signals.
 
         Args:
@@ -227,7 +227,7 @@ class MockDataMixin:
         return (np.random.random(periods) < signal_rate).astype(int).tolist()
 
     @staticmethod
-    def create_mock_portfolio_data(num_strategies: int = 3) -> List[Dict[str, Any]]:
+    def create_mock_portfolio_data(num_strategies: int = 3) -> list[dict[str, Any]]:
         """Create mock portfolio data."""
         strategies = []
         allocation_per_strategy = 100 / num_strategies

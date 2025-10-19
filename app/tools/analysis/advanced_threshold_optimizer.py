@@ -5,22 +5,18 @@ Performs performance-based threshold learning and optimization using
 statistical analysis and machine learning techniques.
 """
 
-import asyncio
+from collections.abc import Callable
+from datetime import datetime
 import logging
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
-import pandas as pd
 from scipy import optimize
 from scipy.stats import percentileofscore
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import TimeSeriesSplit, cross_val_score
+from sklearn.model_selection import TimeSeriesSplit
 
 from ..config.statistical_analysis_config import SPDSConfig
-from ..models.correlation_models import SignificanceLevel, ThresholdOptimizationResult
+from ..models.correlation_models import ThresholdOptimizationResult
 
 
 class AdvancedThresholdOptimizer:
@@ -35,7 +31,7 @@ class AdvancedThresholdOptimizer:
     - Overfitting prevention
     """
 
-    def __init__(self, config: SPDSConfig, logger: Optional[logging.Logger] = None):
+    def __init__(self, config: SPDSConfig, logger: logging.Logger | None = None):
         """
         Initialize the Advanced Threshold Optimizer
 
@@ -74,10 +70,10 @@ class AdvancedThresholdOptimizer:
 
     async def optimize_thresholds(
         self,
-        performance_data: Dict[str, Any],
+        performance_data: dict[str, Any],
         optimization_target: str = "exit_efficiency",
         method: str = "bayesian",
-        custom_objective: Optional[Callable] = None,
+        custom_objective: Callable | None = None,
     ) -> ThresholdOptimizationResult:
         """
         Optimize thresholds for maximum performance
@@ -206,10 +202,10 @@ class AdvancedThresholdOptimizer:
 
     async def optimize_regime_specific_thresholds(
         self,
-        performance_data: Dict[str, Any],
-        regime_indicators: Dict[str, Any],
+        performance_data: dict[str, Any],
+        regime_indicators: dict[str, Any],
         optimization_target: str = "exit_efficiency",
-    ) -> Dict[str, ThresholdOptimizationResult]:
+    ) -> dict[str, ThresholdOptimizationResult]:
         """
         Optimize thresholds for different market regimes
 
@@ -253,11 +249,11 @@ class AdvancedThresholdOptimizer:
 
     async def adaptive_threshold_learning(
         self,
-        streaming_data: Dict[str, Any],
-        current_thresholds: Dict[str, float],
+        streaming_data: dict[str, Any],
+        current_thresholds: dict[str, float],
         learning_rate: float = 0.1,
         performance_window: int = 50,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """
         Continuously adapt thresholds based on recent performance
 
@@ -272,9 +268,7 @@ class AdvancedThresholdOptimizer:
         """
         try:
             # Calculate recent performance
-            recent_performance = await self._calculate_recent_performance(
-                streaming_data, performance_window
-            )
+            await self._calculate_recent_performance(streaming_data, performance_window)
 
             # Calculate performance gradients
             gradients = await self._calculate_performance_gradients(
@@ -308,9 +302,9 @@ class AdvancedThresholdOptimizer:
 
     async def multi_objective_optimization(
         self,
-        performance_data: Dict[str, Any],
-        objectives: List[str],
-        weights: Optional[List[float]] = None,
+        performance_data: dict[str, Any],
+        objectives: list[str],
+        weights: list[float] | None = None,
     ) -> ThresholdOptimizationResult:
         """
         Optimize thresholds for multiple objectives simultaneously
@@ -405,8 +399,8 @@ class AdvancedThresholdOptimizer:
     # Helper methods
 
     async def _prepare_optimization_data(
-        self, performance_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, performance_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Prepare data for optimization"""
         # Extract relevant features for optimization
         prepared_data = {
@@ -440,11 +434,11 @@ class AdvancedThresholdOptimizer:
         return prepared_data
 
     def _create_objective_function(
-        self, training_data: Dict[str, Any], target_metric: str
+        self, training_data: dict[str, Any], target_metric: str
     ) -> Callable:
         """Create objective function for optimization"""
 
-        def objective(thresholds_dict: Dict[str, float]) -> float:
+        def objective(thresholds_dict: dict[str, float]) -> float:
             try:
                 # Simulate performance with given thresholds
                 performance = self._simulate_performance(training_data, thresholds_dict)
@@ -459,8 +453,8 @@ class AdvancedThresholdOptimizer:
         return objective
 
     def _simulate_performance(
-        self, data: Dict[str, Any], thresholds: Dict[str, float]
-    ) -> Dict[str, float]:
+        self, data: dict[str, Any], thresholds: dict[str, float]
+    ) -> dict[str, float]:
         """Simulate performance with given thresholds"""
         returns = np.array(data["returns"])
 
@@ -496,7 +490,7 @@ class AdvancedThresholdOptimizer:
         }
 
     def _calculate_exit_efficiency(
-        self, returns: np.ndarray, exit_signals: List[str]
+        self, returns: np.ndarray, exit_signals: list[str]
     ) -> float:
         """Calculate exit efficiency metric"""
         if len(returns) == 0:
@@ -524,7 +518,7 @@ class AdvancedThresholdOptimizer:
         return captured_returns / potential_returns if potential_returns > 0 else 0.0
 
     def _calculate_precision(
-        self, predicted_signals: List[str], actual_outcomes: List[str]
+        self, predicted_signals: list[str], actual_outcomes: list[str]
     ) -> float:
         """Calculate precision of exit signals"""
         if len(actual_outcomes) == 0:
@@ -536,13 +530,21 @@ class AdvancedThresholdOptimizer:
         actual = actual_outcomes[:min_length]
 
         # Count true positives and false positives
-        tp = sum(1 for p, a in zip(predicted, actual) if p != "hold" and a == "exit")
-        fp = sum(1 for p, a in zip(predicted, actual) if p != "hold" and a != "exit")
+        tp = sum(
+            1
+            for p, a in zip(predicted, actual, strict=False)
+            if p != "hold" and a == "exit"
+        )
+        fp = sum(
+            1
+            for p, a in zip(predicted, actual, strict=False)
+            if p != "hold" and a != "exit"
+        )
 
         return tp / (tp + fp) if (tp + fp) > 0 else 0.0
 
     def _calculate_recall(
-        self, predicted_signals: List[str], actual_outcomes: List[str]
+        self, predicted_signals: list[str], actual_outcomes: list[str]
     ) -> float:
         """Calculate recall of exit signals"""
         if len(actual_outcomes) == 0:
@@ -554,14 +556,22 @@ class AdvancedThresholdOptimizer:
         actual = actual_outcomes[:min_length]
 
         # Count true positives and false negatives
-        tp = sum(1 for p, a in zip(predicted, actual) if p != "hold" and a == "exit")
-        fn = sum(1 for p, a in zip(predicted, actual) if p == "hold" and a == "exit")
+        tp = sum(
+            1
+            for p, a in zip(predicted, actual, strict=False)
+            if p != "hold" and a == "exit"
+        )
+        fn = sum(
+            1
+            for p, a in zip(predicted, actual, strict=False)
+            if p == "hold" and a == "exit"
+        )
 
         return tp / (tp + fn) if (tp + fn) > 0 else 0.0
 
     async def _grid_search_optimization(
-        self, objective_func: Callable, training_data: Dict[str, Any]
-    ) -> Dict[str, float]:
+        self, objective_func: Callable, training_data: dict[str, Any]
+    ) -> dict[str, float]:
         """Perform grid search optimization"""
         best_score = -float("inf")
         best_thresholds = self.config.PERCENTILE_THRESHOLDS.copy()
@@ -591,8 +601,8 @@ class AdvancedThresholdOptimizer:
         return best_thresholds
 
     async def _bayesian_optimization(
-        self, objective_func: Callable, training_data: Dict[str, Any]
-    ) -> Dict[str, float]:
+        self, objective_func: Callable, training_data: dict[str, Any]
+    ) -> dict[str, float]:
         """Perform Bayesian optimization (simplified implementation)"""
         # Simplified Bayesian optimization using random search with exploitation/exploration
         best_score = -float("inf")
@@ -616,8 +626,8 @@ class AdvancedThresholdOptimizer:
         return best_thresholds
 
     async def _genetic_optimization(
-        self, objective_func: Callable, training_data: Dict[str, Any]
-    ) -> Dict[str, float]:
+        self, objective_func: Callable, training_data: dict[str, Any]
+    ) -> dict[str, float]:
         """Perform genetic algorithm optimization (simplified)"""
         population_size = 20
         generations = 50
@@ -628,7 +638,7 @@ class AdvancedThresholdOptimizer:
             self._generate_random_thresholds() for _ in range(population_size)
         ]
 
-        for generation in range(generations):
+        for _generation in range(generations):
             # Evaluate fitness
             fitness_scores = [objective_func(individual) for individual in population]
 
@@ -657,15 +667,15 @@ class AdvancedThresholdOptimizer:
         return population[best_idx]
 
     async def _gradient_optimization(
-        self, objective_func: Callable, training_data: Dict[str, Any]
-    ) -> Dict[str, float]:
+        self, objective_func: Callable, training_data: dict[str, Any]
+    ) -> dict[str, float]:
         """Perform gradient-based optimization"""
         # Use scipy.optimize for gradient-based optimization
         initial_thresholds = list(self.config.PERCENTILE_THRESHOLDS.values())
         threshold_names = list(self.config.PERCENTILE_THRESHOLDS.keys())
 
         def objective_wrapper(x):
-            thresholds_dict = dict(zip(threshold_names, x))
+            thresholds_dict = dict(zip(threshold_names, x, strict=False))
             return -objective_func(thresholds_dict)  # Minimize negative
 
         # Define bounds
@@ -692,11 +702,10 @@ class AdvancedThresholdOptimizer:
         )
 
         optimal_values = result.x
-        return dict(zip(threshold_names, optimal_values))
+        return dict(zip(threshold_names, optimal_values, strict=False))
 
-    def _generate_random_thresholds(self) -> Dict[str, float]:
+    def _generate_random_thresholds(self) -> dict[str, float]:
         """Generate random valid thresholds"""
-        thresholds = {}
 
         # Generate in descending order
         exit_imm = np.random.uniform(90, 99)
@@ -712,8 +721,8 @@ class AdvancedThresholdOptimizer:
         }
 
     def _generate_thresholds_near_best(
-        self, best_thresholds: Dict[str, float]
-    ) -> Dict[str, float]:
+        self, best_thresholds: dict[str, float]
+    ) -> dict[str, float]:
         """Generate thresholds near the current best"""
         noise_std = 2.0
         new_thresholds = {}
@@ -730,7 +739,7 @@ class AdvancedThresholdOptimizer:
         # Enforce ordering
         return self._enforce_threshold_ordering(new_thresholds)
 
-    def _mutate_thresholds(self, thresholds: Dict[str, float]) -> None:
+    def _mutate_thresholds(self, thresholds: dict[str, float]) -> None:
         """Mutate thresholds in place"""
         mutation_strength = 5.0
 
@@ -748,8 +757,8 @@ class AdvancedThresholdOptimizer:
         thresholds.update(ordered_thresholds)
 
     def _enforce_threshold_ordering(
-        self, thresholds: Dict[str, float]
-    ) -> Dict[str, float]:
+        self, thresholds: dict[str, float]
+    ) -> dict[str, float]:
         """Ensure thresholds are in correct order"""
         ordered_names = ["exit_immediately", "strong_sell", "sell", "hold"]
         values = [thresholds.get(name, 80.0) for name in ordered_names]
@@ -762,16 +771,16 @@ class AdvancedThresholdOptimizer:
             if values[i] >= values[i - 1]:
                 values[i] = values[i - 1] - 1.0
 
-        return dict(zip(ordered_names, values))
+        return dict(zip(ordered_names, values, strict=False))
 
     async def _evaluate_performance(
-        self, data: Dict[str, Any], thresholds: Dict[str, float]
-    ) -> Dict[str, float]:
+        self, data: dict[str, Any], thresholds: dict[str, float]
+    ) -> dict[str, float]:
         """Evaluate performance with given thresholds"""
         return self._simulate_performance(data, thresholds)
 
     async def _cross_validate_thresholds(
-        self, data: Dict[str, Any], thresholds: Dict[str, float], target_metric: str
+        self, data: dict[str, Any], thresholds: dict[str, float], target_metric: str
     ) -> float:
         """Perform cross-validation on thresholds"""
         returns = np.array(data["returns"])
@@ -783,7 +792,7 @@ class AdvancedThresholdOptimizer:
         scores = []
 
         for train_idx, test_idx in tscv.split(returns):
-            train_data = {
+            {
                 "returns": returns[train_idx].tolist(),
                 "exit_signals": [],
                 "actual_outcomes": [],
@@ -803,10 +812,10 @@ class AdvancedThresholdOptimizer:
 
     async def _assess_overfitting_risk(
         self,
-        data: Dict[str, Any],
-        thresholds: Dict[str, float],
-        baseline_perf: Dict[str, float],
-        optimized_perf: Dict[str, float],
+        data: dict[str, Any],
+        thresholds: dict[str, float],
+        baseline_perf: dict[str, float],
+        optimized_perf: dict[str, float],
     ) -> float:
         """Assess overfitting risk"""
         # Simple overfitting assessment based on improvement magnitude
@@ -826,7 +835,7 @@ class AdvancedThresholdOptimizer:
         return max(0.0, overfitting_risk)
 
     async def _assess_threshold_robustness(
-        self, data: Dict[str, Any], thresholds: Dict[str, float]
+        self, data: dict[str, Any], thresholds: dict[str, float]
     ) -> float:
         """Assess robustness of thresholds"""
         # Test sensitivity to small changes
@@ -861,8 +870,8 @@ class AdvancedThresholdOptimizer:
         return robustness
 
     async def _calculate_threshold_confidence(
-        self, data: Dict[str, Any], thresholds: Dict[str, float]
-    ) -> Dict[str, float]:
+        self, data: dict[str, Any], thresholds: dict[str, float]
+    ) -> dict[str, float]:
         """Calculate confidence in each threshold"""
         confidence = {}
 
@@ -888,8 +897,8 @@ class AdvancedThresholdOptimizer:
         return confidence
 
     async def _identify_regimes(
-        self, performance_data: Dict[str, Any], regime_indicators: Dict[str, Any]
-    ) -> Dict[str, Dict[str, Any]]:
+        self, performance_data: dict[str, Any], regime_indicators: dict[str, Any]
+    ) -> dict[str, dict[str, Any]]:
         """Identify different market regimes in the data"""
         regimes = {
             "bull": {"returns": [], "exit_signals": [], "actual_outcomes": []},
@@ -899,7 +908,7 @@ class AdvancedThresholdOptimizer:
 
         # Simplified regime classification based on returns
         returns = performance_data.get("returns", [])
-        for i, ret in enumerate(returns):
+        for _i, ret in enumerate(returns):
             if ret > 0.02:  # Bull market
                 regimes["bull"]["returns"].append(ret)
             elif ret < -0.02:  # Bear market
@@ -910,8 +919,8 @@ class AdvancedThresholdOptimizer:
         return regimes
 
     async def _calculate_recent_performance(
-        self, streaming_data: Dict[str, Any], window_size: int
-    ) -> Dict[str, float]:
+        self, streaming_data: dict[str, Any], window_size: int
+    ) -> dict[str, float]:
         """Calculate performance metrics for recent data"""
         recent_returns = streaming_data.get("returns", [])[-window_size:]
 
@@ -929,10 +938,10 @@ class AdvancedThresholdOptimizer:
 
     async def _calculate_performance_gradients(
         self,
-        streaming_data: Dict[str, Any],
-        current_thresholds: Dict[str, float],
+        streaming_data: dict[str, Any],
+        current_thresholds: dict[str, float],
         window_size: int,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Calculate performance gradients for adaptive learning"""
         gradients = {}
 

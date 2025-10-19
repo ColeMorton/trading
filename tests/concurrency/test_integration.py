@@ -4,13 +4,9 @@ Only tests workflows that can work with current implementation.
 """
 
 import json
-import shutil
-import tempfile
-import unittest
 from pathlib import Path
-from unittest.mock import Mock, patch
+import unittest
 
-from app.concurrency.config import ConcurrencyConfig
 from app.concurrency.review import run_analysis
 
 from .base import ConcurrencyTestCase, MockDataMixin

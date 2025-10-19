@@ -1,17 +1,16 @@
 from datetime import datetime, timedelta
-from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import yfinance as yf
 from skfolio.optimization import MaximumDiversification
+import yfinance as yf
 
 from app.tools.setup_logging import setup_logging
 
 
 def get_historical_data(
-    tickers: List[str], start_date: datetime, end_date: datetime
+    tickers: list[str], start_date: datetime, end_date: datetime
 ) -> pd.DataFrame:
     """
     Download historical data for given tickers.
@@ -41,7 +40,7 @@ def calculate_returns(prices: pd.DataFrame) -> np.ndarray:
     return prices.pct_change().dropna().values
 
 
-def optimize_portfolio(returns: np.ndarray) -> Tuple[np.ndarray, dict]:
+def optimize_portfolio(returns: np.ndarray) -> tuple[np.ndarray, dict]:
     """
     Optimize portfolio using Maximum Diversification.
 
@@ -59,7 +58,7 @@ def optimize_portfolio(returns: np.ndarray) -> Tuple[np.ndarray, dict]:
     weights = model.weights_
 
     # Create weights dictionary
-    weights_dict = {ticker: weight for ticker, weight in zip(TICKERS, weights)}
+    weights_dict = dict(zip(TICKERS, weights, strict=False))
 
     return weights, weights_dict
 
@@ -124,7 +123,7 @@ def main() -> bool:
         return True
 
     except Exception as e:
-        log(f"Error: {str(e)}", "error")
+        log(f"Error: {e!s}", "error")
         log_close()
         raise
 

@@ -7,12 +7,10 @@ Compares current performance results against baseline to detect regressions.
 """
 
 import argparse
-import json
-import statistics
-import sys
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+import sys
 
 
 class PerformanceRegressionChecker:
@@ -30,10 +28,10 @@ class PerformanceRegressionChecker:
         self.improvements = []
         self.warnings = []
 
-    def load_results(self, file_path: str) -> Dict:
+    def load_results(self, file_path: str) -> dict:
         """Load test results from JSON file."""
         try:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 return json.load(f)
         except FileNotFoundError:
             print(f"Error: File not found: {file_path}")
@@ -42,7 +40,7 @@ class PerformanceRegressionChecker:
             print(f"Error: Invalid JSON in {file_path}: {e}")
             sys.exit(1)
 
-    def extract_metrics(self, results: Dict) -> Dict[str, float]:
+    def extract_metrics(self, results: dict) -> dict[str, float]:
         """Extract performance metrics from test results."""
         metrics = {}
 
@@ -79,8 +77,8 @@ class PerformanceRegressionChecker:
         return metrics
 
     def compare_metrics(
-        self, current_metrics: Dict[str, float], baseline_metrics: Dict[str, float]
-    ) -> Dict[str, Dict]:
+        self, current_metrics: dict[str, float], baseline_metrics: dict[str, float]
+    ) -> dict[str, dict]:
         """
         Compare current metrics against baseline.
 
@@ -153,7 +151,7 @@ class PerformanceRegressionChecker:
 
     def check_regression(
         self, current_file: str, baseline_file: str
-    ) -> Tuple[bool, Dict]:
+    ) -> tuple[bool, dict]:
         """
         Check for performance regressions.
 
@@ -183,7 +181,7 @@ class PerformanceRegressionChecker:
 
         return has_regressions, comparison
 
-    def print_report(self, comparison: Dict):
+    def print_report(self, comparison: dict):
         """Print performance comparison report."""
         print("\n" + "=" * 60)
         print("PERFORMANCE REGRESSION REPORT")
@@ -254,7 +252,7 @@ class PerformanceRegressionChecker:
                 f"Summary: {regression_rate:.1%} regressions, {improvement_rate:.1%} improvements, {stable_rate:.1%} stable"
             )
 
-    def save_report(self, comparison: Dict, output_file: str):
+    def save_report(self, comparison: dict, output_file: str):
         """Save comparison report to file."""
         report_data = {
             "timestamp": datetime.now().isoformat(),

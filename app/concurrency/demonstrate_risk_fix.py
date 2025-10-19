@@ -5,11 +5,12 @@ This script compares the original (broken) and fixed implementations
 using the portfolio_d_20250530 data.
 """
 
-import sys
 from pathlib import Path
+import sys
 
 import numpy as np
 import polars as pl
+
 
 # Add parent directory to path
 sys.path.append(str(Path(__file__).parent.parent.parent))

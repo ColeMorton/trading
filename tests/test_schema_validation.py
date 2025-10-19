@@ -5,9 +5,8 @@ Tests the canonical schema definition and validation functions to ensure
 they correctly identify compliant and non-compliant CSV exports.
 """
 
-import shutil
-import tempfile
 from pathlib import Path
+import tempfile
 
 import pandas as pd
 import pytest
@@ -15,7 +14,6 @@ import pytest
 from app.tools.portfolio.canonical_schema import (
     CANONICAL_COLUMN_COUNT,
     CANONICAL_COLUMN_NAMES,
-    REQUIRED_COLUMNS,
     CanonicalPortfolioSchema,
     PortfolioSchemaValidationError,
 )
@@ -29,7 +27,6 @@ from app.tools.portfolio.schema_validation import (
 from tests.fixtures.schema_validation_fixtures import (
     REFERENCE_FILES,
     create_test_csv_files,
-    get_all_test_cases,
     get_test_case,
     validate_reference_files,
 )
@@ -145,7 +142,7 @@ class TestSchemaValidator:
         assert len(result["column_analysis"]) > 0
 
         # Check analysis structure
-        for col_name, analysis in result["column_analysis"].items():
+        for _col_name, analysis in result["column_analysis"].items():
             assert "expected_type" in analysis
             assert "actual_dtype" in analysis
             assert "type_valid" in analysis
@@ -250,7 +247,7 @@ class TestRealDataValidation:
             assert result["total_columns"] >= 55  # Allow some flexibility
 
         except Exception as e:
-            pytest.fail(f"Failed to validate reference file {file_path}: {str(e)}")
+            pytest.fail(f"Failed to validate reference file {file_path}: {e!s}")
 
 
 class TestEdgeCases:
@@ -320,7 +317,9 @@ if __name__ == "__main__":
     # Test compliant data
     test_case = get_test_case("compliant")
     result = validate_dataframe_schema(test_case["data"], strict=False)
-    print(f"Compliant data validation: {'✅ PASS' if result['is_valid'] else '❌ FAIL'}")
+    print(
+        f"Compliant data validation: {'✅ PASS' if result['is_valid'] else '❌ FAIL'}"
+    )
 
     # Test non-compliant data
     test_case = get_test_case("missing_columns")

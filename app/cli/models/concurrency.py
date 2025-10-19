@@ -7,9 +7,8 @@ trade history export, and portfolio interaction analysis.
 
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 from .base import BaseConfig
 
@@ -63,7 +62,7 @@ class TradeHistoryConfig(BaseModel):
         pattern="^(json|csv|parquet)$",
         description="Output format for trade history",
     )
-    output_dir: Optional[Path] = Field(
+    output_dir: Path | None = Field(
         default=None, description="Output directory for trade history files"
     )
 
@@ -116,14 +115,16 @@ class GeneralConfig(BaseModel):
         default=0.05, ge=0, le=1, description="Target Value at Risk (VaR) threshold"
     )
 
-    @validator("portfolio")
+    @field_validator("portfolio")
+    @classmethod
     def validate_portfolio_extension(cls, v):
         """Validate portfolio file has proper extension."""
         if not v.endswith((".csv", ".json", ".yaml")):
             raise ValueError("Portfolio file must have .csv, .json, or .yaml extension")
         return v
 
-    @validator("sort_by")
+    @field_validator("sort_by")
+    @classmethod
     def validate_sort_field(cls, v):
         """Validate sort field is acceptable."""
         valid_fields = [
@@ -151,7 +152,8 @@ class RiskManagementConfig(BaseModel):
         default="standard", description="Risk calculation method"
     )
 
-    @validator("risk_calculation_method")
+    @field_validator("risk_calculation_method")
+    @classmethod
     def validate_risk_method(cls, v):
         """Validate risk calculation method."""
         valid_methods = ["standard", "monte_carlo", "bootstrap", "var"]
@@ -252,7 +254,8 @@ class ConcurrencyConfig(BaseConfig):
         """Allocation reporting setting (legacy compatibility)."""
         return self.report_includes.allocation
 
-    @validator("risk_management")
+    @field_validator("risk_management")
+    @classmethod
     def validate_risk_management_consistency(cls, v, values):
         """Validate risk management configuration consistency."""
         if v.max_risk_per_strategy > v.max_risk_total:
@@ -262,7 +265,8 @@ class ConcurrencyConfig(BaseConfig):
             )
         return v
 
-    @validator("general")
+    @field_validator("general")
+    @classmethod
     def validate_general_configuration(cls, v):
         """Validate general configuration for business logic consistency."""
         if v.target_var <= 0 or v.target_var >= 1:
@@ -302,7 +306,7 @@ class OptimizationConfig(BaseModel):
     min_strategies: int = Field(
         default=3, ge=2, description="Minimum strategies per combination"
     )
-    max_permutations: Optional[int] = Field(
+    max_permutations: int | None = Field(
         default=None, gt=0, description="Maximum permutations to evaluate"
     )
     enable_early_stopping: bool = Field(
@@ -334,7 +338,7 @@ class RiskAnalysisConfig(BaseModel):
         le=100000,
         description="Number of Monte Carlo simulations",
     )
-    confidence_levels: List[float] = Field(
+    confidence_levels: list[float] = Field(
         default=[95, 99], description="Confidence levels for risk metrics"
     )
     horizon_days: int = Field(
@@ -342,7 +346,8 @@ class RiskAnalysisConfig(BaseModel):
     )
     use_bootstrap: bool = Field(default=True, description="Use bootstrap resampling")
 
-    @validator("confidence_levels")
+    @field_validator("confidence_levels")
+    @classmethod
     def validate_confidence_levels(cls, v):
         """Validate confidence levels are within valid range."""
         for level in v:
@@ -357,21 +362,21 @@ class ConcurrencyAnalysisConfig(ConcurrencyConfig):
     """Extended configuration for detailed concurrency analysis."""
 
     # Analysis parameters
-    correlation_threshold: Optional[float] = Field(
+    correlation_threshold: float | None = Field(
         default=None,
         ge=-1,
         le=1,
         description="Correlation threshold for filtering strategies",
     )
-    max_concurrent_positions: Optional[int] = Field(
+    max_concurrent_positions: int | None = Field(
         default=None, gt=0, description="Maximum number of concurrent positions"
     )
 
     # Risk management
-    max_portfolio_risk: Optional[float] = Field(
+    max_portfolio_risk: float | None = Field(
         default=None, gt=0, le=1, description="Maximum portfolio risk exposure"
     )
-    sector_concentration_limit: Optional[float] = Field(
+    sector_concentration_limit: float | None = Field(
         default=None, gt=0, le=1, description="Maximum concentration per sector"
     )
 
@@ -406,14 +411,16 @@ class ConcurrencyAnalysisConfig(ConcurrencyConfig):
         default=False, description="Enable data compression"
     )
 
-    @validator("correlation_threshold")
+    @field_validator("correlation_threshold")
+    @classmethod
     def validate_correlation_threshold(cls, v):
         """Validate correlation threshold is within valid range."""
         if v is not None and not (-1 <= v <= 1):
             raise ValueError("Correlation threshold must be between -1 and 1")
         return v
 
-    @validator("optimization")
+    @field_validator("optimization")
+    @classmethod
     def validate_optimization_config(cls, v, values):
         """Validate optimization configuration consistency."""
         if (
@@ -429,7 +436,8 @@ class ConcurrencyAnalysisConfig(ConcurrencyConfig):
 
         return v
 
-    @validator("risk_analysis")
+    @field_validator("risk_analysis")
+    @classmethod
     def validate_risk_analysis_config(cls, v, values):
         """Validate risk analysis configuration."""
         if v.enable_monte_carlo and v.n_simulations < 1000:

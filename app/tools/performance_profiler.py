@@ -5,19 +5,18 @@ This module provides performance monitoring, memory tracking, and benchmarking
 capabilities to ensure the equity data export feature meets performance requirements.
 """
 
-import os
-import time
-import tracemalloc
+from collections.abc import Callable
 from contextlib import contextmanager
 from dataclasses import dataclass
+import os
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+import time
+import tracemalloc
+from typing import Any
 
 import numpy as np
 import pandas as pd
 import psutil
-
-from app.tools.exceptions import PerformanceError
 
 
 @dataclass
@@ -33,7 +32,7 @@ class PerformanceMetrics:
     export_count: int
     data_size_mb: float
     success: bool
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
 
 @dataclass
@@ -62,7 +61,7 @@ class PerformanceProfiler:
             enable_memory_tracking: Whether to enable detailed memory tracking
         """
         self.enable_memory_tracking = enable_memory_tracking
-        self.metrics_history: List[PerformanceMetrics] = []
+        self.metrics_history: list[PerformanceMetrics] = []
         self.process = psutil.Process(os.getpid())
 
     @contextmanager
@@ -135,8 +134,8 @@ class PerformanceProfiler:
     def benchmark_equity_export(
         self,
         export_function: Callable,
-        portfolios: List[Dict[str, Any]],
-        config: Dict[str, Any],
+        portfolios: list[dict[str, Any]],
+        config: dict[str, Any],
         log_func: Callable[[str, str], None],
     ) -> BenchmarkResult:
         """
@@ -176,7 +175,7 @@ class PerformanceProfiler:
                 )
                 current_metrics.success = result is not None
             except Exception as e:
-                log_func(f"Benchmark error: {str(e)}", "error")
+                log_func(f"Benchmark error: {e!s}", "error")
                 current_metrics.success = False
 
         # Calculate benchmark results
@@ -214,7 +213,7 @@ class PerformanceProfiler:
             meets_requirements=meets_requirements,
         )
 
-    def get_performance_summary(self) -> Dict[str, Any]:
+    def get_performance_summary(self) -> dict[str, Any]:
         """
         Get summary of all performance metrics.
 
@@ -269,13 +268,13 @@ class PerformanceProfiler:
                 "average_portfolios_per_operation": np.mean(
                     [m.portfolio_count for m in successful_operations]
                 ),
-                "export_success_rate": sum(
-                    m.export_count for m in successful_operations
-                )
-                / sum(m.portfolio_count for m in successful_operations)
-                * 100
-                if sum(m.portfolio_count for m in successful_operations) > 0
-                else 0,
+                "export_success_rate": (
+                    sum(m.export_count for m in successful_operations)
+                    / sum(m.portfolio_count for m in successful_operations)
+                    * 100
+                    if sum(m.portfolio_count for m in successful_operations) > 0
+                    else 0
+                ),
             },
         }
 
@@ -320,7 +319,7 @@ class PerformanceProfiler:
             json.dump(report, f, indent=2, default=str)
 
 
-def create_large_test_portfolio(size: int) -> List[Dict[str, Any]]:
+def create_large_test_portfolio(size: int) -> list[dict[str, Any]]:
     """
     Create a large test portfolio for performance testing.
 
@@ -338,7 +337,6 @@ def create_large_test_portfolio(size: int) -> List[Dict[str, Any]]:
         strategy = strategies[i % len(strategies)]
 
         # Create sample equity data
-        import pandas as pd
 
         from app.tools.equity_data_extractor import EquityData
 
@@ -384,7 +382,9 @@ def create_large_test_portfolio(size: int) -> List[Dict[str, Any]]:
     return portfolios
 
 
-def run_performance_benchmark(portfolio_sizes: List[int] = None) -> Dict[str, Any]:
+def run_performance_benchmark(
+    portfolio_sizes: list[int] | None = None,
+) -> dict[str, Any]:
     """
     Run comprehensive performance benchmark tests.
 
@@ -457,9 +457,11 @@ def run_performance_benchmark(portfolio_sizes: List[int] = None) -> Dict[str, An
             "average_performance_impact_percent": avg_performance_impact,
             "maximum_performance_impact_percent": max_performance_impact,
             "all_tests_meet_requirements": all_meet_requirements,
-            "recommendation": "APPROVED"
-            if all_meet_requirements and max_performance_impact < 10
-            else "REQUIRES_OPTIMIZATION",
+            "recommendation": (
+                "APPROVED"
+                if all_meet_requirements and max_performance_impact < 10
+                else "REQUIRES_OPTIMIZATION"
+            ),
         }
 
     return benchmark_results

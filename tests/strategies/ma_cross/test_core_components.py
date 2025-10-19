@@ -2,8 +2,7 @@
 Unit tests for MA Cross core components.
 """
 
-from datetime import datetime, timedelta
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -13,12 +12,8 @@ from app.strategies.ma_cross.core.analyzer import MACrossAnalyzer
 from app.strategies.ma_cross.core.models import (  # Backward compatibility aliases
     AnalysisConfig,
     AnalysisResult,
-    MACrossConfig,
-    MACrossResult,
-    PortfolioResult,
     SignalInfo,
     TickerResult,
-    TradingSignal,
 )
 from app.strategies.ma_cross.scanner_adapter import ScannerAdapter
 
@@ -69,7 +64,7 @@ class TestMACrossConfig:
     def test_config_creation(self, sample_config):
         """Test configuration creation."""
         assert sample_config.ticker == "AAPL"
-        assert sample_config.use_sma == True
+        assert sample_config.use_sma is True
         assert sample_config.fast_period == 20
         assert sample_config.slow_period == 50
         assert sample_config.direction == "Long"
@@ -99,12 +94,12 @@ class TestMACrossConfig:
         """Test default configuration values."""
         config = AnalysisConfig(ticker="AAPL")
 
-        assert config.use_sma == True  # Default is SMA
-        assert config.use_hourly == False
+        assert config.use_sma is True  # Default is SMA
+        assert config.use_hourly is False
         assert config.direction == "Long"
-        assert config.use_years == False
+        assert config.use_years is False
         assert config.years == 1.0
-        assert config.use_synthetic == False
+        assert config.use_synthetic is False
 
 
 class TestMACrossAnalyzer:
@@ -395,7 +390,7 @@ class TestScannerAdapter:
 
         assert isinstance(config, AnalysisConfig)
         assert config.ticker == "AAPL"  # Should convert to single ticker
-        assert config.use_sma == True
+        assert config.use_sma is True
         assert config.fast_period == 20
         assert config.slow_period == 50
 
@@ -475,8 +470,8 @@ class TestSignalInfo:
             price=100.0,
         )
 
-        assert signal.signal_entry == True
-        assert signal.signal_exit == False
+        assert signal.signal_entry is True
+        assert signal.signal_exit is False
         assert signal.current_position == 1
         assert signal.price == 100.0
 
@@ -492,8 +487,8 @@ class TestSignalInfo:
         )
 
         assert signal.date == "2023-01-01"
-        assert signal.signal_entry == False
-        assert signal.signal_exit == True
+        assert signal.signal_entry is False
+        assert signal.signal_exit is True
         assert signal.current_position == 0
         assert signal.price == 99.50
 

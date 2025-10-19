@@ -5,7 +5,8 @@ This module provides the main orchestration logic for portfolio analysis,
 managing the workflow from configuration initialization through result export.
 """
 
-from typing import Any, Callable, Dict, List
+from collections.abc import Callable
+from typing import Any
 
 from app.strategies.ma_cross.exceptions import (
     MACrossConfigurationError,
@@ -21,7 +22,6 @@ from app.tools.exceptions import (
     SyntheticTickerError,
 )
 from app.tools.portfolio.allocation import get_allocation_summary
-from app.tools.portfolio.collection import export_best_portfolios
 from app.tools.portfolio.schema_detection import SchemaVersion, detect_schema_version
 from app.tools.portfolio.stop_loss import get_stop_loss_summary
 
@@ -31,6 +31,7 @@ from app.tools.strategy_utils import get_strategy_types
 from app.tools.synthetic_ticker import process_synthetic_config
 
 from .ticker_processor import TickerProcessor
+
 
 # Optional: Import new export system for gradual migration
 try:
@@ -70,7 +71,7 @@ class PortfolioOrchestrator:
             self.log("Using new unified export system", "info")
 
     def _validate_export_files(
-        self, config: Dict[str, Any], export_type: str, expected_count: int
+        self, config: dict[str, Any], export_type: str, expected_count: int
     ) -> bool:
         """
         DIAGNOSTIC: Validate that export files were actually created on disk.
@@ -114,7 +115,7 @@ class PortfolioOrchestrator:
                         files_found += 1
                         # Count rows in CSV (excluding header)
                         try:
-                            with open(file_path, "r") as f:
+                            with open(file_path) as f:
                                 row_count = sum(1 for line in f) - 1  # Exclude header
                             total_rows += max(0, row_count)  # Ensure non-negative
                             self.log(
@@ -144,7 +145,7 @@ class PortfolioOrchestrator:
             )
             return False
 
-    def run(self, config: Dict[str, Any], progress_update_fn=None) -> bool:
+    def run(self, config: dict[str, Any], progress_update_fn=None) -> bool:
         """
         Run the complete portfolio analysis workflow.
 
@@ -306,50 +307,49 @@ class PortfolioOrchestrator:
                     "Created empty CSV files with headers for configured ticker+strategy combinations",
                     "info",
                 )
-            else:
-                # Enhanced completion summary for successful analysis
-                if hasattr(self.log, "__self__") and hasattr(
-                    self.log.__self__, "completion_banner"
-                ):
-                    # Use enhanced console logger display
-                    self.log.__self__.completion_banner("Portfolio Analysis Complete")
+            # Enhanced completion summary for successful analysis
+            elif hasattr(self.log, "__self__") and hasattr(
+                self.log.__self__, "completion_banner"
+            ):
+                # Use enhanced console logger display
+                self.log.__self__.completion_banner("Portfolio Analysis Complete")
 
-                    # Calculate summary statistics - PHASE 2 FIX: Use corrected portfolio count
-                    portfolio_count = summary_portfolio_count  # Use the corrected count instead of len(all_portfolios)
-                    self.log(
-                        f"🔍 DIAGNOSTIC: Summary portfolio_count calculated as: {portfolio_count} (using summary_portfolio_count)",
-                        "info",
-                    )
-                    # Try to find best config from extreme_filtered_portfolios if available
-                    best_config = None
-                    if extreme_filtered_portfolios:
-                        try:
-                            # Find the portfolio with highest score
-                            best_portfolio = max(
-                                extreme_filtered_portfolios,
-                                key=lambda p: p.get("Score", 0),
-                            )
-                            fast = best_portfolio.get("Fast Period", "")
-                            slow = best_portfolio.get("Slow Period", "")
-                            strategy = best_portfolio.get("Strategy Type", "")
-                            if fast and slow and strategy:
-                                best_config = f"{strategy} {fast}/{slow}"
-                        except (ValueError, TypeError):
-                            pass
+                # Calculate summary statistics - PHASE 2 FIX: Use corrected portfolio count
+                portfolio_count = summary_portfolio_count  # Use the corrected count instead of len(all_portfolios)
+                self.log(
+                    f"🔍 DIAGNOSTIC: Summary portfolio_count calculated as: {portfolio_count} (using summary_portfolio_count)",
+                    "info",
+                )
+                # Try to find best config from extreme_filtered_portfolios if available
+                best_config = None
+                if extreme_filtered_portfolios:
+                    try:
+                        # Find the portfolio with highest score
+                        best_portfolio = max(
+                            extreme_filtered_portfolios,
+                            key=lambda p: p.get("Score", 0),
+                        )
+                        fast = best_portfolio.get("Fast Period", "")
+                        slow = best_portfolio.get("Slow Period", "")
+                        strategy = best_portfolio.get("Strategy Type", "")
+                        if fast and slow and strategy:
+                            best_config = f"{strategy} {fast}/{slow}"
+                    except (ValueError, TypeError):
+                        pass
 
-                    self.log.__self__.results_summary_table(
-                        portfolios_generated=portfolio_count,
-                        best_config=best_config,
-                        files_exported=4,  # base, filtered, metrics, best
-                    )
+                self.log.__self__.results_summary_table(
+                    portfolios_generated=portfolio_count,
+                    best_config=best_config,
+                    files_exported=4,  # base, filtered, metrics, best
+                )
 
             return True
 
         except Exception as e:
-            self.log(f"Orchestration failed: {str(e)}", "error")
+            self.log(f"Orchestration failed: {e!s}", "error")
             raise
 
-    def _initialize_configuration(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def _initialize_configuration(self, config: dict[str, Any]) -> dict[str, Any]:
         """
         Initialize and validate configuration.
 
@@ -374,8 +374,8 @@ class PortfolioOrchestrator:
             return ConfigService.process_config(config)
 
     def _process_synthetic_configuration(
-        self, config: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, config: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Process synthetic ticker configuration if enabled.
 
@@ -395,7 +395,7 @@ class PortfolioOrchestrator:
         ):
             return process_synthetic_config(config, self.log)
 
-    def _get_strategies(self, config: Dict[str, Any]) -> List[str]:
+    def _get_strategies(self, config: dict[str, Any]) -> list[str]:
         """
         Get list of strategies to execute.
 
@@ -409,14 +409,14 @@ class PortfolioOrchestrator:
         intended_strategy = None
         if "STRATEGY_TYPE" in config:
             intended_strategy = config["STRATEGY_TYPE"]
-        elif "STRATEGY_TYPES" in config and config["STRATEGY_TYPES"]:
+        elif config.get("STRATEGY_TYPES"):
             intended_strategy = config["STRATEGY_TYPES"][0]
 
         return get_strategy_types(config, self.log, intended_strategy or "SMA")
 
     def _execute_strategies(
-        self, config: Dict[str, Any], strategies: List[str], progress_update_fn=None
-    ) -> List[Dict[str, Any]]:
+        self, config: dict[str, Any], strategies: list[str], progress_update_fn=None
+    ) -> list[dict[str, Any]]:
         """
         Execute all strategies and collect results.
 
@@ -460,8 +460,8 @@ class PortfolioOrchestrator:
         return all_portfolios
 
     def _apply_extreme_filtering_and_process_portfolios(
-        self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, portfolios: list[dict[str, Any]], config: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """
         Apply extreme value filtering and process portfolios for portfolios_metrics export.
 
@@ -532,7 +532,7 @@ class PortfolioOrchestrator:
             return filtered_portfolios
 
     def _export_raw_portfolios(
-        self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
+        self, portfolios: list[dict[str, Any]], config: dict[str, Any]
     ) -> None:
         """
         Export raw portfolios before filtering.
@@ -547,18 +547,16 @@ class PortfolioOrchestrator:
         with error_context(
             "Exporting raw portfolios", self.log, {Exception: ExportError}
         ):
-            from app.tools.strategy.export_portfolios import export_portfolios
-
             try:
                 # Always use grouped export for single-ticker-per-file behavior
                 self._export_grouped_portfolios(portfolios, config, "portfolios")
             except Exception as e:
-                self.log(f"Error exporting raw portfolios: {str(e)}", "error")
-                raise ExportError(f"Raw portfolio export failed: {str(e)}")
+                self.log(f"Error exporting raw portfolios: {e!s}", "error")
+                raise ExportError(f"Raw portfolio export failed: {e!s}")
 
     def _export_minimums_filtered_portfolios(
-        self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, portfolios: list[dict[str, Any]], config: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """
         Apply minimums filtering and export to portfolios_filtered directory.
 
@@ -575,8 +573,6 @@ class PortfolioOrchestrator:
         with error_context(
             "Exporting minimums-filtered portfolios", self.log, {Exception: ExportError}
         ):
-            from app.tools.strategy.export_portfolios import export_portfolios
-
             try:
                 # Apply only minimums filtering (no extreme value analysis)
                 minimums_filtered = portfolios
@@ -615,14 +611,12 @@ class PortfolioOrchestrator:
 
             except Exception as e:
                 self.log(
-                    f"Error exporting minimums-filtered portfolios: {str(e)}", "error"
+                    f"Error exporting minimums-filtered portfolios: {e!s}", "error"
                 )
-                raise ExportError(
-                    f"Minimums-filtered portfolio export failed: {str(e)}"
-                )
+                raise ExportError(f"Minimums-filtered portfolio export failed: {e!s}")
 
     def _export_metrics_without_aggregation(
-        self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
+        self, portfolios: list[dict[str, Any]], config: dict[str, Any]
     ) -> None:
         """
         Export portfolios to portfolios_metrics without aggregating metric types.
@@ -701,13 +695,11 @@ class PortfolioOrchestrator:
                     self.log(f"Failed to export {ticker}_{strategy} metrics", "warning")
 
             except Exception as e:
-                self.log(
-                    f"Error exporting metrics group {group_key}: {str(e)}", "error"
-                )
-                raise ExportError(f"Metrics export failed for {group_key}: {str(e)}")
+                self.log(f"Error exporting metrics group {group_key}: {e!s}", "error")
+                raise ExportError(f"Metrics export failed for {group_key}: {e!s}")
 
     def _export_portfolios_metrics(
-        self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
+        self, portfolios: list[dict[str, Any]], config: dict[str, Any]
     ) -> None:
         """
         Export portfolios with extreme value analysis to portfolios_metrics directory.
@@ -730,11 +722,11 @@ class PortfolioOrchestrator:
                 )
                 self._export_metrics_without_aggregation(portfolios, config)
             except Exception as e:
-                self.log(f"Error exporting portfolios_metrics: {str(e)}", "error")
-                raise ExportError(f"Portfolios_metrics export failed: {str(e)}")
+                self.log(f"Error exporting portfolios_metrics: {e!s}", "error")
+                raise ExportError(f"Portfolios_metrics export failed: {e!s}")
 
     def _export_results(
-        self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
+        self, portfolios: list[dict[str, Any]], config: dict[str, Any]
     ) -> None:
         """
         Export final portfolio results (best portfolios).
@@ -758,7 +750,7 @@ class PortfolioOrchestrator:
                 self._export_grouped_portfolios(portfolios, config, "portfolios_best")
 
     def _export_with_manager(
-        self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
+        self, portfolios: list[dict[str, Any]], config: dict[str, Any]
     ) -> None:
         """
         Export portfolios using the new unified export manager.
@@ -825,7 +817,7 @@ class PortfolioOrchestrator:
 
         return ticker
 
-    def _has_multiple_tickers(self, portfolios: List[Dict[str, Any]]) -> bool:
+    def _has_multiple_tickers(self, portfolios: list[dict[str, Any]]) -> bool:
         """
         Check if portfolios contain multiple different tickers.
 
@@ -852,7 +844,7 @@ class PortfolioOrchestrator:
         return len(tickers) > 1
 
     def _export_grouped_portfolios(
-        self, portfolios: List[Dict[str, Any]], config: Dict[str, Any], export_type: str
+        self, portfolios: list[dict[str, Any]], config: dict[str, Any], export_type: str
     ) -> None:
         """
         Group portfolios by ticker+strategy combination and export each group individually.
@@ -992,9 +984,9 @@ class PortfolioOrchestrator:
                 group_config["TICKER"] = ticker
                 group_config["STRATEGY_TYPE"] = strategy
                 group_config["STRATEGY_TYPES"] = [strategy]
-                group_config[
-                    "USE_MA"
-                ] = True  # Explicitly ensure strategy suffix is included
+                group_config["USE_MA"] = (
+                    True  # Explicitly ensure strategy suffix is included
+                )
 
                 self.log(
                     f"Exporting {len(group_portfolios)} portfolios for {ticker} {strategy}",
@@ -1019,15 +1011,15 @@ class PortfolioOrchestrator:
                     self.log(f"Failed to export {ticker}_{strategy} group", "warning")
 
             except Exception as e:
-                self.log(f"Error exporting group {group_key}: {str(e)}", "error")
-                raise ExportError(f"Group export failed for {group_key}: {str(e)}")
+                self.log(f"Error exporting group {group_key}: {e!s}", "error")
+                raise ExportError(f"Group export failed for {group_key}: {e!s}")
 
         self.log(
             f"Successfully exported {export_count} total portfolios in {len(groups)} individual files",
             "info",
         )
 
-    def _load_existing_portfolios(self, config: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _load_existing_portfolios(self, config: dict[str, Any]) -> list[dict[str, Any]]:
         """
         Load existing portfolio files from data/raw/portfolios/ directory.
 
@@ -1128,9 +1120,9 @@ class PortfolioOrchestrator:
                     )
 
                 except Exception as e:
-                    self.log(f"Failed to load {csv_file.name}: {str(e)}", "error")
+                    self.log(f"Failed to load {csv_file.name}: {e!s}", "error")
                     raise MACrossPortfolioError(
-                        f"Failed to load portfolio file {csv_file.name}: {str(e)}"
+                        f"Failed to load portfolio file {csv_file.name}: {e!s}"
                     )
 
             self.log(
@@ -1155,8 +1147,7 @@ class PortfolioOrchestrator:
                         "info",
                     )
                     return filtered_portfolios
-                else:
-                    self.log("No portfolios remain after MINIMUMS filtering", "warning")
-                    return []
+                self.log("No portfolios remain after MINIMUMS filtering", "warning")
+                return []
 
             return all_portfolios

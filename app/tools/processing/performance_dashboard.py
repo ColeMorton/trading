@@ -5,16 +5,14 @@ This module creates a performance monitoring dashboard using log analysis
 to visualize system performance metrics and trends.
 """
 
-import json
-import logging
-import re
-import statistics
 from collections import defaultdict, deque
 from datetime import datetime, timedelta
+import json
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+import statistics
+from typing import Any
 
-from .performance_monitor import get_performance_monitor
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +20,11 @@ logger = logging.getLogger(__name__)
 class LogAnalyzer:
     """Analyzes performance logs for dashboard creation."""
 
-    def __init__(self, log_file: Optional[Path] = None):
+    def __init__(self, log_file: Path | None = None):
         """Initialize log analyzer."""
         self.log_file = log_file or Path("logs/performance_metrics.jsonl")
-        self.parsed_metrics: List[Dict[str, Any]] = []
-        self.metric_trends: Dict[str, deque] = defaultdict(lambda: deque(maxlen=1000))
+        self.parsed_metrics: list[dict[str, Any]] = []
+        self.metric_trends: dict[str, deque] = defaultdict(lambda: deque(maxlen=1000))
 
     def load_logs(self, hours_back: int = 24) -> int:
         """Load and parse performance logs."""
@@ -38,7 +36,7 @@ class LogAnalyzer:
         parsed_count = 0
 
         try:
-            with open(self.log_file, "r") as f:
+            with open(self.log_file) as f:
                 for line in f:
                     line = line.strip()
                     if not line:
@@ -67,7 +65,7 @@ class LogAnalyzer:
             logger.error(f"Failed to load logs: {e}")
             return 0
 
-    def _update_trends(self, log_entry: Dict[str, Any]):
+    def _update_trends(self, log_entry: dict[str, Any]):
         """Update metric trends from log entry."""
         if log_entry.get("event_type") == "performance_metric":
             metric_name = log_entry.get("name", "unknown")
@@ -83,7 +81,7 @@ class LogAnalyzer:
                 }
             )
 
-    def get_metric_summary(self, metric_name: str, hours: int = 1) -> Dict[str, Any]:
+    def get_metric_summary(self, metric_name: str, hours: int = 1) -> dict[str, Any]:
         """Get summary statistics for a specific metric."""
         cutoff_time = datetime.now() - timedelta(hours=hours)
 
@@ -118,7 +116,7 @@ class LogAnalyzer:
 
         return summary
 
-    def get_operation_analysis(self, hours: int = 24) -> Dict[str, Any]:
+    def get_operation_analysis(self, hours: int = 24) -> dict[str, Any]:
         """Analyze operation performance from logs."""
         cutoff_time = datetime.now() - timedelta(hours=hours)
 
@@ -174,7 +172,7 @@ class LogAnalyzer:
             "alert_summary": self._summarize_alerts(alerts),
         }
 
-    def get_system_health_score(self) -> Dict[str, Any]:
+    def get_system_health_score(self) -> dict[str, Any]:
         """Calculate overall system health score."""
         # Load recent data
         self.load_logs(hours_back=1)
@@ -282,7 +280,7 @@ class LogAnalyzer:
             "timestamp": datetime.now().isoformat(),
         }
 
-    def _calculate_trend(self, values: List[float]) -> str:
+    def _calculate_trend(self, values: list[float]) -> str:
         """Calculate trend direction from values."""
         if len(values) < 2:
             return "stable"
@@ -294,7 +292,9 @@ class LogAnalyzer:
         x_mean = statistics.mean(x_values)
         y_mean = statistics.mean(values)
 
-        numerator = sum((x - x_mean) * (y - y_mean) for x, y in zip(x_values, values))
+        numerator = sum(
+            (x - x_mean) * (y - y_mean) for x, y in zip(x_values, values, strict=False)
+        )
         denominator = sum((x - x_mean) ** 2 for x in x_values)
 
         if denominator == 0:
@@ -305,26 +305,24 @@ class LogAnalyzer:
         # Classify trend
         if abs(slope) < 0.01 * y_mean:  # Less than 1% change per unit
             return "stable"
-        elif slope > 0:
+        if slope > 0:
             return "increasing"
-        else:
-            return "decreasing"
+        return "decreasing"
 
-    def _percentile(self, values: List[float], percentile: int) -> float:
+    def _percentile(self, values: list[float], percentile: int) -> float:
         """Calculate percentile value."""
         sorted_values = sorted(values)
         index = (percentile / 100) * (len(sorted_values) - 1)
 
         if index.is_integer():
             return sorted_values[int(index)]
-        else:
-            lower = sorted_values[int(index)]
-            upper = sorted_values[int(index) + 1]
-            return lower + (upper - lower) * (index - int(index))
+        lower = sorted_values[int(index)]
+        upper = sorted_values[int(index) + 1]
+        return lower + (upper - lower) * (index - int(index))
 
-    def _summarize_alerts(self, alerts: List[Dict[str, Any]]) -> Dict[str, int]:
+    def _summarize_alerts(self, alerts: list[dict[str, Any]]) -> dict[str, int]:
         """Summarize alerts by severity."""
-        summary: Dict[str, int] = defaultdict(int)
+        summary: dict[str, int] = defaultdict(int)
 
         for alert in alerts:
             severity = alert.get("severity", "unknown")
@@ -332,7 +330,7 @@ class LogAnalyzer:
 
         return dict(summary)
 
-    def _get_health_recommendations(self, health_factors: Dict[str, Any]) -> List[str]:
+    def _get_health_recommendations(self, health_factors: dict[str, Any]) -> list[str]:
         """Get health improvement recommendations."""
         recommendations = []
 
@@ -375,7 +373,7 @@ class LogAnalyzer:
 class DashboardGenerator:
     """Generates HTML dashboard for performance monitoring."""
 
-    def __init__(self, log_analyzer: Optional[LogAnalyzer] = None):
+    def __init__(self, log_analyzer: LogAnalyzer | None = None):
         """Initialize dashboard generator."""
         self.log_analyzer = log_analyzer or LogAnalyzer()
 
@@ -417,9 +415,9 @@ class DashboardGenerator:
 
     def _generate_html_content(
         self,
-        health_score: Dict[str, Any],
-        operation_analysis: Dict[str, Any],
-        metric_summaries: Dict[str, Any],
+        health_score: dict[str, Any],
+        operation_analysis: dict[str, Any],
+        metric_summaries: dict[str, Any],
         hours_back: int,
     ) -> str:
         """Generate HTML content for dashboard."""
@@ -622,7 +620,7 @@ class DashboardGenerator:
 """
         return html_content
 
-    def _generate_metrics_html(self, metric_summaries: Dict[str, Any]) -> str:
+    def _generate_metrics_html(self, metric_summaries: dict[str, Any]) -> str:
         """Generate HTML for metrics section."""
         html = ""
 
@@ -662,7 +660,7 @@ class DashboardGenerator:
 
         return html
 
-    def _generate_operations_table(self, operations: Dict[str, Any]) -> str:
+    def _generate_operations_table(self, operations: dict[str, Any]) -> str:
         """Generate HTML table for operations."""
         if not operations:
             return "<p>No operation data available</p>"
@@ -697,7 +695,7 @@ class DashboardGenerator:
 
         return html
 
-    def _generate_health_factors_html(self, health_factors: Dict[str, Any]) -> str:
+    def _generate_health_factors_html(self, health_factors: dict[str, Any]) -> str:
         """Generate HTML for health factors."""
         html = ""
 
@@ -723,7 +721,7 @@ class DashboardGenerator:
 
         return html
 
-    def _generate_recommendations_html(self, recommendations: List[str]) -> str:
+    def _generate_recommendations_html(self, recommendations: list[str]) -> str:
         """Generate HTML for recommendations."""
         if not recommendations:
             return ""
@@ -746,11 +744,11 @@ class DashboardGenerator:
 
 
 # Global dashboard instance
-_global_dashboard: Optional[DashboardGenerator] = None
+_global_dashboard: DashboardGenerator | None = None
 
 
 def get_dashboard_generator(
-    log_analyzer: Optional[LogAnalyzer] = None,
+    log_analyzer: LogAnalyzer | None = None,
 ) -> DashboardGenerator:
     """Get or create global dashboard generator."""
     global _global_dashboard
@@ -762,7 +760,7 @@ def get_dashboard_generator(
 
 
 def generate_performance_dashboard(
-    output_file: Optional[Path] = None, hours_back: int = 24
+    output_file: Path | None = None, hours_back: int = 24
 ) -> str:
     """Generate performance dashboard HTML file."""
     if output_file is None:
@@ -773,8 +771,8 @@ def generate_performance_dashboard(
 
 
 def analyze_performance_logs(
-    log_file: Optional[Path] = None, hours_back: int = 24
-) -> Dict[str, Any]:
+    log_file: Path | None = None, hours_back: int = 24
+) -> dict[str, Any]:
     """Analyze performance logs and return summary."""
     analyzer = LogAnalyzer(log_file)
     analyzer.load_logs(hours_back)

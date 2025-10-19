@@ -6,15 +6,14 @@ for the SPDS scoring system, enabling detailed tracking of factor contributions
 and systematic performance measurement.
 """
 
-import json
-import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+import json
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
-import pandas as pd
 
 
 @dataclass
@@ -25,7 +24,7 @@ class FactorAttribution:
     contribution: float
     weight: float
     score: float
-    performance_metrics: Dict[str, float] = field(default_factory=dict)
+    performance_metrics: dict[str, float] = field(default_factory=dict)
 
 
 @dataclass
@@ -35,9 +34,9 @@ class AttributionResult:
     overall_score: float
     signal: str
     confidence: float
-    factors: List[FactorAttribution]
-    regime_info: Dict[str, Any]
-    performance_summary: Dict[str, float] = field(default_factory=dict)
+    factors: list[FactorAttribution]
+    regime_info: dict[str, Any]
+    performance_summary: dict[str, float] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.now)
 
 
@@ -61,13 +60,13 @@ class PerformanceAttributor:
         self.logger = logging.getLogger(__name__)
 
         # Factor performance tracking
-        self.factor_history: Dict[str, List[Dict[str, Any]]] = {}
+        self.factor_history: dict[str, list[dict[str, Any]]] = {}
 
         # Performance metrics cache
-        self.performance_cache: Dict[str, Dict[str, float]] = {}
+        self.performance_cache: dict[str, dict[str, float]] = {}
 
     def analyze_attribution(
-        self, component_scores: Dict[str, Any], analysis_result: Dict[str, Any]
+        self, component_scores: dict[str, Any], analysis_result: dict[str, Any]
     ) -> AttributionResult:
         """
         Perform comprehensive attribution analysis.
@@ -121,8 +120,8 @@ class PerformanceAttributor:
             return self._default_attribution_result()
 
     def _extract_factor_attributions(
-        self, component_scores: Dict[str, Any]
-    ) -> List[FactorAttribution]:
+        self, component_scores: dict[str, Any]
+    ) -> list[FactorAttribution]:
         """Extract factor attribution information from component scores."""
         factors = []
 
@@ -182,7 +181,7 @@ class PerformanceAttributor:
 
     def _calculate_factor_performance(
         self, factor: FactorAttribution
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Calculate performance metrics for a single factor."""
         try:
             # Historical performance from cache
@@ -225,7 +224,7 @@ class PerformanceAttributor:
             )
             return self._default_factor_performance()
 
-    def _calculate_trend(self, values: List[float]) -> float:
+    def _calculate_trend(self, values: list[float]) -> float:
         """Calculate trend direction and strength."""
         if len(values) < 3:
             return 0.0
@@ -238,7 +237,7 @@ class PerformanceAttributor:
             return 0.0
 
     def _calculate_factor_efficiency(
-        self, factor: FactorAttribution, historical_data: List[Dict[str, Any]]
+        self, factor: FactorAttribution, historical_data: list[dict[str, Any]]
     ) -> float:
         """Calculate how efficiently the factor contributes to signals."""
         if len(historical_data) < 5:
@@ -261,7 +260,7 @@ class PerformanceAttributor:
             return 0.5
 
     def _calculate_signal_accuracy(
-        self, factor: FactorAttribution, historical_data: List[Dict[str, Any]]
+        self, factor: FactorAttribution, historical_data: list[dict[str, Any]]
     ) -> float:
         """Calculate signal accuracy contribution for this factor."""
         if len(historical_data) < 3:
@@ -274,7 +273,10 @@ class PerformanceAttributor:
 
             # Factor that contribute consistently in same direction are more accurate
             sign_consistency = np.mean(
-                [1 if s * c >= 0 else 0 for s, c in zip(scores, contributions)]
+                [
+                    1 if s * c >= 0 else 0
+                    for s, c in zip(scores, contributions, strict=False)
+                ]
             )
 
             return float(sign_consistency)
@@ -283,8 +285,8 @@ class PerformanceAttributor:
             return 0.5
 
     def _calculate_performance_summary(
-        self, factors: List[FactorAttribution]
-    ) -> Dict[str, float]:
+        self, factors: list[FactorAttribution]
+    ) -> dict[str, float]:
         """Calculate overall performance summary across all factors."""
         try:
             total_contribution = sum(abs(f.contribution) for f in factors)
@@ -325,11 +327,11 @@ class PerformanceAttributor:
                 "factor_diversification": float(diversification),
                 "weight_efficiency": float(weight_efficiency),
                 "factor_count": len(factors),
-                "dominant_factor": max(
-                    factors, key=lambda f: abs(f.contribution)
-                ).factor_name
-                if factors
-                else "none",
+                "dominant_factor": (
+                    max(factors, key=lambda f: abs(f.contribution)).factor_name
+                    if factors
+                    else "none"
+                ),
             }
 
         except Exception as e:
@@ -392,7 +394,7 @@ class PerformanceAttributor:
         except Exception as e:
             self.logger.warning(f"Failed to store attribution: {e}")
 
-    def get_factor_performance_report(self, lookback_days: int = 30) -> Dict[str, Any]:
+    def get_factor_performance_report(self, lookback_days: int = 30) -> dict[str, Any]:
         """Generate comprehensive factor performance report."""
         try:
             cutoff_date = datetime.now() - timedelta(days=lookback_days)
@@ -431,9 +433,9 @@ class PerformanceAttributor:
                         - np.std(contributions) / (abs(np.mean(contributions)) + 0.001)
                     ),
                     "trend_strength": self._calculate_trend(scores),
-                    "recent_performance": recent_data[-1]["performance_metrics"]
-                    if recent_data
-                    else {},
+                    "recent_performance": (
+                        recent_data[-1]["performance_metrics"] if recent_data else {}
+                    ),
                 }
 
                 report["factors"][factor_name] = factor_report
@@ -463,7 +465,7 @@ class PerformanceAttributor:
             regime_info={"volatility_regime": "normal", "current_vix": 20.0},
         )
 
-    def _default_factor_performance(self) -> Dict[str, float]:
+    def _default_factor_performance(self) -> dict[str, float]:
         """Return default factor performance metrics."""
         return {
             "avg_score": 0.0,

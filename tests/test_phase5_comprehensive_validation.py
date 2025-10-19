@@ -7,10 +7,7 @@ is working correctly across all export paths and integration points.
 """
 
 import csv
-import os
-import tempfile
 from pathlib import Path
-from typing import Dict, List
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -30,7 +27,7 @@ class TestPhase5ComprehensiveValidation:
         return MagicMock()
 
     @pytest.fixture
-    def sample_canonical_data(self) -> List[Dict]:
+    def sample_canonical_data(self) -> list[dict]:
         """Create sample data conforming to canonical schema."""
         return [
             {
@@ -166,7 +163,7 @@ class TestPhase5ComprehensiveValidation:
         assert len(export_files) > 0, "No CSV files were exported"
 
         # Validate first exported file
-        with open(export_files[0], "r", newline="", encoding="utf-8") as f:
+        with open(export_files[0], newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             headers = reader.fieldnames
 
@@ -230,7 +227,7 @@ class TestPhase5ComprehensiveValidation:
                 if export_dir.exists():
                     csv_files = list(export_dir.glob("*.csv"))
                     for csv_file in csv_files:
-                        with open(csv_file, "r", newline="", encoding="utf-8") as f:
+                        with open(csv_file, newline="", encoding="utf-8") as f:
                             reader = csv.DictReader(f)
                             headers = reader.fieldnames
                             assert len(headers) == CANONICAL_COLUMN_COUNT
@@ -314,7 +311,7 @@ class TestPhase5ComprehensiveValidation:
         )
         result = validate_dataframe_schema(compliant_data, strict=False)
 
-        assert result["is_valid"] == True, "Compliant data should pass validation"
+        assert result["is_valid"] is True, "Compliant data should pass validation"
         assert (
             len(result.get("violations", [])) == 0
         ), "Compliant data should have no violations"
@@ -325,7 +322,7 @@ class TestPhase5ComprehensiveValidation:
         )
         result = validate_dataframe_schema(non_compliant_data, strict=False)
 
-        assert result["is_valid"] == False, "Non-compliant data should fail validation"
+        assert result["is_valid"] is False, "Non-compliant data should fail validation"
         assert (
             len(result.get("violations", [])) > 0
         ), "Non-compliant data should have violations"
@@ -391,7 +388,7 @@ class TestPhase5ComprehensiveValidation:
         # Check in the exported CSV file
         export_files = list(Path(tmp_path).glob("data/raw/strategies/best/*.csv"))
         if export_files:
-            with open(export_files[0], "r", newline="", encoding="utf-8") as f:
+            with open(export_files[0], newline="", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 headers = reader.fieldnames
 
@@ -488,7 +485,7 @@ class TestPhase5ComprehensiveValidation:
         assert len(export_files) > 0, "Pipeline should produce output files"
 
         # Verify output file schema compliance
-        with open(export_files[0], "r", newline="", encoding="utf-8") as f:
+        with open(export_files[0], newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             headers = reader.fieldnames
             rows = list(reader)
@@ -531,7 +528,7 @@ class TestPhase5ComprehensiveValidation:
 
         # Verify output quality wasn't compromised for performance
         export_files = list(Path(tmp_path).glob("data/raw/strategies/best/*.csv"))
-        with open(export_files[0], "r") as f:
+        with open(export_files[0]) as f:
             lines = f.readlines()
             assert (
                 len(lines) == 101

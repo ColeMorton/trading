@@ -6,24 +6,16 @@ both Polars and Pandas DataFrames. It handles directory creation, file naming,
 and proper CSV formatting.
 """
 
+from collections.abc import Callable
+from datetime import datetime
 import logging
 import os
-from datetime import datetime
-from typing import (
-    TYPE_CHECKING,
-    Callable,
-    Dict,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-    TypedDict,
-    Union,
-)
+from typing import TYPE_CHECKING, Optional, TypedDict
 
 import pandas as pd
 import polars as pl
 from typing_extensions import NotRequired
+
 
 if TYPE_CHECKING:
     from app.tools.portfolio.base_extended_schemas import SchemaType
@@ -50,7 +42,7 @@ class ExportConfig(TypedDict):
     """
 
     BASE_DIR: str
-    TICKER: NotRequired[Union[str, List[str]]]
+    TICKER: NotRequired[str | list[str]]
     USE_HOURLY: NotRequired[bool]
     USE_4HOUR: NotRequired[bool]
     USE_2DAY: NotRequired[bool]
@@ -80,7 +72,7 @@ def _get_ticker_prefix(config: ExportConfig) -> str:
         # Ensure synthetic tickers use underscore format
         formatted_ticker = ticker.replace("/", "_")
         return f"{formatted_ticker}_"
-    elif isinstance(ticker, list) and len(ticker) == 1:
+    if isinstance(ticker, list) and len(ticker) == 1:
         # Handle single ticker from list
         formatted_ticker = ticker[0].replace("/", "_")
         return f"{formatted_ticker}_"
@@ -89,7 +81,7 @@ def _get_ticker_prefix(config: ExportConfig) -> str:
 
 def _get_filename_components(
     config: ExportConfig, feature1: str = "", feature2: str = ""
-) -> List[str]:
+) -> list[str]:
     """Generate standardized filename components based on configuration.
 
     Args:
@@ -150,16 +142,15 @@ def _get_filename_components(
         else:
             timeframe_suffix = "D"
         components.append(f"{timestamp}_{timeframe_suffix}")
+    # Determine timeframe suffix
+    elif config.get("USE_2DAY", False):
+        components.append("2D")
+    elif config.get("USE_4HOUR", False):
+        components.append("4H")
+    elif config.get("USE_HOURLY", False):
+        components.append("H")
     else:
-        # Determine timeframe suffix
-        if config.get("USE_2DAY", False):
-            components.append("2D")
-        elif config.get("USE_4HOUR", False):
-            components.append("4H")
-        elif config.get("USE_HOURLY", False):
-            components.append("H")
-        else:
-            components.append("D")
+        components.append("D")
 
     # Add SHORT suffix if direction is Short
     if config.get("DIRECTION") == "Short":
@@ -219,10 +210,7 @@ def _is_generic_filename(filename: str) -> bool:
         return True
 
     # Pattern 3: DAILY.csv specifically
-    if filename_lower == "daily.csv":
-        return True
-
-    return False
+    return filename_lower == "daily.csv"
 
 
 def _get_filename(
@@ -332,14 +320,14 @@ def _get_export_path(feature1: str, config: ExportConfig, feature2: str = "") ->
 
 
 def export_csv(
-    data: Union[pl.DataFrame, pd.DataFrame, List[Dict]],
+    data: pl.DataFrame | pd.DataFrame | list[dict],
     feature1: str,
     config: ExportConfig,
     feature2: str = "",
-    filename: Optional[str] | None = None,
-    log: Optional[Callable] | None = None,
+    filename: str | None | None = None,
+    log: Callable | None | None = None,
     target_schema: Optional["SchemaType"] = None,
-) -> Tuple[pl.DataFrame, bool]:
+) -> tuple[pl.DataFrame, bool]:
     """Export data to CSV with proper formatting.
 
     This function handles:
@@ -383,7 +371,7 @@ def export_csv(
                     log(error_msg, "error")
                 return pl.DataFrame(), False
         except Exception as e:
-            error_msg = f"Failed to create directory {export_path}: {str(e)}"
+            error_msg = f"Failed to create directory {export_path}: {e!s}"
             if log:
                 log(error_msg, "error")
             return pl.DataFrame(), False
@@ -416,13 +404,13 @@ def export_csv(
                     log(f"Removed existing file: {full_path}", "debug")
             except PermissionError as e:
                 error_msg = (
-                    f"Permission denied removing existing file {full_path}: {str(e)}"
+                    f"Permission denied removing existing file {full_path}: {e!s}"
                 )
                 if log:
                     log(error_msg, "error")
                 return pl.DataFrame(), False
             except Exception as e:
-                error_msg = f"Failed to remove existing file {full_path}: {str(e)}"
+                error_msg = f"Failed to remove existing file {full_path}: {e!s}"
                 if log:
                     log(error_msg, "error")
                 return pl.DataFrame(), False
@@ -539,7 +527,7 @@ def export_csv(
         return data if isinstance(data, pl.DataFrame) else pl.DataFrame(data), True
 
     except Exception as e:
-        error_msg = f"Failed to export CSV: {str(e)}"
+        error_msg = f"Failed to export CSV: {e!s}"
         if log:
             log(error_msg, "error")
         logging.error(error_msg)
@@ -547,10 +535,10 @@ def export_csv(
 
 
 def _validate_and_ensure_schema_compliance(
-    data: Union[pl.DataFrame, pd.DataFrame],
-    log: Optional[Callable] = None,
+    data: pl.DataFrame | pd.DataFrame,
+    log: Callable | None = None,
     target_schema: Optional["SchemaType"] = None,
-) -> Union[pl.DataFrame, pd.DataFrame]:
+) -> pl.DataFrame | pd.DataFrame:
     """
     Validate and ensure schema compliance for export data.
 
@@ -604,7 +592,7 @@ def _validate_and_ensure_schema_compliance(
 
     except Exception as e:
         if log:
-            log(f"Schema validation failed: {str(e)}", "error")
+            log(f"Schema validation failed: {e!s}", "error")
 
     # Ensure canonical column order and completeness
     canonical_df = _ensure_canonical_column_order(df_pandas, log, target_schema)
@@ -612,13 +600,12 @@ def _validate_and_ensure_schema_compliance(
     # Convert back to original format
     if was_polars:
         return pl.from_pandas(canonical_df)
-    else:
-        return canonical_df
+    return canonical_df
 
 
 def _ensure_canonical_column_order(
     df: pd.DataFrame,
-    log: Optional[Callable] = None,
+    log: Callable | None = None,
     target_schema: Optional["SchemaType"] = None,
 ) -> pd.DataFrame:
     """
@@ -709,7 +696,7 @@ def _ensure_canonical_column_order(
                 except Exception as e:
                     if log:
                         log(
-                            f"Schema normalization failed for portfolio: {str(e)}",
+                            f"Schema normalization failed for portfolio: {e!s}",
                             "warning",
                         )
                     # Fall back to original portfolio if normalization fails
@@ -739,7 +726,7 @@ def _ensure_canonical_column_order(
 
 
 def _get_default_column_value(
-    column_name: str, existing_df: pd.DataFrame, log: Optional[Callable] = None
+    column_name: str, existing_df: pd.DataFrame, log: Callable | None = None
 ) -> pd.Series:
     """
     Get default values for a missing column.
@@ -759,10 +746,6 @@ def _get_default_column_value(
         "Ticker": "UNKNOWN",
         "Allocation [%]": None,
         "Strategy Type": "SMA",
-        "Fast Period": 20,
-        "Slow Period": 50,
-        "Signal Period": 0,
-        # Legacy column names for backwards compatibility
         "Fast Period": 20,
         "Slow Period": 50,
         "Signal Period": 0,
@@ -821,7 +804,7 @@ def _get_default_column_value(
         "Total Period": 0.0,
     }
 
-    default_value = defaults.get(column_name, None)
+    default_value = defaults.get(column_name)
     return pd.Series([default_value] * num_rows, name=column_name)
 
 
@@ -884,7 +867,7 @@ def _format_duration_microseconds(total_microseconds: int) -> str:
 
 
 def _convert_duration_columns_for_csv(
-    data: pl.DataFrame, log: Optional[Callable] = None
+    data: pl.DataFrame, log: Callable | None = None
 ) -> pl.DataFrame:
     """
     Convert duration columns to string format for CSV export compatibility.
@@ -981,7 +964,7 @@ def _convert_duration_columns_for_csv(
             except Exception as e:
                 if log:
                     log(
-                        f"Failed to convert duration column '{col}' ({dtype}): {str(e)}, using fallback",
+                        f"Failed to convert duration column '{col}' ({dtype}): {e!s}, using fallback",
                         "warning",
                     )
 
@@ -998,7 +981,7 @@ def _convert_duration_columns_for_csv(
                 except Exception as fallback_e:
                     if log:
                         log(
-                            f"Fallback conversion also failed for '{col}': {str(fallback_e)}",
+                            f"Fallback conversion also failed for '{col}': {fallback_e!s}",
                             "error",
                         )
 
@@ -1007,7 +990,7 @@ def _convert_duration_columns_for_csv(
     except Exception as e:
         if log:
             log(
-                f"Duration column conversion failed: {str(e)}, returning original DataFrame",
+                f"Duration column conversion failed: {e!s}, returning original DataFrame",
                 "error",
             )
         return data

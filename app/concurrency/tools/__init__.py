@@ -5,6 +5,7 @@ from app.concurrency.tools.data_alignment import align_data
 from app.concurrency.tools.types import ConcurrencyStats
 from app.concurrency.tools.visualization import plot_concurrency
 
+
 __all__ = [
     "ConcurrencyStats",
     "align_data",

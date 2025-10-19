@@ -6,7 +6,7 @@ to eliminate rounding errors that can accumulate in portfolio calculations.
 """
 
 from decimal import Decimal, getcontext
-from typing import Dict, List, Optional, Tuple
+
 
 # Set high precision for decimal calculations
 getcontext().prec = 28  # High precision for financial calculations
@@ -60,8 +60,8 @@ class PrecisionFeeCalculator:
         return exit_fee
 
     def calculate_total_fees(
-        self, entry_price: float, exit_price: Optional[float], size: float
-    ) -> Dict[str, Decimal]:
+        self, entry_price: float, exit_price: float | None, size: float
+    ) -> dict[str, Decimal]:
         """
         Calculate total fees for a position.
 
@@ -86,7 +86,7 @@ class PrecisionFeeCalculator:
 
     def calculate_net_pnl(
         self, entry_price: float, exit_price: float, size: float
-    ) -> Dict[str, Decimal]:
+    ) -> dict[str, Decimal]:
         """
         Calculate net P&L after fees with high precision.
 
@@ -116,7 +116,7 @@ class PrecisionFeeCalculator:
             "exit_fee": fees["exit_fee"],
         }
 
-    def calculate_portfolio_fees(self, positions: List[Dict]) -> Dict[str, Decimal]:
+    def calculate_portfolio_fees(self, positions: list[dict]) -> dict[str, Decimal]:
         """
         Calculate total portfolio fees with high precision.
 
@@ -176,7 +176,7 @@ class PrecisionEquityCalculator:
 
     def calculate_cash_flow(
         self, transaction_type: str, price: float, size: float
-    ) -> Dict[str, Decimal]:
+    ) -> dict[str, Decimal]:
         """
         Calculate cash flow for a transaction with fees.
 
@@ -200,7 +200,7 @@ class PrecisionEquityCalculator:
                 "type": "entry",
             }
 
-        elif transaction_type == "exit":
+        if transaction_type == "exit":
             proceeds = self.calculate_position_value(price, size)
             fee = self.fee_calculator.calculate_exit_fee(price, size)
             cash_flow = proceeds - fee  # Positive for cash inflow
@@ -212,10 +212,9 @@ class PrecisionEquityCalculator:
                 "type": "exit",
             }
 
-        else:
-            raise ValueError(f"Invalid transaction type: {transaction_type}")
+        raise ValueError(f"Invalid transaction type: {transaction_type}")
 
-    def calculate_portfolio_value_change(self, transactions: List[Dict]) -> Decimal:
+    def calculate_portfolio_value_change(self, transactions: list[dict]) -> Decimal:
         """
         Calculate total portfolio value change from a list of transactions.
 

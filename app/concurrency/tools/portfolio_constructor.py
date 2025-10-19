@@ -6,14 +6,16 @@ Constructs optimal portfolios by testing different sizes (5, 7, 9) and selecting
 the configuration with the highest efficiency_score.
 """
 
-import logging
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple
+import logging
+from typing import Any
 
 from app.concurrency.tools.asset_strategy_loader import AssetStrategyLoader
 from app.concurrency.tools.permutation import find_optimal_permutation
 from app.concurrency.tools.types import StrategyConfig
 from app.tools.exceptions import DataLoadError
+
 
 logger = logging.getLogger(__name__)
 
@@ -24,17 +26,17 @@ class PortfolioConstructionResult:
 
     asset: str
     optimal_size: int
-    optimal_portfolio: List[StrategyConfig]
+    optimal_portfolio: list[StrategyConfig]
     efficiency_score: float
-    portfolio_stats: Dict[str, Any]
-    size_comparison: Dict[int, Dict[str, Any]]
+    portfolio_stats: dict[str, Any]
+    size_comparison: dict[int, dict[str, Any]]
     total_strategies_evaluated: int
 
 
 class PortfolioConstructor:
     """Constructs optimal portfolios from strategy universe."""
 
-    def __init__(self, strategy_loader: Optional[AssetStrategyLoader] = None):
+    def __init__(self, strategy_loader: AssetStrategyLoader | None = None):
         """Initialize constructor with optional strategy loader."""
         self.strategy_loader = strategy_loader or AssetStrategyLoader()
 
@@ -44,7 +46,7 @@ class PortfolioConstructor:
         process_strategies_func: Callable,
         analyze_concurrency_func: Callable,
         log_func: Callable[[str, str], None],
-        portfolio_sizes: List[int] = None,
+        portfolio_sizes: list[int] | None = None,
         min_score: float = 1.0,
     ) -> PortfolioConstructionResult:
         """
@@ -168,7 +170,7 @@ class PortfolioConstructor:
 
     def generate_construction_report(
         self, result: PortfolioConstructionResult
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate comprehensive report of portfolio construction process."""
 
         # Strategy composition analysis
@@ -278,7 +280,7 @@ class PortfolioConstructor:
 
     def validate_construction_feasibility(
         self, asset: str, min_score: float = 1.0
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Validate if portfolio construction is feasible for given asset."""
         try:
             validation = self.strategy_loader.validate_asset_data(asset)

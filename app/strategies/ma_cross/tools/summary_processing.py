@@ -6,7 +6,8 @@ adjusted metrics and processing portfolio statistics for various strategy types
 including SMA, EMA, and MACD.
 """
 
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import Any
 
 import polars as pl
 
@@ -21,7 +22,6 @@ from app.tools.config_service import ConfigService
 from app.tools.portfolio_transformation import reorder_columns
 from app.tools.stats_converter import convert_stats
 from app.tools.strategy.signal_utils import (
-    calculate_signal_unconfirmed,
     calculate_signal_unconfirmed_realtime,
     is_exit_signal_current,
     is_signal_current,
@@ -29,8 +29,8 @@ from app.tools.strategy.signal_utils import (
 
 
 def process_ticker_portfolios(
-    ticker: str, row: dict, config: Dict[str, Any], log: Callable[[str, str], None]
-) -> Optional[List[dict]]:
+    ticker: str, row: dict, config: dict[str, Any], log: Callable[[str, str], None]
+) -> list[dict] | None:
     """
     Process portfolios for a single ticker based on strategy type.
 
@@ -137,7 +137,7 @@ def process_ticker_portfolios(
                     log=log,
                 )
             except Exception as e:
-                log(f"Failed to process MACD strategy for {ticker}: {str(e)}", "error")
+                log(f"Failed to process MACD strategy for {ticker}: {e!s}", "error")
                 return None
 
             if result:
@@ -194,7 +194,7 @@ def process_ticker_portfolios(
                         portfolios.append(converted_stats)
                     except Exception as e:
                         log(
-                            f"Failed to process MACD stats for {ticker}: {str(e)}",
+                            f"Failed to process MACD stats for {ticker}: {e!s}",
                             "error",
                         )
 
@@ -290,7 +290,7 @@ def process_ticker_portfolios(
                         portfolios.append(sma_converted_stats)
                     except Exception as e:
                         log(
-                            f"Failed to process SMA stats for {ticker}: {str(e)}",
+                            f"Failed to process SMA stats for {ticker}: {e!s}",
                             "error",
                         )
 
@@ -355,13 +355,13 @@ def process_ticker_portfolios(
                         portfolios.append(ema_converted_stats)
                     except Exception as e:
                         log(
-                            f"Failed to process EMA stats for {ticker}: {str(e)}",
+                            f"Failed to process EMA stats for {ticker}: {e!s}",
                             "error",
                         )
 
             except Exception as e:
                 log(
-                    f"Failed to process {strategy_type} strategy for {ticker}: {str(e)}",
+                    f"Failed to process {strategy_type} strategy for {ticker}: {e!s}",
                     "error",
                 )
                 return None
@@ -373,15 +373,15 @@ def process_ticker_portfolios(
         return portfolios if portfolios else None
 
     except Exception as e:
-        log(f"Failed to process stats for {ticker}: {str(e)}", "error")
+        log(f"Failed to process stats for {ticker}: {e!s}", "error")
         return None
 
 
 def export_summary_results(
-    portfolios: List[Dict],
+    portfolios: list[dict],
     portfolio_name: str,
     log: Callable[[str, str], None],
-    config: Optional[Dict] | None = None,
+    config: dict | None | None = None,
 ) -> bool:
     """
     Export portfolio summary results to CSV.
@@ -480,7 +480,7 @@ def export_summary_results(
                 # Convert back to list of dictionaries
                 reordered_portfolios = df.to_dicts()
         except Exception as e:
-            log(f"Error during deduplication: {str(e)}", "warning")
+            log(f"Error during deduplication: {e!s}", "warning")
 
         # Sort portfolios if SORT_BY is specified in config
         if export_config.get("SORT_BY"):
@@ -511,7 +511,7 @@ def export_summary_results(
                         "warning",
                     )
             except Exception as e:
-                log(f"Error during sorting: {str(e)}", "warning")
+                log(f"Error during sorting: {e!s}", "warning")
 
         # Use 'portfolios' for feature_dir to export to /data/raw/portfolios/
         # instead of overwriting input files in /data/raw/strategies/
@@ -534,6 +534,5 @@ def export_summary_results(
 
         log("Portfolio summary exported successfully")
         return True
-    else:
-        log("No portfolios were processed", "warning")
-        return False
+    log("No portfolios were processed", "warning")
+    return False

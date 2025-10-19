@@ -7,15 +7,12 @@ This prevents regression of the original SMCI P&L calculation bug.
 """
 
 import logging
+from pathlib import Path
 import tempfile
 import unittest
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List
 from unittest.mock import Mock, patch
 
 import pandas as pd
-import pytest
 
 from app.contexts.portfolio.services.trade_history_service import TradeHistoryService
 from app.tools.position_calculator import PositionCalculator
@@ -125,147 +122,150 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
 
     def test_comprehensive_refresh_fixes_smci_bug(self):
         """Test that comprehensive refresh fixes the original SMCI P&L calculation bug."""
-        with patch.object(self.service, "_refresh_price_data"):
-            with patch.object(
+        with (
+            patch.object(self.service, "_refresh_price_data"),
+            patch.object(
                 self.service, "_calculate_position_metrics_comprehensive"
-            ) as mock_metrics:
-                # Mock MFE/MAE calculation to return original values
-                mock_metrics.return_value = (0.434553, 0.062141, 0.0303, None)
+            ) as mock_metrics,
+        ):
+            # Mock MFE/MAE calculation to return original values
+            mock_metrics.return_value = (0.434553, 0.062141, 0.0303, None)
 
-                # Run comprehensive refresh
-                result = self.service.update_all_positions(
-                    portfolio_name="test_portfolio.csv",
-                    dry_run=False,
-                    verbose=True,
-                    validate_calculations=True,
-                    auto_fix_errors=True,
-                )
+            # Run comprehensive refresh
+            result = self.service.update_all_positions(
+                portfolio_name="test_portfolio.csv",
+                dry_run=False,
+                verbose=True,
+                validate_calculations=True,
+                auto_fix_errors=True,
+            )
 
-                # Verify success
-                self.assertTrue(result["success"])
-                self.assertEqual(
-                    result["updated_count"], 3
-                )  # All positions should be updated
+            # Verify success
+            self.assertTrue(result["success"])
+            self.assertEqual(
+                result["updated_count"], 3
+            )  # All positions should be updated
 
-                # Read updated portfolio
-                updated_df = pd.read_csv(self.portfolio_file)
+            # Read updated portfolio
+            updated_df = pd.read_csv(self.portfolio_file)
 
-                # Verify SMCI position was fixed
-                smci_position = updated_df[updated_df["Ticker"] == "SMCI"].iloc[0]
-                self.assertEqual(smci_position["PnL"], 13.17)  # Fixed P&L
-                self.assertEqual(smci_position["Return"], 0.0303)  # Fixed Return
+            # Verify SMCI position was fixed
+            smci_position = updated_df[updated_df["Ticker"] == "SMCI"].iloc[0]
+            self.assertEqual(smci_position["PnL"], 13.17)  # Fixed P&L
+            self.assertEqual(smci_position["Return"], 0.0303)  # Fixed Return
 
-                # Verify AMZN position was fixed
-                amzn_position = updated_df[updated_df["Ticker"] == "AMZN"].iloc[0]
-                self.assertEqual(amzn_position["PnL"], 8.33)  # Fixed P&L
-                self.assertEqual(amzn_position["Return"], 0.0431)  # Fixed Return
+            # Verify AMZN position was fixed
+            amzn_position = updated_df[updated_df["Ticker"] == "AMZN"].iloc[0]
+            self.assertEqual(amzn_position["PnL"], 8.33)  # Fixed P&L
+            self.assertEqual(amzn_position["Return"], 0.0431)  # Fixed Return
 
-                # Verify changes were tracked
-                self.assertGreater(len(result.get("calculation_fixes", [])), 0)
+            # Verify changes were tracked
+            self.assertGreater(len(result.get("calculation_fixes", [])), 0)
 
     def test_validation_detects_calculation_errors(self):
         """Test that validation properly detects the original calculation errors."""
-        with patch.object(self.service, "_refresh_price_data"):
-            with patch.object(
+        with (
+            patch.object(self.service, "_refresh_price_data"),
+            patch.object(
                 self.service, "_calculate_position_metrics_comprehensive"
-            ) as mock_metrics:
-                # Mock MFE/MAE calculation
-                mock_metrics.return_value = (0.434553, 0.062141, 0.0303, None)
+            ) as mock_metrics,
+        ):
+            # Mock MFE/MAE calculation
+            mock_metrics.return_value = (0.434553, 0.062141, 0.0303, None)
 
-                # Run refresh with validation enabled
-                result = self.service.update_all_positions(
-                    portfolio_name="test_portfolio.csv",
-                    validate_calculations=True,
-                    verbose=True,
-                )
+            # Run refresh with validation enabled
+            result = self.service.update_all_positions(
+                portfolio_name="test_portfolio.csv",
+                validate_calculations=True,
+                verbose=True,
+            )
 
-                # Should detect and fix validation errors
-                self.assertTrue(result["success"])
-                self.assertGreater(len(result.get("calculation_fixes", [])), 0)
+            # Should detect and fix validation errors
+            self.assertTrue(result["success"])
+            self.assertGreater(len(result.get("calculation_fixes", [])), 0)
 
-                # Verify specific fixes were made
-                fixes = result.get("calculation_fixes", [])
-                smci_fixes = [f for f in fixes if "SMCI" in f]
-                amzn_fixes = [f for f in fixes if "AMZN" in f]
+            # Verify specific fixes were made
+            fixes = result.get("calculation_fixes", [])
+            smci_fixes = [f for f in fixes if "SMCI" in f]
+            amzn_fixes = [f for f in fixes if "AMZN" in f]
 
-                self.assertTrue(any("PnL:" in fix for fix in smci_fixes))
-                self.assertTrue(any("Return:" in fix for fix in smci_fixes))
-                self.assertTrue(any("PnL:" in fix for fix in amzn_fixes))
-                self.assertTrue(any("Return:" in fix for fix in amzn_fixes))
+            self.assertTrue(any("PnL:" in fix for fix in smci_fixes))
+            self.assertTrue(any("Return:" in fix for fix in smci_fixes))
+            self.assertTrue(any("PnL:" in fix for fix in amzn_fixes))
+            self.assertTrue(any("Return:" in fix for fix in amzn_fixes))
 
     def test_dry_run_mode_preview_only(self):
         """Test that dry run mode shows changes without applying them."""
-        with patch.object(self.service, "_refresh_price_data"):
-            with patch.object(
+        with (
+            patch.object(self.service, "_refresh_price_data"),
+            patch.object(
                 self.service, "_calculate_position_metrics_comprehensive"
-            ) as mock_metrics:
-                mock_metrics.return_value = (0.434553, 0.062141, 0.0303, None)
+            ) as mock_metrics,
+        ):
+            mock_metrics.return_value = (0.434553, 0.062141, 0.0303, None)
 
-                # Read original data
-                original_df = pd.read_csv(self.portfolio_file)
-                original_smci_pnl = original_df[original_df["Ticker"] == "SMCI"].iloc[
-                    0
-                ]["PnL"]
+            # Read original data
+            original_df = pd.read_csv(self.portfolio_file)
+            original_smci_pnl = original_df[original_df["Ticker"] == "SMCI"].iloc[0][
+                "PnL"
+            ]
 
-                # Run in dry run mode
-                result = self.service.update_all_positions(
-                    portfolio_name="test_portfolio.csv",
-                    dry_run=True,
-                    validate_calculations=True,
-                )
+            # Run in dry run mode
+            result = self.service.update_all_positions(
+                portfolio_name="test_portfolio.csv",
+                dry_run=True,
+                validate_calculations=True,
+            )
 
-                # Should report changes but not apply them
-                self.assertTrue(result["success"])
-                self.assertGreater(result["updated_count"], 0)
+            # Should report changes but not apply them
+            self.assertTrue(result["success"])
+            self.assertGreater(result["updated_count"], 0)
 
-                # Verify file wasn't modified
-                current_df = pd.read_csv(self.portfolio_file)
-                current_smci_pnl = current_df[current_df["Ticker"] == "SMCI"].iloc[0][
-                    "PnL"
-                ]
-                self.assertEqual(
-                    original_smci_pnl, current_smci_pnl
-                )  # Should be unchanged
+            # Verify file wasn't modified
+            current_df = pd.read_csv(self.portfolio_file)
+            current_smci_pnl = current_df[current_df["Ticker"] == "SMCI"].iloc[0]["PnL"]
+            self.assertEqual(original_smci_pnl, current_smci_pnl)  # Should be unchanged
 
     def test_open_position_handling(self):
         """Test handling of open positions with MFE/MAE updates."""
-        with patch.object(self.service, "_refresh_price_data"):
-            with patch.object(
+        with (
+            patch.object(self.service, "_refresh_price_data"),
+            patch.object(
                 self.service, "_calculate_position_metrics_comprehensive"
-            ) as mock_metrics:
-                # Mock different returns for different tickers
-                def mock_metrics_side_effect(ticker, *args, **kwargs):
-                    if ticker == "AAPL":
-                        return (
-                            0.0856,
-                            0.0234,
-                            0.0512,
-                            None,
-                        )  # Open position with current data
-                    elif ticker == "SMCI":
-                        return (0.434553, 0.062141, 0.0303, None)  # Closed position
-                    else:
-                        return (0.0543, 0.0287, 0.0431, None)  # AMZN
+            ) as mock_metrics,
+        ):
+            # Mock different returns for different tickers
+            def mock_metrics_side_effect(ticker, *args, **kwargs):
+                if ticker == "AAPL":
+                    return (
+                        0.0856,
+                        0.0234,
+                        0.0512,
+                        None,
+                    )  # Open position with current data
+                if ticker == "SMCI":
+                    return (0.434553, 0.062141, 0.0303, None)  # Closed position
+                return (0.0543, 0.0287, 0.0431, None)  # AMZN
 
-                mock_metrics.side_effect = mock_metrics_side_effect
+            mock_metrics.side_effect = mock_metrics_side_effect
 
-                result = self.service.update_all_positions(
-                    portfolio_name="test_portfolio.csv", verbose=True
-                )
+            result = self.service.update_all_positions(
+                portfolio_name="test_portfolio.csv", verbose=True
+            )
 
-                # Verify success
-                self.assertTrue(result["success"])
+            # Verify success
+            self.assertTrue(result["success"])
 
-                # Read updated portfolio
-                updated_df = pd.read_csv(self.portfolio_file)
+            # Read updated portfolio
+            updated_df = pd.read_csv(self.portfolio_file)
 
-                # Verify open AAPL position was updated with new MFE/MAE
-                aapl_position = updated_df[updated_df["Ticker"] == "AAPL"].iloc[0]
-                self.assertEqual(aapl_position["Max_Favourable_Excursion"], 0.0856)
-                self.assertEqual(aapl_position["Max_Adverse_Excursion"], 0.0234)
-                # Current_Unrealized_PnL might be set via comprehensive refresh
-                if pd.notna(aapl_position["Current_Unrealized_PnL"]):
-                    self.assertEqual(aapl_position["Current_Unrealized_PnL"], 0.0512)
+            # Verify open AAPL position was updated with new MFE/MAE
+            aapl_position = updated_df[updated_df["Ticker"] == "AAPL"].iloc[0]
+            self.assertEqual(aapl_position["Max_Favourable_Excursion"], 0.0856)
+            self.assertEqual(aapl_position["Max_Adverse_Excursion"], 0.0234)
+            # Current_Unrealized_PnL might be set via comprehensive refresh
+            if pd.notna(aapl_position["Current_Unrealized_PnL"]):
+                self.assertEqual(aapl_position["Current_Unrealized_PnL"], 0.0512)
 
     def test_position_calculator_integration(self):
         """Test proper integration with PositionCalculator."""
@@ -296,7 +296,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
                     mock_metrics.return_value = (0.434553, 0.062141, 0.0303, None)
 
                     # Run comprehensive refresh
-                    result = self.service.update_all_positions(
+                    self.service.update_all_positions(
                         portfolio_name="test_portfolio.csv"
                     )
 
@@ -339,102 +339,103 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
 
     def test_validation_disabled_mode(self):
         """Test comprehensive refresh with validation disabled."""
-        with patch.object(self.service, "_refresh_price_data"):
-            with patch.object(
+        with (
+            patch.object(self.service, "_refresh_price_data"),
+            patch.object(
                 self.service, "_calculate_position_metrics_comprehensive"
-            ) as mock_metrics:
-                mock_metrics.return_value = (0.434553, 0.062141, 0.0303, None)
+            ) as mock_metrics,
+        ):
+            mock_metrics.return_value = (0.434553, 0.062141, 0.0303, None)
 
-                result = self.service.update_all_positions(
-                    portfolio_name="test_portfolio.csv",
-                    validate_calculations=False,
-                    verbose=True,
-                )
+            result = self.service.update_all_positions(
+                portfolio_name="test_portfolio.csv",
+                validate_calculations=False,
+                verbose=True,
+            )
 
-                # Should still succeed and update positions
-                self.assertTrue(result["success"])
-                self.assertEqual(result["updated_count"], 3)
+            # Should still succeed and update positions
+            self.assertTrue(result["success"])
+            self.assertEqual(result["updated_count"], 3)
 
-                # Should not report validation errors since validation was disabled
-                self.assertEqual(len(result.get("validation_errors", [])), 0)
+            # Should not report validation errors since validation was disabled
+            self.assertEqual(len(result.get("validation_errors", [])), 0)
 
     def test_precision_consistency_across_updates(self):
         """Test that all calculations maintain standardized precision."""
-        with patch.object(self.service, "_refresh_price_data"):
-            with patch.object(
+        with (
+            patch.object(self.service, "_refresh_price_data"),
+            patch.object(
                 self.service, "_calculate_position_metrics_comprehensive"
-            ) as mock_metrics:
-                mock_metrics.return_value = (
-                    0.434553123456,
-                    0.062141987654,
-                    0.030271234,
-                    None,
-                )
+            ) as mock_metrics,
+        ):
+            mock_metrics.return_value = (
+                0.434553123456,
+                0.062141987654,
+                0.030271234,
+                None,
+            )
 
-                result = self.service.update_all_positions(
-                    portfolio_name="test_portfolio.csv"
-                )
+            self.service.update_all_positions(portfolio_name="test_portfolio.csv")
 
-                # Read updated data
-                updated_df = pd.read_csv(self.portfolio_file)
+            # Read updated data
+            updated_df = pd.read_csv(self.portfolio_file)
 
-                # Verify precision consistency
-                for _, position in updated_df.iterrows():
-                    if pd.notna(position["PnL"]):
-                        # P&L should have 2 decimal places
-                        self.assertEqual(len(str(position["PnL"]).split(".")[-1]), 2)
+            # Verify precision consistency
+            for _, position in updated_df.iterrows():
+                if pd.notna(position["PnL"]):
+                    # P&L should have 2 decimal places
+                    self.assertEqual(len(str(position["PnL"]).split(".")[-1]), 2)
 
-                    if pd.notna(position["Return"]):
-                        # Return should have 4 decimal places
-                        self.assertEqual(len(str(position["Return"]).split(".")[-1]), 4)
+                if pd.notna(position["Return"]):
+                    # Return should have 4 decimal places
+                    self.assertEqual(len(str(position["Return"]).split(".")[-1]), 4)
 
-                    if pd.notna(position["Max_Favourable_Excursion"]):
-                        # MFE should have 6 decimal places
-                        self.assertEqual(
-                            len(
-                                str(position["Max_Favourable_Excursion"]).split(".")[-1]
-                            ),
-                            6,
-                        )
+                if pd.notna(position["Max_Favourable_Excursion"]):
+                    # MFE should have 6 decimal places
+                    self.assertEqual(
+                        len(str(position["Max_Favourable_Excursion"]).split(".")[-1]),
+                        6,
+                    )
 
     def test_mfe_mae_calculation_failure_fallback(self):
         """Test fallback behavior when MFE/MAE calculation fails."""
-        with patch.object(self.service, "_refresh_price_data"):
-            with patch.object(
+        with (
+            patch.object(self.service, "_refresh_price_data"),
+            patch.object(
                 self.service, "_calculate_position_metrics_comprehensive"
-            ) as mock_metrics:
-                # Mock MFE/MAE calculation failure for SMCI, success for others
-                def mock_metrics_side_effect(ticker, *args, **kwargs):
-                    if ticker == "SMCI":
-                        return (None, None, None, "Price data unavailable")
-                    else:
-                        return (0.0543, 0.0287, 0.0431, None)
+            ) as mock_metrics,
+        ):
+            # Mock MFE/MAE calculation failure for SMCI, success for others
+            def mock_metrics_side_effect(ticker, *args, **kwargs):
+                if ticker == "SMCI":
+                    return (None, None, None, "Price data unavailable")
+                return (0.0543, 0.0287, 0.0431, None)
 
-                mock_metrics.side_effect = mock_metrics_side_effect
+            mock_metrics.side_effect = mock_metrics_side_effect
 
-                result = self.service.update_all_positions(
-                    portfolio_name="test_portfolio.csv", verbose=True
-                )
+            result = self.service.update_all_positions(
+                portfolio_name="test_portfolio.csv", verbose=True
+            )
 
-                # Should still succeed with partial updates
-                self.assertTrue(result["success"])
-                self.assertGreater(
-                    result["updated_count"], 0
-                )  # At least AMZN should update
+            # Should still succeed with partial updates
+            self.assertTrue(result["success"])
+            self.assertGreater(
+                result["updated_count"], 0
+            )  # At least AMZN should update
 
-                # When MFE/MAE calculation fails, service falls back to basic calculations
-                # Should still succeed but may have different behavior for failed positions
-                # Check that at least some positions were updated successfully
-                self.assertGreaterEqual(result["updated_count"], 1)
+            # When MFE/MAE calculation fails, service falls back to basic calculations
+            # Should still succeed but may have different behavior for failed positions
+            # Check that at least some positions were updated successfully
+            self.assertGreaterEqual(result["updated_count"], 1)
 
-                # Read updated data
-                updated_df = pd.read_csv(self.portfolio_file)
+            # Read updated data
+            updated_df = pd.read_csv(self.portfolio_file)
 
-                # SMCI should still have corrected P&L even without MFE/MAE
-                smci_position = updated_df[updated_df["Ticker"] == "SMCI"].iloc[0]
-                self.assertEqual(
-                    smci_position["PnL"], 13.17
-                )  # Basic calculations should work
+            # SMCI should still have corrected P&L even without MFE/MAE
+            smci_position = updated_df[updated_df["Ticker"] == "SMCI"].iloc[0]
+            self.assertEqual(
+                smci_position["PnL"], 13.17
+            )  # Basic calculations should work
 
     def test_comprehensive_refresh_performance(self):
         """Test performance of comprehensive refresh on larger dataset."""
@@ -471,27 +472,29 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
         )
         large_df.to_csv(large_portfolio_file, index=False)
 
-        with patch.object(self.service, "_refresh_price_data"):
-            with patch.object(
+        with (
+            patch.object(self.service, "_refresh_price_data"),
+            patch.object(
                 self.service, "_calculate_position_metrics_comprehensive"
-            ) as mock_metrics:
-                mock_metrics.return_value = (0.06, 0.02, 0.04, None)
+            ) as mock_metrics,
+        ):
+            mock_metrics.return_value = (0.06, 0.02, 0.04, None)
 
-                import time
+            import time
 
-                start_time = time.time()
+            start_time = time.time()
 
-                result = self.service.update_all_positions(
-                    portfolio_name="large_portfolio.csv"
-                )
+            result = self.service.update_all_positions(
+                portfolio_name="large_portfolio.csv"
+            )
 
-                end_time = time.time()
-                execution_time = end_time - start_time
+            end_time = time.time()
+            execution_time = end_time - start_time
 
-                # Should complete in reasonable time (under 30 seconds for 100 positions)
-                self.assertLess(execution_time, 30.0)
-                self.assertTrue(result["success"])
-                self.assertEqual(result["updated_count"], 100)
+            # Should complete in reasonable time (under 30 seconds for 100 positions)
+            self.assertLess(execution_time, 30.0)
+            self.assertTrue(result["success"])
+            self.assertEqual(result["updated_count"], 100)
 
 
 class TestTradeHistoryServiceRegression(unittest.TestCase):
@@ -541,29 +544,29 @@ class TestTradeHistoryServiceRegression(unittest.TestCase):
         )
         smci_data.to_csv(portfolio_file, index=False)
 
-        with patch.object(self.service, "_refresh_price_data"):
-            with patch.object(
+        with (
+            patch.object(self.service, "_refresh_price_data"),
+            patch.object(
                 self.service, "_calculate_position_metrics_comprehensive"
-            ) as mock_metrics:
-                mock_metrics.return_value = (0.434553, 0.062141, 0.0303, None)
+            ) as mock_metrics,
+        ):
+            mock_metrics.return_value = (0.434553, 0.062141, 0.0303, None)
 
-                result = self.service.update_all_positions(
-                    portfolio_name="smci_regression.csv", verbose=True
-                )
+            self.service.update_all_positions(
+                portfolio_name="smci_regression.csv", verbose=True
+            )
 
-                # Verify the bug was fixed
-                updated_df = pd.read_csv(portfolio_file)
-                position = updated_df.iloc[0]
+            # Verify the bug was fixed
+            updated_df = pd.read_csv(portfolio_file)
+            position = updated_df.iloc[0]
 
-                # Ensure the specific bug values are corrected
-                self.assertEqual(position["PnL"], 13.17)
-                self.assertNotEqual(
-                    position["PnL"], 376.53
-                )  # Ensure bug doesn't reoccur
-                self.assertEqual(position["Return"], 0.0303)
-                self.assertNotEqual(
-                    position["Return"], 8.6618
-                )  # Ensure bug doesn't reoccur
+            # Ensure the specific bug values are corrected
+            self.assertEqual(position["PnL"], 13.17)
+            self.assertNotEqual(position["PnL"], 376.53)  # Ensure bug doesn't reoccur
+            self.assertEqual(position["Return"], 0.0303)
+            self.assertNotEqual(
+                position["Return"], 8.6618
+            )  # Ensure bug doesn't reoccur
 
     def test_calculation_precision_drift_prevention(self):
         """Test prevention of precision drift across multiple refresh cycles."""
@@ -593,30 +596,32 @@ class TestTradeHistoryServiceRegression(unittest.TestCase):
         )
         test_data.to_csv(portfolio_file, index=False)
 
-        with patch.object(self.service, "_refresh_price_data"):
-            with patch.object(
+        with (
+            patch.object(self.service, "_refresh_price_data"),
+            patch.object(
                 self.service, "_calculate_position_metrics_comprehensive"
-            ) as mock_metrics:
-                mock_metrics.return_value = (0.066666, 0.022222, 0.054433, None)
+            ) as mock_metrics,
+        ):
+            mock_metrics.return_value = (0.066666, 0.022222, 0.054433, None)
 
-                # Run multiple refresh cycles
-                for cycle in range(3):
-                    result = self.service.update_all_positions(
-                        portfolio_name="precision_test.csv"
-                    )
-                    self.assertTrue(result["success"])
+            # Run multiple refresh cycles
+            for _cycle in range(3):
+                result = self.service.update_all_positions(
+                    portfolio_name="precision_test.csv"
+                )
+                self.assertTrue(result["success"])
 
-                # Verify precision remains consistent after multiple refreshes
-                final_df = pd.read_csv(portfolio_file)
-                position = final_df.iloc[0]
+            # Verify precision remains consistent after multiple refreshes
+            final_df = pd.read_csv(portfolio_file)
+            position = final_df.iloc[0]
 
-                # Check that precision hasn't drifted
-                self.assertEqual(
-                    len(str(position["PnL"]).split(".")[-1]), 2
-                )  # 2 decimal places
-                self.assertEqual(
-                    len(str(position["Return"]).split(".")[-1]), 4
-                )  # 4 decimal places
+            # Check that precision hasn't drifted
+            self.assertEqual(
+                len(str(position["PnL"]).split(".")[-1]), 2
+            )  # 2 decimal places
+            self.assertEqual(
+                len(str(position["Return"]).split(".")[-1]), 4
+            )  # 4 decimal places
 
 
 class TestTradeHistoryServiceCLIIntegration(unittest.TestCase):
@@ -662,33 +667,35 @@ class TestTradeHistoryServiceCLIIntegration(unittest.TestCase):
         portfolio_file = self.base_dir / "data" / "raw" / "positions" / "cli_test.csv"
         test_data.to_csv(portfolio_file, index=False)
 
-        with patch.object(self.service, "_refresh_price_data"):
-            with patch.object(
+        with (
+            patch.object(self.service, "_refresh_price_data"),
+            patch.object(
                 self.service, "_calculate_position_metrics_comprehensive"
-            ) as mock_metrics:
-                mock_metrics.return_value = (0.12, 0.03, 0.1, None)
+            ) as mock_metrics,
+        ):
+            mock_metrics.return_value = (0.12, 0.03, 0.1, None)
 
-                # Test CLI-style parameters
-                result = self.service.update_all_positions(
-                    portfolio_name="cli_test.csv",
-                    dry_run=False,
-                    verbose=True,
-                    validate_calculations=True,
-                    auto_fix_errors=True,
-                )
+            # Test CLI-style parameters
+            result = self.service.update_all_positions(
+                portfolio_name="cli_test.csv",
+                dry_run=False,
+                verbose=True,
+                validate_calculations=True,
+                auto_fix_errors=True,
+            )
 
-                # Verify CLI-expected response format
-                self.assertIn("success", result)
-                self.assertIn("message", result)
-                self.assertIn("updated_count", result)
-                self.assertIn("total_positions", result)
-                self.assertIn("calculation_fixes", result)
+            # Verify CLI-expected response format
+            self.assertIn("success", result)
+            self.assertIn("message", result)
+            self.assertIn("updated_count", result)
+            self.assertIn("total_positions", result)
+            self.assertIn("calculation_fixes", result)
 
-                # Verify fixes were applied
-                updated_df = pd.read_csv(portfolio_file)
-                position = updated_df.iloc[0]
-                self.assertEqual(position["PnL"], 10.0)
-                self.assertEqual(position["Return"], 0.1)
+            # Verify fixes were applied
+            updated_df = pd.read_csv(portfolio_file)
+            position = updated_df.iloc[0]
+            self.assertEqual(position["PnL"], 10.0)
+            self.assertEqual(position["Return"], 0.1)
 
 
 if __name__ == "__main__":

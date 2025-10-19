@@ -5,10 +5,8 @@ This module provides intelligent parameter parsing for the SPDS analyze command,
 supporting multiple input types: tickers, strategies, position UUIDs, and portfolios.
 """
 
-import re
 from enum import Enum
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+import re
 
 from pydantic import BaseModel
 
@@ -37,27 +35,23 @@ class ParsedParameter(BaseModel):
     original_input: str
 
     # Common fields
-    ticker: Optional[str] = None
-    tickers: Optional[List[str]] = None  # For multi-ticker analysis
+    ticker: str | None = None
+    tickers: list[str] | None = None  # For multi-ticker analysis
 
     # Strategy-specific fields
-    strategy_type: Optional[str] = None
-    fast_period: Optional[int] = None
-    slow_period: Optional[int] = None
-    signal_period: Optional[int] = None
-    strategies: Optional[
-        List[Dict[str, Union[str, int]]]
-    ] = None  # For multi-strategy analysis
+    strategy_type: str | None = None
+    fast_period: int | None = None
+    slow_period: int | None = None
+    signal_period: int | None = None
+    strategies: list[dict[str, str | int]] | None = None  # For multi-strategy analysis
 
     # Position-specific fields
-    entry_date: Optional[str] = None
-    positions: Optional[
-        List[Dict[str, Union[str, int]]]
-    ] = None  # For multi-position analysis
+    entry_date: str | None = None
+    positions: list[dict[str, str | int]] | None = None  # For multi-position analysis
 
     # Portfolio-specific fields
-    portfolio_file: Optional[str] = None
-    portfolio_files: Optional[List[str]] = None  # For multi-portfolio analysis
+    portfolio_file: str | None = None
+    portfolio_files: list[str] | None = None  # For multi-portfolio analysis
 
     class Config:
         use_enum_values = True
@@ -161,22 +155,21 @@ class SPDSParameterParser:
 
         if param_type == ParameterType.TICKER_ONLY:
             return self._parse_ticker(param)
-        elif param_type == ParameterType.MULTI_TICKER:
+        if param_type == ParameterType.MULTI_TICKER:
             return self._parse_multi_ticker(param)
-        elif param_type == ParameterType.STRATEGY_SPEC:
+        if param_type == ParameterType.STRATEGY_SPEC:
             return self._parse_strategy(param)
-        elif param_type == ParameterType.MULTI_STRATEGY_SPEC:
+        if param_type == ParameterType.MULTI_STRATEGY_SPEC:
             return self._parse_multi_strategy(param)
-        elif param_type == ParameterType.POSITION_UUID:
+        if param_type == ParameterType.POSITION_UUID:
             return self._parse_position_uuid(param)
-        elif param_type == ParameterType.MULTI_POSITION_UUID:
+        if param_type == ParameterType.MULTI_POSITION_UUID:
             return self._parse_multi_position_uuid(param)
-        elif param_type == ParameterType.PORTFOLIO_FILE:
+        if param_type == ParameterType.PORTFOLIO_FILE:
             return self._parse_portfolio_file(param)
-        elif param_type == ParameterType.MULTI_PORTFOLIO_FILE:
+        if param_type == ParameterType.MULTI_PORTFOLIO_FILE:
             return self._parse_multi_portfolio_file(param)
-        else:
-            raise ValueError(f"Unsupported parameter type: {param_type}")
+        raise ValueError(f"Unsupported parameter type: {param_type}")
 
     def _parse_ticker(self, param: str) -> ParsedParameter:
         """Parse ticker-only parameter."""
@@ -376,7 +369,7 @@ class SPDSParameterParser:
             portfolio_files=portfolio_files,
         )
 
-    def get_data_source_suggestions(self, parsed: ParsedParameter) -> Dict[str, bool]:
+    def get_data_source_suggestions(self, parsed: ParsedParameter) -> dict[str, bool]:
         """
         Get suggested data sources for the parsed parameter type.
 
@@ -393,7 +386,7 @@ class SPDSParameterParser:
                 "equity_curves": False,
                 "trade_history": False,
             }
-        elif parsed.parameter_type == ParameterType.MULTI_TICKER:
+        if parsed.parameter_type == ParameterType.MULTI_TICKER:
             return {
                 "market_data": True,
                 "return_distributions": True,
@@ -401,14 +394,14 @@ class SPDSParameterParser:
                 "equity_curves": False,
                 "trade_history": False,
             }
-        elif parsed.parameter_type == ParameterType.STRATEGY_SPEC:
+        if parsed.parameter_type == ParameterType.STRATEGY_SPEC:
             return {
                 "strategy_files": True,
                 "equity_curves": True,
                 "market_data": True,
                 "trade_history": False,
             }
-        elif parsed.parameter_type == ParameterType.MULTI_STRATEGY_SPEC:
+        if parsed.parameter_type == ParameterType.MULTI_STRATEGY_SPEC:
             return {
                 "strategy_files": True,
                 "equity_curves": True,
@@ -416,14 +409,14 @@ class SPDSParameterParser:
                 "parallel_analysis": True,
                 "trade_history": False,
             }
-        elif parsed.parameter_type == ParameterType.POSITION_UUID:
+        if parsed.parameter_type == ParameterType.POSITION_UUID:
             return {
                 "trade_history": True,
                 "equity_curves": True,
                 "position_data": True,
                 "market_data": True,
             }
-        elif parsed.parameter_type == ParameterType.MULTI_POSITION_UUID:
+        if parsed.parameter_type == ParameterType.MULTI_POSITION_UUID:
             return {
                 "trade_history": True,
                 "equity_curves": True,
@@ -431,7 +424,7 @@ class SPDSParameterParser:
                 "market_data": True,
                 "parallel_analysis": True,
             }
-        elif parsed.parameter_type == ParameterType.MULTI_PORTFOLIO_FILE:
+        if parsed.parameter_type == ParameterType.MULTI_PORTFOLIO_FILE:
             return {
                 "portfolio_files": True,
                 "trade_history": True,
@@ -439,15 +432,15 @@ class SPDSParameterParser:
                 "parallel_analysis": True,
                 "auto_detect": True,
             }
-        else:  # PORTFOLIO_FILE
-            return {
-                "portfolio_files": True,
-                "trade_history": True,
-                "equity_curves": True,
-                "auto_detect": True,
-            }
+        # PORTFOLIO_FILE
+        return {
+            "portfolio_files": True,
+            "trade_history": True,
+            "equity_curves": True,
+            "auto_detect": True,
+        }
 
-    def validate_parameter(self, parsed: ParsedParameter) -> Tuple[bool, Optional[str]]:
+    def validate_parameter(self, parsed: ParsedParameter) -> tuple[bool, str | None]:
         """
         Validate that the parsed parameter is valid for analysis.
 

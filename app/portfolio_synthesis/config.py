@@ -1,4 +1,4 @@
-from typing import Dict, List, TypedDict
+from typing import TypedDict
 
 from typing_extensions import NotRequired
 
@@ -13,7 +13,7 @@ class StrategyConfig(TypedDict):
 
 
 class Config(TypedDict):
-    strategies: Dict[str, StrategyConfig]
+    strategies: dict[str, StrategyConfig]
     start_date: str
     end_date: str
     init_cash: float

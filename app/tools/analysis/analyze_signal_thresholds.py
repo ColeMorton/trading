@@ -6,14 +6,16 @@ This script analyzes the signal generation thresholds to understand
 the correct behavior for SMCI_SMA_58_60.
 """
 
-import sys
 from pathlib import Path
+import sys
+
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 import logging
 
 from app.tools.config.statistical_analysis_config import SPDSConfig
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -50,7 +52,7 @@ def analyze_signal_thresholds():
     print(f"  - Sell: rank > {config.PERCENTILE_THRESHOLDS['sell']}")
     print(f"  - Hold: rank <= {config.PERCENTILE_THRESHOLDS['hold']}")
 
-    print(f"\nSMCI triggers:")
+    print("\nSMCI triggers:")
     print(
         f"  - Exit immediately: {smci_percentile_rank} > {config.PERCENTILE_THRESHOLDS['exit_immediately']} = {smci_percentile_rank > config.PERCENTILE_THRESHOLDS['exit_immediately']}"
     )
@@ -95,7 +97,7 @@ def analyze_signal_thresholds():
     print(
         f"  - SMCI percentile rank {smci_percentile_rank:.2f} correctly places it between P70 and P75"
     )
-    print(f"  - Current system requires rank > 80 for SELL, but SMCI is only at 70.91")
+    print("  - Current system requires rank > 80 for SELL, but SMCI is only at 70.91")
     print()
     print("CONCLUSION:")
     print(

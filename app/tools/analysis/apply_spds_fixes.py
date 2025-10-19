@@ -13,16 +13,17 @@ Author: Claude Code Analysis
 Date: July 2025
 """
 
+from datetime import datetime
 import json
 import logging
 import os
-import sys
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict
+import sys
+from typing import Any
 
 import numpy as np
 import pandas as pd
+
 
 # Add the project root to the Python path
 sys.path.append(
@@ -30,6 +31,7 @@ sys.path.append(
 )
 
 from app.tools.analysis.calculation_fixes import SPDSCalculationCorrector
+
 
 # Configure logging
 logging.basicConfig(
@@ -65,7 +67,7 @@ class SPDSFixApplicator:
             logger.error(f"Failed to load positions data: {e}")
             raise
 
-    def analyze_current_errors(self, positions: pd.DataFrame) -> Dict[str, Any]:
+    def analyze_current_errors(self, positions: pd.DataFrame) -> dict[str, Any]:
         """Analyze current calculation errors in the system"""
         logger.info("Analyzing current calculation errors...")
 
@@ -125,14 +127,16 @@ class SPDSFixApplicator:
                     "naive_calculation": naive_sharpe,
                     "corrected_calculation": corrected_sharpe,
                     "error_magnitude": abs(naive_sharpe - corrected_sharpe),
-                    "error_multiplier": naive_sharpe / corrected_sharpe
-                    if corrected_sharpe != 0
-                    else float("inf"),
+                    "error_multiplier": (
+                        naive_sharpe / corrected_sharpe
+                        if corrected_sharpe != 0
+                        else float("inf")
+                    ),
                 }
 
         return errors
 
-    def apply_fixes(self, positions: pd.DataFrame) -> Dict[str, Any]:
+    def apply_fixes(self, positions: pd.DataFrame) -> dict[str, Any]:
         """Apply comprehensive fixes to the positions data"""
         logger.info("Applying SPDS calculation fixes...")
 
@@ -144,8 +148,8 @@ class SPDSFixApplicator:
                 self.project_root / "data/raw/reports/return_distribution/NFLX.json"
             )
             if nflx_returns_file.exists():
-                with open(nflx_returns_file, "r") as f:
-                    nflx_data = json.load(f)
+                with open(nflx_returns_file) as f:
+                    json.load(f)
                     # Extract daily returns from the percentiles (simplified)
                     historical_returns = pd.Series(
                         np.random.normal(0.001, 0.03, 1000)
@@ -165,10 +169,10 @@ class SPDSFixApplicator:
             or not correction_results["corrected_metrics"]
         ):
             logger.warning("Corrected metrics not populated, calculating manually...")
-            correction_results[
-                "corrected_metrics"
-            ] = self.corrector.portfolio_fixes.calculate_portfolio_metrics_correct(
-                positions
+            correction_results["corrected_metrics"] = (
+                self.corrector.portfolio_fixes.calculate_portfolio_metrics_correct(
+                    positions
+                )
             )
 
         return correction_results
@@ -176,8 +180,8 @@ class SPDSFixApplicator:
     def generate_corrected_report(
         self,
         positions: pd.DataFrame,
-        correction_results: Dict[str, Any],
-        error_analysis: Dict[str, Any],
+        correction_results: dict[str, Any],
+        error_analysis: dict[str, Any],
     ) -> str:
         """Generate a corrected SPDS report"""
 
@@ -263,7 +267,7 @@ class SPDSFixApplicator:
         ):
             report += f"{i}. **{correction.replace('_', ' ').title()}**: Implementation fixed\n"
 
-        report += f"""
+        report += """
 ---
 
 ## 📈 Position-Level Corrections
@@ -355,7 +359,7 @@ class SPDSFixApplicator:
             print("SPDS CALCULATION FIXES APPLIED SUCCESSFULLY")
             print("=" * 80)
 
-            print(f"\\n📊 Portfolio Aggregation Fix:")
+            print("\\n📊 Portfolio Aggregation Fix:")
             print(
                 f"   Original (incorrect): {error_analysis['portfolio_aggregation']['incorrect_method_result']:.4f}"
             )
@@ -366,7 +370,7 @@ class SPDSFixApplicator:
                 f"   Error magnitude: {error_analysis['portfolio_aggregation']['error_magnitude']:.4f}"
             )
 
-            print(f"\\n📈 Sharpe Ratio Fix:")
+            print("\\n📈 Sharpe Ratio Fix:")
             print(
                 f"   Original (incorrect): {error_analysis['sharpe_ratio']['naive_calculation']:.4f}"
             )

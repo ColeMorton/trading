@@ -6,7 +6,7 @@ with ATR Trailing Stop exit signals, enabling optimization of exit timing
 while preserving proven MA Cross entry strategies.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -17,7 +17,7 @@ from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 
 
 def calculate_sma_signals(
-    data: pd.DataFrame, ma_config: Dict[str, Any]
+    data: pd.DataFrame, ma_config: dict[str, Any]
 ) -> pd.DataFrame:
     """
     Calculate SMA signals for MA Cross strategy.
@@ -68,17 +68,16 @@ def calculate_sma_signals(
             if hasattr(data, "index") and "Date" in result.columns:
                 result = result.set_index("Date")
             return result
-        else:
-            return result_pl
+        return result_pl
 
-    except Exception as e:
+    except Exception:
         # For testing purposes, if this function fails, return None gracefully
         return None
 
 
 def generate_hybrid_ma_atr_signals(
     data: pd.DataFrame,
-    ma_config: Dict[str, Any],
+    ma_config: dict[str, Any],
     atr_length: int,
     atr_multiplier: float,
     log: callable,
@@ -295,7 +294,7 @@ def create_atr_parameter_combinations(
 
 def validate_atr_parameters(
     atr_length: int, atr_multiplier: float
-) -> tuple[bool, Optional[str]]:
+) -> tuple[bool, str | None]:
     """
     Validate ATR parameters for signal generation.
 
@@ -312,7 +311,7 @@ def validate_atr_parameters(
     if atr_length > 100:
         return False, "ATR length too large (may reduce signal frequency)"
 
-    if not isinstance(atr_multiplier, (int, float)) or atr_multiplier <= 0:
+    if not isinstance(atr_multiplier, int | float) or atr_multiplier <= 0:
         return False, "ATR multiplier must be positive"
 
     if atr_multiplier > 20:

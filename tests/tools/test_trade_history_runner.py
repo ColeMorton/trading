@@ -3,11 +3,11 @@
 Test runner for comprehensive trade history export tests.
 """
 
+from io import StringIO
 import os
 import sys
 import time
 import unittest
-from io import StringIO
 
 
 def run_comprehensive_tests():
@@ -56,7 +56,9 @@ def run_comprehensive_tests():
     print("=" * 70)
     print(f"⏱️  Total execution time: {end_time - start_time:.2f} seconds")
     print(f"🧪 Tests run: {result.testsRun}")
-    print(f"✅ Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
+    print(
+        f"✅ Successes: {result.testsRun - len(result.failures) - len(result.errors)}"
+    )
     print(f"❌ Failures: {len(result.failures)}")
     print(f"💥 Errors: {len(result.errors)}")
     print(f"⏭️  Skipped: {len(result.skipped) if hasattr(result, 'skipped') else 0}")
@@ -86,7 +88,6 @@ def run_comprehensive_tests():
 
     for test_case in suite:
         if hasattr(test_case, "_testMethodName"):
-            test_name = test_case._testMethodName
             if "integration" in test_case.__class__.__name__.lower():
                 test_categories["Integration Tests"] += 1
             elif "performance" in test_case.__class__.__name__.lower():
@@ -157,7 +158,6 @@ def run_quick_smoke_test():
         # Test imports
         from app.tools.trade_history_exporter import (
             export_trade_history,
-            extract_trade_history,
             generate_trade_filename,
         )
 

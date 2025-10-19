@@ -13,26 +13,27 @@ from .data import OHLCVData, PriceData, Signal, Trade
 from .portfolio import AllocationConfig, PortfolioConfig, PortfolioMetrics
 from .strategy import BacktestResult, OptimizationResult, StrategyParameters
 
+
 __all__ = [
-    # Common types
-    "TimeFrame",
-    "SignalType",
-    "OrderType",
-    "PositionSide",
-    "StrategyType",
+    "AllocationConfig",
+    "BacktestResult",
     "MetricName",
-    "TaskStatus",
-    # Data types
-    "PriceData",
     "OHLCVData",
-    "Signal",
-    "Trade",
+    "OptimizationResult",
+    "OrderType",
+    "PortfolioConfig",
     # Portfolio types
     "PortfolioMetrics",
-    "PortfolioConfig",
-    "AllocationConfig",
+    "PositionSide",
+    # Data types
+    "PriceData",
+    "Signal",
+    "SignalType",
     # Strategy types
     "StrategyParameters",
-    "BacktestResult",
-    "OptimizationResult",
+    "StrategyType",
+    "TaskStatus",
+    # Common types
+    "TimeFrame",
+    "Trade",
 ]

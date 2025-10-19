@@ -5,9 +5,10 @@ This module provides utilities for tracking and reporting progress during
 long-running operations like strategy analysis and backtesting.
 """
 
-import time
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, Dict, Optional
+import time
+from typing import Any
 
 
 class ProgressTracker:
@@ -25,8 +26,8 @@ class ProgressTracker:
 
     def __init__(
         self,
-        total_steps: Optional[int] | None = None,
-        callback: Optional[Callable[[Dict[str, Any]], None]] = None,
+        total_steps: int | None | None = None,
+        callback: Callable[[dict[str, Any]], None] | None = None,
     ):
         """
         Initialize progress tracker.
@@ -46,9 +47,9 @@ class ProgressTracker:
 
     def update(
         self,
-        phase: Optional[str] | None = None,
-        message: Optional[str] | None = None,
-        step: Optional[int] | None = None,
+        phase: str | None | None = None,
+        message: str | None | None = None,
+        step: int | None | None = None,
         force: bool = False,
     ) -> None:
         """
@@ -105,7 +106,7 @@ class ProgressTracker:
         """Set total number of steps."""
         self.total_steps = total
 
-    def increment(self, message: Optional[str] | None = None) -> None:
+    def increment(self, message: str | None | None = None) -> None:
         """Increment current step and optionally update message."""
         self.current_step += 1
         self.update(message=message)
@@ -120,8 +121,8 @@ class ProgressTracker:
 
 
 def create_progress_callback(
-    execution_id: str, task_status_dict: Dict[str, Any]
-) -> Callable[[Dict[str, Any]], None]:
+    execution_id: str, task_status_dict: dict[str, Any]
+) -> Callable[[dict[str, Any]], None]:
     """
     Create a progress callback function for updating task status.
 
@@ -133,7 +134,7 @@ def create_progress_callback(
         Callback function that updates task status
     """
 
-    def progress_callback(progress_info: Dict[str, Any]) -> None:
+    def progress_callback(progress_info: dict[str, Any]) -> None:
         """Update task status with progress information."""
         # Format progress message
         if progress_info.get("progress_percentage") is not None:

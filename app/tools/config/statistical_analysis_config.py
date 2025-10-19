@@ -5,11 +5,11 @@ Provides configuration schema and validation for the SPDS with USE_TRADE_HISTORY
 for flexible data source selection between equity curves and trade history.
 """
 
-import os
 from dataclasses import dataclass, field
 from enum import Enum
+import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class DataSourceType(str, Enum):
@@ -42,7 +42,7 @@ class SPDSConfig:
     FALLBACK_TO_EQUITY: bool = True
 
     # Data Source Paths
-    EQUITY_DATA_PATHS: List[str] = field(
+    EQUITY_DATA_PATHS: list[str] = field(
         default_factory=lambda: [
             "./data/raw/equity/",
         ]
@@ -60,7 +60,7 @@ class SPDSConfig:
     LOW_CONFIDENCE_THRESHOLD: float = 0.80  # 80% for n < 15
 
     # Divergence Detection - Complete Entry/Exit Signal System
-    PERCENTILE_THRESHOLDS: Dict[str, float] = field(
+    PERCENTILE_THRESHOLDS: dict[str, float] = field(
         default_factory=lambda: {
             # Entry signals (low percentiles = good entry opportunities)
             "strong_buy": 10.0,  # Bottom 10% = excellent entry
@@ -75,7 +75,7 @@ class SPDSConfig:
     )
 
     # Multi-Timeframe Analysis
-    TIMEFRAMES: List[str] = field(default_factory=lambda: ["D", "3D", "W", "2W"])
+    TIMEFRAMES: list[str] = field(default_factory=lambda: ["D", "3D", "W", "2W"])
     CONVERGENCE_THRESHOLD: float = 0.85
 
     # Dual-Layer Convergence Analysis Configuration
@@ -124,8 +124,8 @@ class SPDSConfig:
     BOOTSTRAP_SAMPLE_SIZE: int = 100
 
     # VaR Calculations
-    VAR_CONFIDENCE_LEVELS: List[float] = field(default_factory=lambda: [0.95, 0.99])
-    VAR_LOOKBACK_PERIODS: List[int] = field(default_factory=lambda: [30, 60, 90])
+    VAR_CONFIDENCE_LEVELS: list[float] = field(default_factory=lambda: [0.95, 0.99])
+    VAR_LOOKBACK_PERIODS: list[int] = field(default_factory=lambda: [30, 60, 90])
 
     # Performance Optimization
     ENABLE_MEMORY_OPTIMIZATION: bool = True
@@ -133,8 +133,8 @@ class SPDSConfig:
     CACHE_TTL_SECONDS: int = 3600  # 1 hour
 
     # Export Configuration
-    EXPORT_FORMATS: List[str] = field(default_factory=lambda: ["csv", "json", "python"])
-    BACKTESTING_FRAMEWORKS: List[str] = field(
+    EXPORT_FORMATS: list[str] = field(default_factory=lambda: ["csv", "json", "python"])
+    BACKTESTING_FRAMEWORKS: list[str] = field(
         default_factory=lambda: ["vectorbt", "backtrader", "zipline"]
     )
 
@@ -173,9 +173,8 @@ class SPDSConfig:
 
         # Check if portfolio file exists
         portfolio_file = self.get_portfolio_file_path()
-        if not portfolio_file.exists():
-            if self.VALIDATE_DATA_QUALITY:
-                raise FileNotFoundError(f"Portfolio file not found: {portfolio_file}")
+        if not portfolio_file.exists() and self.VALIDATE_DATA_QUALITY:
+            raise FileNotFoundError(f"Portfolio file not found: {portfolio_file}")
 
         # Check trade history file if USE_TRADE_HISTORY=True
         if self.USE_TRADE_HISTORY:
@@ -185,10 +184,9 @@ class SPDSConfig:
                     raise FileNotFoundError(
                         f"Trade history file not found: {trade_history_file}"
                     )
-                else:
-                    print(
-                        f"Warning: Trade history file not found ({trade_history_file}), will fallback to equity data"
-                    )
+                print(
+                    f"Warning: Trade history file not found ({trade_history_file}), will fallback to equity data"
+                )
 
     def _validate_paths(self):
         """Validate that specified paths exist or can be created"""
@@ -196,7 +194,8 @@ class SPDSConfig:
             self.PORTFOLIO_PATH,
             self.TRADE_HISTORY_PATH,
             self.RETURN_DISTRIBUTION_PATH,
-        ] + self.EQUITY_DATA_PATHS
+            *self.EQUITY_DATA_PATHS,
+        ]
 
         for path_str in paths_to_check:
             path = Path(path_str)
@@ -299,10 +298,9 @@ class SPDSConfig:
         """Determine confidence level based on sample size"""
         if sample_size >= self.PREFERRED_SAMPLE_SIZE:
             return ConfidenceLevel.HIGH
-        elif sample_size >= self.MIN_SAMPLE_SIZE:
+        if sample_size >= self.MIN_SAMPLE_SIZE:
             return ConfidenceLevel.MEDIUM
-        else:
-            return ConfidenceLevel.LOW
+        return ConfidenceLevel.LOW
 
     def get_confidence_threshold(self, sample_size: int) -> float:
         """Get confidence threshold based on sample size"""
@@ -310,19 +308,17 @@ class SPDSConfig:
 
         if confidence_level == ConfidenceLevel.HIGH:
             return self.HIGH_CONFIDENCE_THRESHOLD
-        elif confidence_level == ConfidenceLevel.MEDIUM:
+        if confidence_level == ConfidenceLevel.MEDIUM:
             return self.MEDIUM_CONFIDENCE_THRESHOLD
-        else:
-            return self.LOW_CONFIDENCE_THRESHOLD
+        return self.LOW_CONFIDENCE_THRESHOLD
 
     def get_data_source_type(self) -> DataSourceType:
         """Determine the primary data source type"""
         if self.USE_TRADE_HISTORY and self.FALLBACK_TO_EQUITY:
             return DataSourceType.HYBRID
-        elif self.USE_TRADE_HISTORY:
+        if self.USE_TRADE_HISTORY:
             return DataSourceType.TRADE_HISTORY
-        else:
-            return DataSourceType.EQUITY_CURVES
+        return DataSourceType.EQUITY_CURVES
 
     def should_use_bootstrap(self, sample_size: int) -> bool:
         """Determine if bootstrap validation should be used"""
@@ -342,7 +338,7 @@ class SPDSConfig:
         """Check if a backtesting framework is supported"""
         return framework.lower() in [fw.lower() for fw in self.BACKTESTING_FRAMEWORKS]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert configuration to dictionary"""
         return {
             field.name: getattr(self, field.name)
@@ -350,7 +346,7 @@ class SPDSConfig:
         }
 
     @classmethod
-    def from_dict(cls, config_dict: Dict[str, Any]) -> "SPDSConfig":
+    def from_dict(cls, config_dict: dict[str, Any]) -> "SPDSConfig":
         """Create configuration from dictionary"""
         # Filter out keys that aren't valid fields
         valid_fields = {field.name for field in cls.__dataclass_fields__.values()}
@@ -405,7 +401,7 @@ class SPDSConfig:
         )
 
 
-def load_spds_config(config_path: Optional[str] = None) -> SPDSConfig:
+def load_spds_config(config_path: str | None = None) -> SPDSConfig:
     """
     Load SPDS configuration from file or environment variables
 
@@ -419,7 +415,7 @@ def load_spds_config(config_path: Optional[str] = None) -> SPDSConfig:
         # Load from file (JSON/YAML support could be added here)
         import json
 
-        with open(config_path, "r") as f:
+        with open(config_path) as f:
             config_dict = json.load(f)
         return SPDSConfig.from_dict(config_dict)
 
@@ -467,12 +463,11 @@ def load_spds_config(config_path: Optional[str] = None) -> SPDSConfig:
 
     if env_config:
         return SPDSConfig.from_dict(env_config)
-    else:
-        return SPDSConfig.default_config()
+    return SPDSConfig.default_config()
 
 
 # Global configuration instance
-_spds_config: Optional[SPDSConfig] = None
+_spds_config: SPDSConfig | None = None
 
 
 def get_spds_config() -> SPDSConfig:

@@ -5,15 +5,11 @@ Focused service for converting statistical analysis results to backtesting param
 Extracted from the larger backtesting_parameter_export_service for better maintainability.
 """
 
-import json
-import logging
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+import logging
+from typing import Any
 
-import numpy as np
 import pandas as pd
-import polars as pl
 
 from app.tools.config.statistical_analysis_config import SPDSConfig, get_spds_config
 
@@ -45,9 +41,9 @@ class BacktestingParameters:
 class VectorBTParameters:
     """VectorBT-specific parameters."""
 
-    strategy_params: Dict[str, Any]
-    portfolio_params: Dict[str, Any]
-    risk_params: Dict[str, Any]
+    strategy_params: dict[str, Any]
+    portfolio_params: dict[str, Any]
+    risk_params: dict[str, Any]
 
 
 class BacktestingParameterService:
@@ -63,15 +59,15 @@ class BacktestingParameterService:
 
     def __init__(
         self,
-        config: Optional[SPDSConfig] = None,
-        logger: Optional[logging.Logger] = None,
+        config: SPDSConfig | None = None,
+        logger: logging.Logger | None = None,
     ):
         """Initialize the backtesting parameter service."""
         self.config = config or get_spds_config()
         self.logger = logger or logging.getLogger(__name__)
 
     def convert_analysis_to_parameters(
-        self, analysis_result: Dict[str, Any], strategy_type: str = "ma_cross"
+        self, analysis_result: dict[str, Any], strategy_type: str = "ma_cross"
     ) -> BacktestingParameters:
         """Convert statistical analysis results to backtesting parameters."""
         try:
@@ -139,7 +135,7 @@ class BacktestingParameterService:
             )
 
         except Exception as e:
-            self.logger.error(f"Parameter conversion failed: {str(e)}")
+            self.logger.error(f"Parameter conversion failed: {e!s}")
             # Return default parameters
             return self._get_default_parameters(strategy_type)
 
@@ -167,9 +163,11 @@ class BacktestingParameterService:
             "take_profit": backtesting_params.take_profit_pct,
             "max_holding_days": backtesting_params.max_holding_days,
             "min_holding_days": backtesting_params.min_holding_days,
-            "trailing_stop": backtesting_params.trailing_stop_pct
-            if backtesting_params.trailing_stop_enabled
-            else None,
+            "trailing_stop": (
+                backtesting_params.trailing_stop_pct
+                if backtesting_params.trailing_stop_enabled
+                else None
+            ),
         }
 
         return VectorBTParameters(
@@ -180,7 +178,7 @@ class BacktestingParameterService:
 
     def generate_backtrader_parameters(
         self, backtesting_params: BacktestingParameters
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate Backtrader-specific parameters."""
         return {
             "strategy_params": {
@@ -204,7 +202,7 @@ class BacktestingParameterService:
             },
         }
 
-    def validate_parameters(self, parameters: BacktestingParameters) -> Dict[str, Any]:
+    def validate_parameters(self, parameters: BacktestingParameters) -> dict[str, Any]:
         """Validate backtesting parameters for consistency and safety."""
         validation_results = {"is_valid": True, "warnings": [], "errors": []}
 
@@ -255,7 +253,7 @@ class BacktestingParameterService:
     def optimize_parameters(
         self,
         parameters: BacktestingParameters,
-        historical_data: Optional[pd.DataFrame] = None,
+        historical_data: pd.DataFrame | None = None,
     ) -> BacktestingParameters:
         """Optimize parameters based on historical performance."""
         # This is a simplified optimization
@@ -282,7 +280,7 @@ class BacktestingParameterService:
 
         return optimized_params
 
-    def _calculate_entry_threshold(self, analysis_result: Dict[str, Any]) -> float:
+    def _calculate_entry_threshold(self, analysis_result: dict[str, Any]) -> float:
         """Calculate entry threshold from analysis results."""
         # Default threshold
         threshold = 0.6
@@ -295,7 +293,7 @@ class BacktestingParameterService:
 
         return max(0.5, min(threshold, 0.9))  # Clamp between 0.5 and 0.9
 
-    def _calculate_exit_threshold(self, analysis_result: Dict[str, Any]) -> float:
+    def _calculate_exit_threshold(self, analysis_result: dict[str, Any]) -> float:
         """Calculate exit threshold from analysis results."""
         # Default threshold
         threshold = 0.4
@@ -308,7 +306,7 @@ class BacktestingParameterService:
 
         return max(0.3, min(threshold, 0.8))  # Clamp between 0.3 and 0.8
 
-    def _calculate_stop_loss(self, risk_metrics: Dict[str, Any]) -> float:
+    def _calculate_stop_loss(self, risk_metrics: dict[str, Any]) -> float:
         """Calculate stop loss percentage from risk metrics."""
         # Default stop loss
         stop_loss = 0.05  # 5%
@@ -323,7 +321,7 @@ class BacktestingParameterService:
 
         return max(0.02, min(stop_loss, 0.15))  # Between 2% and 15%
 
-    def _calculate_take_profit(self, performance_metrics: Dict[str, Any]) -> float:
+    def _calculate_take_profit(self, performance_metrics: dict[str, Any]) -> float:
         """Calculate take profit percentage from performance metrics."""
         # Default take profit
         take_profit = 0.1  # 10%
@@ -336,7 +334,7 @@ class BacktestingParameterService:
 
         return max(0.05, min(take_profit, 0.25))  # Between 5% and 25%
 
-    def _calculate_position_size(self, analysis_result: Dict[str, Any]) -> float:
+    def _calculate_position_size(self, analysis_result: dict[str, Any]) -> float:
         """Calculate position size percentage."""
         # Default position size
         position_size = 0.1  # 10%
@@ -348,7 +346,7 @@ class BacktestingParameterService:
 
         return max(0.01, min(position_size, 0.25))  # Between 1% and 25%
 
-    def _calculate_risk_per_trade(self, risk_metrics: Dict[str, Any]) -> float:
+    def _calculate_risk_per_trade(self, risk_metrics: dict[str, Any]) -> float:
         """Calculate risk per trade percentage."""
         # Default risk per trade
         risk_per_trade = 0.02  # 2%
@@ -363,7 +361,7 @@ class BacktestingParameterService:
 
         return max(0.005, min(risk_per_trade, 0.05))  # Between 0.5% and 5%
 
-    def _calculate_max_holding_days(self, analysis_result: Dict[str, Any]) -> int:
+    def _calculate_max_holding_days(self, analysis_result: dict[str, Any]) -> int:
         """Calculate maximum holding days."""
         # Default max holding days
         max_days = 30
@@ -375,7 +373,7 @@ class BacktestingParameterService:
 
         return max(5, min(max_days, 252))  # Between 5 days and 1 year
 
-    def _calculate_min_holding_days(self, analysis_result: Dict[str, Any]) -> int:
+    def _calculate_min_holding_days(self, analysis_result: dict[str, Any]) -> int:
         """Calculate minimum holding days."""
         # Default min holding days
         min_days = 1
@@ -387,7 +385,7 @@ class BacktestingParameterService:
 
         return max(1, min(min_days, 10))  # Between 1 and 10 days
 
-    def _should_enable_trailing_stop(self, analysis_result: Dict[str, Any]) -> bool:
+    def _should_enable_trailing_stop(self, analysis_result: dict[str, Any]) -> bool:
         """Determine if trailing stop should be enabled."""
         # Enable trailing stop for trending strategies
         if "trend_strength" in analysis_result:
@@ -399,7 +397,7 @@ class BacktestingParameterService:
 
         return False  # Default to disabled
 
-    def _calculate_trailing_stop(self, analysis_result: Dict[str, Any]) -> float:
+    def _calculate_trailing_stop(self, analysis_result: dict[str, Any]) -> float:
         """Calculate trailing stop percentage."""
         # Default trailing stop
         trailing_stop = 0.03  # 3%
@@ -411,7 +409,7 @@ class BacktestingParameterService:
 
         return max(0.01, min(trailing_stop, 0.08))  # Between 1% and 8%
 
-    def _should_enable_momentum_exit(self, analysis_result: Dict[str, Any]) -> bool:
+    def _should_enable_momentum_exit(self, analysis_result: dict[str, Any]) -> bool:
         """Determine if momentum exit should be enabled."""
         # Enable momentum exit for momentum strategies
         if "momentum_strength" in analysis_result:
@@ -420,7 +418,7 @@ class BacktestingParameterService:
         return False  # Default to disabled
 
     def _calculate_momentum_exit_threshold(
-        self, analysis_result: Dict[str, Any]
+        self, analysis_result: dict[str, Any]
     ) -> float:
         """Calculate momentum exit threshold."""
         # Default momentum exit threshold
@@ -433,7 +431,7 @@ class BacktestingParameterService:
         return max(0.3, min(threshold, 0.8))  # Between 0.3 and 0.8
 
     def _should_enable_volatility_adjustment(
-        self, analysis_result: Dict[str, Any]
+        self, analysis_result: dict[str, Any]
     ) -> bool:
         """Determine if volatility adjustment should be enabled."""
         # Enable for high volatility environments
@@ -443,7 +441,7 @@ class BacktestingParameterService:
         return False  # Default to disabled
 
     def _calculate_volatility_multiplier(
-        self, analysis_result: Dict[str, Any]
+        self, analysis_result: dict[str, Any]
     ) -> float:
         """Calculate volatility multiplier."""
         # Default volatility multiplier

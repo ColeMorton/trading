@@ -5,14 +5,15 @@ Provides the main MonteCarloAnalyzer class for portfolio-level parameter
 robustness testing using bootstrap sampling and parameter noise injection.
 """
 
-import sys
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+import sys
+from typing import Any
 
 import numpy as np
 import polars as pl
-from scipy import stats
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
@@ -30,14 +31,14 @@ from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 class ParameterStabilityResult:
     """Results of parameter stability analysis for a single parameter combination."""
 
-    parameter_combination: Tuple[int, int]  # (fast_period, slow_period)
-    base_performance: Dict[str, float]  # Performance on original data
-    monte_carlo_results: List[Dict[str, Any]]  # Results from all simulations
+    parameter_combination: tuple[int, int]  # (fast_period, slow_period)
+    base_performance: dict[str, float]  # Performance on original data
+    monte_carlo_results: list[dict[str, Any]]  # Results from all simulations
 
     # Statistical measures
-    performance_mean: Dict[str, float] = field(default_factory=dict)
-    performance_std: Dict[str, float] = field(default_factory=dict)
-    confidence_intervals: Dict[str, Tuple[float, float]] = field(default_factory=dict)
+    performance_mean: dict[str, float] = field(default_factory=dict)
+    performance_std: dict[str, float] = field(default_factory=dict)
+    confidence_intervals: dict[str, tuple[float, float]] = field(default_factory=dict)
 
     # Stability metrics
     stability_score: float = 0.0
@@ -59,10 +60,10 @@ class MonteCarloPortfolioResult:
     """Results of Monte Carlo analysis for an entire portfolio."""
 
     ticker: str
-    parameter_results: List[ParameterStabilityResult]
+    parameter_results: list[ParameterStabilityResult]
     portfolio_stability_score: float = 0.0
-    recommended_parameters: Optional[Tuple[int, int]] = None
-    analysis_metadata: Dict[str, Any] = field(default_factory=dict)
+    recommended_parameters: tuple[int, int] | None = None
+    analysis_metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class MonteCarloAnalyzer:
@@ -74,7 +75,7 @@ class MonteCarloAnalyzer:
     """
 
     def __init__(
-        self, config: MonteCarloConfig, log: Optional[Callable[[str, str], None]] = None
+        self, config: MonteCarloConfig, log: Callable[[str, str], None] | None = None
     ):
         """Initialize the Monte Carlo analyzer.
 
@@ -85,7 +86,7 @@ class MonteCarloAnalyzer:
         self.config = config
         self.log = log or self._default_log
         self.bootstrap_sampler = self._create_bootstrap_sampler()
-        self.results: List[MonteCarloPortfolioResult] = []
+        self.results: list[MonteCarloPortfolioResult] = []
 
     def _default_log(self, message: str, level: str = "info") -> None:
         """Default logging function."""
@@ -104,9 +105,9 @@ class MonteCarloAnalyzer:
         self,
         ticker: str,
         data: pl.DataFrame,
-        parameter_combinations: List[Tuple[int, int]],
+        parameter_combinations: list[tuple[int, int]],
         strategy_type: str = "EMA",
-        strategy_config: Dict[str, Any] = None,
+        strategy_config: dict[str, Any] | None = None,
     ) -> MonteCarloPortfolioResult:
         """Analyze parameter stability for a single ticker.
 
@@ -170,7 +171,7 @@ class MonteCarloAnalyzer:
         fast_period: int,
         slow_period: int,
         strategy_type: str = "EMA",
-        strategy_config: Dict[str, Any] = None,
+        strategy_config: dict[str, Any] | None = None,
     ) -> ParameterStabilityResult:
         """Analyze stability of a single parameter combination."""
 
@@ -218,8 +219,8 @@ class MonteCarloAnalyzer:
         return stability_result
 
     def _standardize_field_names(
-        self, strategy_config: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, strategy_config: dict[str, Any]
+    ) -> dict[str, Any]:
         """Standardize field names from CSV format to internal format."""
         field_mapping = {
             # CSV header -> Internal field name
@@ -251,8 +252,8 @@ class MonteCarloAnalyzer:
         fast_period: int,
         slow_period: int,
         strategy_type: str = "EMA",
-        strategy_config: Dict[str, Any] = None,
-    ) -> Dict[str, float]:
+        strategy_config: dict[str, Any] | None = None,
+    ) -> dict[str, float]:
         """Calculate strategy performance for given parameters."""
         try:
             # Calculate MA signals - merge provided strategy config with defaults
@@ -316,7 +317,7 @@ class MonteCarloAnalyzer:
             }
 
         except Exception as e:
-            self.log(f"Error calculating performance: {str(e)}", "warning")
+            self.log(f"Error calculating performance: {e!s}", "warning")
             return {"total_return": 0.0, "sharpe_ratio": 0.0, "max_drawdown": 1.0}
 
     def _calculate_stability_metrics(self, result: ParameterStabilityResult) -> None:
@@ -355,7 +356,7 @@ class MonteCarloAnalyzer:
         }
 
         # Stability score: consistency of performance across simulations
-        base_return = result.base_performance.get("total_return", 0.0)
+        result.base_performance.get("total_return", 0.0)
 
         # Stability score: consistency of performance across simulations
         # Use coefficient of variation as a more reliable stability measure
@@ -387,8 +388,8 @@ class MonteCarloAnalyzer:
         result.regime_consistency = positive_returns
 
     def _calculate_confidence_interval(
-        self, values: List[float], alpha: float
-    ) -> Tuple[float, float]:
+        self, values: list[float], alpha: float
+    ) -> tuple[float, float]:
         """Calculate confidence interval for a list of values."""
         if not values:
             return (0.0, 0.0)
@@ -405,7 +406,7 @@ class MonteCarloAnalyzer:
         return (lower_bound, upper_bound)
 
     def _calculate_portfolio_stability_score(
-        self, parameter_results: List[ParameterStabilityResult]
+        self, parameter_results: list[ParameterStabilityResult]
     ) -> float:
         """Calculate overall portfolio stability score."""
         if not parameter_results:
@@ -415,8 +416,8 @@ class MonteCarloAnalyzer:
         return np.mean(stability_scores)
 
     def _select_most_stable_parameters(
-        self, parameter_results: List[ParameterStabilityResult]
-    ) -> Optional[Tuple[int, int]]:
+        self, parameter_results: list[ParameterStabilityResult]
+    ) -> tuple[int, int] | None:
         """Select the most stable parameter combination."""
         if not parameter_results:
             return None

@@ -5,23 +5,23 @@ This module provides common functions used across all strategy sub-commands
 to ensure consistency and eliminate code duplication.
 """
 
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
-import typer
 from rich import print as rprint
 from rich.box import ROUNDED
 from rich.console import Console
 from rich.table import Table
+import typer
 
 from app.tools.console_logging import ConsoleLogger
 
 from ..models.strategy import StrategyConfig
 
+
 console = Console()
 
 
-def process_ticker_input(ticker: Optional[List[str]]) -> List[str]:
+def process_ticker_input(ticker: list[str] | None) -> list[str]:
     """
     Process ticker input handling comma-separated values and multiple arguments.
 
@@ -52,7 +52,7 @@ def process_ticker_input(ticker: Optional[List[str]]) -> List[str]:
     return flattened_tickers
 
 
-def process_strategy_type_input(strategy_type: Optional[List[str]]) -> List[str]:
+def process_strategy_type_input(strategy_type: list[str] | None) -> list[str]:
     """
     Process strategy type input handling comma-separated values and multiple arguments.
 
@@ -89,28 +89,28 @@ def process_strategy_type_input(strategy_type: Optional[List[str]]) -> List[str]
 
 
 def build_configuration_overrides(
-    ticker: Optional[List[str]] = None,
-    ticker_2: Optional[str] = None,
-    strategy_type: Optional[List[str]] = None,
-    min_trades: Optional[int] = None,
-    min_win_rate: Optional[float] = None,
-    fast_min: Optional[int] = None,
-    fast_max: Optional[int] = None,
-    slow_min: Optional[int] = None,
-    slow_max: Optional[int] = None,
-    signal_min: Optional[int] = None,
-    signal_max: Optional[int] = None,
-    entry_fast: Optional[int] = None,
-    entry_slow: Optional[int] = None,
-    entry_signal: Optional[int] = None,
-    fast_period: Optional[int] = None,
-    slow_period: Optional[int] = None,
-    years: Optional[int] = None,
-    market_type: Optional[str] = None,
-    use_4hour: Optional[bool] = None,
-    direction: Optional[str] = None,
-    date: Optional[str] = None,
-    use_current: Optional[bool] = None,
+    ticker: list[str] | None = None,
+    ticker_2: str | None = None,
+    strategy_type: list[str] | None = None,
+    min_trades: int | None = None,
+    min_win_rate: float | None = None,
+    fast_min: int | None = None,
+    fast_max: int | None = None,
+    slow_min: int | None = None,
+    slow_max: int | None = None,
+    signal_min: int | None = None,
+    signal_max: int | None = None,
+    entry_fast: int | None = None,
+    entry_slow: int | None = None,
+    entry_signal: int | None = None,
+    fast_period: int | None = None,
+    slow_period: int | None = None,
+    years: int | None = None,
+    market_type: str | None = None,
+    use_4hour: bool | None = None,
+    direction: str | None = None,
+    date: str | None = None,
+    use_current: bool | None = None,
     dry_run: bool = False,
     skip_analysis: bool = False,
     verbose: bool = False,
@@ -120,9 +120,9 @@ def build_configuration_overrides(
     enable_parallel: bool = True,
     refresh: bool = False,
     batch: bool = False,
-    batch_size: Optional[int] = None,
+    batch_size: int | None = None,
     **additional_overrides,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Build configuration overrides from CLI arguments.
 
@@ -317,7 +317,7 @@ def build_configuration_overrides(
 
 def convert_to_legacy_config(
     config: StrategyConfig, **additional_params
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Convert Pydantic StrategyConfig to legacy config format.
 
@@ -718,7 +718,7 @@ def show_config_preview(
 
 
 def display_results_table(
-    results: List[Dict[str, Any]],
+    results: list[dict[str, Any]],
     title: str = "Strategy Analysis Results",
     max_results: int = 20,
 ) -> None:
@@ -795,7 +795,7 @@ def display_results_table(
 
 
 def display_sweep_results_table(
-    results: List[Dict[str, Any]],
+    results: list[dict[str, Any]],
     title: str = "Parameter Sweep Results",
     max_results: int = 50,
 ) -> None:
@@ -879,7 +879,7 @@ def display_sweep_results_table(
 
 
 def show_execution_progress(
-    message: str, ticker_count: int = None, combination_count: int = None
+    message: str, ticker_count: int | None = None, combination_count: int | None = None
 ) -> None:
     """
     Display consistent execution progress messages.
@@ -901,8 +901,8 @@ def show_execution_progress(
 def show_execution_progress_console(
     console: ConsoleLogger,
     message: str,
-    ticker_count: int = None,
-    combination_count: int = None,
+    ticker_count: int | None = None,
+    combination_count: int | None = None,
 ) -> None:
     """
     Display consistent execution progress messages using console logger.
@@ -951,13 +951,12 @@ def validate_parameter_relationships(config: StrategyConfig) -> None:
         if not 0 <= config.minimums.win_rate <= 1:
             raise ValueError("Win rate must be between 0 and 1")
 
-    if config.minimums.trades is not None:
-        if config.minimums.trades < 0:
-            raise ValueError("Minimum trades must be non-negative")
+    if config.minimums.trades is not None and config.minimums.trades < 0:
+        raise ValueError("Minimum trades must be non-negative")
 
 
 def _display_risk_comparison_matrix(
-    comparison_data: List[Dict[str, Any]], console: Console
+    comparison_data: list[dict[str, Any]], console: Console
 ) -> None:
     """
     Display additional risk comparison matrix with categorized analysis.
@@ -1006,7 +1005,7 @@ def _display_risk_comparison_matrix(
         ("High Risk", high_risk, "red", "> 60% DD"),
     ]
 
-    for category_name, sectors, color, desc in categories:
+    for category_name, sectors, color, _desc in categories:
         if sectors:
             sector_names = ", ".join([s["ticker"] for s in sectors[:5]])  # Show first 5
             if len(sectors) > 5:
@@ -1081,7 +1080,7 @@ def _display_risk_comparison_matrix(
 
     # Balanced allocation (mix of risk levels)
     balanced_picks = []
-    for category_name, sectors, color, desc in categories:
+    for category_name, sectors, color, _desc in categories:
         if sectors:
             best_in_cat = max(sectors, key=lambda x: x["score"])
             balanced_picks.append(best_in_cat)
@@ -1100,9 +1099,9 @@ def _display_risk_comparison_matrix(
 
 
 def display_sector_comparison_table(
-    comparison_data: List[Dict[str, Any]],
+    comparison_data: list[dict[str, Any]],
     console: Console,
-    benchmark_data: Optional[Dict] = None,
+    benchmark_data: dict | None = None,
 ) -> None:
     """
     Display sector comparison results in a rich formatted table.
@@ -1147,7 +1146,7 @@ def display_sector_comparison_table(
         )
 
     # Add rows with color coding
-    for i, sector in enumerate(comparison_data):
+    for _i, sector in enumerate(comparison_data):
         rank = sector["rank"]
 
         # Color code rank
@@ -1241,7 +1240,7 @@ def display_sector_comparison_table(
     bottom_score = comparison_data[-1]["score"] if comparison_data else 0
     score_range = top_score - bottom_score
 
-    console.print(f"📊 [bold]Summary:[/bold]")
+    console.print("📊 [bold]Summary:[/bold]")
     console.print(
         f"   • Best Sector: [green]{comparison_data[0]['sector_name']} ({comparison_data[0]['ticker']})[/green] - Score: [bold]{top_score:.4f}[/bold]"
     )

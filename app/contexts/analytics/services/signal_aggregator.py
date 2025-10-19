@@ -5,10 +5,9 @@ Focused service for aggregating and processing signal data from multiple sources
 Extracted from the larger signal_data_aggregator for better maintainability.
 """
 
-import logging
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+import logging
+from typing import Any
 
 import pandas as pd
 import polars as pl
@@ -37,9 +36,9 @@ class AggregatedSignal:
     timestamp: str
     signal_value: float
     confidence: float
-    sources: List[str]
+    sources: list[str]
     metrics: SignalMetrics
-    raw_data: Dict[str, Any]
+    raw_data: dict[str, Any]
 
 
 class SignalAggregator:
@@ -55,8 +54,8 @@ class SignalAggregator:
 
     def __init__(
         self,
-        config: Optional[SPDSConfig] = None,
-        logger: Optional[logging.Logger] = None,
+        config: SPDSConfig | None = None,
+        logger: logging.Logger | None = None,
     ):
         """Initialize the signal aggregator."""
         self.config = config or get_spds_config()
@@ -64,9 +63,9 @@ class SignalAggregator:
 
     def aggregate_signals(
         self,
-        sources: Dict[str, Union[pd.DataFrame, pl.DataFrame]],
+        sources: dict[str, pd.DataFrame | pl.DataFrame],
         strategy_identifier: str,
-    ) -> List[AggregatedSignal]:
+    ) -> list[AggregatedSignal]:
         """Aggregate signals from multiple sources."""
         if not sources:
             self.logger.warning("No signal sources provided")
@@ -90,13 +89,13 @@ class SignalAggregator:
             return aggregated_signals
 
         except Exception as e:
-            self.logger.error(f"Signal aggregation failed: {str(e)}")
+            self.logger.error(f"Signal aggregation failed: {e!s}")
             return []
 
     def calculate_signal_quality(
         self,
-        signal_data: Union[pd.DataFrame, pl.DataFrame],
-        baseline_data: Optional[Union[pd.DataFrame, pl.DataFrame]] = None,
+        signal_data: pd.DataFrame | pl.DataFrame,
+        baseline_data: pd.DataFrame | pl.DataFrame | None = None,
     ) -> SignalMetrics:
         """Calculate signal quality metrics."""
         if isinstance(signal_data, pl.DataFrame):
@@ -135,8 +134,8 @@ class SignalAggregator:
         )
 
     def validate_signal_consistency(
-        self, signals: List[AggregatedSignal], consistency_threshold: float = 0.8
-    ) -> Dict[str, Any]:
+        self, signals: list[AggregatedSignal], consistency_threshold: float = 0.8
+    ) -> dict[str, Any]:
         """Validate consistency across aggregated signals."""
         if not signals:
             return {
@@ -166,8 +165,8 @@ class SignalAggregator:
         }
 
     def _normalize_sources(
-        self, sources: Dict[str, Union[pd.DataFrame, pl.DataFrame]]
-    ) -> Dict[str, pd.DataFrame]:
+        self, sources: dict[str, pd.DataFrame | pl.DataFrame]
+    ) -> dict[str, pd.DataFrame]:
         """Normalize all sources to pandas DataFrames."""
         normalized = {}
 
@@ -181,7 +180,7 @@ class SignalAggregator:
 
     def _extract_signals_from_source(
         self, data: pd.DataFrame, source_name: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Extract signals from a single source."""
         signals = []
 
@@ -221,16 +220,16 @@ class SignalAggregator:
 
     def _aggregate_across_sources(
         self,
-        extracted_signals: Dict[str, List[Dict[str, Any]]],
+        extracted_signals: dict[str, list[dict[str, Any]]],
         strategy_identifier: str,
-    ) -> List[AggregatedSignal]:
+    ) -> list[AggregatedSignal]:
         """Aggregate signals across multiple sources."""
         aggregated = []
 
         # Group signals by timestamp/strategy
         signal_groups = {}
 
-        for source_name, signals in extracted_signals.items():
+        for _source_name, signals in extracted_signals.items():
             for signal in signals:
                 timestamp = signal["timestamp"]
                 if timestamp not in signal_groups:
@@ -299,14 +298,13 @@ class SignalAggregator:
                 if col == "p_value":
                     # Convert p-value to confidence (1 - p_value)
                     return float(1.0 - data[col].mean())
-                else:
-                    return float(data[col].mean())
+                return float(data[col].mean())
 
         # Default confidence calculation
         return 0.6
 
     def _calculate_signal_to_noise_ratio(
-        self, signal_data: pd.DataFrame, baseline_data: Optional[pd.DataFrame] = None
+        self, signal_data: pd.DataFrame, baseline_data: pd.DataFrame | None = None
     ) -> float:
         """Calculate signal-to-noise ratio."""
         if signal_data.empty:

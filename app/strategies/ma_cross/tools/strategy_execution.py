@@ -5,10 +5,9 @@ This module handles the execution of trading strategies, including portfolio pro
 filtering, and best portfolio selection for both single and multiple tickers.
 """
 
-import asyncio
-import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
+import uuid
 
 from app.strategies.ma_cross.config_types import Config
 from app.tools.backtest_strategy import backtest_strategy
@@ -17,7 +16,6 @@ from app.tools.get_data import get_data
 from app.tools.performance_tracker import (
     get_strategy_performance_tracker,
     monitor_performance,
-    timing_context,
 )
 from app.tools.portfolio.schema_detection import (
     SchemaVersion,
@@ -25,23 +23,19 @@ from app.tools.portfolio.schema_detection import (
     ensure_allocation_sum_100_percent,
     normalize_portfolio_data,
 )
-from app.tools.portfolio.selection import (
-    get_best_portfolio,
-    get_best_portfolios_per_strategy_type,
-)
+from app.tools.portfolio.selection import get_best_portfolios_per_strategy_type
 from app.tools.stats_converter import convert_stats
 from app.tools.strategy.export_portfolios import PortfolioExportError, export_portfolios
 from app.tools.strategy.filter_portfolios import filter_portfolios
 from app.tools.strategy.signal_processing import process_ticker_portfolios
 from app.tools.strategy.signal_utils import is_exit_signal_current, is_signal_current
 
+
 if TYPE_CHECKING:
     from app.tools.progress_tracking import ProgressTracker
 
 
-def execute_single_strategy(
-    ticker: str, config: Config, log: callable
-) -> Optional[Dict]:
+def execute_single_strategy(ticker: str, config: Config, log: callable) -> dict | None:
     """Execute a single strategy with specified parameters.
 
     This function tests a specific MA strategy (SMA or EMA) with exact window
@@ -138,7 +132,7 @@ def execute_single_strategy(
         return converted_stats
 
     except Exception as e:
-        log(f"Failed to execute strategy: {str(e)}", "error")
+        log(f"Failed to execute strategy: {e!s}", "error")
         return None
 
 
@@ -147,7 +141,7 @@ def process_single_ticker(
     config: Config,
     log: callable,
     progress_update_fn=None,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """Process a single ticker through the portfolio analysis pipeline.
 
     Args:
@@ -188,8 +182,6 @@ def process_single_ticker(
 
     # Apply consolidated filtering using PortfolioFilterService
 
-    from app.tools.strategy.filter_portfolios import filter_portfolios
-
     portfolios_df = filter_portfolios(portfolios_df, ticker_config, log)
 
     # Check if any portfolios remain after filtering
@@ -224,7 +216,7 @@ def process_single_ticker(
             log=log,
         )
     except (ValueError, PortfolioExportError) as e:
-        log(f"Failed to export portfolios for {actual_ticker}: {str(e)}", "error")
+        log(f"Failed to export portfolios for {actual_ticker}: {e!s}", "error")
         return None
 
     # Filter portfolios for individual ticker
@@ -267,7 +259,7 @@ def process_single_ticker(
         )
     except (ValueError, PortfolioExportError) as e:
         log(
-            f"Failed to export filtered portfolios for {actual_ticker}: {str(e)}",
+            f"Failed to export filtered portfolios for {actual_ticker}: {e!s}",
             "error",
         )
 
@@ -283,17 +275,16 @@ def process_single_ticker(
         # This preserves existing behavior for single-strategy scenarios
         if len(best_portfolios) == 1:
             return best_portfolios[0]
-        else:
-            # For multi-strategy scenarios, return all best portfolios
-            # The calling code will need to handle the list format
-            return best_portfolios
+        # For multi-strategy scenarios, return all best portfolios
+        # The calling code will need to handle the list format
+        return best_portfolios
 
     return None
 
 
 def process_ticker_batch(
-    ticker_batch: List[str], config: Config, strategy_type: str, log: callable
-) -> List[Dict[str, Any]]:
+    ticker_batch: list[str], config: Config, strategy_type: str, log: callable
+) -> list[dict[str, Any]]:
     """Process a batch of tickers sequentially within a single thread.
 
     Args:
@@ -350,15 +341,15 @@ def process_ticker_batch(
                 batch_portfolios.append(best_portfolio)
 
         except Exception as e:
-            log(f"Error processing ticker {ticker}: {str(e)}", "error")
+            log(f"Error processing ticker {ticker}: {e!s}", "error")
             continue
 
     return batch_portfolios
 
 
 def create_ticker_batches(
-    tickers: List[str], batch_size: int = None
-) -> List[List[str]]:
+    tickers: list[str], batch_size: int | None = None
+) -> list[list[str]]:
     """Create batches of tickers for concurrent processing.
 
     Args:
@@ -393,7 +384,7 @@ def execute_strategy_concurrent(
     log: callable,
     progress_tracker: Optional["ProgressTracker"] = None,
     max_workers: int = 4,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Execute a trading strategy for all tickers using concurrent processing.
 
     Args:
@@ -502,7 +493,7 @@ def execute_strategy_concurrent(
                 )
 
             except Exception as e:
-                log(f"Batch processing failed for {batch}: {str(e)}", "error")
+                log(f"Batch processing failed for {batch}: {e!s}", "error")
                 # Update error count in performance tracking
                 tracker.update_execution_progress(
                     execution_id=execution_id, error_count=1
@@ -544,7 +535,7 @@ def execute_strategy(
     strategy_type: str,
     log: callable,
     progress_update_fn=None,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Execute a trading strategy for all tickers.
 
     Args:
@@ -592,7 +583,7 @@ def execute_strategy(
 
     # Progress tracking handled by external progress_update_fn
 
-    for i, ticker in enumerate(tickers):
+    for _i, ticker in enumerate(tickers):
         log(f"Processing {strategy_type} strategy for ticker: {ticker}")
         ticker_config = config.copy()
 

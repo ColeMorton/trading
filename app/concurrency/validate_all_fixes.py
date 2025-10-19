@@ -9,13 +9,14 @@ This script validates that all fixes are working correctly:
 4. Signal processing (USE_FIXED_SIGNAL_PROC)
 """
 
+from datetime import datetime
 import json
 import os
-import sys
-from datetime import datetime
 from pathlib import Path
+import sys
 
 import polars as pl
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -247,7 +248,7 @@ def main():
                             "USE_FIXED_SIGNAL_PROC", False
                         ),
                     },
-                    "validations": {name: passed for name, passed in validations},
+                    "validations": dict(validations),
                     "all_passed": all_passed,
                 },
                 f,

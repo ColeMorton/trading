@@ -5,14 +5,14 @@ This script tests the core Monte Carlo functionality directly without
 running the full parameter sensitivity analysis.
 """
 
-import sys
 from pathlib import Path
+import sys
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from app.strategies.ma_cross.monte_carlo_integration import MonteCarloEnhancedAnalyzer
 from app.strategies.monte_carlo.parameter_robustness import (
     MonteCarloConfig,
     run_parameter_robustness_analysis,
@@ -65,7 +65,7 @@ def test_core_monte_carlo_functionality():
 
         if results and "BTC-USD" in results:
             btc_results = results["BTC-USD"]
-            print(f"✅ Analysis completed successfully!")
+            print("✅ Analysis completed successfully!")
             print(f"Tested {len(btc_results)} parameter combinations")
 
             # Display results
@@ -119,18 +119,17 @@ def test_core_monte_carlo_functionality():
                 recommendation_score = analyzer._calculate_recommendation_score(
                     mock_standard_result, btc_results[0]
                 )
-                print(f"✅ Recommendation scoring test passed!")
+                print("✅ Recommendation scoring test passed!")
                 print(f"Sample recommendation score: {recommendation_score:.3f}")
 
             print("\n✅ All Monte Carlo integration tests passed!")
             return True
 
-        else:
-            print("❌ No results returned from Monte Carlo analysis")
-            return False
+        print("❌ No results returned from Monte Carlo analysis")
+        return False
 
     except Exception as e:
-        print(f"❌ Test failed: {str(e)}")
+        print(f"❌ Test failed: {e!s}")
         import traceback
 
         traceback.print_exc()
@@ -205,7 +204,7 @@ def test_scoring_consistency():
         return True
 
     except Exception as e:
-        print(f"❌ Scoring test failed: {str(e)}")
+        print(f"❌ Scoring test failed: {e!s}")
         import traceback
 
         traceback.print_exc()
@@ -227,7 +226,7 @@ def main():
         print("\n✅ All quick tests passed!")
         print("The Monte Carlo enhanced integration is working correctly.")
     else:
-        print(f"\n❌ Some tests failed.")
+        print("\n❌ Some tests failed.")
 
     return success1 and success2
 

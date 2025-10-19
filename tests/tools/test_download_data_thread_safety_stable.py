@@ -6,13 +6,11 @@ column name contamination or other thread safety issues, using stable
 mock data instead of external API calls for reliable testing.
 """
 
-import threading
-import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import time
 from unittest.mock import MagicMock, Mock, patch
 
 import pandas as pd
-import polars as pl
 import pytest
 
 from app.tools.download_data import download_data
@@ -73,10 +71,9 @@ class TestDownloadDataThreadSafetyStable:
             result_df.columns = pd.MultiIndex.from_tuples(result_df.columns)
             result_df.index.name = "Date"
             return result_df
-        else:
-            # Single ticker format
-            df.set_index("Date", inplace=True)
-            return df
+        # Single ticker format
+        df.set_index("Date", inplace=True)
+        return df
 
     @stable_market_data(tickers=["AAPL", "MSFT", "GOOGL"])
     def test_concurrent_downloads_with_stable_data(
@@ -232,7 +229,7 @@ class TestDownloadDataThreadSafetyStable:
                 # Verify results structure
                 assert results is not None
                 # Results should be a list or dict of portfolio results
-                if isinstance(results, (list, dict)):
+                if isinstance(results, list | dict):
                     assert len(results) >= 0  # Allow empty results for test data
 
             except Exception as e:

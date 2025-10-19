@@ -4,8 +4,6 @@ RSI Utilities Module
 This module provides utility functions for RSI calculations and masking in heatmap visualizations.
 """
 
-from typing import Tuple
-
 import numpy as np
 import pandas as pd
 import polars as pl
@@ -19,7 +17,7 @@ def calculate_latest_rsi_matrix(
     rsi_windows: np.ndarray,
     rsi_thresholds: np.ndarray,
     log: callable,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Calculate RSI values and create a mask matrix for the heatmap visualization.
 
@@ -82,7 +80,7 @@ def calculate_latest_rsi_matrix(
                     "info",
                 )
         except Exception as e:
-            log(f"Failed to calculate RSI for window {window}: {str(e)}", "error")
+            log(f"Failed to calculate RSI for window {window}: {e!s}", "error")
             raise
 
     return rsi_matrix, mask_matrix

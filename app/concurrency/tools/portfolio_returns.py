@@ -6,9 +6,10 @@ rather than individual components, providing more accurate risk metrics
 that account for actual portfolio behavior.
 """
 
-import logging
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple
+import logging
+from typing import Any
 
 import numpy as np
 import polars as pl
@@ -20,6 +21,7 @@ from app.tools.exceptions import (
     RiskCalculationError,
 )
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -29,7 +31,7 @@ class PortfolioReturnsCalculator:
     returns using position weights and allocations.
     """
 
-    def __init__(self, log: Optional[Callable[[str, str], None]] = None):
+    def __init__(self, log: Callable[[str, str], None] | None = None):
         """
         Initialize the portfolio returns calculator.
 
@@ -51,10 +53,10 @@ class PortfolioReturnsCalculator:
     def calculate_portfolio_returns(
         self,
         aligned_returns: pl.DataFrame,
-        allocations: List[float],
-        position_arrays: Optional[List[np.ndarray]] | None = None,
-        strategy_names: Optional[List[str]] | None = None,
-    ) -> Tuple[np.ndarray, Dict[str, Any]]:
+        allocations: list[float],
+        position_arrays: list[np.ndarray] | None | None = None,
+        strategy_names: list[str] | None | None = None,
+    ) -> tuple[np.ndarray, dict[str, Any]]:
         """
         Calculate portfolio returns from aligned strategy returns and allocations.
 
@@ -113,7 +115,7 @@ class PortfolioReturnsCalculator:
         self,
         returns_matrix: np.ndarray,
         weights: np.ndarray,
-        position_arrays: Optional[List[np.ndarray]] | None = None,
+        position_arrays: list[np.ndarray] | None | None = None,
     ) -> np.ndarray:
         """
         Calculate weighted portfolio returns accounting for positions.
@@ -162,8 +164,8 @@ class PortfolioReturnsCalculator:
         portfolio_returns: np.ndarray,
         returns_matrix: np.ndarray,
         weights: np.ndarray,
-        strategy_names: List[str],
-    ) -> Dict[str, Any]:
+        strategy_names: list[str],
+    ) -> dict[str, Any]:
         """Calculate portfolio diagnostics and statistics."""
         # Basic statistics
         portfolio_mean = np.mean(portfolio_returns)
@@ -272,7 +274,7 @@ class PortfolioReturnsCalculator:
         self,
         portfolio_returns: np.ndarray,
         window: int = 252,
-        min_periods: Optional[int] | None = None,
+        min_periods: int | None | None = None,
     ) -> pl.DataFrame:
         """
         Calculate rolling portfolio metrics for stability analysis.
@@ -348,11 +350,11 @@ class PortfolioReturnsCalculator:
 
     def calculate_portfolio_metrics_from_positions(
         self,
-        data_list: List[pl.DataFrame],
-        position_arrays: List[np.ndarray],
-        allocations: List[float],
-        strategy_names: List[str],
-    ) -> Dict[str, Any]:
+        data_list: list[pl.DataFrame],
+        position_arrays: list[np.ndarray],
+        allocations: list[float],
+        strategy_names: list[str],
+    ) -> dict[str, Any]:
         """
         Calculate complete portfolio metrics from position data.
 
@@ -377,7 +379,7 @@ class PortfolioReturnsCalculator:
             # Prepare portfolios for alignment
             portfolios = []
             for i, (df, positions, name) in enumerate(
-                zip(data_list, position_arrays, strategy_names)
+                zip(data_list, position_arrays, strategy_names, strict=False)
             ):
                 # Add position data
                 df_with_position = df.with_columns(
@@ -440,6 +442,4 @@ class PortfolioReturnsCalculator:
             return metrics
 
         except Exception as e:
-            raise RiskCalculationError(
-                f"Failed to calculate portfolio metrics: {str(e)}"
-            )
+            raise RiskCalculationError(f"Failed to calculate portfolio metrics: {e!s}")

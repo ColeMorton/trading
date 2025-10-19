@@ -5,14 +5,16 @@ This module provides functionality to handle signal execution timing,
 reducing implementation lag and improving performance.
 """
 
-import os
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable, Dict, Optional, Tuple
+import os
+from typing import Any
 
 import numpy as np
 import polars as pl
 
 from .signal_processor import SignalDefinition, SignalProcessor
+
 
 # Get configuration
 USE_FIXED_SIGNAL_PROC = os.getenv("USE_FIXED_SIGNAL_PROC", "true").lower() == "true"
@@ -31,7 +33,7 @@ def apply_execution_timing(
     signals: np.ndarray,
     mode: ExecutionMode = ExecutionMode.NEXT_PERIOD,
     custom_delay: int = 1,
-    log: Optional[Callable[[str, str], None]] = None,
+    log: Callable[[str, str], None] | None = None,
 ) -> np.ndarray:
     """Apply execution timing to signals.
 
@@ -143,7 +145,7 @@ def _calculate_optimal_timing(signals: np.ndarray) -> np.ndarray:
     return timed_signals
 
 
-def get_execution_mode(config: Dict[str, Any]) -> Tuple[ExecutionMode, int]:
+def get_execution_mode(config: dict[str, Any]) -> tuple[ExecutionMode, int]:
     """Get the execution mode from configuration.
 
     Args:
@@ -171,8 +173,8 @@ def get_execution_mode(config: Dict[str, Any]) -> Tuple[ExecutionMode, int]:
 def analyze_execution_impact(
     original_signals: np.ndarray,
     returns: np.ndarray,
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, Any]:
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, Any]:
     """Analyze the impact of different execution timing modes.
 
     Args:

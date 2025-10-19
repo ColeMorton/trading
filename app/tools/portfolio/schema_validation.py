@@ -7,10 +7,9 @@ to the canonical 62-column Extended schema defined in base_extended_schemas.py.
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import pandas as pd
-import polars as pl
 
 from .base_extended_schemas import (
     BASE_COLUMN_COUNT,
@@ -23,6 +22,7 @@ from .base_extended_schemas import (
     ColumnDataType,
     PortfolioSchemaValidationError,
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class SchemaValidator:
         self.strict_mode = strict_mode
         self.canonical_schema = CanonicalPortfolioSchema()
 
-    def validate_csv_file(self, file_path: Union[str, Path]) -> Dict[str, Any]:
+    def validate_csv_file(self, file_path: str | Path) -> dict[str, Any]:
         """
         Validate a CSV file against the canonical schema.
 
@@ -65,15 +65,15 @@ class SchemaValidator:
             return self.validate_dataframe(df, source_file=str(file_path))
 
         except Exception as e:
-            error_msg = f"Error reading CSV file {file_path}: {str(e)}"
+            error_msg = f"Error reading CSV file {file_path}: {e!s}"
             logger.error(error_msg)
             raise PortfolioSchemaValidationError(
                 error_msg, {"file_path": str(file_path)}
             )
 
     def validate_dataframe(
-        self, df: pd.DataFrame, source_file: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, df: pd.DataFrame, source_file: str | None = None
+    ) -> dict[str, Any]:
         """
         Validate a DataFrame against the canonical schema.
 
@@ -122,7 +122,7 @@ class SchemaValidator:
 
         return validation_result
 
-    def _validate_column_count(self, df: pd.DataFrame, result: Dict[str, Any]) -> None:
+    def _validate_column_count(self, df: pd.DataFrame, result: dict[str, Any]) -> None:
         """Validate DataFrame has correct number of columns."""
         actual_count = len(df.columns)
 
@@ -150,7 +150,7 @@ class SchemaValidator:
             result["violations"].append(violation)
 
     def _validate_column_names_and_order(
-        self, df: pd.DataFrame, result: Dict[str, Any]
+        self, df: pd.DataFrame, result: dict[str, Any]
     ) -> None:
         """Validate column names and their order match canonical schema."""
         actual_columns = list(df.columns)
@@ -184,7 +184,7 @@ class SchemaValidator:
                 # Find misplaced columns
                 misplaced = []
                 for i, (actual, expected) in enumerate(
-                    zip(actual_columns, expected_columns)
+                    zip(actual_columns, expected_columns, strict=False)
                 ):
                     if actual != expected:
                         misplaced.append(
@@ -194,13 +194,13 @@ class SchemaValidator:
                 violation = {
                     "type": "column_order_mismatch",
                     "severity": "critical",
-                    "message": f"Column order doesn't match canonical schema",
+                    "message": "Column order doesn't match canonical schema",
                     "misplaced_columns": misplaced,
                 }
                 result["violations"].append(violation)
 
     def _validate_column_data_types(
-        self, df: pd.DataFrame, result: Dict[str, Any]
+        self, df: pd.DataFrame, result: dict[str, Any]
     ) -> None:
         """Validate column data types match expected types."""
         column_types = self.canonical_schema.get_column_types()
@@ -233,7 +233,7 @@ class SchemaValidator:
                     result["warnings"].append(violation)
 
     def _validate_required_columns(
-        self, df: pd.DataFrame, result: Dict[str, Any]
+        self, df: pd.DataFrame, result: dict[str, Any]
     ) -> None:
         """Validate that required (non-nullable) columns have data."""
         for col_name in REQUIRED_COLUMNS:
@@ -257,7 +257,7 @@ class SchemaValidator:
                     }
                     result["warnings"].append(violation)
 
-    def _validate_risk_metrics(self, df: pd.DataFrame, result: Dict[str, Any]) -> None:
+    def _validate_risk_metrics(self, df: pd.DataFrame, result: dict[str, Any]) -> None:
         """Validate that critical risk metrics are present and populated."""
         missing_risk_metrics = [col for col in RISK_METRICS if col not in df.columns]
 
@@ -288,7 +288,7 @@ class SchemaValidator:
         try:
             if expected_type == ColumnDataType.STRING:
                 return True  # Most types can be converted to string
-            elif expected_type in [
+            if expected_type in [
                 ColumnDataType.FLOAT,
                 ColumnDataType.PERCENTAGE,
                 ColumnDataType.CURRENCY,
@@ -296,11 +296,11 @@ class SchemaValidator:
                 # Try to convert to numeric
                 pd.to_numeric(series, errors="coerce")
                 return True
-            elif expected_type == ColumnDataType.INTEGER:
+            if expected_type == ColumnDataType.INTEGER:
                 # Check if can be converted to integer
                 numeric_series = pd.to_numeric(series, errors="coerce")
                 return not numeric_series.isnull().all()
-            elif expected_type == ColumnDataType.BOOLEAN:
+            if expected_type == ColumnDataType.BOOLEAN:
                 # Check if values are boolean-like
                 unique_vals = series.dropna().unique()
                 boolean_vals = {
@@ -310,25 +310,20 @@ class SchemaValidator:
                     "false",
                     "True",
                     "False",
-                    0,
-                    1,
                     "0",
                     "1",
                 }
                 return all(val in boolean_vals for val in unique_vals)
-            elif expected_type == ColumnDataType.TIMEDELTA:
+            if expected_type == ColumnDataType.TIMEDELTA:
                 # Check if can be parsed as timedelta
                 return True  # Timedelta parsing is flexible
-            else:
-                return True
+            return True
 
         except Exception:
             return False
 
 
-def validate_csv_schema(
-    file_path: Union[str, Path], strict: bool = True
-) -> Dict[str, Any]:
+def validate_csv_schema(file_path: str | Path, strict: bool = True) -> dict[str, Any]:
     """
     Convenience function to validate a single CSV file.
 
@@ -343,7 +338,7 @@ def validate_csv_schema(
     return validator.validate_csv_file(file_path)
 
 
-def validate_dataframe_schema(df: pd.DataFrame, strict: bool = True) -> Dict[str, Any]:
+def validate_dataframe_schema(df: pd.DataFrame, strict: bool = True) -> dict[str, Any]:
     """
     Convenience function to validate a DataFrame.
 
@@ -359,8 +354,8 @@ def validate_dataframe_schema(df: pd.DataFrame, strict: bool = True) -> Dict[str
 
 
 def batch_validate_csv_files(
-    file_paths: List[Union[str, Path]], strict: bool = False
-) -> Dict[str, Dict[str, Any]]:
+    file_paths: list[str | Path], strict: bool = False
+) -> dict[str, dict[str, Any]]:
     """
     Validate multiple CSV files in batch.
 
@@ -393,7 +388,7 @@ def batch_validate_csv_files(
     return results
 
 
-def generate_schema_compliance_report(validation_results: Dict[str, Any]) -> str:
+def generate_schema_compliance_report(validation_results: dict[str, Any]) -> str:
     """
     Generate a human-readable compliance report.
 
@@ -407,7 +402,7 @@ def generate_schema_compliance_report(validation_results: Dict[str, Any]) -> str
 
     # Header
     source = validation_results.get("source_file", "DataFrame")
-    report_lines.append(f"=== Portfolio CSV Schema Compliance Report ===")
+    report_lines.append("=== Portfolio CSV Schema Compliance Report ===")
     report_lines.append(f"Source: {source}")
     report_lines.append(
         f"Status: {'✅ COMPLIANT' if validation_results['is_valid'] else '❌ NON-COMPLIANT'}"
@@ -478,10 +473,10 @@ def generate_schema_compliance_report(validation_results: Dict[str, Any]) -> str
 
 # Export validation functions for external use
 __all__ = [
+    "PortfolioSchemaValidationError",
     "SchemaValidator",
-    "validate_csv_schema",
-    "validate_dataframe_schema",
     "batch_validate_csv_files",
     "generate_schema_compliance_report",
-    "PortfolioSchemaValidationError",
+    "validate_csv_schema",
+    "validate_dataframe_schema",
 ]

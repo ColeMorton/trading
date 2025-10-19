@@ -1,6 +1,7 @@
 """Visualization utilities for concurrency analysis."""
 
-from typing import Callable, Dict, List, Optional
+from collections.abc import Callable
+
 
 # Complete Color Palette Constants
 PRIMARY_DATA = "#26c6da"  # Cyan - Primary data
@@ -12,8 +13,8 @@ BODY_TEXT = "#444444"  # Dark gray
 MUTED_TEXT = "#717171"  # Medium gray
 
 import plotly.graph_objects as go
-import polars as pl
 from plotly.subplots import make_subplots
+import polars as pl
 
 from app.concurrency.tools.plot_config import STRATEGY_COLORS, get_heatmap_config
 from app.concurrency.tools.stats_visualization import create_stats_annotation
@@ -26,7 +27,7 @@ def create_strategy_traces(
     config: StrategyConfig,
     color: str,
     log: Callable[[str, str], None],
-) -> List[go.Scatter]:
+) -> list[go.Scatter]:
     """Create price and position traces for a single strategy.
 
     Args:
@@ -47,7 +48,7 @@ def create_strategy_traces(
                 x=data["Date"],
                 y=data["Close"],
                 name=f"{ticker} Price",
-                line=dict(color=PRIMARY_TEXT, width=1),
+                line={"color": PRIMARY_TEXT, "width": 1},
                 hovertemplate="%{x|%d/%m/%Y}, %{y:.4f}k<extra></extra>",
             )
         ]
@@ -62,13 +63,15 @@ def create_strategy_traces(
         )
 
         # Highlight long positions
-        for date, close in zip(long_positions["Date"], long_positions["Close"]):
+        for date, close in zip(
+            long_positions["Date"], long_positions["Close"], strict=False
+        ):
             traces.append(
                 go.Scatter(
                     x=[date, date],
                     y=[0, close],
                     mode="lines",
-                    line=dict(color=color, width=1),
+                    line={"color": color, "width": 1},
                     showlegend=False,
                     hovertemplate="%{x|%d/%m/%Y}, %{y:.4f}k<extra></extra>",
                     hoverinfo="text",
@@ -76,13 +79,15 @@ def create_strategy_traces(
             )
 
         # Highlight short positions with a different pattern (dashed line)
-        for date, close in zip(short_positions["Date"], short_positions["Close"]):
+        for date, close in zip(
+            short_positions["Date"], short_positions["Close"], strict=False
+        ):
             traces.append(
                 go.Scatter(
                     x=[date, date],
                     y=[0, close],
                     mode="lines",
-                    line=dict(color=color, width=1, dash="dash"),
+                    line={"color": color, "width": 1, "dash": "dash"},
                     showlegend=False,
                     hovertemplate="%{x|%d/%m/%Y}, %{y:.4f}k<extra></extra>",
                     hoverinfo="text",
@@ -137,9 +142,11 @@ def create_strategy_traces(
                                     x=valid_stops["Date"],
                                     y=valid_stops["ATR_Trailing_Stop"],
                                     name=f"{ticker} ATR Trailing Stop",
-                                    line=dict(
-                                        color=SECONDARY_DATA, width=1.5, dash="dot"
-                                    ),
+                                    line={
+                                        "color": SECONDARY_DATA,
+                                        "width": 1.5,
+                                        "dash": "dot",
+                                    },
                                     hovertemplate="%{x|%d/%m/%Y}, Stop: %{y:.4f}k<extra></extra>",
                                     connectgaps=False,  # Don't connect across gaps
                                 )
@@ -160,7 +167,7 @@ def create_strategy_traces(
                         )
                 except Exception as e:
                     log(
-                        f"Error processing ATR_Trailing_Stop for {ticker}: {str(e)}",
+                        f"Error processing ATR_Trailing_Stop for {ticker}: {e!s}",
                         "error",
                     )
             else:
@@ -177,7 +184,7 @@ def create_strategy_traces(
                     y=[data["Close"][0]],
                     name=f"{ticker} Long Positions",
                     mode="lines",
-                    line=dict(color=color, width=10),
+                    line={"color": color, "width": 10},
                     showlegend=True,
                 )
             )
@@ -189,7 +196,7 @@ def create_strategy_traces(
                     y=[data["Close"][0]],
                     name=f"{ticker} Short Positions",
                     mode="lines",
-                    line=dict(color=color, width=10, dash="dash"),
+                    line={"color": color, "width": 10, "dash": "dash"},
                     showlegend=True,
                 )
             )
@@ -199,18 +206,18 @@ def create_strategy_traces(
 
     except Exception as e:
         log(
-            f"Error creating strategy traces for {config.get('TICKER', 'unknown')}: {str(e)}",
+            f"Error creating strategy traces for {config.get('TICKER', 'unknown')}: {e!s}",
             "error",
         )
         raise
 
 
 def plot_concurrency(
-    data_list: List[pl.DataFrame],
+    data_list: list[pl.DataFrame],
     stats: ConcurrencyStats,
-    config_list: List[StrategyConfig],
+    config_list: list[StrategyConfig],
     log: Callable[[str, str], None],
-    config: Optional[Dict] = None,
+    config: dict | None = None,
 ) -> go.Figure:
     """Create visualization of concurrent positions across multiple strategies.
 
@@ -272,7 +279,7 @@ def plot_concurrency(
                     "SCORE", config.get("Score", config.get("score", 0.0))
                 )
 
-            if isinstance(score, (int, float)):
+            if isinstance(score, int | float):
                 score_str = f"{score:.2f}"
             else:
                 score_str = str(score)
@@ -330,7 +337,9 @@ def plot_concurrency(
 
         # Add strategy subplots
         log("Adding strategy subplots", "info")
-        for i, (data, config) in enumerate(zip(data_list, config_list), 1):
+        for i, (data, config) in enumerate(
+            zip(data_list, config_list, strict=False), 1
+        ):
             color = STRATEGY_COLORS[(i - 1) % len(STRATEGY_COLORS)]
             log(f"Creating subplot {i}/{n_strategies} for {config['TICKER']}", "info")
             for trace in create_strategy_traces(data, config, color, log):
@@ -412,5 +421,5 @@ def plot_concurrency(
         return fig
 
     except Exception as e:
-        log(f"Error creating concurrency visualization: {str(e)}", "error")
+        log(f"Error creating concurrency visualization: {e!s}", "error")
         raise

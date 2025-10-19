@@ -5,9 +5,7 @@ This module provides loading and resolution of portfolio configurations that sep
 business concerns (asset selection, allocation) from technical concerns (execution parameters).
 """
 
-import os
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from app.tools.business_config_loader import (
     BusinessConfigurationError,
@@ -29,8 +27,8 @@ class PortfolioCompositionLoader:
         self.business_loader = get_business_config_loader()
 
     def load_portfolio_composition(
-        self, portfolio_name: str, execution_profile: Optional[str] = None
-    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+        self, portfolio_name: str, execution_profile: str | None = None
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
         """Load portfolio composition separating business and technical configurations.
 
         Args:
@@ -65,12 +63,11 @@ class PortfolioCompositionLoader:
         except Exception as e:
             if isinstance(e, PortfolioCompositionError):
                 raise
-            else:
-                raise PortfolioCompositionError(
-                    f"Error loading portfolio composition for {portfolio_name}: {str(e)}"
-                )
+            raise PortfolioCompositionError(
+                f"Error loading portfolio composition for {portfolio_name}: {e!s}"
+            )
 
-    def _load_execution_profile(self, execution_profile: str) -> Dict[str, Any]:
+    def _load_execution_profile(self, execution_profile: str) -> dict[str, Any]:
         """Load technical execution profile.
 
         Args:
@@ -100,8 +97,8 @@ class PortfolioCompositionLoader:
 
     def _validate_composition(
         self,
-        business_config: Dict[str, Any],
-        technical_config: Dict[str, Any],
+        business_config: dict[str, Any],
+        technical_config: dict[str, Any],
         portfolio_name: str,
     ) -> None:
         """Validate portfolio composition for consistency.
@@ -129,8 +126,8 @@ class PortfolioCompositionLoader:
                     )
 
     def get_asset_execution_strategy(
-        self, portfolio_name: str, ticker: str, execution_profile: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, portfolio_name: str, ticker: str, execution_profile: str | None = None
+    ) -> dict[str, Any]:
         """Get execution strategy for a specific asset in a portfolio.
 
         Args:
@@ -179,14 +176,13 @@ class PortfolioCompositionLoader:
         except Exception as e:
             if isinstance(e, PortfolioCompositionError):
                 raise
-            else:
-                raise PortfolioCompositionError(
-                    f"Error getting execution strategy for {ticker} in {portfolio_name}: {str(e)}"
-                )
+            raise PortfolioCompositionError(
+                f"Error getting execution strategy for {ticker} in {portfolio_name}: {e!s}"
+            )
 
     def _find_asset_config(
-        self, business_config: Dict[str, Any], ticker: str
-    ) -> Optional[Dict[str, Any]]:
+        self, business_config: dict[str, Any], ticker: str
+    ) -> dict[str, Any] | None:
         """Find asset configuration in business portfolio config.
 
         Args:
@@ -203,8 +199,8 @@ class PortfolioCompositionLoader:
         return None
 
     def _find_execution_strategy(
-        self, technical_config: Dict[str, Any], ticker: str
-    ) -> Dict[str, Any]:
+        self, technical_config: dict[str, Any], ticker: str
+    ) -> dict[str, Any]:
         """Find execution strategy in technical configuration.
 
         Args:
@@ -224,7 +220,7 @@ class PortfolioCompositionLoader:
             if isinstance(strategies, dict) and ticker in strategies:
                 # Multi-strategy format: ticker -> strategies
                 return strategies[ticker]
-            elif isinstance(strategies, list):
+            if isinstance(strategies, list):
                 # List format: find by ticker
                 for strategy in strategies:
                     if strategy.get("ticker") == ticker:
@@ -233,7 +229,7 @@ class PortfolioCompositionLoader:
         # Default execution parameters
         return config.get("default_parameters", {})
 
-    def list_portfolio_assets(self, portfolio_name: str) -> List[str]:
+    def list_portfolio_assets(self, portfolio_name: str) -> list[str]:
         """List all assets in a portfolio.
 
         Args:
@@ -252,10 +248,10 @@ class PortfolioCompositionLoader:
 
         except Exception as e:
             raise PortfolioCompositionError(
-                f"Error listing assets for portfolio {portfolio_name}: {str(e)}"
+                f"Error listing assets for portfolio {portfolio_name}: {e!s}"
             )
 
-    def get_portfolio_allocation(self, portfolio_name: str) -> Dict[str, Any]:
+    def get_portfolio_allocation(self, portfolio_name: str) -> dict[str, Any]:
         """Get portfolio allocation configuration.
 
         Args:
@@ -273,10 +269,10 @@ class PortfolioCompositionLoader:
 
         except Exception as e:
             raise PortfolioCompositionError(
-                f"Error getting allocation for portfolio {portfolio_name}: {str(e)}"
+                f"Error getting allocation for portfolio {portfolio_name}: {e!s}"
             )
 
-    def get_portfolio_risk_management(self, portfolio_name: str) -> Dict[str, Any]:
+    def get_portfolio_risk_management(self, portfolio_name: str) -> dict[str, Any]:
         """Get portfolio risk management configuration.
 
         Args:
@@ -291,7 +287,7 @@ class PortfolioCompositionLoader:
 
         except Exception as e:
             raise PortfolioCompositionError(
-                f"Error getting risk management for portfolio {portfolio_name}: {str(e)}"
+                f"Error getting risk management for portfolio {portfolio_name}: {e!s}"
             )
 
 
@@ -315,8 +311,8 @@ def get_portfolio_composition_loader() -> PortfolioCompositionLoader:
 
 
 def load_portfolio_with_execution(
-    portfolio_name: str, execution_profile: Optional[str] = None
-) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    portfolio_name: str, execution_profile: str | None = None
+) -> tuple[dict[str, Any], dict[str, Any]]:
     """Load portfolio with business and technical configurations.
 
     Args:
@@ -330,7 +326,7 @@ def load_portfolio_with_execution(
     return loader.load_portfolio_composition(portfolio_name, execution_profile)
 
 
-def get_portfolio_assets(portfolio_name: str) -> List[str]:
+def get_portfolio_assets(portfolio_name: str) -> list[str]:
     """Get list of assets in a portfolio.
 
     Args:
@@ -344,8 +340,8 @@ def get_portfolio_assets(portfolio_name: str) -> List[str]:
 
 
 def get_asset_strategy(
-    portfolio_name: str, ticker: str, execution_profile: Optional[str] = None
-) -> Dict[str, Any]:
+    portfolio_name: str, ticker: str, execution_profile: str | None = None
+) -> dict[str, Any]:
     """Get execution strategy for an asset in a portfolio.
 
     Args:

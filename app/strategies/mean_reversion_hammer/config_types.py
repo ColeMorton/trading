@@ -5,7 +5,7 @@ This module provides centralized TypedDict definitions for configuration
 across the mean reversion hammer strategy modules.
 """
 
-from typing import List, Optional, TypedDict, Union
+from typing import TypedDict
 
 from typing_extensions import NotRequired
 
@@ -33,7 +33,7 @@ class PortfolioConfig(TypedDict, total=False):
         MAX_DRAWDOWN (NotRequired[float]): Maximum allowable drawdown
     """
 
-    TICKER: Union[str, List[str]]
+    TICKER: str | list[str]
     BASE_DIR: str
     USE_CURRENT: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]

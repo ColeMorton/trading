@@ -5,13 +5,10 @@ This module tests the complete workflow from strategy processing through
 equity data extraction to final CSV export.
 """
 
-import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from app.strategies.tools.summary_processing import export_summary_results
 from app.tools.equity_data_extractor import EquityData
@@ -248,7 +245,7 @@ class TestEquityExportEndToEnd:
         assert success is True
 
         # Verify equity export was attempted for different strategy types
-        info_messages = [msg for msg, level in self.log_messages if level == "info"]
+        [msg for msg, level in self.log_messages if level == "info"]
 
         # Should have attempted to process all strategies
         assert success is True

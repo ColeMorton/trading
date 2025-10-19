@@ -6,8 +6,9 @@ This script examines the actual percentile data being used in the SMCI calculati
 to understand why the percentile rank is not correctly calculated.
 """
 
-import sys
 from pathlib import Path
+import sys
+
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
@@ -15,6 +16,7 @@ import logging
 
 from app.tools.analysis.divergence_detector import DivergenceDetector
 from app.tools.config.statistical_analysis_config import SPDSConfig
+
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -54,13 +56,13 @@ def debug_percentile_calculation():
         print(f"❌ SMCI value {smci_value:.6f} < P70 {mock_percentiles.p70:.6f}")
     elif smci_value >= mock_percentiles.p70 and smci_value < mock_percentiles.p75:
         print(f"✅ SMCI value {smci_value:.6f} is between P70 and P75")
-        print(f"   Expected percentile rank: between 70 and 75")
+        print("   Expected percentile rank: between 70 and 75")
     elif smci_value >= mock_percentiles.p75 and smci_value < mock_percentiles.p80:
         print(f"✅ SMCI value {smci_value:.6f} is between P75 and P80")
-        print(f"   Expected percentile rank: between 75 and 80")
+        print("   Expected percentile rank: between 75 and 80")
     else:
         print(f"✅ SMCI value {smci_value:.6f} > P80")
-        print(f"   Expected percentile rank: > 80")
+        print("   Expected percentile rank: > 80")
 
     # Test the actual calculation
     calculated_rank = detector._estimate_percentile_rank(smci_value, mock_percentiles)
@@ -83,7 +85,7 @@ def debug_percentile_calculation():
             print(f"❌ Calculation is incorrect: {calculated_rank:.2f} <= 70")
 
     # Check signal generation logic
-    print(f"\nSignal generation analysis:")
+    print("\nSignal generation analysis:")
     print(f"  P70 threshold: {mock_percentiles.p70:.6f} (12.74%)")
     print(f"  SMCI value: {smci_value:.6f} (12.97%)")
     print(f"  Value > P70: {smci_value > mock_percentiles.p70}")
@@ -94,9 +96,9 @@ def debug_percentile_calculation():
     # If SMCI is above P70 but calculated rank is ~70.9, it should still trigger SELL
     # because the assessment said P70 = 12.74% and SMCI = 12.97% > 12.74%
 
-    print(f"\nExpected behavior:")
-    print(f"  Since SMCI (12.97%) > P70 (12.74%), it should be ranked > 70")
-    print(f"  Since rank should be > 70, it should trigger SELL signal")
+    print("\nExpected behavior:")
+    print("  Since SMCI (12.97%) > P70 (12.74%), it should be ranked > 70")
+    print("  Since rank should be > 70, it should trigger SELL signal")
 
     return calculated_rank
 

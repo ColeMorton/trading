@@ -9,6 +9,7 @@ from scipy.stats import norm
 from app.tools.get_data import download_data
 from app.tools.setup_logging import setup_logging
 
+
 log, log_close, _, _ = setup_logging(
     module_name="ma_cross", log_file="1_jump_diffusion.log"
 )
@@ -210,9 +211,7 @@ print(f"GBM VaR: {gbm_var:.4f}")
 results_df = pl.DataFrame(
     {
         "Metric": ["Final Price Mean", "Final Price Std Dev", "VaR (95%)"],
-        "Merton Jump-Diffusion"
-        if USE_MERTON
-        else "GBM": [
+        "Merton Jump-Diffusion" if USE_MERTON else "GBM": [
             jd_final_prices.mean(),
             jd_final_prices.std(),
             jd_var,

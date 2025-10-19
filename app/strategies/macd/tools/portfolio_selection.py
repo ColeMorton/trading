@@ -5,7 +5,7 @@ This module handles the selection of the best portfolio based on consistent
 Fast Period/Slow Period/Signal Period combinations in top performing portfolios.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import polars as pl
 
@@ -15,7 +15,7 @@ from app.tools.portfolio.collection import sort_portfolios
 
 def get_best_portfolio(
     portfolios: pl.DataFrame, config: PortfolioConfig, log: callable
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Get the best portfolio based on window parameter combination frequency in top performers.
 
@@ -81,7 +81,7 @@ def get_best_portfolio(
         # Function to check if combination appears enough times
         def check_combination_frequency(
             df: pl.DataFrame, required_count: int
-        ) -> Optional[tuple]:
+        ) -> tuple | None:
             combinations = df.select(
                 ["Fast Period", "Slow Period", "Signal Period"]
             ).to_dicts()
@@ -172,5 +172,5 @@ def get_best_portfolio(
         return sorted_portfolios.head(1).to_dicts()[0]
 
     except Exception as e:
-        log(f"Error in get_best_portfolio: {str(e)}", "error")
+        log(f"Error in get_best_portfolio: {e!s}", "error")
         return None

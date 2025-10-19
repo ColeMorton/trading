@@ -3,15 +3,16 @@ Test data factories for creating consistent test scenarios.
 Phase 3: Testing Infrastructure Consolidation - Optimized with intelligent caching
 """
 
+from datetime import datetime, timedelta
 import hashlib
 import pickle
 import random
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 import pandas as pd
 import polars as pl
+
 
 # =============================================================================
 # Intelligent caching system for test data factories
@@ -24,8 +25,8 @@ class TestDataCache:
     """
 
     def __init__(self, max_size_mb: float = 100.0):
-        self._cache: Dict[str, Any] = {}
-        self._cache_metadata: Dict[str, Dict[str, Any]] = {}
+        self._cache: dict[str, Any] = {}
+        self._cache_metadata: dict[str, dict[str, Any]] = {}
         self.max_size_mb = max_size_mb
         self._current_size_mb = 0.0
 
@@ -36,16 +37,15 @@ class TestDataCache:
             return size_bytes / (1024 * 1024)
         except Exception:
             # Fallback estimation for complex objects
-            if isinstance(obj, (pl.DataFrame, pd.DataFrame)):
+            if isinstance(obj, pl.DataFrame | pd.DataFrame):
                 return (
                     obj.memory_usage(deep=True).sum() / (1024 * 1024)
                     if hasattr(obj, "memory_usage")
                     else 1.0
                 )
-            elif isinstance(obj, dict):
+            if isinstance(obj, dict):
                 return len(str(obj)) / (1024 * 1024)
-            else:
-                return 0.1  # Small default size
+            return 0.1  # Small default size
 
     def _generate_cache_key(self, func_name: str, **kwargs) -> str:
         """Generate cache key from function name and parameters."""
@@ -77,7 +77,7 @@ class TestDataCache:
             self._current_size_mb -= item_size
             space_freed += item_size
 
-    def get(self, func_name: str, **kwargs) -> Optional[Any]:
+    def get(self, func_name: str, **kwargs) -> Any | None:
         """Get cached result if available."""
         cache_key = self._generate_cache_key(func_name, **kwargs)
 
@@ -116,7 +116,7 @@ class TestDataCache:
         self._cache_metadata.clear()
         self._current_size_mb = 0.0
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         total_items = len(self._cache)
         total_accesses = sum(
@@ -139,7 +139,7 @@ class TestDataCache:
 _test_data_cache = TestDataCache()
 
 
-def cached_factory(cache_ttl_minutes: Optional[int] = None):
+def cached_factory(cache_ttl_minutes: int | None = None):
     """
     Decorator for caching factory function results.
 
@@ -174,7 +174,7 @@ def create_test_market_data(
     start_price: float = 100.0,
     volatility: float = 0.2,
     trend: float = 0.1,
-    start_date: Optional[datetime] = None,
+    start_date: datetime | None = None,
 ) -> pl.DataFrame:
     """
     Create realistic market data for testing.
@@ -245,7 +245,7 @@ def create_test_market_data(
 def create_test_signals(
     num_signals: int = 50,
     ticker: str = "TEST",
-    signal_types: Optional[List[str]] = None,
+    signal_types: list[str] | None = None,
 ) -> pl.DataFrame:
     """
     Create test trading signals.
@@ -290,10 +290,10 @@ def create_test_signals(
 
 @cached_factory()
 def create_test_portfolio(
-    tickers: Optional[List[str]] = None,
+    tickers: list[str] | None = None,
     num_trades: int = 100,
     initial_capital: float = 100000.0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Create test portfolio with realistic performance metrics.
 
@@ -378,7 +378,7 @@ def create_test_portfolio(
 @cached_factory()
 def create_test_strategy_config(
     strategy_type: str = "MA_CROSS", timeframe: str = "D"
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Create test strategy configuration.
 
@@ -427,8 +427,8 @@ def create_test_strategy_config(
 
 
 def create_test_backtest_results(
-    config: Optional[Dict[str, Any]] = None, num_trades: int = 50
-) -> Dict[str, Any]:
+    config: dict[str, Any] | None = None, num_trades: int = 50
+) -> dict[str, Any]:
     """
     Create realistic backtest results for testing.
 
@@ -470,7 +470,7 @@ def create_test_backtest_results(
     }
 
 
-def create_test_risk_metrics() -> Dict[str, float]:
+def create_test_risk_metrics() -> dict[str, float]:
     """
     Create test risk metrics.
 
@@ -497,10 +497,10 @@ class TestDataFactory:
 
     @staticmethod
     def create_multi_asset_portfolio(
-        assets: List[str],
-        correlation_matrix: Optional[np.ndarray] = None,
+        assets: list[str],
+        correlation_matrix: np.ndarray | None = None,
         days: int = 252,
-    ) -> Dict[str, pl.DataFrame]:
+    ) -> dict[str, pl.DataFrame]:
         """Create correlated multi-asset portfolio data."""
         if correlation_matrix is None:
             # Create random correlation matrix
@@ -534,13 +534,13 @@ class TestDataFactory:
 
         if scenario_type == "crash":
             # Simulate market crash
-            crash_start = len(data) // 2
+            len(data) // 2
             crash_duration = 20
             crash_magnitude = -0.4
 
             # Apply crash to prices
-            crash_factor = np.linspace(1.0, 1 + crash_magnitude, crash_duration)
-            recovery_factor = np.linspace(1 + crash_magnitude, 0.9, 10)
+            np.linspace(1.0, 1 + crash_magnitude, crash_duration)
+            np.linspace(1 + crash_magnitude, 0.9, 10)
 
             # This is a simplified implementation
             # In practice, you'd modify the actual price columns
@@ -558,7 +558,7 @@ class TestDataFactory:
 
 
 @cached_factory()
-def create_api_portfolio_data() -> Dict[str, Any]:
+def create_api_portfolio_data() -> dict[str, Any]:
     """
     Create sample portfolio data for API testing.
     Moved from tests/api/conftest.py to eliminate duplication.
@@ -612,7 +612,7 @@ def create_api_portfolio_data() -> Dict[str, Any]:
 
 
 @cached_factory()
-def create_api_performance_metrics() -> Dict[str, Any]:
+def create_api_performance_metrics() -> dict[str, Any]:
     """
     Create sample performance metrics for API testing.
     Moved from tests/api/conftest.py to eliminate duplication.

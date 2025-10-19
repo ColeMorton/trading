@@ -5,8 +5,9 @@ This script demonstrates how to use the Strategy Template Generator to create
 new trading strategies quickly and consistently.
 """
 
-import sys
 from pathlib import Path
+import sys
+
 
 # Add the project root to the path
 project_root = Path(__file__).parent.parent.parent.parent.parent
@@ -157,7 +158,7 @@ def demo_custom_momentum_strategy():
     print("Demo 3: Creating a Custom Momentum Strategy")
     print("=" * 60)
 
-    generator = StrategyTemplateGenerator()
+    StrategyTemplateGenerator()
 
     # Configure custom strategy
     config = TemplateConfig(
@@ -190,8 +191,8 @@ def demo_custom_momentum_strategy():
     )
 
     print(f"Strategy Name: {config.strategy_name}")
-    print(f"Strategy Focus: Momentum breakout with volatility confirmation")
-    print(f"Risk Management: ATR-based dynamic stop loss")
+    print("Strategy Focus: Momentum breakout with volatility confirmation")
+    print("Risk Management: ATR-based dynamic stop loss")
     print()
 
     # Show what imports would be generated
@@ -411,4 +412,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

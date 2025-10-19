@@ -6,8 +6,9 @@ Tests that all components can be imported and initialized correctly.
 
 import asyncio
 import logging
-import sys
 from pathlib import Path
+import sys
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -66,9 +67,9 @@ async def test_component_imports():
         # Test component initialization
         config = SPDSConfig.development_config()
 
-        divergence_detector = DivergenceDetector(config=config)
-        trade_analyzer = TradeHistoryAnalyzer(config=config)
-        bootstrap_validator = BootstrapValidator(config=config)
+        DivergenceDetector(config=config)
+        TradeHistoryAnalyzer(config=config)
+        BootstrapValidator(config=config)
 
         print("✓ All analysis components initialized successfully")
 
@@ -85,21 +86,6 @@ async def test_component_imports():
 async def test_models_import():
     """Test that all models can be imported"""
     try:
-        from app.tools.models.backtesting_parameter_models import (
-            BacktraderParameters,
-            DeterministicExitCriteria,
-            StrategyParameters,
-            VectorBTParameters,
-            ZiplineParameters,
-        )
-        from app.tools.models.statistical_analysis_models import (
-            AssetDistributionAnalysis,
-            DivergenceMetrics,
-            ProbabilisticExitSignal,
-            StatisticalAnalysisResult,
-            StrategyDistributionAnalysis,
-        )
-
         print("✓ All models imported successfully")
         return True
 

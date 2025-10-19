@@ -13,9 +13,9 @@ For user operations, use the CLI interface:
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal, getcontext
-from typing import Dict, List, Optional, Tuple
 
 from app.tools.precision_fee_calculator import PrecisionEquityCalculator
+
 
 # Set high precision for decimal calculations
 getcontext().prec = 28
@@ -53,7 +53,7 @@ class PortfolioBaselineCalculator:
         """
         self.precision_calculator = PrecisionEquityCalculator(fee_rate)
 
-    def calculate_required_starting_cash(self, positions: List) -> Dict[str, Decimal]:
+    def calculate_required_starting_cash(self, positions: list) -> dict[str, Decimal]:
         """
         Calculate the minimum starting cash required for the portfolio.
 
@@ -75,8 +75,7 @@ class PortfolioBaselineCalculator:
             running_cash += event.cash_flow
 
             # Track maximum cash deficit (when running_cash is most negative)
-            if running_cash < max_cash_requirement:
-                max_cash_requirement = running_cash
+            max_cash_requirement = min(running_cash, max_cash_requirement)
 
             cash_timeline.append(
                 {
@@ -106,7 +105,7 @@ class PortfolioBaselineCalculator:
             "num_events": len(cash_flow_events),
         }
 
-    def _create_cash_flow_timeline(self, positions: List) -> List[CashFlowEvent]:
+    def _create_cash_flow_timeline(self, positions: list) -> list[CashFlowEvent]:
         """Create chronological timeline of all cash flow events."""
         events = []
 
@@ -157,7 +156,7 @@ class PortfolioBaselineCalculator:
 
         return events
 
-    def _calculate_total_entry_costs(self, positions: List) -> Decimal:
+    def _calculate_total_entry_costs(self, positions: list) -> Decimal:
         """Calculate total entry costs (traditional method)."""
         total_cost = Decimal("0")
 
@@ -169,7 +168,7 @@ class PortfolioBaselineCalculator:
 
         return total_cost
 
-    def _calculate_total_position_values(self, positions: List) -> Decimal:
+    def _calculate_total_position_values(self, positions: list) -> Decimal:
         """Calculate total position values without fees."""
         total_value = Decimal("0")
 
@@ -181,7 +180,7 @@ class PortfolioBaselineCalculator:
 
         return total_value
 
-    def calculate_portfolio_pnl_baseline(self, positions: List) -> Dict[str, Decimal]:
+    def calculate_portfolio_pnl_baseline(self, positions: list) -> dict[str, Decimal]:
         """
         Calculate P&L using the same methodology as position data.
 
@@ -207,7 +206,7 @@ class PortfolioBaselineCalculator:
             "total_pnl": total_pnl,
         }
 
-    def analyze_cash_flow_adequacy(self, positions: List) -> Dict[str, any]:
+    def analyze_cash_flow_adequacy(self, positions: list) -> dict[str, any]:
         """
         Analyze whether the calculated starting cash is adequate for all transactions.
 
@@ -217,7 +216,7 @@ class PortfolioBaselineCalculator:
 
         # Check if any transactions would fail with this starting cash
         failed_transactions = []
-        running_cash = baseline_calc["required_starting_cash"]
+        baseline_calc["required_starting_cash"]
 
         for event_info in baseline_calc["cash_timeline"]:
             if event_info["running_cash"] < 0 and event_info["event_type"] == "entry":

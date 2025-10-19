@@ -14,7 +14,7 @@ Key Features:
 
 import os
 import time
-from typing import Any, Dict, List
+from typing import Any
 
 import polars as pl
 
@@ -26,6 +26,7 @@ from app.tools.portfolio.base_extended_schemas import SchemaTransformer, SchemaT
 from app.tools.portfolio.filtering_service import PortfolioFilterService
 from app.tools.portfolio_results import sort_portfolios
 from app.tools.project_utils import get_project_root
+
 
 # ATR-specific configuration based on proven MA Cross settings
 default_config: CacheConfig = {
@@ -69,7 +70,7 @@ def execute_atr_analysis_for_ticker(
     ticker: str,
     config: CacheConfig,
     log: callable,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Execute ATR parameter sensitivity analysis for a single ticker.
 
@@ -87,7 +88,8 @@ def execute_atr_analysis_for_ticker(
     try:
         # Create ATR parameter sweep engine
         sweep_engine = create_atr_sweep_engine(
-            config, enable_memory_optimization=True  # Use sensible default
+            config,
+            enable_memory_optimization=True,  # Use sensible default
         )
 
         # Prepare MA Cross configuration for fixed entry parameters
@@ -122,7 +124,7 @@ def execute_atr_analysis_for_ticker(
         )
         expected_combinations = length_count * multiplier_count
 
-        log(f"ATR parameter ranges:", "info")
+        log("ATR parameter ranges:", "info")
         log(
             f"  ATR Length: {atr_length_min} to {atr_length_max} ({length_count} values)",
             "info",
@@ -175,7 +177,7 @@ def execute_atr_analysis_for_ticker(
         return portfolio_results
 
     except Exception as e:
-        log(f"ATR analysis failed for {ticker}: {str(e)}", "error")
+        log(f"ATR analysis failed for {ticker}: {e!s}", "error")
         import traceback
 
         log(f"Error details: {traceback.format_exc()}", "error")
@@ -183,7 +185,7 @@ def execute_atr_analysis_for_ticker(
 
 
 def export_atr_portfolios(
-    portfolios: List[Dict[str, Any]],
+    portfolios: list[dict[str, Any]],
     ticker: str,
     config: CacheConfig,
     log: callable,
@@ -286,7 +288,7 @@ def export_atr_portfolios(
         return True
 
     except Exception as e:
-        log(f"Failed to export ATR portfolios for {ticker}: {str(e)}", "error")
+        log(f"Failed to export ATR portfolios for {ticker}: {e!s}", "error")
         return False
 
 

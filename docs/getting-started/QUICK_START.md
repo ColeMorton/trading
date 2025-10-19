@@ -4,263 +4,283 @@ Get up and running with the trading system in 5 minutes.
 
 ## Prerequisites
 
-- Python 3.8+
-- Poetry (recommended) or pip
-- Git
+- Python 3.10+
+- Poetry
+- Docker (recommended) or PostgreSQL 15+ and Redis locally
 
-## Installation
+## Choose Your Path
 
-### Option 1: Using Poetry (Recommended)
+### Path A: Full Stack with API (Recommended)
+
+Complete system with REST API, database, and async job execution.
+
+### Path B: CLI Only
+
+Just the command-line interface for local analysis.
+
+---
+
+## Path A: Full Stack Setup (Docker)
+
+### Step 1: Install and Start Services
 
 ```bash
-# Clone the repository
+# Clone and install
+git clone <repository-url>
+cd trading
+poetry install
+
+# Start all services (API, PostgreSQL, Redis, Worker)
+docker-compose up -d
+
+# Run database migrations
+docker-compose exec api alembic upgrade head
+```
+
+### Step 2: Test the API
+
+```bash
+# Test health
+curl http://localhost:8000/health
+
+# Open interactive docs
+open http://localhost:8000/api/docs
+```
+
+### Step 3: Execute a Strategy via API
+
+```bash
+curl -X POST http://localhost:8000/api/v1/strategy/run \
+  -H "X-API-Key: dev-key-000000000000000000000000" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ticker": "BTC-USD",
+    "fast_period": 20,
+    "slow_period": 50
+  }'
+```
+
+**Next**: See [API Documentation](../api/README.md) for complete guide.
+
+---
+
+## Path B: CLI Only Setup
+
+### Step 1: Install Dependencies
+
+```bash
+# Clone and install
 git clone <repository-url>
 cd trading
 
-# Install dependencies
+# Install with Poetry
 poetry install
-
-# Activate virtual environment
 poetry shell
 ```
 
-### Option 2: Using pip
+### Step 2: Initialize System
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd trading
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-## First Steps
-
-### 1. Initialize the System
-
-```bash
-# Initialize with default configuration
-trading-cli init
-
 # Verify installation
 trading-cli --help
+
+# Check status
+trading-cli tools health
 ```
 
-### 2. Run Your First Strategy Analysis
+### Step 3: Run First Strategy Analysis
 
 ```bash
-# Quick analysis with default parameters
+# Quick analysis with defaults
 trading-cli strategy run --ticker AAPL --strategy SMA
 
 # Preview with dry run
 trading-cli strategy run --ticker AAPL --strategy SMA --dry-run
 ```
 
-### 3. Check Results
+### Step 4: Check Results
 
 ```bash
-# View generated portfolio files
+# View generated portfolios
 ls data/raw/portfolios/
 
-# View the latest results
+# List recent results
 trading-cli portfolio list --recent
 ```
 
-## Basic Commands
+---
+
+## Path C: Local Development (No Docker)
+
+### Prerequisites
+
+- PostgreSQL 15+ running locally
+- Redis running locally
+
+### Step 1: Start Local Services
+
+```bash
+# Using Homebrew (macOS)
+brew services start postgresql@15
+brew services start redis
+
+# Verify
+pg_isready
+redis-cli ping
+```
+
+### Step 2: Setup Database
+
+```bash
+# Create database
+createdb trading_db
+
+# Run migrations
+poetry run alembic upgrade head
+```
+
+### Step 3: Configure Environment
+
+Create `.env`:
+
+```bash
+DATABASE_URL=postgresql://$(whoami)@localhost:5432/trading_db
+REDIS_URL=redis://localhost:6379
+ENVIRONMENT=development
+DEBUG=true
+```
+
+### Step 4: Start API and Worker
+
+```bash
+# Terminal 1: API
+poetry run uvicorn app.api.main:app --reload --port 8000
+
+# Terminal 2: Worker
+poetry run arq app.api.jobs.worker.WorkerSettings
+```
+
+Or use the startup script:
+
+```bash
+./scripts/start_api.sh
+```
+
+---
+
+## Common Commands
 
 ### Strategy Analysis
 
 ```bash
-# Single ticker analysis
+# Single ticker
 trading-cli strategy run --ticker AAPL --strategy SMA
 
 # Multiple tickers
 trading-cli strategy run --ticker AAPL,MSFT,GOOGL --strategy SMA,EMA
 
-# Using configuration profile
+# Using profile
 trading-cli strategy run --profile ma_cross_crypto
 ```
 
 ### Portfolio Management
 
 ```bash
-# Update portfolio results
+# Update portfolios
 trading-cli portfolio update --validate
 
-# Export portfolio data
-trading-cli portfolio export --format json --portfolio risk_on.csv
+# Export data
+trading-cli portfolio export --format json
 ```
 
 ### Statistical Analysis
 
 ```bash
-# Analyze portfolio performance
+# Analyze portfolio
 trading-cli spds analyze risk_on.csv
 
-# Interactive analysis mode
+# Interactive mode
 trading-cli spds interactive
 ```
 
-## Understanding the Output
-
-### Strategy Analysis Results
-
-```
-data/raw/portfolios/          # Individual strategy portfolios
-data/raw/portfolios_best/     # Best performing portfolios
-data/raw/portfolios_filtered/ # Filtered portfolios by criteria
-```
-
-### Statistical Analysis Results
-
-```
-exports/statistical_analysis/     # Statistical analysis exports
-exports/backtesting_parameters/   # Backtesting parameter exports
-```
-
-## Common Use Cases
-
-### 1. Daily Strategy Analysis
+### Configuration
 
 ```bash
-# Morning routine: analyze key stocks
-trading-cli strategy run --ticker AAPL,MSFT,GOOGL,AMZN --strategy SMA,EMA
+# List profiles
+trading-cli config list
 
-# Update portfolios
-trading-cli portfolio update --validate --export-format json
-```
+# Show profile
+trading-cli config show ma_cross_crypto
 
-### 2. Portfolio Performance Review
-
-```bash
-# Analyze current positions
-trading-cli spds analyze live_signals.csv
-
-# Generate comprehensive report
-trading-cli trade-history update --portfolio live_signals --refresh-prices
-```
-
-### 3. Strategy Optimization
-
-```bash
-# Parameter sweep analysis
-trading-cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50
-
-# Validate results
-trading-cli portfolio validate --portfolio sweep_results.csv
-```
-
-## Configuration
-
-### Using Profiles
-
-Create custom configuration profiles in `app/cli/profiles/`:
-
-```yaml
-# my_strategy.yaml
-metadata:
-  name: my_strategy
-  description: Custom strategy configuration
-
-config_type: strategy
-config:
-  ticker: [AAPL, MSFT, GOOGL]
-  strategy_types: [SMA, EMA]
-  windows: 50
-  minimums:
-    win_rate: 0.6
-    trades: 50
-```
-
-Use the profile:
-
-```bash
-trading-cli strategy run --profile my_strategy
-```
-
-### Environment Variables
-
-```bash
-# Set default configuration
-export TRADING_CONFIG_PATH=/path/to/config
-export TRADING_LOG_LEVEL=INFO
-
-# Override specific settings
-export TRADING_MIN_TRADES=100
-export TRADING_WIN_RATE=0.65
-```
-
-## Getting Help
-
-### Command Help
-
-```bash
-# General help
-trading-cli --help
-
-# Command-specific help
-trading-cli strategy --help
-trading-cli portfolio --help
-trading-cli spds --help
-```
-
-### System Health Check
-
-```bash
-# Check system status
-trading-cli tools health
-
-# Validate configuration
+# Validate
 trading-cli config validate
+```
+
+## Understanding Output
+
+```
+data/raw/portfolios/          # Individual strategy results
+data/raw/portfolios_best/     # Best performing strategies
+data/raw/portfolios_filtered/ # Filtered by criteria
+exports/statistical_analysis/ # Statistical exports
+exports/backtesting_parameters/ # Backtesting results
+```
+
+## Troubleshooting
+
+### Connection Issues
+
+```bash
+# Check Docker services
+docker-compose ps
+
+# Restart services
+docker-compose restart
+
+# View logs
+docker-compose logs -f api
+```
+
+### Database Issues
+
+```bash
+# Run migrations
+alembic upgrade head
+
+# Check connection
+trading-cli tools health
+```
+
+### Worker Not Processing Jobs
+
+```bash
+# Check worker logs
+docker-compose logs -f arq_worker
+
+# Restart worker
+docker-compose restart arq_worker
 ```
 
 ## Next Steps
 
-1. **Read the [User Guide](../USER_GUIDE.md)** for comprehensive documentation
-2. **Explore [Configuration Management](../features/CONFIGURATION.md)** for advanced configuration
-3. **Check [Strategy Analysis](../features/STRATEGY_ANALYSIS.md)** for detailed strategy documentation
-4. **Review [Performance Optimization](../performance/PERFORMANCE_OPTIMIZATION_GUIDE.md)** for scaling tips
+### For API Users
 
-## Troubleshooting
+1. Read [API Documentation](../api/README.md)
+2. Explore http://localhost:8000/api/docs
+3. Try the 33 available endpoints
 
-### Common Issues
+### For CLI Users
 
-**Command not found**:
+1. Read [User Guide](../USER_GUIDE.md)
+2. Check [Command Reference](../reference/COMMAND_REFERENCE.md)
+3. Explore [Strategy Analysis](../features/STRATEGY_ANALYSIS.md)
 
-```bash
-# Make sure you're in the right directory and virtual environment
-pwd
-which python
-```
+### For Developers
 
-**Permission denied**:
-
-```bash
-# Check file permissions
-ls -la app/cli/
-```
-
-**Configuration errors**:
-
-```bash
-# Validate configuration
-trading-cli config validate
-
-# Reset to defaults
-trading-cli config reset
-```
-
-### Getting Support
-
-1. Check the [troubleshooting guide](../troubleshooting/COMMON_ISSUES.md)
-2. Review the [error message reference](../troubleshooting/ERROR_MESSAGES.md)
-3. Use the system health check: `trading-cli tools health`
+1. Read [Development Guide](../development/DEVELOPMENT_GUIDE.md)
+2. Check [System Architecture](../architecture/SYSTEM_ARCHITECTURE.md)
+3. Review [Code Quality Guide](../development/CODE_QUALITY.md)
 
 ---
 
-_You're now ready to start using the trading system! Continue with the [User Guide](../USER_GUIDE.md) for more detailed information._
+You're ready to start! Choose your path above and follow the steps.

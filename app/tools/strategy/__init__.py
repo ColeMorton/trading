@@ -10,10 +10,11 @@ from app.tools.strategy.base import BaseStrategy
 from app.tools.strategy.concrete import EMAStrategy, SMAStrategy
 from app.tools.strategy.factory import StrategyFactory, factory
 
+
 __all__ = [
     "BaseStrategy",
-    "SMAStrategy",
     "EMAStrategy",
+    "SMAStrategy",
     "StrategyFactory",
     "factory",
 ]

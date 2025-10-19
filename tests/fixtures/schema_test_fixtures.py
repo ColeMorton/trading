@@ -5,8 +5,7 @@ Provides comprehensive test data for all schema validation scenarios,
 including edge cases and real-world examples.
 """
 
-from datetime import datetime, timedelta
-from typing import Any, Dict, List
+from typing import Any
 
 import pytest
 
@@ -15,7 +14,7 @@ class SchemaTestFixtures:
     """Test fixtures for schema testing."""
 
     @staticmethod
-    def get_complete_base_portfolio() -> Dict[str, Any]:
+    def get_complete_base_portfolio() -> dict[str, Any]:
         """Get a complete base portfolio with all 56 columns."""
         return {
             "Ticker": "AAPL",
@@ -77,14 +76,14 @@ class SchemaTestFixtures:
         }
 
     @staticmethod
-    def get_complete_extended_portfolio() -> Dict[str, Any]:
+    def get_complete_extended_portfolio() -> dict[str, Any]:
         """Get a complete extended portfolio with all 58 columns."""
         base_portfolio = SchemaTestFixtures.get_complete_base_portfolio()
         base_portfolio.update({"Allocation [%]": 25.0, "Stop Loss [%]": 5.0})
         return base_portfolio
 
     @staticmethod
-    def get_complete_filtered_portfolio() -> Dict[str, Any]:
+    def get_complete_filtered_portfolio() -> dict[str, Any]:
         """Get a complete filtered portfolio with all 59 columns."""
         extended_portfolio = SchemaTestFixtures.get_complete_extended_portfolio()
         # Insert Metric Type at the beginning
@@ -93,7 +92,7 @@ class SchemaTestFixtures:
         return filtered_portfolio
 
     @staticmethod
-    def get_minimal_portfolio() -> Dict[str, Any]:
+    def get_minimal_portfolio() -> dict[str, Any]:
         """Get a minimal portfolio with only essential columns."""
         return {
             "Ticker": "AAPL",
@@ -107,7 +106,7 @@ class SchemaTestFixtures:
         }
 
     @staticmethod
-    def get_crypto_portfolio() -> Dict[str, Any]:
+    def get_crypto_portfolio() -> dict[str, Any]:
         """Get a crypto portfolio example."""
         portfolio = SchemaTestFixtures.get_complete_base_portfolio()
         portfolio.update(
@@ -131,7 +130,7 @@ class SchemaTestFixtures:
         return portfolio
 
     @staticmethod
-    def get_portfolio_with_missing_columns() -> Dict[str, Any]:
+    def get_portfolio_with_missing_columns() -> dict[str, Any]:
         """Get a portfolio with some missing columns."""
         return {
             "Ticker": "GOOGL",
@@ -146,7 +145,7 @@ class SchemaTestFixtures:
         }
 
     @staticmethod
-    def get_portfolio_with_none_values() -> Dict[str, Any]:
+    def get_portfolio_with_none_values() -> dict[str, Any]:
         """Get a portfolio with None values for testing."""
         portfolio = SchemaTestFixtures.get_complete_base_portfolio()
         portfolio.update(
@@ -161,7 +160,7 @@ class SchemaTestFixtures:
         return portfolio
 
     @staticmethod
-    def get_portfolio_with_invalid_types() -> Dict[str, Any]:
+    def get_portfolio_with_invalid_types() -> dict[str, Any]:
         """Get a portfolio with invalid data types."""
         portfolio = SchemaTestFixtures.get_complete_base_portfolio()
         portfolio.update(
@@ -175,7 +174,7 @@ class SchemaTestFixtures:
         return portfolio
 
     @staticmethod
-    def get_portfolio_with_extra_columns() -> Dict[str, Any]:
+    def get_portfolio_with_extra_columns() -> dict[str, Any]:
         """Get a portfolio with extra unexpected columns."""
         portfolio = SchemaTestFixtures.get_complete_base_portfolio()
         portfolio.update(
@@ -189,7 +188,7 @@ class SchemaTestFixtures:
         return portfolio
 
     @staticmethod
-    def get_multiple_portfolios() -> List[Dict[str, Any]]:
+    def get_multiple_portfolios() -> list[dict[str, Any]]:
         """Get multiple portfolios for batch testing."""
         return [
             SchemaTestFixtures.get_complete_base_portfolio(),
@@ -199,7 +198,7 @@ class SchemaTestFixtures:
         ]
 
     @staticmethod
-    def get_edge_case_portfolios() -> List[Dict[str, Any]]:
+    def get_edge_case_portfolios() -> list[dict[str, Any]]:
         """Get edge case portfolios for comprehensive testing."""
         return [
             {},  # Empty portfolio
@@ -210,7 +209,7 @@ class SchemaTestFixtures:
         ]
 
     @staticmethod
-    def get_performance_test_data(count: int = 1000) -> List[Dict[str, Any]]:
+    def get_performance_test_data(count: int = 1000) -> list[dict[str, Any]]:
         """Get large dataset for performance testing."""
         base_portfolio = SchemaTestFixtures.get_complete_base_portfolio()
         portfolios = []
@@ -231,7 +230,7 @@ class SchemaTestFixtures:
         return portfolios
 
     @staticmethod
-    def get_real_world_examples() -> Dict[str, Dict[str, Any]]:
+    def get_real_world_examples() -> dict[str, dict[str, Any]]:
         """Get real-world portfolio examples from different strategies."""
         return {
             "ma_cross_aapl": {
@@ -353,7 +352,7 @@ class SchemaTestFixtures:
         }
 
     @staticmethod
-    def get_metric_type_variations() -> List[str]:
+    def get_metric_type_variations() -> list[str]:
         """Get various metric type examples for filtered portfolios."""
         return [
             "Most Total Return [%]",
@@ -375,12 +374,12 @@ class SchemaTestFixtures:
         ]
 
     @staticmethod
-    def get_allocation_variations() -> List[float]:
+    def get_allocation_variations() -> list[float]:
         """Get various allocation percentage examples."""
         return [5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 33.33, 50.0, 100.0]
 
     @staticmethod
-    def get_stop_loss_variations() -> List[float]:
+    def get_stop_loss_variations() -> list[float]:
         """Get various stop loss percentage examples."""
         return [1.0, 2.0, 3.0, 5.0, 7.5, 10.0, 15.0, 20.0]
 

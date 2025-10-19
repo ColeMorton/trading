@@ -5,20 +5,22 @@ This module implements structured performance logging with JSON metrics output.
 It provides comprehensive performance tracking, analysis, and alerting capabilities.
 """
 
-import json
-import logging
-import statistics
-import threading
-import time
 from collections import defaultdict, deque
+from collections.abc import Callable
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from functools import wraps
+import json
+import logging
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+import statistics
+import threading
+import time
+from typing import Any
 
 import psutil
+
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +33,7 @@ class PerformanceMetric:
     value: float
     unit: str
     timestamp: datetime
-    tags: Dict[str, str]
+    tags: dict[str, str]
     category: str = "general"
 
 
@@ -41,15 +43,15 @@ class OperationMetrics:
 
     operation_name: str
     start_time: datetime
-    end_time: Optional[datetime]
-    duration_ms: Optional[float]
-    cpu_usage_percent: Optional[float]
-    memory_usage_mb: Optional[float]
-    memory_delta_mb: Optional[float]
+    end_time: datetime | None
+    duration_ms: float | None
+    cpu_usage_percent: float | None
+    memory_usage_mb: float | None
+    memory_delta_mb: float | None
     cache_hits: int = 0
     cache_misses: int = 0
-    errors: List[str] = None
-    custom_metrics: Dict[str, float] = None
+    errors: list[str] = None
+    custom_metrics: dict[str, float] = None
 
     def __post_init__(self):
         if self.errors is None:
@@ -69,7 +71,7 @@ class PerformanceAlert:
     metric_name: str
     current_value: float
     threshold_value: float
-    operation_name: Optional[str] = None
+    operation_name: str | None = None
 
 
 class MetricsCollector:
@@ -79,8 +81,8 @@ class MetricsCollector:
         """Initialize metrics collector."""
         self.retention_hours = retention_hours
         self.metrics: deque = deque()
-        self.operation_metrics: Dict[str, OperationMetrics] = {}
-        self.aggregated_metrics: Dict[str, Dict[str, float]] = defaultdict(dict)
+        self.operation_metrics: dict[str, OperationMetrics] = {}
+        self.aggregated_metrics: dict[str, dict[str, float]] = defaultdict(dict)
         self._lock = threading.Lock()
 
         # Performance thresholds
@@ -92,7 +94,7 @@ class MetricsCollector:
         }
 
         # Alert handlers
-        self.alert_handlers: List[Callable] = []
+        self.alert_handlers: list[Callable] = []
 
     def add_metric(self, metric: PerformanceMetric):
         """Add a performance metric."""
@@ -103,7 +105,7 @@ class MetricsCollector:
             self._check_thresholds(metric)
 
     def start_operation(
-        self, operation_name: str, tags: Optional[Dict[str, str]] = None
+        self, operation_name: str, tags: dict[str, str] | None = None
     ) -> str:
         """Start tracking an operation."""
         operation_id = f"{operation_name}_{int(time.time() * 1000)}"
@@ -127,7 +129,7 @@ class MetricsCollector:
         return operation_id
 
     def end_operation(
-        self, operation_id: str, additional_metrics: Optional[Dict[str, float]] = None
+        self, operation_id: str, additional_metrics: dict[str, float] | None = None
     ):
         """End tracking an operation."""
         with self._lock:
@@ -295,7 +297,7 @@ class MetricsCollector:
         agg["values"].append(metric.value)
 
     def _check_thresholds(
-        self, metric: PerformanceMetric, operation_name: Optional[str] = None
+        self, metric: PerformanceMetric, operation_name: str | None = None
     ):
         """Check if metric violates any thresholds."""
         if metric.name in self.thresholds:
@@ -328,7 +330,7 @@ class MetricsCollector:
         """Add an alert handler."""
         self.alert_handlers.append(handler)
 
-    def get_metrics_summary(self, hours: int = 1) -> Dict[str, Any]:
+    def get_metrics_summary(self, hours: int = 1) -> dict[str, Any]:
         """Get metrics summary for the last N hours."""
         cutoff_time = datetime.now() - timedelta(hours=hours)
 
@@ -365,8 +367,8 @@ class MetricsCollector:
             }
 
     def get_operation_summary(
-        self, operation_name: Optional[str] = None, hours: int = 1
-    ) -> Dict[str, Any]:
+        self, operation_name: str | None = None, hours: int = 1
+    ) -> dict[str, Any]:
         """Get operation summary."""
         cutoff_time = datetime.now() - timedelta(hours=hours)
 
@@ -423,9 +425,7 @@ class MetricsCollector:
 class PerformanceMonitor:
     """Main performance monitoring system."""
 
-    def __init__(
-        self, output_file: Optional[Path] = None, log_level: int = logging.INFO
-    ):
+    def __init__(self, output_file: Path | None = None, log_level: int = logging.INFO):
         """Initialize performance monitor."""
         self.output_file = output_file or Path("logs/performance_metrics.jsonl")
         self.collector = MetricsCollector()
@@ -470,7 +470,7 @@ class PerformanceMonitor:
 
     @contextmanager
     def monitor_operation(
-        self, operation_name: str, tags: Optional[Dict[str, str]] = None
+        self, operation_name: str, tags: dict[str, str] | None = None
     ):
         """Context manager for monitoring an operation."""
         operation_id = self.collector.start_operation(operation_name, tags)
@@ -485,8 +485,8 @@ class PerformanceMonitor:
 
     def monitor_function(
         self,
-        operation_name: Optional[str] = None,
-        tags: Optional[Dict[str, str]] = None,
+        operation_name: str | None = None,
+        tags: dict[str, str] | None = None,
     ):
         """Decorator for monitoring function performance."""
 
@@ -515,7 +515,7 @@ class PerformanceMonitor:
         value: float,
         unit: str = "count",
         category: str = "custom",
-        tags: Optional[Dict[str, str]] = None,
+        tags: dict[str, str] | None = None,
     ):
         """Add a custom metric."""
         metric = PerformanceMetric(
@@ -541,13 +541,13 @@ class PerformanceMonitor:
         self.collector.thresholds[metric_name] = threshold_value
         logger.info(f"Set threshold for {metric_name}: {threshold_value}")
 
-    def get_summary(self, hours: int = 1) -> Dict[str, Any]:
+    def get_summary(self, hours: int = 1) -> dict[str, Any]:
         """Get performance summary."""
         return self.collector.get_metrics_summary(hours)
 
     def get_operation_summary(
-        self, operation_name: Optional[str] = None, hours: int = 1
-    ) -> Dict[str, Any]:
+        self, operation_name: str | None = None, hours: int = 1
+    ) -> dict[str, Any]:
         """Get operation summary."""
         return self.collector.get_operation_summary(operation_name, hours)
 
@@ -597,10 +597,10 @@ class PerformanceMonitor:
 
 
 # Global performance monitor instance
-_global_performance_monitor: Optional[PerformanceMonitor] = None
+_global_performance_monitor: PerformanceMonitor | None = None
 
 
-def get_performance_monitor(output_file: Optional[Path] = None) -> PerformanceMonitor:
+def get_performance_monitor(output_file: Path | None = None) -> PerformanceMonitor:
     """Get or create global performance monitor instance."""
     global _global_performance_monitor
 
@@ -611,9 +611,9 @@ def get_performance_monitor(output_file: Optional[Path] = None) -> PerformanceMo
 
 
 def configure_performance_monitoring(
-    output_file: Optional[Path] = None,
+    output_file: Path | None = None,
     log_level: int = logging.INFO,
-    thresholds: Optional[Dict[str, float]] = None,
+    thresholds: dict[str, float] | None = None,
 ) -> PerformanceMonitor:
     """Configure and get performance monitor with custom settings."""
     global _global_performance_monitor
@@ -628,13 +628,13 @@ def configure_performance_monitoring(
 
 
 # Convenience functions
-def monitor_operation(operation_name: str, tags: Optional[Dict[str, str]] = None):
+def monitor_operation(operation_name: str, tags: dict[str, str] | None = None):
     """Context manager for monitoring an operation."""
     return get_performance_monitor().monitor_operation(operation_name, tags)
 
 
 def monitor_function(
-    operation_name: Optional[str] = None, tags: Optional[Dict[str, str]] = None
+    operation_name: str | None = None, tags: dict[str, str] | None = None
 ):
     """Decorator for monitoring function performance."""
     return get_performance_monitor().monitor_function(operation_name, tags)
@@ -645,7 +645,7 @@ def add_metric(
     value: float,
     unit: str = "count",
     category: str = "custom",
-    tags: Optional[Dict[str, str]] = None,
+    tags: dict[str, str] | None = None,
 ):
     """Add a custom metric."""
     get_performance_monitor().add_metric(name, value, unit, category, tags)

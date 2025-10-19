@@ -16,9 +16,9 @@ COVERAGE:
 """
 
 import json
-import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+import tempfile
+from unittest.mock import MagicMock, patch
 
 import pytest
 from typer.testing import CliRunner
@@ -129,9 +129,7 @@ class TestConcurrencyAnalyzeCommand:
 
         mock_review.return_value = True
 
-        result = runner.invoke(
-            concurrency_app, ["analyze", "--profile", "test_profile"]
-        )
+        runner.invoke(concurrency_app, ["analyze", "--profile", "test_profile"])
 
         # Should load from profile
         mock_loader.load_from_profile.assert_called()
@@ -164,9 +162,7 @@ class TestConcurrencyAnalyzeCommand:
 
         mock_review.return_value = True
 
-        result = runner.invoke(
-            concurrency_app, ["analyze", "test.json", "--no-refresh"]
-        )
+        runner.invoke(concurrency_app, ["analyze", "test.json", "--no-refresh"])
 
         # Should pass refresh=False to config
 
@@ -182,9 +178,7 @@ class TestConcurrencyAnalyzeCommand:
 
         mock_review.return_value = True
 
-        result = runner.invoke(
-            concurrency_app, ["analyze", "test.json", "--no-visualization"]
-        )
+        runner.invoke(concurrency_app, ["analyze", "test.json", "--no-visualization"])
 
     @patch("app.cli.commands.concurrency.ConfigLoader")
     @patch("app.concurrency.review.run_concurrency_review")
@@ -199,7 +193,7 @@ class TestConcurrencyAnalyzeCommand:
 
         mock_review.return_value = True
 
-        result = runner.invoke(
+        runner.invoke(
             concurrency_app, ["analyze", "test.json", "--memory-optimization"]
         )
 
@@ -219,7 +213,7 @@ class TestConcurrencyAnalyzeCommand:
 
         mock_review.return_value = True
 
-        result = runner.invoke(
+        runner.invoke(
             concurrency_app,
             [
                 "analyze",
@@ -312,17 +306,17 @@ class TestConcurrencyReviewCommand:
 
         try:
             # Test table format (default)
-            result_table = runner.invoke(
+            runner.invoke(
                 concurrency_app, ["review", str(temp_file), "--output", "table"]
             )
 
             # Test JSON format
-            result_json = runner.invoke(
+            runner.invoke(
                 concurrency_app, ["review", str(temp_file), "--output", "json"]
             )
 
             # Test summary format
-            result_summary = runner.invoke(
+            runner.invoke(
                 concurrency_app, ["review", str(temp_file), "--output", "summary"]
             )
         finally:
@@ -336,7 +330,7 @@ class TestConcurrencyHelperFunctions:
         """Test resolving portfolio from concurrency profile."""
         from app.cli.commands.concurrency import resolve_portfolio_from_profile
 
-        with patch("app.cli.config.ConfigLoader") as mock_loader_class:
+        with patch("app.cli.config.ConfigLoader"):
             mock_loader = MagicMock()
             mock_profile = MagicMock()
             mock_profile.config_type = "concurrency"
@@ -353,7 +347,7 @@ class TestConcurrencyHelperFunctions:
         """Test resolving portfolio from portfolio_review profile."""
         from app.cli.commands.concurrency import resolve_portfolio_from_profile
 
-        with patch("app.cli.config.ConfigLoader") as mock_loader_class:
+        with patch("app.cli.config.ConfigLoader"):
             mock_loader = MagicMock()
             mock_profile = MagicMock()
             mock_profile.config_type = "portfolio_review"
@@ -371,7 +365,6 @@ class TestConcurrencyHelperFunctions:
 
     def test_export_strategies_to_file_creates_csv(self, tmp_path):
         """Test _export_strategies_to_file creates CSV file."""
-        from app.cli.commands.concurrency import _export_strategies_to_file
 
         # Create test data directory
         data_dir = tmp_path / "data" / "raw" / "strategies"
@@ -388,15 +381,6 @@ class TestConcurrencyHelperFunctions:
 TEST,SMA,10,50,1.5
 TEST,SMA,20,60,1.4"""
         )
-
-        strategies = [
-            {
-                "ticker": "TEST",
-                "strategy_type": "SMA",
-                "fast_period": 10,
-                "slow_period": 50,
-            }
-        ]
 
         with patch("app.cli.commands.concurrency.Path.cwd", return_value=tmp_path):
             with patch("app.cli.commands.concurrency.Path", return_value=tmp_path):
@@ -428,7 +412,7 @@ class TestConcurrencyHealthCommand:
 
     def test_health_command_success(self, runner):
         """Test health check command executes."""
-        result = runner.invoke(concurrency_app, ["health"])
+        runner.invoke(concurrency_app, ["health"])
 
         # Should complete (may pass or fail based on system state)
         # We're just testing it doesn't crash
@@ -442,7 +426,7 @@ class TestConcurrencyHealthCommand:
 
     def test_health_with_fix_flag(self, runner):
         """Test health command with --fix flag."""
-        result = runner.invoke(concurrency_app, ["health", "--fix"])
+        runner.invoke(concurrency_app, ["health", "--fix"])
 
         # Should attempt to fix issues
         # (exact behavior depends on system state)
@@ -490,7 +474,7 @@ class TestConcurrencyConfigurationOverrides:
 
         mock_review.return_value = True
 
-        result = runner.invoke(
+        runner.invoke(
             concurrency_app,
             [
                 "analyze",
@@ -515,7 +499,7 @@ class TestConcurrencyConfigurationOverrides:
 
         mock_review.return_value = True
 
-        result = runner.invoke(
+        runner.invoke(
             concurrency_app,
             [
                 "analyze",

@@ -13,13 +13,13 @@ Features:
 - Performance prediction modeling
 """
 
-import logging
-import math
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+import logging
+import sys
 
 from .signal_data_aggregator import StrategyData
+
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ class ExitRecommendation:
 
     scenario: ExitScenario
     priority: int  # 1 (highest) to 5 (lowest)
-    trigger_price: Optional[float]
+    trigger_price: float | None
     trigger_condition: str
     confidence: float  # 0.0 to 1.0
     expected_return: float
@@ -70,12 +70,12 @@ class OptimizationResult:
     """Complete exit strategy optimization result"""
 
     primary_recommendation: ExitRecommendation
-    alternative_scenarios: List[ExitRecommendation]
+    alternative_scenarios: list[ExitRecommendation]
     market_assessment: MarketCondition
     optimization_confidence: float
-    expected_outcomes: Dict[str, float]
-    risk_mitigation_plan: List[str]
-    monitoring_thresholds: Dict[str, float]
+    expected_outcomes: dict[str, float]
+    risk_mitigation_plan: list[str]
+    monitoring_thresholds: dict[str, float]
 
 
 class ExitStrategyOptimizer:
@@ -89,8 +89,8 @@ class ExitStrategyOptimizer:
     def optimize_exit_strategy(
         self,
         strategy_data: StrategyData,
-        current_price: Optional[float] = None,
-        market_condition: Optional[MarketCondition] = None,
+        current_price: float | None = None,
+        market_condition: MarketCondition | None = None,
     ) -> OptimizationResult:
         """
         Optimize exit strategy based on comprehensive analysis
@@ -157,8 +157,8 @@ class ExitStrategyOptimizer:
             return self._create_fallback_result(strategy_data)
 
     def _generate_exit_scenarios(
-        self, data: StrategyData, current_price: Optional[float]
-    ) -> List[ExitRecommendation]:
+        self, data: StrategyData, current_price: float | None
+    ) -> list[ExitRecommendation]:
         """Generate all possible exit scenarios"""
         scenarios = []
 
@@ -187,7 +187,7 @@ class ExitStrategyOptimizer:
         return [s for s in scenarios if s is not None]
 
     def _create_take_profit_scenario(
-        self, data: StrategyData, current_price: Optional[float]
+        self, data: StrategyData, current_price: float | None
     ) -> ExitRecommendation:
         """Create take profit exit scenario"""
         trigger_condition = f"Price reaches {data.take_profit_pct:.2f}% gain"
@@ -218,7 +218,7 @@ class ExitStrategyOptimizer:
         )
 
     def _create_stop_loss_scenario(
-        self, data: StrategyData, current_price: Optional[float]
+        self, data: StrategyData, current_price: float | None
     ) -> ExitRecommendation:
         """Create stop loss exit scenario"""
         trigger_condition = f"Price falls to {data.stop_loss_pct:.2f}% loss"
@@ -248,7 +248,7 @@ class ExitStrategyOptimizer:
         )
 
     def _create_trailing_stop_scenario(
-        self, data: StrategyData, current_price: Optional[float]
+        self, data: StrategyData, current_price: float | None
     ) -> ExitRecommendation:
         """Create trailing stop exit scenario"""
         trigger_condition = (
@@ -366,10 +366,10 @@ class ExitStrategyOptimizer:
 
     def _rank_scenarios(
         self,
-        scenarios: List[ExitRecommendation],
+        scenarios: list[ExitRecommendation],
         data: StrategyData,
         market_condition: MarketCondition,
-    ) -> List[ExitRecommendation]:
+    ) -> list[ExitRecommendation]:
         """Rank scenarios by overall score"""
 
         def scenario_score(scenario: ExitRecommendation) -> float:
@@ -392,12 +392,14 @@ class ExitStrategyOptimizer:
 
             # Market condition adjustment
             market_bonus = 0
-            if market_condition == MarketCondition.BEARISH and scenario.scenario in [
-                ExitScenario.STOP_LOSS,
-                ExitScenario.STATISTICAL_EXIT,
-            ]:
-                market_bonus = 10
-            elif (
+            if (
+                market_condition == MarketCondition.BEARISH
+                and scenario.scenario
+                in [
+                    ExitScenario.STOP_LOSS,
+                    ExitScenario.STATISTICAL_EXIT,
+                ]
+            ) or (
                 market_condition == MarketCondition.BULLISH
                 and scenario.scenario == ExitScenario.TAKE_PROFIT
             ):
@@ -421,16 +423,15 @@ class ExitStrategyOptimizer:
 
         if abs(z_score) > 0.05 or abs(iqr_div) > 0.15:
             return MarketCondition.VOLATILE
-        elif z_score > 0.02:
+        if z_score > 0.02:
             return MarketCondition.BULLISH
-        elif z_score < -0.02:
+        if z_score < -0.02:
             return MarketCondition.BEARISH
-        else:
-            return MarketCondition.SIDEWAYS
+        return MarketCondition.SIDEWAYS
 
     def _calculate_expected_outcomes(
-        self, scenarios: List[ExitRecommendation], data: StrategyData
-    ) -> Dict[str, float]:
+        self, scenarios: list[ExitRecommendation], data: StrategyData
+    ) -> dict[str, float]:
         """Calculate expected outcomes for different scenarios"""
         if not scenarios:
             return {}
@@ -459,7 +460,7 @@ class ExitStrategyOptimizer:
 
     def _generate_risk_mitigation_plan(
         self, data: StrategyData, primary: ExitRecommendation
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate risk mitigation plan"""
         plan = []
 
@@ -493,7 +494,7 @@ class ExitStrategyOptimizer:
 
     def _calculate_monitoring_thresholds(
         self, data: StrategyData, primary: ExitRecommendation
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Calculate key monitoring thresholds"""
         thresholds = {}
 
@@ -518,7 +519,7 @@ class ExitStrategyOptimizer:
         return thresholds
 
     def _calculate_optimization_confidence(
-        self, data: StrategyData, scenarios: List[ExitRecommendation]
+        self, data: StrategyData, scenarios: list[ExitRecommendation]
     ) -> float:
         """Calculate overall confidence in optimization"""
         if not scenarios:
@@ -575,8 +576,8 @@ class ExitStrategyOptimizer:
 
 def optimize_exit_strategy(
     strategy_data: StrategyData,
-    current_price: Optional[float] = None,
-    market_condition: Optional[MarketCondition] = None,
+    current_price: float | None = None,
+    market_condition: MarketCondition | None = None,
 ) -> OptimizationResult:
     """
     Convenience function to optimize exit strategy
@@ -616,7 +617,7 @@ if __name__ == "__main__":
 
     if not strategy_data:
         print(f"Strategy '{args.strategy}' not found")
-        exit(1)
+        sys.exit(1)
 
     # Optimize exit strategy
     result = optimize_exit_strategy(strategy_data, args.current_price)

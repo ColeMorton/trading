@@ -5,10 +5,11 @@ This module provides intelligent resume functionality for strategy execution,
 detecting completed analyses and filtering out work that doesn't need to be redone.
 """
 
-import os
+from collections.abc import Callable
 from datetime import datetime, time, timedelta
+import os
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
+from typing import Any
 
 from app.tools.market_hours import (
     MarketType,
@@ -23,9 +24,9 @@ class ResumeAnalysis:
     """Results of smart resume analysis."""
 
     def __init__(self):
-        self.completed_combinations: Set[Tuple[str, str]] = set()  # (ticker, strategy)
-        self.stale_combinations: Set[Tuple[str, str]] = set()
-        self.missing_combinations: Set[Tuple[str, str]] = set()
+        self.completed_combinations: set[tuple[str, str]] = set()  # (ticker, strategy)
+        self.stale_combinations: set[tuple[str, str]] = set()
+        self.missing_combinations: set[tuple[str, str]] = set()
         self.total_combinations: int = 0
         self.needs_processing: bool = True
 
@@ -41,7 +42,7 @@ class ResumeAnalysis:
         """Mark a ticker+strategy combination as missing."""
         self.missing_combinations.add((ticker, strategy))
 
-    def get_remaining_combinations(self) -> Set[Tuple[str, str]]:
+    def get_remaining_combinations(self) -> set[tuple[str, str]]:
         """Get combinations that need processing."""
         return self.stale_combinations | self.missing_combinations
 
@@ -58,7 +59,7 @@ class SmartResumeService:
     have already been completed and are still fresh based on market trading sessions.
     """
 
-    def __init__(self, log: Optional[Callable] = None):
+    def __init__(self, log: Callable | None = None):
         """
         Initialize smart resume service.
 
@@ -80,7 +81,7 @@ class SmartResumeService:
         """Default logging function."""
         pass
 
-    def analyze_resume_status(self, config: Dict[str, Any]) -> ResumeAnalysis:
+    def analyze_resume_status(self, config: dict[str, Any]) -> ResumeAnalysis:
         """
         Analyze which ticker+strategy combinations need processing.
 
@@ -126,8 +127,8 @@ class SmartResumeService:
         return analysis
 
     def filter_config_for_resume(
-        self, config: Dict[str, Any], analysis: ResumeAnalysis
-    ) -> Dict[str, Any]:
+        self, config: dict[str, Any], analysis: ResumeAnalysis
+    ) -> dict[str, Any]:
         """
         Filter configuration to only include combinations that need processing.
 
@@ -147,8 +148,8 @@ class SmartResumeService:
         remaining_combinations = analysis.get_remaining_combinations()
 
         # Extract remaining tickers and strategies
-        remaining_tickers = set(combo[0] for combo in remaining_combinations)
-        remaining_strategies = set(combo[1] for combo in remaining_combinations)
+        remaining_tickers = {combo[0] for combo in remaining_combinations}
+        remaining_strategies = {combo[1] for combo in remaining_combinations}
 
         # Filter config to only include remaining work
         filtered_config = config.copy()
@@ -172,7 +173,7 @@ class SmartResumeService:
 
         return filtered_config
 
-    def _extract_tickers_from_config(self, config: Dict[str, Any]) -> List[str]:
+    def _extract_tickers_from_config(self, config: dict[str, Any]) -> list[str]:
         """Extract ticker list from configuration."""
         # Handle synthetic mode
         if config.get("USE_SYNTHETIC", False):
@@ -188,7 +189,7 @@ class SmartResumeService:
             return [tickers]
         return tickers if tickers else []
 
-    def _extract_strategies_from_config(self, config: Dict[str, Any]) -> List[str]:
+    def _extract_strategies_from_config(self, config: dict[str, Any]) -> list[str]:
         """Extract strategy list from configuration."""
         strategies = config.get("STRATEGY_TYPES", [])
         if not strategies:
@@ -202,7 +203,7 @@ class SmartResumeService:
         self,
         ticker: str,
         strategy: str,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         market_type: MarketType,
     ) -> bool:
         """
@@ -228,7 +229,7 @@ class SmartResumeService:
         self,
         ticker: str,
         strategy: str,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         market_type: MarketType,
     ) -> bool:
         """
@@ -251,7 +252,7 @@ class SmartResumeService:
         return not self._are_files_fresh(ticker, strategy, config, market_type)
 
     def _all_files_exist_and_non_empty(
-        self, ticker: str, strategy: str, config: Dict[str, Any]
+        self, ticker: str, strategy: str, config: dict[str, Any]
     ) -> bool:
         """Check if all required output files exist and are non-empty."""
         expected_files = self._get_expected_file_paths(ticker, strategy, config)
@@ -270,7 +271,7 @@ class SmartResumeService:
         return True
 
     def _any_files_exist(
-        self, ticker: str, strategy: str, config: Dict[str, Any]
+        self, ticker: str, strategy: str, config: dict[str, Any]
     ) -> bool:
         """Check if any output files exist for this combination."""
         expected_files = self._get_expected_file_paths(ticker, strategy, config)
@@ -281,7 +282,7 @@ class SmartResumeService:
         self,
         ticker: str,
         strategy: str,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         market_type: MarketType,
     ) -> bool:
         """
@@ -318,9 +319,8 @@ class SmartResumeService:
         if market_type == MarketType.CRYPTO:
             # Crypto: files should be from today (last 24 hours)
             return (current_time - file_datetime).total_seconds() < 86400  # 24 hours
-        else:
-            # Stock market: files should be from after last market close (4:00 PM ET)
-            return self._is_after_last_market_close(file_datetime, current_time)
+        # Stock market: files should be from after last market close (4:00 PM ET)
+        return self._is_after_last_market_close(file_datetime, current_time)
 
     def _is_after_last_market_close(
         self, file_datetime: datetime, current_time: datetime
@@ -390,8 +390,8 @@ class SmartResumeService:
         )
 
     def _get_expected_file_paths(
-        self, ticker: str, strategy: str, config: Dict[str, Any]
-    ) -> List[str]:
+        self, ticker: str, strategy: str, config: dict[str, Any]
+    ) -> list[str]:
         """
         Generate expected file paths for a ticker+strategy combination.
 
@@ -413,7 +413,7 @@ class SmartResumeService:
 
         return expected_paths
 
-    def _generate_file_path(self, config: Dict[str, Any], export_type: str) -> str:
+    def _generate_file_path(self, config: dict[str, Any], export_type: str) -> str:
         """
         Generate file path using existing export logic.
 

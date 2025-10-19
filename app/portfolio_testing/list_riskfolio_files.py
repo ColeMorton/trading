@@ -2,6 +2,7 @@ import os
 
 import riskfolio
 
+
 # Get the directory of the riskfolio package
 riskfolio_dir = os.path.dirname(riskfolio.__file__)
 
@@ -9,7 +10,7 @@ print(f"Riskfolio package directory: {riskfolio_dir}")
 
 # List all files in the riskfolio directory
 print("\nFiles in the riskfolio package directory:")
-for root, dirs, files in os.walk(riskfolio_dir):
+for root, _dirs, files in os.walk(riskfolio_dir):
     level = root.replace(riskfolio_dir, "").count(os.sep)
     indent = " " * 4 * level
     print(f"{indent}{os.path.basename(root)}/")
@@ -23,9 +24,7 @@ modules_to_check = ["Portfolio", "HCPortfolio", "RiskFunctions", "ParamsEstimati
 print("\nTrying to import specific modules:")
 for module in modules_to_check:
     try:
-        exec(
-            f"from riskfolio import {module}"
-        )  # nosec B102 - Dynamic import for testing purposes
+        exec(f"from riskfolio import {module}")  # nosec B102 - Dynamic import for testing purposes
         print(f"Successfully imported {module}")
     except ImportError as e:
         print(f"Failed to import {module}: {e}")
@@ -34,7 +33,7 @@ for module in modules_to_check:
 init_file = os.path.join(riskfolio_dir, "__init__.py")
 if os.path.exists(init_file):
     print("\nContents of __init__.py:")
-    with open(init_file, "r") as f:
+    with open(init_file) as f:
         print(f.read())
 else:
     print("\n__init__.py file not found in the riskfolio package directory")

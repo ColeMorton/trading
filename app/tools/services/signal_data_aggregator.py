@@ -13,14 +13,13 @@ Source Integration:
 - data/outputs/spds/statistical_analysis/live_signals_export_summary.md
 """
 
+from dataclasses import dataclass
 import json
 import logging
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
-import polars as pl
 
 # Import the new central coordinator
 from app.tools.services.strategy_data_coordinator import (
@@ -28,6 +27,7 @@ from app.tools.services.strategy_data_coordinator import (
     StrategyDataCoordinator,
     StrategyDataCoordinatorError,
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class StrategyData:
     strategy_name: str
     ticker: str
     timeframe: str
-    position_uuid: Optional[str] = None
+    position_uuid: str | None = None
 
     # Statistical analysis data
     sample_size: int = 0
@@ -80,8 +80,8 @@ class StrategyData:
     generation_timestamp: str = ""
 
     # Raw data for advanced analysis
-    raw_returns: List[float] = None
-    raw_analysis_data: Dict[str, Any] = None
+    raw_returns: list[float] = None
+    raw_analysis_data: dict[str, Any] = None
 
 
 class SignalDataAggregator:
@@ -96,8 +96,8 @@ class SignalDataAggregator:
 
     def __init__(
         self,
-        base_path: Optional[Path] = None,
-        coordinator: Optional[StrategyDataCoordinator] = None,
+        base_path: Path | None = None,
+        coordinator: StrategyDataCoordinator | None = None,
         enable_legacy_validation: bool = True,
     ):
         """
@@ -170,8 +170,8 @@ class SignalDataAggregator:
         self,
         strategy_identifier: str,
         force_refresh: bool = False,
-        snapshot_id: Optional[str] = None,
-    ) -> Optional[StrategyData]:
+        snapshot_id: str | None = None,
+    ) -> StrategyData | None:
         """
         Get comprehensive strategy data using central coordination.
 
@@ -231,10 +231,10 @@ class SignalDataAggregator:
 
     def get_multiple_strategies(
         self,
-        strategy_identifiers: List[str],
+        strategy_identifiers: list[str],
         use_snapshot: bool = True,
         force_refresh: bool = False,
-    ) -> Dict[str, Optional[StrategyData]]:
+    ) -> dict[str, StrategyData | None]:
         """
         Get multiple strategies with coordinated data consistency.
 
@@ -283,7 +283,7 @@ class SignalDataAggregator:
             logger.error(f"Error loading multiple strategies: {e}")
             return {identifier: None for identifier in strategy_identifiers}
 
-    def refresh_strategy_data(self, strategy_identifier: str) -> Optional[StrategyData]:
+    def refresh_strategy_data(self, strategy_identifier: str) -> StrategyData | None:
         """
         Force refresh strategy data bypassing all caches.
 
@@ -301,7 +301,7 @@ class SignalDataAggregator:
             )
             return None
 
-    def get_coordination_status(self) -> Dict[str, Any]:
+    def get_coordination_status(self) -> dict[str, Any]:
         """
         Get status of the central data coordination system.
 
@@ -322,9 +322,11 @@ class SignalDataAggregator:
             return {
                 "aggregator_status": aggregator_status,
                 "coordinator_status": coordinator_status,
-                "overall_health": "HEALTHY"
-                if coordinator_status.get("cached_strategies", 0) >= 0
-                else "DEGRADED",
+                "overall_health": (
+                    "HEALTHY"
+                    if coordinator_status.get("cached_strategies", 0) >= 0
+                    else "DEGRADED"
+                ),
             }
 
         except Exception as e:
@@ -341,7 +343,7 @@ class SignalDataAggregator:
     # They are maintained for backward compatibility during the migration to
     # central data coordination. Use the coordinator-based methods instead.
 
-    def _find_strategy_in_csv(self, identifier: str) -> Optional[Dict[str, Any]]:
+    def _find_strategy_in_csv(self, identifier: str) -> dict[str, Any] | None:
         """
         DEPRECATED: Find strategy in statistical CSV by name or UUID
 
@@ -384,7 +386,7 @@ class SignalDataAggregator:
             logger.error(f"Error finding strategy in CSV: {e}")
             return None
 
-    def _generate_position_uuid(self, strategy_row: Dict[str, Any]) -> str:
+    def _generate_position_uuid(self, strategy_row: dict[str, Any]) -> str:
         """Generate Position_UUID from strategy data"""
         try:
             strategy_name = strategy_row["strategy_name"]
@@ -411,7 +413,7 @@ class SignalDataAggregator:
             return f"UNKNOWN_{strategy_row.get('ticker', 'UNK')}_20250706"
 
     def _populate_from_statistical_csv(
-        self, strategy_data: StrategyData, row: Dict[str, Any]
+        self, strategy_data: StrategyData, row: dict[str, Any]
     ) -> None:
         """Populate strategy data from statistical analysis CSV"""
         try:
@@ -459,7 +461,7 @@ class SignalDataAggregator:
                 logger.warning(f"Statistical JSON not found: {self.statistical_json}")
                 return
 
-            with open(self.statistical_json, "r") as f:
+            with open(self.statistical_json) as f:
                 data = json.load(f)
 
             # Find matching strategy in results
@@ -529,7 +531,7 @@ class SignalDataAggregator:
         try:
             # Load backtesting JSON
             if self.backtesting_json.exists():
-                with open(self.backtesting_json, "r") as f:
+                with open(self.backtesting_json) as f:
                     backtest_data = json.load(f)
 
                 # Find strategy in backtesting parameters
@@ -537,7 +539,7 @@ class SignalDataAggregator:
 
                 # Try different key formats
                 strategy_key = None
-                for key in strategies.keys():
+                for key in strategies:
                     if strategy_name in key or key.startswith(strategy_name):
                         strategy_key = key
                         break
@@ -689,11 +691,8 @@ class SignalDataAggregator:
                         # Store original values for comparison
                         original_mfe = strategy_data.mfe
                         original_mae = strategy_data.mae
-                        original_current_return = strategy_data.current_return
 
                         # Load MFE and MAE values - positions file is often more accurate than JSON
-                        positions_mfe_loaded = False
-                        positions_mae_loaded = False
 
                         if "Max_Favourable_Excursion" in row:
                             new_mfe = float(row["Max_Favourable_Excursion"])
@@ -703,33 +702,29 @@ class SignalDataAggregator:
                                     f"Rejecting negative MFE ({new_mfe:.4f}) for profitable position {strategy_name} "
                                     f"(current_return: {strategy_data.current_return:.4f})"
                                 )
-                            else:
-                                # Use positions MFE if JSON had zero or if positions value seems more reasonable
-                                if strategy_data.mfe == 0.0 or abs(new_mfe) > abs(
-                                    strategy_data.mfe
-                                ):
-                                    old_mfe = strategy_data.mfe
-                                    strategy_data.mfe = new_mfe
-                                    positions_mfe_loaded = True
-                                    logger.info(
-                                        f"Using MFE from positions file: {new_mfe:.4f} (was {old_mfe:.4f} from JSON)"
-                                    )
+                            # Use positions MFE if JSON had zero or if positions value seems more reasonable
+                            elif strategy_data.mfe == 0.0 or abs(new_mfe) > abs(
+                                strategy_data.mfe
+                            ):
+                                old_mfe = strategy_data.mfe
+                                strategy_data.mfe = new_mfe
+                                logger.info(
+                                    f"Using MFE from positions file: {new_mfe:.4f} (was {old_mfe:.4f} from JSON)"
+                                )
                         elif "MFE" in row:
                             new_mfe = float(row["MFE"])
                             if strategy_data.current_return > 0 and new_mfe < 0:
                                 logger.warning(
                                     f"Rejecting negative MFE ({new_mfe:.4f}) for profitable position {strategy_name}"
                                 )
-                            else:
-                                if strategy_data.mfe == 0.0 or abs(new_mfe) > abs(
-                                    strategy_data.mfe
-                                ):
-                                    old_mfe = strategy_data.mfe
-                                    strategy_data.mfe = new_mfe
-                                    positions_mfe_loaded = True
-                                    logger.info(
-                                        f"Using MFE from positions file: {new_mfe:.4f} (was {old_mfe:.4f} from JSON)"
-                                    )
+                            elif strategy_data.mfe == 0.0 or abs(new_mfe) > abs(
+                                strategy_data.mfe
+                            ):
+                                old_mfe = strategy_data.mfe
+                                strategy_data.mfe = new_mfe
+                                logger.info(
+                                    f"Using MFE from positions file: {new_mfe:.4f} (was {old_mfe:.4f} from JSON)"
+                                )
 
                         if "Max_Adverse_Excursion" in row:
                             new_mae = float(row["Max_Adverse_Excursion"])
@@ -739,7 +734,6 @@ class SignalDataAggregator:
                             ):
                                 old_mae = strategy_data.mae
                                 strategy_data.mae = new_mae
-                                positions_mae_loaded = True
                                 logger.info(
                                     f"Using MAE from positions file: {new_mae:.4f} (was {old_mae:.4f} from JSON)"
                                 )
@@ -750,7 +744,6 @@ class SignalDataAggregator:
                             ):
                                 old_mae = strategy_data.mae
                                 strategy_data.mae = new_mae
-                                positions_mae_loaded = True
                                 logger.info(
                                     f"Using MAE from positions file: {new_mae:.4f} (was {old_mae:.4f} from JSON)"
                                 )
@@ -808,7 +801,7 @@ class SignalDataAggregator:
 
     def _validate_performance_metrics(
         self, strategy_data: StrategyData, strategy_name: str
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Validate performance metrics for mathematical consistency and logical constraints
 
@@ -899,7 +892,7 @@ class SignalDataAggregator:
 
     def validate_mathematical_constraints(
         self, strategy_data: StrategyData, strategy_name: str, auto_fix: bool = True
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Real-time mathematical constraint validation with automatic fixing capability
 
@@ -937,7 +930,7 @@ class SignalDataAggregator:
 
             # Constraint 1: Basic data validity
             if all(
-                isinstance(val, (int, float)) and pd.notna(val)
+                isinstance(val, int | float) and pd.notna(val)
                 for val in [current_return, mfe, mae]
             ):
                 validation_result["constraints_passed"] += 1
@@ -1106,9 +1099,7 @@ class SignalDataAggregator:
             logger.error(
                 f"Error in mathematical constraint validation for {strategy_name}: {e}"
             )
-            validation_result["critical_violations"].append(
-                f"Validation error: {str(e)}"
-            )
+            validation_result["critical_violations"].append(f"Validation error: {e!s}")
             validation_result["requires_manual_review"] = True
             return validation_result
 
@@ -1287,8 +1278,8 @@ class SignalDataAggregator:
             return False
 
     def detect_statistical_uniformity_coordinated(
-        self, strategy_identifiers: List[str], use_fresh_data: bool = False
-    ) -> Dict[str, Any]:
+        self, strategy_identifiers: list[str], use_fresh_data: bool = False
+    ) -> dict[str, Any]:
         """
         Detect statistical uniformity using coordinated data loading.
 
@@ -1348,8 +1339,8 @@ class SignalDataAggregator:
             }
 
     def detect_statistical_uniformity(
-        self, strategies_data: List[StrategyData]
-    ) -> Dict[str, Any]:
+        self, strategies_data: list[StrategyData]
+    ) -> dict[str, Any]:
         """
         Detect suspicious statistical uniformity across multiple strategies
 
@@ -1504,16 +1495,16 @@ class SignalDataAggregator:
 
         except Exception as e:
             logger.error(f"Error in statistical uniformity detection: {e}")
-            uniformity_report["uniformity_alerts"].append(f"Analysis error: {str(e)}")
+            uniformity_report["uniformity_alerts"].append(f"Analysis error: {e!s}")
             uniformity_report["severity_level"] = "UNKNOWN"
             return uniformity_report
 
     def _check_exact_uniformity(
         self,
-        report: Dict,
+        report: dict,
         metric_name: str,
-        values: List[float],
-        strategy_names: List[str],
+        values: list[float],
+        strategy_names: list[str],
         min_strategies: int = 3,
     ):
         """Check for exact matches across strategies"""
@@ -1521,7 +1512,9 @@ class SignalDataAggregator:
 
         # Filter out zero/default values for meaningful analysis
         meaningful_values = [
-            (val, name) for val, name in zip(values, strategy_names) if val != 0.0
+            (val, name)
+            for val, name in zip(values, strategy_names, strict=False)
+            if val != 0.0
         ]
 
         if len(meaningful_values) < min_strategies:
@@ -1552,10 +1545,10 @@ class SignalDataAggregator:
 
     def _check_statistical_clustering(
         self,
-        report: Dict,
+        report: dict,
         metric_name: str,
-        values: List[float],
-        strategy_names: List[str],
+        values: list[float],
+        strategy_names: list[str],
         tolerance: float = 0.01,
     ):
         """Check for statistically unlikely clustering"""
@@ -1564,7 +1557,7 @@ class SignalDataAggregator:
         # Filter meaningful values
         meaningful_data = [
             (val, name)
-            for val, name in zip(values, strategy_names)
+            for val, name in zip(values, strategy_names, strict=False)
             if val != 0.0 and not np.isnan(val)
         ]
 
@@ -1595,7 +1588,7 @@ class SignalDataAggregator:
             )
 
     def _check_suspicious_patterns(
-        self, report: Dict, metrics: Dict[str, List[float]], strategy_names: List[str]
+        self, report: dict, metrics: dict[str, list[float]], strategy_names: list[str]
     ):
         """Check for suspicious patterns across metrics"""
         import numpy as np
@@ -1638,9 +1631,9 @@ class SignalDataAggregator:
 
     def generate_coordinated_data_quality_report(
         self,
-        strategy_identifiers: Optional[List[str]] = None,
+        strategy_identifiers: list[str] | None = None,
         include_uniformity_analysis: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Generate comprehensive data quality report using central coordination.
 
@@ -1698,7 +1691,7 @@ class SignalDataAggregator:
 
             # Analyze each strategy
             valid_strategies = []
-            for identifier, strategy_data in strategies_data_dict.items():
+            for _identifier, strategy_data in strategies_data_dict.items():
                 if strategy_data is None:
                     report["strategies_with_issues"] += 1
                     report["critical_issues"] += 1
@@ -1789,7 +1782,7 @@ class SignalDataAggregator:
                 },
             }
 
-    def generate_data_quality_report(self) -> Dict[str, Any]:
+    def generate_data_quality_report(self) -> dict[str, Any]:
         """
         Generate comprehensive data quality report for all strategies
 
@@ -1847,10 +1840,14 @@ class SignalDataAggregator:
                             strategy_data, validation_warnings
                         ),
                         "issues": validation_warnings,
-                        "issue_severity": "CLEAN"
-                        if not validation_warnings
-                        else (
-                            "CRITICAL" if len(validation_warnings) >= 3 else "WARNING"
+                        "issue_severity": (
+                            "CLEAN"
+                            if not validation_warnings
+                            else (
+                                "CRITICAL"
+                                if len(validation_warnings) >= 3
+                                else "WARNING"
+                            )
                         ),
                         "data_sources_used": self._identify_data_sources_used(
                             strategy_data
@@ -1915,7 +1912,7 @@ class SignalDataAggregator:
         return report
 
     def _calculate_data_quality_score(
-        self, strategy_data: StrategyData, validation_warnings: List[str]
+        self, strategy_data: StrategyData, validation_warnings: list[str]
     ) -> float:
         """Calculate data quality score (0-100) for a strategy"""
         score = 100.0
@@ -1945,7 +1942,7 @@ class SignalDataAggregator:
 
     def _identify_data_sources_used(
         self, strategy_data: StrategyData
-    ) -> Dict[str, bool]:
+    ) -> dict[str, bool]:
         """Identify which data sources were used for this strategy"""
         return {
             "statistical_csv": True,  # Always used as base
@@ -1955,8 +1952,8 @@ class SignalDataAggregator:
         }
 
     def _generate_recommendations(
-        self, issue_counts: Dict[str, int], report: Dict[str, Any]
-    ) -> List[str]:
+        self, issue_counts: dict[str, int], report: dict[str, Any]
+    ) -> list[str]:
         """Generate actionable recommendations based on issue analysis"""
         recommendations = []
 
@@ -1994,7 +1991,7 @@ class SignalDataAggregator:
 
         return recommendations
 
-    def get_all_strategies(self) -> List[str]:
+    def get_all_strategies(self) -> list[str]:
         """Get list of all available strategy names"""
         try:
             if not self.statistical_csv.exists():
@@ -2007,7 +2004,7 @@ class SignalDataAggregator:
             logger.error(f"Error getting all strategies: {e}")
             return []
 
-    def get_strategy_summary(self, strategy_identifier: str) -> Dict[str, Any]:
+    def get_strategy_summary(self, strategy_identifier: str) -> dict[str, Any]:
         """Get quick summary of strategy data"""
         strategy_data = self.get_strategy_data(strategy_identifier)
         if not strategy_data:
@@ -2028,7 +2025,7 @@ class SignalDataAggregator:
 
 
 def get_signal_data_aggregator(
-    base_path: Optional[Path] = None,
+    base_path: Path | None = None,
 ) -> SignalDataAggregator:
     """Factory function to get configured SignalDataAggregator"""
     return SignalDataAggregator(base_path)
@@ -2100,7 +2097,7 @@ RECOMMENDATIONS:
                         f"  Quality Score: {strategy['data_quality_score']:.1f}/100\n"
                     )
                     output += f"  Severity: {strategy['issue_severity']}\n"
-                    output += f"  Issues:\n"
+                    output += "  Issues:\n"
                     for issue in strategy["issues"]:
                         output += f"    - {issue}\n"
 

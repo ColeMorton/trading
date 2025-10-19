@@ -1,6 +1,7 @@
-from typing import Any, Dict, List
+from typing import Any
 
 import polars as pl
+
 
 # List of numeric metrics
 NUMERIC_METRICS = [
@@ -29,7 +30,7 @@ DURATION_METRICS = [
 ]
 
 
-def get_metric_rows(df: pl.DataFrame, column: str) -> List[Any]:
+def get_metric_rows(df: pl.DataFrame, column: str) -> list[Any]:
     """
     Get row for metric extremes.
 
@@ -91,14 +92,13 @@ def get_metric_rows(df: pl.DataFrame, column: str) -> List[Any]:
         median_row = df.row(median_idx)
 
         return [max_row, min_row, mean_row, median_row]
-    else:
-        # For non-numeric columns, only return max and min
-        return [max_row, min_row]
+    # For non-numeric columns, only return max and min
+    return [max_row, min_row]
 
 
 def create_metric_result(
-    metric: str, rows: List[Any], df_columns: List[str]
-) -> List[Dict[str, Any]]:
+    metric: str, rows: list[Any], df_columns: list[str]
+) -> list[dict[str, Any]]:
     """
     Create result dictionaries for a metric's rows.
 
@@ -117,11 +117,11 @@ def create_metric_result(
     else:  # Non-numeric metric with only max/min
         labels = ["Most", "Least"]
 
-    for label, row in zip(labels, rows):
+    for label, row in zip(labels, rows, strict=False):
         result_rows.append(
             {
                 "Metric Type": f"{label} {metric}",
-                **{col: val for col, val in zip(df_columns, row)},
+                **dict(zip(df_columns, row, strict=False)),
             }
         )
 

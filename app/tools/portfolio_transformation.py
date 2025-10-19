@@ -5,8 +5,6 @@ This module provides utilities for transforming portfolio data into formats
 suitable for visualization and analysis.
 """
 
-from typing import Dict
-
 import polars as pl
 
 from app.tools.portfolio.base_extended_schemas import SchemaTransformer, SchemaType
@@ -61,7 +59,7 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
     return pl.concat(transformed_data)
 
 
-def reorder_columns(portfolio: Dict) -> Dict:
+def reorder_columns(portfolio: dict) -> dict:
     """
     Reorder columns using SchemaTransformer to match canonical schema format.
 

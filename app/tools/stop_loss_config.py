@@ -7,7 +7,7 @@ allowing for consistent application of stop loss rules across the system.
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class StopLossMode(Enum):
@@ -29,8 +29,8 @@ class StopLossConfig:
 
 
 def get_stop_loss_value(
-    strategy_config: Dict[str, Any], global_config: Dict[str, Any]
-) -> Optional[float]:
+    strategy_config: dict[str, Any], global_config: dict[str, Any]
+) -> float | None:
     """Get the stop loss value for a strategy, respecting the global configuration.
 
     Args:
@@ -54,16 +54,16 @@ def get_stop_loss_value(
     if stop_loss_config.mode == StopLossMode.OPTIONAL:
         # Only use stop loss if explicitly defined in strategy
         return strategy_stop_loss
-    else:  # REQUIRED mode
-        # Use strategy-specific value if available, otherwise use default
-        return (
-            strategy_stop_loss
-            if strategy_stop_loss is not None
-            else stop_loss_config.default_value
-        )
+    # REQUIRED mode
+    # Use strategy-specific value if available, otherwise use default
+    return (
+        strategy_stop_loss
+        if strategy_stop_loss is not None
+        else stop_loss_config.default_value
+    )
 
 
-def _extract_stop_loss_config(config: Dict[str, Any]) -> StopLossConfig:
+def _extract_stop_loss_config(config: dict[str, Any]) -> StopLossConfig:
     """Extract stop loss configuration from global config.
 
     Args:
@@ -86,7 +86,7 @@ def _extract_stop_loss_config(config: Dict[str, Any]) -> StopLossConfig:
     # Extract default value
     if "DEFAULT_STOP_LOSS" in config:
         default_value = config["DEFAULT_STOP_LOSS"]
-        if isinstance(default_value, (int, float)) and 0 < default_value < 1:
+        if isinstance(default_value, int | float) and 0 < default_value < 1:
             stop_loss_config.default_value = default_value
 
     # Extract candle close setting

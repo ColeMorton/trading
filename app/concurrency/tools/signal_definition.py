@@ -7,9 +7,10 @@ from position data, allowing for consistent signal definition across the system.
 Enhanced in Phase 2 to provide standardized signal counting and validation.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -31,7 +32,7 @@ def extract_signals(
     df: pl.DataFrame,
     mode: SignalDefinitionMode = SignalDefinitionMode.POSITION_CHANGE,
     position_column: str = "Position",
-    log: Optional[Callable[[str, str], None]] = None,
+    log: Callable[[str, str], None] | None = None,
 ) -> pl.DataFrame:
     """Extract signals from position data using the specified mode.
 
@@ -119,7 +120,7 @@ def extract_signals(
     return signals_df
 
 
-def get_signal_definition_mode(config: Dict[str, Any]) -> SignalDefinitionMode:
+def get_signal_definition_mode(config: dict[str, Any]) -> SignalDefinitionMode:
     """Get the signal definition mode from configuration.
 
     Args:
@@ -141,8 +142,8 @@ def align_signal_definitions(
     backtest_signals: np.ndarray,
     implementation_signals: np.ndarray,
     dates: np.ndarray,
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, np.ndarray]:
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, np.ndarray]:
     """Align signal definitions between backtest and implementation.
 
     This function helps reconcile differences between backtest and implementation
@@ -192,9 +193,9 @@ def align_signal_definitions(
 
             # If implementation had any signals during this period, consider it aligned
             if np.any(impl_signals_during_trade != 0):
-                aligned_implementation[
-                    trade_start_idx : i + 1
-                ] = implementation_signals[trade_start_idx : i + 1]
+                aligned_implementation[trade_start_idx : i + 1] = (
+                    implementation_signals[trade_start_idx : i + 1]
+                )
 
     if log:
         match_rate = np.mean(
@@ -235,10 +236,10 @@ class SignalCountingStandards:
 
 def count_signals_standardized(
     df: pl.DataFrame,
-    standards: Optional[SignalCountingStandards] | None = None,
+    standards: SignalCountingStandards | None | None = None,
     level: str = "strategy",  # "strategy" or "portfolio"
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, int]:
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, int]:
     """
     Count signals using standardized methodology to prevent discrepancies.
 
@@ -311,10 +312,10 @@ def count_signals_standardized(
 
 
 def calculate_portfolio_unique_signals_v2(
-    strategy_dataframes: List[pl.DataFrame],
-    standards: Optional[SignalCountingStandards] | None = None,
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, Any]:
+    strategy_dataframes: list[pl.DataFrame],
+    standards: SignalCountingStandards | None | None = None,
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, Any]:
     """
     Calculate unique portfolio signals using Phase 2 methodology.
 
@@ -393,9 +394,7 @@ def calculate_portfolio_unique_signals_v2(
         "total_strategy_signals": total_strategy_signals,
         "overlap_ratio": overlap_ratio,
         "strategy_counts": strategy_counts,
-        "unique_signal_dates": (
-            sorted(list(all_signal_dates)) if all_signal_dates else []
-        ),
+        "unique_signal_dates": (sorted(all_signal_dates) if all_signal_dates else []),
         "validation": {
             "strategy_count": len(strategy_dataframes),
             "avg_signals_per_strategy": (
@@ -408,7 +407,7 @@ def calculate_portfolio_unique_signals_v2(
     }
 
 
-def convert_to_pandas_signals(polars_signals: List[pl.DataFrame]) -> List[pd.DataFrame]:
+def convert_to_pandas_signals(polars_signals: list[pl.DataFrame]) -> list[pd.DataFrame]:
     """
     Convert Polars DataFrames to Pandas for compatibility with existing code.
 
@@ -437,8 +436,8 @@ def validate_signal_consistency(
     csv_trades: int,
     json_signals: int,
     tolerance: float = 0.1,
-    log: Optional[Callable[[str, str], None]] = None,
-) -> Dict[str, Any]:
+    log: Callable[[str, str], None] | None = None,
+) -> dict[str, Any]:
     """
     Validate signal count consistency between CSV and JSON data.
 

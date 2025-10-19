@@ -5,9 +5,10 @@ This module provides comprehensive validation checks to ensure consistency
 between CSV backtest data and JSON portfolio metrics calculations.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -36,7 +37,7 @@ class ValidationSummary:
     failed_checks: int
     critical_failures: int
     warning_failures: int
-    results: List[ValidationResult]
+    results: list[ValidationResult]
 
     @property
     def success_rate(self) -> float:
@@ -59,7 +60,7 @@ class PortfolioMetricsValidator:
     - Allocation weight issues
     """
 
-    def __init__(self, log: Optional[Callable[[str, str], None]] = None):
+    def __init__(self, log: Callable[[str, str], None] | None = None):
         """Initialize the validator with logging."""
         if log is None:
             self.log, _, _, _ = setup_logging(
@@ -68,13 +69,13 @@ class PortfolioMetricsValidator:
         else:
             self.log = log
 
-        self.results: List[ValidationResult] = []
+        self.results: list[ValidationResult] = []
 
     def validate_all(
         self,
         csv_data: pd.DataFrame,
-        json_metrics: Dict[str, Any],
-        tolerances: Optional[Dict[str, float]] = None,
+        json_metrics: dict[str, Any],
+        tolerances: dict[str, float] | None = None,
     ) -> ValidationSummary:
         """
         Run all validation checks and return comprehensive summary.
@@ -122,7 +123,7 @@ class PortfolioMetricsValidator:
         return summary
 
     def _validate_trade_counts(
-        self, csv_data: pd.DataFrame, json_metrics: Dict[str, Any], tolerance: float
+        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float
     ) -> None:
         """Validate that signal counts are consistent with actual trade counts."""
         try:
@@ -183,7 +184,7 @@ class PortfolioMetricsValidator:
                 )
 
         except Exception as e:
-            self.log(f"Error validating trade counts: {str(e)}", "error")
+            self.log(f"Error validating trade counts: {e!s}", "error")
             self.results.append(
                 ValidationResult(
                     check_name="Trade Count Validation",
@@ -191,13 +192,13 @@ class PortfolioMetricsValidator:
                     expected_value="Valid trade count comparison",
                     actual_value="Error during validation",
                     tolerance=tolerance,
-                    error_message=f"Validation error: {str(e)}",
+                    error_message=f"Validation error: {e!s}",
                     severity="critical",
                 )
             )
 
     def _validate_performance_signs(
-        self, csv_data: pd.DataFrame, json_metrics: Dict[str, Any], tolerance: float
+        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float
     ) -> None:
         """Validate that performance metrics maintain correct signs."""
         try:
@@ -251,7 +252,7 @@ class PortfolioMetricsValidator:
                     )
 
         except Exception as e:
-            self.log(f"Error validating performance signs: {str(e)}", "error")
+            self.log(f"Error validating performance signs: {e!s}", "error")
             self.results.append(
                 ValidationResult(
                     check_name="Performance Sign Validation",
@@ -259,13 +260,13 @@ class PortfolioMetricsValidator:
                     expected_value="Consistent performance signs",
                     actual_value="Error during validation",
                     tolerance=tolerance,
-                    error_message=f"Validation error: {str(e)}",
+                    error_message=f"Validation error: {e!s}",
                     severity="critical",
                 )
             )
 
     def _validate_risk_bounds(
-        self, csv_data: pd.DataFrame, json_metrics: Dict[str, Any], tolerance: float
+        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float
     ) -> None:
         """Validate that JSON risk metrics don't exceed CSV bounds."""
         try:
@@ -311,7 +312,7 @@ class PortfolioMetricsValidator:
                     )
 
         except Exception as e:
-            self.log(f"Error validating risk bounds: {str(e)}", "error")
+            self.log(f"Error validating risk bounds: {e!s}", "error")
             self.results.append(
                 ValidationResult(
                     check_name="Risk Bounds Validation",
@@ -319,13 +320,13 @@ class PortfolioMetricsValidator:
                     expected_value="Risk metrics within CSV bounds",
                     actual_value="Error during validation",
                     tolerance=tolerance,
-                    error_message=f"Validation error: {str(e)}",
+                    error_message=f"Validation error: {e!s}",
                     severity="critical",
                 )
             )
 
     def _validate_allocation_weights(
-        self, json_metrics: Dict[str, Any], tolerance: float
+        self, json_metrics: dict[str, Any], tolerance: float
     ) -> None:
         """Validate that allocation weights sum to 1.0."""
         try:
@@ -333,7 +334,7 @@ class PortfolioMetricsValidator:
 
             # Extract allocation weights if available
             allocations = []
-            for ticker, metrics in ticker_metrics.items():
+            for _ticker, metrics in ticker_metrics.items():
                 if "allocation" in metrics:
                     allocations.append(metrics["allocation"])
 
@@ -370,7 +371,7 @@ class PortfolioMetricsValidator:
                 )
 
         except Exception as e:
-            self.log(f"Error validating allocation weights: {str(e)}", "error")
+            self.log(f"Error validating allocation weights: {e!s}", "error")
             self.results.append(
                 ValidationResult(
                     check_name="Allocation Weights Validation",
@@ -378,13 +379,13 @@ class PortfolioMetricsValidator:
                     expected_value="Valid allocation weights",
                     actual_value="Error during validation",
                     tolerance=tolerance,
-                    error_message=f"Validation error: {str(e)}",
+                    error_message=f"Validation error: {e!s}",
                     severity="warning",
                 )
             )
 
     def _validate_unit_consistency(
-        self, csv_data: pd.DataFrame, json_metrics: Dict[str, Any], tolerance: float
+        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float
     ) -> None:
         """Validate unit consistency across metrics."""
         try:
@@ -443,7 +444,7 @@ class PortfolioMetricsValidator:
                     )
 
         except Exception as e:
-            self.log(f"Error validating unit consistency: {str(e)}", "error")
+            self.log(f"Error validating unit consistency: {e!s}", "error")
             self.results.append(
                 ValidationResult(
                     check_name="Unit Consistency Validation",
@@ -451,13 +452,13 @@ class PortfolioMetricsValidator:
                     expected_value="Consistent units throughout",
                     actual_value="Error during validation",
                     tolerance=tolerance,
-                    error_message=f"Validation error: {str(e)}",
+                    error_message=f"Validation error: {e!s}",
                     severity="warning",
                 )
             )
 
     def _validate_win_rates(
-        self, csv_data: pd.DataFrame, json_metrics: Dict[str, Any], tolerance: float
+        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float
     ) -> None:
         """Validate win rate calculations against CSV data."""
         try:
@@ -502,7 +503,7 @@ class PortfolioMetricsValidator:
                     )
 
         except Exception as e:
-            self.log(f"Error validating win rates: {str(e)}", "error")
+            self.log(f"Error validating win rates: {e!s}", "error")
             self.results.append(
                 ValidationResult(
                     check_name="Win Rate Validation",
@@ -510,13 +511,13 @@ class PortfolioMetricsValidator:
                     expected_value="Consistent win rates",
                     actual_value="Error during validation",
                     tolerance=tolerance,
-                    error_message=f"Validation error: {str(e)}",
+                    error_message=f"Validation error: {e!s}",
                     severity="warning",
                 )
             )
 
     def _validate_expectancy_units(
-        self, csv_data: pd.DataFrame, json_metrics: Dict[str, Any], tolerance: float
+        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float
     ) -> None:
         """Validate that expectancy values use consistent units."""
         try:
@@ -559,7 +560,7 @@ class PortfolioMetricsValidator:
                 )
 
         except Exception as e:
-            self.log(f"Error validating expectancy units: {str(e)}", "error")
+            self.log(f"Error validating expectancy units: {e!s}", "error")
             self.results.append(
                 ValidationResult(
                     check_name="Expectancy Units Validation",
@@ -567,7 +568,7 @@ class PortfolioMetricsValidator:
                     expected_value="Reasonable expectancy values",
                     actual_value="Error during validation",
                     tolerance=tolerance,
-                    error_message=f"Validation error: {str(e)}",
+                    error_message=f"Validation error: {e!s}",
                     severity="warning",
                 )
             )
@@ -616,8 +617,8 @@ class PortfolioMetricsValidator:
 
 def validate_portfolio_metrics(
     csv_path: str,
-    json_metrics: Dict[str, Any],
-    log: Optional[Callable[[str, str], None]] = None,
+    json_metrics: dict[str, Any],
+    log: Callable[[str, str], None] | None = None,
 ) -> ValidationSummary:
     """
     Convenience function to validate portfolio metrics.

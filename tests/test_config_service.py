@@ -5,8 +5,6 @@ and correct configuration processing.
 
 import os
 
-import pytest
-
 from app.tools.config_management import apply_config_defaults, normalize_config
 from app.tools.config_service import ConfigService, get_unified_config
 from app.tools.get_config import get_config
@@ -22,7 +20,7 @@ class TestConfigService:
         assert result["BASE_DIR"] == os.path.abspath(".")
         assert result["PERIOD"] == "max"
         assert result["RSI_WINDOW"] == 14
-        assert result["SHORT"] == False
+        assert result["SHORT"] is False
 
     def test_synthetic_ticker_logic(self):
         """Test synthetic ticker construction."""
@@ -60,7 +58,7 @@ class TestConfigService:
         assert result["BASE_DIR"] == os.path.abspath("/custom/path")
         assert result["PERIOD"] == "1y"
         assert result["RSI_WINDOW"] == 20
-        assert result["SHORT"] == True
+        assert result["SHORT"] is True
 
     def test_merge_configs(self):
         """Test configuration merging."""
@@ -72,17 +70,17 @@ class TestConfigService:
         assert result["TICKER"] == "BTC"
         assert result["PERIOD"] == "2y"
         assert result["RSI_WINDOW"] == 20
-        assert result["SHORT"] == False  # Default applied
+        assert result["SHORT"] is False  # Default applied
 
     def test_validate_config_synthetic(self):
         """Test configuration validation for synthetic tickers."""
         # Valid synthetic config
         valid_config = {"USE_SYNTHETIC": True, "TICKER_1": "BTC", "TICKER_2": "ETH"}
-        assert ConfigService.validate_config(valid_config) == True
+        assert ConfigService.validate_config(valid_config) is True
 
         # Invalid synthetic config (missing TICKER_1)
         invalid_config = {"USE_SYNTHETIC": True, "TICKER_2": "ETH"}
-        assert ConfigService.validate_config(invalid_config) == False
+        assert ConfigService.validate_config(invalid_config) is False
 
     def test_backward_compatibility_with_get_config(self):
         """Test that ConfigService produces same results as get_config."""

@@ -5,9 +5,7 @@ Tests the end-to-end integration of Monte Carlo analysis with the
 concurrency review pipeline including configuration, reporting, and visualization.
 """
 
-import json
 import unittest
-from pathlib import Path
 from unittest.mock import Mock, patch
 
 from app.concurrency.tools.monte_carlo import (

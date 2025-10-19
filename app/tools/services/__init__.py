@@ -52,25 +52,26 @@ from .signal_data_aggregator import (
 )
 from .strategy_execution_engine import StrategyExecutionEngine
 
+
 __all__ = [
-    # Strategy Analysis Services (existing)
-    "StrategyExecutionEngine",
-    "PortfolioProcessingService",
-    "ResultAggregationService",
-    "ServiceCoordinator",
-    "StrategyAnalysisService",
-    "MACrossService",
-    "StrategyAnalysisServiceError",
-    # Trade History Close Services (new)
-    "SignalDataAggregator",
-    "StrategyData",
-    "get_signal_data_aggregator",
-    "SellReportGenerator",
-    "generate_sell_report",
-    "ExitStrategyOptimizer",
     "ExitRecommendation",
     "ExitScenario",
+    "ExitStrategyOptimizer",
+    "MACrossService",
     "MarketCondition",
     "OptimizationResult",
+    "PortfolioProcessingService",
+    "ResultAggregationService",
+    "SellReportGenerator",
+    "ServiceCoordinator",
+    # Trade History Close Services (new)
+    "SignalDataAggregator",
+    "StrategyAnalysisService",
+    "StrategyAnalysisServiceError",
+    "StrategyData",
+    # Strategy Analysis Services (existing)
+    "StrategyExecutionEngine",
+    "generate_sell_report",
+    "get_signal_data_aggregator",
     "optimize_exit_strategy",
 ]

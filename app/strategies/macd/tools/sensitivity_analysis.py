@@ -5,7 +5,8 @@ This module handles parameter sensitivity analysis for MACD cross strategies,
 analyzing combinations of short EMA, long EMA, and signal line windows.
 """
 
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
+from typing import Any
 
 import polars as pl
 
@@ -17,16 +18,16 @@ from app.tools.strategy.sensitivity_analysis import (
 
 def analyze_parameter_combinations(
     data: pl.DataFrame,
-    fast_periods: range = None,
-    slow_periods: range = None,
-    signal_periods: range = None,
-    short_windows: range = None,
-    long_windows: range = None,
-    signal_windows: range = None,
-    config: Dict[str, Any] = None,
-    log: Callable = None,
+    fast_periods: range | None = None,
+    slow_periods: range | None = None,
+    signal_periods: range | None = None,
+    short_windows: range | None = None,
+    long_windows: range | None = None,
+    signal_windows: range | None = None,
+    config: dict[str, Any] | None = None,
+    log: Callable | None = None,
     progress_update_fn=None,
-) -> Optional[pl.DataFrame]:
+) -> pl.DataFrame | None:
     """
     Perform MACD parameter sensitivity analysis across period combinations.
 
@@ -107,12 +108,12 @@ def analyze_parameter_combinations(
 
 def analyze_parameter_combination(
     data: pl.DataFrame,
-    fast_period: int = None,
-    slow_period: int = None,
-    signal_period: int = None,
-    config: Dict[str, Any] = None,
-    log: Callable = None,
-) -> Optional[Dict[str, Any]]:
+    fast_period: int | None = None,
+    slow_period: int | None = None,
+    signal_period: int | None = None,
+    config: dict[str, Any] | None = None,
+    log: Callable | None = None,
+) -> dict[str, Any] | None:
     """
     Analyze a single MACD parameter combination.
 
@@ -151,10 +152,6 @@ def analyze_parameter_combination(
                 "fast_period": fast,
                 "slow_period": slow,
                 "signal_period": signal,
-                # Keep legacy names for backwards compatibility
-                "fast_period": fast,
-                "slow_period": slow,
-                "signal_period": signal,
             }
         )
 
@@ -178,10 +175,6 @@ def analyze_parameter_combination(
                     "Fast Period": fast,
                     "Slow Period": slow,
                     "Signal Period": signal,
-                    # Keep legacy names for backwards compatibility during transition
-                    "Fast Period": fast,
-                    "Slow Period": slow,
-                    "Signal Period": signal,
                 }
             )
 
@@ -192,13 +185,13 @@ def analyze_parameter_combination(
         slow = slow_period or slow_period
         signal = signal_period or signal_period
         log(
-            f"Failed to analyze MACD parameter combination {fast}/{slow}/{signal}: {str(e)}",
+            f"Failed to analyze MACD parameter combination {fast}/{slow}/{signal}: {e!s}",
             "error",
         )
         return None
 
 
-def export_results(df: pl.DataFrame, config: Dict[str, Any], log: Callable) -> None:
+def export_results(df: pl.DataFrame, config: dict[str, Any], log: Callable) -> None:
     """
     Export MACD analysis results to CSV.
 

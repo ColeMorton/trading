@@ -5,13 +5,15 @@ This module provides functions to calculate various signal value metrics
 for trading strategies, helping to quantify the value of each signal.
 """
 
+from collections.abc import Callable
 import os
-from typing import Any, Callable, Dict, List
+from typing import Any
 
 import numpy as np
 import polars as pl
 
 from .signal_processor import SignalDefinition, SignalProcessor
+
 
 # Get configuration
 USE_FIXED_SIGNAL_PROC = os.getenv("USE_FIXED_SIGNAL_PROC", "true").lower() == "true"
@@ -20,10 +22,10 @@ USE_FIXED_SIGNAL_PROC = os.getenv("USE_FIXED_SIGNAL_PROC", "true").lower() == "t
 def calculate_signal_value_metrics(
     signals_df: pl.DataFrame,
     returns_df: pl.DataFrame,
-    risk_metrics: Dict[str, Any],
+    risk_metrics: dict[str, Any],
     strategy_id: str,
     log: Callable[[str, str], None],
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Calculate signal value metrics for a strategy.
 
     Args:
@@ -170,7 +172,7 @@ def calculate_signal_value_metrics(
         }
     except Exception as e:
         log(
-            f"Error calculating signal value metrics for {strategy_id}: {str(e)}",
+            f"Error calculating signal value metrics for {strategy_id}: {e!s}",
             "error",
         )
         return {}
@@ -238,11 +240,11 @@ def _calculate_opportunity_score(
 
 
 def integrate_signal_value_metrics(
-    signals_df_list: List[pl.DataFrame],
-    returns_df_list: List[pl.DataFrame],
-    risk_metrics: Dict[str, Dict[str, float]],
+    signals_df_list: list[pl.DataFrame],
+    returns_df_list: list[pl.DataFrame],
+    risk_metrics: dict[str, dict[str, float]],
     log: Callable[[str, str], None],
-) -> Dict[str, Dict[str, float]]:
+) -> dict[str, dict[str, float]]:
     """Calculate and integrate signal value metrics for all strategies.
 
     Args:
@@ -262,7 +264,7 @@ def integrate_signal_value_metrics(
 
         # Calculate metrics for each strategy
         for i, (signals_df, returns_df) in enumerate(
-            zip(signals_df_list, returns_df_list)
+            zip(signals_df_list, returns_df_list, strict=False)
         ):
             strategy_id = f"strategy_{i+1}"
 
@@ -289,13 +291,13 @@ def integrate_signal_value_metrics(
 
         return results
     except Exception as e:
-        log(f"Error integrating signal value metrics: {str(e)}", "error")
+        log(f"Error integrating signal value metrics: {e!s}", "error")
         return {}
 
 
 def _calculate_aggregate_signal_value_metrics(
-    strategy_metrics: Dict[str, Dict[str, float]], log: Callable[[str, str], None]
-) -> Dict[str, float]:
+    strategy_metrics: dict[str, dict[str, float]], log: Callable[[str, str], None]
+) -> dict[str, float]:
     """Calculate aggregate signal value metrics across all strategies.
 
     Args:
@@ -324,19 +326,19 @@ def _calculate_aggregate_signal_value_metrics(
         valid_strategies = 0
 
         # Sum metrics across all strategies
-        for strategy_id, metrics in strategy_metrics.items():
+        for _strategy_id, metrics in strategy_metrics.items():
             if not metrics:
                 continue
 
             valid_strategies += 1
 
-            for metric_name in aggregate_metrics.keys():
+            for metric_name in aggregate_metrics:
                 if metric_name in metrics:
                     aggregate_metrics[metric_name] += metrics[metric_name]
 
         # Calculate averages
         if valid_strategies > 0:
-            for metric_name in aggregate_metrics.keys():
+            for metric_name in aggregate_metrics:
                 aggregate_metrics[metric_name] /= valid_strategies
 
         log(
@@ -346,5 +348,5 @@ def _calculate_aggregate_signal_value_metrics(
 
         return aggregate_metrics
     except Exception as e:
-        log(f"Error calculating aggregate signal value metrics: {str(e)}", "error")
+        log(f"Error calculating aggregate signal value metrics: {e!s}", "error")
         return {"signal_opportunity_score": 0.0, "error": str(e)}

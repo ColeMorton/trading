@@ -1,12 +1,12 @@
 """Seasonality expectancy analyzer for specific time periods."""
 
-import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+import warnings
 
 import numpy as np
 import pandas as pd
+
 
 warnings.filterwarnings("ignore")
 
@@ -69,7 +69,7 @@ class SeasonalityExpectancyAnalyzer:
                 if result:
                     self.results.append(result)
             except Exception as e:
-                print(f"⚠️  Error processing {csv_file.name}: {str(e)}")
+                print(f"⚠️  Error processing {csv_file.name}: {e!s}")
                 continue
 
         # Convert to DataFrame and rank
@@ -94,7 +94,7 @@ class SeasonalityExpectancyAnalyzer:
         min_sample_size: int,
         min_significance: float,
         min_years: float,
-    ) -> Optional[Dict]:
+    ) -> dict | None:
         """Analyze a single ticker's seasonality file."""
 
         # Load data
@@ -222,7 +222,7 @@ class SeasonalityExpectancyAnalyzer:
         """Classify ticker into asset class."""
         if "-USD" in ticker:
             return "Crypto"
-        elif ticker in [
+        if ticker in [
             "SPY",
             "QQQ",
             "IWM",
@@ -239,21 +239,19 @@ class SeasonalityExpectancyAnalyzer:
             "XLC",
         ]:
             return "ETF"
-        elif ticker == "GLD":
+        if ticker == "GLD":
             return "Commodity"
-        else:
-            return "Stock"
+        return "Stock"
 
     def _calculate_confidence(self, significance: float, sample_size: int) -> str:
         """Calculate confidence level based on statistical significance and sample size."""
         if significance > 0.8 and sample_size > 200:
             return "Very High"
-        elif significance > 0.7 and sample_size > 100:
+        if significance > 0.7 and sample_size > 100:
             return "High"
-        elif significance > 0.6 and sample_size > 50:
+        if significance > 0.6 and sample_size > 50:
             return "Medium"
-        else:
-            return "Low"
+        return "Low"
 
     def generate_report(self, results_df: pd.DataFrame, top_n: int = 20) -> str:
         """Generate formatted analysis report."""
@@ -266,7 +264,7 @@ class SeasonalityExpectancyAnalyzer:
         report_lines = [
             "🎯 SEASONALITY EXPECTANCY ANALYSIS",
             "=" * 50,
-            f"📅 Analysis Period: July 23 - August 23, 2025",
+            "📅 Analysis Period: July 23 - August 23, 2025",
             f"📊 Total Tickers Analyzed: {len(results_df)}",
             f"🏆 Top {top_n} Opportunities Shown",
             "",
@@ -331,7 +329,7 @@ class SeasonalityExpectancyAnalyzer:
         return "\n".join(report_lines)
 
     def save_detailed_results(
-        self, results_df: pd.DataFrame, filename: str = None
+        self, results_df: pd.DataFrame, filename: str | None = None
     ) -> str:
         """Save detailed results to CSV file."""
         if filename is None:

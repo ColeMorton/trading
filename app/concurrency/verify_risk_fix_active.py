@@ -4,8 +4,9 @@ Verify that the fixed risk calculation is now active.
 """
 
 import os
-import sys
 from pathlib import Path
+import sys
+
 
 # Add parent directory to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -55,7 +56,7 @@ def main():
     data_list = []
     position_arrays = []
 
-    for i in range(n_strategies):
+    for _i in range(n_strategies):
         # Create price data
         returns = np.random.randn(n_periods) * 0.01
         prices = 100 * np.exp(np.cumsum(returns))
@@ -85,7 +86,7 @@ def main():
         if "fixed risk contribution" in log_msg.lower():
             implementation_used = "FIXED"
             break
-        elif "legacy risk contribution" in log_msg.lower():
+        if "legacy risk contribution" in log_msg.lower():
             implementation_used = "LEGACY"
             break
 

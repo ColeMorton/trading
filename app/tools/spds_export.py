@@ -5,13 +5,10 @@ Consolidates all SPDS export functionality into a single, unified service.
 Replaces multiple export services with a simple, comprehensive exporter.
 """
 
-import csv
-import json
-import os
-from dataclasses import asdict
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 
@@ -40,8 +37,8 @@ class SPDSExporter:
             directory.mkdir(parents=True, exist_ok=True)
 
     async def export_analysis_results(
-        self, results: Dict[str, AnalysisResult], filename_prefix: str = "analysis"
-    ) -> Dict[str, str]:
+        self, results: dict[str, AnalysisResult], filename_prefix: str = "analysis"
+    ) -> dict[str, str]:
         """
         Export analysis results in all supported formats.
 
@@ -83,7 +80,7 @@ class SPDSExporter:
 
     async def export_batch_results(
         self, batch_result: BatchAnalysisResult
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """Export batch analysis results."""
         filename_prefix = f"batch_{batch_result.request.analysis_type}"
 
@@ -99,7 +96,7 @@ class SPDSExporter:
         return exported_files
 
     async def _export_json(
-        self, results: Dict[str, AnalysisResult], base_filename: str
+        self, results: dict[str, AnalysisResult], base_filename: str
     ) -> Path:
         """Export results in JSON format."""
         json_file = self.analysis_dir / f"{base_filename}.json"
@@ -126,14 +123,14 @@ class SPDSExporter:
         return json_file
 
     async def _export_csv(
-        self, results: Dict[str, AnalysisResult], base_filename: str
+        self, results: dict[str, AnalysisResult], base_filename: str
     ) -> Path:
         """Export results in CSV format."""
         csv_file = self.analysis_dir / f"{base_filename}.csv"
 
         # Prepare data for CSV
         rows = []
-        for key, result in results.items():
+        for _key, result in results.items():
             row = {
                 "position_uuid": result.position_uuid,
                 "strategy_name": result.strategy_name,
@@ -179,14 +176,14 @@ class SPDSExporter:
         return csv_file
 
     async def _export_markdown(
-        self, results: Dict[str, AnalysisResult], base_filename: str
+        self, results: dict[str, AnalysisResult], base_filename: str
     ) -> Path:
         """Export results in Markdown format."""
         markdown_file = self.reports_dir / f"{base_filename}.md"
 
         # Generate markdown content
         lines = []
-        lines.append(f"# SPDS Analysis Report")
+        lines.append("# SPDS Analysis Report")
         lines.append(f"**Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         lines.append(f"**Total Results**: {len(results)}")
         lines.append("")
@@ -276,7 +273,7 @@ class SPDSExporter:
         return markdown_file
 
     async def _export_backtesting_parameters(
-        self, results: Dict[str, AnalysisResult], base_filename: str
+        self, results: dict[str, AnalysisResult], base_filename: str
     ) -> Path:
         """Export backtesting parameters."""
         backtesting_file = self.backtesting_dir / f"{base_filename}_parameters.json"
@@ -341,7 +338,7 @@ class SPDSExporter:
         return backtesting_file
 
     async def _export_excel(
-        self, results: Dict[str, AnalysisResult], base_filename: str
+        self, results: dict[str, AnalysisResult], base_filename: str
     ) -> Path:
         """Export results in Excel format with multiple sheets."""
         excel_file = self.analysis_dir / f"{base_filename}.xlsx"
@@ -461,8 +458,8 @@ class SPDSExporter:
         return summary_file
 
     def _create_summary_data(
-        self, results: Dict[str, AnalysisResult]
-    ) -> Dict[str, Any]:
+        self, results: dict[str, AnalysisResult]
+    ) -> dict[str, Any]:
         """Create summary data for results."""
         if not results:
             return {"total_results": 0}
@@ -519,7 +516,7 @@ class SPDSExporter:
                 if file_path.is_file() and file_path.stat().st_mtime < cutoff_time:
                     file_path.unlink()
 
-    def get_export_summary(self) -> Dict[str, Any]:
+    def get_export_summary(self) -> dict[str, Any]:
         """Get summary of export directory contents."""
         summary = {
             "export_directory": str(self.export_dir),
@@ -541,20 +538,20 @@ class SPDSExporter:
 
 # Convenience functions
 async def export_results(
-    results: Dict[str, AnalysisResult],
+    results: dict[str, AnalysisResult],
     config: SPDSConfig,
     filename_prefix: str = "analysis",
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Convenience function to export analysis results."""
     exporter = SPDSExporter(config)
     return await exporter.export_analysis_results(results, filename_prefix)
 
 
-async def export_batch_results(batch_result: BatchAnalysisResult) -> Dict[str, str]:
+async def export_batch_results(batch_result: BatchAnalysisResult) -> dict[str, str]:
     """Convenience function to export batch analysis results."""
     exporter = SPDSExporter(batch_result.request.config)
     return await exporter.export_batch_results(batch_result)
 
 
 # Export the main classes and functions
-__all__ = ["SPDSExporter", "export_results", "export_batch_results"]
+__all__ = ["SPDSExporter", "export_batch_results", "export_results"]

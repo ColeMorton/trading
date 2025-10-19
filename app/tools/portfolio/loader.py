@@ -37,8 +37,9 @@ modules. It includes support for:
 - Comprehensive validation
 """
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Union
+from typing import Any
 
 import polars as pl
 import yaml
@@ -57,8 +58,8 @@ from app.tools.portfolio.validation import (
 
 
 def load_portfolio_from_csv(
-    csv_path: Union[str, Path], log: Callable[[str, str], None], config: Dict[str, Any]
-) -> List[StrategyConfig]:
+    csv_path: str | Path, log: Callable[[str, str], None], config: dict[str, Any]
+) -> list[StrategyConfig]:
     """Load portfolio configuration from CSV file.
 
     Args:
@@ -202,8 +203,8 @@ def load_portfolio_from_csv(
 
 
 def load_portfolio_from_json(
-    json_path: Union[str, Path], log: Callable[[str, str], None], config: Dict[str, Any]
-) -> List[StrategyConfig]:
+    json_path: str | Path, log: Callable[[str, str], None], config: dict[str, Any]
+) -> list[StrategyConfig]:
     """Load portfolio configuration from JSON file.
 
     Args:
@@ -243,8 +244,8 @@ def load_portfolio_from_json(
 
 
 def load_portfolio_from_yaml(
-    yaml_path: Union[str, Path], log: Callable[[str, str], None], config: Dict[str, Any]
-) -> List[StrategyConfig]:
+    yaml_path: str | Path, log: Callable[[str, str], None], config: dict[str, Any]
+) -> list[StrategyConfig]:
     """Load portfolio configuration from YAML portfolio definition file.
 
     Args:
@@ -268,7 +269,7 @@ def load_portfolio_from_yaml(
 
     # Read YAML file
     try:
-        with open(path, "r") as f:
+        with open(path) as f:
             portfolio_def = yaml.safe_load(f)
     except yaml.YAMLError as e:
         log(f"Error parsing YAML file: {e}", "error")
@@ -352,8 +353,8 @@ def load_portfolio_from_yaml(
 
 
 def load_portfolio(
-    portfolio_name: str, log: Callable[[str, str], None], config: Dict[str, Any]
-) -> List[StrategyConfig]:
+    portfolio_name: str, log: Callable[[str, str], None], config: dict[str, Any]
+) -> list[StrategyConfig]:
     """Load portfolio configuration from either JSON or CSV file.
 
     Args:
@@ -383,16 +384,13 @@ def load_portfolio(
         extension = path.suffix.lower()
         if extension == ".json":
             return load_portfolio_from_json(path, log, config)
-        elif extension == ".csv":
+        if extension == ".csv":
             return load_portfolio_from_csv(path, log, config)
-        elif extension == ".yaml":
+        if extension == ".yaml":
             return load_portfolio_from_yaml(path, log, config)
-        else:
-            error_msg = (
-                f"Unsupported file type: {extension}. Must be .json, .csv, or .yaml"
-            )
-            log(error_msg, "error")
-            raise ValueError(error_msg)
+        error_msg = f"Unsupported file type: {extension}. Must be .json, .csv, or .yaml"
+        log(error_msg, "error")
+        raise ValueError(error_msg)
     except FileNotFoundError:
         log(f"Portfolio file not found: {portfolio_name}", "error")
         raise

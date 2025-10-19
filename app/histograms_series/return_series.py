@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import yfinance as yf
 from scipy.stats import norm, percentileofscore
+import yfinance as yf
+
 
 # Complete Color Palette Constants
 PRIMARY_DATA = "#26c6da"  # Cyan - Primary data

@@ -53,6 +53,8 @@ services:
       - DATABASE_URL=postgresql://trading_user:trading_password@postgres:5432/trading_db
       - REDIS_URL=redis://redis:6379
       - ENVIRONMENT=development
+      - DEBUG=true
+      - API_KEY_SECRET=dev-secret-key-change-in-production
     ports:
       - '8000:8000'
     volumes:
@@ -72,6 +74,31 @@ services:
       retries: 5
       start_period: 30s
     command: uvicorn app.api.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # ARQ Worker for async job processing
+  arq_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+      target: development
+    container_name: trading_arq_worker
+    environment:
+      - DATABASE_URL=postgresql://trading_user:trading_password@postgres:5432/trading_db
+      - REDIS_URL=redis://redis:6379
+      - ENVIRONMENT=development
+      - DEBUG=true
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - trading_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: arq app.api.jobs.worker.WorkerSettings
+    restart: unless-stopped
 
   # React Frontend (for development)
   frontend:

@@ -5,9 +5,9 @@ This module handles the processing of scanner data, including loading existing r
 and processing new tickers for both SMA and EMA configurations.
 """
 
-import os
+from collections.abc import Callable
 from datetime import datetime
-from typing import Callable, Dict, List, Tuple
+import os
 
 import polars as pl
 
@@ -16,7 +16,7 @@ from app.tools.file_utils import is_file_from_today
 from app.utils import get_filename, get_path
 
 
-def load_existing_results(config: dict, log: Callable) -> Tuple[set, List[Dict]]:
+def load_existing_results(config: dict, log: Callable) -> tuple[set, list[dict]]:
     """
     Load existing scanner results from today if available.
 
@@ -51,7 +51,7 @@ def load_existing_results(config: dict, log: Callable) -> Tuple[set, List[Dict]]
     return existing_tickers, results_data
 
 
-def process_ticker(ticker: str, row: dict, config: dict, log: Callable) -> Dict:
+def process_ticker(ticker: str, row: dict, config: dict, log: Callable) -> dict:
     """
     Process a single ticker with both SMA and EMA configurations.
 
@@ -102,7 +102,7 @@ def process_ticker(ticker: str, row: dict, config: dict, log: Callable) -> Dict:
 
 
 def export_results(
-    results_data: List[Dict], original_df: pl.DataFrame, config: dict, log: Callable
+    results_data: list[dict], original_df: pl.DataFrame, config: dict, log: Callable
 ) -> None:
     """
     Export scanner results to CSV in a date-specific subdirectory.
@@ -290,18 +290,17 @@ def export_results(
                     filter_conditions.append(
                         pl.col("SMA_SLOW") == signal_config["slow_period"]
                     )
-            else:
-                # For EMA, check EMA_FAST and EMA_SLOW
-                if (
-                    "EMA_FAST" in portfolio_df.columns
-                    and "EMA_SLOW" in portfolio_df.columns
-                ):
-                    filter_conditions.append(
-                        pl.col("EMA_FAST") == signal_config["fast_period"]
-                    )
-                    filter_conditions.append(
-                        pl.col("EMA_SLOW") == signal_config["slow_period"]
-                    )
+            # For EMA, check EMA_FAST and EMA_SLOW
+            elif (
+                "EMA_FAST" in portfolio_df.columns
+                and "EMA_SLOW" in portfolio_df.columns
+            ):
+                filter_conditions.append(
+                    pl.col("EMA_FAST") == signal_config["fast_period"]
+                )
+                filter_conditions.append(
+                    pl.col("EMA_SLOW") == signal_config["slow_period"]
+                )
 
         # Combine all filter conditions
         combined_filter = filter_conditions[0]

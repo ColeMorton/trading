@@ -1,8 +1,7 @@
 """Service for portfolio-based seasonality analysis."""
 
-import re
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+import re
 
 import pandas as pd
 from rich.console import Console
@@ -27,7 +26,7 @@ class PortfolioSeasonalityService:
         self.console = Console()
         self.strategies_dir = Path("data/raw/strategies")
 
-    def run_analysis(self) -> Dict[str, any]:
+    def run_analysis(self) -> dict[str, any]:
         """Run seasonality analysis for tickers in the specified portfolio.
 
         Returns:
@@ -93,7 +92,7 @@ class PortfolioSeasonalityService:
                         "analysis_source": analysis_source,
                     }
                 except Exception as e:
-                    self.console.print(f"[red]Error analyzing {ticker}: {str(e)}[/red]")
+                    self.console.print(f"[red]Error analyzing {ticker}: {e!s}[/red]")
                     # Determine analysis source
                     if self.config.time_period_days is not None:
                         analysis_source = "override"
@@ -148,7 +147,7 @@ class PortfolioSeasonalityService:
         try:
             df = pd.read_csv(portfolio_path)
         except Exception as e:
-            raise ValueError(f"Error reading portfolio CSV: {str(e)}")
+            raise ValueError(f"Error reading portfolio CSV: {e!s}")
 
         # Validate required columns
         required_columns = ["Ticker", "Signal Entry", "Avg Trade Duration"]
@@ -161,7 +160,7 @@ class PortfolioSeasonalityService:
 
         return df
 
-    def _determine_ticker_periods(self, portfolio_df: pd.DataFrame) -> Dict[str, int]:
+    def _determine_ticker_periods(self, portfolio_df: pd.DataFrame) -> dict[str, int]:
         """Determine time period for each ticker based on signal entry status.
 
         Args:
@@ -215,7 +214,7 @@ class PortfolioSeasonalityService:
 
         return ticker_periods
 
-    def _parse_duration_to_days(self, duration_str: str) -> Optional[int]:
+    def _parse_duration_to_days(self, duration_str: str) -> int | None:
         """Parse duration string to extract days.
 
         Args:
@@ -243,14 +242,14 @@ class PortfolioSeasonalityService:
 
         return None
 
-    def _display_analysis_plan(self, ticker_periods: Dict[str, int]) -> None:
+    def _display_analysis_plan(self, ticker_periods: dict[str, int]) -> None:
         """Display the analysis plan showing tickers and their time periods.
 
         Args:
             ticker_periods: Dictionary mapping ticker to time period in days
         """
         self.console.print(
-            f"\n[bold cyan]Portfolio Seasonality Analysis Plan[/bold cyan]"
+            "\n[bold cyan]Portfolio Seasonality Analysis Plan[/bold cyan]"
         )
         self.console.print(f"Portfolio: [yellow]{self.config.portfolio}[/yellow]")
         self.console.print(f"Total tickers: [green]{len(ticker_periods)}[/green]")
@@ -320,7 +319,7 @@ class PortfolioSeasonalityService:
             )
         self.console.print()
 
-    def _save_portfolio_summary(self, results: Dict[str, Dict]) -> None:
+    def _save_portfolio_summary(self, results: dict[str, dict]) -> None:
         """Save consolidated portfolio summary to file.
 
         Args:
@@ -408,7 +407,7 @@ class PortfolioSeasonalityService:
                     f"[green]✓ Portfolio JSON saved: {json_filename}[/green]"
                 )
 
-    def _prepare_display_data(self, results: Dict[str, Dict]) -> List[Dict]:
+    def _prepare_display_data(self, results: dict[str, dict]) -> list[dict]:
         """Prepare data for table display.
 
         Args:
@@ -470,9 +469,11 @@ class PortfolioSeasonalityService:
 
         # Sort by expectancy (highest first)
         display_data.sort(
-            key=lambda x: x.get("expectancy", -999)
-            if isinstance(x.get("expectancy"), (int, float))
-            else -999,
+            key=lambda x: (
+                x.get("expectancy", -999)
+                if isinstance(x.get("expectancy"), int | float)
+                else -999
+            ),
             reverse=True,
         )
         return display_data

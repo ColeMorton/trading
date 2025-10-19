@@ -1,6 +1,6 @@
 import concurrent.futures
 from datetime import datetime, timedelta
-from typing import List, Tuple, TypedDict
+from typing import TypedDict
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,6 +11,7 @@ import vectorbt as vbt
 from app.tools.data_types import DataConfig
 from app.tools.download_data import download_data
 from app.tools.setup_logging import setup_logging
+
 
 # Set up logging
 log, log_close, logger, _ = setup_logging("atr", "atr_analysis.log")
@@ -342,7 +343,7 @@ def backtest_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
         log(f"DEBUG: entries_series shape: {entries_series.shape}")
         log(f"DEBUG: exits_series shape: {exits_series.shape}")
 
-        portfolio: "vbt.Portfolio" = vbt.Portfolio.from_signals(
+        portfolio: vbt.Portfolio = vbt.Portfolio.from_signals(
             close=close_series,
             entries=entries_series,
             exits=exits_series,
@@ -351,7 +352,7 @@ def backtest_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
         )
         return portfolio
     except Exception as e:
-        log(f"Error in backtest_strategy: {str(e)}", "error")
+        log(f"Error in backtest_strategy: {e!s}", "error")
         log(f"DEBUG: Exception type: {type(e)}")
         log(f"DEBUG: Exception args: {e.args}")
 
@@ -373,7 +374,7 @@ def backtest_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
 
 def analyze_params(
     data: pd.DataFrame, atr_length: int, atr_multiplier: float
-) -> Tuple[int, float, float]:
+) -> tuple[int, float, float]:
     """
     Analyze parameters for ATR trailing stop strategy.
 
@@ -419,7 +420,7 @@ def analyze_params(
                 )
 
         # Backtest the strategy
-        portfolio: "vbt.Portfolio" = backtest_strategy(data_with_signals)
+        portfolio: vbt.Portfolio = backtest_strategy(data_with_signals)
 
         # Get total return as scalar value
         total_return_value = portfolio.total_return()
@@ -444,25 +445,25 @@ def analyze_params(
                 )
                 total_return_value = float(total_return_value.iloc[0])
                 log(f"DEBUG: Used first value: {total_return_value}")
-        elif isinstance(total_return_value, (float, int)):
+        elif isinstance(total_return_value, float | int):
             # Already a scalar, no conversion needed
             log(f"DEBUG: total_return_value is already a scalar: {total_return_value}")
         else:
             # Handle other types by converting to float
-            log(f"DEBUG: Converting unknown type to float")
+            log("DEBUG: Converting unknown type to float")
             total_return_value = float(total_return_value)
             log(f"DEBUG: Converted value: {total_return_value}")
 
         return atr_length, atr_multiplier, total_return_value
     except Exception as e:
-        log(f"Error in analyze_params: {str(e)}", "error")
+        log(f"Error in analyze_params: {e!s}", "error")
         log(f"DEBUG: Exception type: {type(e)}")
         log(f"DEBUG: Exception args: {e.args}")
         raise
 
 
 def parameter_sensitivity_analysis(
-    data: pd.DataFrame, atr_lengths: List[int], atr_multipliers: List[float]
+    data: pd.DataFrame, atr_lengths: list[int], atr_multipliers: list[float]
 ) -> pd.DataFrame:
     """
     Perform parameter sensitivity analysis with sequential processing for reliability.
@@ -510,7 +511,7 @@ def parameter_sensitivity_analysis(
                     results_dict[length][multiplier] = float(total_return)
                 except Exception as e:
                     log(
-                        f"Error analyzing params for length={length}, multiplier={multiplier}: {str(e)}",
+                        f"Error analyzing params for length={length}, multiplier={multiplier}: {e!s}",
                         "error",
                     )
                     # Store NaN for failed combinations
@@ -536,7 +537,7 @@ def parameter_sensitivity_analysis(
         log(f"DEBUG: Results dtypes: {results.dtypes}")
         return results
     except Exception as e:
-        log(f"Error in parameter_sensitivity_analysis: {str(e)}", "error")
+        log(f"Error in parameter_sensitivity_analysis: {e!s}", "error")
         raise
 
 
@@ -565,7 +566,7 @@ def plot_heatmap(results: pd.DataFrame, ticker: str, config: ATRConfig) -> None:
     log(f"DEBUG: Results columns type: {type(numeric_results.columns)}")
 
     # Create heatmap with improved aesthetics
-    ax = sns.heatmap(
+    sns.heatmap(
         numeric_results,
         annot=True,
         cmap="YlGnBu",
@@ -616,8 +617,8 @@ def main(config: ATRConfig | None = None) -> None:
         log(f"Analysis period: {start_date} to {end_date} ({years} years)")
 
         # Define parameter ranges for testing
-        atr_lengths: List[int] = list(range(2, 15))
-        atr_multipliers: List[float] = list(np.arange(1.5, 8.5, 0.5))
+        atr_lengths: list[int] = list(range(2, 15))
+        atr_multipliers: list[float] = list(np.arange(1.5, 8.5, 0.5))
         log(
             f"Testing {len(atr_lengths)} ATR lengths and {len(atr_multipliers)} ATR multipliers"
         )
@@ -769,7 +770,7 @@ def main(config: ATRConfig | None = None) -> None:
 
         return results, best_params, best_return
     except Exception as e:
-        log(f"Error in main function: {str(e)}", "error")
+        log(f"Error in main function: {e!s}", "error")
         raise
 
 

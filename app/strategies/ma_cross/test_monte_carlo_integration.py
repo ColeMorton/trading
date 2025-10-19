@@ -8,9 +8,10 @@ while maintaining compatibility with existing test workflows.
 Consider updating to use app.concurrency.tools.monte_carlo directly.
 """
 
+from pathlib import Path
 import sys
 import warnings
-from pathlib import Path
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
@@ -137,7 +138,7 @@ def test_monte_carlo_integration():
         return True
 
     except Exception as e:
-        print(f"❌ Error during Monte Carlo integration test: {str(e)}")
+        print(f"❌ Error during Monte Carlo integration test: {e!s}")
         import traceback
 
         traceback.print_exc()

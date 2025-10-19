@@ -1,6 +1,7 @@
+from datetime import datetime, timedelta
 import os
 import sys
-from datetime import datetime, timedelta
+
 
 # Add project root to Python path for imports
 project_root = os.path.dirname(
@@ -14,6 +15,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from scipy.cluster.hierarchy import dendrogram, leaves_list, linkage
 from scipy.spatial.distance import squareform
+
 
 PORTFOLIO = [
     "BTC-USD",
@@ -63,14 +65,14 @@ def create_dendrogram_trace(linkage_matrix, labels):
     # Extract positions of each label
     x_coords = []
     y_coords = []
-    for i, d in zip(dn["icoord"], dn["dcoord"]):
+    for i, d in zip(dn["icoord"], dn["dcoord"], strict=False):
         x_coords.extend(i)
         y_coords.extend(d)
         x_coords.append(None)
         y_coords.append(None)
 
     return go.Scatter(
-        x=x_coords, y=y_coords, mode="lines", line=dict(color="black"), hoverinfo="none"
+        x=x_coords, y=y_coords, mode="lines", line={"color": "black"}, hoverinfo="none"
     )
 
 
@@ -86,7 +88,7 @@ def generate_correlation_plot(assets, days, title_suffix=""):
         tuple: (dendrogram figure, heatmap figure)
     """
     datetime.today().strftime("%Y-%m-%d")
-    start_date = (datetime.today() - timedelta(days=days)).strftime("%Y-%m-%d")
+    (datetime.today() - timedelta(days=days)).strftime("%Y-%m-%d")
 
     # Download data
     import pandas as pd
@@ -137,8 +139,8 @@ def generate_correlation_plot(assets, days, title_suffix=""):
             "tickvals": list(range(len(assets))),
             "tickfont": {"size": 10},  # Smaller tick labels
         },
-        margin=dict(t=50, b=30, l=50, r=50),  # Tighter margins
-        font=dict(size=10),  # Consistent font size
+        margin={"t": 50, "b": 30, "l": 50, "r": 50},  # Tighter margins
+        font={"size": 10},  # Consistent font size
     )
 
     # Reorder correlation matrix based on clustering
@@ -161,7 +163,7 @@ def generate_correlation_plot(assets, days, title_suffix=""):
             colorscale="RdBu",
             showscale=True,
             hoverongaps=False,  # Disable hover on gaps
-            hoverlabel=dict(font_size=10),  # Consistent hover text size
+            hoverlabel={"font_size": 10},  # Consistent hover text size
         )
     )
     heatmap_fig.update_layout(
@@ -172,7 +174,7 @@ def generate_correlation_plot(assets, days, title_suffix=""):
             "autorange": "reversed",
             "tickfont": {"size": 9},
         },  # Ensure heatmap matches dendrogram order
-        margin=dict(t=50, b=30, l=50, r=50),  # Tighter margins
+        margin={"t": 50, "b": 30, "l": 50, "r": 50},  # Tighter margins
     )
 
     return dendro_fig, heatmap_fig
@@ -212,7 +214,7 @@ main_fig.add_trace(heatmap1.data[0], row=2, col=1)
 # Generate individual plots for each NEXT asset
 for i, next_asset in enumerate(NEXT):
     portfolio_plus_asset = list(
-        dict.fromkeys(PORTFOLIO + [next_asset])
+        dict.fromkeys([*PORTFOLIO, next_asset])
     )  # Remove duplicates
     dendro, heatmap = generate_correlation_plot(
         portfolio_plus_asset, DAYS, f" (Portfolio + {next_asset})"
@@ -227,8 +229,8 @@ main_fig.update_layout(
     showlegend=False,
     title_text="Portfolio Correlation Analysis",
     template="plotly_white",
-    margin=dict(t=80, b=30, l=50, r=50),  # Reduced margins
-    font=dict(size=10),  # Smaller font size for better compactness
+    margin={"t": 80, "b": 30, "l": 50, "r": 50},  # Reduced margins
+    font={"size": 10},  # Smaller font size for better compactness
 )
 
 # Update subplot heights
@@ -255,6 +257,7 @@ main_fig.write_html(
 
 # Register and use Brave browser
 import webbrowser
+
 
 try:
     # Register Brave browser

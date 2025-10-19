@@ -7,7 +7,6 @@ scoring algorithms, and signal threshold logic.
 
 from unittest.mock import Mock
 
-import numpy as np
 import pytest
 
 from app.tools.market_data_analyzer import MarketDataAnalyzer
@@ -508,7 +507,7 @@ class TestErrorHandling:
         """Test recommendation generation with missing keys."""
         incomplete_analysis = {
             "annualized_volatility": 0.2,
-            "trend_direction_20d": 0.05
+            "trend_direction_20d": 0.05,
             # Missing many required keys
         }
 

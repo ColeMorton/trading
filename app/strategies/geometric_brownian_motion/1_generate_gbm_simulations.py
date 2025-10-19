@@ -215,7 +215,7 @@ def main() -> bool:
         return True
 
     except Exception as e:
-        log(f"Error in GBM simulation: {str(e)}", "error")
+        log(f"Error in GBM simulation: {e!s}", "error")
         log_close()
         raise
 

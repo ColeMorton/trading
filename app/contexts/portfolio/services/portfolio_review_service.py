@@ -7,12 +7,12 @@ and multi-strategy analysis with benchmark comparison.
 Uses unified 3-layer directory structure: portfolio/{type}/{name}/{charts|data|analysis}/
 """
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass
 import json
 import os
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional
 
 import pandas as pd
 import polars as pl
@@ -50,12 +50,12 @@ class StrategyConfig:
     slow_period: int
     strategy_type: str = "SMA"
     direction: str = "long"
-    stop_loss: Optional[float] = None
+    stop_loss: float | None = None
     position_size: float = 1.0
     use_sma: bool = True
     use_hourly: bool = False
-    rsi_window: Optional[int] = None
-    rsi_threshold: Optional[int] = None
+    rsi_window: int | None = None
+    rsi_threshold: int | None = None
     signal_period: int = 9  # For MACD
 
 
@@ -63,22 +63,22 @@ class StrategyConfig:
 class PortfolioSynthesisConfig:
     """Configuration for portfolio synthesis operations."""
 
-    strategies: List[StrategyConfig]
+    strategies: list[StrategyConfig]
     start_date: str = "2020-01-01"
     end_date: str = "2024-12-31"
     init_cash: float = 10000.0
     fees: float = 0.001
-    benchmark_symbol: Optional[str] = None
-    benchmark_type: Optional[str] = None
+    benchmark_symbol: str | None = None
+    benchmark_type: str | None = None
     enable_plotting: bool = True
     export_equity_curve: bool = True
     calculate_risk_metrics: bool = True
     enable_memory_optimization: bool = False
     memory_threshold_mb: float = 500.0
     enable_parallel_processing: bool = False
-    max_workers: Optional[int] = None
+    max_workers: int | None = None
     export_raw_data: bool = False
-    raw_data_export_config: Optional[ExportConfig] = None
+    raw_data_export_config: ExportConfig | None = None
     base_dir: str = "."
 
 
@@ -88,12 +88,12 @@ class PortfolioResults:
 
     portfolio: "vbt.Portfolio"
     benchmark_portfolio: Optional["vbt.Portfolio"]
-    statistics: Dict[str, Any]
-    risk_metrics: Dict[str, float]
-    open_positions: List[Tuple[str, float]]
-    equity_curve_path: Optional[str] = None
-    plot_paths: List[str] = None
-    raw_data_export_results: Optional[ExportResults] = None
+    statistics: dict[str, Any]
+    risk_metrics: dict[str, float]
+    open_positions: list[tuple[str, float]]
+    equity_curve_path: str | None = None
+    plot_paths: list[str] = None
+    raw_data_export_results: ExportResults | None = None
 
 
 class PortfolioSynthesisService:
@@ -135,7 +135,7 @@ class PortfolioSynthesisService:
             self._log("Raw data export enabled")
 
     def _setup_directory_structure_and_metadata(
-        self, execution_time: Optional[float] = None
+        self, execution_time: float | None = None
     ):
         """
         Create unified 3-layer directory structure and save metadata.
@@ -156,7 +156,7 @@ class PortfolioSynthesisService:
             os.makedirs(data_dir, exist_ok=True)
             os.makedirs(analysis_dir, exist_ok=True)
 
-            self._log(f"Created unified directory structure:")
+            self._log("Created unified directory structure:")
             self._log(f"  Base: {base_dir}")
             self._log(f"  Charts: {charts_dir}")
             self._log(f"  Data: {data_dir}")
@@ -173,7 +173,7 @@ class PortfolioSynthesisService:
             return metadata
 
         except Exception as e:
-            self._log(f"Error setting up directory structure: {str(e)}", "warning")
+            self._log(f"Error setting up directory structure: {e!s}", "warning")
             return None
 
     def run_single_strategy_synthesis(
@@ -258,7 +258,7 @@ class PortfolioSynthesisService:
                     )
                 except Exception as e:
                     self._log(
-                        f"Error calculating comprehensive risk metrics: {str(e)}",
+                        f"Error calculating comprehensive risk metrics: {e!s}",
                         "warning",
                     )
                     # Fall back to basic risk metrics
@@ -334,7 +334,7 @@ class PortfolioSynthesisService:
             )
 
         except Exception as e:
-            self._log(f"Error in single strategy synthesis: {str(e)}", "error")
+            self._log(f"Error in single strategy synthesis: {e!s}", "error")
             raise
 
     def run_multi_strategy_synthesis(self) -> PortfolioResults:
@@ -357,7 +357,7 @@ class PortfolioSynthesisService:
                 raise ValueError("No strategies defined in config")
 
             # Get unique symbols from strategies
-            symbols = list(set(strategy.ticker for strategy in self.config.strategies))
+            symbols = list({strategy.ticker for strategy in self.config.strategies})
             self._log(f"Processing symbols: {symbols}")
 
             # Convert strategy configs to the format expected by existing functions
@@ -535,7 +535,7 @@ class PortfolioSynthesisService:
                     )
                 except Exception as e:
                     self._log(
-                        f"Error calculating comprehensive risk metrics: {str(e)}",
+                        f"Error calculating comprehensive risk metrics: {e!s}",
                         "warning",
                     )
                     # Fall back to basic risk metrics
@@ -585,12 +585,12 @@ class PortfolioSynthesisService:
             )
 
         except Exception as e:
-            self._log(f"Error in multi-strategy synthesis: {str(e)}", "error")
+            self._log(f"Error in multi-strategy synthesis: {e!s}", "error")
             raise
 
     def _create_portfolio_config(
         self, strategy_config: StrategyConfig
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create portfolio configuration for backtesting."""
         return {
             "TICKER": strategy_config.ticker,
@@ -657,10 +657,10 @@ class PortfolioSynthesisService:
             return benchmark_portfolio
 
         except Exception as e:
-            self._log(f"Error creating benchmark portfolio: {str(e)}", "warning")
+            self._log(f"Error creating benchmark portfolio: {e!s}", "warning")
             return None
 
-    def _convert_to_legacy_config(self) -> Dict[str, Any]:
+    def _convert_to_legacy_config(self) -> dict[str, Any]:
         """Convert modern config to legacy format for existing functions."""
         return {
             "strategies": {
@@ -716,7 +716,7 @@ class PortfolioSynthesisService:
             return csv_path
 
         except Exception as e:
-            self._log(f"Error exporting equity curve: {str(e)}", "warning")
+            self._log(f"Error exporting equity curve: {e!s}", "warning")
             return None
 
     def _optimize_dataframe(self, df):
@@ -725,12 +725,12 @@ class PortfolioSynthesisService:
             try:
                 return self.memory_optimizer.optimize_dataframe(df)
             except Exception as e:
-                self._log(f"Error optimizing dataframe: {str(e)}", "warning")
+                self._log(f"Error optimizing dataframe: {e!s}", "warning")
         return df
 
     def _process_strategy_parallel(
         self, strategy_config: StrategyConfig
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Process a single strategy for parallel execution."""
         try:
             self._log(f"Processing strategy {strategy_config.ticker} in parallel")
@@ -782,7 +782,7 @@ class PortfolioSynthesisService:
 
         except Exception as e:
             self._log(
-                f"Error processing strategy {strategy_config.ticker}: {str(e)}", "error"
+                f"Error processing strategy {strategy_config.ticker}: {e!s}", "error"
             )
             return {
                 "strategy_config": strategy_config,
@@ -845,7 +845,7 @@ class PortfolioSynthesisService:
 
                     except Exception as e:
                         self._log(
-                            f"✗ Exception processing {strategy.ticker}: {str(e)}",
+                            f"✗ Exception processing {strategy.ticker}: {e!s}",
                             "error",
                         )
                         strategy_results.append(
@@ -941,7 +941,7 @@ class PortfolioSynthesisService:
             )
 
         except Exception as e:
-            self._log(f"Error in parallel multi-strategy synthesis: {str(e)}", "error")
+            self._log(f"Error in parallel multi-strategy synthesis: {e!s}", "error")
             # Fall back to sequential processing
             self._log("Falling back to sequential processing")
             return self.run_multi_strategy_synthesis()
@@ -951,7 +951,7 @@ class PortfolioSynthesisService:
         price_df_pd: pd.DataFrame,
         entries_pd: pd.DataFrame,
         exits_pd: pd.DataFrame,
-        strategies: List[StrategyConfig],
+        strategies: list[StrategyConfig],
     ) -> pd.DataFrame:
         """
         Create dynamic allocation using Strategy-First Allocation Method.
@@ -1056,8 +1056,8 @@ class PortfolioSynthesisService:
         return sizes_pd
 
     def _calculate_strategy_ready_date(
-        self, common_dates: List, strategies: List[StrategyConfig]
-    ) -> Optional[any]:
+        self, common_dates: list, strategies: list[StrategyConfig]
+    ) -> any | None:
         """
         Calculate the date when strategies are ready to start signaling.
 
@@ -1097,11 +1097,10 @@ class PortfolioSynthesisService:
                 f"Strategy ready calculation: max_window={max_window}, ready_date={ready_date}"
             )
             return ready_date
-        else:
-            self._log(
-                f"Warning: Not enough data periods ({len(common_dates)}) for max_window={max_window}"
-            )
-            return None
+        self._log(
+            f"Warning: Not enough data periods ({len(common_dates)}) for max_window={max_window}"
+        )
+        return None
 
     def _log(self, message: str, level: str = "info"):
         """Log message using provided logger or print."""

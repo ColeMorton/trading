@@ -9,5 +9,6 @@ and trade history management using Typer, YAML configuration, and Pydantic valid
 from .config import ConfigLoader, ConfigManager, ProfileManager
 from .main import app, cli_main, main
 
+
 __version__ = "2.0.0"
-__all__ = ["app", "cli_main", "main", "ConfigManager", "ProfileManager", "ConfigLoader"]
+__all__ = ["ConfigLoader", "ConfigManager", "ProfileManager", "app", "cli_main", "main"]

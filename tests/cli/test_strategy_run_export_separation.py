@@ -18,7 +18,6 @@ When mixed strategies [SMA, EMA, MACD] are specified, only MACD runs due to
 StrategyDispatcher prioritizing MACD service and ignoring SMA/EMA.
 """
 
-import os
 from pathlib import Path
 
 import pandas as pd
@@ -477,9 +476,9 @@ class TestStrategyDispatcherBugDocumentation:
         for strategy_type in mixed_strategies:
             service = dispatcher._determine_single_service(strategy_type)
             assert service is not None, f"No service found for {strategy_type.value}"
-            individual_services[
-                strategy_type.value
-            ] = service.get_supported_strategy_types()
+            individual_services[strategy_type.value] = (
+                service.get_supported_strategy_types()
+            )
 
         # Verify each strategy type has appropriate service
         assert (
@@ -572,35 +571,6 @@ class TestStrategyDispatcherBugDocumentation:
         This test documents what the fixed dispatcher should do.
         """
         # This test documents the required behavior after the fix
-
-        expected_behavior = """
-        REQUIRED FIX FOR StrategyDispatcher._determine_service():
-
-        CURRENT (BROKEN):
-        if StrategyType.MACD.value in strategy_type_values:
-            return self._services["MACD"]  # ❌ Ignores SMA/EMA
-
-        REQUIRED (FIXED):
-        Option A - Sequential Execution:
-        def execute_strategy(self, config):
-            results = []
-            for strategy_type in config.strategy_types:
-                service = self._get_service_for_single_strategy(strategy_type)
-                single_config = self._create_single_strategy_config(config, strategy_type)
-                results.append(service.execute_strategy(single_config))
-            return all(results)
-
-        Option B - Unified Service:
-        class UnifiedStrategyService:
-            def execute_strategy(self, config):
-                # Handle all strategy types in one service
-                # Call appropriate legacy modules for each strategy
-
-        Option C - Service Coordination:
-        def _determine_services(self, strategy_types):
-            # Return list of services needed
-            # Execute each service with filtered config
-        """
 
         # This test will pass once any of the above solutions is implemented
         # For now, it serves as documentation

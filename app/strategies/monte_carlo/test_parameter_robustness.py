@@ -6,8 +6,9 @@ with a simple example using BTC-USD data.
 """
 
 import os
-import sys
 from pathlib import Path
+import sys
+
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
@@ -50,8 +51,8 @@ def test_basic_parameter_robustness():
     # Parameter ranges (small range for testing)
     parameter_ranges = {"short_windows": [10, 15, 20], "long_windows": [30, 40, 50]}
 
-    print(f"Testing configuration:")
-    print(f"- Ticker: BTC-USD")
+    print("Testing configuration:")
+    print("- Ticker: BTC-USD")
     print(f"- Monte Carlo simulations: {mc_config.num_simulations}")
     print(
         f"- Parameter combinations: {len(parameter_ranges['short_windows']) * len(parameter_ranges['long_windows'])}"
@@ -72,7 +73,7 @@ def test_basic_parameter_robustness():
 
         if results and "BTC-USD" in results:
             btc_results = results["BTC-USD"]
-            print(f"\nAnalysis completed successfully!")
+            print("\nAnalysis completed successfully!")
             print(
                 f"Results for BTC-USD: {len(btc_results)} parameter combinations tested"
             )
@@ -91,7 +92,7 @@ def test_basic_parameter_robustness():
                 btc_results, key=lambda x: x.stability_score, reverse=True
             )
 
-            print(f"\nTop 3 Most Stable Parameter Combinations:")
+            print("\nTop 3 Most Stable Parameter Combinations:")
             print("-" * 50)
             for i, result in enumerate(sorted_results[:3]):
                 short, long = result.parameter_combination
@@ -129,16 +130,15 @@ def test_basic_parameter_robustness():
                     sorted_results[0], "BTC-USD_best", "Sharpe Ratio"
                 )
 
-            print(f"Visualizations saved to: png/monte_carlo/test_results/")
+            print("Visualizations saved to: png/monte_carlo/test_results/")
 
             return True
 
-        else:
-            print("No results returned from analysis")
-            return False
+        print("No results returned from analysis")
+        return False
 
     except Exception as e:
-        print(f"Error during analysis: {str(e)}")
+        print(f"Error during analysis: {e!s}")
         import traceback
 
         traceback.print_exc()
@@ -169,13 +169,12 @@ def test_visualization_only():
 
             print("Visualization test completed!")
             return True
-        else:
-            print(f"No existing results file found at: {results_file}")
-            print("Run the basic test first to generate results")
-            return False
+        print(f"No existing results file found at: {results_file}")
+        print("Run the basic test first to generate results")
+        return False
 
     except Exception as e:
-        print(f"Error during visualization test: {str(e)}")
+        print(f"Error during visualization test: {e!s}")
         return False
 
 

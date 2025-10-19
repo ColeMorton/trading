@@ -8,11 +8,9 @@ Part of the infrastructure context for cross-cutting concerns.
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 import yaml
-
-from app.tools.config.statistical_analysis_config import SPDSConfig, get_spds_config
 
 
 class ConfigurationService:
@@ -28,15 +26,15 @@ class ConfigurationService:
 
     def __init__(
         self,
-        config_dir: Optional[Union[str, Path]] = None,
-        logger: Optional[logging.Logger] = None,
+        config_dir: str | Path | None = None,
+        logger: logging.Logger | None = None,
     ):
         """Initialize the configuration service."""
         self.config_dir = Path(config_dir) if config_dir else Path("config")
         self.logger = logger or logging.getLogger(__name__)
         self._config_cache = {}
 
-    def load_config(self, config_name: str, use_cache: bool = True) -> Dict[str, Any]:
+    def load_config(self, config_name: str, use_cache: bool = True) -> dict[str, Any]:
         """Load configuration from file."""
         if use_cache and config_name in self._config_cache:
             return self._config_cache[config_name]
@@ -53,7 +51,7 @@ class ConfigurationService:
             raise FileNotFoundError(f"Configuration file not found: {config_name}")
 
         try:
-            with open(config_path, "r") as f:
+            with open(config_path) as f:
                 if config_path.suffix.lower() in [".yaml", ".yml"]:
                     config = yaml.safe_load(f)
                 else:
@@ -68,11 +66,11 @@ class ConfigurationService:
             return validated_config
 
         except Exception as e:
-            self.logger.error(f"Failed to load configuration {config_name}: {str(e)}")
+            self.logger.error(f"Failed to load configuration {config_name}: {e!s}")
             raise
 
     def save_config(
-        self, config_name: str, config: Dict[str, Any], format: str = "yaml"
+        self, config_name: str, config: dict[str, Any], format: str = "yaml"
     ) -> bool:
         """Save configuration to file."""
         try:
@@ -100,7 +98,7 @@ class ConfigurationService:
             return True
 
         except Exception as e:
-            self.logger.error(f"Failed to save configuration {config_name}: {str(e)}")
+            self.logger.error(f"Failed to save configuration {config_name}: {e!s}")
             return False
 
     def get_config_value(
@@ -112,7 +110,7 @@ class ConfigurationService:
             return self._get_nested_value(config, key_path, default)
         except Exception as e:
             self.logger.error(
-                f"Failed to get config value {config_name}.{key_path}: {str(e)}"
+                f"Failed to get config value {config_name}.{key_path}: {e!s}"
             )
             return default
 
@@ -124,11 +122,11 @@ class ConfigurationService:
             return self.save_config(config_name, config)
         except Exception as e:
             self.logger.error(
-                f"Failed to set config value {config_name}.{key_path}: {str(e)}"
+                f"Failed to set config value {config_name}.{key_path}: {e!s}"
             )
             return False
 
-    def merge_configs(self, base_config: str, override_config: str) -> Dict[str, Any]:
+    def merge_configs(self, base_config: str, override_config: str) -> dict[str, Any]:
         """Merge two configurations with override taking precedence."""
         try:
             base = self.load_config(base_config)
@@ -138,7 +136,7 @@ class ConfigurationService:
             return merged
 
         except Exception as e:
-            self.logger.error(f"Failed to merge configurations: {str(e)}")
+            self.logger.error(f"Failed to merge configurations: {e!s}")
             return {}
 
     def list_configs(self) -> List[str]:
@@ -158,20 +156,20 @@ class ConfigurationService:
 
         return sorted(configs)
 
-    def validate_config_schema(self, config_name: str, config: Dict[str, Any]) -> bool:
+    def validate_config_schema(self, config_name: str, config: dict[str, Any]) -> bool:
         """Validate configuration against schema."""
         try:
             self._validate_config(config_name, config)
             return True
         except Exception as e:
             self.logger.error(
-                f"Configuration validation failed for {config_name}: {str(e)}"
+                f"Configuration validation failed for {config_name}: {e!s}"
             )
             return False
 
     def _validate_config(
-        self, config_name: str, config: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, config_name: str, config: dict[str, Any]
+    ) -> dict[str, Any]:
         """Validate configuration structure and values."""
         if not isinstance(config, dict):
             raise ValueError("Configuration must be a dictionary")
@@ -179,15 +177,15 @@ class ConfigurationService:
         # Basic validation - extend as needed
         if config_name == "spds":
             return self._validate_spds_config(config)
-        elif config_name == "trading":
+        if config_name == "trading":
             return self._validate_trading_config(config)
-        elif config_name == "database":
+        if config_name == "database":
             return self._validate_database_config(config)
 
         # Default validation - just return the config
         return config
 
-    def _validate_spds_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def _validate_spds_config(self, config: dict[str, Any]) -> dict[str, Any]:
         """Validate SPDS configuration."""
         required_keys = ["confidence_level", "data_sources", "analysis_methods"]
 
@@ -196,14 +194,14 @@ class ConfigurationService:
                 raise ValueError(f"Missing required SPDS configuration key: {key}")
 
         # Validate confidence level
-        if not isinstance(config["confidence_level"], (int, float)) or not (
+        if not isinstance(config["confidence_level"], int | float) or not (
             0 < config["confidence_level"] <= 1
         ):
             raise ValueError("Confidence level must be a number between 0 and 1")
 
         return config
 
-    def _validate_trading_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def _validate_trading_config(self, config: dict[str, Any]) -> dict[str, Any]:
         """Validate trading configuration."""
         required_keys = ["strategies", "risk_management", "execution"]
 
@@ -213,7 +211,7 @@ class ConfigurationService:
 
         return config
 
-    def _validate_database_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def _validate_database_config(self, config: dict[str, Any]) -> dict[str, Any]:
         """Validate database configuration."""
         required_keys = ["host", "port", "database"]
 
@@ -224,7 +222,7 @@ class ConfigurationService:
         return config
 
     def _get_nested_value(
-        self, config: Dict[str, Any], key_path: str, default: Any = None
+        self, config: dict[str, Any], key_path: str, default: Any = None
     ) -> Any:
         """Get nested value using dot notation."""
         keys = key_path.split(".")
@@ -239,7 +237,7 @@ class ConfigurationService:
         return current
 
     def _set_nested_value(
-        self, config: Dict[str, Any], key_path: str, value: Any
+        self, config: dict[str, Any], key_path: str, value: Any
     ) -> None:
         """Set nested value using dot notation."""
         keys = key_path.split(".")
@@ -253,8 +251,8 @@ class ConfigurationService:
         current[keys[-1]] = value
 
     def _deep_merge(
-        self, base: Dict[str, Any], override: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, base: dict[str, Any], override: dict[str, Any]
+    ) -> dict[str, Any]:
         """Deep merge two dictionaries."""
         result = base.copy()
 

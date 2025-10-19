@@ -8,7 +8,7 @@ Reduces complexity while maintaining all necessary data structures.
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 
 class SignalType(Enum):
@@ -62,17 +62,17 @@ class AnalysisResult:
     position_uuid: str
     exit_signal: ExitSignal
     confidence_level: float
-    statistical_metrics: Dict[str, float]
-    divergence_metrics: Dict[str, float]
-    component_scores: Dict[str, float]
+    statistical_metrics: dict[str, float]
+    divergence_metrics: dict[str, float]
+    component_scores: dict[str, float]
     analysis_timestamp: str
-    data_sources_used: Dict[str, bool]
+    data_sources_used: dict[str, bool]
     config_version: str
 
     # Optional fields for additional context
-    raw_data: Optional[Dict[str, Any]] = None
-    warnings: List[str] = field(default_factory=list)
-    execution_time_ms: Optional[float] = None
+    raw_data: dict[str, Any] | None = None
+    warnings: list[str] = field(default_factory=list)
+    execution_time_ms: float | None = None
 
     def __post_init__(self):
         """Validate result data."""
@@ -113,7 +113,7 @@ class AnalysisResult:
             if score not in self.component_scores:
                 self.warnings.append(f"Missing component score: {score}")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "strategy_name": self.strategy_name,
@@ -138,7 +138,7 @@ class AnalysisResult:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "AnalysisResult":
+    def from_dict(cls, data: dict[str, Any]) -> "AnalysisResult":
         """Create from dictionary."""
         exit_signal_data = data["exit_signal"]
         exit_signal = ExitSignal(
@@ -175,7 +175,7 @@ class SPDSConfig:
     """
 
     # Core analysis parameters
-    percentile_thresholds: Dict[str, float] = field(
+    percentile_thresholds: dict[str, float] = field(
         default_factory=lambda: {
             "exit_immediately": 95.0,
             "exit_soon": 85.0,
@@ -189,7 +189,7 @@ class SPDSConfig:
 
     # Data source configuration
     use_trade_history: bool = True
-    equity_data_paths: List[str] = field(
+    equity_data_paths: list[str] = field(
         default_factory=lambda: [
             "data/raw/equity_data",
             "data/raw/backtesting_results",
@@ -248,7 +248,7 @@ class SPDSConfig:
                     f"Percentile threshold {threshold_name} must be between 0 and 100, got {threshold_value}"
                 )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "percentile_thresholds": self.percentile_thresholds,
@@ -274,7 +274,7 @@ class SPDSConfig:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "SPDSConfig":
+    def from_dict(cls, data: dict[str, Any]) -> "SPDSConfig":
         """Create from dictionary."""
         config_data = data.copy()
 
@@ -340,11 +340,11 @@ class BatchAnalysisRequest:
     """Request for batch analysis of multiple items."""
 
     analysis_type: str  # "portfolio", "strategy", "position"
-    parameters: List[str]  # List of portfolios, strategies, or positions
+    parameters: list[str]  # List of portfolios, strategies, or positions
     config: SPDSConfig
     parallel_processing: bool = True
     save_results: bool = True
-    output_directory: Optional[str] = None
+    output_directory: str | None = None
 
 
 @dataclass
@@ -352,18 +352,18 @@ class BatchAnalysisResult:
     """Result from batch analysis."""
 
     request: BatchAnalysisRequest
-    results: Dict[str, AnalysisResult]
-    summary: Dict[str, Any]
+    results: dict[str, AnalysisResult]
+    summary: dict[str, Any]
     execution_time_seconds: float
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
 
     def __post_init__(self):
         """Calculate summary statistics."""
         if not self.summary:
             self.summary = self._calculate_summary()
 
-    def _calculate_summary(self) -> Dict[str, Any]:
+    def _calculate_summary(self) -> dict[str, Any]:
         """Calculate summary statistics for the batch."""
         if not self.results:
             return {"total_items": 0, "success_rate": 0.0}
@@ -425,7 +425,7 @@ def create_error_result(
     )
 
 
-def validate_analysis_result(result: AnalysisResult) -> List[str]:
+def validate_analysis_result(result: AnalysisResult) -> list[str]:
     """Validate an analysis result and return list of issues."""
     issues = []
 

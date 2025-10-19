@@ -5,13 +5,12 @@ This module provides memory-efficient processing techniques for large-scale
 equity data export operations, including streaming, chunking, and data optimization.
 """
 
-import gc
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Callable, Dict, Iterator, List, Optional
+import gc
+from typing import Any
 
 import numpy as np
-import pandas as pd
 
 from app.tools.equity_data_extractor import EquityData
 from app.tools.equity_export import export_equity_data_to_csv
@@ -57,7 +56,7 @@ class EquityDataOptimizer:
                     (arr >= np.iinfo(np.int32).min) & (arr <= np.iinfo(np.int32).max)
                 ):
                     return arr.astype(np.int32)
-                elif np.all(
+                if np.all(
                     (arr >= np.iinfo(np.int16).min) & (arr <= np.iinfo(np.int16).max)
                 ):
                     return arr.astype(np.int16)
@@ -133,8 +132,8 @@ class StreamingEquityExporter:
         self.memory_peak = 0.0
 
     def chunk_portfolios(
-        self, portfolios: List[Dict[str, Any]]
-    ) -> Iterator[List[Dict[str, Any]]]:
+        self, portfolios: list[dict[str, Any]]
+    ) -> Iterator[list[dict[str, Any]]]:
         """
         Split portfolios into memory-efficient chunks.
 
@@ -150,10 +149,10 @@ class StreamingEquityExporter:
 
     def stream_export_equity_data(
         self,
-        portfolios: List[Dict[str, Any]],
+        portfolios: list[dict[str, Any]],
         log: Callable[[str, str], None],
-        config: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        config: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Export equity data using streaming approach for memory efficiency.
 
@@ -242,10 +241,10 @@ class StreamingEquityExporter:
 
     def _process_portfolio_chunk(
         self,
-        portfolio_chunk: List[Dict[str, Any]],
+        portfolio_chunk: list[dict[str, Any]],
         log: Callable[[str, str], None],
-        config: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        config: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Process a single chunk of portfolios.
 
@@ -301,7 +300,7 @@ class StreamingEquityExporter:
                     chunk_results["skipped_count"] += 1
 
             except Exception as e:
-                error_msg = f"Error exporting equity data for {portfolio.get('Ticker', 'UNKNOWN')}: {str(e)}"
+                error_msg = f"Error exporting equity data for {portfolio.get('Ticker', 'UNKNOWN')}: {e!s}"
                 chunk_results["errors"].append(error_msg)
                 chunk_results["error_count"] += 1
                 log(error_msg, "error")
@@ -310,7 +309,7 @@ class StreamingEquityExporter:
 
 
 def create_memory_efficient_export_function(
-    optimization_config: Optional[MemoryOptimizationConfig] = None,
+    optimization_config: MemoryOptimizationConfig | None = None,
 ) -> Callable:
     """
     Create a memory-efficient export function with optimizations.
@@ -325,10 +324,10 @@ def create_memory_efficient_export_function(
         optimization_config = MemoryOptimizationConfig()
 
     def optimized_export_function(
-        portfolios: List[Dict[str, Any]],
+        portfolios: list[dict[str, Any]],
         log: Callable[[str, str], None],
-        config: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        config: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Memory-optimized equity data export function.
 
@@ -346,7 +345,7 @@ def create_memory_efficient_export_function(
     return optimized_export_function
 
 
-def analyze_memory_requirements(portfolios: List[Dict[str, Any]]) -> Dict[str, Any]:
+def analyze_memory_requirements(portfolios: list[dict[str, Any]]) -> dict[str, Any]:
     """
     Analyze memory requirements for equity data export.
 

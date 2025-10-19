@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class ConfigurationInterface(ABC):
@@ -17,7 +17,7 @@ class ConfigurationInterface(ABC):
         """Set configuration value."""
 
     @abstractmethod
-    def get_section(self, section: str) -> Dict[str, Any]:
+    def get_section(self, section: str) -> dict[str, Any]:
         """Get entire configuration section."""
 
     @abstractmethod
@@ -29,7 +29,7 @@ class ConfigurationInterface(ABC):
         """Save configuration to file."""
 
     @abstractmethod
-    def merge(self, config: Dict[str, Any]) -> None:
+    def merge(self, config: dict[str, Any]) -> None:
         """Merge configuration with existing."""
 
     @abstractmethod
@@ -41,7 +41,7 @@ class ConfigurationInterface(ABC):
         """Get current environment (dev, test, prod)."""
 
     @abstractmethod
-    def list_keys(self, prefix: Optional[str] | None = None) -> List[str]:
+    def list_keys(self, prefix: str | None | None = None) -> list[str]:
         """List all configuration keys."""
 
     @abstractmethod
