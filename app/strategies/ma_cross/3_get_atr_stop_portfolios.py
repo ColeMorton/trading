@@ -249,9 +249,9 @@ def export_atr_portfolios(
         sample_portfolio = sorted_portfolios[0]
         detected_schema = schema_transformer.detect_schema_type(sample_portfolio)
 
-        if detected_schema != SchemaType.ATR_EXTENDED:
+        if detected_schema != SchemaType.EXTENDED:
             log(
-                f"Warning: Expected ATR Extended schema, detected {detected_schema}",
+                f"Warning: Expected Extended schema (with universal exit parameters), detected {detected_schema}",
                 "warning",
             )
 

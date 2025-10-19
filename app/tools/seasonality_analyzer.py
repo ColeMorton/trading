@@ -308,17 +308,22 @@ class SeasonalityAnalyzer:
         return weighted_sum / total_weight
 
     def _calculate_returns(self, data: pd.DataFrame) -> pd.Series:
-        """Calculate N-day returns from price data based on time_period_days."""
+        """Calculate N-day forward-looking returns from price data.
+
+        Returns are calculated as: (future_price / current_price) - 1
+        This tells you what you would earn if you bought today and held for N days.
+        """
         if "Close" not in data.columns:
             raise ValueError("Data must have 'Close' column")
 
         if self.time_period_days == 1:
-            # Standard daily returns
-            returns = data["Close"].pct_change().dropna()
+            # Forward-looking daily returns (what you'd earn buying today, selling tomorrow)
+            returns = (data["Close"].shift(-1) / data["Close"] - 1).dropna()
         else:
-            # N-day returns: (price[t] - price[t-N]) / price[t-N]
+            # N-day FORWARD-LOOKING returns: (price[t+N] - price[t]) / price[t]
+            # shift(-N) looks N days into the future
             returns = (
-                data["Close"] / data["Close"].shift(self.time_period_days) - 1
+                data["Close"].shift(-self.time_period_days) / data["Close"] - 1
             ).dropna()
 
         return returns

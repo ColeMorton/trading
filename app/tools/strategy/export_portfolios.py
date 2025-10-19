@@ -12,8 +12,6 @@ import polars as pl
 from app.tools.export_csv import ExportConfig, export_csv
 from app.tools.portfolio.base_extended_schemas import (
     CANONICAL_COLUMN_NAMES,
-    ATRExtendedPortfolioSchema,
-    ATRFilteredPortfolioSchema,
     BasePortfolioSchema,
     ExtendedPortfolioSchema,
     FilteredPortfolioSchema,
@@ -256,12 +254,8 @@ def _get_schema_column_names(schema_type: SchemaType) -> List[str]:
         return BasePortfolioSchema.get_column_names()
     elif schema_type == SchemaType.EXTENDED:
         return ExtendedPortfolioSchema.get_column_names()
-    elif schema_type == SchemaType.ATR_EXTENDED:
-        return ATRExtendedPortfolioSchema.get_column_names()
     elif schema_type == SchemaType.FILTERED:
         return FilteredPortfolioSchema.get_column_names()
-    elif schema_type == SchemaType.ATR_FILTERED:
-        return ATRFilteredPortfolioSchema.get_column_names()
     else:
         # Default to Extended schema for unknown types
         return ExtendedPortfolioSchema.get_column_names()
@@ -650,7 +644,7 @@ def export_portfolios(
                 df = df.with_columns(pl.lit(ticker).alias("Ticker"))
 
         # Schema normalization for FILTERED schema types (portfolios_best, portfolios_filtered)
-        if target_schema_type in [SchemaType.FILTERED, SchemaType.ATR_FILTERED]:
+        if target_schema_type == SchemaType.FILTERED:
             # Use SchemaTransformer to normalize to target schema with mandatory validation
             # This replaces the custom column ordering logic and ensures proper allocation handling
             portfolios_normalized = []

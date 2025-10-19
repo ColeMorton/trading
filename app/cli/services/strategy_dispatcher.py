@@ -1138,22 +1138,130 @@ class StrategyDispatcher:
         else:
             summary.tickers_processed = [config.ticker]
 
-        # For single strategy, we can't easily extract detailed portfolio results without
-        # modifying the strategy services themselves, so we'll create a basic result
+        # Extract actual portfolio results from generated files
         if success:
-            portfolio_result = StrategyPortfolioResults(
+            portfolio_result = self._extract_portfolio_results_from_files(
                 ticker=summary.tickers_processed[0]
                 if summary.tickers_processed
                 else "Unknown",
                 strategy_type=summary.strategy_types[0],
-                total_portfolios=0,  # Would need service modification to get actual count
-                filtered_portfolios=0,
-                extreme_value_portfolios=0,
-                files_exported=[],
+                config=config,
             )
             summary.add_portfolio_result(portfolio_result)
 
         return summary
+
+    def _extract_portfolio_results_from_files(
+        self, ticker: str, strategy_type: str, config: StrategyConfig
+    ) -> StrategyPortfolioResults:
+        """
+        Extract actual portfolio results by reading generated CSV files.
+
+        Args:
+            ticker: Ticker symbol
+            strategy_type: Strategy type string
+            config: Strategy configuration
+
+        Returns:
+            StrategyPortfolioResults with actual counts and best configuration
+        """
+        from pathlib import Path
+
+        import pandas as pd
+
+        # Determine timeframe suffix
+        if config.use_4hour:
+            timeframe = "4H"
+        elif config.use_2day:
+            timeframe = "2D"
+        elif config.use_hourly:
+            timeframe = "H"
+        else:
+            timeframe = "D"
+
+        # Build file paths
+        base_dir = Path(config.base_dir)
+        file_base = f"{ticker}_{timeframe}_{strategy_type}"
+
+        portfolios_file = base_dir / "data/raw/portfolios" / f"{file_base}.csv"
+        filtered_file = base_dir / "data/raw/portfolios_filtered" / f"{file_base}.csv"
+        metrics_file = base_dir / "data/raw/portfolios_metrics" / f"{file_base}.csv"
+        best_file = base_dir / "data/raw/portfolios_best" / f"{file_base}.csv"
+
+        # Initialize result
+        result = StrategyPortfolioResults(
+            ticker=ticker,
+            strategy_type=strategy_type,
+            total_portfolios=0,
+            filtered_portfolios=0,
+            extreme_value_portfolios=0,
+            files_exported=[],
+        )
+
+        # Extract counts from files
+        try:
+            if portfolios_file.exists():
+                df = pd.read_csv(portfolios_file)
+                result.total_portfolios = len(df)
+                result.files_exported.append(str(portfolios_file))
+
+            if filtered_file.exists():
+                df = pd.read_csv(filtered_file)
+                result.filtered_portfolios = len(df)
+                result.files_exported.append(str(filtered_file))
+
+            if metrics_file.exists():
+                df = pd.read_csv(metrics_file)
+                result.extreme_value_portfolios = len(df)
+                result.files_exported.append(str(metrics_file))
+
+            # Extract best configuration and metrics from portfolios_best
+            if best_file.exists():
+                df = pd.read_csv(best_file)
+                result.files_exported.append(str(best_file))
+
+                if len(df) > 0:
+                    best_row = df.iloc[0]
+
+                    # Build best config string based on strategy type
+                    fast = best_row.get("Fast Period", "")
+                    slow = best_row.get("Slow Period", "")
+                    exit_fast = best_row.get("Exit Fast Period")
+                    exit_slow = best_row.get("Exit Slow Period")
+
+                    if strategy_type == "SMA_ATR":
+                        # Include exit parameters for hybrid strategies
+                        if pd.notna(exit_fast) and pd.notna(exit_slow):
+                            result.best_config = f"{fast}/{slow} + ATR({int(exit_fast)}, {exit_slow:.1f})"
+                        else:
+                            result.best_config = f"{fast}/{slow}"
+                    elif strategy_type in ["SMA", "EMA"]:
+                        result.best_config = f"{fast}/{slow}"
+                    elif strategy_type == "MACD":
+                        signal = best_row.get("Signal Period", "")
+                        result.best_config = f"{fast}/{slow}/{signal}"
+                    elif strategy_type == "ATR":
+                        # ATR strategy uses exit parameters as primary params
+                        if pd.notna(exit_fast) and pd.notna(exit_slow):
+                            result.best_config = (
+                                f"ATR({int(exit_fast)}, {exit_slow:.1f})"
+                            )
+                        else:
+                            result.best_config = "ATR"
+
+                    # Extract performance metrics
+                    result.best_score = best_row.get("Score", None)
+                    win_rate_pct = best_row.get("Win Rate [%]", None)
+                    if win_rate_pct is not None:
+                        result.win_rate = float(win_rate_pct) / 100.0
+
+                    result.avg_win = best_row.get("Avg Winning Trade [%]", None)
+                    result.avg_loss = best_row.get("Avg Losing Trade [%]", None)
+
+        except Exception as e:
+            self.console.debug(f"Error extracting portfolio results: {e}")
+
+        return result
 
     def _execute_mixed_strategies(
         self,
@@ -1327,17 +1435,14 @@ class StrategyDispatcher:
 
                     # Create portfolio result for this strategy execution
                     if success:
-                        portfolio_result = StrategyPortfolioResults(
+                        portfolio_result = self._extract_portfolio_results_from_files(
                             ticker=summary.tickers_processed[0]
                             if summary.tickers_processed
                             else "Unknown",
                             strategy_type=strategy_type.value
                             if hasattr(strategy_type, "value")
                             else str(strategy_type),
-                            total_portfolios=0,
-                            filtered_portfolios=0,
-                            extreme_value_portfolios=0,
-                            files_exported=[],
+                            config=single_config,
                         )
                         summary.add_portfolio_result(portfolio_result)
 
@@ -1384,17 +1489,14 @@ class StrategyDispatcher:
 
                 # Create portfolio result for this strategy execution
                 if success:
-                    portfolio_result = StrategyPortfolioResults(
+                    portfolio_result = self._extract_portfolio_results_from_files(
                         ticker=summary.tickers_processed[0]
                         if summary.tickers_processed
                         else "Unknown",
                         strategy_type=strategy_type.value
                         if hasattr(strategy_type, "value")
                         else str(strategy_type),
-                        total_portfolios=0,
-                        filtered_portfolios=0,
-                        extreme_value_portfolios=0,
-                        files_exported=[],
+                        config=single_config,
                     )
                     summary.add_portfolio_result(portfolio_result)
 

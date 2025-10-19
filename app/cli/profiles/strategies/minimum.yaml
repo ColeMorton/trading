@@ -1,27 +1,57 @@
-# MA Cross Portfolio Analysis Profile
-# CLI profile for running MA Cross portfolio analysis via trading-cli
-
 metadata:
-  name: 'minimum'
-  description: 'MA Cross portfolio analysis with specific ticker list from 1_get_portfolios.py'
+  name: minimum
+  description: Minimal configuration for SMA_ATR testing with focused parameter ranges
+  created_at: '2025-10-19T00:00:00.000000'
+  updated_at: '2025-10-19T00:00:00.000000'
   version: '1.0'
-  tags: ['ma_cross', 'portfolio', 'analysis', 'production']
-  author: 'trading-cli'
+  tags:
+    - minimal
+    - sma_atr
+    - testing
+  author: system
 
-inherits_from: 'default_strategy'
-
-config_type: 'strategy'
+config_type: strategy
 
 config:
-  name: 'minimum'
+  # Ticker (placeholder - override with CLI parameter)
   ticker:
-    - BTC-USD
+    - AAPL
 
-  # Performance filters (maps to CLI --min-* options)
-  minimums:
-    win_rate: 0.45
-    trades: 55
-    expectancy_per_trade: 0.5
-    profit_factor: 1.236
-    sortino_ratio: 0.618
-    score: 1
+  # Strategy type
+  strategy_types:
+    - SMA_ATR
+
+  # ATR-specific parameters with discrete length values (optimized)
+  atr_length_range: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+  atr_multiplier_min: 1.0
+  atr_multiplier_max: 8.0
+  atr_multiplier_step: 0.1
+
+  # Legacy ATR parameters for backward compatibility
+  atr_length_start: 3
+  atr_length_end: 13
+  atr_multiplier_start: 1.0
+  atr_multiplier_end: 5.0
+
+  # Basic settings
+  direction: Long
+  use_hourly: false
+  use_4hour: false
+  use_2day: false
+  use_years: false
+  years: 15
+  refresh: true
+  skip_analysis: false
+  use_current: false
+
+  # Result configuration
+  sort_by: 'Score'
+  sort_ascending: false
+
+  # Feature flags
+  use_synthetic: false
+  use_scanner: false
+  use_gbm: false
+
+  # Market type configuration
+  market_type: auto

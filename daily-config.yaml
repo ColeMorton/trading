@@ -60,31 +60,31 @@ config:
 
       # 3. Strategy Analysis
     - name: 'Daily Crypto Strategy Analysis - Australia'
-      command: 'poetry run trading-cli strategy run --profile australia_top_10'
+      command: 'poetry run trading-cli strategy sweep --profile australia_top_10'
       enabled: false
       description: 'Execute crypto-focused MA Cross strategy analysis'
       continue_on_failure: true
 
     - name: 'Daily Crypto Strategy Analysis - Crypto'
-      command: 'poetry run trading-cli --quiet strategy run --profile crypto_current'
+      command: 'poetry run trading-cli --quiet strategy sweep --profile crypto_current'
       enabled: false
       description: 'Execute crypto-focused MA Cross strategy analysis'
       continue_on_failure: true
 
     - name: 'Daily Strategy Analysis - Primary Stocks'
-      command: 'poetry run trading-cli --quiet strategy run --profile primary_stocks'
+      command: 'poetry run trading-cli --quiet strategy sweep --profile primary_stocks'
       enabled: true
       description: 'Execute current primary stocks strategy analysis'
       continue_on_failure: true
 
     - name: 'Daily Strategy Analysis - Frontier Stocks'
-      command: 'poetry run trading-cli --quiet strategy run --profile frontier'
+      command: 'poetry run trading-cli --quiet strategy sweep --profile frontier'
       enabled: true
       description: 'Execute current primary stocks strategy analysis'
       continue_on_failure: true
 
     - name: 'Daily Strategy Analysis - Asia Stocks'
-      command: 'poetry run trading-cli --quiet strategy run --profile asia_top_50'
+      command: 'poetry run trading-cli --quiet strategy sweep --profile asia_top_50'
       enabled: true
       description: 'Execute current primary stocks strategy analysis'
       continue_on_failure: true

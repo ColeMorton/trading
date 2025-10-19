@@ -489,11 +489,14 @@ class ATRStrategyService(BaseStrategyService):
             legacy_config = {
                 "STRATEGY_TYPE": "ATR",
                 "STRATEGY_TYPES": ["ATR"],
-                "ATR_LENGTH_START": getattr(config, "atr_length_min", 2),
-                "ATR_LENGTH_END": getattr(config, "atr_length_max", 15),
-                "ATR_MULTIPLIER_START": getattr(config, "atr_multiplier_min", 1.5),
-                "ATR_MULTIPLIER_END": getattr(config, "atr_multiplier_max", 8.0),
-                "ATR_MULTIPLIER_STEP": getattr(config, "atr_multiplier_step", 0.5),
+                "ATR_LENGTH_START": getattr(config, "atr_length_min", None) or 2,
+                "ATR_LENGTH_END": getattr(config, "atr_length_max", None) or 15,
+                "ATR_MULTIPLIER_START": getattr(config, "atr_multiplier_min", None)
+                or 1.5,
+                "ATR_MULTIPLIER_END": getattr(config, "atr_multiplier_max", None)
+                or 8.0,
+                "ATR_MULTIPLIER_STEP": getattr(config, "atr_multiplier_step", None)
+                or 0.5,
                 "STEP": getattr(config, "step", 1),
                 "DIRECTION": getattr(config, "direction", "Long"),
                 "USE_CURRENT": (
@@ -650,10 +653,10 @@ class SMAAtrStrategyService(BaseStrategyService):
                 config, "atr_length_range", [3, 5, 7, 9, 11, 13]
             ),
             "ATR_MULTIPLIER_RANGE": [
-                getattr(config, "atr_multiplier_min", 1.0),
-                getattr(config, "atr_multiplier_max", 4.0),
+                getattr(config, "atr_multiplier_min", None) or 1.0,
+                getattr(config, "atr_multiplier_max", None) or 4.0,
             ],
-            "ATR_MULTIPLIER_STEP": getattr(config, "atr_multiplier_step", 1.5),
+            "ATR_MULTIPLIER_STEP": getattr(config, "atr_multiplier_step", None) or 1.5,
         }
 
         # Handle ticker configuration based on synthetic mode

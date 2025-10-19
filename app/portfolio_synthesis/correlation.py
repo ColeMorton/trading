@@ -21,26 +21,27 @@ PORTFOLIO = [
     "PLTR",
     "HIMS",
     "SMR",
+    "TSLA",
+    "NVDA",
     # "EDU",
     # "PDD",
     # "QCOM",
     # "AFL",
-    "AXON",
-    "TRMB",
     # "NVDA",
     # "NTES",
     "BRK-B",
     "MA",
-    "CSCO",
-    "VST",
-    "SE",
+    "AMAT",
+    "TPR",
+    "AVGO",
+    "TTWO",
 ]
 
 # PORTFOLIO = ["ETH-USD", "SOL-USD", "ETHFI-USD", "SUI20947-USD"]
 
 # PORTFOLIO = ['SPY', 'QQQ']
 
-NEXT = ["NET", "AMAT", "CRM"]
+NEXT = ["EME", "APP", "GOOGL"]
 
 # NEXT = [
 #     'BTC-USD',
@@ -51,7 +52,7 @@ NEXT = ["NET", "AMAT", "CRM"]
 
 ASSETS = list(dict.fromkeys(PORTFOLIO + NEXT))  # Remove duplicates
 
-DAYS = 60
+DAYS = 90
 
 
 def create_dendrogram_trace(linkage_matrix, labels):

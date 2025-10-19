@@ -130,8 +130,9 @@ def sample_atr_portfolios():
             "Strategy Type": "SMA",
             "Fast Period": 10,
             "Slow Period": 20,
-            "ATR Stop Length": length,
-            "ATR Stop Multiplier": multiplier,
+            "Exit Fast Period": length,
+            "Exit Slow Period": multiplier,
+            "Exit Signal Period": None,
             "Total Return": 15.0 + i * 2,  # Varying returns
             "Sharpe Ratio": 1.2 + i * 0.1,
             "Max Drawdown": -8.0 - i * 0.5,
@@ -202,8 +203,9 @@ class TestCompleteATRWorkflow:
                         },
                         "ATR_LENGTH": atr_length,
                         "ATR_MULTIPLIER": atr_multiplier,
-                        "ATR Stop Length": atr_length,
-                        "ATR Stop Multiplier": atr_multiplier,
+                        "Exit Fast Period": atr_length,
+                        "Exit Slow Period": atr_multiplier,
+                        "Exit Signal Period": None,
                         "Ticker": "AAPL",
                     }
                 )
@@ -222,19 +224,17 @@ class TestCompleteATRWorkflow:
         expected_combinations = 3 * 3
         assert len(results) == expected_combinations
 
-        # Verify each result has required ATR fields
+        # Verify each result has required exit parameter fields
         for result in results:
-            assert "ATR Stop Length" in result
-            assert "ATR Stop Multiplier" in result
+            assert "Exit Fast Period" in result
+            assert "Exit Slow Period" in result
             assert "Ticker" in result
             assert result["Ticker"] == "AAPL"
-            assert 5 <= result["ATR Stop Length"] <= 7
-            assert 1.5 <= result["ATR Stop Multiplier"] <= 2.5
+            assert 5 <= result["Exit Fast Period"] <= 7
+            assert 1.5 <= result["Exit Slow Period"] <= 2.5
 
         # Verify unique combinations
-        combinations = [
-            (r["ATR Stop Length"], r["ATR Stop Multiplier"]) for r in results
-        ]
+        combinations = [(r["Exit Fast Period"], r["Exit Slow Period"]) for r in results]
         assert len(set(combinations)) == len(combinations)  # All unique
 
         # Since we're mocking the top-level function, we don't verify individual calls
@@ -302,8 +302,8 @@ class TestCompleteATRWorkflow:
 
         # All returned results should be valid
         for result in results:
-            assert "ATR Stop Length" in result
-            assert "ATR Stop Multiplier" in result
+            assert "Exit Fast Period" in result
+            assert "Exit Slow Period" in result
 
 
 class TestATRPortfolioExportIntegration:
@@ -436,10 +436,9 @@ class TestATRPortfolioExportIntegration:
         extended_portfolios = []
 
         for portfolio in sample_atr_portfolios:
-            extended = schema_transformer.transform_to_atr_extended(
+            # Exit parameters are already in the portfolio as Exit Fast/Slow Period
+            extended = schema_transformer.transform_to_extended(
                 portfolio,
-                atr_stop_length=portfolio["ATR Stop Length"],
-                atr_stop_multiplier=portfolio["ATR Stop Multiplier"],
                 force_analysis_defaults=True,
             )
             extended_portfolios.append(extended)
@@ -447,7 +446,7 @@ class TestATRPortfolioExportIntegration:
         # Validate each portfolio
         for portfolio in extended_portfolios:
             is_valid, errors = schema_transformer.validate_schema(
-                portfolio, SchemaType.ATR_EXTENDED
+                portfolio, SchemaType.EXTENDED
             )
             assert is_valid == True, f"Schema validation failed: {errors}"
 
@@ -675,8 +674,9 @@ class TestATREndToEndScenarios:
                     "PROFIT_FACTOR": 1.8 + i * 0.1,
                     "SORTINO_RATIO": 1.2 + i * 0.1,
                     "Score": 80 + i * 2,
-                    "ATR Stop Length": 10 + i,
-                    "ATR Stop Multiplier": 1.5 + i * 0.1,
+                    "Exit Fast Period": 10 + i,
+                    "Exit Slow Period": 1.5 + i * 0.1,
+                    "Exit Signal Period": None,
                 }
             )
 
@@ -690,8 +690,9 @@ class TestATREndToEndScenarios:
                     "PROFIT_FACTOR": 1.2 + i * 0.05,
                     "SORTINO_RATIO": 0.8 + i * 0.05,
                     "Score": 60 + i,
-                    "ATR Stop Length": 15 + i,
-                    "ATR Stop Multiplier": 2.0 + i * 0.05,
+                    "Exit Fast Period": 15 + i,
+                    "Exit Slow Period": 2.0 + i * 0.05,
+                    "Exit Signal Period": None,
                 }
             )
 
@@ -705,8 +706,9 @@ class TestATREndToEndScenarios:
                     "PROFIT_FACTOR": 0.8 + i * 0.02,
                     "SORTINO_RATIO": 0.3 + i * 0.02,
                     "Score": 40 + i,
-                    "ATR Stop Length": 20 + i,
-                    "ATR Stop Multiplier": 2.5 + i * 0.02,
+                    "Exit Fast Period": 20 + i,
+                    "Exit Slow Period": 2.5 + i * 0.02,
+                    "Exit Signal Period": None,
                 }
             )
 

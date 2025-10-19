@@ -464,6 +464,24 @@ def sweep(
     signal_max: Optional[int] = typer.Option(
         None, "--signal-max", help="Maximum signal period for sweep"
     ),
+    entry_fast: Optional[int] = typer.Option(
+        None,
+        "--entry-fast",
+        "-ef",
+        help="Lock entry strategy fast period to specific value (sets both min and max)",
+    ),
+    entry_slow: Optional[int] = typer.Option(
+        None,
+        "--entry-slow",
+        "-esl",
+        help="Lock entry strategy slow period to specific value (sets both min and max)",
+    ),
+    entry_signal: Optional[int] = typer.Option(
+        None,
+        "--entry-signal",
+        "-esi",
+        help="Lock entry strategy signal period to specific value (sets both min and max, MACD only)",
+    ),
     date: Optional[str] = typer.Option(
         None,
         "--date",
@@ -524,6 +542,8 @@ def sweep(
         trading-cli strategy sweep --ticker AAPL,MSFT,GOOGL --strategy SMA EMA
         trading-cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow-min 20 --slow-max 100
         trading-cli strategy sweep --ticker BTC-USD --min-trades 20 --fast-min 10 --fast-max 30
+        trading-cli strategy sweep --ticker GOOGL --strategy SMA_ATR --entry-fast 8 --entry-slow 31
+        trading-cli strategy sweep --profile minimum --strategy SMA_ATR --entry-fast 20 --entry-slow 50 --ticker BTC-USD
         trading-cli strategy sweep --ticker BTC-USD,ETH-USD --use-4hour
         trading-cli strategy sweep --ticker ETH-USD --use-2day
         trading-cli strategy sweep --profile ma_cross_crypto --skip-analysis
@@ -572,6 +592,9 @@ def sweep(
             slow_max=slow_max,
             signal_min=signal_min,
             signal_max=signal_max,
+            entry_fast=entry_fast,
+            entry_slow=entry_slow,
+            entry_signal=entry_signal,
             date=date,
             use_current=use_current,
             verbose=global_verbose,
@@ -1141,6 +1164,34 @@ def _display_portfolio_table(df, display_columns):
     console.print(table)
 
 
+def _display_basic_best_strategy(
+    best: StrategyPortfolioResults, console: ConsoleLogger
+) -> None:
+    """Fallback display for best strategy when portfolios_best file cannot be read."""
+    strategy_display = f"{best.strategy_type}"
+    if best.best_config:
+        strategy_display += f" {best.best_config}"
+
+    # Add performance metrics if available
+    performance_parts = []
+    if best.win_rate:
+        performance_parts.append(f"Win Rate: {best.win_rate:.1%}")
+    if best.best_score:
+        performance_parts.append(f"Score: {best.best_score:.3f}")
+
+    best_info = f"Best Strategy: {strategy_display}"
+    if performance_parts:
+        best_info += f" ({', '.join(performance_parts)})"
+
+    console.success(best_info)
+
+    # Show trade performance if available
+    if best.avg_win and best.avg_loss:
+        console.info(
+            f"Trade Performance: +{best.avg_win:.2f}% avg win vs -{abs(best.avg_loss):.2f}% avg loss"
+        )
+
+
 def _display_strategy_summary(
     summary: StrategyExecutionSummary, console: ConsoleLogger
 ) -> None:
@@ -1242,33 +1293,104 @@ def _display_strategy_summary(
         if file_types["portfolios_best"]:
             console.success(f"Best: {', '.join(file_types['portfolios_best'])}")
 
-    # Key Insights section
+    # Key Insights section - Enhanced with comprehensive metrics
     console.heading("Key Insights", level=3)
 
     if summary.best_opportunity:
         best = summary.best_opportunity
-        strategy_display = f"{best.strategy_type}"
-        if best.best_config:
-            strategy_display += f" {best.best_config}"
 
-        # Add performance metrics if available
-        performance_parts = []
-        if best.win_rate:
-            performance_parts.append(f"Win Rate: {best.win_rate:.1%}")
-        if best.best_score:
-            performance_parts.append(f"Score: {best.best_score:.3f}")
+        # Read portfolios_best file for comprehensive metrics including exit parameters
+        try:
+            from pathlib import Path
 
-        best_info = f"Best Strategy: {strategy_display}"
-        if performance_parts:
-            best_info += f" ({', '.join(performance_parts)})"
+            import pandas as pd
 
-        console.success(best_info)
-
-        # Show trade performance if available
-        if best.avg_win and best.avg_loss:
-            console.info(
-                f"Trade Performance: +{best.avg_win:.2f}% avg win vs -{abs(best.avg_loss):.2f}% avg loss"
+            # Build best file path
+            ticker = (
+                summary.tickers_processed[0]
+                if summary.tickers_processed
+                else best.ticker
             )
+            timeframe = "D"  # Default, could extract from config if needed
+            best_file = Path(
+                f"data/raw/portfolios_best/{ticker}_{timeframe}_{best.strategy_type}.csv"
+            )
+
+            if best_file.exists():
+                best_df = pd.read_csv(best_file)
+                if len(best_df) > 0:
+                    best_row = best_df.iloc[0]
+
+                    # Build comprehensive config string with exit parameters
+                    fast = best_row.get("Fast Period", "")
+                    slow = best_row.get("Slow Period", "")
+                    exit_fast = best_row.get("Exit Fast Period")
+                    exit_slow = best_row.get("Exit Slow Period")
+
+                    if (
+                        best.strategy_type == "SMA_ATR"
+                        and pd.notna(exit_fast)
+                        and pd.notna(exit_slow)
+                    ):
+                        config_str = f"SMA({fast}/{slow}) + ATR({int(exit_fast)}, {exit_slow:.1f})"
+                    elif best.strategy_type in ["SMA", "EMA"]:
+                        config_str = f"{best.strategy_type}({fast}/{slow})"
+                    elif best.strategy_type == "MACD":
+                        signal = best_row.get("Signal Period", "")
+                        config_str = f"MACD({fast}/{slow}/{signal})"
+                    else:
+                        config_str = (
+                            f"{best.strategy_type} {best.best_config}"
+                            if best.best_config
+                            else best.strategy_type
+                        )
+
+                    # Display comprehensive configuration
+                    console.success(f"Best Configuration: {config_str}")
+
+                    # Display key performance metrics
+                    total_return = best_row.get("Total Return [%]")
+                    if pd.notna(total_return):
+                        console.info(f"Total Return: {total_return:.2f}%")
+
+                    win_rate = best_row.get("Win Rate [%]")
+                    if pd.notna(win_rate):
+                        console.info(f"Win Rate: {win_rate:.1f}%")
+
+                    profit_factor = best_row.get("Profit Factor")
+                    if pd.notna(profit_factor):
+                        console.info(f"Profit Factor: {profit_factor:.2f}")
+
+                    expectancy = best_row.get("Expectancy")
+                    if pd.notna(expectancy):
+                        console.info(f"Expectancy: ${expectancy:.2f} per trade")
+
+                    max_dd = best_row.get("Max Drawdown [%]")
+                    if pd.notna(max_dd):
+                        console.info(f"Max Drawdown: {max_dd:.1f}%")
+
+                    total_trades = best_row.get("Total Trades")
+                    if pd.notna(total_trades):
+                        console.info(f"Total Trades: {int(total_trades)}")
+
+                    # Show trade performance if available
+                    avg_win = best_row.get("Avg Winning Trade [%]")
+                    avg_loss = best_row.get("Avg Losing Trade [%]")
+                    if pd.notna(avg_win) and pd.notna(avg_loss):
+                        console.info(
+                            f"Trade Performance: +{avg_win:.2f}% avg win vs {avg_loss:.2f}% avg loss"
+                        )
+                else:
+                    # Fallback to basic display if file is empty
+                    _display_basic_best_strategy(best, console)
+            else:
+                # Fallback to basic display if file doesn't exist
+                _display_basic_best_strategy(best, console)
+
+        except Exception as e:
+            console.debug(f"Error reading portfolios_best for detailed metrics: {e}")
+            # Fallback to basic display
+            _display_basic_best_strategy(best, console)
 
     # Execution performance
     if summary.execution_time > 60:

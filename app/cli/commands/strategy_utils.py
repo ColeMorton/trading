@@ -100,6 +100,9 @@ def build_configuration_overrides(
     slow_max: Optional[int] = None,
     signal_min: Optional[int] = None,
     signal_max: Optional[int] = None,
+    entry_fast: Optional[int] = None,
+    entry_slow: Optional[int] = None,
+    entry_signal: Optional[int] = None,
     fast_period: Optional[int] = None,
     slow_period: Optional[int] = None,
     years: Optional[int] = None,
@@ -135,6 +138,9 @@ def build_configuration_overrides(
         slow_max: Slow period maximum for sweep
         signal_min: Signal period minimum for sweep
         signal_max: Signal period maximum for sweep
+        entry_fast: Lock entry strategy fast period to specific value
+        entry_slow: Lock entry strategy slow period to specific value
+        entry_signal: Lock entry strategy signal period to specific value (MACD only)
         fast_period: Fast period for single analysis
         slow_period: Slow period for single analysis
         years: Number of years of historical data to analyze (enables year-based analysis when provided)
@@ -217,6 +223,27 @@ def build_configuration_overrides(
     if signal_min and signal_max:
         # Also set legacy range for backwards compatibility
         overrides["signal_period_range"] = (signal_min, signal_max)
+
+    # Entry-specific parameters override generic parameters
+    # When provided, they lock the entry strategy to specific values (min=max)
+    if entry_fast is not None:
+        overrides["fast_period_min"] = entry_fast
+        overrides["fast_period_max"] = entry_fast
+        overrides["fast_period_range"] = (entry_fast, entry_fast)
+        # Update CLI params tracking to reflect entry params were provided
+        cli_params_provided["fast"] = True
+
+    if entry_slow is not None:
+        overrides["slow_period_min"] = entry_slow
+        overrides["slow_period_max"] = entry_slow
+        overrides["slow_period_range"] = (entry_slow, entry_slow)
+        cli_params_provided["slow"] = True
+
+    if entry_signal is not None:
+        overrides["signal_period_min"] = entry_signal
+        overrides["signal_period_max"] = entry_signal
+        overrides["signal_period_range"] = (entry_signal, entry_signal)
+        cli_params_provided["signal"] = True
 
     # Single analysis periods
     if fast_period:

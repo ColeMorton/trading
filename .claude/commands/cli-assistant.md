@@ -20,7 +20,7 @@ Expert assistant for the **Unified Trading CLI** (v2.0.0) - an enterprise-grade 
   - `health` - System health checks and dependency validation
   - `performance` - Performance optimization and memory management
 
-- `command`: Specific CLI command (optional: "strategy", "portfolio", "spds", "trade-history", "config", "tools", "concurrency", "positions")
+- `command`: Specific CLI command (optional: "strategy", "portfolio", "spds", "trade-history", "config", "tools", "concurrency", "positions", "seasonality")
 - `operation`: Subcommand operation (optional: "run", "analyze", "export", "validate", "optimize", "monte-carlo", "review", "health", "demo", etc.)
 - `profile`: Configuration profile name (optional, e.g., "ma_cross_crypto")
 - `format`: Output format preference (optional: "table", "json", "verbose")
@@ -56,7 +56,7 @@ from app.cli.main import cli_main
 
 ### **Command Structure**
 
-The CLI provides **8 main command groups** with comprehensive subcommands:
+The CLI provides **9 main command groups** with comprehensive subcommands:
 
 #### **1. strategy** - Strategy Analysis and Execution
 
@@ -65,6 +65,7 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 - `run` - Execute strategy analysis with profile or custom parameters
 - `sweep` - Parameter sweep analysis for optimization
 - `review` - Single strategy detailed analysis
+- `sector-compare` - Compare strategy performance across sectors and asset classes
 
 ```bash
 # Profile-based execution
@@ -81,6 +82,11 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 
 # Advanced filtering
 ./trading-cli strategy run --profile ma_cross_crypto --min-win-rate 0.6 --min-profit-factor 1.5 --min-sortino 1.0
+
+# Sector comparison analysis
+./trading-cli strategy sector-compare --format table
+./trading-cli strategy sector-compare --format json --output sector_analysis.json
+./trading-cli strategy sector-compare --format csv > sector_comparison.csv
 ```
 
 #### **2. portfolio** - Portfolio Processing, Aggregation, and Analysis
@@ -90,6 +96,7 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 - `update` - Update and aggregate portfolio results
 - `process` - Process portfolio files with validation
 - `aggregate` - Aggregate multiple portfolios with advanced metrics
+- `synthesize` - Portfolio synthesis with VectorBT integration and comprehensive analysis
 - `review` - Comprehensive portfolio analysis with benchmarking and visualization (Advanced)
 
 ```bash
@@ -161,12 +168,22 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 **Available subcommands:**
 
 - `close` - Close positions and generate comprehensive sell signal reports
+- `add` - Add new position/trade to portfolio tracking
 - `update` - Update positions with current market data
 - `list` - List available strategies for analysis
 - `health` - System health check
 - `validate` - Data validation
 
 ```bash
+# Add new position to portfolio tracking
+./trading-cli trade-history add \
+  --ticker BTC-USD \
+  --strategy-type SMA \
+  --fast-period 9 \
+  --slow-period 21 \
+  --entry-price 45000.00 \
+  --portfolio risk_on
+
 # Close position with portfolio update
 ./trading-cli trade-history close \
   --strategy NFLX_SMA_82_83_2025-06-16 \
@@ -199,7 +216,7 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 
 - `list` - List all available configuration profiles
 - `show` - Show configuration details for specific profile
-- `create-defaults` - Create default configuration profiles
+- `verify-defaults` - Verify that required default configuration profiles exist
 - `set-default` - Set the default configuration profile
 - `edit` - Edit a configuration profile
 - `validate` - Validate configuration profiles
@@ -208,7 +225,8 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 # Profile management
 ./trading-cli config list
 ./trading-cli config show ma_cross_crypto --format json
-./trading-cli config create-defaults
+./trading-cli config show ma_cross_crypto --resolved
+./trading-cli config verify-defaults
 ./trading-cli config set-default ma_cross_crypto
 
 # Configuration validation
@@ -217,6 +235,7 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 
 # Profile editing
 ./trading-cli config edit ma_cross_crypto
+./trading-cli config edit ma_cross_crypto --set-field fast_period=10
 ```
 
 #### **6. tools** - Utility Tools and System Management
@@ -226,6 +245,9 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 - `schema` - Schema detection, validation, and conversion
 - `health` - Comprehensive system health diagnostics
 - `validate` - Data validation utilities
+- `export-ma-data` - Export moving average analysis data for single ticker
+- `export-ma-data-sweep` - Export moving average data for multiple tickers with parameter sweeps
+- `pinescript` - Generate PineScript indicators from strategy CSV files (also available as root command)
 
 ```bash
 # System health and diagnostics
@@ -239,6 +261,17 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 # Data validation
 ./trading-cli tools validate --batch --format json
 ./trading-cli tools validate --file portfolio.csv --comprehensive
+
+# Export MA data for single ticker
+./trading-cli tools export-ma-data BTC-USD --fast-range 5,50 --slow-range 10,200
+
+# Export MA data sweep for multiple tickers
+./trading-cli tools export-ma-data-sweep --tickers BTC-USD,ETH-USD,AAPL \
+  --fast-range 5,50 --slow-range 10,200 --output-dir ./ma_exports
+
+# Generate PineScript indicator from portfolio
+./trading-cli tools pinescript portfolio.csv
+./trading-cli tools pinescript risk_on --ticker BTC-USD
 ```
 
 #### **7. concurrency** - Advanced Concurrency Analysis and Strategy Optimization
@@ -248,6 +281,7 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 - `analyze` - Comprehensive concurrency analysis with trade history export
 - `export` - Export trade history data from portfolio analysis
 - `review` - Portfolio interaction analysis with visualization
+- `construct` - Construct optimized portfolios from strategy selection
 - `optimize` - Find optimal strategy combinations using permutation analysis
 - `monte-carlo` - Run Monte Carlo simulations for risk analysis and forecasting
 - `health` - Check concurrency analysis system health and validate configurations
@@ -272,11 +306,23 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
   --format json \
   --include-analytics
 
-# portfolio synthesis with detailed analysis
+# Portfolio synthesis with detailed analysis
 ./trading-cli concurrency review portfolio.csv \
   --focus allocation \
   --output-format json \
   --save-report analysis.json
+
+# Construct optimized portfolio from asset strategies
+./trading-cli concurrency construct BTC-USD \
+  --max-strategies 10 \
+  --min-sharpe 1.5 \
+  --output btc_portfolio.csv
+
+# Construct portfolio with diversification scoring
+./trading-cli concurrency construct ETH-USD \
+  --max-strategies 8 \
+  --diversification-weight 0.3 \
+  --force-overwrite
 
 # Strategy optimization with parallel processing
 ./trading-cli concurrency optimize portfolio.csv \
@@ -349,6 +395,68 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 ./trading-cli positions validate-equity --all-portfolios --error-threshold 5.0 --warning-threshold 10.0
 ```
 
+#### **9. seasonality** - Seasonality Analysis and Seasonal Pattern Detection
+
+**Available subcommands:**
+
+- `run` - Run seasonality analysis on stock price data
+- `list` - List available tickers for seasonality analysis
+- `results` - View seasonality analysis results for specific ticker
+- `clean` - Clean up seasonality results directory
+- `current` - Generate current seasonality expectancy analysis for specified hold period
+- `portfolio` - Run seasonality analysis on all tickers in a portfolio with intelligent time period determination
+
+```bash
+# Basic seasonality analysis for specific tickers
+./trading-cli seasonality run --ticker BTC-USD,ETH-USD --min-years 3.0
+
+# Run with custom parameters
+./trading-cli seasonality run --ticker AAPL \
+  --min-years 5.0 \
+  --time-period 5 \
+  --confidence-level 0.95 \
+  --detrend
+
+# List available tickers for analysis
+./trading-cli seasonality list
+
+# View results for specific ticker
+./trading-cli seasonality results BTC-USD --format table
+./trading-cli seasonality results TSLA --format raw
+
+# Current expectancy analysis (forward-looking)
+./trading-cli seasonality current --days 30 \
+  --min-sample-size 50 \
+  --min-significance 0.5 \
+  --top-n 20
+
+# Filter to specific tickers for expectancy
+./trading-cli seasonality current \
+  --ticker BTC-USD,ETH-USD,AAPL \
+  --days 21 \
+  --no-csv \
+  --no-markdown
+
+# Portfolio-based seasonality analysis
+./trading-cli seasonality portfolio risk_on.csv \
+  --default-days 21 \
+  --confidence-level 0.95
+
+# Portfolio analysis with time period override (all tickers)
+./trading-cli seasonality portfolio portfolio.csv \
+  --time-period 30 \
+  --min-sample-size 20
+
+# Portfolio analysis with signal-based time periods
+./trading-cli seasonality portfolio today.csv \
+  --default-days 14 \
+  --include-holidays \
+  --output-format json
+
+# Clean up results directory
+./trading-cli seasonality clean
+```
+
 ### **Root Commands**
 
 **System-level operations:**
@@ -357,6 +465,12 @@ The CLI provides **8 main command groups** with comprehensive subcommands:
 ./trading-cli version           # Show version information
 ./trading-cli status            # System status and configuration
 ./trading-cli init              # Initialize CLI with default profiles
+
+# PineScript indicator generation (root-level command)
+./trading-cli pinescript portfolio.csv
+./trading-cli pinescript MSTR --ticker BTC-USD
+./trading-cli pinescript risk_on.csv --ticker HIMS,MP,NVDA --verbose
+./trading-cli pinescript today --dry-run --quiet
 ```
 
 ### **Global Options (Available for ALL commands)**
@@ -824,8 +938,8 @@ def validate_minimums(cls, v):
 ./trading-cli config list --detailed --with-inheritance
 ./trading-cli config show ma_cross_crypto --format json --validate
 
-# Profile creation and editing
-./trading-cli config create-defaults --overwrite --backup
+# Profile verification and editing
+./trading-cli config verify-defaults
 ./trading-cli config edit ma_cross_crypto --interactive
 
 # Advanced validation with business logic
@@ -935,6 +1049,186 @@ def validate_minimums(cls, v):
   --verbose \
   --debug-calculations \
   --export-detailed-report ./validation_report.json
+```
+
+### **Seasonality Analysis (Comprehensive Workflows)**
+
+```bash
+# Basic seasonality pattern detection
+./trading-cli seasonality run --ticker BTC-USD,ETH-USD --min-years 3.0
+
+# Advanced seasonality analysis with custom parameters
+./trading-cli seasonality run \
+  --ticker AAPL,MSFT,GOOGL \
+  --min-years 5.0 \
+  --time-period 5 \
+  --confidence-level 0.95 \
+  --detrend \
+  --min-sample-size 20 \
+  --output-format csv
+
+# Current expectancy analysis for trading opportunities
+./trading-cli seasonality current \
+  --ticker BTC-USD,ETH-USD,SOL-USD \
+  --days 30 \
+  --min-sample-size 50 \
+  --min-significance 0.6 \
+  --top-n 15
+
+# Portfolio-based seasonality with signal-based time periods
+./trading-cli seasonality portfolio risk_on.csv \
+  --default-days 21 \
+  --confidence-level 0.95 \
+  --detrend \
+  --output-format json
+
+# Override time period for all tickers in portfolio
+./trading-cli seasonality portfolio today.csv \
+  --time-period 14 \
+  --include-holidays \
+  --min-sample-size 30
+
+# View and analyze results
+./trading-cli seasonality list
+./trading-cli seasonality results BTC-USD --format table
+./trading-cli seasonality results AAPL --format raw
+
+# Clean up analysis results
+./trading-cli seasonality clean
+```
+
+### **PineScript Generation (TradingView Integration)**
+
+```bash
+# Generate indicator from portfolio CSV
+./trading-cli pinescript portfolio.csv
+
+# Generate with specific ticker filter
+./trading-cli pinescript risk_on.csv --ticker BTC-USD
+
+# Generate for multiple tickers
+./trading-cli pinescript portfolio.csv --ticker HIMS,MP,NVDA
+
+# Preview without writing file
+./trading-cli pinescript today.csv --dry-run --verbose
+
+# Quiet mode for scripting
+./trading-cli pinescript MSTR.csv --quiet
+
+# Complete workflow: analysis → pinescript
+./trading-cli strategy run --profile ma_cross_crypto && \
+./trading-cli pinescript portfolio.csv --ticker BTC-USD,ETH-USD
+```
+
+### **Sector and Asset Class Analysis**
+
+```bash
+# Compare strategy performance across sectors
+./trading-cli strategy sector-compare --format table
+
+# Export sector analysis to JSON
+./trading-cli strategy sector-compare \
+  --format json \
+  --output sector_analysis.json
+
+# CSV export for spreadsheet analysis
+./trading-cli strategy sector-compare --format csv > sector_comparison.csv
+
+# Integration with portfolio synthesis
+./trading-cli strategy sector-compare --format json && \
+./trading-cli portfolio synthesis --profile investment_optimized
+```
+
+### **Portfolio Construction and Optimization**
+
+```bash
+# Construct optimized portfolio for specific asset
+./trading-cli concurrency construct BTC-USD \
+  --max-strategies 10 \
+  --min-sharpe 1.5 \
+  --output btc_optimized.csv
+
+# Construct with diversification emphasis
+./trading-cli concurrency construct ETH-USD \
+  --max-strategies 8 \
+  --diversification-weight 0.3 \
+  --min-win-rate 0.55 \
+  --force-overwrite
+
+# Construct multiple asset portfolios
+for asset in BTC-USD ETH-USD SOL-USD; do
+  ./trading-cli concurrency construct $asset \
+    --max-strategies 12 \
+    --output portfolios/${asset}_portfolio.csv
+done
+
+# Validate and analyze constructed portfolio
+./trading-cli concurrency construct AAPL --output aapl_port.csv && \
+./trading-cli concurrency analyze aapl_port.csv --visualization
+```
+
+### **Moving Average Data Export**
+
+```bash
+# Export MA analysis for single ticker
+./trading-cli tools export-ma-data BTC-USD \
+  --fast-range 5,50 \
+  --slow-range 10,200 \
+  --output btc_ma_analysis.csv
+
+# Sweep multiple tickers with parameter ranges
+./trading-cli tools export-ma-data-sweep \
+  --tickers BTC-USD,ETH-USD,AAPL,MSFT \
+  --fast-range 5,50 \
+  --slow-range 10,200 \
+  --step 5 \
+  --output-dir ./ma_exports
+
+# High-resolution parameter sweep
+./trading-cli tools export-ma-data-sweep \
+  --tickers BTC-USD,ETH-USD \
+  --fast-range 3,100 \
+  --slow-range 10,250 \
+  --step 1 \
+  --parallel \
+  --output-dir ./detailed_ma_sweep
+```
+
+### **Trade History Management**
+
+```bash
+# Add new position to portfolio
+./trading-cli trade-history add \
+  --ticker BTC-USD \
+  --strategy-type SMA \
+  --fast-period 9 \
+  --slow-period 21 \
+  --entry-price 45000.00 \
+  --portfolio risk_on \
+  --entry-date 2025-01-15
+
+# Add with full strategy details
+./trading-cli trade-history add \
+  --ticker AAPL \
+  --strategy-type MACD \
+  --entry-price 175.50 \
+  --portfolio live_signals \
+  --position-size 100 \
+  --notes "Earnings momentum play"
+
+# Close position and update portfolio
+./trading-cli trade-history close \
+  --strategy BTC-USD_SMA_9_21_2025-01-15 \
+  --portfolio risk_on \
+  --price 52000.00 \
+  --generate-report
+
+# Update multiple positions
+./trading-cli trade-history update \
+  --portfolio live_signals \
+  --refresh-prices \
+  --recalculate \
+  --update-risk
 ```
 
 ### **Concurrency Analysis (Advanced Workflows)**
@@ -1285,7 +1579,7 @@ ERROR: Profile 'invalid_profile' not found in profiles directory
 
 Resolution:
 ./trading-cli config list
-./trading-cli config create-defaults
+./trading-cli config verify-defaults
 ```
 
 **Invalid Configuration:**
@@ -1871,6 +2165,21 @@ data/raw/portfolio_exports/TSLA/
 ./trading-cli positions validate-equity --portfolio protected # Validate mathematical consistency
 ./trading-cli positions list                                  # List available portfolios
 
+# Seasonality analysis (NEW)
+./trading-cli seasonality run --ticker BTC-USD,ETH-USD       # Basic seasonality analysis
+./trading-cli seasonality current --days 30 --top-n 20       # Current expectancy opportunities
+./trading-cli seasonality portfolio risk_on.csv              # Portfolio seasonality analysis
+
+# PineScript generation (NEW)
+./trading-cli pinescript portfolio.csv                       # Generate TradingView indicator
+./trading-cli pinescript risk_on.csv --ticker BTC-USD        # Generate with ticker filter
+
+# Portfolio construction (NEW)
+./trading-cli concurrency construct BTC-USD --max-strategies 10  # Build optimized portfolio
+
+# Sector analysis (NEW)
+./trading-cli strategy sector-compare --format table         # Compare across sectors
+
 # System diagnostics
 ./trading-cli tools health --verbose --check-dependencies
 ./trading-cli spds health --convergence-analysis
@@ -1883,7 +2192,7 @@ data/raw/portfolio_exports/TSLA/
 ```bash
 # System recovery and reset
 ./trading-cli init                                   # Reset to defaults
-./trading-cli config create-defaults                # Recreate default profiles
+./trading-cli config verify-defaults                # Verify default profiles exist
 ./trading-cli tools health --verbose                # Comprehensive diagnostics
 ./trading-cli config validate --fix-issues          # Fix configuration issues
 

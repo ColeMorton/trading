@@ -44,6 +44,12 @@ def run(
         "-y",
         help="Minimum years of data required for analysis",
     ),
+    time_period: int = typer.Option(
+        1,
+        "--time-period",
+        "-tp",
+        help="Number of days for return calculations (1 for daily returns)",
+    ),
     confidence_level: float = typer.Option(
         0.95,
         "--confidence-level",
@@ -82,6 +88,7 @@ def run(
         config = SeasonalityConfig(
             tickers=ticker_list,
             min_years=min_years,
+            time_period_days=time_period,  # Add this line
             confidence_level=confidence_level,
             output_format=output_format,
             detrend_data=detrend,
@@ -95,6 +102,7 @@ def run(
         else:
             rprint("  Tickers: [yellow]All available[/yellow]")
         rprint(f"  Minimum years: {min_years}")
+        rprint(f"  Time period: {time_period} days")  # Add this line
         rprint(f"  Confidence level: {confidence_level}")
         rprint(f"  Output format: {output_format}")
         rprint(f"  Detrend data: {detrend}")
@@ -425,6 +433,12 @@ def portfolio(
         "-d",
         help="Default time period in days when no signal entry exists",
     ),
+    time_period: Optional[int] = typer.Option(
+        None,
+        "--time-period",
+        "-tp",
+        help="Override time period for ALL tickers (ignores signal entry and default)",
+    ),
     confidence_level: float = typer.Option(
         0.95,
         "--confidence-level",
@@ -460,6 +474,7 @@ def portfolio(
         config = PortfolioSeasonalityConfig(
             portfolio=portfolio_name,
             default_time_period_days=default_time_period,
+            time_period_days=time_period,
             confidence_level=confidence_level,
             output_format=output_format,
             detrend_data=detrend,
@@ -470,7 +485,12 @@ def portfolio(
         # Display initial configuration
         rprint("\n[bold cyan]Portfolio Seasonality Analysis[/bold cyan]")
         rprint(f"  Portfolio: [yellow]{portfolio_name}[/yellow]")
-        rprint(f"  Default time period: [green]{default_time_period} days[/green]")
+        if time_period is not None:
+            rprint(
+                f"  [bold red]Time period: {time_period} days (ALL TICKERS)[/bold red]"
+            )
+        else:
+            rprint(f"  Default time period: [green]{default_time_period} days[/green]")
         rprint(f"  Confidence level: {confidence_level}")
         rprint(f"  Output format: {output_format}")
         rprint(f"  Detrend data: {detrend}")
@@ -512,6 +532,11 @@ def portfolio(
                     rprint(f"   [red]   ... and {len(failed_tickers) - 5} more[/red]")
 
         # Show time period breakdown
+        override_based = sum(
+            1
+            for result in results["ticker_results"].values()
+            if result.get("analysis_source") == "override"
+        )
         signal_based = sum(
             1
             for result in results["ticker_results"].values()
@@ -524,12 +549,17 @@ def portfolio(
         )
 
         rprint(f"\n[bold yellow]📈 Time Period Analysis:[/bold yellow]")
-        rprint(
-            f"🎯 [green]{signal_based} tickers used signal-based time periods[/green]"
-        )
-        rprint(
-            f"⏰ [yellow]{default_based} tickers used default {default_time_period}-day period[/yellow]"
-        )
+        if override_based > 0:
+            rprint(
+                f"🎯 [red]{override_based} tickers used OVERRIDE time period ({time_period} days)[/red]"
+            )
+        else:
+            rprint(
+                f"🎯 [green]{signal_based} tickers used signal-based time periods[/green]"
+            )
+            rprint(
+                f"⏰ [yellow]{default_based} tickers used default {default_time_period}-day period[/yellow]"
+            )
 
         # Display tickers with positive expectancy
         if results["display_data"]:
@@ -565,7 +595,7 @@ def _display_portfolio_results(display_data, portfolio_name):
     table.add_column("Ticker", style="bold white", no_wrap=True)
     table.add_column("Years", style="cyan", justify="right")
     table.add_column("Seasonal Strength", style="yellow", justify="right")
-    table.add_column("Strongest Pattern", style="blue")
+    table.add_column("Best Pattern", style="blue")
     table.add_column("Period", style="white")
     table.add_column("Avg Return", style="green", justify="right")
     table.add_column("Win Rate", style="magenta", justify="right")

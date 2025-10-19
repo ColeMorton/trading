@@ -666,24 +666,12 @@ def _ensure_canonical_column_order(
                 )
 
                 target_columns = ExtendedPortfolioSchema.get_column_names()
-            elif schema_type == SchemaType.ATR_EXTENDED:
-                from app.tools.portfolio.base_extended_schemas import (
-                    ATRExtendedPortfolioSchema,
-                )
-
-                target_columns = ATRExtendedPortfolioSchema.get_column_names()
             elif schema_type == SchemaType.FILTERED:
                 from app.tools.portfolio.base_extended_schemas import (
                     FilteredPortfolioSchema,
                 )
 
                 target_columns = FilteredPortfolioSchema.get_column_names()
-            elif schema_type == SchemaType.ATR_FILTERED:
-                from app.tools.portfolio.base_extended_schemas import (
-                    ATRFilteredPortfolioSchema,
-                )
-
-                target_columns = ATRFilteredPortfolioSchema.get_column_names()
             else:
                 # Default to Extended schema for unknown types
                 from app.tools.portfolio.base_extended_schemas import (

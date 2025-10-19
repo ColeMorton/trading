@@ -332,6 +332,14 @@ def process_ticker_portfolios(
                         )
 
                         stats = portfolio.stats()
+
+                        # Reconcile Total Open Trades with Signal Entry/Exit logic
+                        # VectorBT's stats reflect backtest end state, but signals reflect last bar state
+                        if exit_signal:
+                            stats["Total Open Trades"] = 0
+                        elif current_signal:
+                            stats["Total Open Trades"] = 1
+
                         stats["Ticker"] = ticker
                         stats["Strategy Type"] = "MACD"
                         stats["Fast Period"] = fast_period
@@ -615,6 +623,14 @@ def process_ticker_portfolios(
                         )
 
                         sma_stats = sma_portfolio.stats()
+
+                        # Reconcile Total Open Trades with Signal Entry/Exit logic
+                        # VectorBT's stats reflect backtest end state, but signals reflect last bar state
+                        if exit_signal:
+                            sma_stats["Total Open Trades"] = 0
+                        elif current_signal:
+                            sma_stats["Total Open Trades"] = 1
+
                         sma_stats["Ticker"] = ticker
                         sma_stats["Strategy Type"] = "SMA"
                         sma_stats["Fast Period"] = fast_period
@@ -874,6 +890,14 @@ def process_ticker_portfolios(
                         )
 
                         ema_stats = ema_portfolio.stats()
+
+                        # Reconcile Total Open Trades with Signal Entry/Exit logic
+                        # VectorBT's stats reflect backtest end state, but signals reflect last bar state
+                        if exit_signal:
+                            ema_stats["Total Open Trades"] = 0
+                        elif current_signal:
+                            ema_stats["Total Open Trades"] = 1
+
                         ema_stats["Ticker"] = ticker
                         ema_stats["Strategy Type"] = "EMA"
                         ema_stats["Fast Period"] = fast_period

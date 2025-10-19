@@ -22,7 +22,7 @@ from app.tools.backtest_strategy import backtest_strategy
 from app.tools.get_data import get_data
 from app.tools.performance_tracker import timing_context
 from app.tools.portfolio.base_extended_schemas import (
-    ATRExtendedPortfolioSchema,
+    ExtendedPortfolioSchema,
     SchemaTransformer,
     SchemaType,
 )
@@ -244,9 +244,10 @@ class ATRParameterSweepEngine:
                 self.sweep_stats["failed_combinations"] += 1
                 return None
 
-            # Add ATR-specific fields and ensure ticker is set
-            stats_dict["ATR Stop Length"] = atr_length
-            stats_dict["ATR Stop Multiplier"] = atr_multiplier
+            # Add universal exit parameter fields and ensure ticker is set
+            stats_dict["Exit Fast Period"] = atr_length
+            stats_dict["Exit Slow Period"] = atr_multiplier
+            stats_dict["Exit Signal Period"] = None
             stats_dict["Ticker"] = ticker  # Ensure ticker is set correctly
 
             # Convert stats using the stats converter to ensure proper formatting and Score calculation
@@ -523,46 +524,43 @@ class ATRParameterSweepEngine:
             validation_errors.append("No results generated from parameter sweep")
             return False, validation_errors
 
-        # Check schema compliance
+        # Check schema compliance (using EXTENDED schema with universal exit params)
         for i, result in enumerate(results[:10]):  # Check first 10 for performance
             is_valid, schema_errors = self.schema_transformer.validate_schema(
-                result, SchemaType.ATR_EXTENDED
+                result, SchemaType.EXTENDED
             )
             if not is_valid:
                 validation_errors.extend(
                     [f"Result {i}: {error}" for error in schema_errors]
                 )
 
-        # Check ATR parameter presence
-        missing_atr_fields = []
+        # Check exit parameter presence (universal exit params)
+        missing_exit_fields = []
         for i, result in enumerate(results[:5]):  # Sample check
-            if "ATR Stop Length" not in result or result["ATR Stop Length"] is None:
-                missing_atr_fields.append(f"Result {i}: missing ATR Stop Length")
-            if (
-                "ATR Stop Multiplier" not in result
-                or result["ATR Stop Multiplier"] is None
-            ):
-                missing_atr_fields.append(f"Result {i}: missing ATR Stop Multiplier")
+            if "Exit Fast Period" not in result or result["Exit Fast Period"] is None:
+                missing_exit_fields.append(f"Result {i}: missing Exit Fast Period")
+            if "Exit Slow Period" not in result or result["Exit Slow Period"] is None:
+                missing_exit_fields.append(f"Result {i}: missing Exit Slow Period")
 
-        if missing_atr_fields:
-            validation_errors.extend(missing_atr_fields)
+        if missing_exit_fields:
+            validation_errors.extend(missing_exit_fields)
 
         # Check for reasonable parameter distribution
         if len(results) > 100:  # Only check if we have substantial results
-            atr_lengths = [
-                r.get("ATR Stop Length") for r in results if r.get("ATR Stop Length")
+            exit_fast_periods = [
+                r.get("Exit Fast Period") for r in results if r.get("Exit Fast Period")
             ]
-            atr_multipliers = [
-                r.get("ATR Stop Multiplier")
-                for r in results
-                if r.get("ATR Stop Multiplier")
+            exit_slow_periods = [
+                r.get("Exit Slow Period") for r in results if r.get("Exit Slow Period")
             ]
 
-            if len(set(atr_lengths)) < 5:
-                validation_errors.append("Insufficient ATR length diversity in results")
-            if len(set(atr_multipliers)) < 10:
+            if len(set(exit_fast_periods)) < 5:
                 validation_errors.append(
-                    "Insufficient ATR multiplier diversity in results"
+                    "Insufficient exit fast period diversity in results"
+                )
+            if len(set(exit_slow_periods)) < 10:
+                validation_errors.append(
+                    "Insufficient exit slow period diversity in results"
                 )
 
         is_valid = len(validation_errors) == 0

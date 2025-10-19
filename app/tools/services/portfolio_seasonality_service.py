@@ -79,21 +79,33 @@ class PortfolioSeasonalityService:
                         current_date=datetime.now(),
                     )
                     ticker_result = service._analyze_ticker(ticker)
+                    # Determine analysis source
+                    if self.config.time_period_days is not None:
+                        analysis_source = "override"
+                    elif time_period_days != self.config.default_time_period_days:
+                        analysis_source = "signal_entry"
+                    else:
+                        analysis_source = "default"
+
                     results[ticker] = {
                         "results": ticker_result,
                         "time_period_days": time_period_days,
-                        "analysis_source": "signal_entry"
-                        if time_period_days != self.config.default_time_period_days
-                        else "default",
+                        "analysis_source": analysis_source,
                     }
                 except Exception as e:
                     self.console.print(f"[red]Error analyzing {ticker}: {str(e)}[/red]")
+                    # Determine analysis source
+                    if self.config.time_period_days is not None:
+                        analysis_source = "override"
+                    elif time_period_days != self.config.default_time_period_days:
+                        analysis_source = "signal_entry"
+                    else:
+                        analysis_source = "default"
+
                     results[ticker] = {
                         "error": str(e),
                         "time_period_days": time_period_days,
-                        "analysis_source": "signal_entry"
-                        if time_period_days != self.config.default_time_period_days
-                        else "default",
+                        "analysis_source": analysis_source,
                     }
 
                 progress.advance(task)
@@ -159,6 +171,12 @@ class PortfolioSeasonalityService:
             Dictionary mapping ticker to time period in days
         """
         ticker_periods = {}
+
+        # Check if time_period override is set - if so, use it for ALL tickers
+        if self.config.time_period_days is not None:
+            for ticker in portfolio_df["Ticker"].unique():
+                ticker_periods[ticker] = self.config.time_period_days
+            return ticker_periods
 
         # Group by ticker to analyze each one
         for ticker in portfolio_df["Ticker"].unique():
@@ -236,6 +254,13 @@ class PortfolioSeasonalityService:
         )
         self.console.print(f"Portfolio: [yellow]{self.config.portfolio}[/yellow]")
         self.console.print(f"Total tickers: [green]{len(ticker_periods)}[/green]")
+
+        # Show override message if applicable
+        if self.config.time_period_days is not None:
+            self.console.print(
+                f"[bold red]⚠️  Using OVERRIDE time period: {self.config.time_period_days} days for ALL tickers[/bold red]"
+            )
+
         self.console.print()
 
         # Create summary table
@@ -263,11 +288,14 @@ class PortfolioSeasonalityService:
         # Add rows to table (limit to first 20 for readability)
         displayed_tickers = list(ticker_periods.items())[:20]
         for ticker, days in displayed_tickers:
-            source = (
-                "Signal Entry"
-                if days != self.config.default_time_period_days
-                else f"Default ({self.config.default_time_period_days} days)"
-            )
+            if self.config.time_period_days is not None:
+                source = f"Override ({days} days)"
+            else:
+                source = (
+                    "Signal Entry"
+                    if days != self.config.default_time_period_days
+                    else f"Default ({self.config.default_time_period_days} days)"
+                )
             table.add_row(ticker, f"{days} days", source)
 
         if len(ticker_periods) > 20:
@@ -277,12 +305,19 @@ class PortfolioSeasonalityService:
 
         # Print summary
         self.console.print()
-        self.console.print(
-            f"[green]• {len(signal_based)} tickers using signal-based time periods[/green]"
-        )
-        self.console.print(
-            f"[yellow]• {len(default_based)} tickers using default {self.config.default_time_period_days}-day period[/yellow]"
-        )
+        if self.config.time_period_days is not None:
+            # All tickers use override
+            self.console.print(
+                f"[red]• {len(ticker_periods)} tickers using OVERRIDE {self.config.time_period_days}-day period[/red]"
+            )
+        else:
+            # Normal mode with signal-based and default
+            self.console.print(
+                f"[green]• {len(signal_based)} tickers using signal-based time periods[/green]"
+            )
+            self.console.print(
+                f"[yellow]• {len(default_based)} tickers using default {self.config.default_time_period_days}-day period[/yellow]"
+            )
         self.console.print()
 
     def _save_portfolio_summary(self, results: Dict[str, Dict]) -> None:
@@ -307,7 +342,7 @@ class PortfolioSeasonalityService:
             if not result:
                 continue
 
-            # Find strongest pattern
+            # Find best pattern (highest expectancy)
             strongest_pattern = result.strongest_pattern
             if strongest_pattern:
                 summary_data.append(
@@ -319,7 +354,7 @@ class PortfolioSeasonalityService:
                             1,
                         ),
                         "Seasonal_Strength": round(result.overall_seasonal_strength, 3),
-                        "Strongest_Pattern": strongest_pattern.pattern_type,
+                        "Best_Pattern": strongest_pattern.pattern_type,
                         "Period": strongest_pattern.period,
                         "Avg_Return_Percent": round(
                             strongest_pattern.average_return, 2

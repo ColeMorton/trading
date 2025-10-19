@@ -214,10 +214,13 @@ class SeasonalityService:
         # Calculate overall seasonal strength
         seasonal_strength = self.analyzer.calculate_seasonal_strength(patterns)
 
-        # Find strongest pattern
+        # Find best pattern (highest expectancy for trading)
+        # Expectancy = average_return * win_rate (profitability, not just significance)
         strongest_pattern = None
         if patterns:
-            strongest_pattern = max(patterns, key=lambda p: p.statistical_significance)
+            strongest_pattern = max(
+                patterns, key=lambda p: p.average_return * p.win_rate
+            )
 
         # Create result
         result = SeasonalityResult(
@@ -886,7 +889,7 @@ class SeasonalityService:
         table.add_column("Ticker", style="cyan", no_wrap=True)
         table.add_column("Years", style="green", justify="right")
         table.add_column("Seasonal Strength", style="yellow", justify="right")
-        table.add_column("Strongest Pattern", style="white")
+        table.add_column("Best Pattern", style="white")
         table.add_column("Period", style="white")
         table.add_column("Avg Return", style="green", justify="right")
 

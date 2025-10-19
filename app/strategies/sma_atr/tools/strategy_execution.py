@@ -235,8 +235,11 @@ def execute_backtest_on_signals(
                 "Strategy Type": "SMA_ATR",
                 "Fast Period": config["FAST_PERIOD"],
                 "Slow Period": config["SLOW_PERIOD"],
-                "ATR Length": config.get("ATR_LENGTH", 14),
-                "ATR Multiplier": config.get("ATR_MULTIPLIER", 2.0),
+                "Exit Fast Period": config.get("ATR_LENGTH", 14),
+                "Exit Slow Period": round(
+                    config.get("ATR_MULTIPLIER", 2.0), 1
+                ),  # Round to 1 decimal to avoid floating point errors
+                "Exit Signal Period": None,  # Not used by ATR strategy
                 "Allocation [%]": config.get("ALLOCATION", None),
                 "Stop Loss [%]": config.get("STOP_LOSS", None),
             }
@@ -505,8 +508,11 @@ def execute_single_strategy(
                 "Strategy Type": "SMA_ATR",
                 "Fast Period": config["FAST_PERIOD"],
                 "Slow Period": config["SLOW_PERIOD"],
-                "ATR Length": config.get("ATR_LENGTH", 14),
-                "ATR Multiplier": config.get("ATR_MULTIPLIER", 2.0),
+                "Exit Fast Period": config.get("ATR_LENGTH", 14),
+                "Exit Slow Period": round(
+                    config.get("ATR_MULTIPLIER", 2.0), 1
+                ),  # Round to 1 decimal to avoid floating point errors
+                "Exit Signal Period": None,  # Not used by ATR strategy
                 "Allocation [%]": config.get("ALLOCATION", None),
                 "Stop Loss [%]": config.get("STOP_LOSS", None),
             }

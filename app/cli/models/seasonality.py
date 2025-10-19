@@ -130,6 +130,10 @@ class PortfolioSeasonalityConfig(BaseConfig):
         default=21,
         description="Default time period in days when no signal entry exists",
     )
+    time_period_days: Optional[int] = Field(
+        default=None,
+        description="Override time period for ALL tickers (ignores signal entry and default)",
+    )
     confidence_level: float = Field(
         default=0.95, description="Confidence level for statistical tests"
     )
@@ -160,6 +164,17 @@ class PortfolioSeasonalityConfig(BaseConfig):
             raise ValueError("Default time period must be positive")
         if v > 365:
             raise ValueError("Default time period cannot exceed 365 days")
+        return v
+
+    @field_validator("time_period_days")
+    @classmethod
+    def validate_time_period(cls, v: Optional[int]) -> Optional[int]:
+        """Validate time period is positive."""
+        if v is not None:
+            if v <= 0:
+                raise ValueError("Time period must be positive")
+            if v > 365:
+                raise ValueError("Time period cannot exceed 365 days")
         return v
 
     @field_validator("confidence_level")

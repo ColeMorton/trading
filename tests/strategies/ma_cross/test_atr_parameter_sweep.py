@@ -372,8 +372,9 @@ class TestATRParameterSweepEngine:
             "Strategy Type": "SMA",
             "Fast Period": 19,
             "Slow Period": 29,
-            "ATR Stop Length": 14,
-            "ATR Stop Multiplier": 2.0,
+            "Exit Fast Period": 14,
+            "Exit Slow Period": 2.0,
+            "Exit Signal Period": None,
             "Total Return": 25.5,
             "Sharpe Ratio": 1.45,
             "Max Drawdown": -12.3,
@@ -395,8 +396,8 @@ class TestATRParameterSweepEngine:
 
         assert result is not None
         assert isinstance(result, dict)
-        assert result["ATR Stop Length"] == 14
-        assert result["ATR Stop Multiplier"] == 2.0
+        assert result["Exit Fast Period"] == 14
+        assert result["Exit Slow Period"] == 2.0
         assert result["Ticker"] == "TEST"
         assert engine.sweep_stats["successful_combinations"] == 1
 
@@ -513,8 +514,9 @@ class TestATRParameterSweepEngine:
             # Increment successful combinations manually since we're bypassing real processing
             engine.sweep_stats["successful_combinations"] += 1
             return {
-                "ATR Stop Length": 14,
-                "ATR Stop Multiplier": 2.0,
+                "Exit Fast Period": 14,
+                "Exit Slow Period": 2.0,
+                "Exit Signal Period": None,
                 "Ticker": "TEST",
                 "Total Return": 25.0,
                 "Sharpe Ratio": 1.5,
@@ -640,14 +642,18 @@ class TestATRParameterSweepEngine:
 
         valid_results = []
         for i in range(10):
-            # Transform to ATR extended schema
-            atr_portfolio = schema_transformer.transform_to_atr_extended(
-                base_portfolio.copy(),
-                atr_stop_length=14 + i,
-                atr_stop_multiplier=2.0 + i * 0.1,
+            # Add exit parameters to portfolio
+            portfolio_with_exit = base_portfolio.copy()
+            portfolio_with_exit["Exit Fast Period"] = 14 + i
+            portfolio_with_exit["Exit Slow Period"] = 2.0 + i * 0.1
+            portfolio_with_exit["Exit Signal Period"] = None
+
+            # Transform to extended schema
+            extended_portfolio = schema_transformer.transform_to_extended(
+                portfolio_with_exit,
                 force_analysis_defaults=True,
             )
-            valid_results.append(atr_portfolio)
+            valid_results.append(extended_portfolio)
 
         is_valid, errors = engine.validate_sweep_results(valid_results, mock_logger)
 
@@ -674,7 +680,7 @@ class TestATRParameterSweepEngine:
         invalid_results = [
             {
                 "Ticker": "TEST",
-                "Total Return": 25.0,  # Missing ATR Stop Length and Multiplier
+                "Total Return": 25.0,  # Missing Exit Fast Period and Exit Slow Period
             }
         ]
 
@@ -682,7 +688,7 @@ class TestATRParameterSweepEngine:
 
         assert is_valid == False
         assert len(errors) > 0
-        assert any("missing ATR Stop Length" in error for error in errors)
+        assert any("missing Exit Fast Period" in error for error in errors)
 
 
 class TestATRPortfolioExport:
@@ -705,8 +711,9 @@ class TestATRPortfolioExport:
             "Strategy Type": "SMA",
             "Fast Period": 19,
             "Slow Period": 29,
-            "ATR Stop Length": 14,
-            "ATR Stop Multiplier": 2.0,
+            "Exit Fast Period": 14,
+            "Exit Slow Period": 2.0,
+            "Exit Signal Period": None,
             "Total Return": 25.0,
             "Sharpe Ratio": 1.5,
             "Max Drawdown": -10.0,
@@ -717,23 +724,21 @@ class TestATRPortfolioExport:
             "Sortino Ratio": 1.2,
         }
 
-        # Transform to ATR extended schema
-        extended_portfolio = schema_transformer.transform_to_atr_extended(
+        # Transform to extended schema (exit params already in portfolio)
+        extended_portfolio = schema_transformer.transform_to_extended(
             atr_portfolio,
-            atr_stop_length=14,
-            atr_stop_multiplier=2.0,
             force_analysis_defaults=True,
         )
 
         # Validate schema compliance
         is_valid, errors = schema_transformer.validate_schema(
-            extended_portfolio, SchemaType.ATR_EXTENDED
+            extended_portfolio, SchemaType.EXTENDED
         )
 
         assert is_valid == True
         assert len(errors) == 0
-        assert extended_portfolio["ATR Stop Length"] == 14
-        assert extended_portfolio["ATR Stop Multiplier"] == 2.0
+        assert extended_portfolio["Exit Fast Period"] == 14
+        assert extended_portfolio["Exit Slow Period"] == 2.0
 
 
 class TestATRAnalysisIntegration:
@@ -879,8 +884,9 @@ class TestATRAnalysisIntegration:
                 "Strategy Type": "SMA",
                 "Fast Period": 19,
                 "Slow Period": 29,
-                "ATR Stop Length": 14,
-                "ATR Stop Multiplier": 2.0,
+                "Exit Fast Period": 14,
+                "Exit Slow Period": 2.0,
+                "Exit Signal Period": None,
                 "Total Return": 25.0,
                 "Sharpe Ratio": 1.5,
                 "Score": 75.5,

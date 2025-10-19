@@ -399,45 +399,49 @@ class StrategyConfig(BaseConfig):
         if v is not None:
             if not isinstance(v, (tuple, list)) or len(v) != 2:
                 raise ValueError("Period range must be a tuple/list of 2 values")
-            if v[0] >= v[1]:
-                raise ValueError("Range minimum must be less than maximum")
+            if v[0] > v[1]:
+                raise ValueError("Range minimum must be less than or equal to maximum")
         return v
 
     @validator("fast_period_max")
     def validate_fast_period_range(cls, v, values):
-        """Ensure fast period max is greater than fast period min."""
+        """Ensure fast period max is greater than or equal to fast period min."""
         if (
             v is not None
             and "fast_period_min" in values
             and values["fast_period_min"] is not None
         ):
-            if v <= values["fast_period_min"]:
-                raise ValueError("Fast period max must be greater than fast period min")
+            if v < values["fast_period_min"]:
+                raise ValueError(
+                    "Fast period max must be greater than or equal to fast period min"
+                )
         return v
 
     @validator("slow_period_max")
     def validate_slow_period_range(cls, v, values):
-        """Ensure slow period max is greater than slow period min."""
+        """Ensure slow period max is greater than or equal to slow period min."""
         if (
             v is not None
             and "slow_period_min" in values
             and values["slow_period_min"] is not None
         ):
-            if v <= values["slow_period_min"]:
-                raise ValueError("Slow period max must be greater than slow period min")
+            if v < values["slow_period_min"]:
+                raise ValueError(
+                    "Slow period max must be greater than or equal to slow period min"
+                )
         return v
 
     @validator("signal_period_max")
     def validate_signal_period_range(cls, v, values):
-        """Ensure signal period max is greater than signal period min."""
+        """Ensure signal period max is greater than or equal to signal period min."""
         if (
             v is not None
             and "signal_period_min" in values
             and values["signal_period_min"] is not None
         ):
-            if v <= values["signal_period_min"]:
+            if v < values["signal_period_min"]:
                 raise ValueError(
-                    "Signal period max must be greater than signal period min"
+                    "Signal period max must be greater than or equal to signal period min"
                 )
         return v
 

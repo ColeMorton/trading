@@ -28,8 +28,8 @@ class TestSchemaDefinitions:
 
     def test_base_schema_properties(self):
         """Test BasePortfolioSchema properties."""
-        assert BasePortfolioSchema.get_column_count() == 57
-        assert len(BasePortfolioSchema.COLUMNS) == 57
+        assert BasePortfolioSchema.get_column_count() == 60
+        assert len(BasePortfolioSchema.COLUMNS) == 60
 
         # Verify key columns exist
         column_names = BasePortfolioSchema.get_column_names()
@@ -43,6 +43,11 @@ class TestSchemaDefinitions:
         assert column_names[6] == "Signal Exit"
         assert column_names[8] == "Total Open Trades"
 
+        # Verify new exit parameter columns are present
+        assert "Exit Fast Period" in column_names
+        assert "Exit Slow Period" in column_names
+        assert "Exit Signal Period" in column_names
+
         # Verify excluded columns are not present
         assert "Allocation [%]" not in column_names
         assert "Stop Loss [%]" not in column_names
@@ -51,14 +56,17 @@ class TestSchemaDefinitions:
 
     def test_extended_schema_properties(self):
         """Test ExtendedPortfolioSchema properties."""
-        assert ExtendedPortfolioSchema.get_column_count() == 61
-        assert len(ExtendedPortfolioSchema.COLUMNS) == 61
+        assert ExtendedPortfolioSchema.get_column_count() == 64
+        assert len(ExtendedPortfolioSchema.COLUMNS) == 64
 
         # Verify it includes base columns plus allocation, stop loss, and position dates
         column_names = ExtendedPortfolioSchema.get_column_names()
         assert "Ticker" in column_names
         assert "Total Return [%]" in column_names
         assert "Score" in column_names
+        assert "Exit Fast Period" in column_names
+        assert "Exit Slow Period" in column_names
+        assert "Exit Signal Period" in column_names
         assert "Allocation [%]" in column_names
         assert "Stop Loss [%]" in column_names
         assert "Last Position Open Date" in column_names
@@ -69,7 +77,7 @@ class TestSchemaDefinitions:
 
     def test_filtered_schema_properties(self):
         """Test FilteredPortfolioSchema properties."""
-        assert FilteredPortfolioSchema.get_column_count() == 62
+        assert FilteredPortfolioSchema.get_column_count() == 65
 
         # Verify metric type is first column
         column_names = FilteredPortfolioSchema.get_column_names()
@@ -86,7 +94,9 @@ class TestSchemaDefinitions:
         """Test that column ordering is consistent across schemas."""
         # Extended should have base columns in same order, plus allocation/stop loss/last position date
         base_cols = BasePortfolioSchema.COLUMNS
-        extended_cols = ExtendedPortfolioSchema.COLUMNS[:57]  # First 57 columns
+        extended_cols = ExtendedPortfolioSchema.COLUMNS[
+            :60
+        ]  # First 60 columns (base with exit params)
 
         assert base_cols == extended_cols
 
@@ -112,7 +122,7 @@ class TestBackwardCompatibility:
         """Test that canonical aliases work correctly."""
         assert CANONICAL_SCHEMA == ExtendedPortfolioSchema
         assert CanonicalPortfolioSchema == ExtendedPortfolioSchema
-        assert CANONICAL_COLUMN_COUNT == 61
+        assert CANONICAL_COLUMN_COUNT == 64
         assert CANONICAL_COLUMN_NAMES == ExtendedPortfolioSchema.get_column_names()
 
     def test_canonical_usage_patterns(self):
@@ -120,10 +130,9 @@ class TestBackwardCompatibility:
         # Test accessing column count
         assert CANONICAL_COLUMN_COUNT == len(CANONICAL_COLUMN_NAMES)
 
-        # Test schema instantiation
-        schema_instance = CANONICAL_SCHEMA()
+        # Test schema class properties
         assert hasattr(CANONICAL_SCHEMA, "COLUMNS")
-        assert hasattr(CANONICAL_SCHEMA, "COLUMN_COUNT")
+        assert hasattr(CANONICAL_SCHEMA, "get_column_count")
 
         # Test column access
         assert "Ticker" in CANONICAL_COLUMN_NAMES
@@ -236,7 +245,7 @@ class TestSchemaTransformer:
         )
 
         # Should have all base columns plus allocation and stop loss
-        assert len(extended) == 61
+        assert len(extended) == 64
         assert extended["Allocation [%]"] == 25.0
         assert extended["Stop Loss [%]"] == 5.0
         assert extended["Ticker"] == "AAPL"  # Original data preserved
@@ -251,7 +260,7 @@ class TestSchemaTransformer:
         )
 
         # Should have 59 columns with metric type first
-        assert len(filtered) == 62
+        assert len(filtered) == 65
         assert filtered["Metric Type"] == "Most Total Return [%]"
         assert filtered["Allocation [%]"] == 25.0
         assert filtered["Stop Loss [%]"] == 5.0
@@ -267,7 +276,7 @@ class TestSchemaTransformer:
             extended_portfolio, metric_type="Most Total Return [%]"
         )
 
-        assert len(filtered) == 62
+        assert len(filtered) == 65
         assert filtered["Metric Type"] == "Most Total Return [%]"
         assert filtered["Allocation [%]"] == 25.0
 
@@ -277,7 +286,7 @@ class TestSchemaTransformer:
             self.base_portfolio, SchemaType.BASE
         )
 
-        assert len(normalized) == 57
+        assert len(normalized) == 60
         assert "Allocation [%]" not in normalized
         assert "Stop Loss [%]" not in normalized
         assert "Last Position Open Date" not in normalized
@@ -293,7 +302,7 @@ class TestSchemaTransformer:
             stop_loss_pct=7.0,
         )
 
-        assert len(normalized) == 61
+        assert len(normalized) == 64
         assert normalized["Allocation [%]"] == 30.0
         assert normalized["Stop Loss [%]"] == 7.0
 
@@ -307,7 +316,7 @@ class TestSchemaTransformer:
             stop_loss_pct=7.0,
         )
 
-        assert len(normalized) == 61
+        assert len(normalized) == 65
         assert normalized["Metric Type"] == "Mean Score"
         assert normalized["Allocation [%]"] == 30.0
 
@@ -331,8 +340,8 @@ class TestSchemaTransformer:
             minimal_portfolio, allocation_pct=25.0, stop_loss_pct=5.0
         )
 
-        # Should have all 58 columns with defaults for missing ones
-        assert len(extended) == 61
+        # Should have all 60 base columns plus 4 allocation/stop loss columns with defaults for missing ones
+        assert len(extended) == 64
         assert extended["Ticker"] == "AAPL"
         assert extended["Score"] == 1.5
         assert extended["Strategy Type"] == "SMA"  # Default
@@ -360,7 +369,7 @@ class TestSchemaTransformer:
         extended = self.transformer.transform_to_extended(
             empty_portfolio, allocation_pct=25.0, stop_loss_pct=5.0
         )
-        assert len(extended) == 61
+        assert len(extended) == 64
         assert extended["Ticker"] == "UNKNOWN"
 
     def test_edge_case_none_values(self):
@@ -388,7 +397,9 @@ class TestSchemaValidation:
 
     def test_validate_base_schema_valid(self):
         """Test validation of valid base schema."""
-        valid_base = {col: "test_value" for col in BasePortfolioSchema.COLUMNS}
+        valid_base = {
+            col: "test_value" for col in BasePortfolioSchema.get_column_names()
+        }
 
         is_valid, errors = self.transformer.validate_schema(valid_base, SchemaType.BASE)
         assert is_valid
@@ -407,7 +418,9 @@ class TestSchemaValidation:
 
     def test_validate_extended_schema_valid(self):
         """Test validation of valid extended schema."""
-        valid_extended = {col: "test_value" for col in ExtendedPortfolioSchema.COLUMNS}
+        valid_extended = {
+            col: "test_value" for col in ExtendedPortfolioSchema.get_column_names()
+        }
 
         is_valid, errors = self.transformer.validate_schema(
             valid_extended, SchemaType.EXTENDED
@@ -417,7 +430,10 @@ class TestSchemaValidation:
 
     def test_validate_filtered_schema_valid(self):
         """Test validation of valid filtered schema."""
-        valid_filtered = {col: "test_value" for col in FilteredPortfolioSchema.COLUMNS}
+        # FilteredPortfolioSchema uses get_column_names() method, not COLUMNS attribute
+        valid_filtered = {
+            col: "test_value" for col in FilteredPortfolioSchema.get_column_names()
+        }
 
         is_valid, errors = self.transformer.validate_schema(
             valid_filtered, SchemaType.FILTERED
@@ -428,7 +444,7 @@ class TestSchemaValidation:
     def test_validate_schema_extra_columns(self):
         """Test validation with extra columns."""
         portfolio_with_extra = {
-            col: "test_value" for col in BasePortfolioSchema.COLUMNS
+            col: "test_value" for col in BasePortfolioSchema.get_column_names()
         }
         portfolio_with_extra["Extra Column"] = "extra_value"
 
@@ -460,7 +476,7 @@ class TestPolarsIntegration:
         df = pl.DataFrame(self.df_data)
 
         # Add columns to make it look like base schema
-        for col in BasePortfolioSchema.COLUMNS:
+        for col in BasePortfolioSchema.get_column_names():
             if col not in df.columns:
                 df = df.with_columns(pl.lit(None).alias(col))
 
@@ -479,7 +495,7 @@ class TestPolarsIntegration:
             first_row, allocation_pct=25.0, stop_loss_pct=5.0
         )
 
-        assert len(extended) == 61
+        assert len(extended) == 64
         assert extended["Ticker"] == "AAPL"
         assert extended["Allocation [%]"] == 25.0
 
@@ -497,7 +513,8 @@ class TestPerformance:
 
         # Create large portfolio
         large_portfolio = {
-            col: f"value_{i}" for i, col in enumerate(BasePortfolioSchema.COLUMNS)
+            col: f"value_{i}"
+            for i, col in enumerate(BasePortfolioSchema.get_column_names())
         }
 
         # Time schema detection
@@ -514,7 +531,8 @@ class TestPerformance:
         import time
 
         base_portfolio = {
-            col: f"value_{i}" for i, col in enumerate(BasePortfolioSchema.COLUMNS)
+            col: f"value_{i}"
+            for i, col in enumerate(BasePortfolioSchema.get_column_names())
         }
 
         # Time transformation

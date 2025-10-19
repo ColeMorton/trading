@@ -13,8 +13,6 @@ import pandas as pd
 import polars as pl
 
 from .base_extended_schemas import (
-    ATR_EXTENDED_COLUMN_COUNT,
-    ATR_FILTERED_COLUMN_COUNT,
     BASE_COLUMN_COUNT,
     CANONICAL_COLUMN_COUNT,
     CANONICAL_COLUMN_NAMES,
@@ -131,20 +129,13 @@ class SchemaValidator:
         # Detect schema type and use appropriate expected count
         columns = list(df.columns)
         if "Metric Type" in columns and columns[0] == "Metric Type":
-            if "ATR Stop Length" in columns and "ATR Stop Multiplier" in columns:
-                expected_count = ATR_FILTERED_COLUMN_COUNT  # 65
-                schema_type = "ATR Filtered"
-            else:
-                expected_count = FILTERED_COLUMN_COUNT  # 63
-                schema_type = "Filtered"
-        elif "ATR Stop Length" in columns and "ATR Stop Multiplier" in columns:
-            expected_count = ATR_EXTENDED_COLUMN_COUNT  # 64
-            schema_type = "ATR Extended"
+            expected_count = FILTERED_COLUMN_COUNT  # 65
+            schema_type = "Filtered"
         elif "Allocation [%]" in columns and "Stop Loss [%]" in columns:
-            expected_count = CANONICAL_COLUMN_COUNT  # 62
+            expected_count = CANONICAL_COLUMN_COUNT  # 64
             schema_type = "Extended"
         else:
-            expected_count = BASE_COLUMN_COUNT  # 58
+            expected_count = BASE_COLUMN_COUNT  # 60
             schema_type = "Base"
 
         if actual_count != expected_count:
