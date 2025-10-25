@@ -173,7 +173,7 @@ class ConfigValidator:
         Returns:
             Dictionary with validation results and suggestions
         """
-        result = {"is_valid": True, "errors": [], "warnings": [], "suggestions": {}}
+        result: dict[str, Any] = {"is_valid": True, "errors": [], "warnings": [], "suggestions": {}}
 
         # Validate required fields
         if not config.get("TICKER"):
