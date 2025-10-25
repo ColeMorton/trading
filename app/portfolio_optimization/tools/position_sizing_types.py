@@ -1,6 +1,8 @@
 """Type definitions for position sizing calculations."""
 
-from typing import TypedDict
+from typing import Any, TypedDict
+
+from typing_extensions import NotRequired
 
 
 class Asset(TypedDict):
@@ -21,14 +23,24 @@ class PositionSizingConfig(TypedDict):
     """Configuration type definition for position sizing.
 
     Required Fields:
-        total_value (float): Total portfolio value
         use_ema (bool): Whether to use EMA for price calculations
         ema_period (int): Period for EMA calculation if used
+
+    Optional Fields:
+        total_value (float): Total portfolio value
+        target_value (float): Target portfolio value
+        initial_value (float): Initial portfolio value
+        var_confidence_levels (list): VaR confidence levels
+        portfolio (list): Portfolio assets configuration
     """
 
-    total_value: float
     use_ema: bool
     ema_period: int
+    total_value: NotRequired[float]
+    target_value: NotRequired[float]
+    initial_value: NotRequired[float]
+    var_confidence_levels: NotRequired[list[float]]
+    portfolio: NotRequired[list[Any]]
 
 
 class AssetMetrics(TypedDict):

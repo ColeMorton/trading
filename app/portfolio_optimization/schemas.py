@@ -98,12 +98,20 @@ class PositionSizingConfig(TypedDict):
     Required Fields:
         use_ema (bool): Whether to use EMA for price calculations.
         ema_period (int): The period for EMA if used.
-        var_confidence_levels (List[float]): A list of VaR confidence levels.
+
+    Optional Fields:
+        var_confidence_levels (List[float]): VaR confidence levels
+        portfolio (list): Portfolio assets configuration
+        target_value (float): Target portfolio value
+        initial_value (float): Initial portfolio value
     """
 
     use_ema: bool
     ema_period: int
-    var_confidence_levels: list[float]
+    var_confidence_levels: NotRequired[list[float]]
+    portfolio: NotRequired[list[Any]]
+    target_value: NotRequired[float]
+    initial_value: NotRequired[float]
 
 
 class SizingAssetMetrics(TypedDict):

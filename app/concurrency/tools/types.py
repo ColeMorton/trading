@@ -138,6 +138,7 @@ class Strategy(TypedDict):
     allocation_score: NotRequired[float]  # Only present when allocation enabled
     allocation: NotRequired[float]  # Only present when allocation enabled
     original_allocation: NotRequired[float]  # Original allocation from CSV file
+    monte_carlo: NotRequired[dict[str, Any]]  # Monte Carlo analysis results
 
 
 class Ticker(TypedDict):
@@ -171,7 +172,7 @@ class RiskMetrics(TypedDict):
 
     portfolio_metrics: dict[str, dict[str, float | str]]
     combined_risk: dict[str, dict[str, float | str]]
-    strategy_relationships: dict[str, dict[str, float | str]]
+    strategy_relationships: NotRequired[dict[str, dict[str, float | str]]]  # Optional field
 
 
 class SignalMetrics(TypedDict):
@@ -206,6 +207,7 @@ class PortfolioMetrics(TypedDict):
     risk: RiskMetrics
     signals: SignalMetrics
     monte_carlo: NotRequired[MonteCarloMetrics]
+    signal_quality: NotRequired[dict[str, Any]]  # Signal quality analysis
 
 
 # Legacy type definitions kept for backward compatibility
@@ -289,6 +291,10 @@ class StrategyConfig(TypedDict):
     ma_slow: NotRequired[int]
     allocation: NotRequired[float]
     stop_loss: NotRequired[float]
+    
+    # Entry/Position Management
+    ACCOUNT_VALUE: NotRequired[int | float]
+    ENTRY_PRICES: NotRequired[dict[str, float]]
 
 
 class LegacyRiskMetrics(TypedDict):

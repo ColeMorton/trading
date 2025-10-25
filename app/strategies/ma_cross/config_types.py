@@ -141,6 +141,8 @@ class Config(BaseStrategyConfig, total=False):
     RSI_THRESHOLD: NotRequired[int | float]
     RSI_OVERSOLD: NotRequired[int | float]
     RSI_OVERBOUGHT: NotRequired[int | float]
+    USE_MA: NotRequired[bool]  # Legacy field for MA type selection
+    ENTRY_PRICES: NotRequired[dict[str, float]]  # Entry prices for position sizing
 
 
 # Default configuration
