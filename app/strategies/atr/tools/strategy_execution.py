@@ -5,6 +5,7 @@ This module handles the execution of ATR trailing stop strategies, including por
 parameter sweeps, and portfolio generation for both single and multiple tickers.
 """
 
+from collections.abc import Callable
 from typing import Any
 
 import numpy as np
@@ -287,7 +288,7 @@ def analyze_params(
     atr_length: int,
     atr_multiplier: float,
     ticker: str,
-    log: callable,
+    log: Callable,
     config: dict | None = None,
 ) -> dict[str, Any]:
     """
@@ -426,7 +427,7 @@ def analyze_params(
 
 
 def execute_strategy(
-    config: ATRConfig, strategy_type: str, log: callable
+    config: ATRConfig, strategy_type: str, log: Callable
 ) -> list[dict[str, Any]]:
     """Execute ATR strategy with parameter sweep and return portfolio results.
 

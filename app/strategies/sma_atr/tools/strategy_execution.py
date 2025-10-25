@@ -5,6 +5,7 @@ This module handles the execution of SMA_ATR trading strategies,
 which combine SMA crossovers for entry signals with ATR trailing stops for exits.
 """
 
+from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
 from app.strategies.sma_atr.config_types import Config
@@ -28,7 +29,7 @@ def cache_sma_entry_signals(
     fast_period: int,
     slow_period: int,
     config: dict,
-    log: callable,
+    log: Callable,
 ) -> pl.DataFrame:
     """
     Cache SMA entry signals for reuse across multiple ATR parameter combinations.
@@ -66,7 +67,7 @@ def apply_atr_exits_to_cached_entries(
     atr_multiplier: float,
     current_price: float,
     config: dict,
-    log: callable,
+    log: Callable,
 ) -> pl.DataFrame:
     """
     Apply ATR trailing stop exits to cached SMA entry signals.
@@ -120,7 +121,7 @@ def apply_atr_exits_to_precalculated_data(
     atr_multiplier: float,
     current_price: float,
     config: dict,
-    log: callable,
+    log: Callable,
 ) -> pl.DataFrame:
     """
     Apply ATR trailing stop exits to data that already has ATR calculated (performance optimized).
@@ -161,7 +162,7 @@ def execute_backtest_on_signals(
     ticker: str,
     signals_data: pl.DataFrame,
     config: dict,
-    log: callable,
+    log: Callable,
 ) -> dict | None:
     """
     Execute backtest using pre-computed SMA_ATR signals (optimization for caching).
@@ -239,7 +240,7 @@ def calculate_sma_atr_signals(
     atr_length: int,
     atr_multiplier: float,
     config: dict,
-    log: callable,
+    log: Callable,
 ) -> pl.DataFrame:
     """
     Calculate SMA_ATR signals combining SMA crossovers for entry and ATR trailing stops for exit.
@@ -285,7 +286,7 @@ def calculate_sma_atr_signals(
 
 
 def generate_sma_atr_positions(
-    data: pl.DataFrame, atr_multiplier: float, config: dict, log: callable
+    data: pl.DataFrame, atr_multiplier: float, config: dict, log: Callable
 ) -> pl.DataFrame:
     """
     Generate trading positions using SMA entries and ATR trailing stops (OPTIMIZED).
@@ -415,7 +416,7 @@ def generate_sma_atr_positions(
 
 
 def execute_single_strategy(
-    ticker: str, data: pl.DataFrame, config: Config, log: callable
+    ticker: str, data: pl.DataFrame, config: Config, log: Callable
 ) -> dict | None:
     """Execute a single SMA_ATR strategy with specified parameters and pre-fetched data.
 
@@ -506,7 +507,7 @@ def execute_single_strategy(
 def process_single_ticker(
     ticker: str,
     config: Config,
-    log: callable,
+    log: Callable,
     progress_update_fn=None,
 ) -> dict[str, Any] | None:
     """
@@ -736,7 +737,7 @@ def process_single_ticker(
 
 def execute_strategy(
     config: Config,
-    log: callable,
+    log: Callable,
     progress_update_fn=None,
 ) -> bool:
     """
