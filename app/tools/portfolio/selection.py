@@ -5,6 +5,8 @@ This module handles the selection of the best portfolio based on consistent
 Fast Period/Slow Period combinations in top performing portfolios.
 """
 
+from collections.abc import Callable
+
 import polars as pl
 
 from app.strategies.ma_cross.config_types import Config
