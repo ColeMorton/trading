@@ -144,8 +144,8 @@ class ExportValidator:
             if len(open_positions) == 0:
                 self.logger.warning(f"No open positions found in {portfolio_name}")
                 # Still create empty export structure
-                results = []
-                backtesting_params = []
+                results: list[dict[str, Any]] = []
+                backtesting_params: list[dict[str, Any]] = []
             else:
                 # Generate analysis results and backtesting parameters
                 results, backtesting_params = self._generate_analysis_data(

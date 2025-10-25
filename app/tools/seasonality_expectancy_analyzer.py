@@ -21,7 +21,7 @@ class SeasonalityExpectancyAnalyzer:
             seasonality_dir: Directory containing seasonality CSV files
         """
         self.seasonality_dir = Path(seasonality_dir)
-        self.results = []
+        self.results: list[dict[str, Any]] = []
 
     def analyze_july_august_expectancy(
         self,

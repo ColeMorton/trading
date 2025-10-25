@@ -74,7 +74,7 @@ def filter_correlated_strategies(
 
     if mode == CorrelationFilterMode.THRESHOLD:
         # Group strategies based on correlation threshold
-        groups = {}
+        groups: dict[int, list[str]] = {}
         assigned_strategies = set()
 
         # Start with unassigned strategies

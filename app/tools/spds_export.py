@@ -189,7 +189,7 @@ class SPDSExporter:
         lines.append("")
 
         # Summary statistics
-        signal_counts = {}
+        signal_counts: dict[str, int] = {}
         total_confidence = 0
         for result in results.values():
             signal_type = result.exit_signal.signal_type.value
@@ -465,7 +465,7 @@ class SPDSExporter:
             return {"total_results": 0}
 
         # Signal distribution
-        signal_counts = {}
+        signal_counts: dict[str, int] = {}
         confidence_sum = 0
 
         for result in results.values():

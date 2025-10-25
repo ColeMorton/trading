@@ -544,7 +544,7 @@ class DataReconciler:
         }
 
         # Reconciliation status distribution
-        status_counts = {}
+        status_counts: dict[str, int] = {}
         for result in all_results:
             status = result.reconciliation_status
             status_counts[status] = status_counts.get(status, 0) + 1
@@ -619,7 +619,7 @@ class DataReconciler:
             all_discrepancies.extend(report.portfolio_result.discrepancies)
 
         # Count discrepancies by metric
-        metric_discrepancy_counts = {}
+        metric_discrepancy_counts: dict[str, int] = {}
         for discrepancy in all_discrepancies:
             metric = discrepancy.metric_name
             metric_discrepancy_counts[metric] = (

@@ -347,7 +347,7 @@ class VectorBTAdapter(FormatAdapter):
             adapted_df = df.copy()
             columns_mapped = {}
             warnings = []
-            errors = []
+            errors: list[str] = []
 
             # Apply column mappings
             for source_col, target_col in self.format_spec.column_mappings.items():
@@ -486,7 +486,7 @@ class CustomCSVAdapter(FormatAdapter):
 
             adapted_df = df.copy()
             columns_mapped = {}
-            warnings = []
+            warnings: list[str] = []
 
             # Apply custom mappings if provided
             for source_col, target_col in self.custom_mappings.items():
