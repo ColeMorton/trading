@@ -94,39 +94,39 @@ class MinimumsFilter(PortfolioFilter):
         FilterConfig(
             "WIN_RATE",
             "Win Rate [%]",
-            pl.Float64,
+            pl.Float64(),
             100,
             "Filtered portfolios with win rate",
         ),
         FilterConfig(
-            "TRADES", "Total Trades", pl.Int64, 1, "Filtered portfolios with at least"
+            "TRADES", "Total Trades", pl.Int64(), 1, "Filtered portfolios with at least"
         ),
         FilterConfig(
             "EXPECTANCY_PER_TRADE",
             "Expectancy Per Trade",
-            pl.Float64,
+            pl.Float64(),
             1,
             "Filtered portfolios with expectancy per trade",
         ),
         FilterConfig(
             "PROFIT_FACTOR",
             "Profit Factor",
-            pl.Float64,
+            pl.Float64(),
             1,
             "Filtered portfolios with profit factor",
         ),
-        FilterConfig("SCORE", "Score", pl.Float64, 1, "Filtered portfolios with score"),
+        FilterConfig("SCORE", "Score", pl.Float64(), 1, "Filtered portfolios with score"),
         FilterConfig(
             "SORTINO_RATIO",
             "Sortino Ratio",
-            pl.Float64,
+            pl.Float64(),
             1,
             "Filtered portfolios with Sortino ratio",
         ),
         FilterConfig(
             "BEATS_BNH",
             "Beats BNH [%]",
-            pl.Float64,
+            pl.Float64(),
             1,
             "Filtered portfolios with Beats BNH percentage",
         ),
