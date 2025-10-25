@@ -35,6 +35,9 @@ async def seasonality_run(
     Run seasonality analysis on stock price data.
 
     Analyzes historical price patterns to identify seasonal trends.
+    
+    **Webhook Support:**
+    Include `webhook_url` in request to receive a callback when analysis completes.
     """
     job = await JobService.create_job(
         db=db,
@@ -42,6 +45,8 @@ async def seasonality_run(
         command_group="seasonality",
         command_name="run",
         parameters=request.model_dump(),
+        webhook_url=request.webhook_url,
+        webhook_headers=request.webhook_headers,
     )
 
     await enqueue_job("seasonality", "run", str(job.id), request.model_dump())
@@ -61,13 +66,20 @@ async def seasonality_list(
     db: AsyncSession = Depends(get_db),
     api_key: APIKey = Depends(require_scope("seasonality")),
 ):
-    """List available tickers for seasonality analysis."""
+    """
+    List available tickers for seasonality analysis.
+    
+    **Webhook Support:**
+    Include `webhook_url` in request to receive a callback when listing completes.
+    """
     job = await JobService.create_job(
         db=db,
         api_key_id=api_key.id,
         command_group="seasonality",
         command_name="list",
         parameters=request.model_dump(),
+        webhook_url=request.webhook_url,
+        webhook_headers=request.webhook_headers,
     )
 
     await enqueue_job("seasonality", "list", str(job.id), request.model_dump())
@@ -87,13 +99,20 @@ async def seasonality_results(
     db: AsyncSession = Depends(get_db),
     api_key: APIKey = Depends(require_scope("seasonality")),
 ):
-    """View seasonality analysis results for specific ticker."""
+    """
+    View seasonality analysis results for specific ticker.
+    
+    **Webhook Support:**
+    Include `webhook_url` in request to receive a callback when results are ready.
+    """
     job = await JobService.create_job(
         db=db,
         api_key_id=api_key.id,
         command_group="seasonality",
         command_name="results",
         parameters=request.model_dump(),
+        webhook_url=request.webhook_url,
+        webhook_headers=request.webhook_headers,
     )
 
     await enqueue_job("seasonality", "results", str(job.id), request.model_dump())
@@ -113,13 +132,20 @@ async def seasonality_clean(
     db: AsyncSession = Depends(get_db),
     api_key: APIKey = Depends(require_scope("seasonality")),
 ):
-    """Clean up seasonality results directory."""
+    """
+    Clean up seasonality results directory.
+    
+    **Webhook Support:**
+    Include `webhook_url` in request to receive a callback when cleanup completes.
+    """
     job = await JobService.create_job(
         db=db,
         api_key_id=api_key.id,
         command_group="seasonality",
         command_name="clean",
         parameters=request.model_dump(),
+        webhook_url=request.webhook_url,
+        webhook_headers=request.webhook_headers,
     )
 
     await enqueue_job("seasonality", "clean", str(job.id), request.model_dump())
@@ -143,6 +169,9 @@ async def seasonality_current(
     Generate current seasonality expectancy analysis.
 
     Provides forward-looking analysis for trading opportunities based on seasonal patterns.
+    
+    **Webhook Support:**
+    Include `webhook_url` in request to receive a callback when analysis completes.
     """
     job = await JobService.create_job(
         db=db,
@@ -150,6 +179,8 @@ async def seasonality_current(
         command_group="seasonality",
         command_name="current",
         parameters=request.model_dump(),
+        webhook_url=request.webhook_url,
+        webhook_headers=request.webhook_headers,
     )
 
     await enqueue_job("seasonality", "current", str(job.id), request.model_dump())
@@ -173,6 +204,9 @@ async def seasonality_portfolio(
     Run seasonality analysis on all tickers in a portfolio.
 
     Uses intelligent time period determination based on signal entry data.
+    
+    **Webhook Support:**
+    Include `webhook_url` in request to receive a callback when portfolio analysis completes.
     """
     job = await JobService.create_job(
         db=db,
@@ -180,6 +214,8 @@ async def seasonality_portfolio(
         command_group="seasonality",
         command_name="portfolio",
         parameters=request.model_dump(),
+        webhook_url=request.webhook_url,
+        webhook_headers=request.webhook_headers,
     )
 
     await enqueue_job("seasonality", "portfolio", str(job.id), request.model_dump())

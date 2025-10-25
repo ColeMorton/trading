@@ -1010,14 +1010,14 @@ def synthesize(
 @app.command()
 def review(
     ctx: typer.Context,
-    portfolio: str = typer.Option(
-        ..., "--portfolio", "-p", help="Portfolio filename to review"
+    portfolio: Optional[str] = typer.Option(
+        None, "--portfolio", "-p", help="Portfolio filename to review"
     ),
     ticker: Optional[list[str]] = typer.Option(
         None,
         "--ticker",
         "-t",
-        help="Filter to specific ticker symbols (multiple args or comma-separated: --ticker AAPL,MSFT or --ticker AAPL --ticker MSFT)",
+        help="Filter to specific ticker symbols (multiple args or comma-separated: --ticker AAPL,MSFT or --ticker AAPL --ticker MSFT). When used without --portfolio, loads individual ticker strategy files from data/raw/strategies/{ticker}.csv",
     ),
     sort_by: str = typer.Option("Score", "--sort-by", help="Column to sort by"),
     limit: int = typer.Option(
@@ -1034,6 +1034,9 @@ def review(
     Rich CLI output and tables as 'trading-cli portfolio update'. Supports
     filtering by specific ticker symbols.
 
+    When --ticker is used without --portfolio, it loads individual ticker strategy
+    files (data/raw/strategies/{ticker}.csv) and aggregates the results.
+
     Examples:
         trading-cli portfolio review --portfolio portfolio
         trading-cli portfolio review --portfolio DAILY --limit 10 --sort-by "Total Return [%]"
@@ -1042,6 +1045,9 @@ def review(
         trading-cli portfolio review --portfolio DAILY --ticker MA,DLR,TFX,COO
         trading-cli portfolio review --portfolio DAILY -t AAPL
         trading-cli portfolio review --portfolio DAILY --ticker AAPL --ticker MSFT
+        trading-cli portfolio review --ticker BTC-USD
+        trading-cli portfolio review --ticker BTC-USD,MA,NVDA --sort-by "Sharpe Ratio"
+        trading-cli portfolio review -t AAPL --limit 5
     """
     try:
         # Get global CLI options
@@ -1050,65 +1056,116 @@ def review(
         # Portfolio commands always show rich output
         console = ConsoleLogger(verbose=global_verbose, quiet=False)
 
-        # Resolve portfolio path
-        portfolio_path = f"data/raw/strategies/{resolve_portfolio_path(portfolio)}"
-
-        # Check if portfolio file exists
+        # Import required modules
         from pathlib import Path
-
-        if not Path(portfolio_path).exists():
-            console.error(f"Portfolio file not found: {portfolio_path}")
-
-            # Show available portfolios
-            strategies_dir = Path("data/raw/strategies")
-            if strategies_dir.exists():
-                available = [f.stem for f in strategies_dir.glob("*.csv")]
-                if available:
-                    console.info("Available portfolios:")
-                    for name in sorted(available)[:10]:  # Show first 10
-                        console.info(f"  - {name}")
-                    if len(available) > 10:
-                        console.info(f"  ... and {len(available) - 10} more")
-            raise typer.Exit(1)
-
-        console.heading(f"Portfolio Review: {portfolio}", level=1)
-
-        # Load portfolio data
         import pandas as pd
 
-        try:
-            df = pd.read_csv(portfolio_path)
-            console.info(f"Loaded {len(df)} strategies from {portfolio_path}")
-        except Exception as e:
-            console.error(f"Error loading portfolio file: {e}")
+        # Validate that either portfolio or ticker is provided
+        if portfolio is None and not ticker:
+            console.error("Either --portfolio or --ticker must be specified")
+            console.info("Usage examples:")
+            console.info("  trading-cli portfolio review --portfolio DAILY")
+            console.info("  trading-cli portfolio review --ticker BTC-USD,MA")
             raise typer.Exit(1)
 
-        # Apply ticker filtering if specified
-        if ticker:
+        # Determine loading mode: portfolio file or individual ticker files
+        loaded_from_tickers = False
+        
+        if portfolio is None and ticker:
+            # Load from individual ticker strategy files
             from .strategy_utils import process_ticker_input
 
             ticker_list = process_ticker_input(ticker)
-            console.info(
-                f"Filtering to {len(ticker_list)} tickers: {', '.join(ticker_list)}"
-            )
+            console.heading(f"Portfolio Review: Ticker Strategy Files", level=1)
+            console.info(f"Loading strategies for {len(ticker_list)} tickers: {', '.join(ticker_list)}")
+            
+            dfs = []
+            strategies_dir = Path("data/raw/strategies")
+            
+            for t in ticker_list:
+                ticker_path = strategies_dir / f"{t}.csv"
+                if ticker_path.exists():
+                    try:
+                        df_ticker = pd.read_csv(ticker_path)
+                        dfs.append(df_ticker)
+                        console.info(f"  ✓ Loaded {len(df_ticker)} strategies from {t}.csv")
+                    except Exception as e:
+                        console.warning(f"  ✗ Error loading {t}.csv: {e}")
+                else:
+                    console.warning(f"  ✗ Strategy file not found: {ticker_path}")
+            
+            if not dfs:
+                console.error("No strategy files found for specified tickers")
+                
+                # Show available ticker files
+                if strategies_dir.exists():
+                    available = [f.stem for f in strategies_dir.glob("*.csv")]
+                    if available:
+                        console.info("Available ticker strategy files:")
+                        for name in sorted(available)[:10]:  # Show first 10
+                            console.info(f"  - {name}")
+                        if len(available) > 10:
+                            console.info(f"  ... and {len(available) - 10} more")
+                raise typer.Exit(1)
+            
+            df = pd.concat(dfs, ignore_index=True)
+            console.info(f"✓ Successfully loaded {len(df)} strategies from {len(dfs)} ticker file(s)")
+            loaded_from_tickers = True
+            
+        else:
+            # Load from portfolio file (existing behavior)
+            portfolio_path = f"data/raw/strategies/{resolve_portfolio_path(portfolio)}"
 
-            # Filter DataFrame by ticker symbols (case-insensitive)
-            if "Ticker" in df.columns:
-                original_count = len(df)
-                df = df[df["Ticker"].str.upper().isin([t.upper() for t in ticker_list])]
-                filtered_count = len(df)
+            if not Path(portfolio_path).exists():
+                console.error(f"Portfolio file not found: {portfolio_path}")
+
+                # Show available portfolios
+                strategies_dir = Path("data/raw/strategies")
+                if strategies_dir.exists():
+                    available = [f.stem for f in strategies_dir.glob("*.csv")]
+                    if available:
+                        console.info("Available portfolios:")
+                        for name in sorted(available)[:10]:  # Show first 10
+                            console.info(f"  - {name}")
+                        if len(available) > 10:
+                            console.info(f"  ... and {len(available) - 10} more")
+                raise typer.Exit(1)
+
+            console.heading(f"Portfolio Review: {portfolio}", level=1)
+
+            try:
+                df = pd.read_csv(portfolio_path)
+                console.info(f"Loaded {len(df)} strategies from {portfolio_path}")
+            except Exception as e:
+                console.error(f"Error loading portfolio file: {e}")
+                raise typer.Exit(1)
+
+            # Apply ticker filtering if specified (only when loading from portfolio file)
+            if ticker:
+                from .strategy_utils import process_ticker_input
+
+                ticker_list = process_ticker_input(ticker)
                 console.info(
-                    f"Filtered from {original_count} to {filtered_count} strategies"
+                    f"Filtering to {len(ticker_list)} tickers: {', '.join(ticker_list)}"
                 )
 
-                if filtered_count == 0:
-                    console.error(
-                        f"No strategies found for tickers: {', '.join(ticker_list)}"
+                # Filter DataFrame by ticker symbols (case-insensitive)
+                if "Ticker" in df.columns:
+                    original_count = len(df)
+                    df = df[df["Ticker"].str.upper().isin([t.upper() for t in ticker_list])]
+                    filtered_count = len(df)
+                    console.info(
+                        f"Filtered from {original_count} to {filtered_count} strategies"
                     )
+
+                    if filtered_count == 0:
+                        console.error(
+                            f"No strategies found for tickers: {', '.join(ticker_list)}"
+                        )
+                        raise typer.Exit(1)
+                else:
+                    console.error("Portfolio file does not contain a 'Ticker' column")
                     raise typer.Exit(1)
-            else:
-                console.error("Portfolio file does not contain a 'Ticker' column")
-                raise typer.Exit(1)
 
         # Convert DataFrame to list of dictionaries (format expected by display functions)
         portfolios = df.to_dict("records")

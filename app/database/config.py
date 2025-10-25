@@ -9,7 +9,6 @@ from functools import lru_cache
 import logging
 
 import asyncpg
-from prisma import Prisma
 from pydantic import ConfigDict, PostgresDsn, RedisDsn
 from pydantic_settings import BaseSettings
 import redis.asyncio as redis
@@ -64,16 +63,12 @@ class DatabaseManager:
 
     def __init__(self):
         self.settings = get_database_settings()
-        self.prisma: Prisma | None | None = None
         self.redis_client: redis.Redis | None | None = None
         self._connection_pool: asyncpg.Pool | None | None = None
 
     async def initialize(self):
         """Initialize database connections."""
         logger.info("Initializing database connections...")
-
-        # Initialize Prisma
-        await self._initialize_prisma()
 
         # Initialize Redis
         await self._initialize_redis()
@@ -82,24 +77,6 @@ class DatabaseManager:
         await self._initialize_connection_pool()
 
         logger.info("Database connections initialized successfully")
-
-    async def _initialize_prisma(self):
-        """Initialize Prisma client."""
-        import sys
-        import os
-        from contextlib import redirect_stderr, redirect_stdout
-        from io import StringIO
-        
-        try:
-            # Suppress Prisma's error output to avoid confusing users
-            with redirect_stderr(StringIO()), redirect_stdout(StringIO()):
-                self.prisma = Prisma()
-                await self.prisma.connect()
-            logger.info("Prisma client connected successfully")
-        except Exception as e:
-            # Prisma is optional - only log at debug level to avoid confusion
-            logger.debug(f"Prisma client not initialized: {e}")
-            self.prisma = None
 
     async def _initialize_redis(self):
         """Initialize Redis client."""
@@ -152,10 +129,6 @@ class DatabaseManager:
         """Close all database connections."""
         logger.info("Closing database connections...")
 
-        if self.prisma:
-            await self.prisma.disconnect()
-            logger.info("Prisma client disconnected")
-
         if self.redis_client:
             await self.redis_client.close()
             logger.info("Redis client disconnected")
@@ -169,19 +142,17 @@ class DatabaseManager:
         health_status = {
             "postgresql": False,
             "redis": False,
-            "prisma": False,
             "overall": False,
         }
 
-        # Check PostgreSQL via Prisma
+        # Check PostgreSQL via asyncpg
         try:
-            if self.prisma:
-                # Simple query to test connection
-                await self.prisma.query_raw("SELECT 1")
-                health_status["prisma"] = True
+            if self._connection_pool:
+                async with self._connection_pool.acquire() as conn:
+                    await conn.fetchval("SELECT 1")
                 health_status["postgresql"] = True
         except Exception as e:
-            logger.error(f"PostgreSQL/Prisma health check failed: {e}")
+            logger.error(f"PostgreSQL health check failed: {e}")
 
         # Check Redis
         try:
@@ -227,14 +198,6 @@ db_manager = DatabaseManager()
 async def get_database_manager() -> DatabaseManager:
     """Dependency to get database manager."""
     return db_manager
-
-
-async def get_prisma() -> Prisma | None:
-    """Dependency to get Prisma client."""
-    if not db_manager.prisma:
-        logger.warning("Prisma client not available - database features disabled")
-        return None
-    return db_manager.prisma
 
 
 async def get_redis() -> redis.Redis | None:

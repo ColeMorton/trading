@@ -6,25 +6,27 @@ Each task corresponds to a CLI subcommand and handles job execution with
 progress tracking and error handling.
 """
 
+import asyncio
 from datetime import datetime
 from typing import Any
 import uuid
 
-from sqlalchemy import update
+from sqlalchemy import select, update
 
 from ..core.redis import redis_manager
 from ..models.tables import Job, JobStatus
 from ..services.command_services.strategy_service import StrategyService
+from ..services.webhook_service import WebhookService
 from .progress import ProgressTracker
 
 
 async def update_job_status(db_manager, job_id: str, status: str, **kwargs) -> None:
-    """Update job status in database."""
+    """Update job status in database and trigger webhooks on completion."""
     async with db_manager.get_async_session() as session:
         values = {"status": status}
         if status == JobStatus.RUNNING.value:
             values["started_at"] = datetime.utcnow()
-        elif status in [JobStatus.COMPLETED.value, JobStatus.FAILED.value]:
+        elif status in [JobStatus.COMPLETED.value, JobStatus.FAILED.value, JobStatus.CANCELLED.value]:
             values["completed_at"] = datetime.utcnow()
 
         values.update(kwargs)
@@ -33,6 +35,20 @@ async def update_job_status(db_manager, job_id: str, status: str, **kwargs) -> N
             update(Job).where(Job.id == uuid.UUID(job_id)).values(**values)
         )
         await session.commit()
+        
+        # Trigger webhook if job is complete and has webhook_url
+        if status in [JobStatus.COMPLETED.value, JobStatus.FAILED.value, JobStatus.CANCELLED.value]:
+            # Fetch job with webhook details
+            result = await session.execute(
+                select(Job).where(Job.id == uuid.UUID(job_id))
+            )
+            job = result.scalar_one_or_none()
+            
+            if job and job.webhook_url:
+                # Send webhook asynchronously (don't block)
+                asyncio.create_task(
+                    WebhookService.notify_job_completion(db_manager, job)
+                )
 
 
 # Strategy Tasks

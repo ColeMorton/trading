@@ -736,3 +736,69 @@ class SMAAtrStrategyService(BaseStrategyService):
     def get_supported_strategy_types(self) -> list[str]:
         """Get supported strategy types for SMA_ATR."""
         return ["SMA_ATR"]
+
+
+class COMPStrategyService(BaseStrategyService):
+    """Service for COMP (Compound) strategy execution."""
+
+    def execute_strategy(self, config: StrategyConfig, progress_update_fn=None) -> bool:
+        """Execute COMP strategy analysis."""
+        try:
+            # Import COMP module
+            comp_module = importlib.import_module("app.strategies.comp.strategy")
+            run = comp_module.run
+
+            # Convert config to legacy format
+            legacy_config = self.convert_config_to_legacy(config)
+
+            # Execute strategy with console logger and progress update function if available
+            if self.console and progress_update_fn:
+                return run(
+                    legacy_config,
+                    external_log=self.console,
+                    progress_update_fn=progress_update_fn,
+                )
+            if self.console:
+                return run(legacy_config, external_log=self.console)
+            return run(legacy_config)
+
+        except Exception as e:
+            rprint(f"[red]Error executing COMP strategy: {e}[/red]")
+            import traceback
+            rprint(f"[red]{traceback.format_exc()}[/red]")
+            return False
+
+    def convert_config_to_legacy(self, config: StrategyConfig) -> dict[str, Any]:
+        """Convert CLI config to COMP legacy format."""
+        # Convert ticker to list format
+        ticker_list = (
+            config.ticker if isinstance(config.ticker, list) else [config.ticker]
+        )
+
+        # Base legacy config structure for COMP
+        legacy_config = {
+            "TICKER": ticker_list,
+            "STRATEGY_TYPES": ["COMP"],
+            "BASE_DIR": str(config.base_dir),
+            "USE_YEARS": config.use_years,
+            "YEARS": config.years,
+            "USE_HOURLY": config.use_hourly,
+            "USE_4HOUR": config.use_4hour,
+            "USE_2DAY": config.use_2day,
+            "DIRECTION": config.direction.value if hasattr(config.direction, "value") else str(config.direction),
+            "REFRESH": True,
+        }
+
+        # Add market type if specified
+        if config.market_type:
+            legacy_config["MARKET_TYPE"] = (
+                config.market_type.value
+                if hasattr(config.market_type, "value")
+                else str(config.market_type)
+            )
+
+        return legacy_config
+
+    def get_supported_strategy_types(self) -> list[str]:
+        """Get supported strategy types for COMP."""
+        return ["COMP"]

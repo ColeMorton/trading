@@ -27,6 +27,7 @@ from .smart_resume_service import SmartResumeService
 from .strategy_services import (
     ATRStrategyService,
     BaseStrategyService,
+    COMPStrategyService,
     MACDStrategyService,
     MAStrategyService,
     SMAAtrStrategyService,
@@ -55,6 +56,7 @@ class StrategyDispatcher:
             "MACD": MACDStrategyService(console=self.console),
             "ATR": ATRStrategyService(console=self.console),
             "SMA_ATR": SMAAtrStrategyService(console=self.console),
+            "COMP": COMPStrategyService(console=self.console),
         }
 
         # Initialize smart resume service with compatible logging
@@ -1602,6 +1604,8 @@ class StrategyDispatcher:
             return self._services["ATR"]
         if strategy_value == StrategyType.SMA_ATR.value:
             return self._services["SMA_ATR"]
+        if strategy_value == StrategyType.COMP.value:
+            return self._services["COMP"]
         self.console.error(f"Unsupported strategy type: {strategy_value}")
         return None
 
@@ -1654,9 +1658,17 @@ class StrategyDispatcher:
                 )
             return self._services["SMA_ATR"]
 
+        # Check for COMP strategy
+        if StrategyType.COMP.value in strategy_type_values:
+            if len(strategy_types) > 1:
+                self.console.warning(
+                    "Multiple strategy types specified with COMP. Using mixed strategy execution."
+                )
+            return self._services["COMP"]
+
         # No compatible service found
         self.console.error(f"Unsupported strategy types: {strategy_type_values}")
-        self.console.debug("Supported strategy types: SMA, EMA, MACD, ATR, SMA_ATR")
+        self.console.debug("Supported strategy types: SMA, EMA, MACD, ATR, SMA_ATR, COMP")
         return None
 
     def get_available_services(self) -> list[str]:

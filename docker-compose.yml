@@ -101,7 +101,10 @@ services:
     restart: unless-stopped
 
   # React Frontend (for development)
+  # Note: Frontend is disabled by default. Enable with: docker compose --profile frontend up
   frontend:
+    profiles:
+      - frontend
     build:
       context: ./app/frontend/sensylate
       dockerfile: Dockerfile

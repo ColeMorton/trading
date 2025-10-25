@@ -17,21 +17,30 @@ RUN apt-get update && apt-get install -y \
 RUN pip install poetry
 
 # Copy dependency files
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml poetry.lock README.md ./
 
 # Configure Poetry to not create virtual environment
 RUN poetry config virtualenvs.create false
 
 # Install dependencies
-RUN poetry install --only main
+RUN poetry install --only main --no-root
 
 # Copy application code
 COPY . .
+
+# Make trading-cli executable and create a wrapper for container use
+RUN chmod +x /app/trading-cli && \
+    echo '#!/bin/bash' > /usr/local/bin/trading-cli && \
+    echo 'cd /app && python3 -m app.cli.main "$@"' >> /usr/local/bin/trading-cli && \
+    chmod +x /usr/local/bin/trading-cli
 
 # Create non-root user
 RUN useradd --create-home --shell /bin/bash app
 RUN chown -R app:app /app
 USER app
+
+# Add /app to PYTHONPATH
+ENV PYTHONPATH=/app:$PYTHONPATH
 
 # Expose port
 EXPOSE 8000
@@ -64,7 +73,7 @@ ENV POETRY_VERSION=1.7.1
 RUN pip install --no-cache-dir poetry==$POETRY_VERSION
 
 # Copy dependency files
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml poetry.lock README.md ./
 
 # Configure Poetry for production
 RUN poetry config virtualenvs.create false \
@@ -72,13 +81,19 @@ RUN poetry config virtualenvs.create false \
 
 # Install only production dependencies with cache mount
 RUN --mount=type=cache,target=/root/.cache/pip \
-    poetry install --only=main --no-interaction --no-ansi
+    poetry install --only=main --no-interaction --no-ansi --no-root
 
 # Copy application code
 COPY . .
 
-# Generate Prisma client
-RUN poetry run prisma generate
+# Make trading-cli executable and create a wrapper for container use
+RUN chmod +x /app/trading-cli && \
+    echo '#!/bin/bash' > /usr/local/bin/trading-cli && \
+    echo 'cd /app && python3 -m app.cli.main "$@"' >> /usr/local/bin/trading-cli && \
+    chmod +x /usr/local/bin/trading-cli
+
+# Verify trading-cli is accessible
+RUN which trading-cli && trading-cli --help | head -5 || echo "WARNING: trading-cli verification failed"
 
 # Create non-root user with specific UID/GID for security
 RUN groupadd -g 1001 app && \

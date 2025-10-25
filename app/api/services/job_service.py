@@ -23,6 +23,8 @@ class JobService:
         command_group: str,
         command_name: str,
         parameters: dict,
+        webhook_url: str | None = None,
+        webhook_headers: dict | None = None,
     ) -> Job:
         """
         Create a new job record.
@@ -33,6 +35,8 @@ class JobService:
             command_group: Command group name
             command_name: Command name
             parameters: Job parameters
+            webhook_url: Optional webhook URL for completion notification
+            webhook_headers: Optional custom headers for webhook
 
         Returns:
             Created job model
@@ -49,6 +53,8 @@ class JobService:
             status=JobStatus.PENDING.value,
             parameters=parameters,
             created_at=datetime.utcnow(),
+            webhook_url=webhook_url,
+            webhook_headers=webhook_headers,
         )
 
         db.add(job)

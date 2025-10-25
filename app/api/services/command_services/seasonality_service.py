@@ -33,9 +33,11 @@ class SeasonalityService(BaseCommandService):
         await self.update_progress(90, "Processing results...")
 
         if not result["success"]:
-            error_msg = result.get("stderr", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
-            return {"success": False, "error": error_msg}
+            # Raise exception so task handler marks job as FAILED
+            raise RuntimeError(f"{error_type}: {error_msg}")
 
         await self.update_progress(100, "Seasonality analysis complete")
 
@@ -58,9 +60,11 @@ class SeasonalityService(BaseCommandService):
         await self.update_progress(90, "Formatting results...")
 
         if not result["success"]:
-            error_msg = result.get("stderr", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
-            return {"success": False, "error": error_msg}
+            # Raise exception so task handler marks job as FAILED
+            raise RuntimeError(f"{error_type}: {error_msg}")
 
         await self.update_progress(100, "Ticker list retrieved")
 
@@ -81,9 +85,11 @@ class SeasonalityService(BaseCommandService):
         await self.update_progress(90, "Formatting results...")
 
         if not result["success"]:
-            error_msg = result.get("stderr", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
-            return {"success": False, "error": error_msg}
+            # Raise exception so task handler marks job as FAILED
+            raise RuntimeError(f"{error_type}: {error_msg}")
 
         await self.update_progress(100, "Results retrieved")
 
@@ -102,9 +108,11 @@ class SeasonalityService(BaseCommandService):
         await self.update_progress(90, "Verifying cleanup...")
 
         if not result["success"]:
-            error_msg = result.get("stderr", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
-            return {"success": False, "error": error_msg}
+            # Raise exception so task handler marks job as FAILED
+            raise RuntimeError(f"{error_type}: {error_msg}")
 
         await self.update_progress(100, "Cleanup complete")
 
@@ -127,9 +135,11 @@ class SeasonalityService(BaseCommandService):
         await self.update_progress(90, "Processing results...")
 
         if not result["success"]:
-            error_msg = result.get("stderr", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
-            return {"success": False, "error": error_msg}
+            # Raise exception so task handler marks job as FAILED
+            raise RuntimeError(f"{error_type}: {error_msg}")
 
         await self.update_progress(100, "Current expectancy analysis complete")
 
@@ -152,9 +162,11 @@ class SeasonalityService(BaseCommandService):
         await self.update_progress(90, "Processing portfolio results...")
 
         if not result["success"]:
-            error_msg = result.get("stderr", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
-            return {"success": False, "error": error_msg}
+            # Raise exception so task handler marks job as FAILED
+            raise RuntimeError(f"{error_type}: {error_msg}")
 
         await self.update_progress(100, "Portfolio seasonality analysis complete")
 

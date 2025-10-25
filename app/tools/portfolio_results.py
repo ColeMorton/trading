@@ -24,10 +24,58 @@ from app.tools.formatters import (
     parse_duration_to_hours,
 )
 from app.tools.portfolio.collection import sort_portfolios
+from app.tools.portfolio.status_filters import determine_portfolio_status
 
 
 # Rich console for output
 console = Console()
+
+
+def calculate_comp_status_from_aggregates(
+    entry_count: int,
+    exit_count: int,
+    active_count: int,
+    total_count: int
+) -> str:
+    """Calculate COMP status from aggregated strategy counts.
+    
+    The COMP strategy uses a 50% threshold to determine position:
+    - In position: When >= 50% of strategies are active
+    - Out of position: When < 50% of strategies are active
+    
+    Status priority:
+    1. Entry: >= 50% active AND has entry signals (entering/in position)
+    2. Exit: < 50% active AND has exit signals (exiting/out of position)
+    3. Active: >= 50% active AND no entry signals (holding position)
+    4. Inactive: < 50% active AND no exit signals (no position)
+    
+    Args:
+        entry_count: Number of strategies with entry signals
+        exit_count: Number of strategies with exit signals
+        active_count: Number of active strategies (with open trades)
+        total_count: Total number of strategies for this ticker
+        
+    Returns:
+        Status string: "Entry", "Exit", "Active", or "Inactive"
+    """
+    # Calculate active percentage
+    active_pct = (active_count / total_count * 100) if total_count > 0 else 0
+    
+    # COMP is "in position" when active % >= 50%
+    comp_in_position = active_pct >= 50.0
+    
+    if comp_in_position:
+        # COMP would be in position (>= 50% active)
+        if entry_count > 0:
+            return "Entry"  # Entering or in position with new signals
+        else:
+            return "Active"  # Holding position, no new signals
+    else:
+        # COMP would be out of position (< 50% active)
+        if exit_count > 0:
+            return "Exit"  # Exiting or out with exit signals
+        else:
+            return "Inactive"  # No position, no signals
 
 
 def filter_open_trades(
@@ -214,22 +262,6 @@ def _display_portfolio_table_core(
     table.add_column("Beats BNH", justify="right", no_wrap=True)
     table.add_column("Duration", justify="center", no_wrap=True)
     table.add_column("Status", justify="center")
-
-    def determine_portfolio_status(portfolio):
-        """Determine portfolio status based on signals and open trades."""
-        signal_entry = str(portfolio.get("Signal Entry", "")).lower() == "true"
-        signal_exit = str(portfolio.get("Signal Exit", "")).lower() == "true"
-        total_open_trades = portfolio.get("Total Open Trades")
-
-        if signal_entry:
-            return "Entry"
-        if signal_exit:
-            return "Exit"
-        if total_open_trades == 1 or (
-            isinstance(total_open_trades, str) and total_open_trades == "1"
-        ):
-            return "Active"
-        return "Inactive"
 
     for p in display_portfolios:
         ticker = p.get("Ticker", "Unknown")
@@ -421,23 +453,6 @@ def display_portfolio_entry_exit_table(
     if not portfolios:
         return []
 
-    # Determine portfolio status for filtering
-    def determine_portfolio_status(portfolio):
-        """Determine portfolio status based on signals and open trades."""
-        signal_entry = str(portfolio.get("Signal Entry", "")).lower() == "true"
-        signal_exit = str(portfolio.get("Signal Exit", "")).lower() == "true"
-        total_open_trades = portfolio.get("Total Open Trades")
-
-        if signal_entry:
-            return "Entry"
-        if signal_exit:
-            return "Exit"
-        if total_open_trades == 1 or (
-            isinstance(total_open_trades, str) and total_open_trades == "1"
-        ):
-            return "Active"
-        return "Inactive"
-
     # Filter portfolios to only include Entry and Exit status
     filtered_portfolios = []
     for portfolio in portfolios:
@@ -541,6 +556,7 @@ def display_ticker_summary_table(
     table.add_column("Active %", justify="center")
     table.add_column("Entry Signal", justify="center", style="bright_green")
     table.add_column("Exit Signal", justify="center", style="bright_red")
+    table.add_column("COMP", justify="center", style="bold")
 
     # Add rows sorted by Active % (descending), then by ticker
     sorted_tickers = sorted(
@@ -571,6 +587,15 @@ def display_ticker_summary_table(
         # Display counts for entry/exit signals
         entry_count = data["entry_signal_count"]
         exit_count = data["exit_signal_count"]
+        
+        # Calculate COMP status from aggregated strategy data
+        comp_status = calculate_comp_status_from_aggregates(
+            entry_count=entry_count,
+            exit_count=exit_count,
+            active_count=data["active"],
+            total_count=data["total"]
+        )
+        comp_display = format_status(comp_status)
 
         table.add_row(
             ticker,
@@ -578,6 +603,7 @@ def display_ticker_summary_table(
             active_pct_display,
             str(entry_count),
             str(exit_count),
+            comp_display,
         )
 
     # Display table

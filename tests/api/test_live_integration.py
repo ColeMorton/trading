@@ -84,20 +84,22 @@ class TestStrategyEndpoints:
         return data["job_id"]
 
     def test_strategy_sweep_creates_job(self):
-        """Test strategy sweep endpoint."""
+        """Test strategy sweep endpoint with form-encoded data."""
         response = requests.post(
             f"{BASE_URL}/api/v1/strategy/sweep",
-            json={
+            json={  # Send as JSON
                 "ticker": "BTC-USD",
-                "fast_range": [5, 15],
-                "slow_range": [20, 40],
+                "fast_range_min": 5,
+                "fast_range_max": 15,
+                "slow_range_min": 20,
+                "slow_range_max": 40,
                 "step": 5,
                 "config_path": "app/cli/profiles/strategies/minimum.yaml",
             },
             headers={"X-API-Key": TEST_API_KEY},
         )
 
-        assert response.status_code in [200, 201, 202]
+        assert response.status_code in [200, 201, 202], f"Got {response.status_code}: {response.text}"
         data = response.json()
         assert "job_id" in data
         print(f"✓ Strategy sweep job created: {data['job_id']}")

@@ -59,6 +59,10 @@ class Job(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
     started_at: datetime | None = None
     completed_at: datetime | None = None
+    webhook_url: str | None = Field(default=None, max_length=500)
+    webhook_headers: dict | None = Field(default=None, sa_column=Column(JSON))
+    webhook_sent_at: datetime | None = None
+    webhook_response_status: int | None = None
 
     def __repr__(self) -> str:
         return f"<Job(id={self.id}, command={self.command_group}.{self.command_name}, status={self.status})>"

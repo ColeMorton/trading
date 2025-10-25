@@ -19,12 +19,40 @@ async def startup(ctx: dict[str, Any]) -> None:
     """
     Worker startup hook.
 
-    Initializes shared resources like database connections.
+    Initializes shared resources like database connections and verifies CLI availability.
 
     Args:
         ctx: Worker context dictionary
     """
+    import subprocess
+    import os
+    
     print("🔧 Initializing ARQ worker...")
+
+    # Verify trading-cli is available BEFORE accepting jobs
+    print("🔍 Verifying trading-cli availability...")
+    try:
+        result = subprocess.run(
+            ["trading-cli", "--version"],
+            capture_output=True,
+            timeout=10,
+            text=True
+        )
+        if result.returncode == 0:
+            print(f"✅ trading-cli available: {result.stdout.strip()}")
+        else:
+            print(f"⚠️  trading-cli exists but returned error code {result.returncode}")
+            print(f"   stderr: {result.stderr}")
+    except FileNotFoundError:
+        print("❌ CRITICAL: trading-cli not found in PATH!")
+        print(f"   PATH: {os.environ.get('PATH', 'NOT SET')}")
+        print(f"   CWD: {os.getcwd()}")
+        print("   Worker will start but all jobs will fail until this is fixed.")
+        # Don't raise - allow worker to start but log critical error
+    except subprocess.TimeoutExpired:
+        print("⚠️  trading-cli verification timed out")
+    except Exception as e:
+        print(f"⚠️  Unexpected error verifying trading-cli: {e}")
 
     # Initialize database connection
     db_manager.create_async_engine()
@@ -32,7 +60,7 @@ async def startup(ctx: dict[str, Any]) -> None:
 
     # Create Redis client for progress tracking
     ctx["redis"] = await create_pool(
-        RedisSettings.from_dsn(settings.REDIS_URL), encoding="utf-8"
+        RedisSettings.from_dsn(settings.REDIS_URL)
     )
 
     print("✅ ARQ worker initialized successfully!")
@@ -154,5 +182,5 @@ async def create_worker_pool() -> Redis:
         Redis pool for ARQ
     """
     return await create_pool(
-        RedisSettings.from_dsn(settings.REDIS_URL), encoding="utf-8"
+        RedisSettings.from_dsn(settings.REDIS_URL)
     )

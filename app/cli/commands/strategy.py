@@ -45,13 +45,16 @@ def run(
     ticker: str = typer.Argument(
         ..., help="Single ticker symbol to test (e.g., AAPL, BTC-USD)"
     ),
-    fast: int = typer.Option(..., "--fast", "-f", help="Fast moving average period"),
-    slow: int = typer.Option(..., "--slow", "-s", help="Slow moving average period"),
+    fast: Optional[int] = typer.Option(None, "--fast", "-f", help="Fast moving average period"),
+    slow: Optional[int] = typer.Option(None, "--slow", "-s", help="Slow moving average period"),
     signal: Optional[int] = typer.Option(
         None, "--signal", help="Signal period (for MACD strategies only)"
     ),
     strategy: str = typer.Option(
         "SMA", "--strategy", help="Strategy type: SMA, EMA, or MACD"
+    ),
+    comp: bool = typer.Option(
+        False, "--comp", "-c", help="Use COMP (compound) strategy - aggregates all strategies from ticker CSV"
     ),
     years: Optional[int] = typer.Option(
         None, "--years", "-y", help="Number of years of historical data"
@@ -81,9 +84,74 @@ def run(
         trading-cli strategy run AAPL --fast 12 --slow 26 --signal 9 --strategy MACD
         trading-cli strategy run ETH-USD --fast 15 --slow 45 --use-4hour
         trading-cli strategy run TSLA --fast 20 --slow 50 --years 3
+        trading-cli strategy run BTC-USD --comp
     """
     try:
-        # Validate parameters
+        # Handle COMP strategy mode
+        if comp:
+            strategy = "COMP"
+            rprint("\n[bold cyan]COMP Strategy - Compound Strategy Backtest[/bold cyan]")
+            rprint(f"[cyan]Ticker:[/cyan] {ticker}")
+            rprint(f"[cyan]Strategy:[/cyan] COMP (Compound)")
+            rprint(f"[cyan]Component Strategies:[/cyan] Loaded from data/raw/strategies/{ticker}.csv")
+            rprint(f"[cyan]Direction:[/cyan] {direction}")
+            if years:
+                rprint(f"[cyan]History:[/cyan] {years} years")
+            if use_4hour:
+                rprint("[cyan]Timeframe:[/cyan] 4-hour")
+            elif use_2day:
+                rprint("[cyan]Timeframe:[/cyan] 2-day")
+            rprint("")
+            
+            if dry_run:
+                rprint("[yellow]Dry run - configuration preview only[/yellow]")
+                return
+            
+            # Execute COMP strategy directly
+            from ...tools.get_config import get_config
+            from ...tools.project_utils import get_project_root
+            from ...strategies.comp.strategy import run as comp_run
+            
+            config = {
+                "TICKER": ticker,
+                "STRATEGY_TYPE": "COMP",
+                "DIRECTION": direction,
+                "USE_HOURLY": use_4hour,
+                "USE_4HOUR": use_4hour,
+                "USE_2DAY": use_2day,
+                "BASE_DIR": get_project_root(),
+                "REFRESH": True,
+            }
+            
+            if years:
+                config["USE_YEARS"] = True
+                config["YEARS"] = years
+            
+            if market_type:
+                config["MARKET_TYPE"] = market_type
+            
+            # Apply config defaults
+            ticker_config = get_config(config)
+            
+            # Run COMP strategy
+            rprint("Executing COMP strategy...")
+            success = comp_run(ticker_config)
+            
+            if success:
+                rprint("[green]✓ COMP strategy completed successfully[/green]")
+                output_file = f"{get_project_root()}/data/outputs/compound/{ticker}.csv"
+                rprint(f"[cyan]Results saved to:[/cyan] {output_file}")
+            else:
+                rprint("[red]✗ COMP strategy execution failed[/red]")
+                raise typer.Exit(1)
+            
+            return
+        
+        # Validate parameters for non-COMP strategies
+        if fast is None or slow is None:
+            rprint("[red]Error: --fast and --slow parameters are required (unless using --comp)[/red]")
+            raise typer.Exit(1)
+        
         if fast >= slow:
             rprint("[red]Error: Fast period must be less than slow period[/red]")
             raise typer.Exit(1)
@@ -772,6 +840,11 @@ def review(
         "--export",
         help="Export CSV output to ./data/outputs/review/{YYYYMMDD_HHmmss}.csv",
     ),
+    comp: bool = typer.Option(
+        False,
+        "--comp",
+        help="Analyze COMP (compound) strategy results from data/outputs/compound/",
+    ),
 ):
     """
     Analyze and aggregate portfolio data from CSV files (dry-run analysis).
@@ -796,10 +869,36 @@ def review(
         trading-cli strategy review --best --batch --export
         trading-cli strategy review --profile asia_top_50 --best --export
         trading-cli strategy review --best --current --ticker AAPL,MSFT --export
+        trading-cli strategy review --comp --ticker BTC-USD
+        trading-cli strategy review --comp --ticker BTC-USD,NVDA,PLTR
+        trading-cli strategy review --comp --ticker BTC-USD --export
+        trading-cli strategy review --comp --ticker BTC-USD --sort-by "Sharpe Ratio"
     """
     try:
         # Get global options from context
         global_verbose = ctx.obj.get("verbose", False) if ctx.obj else False
+
+        # Validate mutually exclusive flags for COMP mode
+        if comp:
+            if profile:
+                rprint("[red]Error: --comp cannot be used with --profile[/red]")
+                rprint("[dim]COMP mode analyzes compound strategy results independently[/dim]")
+                raise typer.Exit(1)
+            if best:
+                rprint("[red]Error: --comp cannot be used with --best[/red]")
+                rprint("[dim]COMP mode analyzes compound strategy results independently[/dim]")
+                raise typer.Exit(1)
+            if current or date:
+                rprint("[red]Error: --comp cannot be used with --current or --date[/red]")
+                rprint("[dim]COMP strategies are not date-specific[/dim]")
+                raise typer.Exit(1)
+            if batch:
+                rprint("[red]Error: --comp cannot be used with --batch[/red]")
+                raise typer.Exit(1)
+            if not ticker:
+                rprint("[red]Error: --comp requires --ticker to be specified[/red]")
+                rprint("[dim]Example: trading-cli strategy review --comp --ticker BTC-USD[/dim]")
+                raise typer.Exit(1)
 
         # Validate date parameter if provided
         if date:
@@ -878,187 +977,284 @@ def review(
         else:
             ticker_filtering_active = False
 
-        # Allow auto-discovery mode when both --best and --current are provided
-        if (
-            not profile
-            and not (best and current)
-            and not ticker_filtering_active
-            and not batch
-        ):
-            rprint(
-                "[red]Error: --profile is required unless using --best --current for auto-discovery, --ticker for filtering, or --batch for batch mode[/red]"
-            )
-            rprint("[dim]Examples:[/dim]")
-            rprint(
-                "[dim]  Profile mode: trading-cli strategy review --profile asia_top_50 --best[/dim]"
-            )
-            rprint(
-                "[dim]  Auto-discovery: trading-cli strategy review --best --current[/dim]"
-            )
-            rprint(
-                "[dim]  Ticker filtering: trading-cli strategy review --best --current --ticker AAPL,MSFT[/dim]"
-            )
-            rprint(
-                "[dim]  Batch mode: trading-cli strategy review --best --batch[/dim]"
-            )
-            raise typer.Exit(1)
+        # Handle COMP mode - load from compound strategy outputs
+        if comp:
+            from pathlib import Path
+            from .strategy_utils import process_ticker_input
+            
+            # Process ticker input
+            ticker_list = process_ticker_input(ticker)
+            
+            rprint("\n[bold cyan]📊 COMP Strategy Analysis:[/bold cyan]")
+            rprint("=" * 50)
+            rprint(f"🎯 [white]Tickers: {', '.join(ticker_list)}[/white]")
+            rprint(f"📈 [white]Display: Top {top_n} results[/white]")
+            rprint(f"🔢 [white]Sort By: {sort_by}[/white]")
+            rprint()
+            
+            # Load COMP strategy results
+            rprint("[bold]🔍 Loading COMP strategy files...[/bold]")
+            
+            compound_dir = Path("data/outputs/compound")
+            all_portfolios = []
+            loaded_count = 0
+            
+            for ticker_symbol in ticker_list:
+                compound_file = compound_dir / f"{ticker_symbol}.csv"
+                
+                if not compound_file.exists():
+                    if global_verbose:
+                        rprint(f"[yellow]⚠ Warning: COMP file not found for {ticker_symbol}: {compound_file}[/yellow]")
+                    continue
+                
+                try:
+                    import pandas as pd
+                    df = pd.read_csv(compound_file)
+                    
+                    # Convert DataFrame to list of dicts
+                    portfolios = df.to_dict('records')
+                    all_portfolios.extend(portfolios)
+                    loaded_count += 1
+                    
+                    if global_verbose:
+                        rprint(f"[green]✓ Loaded COMP results for {ticker_symbol}: {len(portfolios)} record(s)[/green]")
+                
+                except Exception as e:
+                    rprint(f"[red]✗ Error loading COMP file for {ticker_symbol}: {e}[/red]")
+                    continue
+            
+            if not all_portfolios:
+                rprint("[red]Error: No COMP strategy results found for specified tickers[/red]")
+                rprint(f"[dim]Searched in: {compound_dir.absolute()}[/dim]")
+                rprint("[dim]Hint: Run 'trading-cli strategy run {TICKER} --comp' to generate COMP results first[/dim]")
+                raise typer.Exit(1)
+            
+            rprint(f"[green]✓ Successfully loaded {loaded_count} COMP strategy file(s) with {len(all_portfolios)} total record(s)[/green]\n")
+            
+            # Convert to DataFrame for processing
+            import pandas as pd
+            combined_df = pd.DataFrame(all_portfolios)
+            
+            # Skip to display logic (jump past the normal portfolio loading)
+            # We'll use a flag to indicate COMP mode
+            comp_mode_active = True
+        else:
+            comp_mode_active = False
 
-        if not best:
-            rprint(
-                "[red]Error: --best flag is required (only portfolios_best analysis is currently supported)[/red]"
-            )
-            rprint(
-                "[dim]Example: trading-cli strategy review --profile asia_top_50 --best[/dim]"
-            )
-            raise typer.Exit(1)
-
-        # Handle profile loading vs auto-discovery mode vs ticker filtering
-        if ticker_filtering_active:
-            # Ticker filtering mode - use provided ticker list regardless of profile
-            if global_verbose:
+        # Skip validation for COMP mode
+        if not comp_mode_active:
+            # Allow auto-discovery mode when both --best and --current are provided
+            if (
+                not profile
+                and not (best and current)
+                and not ticker_filtering_active
+                and not batch
+            ):
                 rprint(
-                    f"[dim]Ticker filtering mode: analyzing {len(ticker_list)} specific tickers[/dim]"
+                    "[red]Error: --profile is required unless using --best --current for auto-discovery, --ticker for filtering, or --batch for batch mode[/red]"
                 )
-        elif profile:
-            # Profile-based mode
-            loader = ConfigLoader()
-
-            try:
-                config = loader.load_from_profile(profile, StrategyConfig, {})
-            except Exception as e:
-                rprint(f"[red]Error loading profile '{profile}': {e}[/red]")
+                rprint("[dim]Examples:[/dim]")
+                rprint(
+                    "[dim]  Profile mode: trading-cli strategy review --profile asia_top_50 --best[/dim]"
+                )
+                rprint(
+                    "[dim]  Auto-discovery: trading-cli strategy review --best --current[/dim]"
+                )
+                rprint(
+                    "[dim]  Ticker filtering: trading-cli strategy review --best --current --ticker AAPL,MSFT[/dim]"
+                )
+                rprint(
+                    "[dim]  Batch mode: trading-cli strategy review --best --batch[/dim]"
+                )
                 raise typer.Exit(1)
 
-            # Get ticker list from config
-            ticker_list = (
-                config.ticker if isinstance(config.ticker, list) else [config.ticker]
-            )
-
-            if global_verbose:
+            if not best:
                 rprint(
-                    f"[dim]Loaded profile '{profile}' with {len(ticker_list)} tickers[/dim]"
+                    "[red]Error: --best flag is required (only portfolios_best analysis is currently supported)[/red]"
                 )
-        else:
-            # Auto-discovery mode (profile is None, best=True, current=True)
-            ticker_list = ["Auto-discovered"]  # For display purposes
-
-            if global_verbose:
                 rprint(
-                    "[dim]Auto-discovery mode enabled - will scan current day directory[/dim]"
+                    "[dim]Example: trading-cli strategy review --profile asia_top_50 --best[/dim]"
                 )
+                raise typer.Exit(1)
 
-        # Display configuration
-        rprint("\n[bold cyan]📊 Portfolio Analysis Configuration:[/bold cyan]")
-        rprint("=" * 50)
-
-        # Show mode and profile information
-        if ticker_filtering_active:
-            if batch:
-                rprint("📋 [white]Mode: Batch Processing[/white]")
+        # Skip normal portfolio loading for COMP mode
+        if not comp_mode_active:
+            # Handle profile loading vs auto-discovery mode vs ticker filtering
+            if ticker_filtering_active:
+                # Ticker filtering mode - use provided ticker list regardless of profile
+                if global_verbose:
+                    rprint(
+                        f"[dim]Ticker filtering mode: analyzing {len(ticker_list)} specific tickers[/dim]"
+                    )
             elif profile:
-                rprint(f"📋 [white]Mode: Ticker Filtering (Profile: {profile})[/white]")
+                # Profile-based mode
+                loader = ConfigLoader()
+
+                try:
+                    config = loader.load_from_profile(profile, StrategyConfig, {})
+                except Exception as e:
+                    rprint(f"[red]Error loading profile '{profile}': {e}[/red]")
+                    raise typer.Exit(1)
+
+                # Get ticker list from config
+                ticker_list = (
+                    config.ticker if isinstance(config.ticker, list) else [config.ticker]
+                )
+
+                if global_verbose:
+                    rprint(
+                        f"[dim]Loaded profile '{profile}' with {len(ticker_list)} tickers[/dim]"
+                    )
             else:
-                rprint("📋 [white]Mode: Ticker Filtering[/white]")
-        elif profile:
-            rprint(f"📋 [white]Profile: {profile}[/white]")
-        else:
-            rprint("📋 [white]Mode: Auto-Discovery[/white]")
+                # Auto-discovery mode (profile is None, best=True, current=True)
+                ticker_list = ["Auto-discovered"]  # For display purposes
 
-        # Show analysis type with date if applicable
-        from datetime import datetime
+                if global_verbose:
+                    rprint(
+                        "[dim]Auto-discovery mode enabled - will scan current day directory[/dim]"
+                    )
 
-        if current:
-            # Use custom date if specified, otherwise current date
-            display_date = date if date else datetime.now().strftime("%Y%m%d")
-            date_label = f"date: {display_date}" if date else f"current: {display_date}"
+            # Display configuration
+            rprint("\n[bold cyan]📊 Portfolio Analysis Configuration:[/bold cyan]")
+            rprint("=" * 50)
 
+            # Show mode and profile information
+            if ticker_filtering_active:
+                if batch:
+                    rprint("📋 [white]Mode: Batch Processing[/white]")
+                elif profile:
+                    rprint(f"📋 [white]Mode: Ticker Filtering (Profile: {profile})[/white]")
+                else:
+                    rprint("📋 [white]Mode: Ticker Filtering[/white]")
+            elif profile:
+                rprint(f"📋 [white]Profile: {profile}[/white]")
+            else:
+                rprint("📋 [white]Mode: Auto-Discovery[/white]")
+
+            # Show analysis type with date if applicable
+            from datetime import datetime
+
+            if current:
+                # Use custom date if specified, otherwise current date
+                display_date = date if date else datetime.now().strftime("%Y%m%d")
+                date_label = f"date: {display_date}" if date else f"current: {display_date}"
+
+                if ticker_filtering_active:
+                    rprint(
+                        f"📊 [white]Analysis Type: portfolios_best ({date_label}, filtered)[/white]"
+                    )
+                elif profile:
+                    rprint(
+                        f"📊 [white]Analysis Type: portfolios_best ({date_label})[/white]"
+                    )
+                else:
+                    rprint(
+                        f"📊 [white]Analysis Type: portfolios_best ({date_label}, auto-discovery)[/white]"
+                    )
+            else:
+                rprint("📊 [white]Analysis Type: portfolios_best[/white]")
+
+            # Show tickers
             if ticker_filtering_active:
                 rprint(
-                    f"📊 [white]Analysis Type: portfolios_best ({date_label}, filtered)[/white]"
+                    f"🎯 [white]Tickers: Filtered to {len(ticker_list)} tickers: {', '.join(ticker_list)}[/white]"
                 )
             elif profile:
-                rprint(
-                    f"📊 [white]Analysis Type: portfolios_best ({date_label})[/white]"
-                )
+                rprint(f"🎯 [white]Tickers: {', '.join(ticker_list)}[/white]")
             else:
+                rprint("🎯 [white]Tickers: Auto-discovered from current day files[/white]")
+
+            rprint(f"📈 [white]Display: Top {top_n} results[/white]")
+            rprint(f"🔢 [white]Sort By: {sort_by}[/white]")
+            rprint()
+
+            # Initialize analysis service
+            from ..services.portfolio_analysis_service import PortfolioAnalysisService
+
+            analysis_service = PortfolioAnalysisService(
+                use_current=current, custom_date=date
+            )
+
+            # Aggregate portfolio data
+            rprint("[bold]🔍 Searching for portfolio files...[/bold]")
+
+            if ticker_filtering_active:
+                # Ticker filtering mode - always use specific ticker list
+                combined_df = analysis_service.aggregate_portfolios_best(ticker_list)
+            elif profile:
+                # Profile-based analysis
+                combined_df = analysis_service.aggregate_portfolios_best(ticker_list)
+            else:
+                # Auto-discovery analysis
+                combined_df = analysis_service.aggregate_all_current_portfolios()
+
+            if combined_df.empty:
                 rprint(
-                    f"📊 [white]Analysis Type: portfolios_best ({date_label}, auto-discovery)[/white]"
+                    "[yellow]❌ No portfolio data found for the specified tickers[/yellow]"
                 )
-        else:
-            rprint("📊 [white]Analysis Type: portfolios_best[/white]")
+                rprint(
+                    "[dim]Make sure portfolios_best files exist in data/raw/portfolios_best/[/dim]"
+                )
+                raise typer.Exit(1)
 
-        # Show tickers
-        if ticker_filtering_active:
-            rprint(
-                f"🎯 [white]Tickers: Filtered to {len(ticker_list)} tickers: {', '.join(ticker_list)}[/white]"
-            )
-        elif profile:
-            rprint(f"🎯 [white]Tickers: {', '.join(ticker_list)}[/white]")
-        else:
-            rprint("🎯 [white]Tickers: Auto-discovered from current day files[/white]")
-
-        rprint(f"📈 [white]Display: Top {top_n} results[/white]")
-        rprint(f"🔢 [white]Sort By: {sort_by}[/white]")
-        rprint()
-
-        # Initialize analysis service
-        from ..services.portfolio_analysis_service import PortfolioAnalysisService
-
-        analysis_service = PortfolioAnalysisService(
-            use_current=current, custom_date=date
-        )
-
-        # Aggregate portfolio data
-        rprint("[bold]🔍 Searching for portfolio files...[/bold]")
-
-        if ticker_filtering_active:
-            # Ticker filtering mode - always use specific ticker list
-            combined_df = analysis_service.aggregate_portfolios_best(ticker_list)
-        elif profile:
-            # Profile-based analysis
-            combined_df = analysis_service.aggregate_portfolios_best(ticker_list)
-        else:
-            # Auto-discovery analysis
-            combined_df = analysis_service.aggregate_all_current_portfolios()
-
-        if combined_df.empty:
-            rprint(
-                "[yellow]❌ No portfolio data found for the specified tickers[/yellow]"
-            )
-            rprint(
-                "[dim]Make sure portfolios_best files exist in data/raw/portfolios_best/[/dim]"
-            )
-            raise typer.Exit(1)
-
-        # Remove Metric Type column and sort
+        # Process and sort data
         rprint(f"[bold]📝 Processing {len(combined_df)} portfolios...[/bold]")
-        processed_df = analysis_service.remove_metric_type_column(combined_df)
-        sorted_df = analysis_service.sort_portfolios(processed_df, sort_by=sort_by)
+        
+        if comp_mode_active:
+            # For COMP mode, just sort directly (no Metric Type column to remove)
+            sorted_df = combined_df.sort_values(by=sort_by, ascending=False)
+        else:
+            # For regular mode, remove Metric Type column and sort
+            processed_df = analysis_service.remove_metric_type_column(combined_df)
+            sorted_df = analysis_service.sort_portfolios(processed_df, sort_by=sort_by)
 
         # Format for display
-        display_data = analysis_service.format_for_display(sorted_df, top_n=top_n)
+        if comp_mode_active:
+            # For COMP mode, format manually without analysis_service
+            top_results = sorted_df.head(top_n)
+            all_results = sorted_df
+            display_data = {
+                "top_results": top_results,
+                "all_results": all_results,
+                "stats": {
+                    "total_portfolios": len(sorted_df),
+                    "top_n": min(top_n, len(sorted_df)),
+                }
+            }
+        else:
+            display_data = analysis_service.format_for_display(sorted_df, top_n=top_n)
 
         if output_format == "raw":
             # Raw CSV output only
-            rprint("\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
-            csv_output = analysis_service.generate_csv_output(
-                display_data["all_results"]
-            )
+            if comp_mode_active:
+                rprint("\n[bold cyan]📋 COMP Strategy Results: Raw CSV Data:[/bold cyan]")
+                csv_output = display_data["all_results"].to_csv(index=False)
+            else:
+                rprint("\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
+                csv_output = analysis_service.generate_csv_output(
+                    display_data["all_results"]
+                )
             rprint(csv_output)
         else:
             # Table format with raw CSV
-            _display_portfolio_table(
-                display_data["top_results"], analysis_service.get_display_columns()
-            )
+            if comp_mode_active:
+                # For COMP mode, use simpler display
+                _display_portfolio_table(
+                    display_data["top_results"], list(display_data["top_results"].columns)
+                )
+            else:
+                _display_portfolio_table(
+                    display_data["top_results"], analysis_service.get_display_columns()
+                )
 
             # Summary statistics
             stats = display_data["stats"]
             rprint("\n[bold green]✨ Analysis Complete![/bold green]")
             rprint(
-                f"📈 [cyan]{stats['total_portfolios']} portfolios analyzed successfully[/cyan]"
+                f"📈 [cyan]{stats['total_portfolios']} {'COMP strategies' if comp_mode_active else 'portfolios'} analyzed successfully[/cyan]"
             )
 
-            if stats["total_portfolios"] > 0:
+            if stats["total_portfolios"] > 0 and not comp_mode_active:
                 rprint("\n💡 [bold yellow]Key Insights:[/bold yellow]")
                 rprint(
                     f"🏆 [white]Best Opportunity: {stats['best_ticker']} ({stats['best_return']:+.2f}%)[/white]"
@@ -1069,10 +1265,14 @@ def review(
                 )
 
             # Raw CSV output section
-            rprint("\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
-            csv_output = analysis_service.generate_csv_output(
-                display_data["all_results"]
-            )
+            if comp_mode_active:
+                rprint("\n[bold cyan]📋 COMP Strategy Results: Raw CSV Data:[/bold cyan]")
+                csv_output = display_data["all_results"].to_csv(index=False)
+            else:
+                rprint("\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
+                csv_output = analysis_service.generate_csv_output(
+                    display_data["all_results"]
+                )
 
             # Use print() instead of rprint() to avoid Rich's line wrapping
             # Each CSV line should be displayed as one complete line for proper copy/paste
@@ -1083,12 +1283,18 @@ def review(
         # Export to CSV if requested
         if export:
             try:
-                output_dir = "./data/outputs/review"
-                success, file_path = analysis_service.export_to_csv(
-                    display_data["all_results"], output_dir
-                )
-                if success:
-                    rprint(f"\n[green]✅ Results exported to: {file_path}[/green]")
+                from datetime import datetime
+                from pathlib import Path
+                
+                output_dir = Path("./data/outputs/review")
+                output_dir.mkdir(parents=True, exist_ok=True)
+                
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                file_name = f"{'comp_' if comp_mode_active else ''}{timestamp}.csv"
+                file_path = output_dir / file_name
+                
+                display_data["all_results"].to_csv(file_path, index=False)
+                rprint(f"\n[green]✅ Results exported to: {file_path}[/green]")
             except Exception as export_error:
                 rprint(f"\n[red]❌ Export failed: {export_error}[/red]")
 
@@ -1097,80 +1303,146 @@ def review(
 
 
 def _display_portfolio_table(df, display_columns):
-    """Display portfolio analysis results in a formatted table."""
+    """Display portfolio analysis results in multiple focused tables."""
     if df.empty:
         rprint("[yellow]No data to display[/yellow]")
         return
 
+    # Display 3 focused tables with logical groupings
+    _display_summary_table(df)
+    rprint()  # Add spacing
+    _display_performance_table(df)
+    rprint()  # Add spacing
+    _display_risk_table(df)
+
+
+def _display_summary_table(df):
+    """Display strategy identification and ranking overview."""
     table = Table(
-        title="📊 Top Portfolio Analysis Results",
+        title="📊 Strategy Overview & Rankings",
         show_header=True,
         header_style="bold magenta",
     )
-
-    # Add rank column
-    table.add_column("Rank", style="cyan", no_wrap=True, justify="center")
-
-    # Add columns that exist in the dataframe
-    available_columns = []
-    for col in display_columns:
-        if col in df.columns:
-            available_columns.append(col)
-
-            # Customize column styling based on content
-            if "Rate" in col or "%" in col:
-                table.add_column(col, style="yellow", justify="right")
-            elif "Return" in col:
-                table.add_column(col, style="green", justify="right")
-            elif "Score" in col or "Ratio" in col:
-                table.add_column(col, style="white", justify="right")
-            elif "Drawdown" in col:
-                table.add_column(col, style="red", justify="right")
-            elif "Ticker" in col:
-                table.add_column(col, style="bold white", no_wrap=True)
-            else:
-                table.add_column(col, style="blue")
-
-    # Add rows to table
+    
+    # Define columns for summary table
+    table.add_column("Rank", style="cyan", no_wrap=True, justify="center", width=6)
+    table.add_column("Ticker", style="bold white", no_wrap=True, width=10)
+    table.add_column("Strategy Type", style="blue", no_wrap=True, width=14)
+    table.add_column("Score", style="white", justify="right", width=8)
+    table.add_column("Total Return [%]", style="green", justify="right", width=16)
+    table.add_column("Total Trades", style="yellow", justify="right", width=12)
+    
+    # Add rows
     for idx, (_, row) in enumerate(df.head(50).iterrows(), 1):
-        row_data = [str(idx)]  # Rank
+        ticker = str(row.get("Ticker", "N/A"))
+        strategy_type = str(row.get("Strategy Type", "N/A"))
+        score = row.get("Score")
+        total_return = row.get("Total Return [%]")
+        total_trades = row.get("Total Trades")
+        
+        # Format values
+        score_str = f"{float(score):.3f}" if pd.notna(score) else "N/A"
+        
+        if pd.notna(total_return):
+            return_val = float(total_return)
+            color = "green" if return_val > 0 else "red"
+            return_str = f"[{color}]{return_val:+,.2f}%[/{color}]"
+        else:
+            return_str = "N/A"
+        
+        trades_str = str(int(total_trades)) if pd.notna(total_trades) else "N/A"
+        
+        table.add_row(
+            str(idx),
+            ticker,
+            strategy_type,
+            score_str,
+            return_str,
+            trades_str,
+        )
+    
+    console.print(table)
 
-        for col in available_columns:
-            value = row[col]
 
-            # Format specific column types
-            if col == "Win Rate [%]" and pd.notna(value):
-                try:
-                    row_data.append(f"{float(value):.1f}%")
-                except:
-                    row_data.append(str(value))
-            elif "Return" in col and pd.notna(value):
-                try:
-                    color = "green" if float(value) > 0 else "red"
-                    row_data.append(f"[{color}]{float(value):+.2f}%[/{color}]")
-                except:
-                    row_data.append(str(value))
-            elif col == "Max Drawdown [%]" and pd.notna(value):
-                try:
-                    row_data.append(f"[red]{float(value):.2f}%[/red]")
-                except:
-                    row_data.append(str(value))
-            elif col in [
-                "Score",
-                "Sharpe Ratio",
-                "Profit Factor",
-                "Expectancy per Trade",
-                "Sortino Ratio",
-            ] and pd.notna(value):
-                try:
-                    row_data.append(f"{float(value):.3f}")
-                except:
-                    row_data.append(str(value))
-            else:
-                row_data.append(str(value) if pd.notna(value) else "N/A")
+def _display_performance_table(df):
+    """Display trade performance and profitability metrics."""
+    table = Table(
+        title="💰 Trade Performance Metrics",
+        show_header=True,
+        header_style="bold magenta",
+    )
+    
+    # Define columns for performance table
+    table.add_column("Rank", style="cyan", no_wrap=True, justify="center", width=6)
+    table.add_column("Ticker", style="bold white", no_wrap=True, width=10)
+    table.add_column("Win Rate [%]", style="yellow", justify="right", width=14)
+    table.add_column("Profit Factor", style="green", justify="right", width=14)
+    table.add_column("Expectancy/Trade", style="white", justify="right", width=16)
+    
+    # Add rows
+    for idx, (_, row) in enumerate(df.head(50).iterrows(), 1):
+        ticker = str(row.get("Ticker", "N/A"))
+        win_rate = row.get("Win Rate [%]")
+        profit_factor = row.get("Profit Factor")
+        expectancy = row.get("Expectancy per Trade")
+        
+        # Format values
+        win_rate_str = f"{float(win_rate):.2f}%" if pd.notna(win_rate) else "N/A"
+        pf_str = f"{float(profit_factor):.3f}" if pd.notna(profit_factor) else "N/A"
+        
+        if pd.notna(expectancy):
+            exp_val = float(expectancy)
+            color = "green" if exp_val > 0 else "red"
+            exp_str = f"[{color}]${exp_val:,.2f}[/{color}]"
+        else:
+            exp_str = "N/A"
+        
+        table.add_row(
+            str(idx),
+            ticker,
+            win_rate_str,
+            pf_str,
+            exp_str,
+        )
+    
+    console.print(table)
 
-        table.add_row(*row_data)
 
+def _display_risk_table(df):
+    """Display risk-adjusted metrics and drawdown analysis."""
+    table = Table(
+        title="⚠️  Risk Assessment",
+        show_header=True,
+        header_style="bold magenta",
+    )
+    
+    # Define columns for risk table
+    table.add_column("Rank", style="cyan", no_wrap=True, justify="center", width=6)
+    table.add_column("Ticker", style="bold white", no_wrap=True, width=10)
+    table.add_column("Sharpe Ratio", style="green", justify="right", width=13)
+    table.add_column("Sortino Ratio", style="blue", justify="right", width=14)
+    table.add_column("Max Drawdown [%]", style="red", justify="right", width=17)
+    
+    # Add rows
+    for idx, (_, row) in enumerate(df.head(50).iterrows(), 1):
+        ticker = str(row.get("Ticker", "N/A"))
+        sharpe = row.get("Sharpe Ratio")
+        sortino = row.get("Sortino Ratio")
+        max_dd = row.get("Max Drawdown [%]")
+        
+        # Format values
+        sharpe_str = f"{float(sharpe):.3f}" if pd.notna(sharpe) else "N/A"
+        sortino_str = f"{float(sortino):.3f}" if pd.notna(sortino) else "N/A"
+        dd_str = f"[red]{float(max_dd):.2f}%[/red]" if pd.notna(max_dd) else "N/A"
+        
+        table.add_row(
+            str(idx),
+            ticker,
+            sharpe_str,
+            sortino_str,
+            dd_str,
+        )
+    
     console.print(table)
 
 

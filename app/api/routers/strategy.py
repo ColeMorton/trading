@@ -8,7 +8,10 @@ This router provides endpoints for all strategy-related commands:
 - sector-compare: Cross-sector performance comparison
 """
 
-from fastapi import APIRouter, Depends
+import json
+from typing import Optional
+
+from fastapi import APIRouter, Body, Depends, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.database import get_db
@@ -45,9 +48,13 @@ async def strategy_run(
         "fast_period": 20,
         "slow_period": 50,
         "strategy_type": "SMA",
-        "direction": "Long"
+        "direction": "Long",
+        "webhook_url": "https://your-n8n.com/webhook/abc123"
     }
     ```
+    
+    **Webhook Support:**
+    Include `webhook_url` to receive a callback when the job completes.
     """
     # Create job record
     job = await JobService.create_job(
@@ -56,6 +63,8 @@ async def strategy_run(
         command_group="strategy",
         command_name="run",
         parameters=request.model_dump(),
+        webhook_url=request.webhook_url,
+        webhook_headers=request.webhook_headers,
     )
 
     # Enqueue to ARQ worker
@@ -72,7 +81,8 @@ async def strategy_run(
 
 @router.post("/sweep", response_model=JobResponse)
 async def strategy_sweep(
-    request: StrategySweepRequest,
+    request: StrategySweepRequest = Body(...),
+    # Dependencies
     db: AsyncSession = Depends(get_db),
     api_key: APIKey = Depends(require_scope("strategy")),
 ):
@@ -81,8 +91,23 @@ async def strategy_sweep(
 
     Tests multiple parameter combinations to find optimal settings.
     This is a long-running operation that always executes in the background.
+    
+    **Accepts both form-encoded and JSON data.**
 
-    Example:
+    Form-encoded example (key-value pairs):
+    ```
+    ticker: "AAPL"
+    fast_range_min: 5
+    fast_range_max: 50
+    slow_range_min: 10
+    slow_range_max: 200
+    min_trades: 50
+    step: 5
+    config_path: "app/cli/profiles/strategies/minimum.yaml"
+    webhook_url: "https://your-n8n.com/webhook/abc123"
+    ```
+    
+    JSON example:
     ```json
     {
         "ticker": "AAPL",
@@ -90,9 +115,25 @@ async def strategy_sweep(
         "fast_range_max": 50,
         "slow_range_min": 10,
         "slow_range_max": 200,
-        "min_trades": 50
+        "min_trades": 50,
+        "step": 5,
+        "webhook_url": "https://your-n8n.com/webhook/abc123"
     }
     ```
+    
+    Or with array format:
+    ```json
+    {
+        "ticker": "AAPL",
+        "fast_range": [5, 50],
+        "slow_range": [10, 200],
+        "step": 5,
+        "webhook_url": "https://your-n8n.com/webhook/abc123"
+    }
+    ```
+    
+    **Webhook Support:**
+    Include `webhook_url` to receive a callback when the sweep completes.
     """
     job = await JobService.create_job(
         db=db,
@@ -100,6 +141,8 @@ async def strategy_sweep(
         command_group="strategy",
         command_name="sweep",
         parameters=request.model_dump(),
+        webhook_url=request.webhook_url,
+        webhook_headers=request.webhook_headers,
     )
 
     # Enqueue to ARQ worker
@@ -131,9 +174,13 @@ async def strategy_review(
         "ticker": "BTC-USD",
         "fast_period": 9,
         "slow_period": 21,
-        "strategy_type": "SMA"
+        "strategy_type": "SMA",
+        "webhook_url": "https://your-n8n.com/webhook/abc123"
     }
     ```
+    
+    **Webhook Support:**
+    Include `webhook_url` to receive a callback when the review completes.
     """
     job = await JobService.create_job(
         db=db,
@@ -141,6 +188,8 @@ async def strategy_review(
         command_group="strategy",
         command_name="review",
         parameters=request.model_dump(),
+        webhook_url=request.webhook_url,
+        webhook_headers=request.webhook_headers,
     )
 
     # Enqueue to ARQ worker
@@ -169,9 +218,13 @@ async def sector_compare(
     Example:
     ```json
     {
-        "output_format": "json"
+        "output_format": "json",
+        "webhook_url": "https://your-n8n.com/webhook/abc123"
     }
     ```
+    
+    **Webhook Support:**
+    Include `webhook_url` to receive a callback when the comparison completes.
     """
     job = await JobService.create_job(
         db=db,
@@ -179,6 +232,8 @@ async def sector_compare(
         command_group="strategy",
         command_name="sector-compare",
         parameters=request.model_dump(),
+        webhook_url=request.webhook_url,
+        webhook_headers=request.webhook_headers,
     )
 
     # Enqueue to ARQ worker

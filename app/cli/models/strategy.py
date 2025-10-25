@@ -20,6 +20,7 @@ class StrategyType(str, Enum):
     MACD = "MACD"
     ATR = "ATR"
     SMA_ATR = "SMA_ATR"
+    COMP = "COMP"
 
 
 class MarketType(str, Enum):

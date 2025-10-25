@@ -18,29 +18,16 @@ numpy = ">=1.16.5,<2.0.0"
 yfinance = "^0.2.41"
 seaborn = "^0.13.2"
 polars = "^1.5.0"
-flask = "^3.0.3"
-jupyter = "^1.1.1"
-notebook = "^7.2.2"
-ipywidgets = "^8.1.5"
-pybit = "^5.8.0"
 python-dotenv = "^1.0.1"
-langchain = "^0.3.4"
-langchain-community = "^0.3.3"
-langchain-experimental = "^0.3.2"
-langchain-ollama = "^0.2.0"
-tabulate = "^0.9.0"
 skfolio = "^0.6.0"
 fastapi = "^0.110.0"
 uvicorn = "^0.27.0"
 pydantic = "^2.6.0"
-strawberry-graphql = {version = "^0.236.0", extras = ["fastapi"]}
 psutil = "^7.0.0"
-langchain-anthropic = "^0.3.13"
 asyncpg = "^0.29.0"
 sqlalchemy = "^2.0.25"
 alembic = "^1.13.0"
 redis = "^5.0.1"
-prisma = "^0.11.0"
 pydantic-settings = "^2.9.1"
 vectorbt = "^0.28.0"
 pyarrow = "^20.0.0"
@@ -48,16 +35,12 @@ cachetools = "^6.1.0"
 typer = "^0.9.0"
 rich = "^13.0.0"
 pyyaml = "^6.0.0"
-kaleido = "0.2.1"
 plotly = "5.24.1"
-anywidget = "^0.9.0"
-jsonschema = "^4.25.1"
-jsonschema-specifications = "^2025.4.1"
 arq = "^0.25.0"
 bcrypt = "^4.0.0"
-psycopg2-binary = "^2.9.0"
-greenlet = "^3.0.0"
 sqlmodel = "^0.0.27"
+aiohttp = "^3.9.0"
+httpx = "^0.27.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
@@ -66,21 +49,13 @@ pytest-cov = "^6.1.1"
 black = "^24.0.0"
 isort = "^5.13.0"
 ruff = "^0.8.0"
-flake8 = "^7.0.0"
-flake8-docstrings = "^1.7.0"
-flake8-bugbear = "^24.0.0"
 mypy = "^1.8.0"
-pylint = "^3.0.0"
 bandit = "^1.7.0"
-vulture = "^2.11"
 pre-commit = "^3.6.0"
-autoflake = "^2.3.1"
-autopep8 = "^2.3.2"
 types-requests = "^2.32.0.20250602"
 pytest-mock = "^3.14.1"
 pytest-timeout = "^2.4.0"
 pytest-xdist = "^3.7.0"
-hypothesis = "^6.135.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -144,11 +119,7 @@ module = [
     "yfinance.*",
     "seaborn.*",
     "polars.*",
-    "pybit.*",
-    "langchain.*",
     "skfolio.*",
-    "strawberry.*",
-    "prisma.*",
     "plotly.*",
     "pandas_ta.*",
     "ta.*"

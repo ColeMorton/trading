@@ -22,32 +22,30 @@ PORTFOLIO = [
     "MSTR",
     "PLTR",
     "HIMS",
-    "SMR",
+    "NRG",
     "TSLA",
     "NVDA",
-    # "EDU",
-    # "PDD",
-    # "QCOM",
-    # "AFL",
-    # "NVDA",
-    # "NTES",
+    "UNH",
+    "AMAT",
+    "PWR",
+    "NVDA",
+    "NTES",
     "BRK-B",
     "MA",
-    "AMAT",
     "TPR",
     "AVGO",
-    "TTWO",
+    "TTWO"
 ]
 
 # PORTFOLIO = ["ETH-USD", "SOL-USD", "ETHFI-USD", "SUI20947-USD"]
 
 # PORTFOLIO = ['SPY', 'QQQ']
 
-NEXT = ["EME", "APP", "GOOGL"]
+NEXT = ["BILI", "ANET", "QCOM", "XYZ"]
 
 # NEXT = [
 #     'BTC-USD',
-#   "XMR-USD",
+#   "XMR-USD",dailt
 #   "LTC-USD",
 #   "TRX-USD"
 # ]

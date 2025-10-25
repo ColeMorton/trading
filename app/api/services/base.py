@@ -53,8 +53,11 @@ class BaseCommandService:
             timeout: Optional timeout in seconds
 
         Returns:
-            Dict with stdout, stderr, and return code
+            Dict with stdout, stderr, return code, and error categorization
         """
+        import logging
+        logger = logging.getLogger(__name__)
+        
         try:
             process = await asyncio.create_subprocess_exec(
                 *command,
@@ -70,21 +73,53 @@ class BaseCommandService:
                 )
             except asyncio.TimeoutError:
                 process.kill()
-                raise TimeoutError(f"Command timed out after {timeout} seconds")
+                logger.error(f"Command timed out: {' '.join(command)}")
+                return {
+                    "stdout": "",
+                    "stderr": f"Command timed out after {timeout} seconds",
+                    "return_code": -1,
+                    "success": False,
+                    "error_type": "TIMEOUT_ERROR",
+                    "error": f"Command timed out after {timeout} seconds",
+                }
+
+            success = process.returncode == 0
+            
+            if not success:
+                logger.error(
+                    f"CLI command failed: {' '.join(command)}",
+                    extra={
+                        "returncode": process.returncode,
+                        "stderr": stderr.decode("utf-8") if stderr else "",
+                    }
+                )
 
             return {
                 "stdout": stdout.decode("utf-8") if stdout else "",
                 "stderr": stderr.decode("utf-8") if stderr else "",
                 "return_code": process.returncode,
-                "success": process.returncode == 0,
+                "success": success,
             }
 
+        except FileNotFoundError as e:
+            # Specific error for missing executable
+            logger.critical(f"trading-cli not found: {e}", extra={"command": command})
+            return {
+                "stdout": "",
+                "stderr": f"trading-cli executable not found in PATH",
+                "return_code": -1,
+                "success": False,
+                "error_type": "EXECUTABLE_NOT_FOUND",
+                "error": f"trading-cli not found: {str(e)}",
+            }
         except Exception as e:
+            logger.exception(f"Unexpected error executing command: {' '.join(command)}")
             return {
                 "stdout": "",
                 "stderr": str(e),
                 "return_code": -1,
                 "success": False,
+                "error_type": "UNKNOWN_ERROR",
                 "error": str(e),
             }
 

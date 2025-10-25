@@ -8,12 +8,13 @@ This guide provides best practices and patterns for integrating with the Trading
 
 1. [Authentication](#authentication)
 2. [Error Handling](#error-handling)
-3. [Real-time Progress Streaming](#real-time-progress-streaming)
-4. [Pagination](#pagination)
-5. [Caching Strategies](#caching-strategies)
-6. [Rate Limiting](#rate-limiting)
-7. [Frontend Integration](#frontend-integration)
-8. [Performance Optimization](#performance-optimization)
+3. [Webhook Callbacks](#webhook-callbacks)
+4. [Real-time Progress Streaming](#real-time-progress-streaming)
+5. [Pagination](#pagination)
+6. [Caching Strategies](#caching-strategies)
+7. [Rate Limiting](#rate-limiting)
+8. [Frontend Integration](#frontend-integration)
+9. [Performance Optimization](#performance-optimization)
 
 ---
 
@@ -150,6 +151,180 @@ except requests.HTTPError as e:
         log_error(f"API error: {e}")
         raise
 ```
+
+---
+
+## Webhook Callbacks
+
+### Overview
+
+Webhook callbacks provide the most efficient way to handle async jobs. Instead of polling or maintaining an SSE connection, the API will POST results to your endpoint when the job completes.
+
+**Perfect for:**
+- N8N workflows
+- Zapier integrations
+- Serverless functions
+- Event-driven architectures
+
+### Basic Usage
+
+Add `webhook_url` to any POST request:
+
+```json
+{
+  "ticker": "AAPL",
+  "fast_period": 20,
+  "slow_period": 50,
+  "webhook_url": "https://your-n8n.com/webhook/abc123"
+}
+```
+
+### Webhook Payload
+
+When the job completes (success or failure), the API will POST this payload to your webhook URL:
+
+```json
+{
+  "job_id": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "completed",
+  "command_group": "strategy",
+  "command_name": "sweep",
+  "progress": 100,
+  "parameters": {
+    "ticker": "AAPL",
+    "fast_range_min": 5,
+    "fast_range_max": 50
+  },
+  "result_path": "/path/to/results.json",
+  "result_data": {
+    "sweep_run_id": "abc123",
+    "best_result": {...}
+  },
+  "error_message": null,
+  "created_at": "2025-10-20T10:00:00Z",
+  "started_at": "2025-10-20T10:00:05Z",
+  "completed_at": "2025-10-20T10:15:30Z",
+  "webhook_sent_at": "2025-10-20T10:15:30Z"
+}
+```
+
+### Custom Headers
+
+Add custom headers to webhook requests:
+
+```json
+{
+  "ticker": "AAPL",
+  "webhook_url": "https://your-app.com/webhook",
+  "webhook_headers": {
+    "Authorization": "Bearer your-token",
+    "X-Custom-Header": "custom-value"
+  }
+}
+```
+
+### N8N Integration Example
+
+**Step 1:** Create Webhook Node in N8N
+- Add a "Webhook" node
+- Copy the webhook URL (e.g., `https://your-n8n.com/webhook/abc123`)
+
+**Step 2:** Make API Request with Webhook
+```javascript
+// HTTP Request Node in N8N
+{
+  "method": "POST",
+  "url": "http://your-api/api/v1/strategy/sweep",
+  "headers": {
+    "X-API-Key": "{{ $credentials.api_key }}"
+  },
+  "body": {
+    "ticker": "AAPL",
+    "fast_range_min": 5,
+    "fast_range_max": 50,
+    "webhook_url": "{{ $node['Webhook'].json['headers']['x-webhook-url'] }}"
+  }
+}
+```
+
+**Step 3:** Process Results
+Your webhook node receives the full results automatically - no polling needed!
+
+### Python Example
+
+```python
+from flask import Flask, request
+
+app = Flask(__name__)
+
+@app.route('/webhook', methods=['POST'])
+def handle_webhook():
+    data = request.json
+    
+    if data['status'] == 'completed':
+        # Process results
+        results = data['result_data']
+        print(f"Job {data['job_id']} completed!")
+        print(f"Best result: {results.get('best_result')}")
+        
+        # Do something with results...
+        send_email_notification(results)
+        
+    elif data['status'] == 'failed':
+        print(f"Job {data['job_id']} failed: {data['error_message']}")
+    
+    return {'status': 'received'}, 200
+
+if __name__ == '__main__':
+    app.run(port=5000)
+```
+
+### Webhook Delivery
+
+- **Single attempt**: Webhooks are delivered once with no automatic retries
+- **Timeout**: 30 seconds
+- **Headers**: Includes `Content-Type: application/json`, `User-Agent: TradingAPI-Webhook/1.0`, `X-Job-ID: {job_id}`
+- **Status tracking**: Check `webhook_sent_at` and `webhook_response_status` in job record
+
+### Webhook vs SSE vs Polling
+
+| Method | Best For | Pros | Cons |
+|--------|----------|------|------|
+| **Webhook** | Automation tools, serverless | Zero polling, instant, scalable | Requires public endpoint |
+| **SSE Stream** | Real-time dashboards | Live progress updates | Maintains connection |
+| **Status Polling** | Simple scripts | No infrastructure needed | Inefficient, higher latency |
+
+### Testing Webhooks
+
+Use webhook testing services for development:
+
+**webhook.site:**
+```bash
+# 1. Get a test URL from webhook.site
+# 2. Use it in your request
+curl -X POST "http://localhost:8000/api/v1/strategy/run" \
+  -H "X-API-Key: dev-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ticker": "AAPL",
+    "fast_period": 20,
+    "slow_period": 50,
+    "webhook_url": "https://webhook.site/your-unique-id"
+  }'
+
+# 3. Check webhook.site to see the payload
+```
+
+**requestbin.com:**
+Similar process - creates a temporary endpoint to inspect webhook payloads.
+
+### Security Considerations
+
+- **URL validation**: Any URL is allowed (trust-based system)
+- **HTTPS recommended**: Use HTTPS endpoints in production
+- **Custom headers**: Use for authentication tokens
+- **Verify sender**: Check `User-Agent` and `X-Job-ID` headers
+- **Future**: HMAC signatures planned for payload verification
 
 ---
 

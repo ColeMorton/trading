@@ -188,7 +188,7 @@ setup-db:
 	poetry run python scripts/setup_database.py
 
 migrate:
-	poetry run python app/database/migrations.py
+	poetry run alembic upgrade head
 
 backup:
 	poetry run python app/database/backup.py create
@@ -206,16 +206,6 @@ list-backups:
 
 cleanup-backups:
 	poetry run python app/database/backup.py cleanup
-
-# Prisma commands
-prisma-generate:
-	poetry run python -m prisma generate
-
-prisma-push:
-	poetry run python -m prisma db push
-
-prisma-studio:
-	poetry run python -m prisma studio
 
 # Combined workflows
 fresh-start: docker-clean docker-build docker-up setup-db
