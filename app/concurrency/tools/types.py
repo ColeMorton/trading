@@ -12,8 +12,8 @@ class StrategyParameters(TypedDict):
     timeframe: dict[str, str | Any]
     type: dict[str, str | Any]
     direction: dict[str, str | Any]
-    fast_period: dict[str, int | str]
-    slow_period: dict[str, int | str]
+    fast_period: NotRequired[dict[str, int | str]]  # For MA/MACD strategies
+    slow_period: NotRequired[dict[str, int | str]]  # For MA/MACD strategies
     signal_period: NotRequired[dict[str, int | str]]  # Required for MACD
     length: NotRequired[dict[str, int | str]]  # Required for ATR
     multiplier: NotRequired[dict[str, float | str]]  # Required for ATR
@@ -135,8 +135,8 @@ class Strategy(TypedDict):
     metrics: NotRequired[
         dict[str, dict[str, float | str]]
     ]  # Field for all portfolio metrics from CSV
-    allocation_score: float
-    allocation: float
+    allocation_score: NotRequired[float]  # Only present when allocation enabled
+    allocation: NotRequired[float]  # Only present when allocation enabled
     original_allocation: NotRequired[float]  # Original allocation from CSV file
 
 
