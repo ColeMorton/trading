@@ -226,7 +226,7 @@ class HorizonCalculator:
         """
         # Pre-allocate list with estimated size
         max(100, len(positions) // 10)  # Rough estimate
-        horizon_returns = []
+        horizon_returns: list[float] = []
         horizon_returns_append = (
             horizon_returns.append
         )  # Local reference for faster append

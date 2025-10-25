@@ -93,8 +93,8 @@ class RiskAccuracyValidator:
             ValidationResult with validation outcome and diagnostics
         """
         messages = []
-        warnings = []
-        corrective_actions = []
+        warnings: list[str] = []
+        corrective_actions: list[str] = []
         quality_factors = []
 
         thresholds = self.thresholds[self.validation_level]
@@ -414,8 +414,8 @@ class RiskAccuracyValidator:
             ValidationResult with covariance matrix validation
         """
         messages = []
-        warnings = []
-        corrective_actions = []
+        warnings: list[str] = []
+        corrective_actions: list[str] = []
         quality_factors = []
 
         thresholds = self.thresholds[self.validation_level]
@@ -668,8 +668,8 @@ class RiskAccuracyValidator:
             ValidationResult with weight validation
         """
         messages = []
-        warnings = []
-        corrective_actions = []
+        warnings: list[str] = []
+        corrective_actions: list[str] = []
 
         # 1. Shape validation
         if len(weights) != len(strategy_names):

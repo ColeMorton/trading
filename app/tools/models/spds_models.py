@@ -372,7 +372,7 @@ class BatchAnalysisResult:
         successful_items = len([r for r in self.results.values() if not r.warnings])
 
         # Signal distribution
-        signal_counts = {}
+        signal_counts: dict[str, int] = {}
         for result in self.results.values():
             signal_type = result.exit_signal.signal_type.value
             signal_counts[signal_type] = signal_counts.get(signal_type, 0) + 1

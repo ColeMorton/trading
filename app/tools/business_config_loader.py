@@ -127,7 +127,7 @@ class BusinessConfigLoader:
             )
 
         # Load and merge parent configurations
-        merged_config = {}
+        merged_config: dict[str, Any] = {}
         for parent_path in parent_configs:
             # Handle composition references (e.g., "file.yaml#section")
             parent_config = self._load_parent_config(parent_path, current_path)
@@ -385,7 +385,7 @@ class BusinessConfigLoader:
         Returns:
             Dict[str, List[str]]: Available configs by category
         """
-        configs = {"trading": [], "assets": [], "portfolios": []}
+        configs: dict[str, list[str]] = {"trading": [], "assets": [], "portfolios": []}
 
         for category in configs:
             category_dir = self.config_dir / category

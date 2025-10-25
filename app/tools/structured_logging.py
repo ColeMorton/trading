@@ -427,7 +427,7 @@ def log_method(logger: StructuredLogger | None = None):
 
 
 # Singleton logger registry
-_loggers = {}
+_loggers: dict[str, logging.Logger] = {}
 
 
 def get_logger(

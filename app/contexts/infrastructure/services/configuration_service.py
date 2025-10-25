@@ -32,7 +32,7 @@ class ConfigurationService:
         """Initialize the configuration service."""
         self.config_dir = Path(config_dir) if config_dir else Path("config")
         self.logger = logger or logging.getLogger(__name__)
-        self._config_cache = {}
+        self._config_cache: dict[str, dict[str, Any]] = {}
 
     def load_config(self, config_name: str, use_cache: bool = True) -> dict[str, Any]:
         """Load configuration from file."""
@@ -141,7 +141,7 @@ class ConfigurationService:
 
     def list_configs(self) -> List[str]:
         """List all available configuration files."""
-        configs = []
+        configs: list[str] = []
 
         if not self.config_dir.exists():
             return configs
