@@ -448,17 +448,17 @@ def create_ma_config(**kwargs) -> MAConfig:
     return ConfigFactory.create_config("SMA", **kwargs)
 
 
-def create_macd_config(**kwargs) -> MACDConfig:
+def create_macd_config(**kwargs) -> MAConfig | MACDConfig | MeanReversionConfig | RangeConfig:
     """Create MACD strategy configuration."""
     return ConfigFactory.create_config("MACD", **kwargs)
 
 
-def create_mean_reversion_config(**kwargs) -> MeanReversionConfig:
+def create_mean_reversion_config(**kwargs) -> MAConfig | MACDConfig | MeanReversionConfig | RangeConfig:
     """Create Mean Reversion strategy configuration."""
     return ConfigFactory.create_config("MEAN_REVERSION", **kwargs)
 
 
-def create_range_config(**kwargs) -> RangeConfig:
+def create_range_config(**kwargs) -> MAConfig | MACDConfig | MeanReversionConfig | RangeConfig:
     """Create Range strategy configuration."""
     return ConfigFactory.create_config("RANGE", **kwargs)
 

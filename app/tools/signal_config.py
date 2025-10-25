@@ -6,6 +6,7 @@ with named constants, parameter validation, and documentation.
 """
 
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any, TypedDict
 
@@ -191,7 +192,7 @@ class SignalConfigManager:
         if log is None:
             # Create a default logger if none provided
             self.log, _, _, _ = setup_logging(
-                "signal_config", Path("./logs"), "signal_config.log"
+                "signal_config", "./logs", "signal_config.log"  # type: ignore[arg-type]
             )
         else:
             self.log = log
@@ -275,7 +276,7 @@ class SignalConfigManager:
         Args:
             config_updates: Dictionary of configuration updates
         """
-        self._update_config(self.metrics_config, config_updates)
+        self._update_config(self.metrics_config, config_updates)  # type: ignore[arg-type]
         self._validate_metrics_config()
 
     def update_filter_config(self, config_updates: dict[str, Any]) -> None:
@@ -284,7 +285,7 @@ class SignalConfigManager:
         Args:
             config_updates: Dictionary of configuration updates
         """
-        self._update_config(self.filter_config, config_updates)
+        self._update_config(self.filter_config, config_updates)  # type: ignore[arg-type]
         self._validate_filter_config()
 
     def update_quality_config(self, config_updates: dict[str, Any]) -> None:
@@ -293,7 +294,7 @@ class SignalConfigManager:
         Args:
             config_updates: Dictionary of configuration updates
         """
-        self._update_config(self.quality_config, config_updates)
+        self._update_config(self.quality_config, config_updates)  # type: ignore[arg-type]
         self._validate_quality_config()
 
     def update_horizon_config(self, config_updates: dict[str, Any]) -> None:
@@ -302,7 +303,7 @@ class SignalConfigManager:
         Args:
             config_updates: Dictionary of configuration updates
         """
-        self._update_config(self.horizon_config, config_updates)
+        self._update_config(self.horizon_config, config_updates)  # type: ignore[arg-type]
         self._validate_horizon_config()
 
     def update_conversion_config(self, config_updates: dict[str, Any]) -> None:
@@ -311,7 +312,7 @@ class SignalConfigManager:
         Args:
             config_updates: Dictionary of configuration updates
         """
-        self._update_config(self.conversion_config, config_updates)
+        self._update_config(self.conversion_config, config_updates)  # type: ignore[arg-type]
         self._validate_conversion_config()
 
     def _update_config(self, config: dict[str, Any], updates: dict[str, Any]) -> None:
