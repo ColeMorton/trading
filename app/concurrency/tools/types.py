@@ -211,43 +211,84 @@ class PortfolioMetrics(TypedDict):
 # Legacy type definitions kept for backward compatibility
 class StrategyConfig(TypedDict):
     """Configuration type definition for strategy parameters.
+    
+    This is a flexible config used in concurrency analysis where different
+    strategies may have different required fields. Most fields are NotRequired
+    to accommodate various strategy types.
 
-    Required Fields:
+    Common Fields:
         TICKER (str): Ticker symbol to analyze
+        BASE_DIR (str): Base directory for operations
+        STRATEGY_TYPE (str): Type of strategy
+        DIRECTION (str): Trading direction
+
+    MA/MACD Strategy Fields:
         FAST_PERIOD (int): Period for short moving average or MACD fast line
         SLOW_PERIOD (int): Period for long moving average or MACD slow line
-        USE_RSI (bool): Whether to enable RSI filtering
-        STOP_LOSS (float): Stop loss percentage
+        SIGNAL_PERIOD (int): Period for MACD signal line
+        USE_SMA (bool): Whether to use Simple Moving Average instead of EMA
 
-    Optional Fields:
-        RSI_WINDOW (NotRequired[int]): Period for RSI calculation (required if USE_RSI is True)
-        RSI_THRESHOLD (NotRequired[int]): RSI threshold for signal filtering (required if USE_RSI is True)
-        SIGNAL_PERIOD (NotRequired[int]): Period for MACD signal line (makes it a MACD strategy)
-        USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
-        USE_HOURLY (NotRequired[bool]): Whether to use hourly timeframe instead of daily
-        EXPECTANCY_PER_MONTH (NotRequired[float]): Expected monthly return
-        DIRECTION (NotRequired[Literal["Long", "Short"]]): Trading direction (default: "Long")
-        LENGTH (NotRequired[int]): ATR calculation period (for ATR strategy)
-        MULTIPLIER (NotRequired[float]): ATR multiplier for stop distance (for ATR strategy)
+    ATR Strategy Fields:
+        LENGTH (int): ATR calculation period
+        MULTIPLIER (float): ATR multiplier for stop distance
+
+    Risk Management:
+        USE_RSI (bool): Whether to enable RSI filtering
+        RSI_WINDOW (int): Period for RSI calculation
+        RSI_THRESHOLD (int): RSI threshold for signal filtering
+        STOP_LOSS (float): Stop loss percentage
+        ALLOCATION (float): Allocation percentage
+
+    Data Options:
+        USE_HOURLY (bool): Whether to use hourly timeframe
+        USE_CURRENT (bool): Whether to use current data
+        REFRESH (bool): Whether to refresh data
     """
 
-    TICKER: str
-    FAST_PERIOD: int
-    SLOW_PERIOD: int
-    USE_RSI: bool
-    STOP_LOSS: NotRequired[float]  # Made optional to match actual implementation
-    ALLOCATION: NotRequired[float]  # Allocation percentage
-    RSI_WINDOW: NotRequired[int]
-    RSI_THRESHOLD: NotRequired[int]
+    # Core fields (commonly present)
+    TICKER: NotRequired[str]
+    BASE_DIR: NotRequired[str]
+    STRATEGY_TYPE: NotRequired[Literal["SMA", "EMA", "MACD", "ATR"]]
+    DIRECTION: NotRequired[Literal["Long", "Short"]]
+    
+    # MA/MACD fields
+    FAST_PERIOD: NotRequired[int]
+    SLOW_PERIOD: NotRequired[int]
     SIGNAL_PERIOD: NotRequired[int]
     USE_SMA: NotRequired[bool]
+    
+    # ATR fields
+    LENGTH: NotRequired[int]
+    MULTIPLIER: NotRequired[float]
+    
+    # Risk management
+    USE_RSI: NotRequired[bool]
+    RSI_WINDOW: NotRequired[int]
+    RSI_THRESHOLD: NotRequired[int]
+    STOP_LOSS: NotRequired[float]
+    ALLOCATION: NotRequired[float]
+    
+    # Data options
     USE_HOURLY: NotRequired[bool]
+    USE_CURRENT: NotRequired[bool]
+    REFRESH: NotRequired[bool]
+    USE_YEARS: NotRequired[bool]
+    YEARS: NotRequired[int | float]
+    
+    # Metrics (added during analysis)
     EXPECTANCY_PER_MONTH: NotRequired[float]
     EXPECTANCY_PER_TRADE: NotRequired[float]
-    DIRECTION: NotRequired[Literal["Long", "Short"]]
-    LENGTH: NotRequired[int]  # ATR calculation period
-    MULTIPLIER: NotRequired[float]  # ATR multiplier
-    STRATEGY_TYPE: NotRequired[Literal["SMA", "EMA", "MACD", "ATR"]]
+    PORTFOLIO_STATS: NotRequired[dict[str, Any]]
+    strategy_id: NotRequired[str]
+    
+    # Alternative naming (for compatibility)
+    ticker: NotRequired[str]  # snake_case alternative
+    timeframe: NotRequired[str]
+    strategy: NotRequired[str]
+    ma_fast: NotRequired[int]
+    ma_slow: NotRequired[int]
+    allocation: NotRequired[float]
+    stop_loss: NotRequired[float]
 
 
 class LegacyRiskMetrics(TypedDict):
@@ -309,6 +350,12 @@ class ConcurrencyStats(TypedDict):
         signal_quality_metrics: NotRequired[Dict[str, Any]]  # Signal quality metrics
         start_date (NotRequired[str]): Start date of analysis period
         end_date (NotRequired[str]): End date of analysis period
+        
+    Additional Optional Fields (added during analysis):
+        total_expectancy: Total expectancy across all strategies
+        diversification_multiplier: Benefit from diversification
+        independence_multiplier: Benefit from strategy independence
+        activity_multiplier: Benefit from activity patterns
     """
 
     total_periods: int
@@ -325,9 +372,13 @@ class ConcurrencyStats(TypedDict):
     risk_concentration_index: float
     risk_metrics: dict[str, float]
     signal_metrics: LegacySignalMetrics
-    signal_quality_metrics: NotRequired[dict[str, Any]]  # Signal quality metrics
+    signal_quality_metrics: NotRequired[dict[str, Any]]
     start_date: NotRequired[str]
     end_date: NotRequired[str]
+    total_expectancy: NotRequired[float]
+    diversification_multiplier: NotRequired[float]
+    independence_multiplier: NotRequired[float]
+    activity_multiplier: NotRequired[float]
 
 
 class StrategyData(TypedDict):
