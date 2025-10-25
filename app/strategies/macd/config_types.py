@@ -9,39 +9,26 @@ from typing import TypedDict
 
 from typing_extensions import NotRequired
 
+from app.core.types.config import BaseStrategyConfig
 
-class PortfolioConfig(TypedDict, total=False):
-    """Configuration type definition for MACD cross strategy portfolio analysis.
 
-    Required Fields:
-        TICKER (Union[str, List[str]]): Single ticker or list of tickers to analyze
-        BASE_DIR (str): Base directory for file operations
-
-    Optional Fields:
-        USE_CURRENT (NotRequired[bool]): Whether to use current market data
-        USE_HOURLY (NotRequired[bool]): Whether to use hourly data
-        REFRESH (NotRequired[bool]): Whether to force regeneration of signals
-        DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
-        USE_YEARS (NotRequired[bool]): Whether to limit data by years
-        YEARS (NotRequired[float]): Number of years of data to use
-        SHORT_WINDOW_START (NotRequired[int]): Start of short-term EMA window range
-        SHORT_WINDOW_END (NotRequired[int]): End of short-term EMA window range
-        LONG_WINDOW_START (NotRequired[int]): Start of long-term EMA window range
-        LONG_WINDOW_END (NotRequired[int]): End of long-term EMA window range
-        SIGNAL_WINDOW_START (NotRequired[int]): Start of signal line window range
-        SIGNAL_WINDOW_END (NotRequired[int]): End of signal line window range
-        STEP (NotRequired[int]): Step size for window range increments
-        MINIMUMS (NotRequired[Dict[str, Union[int, float]]]): Minimum thresholds for filtering
+class PortfolioConfig(BaseStrategyConfig, total=False):
+    """
+    Configuration for MACD cross strategy portfolio analysis.
+    
+    Extends BaseStrategyConfig with MACD-specific parameter fields.
+    
+    MACD-Specific Fields:
+        SHORT_WINDOW_START (int): Start of short-term EMA window range
+        SHORT_WINDOW_END (int): End of short-term EMA window range
+        LONG_WINDOW_START (int): End of long-term EMA window range
+        LONG_WINDOW_END (int): End of long-term EMA window range
+        SIGNAL_WINDOW_START (int): Start of signal line window range
+        SIGNAL_WINDOW_END (int): End of signal line window range
+        STEP (int): Step size for window range increments
     """
 
-    TICKER: str | list[str]
-    BASE_DIR: str
-    USE_CURRENT: NotRequired[bool]
-    USE_HOURLY: NotRequired[bool]
-    REFRESH: NotRequired[bool]
-    DIRECTION: NotRequired[str]
-    USE_YEARS: NotRequired[bool]
-    YEARS: NotRequired[float]
+    # MACD-Specific Optional Fields
     SHORT_WINDOW_START: NotRequired[int]
     SHORT_WINDOW_END: NotRequired[int]
     LONG_WINDOW_START: NotRequired[int]
@@ -49,9 +36,6 @@ class PortfolioConfig(TypedDict, total=False):
     SIGNAL_WINDOW_START: NotRequired[int]
     SIGNAL_WINDOW_END: NotRequired[int]
     STEP: NotRequired[int]
-    SORT_BY: NotRequired[str]
-    SORT_ASC: NotRequired[bool]
-    MINIMUMS: NotRequired[dict[str, int | float]]
 
 
 # No default configuration - all parameters must come from YAML profiles

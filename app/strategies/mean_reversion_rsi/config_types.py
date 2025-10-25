@@ -2,49 +2,37 @@
 Configuration Type Definitions
 
 This module provides centralized TypedDict definitions for configuration
-across the mean reversion strategy modules.
+across the mean reversion RSI strategy modules.
 """
 
 from typing import TypedDict
 
 from typing_extensions import NotRequired
 
+from app.core.types.config import BaseStrategyConfig
 
-class PortfolioConfig(TypedDict, total=False):
-    """Configuration type definition for portfolio analysis.
 
-    Required Fields:
-        TICKER (Union[str, List[str]]): Single ticker or list of tickers to analyze
-        BASE_DIR (str): Base directory for file operations
-
-    Optional Fields:
-        USE_CURRENT (NotRequired[bool]): Whether to use current market data
-        USE_HOURLY (NotRequired[bool]): Whether to use hourly data
-        REFRESH (NotRequired[bool]): Whether to force regeneration of signals
-        DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
-        USE_YEARS (NotRequired[bool]): Whether to limit data by years
-        YEARS (NotRequired[float]): Number of years of data to use
-        CHANGE_PCT_START (NotRequired[float]): Starting percentage for price change range
-        CHANGE_PCT_END (NotRequired[float]): Ending percentage for price change range
-        CHANGE_PCT_STEP (NotRequired[float]): Step size for price change range
-        RSI_WINDOW (NotRequired[int]): Period for RSI calculation
-        RSI_START (NotRequired[int]): Starting value for RSI threshold range
-        RSI_END (NotRequired[int]): Ending value for RSI threshold range
-        RSI_STEP (NotRequired[int]): Step size for RSI threshold range
-        MIN_TRADES (NotRequired[int]): Minimum number of trades required
-        MIN_PROFIT_FACTOR (NotRequired[float]): Minimum profit factor required
-        MIN_WIN_RATE (NotRequired[float]): Minimum win rate required
-        MAX_DRAWDOWN (NotRequired[float]): Maximum allowable drawdown
+class PortfolioConfig(BaseStrategyConfig, total=False):
+    """
+    Configuration for mean reversion RSI strategy analysis.
+    
+    Extends BaseStrategyConfig with mean reversion RSI-specific parameter fields.
+    
+    Mean Reversion RSI-Specific Fields:
+        CHANGE_PCT_START (float): Starting percentage for price change range
+        CHANGE_PCT_END (float): Ending percentage for price change range
+        CHANGE_PCT_STEP (float): Step size for price change range
+        RSI_WINDOW (int): Period for RSI calculation
+        RSI_START (int): Starting value for RSI threshold range
+        RSI_END (int): Ending value for RSI threshold range
+        RSI_STEP (int): Step size for RSI threshold range
+        MIN_TRADES (int): Minimum number of trades required
+        MIN_PROFIT_FACTOR (float): Minimum profit factor required
+        MIN_WIN_RATE (float): Minimum win rate required
+        MAX_DRAWDOWN (float): Maximum allowable drawdown
     """
 
-    TICKER: str | list[str]
-    BASE_DIR: str
-    USE_CURRENT: NotRequired[bool]
-    USE_HOURLY: NotRequired[bool]
-    REFRESH: NotRequired[bool]
-    DIRECTION: NotRequired[str]
-    USE_YEARS: NotRequired[bool]
-    YEARS: NotRequired[float]
+    # Mean Reversion RSI-Specific Optional Fields
     CHANGE_PCT_START: NotRequired[float]
     CHANGE_PCT_END: NotRequired[float]
     CHANGE_PCT_STEP: NotRequired[float]
@@ -52,6 +40,10 @@ class PortfolioConfig(TypedDict, total=False):
     RSI_START: NotRequired[int]
     RSI_END: NotRequired[int]
     RSI_STEP: NotRequired[int]
+    MIN_TRADES: NotRequired[int]
+    MIN_PROFIT_FACTOR: NotRequired[float]
+    MIN_WIN_RATE: NotRequired[float]
+    MAX_DRAWDOWN: NotRequired[float]
 
 
 # Default configuration

@@ -9,43 +9,28 @@ from typing import TypedDict
 
 from typing_extensions import NotRequired
 
+from app.core.types.config import BaseStrategyConfig
 
-class ATRConfig(TypedDict, total=False):
-    """Configuration type definition for ATR trailing stop strategy analysis.
 
-    Required Fields:
-        TICKER (Union[str, List[str]]): Single ticker or list of tickers to analyze
-        BASE_DIR (str): Base directory for file operations
-
-    Optional Fields:
-        USE_CURRENT (NotRequired[bool]): Whether to use current market data
-        USE_HOURLY (NotRequired[bool]): Whether to use hourly data
-        REFRESH (NotRequired[bool]): Whether to force regeneration of signals
-        DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
-        USE_YEARS (NotRequired[bool]): Whether to limit data by years
-        YEARS (NotRequired[float]): Number of years of data to use
-        ATR_LENGTH_START (NotRequired[int]): Start of ATR length window range
-        ATR_LENGTH_END (NotRequired[int]): End of ATR length window range
-        ATR_MULTIPLIER_START (NotRequired[float]): Start of ATR multiplier range
-        ATR_MULTIPLIER_END (NotRequired[float]): End of ATR multiplier range
-        ATR_MULTIPLIER_STEP (NotRequired[float]): Step size for multiplier increments
-        STEP (NotRequired[int]): Step size for ATR length increments
-        USE_SYNTHETIC (NotRequired[bool]): Whether to use synthetic ticker pairs
-        TICKER_1 (NotRequired[str]): First ticker for synthetic pairs
-        TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
-        SORT_BY (NotRequired[str]): Field to sort results by
-        SORT_ASC (NotRequired[bool]): Whether to sort in ascending order
-        MINIMUMS (NotRequired[Dict[str, Union[int, float]]]): Minimum thresholds for filtering
+class ATRConfig(BaseStrategyConfig, total=False):
+    """
+    Configuration for ATR trailing stop strategy analysis.
+    
+    Extends BaseStrategyConfig with ATR-specific parameter fields.
+    
+    ATR-Specific Fields:
+        ATR_LENGTH_START (int): Start of ATR length window range
+        ATR_LENGTH_END (int): End of ATR length window range
+        ATR_MULTIPLIER_START (float): Start of ATR multiplier range
+        ATR_MULTIPLIER_END (float): End of ATR multiplier range
+        ATR_MULTIPLIER_STEP (float): Step size for multiplier increments
+        STEP (int): Step size for ATR length increments
+        USE_SYNTHETIC (bool): Whether to use synthetic ticker pairs
+        TICKER_1 (str): First ticker for synthetic pairs
+        TICKER_2 (str): Second ticker for synthetic pairs
     """
 
-    TICKER: str | list[str]
-    BASE_DIR: str
-    USE_CURRENT: NotRequired[bool]
-    USE_HOURLY: NotRequired[bool]
-    REFRESH: NotRequired[bool]
-    DIRECTION: NotRequired[str]
-    USE_YEARS: NotRequired[bool]
-    YEARS: NotRequired[float]
+    # ATR-Specific Optional Fields
     ATR_LENGTH_START: NotRequired[int]
     ATR_LENGTH_END: NotRequired[int]
     ATR_MULTIPLIER_START: NotRequired[float]
@@ -55,9 +40,6 @@ class ATRConfig(TypedDict, total=False):
     USE_SYNTHETIC: NotRequired[bool]
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
-    SORT_BY: NotRequired[str]
-    SORT_ASC: NotRequired[bool]
-    MINIMUMS: NotRequired[dict[str, int | float]]
 
 
 # Alias for compatibility with other strategy modules

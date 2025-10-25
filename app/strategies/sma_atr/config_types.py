@@ -6,72 +6,71 @@ This module defines configuration types and structures for the SMA_ATR strategy.
 
 from typing import Any, TypedDict
 
+from typing_extensions import NotRequired
 
-class Config(TypedDict, total=False):
+from app.core.types.config import BaseStrategyConfig
+
+
+class Config(BaseStrategyConfig, total=False):
     """
-    Configuration type for SMA_ATR strategy.
-
-    This TypedDict defines all possible configuration options for SMA_ATR strategies,
+    Configuration for SMA_ATR strategy analysis.
+    
+    Extends BaseStrategyConfig with SMA_ATR-specific parameter fields,
     combining SMA crossover parameters with ATR trailing stop parameters.
+    
+    SMA_ATR-Specific Fields:
+        FAST_PERIOD_RANGE (tuple): Fast SMA period range
+        SLOW_PERIOD_RANGE (tuple): Slow SMA period range
+        FAST_PERIOD (int): Specific fast period (for single execution)
+        SLOW_PERIOD (int): Specific slow period (for single execution)
+        ATR_LENGTH_RANGE (tuple): ATR length range
+        ATR_MULTIPLIER_RANGE (tuple): ATR multiplier range
+        ATR_MULTIPLIER_STEP (float): Step size for ATR multiplier sweep
+        ATR_LENGTH (int): Specific ATR length (for single execution)
+        ATR_MULTIPLIER (float): Specific ATR multiplier (for single execution)
+        USE_STOP_LOSS (bool): Whether to use stop loss
+        STOP_LOSS_PERCENT (float): Stop loss percentage
+        USE_SCANNER (bool): Whether running in scanner mode
+        SCANNER_LIST (str): Name of scanner list file
+        USE_4HOUR (bool): Whether to use 4-hour timeframe
+        USE_2DAY (bool): Whether to use 2-day timeframe
+        USE_DATE (str): Specific date to use
+        MULTI_TICKER (bool): Whether processing multiple tickers
+        EXPORT_TO_CSV (bool): Whether to export to CSV
+        SAVE_CHARTS (bool): Whether to save charts
     """
-
-    # Ticker Configuration
-    TICKER: str | list[str]
-    TICKER_1: str | None  # For synthetic pairs
-    TICKER_2: str | None  # For synthetic pairs
 
     # SMA Parameters
-    FAST_PERIOD_RANGE: tuple[int, int]  # Fast SMA period range
-    SLOW_PERIOD_RANGE: tuple[int, int]  # Slow SMA period range
-    FAST_PERIOD: int | None  # Specific fast period (for single execution)
-    SLOW_PERIOD: int | None  # Specific slow period (for single execution)
+    FAST_PERIOD_RANGE: NotRequired[tuple[int, int]]
+    SLOW_PERIOD_RANGE: NotRequired[tuple[int, int]]
+    FAST_PERIOD: NotRequired[int]
+    SLOW_PERIOD: NotRequired[int]
 
     # ATR Parameters
-    ATR_LENGTH_RANGE: tuple[int, int]  # ATR length range
-    ATR_MULTIPLIER_RANGE: tuple[float, float]  # ATR multiplier range
-    ATR_MULTIPLIER_STEP: float  # Step size for ATR multiplier sweep
-    ATR_LENGTH: int | None  # Specific ATR length (for single execution)
-    ATR_MULTIPLIER: float | None  # Specific ATR multiplier (for single execution)
+    ATR_LENGTH_RANGE: NotRequired[tuple[int, int]]
+    ATR_MULTIPLIER_RANGE: NotRequired[tuple[float, float]]
+    ATR_MULTIPLIER_STEP: NotRequired[float]
+    ATR_LENGTH: NotRequired[int]
+    ATR_MULTIPLIER: NotRequired[float]
 
-    # Strategy Configuration
-    STRATEGY_TYPES: list[str]
-    STRATEGY_TYPE: str
-    DIRECTION: str  # "Long" or "Short"
+    # Additional Data Options
+    USE_4HOUR: NotRequired[bool]
+    USE_2DAY: NotRequired[bool]
+    USE_DATE: NotRequired[str]
 
-    # Data Configuration
-    USE_HOURLY: bool
-    USE_4HOUR: bool
-    USE_2DAY: bool
-    USE_YEARS: bool
-    YEARS: int | None
-    USE_SYNTHETIC: bool
-    USE_CURRENT: bool
-    USE_DATE: str | None
-
-    # Scanner Configuration
-    USE_SCANNER: bool
-    SCANNER_LIST: str | None
+    # Scanner Options
+    USE_SCANNER: NotRequired[bool]
+    SCANNER_LIST: NotRequired[str]
 
     # Risk Management
-    USE_STOP_LOSS: bool
-    STOP_LOSS_PERCENT: float | None
+    USE_STOP_LOSS: NotRequired[bool]
+    STOP_LOSS_PERCENT: NotRequired[float]
 
-    # Filtering and Quality Control
-    MINIMUMS: dict[str, Any]
-    USE_GBM: bool
-
-    # Portfolio Management
-    ALLOCATION: float | None
-    ACCOUNT_VALUE: float | None
-
-    # Output Configuration
-    SORT_BY: str
-    SORT_ASC: bool
-    BASE_DIR: str
-    REFRESH: bool
-    MULTI_TICKER: bool
-
-    # Display Options
-    DISPLAY_RESULTS: bool
-    EXPORT_TO_CSV: bool
-    SAVE_CHARTS: bool
+    # Output Options
+    MULTI_TICKER: NotRequired[bool]
+    EXPORT_TO_CSV: NotRequired[bool]
+    SAVE_CHARTS: NotRequired[bool]
+    USE_GBM: NotRequired[bool]
+    TICKER_1: NotRequired[str]
+    TICKER_2: NotRequired[str]
+    USE_SYNTHETIC: NotRequired[bool]

@@ -11,6 +11,8 @@ from typing import Literal, TypedDict
 
 from typing_extensions import NotRequired
 
+from app.core.types.config import BaseStrategyConfig
+
 
 # Import new configuration system for migration path
 try:
@@ -85,87 +87,60 @@ class HeatmapConfig(TypedDict, total=False):
     DIRECTION: NotRequired[Literal["Long", "Short"]]
 
 
-class Config(TypedDict, total=False):
+class Config(BaseStrategyConfig, total=False):
     """
-    Configuration type definition for market scanner and portfolio analysis.
+    Configuration type definition for MA cross strategy analysis.
+    
+    Extends BaseStrategyConfig with MA-specific parameter fields.
 
-    Required Fields:
-        TICKER (Union[str, List[str]]): Single ticker or list of tickers to analyze
-                                      (base asset for synthetic pairs)
+    MA-Specific Fields:
         WINDOWS (int): Maximum window size for parameter analysis
         SCANNER_LIST (str): Name of the scanner list file (for scanner mode)
-        BASE_DIR (str): Base directory for file operations
-
-    Optional Fields:
-        # Scanner Mode Options
-        USE_SCANNER (NotRequired[bool]): Whether running in scanner mode
-        REFRESH (NotRequired[bool]): Whether to refresh existing results
-
-        # Moving Average Options
-        STRATEGY_TYPES (NotRequired[List[str]]): List of strategy types to execute in sequence (e.g., ["SMA", "EMA"])
-        DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
-
-        # Data Options
-        USE_HOURLY (NotRequired[bool]): Whether to use hourly data
-        USE_YEARS (NotRequired[bool]): Whether to limit data by years
-        YEARS (NotRequired[float]): Number of years of data to use
-
-        # Synthetic Pair Options
-        USE_SYNTHETIC (NotRequired[bool]): Whether to create synthetic pairs
-        TICKER_1 (NotRequired[str]): First ticker for synthetic pairs
-        TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
-
-        # Portfolio Analysis Options
-        USE_CURRENT (NotRequired[bool]): Whether to emphasize current window combinations
-        MINIMUMS (NotRequired[Dict]): Dictionary of minimum filtering values including:
-            - TRADES: Minimum number of trades required
-            - WIN_RATE: Minimum required win rate for portfolio filtering
-            - EXPECTANCY_PER_TRADE: Minimum required expectancy value
-            - PROFIT_FACTOR: Minimum required profit factor value
-            - SCORE: Minimum required score value
-            - SORTINO_RATIO: Minimum required Sortino ratio
-            - BEATS_BNH: Minimum required percentage by which strategy beats Buy and Hold
-        SORT_BY (NotRequired[str]): Field to sort results by
-        ALLOCATION (NotRequired[float]): Allocation percentage for the strategy (0-100)
-        STOP_LOSS (NotRequired[float]): Stop loss percentage for the strategy (0-100)
-
-        # Advanced Options
-        USE_GBM (NotRequired[bool]): Whether to use Geometric Brownian Motion
+        SHORT_WINDOW_START (int): Start of short MA window range
+        SHORT_WINDOW_END (int): End of short MA window range
+        LONG_WINDOW_START (int): Start of long MA window range
+        LONG_WINDOW_END (int): End of long MA window range
+        STEP (int): Step size for window increments
+        FAST_PERIOD (int): Specific fast MA period (for single strategy execution)
+        SLOW_PERIOD (int): Specific slow MA period (for single strategy execution)
+        USE_SMA (bool): Whether to use SMA (vs EMA)
+        USE_SCANNER (bool): Whether running in scanner mode
+        USE_SYNTHETIC (bool): Whether to create synthetic pairs
+        TICKER_1 (str): First ticker for synthetic pairs
+        TICKER_2 (str): Second ticker for synthetic pairs
+        ALLOCATION (float): Allocation percentage for the strategy (0-100)
+        STOP_LOSS (float): Stop loss percentage for the strategy (0-100)
+        USE_GBM (bool): Whether to use Geometric Brownian Motion
+        USE_RSI (bool): Whether to use RSI filtering
+        RSI_WINDOW (int): RSI window size
+        RSI_THRESHOLD (int | float): RSI threshold value
     """
 
-    # Required Fields
-    TICKER: str | list[str]
+    # MA-Specific Required Fields
     WINDOWS: int
     SCANNER_LIST: str
-    BASE_DIR: str
 
-    # Scanner Mode Options
+    # MA-Specific Optional Fields
     USE_SCANNER: NotRequired[bool]
-    REFRESH: NotRequired[bool]
-
-    # Moving Average Options
-    STRATEGY_TYPES: NotRequired[list[str]]
-    DIRECTION: NotRequired[str]
-
-    # Data Options
-    USE_HOURLY: NotRequired[bool]
-    USE_YEARS: NotRequired[bool]
-    YEARS: NotRequired[float]
-
-    # Synthetic Pair Options
+    SHORT_WINDOW_START: NotRequired[int]
+    SHORT_WINDOW_END: NotRequired[int]
+    LONG_WINDOW_START: NotRequired[int]
+    LONG_WINDOW_END: NotRequired[int]
+    STEP: NotRequired[int]
+    FAST_PERIOD: NotRequired[int]
+    SLOW_PERIOD: NotRequired[int]
+    USE_SMA: NotRequired[bool]
     USE_SYNTHETIC: NotRequired[bool]
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
-
-    # Portfolio Analysis Options
-    USE_CURRENT: NotRequired[bool]
-    MINIMUMS: NotRequired[dict[str, int | float]]
-    SORT_BY: NotRequired[str]
-    ALLOCATION: NotRequired[float]  # Allocation percentage (0-100)
-    STOP_LOSS: NotRequired[float]  # Stop loss percentage (0-100)
-
-    # Advanced Options
+    ALLOCATION: NotRequired[float]
+    STOP_LOSS: NotRequired[float]
     USE_GBM: NotRequired[bool]
+    USE_RSI: NotRequired[bool]
+    RSI_WINDOW: NotRequired[int]
+    RSI_THRESHOLD: NotRequired[int | float]
+    RSI_OVERSOLD: NotRequired[int | float]
+    RSI_OVERBOUGHT: NotRequired[int | float]
 
 
 # Default configuration
