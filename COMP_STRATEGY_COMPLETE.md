@@ -9,11 +9,13 @@ Both COMP strategy execution and review commands are now fully functional and te
 ## Part 1: COMP Strategy Execution
 
 ### Command
+
 ```bash
 trading-cli strategy run {TICKER} --comp
 ```
 
 ### What It Does
+
 1. Loads ALL strategies from `data/raw/strategies/{ticker}.csv`
 2. Calculates position status for each component strategy across historical data
 3. Aggregates positions to determine percentage of strategies in position
@@ -25,6 +27,7 @@ trading-cli strategy run {TICKER} --comp
 7. Exports results to `data/outputs/compound/{ticker}.csv`
 
 ### Examples
+
 ```bash
 # Basic usage
 trading-cli strategy run BTC-USD --comp
@@ -45,11 +48,13 @@ trading-cli strategy run BTC-USD --comp --dry-run
 ## Part 2: COMP Strategy Review
 
 ### Command
+
 ```bash
 trading-cli strategy review --comp --ticker {TICKER}
 ```
 
 ### What It Does
+
 1. Loads COMP strategy results from `data/outputs/compound/{ticker}.csv`
 2. Aggregates multiple ticker results if specified
 3. Sorts by specified column (default: Score)
@@ -58,6 +63,7 @@ trading-cli strategy review --comp --ticker {TICKER}
 6. Optionally exports to `data/outputs/review/comp_{timestamp}.csv`
 
 ### Examples
+
 ```bash
 # Single ticker review
 trading-cli strategy review --comp --ticker BTC-USD
@@ -83,6 +89,7 @@ trading-cli strategy review --comp --ticker BTC-USD --output-format raw
 All COMP strategy outputs include full backtest metrics:
 
 ### Return Metrics
+
 - Total Return [%]
 - Annualized Return
 - Cumulative Returns
@@ -90,6 +97,7 @@ All COMP strategy outputs include full backtest metrics:
 - Beats BNH [%]
 
 ### Risk Metrics
+
 - Sharpe Ratio
 - Sortino Ratio
 - Calmar Ratio
@@ -100,6 +108,7 @@ All COMP strategy outputs include full backtest metrics:
 - Value at Risk
 
 ### Trade Statistics
+
 - Total Trades
 - Win Rate [%]
 - Profit Factor
@@ -112,6 +121,7 @@ All COMP strategy outputs include full backtest metrics:
 - Avg Losing Trade Duration
 
 ### Advanced Metrics
+
 - Score (composite performance score)
 - Skew
 - Kurtosis
@@ -123,13 +133,16 @@ All COMP strategy outputs include full backtest metrics:
 ## Real-World Test Results
 
 ### Tested Assets
+
 1. **BTC-USD** (5 component strategies)
+
    - Score: 1.2297
    - Total Return: 25,112.96%
    - Win Rate: 37.74%
    - Sharpe: 1.24
 
 2. **NVDA** (component strategies)
+
    - Score: 1.7695
    - Total Return: 246,588.40%
    - Win Rate: 54.44%
@@ -142,6 +155,7 @@ All COMP strategy outputs include full backtest metrics:
    - Sharpe: 1.25
 
 ### Multi-Ticker Review
+
 ```bash
 $ trading-cli strategy review --comp --ticker BTC-USD,NVDA,PLTR --sort-by "Total Return [%]"
 
@@ -156,6 +170,7 @@ Results (sorted by Total Return):
 ## File Structure
 
 ### Input Files
+
 ```
 data/raw/strategies/
 ├── BTC-USD.csv       # Component strategies for BTC
@@ -165,6 +180,7 @@ data/raw/strategies/
 ```
 
 ### Output Files
+
 ```
 data/outputs/compound/
 ├── BTC-USD.csv       # COMP backtest results
@@ -181,21 +197,25 @@ data/outputs/review/
 ## Key Design Decisions
 
 ### 1. Score Integration
+
 - COMP strategies now calculate Score using same formula as other strategies
 - Enables fair comparison across strategy types
 - Uses confidence-adjusted normalization for statistical validity
 
 ### 2. Mutual Exclusivity
+
 - `--comp` is mutually exclusive with profile/best/current/date modes
 - Simplifies user experience and avoids confusion
 - Clear error messages guide users to correct usage
 
 ### 3. File Organization
+
 - COMP uses separate output directory (`data/outputs/compound/`)
 - Different from portfolios_best for clear separation
 - Ticker-specific files (not date-specific)
 
 ### 4. CSV Compatibility
+
 - COMP CSV has same column structure as other strategies
 - Enables reuse of existing display/export logic
 - Ready for copy/paste into spreadsheets
@@ -205,12 +225,15 @@ data/outputs/review/
 ## Quantitative Analysis Features
 
 ### Component Strategy Aggregation
+
 The 50% threshold creates emergent properties:
+
 - **Quality Filter**: Only enters when majority consensus exists
 - **Trend Confirmation**: Higher threshold = stronger signal
 - **Whipsaw Reduction**: Requires sustained agreement
 
 ### Win Rate Paradox Explained
+
 - COMP may have lower win rate than component average
 - This is mathematically correct (different entry/exit timing)
 - Focus on win/loss ratio and total return instead
@@ -221,24 +244,28 @@ The 50% threshold creates emergent properties:
 ## Usage Workflow
 
 ### Step 1: Generate COMP Strategy
+
 ```bash
 trading-cli strategy run BTC-USD --comp
 # Output: data/outputs/compound/BTC-USD.csv
 ```
 
 ### Step 2: Review Results
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD
 # Displays table and CSV output
 ```
 
 ### Step 3: Compare Multiple Assets
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD,NVDA,PLTR --sort-by "Sharpe Ratio"
 # Ranks by risk-adjusted returns
 ```
 
 ### Step 4: Export for Analysis
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD,NVDA,PLTR --export
 # Exports to: data/outputs/review/comp_{timestamp}.csv
@@ -249,6 +276,7 @@ trading-cli strategy review --comp --ticker BTC-USD,NVDA,PLTR --export
 ## Success Metrics
 
 ### Code Quality
+
 - ✅ No linter errors
 - ✅ Follows existing patterns
 - ✅ Proper error handling
@@ -256,6 +284,7 @@ trading-cli strategy review --comp --ticker BTC-USD,NVDA,PLTR --export
 - ✅ Clear user messaging
 
 ### Functionality
+
 - ✅ Executes successfully
 - ✅ Calculates positions correctly
 - ✅ Aggregates properly
@@ -270,6 +299,7 @@ trading-cli strategy review --comp --ticker BTC-USD,NVDA,PLTR --export
 - ✅ Raw format works
 
 ### Performance
+
 - ✅ Executes in ~5 seconds (4056 data points, 5 strategies)
 - ✅ Review is instant (<1 second)
 - ✅ Scales well with multiple tickers
@@ -279,6 +309,7 @@ trading-cli strategy review --comp --ticker BTC-USD,NVDA,PLTR --export
 ## Command Reference
 
 ### Available Commands
+
 ```bash
 # EXECUTION
 trading-cli strategy run {TICKER} --comp                         # Run COMP backtest
@@ -300,6 +331,7 @@ trading-cli strategy review --comp --ticker {T} --output-format raw  # CSV only
 ## Files Created/Modified Summary
 
 ### New Files (8)
+
 1. `app/strategies/comp/__init__.py`
 2. `app/strategies/comp/calculator.py`
 3. `app/strategies/comp/strategy.py`
@@ -310,6 +342,7 @@ trading-cli strategy review --comp --ticker {T} --output-format raw  # CSV only
 8. `COMP_REVIEW_IMPLEMENTATION.md`
 
 ### Modified Files (4)
+
 1. `app/cli/models/strategy.py` - Added COMP enum
 2. `app/cli/commands/strategy.py` - Added --comp to run and review
 3. `app/cli/services/strategy_services.py` - Added COMPStrategyService
@@ -320,6 +353,7 @@ trading-cli strategy review --comp --ticker {T} --output-format raw  # CSV only
 ## Testing Checklist - All Passed ✅
 
 ### Execution Tests
+
 - [x] Single ticker execution
 - [x] Multiple tickers
 - [x] Different timeframes (4-hour, 2-day)
@@ -330,6 +364,7 @@ trading-cli strategy review --comp --ticker {T} --output-format raw  # CSV only
 - [x] CSV export with all columns
 
 ### Review Tests
+
 - [x] Single ticker review
 - [x] Multiple ticker review
 - [x] Custom sorting (Score, Total Return, Sharpe, etc.)
@@ -355,16 +390,19 @@ trading-cli strategy review --comp --ticker {T} --output-format raw  # CSV only
 ## Future Enhancement Ideas
 
 ### High Priority
+
 1. **Configurable Threshold**: `--threshold 60` for 60% instead of 50%
 2. **Weighted Aggregation**: Weight components by Score or Sharpe Ratio
 3. **Multi-Level Thresholds**: Different position sizes at 33%, 50%, 66%
 
 ### Medium Priority
+
 4. **COMP Visualization**: Chart showing component positions over time
 5. **Component Breakdown Export**: CSV showing which strategies were in position when
 6. **Comparison View**: COMP vs best individual component side-by-side
 
 ### Low Priority
+
 7. **Dynamic Thresholds**: Adjust threshold based on market volatility
 8. **Correlation Analysis**: Show inter-strategy correlation for components
 9. **Contribution Attribution**: Which components drove the best/worst trades
@@ -374,11 +412,13 @@ trading-cli strategy review --comp --ticker {T} --output-format raw  # CSV only
 ## Documentation
 
 **User-Facing:**
+
 - Command examples in docstrings
 - Error messages with hints
 - Help text for all flags
 
 **Developer-Facing:**
+
 - Inline code comments
 - Function docstrings
 - Implementation guides (this document)
@@ -390,6 +430,7 @@ trading-cli strategy review --comp --ticker {T} --output-format raw  # CSV only
 ✅ **PRODUCTION READY**
 
 Both `strategy run --comp` and `strategy review --comp` commands are:
+
 - Fully implemented
 - Thoroughly tested
 - Well documented
@@ -407,21 +448,25 @@ Both `strategy run --comp` and `strategy review --comp` commands are:
 ### For New Users
 
 **1. Generate COMP strategy for Bitcoin:**
+
 ```bash
 trading-cli strategy run BTC-USD --comp
 ```
 
 **2. Review the results:**
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD
 ```
 
 **3. Compare multiple assets:**
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD,NVDA,PLTR
 ```
 
 **4. Export for spreadsheet analysis:**
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD,NVDA,PLTR --export
 ```
@@ -433,6 +478,7 @@ That's it! You now have a powerful ensemble strategy system. 🚀
 ## Support
 
 For issues or questions:
+
 1. Check error messages (they include hints)
 2. Verify component strategy CSV exists
 3. Review the implementation docs
@@ -443,4 +489,3 @@ For issues or questions:
 **Last Updated**: October 25, 2025
 **Version**: 1.0.0
 **Status**: Production Ready ✅
-

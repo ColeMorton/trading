@@ -52,7 +52,7 @@ from app.tools.strategy.signal_utils import (
 
 
 def _extract_equity_data_if_enabled(
-    portfolio: any,
+    portfolio: Any,
     ticker: str,
     strategy_type: str,
     fast_period: int,
@@ -1672,8 +1672,8 @@ def export_summary_results(
         )
 
         # Log metric type distribution in input data
-        metric_type_counts = {}
-        ticker_strategy_configs = {}
+        metric_type_counts: dict[str, int] = {}
+        ticker_strategy_configs: dict[str, list[dict[str, Any]]] = {}
         for p in portfolios:
             metric_type = p.get("Metric Type", "Unknown")
             metric_type_counts[metric_type] = metric_type_counts.get(metric_type, 0) + 1
@@ -1985,7 +1985,7 @@ def export_summary_results(
         )
 
         # Log final metric type distribution
-        final_metric_counts = {}
+        final_metric_counts: dict[str, int] = {}
         final_cbre_data = []
         for p in reordered_portfolios:
             metric_type = p.get("Metric Type", "Unknown")

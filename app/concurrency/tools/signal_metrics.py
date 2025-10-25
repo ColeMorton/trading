@@ -251,7 +251,7 @@ def calculate_signal_metrics(
 
 
 def _calculate_unique_portfolio_signals(
-    all_signals: list[pd.DataFrame], log: callable
+    all_signals: list[pd.DataFrame], log: Callable
 ) -> pd.DataFrame:
     """
     Calculate unique portfolio signals by removing duplicates across strategies.

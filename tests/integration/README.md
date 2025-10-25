@@ -9,6 +9,7 @@ This directory contains end-to-end integration tests for the webhook functionali
 **Comprehensive pytest-based E2E test with local webhook receiver**
 
 Features:
+
 - ✅ Local webhook server using aiohttp
 - ✅ No external dependencies (runs entirely locally)
 - ✅ Async/await support
@@ -21,6 +22,7 @@ Features:
 **Simple curl-based test using webhook.site**
 
 Features:
+
 - ✅ No Python dependencies
 - ✅ Easy to run manually
 - ✅ Visual debugging via webhook.site
@@ -31,11 +33,13 @@ Features:
 ### For Python Tests
 
 Install dependencies:
+
 ```bash
 poetry install  # Installs all dependencies including aiohttp
 ```
 
 Or with pip:
+
 ```bash
 pip install aiohttp pytest pytest-asyncio requests
 ```
@@ -43,6 +47,7 @@ pip install aiohttp pytest pytest-asyncio requests
 ### For Bash Script
 
 Required tools:
+
 - `curl` - HTTP client
 - `jq` - JSON processor
 - Running API server on localhost:8000
@@ -66,9 +71,10 @@ python tests/integration/test_webhook_e2e.py
 ```
 
 **Expected Output:**
+
 ```
 ============================ test session starts ============================
-tests/integration/test_webhook_e2e.py::test_complete_webhook_flow 
+tests/integration/test_webhook_e2e.py::test_complete_webhook_flow
 ======================================================================
 STEP 1: Submit Strategy Sweep Job
 ======================================================================
@@ -115,6 +121,7 @@ PASSED                                                            [100%]
 ```
 
 **Expected Output:**
+
 ```
 ╔══════════════════════════════════════════════════════════╗
 ║       E2E Webhook Integration Test (Simple)             ║
@@ -241,6 +248,7 @@ export TICKER="AAPL"       # Stock to test with
 ### Test Parameters
 
 The tests use minimal parameters for faster execution:
+
 - `fast_range`: 10-20 (only 2 values)
 - `slow_range`: 20-30 (only 2 values)
 - `step`: 10
@@ -255,12 +263,15 @@ This typically completes in ~30 seconds.
 **Problem:** Webhook not received within timeout
 
 **Solutions:**
+
 1. Check if ARQ worker is running:
+
    ```bash
    docker ps | grep arq
    ```
 
 2. Check worker logs:
+
    ```bash
    docker logs --tail 50 trading_arq_worker
    ```
@@ -276,7 +287,9 @@ This typically completes in ~30 seconds.
 **Problem:** Job completes but webhook not sent
 
 **Solutions:**
+
 1. Check database for webhook delivery status:
+
    ```bash
    docker exec -i trading_postgres psql -U trading_user -d trading_db -c \
      "SELECT webhook_sent_at, webhook_response_status FROM jobs WHERE id = '$JOB_ID';"
@@ -292,7 +305,9 @@ This typically completes in ~30 seconds.
 **Problem:** Connection refused to localhost:8000
 
 **Solutions:**
+
 1. Start the API:
+
    ```bash
    docker-compose up -d
    ```
@@ -314,7 +329,7 @@ on: [push, pull_request]
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest
-    
+
     services:
       postgres:
         image: postgres:15-alpine
@@ -324,33 +339,33 @@ jobs:
           POSTGRES_PASSWORD: trading_password
         ports:
           - 5432:5432
-      
+
       redis:
         image: redis:7-alpine
         ports:
           - 6379:6379
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      
+
       - name: Install dependencies
         run: |
           poetry install
-      
+
       - name: Start API & Worker
         run: |
           docker-compose up -d api worker
           sleep 10  # Wait for services to be ready
-      
+
       - name: Run E2E Tests
         run: |
           pytest tests/integration/test_webhook_e2e.py -v
-      
+
       - name: Show logs on failure
         if: failure()
         run: |
@@ -363,13 +378,14 @@ jobs:
 ### Adding New E2E Tests
 
 1. Add test function to `test_webhook_e2e.py`:
+
    ```python
    @pytest.mark.asyncio
    @pytest.mark.integration
    async def test_my_new_webhook_flow():
        receiver = WebhookReceiver()
        await receiver.start()
-       
+
        try:
            # Your test logic here
            pass
@@ -385,11 +401,13 @@ jobs:
 ### Debugging Tests
 
 Enable verbose logging:
+
 ```bash
 pytest tests/integration/test_webhook_e2e.py -v -s --log-cli-level=DEBUG
 ```
 
 Or run the test directly:
+
 ```python
 python tests/integration/test_webhook_e2e.py
 ```
@@ -397,11 +415,13 @@ python tests/integration/test_webhook_e2e.py
 ## Performance Benchmarks
 
 Typical execution times:
+
 - Python test: ~30-35 seconds
 - Bash script: ~30-35 seconds
 - Most time is spent waiting for sweep to complete
 
 Factors affecting performance:
+
 - Sweep parameter range (smaller = faster)
 - System load
 - Database performance
@@ -410,6 +430,7 @@ Factors affecting performance:
 ## Success Metrics
 
 Test passes when:
+
 - ✅ Job submitted successfully (< 1s)
 - ✅ Webhook received (< 60s)
 - ✅ Status = "completed"
@@ -422,4 +443,3 @@ Test passes when:
 - [Webhook Implementation Guide](../../WEBHOOK_IMPLEMENTATION_SUMMARY.md)
 - [API Integration Guide](../../docs/api/INTEGRATION_GUIDE.md)
 - [Webhook Quick Reference](../../WEBHOOK_QUICK_REFERENCE.md)
-

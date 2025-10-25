@@ -99,7 +99,11 @@ class TestStrategyEndpoints:
             headers={"X-API-Key": TEST_API_KEY},
         )
 
-        assert response.status_code in [200, 201, 202], f"Got {response.status_code}: {response.text}"
+        assert response.status_code in [
+            200,
+            201,
+            202,
+        ], f"Got {response.status_code}: {response.text}"
         data = response.json()
         assert "job_id" in data
         print(f"✓ Strategy sweep job created: {data['job_id']}")

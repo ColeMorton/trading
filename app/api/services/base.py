@@ -56,8 +56,9 @@ class BaseCommandService:
             Dict with stdout, stderr, return code, and error categorization
         """
         import logging
+
         logger = logging.getLogger(__name__)
-        
+
         try:
             process = await asyncio.create_subprocess_exec(
                 *command,
@@ -84,14 +85,14 @@ class BaseCommandService:
                 }
 
             success = process.returncode == 0
-            
+
             if not success:
                 logger.error(
                     f"CLI command failed: {' '.join(command)}",
                     extra={
                         "returncode": process.returncode,
                         "stderr": stderr.decode("utf-8") if stderr else "",
-                    }
+                    },
                 )
 
             return {
@@ -106,11 +107,11 @@ class BaseCommandService:
             logger.critical(f"trading-cli not found: {e}", extra={"command": command})
             return {
                 "stdout": "",
-                "stderr": f"trading-cli executable not found in PATH",
+                "stderr": "trading-cli executable not found in PATH",
                 "return_code": -1,
                 "success": False,
                 "error_type": "EXECUTABLE_NOT_FOUND",
-                "error": f"trading-cli not found: {str(e)}",
+                "error": f"trading-cli not found: {e!s}",
             }
         except Exception as e:
             logger.exception(f"Unexpected error executing command: {' '.join(command)}")

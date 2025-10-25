@@ -26,7 +26,11 @@ async def update_job_status(db_manager, job_id: str, status: str, **kwargs) -> N
         values = {"status": status}
         if status == JobStatus.RUNNING.value:
             values["started_at"] = datetime.utcnow()
-        elif status in [JobStatus.COMPLETED.value, JobStatus.FAILED.value, JobStatus.CANCELLED.value]:
+        elif status in [
+            JobStatus.COMPLETED.value,
+            JobStatus.FAILED.value,
+            JobStatus.CANCELLED.value,
+        ]:
             values["completed_at"] = datetime.utcnow()
 
         values.update(kwargs)
@@ -35,15 +39,19 @@ async def update_job_status(db_manager, job_id: str, status: str, **kwargs) -> N
             update(Job).where(Job.id == uuid.UUID(job_id)).values(**values)
         )
         await session.commit()
-        
+
         # Trigger webhook if job is complete and has webhook_url
-        if status in [JobStatus.COMPLETED.value, JobStatus.FAILED.value, JobStatus.CANCELLED.value]:
+        if status in [
+            JobStatus.COMPLETED.value,
+            JobStatus.FAILED.value,
+            JobStatus.CANCELLED.value,
+        ]:
             # Fetch job with webhook details
             result = await session.execute(
                 select(Job).where(Job.id == uuid.UUID(job_id))
             )
             job = result.scalar_one_or_none()
-            
+
             if job and job.webhook_url:
                 # Send webhook asynchronously (don't block)
                 asyncio.create_task(

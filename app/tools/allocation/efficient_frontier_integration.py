@@ -7,6 +7,7 @@ allocation calculations and price data fetching.
 
 from pathlib import Path
 import sys
+from typing import Any
 
 from app.tools.data_types import DataConfig
 from app.tools.get_data import get_data
@@ -28,7 +29,7 @@ class AllocationOptimizer:
 
     def _run_efficient_frontier_analysis(
         self, assets: list[str], half_rule: bool = True
-    ) -> dict[str, any]:
+    ) -> dict[str, Any]:
         """Run efficient frontier analysis for given assets.
 
         Args:
@@ -193,7 +194,7 @@ class AllocationOptimizer:
 
         return position_values
 
-    def get_efficient_frontier_metrics(self, assets: list[str]) -> dict[str, any]:
+    def get_efficient_frontier_metrics(self, assets: list[str]) -> dict[str, Any]:
         """Get comprehensive efficient frontier analysis metrics.
 
         Args:

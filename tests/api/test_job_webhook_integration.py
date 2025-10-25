@@ -117,7 +117,9 @@ class TestJobWebhookIntegration:
         mock_db_manager = Mock()
 
         # Mock webhook service
-        with patch("app.api.services.webhook_service.WebhookService.notify_job_completion") as mock_notify:
+        with patch(
+            "app.api.services.webhook_service.WebhookService.notify_job_completion"
+        ) as mock_notify:
             mock_notify.return_value = AsyncMock()
 
             # Simulate job completion notification
@@ -143,7 +145,9 @@ class TestJobWebhookIntegration:
         mock_db_manager = Mock()
 
         # Mock webhook send
-        with patch("app.api.services.webhook_service.WebhookService.send_webhook") as mock_send:
+        with patch(
+            "app.api.services.webhook_service.WebhookService.send_webhook"
+        ) as mock_send:
             mock_send.return_value = AsyncMock()
 
             from app.api.services.webhook_service import WebhookService
@@ -181,7 +185,9 @@ class TestJobWebhookIntegration:
         mock_db_manager.get_async_session.return_value = mock_session
 
         # Mock webhook send to return specific status
-        with patch("app.api.services.webhook_service.WebhookService.send_webhook") as mock_send:
+        with patch(
+            "app.api.services.webhook_service.WebhookService.send_webhook"
+        ) as mock_send:
             mock_send.return_value = (200, "OK")
 
             from app.api.services.webhook_service import WebhookService
@@ -225,7 +231,9 @@ class TestJobWebhookErrorHandling:
         mock_db_manager.get_async_session.return_value = mock_session
 
         # Mock webhook failure
-        with patch("app.api.services.webhook_service.WebhookService.send_webhook") as mock_send:
+        with patch(
+            "app.api.services.webhook_service.WebhookService.send_webhook"
+        ) as mock_send:
             mock_send.return_value = (0, "Connection refused")
 
             from app.api.services.webhook_service import WebhookService
@@ -235,4 +243,3 @@ class TestJobWebhookErrorHandling:
 
             # Job status should remain COMPLETED
             assert job.status == JobStatus.COMPLETED
-

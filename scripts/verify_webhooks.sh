@@ -14,7 +14,7 @@ echo ""
 # Check 1: Database schema
 echo -e "${YELLOW}1. Checking database schema...${NC}"
 COLUMNS=$(docker exec -i trading_postgres psql -U trading_user -d trading_db -t -c "
-SELECT COUNT(*) FROM information_schema.columns 
+SELECT COUNT(*) FROM information_schema.columns
 WHERE table_name = 'jobs' AND column_name LIKE 'webhook%';")
 
 if [ "$COLUMNS" -eq 4 ]; then
@@ -27,25 +27,25 @@ fi
 echo ""
 echo -e "${YELLOW}2. Webhook columns in database:${NC}"
 docker exec -i trading_postgres psql -U trading_user -d trading_db -c "
-SELECT column_name, data_type 
-FROM information_schema.columns 
-WHERE table_name = 'jobs' AND column_name LIKE 'webhook%' 
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_name = 'jobs' AND column_name LIKE 'webhook%'
 ORDER BY column_name;"
 
 # Check 3: Recent webhook jobs
 echo ""
 echo -e "${YELLOW}3. Recent jobs with webhooks:${NC}"
 docker exec -i trading_postgres psql -U trading_user -d trading_db -c "
-SELECT 
+SELECT
     LEFT(id::text, 8) as job_id,
     command_group,
     status,
     LEFT(webhook_url, 40) as webhook_url,
     webhook_sent_at IS NOT NULL as sent,
     webhook_response_status as http_code
-FROM jobs 
-WHERE webhook_url IS NOT NULL 
-ORDER BY created_at DESC 
+FROM jobs
+WHERE webhook_url IS NOT NULL
+ORDER BY created_at DESC
 LIMIT 5;"
 
 # Check 4: Worker status
@@ -75,4 +75,3 @@ fi
 echo ""
 echo "========================================"
 echo -e "${GREEN}✅ Verification complete!${NC}"
-

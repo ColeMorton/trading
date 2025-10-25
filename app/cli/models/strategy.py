@@ -7,7 +7,7 @@ including MA Cross and MACD strategies.
 
 from enum import Enum
 
-from pydantic import BaseModel, Field, field_validator, ValidationInfo
+from pydantic import BaseModel, Field, ValidationInfo, field_validator
 
 from .base import BaseConfig, Direction
 
@@ -61,10 +61,7 @@ class StrategyParams(BaseModel):
     def validate_fast_period_range(cls, v, info: ValidationInfo):
         """Ensure fast period max is greater than fast period min."""
         fast_period_min = info.data.get("fast_period_min")
-        if (
-            v is not None
-            and fast_period_min is not None
-        ) and v <= fast_period_min:
+        if (v is not None and fast_period_min is not None) and v <= fast_period_min:
             raise ValueError("Fast period max must be greater than fast period min")
         return v
 
@@ -73,10 +70,7 @@ class StrategyParams(BaseModel):
     def validate_slow_period_range(cls, v, info: ValidationInfo):
         """Ensure slow period max is greater than slow period min."""
         slow_period_min = info.data.get("slow_period_min")
-        if (
-            v is not None
-            and slow_period_min is not None
-        ) and v <= slow_period_min:
+        if (v is not None and slow_period_min is not None) and v <= slow_period_min:
             raise ValueError("Slow period max must be greater than slow period min")
         return v
 
@@ -85,10 +79,7 @@ class StrategyParams(BaseModel):
     def validate_signal_period_range(cls, v, info: ValidationInfo):
         """Ensure signal period max is greater than signal period min."""
         signal_period_min = info.data.get("signal_period_min")
-        if (
-            v is not None
-            and signal_period_min is not None
-        ) and v <= signal_period_min:
+        if (v is not None and signal_period_min is not None) and v <= signal_period_min:
             raise ValueError("Signal period max must be greater than signal period min")
         return v
 
@@ -411,10 +402,7 @@ class StrategyConfig(BaseConfig):
     def validate_fast_period_range(cls, v, info: ValidationInfo):
         """Ensure fast period max is greater than or equal to fast period min."""
         fast_period_min = info.data.get("fast_period_min")
-        if (
-            v is not None
-            and fast_period_min is not None
-        ) and v < fast_period_min:
+        if (v is not None and fast_period_min is not None) and v < fast_period_min:
             raise ValueError(
                 "Fast period max must be greater than or equal to fast period min"
             )
@@ -425,10 +413,7 @@ class StrategyConfig(BaseConfig):
     def validate_slow_period_range(cls, v, info: ValidationInfo):
         """Ensure slow period max is greater than or equal to slow period min."""
         slow_period_min = info.data.get("slow_period_min")
-        if (
-            v is not None
-            and slow_period_min is not None
-        ) and v < slow_period_min:
+        if (v is not None and slow_period_min is not None) and v < slow_period_min:
             raise ValueError(
                 "Slow period max must be greater than or equal to slow period min"
             )
@@ -439,10 +424,7 @@ class StrategyConfig(BaseConfig):
     def validate_signal_period_range(cls, v, info: ValidationInfo):
         """Ensure signal period max is greater than or equal to signal period min."""
         signal_period_min = info.data.get("signal_period_min")
-        if (
-            v is not None
-            and signal_period_min is not None
-        ) and v < signal_period_min:
+        if (v is not None and signal_period_min is not None) and v < signal_period_min:
             raise ValueError(
                 "Signal period max must be greater than or equal to signal period min"
             )
@@ -453,10 +435,7 @@ class StrategyConfig(BaseConfig):
     def validate_atr_length_range(cls, v, info: ValidationInfo):
         """Ensure ATR length max is greater than ATR length min."""
         atr_length_min = info.data.get("atr_length_min")
-        if (
-            v is not None
-            and atr_length_min is not None
-        ) and v <= atr_length_min:
+        if (v is not None and atr_length_min is not None) and v <= atr_length_min:
             raise ValueError("ATR length max must be greater than ATR length min")
         return v
 
@@ -466,8 +445,7 @@ class StrategyConfig(BaseConfig):
         """Ensure ATR multiplier max is greater than ATR multiplier min."""
         atr_multiplier_min = info.data.get("atr_multiplier_min")
         if (
-            v is not None
-            and atr_multiplier_min is not None
+            v is not None and atr_multiplier_min is not None
         ) and v <= atr_multiplier_min:
             raise ValueError(
                 "ATR multiplier max must be greater than ATR multiplier min"
@@ -493,10 +471,7 @@ class StrategyConfig(BaseConfig):
     def validate_periods(cls, v, info: ValidationInfo):
         """Ensure slow period is greater than fast period when both are specified."""
         fast_period = info.data.get("fast_period")
-        if (
-            v is not None
-            and fast_period is not None
-        ) and v <= fast_period:
+        if (v is not None and fast_period is not None) and v <= fast_period:
             raise ValueError("Slow period must be greater than fast period")
         return v
 

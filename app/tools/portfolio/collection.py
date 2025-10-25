@@ -832,7 +832,7 @@ def test_bkng_metric_aggregation(log: Callable | None = None) -> bool:
 
 
 def export_best_portfolios(
-    portfolios: list[dict[str, Any]], config: Config, log: callable
+    portfolios: list[dict[str, Any]], config: Config, log: Callable
 ) -> bool:
     """Export the best portfolios to a CSV file with deduplication.
 

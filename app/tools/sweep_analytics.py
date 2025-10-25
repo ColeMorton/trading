@@ -483,7 +483,7 @@ class SweepAnalyticsEngine:
         vol_q1 = sorted(volatilities)[len(volatilities) // 3]
         vol_q3 = sorted(volatilities)[2 * len(volatilities) // 3]
 
-        categories = {"low": [], "medium": [], "high": []}
+        categories: dict[str, list[SweepPerformanceData]] = {"low": [], "medium": [], "high": []}
 
         for data in self.performance_data:
             if data.volatility <= vol_q1:
@@ -544,7 +544,7 @@ class SweepAnalyticsEngine:
 
     def get_outlier_analysis(self) -> dict[str, list[SweepPerformanceData]]:
         """Identify statistical outliers in performance."""
-        outliers = {"exceptional": [], "underperforming": []}
+        outliers: dict[str, list[SweepPerformanceData]] = {"exceptional": [], "underperforming": []}
 
         if not self.performance_data or len(self.performance_data) < 3:
             return outliers

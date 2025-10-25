@@ -7,9 +7,6 @@ across different API endpoints.
 
 from unittest.mock import Mock, patch
 
-import pytest
-from pydantic import ValidationError
-
 from app.api.models.schemas import (
     ConcurrencyAnalyzeRequest,
     SeasonalityRunRequest,
@@ -93,7 +90,9 @@ class TestWebhookParameters:
             webhook_headers={"Authorization": "Bearer token123"},
         )
 
-        assert request_with_headers.webhook_headers == {"Authorization": "Bearer token123"}
+        assert request_with_headers.webhook_headers == {
+            "Authorization": "Bearer token123"
+        }
 
         # Test without headers
         request_without_headers = StrategyRunRequest(
@@ -155,7 +154,6 @@ class TestWebhookEndToEndIntegration:
     @patch("app.api.services.job_service.JobService.create_job")
     def test_webhook_url_passed_to_job_service(self, mock_create_job):
         """Test that webhook URL is passed to job service."""
-        from app.api.routers.strategy import router
 
         # This is a conceptual test - in practice, you'd test this via
         # the actual endpoint with a test client
@@ -178,4 +176,3 @@ class TestWebhookEndToEndIntegration:
 
         # Similar to above - validates that headers flow through
         # This would be tested via actual API calls in integration tests
-

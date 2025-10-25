@@ -19,7 +19,7 @@ from app.tools.portfolio.strategy_types import derive_use_sma
 
 
 def get_best_portfolios_per_strategy_type(
-    portfolios: pl.DataFrame, config: Config, log: callable
+    portfolios: pl.DataFrame, config: Config, log: Callable
 ) -> list[dict]:
     """
     Get the best portfolio for each strategy type based on consistent parameter combinations.
@@ -107,7 +107,7 @@ def get_best_portfolios_per_strategy_type(
 
 
 def get_best_portfolio(
-    portfolios: pl.DataFrame, config: Config, log: callable
+    portfolios: pl.DataFrame, config: Config, log: Callable
 ) -> dict | None:
     """
     Legacy compatibility function - returns single best portfolio.
@@ -128,7 +128,7 @@ def get_best_portfolio(
 
 
 def _get_best_single_strategy_portfolio(
-    portfolios: pl.DataFrame, config: Config, log: callable
+    portfolios: pl.DataFrame, config: Config, log: Callable
 ) -> dict | None:
     """
     Internal function to get best portfolio for a single strategy type.

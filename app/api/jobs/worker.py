@@ -24,9 +24,9 @@ async def startup(ctx: dict[str, Any]) -> None:
     Args:
         ctx: Worker context dictionary
     """
-    import subprocess
     import os
-    
+    import subprocess
+
     print("🔧 Initializing ARQ worker...")
 
     # Verify trading-cli is available BEFORE accepting jobs
@@ -36,7 +36,8 @@ async def startup(ctx: dict[str, Any]) -> None:
             ["trading-cli", "--version"],
             capture_output=True,
             timeout=10,
-            text=True
+            text=True,
+            check=False,
         )
         if result.returncode == 0:
             print(f"✅ trading-cli available: {result.stdout.strip()}")
@@ -59,9 +60,7 @@ async def startup(ctx: dict[str, Any]) -> None:
     ctx["db_manager"] = db_manager
 
     # Create Redis client for progress tracking
-    ctx["redis"] = await create_pool(
-        RedisSettings.from_dsn(settings.REDIS_URL)
-    )
+    ctx["redis"] = await create_pool(RedisSettings.from_dsn(settings.REDIS_URL))
 
     print("✅ ARQ worker initialized successfully!")
 
@@ -181,6 +180,4 @@ async def create_worker_pool() -> Redis:
     Returns:
         Redis pool for ARQ
     """
-    return await create_pool(
-        RedisSettings.from_dsn(settings.REDIS_URL)
-    )
+    return await create_pool(RedisSettings.from_dsn(settings.REDIS_URL))

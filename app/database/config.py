@@ -109,7 +109,7 @@ class DatabaseManager:
             db_url = str(self.settings.database_url)
             if "+asyncpg" in db_url:
                 db_url = db_url.replace("+asyncpg", "")
-            
+
             self._connection_pool = await asyncpg.create_pool(
                 db_url,
                 min_size=5,

@@ -83,18 +83,18 @@ WEBHOOK_DATA=""
 while [ $(($(date +%s) - START_TIME)) -lt $TIMEOUT ]; do
     # Poll webhook.site API for requests
     REQUESTS=$(curl -s "https://webhook.site/token/$WEBHOOK_TOKEN/requests?sorting=newest")
-    
+
     # Check if we have any requests
     REQUEST_COUNT=$(echo "$REQUESTS" | jq -r '.data | length')
-    
+
     if [ "$REQUEST_COUNT" -gt 0 ]; then
         # Get the latest request
         LATEST_REQUEST=$(echo "$REQUESTS" | jq -r '.data[0]')
         REQUEST_CONTENT=$(echo "$LATEST_REQUEST" | jq -r '.content')
-        
+
         # Parse the webhook data
         WEBHOOK_JOB_ID=$(echo "$REQUEST_CONTENT" | jq -r '.job_id')
-        
+
         if [ "$WEBHOOK_JOB_ID" = "$JOB_ID" ]; then
             WEBHOOK_RECEIVED=true
             WEBHOOK_DATA="$REQUEST_CONTENT"
@@ -103,7 +103,7 @@ while [ $(($(date +%s) - START_TIME)) -lt $TIMEOUT ]; do
             break
         fi
     fi
-    
+
     # Show progress
     ELAPSED=$(($(date +%s) - START_TIME))
     echo -ne "   Waiting... ${ELAPSED}s/${TIMEOUT}s\r"
@@ -154,43 +154,43 @@ SWEEP_RUN_ID=$(echo "$RESULT_DATA" | jq -r '.sweep_run_id // .sweep_id // .id //
 
 if [ -n "$SWEEP_RUN_ID" ] && [ "$SWEEP_RUN_ID" != "null" ]; then
     echo "   Sweep Run ID: $SWEEP_RUN_ID"
-    
+
     # Step 5: Fetch best results from API
     echo ""
     echo -e "${YELLOW}📥 Step 5: Fetching best results from API...${NC}"
-    
+
     BEST_RESULT=$(curl -s "$API_URL/api/v1/sweeps/$SWEEP_RUN_ID/best?ticker=$TICKER" \
       -H "X-API-Key: $API_KEY")
-    
+
     RESULT_COUNT=$(echo "$BEST_RESULT" | jq -r '.results | length')
-    
+
     if [ "$RESULT_COUNT" -gt 0 ]; then
         echo -e "${GREEN}✅ Best results fetched${NC}"
-        
+
         FIRST_RESULT=$(echo "$BEST_RESULT" | jq -r '.results[0]')
         RESULT_TICKER=$(echo "$FIRST_RESULT" | jq -r '.ticker')
         RESULT_SCORE=$(echo "$FIRST_RESULT" | jq -r '.score')
         FAST_PERIOD=$(echo "$FIRST_RESULT" | jq -r '.fast_period')
         SLOW_PERIOD=$(echo "$FIRST_RESULT" | jq -r '.slow_period')
-        
+
         echo "   Ticker: $RESULT_TICKER"
         echo "   Score: $RESULT_SCORE"
         echo "   Parameters: $FAST_PERIOD/$SLOW_PERIOD"
-        
+
         # Step 6: Validate data integrity
         echo ""
         echo -e "${YELLOW}🔍 Step 6: Validating data integrity...${NC}"
-        
+
         if [ "$RESULT_TICKER" != "$TICKER" ]; then
             echo -e "${RED}❌ Ticker mismatch: expected $TICKER, got $RESULT_TICKER${NC}"
             exit 1
         fi
-        
+
         if [ "$RESULT_SCORE" = "null" ]; then
             echo -e "${RED}❌ Missing score in result${NC}"
             exit 1
         fi
-        
+
         echo -e "${GREEN}✅ Data integrity validated${NC}"
     else
         echo -e "${YELLOW}⚠️  No results returned from API${NC}"
@@ -221,4 +221,3 @@ echo ""
 echo "View webhook details:"
 echo "https://webhook.site/#!/$WEBHOOK_TOKEN"
 echo ""
-

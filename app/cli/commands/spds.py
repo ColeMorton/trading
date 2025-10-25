@@ -904,7 +904,7 @@ async def _analyze_enhanced_parameter_mode(
         exit_signals = [
             getattr(result, "exit_signal", "UNKNOWN") for result in results.values()
         ]
-        signal_counts = {}
+        signal_counts: dict[str, int] = {}
         for signal in exit_signals:
             signal_counts[str(signal)] = signal_counts.get(str(signal), 0) + 1
         summary["exit_signal_distribution"] = signal_counts

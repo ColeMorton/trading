@@ -6,6 +6,7 @@ This module provides a standardized interface for price data fetching using exis
 """
 
 from pathlib import Path
+from typing import Any
 
 import polars as pl
 
@@ -194,7 +195,7 @@ class PriceDataIntegration:
         except Exception as e:
             return False, f"Invalid symbol {symbol}: {e!s}"
 
-    def get_portfolio_prices(self, portfolio: dict[str, float]) -> dict[str, any]:
+    def get_portfolio_prices(self, portfolio: dict[str, float]) -> dict[str, Any]:
         """Get prices and calculate values for a portfolio.
 
         Args:

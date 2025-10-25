@@ -426,8 +426,8 @@ color bullColor = color.new(#26c6da, 0)
 color bearColor = color.new(#7e57c2, 0)
 color neutralColor = color.new(#3179f5, 0)
 
-oscillatorColor = percentage > threshold ? bullColor : 
-                  percentage < threshold ? bearColor : 
+oscillatorColor = percentage > threshold ? bullColor :
+                  percentage < threshold ? bearColor :
                   neutralColor
 
 // Plot oscillator

@@ -34,7 +34,7 @@ PORTFOLIO = [
     "MA",
     "TPR",
     "AVGO",
-    "TTWO"
+    "TTWO",
 ]
 
 # PORTFOLIO = ["ETH-USD", "SOL-USD", "ETHFI-USD", "SUI20947-USD"]

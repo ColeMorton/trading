@@ -37,7 +37,9 @@ class ConcurrencyService(BaseCommandService):
         await self.update_progress(90, "Processing results...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
@@ -64,7 +66,9 @@ class ConcurrencyService(BaseCommandService):
         await self.update_progress(90, "Finalizing export...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
@@ -91,7 +95,9 @@ class ConcurrencyService(BaseCommandService):
         await self.update_progress(90, "Processing review...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
@@ -121,7 +127,9 @@ class ConcurrencyService(BaseCommandService):
         await self.update_progress(90, "Finalizing portfolio construction...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
@@ -148,7 +156,9 @@ class ConcurrencyService(BaseCommandService):
         await self.update_progress(90, "Processing optimization results...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
@@ -179,7 +189,9 @@ class ConcurrencyService(BaseCommandService):
         await self.update_progress(90, "Processing simulation results...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
@@ -206,7 +218,9 @@ class ConcurrencyService(BaseCommandService):
         await self.update_progress(90, "Processing health results...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
@@ -230,7 +244,9 @@ class ConcurrencyService(BaseCommandService):
         await self.update_progress(90, "Processing demo results...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED

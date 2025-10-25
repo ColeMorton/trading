@@ -39,7 +39,9 @@ class ConfigService(BaseCommandService):
         await self.update_progress(90, "Formatting results...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
@@ -65,7 +67,9 @@ class ConfigService(BaseCommandService):
         await self.update_progress(90, "Formatting configuration...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
@@ -94,7 +98,9 @@ class ConfigService(BaseCommandService):
         await self.update_progress(90, "Processing verification results...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
@@ -122,7 +128,9 @@ class ConfigService(BaseCommandService):
         await self.update_progress(90, "Updating configuration...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
@@ -149,7 +157,9 @@ class ConfigService(BaseCommandService):
         await self.update_progress(90, "Saving changes...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
@@ -177,7 +187,9 @@ class ConfigService(BaseCommandService):
         await self.update_progress(90, "Processing validation results...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED

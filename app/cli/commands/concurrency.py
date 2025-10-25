@@ -975,7 +975,7 @@ def _calculate_strategy_diversification_scores(strategies: list) -> dict:
     diversification_scores = {}
 
     # Count strategy types for rarity calculation
-    type_counts = {}
+    type_counts: dict[str, int] = {}
     for s in strategies:
         type_counts[s["strategy_type"]] = type_counts.get(s["strategy_type"], 0) + 1
 
@@ -1046,7 +1046,7 @@ def _select_diversified_portfolio(
         return strategies
 
     # Group strategies by type (strata)
-    strata = {}
+    strata: dict[str, list[dict[str, Any]]] = {}
     for strategy in strategies:
         stype = strategy["strategy_type"]
         strata.setdefault(stype, []).append(strategy)
@@ -1163,7 +1163,7 @@ def _select_diversified_portfolio(
 
         # Display final type distribution
         if verbose:
-            final_type_counts = {}
+            final_type_counts: dict[str, int] = {}
             for s in portfolio:
                 stype = s["strategy_type"]
                 final_type_counts[stype] = final_type_counts.get(stype, 0) + 1
@@ -1477,7 +1477,7 @@ def construct(
 
                         # Show type distribution
                         rprint("[dim]Strategy type distribution in top 10:[/dim]")
-                        type_counts = {}
+                        type_counts: dict[str, int] = {}
                         for s in strategies[:10]:
                             stype = s["strategy_type"]
                             type_counts[stype] = type_counts.get(stype, 0) + 1

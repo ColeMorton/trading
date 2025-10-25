@@ -8,10 +8,7 @@ This router provides endpoints for all strategy-related commands:
 - sector-compare: Cross-sector performance comparison
 """
 
-import json
-from typing import Optional
-
-from fastapi import APIRouter, Body, Depends, Form
+from fastapi import APIRouter, Body, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.database import get_db
@@ -52,7 +49,7 @@ async def strategy_run(
         "webhook_url": "https://your-n8n.com/webhook/abc123"
     }
     ```
-    
+
     **Webhook Support:**
     Include `webhook_url` to receive a callback when the job completes.
     """
@@ -91,7 +88,7 @@ async def strategy_sweep(
 
     Tests multiple parameter combinations to find optimal settings.
     This is a long-running operation that always executes in the background.
-    
+
     **Accepts both form-encoded and JSON data.**
 
     Form-encoded example (key-value pairs):
@@ -106,7 +103,7 @@ async def strategy_sweep(
     config_path: "app/cli/profiles/strategies/minimum.yaml"
     webhook_url: "https://your-n8n.com/webhook/abc123"
     ```
-    
+
     JSON example:
     ```json
     {
@@ -120,7 +117,7 @@ async def strategy_sweep(
         "webhook_url": "https://your-n8n.com/webhook/abc123"
     }
     ```
-    
+
     Or with array format:
     ```json
     {
@@ -131,7 +128,7 @@ async def strategy_sweep(
         "webhook_url": "https://your-n8n.com/webhook/abc123"
     }
     ```
-    
+
     **Webhook Support:**
     Include `webhook_url` to receive a callback when the sweep completes.
     """
@@ -178,7 +175,7 @@ async def strategy_review(
         "webhook_url": "https://your-n8n.com/webhook/abc123"
     }
     ```
-    
+
     **Webhook Support:**
     Include `webhook_url` to receive a callback when the review completes.
     """
@@ -222,7 +219,7 @@ async def sector_compare(
         "webhook_url": "https://your-n8n.com/webhook/abc123"
     }
     ```
-    
+
     **Webhook Support:**
     Include `webhook_url` to receive a callback when the comparison completes.
     """

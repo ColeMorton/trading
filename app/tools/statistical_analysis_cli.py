@@ -28,6 +28,7 @@ import json
 import logging
 from pathlib import Path
 import sys
+from typing import Any
 
 
 # Configure logging
@@ -1094,7 +1095,7 @@ Examples:
                 return 0.10
             return 0.20
 
-    def _validate_analysis_data_quality(self, analysis_results: list) -> dict[str, any]:
+    def _validate_analysis_data_quality(self, analysis_results: list) -> dict[str, Any]:
         """Validate that analysis results contain meaningful data, not just placeholders"""
         validation_results = {
             "total_results": len(analysis_results),

@@ -3,7 +3,7 @@
 -- Description: Adds webhook_url, webhook_headers, webhook_sent_at, and webhook_response_status columns to the jobs table
 
 -- Add webhook columns
-ALTER TABLE jobs 
+ALTER TABLE jobs
 ADD COLUMN IF NOT EXISTS webhook_url VARCHAR(500),
 ADD COLUMN IF NOT EXISTS webhook_headers JSON,
 ADD COLUMN IF NOT EXISTS webhook_sent_at TIMESTAMP,
@@ -17,4 +17,3 @@ COMMENT ON COLUMN jobs.webhook_url IS 'Optional URL to receive job completion no
 COMMENT ON COLUMN jobs.webhook_headers IS 'Optional custom headers to include in webhook requests';
 COMMENT ON COLUMN jobs.webhook_sent_at IS 'Timestamp when webhook was sent (NULL if not sent or no webhook configured)';
 COMMENT ON COLUMN jobs.webhook_response_status IS 'HTTP status code from webhook delivery (0 for timeout/error, NULL if not sent)';
-

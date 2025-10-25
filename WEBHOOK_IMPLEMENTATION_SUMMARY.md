@@ -11,6 +11,7 @@ Webhook callback support has been successfully implemented across all async job 
 **File:** `app/api/models/tables.py`
 
 Added four new columns to the `Job` model:
+
 - `webhook_url` - Optional URL for completion notifications
 - `webhook_headers` - Optional custom headers (JSON)
 - `webhook_sent_at` - Timestamp of webhook delivery
@@ -23,12 +24,14 @@ Added four new columns to the `Job` model:
 **File:** `app/api/models/schemas.py`
 
 Added webhook fields to 24 request models:
+
 - 4 Strategy endpoints (run, sweep, review, sector-compare)
 - 6 Seasonality endpoints (run, list, results, clean, current, portfolio)
 - 8 Concurrency endpoints (analyze, export, review, construct, optimize, monte-carlo, health, demo)
 - 6 Config endpoints (list, show, verify-defaults, set-default, edit, validate)
 
 Each model now supports:
+
 - `webhook_url: str | None` - Callback URL
 - `webhook_headers: dict[str, str] | None` - Custom headers
 
@@ -37,10 +40,12 @@ Each model now supports:
 **File:** `app/api/services/webhook_service.py` (NEW)
 
 Implements:
+
 - `send_webhook()` - HTTP POST with 30s timeout, single attempt
 - `notify_job_completion()` - Builds payload and triggers delivery
 
 Webhook payload includes:
+
 - Full job details (id, status, command, parameters)
 - Complete results in `result_data`
 - Timestamps (created, started, completed, webhook_sent)
@@ -51,6 +56,7 @@ Webhook payload includes:
 **File:** `app/api/jobs/tasks.py`
 
 Updated `update_job_status()` to:
+
 - Detect job completion (COMPLETED, FAILED, CANCELLED states)
 - Fetch job record with webhook details
 - Trigger webhook asynchronously via `asyncio.create_task()`
@@ -59,11 +65,13 @@ Updated `update_job_status()` to:
 ### 5. Router Updates
 
 **Files:**
+
 - `app/api/routers/strategy.py` (4 endpoints)
 - `app/api/routers/seasonality.py` (6 endpoints)
 - `app/api/routers/concurrency.py` (8 endpoints)
 
 All endpoints now:
+
 - Accept webhook parameters in request body
 - Pass them to `JobService.create_job()`
 - Include webhook documentation in docstrings
@@ -73,6 +81,7 @@ All endpoints now:
 **File:** `app/api/services/job_service.py`
 
 Updated `create_job()` signature to accept:
+
 - `webhook_url: str | None = None`
 - `webhook_headers: dict | None = None`
 
@@ -81,6 +90,7 @@ Updated `create_job()` signature to accept:
 **File:** `docs/api/INTEGRATION_GUIDE.md`
 
 Added comprehensive "Webhook Callbacks" section with:
+
 - Basic usage examples
 - Webhook payload structure
 - N8N integration walkthrough
@@ -159,15 +169,15 @@ curl -X POST "http://localhost:8000/api/v1/strategy/run" \
 
 ```sql
 -- Check webhook configuration
-SELECT 
-    id, 
-    status, 
-    webhook_url, 
+SELECT
+    id,
+    status,
+    webhook_url,
     webhook_sent_at,
     webhook_response_status
-FROM jobs 
-WHERE webhook_url IS NOT NULL 
-ORDER BY created_at DESC 
+FROM jobs
+WHERE webhook_url IS NOT NULL
+ORDER BY created_at DESC
 LIMIT 10;
 ```
 
@@ -233,6 +243,7 @@ curl -X POST "http://localhost:8000/api/v1/strategy/sweep" \
 ## Dependencies
 
 The implementation uses:
+
 - `httpx` - For async HTTP requests (already in project)
 - `asyncio` - For non-blocking webhook delivery
 - No new dependencies required
@@ -240,18 +251,21 @@ The implementation uses:
 ## Benefits
 
 ### For N8N Users
+
 - Zero polling - instant notifications
 - Clean workflow design
 - No need for SSE connection management
 - Automatic result delivery
 
 ### For Developers
+
 - Scalable architecture
 - Non-blocking operations
 - Full result data in callback
 - Easy to debug with webhook.site
 
 ### For System
+
 - Reduced API load (no polling)
 - Better resource utilization
 - Cleaner architecture
@@ -271,8 +285,8 @@ The implementation uses:
 ## Support
 
 For questions or issues:
+
 - Check `docs/api/INTEGRATION_GUIDE.md` for detailed examples
 - Review webhook logs in application logs
 - Query `jobs` table for webhook delivery status
 - Test with webhook.site for troubleshooting
-

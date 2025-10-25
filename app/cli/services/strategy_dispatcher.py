@@ -491,7 +491,7 @@ class StrategyDispatcher:
             }
 
             # Group files by type for better organization
-            files_by_type = {}
+            files_by_type: dict[str, list[dict[str, Any]]] = {}
             for file_info in analysis["file_paths"]:
                 file_type = file_info["type"]
                 if file_type not in files_by_type:
@@ -1668,7 +1668,9 @@ class StrategyDispatcher:
 
         # No compatible service found
         self.console.error(f"Unsupported strategy types: {strategy_type_values}")
-        self.console.debug("Supported strategy types: SMA, EMA, MACD, ATR, SMA_ATR, COMP")
+        self.console.debug(
+            "Supported strategy types: SMA, EMA, MACD, ATR, SMA_ATR, COMP"
+        )
         return None
 
     def get_available_services(self) -> list[str]:

@@ -21,15 +21,14 @@ def api_key():
 def api_client(api_base_url, api_key):
     """Create an API client for testing."""
     from tests.integration.test_webhook_e2e import SweepTestClient
+
     return SweepTestClient(base_url=api_base_url, api_key=api_key)
 
 
 def pytest_configure(config):
     """Configure pytest with custom markers."""
     config.addinivalue_line(
-        "markers", "integration: marks tests as integration tests (deselect with '-m \"not integration\"')"
+        "markers",
+        "integration: marks tests as integration tests (deselect with '-m \"not integration\"')",
     )
-    config.addinivalue_line(
-        "markers", "e2e: marks tests as end-to-end tests"
-    )
-
+    config.addinivalue_line("markers", "e2e: marks tests as end-to-end tests")

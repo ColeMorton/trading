@@ -81,18 +81,18 @@ WEBHOOK_DATA=""
 while [ $(($(date +%s) - START_TIME)) -lt $TIMEOUT ]; do
     # Poll webhook.site API for requests
     REQUESTS=$(curl -s "https://webhook.site/token/$WEBHOOK_TOKEN/requests?sorting=newest")
-    
+
     # Check if we have any requests
     REQUEST_COUNT=$(echo "$REQUESTS" | jq -r '.data | length')
-    
+
     if [ "$REQUEST_COUNT" -gt 0 ]; then
         # Get the latest request
         LATEST_REQUEST=$(echo "$REQUESTS" | jq -r '.data[0]')
         REQUEST_CONTENT=$(echo "$LATEST_REQUEST" | jq -r '.content')
-        
+
         # Parse the webhook data
         WEBHOOK_JOB_ID=$(echo "$REQUEST_CONTENT" | jq -r '.job_id')
-        
+
         if [ "$WEBHOOK_JOB_ID" = "$JOB_ID" ]; then
             WEBHOOK_RECEIVED=true
             WEBHOOK_DATA="$REQUEST_CONTENT"
@@ -101,7 +101,7 @@ while [ $(($(date +%s) - START_TIME)) -lt $TIMEOUT ]; do
             break
         fi
     fi
-    
+
     # Show progress
     ELAPSED=$(($(date +%s) - START_TIME))
     echo -ne "   Waiting... ${ELAPSED}s/${TIMEOUT}s\r"
@@ -181,4 +181,3 @@ echo "https://webhook.site/#!/$WEBHOOK_TOKEN"
 echo ""
 echo -e "${GREEN}🎉 Webhook flow validated successfully!${NC}"
 echo ""
-

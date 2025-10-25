@@ -1,27 +1,32 @@
 # COMP Strategy Review Command - Implementation Complete
 
 ## Overview
+
 Extended the `strategy review` command to support analyzing COMP (compound) strategy results with the `--comp` flag.
 
 ## Command Usage
 
 ### Basic COMP Review
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD
 ```
 
 ### Multiple Tickers
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD,NVDA,PLTR
 ```
 
 ### With Export
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD --export
 # Exports to: data/outputs/review/comp_{timestamp}.csv
 ```
 
 ### With Custom Sorting
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD --sort-by "Total Return [%]"
 trading-cli strategy review --comp --ticker BTC-USD --sort-by "Sharpe Ratio"
@@ -29,11 +34,13 @@ trading-cli strategy review --comp --ticker BTC-USD --sort-by "Win Rate [%]"
 ```
 
 ### Raw CSV Output Only
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD --output-format raw
 ```
 
 ### Limit Results
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD --top-n 10
 ```
@@ -43,6 +50,7 @@ trading-cli strategy review --comp --ticker BTC-USD --top-n 10
 ### What Was Added
 
 **File**: `app/cli/commands/strategy.py`
+
 1. **Parameter Addition**: Added `--comp` flag to `review()` function
 2. **Validation Logic**: Ensures `--comp` is mutually exclusive with:
    - `--profile` (COMP has different file structure)
@@ -54,11 +62,13 @@ trading-cli strategy review --comp --ticker BTC-USD --top-n 10
 5. **Export Support**: Exports with `comp_` prefix for differentiation
 
 **File**: `app/strategies/comp/strategy.py`
+
 1. **Score Calculation**: Added `calculate_comp_score()` function
 2. **Score Integration**: COMP strategies now include Score in output
 3. **Imports**: Added stats_converter normalization functions
 
 ### Score Calculation
+
 COMP strategies now calculate Score using the same formula as other strategies:
 
 ```python
@@ -73,13 +83,15 @@ Score = (
 ```
 
 **Example Scores:**
+
 - BTC-USD: **1.2297** (excellent)
-- NVDA: **1.7695** (outstanding) 
+- NVDA: **1.7695** (outstanding)
 - PLTR: **1.2917** (excellent)
 
 ## Data Flow
 
 ### COMP Review Process
+
 1. User runs: `trading-cli strategy review --comp --ticker BTC-USD,NVDA`
 2. System loads: `data/outputs/compound/BTC-USD.csv` and `data/outputs/compound/NVDA.csv`
 3. Aggregates results into single DataFrame
@@ -89,6 +101,7 @@ Score = (
 7. Exports to review directory if `--export` specified
 
 ### Validation Rules
+
 - **Requires**: `--ticker` parameter (COMP files are ticker-specific)
 - **Conflicts with**: `--profile`, `--best`, `--current`, `--date`, `--batch`
 - **Compatible with**: `--sort-by`, `--top-n`, `--output-format`, `--export`
@@ -96,44 +109,57 @@ Score = (
 ## Test Results
 
 ### Test 1: Single Ticker
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD
 ```
+
 ✅ **SUCCESS** - Loaded 1 COMP file, displayed table and CSV
 
 ### Test 2: Multiple Tickers
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD,NVDA,PLTR
 ```
+
 ✅ **SUCCESS** - Loaded 3 COMP files, sorted by Score, displayed all
 
 ### Test 3: Custom Sorting
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD,NVDA,PLTR --sort-by "Total Return [%]"
 ```
+
 ✅ **SUCCESS** - Correctly sorted: NVDA (246K%) > BTC-USD (25K%) > PLTR (809%)
 
 ### Test 4: Export
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD,NVDA --export
 ```
+
 ✅ **SUCCESS** - Exported to `data/outputs/review/comp_20251025_131452.csv`
 
 ### Test 5: Raw Format
+
 ```bash
 trading-cli strategy review --comp --ticker BTC-USD --output-format raw
 ```
+
 ✅ **SUCCESS** - Displayed CSV only without table
 
 ### Test 6: Error Handling
+
 ```bash
 trading-cli strategy review --comp --ticker NONEXISTENT
 ```
+
 ✅ **SUCCESS** - Shows helpful error message and hints
 
 ## Output Format
 
 ### Table Display
+
 ```
 📊 COMP Strategy Analysis:
 ==================================================
@@ -156,23 +182,27 @@ trading-cli strategy review --comp --ticker NONEXISTENT
 ```
 
 ### Export Filename Pattern
+
 - Standard review: `{timestamp}.csv`
 - COMP review: `comp_{timestamp}.csv`
 
 ## Error Handling
 
 ### Missing COMP File
+
 ```
 ⚠ Warning: COMP file not found for XYZ: data/outputs/compound/XYZ.csv
 ```
 
 ### No Ticker Specified
+
 ```
 Error: --comp requires --ticker to be specified
 Example: trading-cli strategy review --comp --ticker BTC-USD
 ```
 
 ### Conflicting Flags
+
 ```
 Error: --comp cannot be used with --profile
 COMP mode analyzes compound strategy results independently
@@ -181,7 +211,9 @@ COMP mode analyzes compound strategy results independently
 ## Files Modified
 
 **Modified:**
+
 - `app/cli/commands/strategy.py`
+
   - Added `comp` parameter
   - Added validation logic
   - Added COMP file loading branch
@@ -198,6 +230,7 @@ COMP mode analyzes compound strategy results independently
 ## Integration with Existing Features
 
 ### Works With:
+
 - ✅ `--sort-by` (any column)
 - ✅ `--top-n` (limit results)
 - ✅ `--output-format` (table or raw)
@@ -205,6 +238,7 @@ COMP mode analyzes compound strategy results independently
 - ✅ Multiple tickers
 
 ### Does NOT Work With (by design):
+
 - ❌ `--profile` (different file structure)
 - ❌ `--best` (different directory)
 - ❌ `--current` / `--date` (not date-specific)
@@ -212,14 +246,14 @@ COMP mode analyzes compound strategy results independently
 
 ## Comparison: COMP vs Regular Review
 
-| Feature | Regular Review | COMP Review |
-|---------|---------------|-------------|
-| **Source Dir** | `data/raw/portfolios_best/` | `data/outputs/compound/` |
-| **File Pattern** | `{ticker}_{timeframe}_{strategy}.csv` | `{ticker}.csv` |
-| **Date Support** | Yes (`--current`, `--date`) | No (full backtest only) |
-| **Profile Support** | Yes | No (ticker-specific) |
-| **Metric Type** | Yes (Most, Least, Mean, Median) | No (single result) |
-| **Score Column** | Yes | Yes (now added!) |
+| Feature             | Regular Review                        | COMP Review              |
+| ------------------- | ------------------------------------- | ------------------------ |
+| **Source Dir**      | `data/raw/portfolios_best/`           | `data/outputs/compound/` |
+| **File Pattern**    | `{ticker}_{timeframe}_{strategy}.csv` | `{ticker}.csv`           |
+| **Date Support**    | Yes (`--current`, `--date`)           | No (full backtest only)  |
+| **Profile Support** | Yes                                   | No (ticker-specific)     |
+| **Metric Type**     | Yes (Most, Least, Mean, Median)       | No (single result)       |
+| **Score Column**    | Yes                                   | Yes (now added!)         |
 
 ## Success Criteria - All Met ✅
 
@@ -239,16 +273,18 @@ COMP mode analyzes compound strategy results independently
 - [x] No linter errors
 
 ## Performance
+
 - **Load Time**: ~0.1 seconds for 3 tickers
 - **Display**: Instant (simple DataFrame operations)
 - **Export**: ~0.01 seconds
 
 ## Status
+
 ✅ **COMPLETE** - Ready for production use
 
 ## Next Steps (Optional Enhancements)
+
 1. Add `--comp` support to other review commands (concurrency, portfolio)
 2. Create aggregated COMP portfolio analysis
 3. Add COMP vs individual strategy comparison view
 4. Create COMP-specific visualizations
-

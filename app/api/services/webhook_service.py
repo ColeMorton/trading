@@ -2,16 +2,15 @@
 Webhook notification service for job completion callbacks.
 """
 
-import asyncio
-import logging
 from datetime import datetime
+import logging
 from typing import Any
 
 import httpx
 from sqlalchemy import update
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models.tables import Job, JobStatus
+from ..models.tables import Job
+
 
 logger = logging.getLogger(__name__)
 
@@ -52,28 +51,24 @@ class WebhookService:
         try:
             async with httpx.AsyncClient(timeout=timeout) as client:
                 logger.info(f"Sending webhook for job {job_id} to {webhook_url}")
-                
+
                 response = await client.post(
                     webhook_url,
                     json=payload,
                     headers=default_headers,
                 )
-                
+
                 logger.info(
-                    f"Webhook sent for job {job_id}: "
-                    f"status={response.status_code}"
+                    f"Webhook sent for job {job_id}: " f"status={response.status_code}"
                 )
-                
+
                 return response.status_code, response.text
 
         except httpx.TimeoutException:
             logger.error(f"Webhook timeout for job {job_id} to {webhook_url}")
             return 0, "timeout"
         except Exception as e:
-            logger.error(
-                f"Webhook error for job {job_id}: {e}",
-                exc_info=True
-            )
+            logger.error(f"Webhook error for job {job_id}: {e}", exc_info=True)
             return 0, str(e)
 
     @staticmethod
@@ -127,4 +122,3 @@ class WebhookService:
                 )
             )
             await session.commit()
-

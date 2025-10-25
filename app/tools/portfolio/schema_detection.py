@@ -29,17 +29,17 @@ class SchemaVersion:
     CANONICAL = SchemaType.FILTERED  # Keep old meaning of canonical as filtered
 
 
-def detect_schema_version(csv_data: list[dict[str, Any]]) -> SchemaVersion:
+def detect_schema_version(csv_data: list[dict[str, Any]]) -> SchemaType:
     """Detect the schema version of a portfolio CSV file.
 
     Args:
         csv_data: List of dictionaries representing CSV rows
 
     Returns:
-        SchemaVersion: The detected schema version
+        SchemaType: The detected schema type
     """
     if not csv_data:
-        return SchemaVersion.BASE
+        return SchemaType.BASE
 
     first_row = csv_data[0]
 
@@ -48,23 +48,23 @@ def detect_schema_version(csv_data: list[dict[str, Any]]) -> SchemaVersion:
     schema_type = transformer.detect_schema_type(first_row)
 
     if schema_type == SchemaType.FILTERED:
-        return SchemaVersion.CANONICAL  # Filtered is considered canonical
+        return SchemaType.FILTERED  # Filtered is considered canonical
     if schema_type == SchemaType.EXTENDED:
-        return SchemaVersion.EXTENDED
+        return SchemaType.EXTENDED
     if schema_type == SchemaType.BASE:
-        return SchemaVersion.BASE
+        return SchemaType.BASE
     # Fallback for unknown schemas
-    return SchemaVersion.BASE
+    return SchemaType.BASE
 
 
-def detect_schema_version_from_file(file_path: str) -> SchemaVersion:
+def detect_schema_version_from_file(file_path: str) -> SchemaType:
     """Detect the schema version of a portfolio CSV file.
 
     Args:
         file_path: Path to the CSV file
 
     Returns:
-        SchemaVersion: The detected schema version
+        SchemaType: The detected schema type
 
     Raises:
         FileNotFoundError: If the file doesn't exist
@@ -87,11 +87,11 @@ def detect_schema_version_from_file(file_path: str) -> SchemaVersion:
 
             schema_type = SchemaTransformer.detect_schema_type_from_columns(header)
             if schema_type == "filtered":
-                return SchemaVersion.CANONICAL  # Filtered is considered canonical
+                return SchemaType.FILTERED  # Filtered is considered canonical
             if schema_type == "extended":
-                return SchemaVersion.EXTENDED
+                return SchemaType.EXTENDED
             if schema_type == "base":
-                return SchemaVersion.BASE
+                return SchemaType.BASE
         except ImportError:
             pass  # Fall back to legacy detection
 
@@ -100,37 +100,39 @@ def detect_schema_version_from_file(file_path: str) -> SchemaVersion:
             h.strip() in ["Allocation [%]", "Allocation"] for h in header
         )
         has_stop_loss = any(h.strip() in ["Stop Loss [%]", "Stop Loss"] for h in header)
+        has_metric_type = any(h.strip() == "Metric Type" for h in header)
 
-        # If either field is present, it's the extended schema
-        if has_allocation or has_stop_loss:
-            return SchemaVersion.EXTENDED
+        if has_metric_type:
+            return SchemaType.FILTERED  # Filtered schema with Metric Type
+        if has_allocation and has_stop_loss:
+            return SchemaType.EXTENDED  # Extended schema with allocation/stop loss
+        return SchemaType.BASE  # Base schema without extra columns
 
-        return SchemaVersion.BASE
 
-
-def detect_schema_version_from_headers(headers: list[str]) -> SchemaVersion:
+def detect_schema_version_from_headers(headers: list[str]) -> SchemaType:
     """Detect the schema version from CSV headers.
 
     Args:
         headers: List of CSV header strings
 
     Returns:
-        SchemaVersion: The detected schema version
+        SchemaType: The detected schema type
     """
     # Check if the headers contain Allocation [%] and Stop Loss [%]
     has_allocation = any(h.strip() in ["Allocation [%]", "Allocation"] for h in headers)
     has_stop_loss = any(h.strip() in ["Stop Loss [%]", "Stop Loss"] for h in headers)
+    has_metric_type = any(h.strip() == "Metric Type" for h in headers)
 
-    # If either field is present, it's the extended schema
-    if has_allocation or has_stop_loss:
-        return SchemaVersion.EXTENDED
-
-    return SchemaVersion.BASE
+    if has_metric_type:
+        return SchemaType.FILTERED  # Filtered schema with Metric Type
+    if has_allocation and has_stop_loss:
+        return SchemaType.EXTENDED  # Extended schema with allocation/stop loss
+    return SchemaType.BASE  # Base schema without extra columns
 
 
 def normalize_portfolio_data(
     csv_data: list[dict[str, Any]],
-    schema_version: SchemaVersion | None | None = None,
+    schema_version: SchemaType | None = None,
     log: Callable[[str, str | None], None] | None = None,
 ) -> list[dict[str, Any]]:
     """Normalize portfolio data to the canonical 61-column schema.

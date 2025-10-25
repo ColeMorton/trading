@@ -364,7 +364,7 @@ class PositionSizingSchema:
         auto_columns = cls.get_auto_calculated_columns()
 
         # Count by data source
-        sources = {}
+        sources: dict[str, int] = {}
         for col in all_columns:
             source = col.data_source or "unknown"
             sources[source] = sources.get(source, 0) + 1
@@ -472,7 +472,7 @@ class PositionSizingSchemaValidator:
         errors = []
         missing_manual = []
         calc_errors = []
-        source_issues = []
+        source_issues: list[str] = []
         formula_matches = {}
 
         schema = PositionSizingSchema()

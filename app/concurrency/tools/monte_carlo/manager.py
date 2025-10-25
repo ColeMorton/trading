@@ -364,7 +364,7 @@ class PortfolioMonteCarloManager:
         self, portfolio_strategies: list[dict[str, Any]]
     ) -> dict[str, list[dict[str, Any]]]:
         """Group strategies by ticker symbol."""
-        ticker_strategies = {}
+        ticker_strategies: dict[str, list[dict[str, Any]]] = {}
 
         for strategy in portfolio_strategies:
             # Support multiple field name formats

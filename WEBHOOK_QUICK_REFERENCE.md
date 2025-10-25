@@ -3,6 +3,7 @@
 ## Basic Usage
 
 ### Add to ANY POST request:
+
 ```json
 {
   "ticker": "AAPL",
@@ -12,6 +13,7 @@
 ```
 
 ### With Custom Headers:
+
 ```json
 {
   "ticker": "AAPL",
@@ -39,6 +41,7 @@
 3. **Done!** Results arrive automatically
 
 **Before vs After:**
+
 - ❌ Before: HTTP Request → Wait → Poll → Loop → Process
 - ✅ After: HTTP Request (with webhook) → Receive Callback → Process
 
@@ -47,6 +50,7 @@
 ## Testing
 
 ### Quick Test:
+
 ```bash
 # 1. Get webhook URL from webhook.site
 # 2. Run:
@@ -63,6 +67,7 @@ curl -X POST "http://localhost:8000/api/v1/strategy/run" \
 ```
 
 ### Verify Setup:
+
 ```bash
 ./scripts/verify_webhooks.sh
 ```
@@ -82,6 +87,7 @@ curl -X POST "http://localhost:8000/api/v1/strategy/run" \
 ## Webhook Payload
 
 **What you receive:**
+
 ```json
 {
   "job_id": "uuid",
@@ -99,20 +105,22 @@ curl -X POST "http://localhost:8000/api/v1/strategy/run" \
 ## Monitoring
 
 ### Check Recent Webhooks:
+
 ```bash
 docker exec -i trading_postgres psql -U trading_user -d trading_db -c "
-SELECT 
+SELECT
     LEFT(id::text, 8) as job,
     status,
     webhook_sent_at,
     webhook_response_status
-FROM jobs 
-WHERE webhook_url IS NOT NULL 
-ORDER BY created_at DESC 
+FROM jobs
+WHERE webhook_url IS NOT NULL
+ORDER BY created_at DESC
 LIMIT 10;"
 ```
 
 ### View Worker Logs:
+
 ```bash
 docker logs --tail 50 trading_arq_worker | grep -i webhook
 ```
@@ -122,16 +130,19 @@ docker logs --tail 50 trading_arq_worker | grep -i webhook
 ## Common Use Cases
 
 ### 1. Simple Notification
+
 ```json
 { "webhook_url": "https://ntfy.sh/your-topic" }
 ```
 
 ### 2. Slack Notification
+
 ```json
 { "webhook_url": "https://hooks.slack.com/services/YOUR/WEBHOOK" }
 ```
 
 ### 3. Custom App
+
 ```json
 {
   "webhook_url": "https://your-app.com/api/webhooks",
@@ -143,6 +154,7 @@ docker logs --tail 50 trading_arq_worker | grep -i webhook
 ```
 
 ### 4. N8N Workflow
+
 ```json
 { "webhook_url": "{{ $node.Webhook.json.webhookUrl }}" }
 ```
@@ -151,23 +163,23 @@ docker logs --tail 50 trading_arq_worker | grep -i webhook
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
+| Issue            | Solution                                                                      |
+| ---------------- | ----------------------------------------------------------------------------- |
 | Webhook not sent | Check job completed: `SELECT status, completed_at FROM jobs WHERE id = '...'` |
-| Wrong payload | Check `result_data` field - contains full results |
-| 404/500 error | Verify webhook URL is accessible and returns 200 |
-| Need retry | Contact webhook delivery was fire-and-forget by design |
+| Wrong payload    | Check `result_data` field - contains full results                             |
+| 404/500 error    | Verify webhook URL is accessible and returns 200                              |
+| Need retry       | Contact webhook delivery was fire-and-forget by design                        |
 
 ---
 
 ## Key Benefits
 
-✅ **Zero Polling** - No more status checks  
-✅ **Instant Results** - Callback on completion  
-✅ **Full Payload** - Everything in one request  
-✅ **N8N Ready** - Perfect for automation  
-✅ **Scalable** - Fire-and-forget design  
-✅ **Simple** - Just add one field  
+✅ **Zero Polling** - No more status checks
+✅ **Instant Results** - Callback on completion
+✅ **Full Payload** - Everything in one request
+✅ **N8N Ready** - Perfect for automation
+✅ **Scalable** - Fire-and-forget design
+✅ **Simple** - Just add one field
 
 ---
 
@@ -180,4 +192,3 @@ docker logs --tail 50 trading_arq_worker | grep -i webhook
 ---
 
 **TIP:** Use https://webhook.site for testing - instant webhook URL, no signup required!
-

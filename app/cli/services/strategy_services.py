@@ -765,6 +765,7 @@ class COMPStrategyService(BaseStrategyService):
         except Exception as e:
             rprint(f"[red]Error executing COMP strategy: {e}[/red]")
             import traceback
+
             rprint(f"[red]{traceback.format_exc()}[/red]")
             return False
 
@@ -785,7 +786,9 @@ class COMPStrategyService(BaseStrategyService):
             "USE_HOURLY": config.use_hourly,
             "USE_4HOUR": config.use_4hour,
             "USE_2DAY": config.use_2day,
-            "DIRECTION": config.direction.value if hasattr(config.direction, "value") else str(config.direction),
+            "DIRECTION": config.direction.value
+            if hasattr(config.direction, "value")
+            else str(config.direction),
             "REFRESH": True,
         }
 

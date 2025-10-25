@@ -7,5 +7,5 @@ strategies and generates signals based on the percentage of strategies in positi
 
 from .strategy import run
 
-__all__ = ["run"]
 
+__all__ = ["run"]

@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import re
+from typing import Any
 
 import pandas as pd
 from rich.console import Console
@@ -26,7 +27,7 @@ class PortfolioSeasonalityService:
         self.console = Console()
         self.strategies_dir = Path("data/raw/strategies")
 
-    def run_analysis(self) -> dict[str, any]:
+    def run_analysis(self) -> dict[str, Any]:
         """Run seasonality analysis for tickers in the specified portfolio.
 
         Returns:

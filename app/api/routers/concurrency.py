@@ -37,7 +37,7 @@ async def concurrency_analyze(
     Execute comprehensive concurrency analysis.
 
     Analyzes concurrent exposure between strategies and calculates risk concentration.
-    
+
     **Webhook Support:**
     Include `webhook_url` in request to receive a callback when analysis completes.
     """
@@ -70,7 +70,7 @@ async def concurrency_export(
 ):
     """
     Export trade history data from portfolio analysis.
-    
+
     **Webhook Support:**
     Include `webhook_url` in request to receive a callback when export completes.
     """
@@ -103,7 +103,7 @@ async def concurrency_review(
 ):
     """
     Portfolio interaction analysis with visualization.
-    
+
     **Webhook Support:**
     Include `webhook_url` in request to receive a callback when review completes.
     """
@@ -136,7 +136,7 @@ async def concurrency_construct(
 ):
     """
     Construct optimized portfolios from strategy selection.
-    
+
     **Webhook Support:**
     Include `webhook_url` in request to receive a callback when construction completes.
     """
@@ -171,7 +171,7 @@ async def concurrency_optimize(
     Find optimal strategy combinations using permutation analysis.
 
     This is a long-running operation that tests multiple combinations.
-    
+
     **Webhook Support:**
     Include `webhook_url` in request to receive a callback when optimization completes.
     """
@@ -206,7 +206,7 @@ async def concurrency_monte_carlo(
     Run Monte Carlo simulations for risk analysis and forecasting.
 
     This is a long-running operation that may take several minutes.
-    
+
     **Webhook Support:**
     Include `webhook_url` in request to receive a callback when simulation completes.
     """
@@ -239,7 +239,7 @@ async def concurrency_health(
 ):
     """
     Check concurrency analysis system health.
-    
+
     **Webhook Support:**
     Include `webhook_url` in request to receive a callback when health check completes.
     """
@@ -272,7 +272,7 @@ async def concurrency_demo(
 ):
     """
     Run demo analysis with sample portfolio data.
-    
+
     **Webhook Support:**
     Include `webhook_url` in request to receive a callback when demo completes.
     """

@@ -1057,7 +1057,7 @@ class PortfolioSynthesisService:
 
     def _calculate_strategy_ready_date(
         self, common_dates: list, strategies: list[StrategyConfig]
-    ) -> any | None:
+    ) -> Any | None:
         """
         Calculate the date when strategies are ready to start signaling.
 

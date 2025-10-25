@@ -40,11 +40,11 @@ echo -e "${GREEN}✅ Job created: $JOB_ID${NC}"
 echo ""
 echo -e "${YELLOW}Database record:${NC}"
 docker exec -i trading_postgres psql -U trading_user -d trading_db -c "
-SELECT 
+SELECT
     LEFT(id::text, 8) as job_id,
     status,
     LEFT(webhook_url, 50) as webhook_url
-FROM jobs 
+FROM jobs
 WHERE id = '$JOB_ID';"
 
 echo ""
@@ -56,4 +56,3 @@ echo "  curl http://localhost:8000/api/v1/jobs/$JOB_ID | jq"
 echo ""
 echo -e "${YELLOW}Monitor webhook delivery:${NC}"
 echo "  docker exec -i trading_postgres psql -U trading_user -d trading_db -c \"SELECT webhook_sent_at, webhook_response_status FROM jobs WHERE id = '$JOB_ID';\""
-

@@ -69,7 +69,9 @@ class TestWebhookService:
             mock_client_instance = AsyncMock()
             mock_client_instance.__aenter__.return_value = mock_client_instance
             mock_client_instance.__aexit__.return_value = None
-            mock_client_instance.post.side_effect = httpx.TimeoutException("Request timeout")
+            mock_client_instance.post.side_effect = httpx.TimeoutException(
+                "Request timeout"
+            )
             mock_client.return_value = mock_client_instance
 
             status_code, response_text = await WebhookService.send_webhook(
@@ -93,7 +95,9 @@ class TestWebhookService:
             mock_client_instance = AsyncMock()
             mock_client_instance.__aenter__.return_value = mock_client_instance
             mock_client_instance.__aexit__.return_value = None
-            mock_client_instance.post.side_effect = httpx.ConnectError("Connection refused")
+            mock_client_instance.post.side_effect = httpx.ConnectError(
+                "Connection refused"
+            )
             mock_client.return_value = mock_client_instance
 
             status_code, response_text = await WebhookService.send_webhook(
@@ -169,7 +173,9 @@ class TestWebhookService:
         mock_db_manager.get_async_session.return_value = mock_session
 
         # Mock webhook send
-        with patch.object(WebhookService, "send_webhook", new_callable=AsyncMock) as mock_send:
+        with patch.object(
+            WebhookService, "send_webhook", new_callable=AsyncMock
+        ) as mock_send:
             mock_send.return_value = (200, "OK")
 
             await WebhookService.notify_job_completion(mock_db_manager, job)
@@ -197,7 +203,9 @@ class TestWebhookService:
 
         mock_db_manager = Mock()
 
-        with patch.object(WebhookService, "send_webhook", new_callable=AsyncMock) as mock_send:
+        with patch.object(
+            WebhookService, "send_webhook", new_callable=AsyncMock
+        ) as mock_send:
             await WebhookService.notify_job_completion(mock_db_manager, job)
 
             # Verify webhook was NOT sent
@@ -231,7 +239,9 @@ class TestWebhookService:
         mock_db_manager.get_async_session.return_value = mock_session
 
         # Mock webhook send
-        with patch.object(WebhookService, "send_webhook", new_callable=AsyncMock) as mock_send:
+        with patch.object(
+            WebhookService, "send_webhook", new_callable=AsyncMock
+        ) as mock_send:
             mock_send.return_value = (200, "Success")
 
             await WebhookService.notify_job_completion(mock_db_manager, job)
@@ -239,4 +249,3 @@ class TestWebhookService:
             # Verify database update was executed
             mock_session.execute.assert_called_once()
             mock_session.commit.assert_called_once()
-

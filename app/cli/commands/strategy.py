@@ -6,7 +6,6 @@ and MACD strategies with various configuration options.
 """
 
 from pathlib import Path
-from typing import Optional
 
 import pandas as pd
 from rich import print as rprint
@@ -45,23 +44,30 @@ def run(
     ticker: str = typer.Argument(
         ..., help="Single ticker symbol to test (e.g., AAPL, BTC-USD)"
     ),
-    fast: Optional[int] = typer.Option(None, "--fast", "-f", help="Fast moving average period"),
-    slow: Optional[int] = typer.Option(None, "--slow", "-s", help="Slow moving average period"),
-    signal: Optional[int] = typer.Option(
+    fast: int | None = typer.Option(
+        None, "--fast", "-f", help="Fast moving average period"
+    ),
+    slow: int | None = typer.Option(
+        None, "--slow", "-s", help="Slow moving average period"
+    ),
+    signal: int | None = typer.Option(
         None, "--signal", help="Signal period (for MACD strategies only)"
     ),
     strategy: str = typer.Option(
         "SMA", "--strategy", help="Strategy type: SMA, EMA, or MACD"
     ),
     comp: bool = typer.Option(
-        False, "--comp", "-c", help="Use COMP (compound) strategy - aggregates all strategies from ticker CSV"
+        False,
+        "--comp",
+        "-c",
+        help="Use COMP (compound) strategy - aggregates all strategies from ticker CSV",
     ),
-    years: Optional[int] = typer.Option(
+    years: int | None = typer.Option(
         None, "--years", "-y", help="Number of years of historical data"
     ),
     use_4hour: bool = typer.Option(False, "--use-4hour", help="Use 4-hour timeframe"),
     use_2day: bool = typer.Option(False, "--use-2day", help="Use 2-day timeframe"),
-    market_type: Optional[str] = typer.Option(
+    market_type: str | None = typer.Option(
         None, "--market-type", help="Market type: crypto, us_stock, or auto"
     ),
     direction: str = typer.Option(
@@ -90,10 +96,14 @@ def run(
         # Handle COMP strategy mode
         if comp:
             strategy = "COMP"
-            rprint("\n[bold cyan]COMP Strategy - Compound Strategy Backtest[/bold cyan]")
+            rprint(
+                "\n[bold cyan]COMP Strategy - Compound Strategy Backtest[/bold cyan]"
+            )
             rprint(f"[cyan]Ticker:[/cyan] {ticker}")
-            rprint(f"[cyan]Strategy:[/cyan] COMP (Compound)")
-            rprint(f"[cyan]Component Strategies:[/cyan] Loaded from data/raw/strategies/{ticker}.csv")
+            rprint("[cyan]Strategy:[/cyan] COMP (Compound)")
+            rprint(
+                f"[cyan]Component Strategies:[/cyan] Loaded from data/raw/strategies/{ticker}.csv"
+            )
             rprint(f"[cyan]Direction:[/cyan] {direction}")
             if years:
                 rprint(f"[cyan]History:[/cyan] {years} years")
@@ -102,16 +112,16 @@ def run(
             elif use_2day:
                 rprint("[cyan]Timeframe:[/cyan] 2-day")
             rprint("")
-            
+
             if dry_run:
                 rprint("[yellow]Dry run - configuration preview only[/yellow]")
                 return
-            
+
             # Execute COMP strategy directly
+            from ...strategies.comp.strategy import run as comp_run
             from ...tools.get_config import get_config
             from ...tools.project_utils import get_project_root
-            from ...strategies.comp.strategy import run as comp_run
-            
+
             config = {
                 "TICKER": ticker,
                 "STRATEGY_TYPE": "COMP",
@@ -122,21 +132,21 @@ def run(
                 "BASE_DIR": get_project_root(),
                 "REFRESH": True,
             }
-            
+
             if years:
                 config["USE_YEARS"] = True
                 config["YEARS"] = years
-            
+
             if market_type:
                 config["MARKET_TYPE"] = market_type
-            
+
             # Apply config defaults
             ticker_config = get_config(config)
-            
+
             # Run COMP strategy
             rprint("Executing COMP strategy...")
             success = comp_run(ticker_config)
-            
+
             if success:
                 rprint("[green]✓ COMP strategy completed successfully[/green]")
                 output_file = f"{get_project_root()}/data/outputs/compound/{ticker}.csv"
@@ -144,14 +154,16 @@ def run(
             else:
                 rprint("[red]✗ COMP strategy execution failed[/red]")
                 raise typer.Exit(1)
-            
+
             return
-        
+
         # Validate parameters for non-COMP strategies
         if fast is None or slow is None:
-            rprint("[red]Error: --fast and --slow parameters are required (unless using --comp)[/red]")
+            rprint(
+                "[red]Error: --fast and --slow parameters are required (unless using --comp)[/red]"
+            )
             raise typer.Exit(1)
-        
+
         if fast >= slow:
             rprint("[red]Error: Fast period must be less than slow period[/red]")
             raise typer.Exit(1)
@@ -442,10 +454,10 @@ def run(
 @app.command()
 def sweep(
     ctx: typer.Context,
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
-    ticker: Optional[list[str]] = typer.Option(
+    ticker: list[str] | None = typer.Option(
         None,
         "--ticker",
         "--ticker-1",
@@ -453,25 +465,25 @@ def sweep(
         "-t1",
         help="Ticker symbols to analyze (multiple args or comma-separated: --ticker AAPL,MSFT or --ticker AAPL --ticker MSFT)",
     ),
-    ticker_2: Optional[str] = typer.Option(
+    ticker_2: str | None = typer.Option(
         None,
         "--ticker-2",
         "-t2",
         help="Second ticker for synthetic pair analysis (automatically enables synthetic mode)",
     ),
-    strategy_type: Optional[list[str]] = typer.Option(
+    strategy_type: list[str] | None = typer.Option(
         None,
         "--strategy",
         "-s",
         help="Strategy types: SMA, MACD (default strategies), EMA, ATR (specialized - explicit only, can be used multiple times)",
     ),
-    min_trades: Optional[int] = typer.Option(
+    min_trades: int | None = typer.Option(
         None, "--min-trades", help="Minimum number of trades filter"
     ),
-    min_win_rate: Optional[float] = typer.Option(
+    min_win_rate: float | None = typer.Option(
         None, "--min-win-rate", help="Minimum win rate filter (0.0 to 1.0)"
     ),
-    years: Optional[int] = typer.Option(
+    years: int | None = typer.Option(
         None,
         "--years",
         "-y",
@@ -480,75 +492,75 @@ def sweep(
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Preview configuration without executing"
     ),
-    use_4hour: Optional[bool] = typer.Option(
+    use_4hour: bool | None = typer.Option(
         None,
         "--use-4hour",
         help="Use 4-hour timeframe data (converted from 1-hour data)",
     ),
-    use_2day: Optional[bool] = typer.Option(
+    use_2day: bool | None = typer.Option(
         None,
         "--use-2day",
         help="Use 2-day timeframe data (converted from daily data)",
     ),
-    market_type: Optional[str] = typer.Option(
+    market_type: str | None = typer.Option(
         None,
         "--market-type",
         help="Market type: crypto, us_stock, or auto (automatic detection)",
     ),
-    direction: Optional[str] = typer.Option(
+    direction: str | None = typer.Option(
         None,
         "--direction",
         "-d",
         help="Trading direction: Long or Short (default: Long)",
     ),
-    skip_analysis: Optional[bool] = typer.Option(
+    skip_analysis: bool | None = typer.Option(
         None,
         "--skip-analysis",
         help="Skip data download and analysis, assume portfolio files exist in data/raw/portfolios/",
     ),
-    fast_min: Optional[int] = typer.Option(
+    fast_min: int | None = typer.Option(
         None, "--fast-min", help="Minimum fast period for sweep"
     ),
-    fast_max: Optional[int] = typer.Option(
+    fast_max: int | None = typer.Option(
         None, "--fast-max", help="Maximum fast period for sweep"
     ),
-    slow_min: Optional[int] = typer.Option(
+    slow_min: int | None = typer.Option(
         None, "--slow-min", help="Minimum slow period for sweep"
     ),
-    slow_max: Optional[int] = typer.Option(
+    slow_max: int | None = typer.Option(
         None, "--slow-max", help="Maximum slow period for sweep"
     ),
-    signal_min: Optional[int] = typer.Option(
+    signal_min: int | None = typer.Option(
         None, "--signal-min", help="Minimum signal period for sweep"
     ),
-    signal_max: Optional[int] = typer.Option(
+    signal_max: int | None = typer.Option(
         None, "--signal-max", help="Maximum signal period for sweep"
     ),
-    entry_fast: Optional[int] = typer.Option(
+    entry_fast: int | None = typer.Option(
         None,
         "--entry-fast",
         "-ef",
         help="Lock entry strategy fast period to specific value (sets both min and max)",
     ),
-    entry_slow: Optional[int] = typer.Option(
+    entry_slow: int | None = typer.Option(
         None,
         "--entry-slow",
         "-esl",
         help="Lock entry strategy slow period to specific value (sets both min and max)",
     ),
-    entry_signal: Optional[int] = typer.Option(
+    entry_signal: int | None = typer.Option(
         None,
         "--entry-signal",
         "-esi",
         help="Lock entry strategy signal period to specific value (sets both min and max, MACD only)",
     ),
-    date: Optional[str] = typer.Option(
+    date: str | None = typer.Option(
         None,
         "--date",
         "-d",
         help="Filter by entry signals triggered on specific date (YYYYMMDD format, e.g., 20250811). Overrides --current if both specified.",
     ),
-    use_current: Optional[bool] = typer.Option(
+    use_current: bool | None = typer.Option(
         None,
         "--use-current",
         help="Filter to only current entry signals (active positions for today). Overridden by --date if both specified.",
@@ -583,7 +595,7 @@ def sweep(
         "--batch/--no-batch",
         help="Enable batch processing mode for large ticker lists",
     ),
-    batch_size: Optional[int] = typer.Option(
+    batch_size: int | None = typer.Option(
         None,
         "--batch-size",
         help="Maximum number of tickers to process per execution when batch mode is enabled",
@@ -772,6 +784,7 @@ def sweep(
         # Persist results to database if requested
         if config.database and execution_summary.successful_strategies > 0:
             import asyncio
+
             asyncio.run(
                 _persist_sweep_results_to_database(
                     execution_summary=execution_summary,
@@ -796,10 +809,10 @@ def sweep(
 @app.command()
 def review(
     ctx: typer.Context,
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
-    ticker: Optional[list[str]] = typer.Option(
+    ticker: list[str] | None = typer.Option(
         None,
         "--ticker",
         "-t",
@@ -813,7 +826,7 @@ def review(
         "--current",
         help="Analyze current day signals from date-specific directory",
     ),
-    date: Optional[str] = typer.Option(
+    date: str | None = typer.Option(
         None,
         "--date",
         help="Analyze signals from specific date directory (YYYYMMDD format, e.g., 20250816). Overrides --current flag.",
@@ -882,14 +895,20 @@ def review(
         if comp:
             if profile:
                 rprint("[red]Error: --comp cannot be used with --profile[/red]")
-                rprint("[dim]COMP mode analyzes compound strategy results independently[/dim]")
+                rprint(
+                    "[dim]COMP mode analyzes compound strategy results independently[/dim]"
+                )
                 raise typer.Exit(1)
             if best:
                 rprint("[red]Error: --comp cannot be used with --best[/red]")
-                rprint("[dim]COMP mode analyzes compound strategy results independently[/dim]")
+                rprint(
+                    "[dim]COMP mode analyzes compound strategy results independently[/dim]"
+                )
                 raise typer.Exit(1)
             if current or date:
-                rprint("[red]Error: --comp cannot be used with --current or --date[/red]")
+                rprint(
+                    "[red]Error: --comp cannot be used with --current or --date[/red]"
+                )
                 rprint("[dim]COMP strategies are not date-specific[/dim]")
                 raise typer.Exit(1)
             if batch:
@@ -897,7 +916,9 @@ def review(
                 raise typer.Exit(1)
             if not ticker:
                 rprint("[red]Error: --comp requires --ticker to be specified[/red]")
-                rprint("[dim]Example: trading-cli strategy review --comp --ticker BTC-USD[/dim]")
+                rprint(
+                    "[dim]Example: trading-cli strategy review --comp --ticker BTC-USD[/dim]"
+                )
                 raise typer.Exit(1)
 
         # Validate date parameter if provided
@@ -980,61 +1001,76 @@ def review(
         # Handle COMP mode - load from compound strategy outputs
         if comp:
             from pathlib import Path
+
             from .strategy_utils import process_ticker_input
-            
+
             # Process ticker input
             ticker_list = process_ticker_input(ticker)
-            
+
             rprint("\n[bold cyan]📊 COMP Strategy Analysis:[/bold cyan]")
             rprint("=" * 50)
             rprint(f"🎯 [white]Tickers: {', '.join(ticker_list)}[/white]")
             rprint(f"📈 [white]Display: Top {top_n} results[/white]")
             rprint(f"🔢 [white]Sort By: {sort_by}[/white]")
             rprint()
-            
+
             # Load COMP strategy results
             rprint("[bold]🔍 Loading COMP strategy files...[/bold]")
-            
+
             compound_dir = Path("data/outputs/compound")
             all_portfolios = []
             loaded_count = 0
-            
+
             for ticker_symbol in ticker_list:
                 compound_file = compound_dir / f"{ticker_symbol}.csv"
-                
+
                 if not compound_file.exists():
                     if global_verbose:
-                        rprint(f"[yellow]⚠ Warning: COMP file not found for {ticker_symbol}: {compound_file}[/yellow]")
+                        rprint(
+                            f"[yellow]⚠ Warning: COMP file not found for {ticker_symbol}: {compound_file}[/yellow]"
+                        )
                     continue
-                
+
                 try:
                     import pandas as pd
+
                     df = pd.read_csv(compound_file)
-                    
+
                     # Convert DataFrame to list of dicts
-                    portfolios = df.to_dict('records')
+                    portfolios = df.to_dict("records")
                     all_portfolios.extend(portfolios)
                     loaded_count += 1
-                    
+
                     if global_verbose:
-                        rprint(f"[green]✓ Loaded COMP results for {ticker_symbol}: {len(portfolios)} record(s)[/green]")
-                
+                        rprint(
+                            f"[green]✓ Loaded COMP results for {ticker_symbol}: {len(portfolios)} record(s)[/green]"
+                        )
+
                 except Exception as e:
-                    rprint(f"[red]✗ Error loading COMP file for {ticker_symbol}: {e}[/red]")
+                    rprint(
+                        f"[red]✗ Error loading COMP file for {ticker_symbol}: {e}[/red]"
+                    )
                     continue
-            
+
             if not all_portfolios:
-                rprint("[red]Error: No COMP strategy results found for specified tickers[/red]")
+                rprint(
+                    "[red]Error: No COMP strategy results found for specified tickers[/red]"
+                )
                 rprint(f"[dim]Searched in: {compound_dir.absolute()}[/dim]")
-                rprint("[dim]Hint: Run 'trading-cli strategy run {TICKER} --comp' to generate COMP results first[/dim]")
+                rprint(
+                    "[dim]Hint: Run 'trading-cli strategy run {TICKER} --comp' to generate COMP results first[/dim]"
+                )
                 raise typer.Exit(1)
-            
-            rprint(f"[green]✓ Successfully loaded {loaded_count} COMP strategy file(s) with {len(all_portfolios)} total record(s)[/green]\n")
-            
+
+            rprint(
+                f"[green]✓ Successfully loaded {loaded_count} COMP strategy file(s) with {len(all_portfolios)} total record(s)[/green]\n"
+            )
+
             # Convert to DataFrame for processing
             import pandas as pd
+
             combined_df = pd.DataFrame(all_portfolios)
-            
+
             # Skip to display logic (jump past the normal portfolio loading)
             # We'll use a flag to indicate COMP mode
             comp_mode_active = True
@@ -1098,7 +1134,9 @@ def review(
 
                 # Get ticker list from config
                 ticker_list = (
-                    config.ticker if isinstance(config.ticker, list) else [config.ticker]
+                    config.ticker
+                    if isinstance(config.ticker, list)
+                    else [config.ticker]
                 )
 
                 if global_verbose:
@@ -1123,7 +1161,9 @@ def review(
                 if batch:
                     rprint("📋 [white]Mode: Batch Processing[/white]")
                 elif profile:
-                    rprint(f"📋 [white]Mode: Ticker Filtering (Profile: {profile})[/white]")
+                    rprint(
+                        f"📋 [white]Mode: Ticker Filtering (Profile: {profile})[/white]"
+                    )
                 else:
                     rprint("📋 [white]Mode: Ticker Filtering[/white]")
             elif profile:
@@ -1137,7 +1177,9 @@ def review(
             if current:
                 # Use custom date if specified, otherwise current date
                 display_date = date if date else datetime.now().strftime("%Y%m%d")
-                date_label = f"date: {display_date}" if date else f"current: {display_date}"
+                date_label = (
+                    f"date: {display_date}" if date else f"current: {display_date}"
+                )
 
                 if ticker_filtering_active:
                     rprint(
@@ -1162,7 +1204,9 @@ def review(
             elif profile:
                 rprint(f"🎯 [white]Tickers: {', '.join(ticker_list)}[/white]")
             else:
-                rprint("🎯 [white]Tickers: Auto-discovered from current day files[/white]")
+                rprint(
+                    "🎯 [white]Tickers: Auto-discovered from current day files[/white]"
+                )
 
             rprint(f"📈 [white]Display: Top {top_n} results[/white]")
             rprint(f"🔢 [white]Sort By: {sort_by}[/white]")
@@ -1199,7 +1243,7 @@ def review(
 
         # Process and sort data
         rprint(f"[bold]📝 Processing {len(combined_df)} portfolios...[/bold]")
-        
+
         if comp_mode_active:
             # For COMP mode, just sort directly (no Metric Type column to remove)
             sorted_df = combined_df.sort_values(by=sort_by, ascending=False)
@@ -1219,7 +1263,7 @@ def review(
                 "stats": {
                     "total_portfolios": len(sorted_df),
                     "top_n": min(top_n, len(sorted_df)),
-                }
+                },
             }
         else:
             display_data = analysis_service.format_for_display(sorted_df, top_n=top_n)
@@ -1227,10 +1271,14 @@ def review(
         if output_format == "raw":
             # Raw CSV output only
             if comp_mode_active:
-                rprint("\n[bold cyan]📋 COMP Strategy Results: Raw CSV Data:[/bold cyan]")
+                rprint(
+                    "\n[bold cyan]📋 COMP Strategy Results: Raw CSV Data:[/bold cyan]"
+                )
                 csv_output = display_data["all_results"].to_csv(index=False)
             else:
-                rprint("\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
+                rprint(
+                    "\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]"
+                )
                 csv_output = analysis_service.generate_csv_output(
                     display_data["all_results"]
                 )
@@ -1240,7 +1288,8 @@ def review(
             if comp_mode_active:
                 # For COMP mode, use simpler display
                 _display_portfolio_table(
-                    display_data["top_results"], list(display_data["top_results"].columns)
+                    display_data["top_results"],
+                    list(display_data["top_results"].columns),
                 )
             else:
                 _display_portfolio_table(
@@ -1266,10 +1315,14 @@ def review(
 
             # Raw CSV output section
             if comp_mode_active:
-                rprint("\n[bold cyan]📋 COMP Strategy Results: Raw CSV Data:[/bold cyan]")
+                rprint(
+                    "\n[bold cyan]📋 COMP Strategy Results: Raw CSV Data:[/bold cyan]"
+                )
                 csv_output = display_data["all_results"].to_csv(index=False)
             else:
-                rprint("\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]")
+                rprint(
+                    "\n[bold cyan]📋 Portfolio Entry Signals: Raw CSV Data:[/bold cyan]"
+                )
                 csv_output = analysis_service.generate_csv_output(
                     display_data["all_results"]
                 )
@@ -1285,14 +1338,14 @@ def review(
             try:
                 from datetime import datetime
                 from pathlib import Path
-                
+
                 output_dir = Path("./data/outputs/review")
                 output_dir.mkdir(parents=True, exist_ok=True)
-                
+
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 file_name = f"{'comp_' if comp_mode_active else ''}{timestamp}.csv"
                 file_path = output_dir / file_name
-                
+
                 display_data["all_results"].to_csv(file_path, index=False)
                 rprint(f"\n[green]✅ Results exported to: {file_path}[/green]")
             except Exception as export_error:
@@ -1323,7 +1376,7 @@ def _display_summary_table(df):
         show_header=True,
         header_style="bold magenta",
     )
-    
+
     # Define columns for summary table
     table.add_column("Rank", style="cyan", no_wrap=True, justify="center", width=6)
     table.add_column("Ticker", style="bold white", no_wrap=True, width=10)
@@ -1331,7 +1384,7 @@ def _display_summary_table(df):
     table.add_column("Score", style="white", justify="right", width=8)
     table.add_column("Total Return [%]", style="green", justify="right", width=16)
     table.add_column("Total Trades", style="yellow", justify="right", width=12)
-    
+
     # Add rows
     for idx, (_, row) in enumerate(df.head(50).iterrows(), 1):
         ticker = str(row.get("Ticker", "N/A"))
@@ -1339,19 +1392,19 @@ def _display_summary_table(df):
         score = row.get("Score")
         total_return = row.get("Total Return [%]")
         total_trades = row.get("Total Trades")
-        
+
         # Format values
         score_str = f"{float(score):.3f}" if pd.notna(score) else "N/A"
-        
+
         if pd.notna(total_return):
             return_val = float(total_return)
             color = "green" if return_val > 0 else "red"
             return_str = f"[{color}]{return_val:+,.2f}%[/{color}]"
         else:
             return_str = "N/A"
-        
+
         trades_str = str(int(total_trades)) if pd.notna(total_trades) else "N/A"
-        
+
         table.add_row(
             str(idx),
             ticker,
@@ -1360,7 +1413,7 @@ def _display_summary_table(df):
             return_str,
             trades_str,
         )
-    
+
     console.print(table)
 
 
@@ -1371,32 +1424,32 @@ def _display_performance_table(df):
         show_header=True,
         header_style="bold magenta",
     )
-    
+
     # Define columns for performance table
     table.add_column("Rank", style="cyan", no_wrap=True, justify="center", width=6)
     table.add_column("Ticker", style="bold white", no_wrap=True, width=10)
     table.add_column("Win Rate [%]", style="yellow", justify="right", width=14)
     table.add_column("Profit Factor", style="green", justify="right", width=14)
     table.add_column("Expectancy/Trade", style="white", justify="right", width=16)
-    
+
     # Add rows
     for idx, (_, row) in enumerate(df.head(50).iterrows(), 1):
         ticker = str(row.get("Ticker", "N/A"))
         win_rate = row.get("Win Rate [%]")
         profit_factor = row.get("Profit Factor")
         expectancy = row.get("Expectancy per Trade")
-        
+
         # Format values
         win_rate_str = f"{float(win_rate):.2f}%" if pd.notna(win_rate) else "N/A"
         pf_str = f"{float(profit_factor):.3f}" if pd.notna(profit_factor) else "N/A"
-        
+
         if pd.notna(expectancy):
             exp_val = float(expectancy)
             color = "green" if exp_val > 0 else "red"
             exp_str = f"[{color}]${exp_val:,.2f}[/{color}]"
         else:
             exp_str = "N/A"
-        
+
         table.add_row(
             str(idx),
             ticker,
@@ -1404,7 +1457,7 @@ def _display_performance_table(df):
             pf_str,
             exp_str,
         )
-    
+
     console.print(table)
 
 
@@ -1415,26 +1468,26 @@ def _display_risk_table(df):
         show_header=True,
         header_style="bold magenta",
     )
-    
+
     # Define columns for risk table
     table.add_column("Rank", style="cyan", no_wrap=True, justify="center", width=6)
     table.add_column("Ticker", style="bold white", no_wrap=True, width=10)
     table.add_column("Sharpe Ratio", style="green", justify="right", width=13)
     table.add_column("Sortino Ratio", style="blue", justify="right", width=14)
     table.add_column("Max Drawdown [%]", style="red", justify="right", width=17)
-    
+
     # Add rows
     for idx, (_, row) in enumerate(df.head(50).iterrows(), 1):
         ticker = str(row.get("Ticker", "N/A"))
         sharpe = row.get("Sharpe Ratio")
         sortino = row.get("Sortino Ratio")
         max_dd = row.get("Max Drawdown [%]")
-        
+
         # Format values
         sharpe_str = f"{float(sharpe):.3f}" if pd.notna(sharpe) else "N/A"
         sortino_str = f"{float(sortino):.3f}" if pd.notna(sortino) else "N/A"
         dd_str = f"[red]{float(max_dd):.2f}%[/red]" if pd.notna(max_dd) else "N/A"
-        
+
         table.add_row(
             str(idx),
             ticker,
@@ -1442,7 +1495,7 @@ def _display_risk_table(df):
             sortino_str,
             dd_str,
         )
-    
+
     console.print(table)
 
 
@@ -1491,18 +1544,17 @@ async def _persist_sweep_results_to_database(
         None
     """
     import uuid
+
     from app.database.config import db_manager, is_database_available
     from app.database.strategy_sweep_repository import StrategySweepRepository
 
     try:
         # Initialize database connection if not already initialized
         await db_manager.initialize()
-        
+
         # Check database availability
         if not await is_database_available():
-            console.warning(
-                "💾 Database unavailable - results saved to CSV files only"
-            )
+            console.warning("💾 Database unavailable - results saved to CSV files only")
             await db_manager.close()
             return
 
@@ -1515,7 +1567,7 @@ async def _persist_sweep_results_to_database(
                 config.ticker if isinstance(config.ticker, list) else [config.ticker]
             ),
             "strategy_types": [
-                st.value if hasattr(st, "value") else str(st) 
+                st.value if hasattr(st, "value") else str(st)
                 for st in config.strategy_types
             ],
             "fast_period_min": config.fast_period_min,
@@ -1526,12 +1578,18 @@ async def _persist_sweep_results_to_database(
             "signal_period_max": config.signal_period_max,
             "years": config.years,
             "market_type": (
-                config.market_type.value if hasattr(config.market_type, "value") 
-                else str(config.market_type) if config.market_type else None
+                config.market_type.value
+                if hasattr(config.market_type, "value")
+                else str(config.market_type)
+                if config.market_type
+                else None
             ),
             "direction": (
-                config.direction.value if hasattr(config.direction, "value") 
-                else str(config.direction) if config.direction else None
+                config.direction.value
+                if hasattr(config.direction, "value")
+                else str(config.direction)
+                if config.direction
+                else None
             ),
             "minimums": {
                 "win_rate": config.minimums.win_rate,
@@ -1542,31 +1600,36 @@ async def _persist_sweep_results_to_database(
         }
 
         # Read portfolio data from generated CSV files
-        import polars as pl
         from pathlib import Path
-        
+
+        import polars as pl
+
         results_to_save = []
         data_dir = Path("data/raw/portfolios")
-        
+
         # Determine tickers to process
         tickers = config.ticker if isinstance(config.ticker, list) else [config.ticker]
-        
+
         # Iterate through all ticker-strategy combinations
         for ticker in tickers:
             for strategy_type in config.strategy_types:
-                strategy_name = strategy_type.value if hasattr(strategy_type, "value") else str(strategy_type)
-                
+                strategy_name = (
+                    strategy_type.value
+                    if hasattr(strategy_type, "value")
+                    else str(strategy_type)
+                )
+
                 # Determine timeframe suffix
                 timeframe_suffix = "_D"  # Default to daily
                 if config.use_4hour:
                     timeframe_suffix = "_4H"
                 elif config.use_2day:
                     timeframe_suffix = "_2D"
-                
+
                 # Build CSV filename
                 csv_filename = f"{ticker}{timeframe_suffix}_{strategy_name}.csv"
                 csv_path = data_dir / csv_filename
-                
+
                 if csv_path.exists():
                     try:
                         df = pl.read_csv(csv_path)
@@ -1583,7 +1646,7 @@ async def _persist_sweep_results_to_database(
 
         # Initialize repository and save results
         repository = StrategySweepRepository(db_manager)
-        
+
         # Display consolidated database persistence message
         console.info(f"💾 Database: Saving {len(results_to_save):,} portfolios...")
         inserted_count = await repository.save_sweep_results(
@@ -1597,7 +1660,7 @@ async def _persist_sweep_results_to_database(
         console.success(
             f"💾 Database: Persisted {inserted_count:,} records (run ID: {run_id_short}...)"
         )
-        
+
         # Close database connection
         await db_manager.close()
 
@@ -1679,7 +1742,7 @@ def _display_strategy_summary(
         console.heading("Files Generated", level=2)
 
         # Group files by type for better display
-        file_types = {
+        file_types: dict[str, list[str]] = {
             "portfolios": [],
             "portfolios_filtered": [],
             "portfolios_metrics": [],
@@ -1832,10 +1895,10 @@ def sector_compare(
     format: str = typer.Option(
         "table", "--format", "-f", help="Output format: table, json, csv"
     ),
-    export: Optional[str] = typer.Option(
+    export: str | None = typer.Option(
         None, "--export", "-e", help="Export results to file"
     ),
-    date: Optional[str] = typer.Option(
+    date: str | None = typer.Option(
         None,
         "--date",
         "-d",
@@ -1847,7 +1910,7 @@ def sector_compare(
     explain_columns: bool = typer.Option(
         False, "--explain-columns", help="Explain all column meanings and exit"
     ),
-    vs_benchmark: Optional[str] = typer.Option(
+    vs_benchmark: str | None = typer.Option(
         None,
         "--vs-benchmark",
         help="Compare against benchmark (SPY, BTC-USD, or any ticker)",

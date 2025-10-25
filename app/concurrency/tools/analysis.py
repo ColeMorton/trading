@@ -157,7 +157,7 @@ def analyze_concurrency(
     log: Callable[[str, str], None],
 ) -> tuple[ConcurrencyStats, list[pl.DataFrame]]:
     """Analyze concurrent positions across multiple strategies."""
-    stats = {}
+    stats: dict[str, Any] = {}
     signal_metrics = {}
     try:
         validate_inputs(data_list, config_list, log)

@@ -7,7 +7,6 @@ and management operations.
 
 import os
 from pathlib import Path
-from typing import Optional
 
 import pandas as pd
 from rich import print as rprint
@@ -61,10 +60,10 @@ console = Console()
 @app.command()
 def update(
     ctx: typer.Context,
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--config", "-c", help="Configuration profile name"
     ),
-    portfolio_file: Optional[str] = typer.Option(
+    portfolio_file: str | None = typer.Option(
         None, "--portfolio", "-p", help="Portfolio filename to process"
     ),
     refresh: bool = typer.Option(
@@ -179,13 +178,13 @@ def update(
 @app.command()
 def process(
     ctx: typer.Context,
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--config", "-c", help="Configuration profile name"
     ),
-    input_dir: Optional[Path] = typer.Option(
+    input_dir: Path | None = typer.Option(
         None, "--input-dir", help="Input directory containing portfolio files"
     ),
-    output_dir: Optional[Path] = typer.Option(
+    output_dir: Path | None = typer.Option(
         None, "--output-dir", help="Output directory for processed results"
     ),
     format: str = typer.Option("csv", "--format", help="Output format: csv, json"),
@@ -428,7 +427,7 @@ def process(
 @app.command()
 def aggregate(
     ctx: typer.Context,
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--config", "-c", help="Configuration profile name"
     ),
     by_ticker: bool = typer.Option(
@@ -442,7 +441,7 @@ def aggregate(
     calculate_breadth: bool = typer.Option(
         True, "--breadth/--no-breadth", help="Calculate breadth metrics"
     ),
-    output_file: Optional[str] = typer.Option(
+    output_file: str | None = typer.Option(
         None, "--output", "-o", help="Output filename for aggregated results"
     ),
 ):
@@ -619,14 +618,14 @@ def aggregate(
 @app.command()
 def synthesize(
     ctx: typer.Context,
-    profile: Optional[str] = typer.Option(
+    profile: str | None = typer.Option(
         None, "--config", "-c", help="Configuration profile name"
     ),
-    strategy_name: Optional[str] = typer.Option(
+    strategy_name: str | None = typer.Option(
         None, "--strategy", help="Single strategy name (e.g., AAPL_SMA_20_50)"
     ),
-    ticker: Optional[str] = typer.Option(None, "--ticker", help="Single ticker symbol"),
-    benchmark: Optional[str] = typer.Option(
+    ticker: str | None = typer.Option(None, "--ticker", help="Single ticker symbol"),
+    benchmark: str | None = typer.Option(
         None, "--benchmark", help="Benchmark symbol for comparison"
     ),
     output_format: str = typer.Option(
@@ -644,12 +643,12 @@ def synthesize(
     export_raw_data: bool = typer.Option(
         False, "--export-raw-data", help="Export raw data from VectorBT portfolios"
     ),
-    raw_data_formats: Optional[str] = typer.Option(
+    raw_data_formats: str | None = typer.Option(
         None,
         "--raw-data-formats",
         help="Comma-separated export formats: csv,json,parquet,pickle",
     ),
-    raw_data_types: Optional[str] = typer.Option(
+    raw_data_types: str | None = typer.Option(
         None,
         "--raw-data-types",
         help="Comma-separated data types: portfolio_value,returns,trades,orders,positions,statistics,prices,drawdowns,cumulative_returns,all",
@@ -659,7 +658,7 @@ def synthesize(
         "--include-vectorbt",
         help="Export VectorBT portfolio objects for full functionality",
     ),
-    raw_data_output_dir: Optional[str] = typer.Option(
+    raw_data_output_dir: str | None = typer.Option(
         None,
         "--raw-data-output-dir",
         help="Custom output directory for raw data exports",
@@ -1010,10 +1009,10 @@ def synthesize(
 @app.command()
 def review(
     ctx: typer.Context,
-    portfolio: Optional[str] = typer.Option(
+    portfolio: str | None = typer.Option(
         None, "--portfolio", "-p", help="Portfolio filename to review"
     ),
-    ticker: Optional[list[str]] = typer.Option(
+    ticker: list[str] | None = typer.Option(
         None,
         "--ticker",
         "-t",
@@ -1058,6 +1057,7 @@ def review(
 
         # Import required modules
         from pathlib import Path
+
         import pandas as pd
 
         # Validate that either portfolio or ticker is provided
@@ -1070,33 +1070,37 @@ def review(
 
         # Determine loading mode: portfolio file or individual ticker files
         loaded_from_tickers = False
-        
+
         if portfolio is None and ticker:
             # Load from individual ticker strategy files
             from .strategy_utils import process_ticker_input
 
             ticker_list = process_ticker_input(ticker)
-            console.heading(f"Portfolio Review: Ticker Strategy Files", level=1)
-            console.info(f"Loading strategies for {len(ticker_list)} tickers: {', '.join(ticker_list)}")
-            
+            console.heading("Portfolio Review: Ticker Strategy Files", level=1)
+            console.info(
+                f"Loading strategies for {len(ticker_list)} tickers: {', '.join(ticker_list)}"
+            )
+
             dfs = []
             strategies_dir = Path("data/raw/strategies")
-            
+
             for t in ticker_list:
                 ticker_path = strategies_dir / f"{t}.csv"
                 if ticker_path.exists():
                     try:
                         df_ticker = pd.read_csv(ticker_path)
                         dfs.append(df_ticker)
-                        console.info(f"  ✓ Loaded {len(df_ticker)} strategies from {t}.csv")
+                        console.info(
+                            f"  ✓ Loaded {len(df_ticker)} strategies from {t}.csv"
+                        )
                     except Exception as e:
                         console.warning(f"  ✗ Error loading {t}.csv: {e}")
                 else:
                     console.warning(f"  ✗ Strategy file not found: {ticker_path}")
-            
+
             if not dfs:
                 console.error("No strategy files found for specified tickers")
-                
+
                 # Show available ticker files
                 if strategies_dir.exists():
                     available = [f.stem for f in strategies_dir.glob("*.csv")]
@@ -1107,11 +1111,13 @@ def review(
                         if len(available) > 10:
                             console.info(f"  ... and {len(available) - 10} more")
                 raise typer.Exit(1)
-            
+
             df = pd.concat(dfs, ignore_index=True)
-            console.info(f"✓ Successfully loaded {len(df)} strategies from {len(dfs)} ticker file(s)")
+            console.info(
+                f"✓ Successfully loaded {len(df)} strategies from {len(dfs)} ticker file(s)"
+            )
             loaded_from_tickers = True
-            
+
         else:
             # Load from portfolio file (existing behavior)
             portfolio_path = f"data/raw/strategies/{resolve_portfolio_path(portfolio)}"
@@ -1152,7 +1158,9 @@ def review(
                 # Filter DataFrame by ticker symbols (case-insensitive)
                 if "Ticker" in df.columns:
                     original_count = len(df)
-                    df = df[df["Ticker"].str.upper().isin([t.upper() for t in ticker_list])]
+                    df = df[
+                        df["Ticker"].str.upper().isin([t.upper() for t in ticker_list])
+                    ]
                     filtered_count = len(df)
                     console.info(
                         f"Filtered from {original_count} to {filtered_count} strategies"

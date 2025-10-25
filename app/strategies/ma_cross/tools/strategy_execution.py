@@ -5,6 +5,7 @@ This module handles the execution of trading strategies, including portfolio pro
 filtering, and best portfolio selection for both single and multiple tickers.
 """
 
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import TYPE_CHECKING, Any, Optional
 import uuid
@@ -35,7 +36,7 @@ if TYPE_CHECKING:
     from app.tools.progress_tracking import ProgressTracker
 
 
-def execute_single_strategy(ticker: str, config: Config, log: callable) -> dict | None:
+def execute_single_strategy(ticker: str, config: Config, log: Callable) -> dict | None:
     """Execute a single strategy with specified parameters.
 
     This function tests a specific MA strategy (SMA or EMA) with exact window
@@ -139,7 +140,7 @@ def execute_single_strategy(ticker: str, config: Config, log: callable) -> dict 
 def process_single_ticker(
     ticker: str,
     config: Config,
-    log: callable,
+    log: Callable,
     progress_update_fn=None,
 ) -> dict[str, Any] | None:
     """Process a single ticker through the portfolio analysis pipeline.
@@ -283,7 +284,7 @@ def process_single_ticker(
 
 
 def process_ticker_batch(
-    ticker_batch: list[str], config: Config, strategy_type: str, log: callable
+    ticker_batch: list[str], config: Config, strategy_type: str, log: Callable
 ) -> list[dict[str, Any]]:
     """Process a batch of tickers sequentially within a single thread.
 
@@ -381,7 +382,7 @@ def create_ticker_batches(
 def execute_strategy_concurrent(
     config: Config,
     strategy_type: str,
-    log: callable,
+    log: Callable,
     progress_tracker: Optional["ProgressTracker"] = None,
     max_workers: int = 4,
 ) -> list[dict[str, Any]]:
@@ -533,7 +534,7 @@ def execute_strategy_concurrent(
 def execute_strategy(
     config: Config,
     strategy_type: str,
-    log: callable,
+    log: Callable,
     progress_update_fn=None,
 ) -> list[dict[str, Any]]:
     """Execute a trading strategy for all tickers.

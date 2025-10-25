@@ -39,7 +39,9 @@ class StrategyService(BaseCommandService):
         await self.update_progress(80, "Processing results...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
@@ -79,7 +81,9 @@ class StrategyService(BaseCommandService):
         await self.update_progress(90, "Processing sweep results...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
@@ -114,7 +118,9 @@ class StrategyService(BaseCommandService):
         await self.update_progress(80, "Processing review...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
@@ -151,7 +157,9 @@ class StrategyService(BaseCommandService):
         await self.update_progress(80, "Processing comparison results...")
 
         if not result["success"]:
-            error_msg = result.get("stderr") or result.get("error", "Unknown error occurred")
+            error_msg = result.get("stderr") or result.get(
+                "error", "Unknown error occurred"
+            )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED

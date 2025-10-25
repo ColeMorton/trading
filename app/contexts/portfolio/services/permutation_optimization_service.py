@@ -315,7 +315,7 @@ class PermutationOptimizationService:
         if not sector_limits:
             return True
 
-        sector_counts = {}
+        sector_counts: dict[str, int] = {}
         for strategy in combination:
             # Extract sector from ticker (simplified logic)
             ticker = strategy.get("ticker", strategy.get("Ticker", ""))

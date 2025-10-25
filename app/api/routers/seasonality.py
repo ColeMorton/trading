@@ -35,7 +35,7 @@ async def seasonality_run(
     Run seasonality analysis on stock price data.
 
     Analyzes historical price patterns to identify seasonal trends.
-    
+
     **Webhook Support:**
     Include `webhook_url` in request to receive a callback when analysis completes.
     """
@@ -68,7 +68,7 @@ async def seasonality_list(
 ):
     """
     List available tickers for seasonality analysis.
-    
+
     **Webhook Support:**
     Include `webhook_url` in request to receive a callback when listing completes.
     """
@@ -101,7 +101,7 @@ async def seasonality_results(
 ):
     """
     View seasonality analysis results for specific ticker.
-    
+
     **Webhook Support:**
     Include `webhook_url` in request to receive a callback when results are ready.
     """
@@ -134,7 +134,7 @@ async def seasonality_clean(
 ):
     """
     Clean up seasonality results directory.
-    
+
     **Webhook Support:**
     Include `webhook_url` in request to receive a callback when cleanup completes.
     """
@@ -169,7 +169,7 @@ async def seasonality_current(
     Generate current seasonality expectancy analysis.
 
     Provides forward-looking analysis for trading opportunities based on seasonal patterns.
-    
+
     **Webhook Support:**
     Include `webhook_url` in request to receive a callback when analysis completes.
     """
@@ -204,7 +204,7 @@ async def seasonality_portfolio(
     Run seasonality analysis on all tickers in a portfolio.
 
     Uses intelligent time period determination based on signal entry data.
-    
+
     **Webhook Support:**
     Include `webhook_url` in request to receive a callback when portfolio analysis completes.
     """

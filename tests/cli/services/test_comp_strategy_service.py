@@ -8,12 +8,15 @@ Tests the COMP strategy service including:
 - File path resolution
 """
 
-from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
 
-from app.cli.models.strategy import StrategyConfig, StrategyMinimums, SyntheticTickerConfig
+from app.cli.models.strategy import (
+    StrategyConfig,
+    StrategyMinimums,
+    SyntheticTickerConfig,
+)
 from app.cli.services.strategy_services import COMPStrategyService
 
 
@@ -96,7 +99,9 @@ class TestCOMPStrategyService:
         legacy_config_2d = comp_service.convert_config_to_legacy(config_2d)
         assert legacy_config_2d.get("USE_2DAY") is True
 
-    def test_convert_config_to_legacy_multiple_tickers(self, comp_service, base_comp_config):
+    def test_convert_config_to_legacy_multiple_tickers(
+        self, comp_service, base_comp_config
+    ):
         """Test config conversion with multiple tickers."""
         config = base_comp_config
         config.ticker = ["BTC-USD", "ETH-USD", "SOL-USD"]
@@ -106,7 +111,9 @@ class TestCOMPStrategyService:
         assert legacy_config["TICKER"] == ["BTC-USD", "ETH-USD", "SOL-USD"]
 
     @patch("app.cli.services.strategy_services.importlib")
-    def test_execute_strategy_success(self, mock_importlib, comp_service, base_comp_config):
+    def test_execute_strategy_success(
+        self, mock_importlib, comp_service, base_comp_config
+    ):
         """Test successful strategy execution."""
         # Mock the COMP strategy module
         mock_module = Mock()
@@ -274,4 +281,3 @@ class TestCOMPStrategyIntegration:
         assert result is True
         # The strategy module's run function is called
         mock_run.assert_called_once()
-
