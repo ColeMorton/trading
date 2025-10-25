@@ -84,7 +84,7 @@ class SchemaValidator:
         Returns:
             Comprehensive validation result dictionary
         """
-        validation_result = {
+        validation_result: dict[str, Any] = {
             "is_valid": True,
             "source_file": source_file,
             "total_rows": len(df),

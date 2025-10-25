@@ -326,7 +326,7 @@ class StrategySweepResult(Base):
     
     def get_metric_types_by_category(self) -> dict[str, List[str]]:
         """Get metric types grouped by category."""
-        result = {}
+        result: dict[str, list[str]] = {}
         for assoc in self.metric_type_associations:
             category = assoc.metric_type.category or "other"
             if category not in result:

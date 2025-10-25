@@ -670,7 +670,7 @@ class JSONAdapter(FormatAdapter):
 
     def _standardize_json_structure(self, json_data: dict[str, Any]) -> dict[str, Any]:
         """Standardize JSON structure to common format."""
-        standardized = {"ticker_metrics": {}, "portfolio_metrics": {}, "metadata": {}}
+        standardized: dict[str, Any] = {"ticker_metrics": {}, "portfolio_metrics": {}, "metadata": {}}
 
         # Handle different JSON schema versions
         if "ticker_metrics" in json_data:

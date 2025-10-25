@@ -144,7 +144,7 @@ class AutomatedExitSignalGenerator:
         """
         try:
             # Create signal generation tasks
-            signal_tasks = []
+            signal_tasks: list[tuple[str, Any]] = []
             for position_data in positions_data:
                 position_id = position_data.get(
                     "position_id", f"pos_{len(signal_tasks)}"

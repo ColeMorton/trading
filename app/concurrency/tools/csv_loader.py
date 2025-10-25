@@ -147,7 +147,7 @@ class CSVLoader:
             CSVLoadResult with loaded data and metadata
         """
         csv_path = Path(csv_path)
-        warnings_list = []
+        warnings_list: list[str] = []
         errors_list = []
 
         try:

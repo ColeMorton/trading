@@ -162,7 +162,7 @@ def generate_json_report(
                 strategy_results = {}
                 for strategy_id, result in monte_carlo_results.items():
                     # Convert MonteCarloPortfolioResult to serializable format
-                    strategy_data = {
+                    strategy_data: dict[str, Any] = {
                         "strategy_id": strategy_id,
                         "ticker": getattr(
                             result,

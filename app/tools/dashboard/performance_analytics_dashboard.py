@@ -308,7 +308,7 @@ class PerformanceAnalyticsDashboard:
             completed_trades = await self._load_completed_trades()
 
             # Analyze signal distribution
-            signal_distribution = defaultdict(int)
+            signal_distribution: dict[str, int] = defaultdict(int)
             signal_performance = defaultdict(list)
 
             for trade in completed_trades:

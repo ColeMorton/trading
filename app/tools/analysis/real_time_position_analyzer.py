@@ -178,7 +178,7 @@ class RealTimePositionAnalyzer:
                     analysis_tasks.append((position_id, task))
 
             # Execute analyses in parallel
-            results = {}
+            results: dict[str, dict[str, Any]] = {}
             if analysis_tasks:
                 task_results = await asyncio.gather(
                     *[task for _, task in analysis_tasks], return_exceptions=True

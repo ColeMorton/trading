@@ -639,7 +639,7 @@ class SPDSCalculationCorrector:
         Returns:
             Corrected analysis results
         """
-        results = {
+        results: dict[str, Any] = {
             "original_metrics": {},
             "corrected_metrics": {},
             "validation_results": {},
