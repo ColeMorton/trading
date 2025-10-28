@@ -28,7 +28,7 @@ class DataMigrationManager:
     """Manager for data migration and cleanup operations."""
 
     def __init__(
-        self, base_dir: Path | None = None, logger: logging.Logger | None = None
+        self, base_dir: Path | None = None, logger: logging.Logger | None = None,
     ):
         """
         Initialize migration manager.
@@ -92,24 +92,24 @@ class DataMigrationManager:
                             "file": str(file_path),
                             "fixes_applied": file_result["fixes_applied"],
                             "positions_processed": file_result["positions_processed"],
-                        }
+                        },
                     )
                     results["total_fixes"] += file_result["total_fixes"]
                 else:
                     results["failed_files"].append(
-                        {"file": str(file_path), "error": file_result["error"]}
+                        {"file": str(file_path), "error": file_result["error"]},
                     )
 
             except Exception as e:
-                self.logger.error(f"Failed to migrate {file_path}: {e}")
+                self.logger.exception(f"Failed to migrate {file_path}: {e}")
                 results["failed_files"].append(
-                    {"file": str(file_path), "error": str(e)}
+                    {"file": str(file_path), "error": str(e)},
                 )
 
         # Summary
         self.logger.info("Migration complete:")
         self.logger.info(
-            f"  Successfully migrated: {len(results['migrated_files'])} files"
+            f"  Successfully migrated: {len(results['migrated_files'])} files",
         )
         self.logger.info(f"  Failed migrations: {len(results['failed_files'])} files")
         self.logger.info(f"  Total fixes applied: {results['total_fixes']}")
@@ -138,7 +138,7 @@ class DataMigrationManager:
 
             self.logger.info(f"  Original positions: {original_count}")
             self.logger.info(
-                f"  Issues found: {len(validation_results['critical_issues'])}"
+                f"  Issues found: {len(validation_results['critical_issues'])}",
             )
 
             # Apply fixes
@@ -162,13 +162,13 @@ class DataMigrationManager:
             }
 
             self.logger.info(
-                f"  Migration complete: {len(fixes_applied)} fixes applied"
+                f"  Migration complete: {len(fixes_applied)} fixes applied",
             )
 
             return result
 
         except Exception as e:
-            self.logger.error(f"Failed to migrate {file_path}: {e}")
+            self.logger.exception(f"Failed to migrate {file_path}: {e}")
             return {
                 "success": False,
                 "error": str(e),
@@ -178,7 +178,7 @@ class DataMigrationManager:
             }
 
     def _apply_comprehensive_migration(
-        self, df: pd.DataFrame
+        self, df: pd.DataFrame,
     ) -> tuple[pd.DataFrame, list[str]]:
         """
         Apply comprehensive migration fixes to a DataFrame.
@@ -305,7 +305,7 @@ class DataMigrationManager:
                 numeric_mask = pd.to_numeric(df[col], errors="coerce").notna()
                 if numeric_mask.any():
                     df.loc[numeric_mask, col] = pd.to_numeric(
-                        df.loc[numeric_mask, col]
+                        df.loc[numeric_mask, col],
                     ).round(6)
                     precision_fixes += numeric_mask.sum()
 
@@ -332,7 +332,7 @@ class DataMigrationManager:
 
         if sci_notation_fixes > 0:
             fixes.append(
-                f"Converted {sci_notation_fixes} scientific notation values to decimal"
+                f"Converted {sci_notation_fixes} scientific notation values to decimal",
             )
 
         return fixes
@@ -404,12 +404,12 @@ class DataMigrationManager:
             return True
 
         except Exception as e:
-            self.logger.error(f"Rollback failed: {e}")
+            self.logger.exception(f"Rollback failed: {e}")
             return False
 
 
 def migrate_portfolio_data(
-    base_dir: str | None = None, create_backup: bool = True
+    base_dir: str | None = None, create_backup: bool = True,
 ) -> dict[str, Any]:
     """
     Convenience function to migrate all portfolio data.

@@ -155,7 +155,7 @@ def process_strategy(config, log):
         if config.get("STRATEGY_TYPE") == "MACD":
             # For MACD strategies, we need the signal period
             signal_period = config.get(
-                "SIGNAL_PERIOD", 9
+                "SIGNAL_PERIOD", 9,
             )  # Default to 9 if not specified
             data = calculate_macd_and_signals(
                 data,
@@ -168,11 +168,10 @@ def process_strategy(config, log):
         else:
             # Default to MA strategy
             data = calculate_ma_and_signals(
-                data, config["FAST_PERIOD"], config["SLOW_PERIOD"], config, log
+                data, config["FAST_PERIOD"], config["SLOW_PERIOD"], config, log,
             )
 
-        portfolio = backtest_strategy(data, config, log)
-        return portfolio
+        return backtest_strategy(data, config, log)
     except Exception as e:
         log(f"Error processing strategy: {e!s}", "error")
         return None
@@ -199,7 +198,7 @@ def run(
         bool: True if analysis successful
     """
     log, log_close, _, _ = setup_logging(
-        module_name="portfolio_review", log_file="review.log"
+        module_name="portfolio_review", log_file="review.log",
     )
 
     # Convert new parameters to legacy format for backward compatibility
@@ -213,19 +212,19 @@ def run(
         # Convert timeframe to legacy flags
         if timeframe == "hourly":
             legacy_params.update(
-                {"USE_HOURLY": True, "USE_4HOUR": False, "USE_2DAY": False}
+                {"USE_HOURLY": True, "USE_4HOUR": False, "USE_2DAY": False},
             )
         elif timeframe == "4hour":
             legacy_params.update(
-                {"USE_HOURLY": False, "USE_4HOUR": True, "USE_2DAY": False}
+                {"USE_HOURLY": False, "USE_4HOUR": True, "USE_2DAY": False},
             )
         elif timeframe == "2day":
             legacy_params.update(
-                {"USE_HOURLY": False, "USE_4HOUR": False, "USE_2DAY": True}
+                {"USE_HOURLY": False, "USE_4HOUR": False, "USE_2DAY": True},
             )
         else:  # daily (default)
             legacy_params.update(
-                {"USE_HOURLY": False, "USE_4HOUR": False, "USE_2DAY": False}
+                {"USE_HOURLY": False, "USE_4HOUR": False, "USE_2DAY": False},
             )
 
         # Convert strategy_type to legacy USE_SMA flag
@@ -283,7 +282,7 @@ def run(
 
             # Apply parameter conversion to config_dict
             legacy_params = convert_parameters_to_legacy(
-                config_timeframe, config_strategy_type, config_signal_period
+                config_timeframe, config_strategy_type, config_signal_period,
             )
             enhanced_config = {**config_dict, **legacy_params}
 
@@ -298,7 +297,7 @@ def run(
             if config_strategy_type == "MACD":
                 # For MACD strategies, we need the signal period
                 config_signal_period = config.get(
-                    "SIGNAL_PERIOD", 9
+                    "SIGNAL_PERIOD", 9,
                 )  # Default to 9 if not specified
                 data = calculate_macd_and_signals(
                     data,
@@ -311,7 +310,7 @@ def run(
             else:
                 # Default to MA strategy
                 data = calculate_ma_and_signals(
-                    data, config["FAST_PERIOD"], config["SLOW_PERIOD"], config, log
+                    data, config["FAST_PERIOD"], config["SLOW_PERIOD"], config, log,
                 )
 
             portfolio = backtest_strategy(data, config, log)
@@ -323,7 +322,7 @@ def run(
         value_series = portfolio.value()
         initial_value = value_series[0]
         equity_curve = pl.DataFrame(
-            {"Date": value_series.index, "Close": value_series.values / initial_value}
+            {"Date": value_series.index, "Close": value_series.values / initial_value},
         )
 
         # Export to CSV - use appropriate directory based on strategy type

@@ -48,7 +48,8 @@ class ConfigurationService:
                 break
 
         if not config_path:
-            raise FileNotFoundError(f"Configuration file not found: {config_name}")
+            msg = f"Configuration file not found: {config_name}"
+            raise FileNotFoundError(msg)
 
         try:
             with open(config_path) as f:
@@ -66,11 +67,11 @@ class ConfigurationService:
             return validated_config
 
         except Exception as e:
-            self.logger.error(f"Failed to load configuration {config_name}: {e!s}")
+            self.logger.exception(f"Failed to load configuration {config_name}: {e!s}")
             raise
 
     def save_config(
-        self, config_name: str, config: dict[str, Any], format: str = "yaml"
+        self, config_name: str, config: dict[str, Any], format: str = "yaml",
     ) -> bool:
         """Save configuration to file."""
         try:
@@ -98,19 +99,19 @@ class ConfigurationService:
             return True
 
         except Exception as e:
-            self.logger.error(f"Failed to save configuration {config_name}: {e!s}")
+            self.logger.exception(f"Failed to save configuration {config_name}: {e!s}")
             return False
 
     def get_config_value(
-        self, config_name: str, key_path: str, default: Any = None
+        self, config_name: str, key_path: str, default: Any = None,
     ) -> Any:
         """Get specific configuration value using dot notation."""
         try:
             config = self.load_config(config_name)
             return self._get_nested_value(config, key_path, default)
         except Exception as e:
-            self.logger.error(
-                f"Failed to get config value {config_name}.{key_path}: {e!s}"
+            self.logger.exception(
+                f"Failed to get config value {config_name}.{key_path}: {e!s}",
             )
             return default
 
@@ -121,8 +122,8 @@ class ConfigurationService:
             self._set_nested_value(config, key_path, value)
             return self.save_config(config_name, config)
         except Exception as e:
-            self.logger.error(
-                f"Failed to set config value {config_name}.{key_path}: {e!s}"
+            self.logger.exception(
+                f"Failed to set config value {config_name}.{key_path}: {e!s}",
             )
             return False
 
@@ -132,11 +133,10 @@ class ConfigurationService:
             base = self.load_config(base_config)
             override = self.load_config(override_config)
 
-            merged = self._deep_merge(base, override)
-            return merged
+            return self._deep_merge(base, override)
 
         except Exception as e:
-            self.logger.error(f"Failed to merge configurations: {e!s}")
+            self.logger.exception(f"Failed to merge configurations: {e!s}")
             return {}
 
     def list_configs(self) -> List[str]:
@@ -162,17 +162,18 @@ class ConfigurationService:
             self._validate_config(config_name, config)
             return True
         except Exception as e:
-            self.logger.error(
-                f"Configuration validation failed for {config_name}: {e!s}"
+            self.logger.exception(
+                f"Configuration validation failed for {config_name}: {e!s}",
             )
             return False
 
     def _validate_config(
-        self, config_name: str, config: dict[str, Any]
+        self, config_name: str, config: dict[str, Any],
     ) -> dict[str, Any]:
         """Validate configuration structure and values."""
         if not isinstance(config, dict):
-            raise ValueError("Configuration must be a dictionary")
+            msg = "Configuration must be a dictionary"
+            raise ValueError(msg)
 
         # Basic validation - extend as needed
         if config_name == "spds":
@@ -191,13 +192,15 @@ class ConfigurationService:
 
         for key in required_keys:
             if key not in config:
-                raise ValueError(f"Missing required SPDS configuration key: {key}")
+                msg = f"Missing required SPDS configuration key: {key}"
+                raise ValueError(msg)
 
         # Validate confidence level
         if not isinstance(config["confidence_level"], int | float) or not (
             0 < config["confidence_level"] <= 1
         ):
-            raise ValueError("Confidence level must be a number between 0 and 1")
+            msg = "Confidence level must be a number between 0 and 1"
+            raise ValueError(msg)
 
         return config
 
@@ -207,7 +210,8 @@ class ConfigurationService:
 
         for key in required_keys:
             if key not in config:
-                raise ValueError(f"Missing required trading configuration key: {key}")
+                msg = f"Missing required trading configuration key: {key}"
+                raise ValueError(msg)
 
         return config
 
@@ -217,12 +221,13 @@ class ConfigurationService:
 
         for key in required_keys:
             if key not in config:
-                raise ValueError(f"Missing required database configuration key: {key}")
+                msg = f"Missing required database configuration key: {key}"
+                raise ValueError(msg)
 
         return config
 
     def _get_nested_value(
-        self, config: dict[str, Any], key_path: str, default: Any = None
+        self, config: dict[str, Any], key_path: str, default: Any = None,
     ) -> Any:
         """Get nested value using dot notation."""
         keys = key_path.split(".")
@@ -237,7 +242,7 @@ class ConfigurationService:
         return current
 
     def _set_nested_value(
-        self, config: dict[str, Any], key_path: str, value: Any
+        self, config: dict[str, Any], key_path: str, value: Any,
     ) -> None:
         """Set nested value using dot notation."""
         keys = key_path.split(".")
@@ -251,7 +256,7 @@ class ConfigurationService:
         current[keys[-1]] = value
 
     def _deep_merge(
-        self, base: dict[str, Any], override: dict[str, Any]
+        self, base: dict[str, Any], override: dict[str, Any],
     ) -> dict[str, Any]:
         """Deep merge two dictionaries."""
         result = base.copy()

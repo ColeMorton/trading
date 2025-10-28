@@ -38,9 +38,8 @@ def calculate_ma_and_signals(
         strategy = factory.create_strategy(strategy_type)
 
         # Execute strategy calculation
-        result = strategy.calculate(data, fast_period, slow_period, config, log)
+        return strategy.calculate(data, fast_period, slow_period, config, log)
 
-        return result
 
     except Exception as e:
         # Log error with context

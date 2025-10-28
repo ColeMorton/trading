@@ -18,7 +18,7 @@ class ExecutionTemplate:
         strategy_name = self.config.strategy_name
         class_name = strategy_name.replace("_", "").title()
 
-        template = f'''"""
+        return f'''"""
 Portfolio Analysis Module for {class_name} Strategy
 
 This module handles portfolio analysis for the {strategy_name} strategy, supporting both
@@ -347,7 +347,6 @@ if __name__ == "__main__":
     )
 '''
 
-        return template
 
     def generate_strategy_execution_file(self) -> str:
         """Generate the strategy execution file template."""
@@ -358,7 +357,7 @@ if __name__ == "__main__":
         indicator_code = self._generate_indicator_calculations()
         signal_code = self._generate_signal_logic()
 
-        template = f'''"""
+        return f'''"""
 Strategy Execution Module for {class_name} Strategy
 
 This module contains the core strategy execution logic for {strategy_name}.
@@ -480,7 +479,6 @@ def validate_strategy_config(config: Dict[str, Any]) -> bool:
     return True
 '''
 
-        return template
 
     def _generate_indicator_calculations(self) -> str:
         """Generate indicator calculation code based on strategy configuration."""
@@ -512,7 +510,7 @@ def validate_strategy_config(config: Dict[str, Any]) -> bool:
                     f"{indent}    pl.Series('EMA_Short', ema_short.ema_indicator()),",
                     f"{indent}    pl.Series('EMA_Long', ema_long.ema_indicator()),",
                     f"{indent}])",
-                ]
+                ],
             )
 
         elif self.config.strategy_type == StrategyType.RSI:
@@ -530,7 +528,7 @@ def validate_strategy_config(config: Dict[str, Any]) -> bool:
                     f"{indent}df = df.with_columns([",
                     f"{indent}    pl.Series('RSI', rsi.rsi()),",
                     f"{indent}])",
-                ]
+                ],
             )
 
         elif self.config.strategy_type == StrategyType.MACD:
@@ -552,7 +550,7 @@ def validate_strategy_config(config: Dict[str, Any]) -> bool:
                     f"{indent}    pl.Series('MACD_Signal', macd.macd_signal()),",
                     f"{indent}    pl.Series('MACD_Histogram', macd.macd_diff()),",
                     f"{indent}])",
-                ]
+                ],
             )
 
         elif self.config.strategy_type == StrategyType.BOLLINGER_BANDS:
@@ -573,7 +571,7 @@ def validate_strategy_config(config: Dict[str, Any]) -> bool:
                     f"{indent}    pl.Series('BB_Middle', bb.bollinger_mavg()),",
                     f"{indent}    pl.Series('BB_Lower', bb.bollinger_lband()),",
                     f"{indent}])",
-                ]
+                ],
             )
 
         else:  # CUSTOM or other types
@@ -585,7 +583,7 @@ def validate_strategy_config(config: Dict[str, Any]) -> bool:
                     f"{indent}df = df.with_columns([",
                     f"{indent}    (pl.col('Close') / pl.col('Close').shift(momentum_period) - 1).alias('Momentum'),",
                     f"{indent}])",
-                ]
+                ],
             )
 
         return "\n".join(lines)
@@ -624,7 +622,7 @@ def validate_strategy_config(config: Dict[str, Any]) -> bool:
                     f"{indent}    entry_signal.alias('Entry_Signal'),",
                     f"{indent}    exit_signal.alias('Exit_Signal'),",
                     f"{indent}])",
-                ]
+                ],
             )
 
         elif self.config.strategy_type == StrategyType.RSI:
@@ -649,7 +647,7 @@ def validate_strategy_config(config: Dict[str, Any]) -> bool:
                     f"{indent}    entry_signal.alias('Entry_Signal'),",
                     f"{indent}    exit_signal.alias('Exit_Signal'),",
                     f"{indent}])",
-                ]
+                ],
             )
 
         else:  # Default/Custom signal logic
@@ -674,7 +672,7 @@ def validate_strategy_config(config: Dict[str, Any]) -> bool:
                     f"{indent}    entry_signal.alias('Entry_Signal'),",
                     f"{indent}    exit_signal.alias('Exit_Signal'),",
                     f"{indent}])",
-                ]
+                ],
             )
 
         return "\n".join(lines)
@@ -693,7 +691,7 @@ def validate_strategy_config(config: Dict[str, Any]) -> bool:
                 f"{indent}",
                 f"{indent}if config.get('DIRECTION') not in ['Long', 'Short']:",
                 f"{indent}    raise ValueError('DIRECTION must be Long or Short')",
-            ]
+            ],
         )
 
         # Strategy-specific validation
@@ -710,7 +708,7 @@ def validate_strategy_config(config: Dict[str, Any]) -> bool:
                     f"{indent}",
                     f"{indent}if fast_period >= slow_period:",
                     f"{indent}    raise ValueError('Fast period must be less than slow period')",
-                ]
+                ],
             )
 
         elif self.config.strategy_type == StrategyType.RSI:
@@ -727,7 +725,7 @@ def validate_strategy_config(config: Dict[str, Any]) -> bool:
                     f"{indent}",
                     f"{indent}if not (0 < rsi_oversold < rsi_overbought < 100):",
                     f"{indent}    raise ValueError('Invalid RSI thresholds')",
-                ]
+                ],
             )
 
         return "\n".join(lines)
@@ -737,7 +735,7 @@ def validate_strategy_config(config: Dict[str, Any]) -> bool:
         strategy_name = self.config.strategy_name
         class_name = strategy_name.replace("_", "").title()
 
-        template = f'''"""
+        return f'''"""
 Exception classes for {class_name} Strategy
 
 Generated by Strategy Template Generator.
@@ -791,4 +789,3 @@ class {class_name}PortfolioError({class_name}Error):
         self.error_code = StrategyErrorCode.PORTFOLIO_ERROR
 '''
 
-        return template

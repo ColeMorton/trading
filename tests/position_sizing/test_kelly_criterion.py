@@ -44,7 +44,7 @@ class TestKellyCriterionSizer:
         expected = 85 / (85 + 15)  # 0.85
 
         result = self.calculator.calculate_excel_b20_equivalent(
-            num_primary, num_outliers
+            num_primary, num_outliers,
         )
 
         assert result == expected
@@ -59,7 +59,7 @@ class TestKellyCriterionSizer:
         expected = 0.25 * 0.85  # 0.2125
 
         result = self.calculator.calculate_excel_b21_equivalent(
-            num_primary, num_outliers, kelly_criterion
+            num_primary, num_outliers, kelly_criterion,
         )
 
         assert result == expected
@@ -86,7 +86,7 @@ class TestKellyCriterionSizer:
         expected = 100000.0 * 0.118  # $11,800
 
         result = self.calculator.get_max_risk_per_position(
-            portfolio_value, risk_percentage
+            portfolio_value, risk_percentage,
         )
 
         assert result == expected
@@ -106,7 +106,7 @@ class TestKellyCriterionSizer:
         expected = 11800.0 * 0.2125
 
         result = self.calculator.calculate_recommended_position_size(
-            num_primary, num_outliers, kelly_criterion, portfolio_value, risk_percentage
+            num_primary, num_outliers, kelly_criterion, portfolio_value, risk_percentage,
         )
 
         assert abs(result - expected) < 1e-10
@@ -120,7 +120,7 @@ class TestKellyCriterionSizer:
         portfolio_value = 100000.0  # Excel B2
 
         result = self.calculator.get_complete_kelly_analysis(
-            num_primary, num_outliers, kelly_criterion, portfolio_value
+            num_primary, num_outliers, kelly_criterion, portfolio_value,
         )
 
         assert isinstance(result, KellyMetrics)
@@ -147,7 +147,7 @@ class TestKellyCriterionSizer:
 
         for primary, outliers, kelly, expected_error in test_cases:
             is_valid, message = self.calculator.validate_kelly_inputs(
-                primary, outliers, kelly
+                primary, outliers, kelly,
             )
             assert not is_valid
             assert expected_error in message.lower()
@@ -176,7 +176,7 @@ class TestKellyCriterionSizer:
         kelly_criterion = 0.25
 
         result = self.calculator.get_kelly_statistics_summary(
-            num_primary, num_outliers, kelly_criterion
+            num_primary, num_outliers, kelly_criterion,
         )
 
         assert "trading_journal_stats" in result
@@ -202,10 +202,10 @@ class TestKellyCriterionSizer:
 
         for primary, outliers, kelly, expected_b20, expected_b21 in test_cases:
             b20_result = self.calculator.calculate_excel_b20_equivalent(
-                primary, outliers
+                primary, outliers,
             )
             b21_result = self.calculator.calculate_excel_b21_equivalent(
-                primary, outliers, kelly
+                primary, outliers, kelly,
             )
 
             assert abs(b20_result - expected_b20) < 1e-15  # High precision match

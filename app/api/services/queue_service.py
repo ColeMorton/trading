@@ -13,7 +13,7 @@ from ..core.config import settings
 
 
 async def enqueue_job(
-    command_group: str, command_name: str, job_id: str, parameters: dict[str, Any]
+    command_group: str, command_name: str, job_id: str, parameters: dict[str, Any],
 ) -> None:
     """
     Enqueue a job to ARQ for execution.

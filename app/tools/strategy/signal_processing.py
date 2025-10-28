@@ -34,7 +34,7 @@ class SignalProcessorBase(ABC):
 
     @abstractmethod
     def generate_current_signals(
-        self, config: dict[str, Any], log: Callable
+        self, config: dict[str, Any], log: Callable,
     ) -> pl.DataFrame:
         """Generate current signals for the strategy.
 
@@ -45,7 +45,6 @@ class SignalProcessorBase(ABC):
         Returns:
             DataFrame of current signals
         """
-        pass
 
     @abstractmethod
     def analyze_parameter_combination(
@@ -66,7 +65,6 @@ class SignalProcessorBase(ABC):
         Returns:
             Portfolio result dictionary or None
         """
-        pass
 
     def process_current_signals(
         self,
@@ -167,12 +165,12 @@ class SignalProcessorBase(ABC):
             # USE_CURRENT fast path - process only current signals without full analysis
             if config.get("USE_CURRENT", False):
                 return self.process_current_signals(
-                    ticker, config, log, progress_update_fn
+                    ticker, config, log, progress_update_fn,
                 )
 
             # Regular path - run full parameter sweep analysis
             portfolios = self._process_full_ticker_analysis(
-                ticker, config, log, progress_update_fn
+                ticker, config, log, progress_update_fn,
             )
             if portfolios is None:
                 log(f"Failed to process {ticker}", "error")
@@ -191,7 +189,7 @@ class SignalProcessorBase(ABC):
             return None
 
     def _filter_by_current_signals(
-        self, portfolios_df: pl.DataFrame, current_signals: pl.DataFrame, log: Callable
+        self, portfolios_df: pl.DataFrame, current_signals: pl.DataFrame, log: Callable,
     ) -> pl.DataFrame:
         """Filter portfolios to only include those with current signals.
 
@@ -215,7 +213,7 @@ class SignalProcessorBase(ABC):
         return filtered
 
     def _extract_signal_parameters_for_filtering(
-        self, current_signals: pl.DataFrame
+        self, current_signals: pl.DataFrame,
     ) -> dict[str, list]:
         """Extract parameter values from current signals for filtering.
 
@@ -298,7 +296,7 @@ class SignalProcessorBase(ABC):
 
         # Use strategy-specific parameter analysis
         return self.analyze_parameter_combination(
-            data, strategy_config, log, **strategy_params
+            data, strategy_config, log, **strategy_params,
         )
 
     @abstractmethod
@@ -311,7 +309,6 @@ class SignalProcessorBase(ABC):
         Returns:
             Dictionary of strategy-specific parameters
         """
-        pass
 
     @abstractmethod
     def _process_full_ticker_analysis(
@@ -332,7 +329,6 @@ class SignalProcessorBase(ABC):
         Returns:
             Portfolio results
         """
-        pass
 
 
 class MASignalProcessor(SignalProcessorBase):
@@ -348,7 +344,7 @@ class MASignalProcessor(SignalProcessorBase):
         self.ma_type = ma_type
 
     def generate_current_signals(
-        self, config: dict[str, Any], log: Callable
+        self, config: dict[str, Any], log: Callable,
     ) -> pl.DataFrame:
         """Generate current signals for MA strategy."""
         try:
@@ -377,10 +373,10 @@ class MASignalProcessor(SignalProcessorBase):
             )
 
             fast_period = strategy_params.get("fast_period") or config.get(
-                "FAST_PERIOD"
+                "FAST_PERIOD",
             )
             slow_period = strategy_params.get("slow_period") or config.get(
-                "SLOW_PERIOD"
+                "SLOW_PERIOD",
             )
 
             return analyze_window_combination(
@@ -402,7 +398,7 @@ class MASignalProcessor(SignalProcessorBase):
         }
 
     def _extract_signal_parameters_for_filtering(
-        self, current_signals: pl.DataFrame
+        self, current_signals: pl.DataFrame,
     ) -> dict[str, list]:
         """Extract MA parameter values from current signals for filtering."""
         if len(current_signals) == 0:
@@ -437,7 +433,7 @@ class MACDSignalProcessor(SignalProcessorBase):
         super().__init__("MACD")
 
     def generate_current_signals(
-        self, config: dict[str, Any], log: Callable
+        self, config: dict[str, Any], log: Callable,
     ) -> pl.DataFrame:
         """Generate current signals for MACD strategy."""
         try:
@@ -464,13 +460,13 @@ class MACDSignalProcessor(SignalProcessorBase):
             )
 
             fast_period = strategy_params.get("fast_period") or config.get(
-                "FAST_PERIOD"
+                "FAST_PERIOD",
             )
             slow_period = strategy_params.get("slow_period") or config.get(
-                "SLOW_PERIOD"
+                "SLOW_PERIOD",
             )
             signal_period = strategy_params.get("signal_period") or config.get(
-                "SIGNAL_PERIOD"
+                "SIGNAL_PERIOD",
             )
 
             return analyze_parameter_combination(
@@ -494,7 +490,7 @@ class MACDSignalProcessor(SignalProcessorBase):
         }
 
     def _extract_signal_parameters_for_filtering(
-        self, current_signals: pl.DataFrame
+        self, current_signals: pl.DataFrame,
     ) -> dict[str, list]:
         """Extract MACD parameter values from current signals for filtering."""
         if len(current_signals) == 0:
@@ -532,7 +528,7 @@ class MeanReversionSignalProcessor(SignalProcessorBase):
         super().__init__("MEAN_REVERSION")
 
     def generate_current_signals(
-        self, config: dict[str, Any], log: Callable
+        self, config: dict[str, Any], log: Callable,
     ) -> pl.DataFrame:
         """Generate current signals for Mean Reversion strategy."""
         try:
@@ -561,7 +557,7 @@ class MeanReversionSignalProcessor(SignalProcessorBase):
             change_pct = strategy_params.get("change_pct") or config.get("CHANGE_PCT")
 
             return analyze_parameter_combination(
-                data=data, change_pct=change_pct, config=config, log=log
+                data=data, change_pct=change_pct, config=config, log=log,
             )
         except ImportError:
             log("Failed to import Mean Reversion sensitivity analysis", "error")
@@ -597,7 +593,7 @@ class ATRSignalProcessor(SignalProcessorBase):
         super().__init__("ATR")
 
     def generate_current_signals(
-        self, config: dict[str, Any], log: Callable
+        self, config: dict[str, Any], log: Callable,
     ) -> pl.DataFrame:
         """Generate current signals for ATR strategy."""
         # For now, return empty DataFrame as ATR focuses on parameter sweep analysis
@@ -653,7 +649,7 @@ class SMAAtrSignalProcessor(SignalProcessorBase):
         super().__init__("SMA_ATR")
 
     def generate_current_signals(
-        self, config: dict[str, Any], log: Callable
+        self, config: dict[str, Any], log: Callable,
     ) -> pl.DataFrame:
         """Generate current signals for SMA_ATR strategy."""
         try:
@@ -691,7 +687,7 @@ class SMAAtrSignalProcessor(SignalProcessorBase):
                     or config.get("ATR_LENGTH", 14),
                     "ATR_MULTIPLIER": strategy_params.get("atr_multiplier")
                     or config.get("ATR_MULTIPLIER", 2.0),
-                }
+                },
             )
 
             ticker = config.get("TICKER", "")
@@ -713,7 +709,7 @@ class SMAAtrSignalProcessor(SignalProcessorBase):
         }
 
     def _extract_signal_parameters_for_filtering(
-        self, current_signals: pl.DataFrame
+        self, current_signals: pl.DataFrame,
     ) -> dict[str, list]:
         """Extract SMA_ATR parameter values from current signals for filtering."""
         if len(current_signals) == 0:
@@ -774,8 +770,9 @@ class SignalProcessorFactory:
         strategy_type = strategy_type.upper()
         if strategy_type not in cls._processors:
             available = ", ".join(cls._processors.keys())
+            msg = f"Unsupported strategy type: {strategy_type}. Available: {available}"
             raise ValueError(
-                f"Unsupported strategy type: {strategy_type}. Available: {available}"
+                msg,
             )
 
         return cls._processors[strategy_type]()
@@ -862,7 +859,7 @@ def process_ticker_portfolios(
 
     processor = SignalProcessorFactory.create_processor(strategy_type)
     portfolios_df = processor.process_ticker_portfolios(
-        ticker, config, log, progress_update_fn
+        ticker, config, log, progress_update_fn,
     )
 
     if portfolios_df is not None and len(portfolios_df) > 0:
@@ -874,7 +871,7 @@ def process_ticker_portfolios(
             portfolios_df = portfolios_df.sort(sort_by, descending=not sort_asc)
             if log:
                 log(
-                    f"Sorted portfolios by {sort_by} ({'ascending' if sort_asc else 'descending'})"
+                    f"Sorted portfolios by {sort_by} ({'ascending' if sort_asc else 'descending'})",
                 )
         elif log:
             log(

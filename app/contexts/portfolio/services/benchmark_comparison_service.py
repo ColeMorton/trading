@@ -86,7 +86,7 @@ class BenchmarkComparisonService:
             if benchmark_config.strategy_type == "buy_and_hold":
                 try:
                     return self._create_buy_and_hold_benchmark(
-                        benchmark_config.symbol, start_date, end_date, init_cash, fees
+                        benchmark_config.symbol, start_date, end_date, init_cash, fees,
                     )
                 except ValueError as e:
                     # Try fallback symbols if original symbol fails
@@ -120,21 +120,25 @@ class BenchmarkComparisonService:
                             f"All benchmark symbols failed. Tried: {original_symbol}, {', '.join(fallback_symbols)}",
                             "error",
                         )
-                        raise ValueError(
+                        msg = (
                             f"Could not create benchmark. Primary symbol '{original_symbol}' and fallback symbols "
                             f"({', '.join(fallback_symbols)}) all failed. Check your date range and network connectivity."
+                        )
+                        raise ValueError(
+                            msg,
                         ) from e
                     raise
 
             elif benchmark_config.strategy_type == "equal_weighted_portfolio":
                 if not symbols:
+                    msg = "Symbols required for equal weighted portfolio benchmark"
                     raise ValueError(
-                        "Symbols required for equal weighted portfolio benchmark"
+                        msg,
                     )
 
                 try:
                     return self._create_equal_weighted_benchmark(
-                        symbols, start_date, end_date, init_cash, fees, benchmark_config
+                        symbols, start_date, end_date, init_cash, fees, benchmark_config,
                     )
                 except Exception as e:
                     # For multi-asset benchmarks, try with subset of working symbols
@@ -171,22 +175,25 @@ class BenchmarkComparisonService:
                             fees,
                             benchmark_config,
                         )
+                    msg = "No valid symbols available for equal weighted benchmark"
                     raise ValueError(
-                        "No valid symbols available for equal weighted benchmark"
+                        msg,
                     ) from e
 
             elif benchmark_config.strategy_type == "custom_weighted_portfolio":
                 if not symbols or not benchmark_config.custom_weights:
+                    msg = "Symbols and custom weights required for custom weighted benchmark"
                     raise ValueError(
-                        "Symbols and custom weights required for custom weighted benchmark"
+                        msg,
                     )
                 return self._create_custom_weighted_benchmark(
-                    symbols, start_date, end_date, init_cash, fees, benchmark_config
+                    symbols, start_date, end_date, init_cash, fees, benchmark_config,
                 )
 
             else:
+                msg = f"Unsupported benchmark strategy type: {benchmark_config.strategy_type}"
                 raise ValueError(
-                    f"Unsupported benchmark strategy type: {benchmark_config.strategy_type}"
+                    msg,
                 )
 
         except ValueError:
@@ -198,10 +205,11 @@ class BenchmarkComparisonService:
                 "Suggestion: Check network connectivity, date ranges, and symbol validity",
                 "info",
             )
-            raise ValueError("Benchmark creation failed due to unexpected error") from e
+            msg = "Benchmark creation failed due to unexpected error"
+            raise ValueError(msg) from e
 
     def compare_portfolios(
-        self, portfolio: "vbt.Portfolio", benchmark_portfolio: "vbt.Portfolio"
+        self, portfolio: "vbt.Portfolio", benchmark_portfolio: "vbt.Portfolio",
     ) -> ComparisonMetrics:
         """
         Compare portfolio performance against benchmark.
@@ -329,13 +337,13 @@ class BenchmarkComparisonService:
 
             # Create aligned price DataFrame
             price_df = pl.DataFrame(
-                {"Date": pl.Series(common_dates).cast(pl.Datetime("ns"))}
+                {"Date": pl.Series(common_dates).cast(pl.Datetime("ns"))},
             )
 
             for symbol in symbols:
                 close_prices = data_dict[symbol].select(["Date", "Close"])
                 price_df = price_df.join(
-                    close_prices.rename({"Close": symbol}), on="Date", how="left"
+                    close_prices.rename({"Close": symbol}), on="Date", how="left",
                 )
 
             # Convert to pandas for VectorBT
@@ -355,10 +363,11 @@ class BenchmarkComparisonService:
             if allocation_method == "equal_weight":
                 weight = 1.0 / len(symbols)
                 sizes_pd = pd.DataFrame(
-                    weight, index=close_pd.index, columns=close_pd.columns
+                    weight, index=close_pd.index, columns=close_pd.columns,
                 )
             else:
-                raise ValueError(f"Unsupported allocation method: {allocation_method}")
+                msg = f"Unsupported allocation method: {allocation_method}"
+                raise ValueError(msg)
 
             # Create benchmark portfolio
             benchmark_portfolio = vbt.Portfolio.from_signals(
@@ -379,7 +388,7 @@ class BenchmarkComparisonService:
             raise
 
     def _create_buy_and_hold_benchmark(
-        self, symbol: str, start_date: str, end_date: str, init_cash: float, fees: float
+        self, symbol: str, start_date: str, end_date: str, init_cash: float, fees: float,
     ) -> "vbt.Portfolio":
         """Create simple buy and hold benchmark for single asset."""
         try:
@@ -397,19 +406,22 @@ class BenchmarkComparisonService:
                     f"Suggestion: Verify symbol '{symbol}' is valid and data is available for date range {start_date} to {end_date}",
                     "info",
                 )
+                msg = f"Benchmark data unavailable for symbol '{symbol}'"
                 raise ValueError(
-                    f"Benchmark data unavailable for symbol '{symbol}'"
+                    msg,
                 ) from e
 
             # Validate data quality
             if data.height == 0:
+                msg = f"No data available for benchmark symbol '{symbol}' in the specified date range"
                 raise ValueError(
-                    f"No data available for benchmark symbol '{symbol}' in the specified date range"
+                    msg,
                 )
 
             if "Close" not in data.columns:
+                msg = f"Price data for '{symbol}' missing required 'Close' column"
                 raise ValueError(
-                    f"Price data for '{symbol}' missing required 'Close' column"
+                    msg,
                 )
 
             # Convert to pandas with validation
@@ -419,7 +431,8 @@ class BenchmarkComparisonService:
 
                 # Check for valid prices
                 if close_prices.isna().all():
-                    raise ValueError(f"All price data for '{symbol}' is invalid (NaN)")
+                    msg = f"All price data for '{symbol}' is invalid (NaN)"
+                    raise ValueError(msg)
 
                 if (close_prices <= 0).any():
                     self._log(
@@ -429,10 +442,11 @@ class BenchmarkComparisonService:
 
             except Exception as e:
                 self._log(
-                    f"Failed to process price data for '{symbol}': {e!s}", "error"
+                    f"Failed to process price data for '{symbol}': {e!s}", "error",
                 )
+                msg = f"Invalid price data format for benchmark symbol '{symbol}'"
                 raise ValueError(
-                    f"Invalid price data format for benchmark symbol '{symbol}'"
+                    msg,
                 ) from e
 
             # Create entries (buy on first day only)
@@ -455,7 +469,7 @@ class BenchmarkComparisonService:
 
                 # Validate portfolio creation
                 if portfolio.total_return() is None or np.isnan(
-                    portfolio.total_return()
+                    portfolio.total_return(),
                 ):
                     self._log(
                         f"Warning: Benchmark portfolio for '{symbol}' has invalid return",
@@ -467,12 +481,13 @@ class BenchmarkComparisonService:
                     f"Failed to create VectorBT portfolio for '{symbol}': {e!s}",
                     "error",
                 )
+                msg = f"Benchmark portfolio creation failed for '{symbol}'"
                 raise ValueError(
-                    f"Benchmark portfolio creation failed for '{symbol}'"
+                    msg,
                 ) from e
 
             self._log(
-                f"Successfully created buy-and-hold benchmark for '{symbol}'", "debug"
+                f"Successfully created buy-and-hold benchmark for '{symbol}'", "debug",
             )
             return portfolio
 
@@ -484,7 +499,8 @@ class BenchmarkComparisonService:
                 f"Unexpected error creating buy and hold benchmark for '{symbol}': {e!s}",
                 "error",
             )
-            raise ValueError("Benchmark creation failed due to unexpected error") from e
+            msg = "Benchmark creation failed due to unexpected error"
+            raise ValueError(msg) from e
 
     def _create_equal_weighted_benchmark(
         self,
@@ -497,7 +513,7 @@ class BenchmarkComparisonService:
     ) -> "vbt.Portfolio":
         """Create equal weighted portfolio benchmark."""
         portfolio, _, _, _ = self.create_multi_asset_benchmark(
-            symbols, start_date, end_date, init_cash, fees, "equal_weight"
+            symbols, start_date, end_date, init_cash, fees, "equal_weight",
         )
         return portfolio
 
@@ -514,7 +530,7 @@ class BenchmarkComparisonService:
         # Implementation for custom weights would go here
         # For now, fall back to equal weight
         return self._create_equal_weighted_benchmark(
-            symbols, start_date, end_date, init_cash, fees, benchmark_config
+            symbols, start_date, end_date, init_cash, fees, benchmark_config,
         )
 
     # _calculate_beta and _calculate_alpha methods removed (June 2025 decision)
@@ -522,7 +538,7 @@ class BenchmarkComparisonService:
     # value and were dependent on benchmark data availability, leading to inconsistent results
 
     def _calculate_sharpe_ratio(
-        self, returns: np.ndarray, risk_free_rate: float = 0.0
+        self, returns: np.ndarray, risk_free_rate: float = 0.0,
     ) -> float:
         """Calculate Sharpe ratio for returns series."""
         try:

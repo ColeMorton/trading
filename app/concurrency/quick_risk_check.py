@@ -51,7 +51,7 @@ def main():
     # Calculate
     print("\nCalculating risk contributions...")
     result = calculate_risk_contributions(
-        position_arrays, data_list, allocations, log_func
+        position_arrays, data_list, allocations, log_func,
     )
 
     # Check implementation

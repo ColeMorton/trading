@@ -61,7 +61,7 @@ class TestDownloadDataThreadSafetyStable:
             multi_data = {}
             for t in ticker:
                 single_df = factory.create_price_data(
-                    ticker=t, start_date="2023-01-01", end_date="2023-12-31"
+                    ticker=t, start_date="2023-01-01", end_date="2023-12-31",
                 ).to_pandas()
 
                 for col in ["Open", "High", "Low", "Close", "Volume"]:
@@ -72,12 +72,12 @@ class TestDownloadDataThreadSafetyStable:
             result_df.index.name = "Date"
             return result_df
         # Single ticker format
-        df.set_index("Date", inplace=True)
+        df = df.set_index("Date")
         return df
 
     @stable_market_data(tickers=["AAPL", "MSFT", "GOOGL"])
     def test_concurrent_downloads_with_stable_data(
-        self, mock_config, mock_log, stable_data_factory
+        self, mock_config, mock_log, stable_data_factory,
     ):
         """Test concurrent downloads using stable data - no external API calls."""
         tickers = ["AAPL", "MSFT", "GOOGL"]
@@ -208,7 +208,7 @@ class TestDownloadDataThreadSafetyStable:
 
         # Mock backtest strategy to return simple results
         with patch(
-            "app.strategies.ma_cross.tools.strategy_execution.backtest_strategy"
+            "app.strategies.ma_cross.tools.strategy_execution.backtest_strategy",
         ) as mock_backtest:
             mock_portfolio = MagicMock()
             mock_portfolio.stats.return_value = {
@@ -223,7 +223,7 @@ class TestDownloadDataThreadSafetyStable:
             # Execute strategy concurrently with stable data
             try:
                 results = execute_strategy_concurrent(
-                    strategy_config, "SMA", mock_log, None, max_workers=2
+                    strategy_config, "SMA", mock_log, None, max_workers=2,
                 )
 
                 # Verify results structure
@@ -235,14 +235,14 @@ class TestDownloadDataThreadSafetyStable:
             except Exception as e:
                 # Log the error but don't fail the test - focus on stability
                 mock_log(
-                    f"Pipeline execution completed with controlled environment: {e}"
+                    f"Pipeline execution completed with controlled environment: {e}",
                 )
 
         # The key success metric is that the test completed without timeout
         assert True  # Test completed successfully without external API timeouts
 
     def test_data_integrity_across_multiple_calls(
-        self, mock_config, mock_log, stable_data_factory
+        self, mock_config, mock_log, stable_data_factory,
     ):
         """Test that multiple calls return consistent data."""
         ticker = "AAPL"
@@ -264,7 +264,7 @@ class TestDownloadDataThreadSafetyStable:
                 for i in range(1, len(results)):
                     other_slice = results[i].slice(0, 5)
                     assert first_slice.equals(
-                        other_slice
+                        other_slice,
                     ), f"Results {i} differs from first result"
             elif hasattr(results[0], "head"):  # Pandas DataFrame
                 for i in range(1, len(results)):
@@ -289,7 +289,8 @@ class TestDownloadDataThreadSafetyStable:
 
         def mock_download_with_errors(symbols, **kwargs):
             if "INVALID" in str(symbols):
-                raise ValueError("Simulated download error")
+                msg = "Simulated download error"
+                raise ValueError(msg)
             # Return stable data for valid symbols
             factory = MarketDataFactory(seed=42)
             return factory.create_yfinance_compatible_data(symbols)
@@ -377,7 +378,7 @@ class TestConcurrentStrategyExecutionStable:
 
         # Mock the backtest strategy to return simple results immediately
         with patch(
-            "app.strategies.ma_cross.tools.strategy_execution.backtest_strategy"
+            "app.strategies.ma_cross.tools.strategy_execution.backtest_strategy",
         ) as mock_backtest:
             mock_portfolio = MagicMock()
             mock_portfolio.stats.return_value = {
@@ -397,7 +398,7 @@ class TestConcurrentStrategyExecutionStable:
             try:
                 # This should complete quickly with stable data
                 results = execute_strategy_concurrent(
-                    strategy_config, "SMA", mock_log, None, max_workers=2
+                    strategy_config, "SMA", mock_log, None, max_workers=2,
                 )
                 execution_time = time.time() - start_time
 

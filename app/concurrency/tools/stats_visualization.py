@@ -6,7 +6,7 @@ from app.concurrency.tools.types import ConcurrencyStats
 
 
 def create_stats_annotation(
-    stats: ConcurrencyStats, log: Callable[[str, str], None]
+    stats: ConcurrencyStats, log: Callable[[str, str], None],
 ) -> dict:
     """Create annotation with concurrency statistics.
 
@@ -40,7 +40,8 @@ def create_stats_annotation(
         missing = [field for field in required_fields if field not in stats]
         if missing:
             log(f"Missing required statistics: {missing}", "error")
-            raise KeyError(f"Missing required statistics: {missing}")
+            msg = f"Missing required statistics: {missing}"
+            raise KeyError(msg)
 
         log("Building concurrency metrics section", "info")
         stats_text = (
@@ -60,7 +61,8 @@ def create_stats_annotation(
         log("Adding signal metrics section", "info")
         if "signal_metrics" not in stats:
             log("Missing signal metrics", "error")
-            raise KeyError("Missing signal metrics in statistics")
+            msg = "Missing signal metrics in statistics"
+            raise KeyError(msg)
 
         signal_metrics = stats["signal_metrics"]
         stats_text += "<br><b>Signal Metrics:</b><br>"
@@ -87,7 +89,8 @@ def create_stats_annotation(
         missing = [field for field in efficiency_fields if field not in stats]
         if missing:
             log(f"Missing efficiency metrics: {missing}", "error")
-            raise KeyError(f"Missing efficiency metrics: {missing}")
+            msg = f"Missing efficiency metrics: {missing}"
+            raise KeyError(msg)
 
         stats_text += "<br><b>Efficiency Metrics:</b><br>"
         stats_text += (
@@ -104,7 +107,8 @@ def create_stats_annotation(
         log("Adding risk metrics section", "info")
         if "risk_metrics" not in stats:
             log("Missing risk metrics", "error")
-            raise KeyError("Missing risk metrics in statistics")
+            msg = "Missing risk metrics in statistics"
+            raise KeyError(msg)
 
         risk_metrics = stats["risk_metrics"]
         stats_text += "<br><b>Risk Metrics:</b><br>"
@@ -117,7 +121,7 @@ def create_stats_annotation(
                 for k in risk_metrics
                 if k.startswith("strategy_")
                 and (k.endswith("_risk_contrib") or k.endswith("_alpha_to_portfolio"))
-            }
+            },
         )
 
         for strategy_num in strategy_nums:

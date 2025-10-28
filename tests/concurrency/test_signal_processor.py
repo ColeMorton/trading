@@ -62,11 +62,11 @@ class TestSignalProcessor(unittest.TestCase):
                 "Slow_MA": slow_ma,
                 "Signal": signals,
                 "Position": signals.shift(1).fillna(
-                    0
+                    0,
                 ),  # Positions lag signals by 1 day
                 "Volume": np.random.randint(1000, 10000, self.n_samples),
                 "RSI": np.random.uniform(20, 80, self.n_samples),
-            }
+            },
         )
 
         # Create signal definition
@@ -93,7 +93,7 @@ class TestSignalProcessor(unittest.TestCase):
     def test_filtered_signal_counting(self):
         """Test filtered signal counting with criteria."""
         filtered_count, filtered_df = self.processor.count_filtered_signals(
-            self.test_data, self.signal_def
+            self.test_data, self.signal_def,
         )
 
         # Filtered count should be <= raw count
@@ -128,7 +128,7 @@ class TestSignalProcessor(unittest.TestCase):
     def test_position_signal_counting(self):
         """Test position signal counting using diff method."""
         position_count = self.processor.count_position_signals(
-            self.test_data, self.signal_def
+            self.test_data, self.signal_def,
         )
 
         # Manual verification using position diff
@@ -155,7 +155,7 @@ class TestSignalProcessor(unittest.TestCase):
     def test_comprehensive_counts(self):
         """Test comprehensive signal count analysis."""
         counts = self.processor.get_comprehensive_counts(
-            self.test_data, self.signal_def
+            self.test_data, self.signal_def,
         )
 
         # Verify object structure
@@ -176,7 +176,7 @@ class TestSignalProcessor(unittest.TestCase):
     def test_signal_reconciliation(self):
         """Test signal count reconciliation analysis."""
         counts = self.processor.get_comprehensive_counts(
-            self.test_data, self.signal_def
+            self.test_data, self.signal_def,
         )
         reconciliation = self.processor.reconcile_signal_counts(counts)
 
@@ -199,7 +199,7 @@ class TestSignalProcessor(unittest.TestCase):
         if counts.raw_signals > 0:
             expected_overall = counts.trade_signals / counts.raw_signals
             self.assertAlmostEqual(
-                reconciliation["overall_efficiency"], expected_overall, places=6
+                reconciliation["overall_efficiency"], expected_overall, places=6,
             )
 
     def test_signal_standardization(self):
@@ -207,7 +207,7 @@ class TestSignalProcessor(unittest.TestCase):
         # Test crossover method
         test_data = self.test_data[["Close", "Fast_MA", "Slow_MA"]].copy()
         standardized = self.processor.standardize_signal_column(
-            test_data, method="crossover"
+            test_data, method="crossover",
         )
 
         self.assertIn("Signal", standardized.columns)
@@ -231,20 +231,20 @@ class TestSignalProcessor(unittest.TestCase):
 
         # Test raw signal counting
         raw_count_polars = self.processor.count_raw_signals(
-            polars_data, self.signal_def
+            polars_data, self.signal_def,
         )
         raw_count_pandas = self.processor.count_raw_signals(
-            self.test_data, self.signal_def
+            self.test_data, self.signal_def,
         )
 
         self.assertEqual(raw_count_polars, raw_count_pandas)
 
         # Test filtered signal counting
         filtered_count_polars, _ = self.processor.count_filtered_signals(
-            polars_data, self.signal_def
+            polars_data, self.signal_def,
         )
         filtered_count_pandas, _ = self.processor.count_filtered_signals(
-            self.test_data, self.signal_def
+            self.test_data, self.signal_def,
         )
 
         self.assertEqual(filtered_count_polars, filtered_count_pandas)
@@ -269,7 +269,7 @@ class TestSignalProcessor(unittest.TestCase):
                 "Signal": [0, 0, 0, 0],
                 "Position": [0, 0, 0, 0],
                 "Volume": [1000, 2000, 3000, 4000],
-            }
+            },
         )
 
         raw_count = self.processor.count_raw_signals(zero_signals_df, self.signal_def)
@@ -279,22 +279,22 @@ class TestSignalProcessor(unittest.TestCase):
         """Test the convenience function for signal counting."""
         # Test different signal types
         raw_count = calculate_signal_count_standardized(
-            self.test_data, SignalType.RAW, self.signal_def
+            self.test_data, SignalType.RAW, self.signal_def,
         )
         filtered_count = calculate_signal_count_standardized(
-            self.test_data, SignalType.FILTERED, self.signal_def
+            self.test_data, SignalType.FILTERED, self.signal_def,
         )
         position_count = calculate_signal_count_standardized(
-            self.test_data, SignalType.POSITION, self.signal_def
+            self.test_data, SignalType.POSITION, self.signal_def,
         )
 
         # Verify results match direct method calls
         direct_raw = self.processor.count_raw_signals(self.test_data, self.signal_def)
         direct_filtered, _ = self.processor.count_filtered_signals(
-            self.test_data, self.signal_def
+            self.test_data, self.signal_def,
         )
         direct_position = self.processor.count_position_signals(
-            self.test_data, self.signal_def
+            self.test_data, self.signal_def,
         )
 
         self.assertEqual(raw_count, direct_raw)
@@ -319,10 +319,10 @@ class TestSignalProcessor(unittest.TestCase):
         )
 
         strict_count, _ = self.processor.count_filtered_signals(
-            self.test_data, strict_def
+            self.test_data, strict_def,
         )
         lenient_count, _ = self.processor.count_filtered_signals(
-            self.test_data, lenient_def
+            self.test_data, lenient_def,
         )
 
         # Lenient criteria should generally result in more signals
@@ -358,7 +358,7 @@ class TestSignalVarianceFix(unittest.TestCase):
                 "Position": positions,
                 "Volume": volumes,
                 "RSI": np.random.uniform(15, 85, 100),
-            }
+            },
         )
 
         self.signal_def = SignalDefinition(min_volume=2000, rsi_column="RSI")
@@ -366,7 +366,7 @@ class TestSignalVarianceFix(unittest.TestCase):
     def test_signal_variance_analysis(self):
         """Test analysis of signal variance between methodologies."""
         counts = self.processor.get_comprehensive_counts(
-            self.variance_data, self.signal_def
+            self.variance_data, self.signal_def,
         )
 
         # Should show significant variance between raw and filtered
@@ -381,12 +381,12 @@ class TestSignalVarianceFix(unittest.TestCase):
         """Test that the same data produces consistent results."""
         # Count using different methods
         method1_count = self.processor.count_raw_signals(
-            self.variance_data, self.signal_def
+            self.variance_data, self.signal_def,
         )
 
         # Use convenience function
         method2_count = calculate_signal_count_standardized(
-            self.variance_data, SignalType.RAW, self.signal_def
+            self.variance_data, SignalType.RAW, self.signal_def,
         )
 
         # Should be identical
@@ -401,12 +401,12 @@ class TestSignalVarianceFix(unittest.TestCase):
 
         # Module 2: Use standardized counting
         module2_count = self.processor.count_raw_signals(
-            self.variance_data, self.signal_def
+            self.variance_data, self.signal_def,
         )
 
         # Module 3: Use convenience function
         module3_count = calculate_signal_count_standardized(
-            self.variance_data, SignalType.RAW, self.signal_def
+            self.variance_data, SignalType.RAW, self.signal_def,
         )
 
         # Modules 2 and 3 should be identical (standardized)

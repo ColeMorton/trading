@@ -143,7 +143,7 @@ class StreamingProcessor:
 
         chunks = []
         with self.memory_optimizer.monitor.monitor_operation(
-            f"streaming_{file_path.name}"
+            f"streaming_{file_path.name}",
         ):
             for chunk in self.stream_csv(file_path, columns, dtypes, **kwargs):
                 chunks.append(chunk)
@@ -189,11 +189,11 @@ class StreamingProcessor:
 
         if self.use_polars:
             yield from self._stream_csv_polars(
-                file_path, columns, dtypes, process_chunk, **kwargs
+                file_path, columns, dtypes, process_chunk, **kwargs,
             )
         else:
             yield from self._stream_csv_pandas(
-                file_path, columns, dtypes, process_chunk, **kwargs
+                file_path, columns, dtypes, process_chunk, **kwargs,
             )
 
     def _stream_csv_polars(
@@ -234,7 +234,7 @@ class StreamingProcessor:
         except Exception as e:
             logger.warning(f"Polars streaming failed, falling back to Pandas: {e}")
             yield from self._stream_csv_pandas(
-                file_path, columns, dtypes, process_chunk, **kwargs
+                file_path, columns, dtypes, process_chunk, **kwargs,
             )
 
     def _stream_csv_pandas(
@@ -308,7 +308,7 @@ class StreamingProcessor:
                     results.append(df)
 
             except Exception as e:
-                logger.error(f"Error processing {csv_file}: {e}")
+                logger.exception(f"Error processing {csv_file}: {e}")
                 continue
 
         return results
@@ -338,7 +338,7 @@ class CSVChunkProcessor:
         """Initialize chunk processor."""
         self.chunk_size = chunk_size
         self.streaming_processor = StreamingProcessor(
-            chunk_size_rows=chunk_size, use_polars=use_polars
+            chunk_size_rows=chunk_size, use_polars=use_polars,
         )
 
     def aggregate_chunks(
@@ -372,7 +372,7 @@ class CSVChunkProcessor:
         self,
         file_path: str | Path,
         filter_func: Callable[
-            [pd.DataFrame | pl.DataFrame], pd.DataFrame | pl.DataFrame
+            [pd.DataFrame | pl.DataFrame], pd.DataFrame | pl.DataFrame,
         ],
         output_path: str | Path,
         columns: list[str] | None = None,
@@ -424,7 +424,7 @@ class CSVChunkProcessor:
 
 # Convenience functions
 def stream_csv(
-    file_path: str | Path, chunk_size: int = 10000, **kwargs
+    file_path: str | Path, chunk_size: int = 10000, **kwargs,
 ) -> Iterator[pd.DataFrame | pl.DataFrame]:
     """Convenience function to stream CSV file."""
     processor = StreamingProcessor(chunk_size_rows=chunk_size)
@@ -432,7 +432,7 @@ def stream_csv(
 
 
 def read_large_csv(
-    file_path: str | Path, threshold_mb: float = 5.0, **kwargs
+    file_path: str | Path, threshold_mb: float = 5.0, **kwargs,
 ) -> pd.DataFrame | pl.DataFrame:
     """Convenience function to read CSV with automatic streaming."""
     processor = StreamingProcessor(streaming_threshold_mb=threshold_mb)

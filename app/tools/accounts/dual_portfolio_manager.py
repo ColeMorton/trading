@@ -133,27 +133,34 @@ class DualPortfolioManager:
         """
         # Validate inputs
         if not symbol or not symbol.strip():
-            raise ValueError("Symbol cannot be empty")
+            msg = "Symbol cannot be empty"
+            raise ValueError(msg)
 
         if isinstance(portfolio_type, str):
             try:
                 portfolio_type = PortfolioType(portfolio_type)
             except ValueError:
-                raise ValueError(
+                msg = (
                     f"Invalid portfolio type: {portfolio_type}. "
                     f"Must be one of: {[pt.value for pt in PortfolioType]}"
                 )
+                raise ValueError(
+                    msg,
+                )
 
         if position_value <= 0:
-            raise ValueError("Position value must be positive")
+            msg = "Position value must be positive"
+            raise ValueError(msg)
 
         if allocation_percentage < 0 or allocation_percentage > 100:
-            raise ValueError("Allocation percentage must be between 0 and 100")
+            msg = "Allocation percentage must be between 0 and 100"
+            raise ValueError(msg)
 
         if stop_loss_distance is not None and (
             stop_loss_distance < 0 or stop_loss_distance > 1
         ):
-            raise ValueError("Stop loss distance must be between 0 and 1")
+            msg = "Stop loss distance must be between 0 and 1"
+            raise ValueError(msg)
 
         # Load existing data
         data = self._load_holdings()
@@ -292,7 +299,7 @@ class DualPortfolioManager:
         return None
 
     def get_holdings_by_portfolio_type(
-        self, portfolio_type: PortfolioType | str
+        self, portfolio_type: PortfolioType | str,
     ) -> list[PortfolioHolding]:
         """Get all holdings for a specific portfolio type.
 
@@ -321,7 +328,7 @@ class DualPortfolioManager:
                         entry_date=datetime.fromisoformat(holding["entry_date"]),
                         account_type=holding.get("account_type", "IBKR"),
                         notes=holding.get("notes"),
-                    )
+                    ),
                 )
 
         return holdings
@@ -347,7 +354,7 @@ class DualPortfolioManager:
                     entry_date=datetime.fromisoformat(holding["entry_date"]),
                     account_type=holding.get("account_type", "IBKR"),
                     notes=holding.get("notes"),
-                )
+                ),
             )
 
         return holdings
@@ -419,7 +426,7 @@ class DualPortfolioManager:
         net_worth_calc = self.balance_service.calculate_net_worth()
         position_summary = self.position_tracker.calculate_position_summary()
         drawdown_summary = self.drawdown_calculator.calculate_drawdown_summary(
-            net_worth_calc.total_net_worth
+            net_worth_calc.total_net_worth,
         )
         strategies_data = self.strategies_integration.get_strategies_count_data()
 
@@ -428,13 +435,13 @@ class DualPortfolioManager:
 
         # Perform validation checks
         position_value_match = abs(
-            portfolio_summary.combined_total - position_summary.total_position_value
+            portfolio_summary.combined_total - position_summary.total_position_value,
         )
         risk_amount_match = abs(
-            portfolio_summary.total_risk_amount - drawdown_summary.total_risk_amount
+            portfolio_summary.total_risk_amount - drawdown_summary.total_risk_amount,
         )
 
-        validation_results = {
+        return {
             "net_worth_service": {
                 "total_net_worth": net_worth_calc.total_net_worth,
                 "ibkr_balance": net_worth_calc.ibkr_balance,
@@ -471,7 +478,6 @@ class DualPortfolioManager:
             },
         }
 
-        return validation_results
 
     def export_portfolio_to_csv(self, output_path: str | None = None) -> str:
         """Export dual portfolio holdings to CSV format.
@@ -503,7 +509,7 @@ class DualPortfolioManager:
                         holding.entry_date.isoformat() if holding.entry_date else None
                     ),
                     "notes": holding.notes,
-                }
+                },
             )
 
         df = pl.DataFrame(data)

@@ -62,7 +62,7 @@ class BaseFilter(FilterInterface):
         if log is None:
             # Create a default logger if none provided
             self.log, _, _, _ = setup_logging(
-                f"filter_{name.lower()}", Path("./logs"), f"filter_{name.lower()}.log"
+                f"filter_{name.lower()}", Path("./logs"), f"filter_{name.lower()}.log",
             )
         else:
             self.log = log
@@ -198,7 +198,7 @@ class RSIFilter(BaseFilter):
 
         # Count filtered signals
         self.filtered_signals = int(
-            np.sum(original_signals != 0) - np.sum(df[signal_column] != 0)
+            np.sum(original_signals != 0) - np.sum(df[signal_column] != 0),
         )
 
         # Track rejection reason
@@ -268,12 +268,12 @@ class VolumeFilter(BaseFilter):
 
         # Apply volume filter
         df.loc[
-            (df[signal_column] != 0) & (df[volume_column] < min_volume), signal_column
+            (df[signal_column] != 0) & (df[volume_column] < min_volume), signal_column,
         ] = 0
 
         # Count filtered signals
         self.filtered_signals = int(
-            np.sum(original_signals != 0) - np.sum(df[signal_column] != 0)
+            np.sum(original_signals != 0) - np.sum(df[signal_column] != 0),
         )
 
         # Track rejection reason
@@ -327,7 +327,7 @@ class VolatilityFilter(BaseFilter):
             return data
 
         self.log(
-            f"Applying volatility filter with ATR range {min_atr} to {max_atr}", "info"
+            f"Applying volatility filter with ATR range {min_atr} to {max_atr}", "info",
         )
 
         # Convert to pandas for processing
@@ -352,7 +352,7 @@ class VolatilityFilter(BaseFilter):
 
         # Count filtered signals
         self.filtered_signals = int(
-            np.sum(original_signals != 0) - np.sum(df[signal_column] != 0)
+            np.sum(original_signals != 0) - np.sum(df[signal_column] != 0),
         )
 
         # Track rejection reasons
@@ -360,15 +360,15 @@ class VolatilityFilter(BaseFilter):
             np.sum(
                 (original_signals != 0)
                 & (df[atr_column] < min_atr)
-                & (df[signal_column] == 0)
-            )
+                & (df[signal_column] == 0),
+            ),
         )
         high_vol_count = int(
             np.sum(
                 (original_signals != 0)
                 & (df[atr_column] > max_atr)
-                & (df[signal_column] == 0)
-            )
+                & (df[signal_column] == 0),
+            ),
         )
 
         if low_vol_count > 0:
@@ -399,7 +399,7 @@ class SignalFilterPipeline:
         if log is None:
             # Create a default logger if none provided
             self.log, _, _, _ = setup_logging(
-                "signal_filter_pipeline", Path("./logs"), "signal_filter_pipeline.log"
+                "signal_filter_pipeline", Path("./logs"), "signal_filter_pipeline.log",
             )
         else:
             self.log = log

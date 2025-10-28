@@ -121,7 +121,7 @@ class PerformanceMetrics:
                     severity=ValidationSeverity.CRITICAL,
                     message=f"Negative MFE ({self.mfe:.4f}) with positive return ({self.current_return:.4f})",
                     constraint_name="positive_return_negative_mfe",
-                )
+                ),
             )
 
         # Constraint 2: Current return should not exceed MFE (mathematical impossibility)
@@ -138,7 +138,7 @@ class PerformanceMetrics:
                     severity=severity,
                     message=f"Current return ({self.current_return:.4f}) exceeds MFE ({self.mfe:.4f}) by {excess_pct:.1f}%",
                     constraint_name="return_exceeds_mfe",
-                )
+                ),
             )
 
         # Constraint 3: Current return should not be worse than MAE (if MAE represents losses)
@@ -149,7 +149,7 @@ class PerformanceMetrics:
                     severity=ValidationSeverity.CRITICAL,
                     message=f"Current return ({self.current_return:.4f}) worse than MAE ({self.mae:.4f})",
                     constraint_name="return_worse_than_mae",
-                )
+                ),
             )
 
         return results
@@ -215,7 +215,7 @@ class StatisticalMetrics:
                         severity=ValidationSeverity.WARNING,
                         message=f"Statistical significance ({self.statistical_significance}) inconsistent with p-value ({self.p_value})",
                         constraint_name="significance_pvalue_mismatch",
-                    )
+                    ),
                 )
 
         # Check sample size vs confidence consistency
@@ -226,7 +226,7 @@ class StatisticalMetrics:
                     severity=ValidationSeverity.WARNING,
                     message=f"Large sample size ({self.sample_size}) with low confidence ({self.sample_size_confidence})",
                     constraint_name="sample_size_confidence_mismatch",
-                )
+                ),
             )
 
         return results
@@ -254,20 +254,20 @@ class BacktestingParameters:
         # Ensure holding days are non-negative
         if self.max_holding_days < 0:
             logger.warning(
-                f"Invalid max_holding_days: {self.max_holding_days}, setting to 0"
+                f"Invalid max_holding_days: {self.max_holding_days}, setting to 0",
             )
             self.max_holding_days = 0
 
         if self.min_holding_days < 0:
             logger.warning(
-                f"Invalid min_holding_days: {self.min_holding_days}, setting to 0"
+                f"Invalid min_holding_days: {self.min_holding_days}, setting to 0",
             )
             self.min_holding_days = 0
 
         # Ensure min <= max holding days
         if self.min_holding_days > self.max_holding_days and self.max_holding_days > 0:
             logger.warning(
-                f"min_holding_days ({self.min_holding_days}) > max_holding_days ({self.max_holding_days})"
+                f"min_holding_days ({self.min_holding_days}) > max_holding_days ({self.max_holding_days})",
             )
 
         # Ensure percentages are reasonable
@@ -298,7 +298,7 @@ class SignalInformation:
         # Ensure signal confidence is in valid range [0, 100]
         if not (0 <= self.signal_confidence <= 100):
             logger.warning(
-                f"Invalid signal_confidence: {self.signal_confidence}, clamping to [0, 100]"
+                f"Invalid signal_confidence: {self.signal_confidence}, clamping to [0, 100]",
             )
             self.signal_confidence = max(0, min(100, self.signal_confidence))
 
@@ -313,7 +313,7 @@ class SignalInformation:
         ]
         if self.exit_signal not in valid_signals:
             logger.warning(
-                f"Unknown exit_signal: {self.exit_signal}, setting to UNKNOWN"
+                f"Unknown exit_signal: {self.exit_signal}, setting to UNKNOWN",
             )
             self.exit_signal = "UNKNOWN"
 
@@ -342,7 +342,7 @@ class UnifiedStrategyData:
     # Metadata and versioning
     model_version: str = DataModelVersion.V2_0.value
     generation_timestamp: str = field(
-        default_factory=lambda: datetime.now().isoformat()
+        default_factory=lambda: datetime.now().isoformat(),
     )
     data_lineage: list[DataLineage] = field(default_factory=list)
     validation_results: list[ValidationResult] = field(default_factory=list)
@@ -379,7 +379,7 @@ class UnifiedStrategyData:
                     severity=ValidationSeverity.CRITICAL,
                     message="Invalid or missing strategy_name",
                     constraint_name="missing_strategy_name",
-                )
+                ),
             )
 
         if not self.ticker or not isinstance(self.ticker, str):
@@ -389,7 +389,7 @@ class UnifiedStrategyData:
                     severity=ValidationSeverity.CRITICAL,
                     message="Invalid or missing ticker",
                     constraint_name="missing_ticker",
-                )
+                ),
             )
 
         # Store validation results
@@ -427,7 +427,7 @@ class UnifiedStrategyData:
         )
 
     def add_data_lineage(
-        self, source_type: DataSourceType, file_path: str | None = None, **metadata
+        self, source_type: DataSourceType, file_path: str | None = None, **metadata,
     ):
         """Add data lineage information"""
         lineage = DataLineage(
@@ -490,7 +490,7 @@ class UnifiedStrategyData:
 
     @classmethod
     def from_legacy_strategy_data(
-        cls, legacy_data: dict[str, Any]
+        cls, legacy_data: dict[str, Any],
     ) -> "UnifiedStrategyData":
         """
         Create UnifiedStrategyData from legacy StrategyData format.
@@ -509,7 +509,7 @@ class UnifiedStrategyData:
             sample_size=legacy_data.get("sample_size", 0),
             sample_size_confidence=legacy_data.get("sample_size_confidence", 0.0),
             dual_layer_convergence_score=legacy_data.get(
-                "dual_layer_convergence_score", 0.0
+                "dual_layer_convergence_score", 0.0,
             ),
             asset_layer_percentile=legacy_data.get("asset_layer_percentile", 0.0),
             strategy_layer_percentile=legacy_data.get("strategy_layer_percentile", 0.0),
@@ -549,7 +549,7 @@ class UnifiedStrategyData:
             backtesting=backtesting,
             signal=signal,
             generation_timestamp=legacy_data.get(
-                "generation_timestamp", datetime.now().isoformat()
+                "generation_timestamp", datetime.now().isoformat(),
             ),
             raw_returns=legacy_data.get("raw_returns"),
             raw_analysis_data=legacy_data.get("raw_analysis_data"),
@@ -602,7 +602,7 @@ class UnifiedStrategyData:
 
         # Handle validation results
         if "validation_results" in data and isinstance(
-            data["validation_results"], list
+            data["validation_results"], list,
         ):
             validation_objects = []
             for validation_data in data["validation_results"]:
@@ -677,4 +677,5 @@ def migrate_legacy_strategy_data(legacy_data: Any) -> UnifiedStrategyData:
                 else vars(legacy_data)
             )
         return UnifiedStrategyData.from_legacy_strategy_data(legacy_dict)
-    raise ValueError(f"Cannot migrate legacy data of type: {type(legacy_data)}")
+    msg = f"Cannot migrate legacy data of type: {type(legacy_data)}"
+    raise ValueError(msg)

@@ -49,7 +49,7 @@ from app.tools.orchestration import PortfolioOrchestrator
     },
 )
 def run(
-    config: PortfolioConfig = None, external_log=None, progress_update_fn=None
+    config: PortfolioConfig = None, external_log=None, progress_update_fn=None,
 ) -> bool:
     """Run portfolio analysis for single or multiple tickers using the MACD cross strategy.
 

@@ -131,14 +131,13 @@ class FixtureDuplicationAnalyzer:
         self.calculate_duplication_metrics()
 
         # Check specific consolidation targets
-        consolidation_results = {
+        return {
             "event_loop_consolidated": self._check_event_loop_consolidation(),
             "test_client_consolidated": self._check_test_client_consolidation(),
             "api_data_moved_to_factories": self._check_api_data_consolidation(),
             "duplicate_conftest_removed": self._check_conftest_consolidation(),
         }
 
-        return consolidation_results
 
     def _check_event_loop_consolidation(self) -> bool:
         """Check if event loop fixtures were consolidated."""
@@ -306,7 +305,7 @@ def validate_phase3_implementation() -> dict[str, Any]:
     project_root = Path(__file__).parent.parent.parent
 
     print(
-        "🔍 Validating Phase 3: Fixture Architecture Optimization & Duplication Elimination"
+        "🔍 Validating Phase 3: Fixture Architecture Optimization & Duplication Elimination",
     )
     print("=" * 80)
 
@@ -356,10 +355,10 @@ def validate_phase3_implementation() -> dict[str, Any]:
     print(f"✅ Fixture Files Analyzed: {duplication_metrics['total_fixture_files']}")
     print(f"✅ Total Fixtures Found: {duplication_metrics['total_fixtures']}")
     print(
-        f"📉 Duplication Percentage: {duplication_metrics['duplication_percentage']:.1f}%"
+        f"📉 Duplication Percentage: {duplication_metrics['duplication_percentage']:.1f}%",
     )
     print(
-        f"🎯 Target (<12.5%): {'✅ PASS' if objectives_met['50_percent_duplication_reduction'] else '❌ FAIL'}"
+        f"🎯 Target (<12.5%): {'✅ PASS' if objectives_met['50_percent_duplication_reduction'] else '❌ FAIL'}",
     )
 
     print("\n🔄 Consolidation Results:")
@@ -371,14 +370,14 @@ def validate_phase3_implementation() -> dict[str, Any]:
     print(f"   Setup Time: {setup_performance['average_setup_time']:.3f}s")
     if "performance_improvement" in cache_effectiveness:
         print(
-            f"   Cache Speedup: {cache_effectiveness['performance_improvement']:.1f}x"
+            f"   Cache Speedup: {cache_effectiveness['performance_improvement']:.1f}x",
         )
         print(
-            f"   Target (1.3x): {'✅ PASS' if objectives_met['performance_improvement'] else '❌ FAIL'}"
+            f"   Target (1.3x): {'✅ PASS' if objectives_met['performance_improvement'] else '❌ FAIL'}",
         )
 
     print(
-        f"\n🏆 OVERALL PHASE 3 SUCCESS: {'✅ PASS' if results['overall_success'] else '❌ FAIL'}"
+        f"\n🏆 OVERALL PHASE 3 SUCCESS: {'✅ PASS' if results['overall_success'] else '❌ FAIL'}",
     )
 
     if not results["overall_success"]:

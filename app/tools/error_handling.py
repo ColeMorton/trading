@@ -88,16 +88,18 @@ class ErrorHandler:
         try:
             # Check if df is None
             if df is None:
+                msg = f"{name} is None"
                 raise DataValidationError(
-                    f"{name} is None",
+                    msg,
                     {"name": name, "required_columns": required_columns},
                 )
 
             # Check if df is empty
             if isinstance(df, pd.DataFrame):
                 if df.empty:
+                    msg = f"{name} is empty"
                     raise DataValidationError(
-                        f"{name} is empty",
+                        msg,
                         {"name": name, "required_columns": required_columns},
                     )
 
@@ -106,8 +108,9 @@ class ErrorHandler:
                     col for col in required_columns if col not in df.columns
                 ]
                 if missing_columns:
+                    msg = f"{name} is missing required columns: {missing_columns}"
                     raise DataValidationError(
-                        f"{name} is missing required columns: {missing_columns}",
+                        msg,
                         {
                             "name": name,
                             "missing_columns": missing_columns,
@@ -116,8 +119,9 @@ class ErrorHandler:
                     )
             elif isinstance(df, pl.DataFrame):
                 if df.height == 0:
+                    msg = f"{name} is empty"
                     raise DataValidationError(
-                        f"{name} is empty",
+                        msg,
                         {"name": name, "required_columns": required_columns},
                     )
 
@@ -126,8 +130,9 @@ class ErrorHandler:
                     col for col in required_columns if col not in df.columns
                 ]
                 if missing_columns:
+                    msg = f"{name} is missing required columns: {missing_columns}"
                     raise DataValidationError(
-                        f"{name} is missing required columns: {missing_columns}",
+                        msg,
                         {
                             "name": name,
                             "missing_columns": missing_columns,
@@ -135,8 +140,9 @@ class ErrorHandler:
                         },
                     )
             else:
+                msg = f"{name} is not a pandas or polars DataFrame"
                 raise DataValidationError(
-                    f"{name} is not a pandas or polars DataFrame",
+                    msg,
                     {
                         "name": name,
                         "type": type(df).__name__,
@@ -148,8 +154,9 @@ class ErrorHandler:
             raise
         except Exception as e:
             # Wrap other exceptions in DataValidationError
+            msg = f"Error validating {name}: {e!s}"
             raise DataValidationError(
-                f"Error validating {name}: {e!s}",
+                msg,
                 {"name": name, "error": str(e), "required_columns": required_columns},
             ) from e
 
@@ -174,15 +181,17 @@ class ErrorHandler:
         try:
             # Check if config is None
             if config is None:
+                msg = f"{name} is None"
                 raise ConfigurationError(
-                    f"{name} is None", {"name": name, "required_keys": required_keys}
+                    msg, {"name": name, "required_keys": required_keys},
                 )
 
             # Check for required keys
             missing_keys = [key for key in required_keys if key not in config]
             if missing_keys:
+                msg = f"{name} is missing required keys: {missing_keys}"
                 raise ConfigurationError(
-                    f"{name} is missing required keys: {missing_keys}",
+                    msg,
                     {
                         "name": name,
                         "missing_keys": missing_keys,
@@ -204,8 +213,9 @@ class ErrorHandler:
             raise
         except Exception as e:
             # Wrap other exceptions in ConfigurationError
+            msg = f"Error validating {name}: {e!s}"
             raise ConfigurationError(
-                f"Error validating {name}: {e!s}",
+                msg,
                 {"name": name, "error": str(e), "required_keys": required_keys},
             ) from e
 
@@ -240,35 +250,40 @@ class ErrorHandler:
 
             # Check if array is None
             if values is None:
+                msg = f"{name} is None"
                 raise DataValidationError(
-                    f"{name} is None", {"name": name, "min_length": min_length}
+                    msg, {"name": name, "min_length": min_length},
                 )
 
             # Check if array is empty or too short
             if len(values) < min_length:
+                msg = f"{name} is too short (length {len(values)}, minimum {min_length})"
                 raise DataValidationError(
-                    f"{name} is too short (length {len(values)}, minimum {min_length})",
+                    msg,
                     {"name": name, "length": len(values), "min_length": min_length},
                 )
 
             # Check for non-numeric values
             if not np.issubdtype(values.dtype, np.number):
+                msg = f"{name} contains non-numeric values"
                 raise DataValidationError(
-                    f"{name} contains non-numeric values",
+                    msg,
                     {"name": name, "dtype": values.dtype.name},
                 )
 
             # Check for NaN values
             if not allow_nan and np.isnan(values).any():
+                msg = f"{name} contains NaN values"
                 raise DataValidationError(
-                    f"{name} contains NaN values",
+                    msg,
                     {"name": name, "nan_count": np.isnan(values).sum()},
                 )
 
             # Check for infinite values
             if not allow_inf and np.isinf(values).any():
+                msg = f"{name} contains infinite values"
                 raise DataValidationError(
-                    f"{name} contains infinite values",
+                    msg,
                     {"name": name, "inf_count": np.isinf(values).sum()},
                 )
         except DataValidationError:
@@ -276,8 +291,9 @@ class ErrorHandler:
             raise
         except Exception as e:
             # Wrap other exceptions in DataValidationError
+            msg = f"Error validating {name}: {e!s}"
             raise DataValidationError(
-                f"Error validating {name}: {e!s}", {"name": name, "error": str(e)}
+                msg, {"name": name, "error": str(e)},
             ) from e
 
     def handle_calculation_error(
@@ -319,8 +335,9 @@ class ErrorHandler:
         if fallback_value is not None:
             self.log(f"Using fallback value: {fallback_value}", "warning")
             return fallback_value
+        msg = f"Calculation error: {error!s}"
         raise CalculationError(
-            f"Calculation error: {error!s}", error_details
+            msg, error_details,
         ) from error
 
     def with_error_handling(

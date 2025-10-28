@@ -10,7 +10,7 @@ from app.tools.setup_logging import setup_logging
 
 
 def get_historical_data(
-    tickers: list[str], start_date: datetime, end_date: datetime
+    tickers: list[str], start_date: datetime, end_date: datetime,
 ) -> pd.DataFrame:
     """
     Download historical data for given tickers.
@@ -23,8 +23,7 @@ def get_historical_data(
     Returns:
         pd.DataFrame: DataFrame containing historical prices
     """
-    data = yf.download(tickers, start=start_date, end=end_date)["Adj Close"]
-    return data
+    return yf.download(tickers, start=start_date, end=end_date)["Adj Close"]
 
 
 def calculate_returns(prices: pd.DataFrame) -> np.ndarray:

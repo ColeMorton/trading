@@ -36,7 +36,7 @@ def calculate_strategy_efficiency(
 
         # Calculate independence using the improved formula
         independence = calculate_independence_factor(
-            exclusive_ratio, concurrent_ratio, inactive_ratio
+            exclusive_ratio, concurrent_ratio, inactive_ratio,
         )
 
         # Log a warning if exclusive_ratio is 0, but we're still using a better
@@ -121,7 +121,7 @@ def calculate_portfolio_efficiency(
 
         # Calculate independence using the improved formula
         independence = calculate_independence_factor(
-            exclusive_ratio, concurrent_ratio, inactive_ratio
+            exclusive_ratio, concurrent_ratio, inactive_ratio,
         )
 
         # Log a note if exclusive_ratio is 0, but we're still using a better
@@ -147,7 +147,7 @@ def calculate_portfolio_efficiency(
         log(f"Strategy efficiencies: {strategy_efficiencies}", "info")
         log(f"Strategy expectancies: {strategy_expectancies}", "info")
         log(
-            f"Using equal allocation: {equal_allocation:.6f} for all strategies", "info"
+            f"Using equal allocation: {equal_allocation:.6f} for all strategies", "info",
         )
         log(f"Strategy risk contributions: {strategy_risk_contributions}", "info")
 
@@ -157,13 +157,13 @@ def calculate_portfolio_efficiency(
                 strategy_expectancies,
                 strategy_risk_contributions,
                 strict=False,
-            )
+            ),
         ):
             # Use equal allocation for all strategies
             norm_alloc = equal_allocation
             # Calculate risk-adjusted weight (lower risk is better)
             risk_factor = calculate_risk_factor(
-                risk
+                risk,
             )  # Lower risk contribution is better
 
             # Combine factors (efficiency * expectancy * allocation * risk_factor)
@@ -186,7 +186,7 @@ def calculate_portfolio_efficiency(
                     "expectancy": exp,
                     "allocation": norm_alloc,
                     "contribution": weighted_expectancy_contribution,
-                }
+                },
             )
 
             log(f"Strategy {i} weighted efficiency components:", "info")
@@ -248,7 +248,7 @@ def calculate_portfolio_efficiency(
         # use a weighted average of strategy efficiencies as a floor
         if portfolio_efficiency < 0.01 and strategy_efficiencies:
             avg_strategy_efficiency = sum(strategy_efficiencies) / len(
-                strategy_efficiencies
+                strategy_efficiencies,
             )
             if avg_strategy_efficiency > portfolio_efficiency:
                 log(
@@ -260,10 +260,10 @@ def calculate_portfolio_efficiency(
                     "info",
                 )
                 portfolio_efficiency = max(
-                    portfolio_efficiency, avg_strategy_efficiency * 0.5
+                    portfolio_efficiency, avg_strategy_efficiency * 0.5,
                 )
                 log(
-                    f"Adjusted portfolio efficiency: {portfolio_efficiency:.6f}", "info"
+                    f"Adjusted portfolio efficiency: {portfolio_efficiency:.6f}", "info",
                 )
 
         # VALIDATION: Check expectancy calculation reasonableness
@@ -288,7 +288,7 @@ def calculate_portfolio_efficiency(
 
 
 def calculate_independence_factor(
-    exclusive_ratio: float, concurrent_ratio: float, inactive_ratio: float
+    exclusive_ratio: float, concurrent_ratio: float, inactive_ratio: float,
 ) -> float:
     """Calculate an independence factor that provides a more nuanced measure of strategy independence.
 
@@ -314,13 +314,12 @@ def calculate_independence_factor(
     # Calculate independence as a function of these proportions
     # This formula gives higher scores to strategies with more exclusive periods
     # but doesn't severely penalize strategies with no exclusive periods
-    independence = 0.1 + 0.9 * (
+    return 0.1 + 0.9 * (
         exclusive_proportion / (exclusive_proportion + concurrent_proportion)
         if (exclusive_proportion + concurrent_proportion) > 0
         else 0.1
     )
 
-    return independence
 
 
 def calculate_risk_factor(risk: float) -> float:

@@ -91,7 +91,7 @@ class TestMASensitivityAnalyzer:
         analyzer = MASensitivityAnalyzer()
 
         with pytest.raises(
-            ValueError, match="MA strategy requires fast_period and slow_period"
+            ValueError, match="MA strategy requires fast_period and slow_period",
         ):
             analyzer._extract_strategy_parameters(slow_period=20)
 
@@ -100,7 +100,7 @@ class TestMASensitivityAnalyzer:
         analyzer = MASensitivityAnalyzer()
 
         with pytest.raises(
-            ValueError, match="MA strategy requires fast_period and slow_period"
+            ValueError, match="MA strategy requires fast_period and slow_period",
         ):
             analyzer._extract_strategy_parameters(fast_period=10)
 
@@ -112,7 +112,7 @@ class TestMASensitivityAnalyzer:
             {
                 "Date": ["2023-01-01", "2023-01-02", "2023-01-03"],
                 "Close": [100.0, 101.0, 102.0],
-            }
+            },
         )
 
         assert (
@@ -124,7 +124,7 @@ class TestMASensitivityAnalyzer:
         analyzer = MASensitivityAnalyzer()
 
         data = pl.DataFrame(
-            {"Date": ["2023-01-01", "2023-01-02"], "Close": [100.0, 101.0]}
+            {"Date": ["2023-01-01", "2023-01-02"], "Close": [100.0, 101.0]},
         )
 
         assert (
@@ -220,7 +220,7 @@ class TestMACDSensitivityAnalyzer:
         analyzer = MACDSensitivityAnalyzer()
 
         params = analyzer._extract_strategy_parameters(
-            fast_period=12, slow_period=26, signal_period=9
+            fast_period=12, slow_period=26, signal_period=9,
         )
 
         assert params["fast_period"] == 12
@@ -262,12 +262,12 @@ class TestMACDSensitivityAnalyzer:
         analyzer = MACDSensitivityAnalyzer()
 
         data = pl.DataFrame(
-            {"Date": ["2023-01-01"] * 30, "Close": list(range(100, 130))}
+            {"Date": ["2023-01-01"] * 30, "Close": list(range(100, 130))},
         )
 
         assert (
             analyzer._check_data_sufficiency(
-                data, fast_period=12, slow_period=26, signal_period=9
+                data, fast_period=12, slow_period=26, signal_period=9,
             )
             is True
         )
@@ -277,12 +277,12 @@ class TestMACDSensitivityAnalyzer:
         analyzer = MACDSensitivityAnalyzer()
 
         data = pl.DataFrame(
-            {"Date": ["2023-01-01"] * 10, "Close": list(range(100, 110))}
+            {"Date": ["2023-01-01"] * 10, "Close": list(range(100, 110))},
         )
 
         assert (
             analyzer._check_data_sufficiency(
-                data, fast_period=12, slow_period=26, signal_period=9
+                data, fast_period=12, slow_period=26, signal_period=9,
             )
             is False
         )
@@ -292,7 +292,7 @@ class TestMACDSensitivityAnalyzer:
         analyzer = MACDSensitivityAnalyzer()
 
         formatted = analyzer._format_parameters(
-            fast_period=12, slow_period=26, signal_period=9
+            fast_period=12, slow_period=26, signal_period=9,
         )
 
         assert formatted == "Short: 12, Long: 26, Signal: 9"
@@ -351,7 +351,7 @@ class TestMeanReversionSensitivityAnalyzer:
         analyzer = MeanReversionSensitivityAnalyzer()
 
         with pytest.raises(
-            ValueError, match="Mean Reversion strategy requires change_pct parameter"
+            ValueError, match="Mean Reversion strategy requires change_pct parameter",
         ):
             analyzer._extract_strategy_parameters()
 
@@ -360,7 +360,7 @@ class TestMeanReversionSensitivityAnalyzer:
         analyzer = MeanReversionSensitivityAnalyzer()
 
         data = pl.DataFrame(
-            {"Date": ["2023-01-01", "2023-01-02"], "Close": [100.0, 101.0]}
+            {"Date": ["2023-01-01", "2023-01-02"], "Close": [100.0, 101.0]},
         )
 
         assert analyzer._check_data_sufficiency(data, change_pct=0.05) is True
@@ -466,7 +466,7 @@ class TestAnalyzeParameterCombination:
     @patch.object(MASensitivityAnalyzer, "_calculate_signals")
     @patch.object(MASensitivityAnalyzer, "_check_signal_currency")
     def test_analyze_parameter_combination_success(
-        self, mock_check_currency, mock_calculate, mock_convert, mock_backtest
+        self, mock_check_currency, mock_calculate, mock_convert, mock_backtest,
     ):
         """Test successful parameter combination analysis."""
         # Setup mocks
@@ -491,7 +491,7 @@ class TestAnalyzeParameterCombination:
 
         # Execute
         result = analyze_parameter_combination(
-            data, config, log, strategy_type="SMA", fast_period=10, slow_period=20
+            data, config, log, strategy_type="SMA", fast_period=10, slow_period=20,
         )
 
         # Verify
@@ -507,7 +507,7 @@ class TestAnalyzeParameterCombination:
         log = Mock()
 
         result = analyze_parameter_combination(
-            data, config, log, strategy_type="SMA", fast_period=10, slow_period=20
+            data, config, log, strategy_type="SMA", fast_period=10, slow_period=20,
         )
 
         assert result is None
@@ -521,7 +521,7 @@ class TestAnalyzeParameterCombination:
 
         # This should not fail, but will return None due to missing signal calculation
         result = analyze_parameter_combination(
-            data, config, log, fast_period=12, slow_period=26, signal_period=9
+            data, config, log, fast_period=12, slow_period=26, signal_period=9,
         )
 
         # Check that the function returns a valid result (it's now working correctly)
@@ -551,7 +551,7 @@ class TestAnalyzeParameterCombinations:
 
         # Mock the analyzer factory to return a mock analyzer
         with patch.object(
-            SensitivityAnalyzerFactory, "create_analyzer"
+            SensitivityAnalyzerFactory, "create_analyzer",
         ) as mock_factory:
             mock_analyzer = Mock()
             # Return success for first and third, None for second
@@ -582,13 +582,13 @@ class TestBackwardCompatibilityFunctions:
     """Test cases for backward compatibility functions."""
 
     @patch(
-        "app.tools.strategy.sensitivity_analysis.SensitivityAnalyzerFactory.create_analyzer"
+        "app.tools.strategy.sensitivity_analysis.SensitivityAnalyzerFactory.create_analyzer",
     )
     def test_analyze_window_combination(self, mock_create):
         """Test analyze_window_combination backward compatibility function."""
         mock_analyzer = Mock()
         mock_analyzer.analyze_parameter_combination.return_value = {
-            "Total Return [%]": 10.0
+            "Total Return [%]": 10.0,
         }
         mock_create.return_value = mock_analyzer
 
@@ -597,23 +597,23 @@ class TestBackwardCompatibilityFunctions:
         log = Mock()
 
         result = analyze_window_combination(
-            data, fast_period=10, slow_period=20, config=config, log=log
+            data, fast_period=10, slow_period=20, config=config, log=log,
         )
 
         assert result["Total Return [%]"] == 10.0
         mock_create.assert_called_once_with("SMA")
         mock_analyzer.analyze_parameter_combination.assert_called_once_with(
-            data, config, log, fast_period=10, slow_period=20
+            data, config, log, fast_period=10, slow_period=20,
         )
 
     @patch(
-        "app.tools.strategy.sensitivity_analysis.SensitivityAnalyzerFactory.create_analyzer"
+        "app.tools.strategy.sensitivity_analysis.SensitivityAnalyzerFactory.create_analyzer",
     )
     def test_analyze_macd_combination(self, mock_create):
         """Test analyze_macd_combination convenience function."""
         mock_analyzer = Mock()
         mock_analyzer.analyze_parameter_combination.return_value = {
-            "Total Return [%]": 12.0
+            "Total Return [%]": 12.0,
         }
         mock_create.return_value = mock_analyzer
 
@@ -626,17 +626,17 @@ class TestBackwardCompatibilityFunctions:
         assert result["Total Return [%]"] == 12.0
         mock_create.assert_called_once_with("MACD")
         mock_analyzer.analyze_parameter_combination.assert_called_once_with(
-            data, config, log, fast_period=12, slow_period=26, signal_period=9
+            data, config, log, fast_period=12, slow_period=26, signal_period=9,
         )
 
     @patch(
-        "app.tools.strategy.sensitivity_analysis.SensitivityAnalyzerFactory.create_analyzer"
+        "app.tools.strategy.sensitivity_analysis.SensitivityAnalyzerFactory.create_analyzer",
     )
     def test_analyze_mean_reversion_combination(self, mock_create):
         """Test analyze_mean_reversion_combination convenience function."""
         mock_analyzer = Mock()
         mock_analyzer.analyze_parameter_combination.return_value = {
-            "Total Return [%]": 8.0
+            "Total Return [%]": 8.0,
         }
         mock_create.return_value = mock_analyzer
 
@@ -649,7 +649,7 @@ class TestBackwardCompatibilityFunctions:
         assert result["Total Return [%]"] == 8.0
         mock_create.assert_called_once_with("MEAN_REVERSION")
         mock_analyzer.analyze_parameter_combination.assert_called_once_with(
-            data, config, log, change_pct=0.05
+            data, config, log, change_pct=0.05,
         )
 
 
@@ -661,7 +661,7 @@ class TestAnalyzeParameterCombinationIntegration:
     @patch.object(MASensitivityAnalyzer, "_calculate_signals")
     @patch.object(MASensitivityAnalyzer, "_check_signal_currency")
     def test_full_ma_analysis_workflow(
-        self, mock_check_currency, mock_calculate, mock_convert, mock_backtest
+        self, mock_check_currency, mock_calculate, mock_convert, mock_backtest,
     ):
         """Test full MA analysis workflow with all components."""
         # Setup comprehensive mock data
@@ -671,7 +671,7 @@ class TestAnalyzeParameterCombinationIntegration:
                 "Close": [100.0, 101.0, 102.0],
                 "Signal": [1, 0, -1],
                 "Position": [1, 1, 0],
-            }
+            },
         )
 
         mock_calculate.return_value = signal_data
@@ -702,13 +702,13 @@ class TestAnalyzeParameterCombinationIntegration:
 
         # Execute analysis
         data = pl.DataFrame(
-            {"Date": ["2023-01-01"] * 25, "Close": list(range(100, 125))}
+            {"Date": ["2023-01-01"] * 25, "Close": list(range(100, 125))},
         )
         config = {"USE_CURRENT": True, "STRATEGY_TYPE": "SMA"}
         log = Mock()
 
         result = analyze_parameter_combination(
-            data, config, log, strategy_type="SMA", fast_period=10, slow_period=20
+            data, config, log, strategy_type="SMA", fast_period=10, slow_period=20,
         )
 
         # Verify result

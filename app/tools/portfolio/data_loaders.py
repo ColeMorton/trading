@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 def load_strategies_from_raw_csv(
-    raw_strategies_name: str, console: ConsoleLogger = None
+    raw_strategies_name: str, console: ConsoleLogger = None,
 ) -> list["ReviewStrategyConfig"]:
     """
     Load strategy configurations from a CSV file in data/raw/strategies/.
@@ -36,7 +36,8 @@ def load_strategies_from_raw_csv(
     csv_path = Path("data/raw/strategies") / f"{raw_strategies_name}.csv"
 
     if not csv_path.exists():
-        raise ValueError(f"Raw strategies CSV file does not exist: {csv_path}")
+        msg = f"Raw strategies CSV file does not exist: {csv_path}"
+        raise ValueError(msg)
 
     try:
         # Load CSV using polars
@@ -103,9 +104,10 @@ def load_strategies_from_raw_csv(
             review_strategies.append(review_strategy)
 
         console.success(
-            f"Successfully loaded {len(review_strategies)} strategies from {csv_path}"
+            f"Successfully loaded {len(review_strategies)} strategies from {csv_path}",
         )
         return review_strategies
 
     except Exception as e:
-        raise ValueError(f"Failed to load strategies from CSV {csv_path}: {e}")
+        msg = f"Failed to load strategies from CSV {csv_path}: {e}"
+        raise ValueError(msg)

@@ -19,7 +19,7 @@ from app.tools.stats_converter import convert_stats
 
 
 def process_single_ticker(
-    ticker: str, config: PortfolioConfig, log: Callable
+    ticker: str, config: PortfolioConfig, log: Callable,
 ) -> list[dict[str, Any]] | None:
     """Process a single ticker through the portfolio analysis pipeline.
 
@@ -52,12 +52,12 @@ def process_single_ticker(
         for range_length in range_lengths:
             for candle_lookback in candle_lookbacks:
                 log(
-                    f"Testing range_length={range_length}, candle_lookback={candle_lookback}"
+                    f"Testing range_length={range_length}, candle_lookback={candle_lookback}",
                 )
 
                 # Calculate signals for this combination
                 signals_data = calculate_range_signals(
-                    data.clone(), range_length, candle_lookback, ticker_config, log
+                    data.clone(), range_length, candle_lookback, ticker_config, log,
                 )
                 if signals_data is None:
                     continue
@@ -122,7 +122,7 @@ def calculate_range_signals(
     try:
         # Calculate range high
         data = data.with_columns(
-            [pl.col("High").rolling_max(range_length).alias("Range_High")]
+            [pl.col("High").rolling_max(range_length).alias("Range_High")],
         )
 
         # Generate entry signals
@@ -131,8 +131,8 @@ def calculate_range_signals(
             [
                 (pl.col("Close") > pl.col("Range_High").shift(1))
                 .cast(pl.Int32)
-                .alias("Signal")
-            ]
+                .alias("Signal"),
+            ],
         )
 
         # Generate exit signals
@@ -141,21 +141,20 @@ def calculate_range_signals(
             [
                 (~(pl.col("Close") > pl.col("Range_High").shift(candle_lookback)))
                 .cast(pl.Int32)
-                .alias("Exit")
-            ]
+                .alias("Exit"),
+            ],
         )
 
         # Combine signals
-        data = data.with_columns(
+        return data.with_columns(
             [
                 pl.when(pl.col("Exit") == 1)
                 .then(0)
                 .otherwise(pl.col("Signal"))
-                .alias("Signal")
-            ]
+                .alias("Signal"),
+            ],
         )
 
-        return data
 
     except Exception as e:
         log(f"Failed to calculate range signals: {e!s}", "error")
@@ -163,7 +162,7 @@ def calculate_range_signals(
 
 
 def execute_strategy(
-    config: PortfolioConfig, strategy_type: str, log: Callable
+    config: PortfolioConfig, strategy_type: str, log: Callable,
 ) -> list[dict[str, Any]]:
     """Execute the Range High Break strategy for all tickers.
 
@@ -192,7 +191,7 @@ def execute_strategy(
         if portfolios:
             # Find best portfolio based on Score
             sorted_portfolios = sorted(
-                portfolios, key=lambda x: float(x.get("Score", 0)), reverse=True
+                portfolios, key=lambda x: float(x.get("Score", 0)), reverse=True,
             )
             best_portfolios.append(sorted_portfolios[0])
 

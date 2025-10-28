@@ -40,7 +40,7 @@ class TestPortfolioReviewFlowIntegration:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+                "app.portfolio_synthesis.review.calculate_ma_and_signals",
             ) as mock_calc_ma,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs") as mock_makedirs,
@@ -75,7 +75,7 @@ class TestPortfolioReviewFlowIntegration:
             # Verify function call sequence
             mock_get_config.assert_called_once()
             mock_get_data.assert_called_once_with(
-                mock_config["TICKER"], mock_config, mock_log
+                mock_config["TICKER"], mock_config, mock_log,
             )
             mock_calc_ma.assert_called_once()
             mock_backtest.assert_called_once()
@@ -112,7 +112,7 @@ class TestPortfolioReviewFlowIntegration:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_macd_and_signals"
+                "app.portfolio_synthesis.review.calculate_macd_and_signals",
             ) as mock_calc_macd,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs"),
@@ -195,7 +195,7 @@ class TestPortfolioReviewFlowIntegration:
             with (
                 patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
                 patch(
-                    "app.portfolio_synthesis.review.process_strategy"
+                    "app.portfolio_synthesis.review.process_strategy",
                 ) as mock_process_strategy,
             ):
                 # Setup mocks
@@ -245,7 +245,7 @@ class TestPortfolioReviewFlowIntegration:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+                "app.portfolio_synthesis.review.calculate_ma_and_signals",
             ) as mock_calc_ma,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs"),
@@ -339,7 +339,7 @@ class TestPortfolioReviewFlowIntegration:
         with (
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+                "app.portfolio_synthesis.review.calculate_ma_and_signals",
             ) as mock_calc_ma,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
         ):
@@ -357,7 +357,7 @@ class TestPortfolioReviewFlowIntegration:
 
             # Verify function calls
             mock_get_data.assert_called_once_with(
-                mock_config["TICKER"], mock_config, mock_log
+                mock_config["TICKER"], mock_config, mock_log,
             )
             mock_calc_ma.assert_called_once_with(
                 mock_data,
@@ -384,7 +384,7 @@ class TestPortfolioReviewFlowIntegration:
         with (
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_macd_and_signals"
+                "app.portfolio_synthesis.review.calculate_macd_and_signals",
             ) as mock_calc_macd,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
         ):
@@ -434,7 +434,7 @@ class TestPortfolioReviewFlowIntegration:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+                "app.portfolio_synthesis.review.calculate_ma_and_signals",
             ) as mock_calc_ma,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs") as mock_makedirs,
@@ -463,7 +463,7 @@ class TestPortfolioReviewFlowIntegration:
                 "data/outputs/portfolio/ma_cross/equity_curve/EXPORT-TEST.csv"
             )
             mock_makedirs.assert_called_once_with(
-                os.path.dirname(expected_csv_path), exist_ok=True
+                os.path.dirname(expected_csv_path), exist_ok=True,
             )
 
             # Verify DataFrame creation and export

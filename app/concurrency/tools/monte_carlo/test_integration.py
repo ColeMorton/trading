@@ -63,7 +63,7 @@ class TestMonteCarloIntegration(unittest.TestCase):
         mc_config = create_monte_carlo_config(self.base_config)
 
         manager = PortfolioMonteCarloManager(
-            config=mc_config, max_workers=2, log=Mock()
+            config=mc_config, max_workers=2, log=Mock(),
         )
 
         self.assertEqual(manager.config, mc_config)
@@ -84,7 +84,7 @@ class TestMonteCarloIntegration(unittest.TestCase):
                 "High": [102.0, 103.0],
                 "Low": [99.0, 100.0],
                 "Close": [101.0, 102.0],
-            }
+            },
         )
         mock_download.return_value = mock_data
 
@@ -105,7 +105,7 @@ class TestMonteCarloIntegration(unittest.TestCase):
             },
             {
                 # Missing ticker and parameters - should be filtered out
-                "some_other_field": "value"
+                "some_other_field": "value",
             },
         ]
 
@@ -175,7 +175,7 @@ class TestMonteCarloIntegration(unittest.TestCase):
 
         # Generate report with Monte Carlo results
         report = generate_json_report(
-            strategies, stats, Mock(), config, monte_carlo_results
+            strategies, stats, Mock(), config, monte_carlo_results,
         )
 
         # Verify report structure

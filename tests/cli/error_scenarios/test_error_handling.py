@@ -38,7 +38,7 @@ class TestInvalidTickerHandling:
     @patch("app.cli.commands.strategy.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_invalid_ticker_symbol_handling(
-        self, mock_config_loader, mock_get_data, cli_runner
+        self, mock_config_loader, mock_get_data, cli_runner,
     ):
         """Test handling of invalid ticker symbols."""
         # Setup mocks
@@ -52,7 +52,7 @@ class TestInvalidTickerHandling:
 
         # Execute command with invalid ticker
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "INVALID_TICKER_XYZ", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "INVALID_TICKER_XYZ", "--strategy", "SMA"],
         )
 
         # Verify graceful error handling
@@ -65,7 +65,7 @@ class TestInvalidTickerHandling:
     @patch("app.cli.commands.strategy.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_empty_ticker_data_handling(
-        self, mock_config_loader, mock_get_data, cli_runner
+        self, mock_config_loader, mock_get_data, cli_runner,
     ):
         """Test handling of empty data returned for valid ticker."""
         # Setup mocks
@@ -79,7 +79,7 @@ class TestInvalidTickerHandling:
 
         # Execute command
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Verify handling of empty data
@@ -89,7 +89,7 @@ class TestInvalidTickerHandling:
     @patch("app.cli.commands.strategy.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_malformed_ticker_data_handling(
-        self, mock_config_loader, mock_get_data, cli_runner
+        self, mock_config_loader, mock_get_data, cli_runner,
     ):
         """Test handling of malformed price data."""
         # Setup mocks
@@ -103,7 +103,7 @@ class TestInvalidTickerHandling:
 
         # Execute command
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Verify handling of malformed data
@@ -113,7 +113,7 @@ class TestInvalidTickerHandling:
     @patch("app.cli.commands.strategy.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_special_character_ticker_handling(
-        self, mock_config_loader, mock_get_data, cli_runner
+        self, mock_config_loader, mock_get_data, cli_runner,
     ):
         """Test handling of tickers with special characters."""
         special_tickers = ["BTC-USD", "STRK/MSTR", "^GSPC", "GC=F", "TICKER.L"]
@@ -129,7 +129,7 @@ class TestInvalidTickerHandling:
 
             # Execute command
             result = cli_runner.invoke(
-                strategy_app, ["run", "--ticker", ticker, "--strategy", "SMA"]
+                strategy_app, ["run", "--ticker", ticker, "--strategy", "SMA"],
             )
 
             # Should handle special characters without crashing
@@ -142,7 +142,7 @@ class TestInvalidTickerHandling:
     @patch("app.cli.commands.strategy.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_mixed_valid_invalid_tickers(
-        self, mock_config_loader, mock_get_data, cli_runner
+        self, mock_config_loader, mock_get_data, cli_runner,
     ):
         """Test handling of mixed valid and invalid tickers."""
         # Setup mocks
@@ -161,7 +161,7 @@ class TestInvalidTickerHandling:
 
         # Execute command
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL,INVALID,MSFT", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL,INVALID,MSFT", "--strategy", "SMA"],
         )
 
         # Should handle partial success gracefully
@@ -180,7 +180,7 @@ class TestNetworkErrorHandling:
     @patch("app.cli.commands.strategy.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_network_timeout_handling(
-        self, mock_config_loader, mock_get_data, cli_runner
+        self, mock_config_loader, mock_get_data, cli_runner,
     ):
         """Test handling of network timeouts during data fetch."""
         # Setup mocks
@@ -194,7 +194,7 @@ class TestNetworkErrorHandling:
 
         # Execute command
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Verify timeout handling
@@ -204,7 +204,7 @@ class TestNetworkErrorHandling:
     @patch("app.cli.commands.strategy.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_connection_error_handling(
-        self, mock_config_loader, mock_get_data, cli_runner
+        self, mock_config_loader, mock_get_data, cli_runner,
     ):
         """Test handling of connection errors."""
         # Setup mocks
@@ -218,7 +218,7 @@ class TestNetworkErrorHandling:
 
         # Execute command
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Verify connection error handling
@@ -228,7 +228,7 @@ class TestNetworkErrorHandling:
     @patch("app.cli.commands.strategy.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_ssl_certificate_error_handling(
-        self, mock_config_loader, mock_get_data, cli_runner
+        self, mock_config_loader, mock_get_data, cli_runner,
     ):
         """Test handling of SSL certificate errors."""
         # Setup mocks
@@ -244,7 +244,7 @@ class TestNetworkErrorHandling:
 
         # Execute command
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Verify SSL error handling
@@ -272,7 +272,7 @@ class TestNetworkErrorHandling:
 
         # Execute command
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Verify HTTP error handling
@@ -295,7 +295,7 @@ class TestParameterValidationErrors:
     def test_invalid_strategy_type_handling(self, cli_runner):
         """Test handling of invalid strategy types."""
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "INVALID_STRATEGY"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "INVALID_STRATEGY"],
         )
 
         # Should handle invalid strategy type
@@ -406,12 +406,12 @@ class TestParameterValidationErrors:
         """Test handling of empty required parameters."""
         # Test empty ticker
         result1 = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "", "--strategy", "SMA"],
         )
 
         # Test empty strategy
         result2 = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", ""]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", ""],
         )
 
         # Should handle empty required parameters
@@ -446,7 +446,7 @@ class TestFileSystemErrorHandling:
     def test_missing_profile_file_handling(self, cli_runner):
         """Test handling of missing profile files."""
         result = cli_runner.invoke(
-            strategy_app, ["run", "--profile", "nonexistent_profile"]
+            strategy_app, ["run", "--profile", "nonexistent_profile"],
         )
 
         # Should handle missing profile file
@@ -457,11 +457,11 @@ class TestFileSystemErrorHandling:
         """Test handling of permission denied errors when accessing profiles."""
         # Mock permission denied error
         mock_config_loader.return_value.load_from_profile.side_effect = PermissionError(
-            "Permission denied"
+            "Permission denied",
         )
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--profile", "default_strategy"]
+            strategy_app, ["run", "--profile", "default_strategy"],
         )
 
         # Should handle permission errors
@@ -496,14 +496,14 @@ class TestFileSystemErrorHandling:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         mock_get_data.return_value = pl.DataFrame(
-            {"Date": [pl.date(2023, 1, 1)], "Close": [100.0]}
+            {"Date": [pl.date(2023, 1, 1)], "Close": [100.0]},
         )
 
         # Mock export failure due to file system issues
         mock_export.side_effect = OSError("Cannot create directory")
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle directory creation failure
@@ -513,7 +513,7 @@ class TestFileSystemErrorHandling:
     @patch("builtins.open")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_file_write_permission_error(
-        self, mock_config_loader, mock_open, cli_runner
+        self, mock_config_loader, mock_open, cli_runner,
     ):
         """Test handling of file write permission errors."""
         # Setup mocks
@@ -526,7 +526,7 @@ class TestFileSystemErrorHandling:
         mock_open.side_effect = PermissionError("Permission denied")
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle write permission errors gracefully
@@ -557,7 +557,7 @@ class TestCorruptedConfigurationHandling:
 
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_malformed_yaml_handling(
-        self, mock_config_loader, cli_runner, temp_config_dir
+        self, mock_config_loader, cli_runner, temp_config_dir,
     ):
         """Test handling of malformed YAML configuration files."""
         # Create malformed YAML file
@@ -571,14 +571,14 @@ config:
   invalid_structure
 """
         self.create_corrupted_yaml_file(
-            temp_config_dir, "corrupted.yaml", malformed_yaml
+            temp_config_dir, "corrupted.yaml", malformed_yaml,
         )
 
         # Mock YAML parsing error
         import yaml
 
         mock_config_loader.return_value.load_from_profile.side_effect = yaml.YAMLError(
-            "Invalid YAML"
+            "Invalid YAML",
         )
 
         result = cli_runner.invoke(strategy_app, ["run", "--profile", "corrupted"])
@@ -591,11 +591,11 @@ config:
         """Test handling of configuration files missing required fields."""
         # Mock config with missing required fields
         mock_config_loader.return_value.load_from_profile.side_effect = KeyError(
-            "Missing required field"
+            "Missing required field",
         )
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--profile", "incomplete_profile"]
+            strategy_app, ["run", "--profile", "incomplete_profile"],
         )
 
         # Should handle missing required fields
@@ -606,11 +606,11 @@ config:
         """Test handling of invalid data types in configuration."""
         # Mock config with invalid data types
         mock_config_loader.return_value.load_from_profile.side_effect = TypeError(
-            "Invalid data type"
+            "Invalid data type",
         )
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--profile", "invalid_types_profile"]
+            strategy_app, ["run", "--profile", "invalid_types_profile"],
         )
 
         # Should handle type validation errors
@@ -621,11 +621,11 @@ config:
         """Test handling of circular inheritance in configuration files."""
         # Mock circular inheritance error
         mock_config_loader.return_value.load_from_profile.side_effect = RecursionError(
-            "Circular inheritance detected"
+            "Circular inheritance detected",
         )
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--profile", "circular_profile"]
+            strategy_app, ["run", "--profile", "circular_profile"],
         )
 
         # Should handle circular inheritance
@@ -640,7 +640,7 @@ config:
         )
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--profile", "corrupted_json_profile"]
+            strategy_app, ["run", "--profile", "corrupted_json_profile"],
         )
 
         # Should handle JSON parsing errors
@@ -658,7 +658,7 @@ class TestMemoryAndResourceConstraints:
     @patch("app.cli.commands.strategy.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_out_of_memory_handling(
-        self, mock_config_loader, mock_get_data, cli_runner
+        self, mock_config_loader, mock_get_data, cli_runner,
     ):
         """Test handling of out of memory errors."""
         # Setup mocks
@@ -671,7 +671,7 @@ class TestMemoryAndResourceConstraints:
         mock_get_data.side_effect = MemoryError("Insufficient memory")
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle memory errors gracefully
@@ -682,7 +682,7 @@ class TestMemoryAndResourceConstraints:
     @patch("app.cli.commands.strategy.analyze_parameter_sensitivity")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_excessive_parameter_combinations_handling(
-        self, mock_config_loader, mock_analyze, mock_get_data, cli_runner
+        self, mock_config_loader, mock_analyze, mock_get_data, cli_runner,
     ):
         """Test handling of parameter sweeps with excessive combinations."""
         # Setup mocks
@@ -694,7 +694,7 @@ class TestMemoryAndResourceConstraints:
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_get_data.return_value = pl.DataFrame(
-            {"Date": [pl.date(2023, 1, 1)], "Close": [100.0]}
+            {"Date": [pl.date(2023, 1, 1)], "Close": [100.0]},
         )
 
         # Simulate resource exhaustion
@@ -726,7 +726,7 @@ class TestMemoryAndResourceConstraints:
     @patch("app.cli.commands.strategy.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_disk_space_exhaustion_handling(
-        self, mock_config_loader, mock_get_data, cli_runner
+        self, mock_config_loader, mock_get_data, cli_runner,
     ):
         """Test handling of disk space exhaustion during export."""
         # Setup mocks
@@ -736,7 +736,7 @@ class TestMemoryAndResourceConstraints:
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_get_data.return_value = pl.DataFrame(
-            {"Date": [pl.date(2023, 1, 1)], "Close": [100.0]}
+            {"Date": [pl.date(2023, 1, 1)], "Close": [100.0]},
         )
 
         # Mock disk space error during export
@@ -744,7 +744,7 @@ class TestMemoryAndResourceConstraints:
             mock_export.side_effect = OSError("No space left on device")
 
             result = cli_runner.invoke(
-                strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+                strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
             )
 
             # Should handle disk space errors
@@ -767,7 +767,7 @@ class TestServiceFailureHandling:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_strategy_service_initialization_failure(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test handling of strategy service initialization failures."""
         # Setup mocks
@@ -778,11 +778,11 @@ class TestServiceFailureHandling:
 
         # Mock service initialization failure
         mock_dispatcher_class.side_effect = RuntimeError(
-            "Service initialization failed"
+            "Service initialization failed",
         )
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle service initialization failure
@@ -792,7 +792,7 @@ class TestServiceFailureHandling:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_strategy_execution_service_failure(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
     ):
         """Test handling of strategy execution service failures."""
         # Setup mocks
@@ -804,16 +804,16 @@ class TestServiceFailureHandling:
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
         mock_dispatcher.execute_strategy.side_effect = RuntimeError(
-            "Strategy execution failed"
+            "Strategy execution failed",
         )
         mock_dispatcher_class.return_value = mock_dispatcher
 
         mock_get_data.return_value = pl.DataFrame(
-            {"Date": [pl.date(2023, 1, 1)], "Close": [100.0]}
+            {"Date": [pl.date(2023, 1, 1)], "Close": [100.0]},
         )
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle execution service failure gracefully
@@ -824,7 +824,7 @@ class TestServiceFailureHandling:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_export_service_failure_graceful_degradation(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
     ):
         """Test graceful degradation when export service fails."""
         # Setup mocks
@@ -839,7 +839,7 @@ class TestServiceFailureHandling:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         mock_get_data.return_value = pl.DataFrame(
-            {"Date": [pl.date(2023, 1, 1)], "Close": [100.0]}
+            {"Date": [pl.date(2023, 1, 1)], "Close": [100.0]},
         )
 
         # Mock export service failure
@@ -847,7 +847,7 @@ class TestServiceFailureHandling:
             mock_export.side_effect = RuntimeError("Export service failed")
 
             result = cli_runner.invoke(
-                strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+                strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
             )
 
             # Should continue execution despite export failure
@@ -859,11 +859,11 @@ class TestServiceFailureHandling:
         """Test handling when configuration service is unavailable."""
         # Mock service unavailable
         mock_config_loader.side_effect = RuntimeError(
-            "Configuration service unavailable"
+            "Configuration service unavailable",
         )
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle service unavailability
@@ -909,7 +909,7 @@ class TestRecoveryAndRetryMechanisms:
     @patch("app.cli.commands.strategy.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_transient_network_error_recovery(
-        self, mock_config_loader, mock_get_data, cli_runner
+        self, mock_config_loader, mock_get_data, cli_runner,
     ):
         """Test recovery from transient network errors."""
         # Setup mocks
@@ -925,13 +925,14 @@ class TestRecoveryAndRetryMechanisms:
             nonlocal call_count
             call_count += 1
             if call_count == 1:
-                raise ConnectionError("Transient network error")
+                msg = "Transient network error"
+                raise ConnectionError(msg)
             return pl.DataFrame({"Date": [pl.date(2023, 1, 1)], "Close": [100.0]})
 
         mock_get_data.side_effect = get_data_side_effect
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle transient errors appropriately
@@ -952,13 +953,14 @@ class TestRecoveryAndRetryMechanisms:
         # Mock partial success - some tickers succeed, others fail
         def get_data_side_effect(ticker, *args, **kwargs):
             if ticker == "MSFT":
-                raise ConnectionError("Failed to fetch MSFT data")
+                msg = "Failed to fetch MSFT data"
+                raise ConnectionError(msg)
             return pl.DataFrame({"Date": [pl.date(2023, 1, 1)], "Close": [100.0]})
 
         mock_get_data.side_effect = get_data_side_effect
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL,MSFT,GOOGL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL,MSFT,GOOGL", "--strategy", "SMA"],
         )
 
         # Should handle partial success gracefully

@@ -49,11 +49,13 @@ def generate_json_report(
         # Validate inputs
         if not strategies:
             log("No strategies provided", "error")
-            raise ValueError("Strategies list cannot be empty")
+            msg = "Strategies list cannot be empty"
+            raise ValueError(msg)
 
         if not stats:
             log("No statistics provided", "error")
-            raise ValueError("Statistics dictionary cannot be empty")
+            msg = "Statistics dictionary cannot be empty"
+            raise ValueError(msg)
 
         log(f"Starting JSON report generation for {len(strategies)} strategies", "info")
 
@@ -83,7 +85,8 @@ def generate_json_report(
         missing_stats = [stat for stat in required_stats if stat not in stats]
         if missing_stats:
             log(f"Missing required statistics: {missing_stats}", "error")
-            raise KeyError(f"Missing required statistics: {missing_stats}")
+            msg = f"Missing required statistics: {missing_stats}"
+            raise KeyError(msg)
 
         # Create strategy objects
         strategy_objects = []
@@ -174,10 +177,10 @@ def generate_json_report(
                             ),
                         ),
                         "strategy_stability_score": float(
-                            getattr(result, "portfolio_stability_score", 0.0)
+                            getattr(result, "portfolio_stability_score", 0.0),
                         ),
                         "recommended_parameters": getattr(
-                            result, "recommended_parameters", None
+                            result, "recommended_parameters", None,
                         ),
                         "parameter_variations": [],
                         "analysis_metadata": getattr(result, "analysis_metadata", {}),
@@ -191,19 +194,19 @@ def generate_json_report(
                         for param_result in result.parameter_results:
                             param_data = {
                                 "parameter_combination": getattr(
-                                    param_result, "parameter_combination", None
+                                    param_result, "parameter_combination", None,
                                 ),
                                 "stability_score": float(
-                                    getattr(param_result, "stability_score", 0.0)
+                                    getattr(param_result, "stability_score", 0.0),
                                 ),
                                 "parameter_robustness": float(
-                                    getattr(param_result, "parameter_robustness", 0.0)
+                                    getattr(param_result, "parameter_robustness", 0.0),
                                 ),
                                 "regime_consistency": float(
-                                    getattr(param_result, "regime_consistency", 0.0)
+                                    getattr(param_result, "regime_consistency", 0.0),
                                 ),
                                 "is_stable": bool(
-                                    getattr(param_result, "is_stable", False)
+                                    getattr(param_result, "is_stable", False),
                                 ),
                             }
                             strategy_data["parameter_variations"].append(param_data)
@@ -227,7 +230,7 @@ def generate_json_report(
 
                         # If no exact match found, search in raw parameter_results
                         if recommended_details is None and hasattr(
-                            result, "parameter_results"
+                            result, "parameter_results",
                         ):
                             for param_result in result.parameter_results:
                                 if (
@@ -236,27 +239,27 @@ def generate_json_report(
                                 ):
                                     recommended_details = {
                                         "parameter_combination": getattr(
-                                            param_result, "parameter_combination", None
+                                            param_result, "parameter_combination", None,
                                         ),
                                         "stability_score": float(
                                             getattr(
-                                                param_result, "stability_score", 0.0
-                                            )
+                                                param_result, "stability_score", 0.0,
+                                            ),
                                         ),
                                         "parameter_robustness": float(
                                             getattr(
                                                 param_result,
                                                 "parameter_robustness",
                                                 0.0,
-                                            )
+                                            ),
                                         ),
                                         "regime_consistency": float(
                                             getattr(
-                                                param_result, "regime_consistency", 0.0
-                                            )
+                                                param_result, "regime_consistency", 0.0,
+                                            ),
                                         ),
                                         "is_stable": bool(
-                                            getattr(param_result, "is_stable", False)
+                                            getattr(param_result, "is_stable", False),
                                         ),
                                     }
                                     break
@@ -362,7 +365,7 @@ def generate_json_report(
                         "num_simulations": config.get("MC_NUM_SIMULATIONS", 100),
                         "confidence_level": config.get("MC_CONFIDENCE_LEVEL", 0.95),
                         "max_parameters_tested": config.get(
-                            "MC_MAX_PARAMETERS_TO_TEST", 10
+                            "MC_MAX_PARAMETERS_TO_TEST", 10,
                         ),
                     },
                     "description": "Parameter robustness analysis summary for portfolio. Individual strategy results are nested within each strategy object.",

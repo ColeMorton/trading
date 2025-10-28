@@ -106,7 +106,8 @@ class SignificanceTestingEngine:
                 len(x1) < self.min_sample_sizes["ttest"]
                 or len(x2) < self.min_sample_sizes["ttest"]
             ):
-                raise ValueError(f"Insufficient sample size: {len(x1)}, {len(x2)}")
+                msg = f"Insufficient sample size: {len(x1)}, {len(x2)}"
+                raise ValueError(msg)
 
             # Test assumptions
             assumptions = await self._test_assumptions_for_ttest(x1, x2, paired)
@@ -120,7 +121,7 @@ class SignificanceTestingEngine:
                     dof = len(x1) - 1
                 else:
                     test_stat, p_value = ttest_ind(
-                        x1, x2, equal_var=True, alternative=alternative
+                        x1, x2, equal_var=True, alternative=alternative,
                     )
                     test_name = "Independent t-test"
                     dof = len(x1) + len(x2) - 2
@@ -130,7 +131,7 @@ class SignificanceTestingEngine:
             elif assumptions["normality"] and not assumptions["equal_variance"]:
                 # Welch's t-test
                 test_stat, p_value = ttest_ind(
-                    x1, x2, equal_var=False, alternative=alternative
+                    x1, x2, equal_var=False, alternative=alternative,
                 )
                 test_name = "Welch's t-test"
                 test_type = "parametric"
@@ -181,7 +182,7 @@ class SignificanceTestingEngine:
             )
 
         except Exception as e:
-            self.logger.error(f"Mean difference test failed: {e}")
+            self.logger.exception(f"Mean difference test failed: {e}")
             raise
 
     async def test_correlation_significance(
@@ -205,7 +206,8 @@ class SignificanceTestingEngine:
         """
         try:
             if sample_size < self.min_sample_sizes["correlation"]:
-                raise ValueError(f"Insufficient sample size: {sample_size}")
+                msg = f"Insufficient sample size: {sample_size}"
+                raise ValueError(msg)
 
             # Calculate t-statistic for correlation
             if abs(correlation) >= 1.0:
@@ -215,7 +217,7 @@ class SignificanceTestingEngine:
                 p_value = 1e-10  # Very small but non-zero p-value
             else:
                 test_stat = correlation * np.sqrt(
-                    (sample_size - 2) / (1 - correlation**2)
+                    (sample_size - 2) / (1 - correlation**2),
                 )
 
                 # Calculate p-value
@@ -232,7 +234,7 @@ class SignificanceTestingEngine:
 
             # Effect size interpretation
             effect_interpretation = self._interpret_correlation_magnitude(
-                abs(correlation)
+                abs(correlation),
             )
 
             return SignificanceTestResult(
@@ -244,7 +246,7 @@ class SignificanceTestingEngine:
                 degrees_of_freedom=sample_size - 2,
                 is_significant=self._validate_p_value(p_value) < alpha,
                 significance_level=self._classify_significance(
-                    self._validate_p_value(p_value)
+                    self._validate_p_value(p_value),
                 ),
                 effect_size=abs(correlation),
                 effect_size_interpretation=effect_interpretation,
@@ -256,7 +258,7 @@ class SignificanceTestingEngine:
             )
 
         except Exception as e:
-            self.logger.error(f"Correlation significance test failed: {e}")
+            self.logger.exception(f"Correlation significance test failed: {e}")
             raise
 
     async def test_multiple_groups(
@@ -278,7 +280,8 @@ class SignificanceTestingEngine:
         """
         try:
             if len(groups) < 2:
-                raise ValueError("Need at least 2 groups for comparison")
+                msg = "Need at least 2 groups for comparison"
+                raise ValueError(msg)
 
             # Convert to numpy arrays and clean
             clean_groups = []
@@ -286,7 +289,8 @@ class SignificanceTestingEngine:
                 arr = np.array(group)
                 clean_arr = arr[~np.isnan(arr)]
                 if len(clean_arr) < 3:
-                    raise ValueError(f"Group has insufficient data: {len(clean_arr)}")
+                    msg = f"Group has insufficient data: {len(clean_arr)}"
+                    raise ValueError(msg)
                 clean_groups.append(clean_arr)
 
             # Test assumptions for ANOVA
@@ -312,7 +316,7 @@ class SignificanceTestingEngine:
             warnings_list = []
             if not assumptions["normality"]:
                 warnings_list.append(
-                    "Normality assumption violated - using Kruskal-Wallis"
+                    "Normality assumption violated - using Kruskal-Wallis",
                 )
             if not assumptions["equal_variance"]:
                 warnings_list.append("Equal variance assumption violated")
@@ -328,7 +332,7 @@ class SignificanceTestingEngine:
                 degrees_of_freedom=dof,
                 is_significant=self._validate_p_value(p_value) < alpha,
                 significance_level=self._classify_significance(
-                    self._validate_p_value(p_value)
+                    self._validate_p_value(p_value),
                 ),
                 effect_size=effect_size["value"],
                 effect_size_interpretation=effect_size["interpretation"],
@@ -340,11 +344,11 @@ class SignificanceTestingEngine:
             )
 
         except Exception as e:
-            self.logger.error(f"Multiple groups test failed: {e}")
+            self.logger.exception(f"Multiple groups test failed: {e}")
             raise
 
     async def test_normality(
-        self, data: list[float] | np.ndarray | pd.Series, alpha: float = 0.05
+        self, data: list[float] | np.ndarray | pd.Series, alpha: float = 0.05,
     ) -> SignificanceTestResult:
         """
         Test for normality of data distribution
@@ -362,7 +366,8 @@ class SignificanceTestingEngine:
             x = x[~np.isnan(x)]
 
             if len(x) < self.min_sample_sizes["normality"]:
-                raise ValueError(f"Insufficient sample size: {len(x)}")
+                msg = f"Insufficient sample size: {len(x)}"
+                raise ValueError(msg)
 
             # Choose appropriate normality test based on sample size
             if len(x) < 50:
@@ -383,12 +388,12 @@ class SignificanceTestingEngine:
                 degrees_of_freedom=None,
                 is_significant=self._validate_p_value(p_value) < alpha,
                 significance_level=self._classify_significance(
-                    self._validate_p_value(p_value)
+                    self._validate_p_value(p_value),
                 ),
                 effect_size=None,
                 effect_size_interpretation=None,
                 assumptions_met={
-                    "sample_size_adequate": len(x) >= self.min_sample_sizes["normality"]
+                    "sample_size_adequate": len(x) >= self.min_sample_sizes["normality"],
                 },
                 assumption_warnings=[],
                 sample_size=len(x),
@@ -397,7 +402,7 @@ class SignificanceTestingEngine:
             )
 
         except Exception as e:
-            self.logger.error(f"Normality test failed: {e}")
+            self.logger.exception(f"Normality test failed: {e}")
             raise
 
     async def test_stationarity(
@@ -421,7 +426,8 @@ class SignificanceTestingEngine:
             ts = ts[~np.isnan(ts)]
 
             if len(ts) < 10:
-                raise ValueError(f"Insufficient time series length: {len(ts)}")
+                msg = f"Insufficient time series length: {len(ts)}"
+                raise ValueError(msg)
 
             # Augmented Dickey-Fuller test
             with warnings.catch_warnings():
@@ -458,11 +464,11 @@ class SignificanceTestingEngine:
             )
 
         except Exception as e:
-            self.logger.error(f"Stationarity test failed: {e}")
+            self.logger.exception(f"Stationarity test failed: {e}")
             raise
 
     async def apply_multiple_testing_correction(
-        self, p_values: list[float], method: str = "fdr_bh", alpha: float = 0.05
+        self, p_values: list[float], method: str = "fdr_bh", alpha: float = 0.05,
     ) -> MultipleTestingCorrection:
         """
         Apply multiple testing correction to p-values
@@ -480,7 +486,7 @@ class SignificanceTestingEngine:
 
             # Apply correction
             rejected, corrected_p_values, alpha_sidak, alpha_bonf = multipletests(
-                p_values_array, alpha=alpha, method=method
+                p_values_array, alpha=alpha, method=method,
             )
 
             # Calculate corrected alpha based on method
@@ -511,13 +517,13 @@ class SignificanceTestingEngine:
             )
 
         except Exception as e:
-            self.logger.error(f"Multiple testing correction failed: {e}")
+            self.logger.exception(f"Multiple testing correction failed: {e}")
             raise
 
     # Helper methods
 
     async def _test_assumptions_for_ttest(
-        self, x1: np.ndarray, x2: np.ndarray, paired: bool
+        self, x1: np.ndarray, x2: np.ndarray, paired: bool,
     ) -> dict[str, bool]:
         """Test assumptions for t-test"""
         assumptions = {}
@@ -551,7 +557,7 @@ class SignificanceTestingEngine:
         return assumptions
 
     async def _test_assumptions_for_anova(
-        self, groups: list[np.ndarray]
+        self, groups: list[np.ndarray],
     ) -> dict[str, bool]:
         """Test assumptions for ANOVA"""
         assumptions = {}
@@ -590,7 +596,7 @@ class SignificanceTestingEngine:
         return numerator / denominator
 
     def _calculate_effect_size(
-        self, x1: np.ndarray, x2: np.ndarray, test_type: str, paired: bool
+        self, x1: np.ndarray, x2: np.ndarray, test_type: str, paired: bool,
     ) -> dict[str, Any]:
         """Calculate appropriate effect size measure"""
         if test_type == "parametric":
@@ -605,7 +611,7 @@ class SignificanceTestingEngine:
                         (len(x1) - 1) * np.var(x1, ddof=1)
                         + (len(x2) - 1) * np.var(x2, ddof=1)
                     )
-                    / (len(x1) + len(x2) - 2)
+                    / (len(x1) + len(x2) - 2),
                 )
                 d = (np.mean(x1) - np.mean(x2)) / pooled_std
 
@@ -621,7 +627,7 @@ class SignificanceTestingEngine:
         }
 
     def _calculate_group_effect_size(
-        self, groups: list[np.ndarray], test_type: str
+        self, groups: list[np.ndarray], test_type: str,
     ) -> dict[str, Any]:
         """Calculate effect size for multiple groups comparison"""
         if test_type == "parametric":
@@ -649,7 +655,7 @@ class SignificanceTestingEngine:
         }
 
     def _correlation_confidence_interval(
-        self, r: float, n: int, alpha: float = 0.05
+        self, r: float, n: int, alpha: float = 0.05,
     ) -> tuple[float, float]:
         """Calculate confidence interval for correlation coefficient"""
         # Fisher z-transformation
@@ -721,7 +727,7 @@ class SignificanceTestingEngine:
         """
         if p_value < 0:
             self.logger.warning(
-                f"Negative p-value detected: {p_value}, setting to 1e-10"
+                f"Negative p-value detected: {p_value}, setting to 1e-10",
             )
             return 1e-10
         if p_value > 1.0:
@@ -732,7 +738,7 @@ class SignificanceTestingEngine:
             return 1e-10
         if np.isnan(p_value) or np.isinf(p_value):
             self.logger.warning(
-                f"Invalid p-value detected: {p_value}, setting to 1e-10"
+                f"Invalid p-value detected: {p_value}, setting to 1e-10",
             )
             return 1e-10
         return p_value

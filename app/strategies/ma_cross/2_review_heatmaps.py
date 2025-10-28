@@ -43,7 +43,7 @@ def run(config: HeatmapConfig = None) -> bool:
             "DIRECTION": "Long",
         }
     log, log_close, _, _ = setup_logging(
-        module_name="ma_cross", log_file="2_get_heatmaps.log"
+        module_name="ma_cross", log_file="2_get_heatmaps.log",
     )
 
     try:

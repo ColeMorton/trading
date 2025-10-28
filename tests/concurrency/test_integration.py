@@ -10,6 +10,7 @@ import unittest
 from app.concurrency.review import run_analysis
 
 from .base import ConcurrencyTestCase, MockDataMixin
+import pytest
 
 
 class TestBasicIntegration(ConcurrencyTestCase, MockDataMixin):
@@ -28,7 +29,7 @@ class TestBasicIntegration(ConcurrencyTestCase, MockDataMixin):
 
         # Create portfolio file
         self.portfolio_path = self.create_portfolio_file(
-            self.test_strategies, "integration_test.json"
+            self.test_strategies, "integration_test.json",
         )
 
     def test_configuration_validation(self):
@@ -48,7 +49,7 @@ class TestBasicIntegration(ConcurrencyTestCase, MockDataMixin):
         # Invalid config
         invalid_config = {"PORTFOLIO": "test.json"}  # Missing required fields
 
-        with self.assertRaises(Exception):
+        with pytest.raises(Exception):
             validate_config(invalid_config)
 
     def test_portfolio_format_detection(self):
@@ -191,12 +192,14 @@ class TestErrorHandlingIntegration(ConcurrencyTestCase):
 
         # Track some errors
         try:
-            raise ValueError("Test error 1")
+            msg = "Test error 1"
+            raise ValueError(msg)
         except Exception as e:
             track_error(e, "test_operation_1")
 
         try:
-            raise RuntimeError("Test error 2")
+            msg = "Test error 2"
+            raise RuntimeError(msg)
         except Exception as e:
             track_error(e, "test_operation_2")
 
@@ -222,17 +225,18 @@ class TestErrorHandlingIntegration(ConcurrencyTestCase):
             nonlocal call_count
             call_count += 1
             if call_count < 3:
-                raise ValueError("Temporary failure")
+                msg = "Temporary failure"
+                raise ValueError(msg)
             return "Success"
 
         # Create retry policy
         policy = create_recovery_policy(
-            RecoveryStrategy.RETRY, max_retries=3, retry_delay=0.01
+            RecoveryStrategy.RETRY, max_retries=3, retry_delay=0.01,
         )
 
         # Apply recovery
         result = apply_error_recovery(
-            flaky_function, policy, self.log_mock, "test operation"
+            flaky_function, policy, self.log_mock, "test operation",
         )
 
         self.assertEqual(result, "Success")

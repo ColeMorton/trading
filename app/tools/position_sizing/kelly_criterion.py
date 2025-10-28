@@ -52,7 +52,7 @@ class KellyCriterionSizer:
         self._load_parameters()
 
     def calculate_confidence_metrics(
-        self, num_primary: int, num_outliers: int
+        self, num_primary: int, num_outliers: int,
     ) -> ConfidenceMetrics:
         """Calculate confidence metrics from trading journal statistics.
 
@@ -66,7 +66,8 @@ class KellyCriterionSizer:
         total_trades = num_primary + num_outliers
 
         if total_trades == 0:
-            raise ValueError("Total trades cannot be zero")
+            msg = "Total trades cannot be zero"
+            raise ValueError(msg)
 
         confidence_ratio = num_primary / total_trades if total_trades > 0 else 0.0
         primary_percentage = (
@@ -86,7 +87,7 @@ class KellyCriterionSizer:
         )
 
     def calculate_kelly_position(
-        self, num_primary: int, num_outliers: int, kelly_criterion: float
+        self, num_primary: int, num_outliers: int, kelly_criterion: float,
     ) -> float:
         """Calculate Kelly position size multiplier.
 
@@ -101,20 +102,19 @@ class KellyCriterionSizer:
             Position size multiplier based on Kelly formula
         """
         confidence_metrics = self.calculate_confidence_metrics(
-            num_primary, num_outliers
+            num_primary, num_outliers,
         )
 
         # Apply confidence adjustment to Kelly criterion
         # Higher confidence (more primary trades) allows closer to full Kelly
         # Lower confidence (more outliers) reduces position size
-        confidence_adjusted_kelly = (
+        return (
             kelly_criterion * confidence_metrics.confidence_ratio
         )
 
-        return confidence_adjusted_kelly
 
     def get_max_risk_per_position(
-        self, portfolio_value: float, risk_percentage: float = 0.118
+        self, portfolio_value: float, risk_percentage: float = 0.118,
     ) -> float:
         """Calculate maximum risk per position based on portfolio value.
 
@@ -130,7 +130,7 @@ class KellyCriterionSizer:
         return portfolio_value * risk_percentage
 
     def calculate_kelly_amount(
-        self, net_worth: float, kelly_fraction: float = 0.236
+        self, net_worth: float, kelly_fraction: float = 0.236,
     ) -> float:
         """Calculate Kelly Amount using the specific formula.
 
@@ -169,7 +169,7 @@ class KellyCriterionSizer:
             Recommended position size in dollars
         """
         kelly_multiplier = self.calculate_kelly_position(
-            num_primary, num_outliers, kelly_criterion
+            num_primary, num_outliers, kelly_criterion,
         )
         max_risk = self.get_max_risk_per_position(portfolio_value, risk_percentage)
 
@@ -200,14 +200,14 @@ class KellyCriterionSizer:
             Complete KellyMetrics analysis
         """
         confidence_metrics = self.calculate_confidence_metrics(
-            num_primary, num_outliers
+            num_primary, num_outliers,
         )
         position_size_multiplier = self.calculate_kelly_position(
-            num_primary, num_outliers, kelly_criterion
+            num_primary, num_outliers, kelly_criterion,
         )
         max_risk = self.get_max_risk_per_position(portfolio_value, risk_percentage)
         recommended_size = self.calculate_recommended_position_size(
-            num_primary, num_outliers, kelly_criterion, portfolio_value, risk_percentage
+            num_primary, num_outliers, kelly_criterion, portfolio_value, risk_percentage,
         )
 
         return KellyMetrics(
@@ -219,7 +219,7 @@ class KellyCriterionSizer:
         )
 
     def calculate_excel_b20_equivalent(
-        self, num_primary: int, num_outliers: int
+        self, num_primary: int, num_outliers: int,
     ) -> float:
         """Calculate Excel B20 equivalent: Confidence ratio.
 
@@ -234,11 +234,11 @@ class KellyCriterionSizer:
             Confidence ratio (B20)
         """
         return self.calculate_confidence_metrics(
-            num_primary, num_outliers
+            num_primary, num_outliers,
         ).confidence_ratio
 
     def calculate_excel_b21_equivalent(
-        self, num_primary: int, num_outliers: int, kelly_criterion: float
+        self, num_primary: int, num_outliers: int, kelly_criterion: float,
     ) -> float:
         """Calculate Excel B21 equivalent: Adjusted Kelly position size.
 
@@ -256,7 +256,7 @@ class KellyCriterionSizer:
         return self.calculate_kelly_position(num_primary, num_outliers, kelly_criterion)
 
     def validate_kelly_inputs(
-        self, num_primary: int, num_outliers: int, kelly_criterion: float
+        self, num_primary: int, num_outliers: int, kelly_criterion: float,
     ) -> tuple[bool, str]:
         """Validate Kelly criterion inputs.
 
@@ -303,7 +303,7 @@ class KellyCriterionSizer:
         return True, "All inputs valid"
 
     def get_kelly_statistics_summary(
-        self, num_primary: int, num_outliers: int, kelly_criterion: float
+        self, num_primary: int, num_outliers: int, kelly_criterion: float,
     ) -> dict[str, Any]:
         """Get summary statistics for Kelly analysis.
 
@@ -316,10 +316,10 @@ class KellyCriterionSizer:
             Dictionary containing summary statistics
         """
         confidence_metrics = self.calculate_confidence_metrics(
-            num_primary, num_outliers
+            num_primary, num_outliers,
         )
         position_multiplier = self.calculate_kelly_position(
-            num_primary, num_outliers, kelly_criterion
+            num_primary, num_outliers, kelly_criterion,
         )
 
         return {
@@ -347,7 +347,7 @@ class KellyCriterionSizer:
         }
 
     def update_parameters(
-        self, num_primary: int, num_outliers: int, kelly_criterion: float
+        self, num_primary: int, num_outliers: int, kelly_criterion: float,
     ) -> None:
         """Update Kelly criterion parameters from manual trading journal.
 
@@ -358,10 +358,11 @@ class KellyCriterionSizer:
         """
         # Validate inputs first
         is_valid, message = self.validate_kelly_inputs(
-            num_primary, num_outliers, kelly_criterion
+            num_primary, num_outliers, kelly_criterion,
         )
         if not is_valid:
-            raise ValueError(f"Invalid Kelly parameters: {message}")
+            msg = f"Invalid Kelly parameters: {message}"
+            raise ValueError(msg)
 
         self._num_primary = num_primary
         self._num_outliers = num_outliers
@@ -424,9 +425,11 @@ class KellyCriterionSizer:
             kelly_criterion: New Kelly criterion value (0-1)
         """
         if kelly_criterion < 0:
-            raise ValueError("Kelly criterion cannot be negative")
+            msg = "Kelly criterion cannot be negative"
+            raise ValueError(msg)
         if kelly_criterion > 1:
-            raise ValueError("Kelly criterion should be <= 1 (100%)")
+            msg = "Kelly criterion should be <= 1 (100%)"
+            raise ValueError(msg)
 
         self._kelly_criterion = kelly_criterion
         self._save_parameters()
@@ -439,11 +442,14 @@ class KellyCriterionSizer:
             num_outliers: Number of outlier trades
         """
         if num_primary < 0:
-            raise ValueError("Number of primary trades cannot be negative")
+            msg = "Number of primary trades cannot be negative"
+            raise ValueError(msg)
         if num_outliers < 0:
-            raise ValueError("Number of outliers cannot be negative")
+            msg = "Number of outliers cannot be negative"
+            raise ValueError(msg)
         if num_primary + num_outliers == 0:
-            raise ValueError("Total trades cannot be zero")
+            msg = "Total trades cannot be zero"
+            raise ValueError(msg)
 
         self._num_primary = num_primary
         self._num_outliers = num_outliers

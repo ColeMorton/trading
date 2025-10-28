@@ -45,7 +45,7 @@ class SPDSConfig:
     EQUITY_DATA_PATHS: list[str] = field(
         default_factory=lambda: [
             "./data/raw/equity/",
-        ]
+        ],
     )
     RETURN_DISTRIBUTION_PATH: str = "./data/raw/reports/return_distribution/"
 
@@ -71,7 +71,7 @@ class SPDSConfig:
             "sell": 80.0,  # Top 20% = overvalued
             "strong_sell": 90.0,  # Top 10% = significantly overvalued
             "exit_immediately": 95.0,  # Top 5% = extremely overvalued
-        }
+        },
     )
 
     # Multi-Timeframe Analysis
@@ -135,7 +135,7 @@ class SPDSConfig:
     # Export Configuration
     EXPORT_FORMATS: list[str] = field(default_factory=lambda: ["csv", "json", "python"])
     BACKTESTING_FRAMEWORKS: list[str] = field(
-        default_factory=lambda: ["vectorbt", "backtrader", "zipline"]
+        default_factory=lambda: ["vectorbt", "backtrader", "zipline"],
     )
 
     # Validation Rules
@@ -153,19 +153,22 @@ class SPDSConfig:
     def get_portfolio_file_path(self) -> Path:
         """Get full path to portfolio CSV file"""
         if not self.PORTFOLIO:
-            raise ValueError("PORTFOLIO parameter must be specified")
+            msg = "PORTFOLIO parameter must be specified"
+            raise ValueError(msg)
         return Path(self.PORTFOLIO_PATH) / self.PORTFOLIO
 
     def get_trade_history_file_path(self) -> Path:
         """Get full path to trade history CSV file (same filename as portfolio)"""
         if not self.PORTFOLIO:
-            raise ValueError("PORTFOLIO parameter must be specified")
+            msg = "PORTFOLIO parameter must be specified"
+            raise ValueError(msg)
         return Path(self.TRADE_HISTORY_PATH) / self.PORTFOLIO
 
     def _validate_portfolio(self):
         """Validate portfolio configuration"""
         if not self.PORTFOLIO:
-            raise ValueError("PORTFOLIO parameter is required (e.g., 'risk_on.csv')")
+            msg = "PORTFOLIO parameter is required (e.g., 'risk_on.csv')"
+            raise ValueError(msg)
 
         # Auto-append .csv extension if not present
         if not self.PORTFOLIO.endswith(".csv"):
@@ -174,18 +177,20 @@ class SPDSConfig:
         # Check if portfolio file exists
         portfolio_file = self.get_portfolio_file_path()
         if not portfolio_file.exists() and self.VALIDATE_DATA_QUALITY:
-            raise FileNotFoundError(f"Portfolio file not found: {portfolio_file}")
+            msg = f"Portfolio file not found: {portfolio_file}"
+            raise FileNotFoundError(msg)
 
         # Check trade history file if USE_TRADE_HISTORY=True
         if self.USE_TRADE_HISTORY:
             trade_history_file = self.get_trade_history_file_path()
             if not trade_history_file.exists():
                 if not self.FALLBACK_TO_EQUITY:
+                    msg = f"Trade history file not found: {trade_history_file}"
                     raise FileNotFoundError(
-                        f"Trade history file not found: {trade_history_file}"
+                        msg,
                     )
                 print(
-                    f"Warning: Trade history file not found ({trade_history_file}), will fallback to equity data"
+                    f"Warning: Trade history file not found ({trade_history_file}), will fallback to equity data",
                 )
 
     def _validate_paths(self):
@@ -205,16 +210,18 @@ class SPDSConfig:
                     path.mkdir(parents=True, exist_ok=True)
                 except Exception as e:
                     if self.VALIDATE_DATA_QUALITY:
+                        msg = f"Cannot access or create path {path_str}: {e}"
                         raise ValueError(
-                            f"Cannot access or create path {path_str}: {e}"
+                            msg,
                         )
 
     def _validate_thresholds(self):
         """Validate threshold values are within valid ranges"""
         for threshold_name, value in self.PERCENTILE_THRESHOLDS.items():
             if not 0 <= value <= 100:
+                msg = f"Percentile threshold {threshold_name} must be between 0 and 100, got {value}"
                 raise ValueError(
-                    f"Percentile threshold {threshold_name} must be between 0 and 100, got {value}"
+                    msg,
                 )
 
         # Validate threshold ranges and logical ordering
@@ -237,8 +244,9 @@ class SPDSConfig:
                 entry_thresholds.get("buy", 0),
             ]
             if len(entry_values) > 1 and entry_values[0] > entry_values[1]:
+                msg = "Entry signal thresholds must be in ascending order (strong_buy <= buy)"
                 raise ValueError(
-                    "Entry signal thresholds must be in ascending order (strong_buy <= buy)"
+                    msg,
                 )
 
         # Exit thresholds should be in ascending order (sell < strong_sell < exit_immediately)
@@ -249,22 +257,25 @@ class SPDSConfig:
                 exit_thresholds.get("exit_immediately", 100),
             ]
             if exit_values != sorted(exit_values):
+                msg = "Exit signal thresholds must be in ascending order (sell <= strong_sell <= exit_immediately)"
                 raise ValueError(
-                    "Exit signal thresholds must be in ascending order (sell <= strong_sell <= exit_immediately)"
+                    msg,
                 )
 
         # Ensure entry thresholds are below hold threshold and exit thresholds are above hold threshold
         hold_threshold = self.PERCENTILE_THRESHOLDS.get("hold", 70.0)
         for name, value in entry_thresholds.items():
             if value >= hold_threshold:
+                msg = f"Entry threshold {name} ({value}) must be below hold threshold ({hold_threshold})"
                 raise ValueError(
-                    f"Entry threshold {name} ({value}) must be below hold threshold ({hold_threshold})"
+                    msg,
                 )
 
         for name, value in exit_thresholds.items():
             if value <= hold_threshold:
+                msg = f"Exit threshold {name} ({value}) must be above hold threshold ({hold_threshold})"
                 raise ValueError(
-                    f"Exit threshold {name} ({value}) must be above hold threshold ({hold_threshold})"
+                    msg,
                 )
 
         # Validate confidence thresholds
@@ -274,8 +285,9 @@ class SPDSConfig:
             ("LOW_CONFIDENCE_THRESHOLD", self.LOW_CONFIDENCE_THRESHOLD),
         ]:
             if not 0 < conf_value <= 1:
+                msg = f"{conf_name} must be between 0 and 1, got {conf_value}"
                 raise ValueError(
-                    f"{conf_name} must be between 0 and 1, got {conf_value}"
+                    msg,
                 )
 
     def _validate_sample_sizes(self):
@@ -285,13 +297,15 @@ class SPDSConfig:
             <= self.PREFERRED_SAMPLE_SIZE
             <= self.OPTIMAL_SAMPLE_SIZE
         ):
+            msg = "Sample size thresholds must be: MIN <= PREFERRED <= OPTIMAL"
             raise ValueError(
-                "Sample size thresholds must be: MIN <= PREFERRED <= OPTIMAL"
+                msg,
             )
 
         if self.MIN_SAMPLE_SIZE < 5:
+            msg = "Minimum sample size must be at least 5 for basic statistical validity"
             raise ValueError(
-                "Minimum sample size must be at least 5 for basic statistical validity"
+                msg,
             )
 
     def get_confidence_level(self, sample_size: int) -> ConfidenceLevel:
@@ -331,7 +345,7 @@ class SPDSConfig:
     def get_percentile_threshold(self, signal_type: str) -> float:
         """Get percentile threshold for a specific signal type"""
         return self.PERCENTILE_THRESHOLDS.get(
-            signal_type, self.PERCENTILE_THRESHOLDS["hold"]
+            signal_type, self.PERCENTILE_THRESHOLDS["hold"],
         )
 
     def validate_framework_support(self, framework: str) -> bool:
@@ -360,7 +374,7 @@ class SPDSConfig:
 
     @classmethod
     def for_portfolio(
-        cls, portfolio: str, use_trade_history: bool = True
+        cls, portfolio: str, use_trade_history: bool = True,
     ) -> "SPDSConfig":
         """Create configuration for a specific portfolio - SIMPLIFIED INTERFACE"""
         return cls(
@@ -530,7 +544,7 @@ if __name__ == "__main__":
 
     # Example 2: Portfolio with equity curve fallback
     config2 = StatisticalAnalysisConfig.create(
-        "conservative.csv", use_trade_history=False
+        "conservative.csv", use_trade_history=False,
     )
     print(f"Portfolio file: {config2.get_portfolio_file_path()}")
     print(f"Using trade history: {config2.USE_TRADE_HISTORY}")

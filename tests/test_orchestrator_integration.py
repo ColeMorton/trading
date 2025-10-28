@@ -102,7 +102,7 @@ class TestOrchestratorIntegration(unittest.TestCase):
         mock_filter.return_value = []
 
         with patch(
-            "app.tools.orchestration.portfolio_orchestrator.detect_schema_version"
+            "app.tools.orchestration.portfolio_orchestrator.detect_schema_version",
         ):
             result = orchestrator._filter_and_process_portfolios([], self.config)
 

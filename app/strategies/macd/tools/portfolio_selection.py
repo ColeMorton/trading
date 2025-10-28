@@ -14,7 +14,7 @@ from app.tools.portfolio.collection import sort_portfolios
 
 
 def get_best_portfolio(
-    portfolios: pl.DataFrame, config: PortfolioConfig, log: callable
+    portfolios: pl.DataFrame, config: PortfolioConfig, log: callable,
 ) -> dict[str, Any] | None:
     """
     Get the best portfolio based on window parameter combination frequency in top performers.
@@ -80,10 +80,10 @@ def get_best_portfolio(
 
         # Function to check if combination appears enough times
         def check_combination_frequency(
-            df: pl.DataFrame, required_count: int
+            df: pl.DataFrame, required_count: int,
         ) -> tuple | None:
             combinations = df.select(
-                ["Fast Period", "Slow Period", "Signal Period"]
+                ["Fast Period", "Slow Period", "Signal Period"],
             ).to_dicts()
             combo_count = {}
             for combo in combinations:
@@ -101,71 +101,67 @@ def get_best_portfolio(
         # 1. All top 3 have same combination
         if result := check_combination_frequency(top_3, 3):
             log(
-                f"Found matching combination in top 3: Fast Period={result[0]}, Slow Period={result[1]}, Signal Period={result[2]}"
+                f"Found matching combination in top 3: Fast Period={result[0]}, Slow Period={result[1]}, Signal Period={result[2]}",
             )
-            portfolio = (
+            return (
                 sorted_portfolios.filter(
                     (pl.col("Fast Period") == result[0])
                     & (pl.col("Slow Period") == result[1])
-                    & (pl.col("Signal Period") == result[2])
+                    & (pl.col("Signal Period") == result[2]),
                 )
                 .head(1)
                 .to_dicts()[0]
             )
 
-            return portfolio
 
         # 2. 3 out of top 5 have same combination
         if result := check_combination_frequency(top_5, 3):
             log(
-                f"Found matching combination in top 5: Fast Period={result[0]}, Slow Period={result[1]}, Signal Period={result[2]}"
+                f"Found matching combination in top 5: Fast Period={result[0]}, Slow Period={result[1]}, Signal Period={result[2]}",
             )
-            portfolio = (
+            return (
                 sorted_portfolios.filter(
                     (pl.col("Fast Period") == result[0])
                     & (pl.col("Slow Period") == result[1])
-                    & (pl.col("Signal Period") == result[2])
+                    & (pl.col("Signal Period") == result[2]),
                 )
                 .head(1)
                 .to_dicts()[0]
             )
 
-            return portfolio
 
         # 3. 5 out of top 8 have same combination
         if result := check_combination_frequency(top_8, 5):
             log(
-                f"Found matching combination in top 8: Fast Period={result[0]}, Slow Period={result[1]}, Signal Period={result[2]}"
+                f"Found matching combination in top 8: Fast Period={result[0]}, Slow Period={result[1]}, Signal Period={result[2]}",
             )
-            portfolio = (
+            return (
                 sorted_portfolios.filter(
                     (pl.col("Fast Period") == result[0])
                     & (pl.col("Slow Period") == result[1])
-                    & (pl.col("Signal Period") == result[2])
+                    & (pl.col("Signal Period") == result[2]),
                 )
                 .head(1)
                 .to_dicts()[0]
             )
 
-            return portfolio
 
         # 4. 2 out of top 2 have same combination
         top_2 = sorted_portfolios.head(2)
         if result := check_combination_frequency(top_2, 2):
             log(
-                f"Found matching combination in top 2: Fast Period={result[0]}, Slow Period={result[1]}, Signal Period={result[2]}"
+                f"Found matching combination in top 2: Fast Period={result[0]}, Slow Period={result[1]}, Signal Period={result[2]}",
             )
-            portfolio = (
+            return (
                 sorted_portfolios.filter(
                     (pl.col("Fast Period") == result[0])
                     & (pl.col("Slow Period") == result[1])
-                    & (pl.col("Signal Period") == result[2])
+                    & (pl.col("Signal Period") == result[2]),
                 )
                 .head(1)
                 .to_dicts()[0]
             )
 
-            return portfolio
 
         # If no consistent combination found, return the top portfolio
         log("No consistent window parameter combination found, returning top portfolio")

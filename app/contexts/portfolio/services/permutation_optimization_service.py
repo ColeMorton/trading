@@ -144,8 +144,8 @@ class PermutationOptimizationService:
             # Generate permutations
             permutations = list(
                 self._generate_permutations(
-                    strategies, min_strategies, max_permutations
-                )
+                    strategies, min_strategies, max_permutations,
+                ),
             )
 
             self.progress.total_permutations = len(permutations)
@@ -157,17 +157,17 @@ class PermutationOptimizationService:
             # Run optimization
             if self.enable_parallel_processing and len(permutations) > 10:
                 result = self._run_parallel_optimization(
-                    permutations, config, progress_callback
+                    permutations, config, progress_callback,
                 )
             else:
                 result = self._run_sequential_optimization(
-                    permutations, config, progress_callback
+                    permutations, config, progress_callback,
                 )
 
             # Calculate improvement percentage
             if len(strategies) > 0:
                 baseline_efficiency = self._calculate_baseline_efficiency(
-                    strategies, config
+                    strategies, config,
                 )
                 improvement = (
                     (result.best_efficiency - baseline_efficiency) / baseline_efficiency
@@ -216,7 +216,7 @@ class PermutationOptimizationService:
 
             # Generate valid permutations with constraints
             valid_permutations = list(
-                self._generate_constrained_permutations(strategies, constraints)
+                self._generate_constrained_permutations(strategies, constraints),
             )
 
             self.log(
@@ -225,8 +225,9 @@ class PermutationOptimizationService:
             )
 
             if not valid_permutations:
+                msg = "No permutations satisfy the given constraints"
                 raise TradingSystemError(
-                    "No permutations satisfy the given constraints"
+                    msg,
                 )
 
             # Run optimization on valid permutations
@@ -349,7 +350,7 @@ class PermutationOptimizationService:
     ) -> OptimizationResult:
         """Run optimization using parallel processing."""
         self.log(
-            f"Running parallel optimization with {self.max_workers} workers", "info"
+            f"Running parallel optimization with {self.max_workers} workers", "info",
         )
 
         best_efficiency = -float("inf")
@@ -382,7 +383,7 @@ class PermutationOptimizationService:
 
                     # Update progress
                     self.progress.update_progress(
-                        completed, efficiency, best_permutation
+                        completed, efficiency, best_permutation,
                     )
 
                     if progress_callback:
@@ -470,7 +471,7 @@ class PermutationOptimizationService:
 
             # Extract efficiency score
             efficiency = results.get("portfolio_efficiency", {}).get(
-                "efficiency_score", 0.0
+                "efficiency_score", 0.0,
             )
 
             return efficiency, results
@@ -551,7 +552,7 @@ def find_optimal_strategy_combination(
     This is a convenience function that creates and uses a PermutationOptimizationService.
     """
     service = PermutationOptimizationService(
-        enable_parallel_processing=enable_parallel_processing
+        enable_parallel_processing=enable_parallel_processing,
     )
 
     return service.optimize_strategy_selection(

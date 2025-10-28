@@ -60,14 +60,14 @@ def extract_signals(
     if mode == SignalDefinitionMode.POSITION_CHANGE:
         # Signal on any position change (standard method)
         signals_df = df.select(["Date", position_column]).with_columns(
-            pl.col(position_column).diff().alias("signal")
+            pl.col(position_column).diff().alias("signal"),
         )
 
     elif mode == SignalDefinitionMode.COMPLETE_TRADE:
         # Signal represents complete trades (entry to exit)
         # This requires post-processing to match entries with exits
         position_changes = df.select(["Date", position_column]).with_columns(
-            pl.col(position_column).diff().alias("change")
+            pl.col(position_column).diff().alias("change"),
         )
 
         # Extract entries and exits
@@ -78,7 +78,7 @@ def extract_signals(
         # For compatibility with existing code, we'll still use the position change format
         # but ensure the metadata includes trade information
         signals_df = position_changes.with_columns(
-            pl.col("change").alias("signal")
+            pl.col("change").alias("signal"),
         ).drop("change")
 
         # Add trade metadata if logging is enabled
@@ -94,7 +94,7 @@ def extract_signals(
             pl.when(pl.col(position_column).diff() > 0)
             .then(pl.col(position_column).diff())
             .otherwise(0)
-            .alias("signal")
+            .alias("signal"),
         )
 
     elif mode == SignalDefinitionMode.EXIT_ONLY:
@@ -103,7 +103,7 @@ def extract_signals(
             pl.when(pl.col(position_column).diff() < 0)
             .then(pl.col(position_column).diff())
             .otherwise(0)
-            .alias("signal")
+            .alias("signal"),
         )
 
     else:
@@ -114,7 +114,7 @@ def extract_signals(
                 "warning",
             )
         signals_df = df.select(["Date", position_column]).with_columns(
-            pl.col(position_column).diff().alias("signal")
+            pl.col(position_column).diff().alias("signal"),
         )
 
     return signals_df
@@ -159,7 +159,7 @@ def align_signal_definitions(
         Dict[str, np.ndarray]: Dictionary with aligned signals
     """
     if len(backtest_signals) != len(implementation_signals) or len(
-        backtest_signals
+        backtest_signals,
     ) != len(dates):
         if log:
             log("Signal arrays have different lengths and cannot be aligned", "error")
@@ -199,7 +199,7 @@ def align_signal_definitions(
 
     if log:
         match_rate = np.mean(
-            np.sign(aligned_implementation) == np.sign(backtest_signals)
+            np.sign(aligned_implementation) == np.sign(backtest_signals),
         )
         log(f"Signal alignment complete. Match rate: {match_rate:.2%}", "info")
 
@@ -288,14 +288,14 @@ def count_signals_standardized(
         if signal_frequency > standards.max_signal_frequency:
             validation_passed = False
             validation_issues.append(
-                f"Signal frequency {signal_frequency:.2%} exceeds maximum {standards.max_signal_frequency:.2%}"
+                f"Signal frequency {signal_frequency:.2%} exceeds maximum {standards.max_signal_frequency:.2%}",
             )
 
     # Check minimum signal count
     if signal_count < standards.min_signal_count:
         validation_passed = False
         validation_issues.append(
-            f"Signal count {signal_count} below minimum {standards.min_signal_count}"
+            f"Signal count {signal_count} below minimum {standards.min_signal_count}",
         )
 
     if log and validation_issues:
@@ -352,7 +352,7 @@ def calculate_portfolio_unique_signals_v2(
     for i, df in enumerate(strategy_dataframes):
         # Count strategy-level signals
         strategy_counts_result = count_signals_standardized(
-            df, standards, level="strategy", log=log
+            df, standards, level="strategy", log=log,
         )
         strategy_signal_count = strategy_counts_result["total"]
         total_strategy_signals += strategy_signal_count
@@ -360,7 +360,7 @@ def calculate_portfolio_unique_signals_v2(
 
         # Extract signal dates for portfolio-level uniqueness
         signals_df = extract_signals(
-            df, standards.portfolio_method, standards.position_column, log
+            df, standards.portfolio_method, standards.position_column, log,
         )
 
         if len(signals_df) > 0:

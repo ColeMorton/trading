@@ -45,7 +45,7 @@ class ProgressTracker(ProgressTrackerInterface):
         self._lock = asyncio.Lock()
 
     async def track(
-        self, task_id: str, operation: str, total_items: int | None | None = None
+        self, task_id: str, operation: str, total_items: int | None | None = None,
     ) -> None:
         """Start tracking a new operation."""
         async with self._lock:
@@ -65,12 +65,13 @@ class ProgressTracker(ProgressTrackerInterface):
             await self._notify_subscribers(task_id)
 
     async def update(
-        self, task_id: str, progress: float, message: str, status: str = "running"
+        self, task_id: str, progress: float, message: str, status: str = "running",
     ) -> None:
         """Update progress for a task."""
         async with self._lock:
             if task_id not in self._tasks:
-                raise ValueError(f"Task {task_id} not found")
+                msg = f"Task {task_id} not found"
+                raise ValueError(msg)
 
             self._tasks[task_id].update(
                 {
@@ -78,7 +79,7 @@ class ProgressTracker(ProgressTrackerInterface):
                     "message": message,
                     "status": status,
                     "updated_at": datetime.now(),
-                }
+                },
             )
 
             # Notify subscribers
@@ -88,7 +89,8 @@ class ProgressTracker(ProgressTrackerInterface):
         """Mark a task as complete."""
         async with self._lock:
             if task_id not in self._tasks:
-                raise ValueError(f"Task {task_id} not found")
+                msg = f"Task {task_id} not found"
+                raise ValueError(msg)
 
             self._tasks[task_id].update(
                 {
@@ -97,7 +99,7 @@ class ProgressTracker(ProgressTrackerInterface):
                     "message": message,
                     "completed_at": datetime.now(),
                     "updated_at": datetime.now(),
-                }
+                },
             )
 
             # Notify subscribers
@@ -107,7 +109,8 @@ class ProgressTracker(ProgressTrackerInterface):
         """Mark a task as failed."""
         async with self._lock:
             if task_id not in self._tasks:
-                raise ValueError(f"Task {task_id} not found")
+                msg = f"Task {task_id} not found"
+                raise ValueError(msg)
 
             self._tasks[task_id].update(
                 {
@@ -116,7 +119,7 @@ class ProgressTracker(ProgressTrackerInterface):
                     "error": error,
                     "completed_at": datetime.now(),
                     "updated_at": datetime.now(),
-                }
+                },
             )
 
             # Notify subscribers

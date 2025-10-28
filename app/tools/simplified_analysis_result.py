@@ -22,10 +22,10 @@ class SimpleAnalysisResult(BaseModel):
 
     # Core analysis results
     exit_signal: str = Field(
-        description="Recommendation signal (supports BUY/SELL/HOLD)"
+        description="Recommendation signal (supports BUY/SELL/HOLD)",
     )
     confidence_level: float = Field(
-        ge=0.0, le=1.0, description="Confidence level (0-1)"
+        ge=0.0, le=1.0, description="Confidence level (0-1)",
     )
     p_value: float = Field(ge=0.0, le=1.0, description="Statistical p-value")
     sample_size: int = Field(ge=0, description="Sample size used in analysis")
@@ -36,7 +36,7 @@ class SimpleAnalysisResult(BaseModel):
 
     # Additional metrics (flexible)
     metrics: dict[str, Any] = Field(
-        default_factory=dict, description="Additional analysis metrics"
+        default_factory=dict, description="Additional analysis metrics",
     )
 
     class Config:
@@ -78,7 +78,7 @@ def convert_to_standard_result(simple_result: SimpleAnalysisResult) -> dict[str,
                 from datetime import datetime
 
                 self.analysis_timestamp = datetime.fromisoformat(
-                    simple_result.analysis_timestamp.replace("Z", "+00:00")
+                    simple_result.analysis_timestamp.replace("Z", "+00:00"),
                 )
             else:
                 self.analysis_timestamp = simple_result.analysis_timestamp
@@ -157,10 +157,10 @@ def convert_to_standard_result(simple_result: SimpleAnalysisResult) -> dict[str,
                             return self.value
 
                     self.signal_type = SignalTypeMock(
-                        signal_value
+                        signal_value,
                     )  # Required for export with .value access
                     self.statistical_validity = StatisticalValidityMock(
-                        "ENHANCED_ANALYSIS"
+                        "ENHANCED_ANALYSIS",
                     )  # For export compatibility
                     # Also preserve the string value for direct access
                     self.value = signal_value

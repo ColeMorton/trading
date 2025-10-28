@@ -128,4 +128,5 @@ def create_test_analyzer(parsed_param: ParsedParameter, logger=None):
         return TestStrategyAnalyzer(parsed_param, logger)
     if parsed_param.parameter_type == ParameterType.POSITION_UUID:
         return TestPositionAnalyzer(parsed_param, logger)
-    raise ValueError(f"Unsupported parameter type: {parsed_param.parameter_type}")
+    msg = f"Unsupported parameter type: {parsed_param.parameter_type}"
+    raise ValueError(msg)

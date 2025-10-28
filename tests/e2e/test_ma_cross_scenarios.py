@@ -23,7 +23,7 @@ sys.path.insert(0, str(project_root))
 
 # Import run_strategies using importlib due to numeric filename
 spec = importlib.util.spec_from_file_location(
-    "get_portfolios", str(project_root / "app/strategies/ma_cross/1_get_portfolios.py")
+    "get_portfolios", str(project_root / "app/strategies/ma_cross/1_get_portfolios.py"),
 )
 get_portfolios_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(get_portfolios_module)
@@ -76,7 +76,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
                 file_path = os.path.join(portfolios_dir, filename)
                 with open(file_path, "w") as f:
                     f.write(
-                        f"Ticker,Strategy Type,Total Return [%]\nAAPL,{strategy},15.5\n"
+                        f"Ticker,Strategy Type,Total Return [%]\nAAPL,{strategy},15.5\n",
                     )
 
             return True
@@ -137,7 +137,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
         for pattern in expected_patterns:
             matching_files = [f for f in created_files if pattern in f]
             self.assertGreater(
-                len(matching_files), 0, f"Should create file matching {pattern}"
+                len(matching_files), 0, f"Should create file matching {pattern}",
             )
 
     @patch("app.tools.strategy.signal_processing.get_data")
@@ -198,18 +198,18 @@ class TestMACrossE2EScenarios(unittest.TestCase):
                     files = os.listdir(date_dir)
                     tsla_files = [f for f in files if f.startswith("TSLA")]
                     self.assertGreater(
-                        len(tsla_files), 0, f"Should have TSLA files in {date_dir}"
+                        len(tsla_files), 0, f"Should have TSLA files in {date_dir}",
                     )
         else:
             # No current signals found - this is also valid behavior
             print(
-                f"No current signals found for TSLA on {today} - this is expected behavior"
+                f"No current signals found for TSLA on {today} - this is expected behavior",
             )
 
     @patch("app.tools.orchestration.PortfolioOrchestrator.run")
     @patch("app.tools.strategy.signal_processing.get_data")
     def test_multi_strategy_comparison_scenario(
-        self, mock_fetch, mock_orchestrator_run
+        self, mock_fetch, mock_orchestrator_run,
     ):
         """
         Test: User compares SMA vs EMA performance
@@ -233,7 +233,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
                 file_path = os.path.join(portfolios_dir, filename)
                 with open(file_path, "w") as f:
                     f.write(
-                        f"Ticker,Strategy Type,Total Return [%]\nGOOGL,{strategy},12.3\n"
+                        f"Ticker,Strategy Type,Total Return [%]\nGOOGL,{strategy},12.3\n",
                     )
 
             return True
@@ -294,7 +294,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
             filtered_files = os.listdir(filtered_dir)
             googl_filtered = [f for f in filtered_files if f.startswith("GOOGL")]
             self.assertGreater(
-                len(googl_filtered), 0, "Should create filtered portfolio files"
+                len(googl_filtered), 0, "Should create filtered portfolio files",
             )
 
     @patch("app.tools.orchestration.PortfolioOrchestrator.run")
@@ -368,7 +368,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
 
             short_files = [f for f in bear_files if "SHORT" in f]
             self.assertGreater(
-                len(short_files), 0, "Should create files with SHORT suffix"
+                len(short_files), 0, "Should create files with SHORT suffix",
             )
         else:
             self.fail(f"No portfolios directory found in any of: {possible_dirs}")
@@ -403,7 +403,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
         # Results should be filtered - may have fewer or no results
         portfolios_dir = os.path.join(self.csv_dir, "portfolios")
         self.assertTrue(
-            os.path.exists(portfolios_dir), "Portfolios directory should exist"
+            os.path.exists(portfolios_dir), "Portfolios directory should exist",
         )
 
         # Even with strict filters, process should complete successfully

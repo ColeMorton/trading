@@ -104,7 +104,7 @@ class ParameterRobustnessAnalyzer:
         self.results: list[ParameterStabilityResult] = []
 
     def bootstrap_prices(
-        self, data: pl.DataFrame, seed: int | None = None
+        self, data: pl.DataFrame, seed: int | None = None,
     ) -> pl.DataFrame:
         """
         Create bootstrap sample of price data using block bootstrap method.
@@ -150,7 +150,7 @@ class ParameterRobustnessAnalyzer:
         if current_size < min_periods:
             additional_needed = min_periods - current_size
             additional_indices = np.random.choice(
-                n_periods, size=additional_needed, replace=True
+                n_periods, size=additional_needed, replace=True,
             )
             additional_data = data[sorted(additional_indices)]
             bootstrap_sample = pl.concat([bootstrap_sample, additional_data])
@@ -173,7 +173,7 @@ class ParameterRobustnessAnalyzer:
         # Add Gaussian noise and ensure integer values
         short_noisy = max(2, int(short + np.random.normal(0, short * noise_std)))
         long_noisy = max(
-            short_noisy + 1, int(long + np.random.normal(0, long * noise_std))
+            short_noisy + 1, int(long + np.random.normal(0, long * noise_std)),
         )
 
         return short_noisy, long_noisy
@@ -194,14 +194,14 @@ class ParameterRobustnessAnalyzer:
         data = data.with_columns(
             [
                 (pl.col("Close") / pl.col("Close").shift(1) - 1).alias("Returns"),
-            ]
+            ],
         )
 
         data = data.with_columns(
             [
                 pl.col("Returns").rolling_mean(window).alias("Rolling_Return"),
                 pl.col("Returns").rolling_std(window).alias("Rolling_Volatility"),
-            ]
+            ],
         )
 
         # Simple regime classification based on volatility percentiles
@@ -220,18 +220,17 @@ class ParameterRobustnessAnalyzer:
         ]
 
         regime_expr = pl.when(regime_conditions[0][0]).then(
-            pl.lit(regime_conditions[0][1])
+            pl.lit(regime_conditions[0][1]),
         )
         for condition, label in regime_conditions[1:]:
             regime_expr = regime_expr.when(condition).then(pl.lit(label))
         regime_expr = regime_expr.otherwise(pl.lit("Normal"))
 
-        data = data.with_columns(regime_expr.alias("Market_Regime"))
+        return data.with_columns(regime_expr.alias("Market_Regime"))
 
-        return data
 
     def calculate_performance_stability(
-        self, results: list[dict[str, Any]]
+        self, results: list[dict[str, Any]],
     ) -> dict[str, float]:
         """
         Calculate stability metrics from Monte Carlo results.
@@ -279,7 +278,7 @@ class ParameterRobustnessAnalyzer:
         }
 
     def analyze_parameter_robustness(
-        self, ticker: str, fast_period: int, slow_period: int, config: dict[str, Any]
+        self, ticker: str, fast_period: int, slow_period: int, config: dict[str, Any],
     ) -> ParameterStabilityResult:
         """
         Perform Monte Carlo robustness analysis for a specific parameter combination.
@@ -294,7 +293,7 @@ class ParameterRobustnessAnalyzer:
             Parameter stability analysis results
         """
         self.log(
-            f"Analyzing parameter robustness for {ticker}: {fast_period}/{slow_period}"
+            f"Analyzing parameter robustness for {ticker}: {fast_period}/{slow_period}",
         )
 
         # Download original data
@@ -309,7 +308,7 @@ class ParameterRobustnessAnalyzer:
 
         # Calculate base performance on original data
         base_result = analyze_window_combination(
-            original_data, fast_period, slow_period, config, self.log
+            original_data, fast_period, slow_period, config, self.log,
         )
 
         if base_result is None:
@@ -330,12 +329,12 @@ class ParameterRobustnessAnalyzer:
 
                 # Add parameter noise
                 noisy_short, noisy_long = self.add_parameter_noise(
-                    fast_period, slow_period
+                    fast_period, slow_period,
                 )
 
                 # Analyze with noisy parameters on bootstrap data
                 result = analyze_window_combination(
-                    bootstrap_data, noisy_short, noisy_long, config, self.log
+                    bootstrap_data, noisy_short, noisy_long, config, self.log,
                 )
 
                 if result is not None:
@@ -360,11 +359,11 @@ class ParameterRobustnessAnalyzer:
             # Progress logging
             if (simulation + 1) % 100 == 0:
                 self.log(
-                    f"Completed {simulation + 1}/{self.mc_config.num_simulations} simulations"
+                    f"Completed {simulation + 1}/{self.mc_config.num_simulations} simulations",
                 )
 
         self.log(
-            f"Monte Carlo analysis complete: {successful_simulations}/{self.mc_config.num_simulations} successful"
+            f"Monte Carlo analysis complete: {successful_simulations}/{self.mc_config.num_simulations} successful",
         )
 
         # Calculate stability metrics
@@ -387,13 +386,13 @@ class ParameterRobustnessAnalyzer:
         # Calculate regime consistency if enabled
         if self.mc_config.enable_regime_analysis:
             result.regime_consistency = self._calculate_regime_consistency(
-                monte_carlo_results
+                monte_carlo_results,
             )
 
         return result
 
     def _calculate_statistical_measures(
-        self, results: list[dict[str, Any]]
+        self, results: list[dict[str, Any]],
     ) -> dict[str, Any]:
         """Calculate statistical measures for Monte Carlo results."""
         if not results:
@@ -450,7 +449,7 @@ class ParameterRobustnessAnalyzer:
             performance = result.get("Total Return [%]", 0)
 
             # Weight performance by regime presence
-            for regime, _count in regime_dist.items():
+            for regime in regime_dist:
                 if regime not in regime_performances:
                     regime_performances[regime] = []
                 regime_performances[regime].append(performance)
@@ -488,18 +487,18 @@ class ParameterRobustnessAnalyzer:
                     "Base_Sharpe": result.base_performance.get("Sharpe Ratio", 0),
                     "Mean_Sharpe": result.performance_mean.get("Sharpe Ratio", 0),
                     "Sharpe_CI_Lower": result.confidence_intervals.get(
-                        "Sharpe Ratio", (0, 0)
+                        "Sharpe Ratio", (0, 0),
                     )[0],
                     "Sharpe_CI_Upper": result.confidence_intervals.get(
-                        "Sharpe Ratio", (0, 0)
+                        "Sharpe Ratio", (0, 0),
                     )[1],
                     "Simulations_Count": len(result.monte_carlo_results),
-                }
+                },
             )
 
         summary_df = pl.DataFrame(summary_data)
         summary_df.write_csv(
-            os.path.join(output_dir, "parameter_robustness_summary.csv")
+            os.path.join(output_dir, "parameter_robustness_summary.csv"),
         )
 
         # Export detailed results if requested
@@ -509,13 +508,13 @@ class ParameterRobustnessAnalyzer:
                 short, long = result.parameter_combination
                 for mc_result in result.monte_carlo_results:
                     detailed_results.append(
-                        {"Fast_Period": short, "Slow_Period": long, **mc_result}
+                        {"Fast_Period": short, "Slow_Period": long, **mc_result},
                     )
 
             if detailed_results:
                 detailed_df = pl.DataFrame(detailed_results)
                 detailed_df.write_csv(
-                    os.path.join(output_dir, "monte_carlo_detailed_results.csv")
+                    os.path.join(output_dir, "monte_carlo_detailed_results.csv"),
                 )
 
         self.log(f"Results exported to {output_dir}")
@@ -544,7 +543,7 @@ def run_parameter_robustness_analysis(
 
     # Setup logging
     log, log_close, _, _ = setup_logging(
-        module_name="monte_carlo", log_file="parameter_robustness.log"
+        module_name="monte_carlo", log_file="parameter_robustness.log",
     )
 
     analyzer = ParameterRobustnessAnalyzer(mc_config, log)
@@ -564,7 +563,7 @@ def run_parameter_robustness_analysis(
                 for long in parameter_ranges["long_windows"]:
                     if short < long:  # Only valid combinations
                         result = analyzer.analyze_parameter_robustness(
-                            ticker, short, long, current_config
+                            ticker, short, long, current_config,
                         )
                         ticker_results.append(result)
 
@@ -572,7 +571,7 @@ def run_parameter_robustness_analysis(
             analyzer.results.extend(ticker_results)
 
             log(
-                f"Completed analysis for {ticker}: {len(ticker_results)} parameter combinations"
+                f"Completed analysis for {ticker}: {len(ticker_results)} parameter combinations",
             )
 
         # Export results
@@ -591,7 +590,7 @@ def run_parameter_robustness_analysis(
         )
 
         log(
-            f"Analysis complete: {stable_combinations}/{total_combinations} stable parameter combinations"
+            f"Analysis complete: {stable_combinations}/{total_combinations} stable parameter combinations",
         )
 
     finally:

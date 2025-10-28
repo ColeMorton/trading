@@ -102,16 +102,20 @@ class DrawdownCalculator:
         """
         # Validate inputs
         if not symbol or not symbol.strip():
-            raise ValueError("Symbol cannot be empty")
+            msg = "Symbol cannot be empty"
+            raise ValueError(msg)
 
         if stop_loss_distance < 0 or stop_loss_distance > 1:
-            raise ValueError("Stop loss distance must be between 0 and 1")
+            msg = "Stop loss distance must be between 0 and 1"
+            raise ValueError(msg)
 
         if position_value <= 0:
-            raise ValueError("Position value must be positive")
+            msg = "Position value must be positive"
+            raise ValueError(msg)
 
         if entry_price is not None and entry_price <= 0:
-            raise ValueError("Entry price must be positive")
+            msg = "Entry price must be positive"
+            raise ValueError(msg)
 
         # Calculate maximum risk amount
         max_risk_amount = position_value * stop_loss_distance
@@ -265,13 +269,13 @@ class DrawdownCalculator:
                     stop_loss_price=drawdown.get("stop_loss_price"),
                     entry_date=datetime.fromisoformat(drawdown["entry_date"]),
                     id=drawdown["id"],
-                )
+                ),
             )
 
         return drawdowns
 
     def calculate_drawdown_summary(
-        self, net_worth: float | None = None
+        self, net_worth: float | None = None,
     ) -> DrawdownSummary:
         """Calculate summary of all drawdown entries.
 
@@ -298,7 +302,7 @@ class DrawdownCalculator:
         total_risk = sum(d.max_risk_amount for d in drawdowns)
         total_position_value = sum(d.position_value for d in drawdowns)
         average_stop_distance = sum(d.stop_loss_distance for d in drawdowns) / len(
-            drawdowns
+            drawdowns,
         )
 
         # Find largest risk position
@@ -346,7 +350,7 @@ class DrawdownCalculator:
         return False
 
     def calculate_position_risk_amount(
-        self, symbol: str, current_price: float
+        self, symbol: str, current_price: float,
     ) -> float | None:
         """Calculate current risk amount based on current price and stop loss.
 
@@ -400,7 +404,7 @@ class DrawdownCalculator:
                         drawdown.entry_date.isoformat() if drawdown.entry_date else None
                     ),
                     "id": drawdown.id,
-                }
+                },
             )
 
         df = pl.DataFrame(data)
@@ -439,7 +443,7 @@ class DrawdownCalculator:
                     )
 
     def validate_total_risk(
-        self, expected_total_risk: float, tolerance: float = 0.01
+        self, expected_total_risk: float, tolerance: float = 0.01,
     ) -> tuple[bool, str]:
         """Validate total risk amount against expected value.
 

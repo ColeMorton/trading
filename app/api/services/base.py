@@ -29,7 +29,7 @@ class BaseCommandService:
         self.result_storage_path.mkdir(parents=True, exist_ok=True)
 
     async def update_progress(
-        self, percent: int, message: str, metadata: dict[str, Any] | None = None
+        self, percent: int, message: str, metadata: dict[str, Any] | None = None,
     ) -> None:
         """
         Update progress if tracker is available.
@@ -43,7 +43,7 @@ class BaseCommandService:
             await self.progress.update(percent, message, metadata)
 
     async def execute_cli_command(
-        self, command: list[str], timeout: int | None = None
+        self, command: list[str], timeout: int | None = None,
     ) -> dict[str, Any]:
         """
         Execute CLI command as subprocess.
@@ -70,11 +70,11 @@ class BaseCommandService:
             # Wait for completion with timeout
             try:
                 stdout, stderr = await asyncio.wait_for(
-                    process.communicate(), timeout=timeout or settings.JOB_TIMEOUT
+                    process.communicate(), timeout=timeout or settings.JOB_TIMEOUT,
                 )
             except asyncio.TimeoutError:
                 process.kill()
-                logger.error(f"Command timed out: {' '.join(command)}")
+                logger.exception(f"Command timed out: {' '.join(command)}")
                 return {
                     "stdout": "",
                     "stderr": f"Command timed out after {timeout} seconds",
@@ -206,6 +206,7 @@ class BaseCommandService:
             with open(file_path, "w") as f:
                 f.write(str(data))
         else:
-            raise ValueError(f"Unsupported format: {format}")
+            msg = f"Unsupported format: {format}"
+            raise ValueError(msg)
 
         return file_path

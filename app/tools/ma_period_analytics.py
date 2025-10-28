@@ -178,9 +178,8 @@ class MAPeriodAnalytics:
             df["Date"] = pd.to_datetime(df["Date"])
 
         # Set date as index
-        df = df.set_index("Date")
+        return df.set_index("Date")
 
-        return df
 
     def _calculate_returns(self) -> pd.Series:
         """Calculate daily returns from MA values."""
@@ -208,21 +207,21 @@ class MAPeriodAnalytics:
         # Weekly rolling (dynamic based on asset type)
         weekly_window = self.rolling_windows["weekly"]
         weekly_metrics = self._calculate_rolling_metrics(
-            window=weekly_window, period_name=f"Weekly ({weekly_window}d)"
+            window=weekly_window, period_name=f"Weekly ({weekly_window}d)",
         )
         rolling_metrics["weekly"] = weekly_metrics
 
         # Monthly rolling (dynamic based on asset type)
         monthly_window = self.rolling_windows["monthly"]
         monthly_metrics = self._calculate_rolling_metrics(
-            window=monthly_window, period_name=f"Monthly ({monthly_window}d)"
+            window=monthly_window, period_name=f"Monthly ({monthly_window}d)",
         )
         rolling_metrics["monthly"] = monthly_metrics
 
         return rolling_metrics
 
     def _calculate_rolling_metrics(
-        self, window: int, period_name: str
+        self, window: int, period_name: str,
     ) -> dict[str, float]:
         """Calculate rolling metrics for a specific window size."""
         if len(self.returns) < window:
@@ -328,7 +327,7 @@ class MAPeriodAnalytics:
                             "sample_size": pattern.sample_size,
                             "significance": pattern.statistical_significance,
                             "p_value": pattern.p_value,
-                        }
+                        },
                     )
                 elif pattern.pattern_type.value == "Monthly":
                     pattern_dict["monthly"].append(
@@ -339,7 +338,7 @@ class MAPeriodAnalytics:
                             "sample_size": pattern.sample_size,
                             "significance": pattern.statistical_significance,
                             "p_value": pattern.p_value,
-                        }
+                        },
                     )
                 elif pattern.pattern_type.value == "Quarterly":
                     pattern_dict["quarterly"].append(
@@ -350,7 +349,7 @@ class MAPeriodAnalytics:
                             "sample_size": pattern.sample_size,
                             "significance": pattern.statistical_significance,
                             "p_value": pattern.p_value,
-                        }
+                        },
                     )
 
             # Find strongest patterns
@@ -403,7 +402,7 @@ class MAPeriodAnalytics:
         return comparison
 
     def _calculate_sharpe(
-        self, returns: pd.Series, risk_free_rate: float = 0.02
+        self, returns: pd.Series, risk_free_rate: float = 0.02,
     ) -> float:
         """Calculate Sharpe ratio for a return series."""
         if len(returns) == 0 or returns.std() == 0:
@@ -427,7 +426,7 @@ class MAPeriodAnalytics:
 
             # Align periods
             aligned_weekly, aligned_monthly = weekly_monthly.align(
-                monthly_returns, join="inner"
+                monthly_returns, join="inner",
             )
 
             if len(aligned_weekly) > 1 and len(aligned_monthly) > 1:
@@ -527,7 +526,7 @@ class MAPeriodAnalytics:
                         "avg_return": float(group.mean() * 100),
                         "volatility": float(group.std() * 100),
                         "sample_size": len(group),
-                    }
+                    },
                 )
 
         calendar_analysis["day_of_week"] = dow_results
@@ -558,7 +557,7 @@ class MAPeriodAnalytics:
                         "avg_return": float(group.mean() * 100),
                         "volatility": float(group.std() * 100),
                         "sample_size": len(group),
-                    }
+                    },
                 )
 
         calendar_analysis["month_of_year"] = moy_results
@@ -567,7 +566,7 @@ class MAPeriodAnalytics:
 
 
 def analyze_ma_periods(
-    ma_data: pl.DataFrame, ticker: str, period: int, ma_type: str
+    ma_data: pl.DataFrame, ticker: str, period: int, ma_type: str,
 ) -> dict[str, Any]:
     """
     Convenience function to analyze MA period data and return all metrics.

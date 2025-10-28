@@ -29,10 +29,10 @@ class EquityExportConfig(BaseModel):
 
     export: bool = Field(default=False, description="Enable equity data export")
     metric: EquityExportMetric = Field(
-        default=EquityExportMetric.MEAN, description="Metric to use for equity export"
+        default=EquityExportMetric.MEAN, description="Metric to use for equity export",
     )
     force_fresh_analysis: bool = Field(
-        default=True, description="Force regeneration of all equity files"
+        default=True, description="Force regeneration of all equity files",
     )
 
 
@@ -47,10 +47,10 @@ class PortfolioConfig(BaseConfig):
 
     # Processing options specific to portfolio operations
     handle_allocations: bool = Field(
-        default=True, description="Enable allocation handling during processing"
+        default=True, description="Enable allocation handling during processing",
     )
     handle_stop_loss: bool = Field(
-        default=True, description="Enable stop loss handling during processing"
+        default=True, description="Enable stop loss handling during processing",
     )
 
 
@@ -59,47 +59,47 @@ class PortfolioProcessingConfig(PortfolioConfig):
 
     # Input/output directories
     input_dir: Path | None = Field(
-        default=None, description="Input directory for portfolio files"
+        default=None, description="Input directory for portfolio files",
     )
     output_dir: Path | None = Field(
-        default=None, description="Output directory for processed results"
+        default=None, description="Output directory for processed results",
     )
 
     # Processing modes
     process_synthetic_tickers: bool = Field(
-        default=True, description="Enable synthetic ticker processing"
+        default=True, description="Enable synthetic ticker processing",
     )
     validate_schemas: bool = Field(
-        default=True, description="Validate portfolio schemas during processing"
+        default=True, description="Validate portfolio schemas during processing",
     )
     normalize_data: bool = Field(
-        default=True, description="Normalize portfolio data during processing"
+        default=True, description="Normalize portfolio data during processing",
     )
 
     # Export options
     export_csv: bool = Field(default=True, description="Export results to CSV format")
     export_json: bool = Field(
-        default=False, description="Export results to JSON format"
+        default=False, description="Export results to JSON format",
     )
     export_summary: bool = Field(default=True, description="Export summary statistics")
 
     # Aggregation options
     aggregate_by_ticker: bool = Field(
-        default=True, description="Aggregate results by ticker"
+        default=True, description="Aggregate results by ticker",
     )
     aggregate_by_strategy: bool = Field(
-        default=True, description="Aggregate results by strategy type"
+        default=True, description="Aggregate results by strategy type",
     )
     calculate_breadth_metrics: bool = Field(
-        default=True, description="Calculate breadth metrics"
+        default=True, description="Calculate breadth metrics",
     )
 
     # Filter options for aggregation
     filter_open_trades: bool = Field(
-        default=True, description="Include open trades filtering"
+        default=True, description="Include open trades filtering",
     )
     filter_signal_entries: bool = Field(
-        default=True, description="Include signal entries filtering"
+        default=True, description="Include signal entries filtering",
     )
 
     @field_validator("input_dir", "output_dir", mode="before")
@@ -159,22 +159,22 @@ class ReviewStrategyConfig(BaseModel):
     fast_period: int = Field(..., gt=0, description="Short moving average window")
     slow_period: int = Field(..., gt=0, description="Long moving average window")
     strategy_type: StrategyType = Field(
-        default=StrategyType.SMA, description="Strategy type"
+        default=StrategyType.SMA, description="Strategy type",
     )
     direction: Direction = Field(
-        default=Direction.LONG, description="Trading direction"
+        default=Direction.LONG, description="Trading direction",
     )
     stop_loss: float | None = Field(
-        default=None, gt=0, description="Stop loss percentage"
+        default=None, gt=0, description="Stop loss percentage",
     )
     position_size: float = Field(default=1.0, gt=0, description="Position size")
     use_hourly: bool = Field(default=False, description="Use hourly timeframe")
     rsi_window: int | None = Field(default=None, gt=0, description="RSI window period")
     rsi_threshold: int | None = Field(
-        default=None, ge=0, le=100, description="RSI threshold"
+        default=None, ge=0, le=100, description="RSI threshold",
     )
     signal_period: int = Field(
-        default=9, gt=0, description="Signal line window for MACD"
+        default=9, gt=0, description="Signal line window for MACD",
     )
 
     @field_validator("slow_period")
@@ -182,7 +182,8 @@ class ReviewStrategyConfig(BaseModel):
     def validate_window_relationship(cls, v, values):
         """Ensure slow period is greater than fast period."""
         if "fast_period" in values and v <= values["fast_period"]:
-            raise ValueError("slow_period must be greater than fast_period")
+            msg = "slow_period must be greater than fast_period"
+            raise ValueError(msg)
         return v
 
 
@@ -191,13 +192,13 @@ class BenchmarkConfig(BaseModel):
 
     symbol: str | None = Field(default=None, description="Benchmark symbol (e.g., SPY)")
     benchmark_type: BenchmarkType = Field(
-        default=BenchmarkType.BUY_AND_HOLD, description="Benchmark type"
+        default=BenchmarkType.BUY_AND_HOLD, description="Benchmark type",
     )
     custom_weights: dict[str, float] | None = Field(
-        default=None, description="Custom weights for strategies"
+        default=None, description="Custom weights for strategies",
     )
     rebalance_frequency: str = Field(
-        default="none", description="Rebalancing frequency"
+        default="none", description="Rebalancing frequency",
     )
 
     @field_validator("custom_weights")
@@ -207,7 +208,8 @@ class BenchmarkConfig(BaseModel):
         if v is not None:
             total = sum(v.values())
             if not (0.99 <= total <= 1.01):  # Allow small floating point errors
-                raise ValueError("Custom weights must sum to 1.0")
+                msg = "Custom weights must sum to 1.0"
+                raise ValueError(msg)
         return v
 
 
@@ -223,10 +225,10 @@ class PlotConfig(BaseModel):
     save_html: bool = Field(default=True, description="Save plots as HTML")
     save_png: bool = Field(default=True, description="Save plots as PNG")
     include_benchmark: bool = Field(
-        default=True, description="Include benchmark comparison"
+        default=True, description="Include benchmark comparison",
     )
     include_risk_metrics: bool = Field(
-        default=True, description="Include risk metrics visualization"
+        default=True, description="Include risk metrics visualization",
     )
 
 
@@ -267,17 +269,17 @@ class RawDataExportConfig(BaseModel):
         description="Export formats to generate",
     )
     data_types: list[RawDataType] = Field(
-        default=[RawDataType.ALL], description="Data types to export"
+        default=[RawDataType.ALL], description="Data types to export",
     )
     include_vectorbt_object: bool = Field(
         default=False,
         description="Export VectorBT portfolio objects for full functionality",
     )
     filename_prefix: str = Field(
-        default="", description="Prefix for exported filenames"
+        default="", description="Prefix for exported filenames",
     )
     filename_suffix: str = Field(
-        default="", description="Suffix for exported filenames"
+        default="", description="Suffix for exported filenames",
     )
     compress: bool = Field(default=False, description="Compress exported files")
 
@@ -308,49 +310,49 @@ class PortfolioSynthesisConfig(BaseConfig):
     # Portfolio parameters
     init_cash: float = Field(default=10000.0, gt=0, description="Initial cash amount")
     fees: float = Field(
-        default=0.001, ge=0, le=1, description="Trading fees (as decimal)"
+        default=0.001, ge=0, le=1, description="Trading fees (as decimal)",
     )
 
     # Benchmark configuration
     benchmark: BenchmarkConfig | None = Field(
-        default=None, description="Benchmark configuration"
+        default=None, description="Benchmark configuration",
     )
 
     # Analysis options
     calculate_risk_metrics: bool = Field(
-        default=True, description="Calculate comprehensive risk metrics"
+        default=True, description="Calculate comprehensive risk metrics",
     )
     export_equity_curve: bool = Field(
-        default=True, description="Export equity curve to CSV"
+        default=True, description="Export equity curve to CSV",
     )
     enable_plotting: bool = Field(
-        default=True, description="Generate visualization plots"
+        default=True, description="Generate visualization plots",
     )
 
     # Plotting configuration
     plot_config: PlotConfig = Field(
-        default_factory=PlotConfig, description="Plot generation settings"
+        default_factory=PlotConfig, description="Plot generation settings",
     )
 
     # Raw data export configuration
     raw_data_export: RawDataExportConfig = Field(
-        default_factory=RawDataExportConfig, description="Raw data export settings"
+        default_factory=RawDataExportConfig, description="Raw data export settings",
     )
 
     # Advanced options
     risk_free_rate: float = Field(
-        default=0.0, ge=0, le=1, description="Risk-free rate for calculations"
+        default=0.0, ge=0, le=1, description="Risk-free rate for calculations",
     )
     confidence_level: float = Field(
-        default=0.95, gt=0, lt=1, description="Confidence level for risk metrics"
+        default=0.95, gt=0, lt=1, description="Confidence level for risk metrics",
     )
     bootstrap_samples: int = Field(
-        default=1000, gt=0, description="Bootstrap samples for confidence intervals"
+        default=1000, gt=0, description="Bootstrap samples for confidence intervals",
     )
 
     # Performance options
     enable_memory_optimization: bool = Field(
-        default=False, description="Enable memory optimization for large datasets"
+        default=False, description="Enable memory optimization for large datasets",
     )
     memory_threshold_mb: float = Field(
         default=500.0,
@@ -385,7 +387,8 @@ class PortfolioSynthesisConfig(BaseConfig):
         try:
             datetime.strptime(v, "%Y-%m-%d")
         except ValueError:
-            raise ValueError("Date must be in YYYY-MM-DD format")
+            msg = "Date must be in YYYY-MM-DD format"
+            raise ValueError(msg)
         return v
 
     @field_validator("end_date")
@@ -396,7 +399,8 @@ class PortfolioSynthesisConfig(BaseConfig):
             start = datetime.strptime(values["start_date"], "%Y-%m-%d")
             end = datetime.strptime(v, "%Y-%m-%d")
             if end <= start:
-                raise ValueError("end_date must be after start_date")
+                msg = "end_date must be after start_date"
+                raise ValueError(msg)
         return v
 
     @field_validator("raw_strategies")
@@ -407,7 +411,8 @@ class PortfolioSynthesisConfig(BaseConfig):
             # Construct the full path to the CSV file
             csv_path = Path("data/raw/strategies") / f"{v}.csv"
             if not csv_path.exists():
-                raise ValueError(f"Raw strategies CSV file does not exist: {csv_path}")
+                msg = f"Raw strategies CSV file does not exist: {csv_path}"
+                raise ValueError(msg)
         return v
 
     @model_validator(mode="before")
@@ -427,7 +432,8 @@ class PortfolioSynthesisConfig(BaseConfig):
             # Check if the CSV file exists
             csv_path = Path("data/raw/strategies") / f"{csv_name}.csv"
             if not csv_path.exists():
-                raise ValueError(f"Strategies CSV file does not exist: {csv_path}")
+                msg = f"Strategies CSV file does not exist: {csv_path}"
+                raise ValueError(msg)
 
             # Store the CSV name in raw_strategies for the existing loading logic
             values["raw_strategies"] = csv_name
@@ -439,13 +445,15 @@ class PortfolioSynthesisConfig(BaseConfig):
     def validate_final_strategies(self):
         """Validate that we have strategies after CSV loading."""
         if not self.strategies and not self.raw_strategies:
+            msg = "Either 'strategies' must be provided or 'raw_strategies' must reference a valid CSV file"
             raise ValueError(
-                "Either 'strategies' must be provided or 'raw_strategies' must reference a valid CSV file"
+                msg,
             )
 
         if not self.strategies and self.raw_strategies:
+            msg = f"No strategies were loaded from raw_strategies CSV file: {self.raw_strategies}"
             raise ValueError(
-                f"No strategies were loaded from raw_strategies CSV file: {self.raw_strategies}"
+                msg,
             )
 
         return True
@@ -481,7 +489,7 @@ class PortfolioSynthesisConfig(BaseConfig):
             return self.raw_strategies.lower()
         # Multi-strategy: use unique tickers
         tickers = "_".join(
-            sorted([t.lower().replace("-", "_") for t in self.unique_tickers])
+            sorted([t.lower().replace("-", "_") for t in self.unique_tickers]),
         )
         if len(tickers) > 50:  # Truncate if too long
             return f"multi_{len(self.unique_tickers)}_strategies"
@@ -515,7 +523,7 @@ class PortfolioSynthesisConfig(BaseConfig):
         """Generate metadata for this portfolio synthesis run."""
         from datetime import datetime
 
-        metadata = {
+        return {
             "portfolio_info": {
                 "name": self.portfolio_name,
                 "analysis_type": self.analysis_type.value,
@@ -567,4 +575,3 @@ class PortfolioSynthesisConfig(BaseConfig):
             },
         }
 
-        return metadata

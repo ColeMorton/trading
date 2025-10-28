@@ -163,7 +163,7 @@ class ATRParameterSweepEngine:
 
             # Generate hybrid MA+ATR signals
             signal_data = generate_hybrid_ma_atr_signals(
-                pandas_data, ma_config, atr_length, atr_multiplier, log
+                pandas_data, ma_config, atr_length, atr_multiplier, log,
             )
 
             if signal_data is None or len(signal_data) == 0:
@@ -314,7 +314,7 @@ class ATRParameterSweepEngine:
 
             # Process single combination
             result = self.process_single_atr_combination(
-                ticker, ma_config, atr_length, atr_multiplier, prices, log
+                ticker, ma_config, atr_length, atr_multiplier, prices, log,
             )
 
             if result is not None:
@@ -341,7 +341,7 @@ class ATRParameterSweepEngine:
         # Update progress tracker if enabled
         if self.progress_tracker:
             self.progress_tracker.update_chunk_progress(
-                chunk_index, chunk_results, failed_in_chunk
+                chunk_index, chunk_results, failed_in_chunk,
             )
             self.progress_tracker.log_progress_update(log)
 
@@ -379,7 +379,8 @@ class ATRParameterSweepEngine:
                 price_data = data_result
 
             if price_data is None or len(price_data) == 0:
-                raise ValueError(f"Failed to get price data for {ticker}")
+                msg = f"Failed to get price data for {ticker}"
+                raise ValueError(msg)
 
             log(f"Retrieved {len(price_data)} data points for {ticker}", "info")
 
@@ -403,7 +404,7 @@ class ATRParameterSweepEngine:
             if self.enable_progress_tracking:
                 self.progress_tracker = create_atr_progress_tracker(ma_config)
                 self.progress_tracker.start_tracking(
-                    ticker, len(atr_combinations), len(parameter_chunks)
+                    ticker, len(atr_combinations), len(parameter_chunks),
                 )
                 log("Progress tracking initialized", "info")
 
@@ -418,7 +419,7 @@ class ATRParameterSweepEngine:
                 )
 
                 with ThreadPoolExecutor(
-                    max_workers=min(self.max_workers, len(parameter_chunks))
+                    max_workers=min(self.max_workers, len(parameter_chunks)),
                 ) as executor:
                     # Submit all chunks
                     future_to_chunk = {
@@ -447,14 +448,14 @@ class ATRParameterSweepEngine:
                         except Exception as e:
                             log(f"Chunk {chunk_index + 1} failed: {e!s}", "error")
                             self.sweep_stats["failed_combinations"] += len(
-                                parameter_chunks[chunk_index]
+                                parameter_chunks[chunk_index],
                             )
             else:
                 # Sequential processing
                 log("Starting sequential processing", "info")
                 for i, chunk in enumerate(parameter_chunks):
                     chunk_results = self.process_atr_parameter_chunk(
-                        ticker, ma_config, chunk, price_data, log, i
+                        ticker, ma_config, chunk, price_data, log, i,
                     )
                     all_results.extend(chunk_results)
 
@@ -466,7 +467,7 @@ class ATRParameterSweepEngine:
                 if hasattr(self.memory_optimizer, "get_memory_info"):
                     memory_info = self.memory_optimizer.get_memory_info()
                     self.sweep_stats["memory_usage_mb"] = memory_info.get(
-                        "current_mb", 0.0
+                        "current_mb", 0.0,
                     )
                 else:
                     # Fallback to basic memory tracking
@@ -522,11 +523,11 @@ class ATRParameterSweepEngine:
         # Check schema compliance (using EXTENDED schema with universal exit params)
         for i, result in enumerate(results[:10]):  # Check first 10 for performance
             is_valid, schema_errors = self.schema_transformer.validate_schema(
-                result, SchemaType.EXTENDED
+                result, SchemaType.EXTENDED,
             )
             if not is_valid:
                 validation_errors.extend(
-                    [f"Result {i}: {error}" for error in schema_errors]
+                    [f"Result {i}: {error}" for error in schema_errors],
                 )
 
         # Check exit parameter presence (universal exit params)
@@ -551,11 +552,11 @@ class ATRParameterSweepEngine:
 
             if len(set(exit_fast_periods)) < 5:
                 validation_errors.append(
-                    "Insufficient exit fast period diversity in results"
+                    "Insufficient exit fast period diversity in results",
                 )
             if len(set(exit_slow_periods)) < 10:
                 validation_errors.append(
-                    "Insufficient exit slow period diversity in results"
+                    "Insufficient exit slow period diversity in results",
                 )
 
         is_valid = len(validation_errors) == 0

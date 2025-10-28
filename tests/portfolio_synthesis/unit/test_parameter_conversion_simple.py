@@ -99,7 +99,7 @@ class TestParameterConversionSimple:
             assert enhanced_config["SIGNAL_PERIOD"] == 14
 
     @pytest.mark.parametrize(
-        "timeframe,expected_hourly,expected_4hour,expected_2day",
+        ("timeframe", "expected_hourly", "expected_4hour", "expected_2day"),
         [
             ("hourly", True, False, False),
             ("4hour", False, True, False),
@@ -108,7 +108,7 @@ class TestParameterConversionSimple:
         ],
     )
     def test_all_timeframe_conversions(
-        self, timeframe, expected_hourly, expected_4hour, expected_2day
+        self, timeframe, expected_hourly, expected_4hour, expected_2day,
     ):
         """Test all timeframe conversion combinations."""
         mock_config_dict = {

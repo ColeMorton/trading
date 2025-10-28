@@ -75,13 +75,13 @@ def test_monte_carlo_integration():
             print("   Analysis Summary:")
             print(f"   - Total tickers: {summary.get('total_tickers', 'N/A')}")
             print(
-                f"   - Stable parameters found: {summary.get('stable_parameters_found', 'N/A')}"
+                f"   - Stable parameters found: {summary.get('stable_parameters_found', 'N/A')}",
             )
             print(
-                f"   - Recommendations: {summary.get('recommendations_generated', 'N/A')}"
+                f"   - Recommendations: {summary.get('recommendations_generated', 'N/A')}",
             )
             print(
-                f"   - Average stability: {summary.get('average_stability_score', 0.0):.3f}"
+                f"   - Average stability: {summary.get('average_stability_score', 0.0):.3f}",
             )
 
         print()
@@ -95,7 +95,7 @@ def test_monte_carlo_integration():
                 "MC_NUM_SIMULATIONS": 50,
                 "MC_CONFIDENCE_LEVEL": 0.95,
                 "MC_MAX_PARAMETERS_TO_TEST": 5,
-            }
+            },
         )
 
         manager = PortfolioMonteCarloManager(mc_config)
@@ -124,10 +124,10 @@ def test_monte_carlo_integration():
             print("   ✅ New framework analysis completed!")
             print("   Portfolio Metrics:")
             print(
-                f"   - Portfolio stability: {portfolio_metrics['portfolio_stability_score']:.3f}"
+                f"   - Portfolio stability: {portfolio_metrics['portfolio_stability_score']:.3f}",
             )
             print(
-                f"   - Stable tickers: {portfolio_metrics['stable_tickers_percentage']:.1f}%"
+                f"   - Stable tickers: {portfolio_metrics['stable_tickers_percentage']:.1f}%",
             )
         else:
             print("   ⚠️  No results from new framework")
@@ -153,7 +153,7 @@ def test_migration_example():
 
     print("OLD WAY (deprecated):")
     print(
-        "from app.strategies.ma_cross.monte_carlo_integration import MonteCarloEnhancedAnalyzer"
+        "from app.strategies.ma_cross.monte_carlo_integration import MonteCarloEnhancedAnalyzer",
     )
     print("analyzer = MonteCarloEnhancedAnalyzer(param_config)")
     print("results = analyzer.run_enhanced_analysis()")
@@ -161,7 +161,7 @@ def test_migration_example():
 
     print("NEW WAY (recommended):")
     print(
-        "from app.concurrency.tools.monte_carlo import PortfolioMonteCarloManager, create_monte_carlo_config"
+        "from app.concurrency.tools.monte_carlo import PortfolioMonteCarloManager, create_monte_carlo_config",
     )
     print("config = create_monte_carlo_config({'MC_INCLUDE_IN_REPORTS': True})")
     print("manager = PortfolioMonteCarloManager(config)")

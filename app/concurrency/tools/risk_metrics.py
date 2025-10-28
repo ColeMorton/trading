@@ -59,7 +59,7 @@ def calculate_portfolio_max_drawdown_fixed(
     if VALIDATION_AVAILABLE and USE_FIXED_DRAWDOWN_CALC:
         calculator = DrawdownCalculator()
         drawdown_components = calculator.calculate_portfolio_max_drawdown(
-            strategy_equity_curves, allocation_weights, log
+            strategy_equity_curves, allocation_weights, log,
         )
 
         return {
@@ -73,7 +73,7 @@ def calculate_portfolio_max_drawdown_fixed(
         }
     # Fallback to legacy calculation
     return calculate_portfolio_max_drawdown_legacy(
-        strategy_equity_curves, allocation_weights, log
+        strategy_equity_curves, allocation_weights, log,
     )
 
 
@@ -110,7 +110,7 @@ def calculate_portfolio_max_drawdown_legacy(
             sum(
                 dd * weight
                 for dd, weight in zip(
-                    individual_drawdowns, allocation_weights, strict=False
+                    individual_drawdowns, allocation_weights, strict=False,
                 )
             )
             / total_allocation
@@ -148,7 +148,7 @@ def calculate_portfolio_volatility_fixed(
     if VALIDATION_AVAILABLE:
         aggregator = VolatilityAggregator()
         return aggregator.calculate_portfolio_volatility(
-            individual_volatilities, correlation_matrix, allocation_weights, log
+            individual_volatilities, correlation_matrix, allocation_weights, log,
         )
     # Fallback to simple weighted average (incorrect but functional)
     if not individual_volatilities or not allocation_weights:
@@ -206,17 +206,19 @@ def calculate_portfolio_var_fixed(
             return {}
 
         if len(strategy_returns) != len(allocation_weights):
+            msg = "Number of return series must match number of allocation weights"
             raise ValueError(
-                "Number of return series must match number of allocation weights"
+                msg,
             )
 
         # Normalize allocation weights
         total_allocation = sum(allocation_weights)
         if total_allocation <= 0:
-            raise ValueError("Total allocation must be positive")
+            msg = "Total allocation must be positive"
+            raise ValueError(msg)
 
         normalized_weights = np.array(
-            [w / total_allocation for w in allocation_weights]
+            [w / total_allocation for w in allocation_weights],
         )
 
         # Find minimum length across all return series
@@ -269,11 +271,12 @@ def calculate_portfolio_var_fixed(
 
                 # Parametric CVaR for normal distribution
                 cvar_value = float(
-                    portfolio_mean - portfolio_std * stats.norm.pdf(z_score) / alpha
+                    portfolio_mean - portfolio_std * stats.norm.pdf(z_score) / alpha,
                 )
 
             else:
-                raise ValueError(f"Unknown VaR method: {method}")
+                msg = f"Unknown VaR method: {method}"
+                raise ValueError(msg)
 
             # Store results
             confidence_pct = int(confidence_level * 100)
@@ -291,11 +294,11 @@ def calculate_portfolio_var_fixed(
         var_results["portfolio_volatility"] = float(np.std(portfolio_returns))
         var_results["portfolio_skewness"] = float(
             float(np.mean((portfolio_returns - np.mean(portfolio_returns)) ** 3))
-            / (np.std(portfolio_returns) ** 3)
+            / (np.std(portfolio_returns) ** 3),
         )
         var_results["portfolio_kurtosis"] = float(
             float(np.mean((portfolio_returns - np.mean(portfolio_returns)) ** 4))
-            / (np.std(portfolio_returns) ** 4)
+            / (np.std(portfolio_returns) ** 4),
         )
         var_results["observations"] = min_length
 
@@ -335,13 +338,14 @@ def calculate_component_var(
 
         n_strategies = len(strategy_returns)
         if len(allocation_weights) != n_strategies:
+            msg = "Number of return series must match number of allocation weights"
             raise ValueError(
-                "Number of return series must match number of allocation weights"
+                msg,
             )
 
         # Calculate portfolio VaR first
         portfolio_var_result = calculate_portfolio_var_fixed(
-            strategy_returns, allocation_weights, [confidence_level], "historical", log
+            strategy_returns, allocation_weights, [confidence_level], "historical", log,
         )
 
         confidence_pct = int(confidence_level * 100)
@@ -356,7 +360,7 @@ def calculate_component_var(
         # Normalize weights
         total_allocation = sum(allocation_weights)
         normalized_weights = np.array(
-            [w / total_allocation for w in allocation_weights]
+            [w / total_allocation for w in allocation_weights],
         )
 
         # Find minimum length
@@ -492,9 +496,10 @@ def calculate_risk_contributions(
     if FIXED_IMPLEMENTATION_AVAILABLE:
         log("Using fixed risk contribution calculation", "info")
         return calculate_risk_contributions_fixed(
-            position_arrays, data_list, strategy_allocations, log, strategy_configs
+            position_arrays, data_list, strategy_allocations, log, strategy_configs,
         )
-    raise ImportError("Fixed risk contribution implementation not available")
+    msg = "Fixed risk contribution implementation not available"
+    raise ImportError(msg)
 
 
 def calculate_risk_contributions_legacy(
@@ -512,16 +517,18 @@ def calculate_risk_contributions_legacy(
     try:
         if not position_arrays or not data_list or not strategy_allocations:
             log("Empty input arrays provided", "error")
+            msg = "Position arrays, data list, and strategy allocations cannot be empty"
             raise ValueError(
-                "Position arrays, data list, and strategy allocations cannot be empty"
+                msg,
             )
 
         if len(position_arrays) != len(data_list) or len(position_arrays) != len(
-            strategy_allocations
+            strategy_allocations,
         ):
             log("Mismatched input arrays", "error")
+            msg = "Number of position arrays, dataframes, and strategy allocations must match"
             raise ValueError(
-                "Number of position arrays, dataframes, and strategy allocations must match"
+                msg,
             )
 
         n_strategies = len(position_arrays)
@@ -577,7 +584,7 @@ def calculate_risk_contributions_legacy(
 
                     # Apply stop loss to active returns
                     adjusted_returns, stop_loss_triggers = apply_stop_loss_to_returns(
-                        active_returns, signal_array, stop_loss, log
+                        active_returns, signal_array, stop_loss, log,
                     )
 
                     # Log stop loss impact
@@ -605,10 +612,10 @@ def calculate_risk_contributions_legacy(
 
                 # Calculate VaR 95% and 99%
                 var_95 = float(
-                    np.percentile(sorted_returns, 5)
+                    np.percentile(sorted_returns, 5),
                 )  # 5th percentile for 95% confidence
                 var_99 = float(
-                    np.percentile(sorted_returns, 1)
+                    np.percentile(sorted_returns, 1),
                 )  # 1st percentile for 99% confidence
 
                 # Calculate CVaR 95% and 99%
@@ -749,7 +756,7 @@ def calculate_risk_contributions_legacy(
         # Create weight vector - use equal weights if no allocations provided
         if total_allocation > 0:
             weights = np.array(
-                [alloc / total_allocation for alloc in strategy_allocations]
+                [alloc / total_allocation for alloc in strategy_allocations],
             )
             log(f"Using provided allocations (total: {total_allocation:.2f}%)", "info")
         else:
@@ -830,7 +837,7 @@ def calculate_risk_contributions_legacy(
                     risk_adjusted_alpha = 0.0
 
                 risk_contributions[f"strategy_{i+1}_alpha_to_portfolio"] = float(
-                    risk_adjusted_alpha
+                    risk_adjusted_alpha,
                 )
                 log(
                     f"Strategy {i+1} excess return: {excess_return:.6f}, volatility: {strategy_volatility:.6f}",
@@ -847,7 +854,7 @@ def calculate_risk_contributions_legacy(
                         # Risk overlap: w_i * w_j * σ_ij / portfolio_variance
                         overlap = float(
                             (weights[i] * weights[j] * covariance_matrix[i, j])
-                            / portfolio_variance
+                            / portfolio_variance,
                         )
                     else:
                         overlap = 0.0

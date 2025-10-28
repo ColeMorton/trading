@@ -41,8 +41,7 @@ class PrecisionFeeCalculator:
             Entry fee as Decimal
         """
         entry_cost = Decimal(str(price)) * Decimal(str(size))
-        entry_fee = entry_cost * self.fee_rate
-        return entry_fee
+        return entry_cost * self.fee_rate
 
     def calculate_exit_fee(self, price: float, size: float) -> Decimal:
         """
@@ -56,11 +55,10 @@ class PrecisionFeeCalculator:
             Exit fee as Decimal
         """
         exit_proceeds = Decimal(str(price)) * Decimal(str(size))
-        exit_fee = exit_proceeds * self.fee_rate
-        return exit_fee
+        return exit_proceeds * self.fee_rate
 
     def calculate_total_fees(
-        self, entry_price: float, exit_price: float | None, size: float
+        self, entry_price: float, exit_price: float | None, size: float,
     ) -> dict[str, Decimal]:
         """
         Calculate total fees for a position.
@@ -85,7 +83,7 @@ class PrecisionFeeCalculator:
         return {"entry_fee": entry_fee, "exit_fee": exit_fee, "total_fee": total_fee}
 
     def calculate_net_pnl(
-        self, entry_price: float, exit_price: float, size: float
+        self, entry_price: float, exit_price: float, size: float,
     ) -> dict[str, Decimal]:
         """
         Calculate net P&L after fees with high precision.
@@ -175,7 +173,7 @@ class PrecisionEquityCalculator:
         return Decimal(str(price)) * Decimal(str(size))
 
     def calculate_cash_flow(
-        self, transaction_type: str, price: float, size: float
+        self, transaction_type: str, price: float, size: float,
     ) -> dict[str, Decimal]:
         """
         Calculate cash flow for a transaction with fees.
@@ -212,7 +210,8 @@ class PrecisionEquityCalculator:
                 "type": "exit",
             }
 
-        raise ValueError(f"Invalid transaction type: {transaction_type}")
+        msg = f"Invalid transaction type: {transaction_type}"
+        raise ValueError(msg)
 
     def calculate_portfolio_value_change(self, transactions: list[dict]) -> Decimal:
         """
@@ -228,7 +227,7 @@ class PrecisionEquityCalculator:
 
         for transaction in transactions:
             cash_flow = self.calculate_cash_flow(
-                transaction["type"], transaction["price"], transaction["size"]
+                transaction["type"], transaction["price"], transaction["size"],
             )
             total_change += cash_flow["net_cash_flow"]
 

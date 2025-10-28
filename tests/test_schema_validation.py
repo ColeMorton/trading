@@ -142,7 +142,7 @@ class TestSchemaValidator:
         assert len(result["column_analysis"]) > 0
 
         # Check analysis structure
-        for _col_name, analysis in result["column_analysis"].items():
+        for analysis in result["column_analysis"].values():
             assert "expected_type" in analysis
             assert "actual_dtype" in analysis
             assert "type_valid" in analysis
@@ -323,7 +323,7 @@ if __name__ == "__main__":
     test_case = get_test_case("missing_columns")
     result = validate_dataframe_schema(test_case["data"], strict=False)
     print(
-        f"Non-compliant data detection: {'✅ PASS' if not result['is_valid'] else '❌ FAIL'}"
+        f"Non-compliant data detection: {'✅ PASS' if not result['is_valid'] else '❌ FAIL'}",
     )
 
     # Test reference files

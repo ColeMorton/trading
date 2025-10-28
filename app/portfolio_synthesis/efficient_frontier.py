@@ -103,7 +103,7 @@ config = OptimizationConfig()
 # config.apply_half_rule = False  # Disable half rule constraint
 
 print(
-    f"Configuration: {len(config.assets)} assets, memory limit: {config.memory_limit_mb}MB, half rule: {config.apply_half_rule}"
+    f"Configuration: {len(config.assets)} assets, memory limit: {config.memory_limit_mb}MB, half rule: {config.apply_half_rule}",
 )
 
 # Legacy variable assignments for backward compatibility
@@ -280,7 +280,7 @@ result_sortino = minimize(
 # Get the optimal weights for Sortino Ratio
 optimal_weights_sortino = result_sortino.x
 optimal_return_sortino, optimal_std_sortino = portfolio_performance(
-    optimal_weights_sortino, mean_returns, cov_matrix
+    optimal_weights_sortino, mean_returns, cov_matrix,
 )
 optimal_sortino = -(result_sortino.fun)  # Since we minimized the negative sortino ratio
 
@@ -302,7 +302,7 @@ result_sharpe = minimize(
 # Get the optimal weights for Sharpe Ratio
 optimal_weights_sharpe = result_sharpe.x
 optimal_return_sharpe, optimal_std_sharpe = portfolio_performance(
-    optimal_weights_sharpe, mean_returns, cov_matrix
+    optimal_weights_sharpe, mean_returns, cov_matrix,
 )
 optimal_sharpe = -(result_sharpe.fun)  # Since we minimized the negative sharpe ratio
 
@@ -366,7 +366,7 @@ def enforce_half_rule_and_normalize(allocations):
         ticker: value - rounded[ticker] for ticker, value in normalized.items()
     }
     ordered_tickers = sorted(
-        fractional_parts.keys(), key=fractional_parts.get, reverse=True
+        fractional_parts.keys(), key=fractional_parts.get, reverse=True,
     )
 
     leftover_pennies = round(leftover * 100)
@@ -417,7 +417,7 @@ def calculate_adaptive_portfolio_count(num_assets, config_obj=None, max_assets=8
     adaptive_count = max(int(base_count * scale_factor), min_count)
 
     print(
-        f"Adaptive scaling: {num_assets} assets -> {adaptive_count:,} portfolios (vs {base_count:,} baseline)"
+        f"Adaptive scaling: {num_assets} assets -> {adaptive_count:,} portfolios (vs {base_count:,} baseline)",
     )
     return adaptive_count
 
@@ -451,7 +451,7 @@ def estimate_memory_usage(num_assets, num_portfolios):
 
 # Plot efficient frontier
 def plot_efficient_frontier(
-    mean_returns, cov_matrix, returns, num_portfolios=None, config_obj=None
+    mean_returns, cov_matrix, returns, num_portfolios=None, config_obj=None,
 ):
     """
     Generate and plot the efficient frontier using a combination of:
@@ -485,7 +485,7 @@ def plot_efficient_frontier(
         # Scale down further if memory usage is too high
         scale_factor = memory_limit_mb / estimated_memory
         total_portfolios = max(
-            int(total_portfolios * scale_factor), config_obj.min_portfolios
+            int(total_portfolios * scale_factor), config_obj.min_portfolios,
         )
         print(f"Memory limit exceeded, reducing to {total_portfolios:,} portfolios")
         estimated_memory = estimate_memory_usage(num_assets, total_portfolios)
@@ -500,7 +500,7 @@ def plot_efficient_frontier(
     num_random = int(total_portfolios * random_portfolio_ratio)
 
     print(
-        f"Generating {num_random:,} random portfolios ({random_portfolio_ratio:.1%} of total)"
+        f"Generating {num_random:,} random portfolios ({random_portfolio_ratio:.1%} of total)",
     )
 
     # Generate random portfolios using Latin hypercube sampling for better coverage
@@ -516,7 +516,7 @@ def plot_efficient_frontier(
 
         # Vectorized batch calculations for all random portfolios
         returns_array, std_array = portfolio_performance_batch(
-            lh_weights, mean_returns, cov_matrix
+            lh_weights, mean_returns, cov_matrix,
         )
 
         # Calculate portfolio returns for downside deviation (vectorized)
@@ -546,7 +546,7 @@ def plot_efficient_frontier(
     if remaining > 0:
         weights_record.append(optimal_weights_sharpe)
         portfolio_return, portfolio_std = portfolio_performance(
-            optimal_weights_sharpe, mean_returns, cov_matrix
+            optimal_weights_sharpe, mean_returns, cov_matrix,
         )
         dd = downside_deviation(np.dot(returns, optimal_weights_sharpe))
         results[0, current_idx] = portfolio_return
@@ -559,7 +559,7 @@ def plot_efficient_frontier(
     if remaining > 0:
         weights_record.append(optimal_weights_sortino)
         portfolio_return, portfolio_std = portfolio_performance(
-            optimal_weights_sortino, mean_returns, cov_matrix
+            optimal_weights_sortino, mean_returns, cov_matrix,
         )
         dd = downside_deviation(np.dot(returns, optimal_weights_sortino))
         results[0, current_idx] = portfolio_return
@@ -595,7 +595,7 @@ def plot_efficient_frontier(
 
             weights_record.append(weights)
             portfolio_return, portfolio_std = portfolio_performance(
-                weights, mean_returns, cov_matrix
+                weights, mean_returns, cov_matrix,
             )
             dd = downside_deviation(np.dot(returns, weights))
 
@@ -680,14 +680,14 @@ def plot_efficient_frontier(
 
 # Create allocations directly from the optimization results
 max_sharpe_allocation = pd.DataFrame(
-    optimal_weights_sharpe, index=mean_returns.index, columns=["allocation"]
+    optimal_weights_sharpe, index=mean_returns.index, columns=["allocation"],
 )
 max_sharpe_allocation.allocation = [
     round(i * 100, 2) for i in max_sharpe_allocation.allocation
 ]
 
 max_sortino_allocation = pd.DataFrame(
-    optimal_weights_sortino, index=mean_returns.index, columns=["allocation"]
+    optimal_weights_sortino, index=mean_returns.index, columns=["allocation"],
 )
 max_sortino_allocation.allocation = [
     round(i * 100, 2) for i in max_sortino_allocation.allocation
@@ -716,10 +716,10 @@ if config.apply_half_rule:
 
     # Convert back to DataFrame for display
     max_sharpe_half_rule = pd.DataFrame.from_dict(
-        sharpe_half_rule, orient="index", columns=["allocation"]
+        sharpe_half_rule, orient="index", columns=["allocation"],
     )
     max_sortino_half_rule = pd.DataFrame.from_dict(
-        sortino_half_rule, orient="index", columns=["allocation"]
+        sortino_half_rule, orient="index", columns=["allocation"],
     )
 
     print("\nFinal Maximum Sharpe Ratio Portfolio Allocation (Half Rule Applied)\n")

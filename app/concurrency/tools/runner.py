@@ -65,7 +65,7 @@ def get_portfolio_path(config: ConcurrencyConfig) -> Path:
 
 
 def save_json_report(
-    report: dict[str, Any], config: ConcurrencyConfig, log: Callable[[str, str], None]
+    report: dict[str, Any], config: ConcurrencyConfig, log: Callable[[str, str], None],
 ) -> Path:
     """Save JSON report to file.
 
@@ -100,7 +100,8 @@ def save_json_report(
 
     except Exception as e:
         log(f"Error saving JSON report: {e!s}", "error")
-        raise OSError(f"Failed to save report: {e!s}")
+        msg = f"Failed to save report: {e!s}"
+        raise OSError(msg)
 
 
 def run_analysis(
@@ -158,7 +159,7 @@ def run_analysis(
         # Process strategies and get data for all strategies
         log("Processing strategy data for all strategies", "info")
         strategy_data, updated_strategies = process_strategies(
-            updated_strategies, log, config
+            updated_strategies, log, config,
         )
 
         # Analyze concurrency for all strategies
@@ -173,7 +174,7 @@ def run_analysis(
             # Allocation flag is no longer needed
 
         all_stats, all_aligned_data = analyze_concurrency(
-            strategy_data, updated_strategies, log
+            strategy_data, updated_strategies, log,
         )
 
         # Log statistics for all strategies
@@ -184,7 +185,7 @@ def run_analysis(
         log(f"Exclusive Ratio: {all_stats['exclusive_ratio']:.2f}")
         log(f"Inactive Ratio: {all_stats['inactive_ratio']:.2f}")
         log(
-            f"Average concurrent strategies: {all_stats['avg_concurrent_strategies']:.2f}"
+            f"Average concurrent strategies: {all_stats['avg_concurrent_strategies']:.2f}",
         )
         log(f"Max concurrent strategies: {all_stats['max_concurrent_strategies']}")
         log(f"Risk Concentration Index: {all_stats['risk_concentration_index']}")
@@ -237,8 +238,9 @@ def run_analysis(
                         or strategy.get("Strategy Type")
                     )
                     if not strategy_type:
+                        msg = f"Strategy type must be explicitly specified for Monte Carlo analysis. Strategy: {strategy.get('ticker', 'unknown')}"
                         raise ValueError(
-                            f"Strategy type must be explicitly specified for Monte Carlo analysis. Strategy: {strategy.get('ticker', 'unknown')}"
+                            msg,
                         )
 
                     # Extract parameters from strategy data
@@ -254,7 +256,7 @@ def run_analysis(
                     # Add signal period for MACD strategies
                     if strategy_type == "MACD":
                         signal_period = strategy.get("signal_period") or strategy.get(
-                            "SIGNAL_PERIOD"
+                            "SIGNAL_PERIOD",
                         )
                         if signal_period:
                             portfolio_strategy["Signal Period"] = signal_period
@@ -306,7 +308,7 @@ def run_analysis(
 
                             log("Generating Monte Carlo visualizations", "info")
                             viz_paths = create_monte_carlo_visualizations(
-                                monte_carlo_results, portfolio_metrics
+                                monte_carlo_results, portfolio_metrics,
                             )
 
                             if viz_paths:
@@ -332,7 +334,7 @@ def run_analysis(
         # Generate and save JSON report for all strategies
         log("Generating JSON report for all strategies", "info")
         all_report = generate_json_report(
-            updated_strategies, all_stats, log, config, monte_carlo_results
+            updated_strategies, all_stats, log, config, monte_carlo_results,
         )
         save_json_report(all_report, config, log)
 
@@ -417,7 +419,7 @@ def run_analysis(
                 # Generate and save JSON report for optimal strategies
                 log("Generating JSON report for optimal strategy combination", "info")
                 optimal_report = generate_json_report(
-                    optimal_strategies, optimal_stats, log, config
+                    optimal_strategies, optimal_stats, log, config,
                 )
 
                 # Save report with "optimal" suffix
@@ -439,7 +441,7 @@ def run_analysis(
         if config["VISUALIZATION"]:
             log("Creating visualization", "info")
             fig = plot_concurrency(
-                all_aligned_data, all_stats, updated_strategies, log, config
+                all_aligned_data, all_stats, updated_strategies, log, config,
             )
             fig.show()
             log("Visualization displayed", "info")
@@ -464,7 +466,7 @@ def main(config: ConcurrencyConfig) -> bool:
     """
     try:
         log, log_close, _, _ = setup_logging(
-            module_name="concurrency", log_file="concurrency_analysis.log"
+            module_name="concurrency", log_file="concurrency_analysis.log",
         )
 
         log("Starting concurrency analysis", "info")

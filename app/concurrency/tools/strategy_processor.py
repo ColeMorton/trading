@@ -44,12 +44,14 @@ def process_strategies(
         # Validate input
         if not strategies:
             log("No strategies provided", "error")
-            raise ValueError("Strategies list cannot be empty")
+            msg = "Strategies list cannot be empty"
+            raise ValueError(msg)
 
         if len(strategies) < 2:
             log("Insufficient number of strategies", "error")
+            msg = "At least two strategies are required for concurrency analysis"
             raise ValueError(
-                "At least two strategies are required for concurrency analysis"
+                msg,
             )
 
         log(f"Processing {len(strategies)} strategies", "info")
@@ -101,7 +103,7 @@ def process_strategies(
                     # get_data returns a tuple (data, synthetic_ticker) for synthetic
                     # tickers
                     data_result = get_data(
-                        strategy_config["TICKER"], strategy_config, log
+                        strategy_config["TICKER"], strategy_config, log,
                     )
 
                     # Check if the result is a tuple (indicating synthetic ticker
@@ -186,7 +188,7 @@ def process_strategies(
                     )
                     data = calculate_macd_signals(data, is_short)
                     data = data.with_columns(
-                        [pl.col("Signal").shift(1).fill_null(0).alias("Position")]
+                        [pl.col("Signal").shift(1).fill_null(0).alias("Position")],
                     )
                     log(
                         f"MACD signals calculated for {strategy_config['TICKER']}",
@@ -240,7 +242,7 @@ def process_strategies(
                     # Check if ATR_Trailing_Stop column exists
                     if "ATR_Trailing_Stop" in data.columns:
                         atr_columns["ATR_Trailing_Stop"] = data.select(
-                            ["Date", "ATR_Trailing_Stop"]
+                            ["Date", "ATR_Trailing_Stop"],
                         ).to_pandas()
                         log(
                             f"Preserved ATR_Trailing_Stop column with {atr_columns['ATR_Trailing_Stop']['ATR_Trailing_Stop'].notna().sum()} non-null values",
@@ -304,12 +306,12 @@ def process_strategies(
                             # Convert both to datetime for safe merging
                             data_pd["Date"] = pd.to_datetime(data_pd["Date"])
                             atr_columns["ATR_Trailing_Stop"]["Date"] = pd.to_datetime(
-                                atr_columns["ATR_Trailing_Stop"]["Date"]
+                                atr_columns["ATR_Trailing_Stop"]["Date"],
                             )
 
                         # Merge the ATR columns back into the data
                         data_pd = data_pd.merge(
-                            atr_columns["ATR_Trailing_Stop"], on="Date", how="left"
+                            atr_columns["ATR_Trailing_Stop"], on="Date", how="left",
                         )
                         log(
                             f"Restored ATR_Trailing_Stop column with {data_pd['ATR_Trailing_Stop'].notna().sum()} non-null values",

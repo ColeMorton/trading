@@ -57,7 +57,7 @@ class DynamicRiskFreeRateProvider:
         }
 
     def get_current_risk_free_rate(
-        self, volatility_regime: str = "normal"
+        self, volatility_regime: str = "normal",
     ) -> RiskFreeRateData:
         """
         Get current risk-free rate with caching and fallback.
@@ -110,7 +110,7 @@ class DynamicRiskFreeRateProvider:
             )
 
         except Exception as e:
-            self.logger.error(f"Failed to fetch live Treasury rate: {e}")
+            self.logger.exception(f"Failed to fetch live Treasury rate: {e}")
             return None
 
     def _get_cached_rate(self) -> RiskFreeRateData | None:
@@ -195,7 +195,7 @@ class MarketBetaCalculator:
         self.logger = logging.getLogger(__name__)
 
     def calculate_beta(
-        self, ticker: str, returns: np.ndarray | None = None
+        self, ticker: str, returns: np.ndarray | None = None,
     ) -> dict[str, float]:
         """
         Calculate market beta and related metrics.
@@ -271,7 +271,7 @@ class MarketBetaCalculator:
             }
 
         except Exception as e:
-            self.logger.error(f"Beta calculation failed for {ticker}: {e}")
+            self.logger.exception(f"Beta calculation failed for {ticker}: {e}")
             return self._default_beta_metrics()
 
     def _default_beta_metrics(self) -> dict[str, float]:
@@ -354,7 +354,7 @@ class VolatilityRegimeDetector:
             return regime, current_vix, regime_data
 
         except Exception as e:
-            self.logger.error(f"VIX regime detection failed: {e}")
+            self.logger.exception(f"VIX regime detection failed: {e}")
             return self._default_regime()
 
     def _get_threshold_adjustments(self, regime: str) -> dict[str, float]:

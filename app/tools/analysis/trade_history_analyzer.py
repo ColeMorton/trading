@@ -61,7 +61,7 @@ class TradeHistoryAnalyzer:
         self.logger.info("TradeHistoryAnalyzer initialized")
 
     async def analyze_strategy_trades(
-        self, strategy_name: str, ticker: str
+        self, strategy_name: str, ticker: str,
     ) -> dict[str, Any]:
         """
         Analyze all trades for a specific strategy and ticker
@@ -78,8 +78,9 @@ class TradeHistoryAnalyzer:
             trade_data = await self._load_trade_history(strategy_name, ticker)
 
             if trade_data is None or len(trade_data) == 0:
+                msg = f"No trade history found for {strategy_name} on {ticker}"
                 raise ValueError(
-                    f"No trade history found for {strategy_name} on {ticker}"
+                    msg,
                 )
 
             # Analyze trade returns
@@ -126,13 +127,13 @@ class TradeHistoryAnalyzer:
             }
 
         except Exception as e:
-            self.logger.error(
-                f"Failed to analyze trades for {strategy_name} on {ticker}: {e}"
+            self.logger.exception(
+                f"Failed to analyze trades for {strategy_name} on {ticker}: {e}",
             )
             raise
 
     async def get_trade_metrics(
-        self, strategy_name: str, ticker: str
+        self, strategy_name: str, ticker: str,
     ) -> TradeHistoryMetrics:
         """
         Get trade history metrics in structured format
@@ -163,13 +164,13 @@ class TradeHistoryAnalyzer:
             )
 
         except Exception as e:
-            self.logger.error(
-                f"Failed to get trade metrics for {strategy_name} on {ticker}: {e}"
+            self.logger.exception(
+                f"Failed to get trade metrics for {strategy_name} on {ticker}: {e}",
             )
             raise
 
     async def _load_trade_history(
-        self, strategy_name: str, ticker: str
+        self, strategy_name: str, ticker: str,
     ) -> pd.DataFrame | None:
         """
         Load trade history data from available sources
@@ -191,7 +192,7 @@ class TradeHistoryAnalyzer:
         primary_file = trade_history_dir / f"{ticker}_D_{parsed_strategy}.json"
         if primary_file.exists():
             self.logger.info(
-                f"Found trade history using primary pattern: {primary_file}"
+                f"Found trade history using primary pattern: {primary_file}",
             )
             return await self._load_json_trade_history(primary_file)
 
@@ -204,7 +205,7 @@ class TradeHistoryAnalyzer:
                 test_file = trade_history_dir / pattern
                 if test_file.exists():
                     self.logger.info(
-                        f"Found trade history using Position_UUID pattern: {test_file}"
+                        f"Found trade history using Position_UUID pattern: {test_file}",
                     )
                     return await self._load_json_trade_history(test_file)
 
@@ -227,7 +228,7 @@ class TradeHistoryAnalyzer:
                     test_file = trade_history_dir / pattern
                     if test_file.exists():
                         self.logger.info(
-                            f"Found trade history using flexible pattern: {test_file}"
+                            f"Found trade history using flexible pattern: {test_file}",
                         )
                         return await self._load_json_trade_history(test_file)
 
@@ -246,10 +247,10 @@ class TradeHistoryAnalyzer:
                 file_name = Path(file_path).name
                 # Check if strategy components are in the filename
                 if strategy_name in file_name or self._filename_matches_strategy(
-                    file_name, strategy_name
+                    file_name, strategy_name,
                 ):
                     self.logger.info(
-                        f"Found trade history using glob pattern: {file_path}"
+                        f"Found trade history using glob pattern: {file_path}",
                     )
                     return await self._load_json_trade_history(Path(file_path))
 
@@ -263,7 +264,7 @@ class TradeHistoryAnalyzer:
         for file_path in fallback_files:
             if file_path.exists():
                 self.logger.info(
-                    f"Found trade history using fallback pattern: {file_path}"
+                    f"Found trade history using fallback pattern: {file_path}",
                 )
                 if file_path.suffix == ".json":
                     return await self._load_json_trade_history(file_path)
@@ -273,7 +274,7 @@ class TradeHistoryAnalyzer:
         parsed_strategy = self._parse_position_uuid(strategy_name, ticker)
         self.logger.info(
             f"No trade history found for {strategy_name} (ticker: {ticker}) - parsed as {parsed_strategy}. "
-            f"SPDS will use equity curve analysis as fallback."
+            f"SPDS will use equity curve analysis as fallback.",
         )
         return None
 
@@ -327,7 +328,7 @@ class TradeHistoryAnalyzer:
         return strategy_name
 
     def _extract_position_uuid_patterns(
-        self, strategy_name: str, ticker: str
+        self, strategy_name: str, ticker: str,
     ) -> list[str]:
         """
         Extract multiple filename patterns from Position_UUID format.
@@ -358,7 +359,7 @@ class TradeHistoryAnalyzer:
                         f"{ticker}_{strategy_type}_{param1}_{param2}.json",  # Without timeframe: CRWD_EMA_5_21.json
                         f"{ticker}_D_{parsed_strategy}.json",  # Direct: CRWD_D_EMA_5_21.json
                         f"{ticker}_{parsed_strategy}.json",  # Simple: CRWD_EMA_5_21.json
-                    ]
+                    ],
                 )
         else:
             # Single component strategy name
@@ -366,11 +367,11 @@ class TradeHistoryAnalyzer:
                 [
                     f"{ticker}_D_{parsed_strategy}.json",
                     f"{ticker}_{parsed_strategy}.json",
-                ]
+                ],
             )
 
         self.logger.debug(
-            f"Generated {len(patterns)} patterns for {strategy_name}: {patterns}"
+            f"Generated {len(patterns)} patterns for {strategy_name}: {patterns}",
         )
         return patterns
 
@@ -389,13 +390,12 @@ class TradeHistoryAnalyzer:
             df = pd.DataFrame(trades_list)
 
             # Standardize column names
-            df = self._standardize_trade_columns(df)
+            return self._standardize_trade_columns(df)
 
-            return df
 
         except Exception as e:
-            self.logger.error(
-                f"Failed to load JSON trade history from {file_path}: {e}"
+            self.logger.exception(
+                f"Failed to load JSON trade history from {file_path}: {e}",
             )
             raise
 
@@ -405,12 +405,11 @@ class TradeHistoryAnalyzer:
             df = pd.read_csv(file_path)
 
             # Standardize column names
-            df = self._standardize_trade_columns(df)
+            return self._standardize_trade_columns(df)
 
-            return df
 
         except Exception as e:
-            self.logger.error(f"Failed to load CSV trade history from {file_path}: {e}")
+            self.logger.exception(f"Failed to load CSV trade history from {file_path}: {e}")
             raise
 
     def _standardize_trade_columns(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -451,7 +450,7 @@ class TradeHistoryAnalyzer:
             or ((df["mfe"] == 0.0).all() and (df["mae"] == 0.0).all())
         ):
             self.logger.info(
-                "MFE/MAE data missing or invalid, attempting calculation from trade data"
+                "MFE/MAE data missing or invalid, attempting calculation from trade data",
             )
 
             # Try to calculate MFE/MAE from available trade data
@@ -472,7 +471,7 @@ class TradeHistoryAnalyzer:
                     return_col="return_pct",
                 )
                 self.logger.debug(
-                    f"Successfully calculated MFE/MAE for {len(df)} trades"
+                    f"Successfully calculated MFE/MAE for {len(df)} trades",
                 )
             except Exception as e:
                 self.logger.warning(f"Failed to calculate MFE/MAE from trade data: {e}")
@@ -490,13 +489,13 @@ class TradeHistoryAnalyzer:
 
                 # Validate using centralized utility
                 validation_errors = mfe_mae_calculator.validate_mfe_mae(
-                    current_return, mfe, mae, direction
+                    current_return, mfe, mae, direction,
                 )
 
                 if validation_errors:
                     strategy_id = f"{row.get('strategy_name', 'Unknown')}_{idx}"
                     self.logger.warning(
-                        f"MFE/MAE validation issues for {strategy_id}: {validation_errors}"
+                        f"MFE/MAE validation issues for {strategy_id}: {validation_errors}",
                     )
 
                     # Apply corrective measures for common validation failures
@@ -507,7 +506,7 @@ class TradeHistoryAnalyzer:
                         )
 
                     if "Negative MFE" in str(
-                        validation_errors
+                        validation_errors,
                     ) and "positive return" in str(validation_errors):
                         # For positive returns with negative MFE, recalculate MFE
                         if current_return > 0:
@@ -554,7 +553,7 @@ class TradeHistoryAnalyzer:
                     nan_count = df[col].isna().sum()
                     if nan_count > 0:
                         self.logger.debug(
-                            f"Found {nan_count} invalid values in {col} ({description}), using default: {default_value}"
+                            f"Found {nan_count} invalid values in {col} ({description}), using default: {default_value}",
                         )
                         df[col] = df[col].fillna(default_value)
 
@@ -564,7 +563,7 @@ class TradeHistoryAnalyzer:
                         negative_count = (df[col] < 0).sum()
                         if negative_count > 0:
                             self.logger.warning(
-                                f"Found {negative_count} negative values in {col}, converting to absolute values"
+                                f"Found {negative_count} negative values in {col}, converting to absolute values",
                             )
                             df[col] = df[col].abs()
 
@@ -573,20 +572,20 @@ class TradeHistoryAnalyzer:
                         zero_or_negative = (df[col] <= 0).sum()
                         if zero_or_negative > 0:
                             self.logger.warning(
-                                f"Found {zero_or_negative} zero/negative duration values, setting to default: {default_value}"
+                                f"Found {zero_or_negative} zero/negative duration values, setting to default: {default_value}",
                             )
                             df.loc[df[col] <= 0, col] = default_value
 
                     self.logger.debug(
-                        f"Successfully converted {col} ({description}) to numeric type"
+                        f"Successfully converted {col} ({description}) to numeric type",
                     )
 
                 except Exception as conversion_error:
-                    self.logger.error(
-                        f"Failed to convert {col} ({description}) to numeric: {conversion_error}"
+                    self.logger.exception(
+                        f"Failed to convert {col} ({description}) to numeric: {conversion_error}",
                     )
                     self.logger.info(
-                        f"Setting all {col} values to default: {default_value}"
+                        f"Setting all {col} values to default: {default_value}",
                     )
                     df[col] = default_value
 
@@ -599,7 +598,7 @@ class TradeHistoryAnalyzer:
                     invalid_timestamps = df[col].isna().sum()
                     if invalid_timestamps > 0:
                         self.logger.debug(
-                            f"Found {invalid_timestamps} invalid timestamps in {col}"
+                            f"Found {invalid_timestamps} invalid timestamps in {col}",
                         )
                 except Exception as e:
                     self.logger.warning(f"Failed to convert {col} to datetime: {e}")
@@ -625,7 +624,7 @@ class TradeHistoryAnalyzer:
             missing_cols = [col for col in required_cols if col not in df.columns]
             if missing_cols:
                 self.logger.error(
-                    f"Missing critical columns after standardization: {missing_cols}"
+                    f"Missing critical columns after standardization: {missing_cols}",
                 )
 
             # Validate data types
@@ -636,14 +635,14 @@ class TradeHistoryAnalyzer:
                         df[col]
                         .apply(
                             lambda x: not isinstance(
-                                x, int | float | np.integer | np.floating
-                            )
+                                x, int | float | np.integer | np.floating,
+                            ),
                         )
                         .sum()
                     )
                     if non_numeric_count > 0:
                         self.logger.warning(
-                            f"Found {non_numeric_count} non-numeric values in {col} after conversion"
+                            f"Found {non_numeric_count} non-numeric values in {col} after conversion",
                         )
 
             # Check for extreme outliers that might indicate data issues
@@ -651,7 +650,7 @@ class TradeHistoryAnalyzer:
                 extreme_returns = (df["return_pct"].abs() > 5.0).sum()  # >500% returns
                 if extreme_returns > 0:
                     self.logger.info(
-                        f"Found {extreme_returns} trades with extreme returns (>500%)"
+                        f"Found {extreme_returns} trades with extreme returns (>500%)",
                     )
 
             if "mfe" in df.columns and "mae" in df.columns:
@@ -659,20 +658,20 @@ class TradeHistoryAnalyzer:
                 extreme_mae = (df["mae"] > 10.0).sum()  # >1000% MAE
                 if extreme_mfe > 0:
                     self.logger.info(
-                        f"Found {extreme_mfe} trades with extreme MFE (>1000%)"
+                        f"Found {extreme_mfe} trades with extreme MFE (>1000%)",
                     )
                 if extreme_mae > 0:
                     self.logger.info(
-                        f"Found {extreme_mae} trades with extreme MAE (>1000%)"
+                        f"Found {extreme_mae} trades with extreme MAE (>1000%)",
                     )
 
             # Summary of data quality
             self.logger.debug(
-                f"Data integrity validation complete: {total_rows} rows processed"
+                f"Data integrity validation complete: {total_rows} rows processed",
             )
 
         except Exception as e:
-            self.logger.error(f"Error during data integrity validation: {e}")
+            self.logger.exception(f"Error during data integrity validation: {e}")
 
     def _analyze_trade_returns(self, trade_data: pd.DataFrame) -> dict[str, Any]:
         """Analyze trade return distributions"""
@@ -781,7 +780,7 @@ class TradeHistoryAnalyzer:
                 if mfe > 0:
                     efficiency = min(trade_return / mfe, 1.0)  # Cap at 100%
                     efficiency_scores.append(
-                        max(efficiency, 0.0)
+                        max(efficiency, 0.0),
                     )  # Ensure non-negative
                     mfe_capture_ratios.append(efficiency)
 
@@ -810,7 +809,7 @@ class TradeHistoryAnalyzer:
             returns[
                 (returns >= self.good_return_threshold)
                 & (returns < self.excellent_return_threshold)
-            ]
+            ],
         )
         poor_trades = len(returns[returns <= self.poor_return_threshold])
 
@@ -904,5 +903,5 @@ class TradeHistoryAnalyzer:
     def _create_empty_percentiles(self) -> PercentileMetrics:
         """Create empty percentile metrics"""
         return PercentileMetrics(
-            p5=0.0, p10=0.0, p25=0.0, p50=0.0, p75=0.0, p90=0.0, p95=0.0, p99=0.0
+            p5=0.0, p10=0.0, p25=0.0, p50=0.0, p75=0.0, p90=0.0, p95=0.0, p99=0.0,
         )

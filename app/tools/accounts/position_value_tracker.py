@@ -103,13 +103,16 @@ class PositionValueTracker:
         """
         # Validate inputs
         if not symbol or not symbol.strip():
-            raise ValueError("Symbol cannot be empty")
+            msg = "Symbol cannot be empty"
+            raise ValueError(msg)
 
         if position_value < 0:
-            raise ValueError("Position value cannot be negative")
+            msg = "Position value cannot be negative"
+            raise ValueError(msg)
 
         if max_drawdown is not None and (max_drawdown < 0 or max_drawdown > 1):
-            raise ValueError("Max drawdown must be between 0 and 1")
+            msg = "Max drawdown must be between 0 and 1"
+            raise ValueError(msg)
 
         # Load existing data
         data = self._load_positions()
@@ -237,7 +240,7 @@ class PositionValueTracker:
                     entry_date=datetime.fromisoformat(position["entry_date"]),
                     account_type=position.get("account_type", "IBKR"),
                     id=position["id"],
-                )
+                ),
             )
 
         return positions
@@ -353,7 +356,7 @@ class PositionValueTracker:
                         position.entry_date.isoformat() if position.entry_date else None
                     ),
                     "id": position.id,
-                }
+                },
             )
 
         df = pl.DataFrame(data)
@@ -390,7 +393,7 @@ class PositionValueTracker:
                     )
 
     def validate_position_totals(
-        self, expected_total: float, tolerance: float = 0.01
+        self, expected_total: float, tolerance: float = 0.01,
     ) -> tuple[bool, str]:
         """Validate total position value against expected value.
 

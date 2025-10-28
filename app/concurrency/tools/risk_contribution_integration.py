@@ -30,7 +30,7 @@ def integrate_fixed_risk_calculations(analysis_module):
     """
     # Store original function
     original_calculate_risk = getattr(
-        analysis_module, "calculate_risk_contributions", None
+        analysis_module, "calculate_risk_contributions", None,
     )
 
     if original_calculate_risk:
@@ -54,7 +54,7 @@ def rollback_to_original_calculations(analysis_module):
         analysis_module: The analysis module to restore
     """
     original_func = getattr(
-        analysis_module, "_original_calculate_risk_contributions", None
+        analysis_module, "_original_calculate_risk_contributions", None,
     )
 
     if original_func:
@@ -105,7 +105,7 @@ def compare_risk_calculations(
             strategy_configs,
         )
     except Exception as e:
-        logger.error(f"Fixed calculation failed: {e}")
+        logger.exception(f"Fixed calculation failed: {e}")
         result_fixed = None
 
     # No legacy implementation comparison since it's been removed
@@ -150,14 +150,14 @@ def compare_risk_calculations(
                         "original_pct": f"{orig_val * 100:.2f}%",
                         "fixed_pct": f"{fixed_val * 100:.2f}%",
                         "difference_pct": f"{(orig_val - fixed_val) * 100:.2f}%",
-                    }
+                    },
                 )
 
         comparison["comparison"]["strategies"] = strategy_comparison
 
         # Log summary
         logger.info(
-            f"Risk contribution sum - Original: {original_sum*100:.2f}%, Fixed: {fixed_sum*100:.2f}%"
+            f"Risk contribution sum - Original: {original_sum*100:.2f}%, Fixed: {fixed_sum*100:.2f}%",
         )
         logger.info(f"Difference: {(original_sum - fixed_sum)*100:.2f}%")
 
@@ -165,7 +165,7 @@ def compare_risk_calculations(
 
 
 def validate_portfolio_risk_contributions(
-    portfolio_path: str, use_fixed: bool = True
+    portfolio_path: str, use_fixed: bool = True,
 ) -> dict[str, Any]:
     """
     Validate risk contributions for a specific portfolio.
@@ -187,7 +187,7 @@ def validate_portfolio_risk_contributions(
 
 
 def create_risk_contribution_report(
-    risk_metrics: dict[str, Any], output_path: str | None | None = None
+    risk_metrics: dict[str, Any], output_path: str | None | None = None,
 ) -> str:
     """
     Create a formatted report of risk contributions.
@@ -219,7 +219,7 @@ def create_risk_contribution_report(
                     f"  Marginal Contribution: {data['marginal_contribution']:.6f}",
                     f"  Risk Contribution: {data['risk_contribution']:.6f}",
                     f"  Risk Contribution %: {data['risk_contribution_pct_display']}",
-                ]
+                ],
             )
 
     # Add validation section

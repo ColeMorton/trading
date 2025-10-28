@@ -41,13 +41,13 @@ class TestCompleteStrategyWorkflows:
 
             # Create expected directory structure
             (workspace / "data" / "raw" / "portfolios").mkdir(
-                parents=True, exist_ok=True
+                parents=True, exist_ok=True,
             )
             (workspace / "data" / "raw" / "portfolios_filtered").mkdir(
-                parents=True, exist_ok=True
+                parents=True, exist_ok=True,
             )
             (workspace / "data" / "raw" / "portfolios_best").mkdir(
-                parents=True, exist_ok=True
+                parents=True, exist_ok=True,
             )
             (workspace / "app" / "cli" / "profiles").mkdir(parents=True, exist_ok=True)
 
@@ -79,7 +79,7 @@ class TestCompleteStrategyWorkflows:
                 "Low": [p * 0.99 for p in price_data],
                 "Open": price_data,
                 "Volume": [1000000] * len(price_data),
-            }
+            },
         )
 
     @pytest.fixture
@@ -105,7 +105,7 @@ class TestCompleteStrategyWorkflows:
                     "Most Sharpe Ratio",
                     "Most Win Rate [%]",
                 ],
-            }
+            },
         )
 
     @pytest.fixture
@@ -281,7 +281,7 @@ config:
                     1.34,
                 ],
                 "Score": [8.7, 8.9, 9.1, 9.2, 9.4, 9.6, 8.8, 9.0, 9.3, 8.5, 8.6, 8.8],
-            }
+            },
         )
         mock_analyze.return_value = sweep_results
 
@@ -360,7 +360,7 @@ config:
 
         # Execute multi-ticker analysis
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL,MSFT,GOOGL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL,MSFT,GOOGL", "--strategy", "SMA"],
         )
 
         # Verify multi-ticker processing
@@ -463,7 +463,7 @@ config:
             mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
             result = cli_runner.invoke(
-                strategy_app, ["run", "--profile", "file_system_test", "--dry-run"]
+                strategy_app, ["run", "--profile", "file_system_test", "--dry-run"],
             )
 
             # Verify dry-run worked
@@ -498,7 +498,7 @@ config:
 
         # Execute with verbose output
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA", "--verbose"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA", "--verbose"],
         )
 
         # Verify verbose output
@@ -593,7 +593,7 @@ class TestCompleteErrorRecoveryWorkflows:
     @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_data_fetch_failure_recovery_workflow(
-        self, mock_config_loader, mock_get_data, cli_runner
+        self, mock_config_loader, mock_get_data, cli_runner,
     ):
         """Test complete workflow when data fetching fails."""
         # Setup mocks
@@ -606,7 +606,7 @@ class TestCompleteErrorRecoveryWorkflows:
 
         # Execute command that should handle failure gracefully
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "INVALID_TICKER", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "INVALID_TICKER", "--strategy", "SMA"],
         )
 
         # Verify graceful failure handling
@@ -620,7 +620,7 @@ class TestCompleteErrorRecoveryWorkflows:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_partial_success_multi_ticker_workflow(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
     ):
         """Test workflow where some tickers succeed and others fail."""
         # Setup mocks
@@ -645,7 +645,7 @@ class TestCompleteErrorRecoveryWorkflows:
 
         # Execute multi-ticker command
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL,INVALID,MSFT", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL,INVALID,MSFT", "--strategy", "SMA"],
         )
 
         # Should handle partial success gracefully
@@ -657,17 +657,17 @@ class TestCompleteErrorRecoveryWorkflows:
 
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_configuration_error_recovery_workflow(
-        self, mock_config_loader, cli_runner
+        self, mock_config_loader, cli_runner,
     ):
         """Test workflow recovery from configuration errors."""
         # Mock configuration loading failure
         mock_config_loader.return_value.load_from_profile.side_effect = ValueError(
-            "Invalid configuration"
+            "Invalid configuration",
         )
 
         # Execute command
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle configuration errors gracefully
@@ -677,7 +677,7 @@ class TestCompleteErrorRecoveryWorkflows:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_strategy_execution_partial_failure_workflow(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
     ):
         """Test workflow when strategy execution partially fails."""
         # Setup mocks
@@ -692,7 +692,7 @@ class TestCompleteErrorRecoveryWorkflows:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         mock_get_data.return_value = pl.DataFrame(
-            {"Date": [pl.date(2023, 1, 1)], "Close": [100.0]}
+            {"Date": [pl.date(2023, 1, 1)], "Close": [100.0]},
         )
 
         # Execute command
@@ -722,7 +722,7 @@ class TestRealisticDataProcessingWorkflows:
         """Generate large realistic dataset for performance testing."""
         # Generate 5 years of daily data
         dates = pl.date_range(
-            start=pl.date(2019, 1, 1), end=pl.date(2023, 12, 31), interval="1d"
+            start=pl.date(2019, 1, 1), end=pl.date(2023, 12, 31), interval="1d",
         )
 
         # Generate realistic price data with trends and volatility
@@ -747,7 +747,7 @@ class TestRealisticDataProcessingWorkflows:
                 "Low": [p * 0.98 for p in price_data],
                 "Open": price_data,
                 "Volume": [1000000 + (i % 100000) for i in range(len(price_data))],
-            }
+            },
         )
 
     @patch("app.tools.get_data.get_data")
@@ -788,7 +788,7 @@ class TestRealisticDataProcessingWorkflows:
                 "Win Rate [%]": [50.0 + (i % 30) for i in range(n_results)],
                 "Total Return [%]": [10.0 + (i % 50) for i in range(n_results)],
                 "Score": [5.0 + (i % 50) * 0.1 for i in range(n_results)],
-            }
+            },
         )
         mock_analyze.return_value = large_results
 
@@ -875,7 +875,7 @@ class TestRealisticDataProcessingWorkflows:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_high_frequency_realistic_workflow(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
     ):
         """Test workflow with high-frequency realistic data processing."""
         # Create high-frequency data (hourly for 1 year)
@@ -890,7 +890,7 @@ class TestRealisticDataProcessingWorkflows:
                 "Date": dates,
                 "Close": [100.0 + (i % 100) * 0.1 for i in range(len(dates))],
                 "Volume": [10000] * len(dates),
-            }
+            },
         )
 
         # Setup mocks
@@ -909,7 +909,7 @@ class TestRealisticDataProcessingWorkflows:
 
         # Execute high-frequency analysis
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Verify high-frequency data handling

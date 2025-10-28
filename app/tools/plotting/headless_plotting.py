@@ -84,14 +84,14 @@ def save_portfolio_plots(
     except Exception:
         # Fallback: create individual matplotlib plots
         created_files.extend(
-            _create_matplotlib_fallback(portfolio, output_dir, filename_prefix)
+            _create_matplotlib_fallback(portfolio, output_dir, filename_prefix),
         )
 
     return created_files
 
 
 def create_portfolio_plot_files(
-    portfolio, config: dict, log_func: Callable
+    portfolio, config: dict, log_func: Callable,
 ) -> list[str]:
     """
     Create portfolio plot files based on strategy configuration.
@@ -131,7 +131,7 @@ def create_portfolio_plot_files(
 
 
 def _create_matplotlib_fallback(
-    portfolio, output_dir: str, filename_prefix: str
+    portfolio, output_dir: str, filename_prefix: str,
 ) -> list[str]:
     """
     Fallback method using matplotlib for basic portfolio plots.

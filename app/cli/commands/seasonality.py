@@ -244,7 +244,7 @@ def results(
             else:
                 rprint(f"[cyan]Results for {ticker}:[/cyan]")
                 rprint(
-                    f"  Data range: {data['data_start_date']} to {data['data_end_date']}"
+                    f"  Data range: {data['data_start_date']} to {data['data_end_date']}",
                 )
                 rprint(f"  Total periods: {data['total_periods']}")
                 rprint(f"  Seasonal strength: {data['overall_seasonal_strength']:.3f}")
@@ -369,7 +369,7 @@ def current(
             rprint("🎯 [white]Tickers: [yellow]All available[/yellow][/white]")
         rprint(f"📅 [white]Hold Period: {days} days from today[/white]")
         rprint(
-            f"🔍 [white]Quality Filters: Min samples={min_sample_size}, Min significance={min_significance}[/white]"
+            f"🔍 [white]Quality Filters: Min samples={min_sample_size}, Min significance={min_significance}[/white]",
         )
         rprint(f"📊 [white]Display: Top {top_n} opportunities[/white]")
         rprint()
@@ -380,7 +380,7 @@ def current(
 
         if results_df.empty:
             rprint(
-                "❌ [red]No valid results found. Check data availability and quality filters.[/red]"
+                "❌ [red]No valid results found. Check data availability and quality filters.[/red]",
             )
             raise typer.Exit(1)
 
@@ -412,11 +412,11 @@ def current(
 
         rprint("\n💡 [bold yellow]Key Insights:[/bold yellow]")
         rprint(
-            f"🏆 [white]Best Opportunity: {top_ticker['ticker']} ({top_ticker['expected_return']:+.2f}%)[/white]"
+            f"🏆 [white]Best Opportunity: {top_ticker['ticker']} ({top_ticker['expected_return']:+.2f}%)[/white]",
         )
         rprint(f"📊 [white]Average Expected Return: {avg_return:+.2f}%[/white]")
         rprint(
-            f"🎯 [white]Win Rate Range: {results_df['win_rate'].min():.1%} - {results_df['win_rate'].max():.1%}[/white]"
+            f"🎯 [white]Win Rate Range: {results_df['win_rate'].min():.1%} - {results_df['win_rate'].max():.1%}[/white]",
         )
 
     except Exception as e:
@@ -427,7 +427,7 @@ def current(
 @app.command()
 def portfolio(
     portfolio_name: str = typer.Argument(
-        ..., help="Portfolio filename from data/raw/strategies/ directory"
+        ..., help="Portfolio filename from data/raw/strategies/ directory",
     ),
     default_time_period: int = typer.Option(
         21,
@@ -490,7 +490,7 @@ def portfolio(
         rprint(f"  Portfolio: [yellow]{portfolio_name}[/yellow]")
         if time_period is not None:
             rprint(
-                f"  [bold red]Time period: {time_period} days (ALL TICKERS)[/bold red]"
+                f"  [bold red]Time period: {time_period} days (ALL TICKERS)[/bold red]",
             )
         else:
             rprint(f"  Default time period: [green]{default_time_period} days[/green]")
@@ -515,7 +515,7 @@ def portfolio(
         rprint(f"📊 [cyan]Portfolio: {results['portfolio']}[/cyan]")
         rprint(f"🎯 [green]Total tickers: {results['total_tickers']}[/green]")
         rprint(
-            f"✅ [green]Successful analyses: {results['successful_analyses']}[/green]"
+            f"✅ [green]Successful analyses: {results['successful_analyses']}[/green]",
         )
 
         # Show any errors
@@ -554,14 +554,14 @@ def portfolio(
         rprint("\n[bold yellow]📈 Time Period Analysis:[/bold yellow]")
         if override_based > 0:
             rprint(
-                f"🎯 [red]{override_based} tickers used OVERRIDE time period ({time_period} days)[/red]"
+                f"🎯 [red]{override_based} tickers used OVERRIDE time period ({time_period} days)[/red]",
             )
         else:
             rprint(
-                f"🎯 [green]{signal_based} tickers used signal-based time periods[/green]"
+                f"🎯 [green]{signal_based} tickers used signal-based time periods[/green]",
             )
             rprint(
-                f"⏰ [yellow]{default_based} tickers used default {default_time_period}-day period[/yellow]"
+                f"⏰ [yellow]{default_based} tickers used default {default_time_period}-day period[/yellow]",
             )
 
         # Display tickers with positive expectancy
@@ -575,7 +575,7 @@ def portfolio(
 
             if positive_expectancy_tickers:
                 rprint(
-                    f"\n[bold green]✨ Tickers with Positive Expectancy ({len(positive_expectancy_tickers)}):[/bold green]"
+                    f"\n[bold green]✨ Tickers with Positive Expectancy ({len(positive_expectancy_tickers)}):[/bold green]",
                 )
                 rprint(f"[cyan]{','.join(positive_expectancy_tickers)}[/cyan]")
 

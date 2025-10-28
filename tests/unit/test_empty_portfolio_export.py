@@ -46,7 +46,7 @@ class TestEmptyPortfolioExportUnit:
 
         # Mock the export_portfolios function to track calls
         with patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
+            "app.tools.strategy.export_portfolios.export_portfolios",
         ) as mock_export:
             mock_export.return_value = (pl.DataFrame(), True)
 
@@ -58,7 +58,7 @@ class TestEmptyPortfolioExportUnit:
 
             # Verify logging message for empty portfolios
             mock_log.assert_any_call(
-                "No portfolios to export - creating headers-only CSV file", "info"
+                "No portfolios to export - creating headers-only CSV file", "info",
             )
 
             # Verify export_portfolios was called with empty list
@@ -68,17 +68,17 @@ class TestEmptyPortfolioExportUnit:
             assert call_args[1]["export_type"] == "portfolios_best"
 
     def test_export_best_portfolios_skips_deduplication_when_empty(
-        self, temp_config, mock_log
+        self, temp_config, mock_log,
     ):
         """Test that deduplication is skipped for empty portfolios."""
 
         # Mock the export_portfolios and deduplicate functions
         with (
             patch(
-                "app.tools.strategy.export_portfolios.export_portfolios"
+                "app.tools.strategy.export_portfolios.export_portfolios",
             ) as mock_export,
             patch(
-                "app.tools.portfolio.collection.deduplicate_and_aggregate_portfolios"
+                "app.tools.portfolio.collection.deduplicate_and_aggregate_portfolios",
             ) as mock_dedup,
         ):
             mock_export.return_value = (pl.DataFrame(), True)
@@ -94,7 +94,7 @@ class TestEmptyPortfolioExportUnit:
             assert result is True
 
     def test_export_best_portfolios_with_data_calls_deduplication(
-        self, temp_config, mock_log
+        self, temp_config, mock_log,
     ):
         """Test that deduplication is called when portfolios exist."""
 
@@ -110,16 +110,16 @@ class TestEmptyPortfolioExportUnit:
                 "Total Return [%]": 25.0,
                 "Score": 8.0,
                 "Metric Type": "Most Total Return [%]",
-            }
+            },
         ]
 
         # Mock the functions
         with (
             patch(
-                "app.tools.strategy.export_portfolios.export_portfolios"
+                "app.tools.strategy.export_portfolios.export_portfolios",
             ) as mock_export,
             patch(
-                "app.tools.portfolio.collection.deduplicate_and_aggregate_portfolios"
+                "app.tools.portfolio.collection.deduplicate_and_aggregate_portfolios",
             ) as mock_dedup,
             patch("app.tools.portfolio.collection.sort_portfolios") as mock_sort,
         ):
@@ -137,7 +137,7 @@ class TestEmptyPortfolioExportUnit:
             assert result is True
 
     def test_portfolio_orchestrator_empty_export_raw_portfolios(
-        self, temp_config, mock_log
+        self, temp_config, mock_log,
     ):
         """Test PortfolioOrchestrator._export_raw_portfolios with empty list."""
 
@@ -145,7 +145,7 @@ class TestEmptyPortfolioExportUnit:
 
         # Mock export_portfolios function
         with patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
+            "app.tools.strategy.export_portfolios.export_portfolios",
         ) as mock_export:
             mock_export.return_value = (pl.DataFrame(), True)
 
@@ -162,7 +162,7 @@ class TestEmptyPortfolioExportUnit:
             mock_log.assert_any_call("Successfully exported 0 raw portfolios")
 
     def test_portfolio_orchestrator_empty_export_filtered_portfolios(
-        self, temp_config, mock_log
+        self, temp_config, mock_log,
     ):
         """Test PortfolioOrchestrator._export_filtered_portfolios with empty list."""
 
@@ -170,7 +170,7 @@ class TestEmptyPortfolioExportUnit:
 
         # Mock export_portfolios function
         with patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
+            "app.tools.strategy.export_portfolios.export_portfolios",
         ) as mock_export:
             mock_export.return_value = (pl.DataFrame(), True)
 
@@ -193,7 +193,7 @@ class TestEmptyPortfolioExportUnit:
 
         # Mock export_best_portfolios function using the import path in orchestrator
         with patch(
-            "app.tools.orchestration.portfolio_orchestrator.export_best_portfolios"
+            "app.tools.orchestration.portfolio_orchestrator.export_best_portfolios",
         ) as mock_export:
             mock_export.return_value = True
 
@@ -208,7 +208,7 @@ class TestEmptyPortfolioExportUnit:
             assert call_args.args[2] == mock_log  # log argument
 
     def test_portfolio_orchestrator_full_workflow_with_empty_results(
-        self, temp_config, mock_log
+        self, temp_config, mock_log,
     ):
         """Test full PortfolioOrchestrator workflow when strategies return empty results."""
 
@@ -217,7 +217,7 @@ class TestEmptyPortfolioExportUnit:
         # Mock all the workflow methods
         with (
             patch.object(
-                orchestrator, "_initialize_configuration", return_value=temp_config
+                orchestrator, "_initialize_configuration", return_value=temp_config,
             ),
             patch.object(
                 orchestrator,
@@ -228,10 +228,10 @@ class TestEmptyPortfolioExportUnit:
             patch.object(orchestrator, "_execute_strategies", return_value=[]),
             patch.object(orchestrator, "_export_raw_portfolios") as mock_export_raw,
             patch.object(
-                orchestrator, "_filter_and_process_portfolios", return_value=[]
+                orchestrator, "_filter_and_process_portfolios", return_value=[],
             ),
             patch.object(
-                orchestrator, "_export_filtered_portfolios"
+                orchestrator, "_export_filtered_portfolios",
             ) as mock_export_filtered,
             patch.object(orchestrator, "_export_results") as mock_export_results,
         ):
@@ -248,7 +248,7 @@ class TestEmptyPortfolioExportUnit:
 
             # Verify appropriate logging for empty results
             mock_log.assert_any_call(
-                "No portfolios returned from strategies", "warning"
+                "No portfolios returned from strategies", "warning",
             )
             mock_log.assert_any_call(
                 "Created empty CSV files with headers for configured ticker+strategy combinations",
@@ -307,7 +307,7 @@ class TestEmptyPortfolioExportUnit:
 
         # Test export_best_portfolios logging
         with patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
+            "app.tools.strategy.export_portfolios.export_portfolios",
         ) as mock_export:
             mock_export.return_value = (pl.DataFrame(), True)
 
@@ -315,14 +315,14 @@ class TestEmptyPortfolioExportUnit:
 
             # Verify specific logging for empty portfolios
             mock_log.assert_any_call(
-                "No portfolios to export - creating headers-only CSV file", "info"
+                "No portfolios to export - creating headers-only CSV file", "info",
             )
 
     def test_empty_portfolio_config_logging(self, temp_config, mock_log):
         """Test configuration logging for empty portfolio export."""
 
         with patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
+            "app.tools.strategy.export_portfolios.export_portfolios",
         ) as mock_export:
             mock_export.return_value = (pl.DataFrame(), True)
 
@@ -331,14 +331,14 @@ class TestEmptyPortfolioExportUnit:
 
             # Verify configuration fields are logged
             mock_log.assert_any_call(
-                "Configuration for export_best_portfolios:", "info"
+                "Configuration for export_best_portfolios:", "info",
             )
             mock_log.assert_any_call(
                 "Field 'BASE_DIR' present: True, value: " + temp_config["BASE_DIR"],
                 "info",
             )
             mock_log.assert_any_call(
-                "Field 'TICKER' present: True, value: ['TEST']", "info"
+                "Field 'TICKER' present: True, value: ['TEST']", "info",
             )
 
     def test_empty_portfolio_preserves_config(self, temp_config, mock_log):
@@ -347,7 +347,7 @@ class TestEmptyPortfolioExportUnit:
         original_sort_by = temp_config.get("SORT_BY", "Total Return [%]")
 
         with patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
+            "app.tools.strategy.export_portfolios.export_portfolios",
         ) as mock_export:
             mock_export.return_value = (pl.DataFrame(), True)
 
@@ -385,7 +385,7 @@ class TestEmptyPortfolioErrorHandling:
 
         # Mock export_portfolios to fail
         with patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
+            "app.tools.strategy.export_portfolios.export_portfolios",
         ) as mock_export:
             mock_export.side_effect = Exception("Export failed")
 
@@ -400,7 +400,7 @@ class TestEmptyPortfolioErrorHandling:
 
         # Mock export to succeed with empty data
         with patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
+            "app.tools.strategy.export_portfolios.export_portfolios",
         ) as mock_export:
             mock_export.return_value = (pl.DataFrame(), True)
 
@@ -424,7 +424,7 @@ class TestEmptyPortfolioErrorHandling:
 
         # Should handle missing config gracefully
         with patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
+            "app.tools.strategy.export_portfolios.export_portfolios",
         ) as mock_export:
             mock_export.return_value = (pl.DataFrame(), True)
 

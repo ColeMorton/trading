@@ -53,7 +53,7 @@ def configure_structlog() -> None:
                     structlog.processors.CallsiteParameter.FILENAME,
                     structlog.processors.CallsiteParameter.FUNC_NAME,
                     structlog.processors.CallsiteParameter.LINENO,
-                }
+                },
             ),
             renderer,
         ]
@@ -152,7 +152,7 @@ def configure_stdlib_logging() -> None:
         except Exception as e:
             # Don't crash if file logging fails
             console_handler.stream.write(
-                f"Warning: Failed to create file handler: {e}\n"
+                f"Warning: Failed to create file handler: {e}\n",
             )
 
 

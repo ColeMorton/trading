@@ -202,7 +202,7 @@ class TestBestSelectionService:
     def test_top_3_all_match(self, service, sample_results):
         """Test finding best when top 3 all match."""
         selection = service.find_best_for_ticker_strategy(
-            sample_results, "BTC-USD", "SMA"
+            sample_results, "BTC-USD", "SMA",
         )
 
         assert selection is not None
@@ -319,8 +319,8 @@ class TestSelectionAlgorithmSeedData:
             assert isinstance(code, str) and code
             assert isinstance(name, str) and name
             assert isinstance(desc, str)
-            assert isinstance(min_conf, (int, float))
-            assert isinstance(max_conf, (int, float))
+            assert isinstance(min_conf, int | float)
+            assert isinstance(max_conf, int | float)
             assert 0 <= min_conf <= 100
             assert 0 <= max_conf <= 100
             assert min_conf <= max_conf

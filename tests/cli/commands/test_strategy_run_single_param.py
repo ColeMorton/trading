@@ -39,14 +39,14 @@ class TestStrategyRunSingleParameter:
         return pl.DataFrame(
             {
                 "Date": pl.date_range(
-                    start=pl.date(2023, 1, 1), end=pl.date(2023, 12, 31), interval="1d"
+                    start=pl.date(2023, 1, 1), end=pl.date(2023, 12, 31), interval="1d",
                 ),
                 "Close": [100.0 + i * 0.1 for i in range(365)],
                 "Open": [100.0 + i * 0.1 for i in range(365)],
                 "High": [101.0 + i * 0.1 for i in range(365)],
                 "Low": [99.0 + i * 0.1 for i in range(365)],
                 "Volume": [1000000] * 365,
-            }
+            },
         )
 
     @pytest.fixture
@@ -103,7 +103,7 @@ class TestStrategyRunSingleParameter:
 
         # Run command
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         # Verify results
@@ -117,7 +117,7 @@ class TestStrategyRunSingleParameter:
     def test_run_parameter_validation_fast_greater_than_slow(self, cli_runner):
         """Test that fast >= slow is rejected."""
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "50", "--slow", "20"]
+            strategy_app, ["run", "AAPL", "--fast", "50", "--slow", "20"],
         )
 
         assert result.exit_code == 1
@@ -126,7 +126,7 @@ class TestStrategyRunSingleParameter:
     def test_run_parameter_validation_fast_equals_slow(self, cli_runner):
         """Test that fast == slow is rejected."""
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "30", "--slow", "30"]
+            strategy_app, ["run", "AAPL", "--fast", "30", "--slow", "30"],
         )
 
         assert result.exit_code == 1
@@ -242,7 +242,7 @@ class TestStrategyRunSingleParameter:
 
         # Run command
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         # Verify no files were created
@@ -343,7 +343,7 @@ class TestStrategyRunSingleParameter:
 
         # Run command
         result = cli_runner.invoke(
-            strategy_app, ["run", "INVALID", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "INVALID", "--fast", "20", "--slow", "50"],
         )
 
         # Verify error handling
@@ -373,7 +373,7 @@ class TestStrategyRunSingleParameter:
 
         # Run command
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         # Verify handling
@@ -384,7 +384,7 @@ class TestStrategyRunSingleParameter:
         """Test run command with missing required parameters."""
         # Missing ticker
         result1 = cli_runner.invoke(
-            strategy_app, ["run", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "--fast", "20", "--slow", "50"],
         )
         assert result1.exit_code != 0
 
@@ -420,7 +420,7 @@ class TestStrategyRunSingleParameter:
 
         # Run command
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         # Verify all metrics are displayed
@@ -464,7 +464,7 @@ class TestStrategyRunSingleParameter:
 
         # Run command
         result = cli_runner.invoke(
-            strategy_app, ["run", "BTC-USD", "--fast", "10", "--slow", "30"]
+            strategy_app, ["run", "BTC-USD", "--fast", "10", "--slow", "30"],
         )
 
         # Verify results
@@ -484,14 +484,14 @@ class TestStrategyRunEdgeCases:
         """Test run with extreme parameter values."""
         # Very small periods
         result1 = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "1", "--slow", "2"]
+            strategy_app, ["run", "AAPL", "--fast", "1", "--slow", "2"],
         )
         # Should either succeed or fail gracefully
         assert result1.exit_code is not None
 
         # Very large periods
         result2 = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "100", "--slow", "500"]
+            strategy_app, ["run", "AAPL", "--fast", "100", "--slow", "500"],
         )
         assert result2.exit_code is not None
 
@@ -501,7 +501,7 @@ class TestStrategyRunEdgeCases:
 
         for ticker in special_tickers:
             result = cli_runner.invoke(
-                strategy_app, ["run", ticker, "--fast", "20", "--slow", "50"]
+                strategy_app, ["run", ticker, "--fast", "20", "--slow", "50"],
             )
             # Should handle gracefully
             assert result.exit_code is not None
@@ -520,7 +520,7 @@ class TestStrategyRunEdgeCases:
     @patch("app.cli.commands.strategy.get_config")
     @patch("app.cli.commands.strategy.logging_context")
     def test_run_invalid_ticker_symbol(
-        self, mock_logging, mock_get_config, mock_get_data, cli_runner
+        self, mock_logging, mock_get_config, mock_get_data, cli_runner,
     ):
         """Test handling of invalid ticker that doesn't exist."""
         mock_logging.return_value.__enter__ = Mock()
@@ -530,7 +530,7 @@ class TestStrategyRunEdgeCases:
         mock_get_data.return_value = None
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "INVALIDTICKER123", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "INVALIDTICKER123", "--fast", "20", "--slow", "50"],
         )
 
         assert result.exit_code == 1
@@ -540,7 +540,7 @@ class TestStrategyRunEdgeCases:
     @patch("app.cli.commands.strategy.get_config")
     @patch("app.cli.commands.strategy.logging_context")
     def test_run_empty_data_response(
-        self, mock_logging, mock_get_config, mock_get_data, cli_runner
+        self, mock_logging, mock_get_config, mock_get_data, cli_runner,
     ):
         """Test handling when API returns empty data."""
         mock_logging.return_value.__enter__ = Mock()
@@ -550,7 +550,7 @@ class TestStrategyRunEdgeCases:
         mock_get_data.return_value = pl.DataFrame()
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         assert result.exit_code == 1
@@ -577,7 +577,7 @@ class TestStrategyRunEdgeCases:
         mock_analyze.side_effect = Exception("Backtest calculation error")
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         assert result.exit_code == 1
@@ -587,7 +587,7 @@ class TestStrategyRunEdgeCases:
     @patch("app.cli.commands.strategy.get_config")
     @patch("app.cli.commands.strategy.logging_context")
     def test_run_network_timeout(
-        self, mock_logging, mock_get_config, mock_get_data, cli_runner
+        self, mock_logging, mock_get_config, mock_get_data, cli_runner,
     ):
         """Test handling of network timeout during data fetch."""
         mock_logging.return_value.__enter__ = Mock()
@@ -598,7 +598,7 @@ class TestStrategyRunEdgeCases:
         mock_get_data.side_effect = TimeoutError("Connection timed out")
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         assert result.exit_code == 1
@@ -642,14 +642,14 @@ class TestStrategyRunCSVOutput:
         return pl.DataFrame(
             {
                 "Date": pl.date_range(
-                    start=pl.date(2023, 1, 1), end=pl.date(2023, 12, 31), interval="1d"
+                    start=pl.date(2023, 1, 1), end=pl.date(2023, 12, 31), interval="1d",
                 ),
                 "Close": [100.0 + i * 0.1 for i in range(365)],
                 "Open": [100.0 + i * 0.1 for i in range(365)],
                 "High": [101.0 + i * 0.1 for i in range(365)],
                 "Low": [99.0 + i * 0.1 for i in range(365)],
                 "Volume": [1000000] * 365,
-            }
+            },
         )
 
     @pytest.fixture
@@ -687,7 +687,7 @@ class TestStrategyRunCSVOutput:
         mock_analyze.return_value = [mock_backtest_result]
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         assert result.exit_code == 0
@@ -716,7 +716,7 @@ class TestStrategyRunCSVOutput:
         mock_analyze.return_value = [mock_backtest_result]
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         assert result.exit_code == 0
@@ -748,7 +748,7 @@ class TestStrategyRunCSVOutput:
         mock_analyze.return_value = [mock_backtest_result]
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         assert result.exit_code == 0
@@ -790,7 +790,7 @@ class TestStrategyRunCSVOutput:
         mock_analyze.return_value = [mock_backtest_result]
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         assert result.exit_code == 0
@@ -824,7 +824,7 @@ class TestStrategyRunCSVOutput:
         mock_analyze.return_value = [mock_backtest_result]
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         assert result.exit_code == 0
@@ -854,14 +854,14 @@ class TestStrategyRunZeroTradesHandling:
         return pl.DataFrame(
             {
                 "Date": pl.date_range(
-                    start=pl.date(2023, 1, 1), end=pl.date(2023, 12, 31), interval="1d"
+                    start=pl.date(2023, 1, 1), end=pl.date(2023, 12, 31), interval="1d",
                 ),
                 "Close": [100.0 + i * 0.1 for i in range(365)],
                 "Open": [100.0 + i * 0.1 for i in range(365)],
                 "High": [101.0 + i * 0.1 for i in range(365)],
                 "Low": [99.0 + i * 0.1 for i in range(365)],
                 "Volume": [1000000] * 365,
-            }
+            },
         )
 
     @pytest.fixture
@@ -902,7 +902,7 @@ class TestStrategyRunZeroTradesHandling:
         mock_analyze.return_value = [mock_zero_trade_result]
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "45", "--slow", "54"]
+            strategy_app, ["run", "AAPL", "--fast", "45", "--slow", "54"],
         )
 
         assert result.exit_code == 0
@@ -931,7 +931,7 @@ class TestStrategyRunZeroTradesHandling:
         mock_analyze.return_value = [mock_zero_trade_result]
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "45", "--slow", "54"]
+            strategy_app, ["run", "AAPL", "--fast", "45", "--slow", "54"],
         )
 
         assert result.exit_code == 0
@@ -962,7 +962,7 @@ class TestStrategyRunZeroTradesHandling:
         mock_analyze.return_value = [mock_zero_trade_result]
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "45", "--slow", "54"]
+            strategy_app, ["run", "AAPL", "--fast", "45", "--slow", "54"],
         )
 
         assert result.exit_code == 0
@@ -993,7 +993,7 @@ class TestStrategyRunZeroTradesHandling:
         mock_analyze.return_value = [mock_zero_trade_result]
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "45", "--slow", "54"]
+            strategy_app, ["run", "AAPL", "--fast", "45", "--slow", "54"],
         )
 
         assert result.exit_code == 0
@@ -1024,7 +1024,7 @@ class TestStrategyRunZeroTradesHandling:
         mock_analyze.return_value = [mock_zero_trade_result]
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "45", "--slow", "54"]
+            strategy_app, ["run", "AAPL", "--fast", "45", "--slow", "54"],
         )
 
         assert result.exit_code == 0
@@ -1048,14 +1048,14 @@ class TestStrategyRunTradeStatistics:
         return pl.DataFrame(
             {
                 "Date": pl.date_range(
-                    start=pl.date(2023, 1, 1), end=pl.date(2023, 12, 31), interval="1d"
+                    start=pl.date(2023, 1, 1), end=pl.date(2023, 12, 31), interval="1d",
                 ),
                 "Close": [100.0 + i * 0.1 for i in range(365)],
                 "Open": [100.0 + i * 0.1 for i in range(365)],
                 "High": [101.0 + i * 0.1 for i in range(365)],
                 "Low": [99.0 + i * 0.1 for i in range(365)],
                 "Volume": [1000000] * 365,
-            }
+            },
         )
 
     @patch("app.cli.commands.strategy.get_data")
@@ -1091,7 +1091,7 @@ class TestStrategyRunTradeStatistics:
         mock_analyze.return_value = [mock_result]
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         assert result.exit_code == 0
@@ -1121,7 +1121,7 @@ class TestStrategyRunTradeStatistics:
         mock_analyze.return_value = [mock_result]
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         assert result.exit_code == 0
@@ -1158,7 +1158,7 @@ class TestStrategyRunTradeStatistics:
         mock_analyze.return_value = [mock_result]
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         assert result.exit_code == 0
@@ -1195,7 +1195,7 @@ class TestStrategyRunTradeStatistics:
         mock_analyze.return_value = [mock_result]
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         assert result.exit_code == 0
@@ -1230,7 +1230,7 @@ class TestStrategyRunTradeStatistics:
         mock_analyze.return_value = [mock_result]
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         assert result.exit_code == 0
@@ -1252,14 +1252,14 @@ class TestStrategyRunTimeframeParameters:
         return pl.DataFrame(
             {
                 "Date": pl.date_range(
-                    start=pl.date(2023, 1, 1), end=pl.date(2023, 12, 31), interval="1d"
+                    start=pl.date(2023, 1, 1), end=pl.date(2023, 12, 31), interval="1d",
                 ),
                 "Close": [100.0 + i * 0.1 for i in range(365)],
                 "Open": [100.0 + i * 0.1 for i in range(365)],
                 "High": [101.0 + i * 0.1 for i in range(365)],
                 "Low": [99.0 + i * 0.1 for i in range(365)],
                 "Volume": [1000000] * 365,
-            }
+            },
         )
 
     @pytest.fixture
@@ -1421,10 +1421,10 @@ class TestStrategyRunDirectionAndMarketType:
         return pl.DataFrame(
             {
                 "Date": pl.date_range(
-                    start=pl.date(2023, 1, 1), end=pl.date(2023, 12, 31), interval="1d"
+                    start=pl.date(2023, 1, 1), end=pl.date(2023, 12, 31), interval="1d",
                 ),
                 "Close": [100.0] * 365,
-            }
+            },
         )
 
     @pytest.fixture
@@ -1454,7 +1454,7 @@ class TestStrategyRunDirectionAndMarketType:
         mock_analyze.return_value = [mock_backtest_result]
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"]
+            strategy_app, ["run", "AAPL", "--fast", "20", "--slow", "50"],
         )
 
         assert result.exit_code == 0

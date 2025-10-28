@@ -80,7 +80,7 @@ class PositionService:
     """
 
     def __init__(
-        self, config: TradingSystemConfig = None, logger: logging.Logger | None = None
+        self, config: TradingSystemConfig = None, logger: logging.Logger | None = None,
     ):
         """Initialize the position service."""
         self.config = config or TradingSystemConfig()
@@ -94,20 +94,25 @@ class PositionService:
     def validate_ticker(self, ticker: str) -> None:
         """Validate ticker symbol format."""
         if not ticker or not isinstance(ticker, str):
-            raise ValidationError("Ticker must be a non-empty string")
+            msg = "Ticker must be a non-empty string"
+            raise ValidationError(msg)
 
         # Basic validation - alphanumeric with optional separators
         clean_ticker = ticker.replace("-", "").replace(".", "").replace("_", "")
         if not clean_ticker.isalnum():
-            raise ValidationError(f"Invalid ticker format: {ticker}")
+            msg = f"Invalid ticker format: {ticker}"
+            raise ValidationError(msg)
 
     def validate_strategy_type(self, strategy_type: str) -> None:
         """Validate strategy type."""
         valid_strategies = ["SMA", "EMA", "MACD", "RSI", "BOLLINGER", "STOCHASTIC"]
         if strategy_type.upper() not in valid_strategies:
-            raise ValidationError(
+            msg = (
                 f"Invalid strategy type: {strategy_type}. "
                 f"Valid types: {', '.join(valid_strategies)}"
+            )
+            raise ValidationError(
+                msg,
             )
 
     def validate_date_string(self, date_str: str) -> None:
@@ -126,7 +131,8 @@ class PositionService:
             else:
                 datetime.strptime(date_str, "%Y-%m-%d")
         except ValueError:
-            raise ValidationError(f"Invalid date format: {date_str}")
+            msg = f"Invalid date format: {date_str}"
+            raise ValidationError(msg)
 
     def calculate_mfe_mae(
         self,
@@ -159,14 +165,16 @@ class PositionService:
             self.validate_date_string(exit_date)
 
         if entry_price <= 0:
-            raise ValidationError(f"Invalid entry price: {entry_price}")
+            msg = f"Invalid entry price: {entry_price}"
+            raise ValidationError(msg)
 
         try:
             # Load price data
             price_file = self.config.get_prices_file(ticker, timeframe)
             if not price_file.exists():
+                msg = f"Price data not found for {ticker} at {price_file}"
                 raise PriceDataError(
-                    f"Price data not found for {ticker} at {price_file}"
+                    msg,
                 )
 
             # Read price data
@@ -186,8 +194,9 @@ class PositionService:
 
             # Ensure we have valid data after cleaning
             if df.empty:
+                msg = f"No valid numeric price data found for {ticker} after cleaning"
                 raise PriceDataError(
-                    f"No valid numeric price data found for {ticker} after cleaning"
+                    msg,
                 )
 
             df["Date"] = pd.to_datetime(df["Date"])
@@ -201,15 +210,16 @@ class PositionService:
                     exit_dt = pd.to_datetime(exit_date.split(" ")[0])
                 except (ValueError, AttributeError):
                     self.logger.warning(
-                        f"Cannot parse exit date: {exit_date}, using current date"
+                        f"Cannot parse exit date: {exit_date}, using current date",
                     )
 
             # Filter to position period
             position_df = df[(df["Date"] >= entry_dt) & (df["Date"] <= exit_dt)].copy()
 
             if position_df.empty:
+                msg = f"No price data found for {ticker} between {entry_date} and {exit_date or 'now'}"
                 raise PriceDataError(
-                    f"No price data found for {ticker} between {entry_date} and {exit_date or 'now'}"
+                    msg,
                 )
 
             # Calculate MFE/MAE using centralized calculator
@@ -229,7 +239,8 @@ class PositionService:
         except Exception as e:
             if isinstance(e, ValidationError | PriceDataError):
                 raise
-            raise CalculationError(f"Error calculating MFE/MAE for {ticker}: {e}")
+            msg = f"Error calculating MFE/MAE for {ticker}: {e}"
+            raise CalculationError(msg)
 
     def verify_entry_signal(
         self,
@@ -265,11 +276,12 @@ class PositionService:
             # Load price data
             price_file = self.config.get_prices_file(ticker, timeframe)
             if not price_file.exists():
-                raise PriceDataError(f"Price data not found for {ticker}")
+                msg = f"Price data not found for {ticker}"
+                raise PriceDataError(msg)
 
             df = pd.read_csv(price_file)
             df["Date"] = pd.to_datetime(df["Date"])
-            df.set_index("Date", inplace=True)
+            df = df.set_index("Date")
 
             # Calculate moving averages
             if strategy_type.upper() == "SMA":
@@ -279,16 +291,18 @@ class PositionService:
                 df[f"MA_{fast_period}"] = df["Close"].ewm(span=fast_period).mean()
                 df[f"MA_{slow_period}"] = df["Close"].ewm(span=slow_period).mean()
             else:
+                msg = f"Signal verification not implemented for {strategy_type}"
                 raise ValidationError(
-                    f"Signal verification not implemented for {strategy_type}"
+                    msg,
                 )
 
             # Find entry date in data
             entry_dt = pd.to_datetime(entry_date.split(" ")[0])
 
             if entry_dt not in df.index:
+                msg = f"Entry date {entry_date} not found in price data"
                 raise DataNotFoundError(
-                    f"Entry date {entry_date} not found in price data"
+                    msg,
                 )
 
             # Check for crossover signal
@@ -297,8 +311,9 @@ class PositionService:
             # Get previous day for crossover detection
             prev_dates = df.index[df.index < entry_dt]
             if len(prev_dates) == 0:
+                msg = "No previous data available for crossover detection"
                 raise DataNotFoundError(
-                    "No previous data available for crossover detection"
+                    msg,
                 )
 
             prev_dt = prev_dates[-1]
@@ -342,7 +357,8 @@ class PositionService:
         except Exception as e:
             if isinstance(e, ValidationError | DataNotFoundError | PriceDataError):
                 raise
-            raise SignalValidationError(f"Error verifying signal for {ticker}: {e}")
+            msg = f"Error verifying signal for {ticker}: {e}"
+            raise SignalValidationError(msg)
 
     def create_position_record(
         self,
@@ -408,7 +424,7 @@ class PositionService:
         # Calculate basic metrics if we have exit data
         if exit_price is not None and entry_price is not None:
             pnl, return_pct = self.calculator.calculate_pnl_and_return(
-                entry_price, exit_price, position_size, direction
+                entry_price, exit_price, position_size, direction,
             )
             position_data["PnL"] = pnl
             position_data["Return"] = return_pct
@@ -424,7 +440,7 @@ class PositionService:
         # Calculate MFE/MAE if we have price data
         try:
             mfe, mae, mfe_mae_ratio = self.calculate_mfe_mae(
-                ticker, entry_date, exit_date or "", entry_price, direction
+                ticker, entry_date, exit_date or "", entry_price, direction,
             )
 
             if mfe is not None and mae is not None:
@@ -435,13 +451,13 @@ class PositionService:
                 # Calculate exit efficiency if closed position
                 if exit_price is not None:
                     exit_efficiency = self.calculator.calculate_exit_efficiency(
-                        position_data["Return"], mfe
+                        position_data["Return"], mfe,
                     )
                     position_data["Exit_Efficiency_Fixed"] = exit_efficiency
 
                 # Assess trade quality
                 trade_quality = self.calculator.assess_trade_quality(
-                    mfe, mae, position_data.get("Return")
+                    mfe, mae, position_data.get("Return"),
                 )
                 position_data["Trade_Quality"] = trade_quality
 
@@ -514,8 +530,9 @@ class PositionService:
                     direction,
                 )
                 if not verification["verified"]:
+                    msg = f"No {direction} crossover signal found for {ticker} on {entry_date}"
                     raise SignalValidationError(
-                        f"No {direction} crossover signal found for {ticker} on {entry_date}"
+                        msg,
                     )
                 self.logger.info(f"✓ Signal verified: {verification['signal_type']}")
             except (DataNotFoundError, PriceDataError) as e:
@@ -551,8 +568,9 @@ class PositionService:
             "Position_UUID" in df.columns
             and position_uuid in df["Position_UUID"].values
         ):
+            msg = f"Position {position_uuid} already exists in portfolio {portfolio_name}"
             raise PortfolioError(
-                f"Position {position_uuid} already exists in portfolio {portfolio_name}"
+                msg,
             )
 
         # Add position to dataframe
@@ -563,7 +581,7 @@ class PositionService:
         df.to_csv(portfolio_file, index=False)
 
         self.logger.info(
-            f"✅ Added position {position_uuid} to portfolio {portfolio_name}"
+            f"✅ Added position {position_uuid} to portfolio {portfolio_name}",
         )
         return position_uuid
 
@@ -592,15 +610,17 @@ class PositionService:
         # Load portfolio
         portfolio_file = self.config.get_portfolio_file(portfolio_name)
         if not portfolio_file.exists():
-            raise PortfolioError(f"Portfolio file not found: {portfolio_file}")
+            msg = f"Portfolio file not found: {portfolio_file}"
+            raise PortfolioError(msg)
 
         df = pd.read_csv(portfolio_file)
 
         # Find position
         position_mask = df["Position_UUID"] == position_uuid
         if not position_mask.any():
+            msg = f"Position {position_uuid} not found in portfolio {portfolio_name}"
             raise DataNotFoundError(
-                f"Position {position_uuid} not found in portfolio {portfolio_name}"
+                msg,
             )
 
         position_idx = df.index[position_mask][0]
@@ -617,7 +637,7 @@ class PositionService:
         direction = position["Direction"]
 
         pnl, return_pct = self.calculator.calculate_pnl_and_return(
-            entry_price, exit_price, position_size, direction
+            entry_price, exit_price, position_size, direction,
         )
 
         df.loc[position_idx, "PnL"] = pnl
@@ -640,19 +660,19 @@ class PositionService:
 
                 # Calculate exit efficiency
                 exit_efficiency = self.calculator.calculate_exit_efficiency(
-                    return_pct, mfe
+                    return_pct, mfe,
                 )
                 df.loc[position_idx, "Exit_Efficiency_Fixed"] = exit_efficiency
 
                 # Assess trade quality
                 trade_quality = self.calculator.assess_trade_quality(
-                    mfe, mae, return_pct
+                    mfe, mae, return_pct,
                 )
                 df.loc[position_idx, "Trade_Quality"] = trade_quality
 
         except (PriceDataError, CalculationError) as e:
             self.logger.warning(
-                f"Could not recalculate MFE/MAE for closed position: {e}"
+                f"Could not recalculate MFE/MAE for closed position: {e}",
             )
 
         # Save updated portfolio
@@ -675,7 +695,7 @@ class PositionService:
         }
 
     def list_positions(
-        self, portfolio_name: str, status_filter: str | None = None
+        self, portfolio_name: str, status_filter: str | None = None,
     ) -> list[dict[str, Any]]:
         """
         List all positions in a portfolio.
@@ -689,7 +709,8 @@ class PositionService:
         """
         portfolio_file = self.config.get_portfolio_file(portfolio_name)
         if not portfolio_file.exists():
-            raise PortfolioError(f"Portfolio file not found: {portfolio_file}")
+            msg = f"Portfolio file not found: {portfolio_file}"
+            raise PortfolioError(msg)
 
         df = pd.read_csv(portfolio_file)
 
@@ -715,8 +736,9 @@ class PositionService:
             if position.get("Position_UUID") == position_uuid:
                 return position
 
+        msg = f"Position {position_uuid} not found in portfolio {portfolio_name}"
         raise DataNotFoundError(
-            f"Position {position_uuid} not found in portfolio {portfolio_name}"
+            msg,
         )
 
 

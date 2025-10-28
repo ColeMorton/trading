@@ -130,7 +130,7 @@ class TestConfigValidator:
     def test_validate_base_config_missing_required(self):
         """Test validation fails for missing required fields."""
         config = {
-            "BASE_DIR": "/tmp"
+            "BASE_DIR": "/tmp",
             # Missing TICKER
         }
 
@@ -242,7 +242,7 @@ class TestConfigFactory:
     def test_create_macd_config(self):
         """Test creating MACD configuration."""
         config = ConfigFactory.create_config(
-            "MACD", TICKER="MSFT", BASE_DIR="/tmp", SIGNAL_PERIOD=9
+            "MACD", TICKER="MSFT", BASE_DIR="/tmp", SIGNAL_PERIOD=9,
         )
 
         assert config["TICKER"] == "MSFT"

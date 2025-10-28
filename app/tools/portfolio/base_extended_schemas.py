@@ -842,10 +842,11 @@ class SchemaTransformer:
                 force_analysis_defaults,
             )
 
-        raise ValueError(f"Unknown target schema type: {target_schema}")
+        msg = f"Unknown target schema type: {target_schema}"
+        raise ValueError(msg)
 
     def validate_schema(
-        self, portfolio: dict[str, Any], expected_schema: SchemaType
+        self, portfolio: dict[str, Any], expected_schema: SchemaType,
     ) -> tuple[bool, list[str]]:
         """
         Validate portfolio against expected schema.
@@ -884,7 +885,7 @@ class SchemaTransformer:
         # Check column count
         if len(portfolio) != len(expected_columns):
             errors.append(
-                f"Column count mismatch: expected {len(expected_columns)}, got {len(portfolio)}"
+                f"Column count mismatch: expected {len(expected_columns)}, got {len(portfolio)}",
             )
 
         return len(errors) == 0, errors
@@ -905,7 +906,7 @@ class SchemaTransformer:
 
     @staticmethod
     def extended_to_filtered(
-        extended_data: list[dict[str, Any]], metric_type: str = "Most Total Return [%]"
+        extended_data: list[dict[str, Any]], metric_type: str = "Most Total Return [%]",
     ) -> list[dict[str, Any]]:
         """
         Transform extended schema data to filtered schema (backward compatibility).

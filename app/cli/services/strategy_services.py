@@ -33,7 +33,6 @@ class BaseStrategyService(ABC):
         Returns:
             True if execution successful, False otherwise
         """
-        pass
 
     @abstractmethod
     def convert_config_to_legacy(self, config: StrategyConfig) -> dict[str, Any]:
@@ -46,12 +45,10 @@ class BaseStrategyService(ABC):
         Returns:
             Legacy configuration dictionary
         """
-        pass
 
     @abstractmethod
     def get_supported_strategy_types(self) -> list[str]:
         """Get list of strategy types supported by this service."""
-        pass
 
 
 class MAStrategyService(BaseStrategyService):
@@ -62,7 +59,7 @@ class MAStrategyService(BaseStrategyService):
         try:
             # Import MA Cross module
             ma_cross_module = importlib.import_module(
-                "app.strategies.ma_cross.1_get_portfolios"
+                "app.strategies.ma_cross.1_get_portfolios",
             )
             run = ma_cross_module.run
 
@@ -145,7 +142,7 @@ class MAStrategyService(BaseStrategyService):
         def get_strategy_specific_params(strategy_type: str):
             """Extract strategy-specific parameters with fallback to global parameters."""
             if config.strategy_params and hasattr(
-                config.strategy_params, strategy_type
+                config.strategy_params, strategy_type,
             ):
                 strategy_params = getattr(config.strategy_params, strategy_type)
                 if strategy_params:
@@ -253,7 +250,7 @@ class MACDStrategyService(BaseStrategyService):
         try:
             # Import MACD module
             macd_module = importlib.import_module(
-                "app.strategies.macd.1_get_portfolios"
+                "app.strategies.macd.1_get_portfolios",
             )
             run = macd_module.run
 
@@ -326,9 +323,10 @@ class MACDStrategyService(BaseStrategyService):
                 "[yellow]Ensure your profile contains either:\n"
                 + "Strategy-specific: strategy_params.MACD.fast_period_min/max, slow_period_min/max, signal_period_min/max\n"
                 + "Global format: fast_period_min/max, slow_period_min/max, signal_period_min/max\n"
-                + "OR Legacy format: short_window_start/end, long_window_start/end, signal_window_start/end[/yellow]"
+                + "OR Legacy format: short_window_start/end, long_window_start/end, signal_window_start/end[/yellow]",
             )
-            raise ValueError("Incomplete MACD configuration")
+            msg = "Incomplete MACD configuration"
+            raise ValueError(msg)
 
         try:
             # Extract parameters with priority: strategy-specific > global new format > legacy format
@@ -410,7 +408,8 @@ class MACDStrategyService(BaseStrategyService):
                 legacy_config["MULTI_TICKER"] = len(ticker_list) > 1
         except AttributeError as e:
             rprint(f"[red]Error accessing MACD parameters: {e}[/red]")
-            raise ValueError(f"MACD configuration error: {e}")
+            msg = f"MACD configuration error: {e}"
+            raise ValueError(msg)
 
         # Add minimum criteria (same as MA Cross)
         if config.minimums.win_rate is not None:
@@ -466,7 +465,7 @@ class ATRStrategyService(BaseStrategyService):
                 rprint("[green]ATR strategy execution completed successfully[/green]")
             else:
                 rprint(
-                    "[yellow]ATR strategy execution completed with warnings[/yellow]"
+                    "[yellow]ATR strategy execution completed with warnings[/yellow]",
                 )
 
             return result
@@ -535,7 +534,8 @@ class ATRStrategyService(BaseStrategyService):
 
         except AttributeError as e:
             rprint(f"[red]Error accessing ATR parameters: {e}[/red]")
-            raise ValueError(f"ATR configuration error: {e}")
+            msg = f"ATR configuration error: {e}"
+            raise ValueError(msg)
 
         # Add minimum criteria
         if config.minimums.win_rate is not None:
@@ -570,7 +570,7 @@ class SMAAtrStrategyService(BaseStrategyService):
         try:
             # Import SMA_ATR module
             sma_atr_module = importlib.import_module(
-                "app.strategies.sma_atr.1_get_portfolios"
+                "app.strategies.sma_atr.1_get_portfolios",
             )
             run = sma_atr_module.run
 
@@ -647,7 +647,7 @@ class SMAAtrStrategyService(BaseStrategyService):
             "STEP": step,
             # ATR parameters (use discrete length values from profile)
             "ATR_LENGTH_RANGE": getattr(
-                config, "atr_length_range", [3, 5, 7, 9, 11, 13]
+                config, "atr_length_range", [3, 5, 7, 9, 11, 13],
             ),
             "ATR_MULTIPLIER_RANGE": [
                 getattr(config, "atr_multiplier_min", None) or 1.0,

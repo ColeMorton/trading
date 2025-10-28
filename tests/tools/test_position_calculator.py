@@ -72,7 +72,7 @@ class TestPositionCalculator(unittest.TestCase):
         """Test P&L and return calculation for Long positions."""
         # Test the SMCI bug scenario
         pnl, return_pct = self.calculator.calculate_pnl_and_return(
-            entry_price=434.53, exit_price=447.70, position_size=1.0, direction="Long"
+            entry_price=434.53, exit_price=447.70, position_size=1.0, direction="Long",
         )
 
         self.assertEqual(pnl, 13.17)
@@ -80,7 +80,7 @@ class TestPositionCalculator(unittest.TestCase):
 
         # Test with different position size
         pnl, return_pct = self.calculator.calculate_pnl_and_return(
-            entry_price=100.0, exit_price=110.0, position_size=2.0, direction="Long"
+            entry_price=100.0, exit_price=110.0, position_size=2.0, direction="Long",
         )
 
         self.assertEqual(pnl, 20.0)  # (110-100) * 2
@@ -89,7 +89,7 @@ class TestPositionCalculator(unittest.TestCase):
     def test_calculate_pnl_and_return_short_position(self):
         """Test P&L and return calculation for Short positions."""
         pnl, return_pct = self.calculator.calculate_pnl_and_return(
-            entry_price=100.0, exit_price=90.0, position_size=1.0, direction="Short"
+            entry_price=100.0, exit_price=90.0, position_size=1.0, direction="Short",
         )
 
         self.assertEqual(pnl, 10.0)  # (100-90) * 1
@@ -97,7 +97,7 @@ class TestPositionCalculator(unittest.TestCase):
 
         # Test losing short position
         pnl, return_pct = self.calculator.calculate_pnl_and_return(
-            entry_price=100.0, exit_price=110.0, position_size=1.0, direction="Short"
+            entry_price=100.0, exit_price=110.0, position_size=1.0, direction="Short",
         )
 
         self.assertEqual(pnl, -10.0)  # (100-110) * 1
@@ -126,7 +126,7 @@ class TestPositionCalculator(unittest.TestCase):
         """Test that P&L and return values are rounded to correct precision."""
         # Test with values that need rounding
         pnl, return_pct = self.calculator.calculate_pnl_and_return(
-            entry_price=100.333, exit_price=103.666, position_size=1.5, direction="Long"
+            entry_price=100.333, exit_price=103.666, position_size=1.5, direction="Long",
         )
 
         # Manual calculation: (103.666 - 100.333) * 1.5 = 4.9995 -> 5.00
@@ -138,7 +138,7 @@ class TestPositionCalculator(unittest.TestCase):
         """Test error handling in P&L calculation."""
         # Test with invalid inputs
         pnl, return_pct = self.calculator_with_logger.calculate_pnl_and_return(
-            entry_price="invalid", exit_price=100.0, position_size=1.0, direction="Long"
+            entry_price="invalid", exit_price=100.0, position_size=1.0, direction="Long",
         )
 
         self.assertEqual(pnl, 0.0)
@@ -203,7 +203,7 @@ class TestPositionCalculator(unittest.TestCase):
     def test_calculate_exit_efficiency_error_handling(self):
         """Test error handling in exit efficiency calculation."""
         efficiency = self.calculator_with_logger.calculate_exit_efficiency(
-            "invalid", 0.08
+            "invalid", 0.08,
         )
         self.assertIsNone(efficiency)
         self.mock_logger.error.assert_called()
@@ -242,7 +242,7 @@ class TestPositionCalculator(unittest.TestCase):
         """Test trade quality assessment with final return consideration."""
         # Test failed upside capture
         quality = self.calculator.assess_trade_quality(
-            mfe=0.05, mae=0.02, final_return=-0.08
+            mfe=0.05, mae=0.02, final_return=-0.08,
         )
         self.assertEqual(quality, "Failed to Capture Upside")
 
@@ -303,7 +303,7 @@ class TestPositionCalculator(unittest.TestCase):
         self.assertEqual(pnl_error["actual"], 376.53)
 
         return_error = next(
-            (e for e in result["errors"] if e["field"] == "Return"), None
+            (e for e in result["errors"] if e["field"] == "Return"), None,
         )
         self.assertIsNotNone(return_error)
         self.assertEqual(return_error["expected"], 0.0303)
@@ -403,14 +403,14 @@ class TestPositionCalculator(unittest.TestCase):
         invalid_data = {"Avg_Entry_Price": "invalid"}
 
         result = self.calculator_with_logger.comprehensive_position_refresh(
-            invalid_data
+            invalid_data,
         )
 
         # Should return original data with warnings (not errors)
         self.assertEqual(result["data"], invalid_data)
         self.assertEqual(len(result["changes"]), 0)
         self.assertTrue(
-            result["validation"]["valid"]
+            result["validation"]["valid"],
         )  # Valid but with warnings for missing data
         self.assertIn("Missing critical data", str(result["validation"]["warnings"]))
 
@@ -452,7 +452,7 @@ class TestPositionCalculatorRegression(unittest.TestCase):
         """Regression test for SMCI P&L calculation bug."""
         # Original bug: SMCI position calculated as $376.53 instead of $13.17
         pnl, return_pct = self.calculator.calculate_pnl_and_return(
-            entry_price=434.53, exit_price=447.70, position_size=1.0, direction="Long"
+            entry_price=434.53, exit_price=447.70, position_size=1.0, direction="Long",
         )
 
         # Ensure the bug doesn't reoccur
@@ -464,7 +464,7 @@ class TestPositionCalculatorRegression(unittest.TestCase):
         """Test AMZN position calculation accuracy from original analysis."""
         # Based on conversation summary AMZN example
         pnl, return_pct = self.calculator.calculate_pnl_and_return(
-            entry_price=193.31, exit_price=201.64, position_size=1.0, direction="Long"
+            entry_price=193.31, exit_price=201.64, position_size=1.0, direction="Long",
         )
 
         expected_pnl = 8.33  # 201.64 - 193.31
@@ -491,13 +491,13 @@ class TestPositionCalculatorRegression(unittest.TestCase):
 
         # Verify all values have correct precision
         self.assertEqual(
-            len(str(refreshed["PnL"]).split(".")[-1]), 2
+            len(str(refreshed["PnL"]).split(".")[-1]), 2,
         )  # 2 decimal places
         self.assertEqual(
-            len(str(refreshed["Return"]).split(".")[-1]), 4
+            len(str(refreshed["Return"]).split(".")[-1]), 4,
         )  # 4 decimal places
         self.assertEqual(
-            len(str(refreshed["Max_Favourable_Excursion"]).split(".")[-1]), 6
+            len(str(refreshed["Max_Favourable_Excursion"]).split(".")[-1]), 6,
         )  # 6 decimal places
 
 
@@ -510,32 +510,32 @@ class TestPositionCalculatorPropertyBased(unittest.TestCase):
 
     @given(
         entry_price=st.floats(
-            min_value=0.01, max_value=10000.0, allow_nan=False, allow_infinity=False
+            min_value=0.01, max_value=10000.0, allow_nan=False, allow_infinity=False,
         ),
         exit_price=st.floats(
-            min_value=0.01, max_value=10000.0, allow_nan=False, allow_infinity=False
+            min_value=0.01, max_value=10000.0, allow_nan=False, allow_infinity=False,
         ),
         position_size=st.floats(
-            min_value=0.1, max_value=1000.0, allow_nan=False, allow_infinity=False
+            min_value=0.1, max_value=1000.0, allow_nan=False, allow_infinity=False,
         ),
     )
     def test_pnl_calculation_properties_long(
-        self, entry_price, exit_price, position_size
+        self, entry_price, exit_price, position_size,
     ):
         """Property-based test for Long position P&L calculations."""
         pnl, return_pct = self.calculator.calculate_pnl_and_return(
-            entry_price, exit_price, position_size, "Long"
+            entry_price, exit_price, position_size, "Long",
         )
 
         # Property: P&L should match manual calculation
         expected_pnl = round(
-            (exit_price - entry_price) * position_size, STANDARD_PNL_PRECISION
+            (exit_price - entry_price) * position_size, STANDARD_PNL_PRECISION,
         )
         self.assertEqual(pnl, expected_pnl)
 
         # Property: Return should match manual calculation
         expected_return = round(
-            (exit_price - entry_price) / entry_price, STANDARD_RETURN_PRECISION
+            (exit_price - entry_price) / entry_price, STANDARD_RETURN_PRECISION,
         )
         self.assertEqual(return_pct, expected_return)
 
@@ -549,32 +549,32 @@ class TestPositionCalculatorPropertyBased(unittest.TestCase):
 
     @given(
         entry_price=st.floats(
-            min_value=0.01, max_value=10000.0, allow_nan=False, allow_infinity=False
+            min_value=0.01, max_value=10000.0, allow_nan=False, allow_infinity=False,
         ),
         exit_price=st.floats(
-            min_value=0.01, max_value=10000.0, allow_nan=False, allow_infinity=False
+            min_value=0.01, max_value=10000.0, allow_nan=False, allow_infinity=False,
         ),
         position_size=st.floats(
-            min_value=0.1, max_value=1000.0, allow_nan=False, allow_infinity=False
+            min_value=0.1, max_value=1000.0, allow_nan=False, allow_infinity=False,
         ),
     )
     def test_pnl_calculation_properties_short(
-        self, entry_price, exit_price, position_size
+        self, entry_price, exit_price, position_size,
     ):
         """Property-based test for Short position P&L calculations."""
         pnl, return_pct = self.calculator.calculate_pnl_and_return(
-            entry_price, exit_price, position_size, "Short"
+            entry_price, exit_price, position_size, "Short",
         )
 
         # Property: P&L should match manual calculation
         expected_pnl = round(
-            (entry_price - exit_price) * position_size, STANDARD_PNL_PRECISION
+            (entry_price - exit_price) * position_size, STANDARD_PNL_PRECISION,
         )
         self.assertEqual(pnl, expected_pnl)
 
         # Property: Return should match manual calculation
         expected_return = round(
-            (entry_price - exit_price) / entry_price, STANDARD_RETURN_PRECISION
+            (entry_price - exit_price) / entry_price, STANDARD_RETURN_PRECISION,
         )
         self.assertEqual(return_pct, expected_return)
 
@@ -588,10 +588,10 @@ class TestPositionCalculatorPropertyBased(unittest.TestCase):
 
     @given(
         mfe=st.floats(
-            min_value=0.001, max_value=1.0, allow_nan=False, allow_infinity=False
+            min_value=0.001, max_value=1.0, allow_nan=False, allow_infinity=False,
         ),
         mae=st.floats(
-            min_value=0.001, max_value=1.0, allow_nan=False, allow_infinity=False
+            min_value=0.001, max_value=1.0, allow_nan=False, allow_infinity=False,
         ),
     )
     def test_mfe_mae_ratio_properties(self, mfe, mae):
@@ -611,10 +611,10 @@ class TestPositionCalculatorPropertyBased(unittest.TestCase):
 
     @given(
         final_return=st.floats(
-            min_value=-1.0, max_value=1.0, allow_nan=False, allow_infinity=False
+            min_value=-1.0, max_value=1.0, allow_nan=False, allow_infinity=False,
         ),
         mfe=st.floats(
-            min_value=0.001, max_value=1.0, allow_nan=False, allow_infinity=False
+            min_value=0.001, max_value=1.0, allow_nan=False, allow_infinity=False,
         ),
     )
     def test_exit_efficiency_properties(self, final_return, mfe):
@@ -631,7 +631,7 @@ class TestPositionCalculatorPropertyBased(unittest.TestCase):
         # Property: Better final return should give higher efficiency (for same MFE)
         if final_return < 0.5:  # Leave room for improvement
             better_efficiency = self.calculator.calculate_exit_efficiency(
-                final_return + 0.1, mfe
+                final_return + 0.1, mfe,
             )
             self.assertGreater(better_efficiency, efficiency)
 

@@ -16,7 +16,7 @@ from app.tools.exceptions import PortfolioLoadError
 
 
 def process_portfolio_strategies(
-    strategies: list[dict[str, Any]], log: Callable
+    strategies: list[dict[str, Any]], log: Callable,
 ) -> list[dict[str, Any]]:
     """Process portfolio strategies and assign strategy IDs.
 
@@ -81,7 +81,8 @@ def resolve_portfolio_path(portfolio_name: str, base_dir: str = ".") -> str:
                 portfolio_path = path
                 break
         else:
-            raise PortfolioLoadError(f"Portfolio file not found: {portfolio_name}")
+            msg = f"Portfolio file not found: {portfolio_name}"
+            raise PortfolioLoadError(msg)
 
     return portfolio_path
 
@@ -134,7 +135,7 @@ def load_csv_portfolio(file_path: str, config: dict[str, Any]) -> list[dict[str,
         # Normalize the data to handle both schema versions
         try:
             normalized_data = normalize_portfolio_data(
-                raw_data, schema_version, log_func
+                raw_data, schema_version, log_func,
             )
 
             # Add schema version information to each row
@@ -148,15 +149,19 @@ def load_csv_portfolio(file_path: str, config: dict[str, Any]) -> list[dict[str,
             return raw_data
 
     except FileNotFoundError:
-        raise PortfolioLoadError(f"CSV file not found: {file_path}")
+        msg = f"CSV file not found: {file_path}"
+        raise PortfolioLoadError(msg)
     except PermissionError:
+        msg = f"Permission denied when accessing CSV file: {file_path}"
         raise PortfolioLoadError(
-            f"Permission denied when accessing CSV file: {file_path}"
+            msg,
         )
     except csv.Error as e:
-        raise PortfolioLoadError(f"CSV parsing error: {e!s}")
+        msg = f"CSV parsing error: {e!s}"
+        raise PortfolioLoadError(msg)
     except Exception as e:
-        raise PortfolioLoadError(f"Unexpected error loading CSV file: {e!s}")
+        msg = f"Unexpected error loading CSV file: {e!s}"
+        raise PortfolioLoadError(msg)
 
 
 def load_json_portfolio(file_path: str, config: dict[str, Any]) -> list[dict[str, Any]]:
@@ -181,17 +186,22 @@ def load_json_portfolio(file_path: str, config: dict[str, Any]) -> list[dict[str
                 return data
             if isinstance(data, dict) and "strategies" in data:
                 return data["strategies"]
-            raise PortfolioLoadError(f"Unsupported JSON format in {file_path}")
+            msg = f"Unsupported JSON format in {file_path}"
+            raise PortfolioLoadError(msg)
     except FileNotFoundError:
-        raise PortfolioLoadError(f"JSON file not found: {file_path}")
+        msg = f"JSON file not found: {file_path}"
+        raise PortfolioLoadError(msg)
     except PermissionError:
+        msg = f"Permission denied when accessing JSON file: {file_path}"
         raise PortfolioLoadError(
-            f"Permission denied when accessing JSON file: {file_path}"
+            msg,
         )
     except json.JSONDecodeError as e:
-        raise PortfolioLoadError(f"JSON parsing error: {e!s}")
+        msg = f"JSON parsing error: {e!s}"
+        raise PortfolioLoadError(msg)
     except Exception as e:
-        raise PortfolioLoadError(f"Unexpected error loading JSON file: {e!s}")
+        msg = f"Unexpected error loading JSON file: {e!s}"
+        raise PortfolioLoadError(msg)
 
 
 def load_portfolio_with_logging(
@@ -217,7 +227,7 @@ def load_portfolio_with_logging(
 
         # Resolve portfolio path
         portfolio_path = resolve_portfolio_path(
-            portfolio_name, config.get("BASE_DIR", ".")
+            portfolio_name, config.get("BASE_DIR", "."),
         )
 
         log(f"Resolved portfolio path: {portfolio_path}", "info")
@@ -232,14 +242,14 @@ def load_portfolio_with_logging(
         elif portfolio_path.endswith(".json"):
             portfolio_data = load_json_portfolio(portfolio_path, config)
         else:
-            raise PortfolioLoadError(f"Unsupported portfolio format: {portfolio_path}")
+            msg = f"Unsupported portfolio format: {portfolio_path}"
+            raise PortfolioLoadError(msg)
 
         log(f"Successfully loaded portfolio with {len(portfolio_data)} entries", "info")
 
         # Process strategies to assign strategy IDs
-        processed_data = process_portfolio_strategies(portfolio_data, log)
+        return process_portfolio_strategies(portfolio_data, log)
 
-        return processed_data
     except PortfolioLoadError as e:
         log(f"Portfolio load error: {e!s}", "error")
         raise
@@ -271,7 +281,7 @@ def portfolio_context(
     try:
         # Resolve portfolio path
         portfolio_path = resolve_portfolio_path(
-            portfolio_name, config.get("BASE_DIR", ".")
+            portfolio_name, config.get("BASE_DIR", "."),
         )
 
         log(f"Loading portfolio from {portfolio_path}", "info")
@@ -286,7 +296,8 @@ def portfolio_context(
         elif portfolio_path.endswith(".json"):
             portfolio_data = load_json_portfolio(portfolio_path, config)
         else:
-            raise PortfolioLoadError(f"Unsupported portfolio format: {portfolio_path}")
+            msg = f"Unsupported portfolio format: {portfolio_path}"
+            raise PortfolioLoadError(msg)
 
         log(f"Successfully loaded portfolio with {len(portfolio_data)} entries", "info")
 
@@ -296,10 +307,14 @@ def portfolio_context(
         # Yield the processed portfolio data
         yield processed_data
     except FileNotFoundError as e:
-        raise PortfolioLoadError(f"Portfolio file not found: {e!s}")
+        msg = f"Portfolio file not found: {e!s}"
+        raise PortfolioLoadError(msg)
     except PermissionError as e:
-        raise PortfolioLoadError(f"Permission denied when accessing portfolio: {e!s}")
+        msg = f"Permission denied when accessing portfolio: {e!s}"
+        raise PortfolioLoadError(msg)
     except ValueError as e:
-        raise PortfolioLoadError(f"Invalid portfolio data: {e!s}")
+        msg = f"Invalid portfolio data: {e!s}"
+        raise PortfolioLoadError(msg)
     except Exception as e:
-        raise PortfolioLoadError(f"Unexpected error loading portfolio: {e!s}")
+        msg = f"Unexpected error loading portfolio: {e!s}"
+        raise PortfolioLoadError(msg)

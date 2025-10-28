@@ -58,7 +58,7 @@ from app.tools.portfolio.validation import (
 
 
 def load_portfolio_from_csv(
-    csv_path: str | Path, log: Callable[[str, str], None], config: dict[str, Any]
+    csv_path: str | Path, log: Callable[[str, str], None], config: dict[str, Any],
 ) -> list[StrategyConfig]:
     """Load portfolio configuration from CSV file.
 
@@ -79,7 +79,8 @@ def load_portfolio_from_csv(
 
     if not path.exists():
         log(f"Portfolio file not found: {path}", "error")
-        raise FileNotFoundError(f"Portfolio file not found: {path}")
+        msg = f"Portfolio file not found: {path}"
+        raise FileNotFoundError(msg)
 
     # Read CSV file using Polars with schema overrides for numeric columns
     df = pl.read_csv(
@@ -124,7 +125,7 @@ def load_portfolio_from_csv(
             pl.when(pl.col("USE_SMA").eq(True))
             .then(pl.lit("SMA"))
             .otherwise(pl.lit("EMA"))
-            .alias(STRATEGY_TYPE_FIELDS["INTERNAL"])
+            .alias(STRATEGY_TYPE_FIELDS["INTERNAL"]),
         )
 
     # Handle legacy CSV files without Strategy Type column but with Use SMA
@@ -137,7 +138,7 @@ def load_portfolio_from_csv(
             pl.when(pl.col("USE_SMA").eq(True))
             .then(pl.lit("SMA"))
             .otherwise(pl.lit("EMA"))
-            .alias(STRATEGY_TYPE_FIELDS["INTERNAL"])
+            .alias(STRATEGY_TYPE_FIELDS["INTERNAL"]),
         )
 
     # First, check if there are any MACD strategies
@@ -175,7 +176,7 @@ def load_portfolio_from_csv(
 
     # Validate required columns
     is_valid, errors = validate_portfolio_schema(
-        df, log, required_columns=required_columns
+        df, log, required_columns=required_columns,
     )
 
     if not is_valid:
@@ -203,7 +204,7 @@ def load_portfolio_from_csv(
 
 
 def load_portfolio_from_json(
-    json_path: str | Path, log: Callable[[str, str], None], config: dict[str, Any]
+    json_path: str | Path, log: Callable[[str, str], None], config: dict[str, Any],
 ) -> list[StrategyConfig]:
     """Load portfolio configuration from JSON file.
 
@@ -224,7 +225,8 @@ def load_portfolio_from_json(
 
     if not path.exists():
         log(f"Portfolio file not found: {path}", "error")
-        raise FileNotFoundError(f"Portfolio file not found: {path}")
+        msg = f"Portfolio file not found: {path}"
+        raise FileNotFoundError(msg)
 
     # Read JSON file using Polars
     df = pl.read_json(path)
@@ -244,7 +246,7 @@ def load_portfolio_from_json(
 
 
 def load_portfolio_from_yaml(
-    yaml_path: str | Path, log: Callable[[str, str], None], config: dict[str, Any]
+    yaml_path: str | Path, log: Callable[[str, str], None], config: dict[str, Any],
 ) -> list[StrategyConfig]:
     """Load portfolio configuration from YAML portfolio definition file.
 
@@ -265,7 +267,8 @@ def load_portfolio_from_yaml(
 
     if not path.exists():
         log(f"Portfolio definition file not found: {path}", "error")
-        raise FileNotFoundError(f"Portfolio definition file not found: {path}")
+        msg = f"Portfolio definition file not found: {path}"
+        raise FileNotFoundError(msg)
 
     # Read YAML file
     try:
@@ -273,21 +276,25 @@ def load_portfolio_from_yaml(
             portfolio_def = yaml.safe_load(f)
     except yaml.YAMLError as e:
         log(f"Error parsing YAML file: {e}", "error")
-        raise ValueError(f"Error parsing YAML file: {e}")
+        msg = f"Error parsing YAML file: {e}"
+        raise ValueError(msg)
 
     if not portfolio_def:
         log("YAML file is empty", "error")
-        raise ValueError("YAML file is empty")
+        msg = "YAML file is empty"
+        raise ValueError(msg)
 
     # Extract strategies section
     if "strategies" not in portfolio_def:
         log("No 'strategies' section found in portfolio definition", "error")
-        raise ValueError("No 'strategies' section found in portfolio definition")
+        msg = "No 'strategies' section found in portfolio definition"
+        raise ValueError(msg)
 
     strategies_def = portfolio_def["strategies"]
     if not strategies_def:
         log("Strategies section is empty", "error")
-        raise ValueError("Strategies section is empty")
+        msg = "Strategies section is empty"
+        raise ValueError(msg)
 
     log(f"Found {len(strategies_def)} strategy definitions", "info")
 
@@ -353,7 +360,7 @@ def load_portfolio_from_yaml(
 
 
 def load_portfolio(
-    portfolio_name: str, log: Callable[[str, str], None], config: dict[str, Any]
+    portfolio_name: str, log: Callable[[str, str], None], config: dict[str, Any],
 ) -> list[StrategyConfig]:
     """Load portfolio configuration from either JSON or CSV file.
 

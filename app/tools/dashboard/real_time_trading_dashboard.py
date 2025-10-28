@@ -157,7 +157,7 @@ class RealTimeTradingDashboard:
                 await self._refresh_dashboard()
 
         except Exception as e:
-            self.logger.error(f"Dashboard startup failed: {e}")
+            self.logger.exception(f"Dashboard startup failed: {e}")
             raise
 
     async def stop_dashboard(self) -> None:
@@ -194,7 +194,7 @@ class RealTimeTradingDashboard:
             }
 
         except Exception as e:
-            self.logger.error(f"Dashboard data retrieval failed: {e}")
+            self.logger.exception(f"Dashboard data retrieval failed: {e}")
             raise
 
     async def get_position_detail(self, position_id: str) -> dict[str, Any] | None:
@@ -224,15 +224,15 @@ class RealTimeTradingDashboard:
                 "signal": asdict(signal) if signal else None,
                 "detailed_analysis": detailed_analysis,
                 "recommendations": await self._generate_position_recommendations(
-                    position
+                    position,
                 ),
                 "historical_context": await self._get_position_historical_context(
-                    position
+                    position,
                 ),
             }
 
         except Exception as e:
-            self.logger.error(f"Position detail retrieval failed: {e}")
+            self.logger.exception(f"Position detail retrieval failed: {e}")
             return None
 
     async def _run_continuous_dashboard(self) -> None:
@@ -246,7 +246,7 @@ class RealTimeTradingDashboard:
             except KeyboardInterrupt:
                 break
             except Exception as e:
-                self.logger.error(f"Dashboard refresh error: {e}")
+                self.logger.exception(f"Dashboard refresh error: {e}")
                 await asyncio.sleep(1.0)  # Longer sleep on error
 
     async def _refresh_dashboard(self) -> None:
@@ -265,7 +265,7 @@ class RealTimeTradingDashboard:
             await self._update_dashboard_stats()
 
         except Exception as e:
-            self.logger.error(f"Dashboard refresh failed: {e}")
+            self.logger.exception(f"Dashboard refresh failed: {e}")
             raise
 
     async def _load_current_positions(self) -> None:
@@ -287,7 +287,7 @@ class RealTimeTradingDashboard:
 
                         for _, row in open_positions.iterrows():
                             position_id = row.get(
-                                "Position_UUID", f"pos_{len(current_positions)}"
+                                "Position_UUID", f"pos_{len(current_positions)}",
                             )
 
                             # Calculate current metrics
@@ -320,7 +320,7 @@ class RealTimeTradingDashboard:
                                 current_value=current_price * position_size,
                                 position_size=position_size,
                                 entry_timestamp=pd.to_datetime(
-                                    row.get("Entry_Date", datetime.now())
+                                    row.get("Entry_Date", datetime.now()),
                                 ),
                                 last_update=datetime.now(),
                             )
@@ -329,14 +329,14 @@ class RealTimeTradingDashboard:
 
                     except Exception as e:
                         self.logger.warning(
-                            f"Failed to load positions from {position_file}: {e}"
+                            f"Failed to load positions from {position_file}: {e}",
                         )
 
             self.current_positions = current_positions
             self.logger.debug(f"Loaded {len(current_positions)} open positions")
 
         except Exception as e:
-            self.logger.error(f"Position loading failed: {e}")
+            self.logger.exception(f"Position loading failed: {e}")
             self.current_positions = {}
 
     async def _analyze_all_positions(self) -> None:
@@ -344,7 +344,7 @@ class RealTimeTradingDashboard:
         try:
             analysis_tasks = []
 
-            for _position_id, position in self.current_positions.items():
+            for position in self.current_positions.values():
                 task = self._analyze_single_position(position)
                 analysis_tasks.append(task)
 
@@ -353,7 +353,7 @@ class RealTimeTradingDashboard:
                 await asyncio.gather(*analysis_tasks, return_exceptions=True)
 
         except Exception as e:
-            self.logger.error(f"Position analysis failed: {e}")
+            self.logger.exception(f"Position analysis failed: {e}")
 
     async def _analyze_single_position(self, position: PositionSnapshot) -> None:
         """Analyze a single position for statistical metrics"""
@@ -382,7 +382,7 @@ class RealTimeTradingDashboard:
 
         except Exception as e:
             self.logger.warning(
-                f"Analysis failed for position {position.position_id}: {e}"
+                f"Analysis failed for position {position.position_id}: {e}",
             )
 
     async def _generate_all_signals(self) -> None:
@@ -402,7 +402,7 @@ class RealTimeTradingDashboard:
                             "mfe": position.mfe,
                             "mae": position.mae,
                             "days_held": position.days_held,
-                        }
+                        },
                     )
 
                     if signal:
@@ -426,13 +426,13 @@ class RealTimeTradingDashboard:
 
                 except Exception as e:
                     self.logger.warning(
-                        f"Signal generation failed for {position_id}: {e}"
+                        f"Signal generation failed for {position_id}: {e}",
                     )
 
             self.current_signals = signals
 
         except Exception as e:
-            self.logger.error(f"Signal generation failed: {e}")
+            self.logger.exception(f"Signal generation failed: {e}")
 
     async def _update_dashboard_stats(self) -> None:
         """Update portfolio-wide dashboard statistics"""
@@ -497,7 +497,7 @@ class RealTimeTradingDashboard:
             )
 
         except Exception as e:
-            self.logger.error(f"Dashboard stats update failed: {e}")
+            self.logger.exception(f"Dashboard stats update failed: {e}")
 
     async def _display_dashboard(self) -> None:
         """Display the dashboard in console format"""
@@ -507,8 +507,8 @@ class RealTimeTradingDashboard:
             print("=" * self.console_width)
             print(
                 "STATISTICAL PERFORMANCE DIVERGENCE SYSTEM - LIVE DASHBOARD".center(
-                    self.console_width
-                )
+                    self.console_width,
+                ),
             )
             print("=" * self.console_width)
 
@@ -531,11 +531,11 @@ class RealTimeTradingDashboard:
             print(
                 f"Last Update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | "
                 f"Refresh Rate: {1/self.refresh_interval:.0f}Hz | "
-                f"Press Ctrl+C to stop"
+                f"Press Ctrl+C to stop",
             )
 
         except Exception as e:
-            self.logger.error(f"Dashboard display failed: {e}")
+            self.logger.exception(f"Dashboard display failed: {e}")
 
     async def _display_portfolio_summary(self) -> None:
         """Display portfolio summary section"""
@@ -566,9 +566,9 @@ class RealTimeTradingDashboard:
         if immediate_exits:
             print(
                 "║ IMMEDIATE EXIT SIGNALS (97th+ percentile convergence)".ljust(
-                    self.console_width - 1
+                    self.console_width - 1,
                 )
-                + "║"
+                + "║",
             )
             print("╟" + "─" * (self.console_width - 2) + "╢")
 
@@ -587,9 +587,9 @@ class RealTimeTradingDashboard:
         if strong_sells:
             print(
                 "║ STRONG SELL SIGNALS (90-95th percentile)".ljust(
-                    self.console_width - 1
+                    self.console_width - 1,
                 )
-                + "║"
+                + "║",
             )
             print("╟" + "─" * (self.console_width - 2) + "╢")
 
@@ -608,7 +608,7 @@ class RealTimeTradingDashboard:
         if holds:
             print(
                 "║ HOLD POSITIONS (Below 90th percentile)".ljust(self.console_width - 1)
-                + "║"
+                + "║",
             )
             print("╟" + "─" * (self.console_width - 2) + "╢")
 
@@ -617,7 +617,7 @@ class RealTimeTradingDashboard:
                 await self._display_position_signal(position, signal, "🟢")
 
     async def _display_position_signal(
-        self, position: PositionSnapshot, signal: DashboardSignal, indicator: str
+        self, position: PositionSnapshot, signal: DashboardSignal, indicator: str,
     ) -> None:
         """Display a single position with its signal"""
         position_info = f"{indicator} {position.strategy_name}_{position.ticker}"
@@ -626,18 +626,18 @@ class RealTimeTradingDashboard:
             f"║ Position: {position_info}".ljust(self.console_width - 1) + "║",
             f"║ ├─ Asset Layer: {signal.asset_percentile:.0f}th percentile | "
             f"Strategy Layer: {signal.strategy_percentile:.0f}th percentile".ljust(
-                self.console_width - 5
+                self.console_width - 5,
             )
             + "║",
             f"║ ├─ Dual-Layer Score: {signal.dual_layer_score:.2f} | "
             f"Confidence: {signal.confidence:.1%}".ljust(self.console_width - 5) + "║",
             f"║ ├─ PnL: {position.unrealized_pnl_pct:.1%} | "
             f"MFE: {position.mfe:.1%} | Days: {position.days_held}".ljust(
-                self.console_width - 5
+                self.console_width - 5,
             )
             + "║",
             f"║ └─ Signal: {signal.signal_type} | {signal.recommendation}".ljust(
-                self.console_width - 5
+                self.console_width - 5,
             )
             + "║",
         ]
@@ -653,17 +653,17 @@ class RealTimeTradingDashboard:
         if self.dashboard_stats.high_priority_alerts > 0:
             print(
                 f"║ 🔴 High Priority Alerts: {self.dashboard_stats.high_priority_alerts}".ljust(
-                    self.console_width - 1
+                    self.console_width - 1,
                 )
-                + "║"
+                + "║",
             )
 
         if any(s.dual_layer_score > 0.85 for s in self.current_signals.values()):
             print(
                 "║ 🟡 High Volatility Regime Detected: Adjust thresholds (+5% buffer)".ljust(
-                    self.console_width - 1
+                    self.console_width - 1,
                 )
-                + "║"
+                + "║",
             )
 
         low_sample_signals = sum(
@@ -672,16 +672,16 @@ class RealTimeTradingDashboard:
         if low_sample_signals > 0:
             print(
                 f"║ 🟡 Sample Size Warning: {low_sample_signals} positions with reduced confidence".ljust(
-                    self.console_width - 1
+                    self.console_width - 1,
                 )
-                + "║"
+                + "║",
             )
 
         print(
             "║ 🟢 Bootstrap Validation: 89% accuracy on small sample positions".ljust(
-                self.console_width - 1
+                self.console_width - 1,
             )
-            + "║"
+            + "║",
         )
 
     # Helper methods
@@ -721,7 +721,7 @@ class RealTimeTradingDashboard:
 
         # Health score (0-100)
         base_health = min(
-            100, max(0, (avg_unrealized_pnl + 0.1) * 500)
+            100, max(0, (avg_unrealized_pnl + 0.1) * 500),
         )  # Scale to 0-100
         confidence_bonus = avg_confidence * 20  # Up to 20 point bonus
 
@@ -733,7 +733,7 @@ class RealTimeTradingDashboard:
         return 0.82  # 82% efficiency
 
     async def _generate_position_recommendations(
-        self, position: PositionSnapshot
+        self, position: PositionSnapshot,
     ) -> list[str]:
         """Generate specific recommendations for a position"""
         recommendations = []
@@ -743,21 +743,21 @@ class RealTimeTradingDashboard:
             if "IMMEDIATELY" in signal.signal_type:
                 recommendations.append("Execute exit within next trading session")
                 recommendations.append(
-                    "Prioritize this position for immediate liquidity"
+                    "Prioritize this position for immediate liquidity",
                 )
             elif "STRONG" in signal.signal_type:
                 recommendations.append("Target exit within 2-3 trading days")
                 recommendations.append("Monitor for intraday exit opportunities")
             elif signal.signal_type == "HOLD":
                 recommendations.append(
-                    f"Continue holding, target {signal.asset_percentile + 10:.0f}th percentile"
+                    f"Continue holding, target {signal.asset_percentile + 10:.0f}th percentile",
                 )
                 recommendations.append("Monitor daily for signal changes")
 
         return recommendations
 
     async def _get_position_historical_context(
-        self, position: PositionSnapshot
+        self, position: PositionSnapshot,
     ) -> dict[str, Any]:
         """Get historical context for position"""
         return {

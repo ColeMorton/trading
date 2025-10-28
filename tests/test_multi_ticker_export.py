@@ -36,7 +36,7 @@ class TestMultiTickerExport(unittest.TestCase):
 
         # Set up logging
         self.log, self.log_close, _, _ = setup_logging(
-            "test_multi_ticker", "test_multi_ticker.log"
+            "test_multi_ticker", "test_multi_ticker.log",
         )
 
         # Create test portfolio data for multiple tickers
@@ -125,7 +125,7 @@ class TestMultiTickerExport(unittest.TestCase):
         for ticker in self.test_tickers:
             ticker_files = list(expected_path.glob(f"{ticker}_*.csv"))
             self.assertEqual(
-                len(ticker_files), 0, f"Ticker-specific file found for {ticker}"
+                len(ticker_files), 0, f"Ticker-specific file found for {ticker}",
             )
 
         # Verify file content
@@ -172,14 +172,14 @@ class TestMultiTickerExport(unittest.TestCase):
         ticker_files = list(expected_path.glob(f"{single_ticker}_*_D.csv"))
 
         self.assertTrue(
-            len(ticker_files) > 0, f"No ticker-specific file found for {single_ticker}"
+            len(ticker_files) > 0, f"No ticker-specific file found for {single_ticker}",
         )
 
         # Verify no NEW date-only files were created
         current_date_files = set(expected_path.glob(f"{self.today}_*_D.csv"))
         new_date_files = current_date_files - initial_date_files
         self.assertEqual(
-            len(new_date_files), 0, "Date-only file found for single ticker export"
+            len(new_date_files), 0, "Date-only file found for single ticker export",
         )
 
     def test_empty_ticker_list_creates_date_only_file(self):
@@ -205,7 +205,7 @@ class TestMultiTickerExport(unittest.TestCase):
         date_files = list(expected_path.glob(f"{self.today}_*_D.csv"))
 
         self.assertTrue(
-            len(date_files) > 0, "No date-based file found for empty ticker list"
+            len(date_files) > 0, "No date-based file found for empty ticker list",
         )
 
     def test_metric_type_aggregation_multi_ticker(self):
@@ -274,7 +274,7 @@ class TestMultiTickerExport(unittest.TestCase):
             # Filter to only our test tickers and SMA strategy
             test_data_rows = df.filter(
                 (pl.col("Ticker").is_in(self.test_tickers))
-                & (pl.col("Strategy Type") == "SMA")
+                & (pl.col("Strategy Type") == "SMA"),
             )
 
             # Should have exactly one row per ticker (since they all use SMA strategy)
@@ -301,7 +301,7 @@ class TestMultiTickerExport(unittest.TestCase):
                     self.assertIn("Most Sharpe Ratio", metric_type)
                     self.assertIn("Median Total Trades", metric_type)
                     self.assertIn(
-                        ",", metric_type, "Metric types should be comma-separated"
+                        ",", metric_type, "Metric types should be comma-separated",
                     )
 
     def test_strict_one_per_ticker_strategy(self):
@@ -313,7 +313,7 @@ class TestMultiTickerExport(unittest.TestCase):
         for ticker in self.test_tickers:
             for strategy in ["SMA", "EMA"]:
                 for config_idx, (short, slow_period) in enumerate(
-                    [(10, 20), (15, 30), (20, 40)]
+                    [(10, 20), (15, 30), (20, 40)],
                 ):
                     for metric in ["Most Total Return [%]", "Most Sharpe Ratio"]:
                         portfolio = {
@@ -381,17 +381,17 @@ class TestMultiTickerExport(unittest.TestCase):
 
                 combo = (row["Ticker"], row["Strategy Type"])
                 self.assertNotIn(
-                    combo, actual_combinations, f"Duplicate combination found: {combo}"
+                    combo, actual_combinations, f"Duplicate combination found: {combo}",
                 )
                 actual_combinations.add(combo)
 
                 # Verify each row has the best configuration (20/40 - highest score) and
                 # aggregated metric types
                 self.assertEqual(
-                    row["Fast Period"], 20, f"Expected best config 20/40 for {combo}"
+                    row["Fast Period"], 20, f"Expected best config 20/40 for {combo}",
                 )
                 self.assertEqual(
-                    row["Slow Period"], 40, f"Expected best config 20/40 for {combo}"
+                    row["Slow Period"], 40, f"Expected best config 20/40 for {combo}",
                 )
 
                 metric_type = row["Metric Type"]
@@ -401,7 +401,7 @@ class TestMultiTickerExport(unittest.TestCase):
                     f"Missing metric type for {combo}",
                 )
                 self.assertIn(
-                    "Most Sharpe Ratio", metric_type, f"Missing metric type for {combo}"
+                    "Most Sharpe Ratio", metric_type, f"Missing metric type for {combo}",
                 )
 
             self.assertEqual(

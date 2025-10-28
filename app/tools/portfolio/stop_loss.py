@@ -40,7 +40,7 @@ def get_stop_loss_field_name(row: dict[str, Any]) -> str:
 
 
 def validate_stop_loss(
-    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None
+    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None,
 ) -> list[dict[str, Any]]:
     """Validate stop loss values in portfolio data.
 
@@ -92,7 +92,7 @@ def validate_stop_loss(
 
 
 def normalize_stop_loss(
-    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None
+    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None,
 ) -> list[dict[str, Any]]:
     """Normalize stop loss values in portfolio data.
 
@@ -200,7 +200,7 @@ def calculate_stop_loss_levels(
 
                 # Format the stop level with appropriate precision
                 stop_level_decimal = Decimal(str(stop_level)).quantize(
-                    Decimal("0." + "0" * decimal_places), rounding=ROUND_HALF_UP
+                    Decimal("0." + "0" * decimal_places), rounding=ROUND_HALF_UP,
                 )
                 row["Stop Level"] = float(stop_level_decimal)
             except (ValueError, TypeError):
@@ -323,7 +323,7 @@ def apply_stop_loss_rules(
 
 
 def get_stop_loss_summary(
-    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None
+    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None,
 ) -> dict[str, Any]:
     """Get a summary of stop loss statistics for the portfolio.
 

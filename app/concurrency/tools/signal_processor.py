@@ -239,7 +239,7 @@ class SignalProcessor:
 
         # Count position changes using pandas diff method for consistency
         position_changes = positions.diff().fillna(
-            positions.iloc[0] if len(positions) > 0 else 0
+            positions.iloc[0] if len(positions) > 0 else 0,
         )
         trade_count = (position_changes != 0).sum()
 
@@ -298,7 +298,7 @@ class SignalProcessor:
         }
 
     def standardize_signal_column(
-        self, data: pd.DataFrame | pl.DataFrame, method: str = "crossover"
+        self, data: pd.DataFrame | pl.DataFrame, method: str = "crossover",
     ) -> pd.DataFrame | pl.DataFrame:
         """
         Standardize signal detection method across different data formats.
@@ -376,7 +376,8 @@ def calculate_signal_count_standardized(
         return processor.count_position_signals(data, signal_definition)
     if signal_type == SignalType.TRADE:
         return processor.count_trade_signals(data, signal_definition)
-    raise ValueError(f"Unknown signal type: {signal_type}")
+    msg = f"Unknown signal type: {signal_type}"
+    raise ValueError(msg)
 
 
 if __name__ == "__main__":
@@ -396,7 +397,7 @@ if __name__ == "__main__":
             "Signal": np.random.choice([-1, 0, 1], 100, p=[0.1, 0.8, 0.1]),
             "Position": 0,
             "RSI": np.random.uniform(20, 80, 100),
-        }
+        },
     )
 
     # Generate positions from signals (with 1-day shift)
@@ -405,7 +406,7 @@ if __name__ == "__main__":
     # Test signal processor
     processor = SignalProcessor()
     signal_def = SignalDefinition(
-        min_volume=2000, rsi_column="RSI", rsi_oversold=30, rsi_overbought=70
+        min_volume=2000, rsi_column="RSI", rsi_oversold=30, rsi_overbought=70,
     )
 
     counts = processor.get_comprehensive_counts(sample_data, signal_def)

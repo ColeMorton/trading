@@ -33,7 +33,7 @@ class ValidationResult:
                 "severity": ValidationSeverity.ERROR.value,
                 "message": message,
                 "field": field,
-            }
+            },
         )
 
     def add_warning(self, message: str, field: str = ""):
@@ -43,7 +43,7 @@ class ValidationResult:
                 "severity": ValidationSeverity.WARNING.value,
                 "message": message,
                 "field": field,
-            }
+            },
         )
 
     def add_info(self, message: str, field: str = ""):
@@ -53,7 +53,7 @@ class ValidationResult:
                 "severity": ValidationSeverity.INFO.value,
                 "message": message,
                 "field": field,
-            }
+            },
         )
 
 
@@ -91,7 +91,7 @@ class FilterCriteria:
         # Validate profit factor
         if self.min_profit_factor is not None and self.min_profit_factor < 0:
             result.add_error(
-                "Minimum profit factor must be non-negative", "min_profit_factor"
+                "Minimum profit factor must be non-negative", "min_profit_factor",
             )
 
         # Validate Sortino ratio
@@ -102,7 +102,7 @@ class FilterCriteria:
         if self.max_drawdown is not None:
             if self.max_drawdown > 0:
                 result.add_warning(
-                    "Max drawdown should typically be negative", "max_drawdown"
+                    "Max drawdown should typically be negative", "max_drawdown",
                 )
             if abs(self.max_drawdown) > 100:
                 result.add_error("Max drawdown cannot exceed 100%", "max_drawdown")
@@ -130,7 +130,7 @@ class ExportOptions:
             result.add_error("Max results must be positive", "max_results")
         elif self.max_results > 10000:
             result.add_warning(
-                "Large result sets may impact performance", "max_results"
+                "Large result sets may impact performance", "max_results",
             )
 
         # Validate filename prefix
@@ -160,7 +160,7 @@ class ExecutionOptions:
             result.add_error("Max workers must be positive", "max_workers")
         elif self.max_workers > 16:
             result.add_warning(
-                "High worker count may not improve performance", "max_workers"
+                "High worker count may not improve performance", "max_workers",
             )
 
         # Validate timeout
@@ -168,7 +168,7 @@ class ExecutionOptions:
             result.add_error("Timeout must be positive", "timeout_seconds")
         elif self.timeout_seconds > 7200:  # 2 hours
             result.add_warning(
-                "Very long timeout may cause resource issues", "timeout_seconds"
+                "Very long timeout may cause resource issues", "timeout_seconds",
             )
 
         # Validate cache TTL
@@ -274,7 +274,7 @@ class ParameterTestingConfig:
             sort_by=config_dict.get("SORT_BY", "Total Return [%]"),
             sort_ascending=config_dict.get("SORT_ASC", False),
             base_directory=config_dict.get(
-                "BASE_DIR", "/Users/colemorton/Projects/trading"
+                "BASE_DIR", "/Users/colemorton/Projects/trading",
             ),
         )
 
@@ -341,7 +341,7 @@ class ParameterTestingConfig:
                     result.add_error(f"Invalid ticker: {ticker}", "tickers")
                 elif len(ticker) > 10:
                     result.add_warning(
-                        f"Unusually long ticker symbol: {ticker}", "tickers"
+                        f"Unusually long ticker symbol: {ticker}", "tickers",
                     )
 
         # Validate windows
@@ -351,20 +351,20 @@ class ParameterTestingConfig:
             result.add_error("Windows cannot exceed 500", "windows")
         elif self.windows > 200:
             result.add_warning(
-                "Large window sizes may reduce signal frequency", "windows"
+                "Large window sizes may reduce signal frequency", "windows",
             )
 
         # Validate strategy types
         valid_strategies = {"SMA", "EMA"}
         if not self.strategy_types:
             result.add_error(
-                "At least one strategy type must be specified", "strategy_types"
+                "At least one strategy type must be specified", "strategy_types",
             )
         else:
             invalid_strategies = set(self.strategy_types) - valid_strategies
             if invalid_strategies:
                 result.add_error(
-                    f"Invalid strategy types: {invalid_strategies}", "strategy_types"
+                    f"Invalid strategy types: {invalid_strategies}", "strategy_types",
                 )
 
         # Validate direction
@@ -375,13 +375,13 @@ class ParameterTestingConfig:
         if self.use_years:
             if self.years is None:
                 result.add_error(
-                    "Years must be specified when use_years is True", "years"
+                    "Years must be specified when use_years is True", "years",
                 )
             elif self.years <= 0:
                 result.add_error("Years must be positive", "years")
             elif self.years > 20:
                 result.add_warning(
-                    "Large year ranges may require significant data", "years"
+                    "Large year ranges may require significant data", "years",
                 )
 
         # Validate synthetic ticker configuration
@@ -457,7 +457,7 @@ class ParameterTestingConfig:
                     self.filters.min_expectancy_per_trade is not None,
                     self.filters.min_profit_factor is not None,
                     self.filters.min_sortino_ratio is not None,
-                ]
+                ],
             ),
             "export_formats": [
                 format_name

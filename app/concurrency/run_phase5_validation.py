@@ -151,7 +151,7 @@ def compare_with_and_without_fixes():
 
     for strategy_id in stats_with.get("strategies", {}):
         risk_without = stats_without["strategies"][strategy_id].get(
-            "risk_contribution", 0
+            "risk_contribution", 0,
         )
         risk_with = stats_with["strategies"][strategy_id].get("risk_contribution", 0)
         print(f"{strategy_id}:")
@@ -169,10 +169,10 @@ def compare_with_and_without_fixes():
 
     print("\nTotal Risk Contribution:")
     print(
-        f"  Without fixes: {total_without:.4f} ({'✗' if abs(total_without - 1.0) > 1e-6 else '✓'})"
+        f"  Without fixes: {total_without:.4f} ({'✗' if abs(total_without - 1.0) > 1e-6 else '✓'})",
     )
     print(
-        f"  With fixes:    {total_with:.4f} ({'✓' if abs(total_with - 1.0) < 1e-6 else '✗'})"
+        f"  With fixes:    {total_with:.4f} ({'✓' if abs(total_with - 1.0) < 1e-6 else '✗'})",
     )
 
     print("\nWin Rate Comparison:")
@@ -185,7 +185,7 @@ def compare_with_and_without_fixes():
         print(f"  Without fixes: {wr_without:.4f}")
         print(f"  With fixes:    {wr_with:.4f}")
         print(
-            f"  Expected:      {expected[f'strategy{strategy_id[-1]}']['win_rate']:.4f}"
+            f"  Expected:      {expected[f'strategy{strategy_id[-1]}']['win_rate']:.4f}",
         )
 
 
@@ -196,7 +196,7 @@ def run_performance_benchmarks():
 
     # Create larger test portfolio for benchmarking
     dates = pl.date_range(
-        datetime(2020, 1, 1), datetime(2024, 12, 31), interval="1d", eager=True
+        datetime(2020, 1, 1), datetime(2024, 12, 31), interval="1d", eager=True,
     )
 
     # Create 5 strategies with different characteristics
@@ -225,12 +225,12 @@ def run_performance_benchmarks():
             [
                 pl.col("Close").rolling_mean(ma_fast).alias("MA_Fast"),
                 pl.col("Close").rolling_mean(ma_slow).alias("MA_Slow"),
-            ]
+            ],
         )
 
         # Generate positions
         df = df.with_columns(
-            (pl.col("MA_Fast") > pl.col("MA_Slow")).cast(pl.Int32).alias("Position")
+            (pl.col("MA_Fast") > pl.col("MA_Slow")).cast(pl.Int32).alias("Position"),
         )
 
         data_list.append(df)
@@ -272,12 +272,12 @@ def run_performance_benchmarks():
     # Run benchmarks with fewer iterations for speed
     print("\nBenchmarking without fixes...")
     without_result = benchmark.benchmark_calculation(
-        "without_fixes", run_without_fixes, iterations=10
+        "without_fixes", run_without_fixes, iterations=10,
     )
 
     print("Benchmarking with fixes...")
     with_result = benchmark.benchmark_calculation(
-        "with_fixes", run_with_fixes, iterations=10
+        "with_fixes", run_with_fixes, iterations=10,
     )
 
     # Calculate improvement

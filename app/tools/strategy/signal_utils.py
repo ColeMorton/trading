@@ -132,7 +132,7 @@ def check_signal_match(signals: list[dict], fast_window: int, slow_window: int) 
 
 
 def calculate_signal_unconfirmed(
-    signals: pl.DataFrame, config: dict | None = None
+    signals: pl.DataFrame, config: dict | None = None,
 ) -> str:
     """
     Calculate what signal would be produced if the current price bar closes at the current price.
@@ -264,7 +264,7 @@ def calculate_signal_unconfirmed_realtime(
                     .cast(pl.Float64)
                     .rolling_mean(window_size=slow_period)
                     .alias("MA_SLOW"),
-                ]
+                ],
             )
         elif strategy_type == "EMA":
             current_data = price_data.with_columns(
@@ -277,7 +277,7 @@ def calculate_signal_unconfirmed_realtime(
                     .cast(pl.Float64)
                     .ewm_mean(span=slow_period, adjust=False)
                     .alias("MA_SLOW"),
-                ]
+                ],
             )
         elif strategy_type == "MACD":
             # For MACD, use provided signal_period or default to 9
@@ -296,13 +296,13 @@ def calculate_signal_unconfirmed_realtime(
                         .cast(pl.Float64)
                         .ewm_mean(span=slow_period, adjust=False)
                         .alias("EMA_SLOW"),
-                    ]
+                    ],
                 )
                 .with_columns(
                     [
                         # MACD Line = Fast EMA - Slow EMA
                         (pl.col("EMA_FAST") - pl.col("EMA_SLOW")).alias("MACD_LINE"),
-                    ]
+                    ],
                 )
                 .with_columns(
                     [
@@ -310,14 +310,14 @@ def calculate_signal_unconfirmed_realtime(
                         pl.col("MACD_LINE")
                         .ewm_mean(span=actual_signal_period, adjust=False)
                         .alias("MACD_SIGNAL"),
-                    ]
+                    ],
                 )
                 .with_columns(
                     [
                         # For consistency with MA logic, use MACD line as MA_FAST and Signal line as MA_SLOW
                         pl.col("MACD_LINE").alias("MA_FAST"),
                         pl.col("MACD_SIGNAL").alias("MA_SLOW"),
-                    ]
+                    ],
                 )
             )
         else:

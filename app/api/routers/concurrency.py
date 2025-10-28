@@ -22,6 +22,7 @@ from ..models.schemas import (
 )
 from ..services.job_service import JobService
 from ..services.queue_service import enqueue_job
+from typing import Annotated
 
 
 router = APIRouter()
@@ -30,8 +31,8 @@ router = APIRouter()
 @router.post("/analyze", response_model=JobResponse)
 async def concurrency_analyze(
     request: ConcurrencyAnalyzeRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("concurrency")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("concurrency"))],
 ):
     """
     Execute comprehensive concurrency analysis.
@@ -65,8 +66,8 @@ async def concurrency_analyze(
 @router.post("/export", response_model=JobResponse)
 async def concurrency_export(
     request: ConcurrencyExportRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("concurrency")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("concurrency"))],
 ):
     """
     Export trade history data from portfolio analysis.
@@ -98,8 +99,8 @@ async def concurrency_export(
 @router.post("/review", response_model=JobResponse)
 async def concurrency_review(
     request: ConcurrencyReviewRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("concurrency")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("concurrency"))],
 ):
     """
     Portfolio interaction analysis with visualization.
@@ -131,8 +132,8 @@ async def concurrency_review(
 @router.post("/construct", response_model=JobResponse)
 async def concurrency_construct(
     request: ConcurrencyConstructRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("concurrency")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("concurrency"))],
 ):
     """
     Construct optimized portfolios from strategy selection.
@@ -164,8 +165,8 @@ async def concurrency_construct(
 @router.post("/optimize", response_model=JobResponse)
 async def concurrency_optimize(
     request: ConcurrencyOptimizeRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("concurrency")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("concurrency"))],
 ):
     """
     Find optimal strategy combinations using permutation analysis.
@@ -199,8 +200,8 @@ async def concurrency_optimize(
 @router.post("/monte-carlo", response_model=JobResponse)
 async def concurrency_monte_carlo(
     request: ConcurrencyMonteCarloRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("concurrency")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("concurrency"))],
 ):
     """
     Run Monte Carlo simulations for risk analysis and forecasting.
@@ -234,8 +235,8 @@ async def concurrency_monte_carlo(
 @router.post("/health", response_model=JobResponse)
 async def concurrency_health(
     request: ConcurrencyHealthRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("concurrency")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("concurrency"))],
 ):
     """
     Check concurrency analysis system health.
@@ -267,8 +268,8 @@ async def concurrency_health(
 @router.post("/demo", response_model=JobResponse)
 async def concurrency_demo(
     request: ConcurrencyDemoRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("concurrency")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("concurrency"))],
 ):
     """
     Run demo analysis with sample portfolio data.

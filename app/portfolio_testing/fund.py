@@ -4,7 +4,7 @@ class HedgeFund:
         self.manager_name = manager_name
         self.total_fund_value = initial_fund_size
         self.stakes = {
-            manager_name: manager_stake
+            manager_name: manager_stake,
         }  # Manager has an initial 50% stake by default
         self.cash_available = {manager_name: initial_fund_size * manager_stake}
 
@@ -72,7 +72,8 @@ class HedgeFund:
     def sell_stake(self, participant, amount):
         # Ensure participant has a stake before selling
         if participant not in self.stakes:
-            raise ValueError("Participant does not have a stake to sell.")
+            msg = "Participant does not have a stake to sell."
+            raise ValueError(msg)
 
         # Calculate the stake change percentage based on the amount to be sold
         stake_change_percentage = -amount / self.total_fund_value

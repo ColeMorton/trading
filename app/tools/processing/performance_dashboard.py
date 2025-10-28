@@ -62,7 +62,7 @@ class LogAnalyzer:
             return parsed_count
 
         except Exception as e:
-            logger.error(f"Failed to load logs: {e}")
+            logger.exception(f"Failed to load logs: {e}")
             return 0
 
     def _update_trends(self, log_entry: dict[str, Any]):
@@ -78,7 +78,7 @@ class LogAnalyzer:
                     "value": metric_value,
                     "category": log_entry.get("category", "unknown"),
                     "tags": log_entry.get("tags", {}),
-                }
+                },
             )
 
     def get_metric_summary(self, metric_name: str, hours: int = 1) -> dict[str, Any]:
@@ -160,7 +160,7 @@ class LogAnalyzer:
                             m
                             for m in metrics
                             if "error" in m.get("tags", {}).get("has_errors", "")
-                        ]
+                        ],
                     ),
                     "last_execution": max(m["timestamp"] for m in duration_metrics),
                 }
@@ -255,7 +255,7 @@ class LogAnalyzer:
         # Calculate overall health score
         if health_factors:
             overall_score = statistics.mean(
-                [factor["score"] for factor in health_factors.values()]
+                [factor["score"] for factor in health_factors.values()],
             )
         else:
             overall_score = 0
@@ -339,32 +339,32 @@ class LogAnalyzer:
 
             if factor_name == "performance" and score < 75:
                 recommendations.append(
-                    "Consider enabling auto-tuning to optimize thread pool sizes"
+                    "Consider enabling auto-tuning to optimize thread pool sizes",
                 )
                 recommendations.append(
-                    "Review slow operations and enable pre-computation for common queries"
+                    "Review slow operations and enable pre-computation for common queries",
                 )
 
             if factor_name == "memory" and score < 75:
                 recommendations.append(
-                    "Enable memory optimization features like DataFrame optimization"
+                    "Enable memory optimization features like DataFrame optimization",
                 )
                 recommendations.append(
-                    "Consider reducing cache size or increasing memory cleanup frequency"
+                    "Consider reducing cache size or increasing memory cleanup frequency",
                 )
 
             if factor_name == "cache" and score < 75:
                 recommendations.append(
-                    "Review cache warming strategies to improve hit rates"
+                    "Review cache warming strategies to improve hit rates",
                 )
                 recommendations.append("Increase cache size if memory allows")
 
             if factor_name == "reliability" and score < 75:
                 recommendations.append(
-                    "Investigate error patterns and improve error handling"
+                    "Investigate error patterns and improve error handling",
                 )
                 recommendations.append(
-                    "Enable streaming processing for large file operations"
+                    "Enable streaming processing for large file operations",
                 )
 
         return recommendations
@@ -397,12 +397,12 @@ class DashboardGenerator:
         metric_summaries = {}
         for metric in key_metrics:
             metric_summaries[metric] = self.log_analyzer.get_metric_summary(
-                metric, hours=1
+                metric, hours=1,
             )
 
         # Generate HTML
         html_content = self._generate_html_content(
-            health_score, operation_analysis, metric_summaries, hours_back
+            health_score, operation_analysis, metric_summaries, hours_back,
         )
 
         # Write to file
@@ -432,10 +432,10 @@ class DashboardGenerator:
         }
 
         status_color = status_colors.get(
-            health_score.get("status", "unknown"), "#6c757d"
+            health_score.get("status", "unknown"), "#6c757d",
         )
 
-        html_content = f"""
+        return f"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -618,7 +618,6 @@ class DashboardGenerator:
 </body>
 </html>
 """
-        return html_content
 
     def _generate_metrics_html(self, metric_summaries: dict[str, Any]) -> str:
         """Generate HTML for metrics section."""
@@ -648,7 +647,7 @@ class DashboardGenerator:
             trend = summary.get("trend", "stable")
             trend_class = f"trend-{trend.replace('ing', '')}"
             trend_symbol = {"increasing": "↗", "decreasing": "↘", "stable": "→"}.get(
-                trend, "→"
+                trend, "→",
             )
 
             html += f"""
@@ -760,7 +759,7 @@ def get_dashboard_generator(
 
 
 def generate_performance_dashboard(
-    output_file: Path | None = None, hours_back: int = 24
+    output_file: Path | None = None, hours_back: int = 24,
 ) -> str:
     """Generate performance dashboard HTML file."""
     if output_file is None:
@@ -771,7 +770,7 @@ def generate_performance_dashboard(
 
 
 def analyze_performance_logs(
-    log_file: Path | None = None, hours_back: int = 24
+    log_file: Path | None = None, hours_back: int = 24,
 ) -> dict[str, Any]:
     """Analyze performance logs and return summary."""
     analyzer = LogAnalyzer(log_file)

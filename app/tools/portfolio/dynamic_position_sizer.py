@@ -103,18 +103,18 @@ class DynamicPositionSizer:
 
         for pos, analysis in zip(positions, analysis_results, strict=False):
             recommendation = self.calculate_position_size(
-                pos, analysis, total_capital, historical_data
+                pos, analysis, total_capital, historical_data,
             )
             recommendations.append(recommendation)
 
         # Calculate portfolio-level metrics
         portfolio_metrics = self._calculate_portfolio_metrics(
-            recommendations, total_capital
+            recommendations, total_capital,
         )
 
         # Apply portfolio-level constraints
         adjusted_recommendations = self._apply_portfolio_constraints(
-            recommendations, total_capital, portfolio_metrics
+            recommendations, total_capital, portfolio_metrics,
         )
 
         return PortfolioSizingResult(
@@ -147,21 +147,21 @@ class DynamicPositionSizer:
         # Calculate different sizing methods
         kelly_size = self._calculate_kelly_size(position, analysis, historical_data)
         risk_parity_size = self._calculate_risk_parity_size(
-            position, analysis, total_capital
+            position, analysis, total_capital,
         )
         confidence_size = self._calculate_confidence_based_size(position, analysis)
         volatility_size = self._calculate_volatility_adjusted_size(
-            position, analysis, historical_data
+            position, analysis, historical_data,
         )
 
         # Combine methods with weights
         combined_size = self._combine_sizing_methods(
-            kelly_size, risk_parity_size, confidence_size, volatility_size, analysis
+            kelly_size, risk_parity_size, confidence_size, volatility_size, analysis,
         )
 
         # Apply constraints
         final_size = np.clip(
-            combined_size, self.min_position_size, self.max_position_size
+            combined_size, self.min_position_size, self.max_position_size,
         )
 
         # Calculate current size (placeholder - would come from actual portfolio)
@@ -248,7 +248,7 @@ class DynamicPositionSizer:
         return np.clip(position_size, self.min_position_size, self.max_position_size)
 
     def _calculate_confidence_based_size(
-        self, position: PositionData, analysis: StatisticalAnalysisResult
+        self, position: PositionData, analysis: StatisticalAnalysisResult,
     ) -> float:
         """Calculate size based on statistical confidence."""
         base_size = self.base_risk_per_trade
@@ -346,14 +346,13 @@ class DynamicPositionSizer:
             weights[key] /= total_weight
 
         # Calculate weighted average
-        combined_size = (
+        return (
             weights["kelly"] * kelly_size
             + weights["risk_parity"] * risk_parity_size
             + weights["confidence"] * confidence_size
             + weights["volatility"] * volatility_size
         )
 
-        return combined_size
 
     def _generate_sizing_rationale(
         self,
@@ -392,11 +391,11 @@ class DynamicPositionSizer:
             sample_size = analysis.sample_size_analysis.sample_size
             if sample_size < 30:
                 components.append(
-                    f"Small sample size ({sample_size}) reduces confidence"
+                    f"Small sample size ({sample_size}) reduces confidence",
                 )
             elif sample_size > 100:
                 components.append(
-                    f"Large sample size ({sample_size}) increases confidence"
+                    f"Large sample size ({sample_size}) increases confidence",
                 )
 
         # Risk assessment
@@ -408,7 +407,7 @@ class DynamicPositionSizer:
         return "; ".join(components)
 
     def _calculate_sizing_confidence(
-        self, analysis: StatisticalAnalysisResult
+        self, analysis: StatisticalAnalysisResult,
     ) -> float:
         """Calculate confidence in sizing recommendation."""
         confidence_factors = []
@@ -420,7 +419,7 @@ class DynamicPositionSizer:
         # Statistical significance
         if analysis.significance_testing:
             confidence_factors.append(
-                analysis.significance_testing.overall_significance
+                analysis.significance_testing.overall_significance,
             )
 
         # Convergence confidence
@@ -433,7 +432,7 @@ class DynamicPositionSizer:
         return 0.5  # Moderate confidence as default
 
     def _assess_position_risk_level(
-        self, position: PositionData, analysis: StatisticalAnalysisResult
+        self, position: PositionData, analysis: StatisticalAnalysisResult,
     ) -> str:
         """Assess overall risk level of position."""
         risk_score = 0
@@ -487,7 +486,7 @@ class DynamicPositionSizer:
         return ", ".join(basis_elements) if basis_elements else "limited_data"
 
     def _calculate_portfolio_metrics(
-        self, recommendations: list[PositionSizeRecommendation], total_capital: float
+        self, recommendations: list[PositionSizeRecommendation], total_capital: float,
     ) -> dict[str, float]:
         """Calculate portfolio-level metrics."""
         total_allocation = sum(rec.recommended_size for rec in recommendations)

@@ -72,7 +72,7 @@ class PortfolioAnalysisService:
                             found_files.append(file_path)
                     except Exception as e:
                         rprint(
-                            f"[yellow]Warning: Could not read {file_path}: {e}[/yellow]"
+                            f"[yellow]Warning: Could not read {file_path}: {e}[/yellow]",
                         )
             else:
                 missing_tickers.append(ticker)
@@ -82,11 +82,11 @@ class PortfolioAnalysisService:
                 current_date = self._get_current_date_string()
                 date_type = "custom date" if self.custom_date else "current day"
                 rprint(
-                    f"[dim]No {date_type} portfolio files found for: {', '.join(missing_tickers)} in {current_date}/[/dim]"
+                    f"[dim]No {date_type} portfolio files found for: {', '.join(missing_tickers)} in {current_date}/[/dim]",
                 )
             else:
                 rprint(
-                    f"[dim]No portfolio files found for: {', '.join(missing_tickers)}[/dim]"
+                    f"[dim]No portfolio files found for: {', '.join(missing_tickers)}[/dim]",
                 )
 
         if not all_dataframes:
@@ -94,20 +94,20 @@ class PortfolioAnalysisService:
                 current_date = self._get_current_date_string()
                 date_type = "custom date" if self.custom_date else "current day"
                 rprint(
-                    f"[yellow]No valid {date_type} portfolio data found for any tickers[/yellow]"
+                    f"[yellow]No valid {date_type} portfolio data found for any tickers[/yellow]",
                 )
                 if self.custom_date:
                     rprint(
-                        "[dim]Try a different date or remove --date to search the general portfolios_best directory[/dim]"
+                        "[dim]Try a different date or remove --date to search the general portfolios_best directory[/dim]",
                     )
                 else:
                     rprint(
-                        "[dim]Try without --current to search the general portfolios_best directory[/dim]"
+                        "[dim]Try without --current to search the general portfolios_best directory[/dim]",
                     )
             else:
                 rprint("[yellow]No valid portfolio data found for any tickers[/yellow]")
                 rprint(
-                    "[dim]Make sure portfolios_best files exist in data/raw/portfolios_best/[/dim]"
+                    "[dim]Make sure portfolios_best files exist in data/raw/portfolios_best/[/dim]",
                 )
             return pd.DataFrame()
 
@@ -122,7 +122,7 @@ class PortfolioAnalysisService:
             search_type = "general"
 
         rprint(
-            f"[green]📊 Loaded {len(combined_df)} portfolios from {len(found_files)} files ({search_type})[/green]"
+            f"[green]📊 Loaded {len(combined_df)} portfolios from {len(found_files)} files ({search_type})[/green]",
         )
 
         return combined_df
@@ -137,7 +137,7 @@ class PortfolioAnalysisService:
         """
         if not self.use_current:
             rprint(
-                "[yellow]Warning: aggregate_all_current_portfolios() requires use_current=True[/yellow]"
+                "[yellow]Warning: aggregate_all_current_portfolios() requires use_current=True[/yellow]",
             )
             return pd.DataFrame()
 
@@ -146,13 +146,13 @@ class PortfolioAnalysisService:
 
         date_type = "custom date" if self.custom_date else "current day"
         rprint(
-            f"[dim]Auto-discovering all portfolios in {date_type} directory: {search_dir}[/dim]"
+            f"[dim]Auto-discovering all portfolios in {date_type} directory: {search_dir}[/dim]",
         )
 
         if not search_dir.exists():
             date_type = "custom date" if self.custom_date else "current date"
             rprint(
-                f"[yellow]{date_type.title()} directory not found: {search_dir}[/yellow]"
+                f"[yellow]{date_type.title()} directory not found: {search_dir}[/yellow]",
             )
             return pd.DataFrame()
 
@@ -162,7 +162,7 @@ class PortfolioAnalysisService:
         if not all_files:
             date_type = "custom date" if self.custom_date else "current day"
             rprint(
-                f"[yellow]No portfolio files found in {date_type} directory: {search_dir}[/yellow]"
+                f"[yellow]No portfolio files found in {date_type} directory: {search_dir}[/yellow]",
             )
             return pd.DataFrame()
 
@@ -182,7 +182,7 @@ class PortfolioAnalysisService:
         if not all_dataframes:
             date_type = "custom date" if self.custom_date else "current day"
             rprint(
-                f"[yellow]No valid portfolio data found in {date_type} files[/yellow]"
+                f"[yellow]No valid portfolio data found in {date_type} files[/yellow]",
             )
             return pd.DataFrame()
 
@@ -199,7 +199,7 @@ class PortfolioAnalysisService:
 
         date_type = "custom date" if self.custom_date else "current day"
         rprint(
-            f"[green]📊 Auto-discovered {len(successful_files)} portfolios from {len(unique_tickers)} tickers ({date_type}: {current_date})[/green]"
+            f"[green]📊 Auto-discovered {len(successful_files)} portfolios from {len(unique_tickers)} tickers ({date_type}: {current_date})[/green]",
         )
         rprint(f"[dim]Tickers found: {', '.join(sorted(unique_tickers))}[/dim]")
 
@@ -252,7 +252,7 @@ class PortfolioAnalysisService:
             if not search_dir.exists():
                 date_type = "custom date" if self.custom_date else "current date"
                 rprint(
-                    f"[yellow]Warning: {date_type.title()} directory not found: {search_dir}[/yellow]"
+                    f"[yellow]Warning: {date_type.title()} directory not found: {search_dir}[/yellow]",
                 )
                 return []
         else:
@@ -299,7 +299,7 @@ class PortfolioAnalysisService:
         return df
 
     def sort_portfolios(
-        self, df: pd.DataFrame, sort_by: str = "Score", ascending: bool = False
+        self, df: pd.DataFrame, sort_by: str = "Score", ascending: bool = False,
     ) -> pd.DataFrame:
         """
         Sort portfolios by specified column.
@@ -320,7 +320,7 @@ class PortfolioAnalysisService:
             df[sort_by] = pd.to_numeric(df[sort_by], errors="coerce")
 
         return df.sort_values(
-            by=sort_by, ascending=ascending, na_position="last"
+            by=sort_by, ascending=ascending, na_position="last",
         ).reset_index(drop=True)
 
     def format_for_display(self, df: pd.DataFrame, top_n: int = 50) -> dict:
@@ -436,9 +436,8 @@ class PortfolioAnalysisService:
 
         # Ensure each row is on a new line for better readability
         lines = csv_string.strip().split("\n")
-        formatted_csv = "\n".join(lines)
+        return "\n".join(lines)
 
-        return formatted_csv
 
     def _standardize_output_schema(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -581,7 +580,7 @@ class PortfolioAnalysisService:
             if col in standardized_df.columns:
                 # Convert to numeric first (handles string numbers), then to int
                 standardized_df[col] = pd.to_numeric(
-                    standardized_df[col], errors="coerce"
+                    standardized_df[col], errors="coerce",
                 )
                 # Convert to integer, handling NaN values
                 standardized_df[col] = standardized_df[col].fillna(0).astype("int64")
@@ -590,9 +589,8 @@ class PortfolioAnalysisService:
         output_columns = [
             col for col in target_columns if col in standardized_df.columns
         ]
-        standardized_df = standardized_df[output_columns]
+        return standardized_df[output_columns]
 
-        return standardized_df
 
     def get_display_columns(self) -> list[str]:
         """Get the key columns to display in the summary table."""
@@ -624,7 +622,8 @@ class PortfolioAnalysisService:
         from datetime import datetime
 
         if df.empty:
-            raise ValueError("Cannot export empty DataFrame")
+            msg = "Cannot export empty DataFrame"
+            raise ValueError(msg)
 
         # Create output directory if it doesn't exist
         output_path = Path(output_dir)

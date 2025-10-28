@@ -17,40 +17,33 @@ from app.tools.exceptions import (
 class MACDError(Exception):
     """Base exception for MACD strategy errors."""
 
-    pass
 
 
 class MACDConfigurationError(MACDError, ConfigurationError):
     """Exception raised for MACD configuration errors."""
 
-    pass
 
 
 class MACDExecutionError(MACDError, StrategyProcessingError):
     """Exception raised for MACD strategy execution errors."""
 
-    pass
 
 
 class MACDPortfolioError(MACDError, PortfolioLoadError):
     """Exception raised for MACD portfolio processing errors."""
 
-    pass
 
 
 class MACDDataError(MACDError):
     """Exception raised for MACD data processing errors."""
 
-    pass
 
 
 class MACDSyntheticTickerError(MACDError, SyntheticTickerError):
     """Exception raised for MACD synthetic ticker errors."""
 
-    pass
 
 
 class MACDExportError(MACDError, ExportError):
     """Exception raised for MACD export errors."""
 
-    pass

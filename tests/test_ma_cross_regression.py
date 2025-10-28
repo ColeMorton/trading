@@ -80,7 +80,7 @@ class TestMACrossRegression:
                 "Low": [p * (1 - abs(np.random.normal(0, 0.005))) for p in prices],
                 "Close": prices,
                 "Volume": [np.random.randint(1000000, 5000000) for _ in range(250)],
-            }
+            },
         )
 
         return pl.from_pandas(df)
@@ -236,7 +236,7 @@ class TestWorkflowRegression(TestMACrossRegression):
     """Test complete workflow regression."""
 
     def test_single_ticker_workflow_consistency(
-        self, baseline_config, baseline_price_data, mock_log
+        self, baseline_config, baseline_price_data, mock_log,
     ):
         """Test that single ticker workflow produces consistent results."""
 
@@ -244,10 +244,10 @@ class TestWorkflowRegression(TestMACrossRegression):
         with (
             patch("app.tools.get_data.get_data") as mock_get_data,
             patch(
-                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios",
             ) as mock_process,
             patch(
-                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+                "app.tools.portfolio.filtering_service.PortfolioFilterService",
             ) as mock_filter_service,
             patch("app.tools.strategy.export_portfolios.export_portfolios"),
         ):
@@ -272,7 +272,7 @@ class TestWorkflowRegression(TestMACrossRegression):
                     "Exit Signal": False,
                     "Allocation [%]": 100,
                     "Stop Loss [%]": 5.0,
-                }
+                },
             ]
 
             mock_process.return_value = pl.DataFrame(baseline_portfolio)
@@ -299,7 +299,7 @@ class TestWorkflowRegression(TestMACrossRegression):
             assert mock_process.call_count == 5
 
     def test_multi_ticker_workflow_consistency(
-        self, baseline_config, baseline_price_data, mock_log
+        self, baseline_config, baseline_price_data, mock_log,
     ):
         """Test that multi-ticker workflow produces consistent results."""
 
@@ -309,10 +309,10 @@ class TestWorkflowRegression(TestMACrossRegression):
         with (
             patch("app.tools.get_data.get_data") as mock_get_data,
             patch(
-                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios",
             ) as mock_process,
             patch(
-                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+                "app.tools.portfolio.filtering_service.PortfolioFilterService",
             ) as mock_filter_service,
             patch("app.tools.strategy.export_portfolios.export_portfolios"),
         ):
@@ -402,11 +402,11 @@ class TestDataValidationRegression(TestMACrossRegression):
                 actual_value = portfolio_data[field]
                 if isinstance(expected_type, tuple):
                     assert isinstance(
-                        actual_value, expected_type
+                        actual_value, expected_type,
                     ), f"Field '{field}' has wrong type"
                 else:
                     assert isinstance(
-                        actual_value, expected_type
+                        actual_value, expected_type,
                     ), f"Field '{field}' has wrong type"
 
         # Check value ranges
@@ -450,7 +450,7 @@ class TestDataValidationRegression(TestMACrossRegression):
                 "Close": [
                     100.0 + i * 0.5 for i in range(50)
                 ],  # Simple linear progression
-            }
+            },
         )
 
         factory = StrategyFactory()
@@ -490,7 +490,7 @@ class TestErrorHandlingRegression(TestMACrossRegression):
 
         # Should raise a specific error type (not generic Exception)
         assert not isinstance(exc_info.value, Exception) or hasattr(
-            exc_info.value, "details"
+            exc_info.value, "details",
         )
 
     def test_error_recovery_regression(self, baseline_config, mock_log):
@@ -525,10 +525,10 @@ class TestPerformanceRegression(TestMACrossRegression):
         with (
             patch("app.tools.get_data.get_data") as mock_get_data,
             patch(
-                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios",
             ) as mock_process,
             patch(
-                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+                "app.tools.portfolio.filtering_service.PortfolioFilterService",
             ) as mock_filter_service,
         ):
             # Setup mocks
@@ -541,8 +541,8 @@ class TestPerformanceRegression(TestMACrossRegression):
                         "Total Return [%]": 15.5,
                         "Allocation [%]": 100,
                         "Stop Loss [%]": 5.0,
-                    }
-                ]
+                    },
+                ],
             )
 
             mock_filter_instance = Mock()
@@ -553,8 +553,8 @@ class TestPerformanceRegression(TestMACrossRegression):
                             "TICKER": "BTC-USD",
                             "Strategy Type": "SMA",
                             "Total Return [%]": 15.5,
-                        }
-                    ]
+                        },
+                    ],
                 )
             )
             mock_filter_service.return_value = mock_filter_instance
@@ -581,10 +581,10 @@ class TestPerformanceRegression(TestMACrossRegression):
         with (
             patch("app.tools.get_data.get_data") as mock_get_data,
             patch(
-                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios",
             ) as mock_process,
             patch(
-                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+                "app.tools.portfolio.filtering_service.PortfolioFilterService",
             ) as mock_filter_service,
         ):
             # Setup mocks
@@ -595,8 +595,8 @@ class TestPerformanceRegression(TestMACrossRegression):
                         "TICKER": "BTC-USD",
                         "Strategy Type": "SMA",
                         "Total Return [%]": 15.5,
-                    }
-                ]
+                    },
+                ],
             )
 
             mock_filter_instance = Mock()

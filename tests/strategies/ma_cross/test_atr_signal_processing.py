@@ -43,7 +43,7 @@ def sample_price_data():
             "Close": prices,
             "Volume": np.random.randint(1000000, 5000000, len(dates)),
             "Ticker": "TEST",
-        }
+        },
     ).set_index("Date")
 
 
@@ -186,7 +186,7 @@ class TestHybridSignalGeneration:
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_sma_signals")
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_atr")
     def test_generate_hybrid_ma_atr_signals_basic(
-        self, mock_atr, mock_sma, sample_price_data, sample_ma_config, mock_logger
+        self, mock_atr, mock_sma, sample_price_data, sample_ma_config, mock_logger,
     ):
         """Test basic hybrid signal generation."""
         # Mock SMA signal generation
@@ -200,7 +200,7 @@ class TestHybridSignalGeneration:
 
         # Mock ATR calculation with reasonable values
         atr_values = pd.Series(
-            [2.0] * len(sample_price_data), index=sample_price_data.index
+            [2.0] * len(sample_price_data), index=sample_price_data.index,
         )
         mock_atr.return_value = atr_values
 
@@ -242,7 +242,7 @@ class TestHybridSignalGeneration:
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_sma_signals")
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_atr")
     def test_generate_hybrid_signals_with_atr_exits(
-        self, mock_atr, mock_sma, sample_price_data, sample_ma_config, mock_logger
+        self, mock_atr, mock_sma, sample_price_data, sample_ma_config, mock_logger,
     ):
         """Test that ATR trailing stops generate exit signals."""
         # Create more realistic price data with a significant move
@@ -251,7 +251,7 @@ class TestHybridSignalGeneration:
         mid_point = len(price_data) // 2
         price_data.loc[price_data.index[mid_point:], "Close"] *= 1.2  # 20% spike
         price_data.loc[
-            price_data.index[mid_point + 10 :], "Close"
+            price_data.index[mid_point + 10 :], "Close",
         ] *= 0.85  # Then decline
 
         # Mock SMA signals with entry at the spike
@@ -293,12 +293,12 @@ class TestHybridSignalGeneration:
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_sma_signals")
     @patch("app.tools.calculate_atr.calculate_atr")
     def test_generate_signals_error_handling(
-        self, mock_atr, mock_sma, sample_ma_config, mock_logger
+        self, mock_atr, mock_sma, sample_ma_config, mock_logger,
     ):
         """Test error handling in signal generation."""
         # Test with None data
         result = generate_hybrid_ma_atr_signals(
-            None, sample_ma_config, atr_length=14, atr_multiplier=2.0, log=mock_logger
+            None, sample_ma_config, atr_length=14, atr_multiplier=2.0, log=mock_logger,
         )
         assert result is None
 
@@ -330,7 +330,7 @@ class TestHybridSignalGeneration:
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_sma_signals")
     @patch("app.tools.calculate_atr.calculate_atr")
     def test_generate_signals_sma_failure(
-        self, mock_atr, mock_sma, sample_price_data, sample_ma_config, mock_logger
+        self, mock_atr, mock_sma, sample_price_data, sample_ma_config, mock_logger,
     ):
         """Test handling of SMA calculation failure."""
         # Mock SMA failure
@@ -353,7 +353,7 @@ class TestHybridSignalGeneration:
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_sma_signals")
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_atr")
     def test_generate_signals_atr_failure(
-        self, mock_atr, mock_sma, sample_price_data, sample_ma_config, mock_logger
+        self, mock_atr, mock_sma, sample_price_data, sample_ma_config, mock_logger,
     ):
         """Test handling of ATR calculation failure."""
         # Mock successful SMA but failed ATR
@@ -395,7 +395,7 @@ class TestSignalValidation:
                 "Close": range(100, 110),
                 "Signal": [0, 1, 0, 0, -1, 0, 1, 0, 0, -1],
                 "Position": [0, 1, 1, 1, 0, 0, 1, 1, 1, 0],
-            }
+            },
         )
 
         # Check that signal data has required columns
@@ -418,7 +418,7 @@ class TestSignalValidation:
             {
                 "Signal": [0, 1, 0, 0, -1, 0, 1, 0, -1, 0],
                 "Position": [0, 1, 1, 1, 0, 0, 1, 1, 0, 0],
-            }
+            },
         )
 
         # Check that position changes align with signals
@@ -442,7 +442,7 @@ class TestSignalValidation:
             {
                 "Signal": [0, 1, 0, 0, -1, 0, 1, 0, 0, -1] * 5,  # 50 signals
                 "Position": [0, 1, 1, 1, 0, 0, 1, 1, 1, 0] * 5,
-            }
+            },
         )
 
         # Calculate basic signal metrics

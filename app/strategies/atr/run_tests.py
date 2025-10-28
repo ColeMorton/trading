@@ -160,7 +160,7 @@ class ATRTestRunner:
         print("=" * 70)
         print(f"Categories: {', '.join(test_categories)}")
         print(
-            f"Options: verbose={verbose}, coverage={coverage}, benchmark={benchmark}, quick={quick}"
+            f"Options: verbose={verbose}, coverage={coverage}, benchmark={benchmark}, quick={quick}",
         )
         print()
 
@@ -267,7 +267,7 @@ class ATRTestRunner:
             print(f"  {benchmark:<35} Target: {target}")
 
         print(
-            "\nNote: Actual performance metrics are logged during performance test execution"
+            "\nNote: Actual performance metrics are logged during performance test execution",
         )
 
     def run_specific_test(
@@ -301,7 +301,7 @@ class ATRTestRunner:
                 suite.addTest(test_class(test_method_name))
             else:
                 print(
-                    f"Error: Test method '{test_method_name}' not found in {test_class_name}"
+                    f"Error: Test method '{test_method_name}' not found in {test_class_name}",
                 )
                 return False
         else:
@@ -382,35 +382,35 @@ Examples:
     # Test category options
     parser.add_argument("--unit", action="store_true", help="Run unit tests")
     parser.add_argument(
-        "--integration", action="store_true", help="Run integration tests"
+        "--integration", action="store_true", help="Run integration tests",
     )
     parser.add_argument(
-        "--multi-ticker", action="store_true", help="Run multi-ticker tests"
+        "--multi-ticker", action="store_true", help="Run multi-ticker tests",
     )
     parser.add_argument(
-        "--regression", action="store_true", help="Run regression tests"
+        "--regression", action="store_true", help="Run regression tests",
     )
     parser.add_argument(
-        "--performance", action="store_true", help="Run performance tests"
+        "--performance", action="store_true", help="Run performance tests",
     )
     parser.add_argument("--all", action="store_true", help="Run all tests (default)")
 
     # Output options
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
     parser.add_argument(
-        "--coverage", action="store_true", help="Generate coverage report"
+        "--coverage", action="store_true", help="Generate coverage report",
     )
     parser.add_argument(
-        "--benchmark", action="store_true", help="Include performance benchmarking"
+        "--benchmark", action="store_true", help="Include performance benchmarking",
     )
     parser.add_argument(
-        "--quick", action="store_true", help="Quick validation (skip slow tests)"
+        "--quick", action="store_true", help="Quick validation (skip slow tests)",
     )
 
     # Utility options
     parser.add_argument("--list", action="store_true", help="List available tests")
     parser.add_argument(
-        "--validate", action="store_true", help="Validate test environment"
+        "--validate", action="store_true", help="Validate test environment",
     )
     parser.add_argument(
         "--test",
@@ -418,7 +418,7 @@ Examples:
         help="Run specific test class (e.g., TestATRMathematicalAccuracy)",
     )
     parser.add_argument(
-        "--method", type=str, help="Run specific test method (use with --test)"
+        "--method", type=str, help="Run specific test method (use with --test)",
     )
 
     args = parser.parse_args()

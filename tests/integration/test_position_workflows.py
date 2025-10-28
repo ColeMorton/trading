@@ -21,6 +21,7 @@ from app.exceptions import (
 )
 from app.services import PositionService
 from app.services.position_service import TradingSystemConfig
+import pytest
 
 
 class TestPositionWorkflowsIntegration(unittest.TestCase):
@@ -59,7 +60,7 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
                 "Low": [148.0 + i * 0.1 for i in range(len(dates))],
                 "Close": [151.0 + i * 0.1 for i in range(len(dates))],
                 "Volume": [1000000] * len(dates),
-            }
+            },
         )
 
         price_file = self.config.get_prices_file("AAPL", "D")
@@ -74,7 +75,7 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
                 "Low": [195.0 + i * 0.5 for i in range(len(dates))],
                 "Close": [202.0 + i * 0.5 for i in range(len(dates))],
                 "Volume": [2000000] * len(dates),
-            }
+            },
         )
 
         tsla_file = self.config.get_prices_file("TSLA", "D")
@@ -99,7 +100,7 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
                 "Status": ["Open"],
                 "PnL": [0.0],
                 "Return": [0.0],
-            }
+            },
         )
 
         portfolio_file = self.config.get_portfolio_file("test_portfolio")
@@ -163,7 +164,7 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
     def test_position_validation_errors(self):
         """Test that position validation errors are properly raised."""
         # Test invalid ticker
-        with self.assertRaises(ValidationError):
+        with pytest.raises(ValidationError):
             self.service.add_position_to_portfolio(
                 ticker="",  # Invalid empty ticker
                 strategy_type="SMA",
@@ -176,7 +177,7 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
             )
 
         # Test invalid strategy type
-        with self.assertRaises(ValidationError):
+        with pytest.raises(ValidationError):
             self.service.add_position_to_portfolio(
                 ticker="AAPL",
                 strategy_type="INVALID",  # Invalid strategy
@@ -189,7 +190,7 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
             )
 
         # Test invalid date format
-        with self.assertRaises(ValidationError):
+        with pytest.raises(ValidationError):
             self.service.add_position_to_portfolio(
                 ticker="AAPL",
                 strategy_type="SMA",
@@ -216,7 +217,7 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
         )
 
         # Try to add the same position again
-        with self.assertRaises(PortfolioError):
+        with pytest.raises(PortfolioError):
             self.service.add_position_to_portfolio(
                 ticker="AAPL",
                 strategy_type="SMA",
@@ -324,7 +325,7 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
         # Mock calculator to raise exception
         mock_calc_instance = Mock()
         mock_calc_instance.calculate_from_ohlc.side_effect = Exception(
-            "Price data error"
+            "Price data error",
         )
         mock_calculator.return_value = mock_calc_instance
 
@@ -352,15 +353,15 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
     def test_nonexistent_portfolio_error(self):
         """Test handling of nonexistent portfolio operations."""
         # Test listing positions from nonexistent portfolio
-        with self.assertRaises(PortfolioError):
+        with pytest.raises(PortfolioError):
             self.service.list_positions("nonexistent_portfolio")
 
         # Test getting position from nonexistent portfolio
-        with self.assertRaises(PortfolioError):
+        with pytest.raises(PortfolioError):
             self.service.get_position("some_uuid", "nonexistent_portfolio")
 
         # Test closing position in nonexistent portfolio
-        with self.assertRaises(PortfolioError):
+        with pytest.raises(PortfolioError):
             self.service.close_position("some_uuid", "nonexistent_portfolio", 100.0)
 
     def test_nonexistent_position_error(self):
@@ -370,11 +371,11 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
         pd.DataFrame().to_csv(portfolio_file, index=False)
 
         # Test getting nonexistent position
-        with self.assertRaises(DataNotFoundError):
+        with pytest.raises(DataNotFoundError):
             self.service.get_position("nonexistent_uuid", "empty_portfolio")
 
         # Test closing nonexistent position
-        with self.assertRaises(DataNotFoundError):
+        with pytest.raises(DataNotFoundError):
             self.service.close_position("nonexistent_uuid", "empty_portfolio", 100.0)
 
     def test_signal_verification_workflow(self):
@@ -382,9 +383,7 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
         # This test would require complex price data setup for crossover signals
         # For now, test that signal verification errors are properly handled
 
-        with self.assertRaises(
-            (SignalValidationError, DataNotFoundError, PriceDataError)
-        ):
+        with pytest.raises((SignalValidationError, DataNotFoundError, PriceDataError)):
             self.service.add_position_to_portfolio(
                 ticker="AAPL",
                 strategy_type="SMA",
@@ -441,13 +440,13 @@ class TestPositionWorkflowsErrorRecovery(unittest.TestCase):
             f.write("corrupted,data,here\ninvalid,csv,format")
 
         # Service should handle corrupted file gracefully
-        with self.assertRaises((PortfolioError, pd.errors.ParserError)):
+        with pytest.raises((PortfolioError, pd.errors.ParserError)):
             self.service.list_positions("corrupted")
 
     def test_missing_price_data_handling(self):
         """Test handling of missing price data."""
         # Try to add position for ticker without price data
-        with self.assertRaises(PriceDataError):
+        with pytest.raises(PriceDataError):
             self.service.add_position_to_portfolio(
                 ticker="MISSING",
                 strategy_type="SMA",
@@ -462,7 +461,7 @@ class TestPositionWorkflowsErrorRecovery(unittest.TestCase):
     def test_edge_case_calculations(self):
         """Test edge cases in position calculations."""
         # Test zero position size
-        with self.assertRaises(ValidationError):
+        with pytest.raises(ValidationError):
             self.service.create_position_record(
                 ticker="AAPL",
                 strategy_type="SMA",
@@ -474,7 +473,7 @@ class TestPositionWorkflowsErrorRecovery(unittest.TestCase):
             )
 
         # Test negative prices
-        with self.assertRaises(ValidationError):
+        with pytest.raises(ValidationError):
             self.service.create_position_record(
                 ticker="AAPL",
                 strategy_type="SMA",

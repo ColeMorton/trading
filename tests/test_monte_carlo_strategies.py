@@ -62,14 +62,14 @@ class TestMonteCarloStrategies:
                     float(p * (1 - abs(np.random.uniform(0, 0.008)))) for p in prices
                 ],
                 "Close": prices,
-            }
+            },
         )
 
     @pytest.fixture
     def analyzer(self):
         """Create Monte Carlo analyzer with test configuration."""
         config = MonteCarloConfig(
-            num_simulations=5, confidence_level=0.95, max_parameters_to_test=3
+            num_simulations=5, confidence_level=0.95, max_parameters_to_test=3,
         )
         return MonteCarloAnalyzer(config=config, log=Mock())
 
@@ -176,7 +176,7 @@ class TestMonteCarloStrategies:
             if hasattr(param_result, "confidence_intervals"):
                 ci = param_result.confidence_intervals
                 if ci:  # May be empty dict if no results
-                    for _metric, (lower, upper) in ci.items():
+                    for (lower, upper) in ci.values():
                         assert lower <= upper
 
     def test_macd_signal_window_variations(self, analyzer, test_data):
@@ -381,7 +381,7 @@ class TestStrategySpecificBehavior:
                     datetime(2023, 1, 1) + timedelta(days=i) for i in range(n_days)
                 ],
                 "Close": prices,
-            }
+            },
         )
 
     def test_sma_crossover_signals(self, trend_data):

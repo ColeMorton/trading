@@ -57,5 +57,5 @@ def calculate_rsi(data: pl.DataFrame, period: int) -> pl.DataFrame:
 
         return data.with_columns([rsi_full])
     except Exception as e:
-        logging.error(f"Failed to calculate RSI: {e}")
+        logging.exception(f"Failed to calculate RSI: {e}")
         raise

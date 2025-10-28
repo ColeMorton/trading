@@ -70,7 +70,7 @@ class TestWebhookService:
             mock_client_instance.__aenter__.return_value = mock_client_instance
             mock_client_instance.__aexit__.return_value = None
             mock_client_instance.post.side_effect = httpx.TimeoutException(
-                "Request timeout"
+                "Request timeout",
             )
             mock_client.return_value = mock_client_instance
 
@@ -96,7 +96,7 @@ class TestWebhookService:
             mock_client_instance.__aenter__.return_value = mock_client_instance
             mock_client_instance.__aexit__.return_value = None
             mock_client_instance.post.side_effect = httpx.ConnectError(
-                "Connection refused"
+                "Connection refused",
             )
             mock_client.return_value = mock_client_instance
 
@@ -174,7 +174,7 @@ class TestWebhookService:
 
         # Mock webhook send
         with patch.object(
-            WebhookService, "send_webhook", new_callable=AsyncMock
+            WebhookService, "send_webhook", new_callable=AsyncMock,
         ) as mock_send:
             mock_send.return_value = (200, "OK")
 
@@ -204,7 +204,7 @@ class TestWebhookService:
         mock_db_manager = Mock()
 
         with patch.object(
-            WebhookService, "send_webhook", new_callable=AsyncMock
+            WebhookService, "send_webhook", new_callable=AsyncMock,
         ) as mock_send:
             await WebhookService.notify_job_completion(mock_db_manager, job)
 
@@ -240,7 +240,7 @@ class TestWebhookService:
 
         # Mock webhook send
         with patch.object(
-            WebhookService, "send_webhook", new_callable=AsyncMock
+            WebhookService, "send_webhook", new_callable=AsyncMock,
         ) as mock_send:
             mock_send.return_value = (200, "Success")
 

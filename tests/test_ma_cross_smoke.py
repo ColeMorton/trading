@@ -33,7 +33,7 @@ def create_test_price_data(ticker="TEST", num_days=100):
             "low": [p - 0.5 for p in prices],
             "close": prices,
             "volume": [1000000] * num_days,
-        }
+        },
     )
 
 
@@ -51,12 +51,12 @@ class TestMAcrossSmokeTest:
             patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
             patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
             patch(
-                "app.tools.strategy.concrete.convert_signals_to_positions"
+                "app.tools.strategy.concrete.convert_signals_to_positions",
             ) as mock_positions,
         ):
             # Set up minimal mocks
             mock_mas.return_value = data.with_columns(
-                [pl.lit(100.0).alias("sma_20"), pl.lit(100.0).alias("sma_50")]
+                [pl.lit(100.0).alias("sma_20"), pl.lit(100.0).alias("sma_50")],
             )
             mock_signals.return_value = (
                 pl.Series([False] * 100),
@@ -83,11 +83,11 @@ class TestMAcrossSmokeTest:
             patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
             patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
             patch(
-                "app.tools.strategy.concrete.convert_signals_to_positions"
+                "app.tools.strategy.concrete.convert_signals_to_positions",
             ) as mock_positions,
         ):
             mock_mas.return_value = data.with_columns(
-                [pl.lit(100.0).alias("ema_12"), pl.lit(100.0).alias("ema_26")]
+                [pl.lit(100.0).alias("ema_12"), pl.lit(100.0).alias("ema_26")],
             )
             mock_signals.return_value = (
                 pl.Series([False] * 100),
@@ -118,23 +118,23 @@ class TestMAcrossSmokeTest:
 
         with (
             patch(
-                "app.strategies.ma_cross.tools.strategy_execution.get_data"
+                "app.strategies.ma_cross.tools.strategy_execution.get_data",
             ) as mock_get_data,
             patch(
-                "app.strategies.ma_cross.tools.strategy_execution.calculate_ma_and_signals"
+                "app.strategies.ma_cross.tools.strategy_execution.calculate_ma_and_signals",
             ) as mock_calc,
             patch(
-                "app.strategies.ma_cross.tools.strategy_execution.is_signal_current"
+                "app.strategies.ma_cross.tools.strategy_execution.is_signal_current",
             ) as mock_signal,
             patch(
-                "app.strategies.ma_cross.tools.strategy_execution.is_exit_signal_current"
+                "app.strategies.ma_cross.tools.strategy_execution.is_exit_signal_current",
             ) as mock_exit,
             patch(
-                "app.strategies.ma_cross.tools.strategy_execution.backtest_strategy"
+                "app.strategies.ma_cross.tools.strategy_execution.backtest_strategy",
             ) as mock_backtest,
             patch("app.tools.portfolio.filters.check_invalid_metrics") as mock_check,
             patch(
-                "app.strategies.ma_cross.tools.strategy_execution.convert_stats"
+                "app.strategies.ma_cross.tools.strategy_execution.convert_stats",
             ) as mock_convert,
         ):
             # Set up test data and mocks
@@ -185,7 +185,7 @@ class TestMAcrossSmokeTest:
         with patch("app.tools.strategy.factory.factory.create_strategy") as mock_create:
             mock_strategy = Mock()
             mock_strategy.calculate.return_value = data.with_columns(
-                pl.lit(0).alias("Signal")
+                pl.lit(0).alias("Signal"),
             )
             mock_create.return_value = mock_strategy
 
@@ -201,7 +201,7 @@ class TestMAcrossSmokeTest:
         with patch("app.tools.strategy.factory.factory.create_strategy") as mock_create:
             mock_strategy = Mock()
             mock_strategy.calculate.return_value = data.with_columns(
-                pl.lit(0).alias("Signal")
+                pl.lit(0).alias("Signal"),
             )
             mock_create.return_value = mock_strategy
 

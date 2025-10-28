@@ -50,7 +50,7 @@ def create_strategy_traces(
                 name=f"{ticker} Price",
                 line={"color": PRIMARY_TEXT, "width": 1},
                 hovertemplate="%{x|%d/%m/%Y}, %{y:.4f}k<extra></extra>",
-            )
+            ),
         ]
 
         # Add position highlighting for both long and short positions
@@ -64,7 +64,7 @@ def create_strategy_traces(
 
         # Highlight long positions
         for date, close in zip(
-            long_positions["Date"], long_positions["Close"], strict=False
+            long_positions["Date"], long_positions["Close"], strict=False,
         ):
             traces.append(
                 go.Scatter(
@@ -75,12 +75,12 @@ def create_strategy_traces(
                     showlegend=False,
                     hovertemplate="%{x|%d/%m/%Y}, %{y:.4f}k<extra></extra>",
                     hoverinfo="text",
-                )
+                ),
             )
 
         # Highlight short positions with a different pattern (dashed line)
         for date, close in zip(
-            short_positions["Date"], short_positions["Close"], strict=False
+            short_positions["Date"], short_positions["Close"], strict=False,
         ):
             traces.append(
                 go.Scatter(
@@ -91,7 +91,7 @@ def create_strategy_traces(
                     showlegend=False,
                     hovertemplate="%{x|%d/%m/%Y}, %{y:.4f}k<extra></extra>",
                     hoverinfo="text",
-                )
+                ),
             )
 
         # Add ATR trailing stop visualization for ATR strategies
@@ -112,7 +112,7 @@ def create_strategy_traces(
                 try:
                     # Count non-null values in polars DataFrame
                     non_null_count = data.filter(
-                        ~pl.col("ATR_Trailing_Stop").is_null()
+                        ~pl.col("ATR_Trailing_Stop").is_null(),
                     ).height
                     log(
                         f"ATR_Trailing_Stop column has {non_null_count} non-null values in polars DataFrame",
@@ -149,7 +149,7 @@ def create_strategy_traces(
                                     },
                                     hovertemplate="%{x|%d/%m/%Y}, Stop: %{y:.4f}k<extra></extra>",
                                     connectgaps=False,  # Don't connect across gaps
-                                )
+                                ),
                             )
                             log(
                                 f"Added ATR trailing stop trace with {len(valid_stops)} points",
@@ -186,7 +186,7 @@ def create_strategy_traces(
                     mode="lines",
                     line={"color": color, "width": 10},
                     showlegend=True,
-                )
+                ),
             )
 
         if len(short_positions) > 0:
@@ -198,7 +198,7 @@ def create_strategy_traces(
                     mode="lines",
                     line={"color": color, "width": 10, "dash": "dash"},
                     showlegend=True,
-                )
+                ),
             )
 
         log(f"Created {len(traces)} traces for {ticker}", "info")
@@ -240,18 +240,21 @@ def plot_concurrency(
         # Validate inputs
         if not data_list or not config_list:
             log("Empty data or config list provided", "error")
-            raise ValueError("Data and config lists cannot be empty")
+            msg = "Data and config lists cannot be empty"
+            raise ValueError(msg)
 
         if len(data_list) != len(config_list):
             log("Mismatched data and config lists", "error")
-            raise ValueError("Number of dataframes must match number of configurations")
+            msg = "Number of dataframes must match number of configurations"
+            raise ValueError(msg)
 
         required_cols = ["Date", "Close", "Position"]
         for i, df in enumerate(data_list, 1):
             missing = [col for col in required_cols if col not in df.columns]
             if missing:
                 log(f"Strategy {i} missing required columns: {missing}", "error")
-                raise ValueError(f"Missing required columns: {missing}")
+                msg = f"Missing required columns: {missing}"
+                raise ValueError(msg)
 
         n_strategies = len(data_list)
         log(f"Creating visualization for {n_strategies} strategies", "info")
@@ -263,10 +266,10 @@ def plot_concurrency(
                 config.get("Strategy Type", config.get("type", "Unknown")),
             )
             fast_period = config.get(
-                "FAST_PERIOD", config.get("Fast Period", config.get("fast_period", "?"))
+                "FAST_PERIOD", config.get("Fast Period", config.get("fast_period", "?")),
             )
             slow_period = config.get(
-                "SLOW_PERIOD", config.get("Slow Period", config.get("slow_period", "?"))
+                "SLOW_PERIOD", config.get("Slow Period", config.get("slow_period", "?")),
             )
 
             # Score is stored in nested PORTFOLIO_STATS from CSV data
@@ -276,7 +279,7 @@ def plot_concurrency(
             # Fallback to top-level keys for other config formats
             if score == 0.0 or score is None:
                 score = config.get(
-                    "SCORE", config.get("Score", config.get("score", 0.0))
+                    "SCORE", config.get("Score", config.get("score", 0.0)),
                 )
 
             if isinstance(score, int | float):
@@ -287,7 +290,7 @@ def plot_concurrency(
             return f"{ticker} {strategy_type} {fast_period}/{slow_period} | Score: {score_str}"
 
         subplot_titles = [format_strategy_title(c) for c in config_list] + [
-            "Strategy Concurrency"
+            "Strategy Concurrency",
         ]
 
         log("Creating subplot layout", "info")
@@ -338,7 +341,7 @@ def plot_concurrency(
         # Add strategy subplots
         log("Adding strategy subplots", "info")
         for i, (data, config) in enumerate(
-            zip(data_list, config_list, strict=False), 1
+            zip(data_list, config_list, strict=False), 1,
         ):
             color = STRATEGY_COLORS[(i - 1) % len(STRATEGY_COLORS)]
             log(f"Creating subplot {i}/{n_strategies} for {config['TICKER']}", "info")
@@ -369,7 +372,7 @@ def plot_concurrency(
             {
                 "start_date": data_list[0]["Date"].min().strftime("%Y-%m-%d"),
                 "end_date": data_list[0]["Date"].max().strftime("%Y-%m-%d"),
-            }
+            },
         )
         fig.add_annotation(**create_stats_annotation(stats, log))
 

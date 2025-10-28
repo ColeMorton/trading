@@ -24,7 +24,7 @@ def is_signal_current(data: pl.DataFrame) -> bool:
 
 
 def check_signal_match(
-    signals: list[dict], fast_period: int, slow_period: int, signal_period: int
+    signals: list[dict], fast_period: int, slow_period: int, signal_period: int,
 ) -> bool:
     """Check if a specific parameter combination exists in current signals.
 
@@ -48,7 +48,7 @@ def check_signal_match(
 
 
 def validate_window_combination(
-    fast_period: int, slow_period: int, signal_period: int
+    fast_period: int, slow_period: int, signal_period: int,
 ) -> bool:
     """Validate MACD window parameter combination.
 

@@ -25,7 +25,7 @@ class BootstrapSampler:
         self.min_data_fraction = min_data_fraction
 
     def block_bootstrap_sample(
-        self, data: pl.DataFrame, seed: int | None = None
+        self, data: pl.DataFrame, seed: int | None = None,
     ) -> pl.DataFrame:
         """Create bootstrap sample using block bootstrap method.
 
@@ -54,7 +54,7 @@ class BootstrapSampler:
         return self._block_bootstrap_sample(data, min_periods, n_periods)
 
     def _simple_bootstrap_sample(
-        self, data: pl.DataFrame, target_size: int
+        self, data: pl.DataFrame, target_size: int,
     ) -> pl.DataFrame:
         """Simple bootstrap for short time series.
 
@@ -71,7 +71,7 @@ class BootstrapSampler:
         return data[sorted(indices)]
 
     def _block_bootstrap_sample(
-        self, data: pl.DataFrame, min_periods: int, n_periods: int
+        self, data: pl.DataFrame, min_periods: int, n_periods: int,
     ) -> pl.DataFrame:
         """Block bootstrap for longer time series.
 
@@ -101,7 +101,7 @@ class BootstrapSampler:
         if current_size < min_periods:
             additional_needed = min_periods - current_size
             additional_indices = np.random.choice(
-                n_periods, size=additional_needed, replace=True
+                n_periods, size=additional_needed, replace=True,
             )
             additional_data = data[sorted(additional_indices)]
             bootstrap_sample = pl.concat([bootstrap_sample, additional_data])
@@ -109,7 +109,7 @@ class BootstrapSampler:
         return bootstrap_sample.sort("Date")
 
     def parameter_noise_injection(
-        self, short: int, long: int, noise_std: float = 0.1
+        self, short: int, long: int, noise_std: float = 0.1,
     ) -> tuple[int, int]:
         """Add small random variations to parameters for robustness testing.
 
@@ -124,7 +124,7 @@ class BootstrapSampler:
         # Add Gaussian noise and ensure integer values
         short_noisy = max(2, int(short + np.random.normal(0, short * noise_std)))
         long_noisy = max(
-            short_noisy + 1, int(long + np.random.normal(0, long * noise_std))
+            short_noisy + 1, int(long + np.random.normal(0, long * noise_std)),
         )
 
         return short_noisy, long_noisy

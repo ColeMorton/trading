@@ -110,7 +110,7 @@ class MACrossStrategy(StrategyInterface):
             use_concurrent = len(tickers) > 2  # Use concurrent for 3+ tickers
 
             log(
-                f"Processing {len(tickers)} tickers with {'concurrent' if use_concurrent else 'sequential'} execution"
+                f"Processing {len(tickers)} tickers with {'concurrent' if use_concurrent else 'sequential'} execution",
             )
 
             # Collect all portfolios in a single list
@@ -123,13 +123,13 @@ class MACrossStrategy(StrategyInterface):
                 # Execute the strategy using optimal execution method
                 if use_concurrent:
                     portfolios = execute_strategy_concurrent(
-                        config, strategy_type, log, None
+                        config, strategy_type, log, None,
                     )
                 else:
                     portfolios = execute_strategy(config, strategy_type, log, None)
 
                 log(
-                    f"execute_strategy returned {len(portfolios) if portfolios else 0} portfolios for {strategy_type}"
+                    f"execute_strategy returned {len(portfolios) if portfolios else 0} portfolios for {strategy_type}",
                 )
 
                 if portfolios:

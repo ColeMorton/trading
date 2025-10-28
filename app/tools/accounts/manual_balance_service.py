@@ -75,7 +75,7 @@ class ManualAccountBalanceService:
             json.dump(data, f, indent=2, default=str)
 
     def update_account_balance(
-        self, account_type: str, balance: float
+        self, account_type: str, balance: float,
     ) -> AccountBalance:
         """Update balance for a specific account type.
 
@@ -92,13 +92,17 @@ class ManualAccountBalanceService:
         # Validate inputs
         valid_account_types = ["IBKR", "Bybit", "Cash"]
         if account_type not in valid_account_types:
-            raise ValueError(
+            msg = (
                 f"Invalid account type: {account_type}. "
                 f"Must be one of: {valid_account_types}"
             )
+            raise ValueError(
+                msg,
+            )
 
         if balance < 0:
-            raise ValueError("Balance cannot be negative")
+            msg = "Balance cannot be negative"
+            raise ValueError(msg)
 
         # Load existing data
         data = self._load_balances()
@@ -172,7 +176,7 @@ class ManualAccountBalanceService:
                     balance=float(item["balance"]),
                     updated_at=datetime.fromisoformat(item["updated_at"]),
                     id=item.get("id"),
-                )
+                ),
             )
 
         return balances
@@ -219,7 +223,7 @@ class ManualAccountBalanceService:
         )
 
     def update_multiple_balances(
-        self, balances: dict[str, float]
+        self, balances: dict[str, float],
     ) -> dict[str, AccountBalance]:
         """Update multiple account balances at once.
 
@@ -259,7 +263,7 @@ class ManualAccountBalanceService:
                     "balance": balance.balance,
                     "updated_at": balance.updated_at.isoformat(),
                     "id": balance.id,
-                }
+                },
             )
 
         df = pl.DataFrame(data)
@@ -285,7 +289,7 @@ class ManualAccountBalanceService:
                 self.update_account_balance(account_type, float(balance))
 
     def validate_net_worth_calculation(
-        self, expected_net_worth: float, tolerance: float = 0.01
+        self, expected_net_worth: float, tolerance: float = 0.01,
     ) -> tuple[bool, str]:
         """Validate net worth calculation against expected value.
 

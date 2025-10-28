@@ -5,7 +5,7 @@ import sys
 
 # Add project root to Python path for imports
 project_root = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
 )
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
@@ -70,7 +70,7 @@ def create_dendrogram_trace(linkage_matrix, labels):
         y_coords.append(None)
 
     return go.Scatter(
-        x=x_coords, y=y_coords, mode="lines", line={"color": "black"}, hoverinfo="none"
+        x=x_coords, y=y_coords, mode="lines", line={"color": "black"}, hoverinfo="none",
     )
 
 
@@ -144,7 +144,7 @@ def generate_correlation_plot(assets, days, title_suffix=""):
     # Reorder correlation matrix based on clustering
     ordered_assets = [assets[idx] for idx in leaves_list(Z)]
     reordered_correlation_matrix = correlation_matrix.loc[
-        ordered_assets, ordered_assets
+        ordered_assets, ordered_assets,
     ]
 
     # Create heatmap
@@ -162,7 +162,7 @@ def generate_correlation_plot(assets, days, title_suffix=""):
             showscale=True,
             hoverongaps=False,  # Disable hover on gaps
             hoverlabel={"font_size": 10},  # Consistent hover text size
-        )
+        ),
     )
     heatmap_fig.update_layout(
         title=f"Asset Correlation Matrix ({days}-day look-back){title_suffix}",
@@ -212,10 +212,10 @@ main_fig.add_trace(heatmap1.data[0], row=2, col=1)
 # Generate individual plots for each NEXT asset
 for i, next_asset in enumerate(NEXT):
     portfolio_plus_asset = list(
-        dict.fromkeys([*PORTFOLIO, next_asset])
+        dict.fromkeys([*PORTFOLIO, next_asset]),
     )  # Remove duplicates
     dendro, heatmap = generate_correlation_plot(
-        portfolio_plus_asset, DAYS, f" (Portfolio + {next_asset})"
+        portfolio_plus_asset, DAYS, f" (Portfolio + {next_asset})",
     )
     main_fig.add_trace(dendro.data[0], row=2 * i + 3, col=1)
     main_fig.add_trace(heatmap.data[0], row=2 * i + 4, col=1)

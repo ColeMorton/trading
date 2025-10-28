@@ -77,7 +77,7 @@ class DataAccessService(DataAccessInterface):
 
         if self._logger:
             self._logger.get_logger(__name__).info(
-                f"Saved price data for {ticker} to {path}"
+                f"Saved price data for {ticker} to {path}",
             )
 
         return path
@@ -124,7 +124,7 @@ class DataAccessService(DataAccessInterface):
         # Download from yfinance
         if self._logger:
             self._logger.get_logger(__name__).info(
-                f"Downloading data for {ticker} from {start_date} to {end_date}"
+                f"Downloading data for {ticker} from {start_date} to {end_date}",
             )
 
         try:
@@ -137,7 +137,8 @@ class DataAccessService(DataAccessInterface):
             )
 
             if data.empty:
-                raise ValueError(f"No data found for ticker {ticker}")
+                msg = f"No data found for ticker {ticker}"
+                raise ValueError(msg)
 
             # Save to cache
             self.save_prices(data, ticker, file_path)
@@ -151,7 +152,7 @@ class DataAccessService(DataAccessInterface):
         except Exception as e:
             if self._logger:
                 self._logger.get_logger(__name__).error(
-                    f"Error downloading data for {ticker}: {e}"
+                    f"Error downloading data for {ticker}: {e}",
                 )
             raise
 

@@ -158,7 +158,7 @@ def upgrade() -> None:
         sa.Column("category", sa.String(50), nullable=True),
         sa.Column("description", sa.Text, nullable=True),
         sa.Column(
-            "created_at", sa.DateTime, nullable=False, server_default=sa.text("now()")
+            "created_at", sa.DateTime, nullable=False, server_default=sa.text("now()"),
         ),
     )
 
@@ -173,7 +173,7 @@ def upgrade() -> None:
         sa.Column("sweep_result_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("metric_type_id", sa.Integer, nullable=False),
         sa.Column(
-            "created_at", sa.DateTime, nullable=False, server_default=sa.text("now()")
+            "created_at", sa.DateTime, nullable=False, server_default=sa.text("now()"),
         ),
         sa.ForeignKeyConstraint(
             ["sweep_result_id"],
@@ -213,7 +213,7 @@ def upgrade() -> None:
         connection.execute(
             sa.text(
                 "INSERT INTO metric_types (name, category, description) "
-                "VALUES (:name, :category, :description)"
+                "VALUES (:name, :category, :description)",
             ),
             {"name": name, "category": category, "description": description},
         )
@@ -233,8 +233,8 @@ def upgrade() -> None:
             WHERE ssr.metric_type IS NOT NULL
               AND ssr.metric_type != ''
             ON CONFLICT (sweep_result_id, metric_type_id) DO NOTHING
-        """
-        )
+        """,
+        ),
     )
 
 
@@ -242,13 +242,13 @@ def downgrade() -> None:
     """Downgrade database schema - drop metric_types and junction table."""
     # Drop junction table first (due to foreign keys)
     op.drop_index(
-        "ix_sweep_result_metrics_type", table_name="strategy_sweep_result_metrics"
+        "ix_sweep_result_metrics_type", table_name="strategy_sweep_result_metrics",
     )
     op.drop_index(
-        "ix_sweep_result_metrics_result", table_name="strategy_sweep_result_metrics"
+        "ix_sweep_result_metrics_result", table_name="strategy_sweep_result_metrics",
     )
     op.drop_constraint(
-        "uq_sweep_result_metric", "strategy_sweep_result_metrics", type_="unique"
+        "uq_sweep_result_metric", "strategy_sweep_result_metrics", type_="unique",
     )
     op.drop_constraint(
         "fk_sweep_result_metrics_type_id",

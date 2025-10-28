@@ -26,21 +26,24 @@ def assert_signals_valid(result_df: pd.DataFrame) -> None:
     required_cols = ["Signal", "Position"]
     for col in required_cols:
         if col not in result_df.columns:
+            msg = f"Missing required column for signal validation: {col}"
             raise AssertionError(
-                f"Missing required column for signal validation: {col}"
+                msg,
             )
 
     # Signals should be -1, 0, or 1
     valid_signals = {-1, 0, 1}
     invalid_signals = set(result_df["Signal"].unique()) - valid_signals
     if invalid_signals:
-        raise AssertionError(f"Invalid signal values found: {invalid_signals}")
+        msg = f"Invalid signal values found: {invalid_signals}"
+        raise AssertionError(msg)
 
     # Positions should be -1, 0, or 1
     valid_positions = {-1, 0, 1}
     invalid_positions = set(result_df["Position"].unique()) - valid_positions
     if invalid_positions:
-        raise AssertionError(f"Invalid position values found: {invalid_positions}")
+        msg = f"Invalid position values found: {invalid_positions}"
+        raise AssertionError(msg)
 
     # Check signal logic: position should change only on non-zero signals
     # Convert to pandas if it's a Polars DataFrame
@@ -65,9 +68,12 @@ def assert_signals_valid(result_df: pd.DataFrame) -> None:
                 continue  # Position exit is allowed without explicit signal
             # Only raise error for position changes between non-zero states without signal
             if prev_pos != 0 and curr_pos != 0:
-                raise AssertionError(
+                msg = (
                     f"Position changed without signal at index {i}: "
                     f"pos {prev_pos} -> {curr_pos}, signal = {curr_signal}"
+                )
+                raise AssertionError(
+                    msg,
                 )
 
 
@@ -95,7 +101,8 @@ def assert_ma_calculations_accurate(
     }
 
     if ma_type not in expected_cols:
-        raise ValueError(f"Unsupported MA type: {ma_type}")
+        msg = f"Unsupported MA type: {ma_type}"
+        raise ValueError(msg)
 
     # Find actual column names in the result
     short_col = None
@@ -113,12 +120,14 @@ def assert_ma_calculations_accurate(
 
     # Check if MA columns exist
     if not short_col:
+        msg = f"Missing short MA column. Expected one of: {expected_cols[ma_type]['short']}"
         raise AssertionError(
-            f"Missing short MA column. Expected one of: {expected_cols[ma_type]['short']}"
+            msg,
         )
     if not long_col:
+        msg = f"Missing long MA column. Expected one of: {expected_cols[ma_type]['long']}"
         raise AssertionError(
-            f"Missing long MA column. Expected one of: {expected_cols[ma_type]['long']}"
+            msg,
         )
 
     # Validate SMA calculations
@@ -148,15 +157,21 @@ def assert_ma_calculations_accurate(
 
             # Allow small floating point differences
             if not np.isclose(actual_short, expected_short, rtol=1e-10):
-                raise AssertionError(
+                msg = (
                     f"SMA calculation error at index {i}: "
                     f"expected {expected_short}, got {actual_short}"
                 )
+                raise AssertionError(
+                    msg,
+                )
 
             if not np.isclose(actual_long, expected_long, rtol=1e-10):
-                raise AssertionError(
+                msg = (
                     f"Long SMA calculation error at index {i}: "
                     f"expected {expected_long}, got {actual_long}"
+                )
+                raise AssertionError(
+                    msg,
                 )
 
 
@@ -168,7 +183,8 @@ def assert_portfolio_data_valid(portfolios: list[dict[str, Any]]) -> None:
         portfolios: List of portfolio dictionaries
     """
     if not portfolios:
-        raise AssertionError("Portfolio list is empty")
+        msg = "Portfolio list is empty"
+        raise AssertionError(msg)
 
     required_fields = [
         "Ticker",
@@ -183,35 +199,39 @@ def assert_portfolio_data_valid(portfolios: list[dict[str, Any]]) -> None:
         # Check required fields
         for field in required_fields:
             if field not in portfolio:
-                raise AssertionError(f"Portfolio {i} missing required field: {field}")
+                msg = f"Portfolio {i} missing required field: {field}"
+                raise AssertionError(msg)
 
         # Validate data types and ranges
         if (
             not isinstance(portfolio["Total Trades"], int | float)
             or portfolio["Total Trades"] < 0
         ):
+            msg = f"Portfolio {i} has invalid Total Trades: {portfolio['Total Trades']}"
             raise AssertionError(
-                f"Portfolio {i} has invalid Total Trades: {portfolio['Total Trades']}"
+                msg,
             )
 
         if not isinstance(portfolio["Win Rate [%]"], int | float) or not (
             0 <= portfolio["Win Rate [%]"] <= 100
         ):
+            msg = f"Portfolio {i} has invalid Win Rate: {portfolio['Win Rate [%]']}"
             raise AssertionError(
-                f"Portfolio {i} has invalid Win Rate: {portfolio['Win Rate [%]']}"
+                msg,
             )
 
         if (
             not isinstance(portfolio["Profit Factor"], int | float)
             or portfolio["Profit Factor"] < 0
         ):
+            msg = f"Portfolio {i} has invalid Profit Factor: {portfolio['Profit Factor']}"
             raise AssertionError(
-                f"Portfolio {i} has invalid Profit Factor: {portfolio['Profit Factor']}"
+                msg,
             )
 
 
 def assert_export_paths_correct(
-    actual_path: str, expected_base: str, config: dict[str, Any]
+    actual_path: str, expected_base: str, config: dict[str, Any],
 ) -> None:
     """
     Assert that export paths are generated correctly based on configuration.
@@ -223,9 +243,12 @@ def assert_export_paths_correct(
     """
     # Verify base directory
     if not actual_path.startswith(expected_base):
-        raise AssertionError(
+        msg = (
             f"Export path doesn't start with expected base: "
             f"actual='{actual_path}', expected_base='{expected_base}'"
+        )
+        raise AssertionError(
+            msg,
         )
 
     # Check USE_CURRENT behavior
@@ -234,8 +257,9 @@ def assert_export_paths_correct(
 
         today = datetime.now().strftime("%Y%m%d")
         if today not in actual_path:
+            msg = f"USE_CURRENT=True but date {today} not in path: {actual_path}"
             raise AssertionError(
-                f"USE_CURRENT=True but date {today} not in path: {actual_path}"
+                msg,
             )
 
     # Check ticker in filename
@@ -243,7 +267,8 @@ def assert_export_paths_correct(
     if ticker and isinstance(ticker, str):
         filename = actual_path.split("/")[-1]
         if not filename.startswith(ticker.replace("/", "_")):
-            raise AssertionError(f"Ticker {ticker} not in filename: {filename}")
+            msg = f"Ticker {ticker} not in filename: {filename}"
+            raise AssertionError(msg)
 
 
 def assert_filtering_criteria_applied(
@@ -286,7 +311,10 @@ def assert_filtering_criteria_applied(
                     break
 
             if portfolio_value is not None and portfolio_value < min_value:
-                raise AssertionError(
+                msg = (
                     f"Portfolio {portfolio.get('Ticker', 'Unknown')} "
                     f"failed minimum criteria: {field} = {portfolio_value} < {min_value}"
+                )
+                raise AssertionError(
+                    msg,
                 )

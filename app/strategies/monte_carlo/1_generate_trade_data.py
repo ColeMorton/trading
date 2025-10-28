@@ -60,7 +60,7 @@ def run(config: dict[str, Any]) -> bool:
         Exception: If data generation fails
     """
     log, log_close, _, _ = setup_logging(
-        module_name="monte_carlo", log_file="generate_trade_data.log"
+        module_name="monte_carlo", log_file="generate_trade_data.log",
     )
 
     try:
@@ -70,7 +70,7 @@ def run(config: dict[str, Any]) -> bool:
         data = download_data(config["TICKER_1"], config, log)
 
         data = calculate_ma_and_signals(
-            data, config["EMA_FAST"], config["EMA_SLOW"], config, log
+            data, config["EMA_FAST"], config["EMA_SLOW"], config, log,
         )
 
         # Ensure trade history export is not enabled for Monte Carlo data generation
@@ -116,7 +116,7 @@ def run(config: dict[str, Any]) -> bool:
                 "PnL ($)": trades["PnL"],
                 "Size": trades["Size"],
                 "Drawdown (%)": max_drawdowns,
-            }
+            },
         )
 
         log("\nTrade Results:")
@@ -128,7 +128,7 @@ def run(config: dict[str, Any]) -> bool:
 
         # Export results
         csv_filename = os.path.join(
-            csv_dir, f'{config["TICKER_1"]}_trade_data_ema_cross.csv'
+            csv_dir, f'{config["TICKER_1"]}_trade_data_ema_cross.csv',
         )
         trade_results.to_csv(csv_filename, index=False)
         log(f"Exported trade data to {csv_filename}")

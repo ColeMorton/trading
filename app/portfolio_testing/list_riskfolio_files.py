@@ -25,7 +25,7 @@ print("\nTrying to import specific modules:")
 for module in modules_to_check:
     try:
         exec(
-            f"from riskfolio import {module}"
+            f"from riskfolio import {module}",
         )  # nosec B102 - Dynamic import for testing purposes
         print(f"Successfully imported {module}")
     except ImportError as e:

@@ -55,7 +55,7 @@ class TestSPDSAnalysisEngine:
                     "Current_Price": 150.0 + (i * 5),
                     "Position_Size": 100,
                     "Unrealized_PnL": 1000 + (i * 100),
-                }
+                },
             )
         return pd.DataFrame(data)
 
@@ -124,7 +124,7 @@ class TestSPDSAnalysisEngine:
         """Test Critical Path 3: Position Analysis Workflow."""
         # Arrange
         request = AnalysisRequest(
-            analysis_type="position", parameter="AAPL_SMA_20_50_20250101"
+            analysis_type="position", parameter="AAPL_SMA_20_50_20250101",
         )
 
         # Act
@@ -154,7 +154,7 @@ class TestSPDSAnalysisEngine:
         """Test error handling for missing portfolio file."""
         # Arrange
         request = AnalysisRequest(
-            analysis_type="portfolio", parameter="nonexistent_portfolio.csv"
+            analysis_type="portfolio", parameter="nonexistent_portfolio.csv",
         )
 
         # Act
@@ -307,7 +307,7 @@ class TestSPDSAnalysisEnginePerformance:
                     "Current_Price": 50 + (i % 451),  # 50 to 500
                     "Position_Size": 1 + (i % 1000),  # 1 to 1000
                     "Unrealized_PnL": -1000 + (i % 6001),  # -1000 to 5000
-                }
+                },
             )
 
         return pd.DataFrame(data)
@@ -381,7 +381,7 @@ class TestSPDSAnalysisEnginePerformance:
         print(
             f"  Per position: {memory_increase / len(results):.2f} MB"
             if results
-            else "N/A"
+            else "N/A",
         )
 
         # Memory increase should be reasonable

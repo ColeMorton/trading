@@ -74,7 +74,7 @@ def get_equity_file_path(
     """
     export_dir = get_equity_export_directory(strategy_type)
     filename = generate_equity_filename(
-        ticker, strategy_type, fast_period, slow_period, signal_period
+        ticker, strategy_type, fast_period, slow_period, signal_period,
     )
     return export_dir / filename
 
@@ -101,7 +101,7 @@ def equity_file_exists(
     """
     try:
         file_path = get_equity_file_path(
-            ticker, strategy_type, fast_period, slow_period, signal_period
+            ticker, strategy_type, fast_period, slow_period, signal_period,
         )
         return file_path.exists() and file_path.is_file()
     except Exception:
@@ -130,15 +130,16 @@ def get_equity_export_directory(strategy_type: str) -> Path:
         # MACD strategies export to macd_cross/equity_data/
         export_dir = project_root / "csv" / "macd_cross" / "equity_data"
     else:
+        msg = f"Invalid strategy type for equity export: {strategy_type}"
         raise TradingSystemError(
-            f"Invalid strategy type for equity export: {strategy_type}"
+            msg,
         )
 
     return export_dir
 
 
 def ensure_export_directory_exists(
-    export_dir: Path, log: Callable[[str, str], None]
+    export_dir: Path, log: Callable[[str, str], None],
 ) -> None:
     """
     Ensure the export directory exists, creating it if necessary.
@@ -191,7 +192,7 @@ def export_equity_data_to_csv(
     try:
         # Generate filename and directory
         filename = generate_equity_filename(
-            ticker, strategy_type, fast_period, slow_period, signal_period
+            ticker, strategy_type, fast_period, slow_period, signal_period,
         )
         export_dir = get_equity_export_directory(strategy_type)
         file_path = export_dir / filename
@@ -291,7 +292,7 @@ def export_equity_data_batch(
                     strategy_type,
                     fast_period is not None,
                     slow_period is not None,
-                ]
+                ],
             ):
                 log(
                     f"Missing required parameters for equity export: {portfolio}",
@@ -407,14 +408,14 @@ def get_equity_export_file_path(
         Path object for the export file
     """
     filename = generate_equity_filename(
-        ticker, strategy_type, fast_period, slow_period, signal_period
+        ticker, strategy_type, fast_period, slow_period, signal_period,
     )
     export_dir = get_equity_export_directory(strategy_type)
     return export_dir / filename
 
 
 def cleanup_old_equity_files(
-    strategy_type: str, max_age_days: int, log: Callable[[str, str], None]
+    strategy_type: str, max_age_days: int, log: Callable[[str, str], None],
 ) -> int:
     """
     Clean up old equity data files beyond specified age.

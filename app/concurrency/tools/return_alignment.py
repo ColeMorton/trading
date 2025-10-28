@@ -27,7 +27,7 @@ from .data_alignment import find_common_dates
     },
 )
 def validate_return_series_data(
-    portfolios: list[dict[str, Any]], log: Callable[[str, str], None]
+    portfolios: list[dict[str, Any]], log: Callable[[str, str], None],
 ) -> None:
     """Validate portfolio data for return series alignment.
 
@@ -39,7 +39,8 @@ def validate_return_series_data(
         DataAlignmentError: If validation fails
     """
     if not portfolios:
-        raise DataAlignmentError("No portfolios provided for return series alignment")
+        msg = "No portfolios provided for return series alignment"
+        raise DataAlignmentError(msg)
 
     required_fields = ["ticker", "strategy_type", "period"]
     missing_fields = []
@@ -51,7 +52,8 @@ def validate_return_series_data(
 
     if missing_fields:
         error_details = "; ".join(missing_fields)
-        raise DataAlignmentError(f"Portfolio validation failed: {error_details}")
+        msg = f"Portfolio validation failed: {error_details}"
+        raise DataAlignmentError(msg)
 
     log(f"Validated {len(portfolios)} portfolios for return series alignment", "info")
 
@@ -65,7 +67,7 @@ def validate_return_series_data(
     },
 )
 def calculate_return_series(
-    df: pl.DataFrame, log: Callable[[str, str], None]
+    df: pl.DataFrame, log: Callable[[str, str], None],
 ) -> pl.DataFrame:
     """Calculate return series from position data.
 
@@ -83,42 +85,46 @@ def calculate_return_series(
     missing_columns = [col for col in required_columns if col not in df.columns]
 
     if missing_columns:
+        msg = f"Missing required columns for return calculation: {missing_columns}"
         raise DataAlignmentError(
-            f"Missing required columns for return calculation: {missing_columns}"
+            msg,
         )
 
     if len(df) < 2:
+        msg = f"Insufficient data for return calculation: {len(df)} rows (minimum 2 required)"
         raise DataAlignmentError(
-            f"Insufficient data for return calculation: {len(df)} rows (minimum 2 required)"
+            msg,
         )
 
     try:
         # Calculate price returns
         df_with_returns = df.with_columns(
-            [(pl.col("Close").pct_change().fill_null(0)).alias("price_return")]
+            [(pl.col("Close").pct_change().fill_null(0)).alias("price_return")],
         )
 
         # Calculate strategy returns (price return * position)
         df_with_returns = df_with_returns.with_columns(
-            [(pl.col("price_return") * pl.col("Position")).alias("strategy_return")]
+            [(pl.col("price_return") * pl.col("Position")).alias("strategy_return")],
         )
 
         # Ensure Date column is in consistent format (nanoseconds)
         df_with_returns = df_with_returns.with_columns(
-            [pl.col("Date").cast(pl.Datetime("ns"))]
+            [pl.col("Date").cast(pl.Datetime("ns"))],
         )
 
         # Select relevant columns and remove first row (NaN return)
         result = df_with_returns.select(["Date", "strategy_return"]).slice(1)
 
         if len(result) == 0:
-            raise DataAlignmentError("No valid returns calculated after processing")
+            msg = "No valid returns calculated after processing"
+            raise DataAlignmentError(msg)
 
         log(f"Calculated {len(result)} return observations", "info")
         return result
 
     except Exception as e:
-        raise DataAlignmentError(f"Return series calculation failed: {e!s}")
+        msg = f"Return series calculation failed: {e!s}"
+        raise DataAlignmentError(msg)
 
 
 @handle_errors(
@@ -148,8 +154,9 @@ def align_return_series(
         DataAlignmentError: If alignment fails or insufficient data
     """
     if len(portfolio_returns) < 2:
+        msg = f"Need at least 2 strategies for alignment, got {len(portfolio_returns)}"
         raise DataAlignmentError(
-            f"Need at least 2 strategies for alignment, got {len(portfolio_returns)}"
+            msg,
         )
 
     strategy_names = [strategy_id for strategy_id, _ in portfolio_returns]
@@ -165,8 +172,9 @@ def align_return_series(
         common_dates = find_common_dates(return_dfs, log)
 
         if len(common_dates) < min_observations:
+            msg = f"Insufficient common observations: {len(common_dates)} < {min_observations} required"
             raise DataAlignmentError(
-                f"Insufficient common observations: {len(common_dates)} < {min_observations} required"
+                msg,
             )
 
     # Align all return series to common dates
@@ -181,13 +189,14 @@ def align_return_series(
             aligned = returns_df.join(common_dates, on="Date", how="inner")
 
             if len(aligned) != len(common_dates):
+                msg = f"Alignment failed for {strategy_id}: expected {len(common_dates)} rows, got {len(aligned)}"
                 raise DataAlignmentError(
-                    f"Alignment failed for {strategy_id}: expected {len(common_dates)} rows, got {len(aligned)}"
+                    msg,
                 )
 
             # Rename the column to be unique for this strategy
             aligned_return_col = aligned.select("strategy_return").rename(
-                {"strategy_return": strategy_id}
+                {"strategy_return": strategy_id},
             )
             aligned_returns.append(aligned_return_col)
 
@@ -206,7 +215,8 @@ def align_return_series(
         return returns_matrix, strategy_names
 
     except Exception as e:
-        raise DataAlignmentError(f"Failed to create aligned returns matrix: {e!s}")
+        msg = f"Failed to create aligned returns matrix: {e!s}"
+        raise DataAlignmentError(msg)
 
 
 @handle_errors(
@@ -231,8 +241,9 @@ def validate_return_matrix(
     # Check matrix dimensions
     expected_cols = len(strategy_names) + 1  # +1 for Date column
     if len(returns_matrix.columns) != expected_cols:
+        msg = f"Return matrix column count mismatch: expected {expected_cols}, got {len(returns_matrix.columns)}"
         raise DataAlignmentError(
-            f"Return matrix column count mismatch: expected {expected_cols}, got {len(returns_matrix.columns)}"
+            msg,
         )
 
     # Check for missing values
@@ -240,19 +251,22 @@ def validate_return_matrix(
     total_nulls = sum(null_counts.row(0))
 
     if total_nulls > 0:
-        raise DataAlignmentError(f"Return matrix contains {total_nulls} null values")
+        msg = f"Return matrix contains {total_nulls} null values"
+        raise DataAlignmentError(msg)
 
     # Check for infinite values
     for strategy in strategy_names:
         strategy_returns = returns_matrix.select(strategy).to_numpy().flatten()
 
         if np.any(np.isinf(strategy_returns)):
+            msg = f"Strategy {strategy} contains infinite return values"
             raise DataAlignmentError(
-                f"Strategy {strategy} contains infinite return values"
+                msg,
             )
 
         if np.any(np.isnan(strategy_returns)):
-            raise DataAlignmentError(f"Strategy {strategy} contains NaN return values")
+            msg = f"Strategy {strategy} contains NaN return values"
+            raise DataAlignmentError(msg)
 
     # Check return variance (must be > 0 for valid covariance calculation)
     for strategy in strategy_names:
@@ -260,8 +274,9 @@ def validate_return_matrix(
         variance = np.var(strategy_returns, ddof=1)
 
         if variance <= 0:
+            msg = f"Strategy {strategy} has zero or negative variance: {variance}"
             raise DataAlignmentError(
-                f"Strategy {strategy} has zero or negative variance: {variance}"
+                msg,
             )
 
     log(f"Return matrix validation passed for {len(strategy_names)} strategies", "info")
@@ -317,14 +332,16 @@ def align_portfolio_returns(
                 try:
                     df = pl.read_csv(portfolio["data_path"])
                 except Exception as e:
+                    msg = f"Failed to load data from {portfolio['data_path']}: {e!s}"
                     raise DataAlignmentError(
-                        f"Failed to load data from {portfolio['data_path']}: {e!s}"
+                        msg,
                     )
             elif "data" in portfolio:
                 # Use provided DataFrame
                 df = portfolio["data"]
             else:
-                raise DataAlignmentError(f"No data source found for {strategy_id}")
+                msg = f"No data source found for {strategy_id}"
+                raise DataAlignmentError(msg)
 
             # Calculate returns
             returns_df = calculate_return_series(df, log)
@@ -332,7 +349,7 @@ def align_portfolio_returns(
 
     # Align all return series
     returns_matrix, strategy_names = align_return_series(
-        portfolio_returns, log, min_observations
+        portfolio_returns, log, min_observations,
     )
 
     # Validate final result

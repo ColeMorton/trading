@@ -53,13 +53,13 @@ class TestATRRegressionPrevention(unittest.TestCase):
                 "Low": lows,
                 "Close": prices,
                 "Volume": [100000] * len(prices),
-            }
+            },
         ).set_index("Date")
 
         # Mock logger
         self.log_messages = []
         self.test_log = lambda msg, level="info": self.log_messages.append(
-            f"{level}: {msg}"
+            f"{level}: {msg}",
         )
 
     def test_prevent_always_true_entry_signals(self):
@@ -121,7 +121,7 @@ class TestATRRegressionPrevention(unittest.TestCase):
         if result["Total Trades"] > 0:
             # If there are trades, Score should not be 0 (unless truly awful performance)
             self.assertNotEqual(
-                score, 0.0, "REGRESSION BUG: Score calculation is broken (always 0)"
+                score, 0.0, "REGRESSION BUG: Score calculation is broken (always 0)",
             )
 
             # Score should be a reasonable numeric value
@@ -251,7 +251,7 @@ class TestATRRegressionPrevention(unittest.TestCase):
                 "Low": prices * 0.985,
                 "Close": prices,
                 "Volume": np.random.randint(1000000, 20000000, len(prices)),
-            }
+            },
         ).set_index("Date")
 
         # Test ATR(15, 1.5) as per external validation
@@ -276,7 +276,7 @@ class TestATRRegressionPrevention(unittest.TestCase):
 
         # Should generate some trades (not 0)
         self.assertGreater(
-            total_trades, 0, "Should generate some trades in long-term trending market"
+            total_trades, 0, "Should generate some trades in long-term trending market",
         )
 
     def test_prevent_duration_export_errors(self):
@@ -309,7 +309,7 @@ class TestATRRegressionPrevention(unittest.TestCase):
             # Should not be NaN or complex object
             if isinstance(value, int | float):
                 self.assertFalse(
-                    np.isnan(value), f"Duration field {field} should not be NaN"
+                    np.isnan(value), f"Duration field {field} should not be NaN",
                 )
 
     def test_prevent_signal_entry_always_true_export(self):
@@ -386,7 +386,7 @@ class TestATRRegressionPrevention(unittest.TestCase):
                 "Low": [p - 1 for p in controlled_prices],
                 "Close": controlled_prices,
                 "Volume": [100000] * 20,
-            }
+            },
         ).set_index("Date")
 
         # Calculate ATR with our implementation

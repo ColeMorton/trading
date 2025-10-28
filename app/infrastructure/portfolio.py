@@ -90,7 +90,8 @@ class PortfolioManager(PortfolioManagerInterface):
     def load_portfolio(self, path: Path) -> Portfolio:
         """Load a portfolio from file."""
         if not path.exists():
-            raise FileNotFoundError(f"Portfolio file not found: {path}")
+            msg = f"Portfolio file not found: {path}"
+            raise FileNotFoundError(msg)
 
         if path.suffix == ".json":
             with open(path) as f:
@@ -100,7 +101,8 @@ class PortfolioManager(PortfolioManagerInterface):
             df = pd.read_csv(path)
             data = self._csv_to_portfolio_dict(df)
         else:
-            raise ValueError(f"Unsupported file format: {path.suffix}")
+            msg = f"Unsupported file format: {path.suffix}"
+            raise ValueError(msg)
 
         return self._dict_to_portfolio(data)
 
@@ -117,13 +119,14 @@ class PortfolioManager(PortfolioManagerInterface):
             df = self._portfolio_to_dataframe(portfolio)
             df.to_csv(path, index=False)
         else:
-            raise ValueError(f"Unsupported file format: {path.suffix}")
+            msg = f"Unsupported file format: {path.suffix}"
+            raise ValueError(msg)
 
         if self._logger:
             self._logger.get_logger(__name__).info(f"Saved portfolio to {path}")
 
     def list_portfolios(
-        self, directory: Path, pattern: str | None | None = None
+        self, directory: Path, pattern: str | None | None = None,
     ) -> list[Portfolio]:
         """List all portfolios in a directory."""
         if not directory.exists():
@@ -141,13 +144,13 @@ class PortfolioManager(PortfolioManagerInterface):
                 except Exception as e:
                     if self._logger:
                         self._logger.get_logger(__name__).warning(
-                            f"Failed to load portfolio {file_path}: {e}"
+                            f"Failed to load portfolio {file_path}: {e}",
                         )
 
         return portfolios
 
     def filter_portfolios(
-        self, portfolios: list[Portfolio], filters: list[PortfolioFilter]
+        self, portfolios: list[Portfolio], filters: list[PortfolioFilter],
     ) -> list[Portfolio]:
         """Filter portfolios based on criteria."""
         result = portfolios
@@ -159,7 +162,7 @@ class PortfolioManager(PortfolioManagerInterface):
         return result
 
     def aggregate_portfolios(
-        self, portfolios: list[Portfolio]
+        self, portfolios: list[Portfolio],
     ) -> pd.DataFrame | pl.DataFrame:
         """Aggregate multiple portfolios into a summary."""
         if not portfolios:
@@ -186,12 +189,12 @@ class PortfolioManager(PortfolioManagerInterface):
         return df
 
     def get_best_portfolios(
-        self, portfolios: list[Portfolio], metric: str = "sharpe_ratio", top_n: int = 10
+        self, portfolios: list[Portfolio], metric: str = "sharpe_ratio", top_n: int = 10,
     ) -> list[Portfolio]:
         """Get best performing portfolios by metric."""
         # Sort portfolios by metric
         sorted_portfolios = sorted(
-            portfolios, key=lambda p: p.metrics.get(metric, float("-inf")), reverse=True
+            portfolios, key=lambda p: p.metrics.get(metric, float("-inf")), reverse=True,
         )
 
         return sorted_portfolios[:top_n]

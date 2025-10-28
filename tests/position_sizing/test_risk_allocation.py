@@ -147,7 +147,7 @@ class TestRiskAllocationCalculator:
         account_breakdown = {"IBKR": 60000.0, "Bybit": 40000.0}
 
         result = self.calculator.get_risk_allocation_summary(
-            net_worth, account_breakdown
+            net_worth, account_breakdown,
         )
 
         assert "total_portfolio" in result

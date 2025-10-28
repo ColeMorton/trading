@@ -46,7 +46,7 @@ def validate_equity_data_config(
             "METRIC": MetricType.MEAN.value,
         }
         warnings.append(
-            "EQUITY_DATA configuration missing, using defaults (EXPORT=False)"
+            "EQUITY_DATA configuration missing, using defaults (EXPORT=False)",
         )
         return True, validated_config, warnings
 
@@ -64,12 +64,12 @@ def validate_equity_data_config(
             validated_config["EXPORT"] = False
         else:
             warnings.append(
-                f"Invalid EXPORT value '{export_setting}', defaulting to False"
+                f"Invalid EXPORT value '{export_setting}', defaulting to False",
             )
             validated_config["EXPORT"] = False
     else:
         warnings.append(
-            f"Invalid EXPORT type {type(export_setting)}, defaulting to False"
+            f"Invalid EXPORT type {type(export_setting)}, defaulting to False",
         )
         validated_config["EXPORT"] = False
 
@@ -83,12 +83,12 @@ def validate_equity_data_config(
             validated_config["METRIC"] = metric_lower
         else:
             warnings.append(
-                f"Invalid METRIC value '{metric_setting}', defaulting to 'mean'"
+                f"Invalid METRIC value '{metric_setting}', defaulting to 'mean'",
             )
             validated_config["METRIC"] = MetricType.MEAN.value
     else:
         warnings.append(
-            f"Invalid METRIC type {type(metric_setting)}, defaulting to 'mean'"
+            f"Invalid METRIC type {type(metric_setting)}, defaulting to 'mean'",
         )
         validated_config["METRIC"] = MetricType.MEAN.value
 
@@ -113,7 +113,8 @@ def validate_configuration_schema(
     # Validate EQUITY_DATA section
     is_valid, equity_config, equity_warnings = validate_equity_data_config(config)
     if not is_valid:
-        raise ConfigurationError("EQUITY_DATA configuration validation failed")
+        msg = "EQUITY_DATA configuration validation failed"
+        raise ConfigurationError(msg)
 
     validated_config["EQUITY_DATA"] = equity_config
     warnings.extend(equity_warnings)
@@ -141,7 +142,8 @@ def get_validated_equity_config(config: dict[str, Any]) -> dict[str, Any]:
             pass
         return validated_config
     except Exception as e:
-        raise ConfigurationError(f"Failed to validate EQUITY_DATA configuration: {e!s}")
+        msg = f"Failed to validate EQUITY_DATA configuration: {e!s}"
+        raise ConfigurationError(msg)
 
 
 def is_equity_export_enabled(config: dict[str, Any]) -> bool:
@@ -201,7 +203,7 @@ def log_configuration_validation(config: dict[str, Any], log_func):
         metric_type = equity_config.get("METRIC", "mean")
 
         log_func(
-            f"Equity data export: {'ENABLED' if export_enabled else 'DISABLED'}", "info"
+            f"Equity data export: {'ENABLED' if export_enabled else 'DISABLED'}", "info",
         )
         if export_enabled:
             log_func(f"Equity metric selection: {metric_type}", "info")
@@ -213,4 +215,5 @@ def log_configuration_validation(config: dict[str, Any], log_func):
         raise
     except Exception as e:
         log_func(f"Unexpected error during configuration validation: {e!s}", "error")
-        raise ConfigurationError(f"Configuration validation failed: {e!s}")
+        msg = f"Configuration validation failed: {e!s}"
+        raise ConfigurationError(msg)

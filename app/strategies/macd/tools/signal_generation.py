@@ -14,7 +14,7 @@ from app.tools.get_data import get_data
 
 
 def calculate_macd(
-    data: pl.DataFrame, fast_period: int, slow_period: int, signal_period: int
+    data: pl.DataFrame, fast_period: int, slow_period: int, signal_period: int,
 ) -> pl.DataFrame:
     """Calculate MACD and Signal line values.
 
@@ -34,7 +34,7 @@ def calculate_macd(
         [
             pl.col("Close").ewm_mean(span=fast_period).alias("EMA_short"),
             pl.col("Close").ewm_mean(span=slow_period).alias("EMA_long"),
-        ]
+        ],
     )
 
     # Count valid EMA points
@@ -47,7 +47,7 @@ def calculate_macd(
 
     # Calculate Signal line
     data = data.with_columns(
-        [pl.col("MACD").ewm_mean(span=signal_period).alias("Signal_Line")]
+        [pl.col("MACD").ewm_mean(span=signal_period).alias("Signal_Line")],
     )
 
     # Count valid MACD and Signal Line points
@@ -92,19 +92,19 @@ def generate_macd_signals(data: pl.DataFrame, config: dict) -> pl.DataFrame | No
                 [
                     pl.when(
                         (pl.col("MACD") > pl.col("Signal_Line"))
-                        & (pl.col("MACD").shift(1) <= pl.col("Signal_Line").shift(1))
+                        & (pl.col("MACD").shift(1) <= pl.col("Signal_Line").shift(1)),
                     )
                     .then(1)  # Enter long
                     .when(
                         (pl.col("MACD") < pl.col("Signal_Line"))
-                        & (pl.col("MACD").shift(1) >= pl.col("Signal_Line").shift(1))
+                        & (pl.col("MACD").shift(1) >= pl.col("Signal_Line").shift(1)),
                     )
                     .then(0)  # Exit long
                     .otherwise(
-                        None
+                        None,
                     )  # Use None instead of pl.col("Signal") so forward_fill works
-                    .alias("Signal")
-                ]
+                    .alias("Signal"),
+                ],
             )
         else:
             # Short: Enter when MACD crosses below Signal Line
@@ -112,24 +112,24 @@ def generate_macd_signals(data: pl.DataFrame, config: dict) -> pl.DataFrame | No
                 [
                     pl.when(
                         (pl.col("MACD") < pl.col("Signal_Line"))
-                        & (pl.col("MACD").shift(1) >= pl.col("Signal_Line").shift(1))
+                        & (pl.col("MACD").shift(1) >= pl.col("Signal_Line").shift(1)),
                     )
                     .then(-1)  # Enter short
                     .when(
                         (pl.col("MACD") > pl.col("Signal_Line"))
-                        & (pl.col("MACD").shift(1) <= pl.col("Signal_Line").shift(1))
+                        & (pl.col("MACD").shift(1) <= pl.col("Signal_Line").shift(1)),
                     )
                     .then(0)  # Exit short
                     .otherwise(
-                        None
+                        None,
                     )  # Use None instead of pl.col("Signal") so forward_fill works
-                    .alias("Signal")
-                ]
+                    .alias("Signal"),
+                ],
             )
 
         # Forward fill signals between crossovers
         data = data.with_columns(
-            [pl.col("Signal").forward_fill().fill_null(0).alias("Signal")]
+            [pl.col("Signal").forward_fill().fill_null(0).alias("Signal")],
         )
 
         # Log signal conversion statistics
@@ -164,9 +164,8 @@ def generate_macd_signals(data: pl.DataFrame, config: dict) -> pl.DataFrame | No
         def simple_log(message, level="debug"):
             pass  # Suppress logging for performance
 
-        data = convert_signals_to_positions(data, config, simple_log)
+        return convert_signals_to_positions(data, config, simple_log)
 
-        return data
 
     except Exception:
         # Error logging removed for performance
@@ -174,7 +173,7 @@ def generate_macd_signals(data: pl.DataFrame, config: dict) -> pl.DataFrame | No
 
 
 def get_current_signals(
-    data: pl.DataFrame, config: dict, log: Callable
+    data: pl.DataFrame, config: dict, log: Callable,
 ) -> pl.DataFrame:
     """Get current signals for MACD parameter combinations.
 
@@ -219,10 +218,10 @@ def get_current_signals(
                     if slow_period <= fast_period:
                         continue
                     for signal_period in range(
-                        signal_window_start, signal_window_end + 1, step
+                        signal_window_start, signal_window_end + 1, step,
                     ):
                         parameter_combinations.append(
-                            (fast_period, slow_period, signal_period)
+                            (fast_period, slow_period, signal_period),
                         )
 
         for fast_period, slow_period, signal_period in parameter_combinations:
@@ -233,7 +232,7 @@ def get_current_signals(
                         "fast_period": fast_period,
                         "slow_period": slow_period,
                         "signal_period": signal_period,
-                    }
+                    },
                 )
 
                 temp_data = generate_macd_signals(data.clone(), temp_config)
@@ -247,7 +246,7 @@ def get_current_signals(
                                 "Slow Period": slow_period,
                                 "Signal Period": signal_period,
                                 "Signal": last_signal,
-                            }
+                            },
                         )
 
             except Exception as e:
@@ -266,7 +265,7 @@ def get_current_signals(
                 "Slow Period": pl.Int32,
                 "Signal Period": pl.Int32,
                 "Signal": pl.Int32,
-            }
+            },
         )
 
     except Exception as e:
@@ -277,7 +276,7 @@ def get_current_signals(
                 "Slow Period": pl.Int32,
                 "Signal Period": pl.Int32,
                 "Signal": pl.Int32,
-            }
+            },
         )
 
 
@@ -306,7 +305,7 @@ def generate_current_signals(config: dict, log: Callable) -> pl.DataFrame:
                     "Slow Period": pl.Int32,
                     "Signal Period": pl.Int32,
                     "Signal": pl.Int32,
-                }
+                },
             )
 
         current_signals = get_current_signals(data, config, log)
@@ -328,5 +327,5 @@ def generate_current_signals(config: dict, log: Callable) -> pl.DataFrame:
                 "Slow Period": pl.Int32,
                 "Signal Period": pl.Int32,
                 "Signal": pl.Int32,
-            }
+            },
         )

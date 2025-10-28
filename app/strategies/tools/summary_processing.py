@@ -92,7 +92,7 @@ def _extract_equity_data_if_enabled(
 
         # Extract equity data
         equity_data = extract_equity_data_from_portfolio(
-            portfolio=portfolio, metric_type=metric_type, config=config, log=log
+            portfolio=portfolio, metric_type=metric_type, config=config, log=log,
         )
 
         log(
@@ -110,7 +110,7 @@ def _extract_equity_data_if_enabled(
 
 
 def process_ticker_portfolios(
-    ticker: str, row: dict, config: dict[str, Any], log: Callable[[str, str], None]
+    ticker: str, row: dict, config: dict[str, Any], log: Callable[[str, str], None],
 ) -> list[dict] | None:
     """
     Process portfolios for a single ticker based on strategy type.
@@ -260,7 +260,7 @@ def process_ticker_portfolios(
                 return None
 
             log(
-                f"Processing MACD strategy for {ticker} with parameters {fast_period}/{slow_period}/{signal_period}"
+                f"Processing MACD strategy for {ticker} with parameters {fast_period}/{slow_period}/{signal_period}",
             )
             try:
                 result = process_macd_strategy(
@@ -288,7 +288,7 @@ def process_ticker_portfolios(
 
                         # Check if this is a VectorBT Portfolio object (required for equity extraction)
                         has_vectorbt_portfolio = hasattr(
-                            portfolio, "value"
+                            portfolio, "value",
                         ) and hasattr(portfolio, "stats")
                         log(
                             f"DEBUG: {ticker} has VectorBT Portfolio methods: {has_vectorbt_portfolio}",
@@ -467,7 +467,7 @@ def process_ticker_portfolios(
                         else:
                             # Check if we're skipping due to existing file
                             force_fresh = config.get("EQUITY_DATA", {}).get(
-                                "FORCE_FRESH_ANALYSIS", True
+                                "FORCE_FRESH_ANALYSIS", True,
                             )
                             if not force_fresh:
                                 try:
@@ -578,7 +578,7 @@ def process_ticker_portfolios(
                         # Check if there's a current entry signal
                         current_signal = is_signal_current(sma_data, config)
                         log(
-                            f"Current SMA signal for {ticker}: {current_signal}", "info"
+                            f"Current SMA signal for {ticker}: {current_signal}", "info",
                         )
 
                         # Check if there's a current exit signal
@@ -591,7 +591,7 @@ def process_ticker_portfolios(
                         # Get total open trades from portfolio stats
                         sma_portfolio_stats = sma_portfolio.stats()
                         total_open_trades = sma_portfolio_stats.get(
-                            "Total Open Trades", 0
+                            "Total Open Trades", 0,
                         )
 
                         # Calculate unconfirmed signal using real-time data
@@ -693,7 +693,7 @@ def process_ticker_portfolios(
 
                         # Extract equity data if enabled (with automatic fresh analysis)
                         has_sma_vectorbt_portfolio = hasattr(
-                            sma_portfolio, "value"
+                            sma_portfolio, "value",
                         ) and hasattr(sma_portfolio, "stats")
                         equity_data = None
                         if has_sma_vectorbt_portfolio:
@@ -750,7 +750,7 @@ def process_ticker_portfolios(
                         else:
                             # Check if we're skipping due to existing file
                             force_fresh = config.get("EQUITY_DATA", {}).get(
-                                "FORCE_FRESH_ANALYSIS", True
+                                "FORCE_FRESH_ANALYSIS", True,
                             )
                             if not force_fresh:
                                 try:
@@ -835,7 +835,7 @@ def process_ticker_portfolios(
                         # Check if there's a current entry signal
                         current_signal = is_signal_current(ema_data, config)
                         log(
-                            f"Current EMA signal for {ticker}: {current_signal}", "info"
+                            f"Current EMA signal for {ticker}: {current_signal}", "info",
                         )
 
                         # Check if there's a current exit signal
@@ -848,7 +848,7 @@ def process_ticker_portfolios(
                         # Get total open trades from portfolio stats
                         ema_portfolio_stats = ema_portfolio.stats()
                         total_open_trades = ema_portfolio_stats.get(
-                            "Total Open Trades", 0
+                            "Total Open Trades", 0,
                         )
 
                         # Calculate unconfirmed signal using real-time data
@@ -950,7 +950,7 @@ def process_ticker_portfolios(
 
                         # Extract equity data if enabled (with automatic fresh analysis)
                         has_ema_vectorbt_portfolio = hasattr(
-                            ema_portfolio, "value"
+                            ema_portfolio, "value",
                         ) and hasattr(ema_portfolio, "stats")
                         equity_data = None
                         if has_ema_vectorbt_portfolio:
@@ -1007,7 +1007,7 @@ def process_ticker_portfolios(
                         else:
                             # Check if we're skipping due to existing file
                             force_fresh = config.get("EQUITY_DATA", {}).get(
-                                "FORCE_FRESH_ANALYSIS", True
+                                "FORCE_FRESH_ANALYSIS", True,
                             )
                             if not force_fresh:
                                 try:
@@ -1462,7 +1462,7 @@ def update_strategy_files(
             filtered_portfolios = filter_invalid_metrics(reordered_portfolios, log)
             reordered_portfolios = filtered_portfolios
             log(
-                f"After filtering invalid metrics: {len(reordered_portfolios)} portfolios remain"
+                f"After filtering invalid metrics: {len(reordered_portfolios)} portfolios remain",
             )
         except Exception as e:
             log(f"Error during invalid metrics filtering: {e!s}", "warning")
@@ -1490,7 +1490,7 @@ def update_strategy_files(
                     continue
                 # Convert complex objects to strings for CSV compatibility
                 if value is not None and not isinstance(
-                    value, str | int | float | bool
+                    value, str | int | float | bool,
                 ):
                     try:
                         clean_portfolio[key] = str(value)
@@ -1541,7 +1541,7 @@ def update_strategy_files(
                     try:
                         # Create Score column from Total Return [%]
                         df = df.with_columns(
-                            pl.col("Total Return [%]").cast(pl.Float64).alias("Score")
+                            pl.col("Total Return [%]").cast(pl.Float64).alias("Score"),
                         )
                         log(
                             "Created Score column from Total Return [%] for sorting",
@@ -1894,7 +1894,7 @@ def export_summary_results(
             reordered_portfolios = filtered_portfolios
 
             log(
-                f"After filtering invalid metrics: {len(reordered_portfolios)} portfolios remain"
+                f"After filtering invalid metrics: {len(reordered_portfolios)} portfolios remain",
             )
         except Exception as e:
             log(f"Error during invalid metrics filtering: {e!s}", "warning")
@@ -1918,7 +1918,7 @@ def export_summary_results(
                     # Sort the DataFrame
                     df = df.sort(sort_by, descending=not sort_asc)
                     log(
-                        f"Sorted results by {sort_by} ({'ascending' if sort_asc else 'descending'})"
+                        f"Sorted results by {sort_by} ({'ascending' if sort_asc else 'descending'})",
                     )
 
                     # Convert back to list of dictionaries
@@ -1963,7 +1963,7 @@ def export_summary_results(
                 "info",
             )
             df = df.with_columns(
-                pl.lit(None).cast(pl.Utf8).alias("Last Position Open Date")
+                pl.lit(None).cast(pl.Utf8).alias("Last Position Open Date"),
             )
 
         if "Last Position Close Date" not in df.columns:
@@ -1972,7 +1972,7 @@ def export_summary_results(
                 "info",
             )
             df = df.with_columns(
-                pl.lit(None).cast(pl.Utf8).alias("Last Position Close Date")
+                pl.lit(None).cast(pl.Utf8).alias("Last Position Close Date"),
             )
 
         # Convert back to list of dictionaries
@@ -2001,7 +2001,7 @@ def export_summary_results(
                         "Short": p.get("Fast Period"),
                         "Long": p.get("Slow Period"),
                         "Metric": p.get("Metric Type"),
-                    }
+                    },
                 )
 
         log(f"📊 FINAL METRIC TYPES: {dict(final_metric_counts)}", "info")
@@ -2013,7 +2013,7 @@ def export_summary_results(
 
         # Generate SPDS-compatible individual strategy entries from trade history
         spds_compatible_portfolios = _generate_spds_compatible_entries(
-            reordered_portfolios, portfolio_name, log
+            reordered_portfolios, portfolio_name, log,
         )
 
         # Export to /data/raw/portfolios to avoid overwriting input strategy files
@@ -2035,7 +2035,7 @@ def export_summary_results(
             from app.tools.equity_export import export_equity_data_batch
 
             equity_results = export_equity_data_batch(
-                portfolios=reordered_portfolios, log=log, config=export_config
+                portfolios=reordered_portfolios, log=log, config=export_config,
             )
 
             if equity_results["exported_count"] > 0:

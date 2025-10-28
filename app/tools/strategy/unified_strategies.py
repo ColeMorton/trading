@@ -41,7 +41,8 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
             ma_type: Type of moving average - "SMA" or "EMA"
         """
         if ma_type not in ["SMA", "EMA"]:
-            raise ValueError(f"Invalid MA type: {ma_type}. Must be 'SMA' or 'EMA'")
+            msg = f"Invalid MA type: {ma_type}. Must be 'SMA' or 'EMA'"
+            raise ValueError(msg)
         self.ma_type = ma_type
 
     def calculate(
@@ -67,16 +68,18 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
         """
         # Validate inputs
         if not self.validate_windows(fast_period, slow_period, log):
-            raise ValueError("Invalid window parameters")
+            msg = "Invalid window parameters"
+            raise ValueError(msg)
 
         if not self.validate_data(data, log):
-            raise ValueError("Invalid data")
+            msg = "Invalid data"
+            raise ValueError(msg)
 
         direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
         use_sma = self.ma_type == "SMA"
 
         log(
-            f"Calculating {direction} {self.ma_type}s and signals with fast period {fast_period} and slow period {slow_period}"
+            f"Calculating {direction} {self.ma_type}s and signals with fast period {fast_period} and slow period {slow_period}",
         )
 
         try:
@@ -95,11 +98,11 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
             # Add Signal column (-1 for short entry, 1 for long entry, 0 for no signal)
             if config.get("DIRECTION", "Long") == "Short":
                 data = data.with_columns(
-                    [pl.when(entries).then(-1).otherwise(0).alias("Signal")]
+                    [pl.when(entries).then(-1).otherwise(0).alias("Signal")],
                 )
             else:
                 data = data.with_columns(
-                    [pl.when(entries).then(1).otherwise(0).alias("Signal")]
+                    [pl.when(entries).then(1).otherwise(0).alias("Signal")],
                 )
 
             # Convert signals to positions with audit trail
@@ -108,11 +111,10 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
             strategy_config["FAST_PERIOD"] = fast_period
             strategy_config["SLOW_PERIOD"] = slow_period
 
-            data = convert_signals_to_positions(
-                data=data, config=strategy_config, log=log
+            return convert_signals_to_positions(
+                data=data, config=strategy_config, log=log,
             )
 
-            return data
 
         except Exception as e:
             log(
@@ -146,8 +148,9 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
 
             return execute_strategy(config, log)
         except ImportError:
+            msg = f"Failed to import MA Cross strategy execution for {self.ma_type}"
             raise StrategyError(
-                f"Failed to import MA Cross strategy execution for {self.ma_type}"
+                msg,
             )
 
     def get_parameter_ranges(self) -> dict[str, Any]:
@@ -155,7 +158,7 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
         try:
             defaults = ConfigFactory.get_default_config(self.ma_type)
             # Convert defaults to parameter ranges format
-            ranges = {
+            return {
                 "FAST_PERIOD": {
                     "min": 5,
                     "max": 50,
@@ -182,7 +185,6 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
                     "default": defaults.get("RSI_THRESHOLD", 70),
                 },
             }
-            return ranges
         except Exception:
             # Fallback to hardcoded ranges if unified config fails
             return {
@@ -230,27 +232,30 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
         """
         # Validate inputs
         if not self.validate_windows(fast_period, slow_period, log):
-            raise ValueError("Invalid window parameters")
+            msg = "Invalid window parameters"
+            raise ValueError(msg)
 
         if not self.validate_data(data, log):
-            raise ValueError("Invalid data")
+            msg = "Invalid data"
+            raise ValueError(msg)
 
         # Get signal period from config
         signal_period = config.get("SIGNAL_PERIOD")
         if signal_period is None or signal_period <= 0:
+            msg = f"MACD strategy requires valid SIGNAL_PERIOD, got: {signal_period}"
             raise ValueError(
-                f"MACD strategy requires valid SIGNAL_PERIOD, got: {signal_period}"
+                msg,
             )
 
         direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
         log(
-            f"Calculating {direction} MACD signals with fast={fast_period}, slow={slow_period}, signal={signal_period}"
+            f"Calculating {direction} MACD signals with fast={fast_period}, slow={slow_period}, signal={signal_period}",
         )
 
         try:
             # Calculate MACD components
             data = self._calculate_macd_components(
-                data, fast_period, slow_period, signal_period, log
+                data, fast_period, slow_period, signal_period, log,
             )
 
             # Calculate RSI if enabled
@@ -265,11 +270,11 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
             # Add Signal column
             if config.get("DIRECTION", "Long") == "Short":
                 data = data.with_columns(
-                    [pl.when(entries).then(-1).otherwise(0).alias("Signal")]
+                    [pl.when(entries).then(-1).otherwise(0).alias("Signal")],
                 )
             else:
                 data = data.with_columns(
-                    [pl.when(entries).then(1).otherwise(0).alias("Signal")]
+                    [pl.when(entries).then(1).otherwise(0).alias("Signal")],
                 )
 
             # Convert signals to positions
@@ -279,11 +284,10 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
             strategy_config["SLOW_PERIOD"] = slow_period
             strategy_config["SIGNAL_PERIOD"] = signal_period
 
-            data = convert_signals_to_positions(
-                data=data, config=strategy_config, log=log
+            return convert_signals_to_positions(
+                data=data, config=strategy_config, log=log,
             )
 
-            return data
 
         except Exception as e:
             log(f"Failed to calculate {direction} MACD signals: {e}", "error")
@@ -304,32 +308,32 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
             [
                 pl.col("Close").ewm_mean(span=fast_period).alias("EMA_Fast"),
                 pl.col("Close").ewm_mean(span=slow_period).alias("EMA_Slow"),
-            ]
+            ],
         )
 
         # Calculate MACD line (fast EMA - slow EMA)
         data = data.with_columns(
-            [(pl.col("EMA_Fast") - pl.col("EMA_Slow")).alias("MACD_Line")]
+            [(pl.col("EMA_Fast") - pl.col("EMA_Slow")).alias("MACD_Line")],
         )
 
         # Calculate signal line (EMA of MACD line)
         data = data.with_columns(
-            [pl.col("MACD_Line").ewm_mean(span=signal_period).alias("MACD_Signal")]
+            [pl.col("MACD_Line").ewm_mean(span=signal_period).alias("MACD_Signal")],
         )
 
         # Calculate histogram (MACD line - signal line)
         data = data.with_columns(
-            [(pl.col("MACD_Line") - pl.col("MACD_Signal")).alias("MACD_Histogram")]
+            [(pl.col("MACD_Line") - pl.col("MACD_Signal")).alias("MACD_Histogram")],
         )
 
         log(
-            f"Calculated MACD components: Fast EMA({fast_period}), Slow EMA({slow_period}), Signal({signal_period})"
+            f"Calculated MACD components: Fast EMA({fast_period}), Slow EMA({slow_period}), Signal({signal_period})",
         )
 
         return data
 
     def _calculate_macd_signals(
-        self, data: pl.DataFrame, config: dict[str, Any]
+        self, data: pl.DataFrame, config: dict[str, Any],
     ) -> tuple:
         """Calculate MACD entry and exit signals."""
 
@@ -374,13 +378,14 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
 
             return execute_strategy(config, log)
         except ImportError:
-            raise StrategyError("Failed to import MACD strategy execution")
+            msg = "Failed to import MACD strategy execution"
+            raise StrategyError(msg)
 
     def get_parameter_ranges(self) -> dict[str, Any]:
         """Get strategy-specific parameter ranges and defaults using unified config system."""
         try:
             defaults = ConfigFactory.get_default_config("MACD")
-            ranges = {
+            return {
                 "FAST_PERIOD": {
                     "min": 8,
                     "max": 21,
@@ -412,7 +417,6 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
                     "default": defaults.get("RSI_THRESHOLD", 70),
                 },
             }
-            return ranges
         except Exception:
             # Fallback to hardcoded ranges if unified config fails
             return {
@@ -461,10 +465,12 @@ class UnifiedMeanReversionStrategy(BaseStrategy, StrategyInterface):
         """
         # Validate inputs
         if not self.validate_windows(fast_period, slow_period, log):
-            raise ValueError("Invalid window parameters")
+            msg = "Invalid window parameters"
+            raise ValueError(msg)
 
         if not self.validate_data(data, log):
-            raise ValueError("Invalid data")
+            msg = "Invalid data"
+            raise ValueError(msg)
 
         direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
         log(f"Calculating {direction} Mean Reversion signals")
@@ -520,7 +526,8 @@ class UnifiedMeanReversionStrategy(BaseStrategy, StrategyInterface):
 
             return execute_strategy(config, log)
         except ImportError:
-            raise StrategyError("Failed to import Mean Reversion strategy execution")
+            msg = "Failed to import Mean Reversion strategy execution"
+            raise StrategyError(msg)
 
     def get_parameter_ranges(self) -> dict[str, Any]:
         """Get strategy-specific parameter ranges and defaults."""
@@ -556,10 +563,12 @@ class UnifiedRangeStrategy(BaseStrategy, StrategyInterface):
         """Calculate range trading signals and positions."""
         # Validate inputs
         if not self.validate_windows(fast_period, slow_period, log):
-            raise ValueError("Invalid window parameters")
+            msg = "Invalid window parameters"
+            raise ValueError(msg)
 
         if not self.validate_data(data, log):
-            raise ValueError("Invalid data")
+            msg = "Invalid data"
+            raise ValueError(msg)
 
         direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
         log(f"Calculating {direction} Range trading signals")
@@ -592,7 +601,8 @@ class UnifiedRangeStrategy(BaseStrategy, StrategyInterface):
 
             return execute_strategy(config, log)
         except ImportError:
-            raise StrategyError("Failed to import Range strategy execution")
+            msg = "Failed to import Range strategy execution"
+            raise StrategyError(msg)
 
     def get_parameter_ranges(self) -> dict[str, Any]:
         """Get strategy-specific parameter ranges and defaults."""

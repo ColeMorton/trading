@@ -33,9 +33,11 @@ def validate_config(config: dict[str, Any]) -> None:
         ValueError: If configuration is invalid
     """
     if not config.get("PORTFOLIO"):
-        raise ValueError("PORTFOLIO must be specified")
+        msg = "PORTFOLIO must be specified"
+        raise ValueError(msg)
     if config.get("DIRECTION") not in [None, "Long", "Short"]:
-        raise ValueError("DIRECTION must be either 'Long' or 'Short'")
+        msg = "DIRECTION must be either 'Long' or 'Short'"
+        raise ValueError(msg)
 
 
 def process_scanner(config: dict[str, Any]) -> bool:

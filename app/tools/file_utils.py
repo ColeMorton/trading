@@ -122,7 +122,7 @@ def get_current_window_combinations(filepath: str) -> set[tuple]:
                     current_signals.get_column("Fast Period").cast(pl.Int32).to_list(),
                     current_signals.get_column("Slow Period").cast(pl.Int32).to_list(),
                     strict=False,
-                )
+                ),
             )
         # Malformed CSV - try to parse as space-separated values
         window_combs = set()

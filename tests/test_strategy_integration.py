@@ -37,7 +37,7 @@ class TestFactoryIntegrationWithExistingCode:
             patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
             patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
             patch(
-                "app.tools.strategy.concrete.convert_signals_to_positions"
+                "app.tools.strategy.concrete.convert_signals_to_positions",
             ) as mock_positions,
         ):
             # Setup mocks
@@ -66,7 +66,7 @@ class TestFactoryIntegrationWithExistingCode:
             patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
             patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
             patch(
-                "app.tools.strategy.concrete.convert_signals_to_positions"
+                "app.tools.strategy.concrete.convert_signals_to_positions",
             ) as mock_positions,
         ):
             # Setup mocks
@@ -99,23 +99,23 @@ class TestFactoryIntegrationWithExistingCode:
 
         with (
             patch(
-                "app.strategies.ma_cross.tools.strategy_execution.get_data"
+                "app.strategies.ma_cross.tools.strategy_execution.get_data",
             ) as mock_get_data,
             patch(
-                "app.strategies.ma_cross.tools.strategy_execution.calculate_ma_and_signals"
+                "app.strategies.ma_cross.tools.strategy_execution.calculate_ma_and_signals",
             ) as mock_calc,
             patch(
-                "app.strategies.ma_cross.tools.strategy_execution.is_signal_current"
+                "app.strategies.ma_cross.tools.strategy_execution.is_signal_current",
             ) as mock_signal,
             patch(
-                "app.strategies.ma_cross.tools.strategy_execution.is_exit_signal_current"
+                "app.strategies.ma_cross.tools.strategy_execution.is_exit_signal_current",
             ) as mock_exit,
             patch(
-                "app.strategies.ma_cross.tools.strategy_execution.backtest_strategy"
+                "app.strategies.ma_cross.tools.strategy_execution.backtest_strategy",
             ) as mock_backtest,
             patch("app.tools.portfolio.filters.check_invalid_metrics") as mock_check,
             patch(
-                "app.strategies.ma_cross.tools.strategy_execution.convert_stats"
+                "app.strategies.ma_cross.tools.strategy_execution.convert_stats",
             ) as mock_convert,
         ):
             # Setup mocks
@@ -156,7 +156,7 @@ class TestFactoryIntegrationWithExistingCode:
             patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
             patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
             patch(
-                "app.tools.strategy.concrete.convert_signals_to_positions"
+                "app.tools.strategy.concrete.convert_signals_to_positions",
             ) as mock_positions,
         ):
             mock_mas.return_value = data
@@ -182,7 +182,7 @@ class TestFactoryIntegrationWithExistingCode:
             patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
             patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
             patch(
-                "app.tools.strategy.concrete.convert_signals_to_positions"
+                "app.tools.strategy.concrete.convert_signals_to_positions",
             ) as mock_positions,
         ):
             mock_mas.return_value = data

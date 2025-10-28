@@ -89,13 +89,15 @@ class ConfigLoader:
         yaml_path = Path(yaml_path)
 
         if not yaml_path.exists():
-            raise FileNotFoundError(f"Configuration file not found: {yaml_path}")
+            msg = f"Configuration file not found: {yaml_path}"
+            raise FileNotFoundError(msg)
 
         try:
             with open(yaml_path) as f:
                 config_dict = yaml.safe_load(f)
         except yaml.YAMLError as e:
-            raise ValidationError(f"Invalid YAML in {yaml_path}: {e}", config_type)
+            msg = f"Invalid YAML in {yaml_path}: {e}"
+            raise ValidationError(msg, config_type)
 
         # Apply overrides
         if overrides:
@@ -128,7 +130,7 @@ class ConfigLoader:
         return config_type(**config_dict)
 
     def _merge_configs(
-        self, base: dict[str, Any], override: dict[str, Any]
+        self, base: dict[str, Any], override: dict[str, Any],
     ) -> dict[str, Any]:
         """Merge two configuration dictionaries."""
         result = base.copy()
@@ -162,7 +164,8 @@ def load_strategy_config(
         return loader.load_from_yaml(yaml_path, StrategyConfig, overrides)
     if config_dict:
         return loader.load_from_dict(config_dict, StrategyConfig, overrides)
-    raise ValueError("Must specify profile_name, yaml_path, or config_dict")
+    msg = "Must specify profile_name, yaml_path, or config_dict"
+    raise ValueError(msg)
 
 
 def load_portfolio_config(
@@ -180,7 +183,8 @@ def load_portfolio_config(
         return loader.load_from_yaml(yaml_path, PortfolioConfig, overrides)
     if config_dict:
         return loader.load_from_dict(config_dict, PortfolioConfig, overrides)
-    raise ValueError("Must specify profile_name, yaml_path, or config_dict")
+    msg = "Must specify profile_name, yaml_path, or config_dict"
+    raise ValueError(msg)
 
 
 def load_concurrency_config(
@@ -198,4 +202,5 @@ def load_concurrency_config(
         return loader.load_from_yaml(yaml_path, ConcurrencyConfig, overrides)
     if config_dict:
         return loader.load_from_dict(config_dict, ConcurrencyConfig, overrides)
-    raise ValueError("Must specify profile_name, yaml_path, or config_dict")
+    msg = "Must specify profile_name, yaml_path, or config_dict"
+    raise ValueError(msg)

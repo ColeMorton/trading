@@ -81,7 +81,7 @@ def apply_execution_timing(
         # Default to next period if mode is invalid
         if log:
             log(
-                f"Invalid execution mode: {mode}. Using next_period instead.", "warning"
+                f"Invalid execution mode: {mode}. Using next_period instead.", "warning",
             )
         timed_signals[1:] = signals[:-1]
 
@@ -89,7 +89,7 @@ def apply_execution_timing(
         if USE_FIXED_SIGNAL_PROC:
             # Create temporary dataframe for signal counting
             temp_df = pl.DataFrame(
-                {"signal_original": signals, "signal_timed": timed_signals}
+                {"signal_original": signals, "signal_timed": timed_signals},
             )
             signal_processor = SignalProcessor(use_fixed=True)
             signal_def_orig = SignalDefinition(signal_column="signal_original")
@@ -211,7 +211,7 @@ def analyze_execution_impact(
             profit_factor = 1.0
             if len(negative_returns) > 0 and np.sum(np.abs(negative_returns)) > 0:
                 profit_factor = float(
-                    np.sum(positive_returns) / np.sum(np.abs(negative_returns))
+                    np.sum(positive_returns) / np.sum(np.abs(negative_returns)),
                 )
 
             results[mode.value] = {

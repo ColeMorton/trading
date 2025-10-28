@@ -155,7 +155,7 @@ class PerformanceProfiler:
         baseline_config["EQUITY_DATA"] = {"EXPORT": False, "METRIC": "mean"}
 
         with self.profile_operation(
-            "baseline_export", len(portfolios)
+            "baseline_export", len(portfolios),
         ) as baseline_metrics:
             baseline_metrics.export_count = 0
             # Simulate baseline processing without equity export
@@ -166,12 +166,12 @@ class PerformanceProfiler:
         current_config["EQUITY_DATA"] = {"EXPORT": True, "METRIC": "mean"}
 
         with self.profile_operation(
-            "equity_export_enabled", len(portfolios)
+            "equity_export_enabled", len(portfolios),
         ) as current_metrics:
             try:
                 result = export_function(portfolios, log_func, current_config)
                 current_metrics.export_count = len(
-                    [p for p in portfolios if p.get("_equity_data")]
+                    [p for p in portfolios if p.get("_equity_data")],
                 )
                 current_metrics.success = result is not None
             except Exception as e:
@@ -266,7 +266,7 @@ class PerformanceProfiler:
                     m.export_count for m in successful_operations
                 ),
                 "average_portfolios_per_operation": np.mean(
-                    [m.portfolio_count for m in successful_operations]
+                    [m.portfolio_count for m in successful_operations],
                 ),
                 "export_success_rate": (
                     sum(m.export_count for m in successful_operations)
@@ -279,7 +279,7 @@ class PerformanceProfiler:
         }
 
     def save_performance_report(
-        self, output_path: Path, include_detailed_metrics: bool = True
+        self, output_path: Path, include_detailed_metrics: bool = True,
     ):
         """
         Save performance report to file.
@@ -446,10 +446,10 @@ def run_performance_benchmark(
     successful_tests = [r for r in benchmark_results.values() if "error" not in r]
     if successful_tests:
         avg_performance_impact = np.mean(
-            [r["performance_impact_percent"] for r in successful_tests]
+            [r["performance_impact_percent"] for r in successful_tests],
         )
         max_performance_impact = np.max(
-            [r["performance_impact_percent"] for r in successful_tests]
+            [r["performance_impact_percent"] for r in successful_tests],
         )
         all_meet_requirements = all(r["meets_requirements"] for r in successful_tests)
 

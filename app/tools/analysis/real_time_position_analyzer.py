@@ -104,13 +104,13 @@ class RealTimePositionAnalyzer:
             return analysis
 
         except Exception as e:
-            self.logger.error(
-                f"Real-time position analysis failed for {position_id}: {e}"
+            self.logger.exception(
+                f"Real-time position analysis failed for {position_id}: {e}",
             )
             return None
 
     async def analyze_position_comprehensive(
-        self, position_id: str
+        self, position_id: str,
     ) -> dict[str, Any] | None:
         """
         Perform comprehensive analysis including historical context
@@ -129,7 +129,7 @@ class RealTimePositionAnalyzer:
 
             # Basic real-time analysis
             real_time_analysis = await self.analyze_position_real_time(
-                position_id, position_data, force_refresh=True
+                position_id, position_data, force_refresh=True,
             )
 
             if not real_time_analysis:
@@ -153,11 +153,11 @@ class RealTimePositionAnalyzer:
             }
 
         except Exception as e:
-            self.logger.error(f"Comprehensive analysis failed for {position_id}: {e}")
+            self.logger.exception(f"Comprehensive analysis failed for {position_id}: {e}")
             return None
 
     async def analyze_portfolio_positions(
-        self, position_ids: list[str]
+        self, position_ids: list[str],
     ) -> dict[str, RealTimePositionAnalysis | None]:
         """
         Analyze multiple positions in parallel
@@ -181,15 +181,15 @@ class RealTimePositionAnalyzer:
             results: dict[str, dict[str, Any]] = {}
             if analysis_tasks:
                 task_results = await asyncio.gather(
-                    *[task for _, task in analysis_tasks], return_exceptions=True
+                    *[task for _, task in analysis_tasks], return_exceptions=True,
                 )
 
                 for (position_id, _), result in zip(
-                    analysis_tasks, task_results, strict=False
+                    analysis_tasks, task_results, strict=False,
                 ):
                     if isinstance(result, Exception):
                         self.logger.warning(
-                            f"Analysis failed for {position_id}: {result}"
+                            f"Analysis failed for {position_id}: {result}",
                         )
                         results[position_id] = None
                     else:
@@ -198,7 +198,7 @@ class RealTimePositionAnalyzer:
             return results
 
         except Exception as e:
-            self.logger.error(f"Portfolio analysis failed: {e}")
+            self.logger.exception(f"Portfolio analysis failed: {e}")
             return {}
 
     async def get_position_alerts(self, position_id: str) -> list[dict[str, Any]]:
@@ -230,7 +230,7 @@ class RealTimePositionAnalyzer:
                         "message": "Immediate exit recommended - statistical exhaustion detected",
                         "confidence": analysis.signal_confidence,
                         "urgency": "IMMEDIATE",
-                    }
+                    },
                 )
 
             # Risk alerts
@@ -241,7 +241,7 @@ class RealTimePositionAnalyzer:
                         "message": f"High-confidence exit signal: {analysis.exit_signal}",
                         "confidence": analysis.signal_confidence,
                         "urgency": "HIGH",
-                    }
+                    },
                 )
 
             # Duration alerts
@@ -253,7 +253,7 @@ class RealTimePositionAnalyzer:
                         "message": f"Extended holding period: {days_held} days",
                         "confidence": 0.8,
                         "urgency": "MEDIUM",
-                    }
+                    },
                 )
 
             # Performance alerts
@@ -265,17 +265,17 @@ class RealTimePositionAnalyzer:
                         "message": f"Significant unrealized loss: {unrealized_pnl_pct:.1%}",
                         "confidence": 0.9,
                         "urgency": "HIGH",
-                    }
+                    },
                 )
 
             return alerts
 
         except Exception as e:
-            self.logger.error(f"Alert generation failed for {position_id}: {e}")
+            self.logger.exception(f"Alert generation failed for {position_id}: {e}")
             return []
 
     async def _perform_position_analysis(
-        self, position_data: dict[str, Any]
+        self, position_data: dict[str, Any],
     ) -> RealTimePositionAnalysis | None:
         """Perform core position analysis"""
         try:
@@ -308,7 +308,7 @@ class RealTimePositionAnalyzer:
                 return None
 
             # Create real-time analysis result
-            analysis = RealTimePositionAnalysis(
+            return RealTimePositionAnalysis(
                 position_id=position_data.get("position_id", "unknown"),
                 strategy_name=strategy_name,
                 ticker=ticker,
@@ -332,10 +332,9 @@ class RealTimePositionAnalyzer:
                 analysis_timestamp=datetime.now(),
             )
 
-            return analysis
 
         except Exception as e:
-            self.logger.error(f"Position analysis failed: {e}")
+            self.logger.exception(f"Position analysis failed: {e}")
             return None
 
     async def _load_position_data(self, position_id: str) -> dict[str, Any] | None:
@@ -378,23 +377,23 @@ class RealTimePositionAnalyzer:
                             "days_held": row.get("Days_Since_Entry", 0),
                             "position_size": row.get("Position_Size", 1.0),
                             "entry_timestamp": pd.to_datetime(
-                                row.get("Entry_Date", datetime.now())
+                                row.get("Entry_Date", datetime.now()),
                             ),
                         }
 
                 except Exception as e:
                     self.logger.warning(
-                        f"Failed to search position file {position_file}: {e}"
+                        f"Failed to search position file {position_file}: {e}",
                     )
 
             return None
 
         except Exception as e:
-            self.logger.error(f"Position data loading failed for {position_id}: {e}")
+            self.logger.exception(f"Position data loading failed for {position_id}: {e}")
             return None
 
     async def _analyze_historical_context(
-        self, position_data: dict[str, Any]
+        self, position_data: dict[str, Any],
     ) -> dict[str, Any]:
         """Analyze historical context for the position"""
         try:
@@ -403,7 +402,7 @@ class RealTimePositionAnalyzer:
 
             # Load historical trades for this strategy/ticker combination
             historical_trades = await self._load_historical_trades(
-                strategy_name, ticker
+                strategy_name, ticker,
             )
 
             if not historical_trades:
@@ -433,11 +432,11 @@ class RealTimePositionAnalyzer:
             }
 
         except Exception as e:
-            self.logger.error(f"Historical context analysis failed: {e}")
+            self.logger.exception(f"Historical context analysis failed: {e}")
             return {"historical_data_available": False, "error": str(e)}
 
     async def _perform_risk_assessment(
-        self, position_data: dict[str, Any]
+        self, position_data: dict[str, Any],
     ) -> dict[str, Any]:
         """Perform comprehensive risk assessment"""
         try:
@@ -477,16 +476,16 @@ class RealTimePositionAnalyzer:
                     "volatility_risk": volatility_risk,
                 },
                 "risk_recommendations": self._generate_risk_recommendations(
-                    risk_level, risk_score
+                    risk_level, risk_score,
                 ),
             }
 
         except Exception as e:
-            self.logger.error(f"Risk assessment failed: {e}")
+            self.logger.exception(f"Risk assessment failed: {e}")
             return {"overall_risk_score": 0.5, "risk_level": "UNKNOWN", "error": str(e)}
 
     async def _analyze_position_patterns(
-        self, position_data: dict[str, Any]
+        self, position_data: dict[str, Any],
     ) -> dict[str, Any]:
         """Analyze patterns in position performance"""
         try:
@@ -519,12 +518,12 @@ class RealTimePositionAnalyzer:
                     "positive" if unrealized_pnl_pct > 0 else "negative"
                 ),
                 "pattern_strength": min(
-                    1.0, abs(unrealized_pnl_pct) * 5
+                    1.0, abs(unrealized_pnl_pct) * 5,
                 ),  # Scale to 0-1
             }
 
         except Exception as e:
-            self.logger.error(f"Pattern analysis failed: {e}")
+            self.logger.exception(f"Pattern analysis failed: {e}")
             return {
                 "pattern_type": "unknown",
                 "pattern_confidence": 0.0,
@@ -532,7 +531,7 @@ class RealTimePositionAnalyzer:
             }
 
     async def _load_historical_trades(
-        self, strategy_name: str, ticker: str
+        self, strategy_name: str, ticker: str,
     ) -> list[dict[str, Any]]:
         """Load historical completed trades"""
         try:
@@ -564,17 +563,17 @@ class RealTimePositionAnalyzer:
 
                     except Exception as e:
                         self.logger.warning(
-                            f"Failed to load historical trades from {position_file}: {e}"
+                            f"Failed to load historical trades from {position_file}: {e}",
                         )
 
             return historical_trades
 
         except Exception as e:
-            self.logger.error(f"Historical trade loading failed: {e}")
+            self.logger.exception(f"Historical trade loading failed: {e}")
             return []
 
     def _assess_position_risk_level(
-        self, statistical_result: StatisticalAnalysisResult
+        self, statistical_result: StatisticalAnalysisResult,
     ) -> str:
         """Assess risk level based on statistical analysis"""
         if statistical_result.signal_confidence >= self.high_risk_threshold:
@@ -584,7 +583,7 @@ class RealTimePositionAnalyzer:
         return "LOW"
 
     def _predict_position_outcome(
-        self, statistical_result: StatisticalAnalysisResult
+        self, statistical_result: StatisticalAnalysisResult,
     ) -> str:
         """Predict likely position outcome"""
         if "IMMEDIATELY" in statistical_result.exit_signal:
@@ -596,7 +595,7 @@ class RealTimePositionAnalyzer:
         return "Continue monitoring for optimal exit timing"
 
     def _generate_risk_recommendations(
-        self, risk_level: str, risk_score: float
+        self, risk_level: str, risk_score: float,
     ) -> list[str]:
         """Generate risk-based recommendations"""
         recommendations = []
@@ -608,7 +607,7 @@ class RealTimePositionAnalyzer:
                     "Implement tighter stop-loss if not already in place",
                     "Monitor position multiple times per day",
                     "Consider partial position closure to reduce exposure",
-                ]
+                ],
             )
         elif risk_level == "MEDIUM":
             recommendations.extend(
@@ -617,7 +616,7 @@ class RealTimePositionAnalyzer:
                     "Review stop-loss levels",
                     "Consider position sizing adjustment",
                     "Monitor for exit signal upgrades",
-                ]
+                ],
             )
         else:
             recommendations.extend(
@@ -625,7 +624,7 @@ class RealTimePositionAnalyzer:
                     "Continue standard monitoring",
                     "Maintain current position management",
                     "Monitor for statistical divergence signals",
-                ]
+                ],
             )
 
         return recommendations

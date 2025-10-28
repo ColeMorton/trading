@@ -69,25 +69,24 @@ class SPDSParameterParser:
     TICKER_PATTERN = re.compile(r"^[A-Z]{1,5}(-USD)?$")
     MULTI_TICKER_PATTERN = re.compile(r"^[A-Z]{1,5}(-USD)?(,[A-Z]{1,5}(-USD)?)+$")
     STRATEGY_PATTERN = re.compile(
-        r"^([A-Z]{1,5}(-USD)?)_(SMA|EMA|MACD)_(\d+)_(\d+)(_(\d+))?$"
+        r"^([A-Z]{1,5}(-USD)?)_(SMA|EMA|MACD)_(\d+)_(\d+)(_(\d+))?$",
     )
     MULTI_STRATEGY_PATTERN = re.compile(
-        r"^([A-Z]{1,5}(-USD)?)_(SMA|EMA|MACD)_(\d+)_(\d+)(_(\d+))?(,([A-Z]{1,5}(-USD)?)_(SMA|EMA|MACD)_(\d+)_(\d+)(_(\d+))?)+$"
+        r"^([A-Z]{1,5}(-USD)?)_(SMA|EMA|MACD)_(\d+)_(\d+)(_(\d+))?(,([A-Z]{1,5}(-USD)?)_(SMA|EMA|MACD)_(\d+)_(\d+)(_(\d+))?)+$",
     )
     POSITION_UUID_PATTERN = re.compile(
-        r"^([A-Z]{1,5}(-USD)?)_(SMA|EMA|MACD)_(\d+)_(\d+)(_(\d+))?_(\d{8}|\d{4}-\d{2}-\d{2})$"
+        r"^([A-Z]{1,5}(-USD)?)_(SMA|EMA|MACD)_(\d+)_(\d+)(_(\d+))?_(\d{8}|\d{4}-\d{2}-\d{2})$",
     )
     MULTI_POSITION_UUID_PATTERN = re.compile(
-        r"^([A-Z]{1,5}(-USD)?)_(SMA|EMA|MACD)_(\d+)_(\d+)(_(\d+))?_(\d{8}|\d{4}-\d{2}-\d{2})(,([A-Z]{1,5}(-USD)?)_(SMA|EMA|MACD)_(\d+)_(\d+)(_(\d+))?_(\d{8}|\d{4}-\d{2}-\d{2}))+$"
+        r"^([A-Z]{1,5}(-USD)?)_(SMA|EMA|MACD)_(\d+)_(\d+)(_(\d+))?_(\d{8}|\d{4}-\d{2}-\d{2})(,([A-Z]{1,5}(-USD)?)_(SMA|EMA|MACD)_(\d+)_(\d+)(_(\d+))?_(\d{8}|\d{4}-\d{2}-\d{2}))+$",
     )
     PORTFOLIO_FILE_PATTERN = re.compile(r"^.+\.csv$")
     MULTI_PORTFOLIO_PATTERN = re.compile(
-        r"^([a-zA-Z_][a-zA-Z0-9_]*_[a-zA-Z0-9_]*|[a-zA-Z][a-zA-Z0-9]{6,})(,([a-zA-Z_][a-zA-Z0-9_]*_[a-zA-Z0-9_]*|[a-zA-Z][a-zA-Z0-9]{6,}))+$"
+        r"^([a-zA-Z_][a-zA-Z0-9_]*_[a-zA-Z0-9_]*|[a-zA-Z][a-zA-Z0-9]{6,})(,([a-zA-Z_][a-zA-Z0-9_]*_[a-zA-Z0-9_]*|[a-zA-Z][a-zA-Z0-9]{6,}))+$",
     )
 
     def __init__(self):
         """Initialize the parameter parser."""
-        pass
 
     def detect_parameter_type(self, input_param: str) -> ParameterType:
         """
@@ -169,13 +168,15 @@ class SPDSParameterParser:
             return self._parse_portfolio_file(param)
         if param_type == ParameterType.MULTI_PORTFOLIO_FILE:
             return self._parse_multi_portfolio_file(param)
-        raise ValueError(f"Unsupported parameter type: {param_type}")
+        msg = f"Unsupported parameter type: {param_type}"
+        raise ValueError(msg)
 
     def _parse_ticker(self, param: str) -> ParsedParameter:
         """Parse ticker-only parameter."""
         match = self.TICKER_PATTERN.match(param.upper())
         if not match:
-            raise ValueError(f"Invalid ticker format: {param}")
+            msg = f"Invalid ticker format: {param}"
+            raise ValueError(msg)
 
         return ParsedParameter(
             parameter_type=ParameterType.TICKER_ONLY,
@@ -187,7 +188,8 @@ class SPDSParameterParser:
         """Parse multi-ticker parameter (comma-separated)."""
         match = self.MULTI_TICKER_PATTERN.match(param.upper())
         if not match:
-            raise ValueError(f"Invalid multi-ticker format: {param}")
+            msg = f"Invalid multi-ticker format: {param}"
+            raise ValueError(msg)
 
         # Split by comma and clean each ticker
         tickers = [ticker.strip().upper() for ticker in param.split(",")]
@@ -195,7 +197,8 @@ class SPDSParameterParser:
         # Validate each ticker individually
         for ticker in tickers:
             if not self.TICKER_PATTERN.match(ticker):
-                raise ValueError(f"Invalid ticker in multi-ticker list: {ticker}")
+                msg = f"Invalid ticker in multi-ticker list: {ticker}"
+                raise ValueError(msg)
 
         return ParsedParameter(
             parameter_type=ParameterType.MULTI_TICKER,
@@ -207,7 +210,8 @@ class SPDSParameterParser:
         """Parse strategy specification parameter."""
         match = self.STRATEGY_PATTERN.match(param.upper())
         if not match:
-            raise ValueError(f"Invalid strategy format: {param}")
+            msg = f"Invalid strategy format: {param}"
+            raise ValueError(msg)
 
         ticker = match.group(1)
         strategy_type = match.group(3)
@@ -229,7 +233,8 @@ class SPDSParameterParser:
         """Parse position UUID parameter."""
         match = self.POSITION_UUID_PATTERN.match(param.upper())
         if not match:
-            raise ValueError(f"Invalid position UUID format: {param}")
+            msg = f"Invalid position UUID format: {param}"
+            raise ValueError(msg)
 
         ticker = match.group(1)
         strategy_type = match.group(3)
@@ -265,7 +270,8 @@ class SPDSParameterParser:
         """Parse multi-strategy parameter (comma-separated strategies)."""
         match = self.MULTI_STRATEGY_PATTERN.match(param.upper())
         if not match:
-            raise ValueError(f"Invalid multi-strategy format: {param}")
+            msg = f"Invalid multi-strategy format: {param}"
+            raise ValueError(msg)
 
         # Split by comma and parse each strategy
         strategy_specs = [spec.strip().upper() for spec in param.split(",")]
@@ -274,8 +280,9 @@ class SPDSParameterParser:
         for spec in strategy_specs:
             strategy_match = self.STRATEGY_PATTERN.match(spec)
             if not strategy_match:
+                msg = f"Invalid strategy specification in multi-strategy: {spec}"
                 raise ValueError(
-                    f"Invalid strategy specification in multi-strategy: {spec}"
+                    msg,
                 )
 
             ticker = strategy_match.group(1)
@@ -293,7 +300,7 @@ class SPDSParameterParser:
                     "fast_period": fast_period,
                     "slow_period": slow_period,
                     "signal_period": signal_period,
-                }
+                },
             )
 
         return ParsedParameter(
@@ -306,7 +313,8 @@ class SPDSParameterParser:
         """Parse multi-position UUID parameter (comma-separated position UUIDs)."""
         match = self.MULTI_POSITION_UUID_PATTERN.match(param.upper())
         if not match:
-            raise ValueError(f"Invalid multi-position UUID format: {param}")
+            msg = f"Invalid multi-position UUID format: {param}"
+            raise ValueError(msg)
 
         # Split by comma and parse each position UUID
         position_specs = [spec.strip().upper() for spec in param.split(",")]
@@ -315,7 +323,8 @@ class SPDSParameterParser:
         for spec in position_specs:
             position_match = self.POSITION_UUID_PATTERN.match(spec)
             if not position_match:
-                raise ValueError(f"Invalid position UUID in multi-position: {spec}")
+                msg = f"Invalid position UUID in multi-position: {spec}"
+                raise ValueError(msg)
 
             ticker = position_match.group(1)
             strategy_type = position_match.group(3)
@@ -338,7 +347,7 @@ class SPDSParameterParser:
                     "slow_period": slow_period,
                     "signal_period": signal_period,
                     "entry_date": entry_date,
-                }
+                },
             )
 
         return ParsedParameter(
@@ -351,7 +360,8 @@ class SPDSParameterParser:
         """Parse multi-portfolio file parameter (comma-separated portfolio names)."""
         match = self.MULTI_PORTFOLIO_PATTERN.match(param)
         if not match:
-            raise ValueError(f"Invalid multi-portfolio format: {param}")
+            msg = f"Invalid multi-portfolio format: {param}"
+            raise ValueError(msg)
 
         # Split by comma and clean each portfolio name
         portfolio_files = [name.strip() for name in param.split(",")]
@@ -359,8 +369,9 @@ class SPDSParameterParser:
         # Validate each portfolio name
         for portfolio in portfolio_files:
             if not portfolio or len(portfolio) < 1:
+                msg = f"Invalid portfolio name in multi-portfolio: {portfolio}"
                 raise ValueError(
-                    f"Invalid portfolio name in multi-portfolio: {portfolio}"
+                    msg,
                 )
 
         return ParsedParameter(
@@ -472,7 +483,7 @@ class SPDSParameterParser:
                     parsed.strategy_type,
                     parsed.fast_period,
                     parsed.slow_period,
-                ]
+                ],
             ):
                 return False, "Strategy must have ticker, type, and windows"
 
@@ -493,7 +504,7 @@ class SPDSParameterParser:
                         strategy.get("strategy_type"),
                         strategy.get("fast_period"),
                         strategy.get("slow_period"),
-                    ]
+                    ],
                 ):
                     return False, "All strategies must have ticker, type, and windows"
 
@@ -527,7 +538,7 @@ class SPDSParameterParser:
                         position.get("fast_period"),
                         position.get("slow_period"),
                         position.get("entry_date"),
-                    ]
+                    ],
                 ):
                     return (
                         False,
@@ -590,6 +601,7 @@ def parse_spds_parameter(input_param: str) -> ParsedParameter:
 
     is_valid, error_msg = parser.validate_parameter(parsed)
     if not is_valid:
-        raise ValueError(f"Invalid parameter: {error_msg}")
+        msg = f"Invalid parameter: {error_msg}"
+        raise ValueError(msg)
 
     return parsed

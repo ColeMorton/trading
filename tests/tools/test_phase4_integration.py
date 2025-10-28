@@ -82,7 +82,7 @@ class TestPhase4Integration:
                 "float_col": [float(i) for i in range(5000)],
                 "category_col": ["A", "B", "C", "D"] * 1250,
                 "string_col": [f"item_{i}" for i in range(5000)],
-            }
+            },
         )
 
         baseline_memory = test_df.memory_usage(deep=True).sum() / 1024 / 1024
@@ -167,14 +167,14 @@ class TestPhase4Integration:
                 price_data = pd.DataFrame(
                     {
                         "timestamp": pd.date_range(
-                            "2023-01-01", periods=5000, freq="1H"
+                            "2023-01-01", periods=5000, freq="1H",
                         ),
                         "open": range(5000),
                         "high": range(100, 5100),
                         "low": range(-100, 4900),
                         "close": range(50, 5050),
                         "volume": range(1000, 6000),
-                    }
+                    },
                 )
 
                 # Step 2: Memory optimization
@@ -266,7 +266,7 @@ class TestPhase4Integration:
 
         # Get top combinations
         top_combinations = precompute_engine.usage_analyzer.get_top_combinations(
-            limit=5, min_requests=2
+            limit=5, min_requests=2,
         )
         assert len(top_combinations) >= 1
         assert top_combinations[0].strategy_type == "SMA"
@@ -286,7 +286,7 @@ class TestPhase4Integration:
         # Generate dashboard
         try:
             dashboard_file = generate_performance_dashboard(
-                output_file=Path("reports/test_dashboard.html"), hours_back=1
+                output_file=Path("reports/test_dashboard.html"), hours_back=1,
             )
 
             assert Path(dashboard_file).exists()
@@ -321,13 +321,13 @@ class TestPhase4Integration:
                 df = pd.DataFrame(
                     {
                         "timestamp": pd.date_range(
-                            "2023-01-01", periods=1000, freq="1H"
+                            "2023-01-01", periods=1000, freq="1H",
                         ),
                         "price": range(1000),
                         "volume": range(1000, 2000),
                         "category": (["A", "B", "C"] * 333)
                         + ["A"],  # Ensure exactly 1000 elements
-                    }
+                    },
                 )
 
                 optimized_df = memory_optimizer.optimize_dataframe(df)

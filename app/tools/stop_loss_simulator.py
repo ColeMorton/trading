@@ -37,7 +37,7 @@ def apply_stop_loss_to_returns(
     if log is None:
         # Create a default logger if none provided
         log, _, _, _ = setup_logging(
-            "stop_loss_simulator", Path("./logs"), "stop_loss_simulator.log"
+            "stop_loss_simulator", Path("./logs"), "stop_loss_simulator.log",
         )
 
     # Validate inputs
@@ -170,12 +170,12 @@ def calculate_stop_loss_adjusted_metrics(
     if log is None:
         # Create a default logger if none provided
         log, _, _, _ = setup_logging(
-            "stop_loss_simulator", Path("./logs"), "stop_loss_simulator.log"
+            "stop_loss_simulator", Path("./logs"), "stop_loss_simulator.log",
         )
 
     # Apply stop loss to returns
     adjusted_returns, stop_loss_triggers = apply_stop_loss_to_returns(
-        returns, signals, stop_loss, log
+        returns, signals, stop_loss, log,
     )
 
     # Calculate metrics on adjusted returns
@@ -200,7 +200,7 @@ def calculate_stop_loss_adjusted_metrics(
     profit_factor = 1.0
     if len(negative_returns) > 0 and np.sum(np.abs(negative_returns)) > 0:
         profit_factor = float(
-            np.sum(positive_returns) / np.sum(np.abs(negative_returns))
+            np.sum(positive_returns) / np.sum(np.abs(negative_returns)),
         )
 
     adjusted_profit_factor = 1.0
@@ -210,7 +210,7 @@ def calculate_stop_loss_adjusted_metrics(
     ):
         adjusted_profit_factor = float(
             np.sum(adjusted_positive_returns)
-            / np.sum(np.abs(adjusted_negative_returns))
+            / np.sum(np.abs(adjusted_negative_returns)),
         )
 
     # Average win and loss
@@ -327,7 +327,7 @@ def compare_stop_loss_levels(
     if log is None:
         # Create a default logger if none provided
         log, _, _, _ = setup_logging(
-            "stop_loss_simulator", Path("./logs"), "stop_loss_simulator.log"
+            "stop_loss_simulator", Path("./logs"), "stop_loss_simulator.log",
         )
 
     results = {}
@@ -341,7 +341,7 @@ def compare_stop_loss_levels(
     # Calculate metrics without stop loss for comparison
     # Use a very large stop loss value that won't be triggered
     no_stop_loss_metrics = calculate_stop_loss_adjusted_metrics(
-        returns, signals, 1.0, log
+        returns, signals, 1.0, log,
     )
 
     results["no_stop_loss"] = no_stop_loss_metrics
@@ -375,7 +375,7 @@ def find_optimal_stop_loss(
     if log is None:
         # Create a default logger if none provided
         log, _, _, _ = setup_logging(
-            "stop_loss_simulator", Path("./logs"), "stop_loss_simulator.log"
+            "stop_loss_simulator", Path("./logs"), "stop_loss_simulator.log",
         )
 
     # Generate stop loss levels
@@ -450,12 +450,12 @@ def apply_stop_loss_to_signal_quality_metrics(
     if log is None:
         # Create a default logger if none provided
         log, _, _, _ = setup_logging(
-            "stop_loss_simulator", Path("./logs"), "stop_loss_simulator.log"
+            "stop_loss_simulator", Path("./logs"), "stop_loss_simulator.log",
         )
 
     # Calculate stop loss adjusted metrics
     stop_loss_metrics = calculate_stop_loss_adjusted_metrics(
-        returns, signals, stop_loss, log
+        returns, signals, stop_loss, log,
     )
 
     # Create a copy of the original metrics

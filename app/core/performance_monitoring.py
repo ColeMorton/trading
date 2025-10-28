@@ -269,7 +269,7 @@ class PerformanceMonitor:
 
         self._monitoring_active = True
         self._resource_monitor_task = asyncio.create_task(
-            self._resource_monitoring_loop()
+            self._resource_monitoring_loop(),
         )
         print("Performance monitoring started")
 
@@ -286,7 +286,7 @@ class PerformanceMonitor:
 
     @asynccontextmanager
     async def monitor_execution(
-        self, strategy_type: str, ticker: str, execution_id: str | None = None
+        self, strategy_type: str, ticker: str, execution_id: str | None = None,
     ):
         """
         Context manager for monitoring strategy execution.
@@ -398,7 +398,7 @@ class PerformanceMonitor:
         self.alert_callbacks.append(callback)
 
     def get_recent_metrics(
-        self, metric_type: MetricType = None, minutes: int = 60
+        self, metric_type: MetricType = None, minutes: int = 60,
     ) -> list[PerformanceMetric]:
         """Get recent metrics within specified time window."""
         cutoff_time = datetime.now() - timedelta(minutes=minutes)
@@ -443,7 +443,7 @@ class PerformanceMonitor:
 
         # Strategy performance breakdown
         strategy_breakdown = defaultdict(
-            lambda: {"count": 0, "success_rate": 0.0, "avg_time": 0.0}
+            lambda: {"count": 0, "success_rate": 0.0, "avg_time": 0.0},
         )
 
         for exec_metrics in recent_executions:
@@ -484,7 +484,7 @@ class PerformanceMonitor:
             "avg_cpu_usage": np.mean(cpu_averages) if cpu_averages else 0.0,
             "strategy_breakdown": dict(strategy_breakdown),
             "recent_alerts": len(
-                [a for a in self.alerts if a.timestamp >= cutoff_time]
+                [a for a in self.alerts if a.timestamp >= cutoff_time],
             ),
         }
 
@@ -520,7 +520,7 @@ class PerformanceMonitor:
             "disk_usage": disk.percent,
             "available_memory_gb": memory.available / (1024**3),
             "active_executions": len(
-                [e for e in self.execution_metrics.values() if not e.is_completed]
+                [e for e in self.execution_metrics.values() if not e.is_completed],
             ),
             "total_threads": threading.active_count(),
             "monitoring_active": self._monitoring_active,
@@ -580,12 +580,12 @@ class PerformanceMonitor:
             # Update peaks
             if exec_metrics.memory_peak:
                 self.stats["peak_memory_usage"] = max(
-                    self.stats["peak_memory_usage"], exec_metrics.memory_peak
+                    self.stats["peak_memory_usage"], exec_metrics.memory_peak,
                 )
 
             if exec_metrics.cpu_usage_avg:
                 self.stats["peak_cpu_usage"] = max(
-                    self.stats["peak_cpu_usage"], exec_metrics.cpu_usage_avg
+                    self.stats["peak_cpu_usage"], exec_metrics.cpu_usage_avg,
                 )
 
     def _check_execution_alerts(self, exec_metrics: StrategyExecutionMetrics):
@@ -595,10 +595,10 @@ class PerformanceMonitor:
 
         # Check execution time
         warning_threshold = self.thresholds.get_threshold(
-            "execution_time", PerformanceLevel.WARNING
+            "execution_time", PerformanceLevel.WARNING,
         )
         critical_threshold = self.thresholds.get_threshold(
-            "execution_time", PerformanceLevel.CRITICAL
+            "execution_time", PerformanceLevel.CRITICAL,
         )
 
         if exec_metrics.execution_time > critical_threshold:
@@ -613,7 +613,7 @@ class PerformanceMonitor:
                         "execution_id": exec_metrics.execution_id,
                         "ticker": exec_metrics.ticker,
                     },
-                )
+                ),
             )
         elif exec_metrics.execution_time > warning_threshold:
             asyncio.create_task(
@@ -627,17 +627,17 @@ class PerformanceMonitor:
                         "execution_id": exec_metrics.execution_id,
                         "ticker": exec_metrics.ticker,
                     },
-                )
+                ),
             )
 
     async def _check_resource_alerts(self, snapshot: SystemResourceSnapshot):
         """Check for resource-related alerts."""
         # Check memory usage
         memory_warning = self.thresholds.get_threshold(
-            "memory", PerformanceLevel.WARNING
+            "memory", PerformanceLevel.WARNING,
         )
         memory_critical = self.thresholds.get_threshold(
-            "memory", PerformanceLevel.CRITICAL
+            "memory", PerformanceLevel.CRITICAL,
         )
 
         if snapshot.memory_percent > memory_critical:
@@ -739,7 +739,7 @@ performance_monitor = PerformanceMonitor()
 
 
 async def monitor_strategy_execution(
-    strategy_type: str, ticker: str, execution_function: Callable, *args, **kwargs
+    strategy_type: str, ticker: str, execution_function: Callable, *args, **kwargs,
 ):
     """
     Monitor the execution of a strategy function.
@@ -763,7 +763,7 @@ async def monitor_strategy_execution(
 
 
 def setup_performance_monitoring(
-    enable_alerting: bool = True, alert_callback: Callable | None = None
+    enable_alerting: bool = True, alert_callback: Callable | None = None,
 ):
     """
     Set up performance monitoring with optional alerting.

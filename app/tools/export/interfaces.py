@@ -77,7 +77,8 @@ class ExportStrategy:
         Returns:
             ExportResult indicating success/failure and export details
         """
-        raise NotImplementedError("Subclasses must implement export method")
+        msg = "Subclasses must implement export method"
+        raise NotImplementedError(msg)
 
 
 class ExportError(Exception):

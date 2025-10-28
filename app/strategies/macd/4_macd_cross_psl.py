@@ -145,11 +145,11 @@ def main():
             if i >= holding_period:
                 if short:
                     if np.any(
-                        price[i - holding_period : i] >= entry_price[i - holding_period]
+                        price[i - holding_period : i] >= entry_price[i - holding_period],
                     ):
                         exit_signal[i] = 1
                 elif np.any(
-                    price[i - holding_period : i] <= entry_price[i - holding_period]
+                    price[i - holding_period : i] <= entry_price[i - holding_period],
                 ):
                     exit_signal[i] = 1
         return exit_signal
@@ -164,12 +164,12 @@ def main():
     results = []
     for holding_period in range(longest_holding_period, 0, -1):
         exits_psl = psl_exit(
-            data["Close"].values, entry_price.values, holding_period, short=SHORT
+            data["Close"].values, entry_price.values, holding_period, short=SHORT,
         )
         exits = exits_macd | exits_psl
         if SHORT:
             pf = vbt.Portfolio.from_signals(
-                data["Close"], short_entries=entries, short_exits=exits
+                data["Close"], short_entries=entries, short_exits=exits,
             )
         else:
             pf = vbt.Portfolio.from_signals(data["Close"], entries, exits)
@@ -197,7 +197,7 @@ def main():
 
     strategy_type = "Short-only" if SHORT else "Long-only"
     plt.title(
-        f"Parameter Sensitivity: Holding Period vs Expectancy (MACD {strategy_type} Strategy)"
+        f"Parameter Sensitivity: Holding Period vs Expectancy (MACD {strategy_type} Strategy)",
     )
     plt.grid(True)
     plt.show()

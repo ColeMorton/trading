@@ -32,7 +32,7 @@ class TestConfigIntegration:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_macd_and_signals"
+                "app.portfolio_synthesis.review.calculate_macd_and_signals",
             ) as mock_calc_macd,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs"),
@@ -92,7 +92,7 @@ class TestConfigIntegration:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+                "app.portfolio_synthesis.review.calculate_ma_and_signals",
             ) as mock_calc_ma,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs"),
@@ -154,7 +154,7 @@ class TestConfigIntegration:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+                "app.portfolio_synthesis.review.calculate_ma_and_signals",
             ) as mock_calc_ma,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs"),
@@ -218,7 +218,7 @@ class TestConfigIntegration:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+                "app.portfolio_synthesis.review.calculate_ma_and_signals",
             ) as mock_calc_ma,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs"),
@@ -282,7 +282,7 @@ class TestConfigIntegration:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+                "app.portfolio_synthesis.review.calculate_ma_and_signals",
             ) as mock_calc_ma,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs"),
@@ -344,7 +344,7 @@ class TestConfigIntegration:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_macd_and_signals"
+                "app.portfolio_synthesis.review.calculate_macd_and_signals",
             ) as mock_calc_macd,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs"),

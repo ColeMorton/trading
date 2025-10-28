@@ -4,7 +4,7 @@ import polars as pl
 
 
 def calculate_mas(
-    data: pl.DataFrame, fast_period: int, slow_period: int, use_sma: bool, log: Callable
+    data: pl.DataFrame, fast_period: int, slow_period: int, use_sma: bool, log: Callable,
 ) -> pl.DataFrame:
     """Calculate Moving Averages (SMA or EMA).
 
@@ -34,7 +34,7 @@ def calculate_mas(
                 .cast(pl.Float64)
                 .rolling_mean(window_size=slow_period)
                 .alias("MA_SLOW"),
-            ]
+            ],
         )
     else:
         result = data.with_columns(
@@ -47,7 +47,7 @@ def calculate_mas(
                 .cast(pl.Float64)
                 .ewm_mean(span=slow_period, adjust=False)
                 .alias("MA_SLOW"),
-            ]
+            ],
         )
 
     # Count non-null values in MA columns

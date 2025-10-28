@@ -124,7 +124,7 @@ class MACrossUnifiedStrategy(AbstractStrategy):
             # Prepare result
             execution_time = time.time() - start_time
 
-            result = UnifiedStrategyResult(
+            return UnifiedStrategyResult(
                 strategy_type=self.strategy_type,
                 ticker=ticker,
                 execution_time=execution_time,
@@ -136,7 +136,6 @@ class MACrossUnifiedStrategy(AbstractStrategy):
                 risk_metrics=risk_metrics,
             )
 
-            return result
 
         except Exception as e:
             self._log_error(f"Error executing MA Cross for {ticker}: {e!s}")
@@ -153,7 +152,7 @@ class MACrossUnifiedStrategy(AbstractStrategy):
 
         # Create strategy executor function for parameter engine
         async def strategy_executor(
-            test_ticker: str, test_config: UnifiedStrategyConfig
+            test_ticker: str, test_config: UnifiedStrategyConfig,
         ):
             return await self.execute_single(test_ticker, test_config)
 
@@ -168,7 +167,8 @@ class MACrossUnifiedStrategy(AbstractStrategy):
         # Convert optimization result to UnifiedStrategyResult
         best_result = optimization_result["best_result"]
         if best_result is None:
-            raise ValueError(f"No valid parameter combinations found for {ticker}")
+            msg = f"No valid parameter combinations found for {ticker}"
+            raise ValueError(msg)
 
         # Enhance with optimization metadata
         best_result.all_results = optimization_result.get("all_results", [])
@@ -177,7 +177,7 @@ class MACrossUnifiedStrategy(AbstractStrategy):
         return best_result
 
     def _calculate_signals(
-        self, data: pd.DataFrame, parameters: dict[str, Any]
+        self, data: pd.DataFrame, parameters: dict[str, Any],
     ) -> pd.DataFrame:
         """Calculate moving average signals."""
         fast_period = parameters["fast_period"]
@@ -269,7 +269,7 @@ class MACrossUnifiedStrategy(AbstractStrategy):
             }
 
     def _extract_performance_metrics(
-        self, backtest_result: dict[str, Any]
+        self, backtest_result: dict[str, Any],
     ) -> dict[str, float]:
         """Extract standardized performance metrics."""
         return {
@@ -291,7 +291,7 @@ class MACrossUnifiedStrategy(AbstractStrategy):
         }
 
     def _calculate_risk_metrics(
-        self, backtest_result: dict[str, Any], config: UnifiedStrategyConfig
+        self, backtest_result: dict[str, Any], config: UnifiedStrategyConfig,
     ) -> dict[str, float]:
         """Calculate risk metrics using the risk management layer."""
         try:
@@ -304,7 +304,7 @@ class MACrossUnifiedStrategy(AbstractStrategy):
 
             # Calculate comprehensive risk metrics
             risk_metrics = self.risk_manager.assess_strategy_risk(
-                returns=returns, trades=backtest_result.get("trades")
+                returns=returns, trades=backtest_result.get("trades"),
             )
 
             return {
@@ -322,7 +322,7 @@ class MACrossUnifiedStrategy(AbstractStrategy):
             return {}
 
     async def _get_market_data(
-        self, ticker: str, config: UnifiedStrategyConfig
+        self, ticker: str, config: UnifiedStrategyConfig,
     ) -> pd.DataFrame:
         """Get market data for the ticker."""
         try:
@@ -351,7 +351,7 @@ class MACrossUnifiedStrategy(AbstractStrategy):
         }
 
     def create_config_for_ticker(
-        self, ticker: str, custom_params: dict[str, Any] | None = None
+        self, ticker: str, custom_params: dict[str, Any] | None = None,
     ) -> UnifiedStrategyConfig:
         """Create a configuration for a specific ticker."""
         parameters = self.default_parameters.copy()
@@ -474,7 +474,7 @@ async def demo_unified_ma_cross():
     # Test single ticker execution
     print("\n1. Single Ticker Execution:")
     result = await execute_ma_cross_single(
-        ticker="AAPL", fast_period=20, slow_period=50, ma_type="EMA"
+        ticker="AAPL", fast_period=20, slow_period=50, ma_type="EMA",
     )
     print(f"Total Return: {result.total_return:.2f}%")
     print(f"Sharpe Ratio: {result.sharpe_ratio:.2f}")
@@ -502,7 +502,7 @@ async def demo_unified_ma_cross():
     for result in portfolio_results:
         print(
             f"  {result.ticker}: {result.total_return:.2f}% return, "
-            f"{result.sharpe_ratio:.2f} Sharpe"
+            f"{result.sharpe_ratio:.2f} Sharpe",
         )
 
 

@@ -3,7 +3,7 @@ Health check endpoints for API monitoring.
 """
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Annotated
 
 from fastapi import APIRouter, Depends, status
 from redis.asyncio import Redis
@@ -18,7 +18,7 @@ from ..models.schemas import DetailedHealthCheck, HealthCheck
 router = APIRouter()
 
 
-@router.get("/", response_model=HealthCheck, status_code=status.HTTP_200_OK)
+@router.get("/", status_code=status.HTTP_200_OK)
 async def health_check() -> HealthCheck:
     """
     Basic health check endpoint.
@@ -29,10 +29,10 @@ async def health_check() -> HealthCheck:
 
 
 @router.get(
-    "/detailed", response_model=DetailedHealthCheck, status_code=status.HTTP_200_OK
+    "/detailed", status_code=status.HTTP_200_OK,
 )
 async def detailed_health_check(
-    db: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)
+    db: Annotated[AsyncSession, Depends(get_db)], redis: Annotated[Redis, Depends(get_redis)],
 ) -> DetailedHealthCheck:
     """
     Detailed health check with component status.
@@ -109,13 +109,13 @@ async def detailed_health_check(
         overall_status = "degraded"
 
     return DetailedHealthCheck(
-        status=overall_status, version=settings.VERSION, components=components
+        status=overall_status, version=settings.VERSION, components=components,
     )
 
 
 @router.get("/ready", status_code=status.HTTP_200_OK)
 async def readiness_check(
-    db: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)
+    db: Annotated[AsyncSession, Depends(get_db)], redis: Annotated[Redis, Depends(get_redis)],
 ) -> dict[str, str]:
     """
     Readiness probe for Kubernetes/container orchestration.

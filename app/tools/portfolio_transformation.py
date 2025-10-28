@@ -52,7 +52,7 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
                 ),
                 "fast_window": data["Fast Period"],
                 "slow_window": data["Slow Period"],
-            }
+            },
         )
         transformed_data.append(metric_data)
 
@@ -99,7 +99,7 @@ def reorder_columns(portfolio: dict) -> dict:
             target_schema = SchemaType.EXTENDED
 
             normalized_portfolio = transformer.normalize_to_schema(
-                portfolio, target_schema
+                portfolio, target_schema,
             )
 
         # Restore non-canonical fields after normalization

@@ -111,7 +111,7 @@ class PerformanceAnalyticsDashboard:
         self.logger.info("PerformanceAnalyticsDashboard initialized")
 
     async def get_dashboard_analytics(
-        self, force_refresh: bool = False
+        self, force_refresh: bool = False,
     ) -> StatisticalDashboardData:
         """
         Get comprehensive dashboard analytics
@@ -140,7 +140,7 @@ class PerformanceAnalyticsDashboard:
             return dashboard_data
 
         except Exception as e:
-            self.logger.error(f"Dashboard analytics generation failed: {e}")
+            self.logger.exception(f"Dashboard analytics generation failed: {e}")
             raise
 
     async def get_exit_efficiency_analysis(self) -> ExitEfficiencyAnalysis:
@@ -185,12 +185,12 @@ class PerformanceAnalyticsDashboard:
 
             # Calculate efficiency by strategy
             efficiency_by_strategy = await self._calculate_efficiency_by_strategy(
-                completed_trades
+                completed_trades,
             )
 
             # Calculate efficiency by timeframe
             efficiency_by_timeframe = await self._calculate_efficiency_by_timeframe(
-                completed_trades
+                completed_trades,
             )
 
             # Determine trend
@@ -208,7 +208,7 @@ class PerformanceAnalyticsDashboard:
             )
 
         except Exception as e:
-            self.logger.error(f"Exit efficiency analysis failed: {e}")
+            self.logger.exception(f"Exit efficiency analysis failed: {e}")
             raise
 
     async def get_performance_attribution(self) -> dict[str, Any]:
@@ -280,7 +280,7 @@ class PerformanceAnalyticsDashboard:
                             trade.get("exit_efficiency", 0.5)
                             for trade in completed_trades
                             if trade.get("timeframe") == timeframe
-                        ]
+                        ],
                     ),
                 }
 
@@ -293,7 +293,7 @@ class PerformanceAnalyticsDashboard:
             }
 
         except Exception as e:
-            self.logger.error(f"Performance attribution analysis failed: {e}")
+            self.logger.exception(f"Performance attribution analysis failed: {e}")
             return {}
 
     async def get_statistical_signal_analysis(self) -> dict[str, Any]:
@@ -356,7 +356,7 @@ class PerformanceAnalyticsDashboard:
                             [
                                 trade.get("signal_confidence", 0.5)
                                 for trade in range_trades
-                            ]
+                            ],
                         ),
                     }
 
@@ -369,7 +369,7 @@ class PerformanceAnalyticsDashboard:
             }
 
         except Exception as e:
-            self.logger.error(f"Statistical signal analysis failed: {e}")
+            self.logger.exception(f"Statistical signal analysis failed: {e}")
             return {}
 
     async def get_portfolio_health_analysis(self) -> dict[str, Any]:
@@ -403,7 +403,7 @@ class PerformanceAnalyticsDashboard:
                 ]
                 avg_return = np.mean(recent_returns) if recent_returns else 0
                 health_components["performance"] = min(
-                    100, max(0, (avg_return + 0.1) * 500)
+                    100, max(0, (avg_return + 0.1) * 500),
                 )
             else:
                 health_components["performance"] = 50
@@ -415,7 +415,7 @@ class PerformanceAnalyticsDashboard:
                 ]
                 max_drawdown = min(unrealized_pnls) if unrealized_pnls else 0
                 health_components["risk"] = min(
-                    100, max(0, (max_drawdown + 0.2) * 250 + 50)
+                    100, max(0, (max_drawdown + 0.2) * 250 + 50),
                 )
             else:
                 health_components["risk"] = 75
@@ -423,11 +423,11 @@ class PerformanceAnalyticsDashboard:
             # Diversification component
             if positions:
                 unique_strategies = len(
-                    {pos.get("strategy_name", "") for pos in positions}
+                    {pos.get("strategy_name", "") for pos in positions},
                 )
                 unique_tickers = len({pos.get("ticker", "") for pos in positions})
                 diversification_score = min(
-                    100, (unique_strategies * 20) + (unique_tickers * 10)
+                    100, (unique_strategies * 20) + (unique_tickers * 10),
                 )
                 health_components["diversification"] = diversification_score
             else:
@@ -463,7 +463,7 @@ class PerformanceAnalyticsDashboard:
 
             # Generate recommendations
             recommendations = self._generate_health_recommendations(
-                health_components, portfolio_health_score
+                health_components, portfolio_health_score,
             )
 
             return {
@@ -478,7 +478,7 @@ class PerformanceAnalyticsDashboard:
             }
 
         except Exception as e:
-            self.logger.error(f"Portfolio health analysis failed: {e}")
+            self.logger.exception(f"Portfolio health analysis failed: {e}")
             return {}
 
     async def _generate_dashboard_analytics(self) -> StatisticalDashboardData:
@@ -490,7 +490,7 @@ class PerformanceAnalyticsDashboard:
 
         # Calculate performance metrics
         performance_metrics = await self._calculate_performance_metrics(
-            positions, completed_trades
+            positions, completed_trades,
         )
 
         # Exit efficiency analysis
@@ -513,7 +513,7 @@ class PerformanceAnalyticsDashboard:
 
         # Recommendations
         recommendations = await self._generate_dashboard_recommendations(
-            performance_metrics, exit_efficiency, health_analysis
+            performance_metrics, exit_efficiency, health_analysis,
         )
 
         return StatisticalDashboardData(
@@ -529,7 +529,7 @@ class PerformanceAnalyticsDashboard:
         )
 
     async def _calculate_performance_metrics(
-        self, positions: list[dict[str, Any]], completed_trades: list[dict[str, Any]]
+        self, positions: list[dict[str, Any]], completed_trades: list[dict[str, Any]],
     ) -> PerformanceMetrics:
         """Calculate portfolio performance metrics"""
 
@@ -605,7 +605,7 @@ class PerformanceAnalyticsDashboard:
         return avg_return / std_return if std_return > 0 else 0.0
 
     async def _calculate_efficiency_by_strategy(
-        self, completed_trades: list[dict[str, Any]]
+        self, completed_trades: list[dict[str, Any]],
     ) -> dict[str, float]:
         """Calculate exit efficiency by strategy"""
         strategy_efficiencies = defaultdict(list)
@@ -622,7 +622,7 @@ class PerformanceAnalyticsDashboard:
         }
 
     async def _calculate_efficiency_by_timeframe(
-        self, completed_trades: list[dict[str, Any]]
+        self, completed_trades: list[dict[str, Any]],
     ) -> dict[str, float]:
         """Calculate exit efficiency by timeframe"""
         timeframe_efficiencies = defaultdict(list)
@@ -639,7 +639,7 @@ class PerformanceAnalyticsDashboard:
         }
 
     async def _calculate_efficiency_trend(
-        self, completed_trades: list[dict[str, Any]]
+        self, completed_trades: list[dict[str, Any]],
     ) -> str:
         """Calculate efficiency trend"""
         if len(completed_trades) < 10:
@@ -658,7 +658,7 @@ class PerformanceAnalyticsDashboard:
                 trade.get("exit_efficiency", 0.5)
                 for trade in recent_trades
                 if trade.get("exit_efficiency") is not None
-            ]
+            ],
         )
 
         earlier_efficiency = np.mean(
@@ -666,7 +666,7 @@ class PerformanceAnalyticsDashboard:
                 trade.get("exit_efficiency", 0.5)
                 for trade in earlier_trades
                 if trade.get("exit_efficiency") is not None
-            ]
+            ],
         )
 
         if recent_efficiency > earlier_efficiency * 1.05:
@@ -676,7 +676,7 @@ class PerformanceAnalyticsDashboard:
         return "stable"
 
     async def _identify_top_performers(
-        self, completed_trades: list[dict[str, Any]]
+        self, completed_trades: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Identify top performing trades"""
         if not completed_trades:
@@ -684,7 +684,7 @@ class PerformanceAnalyticsDashboard:
 
         # Sort by return and take top 5
         sorted_trades = sorted(
-            completed_trades, key=lambda x: x.get("return_pct", 0), reverse=True
+            completed_trades, key=lambda x: x.get("return_pct", 0), reverse=True,
         )
 
         return [
@@ -700,7 +700,7 @@ class PerformanceAnalyticsDashboard:
         ]
 
     async def _identify_bottom_performers(
-        self, completed_trades: list[dict[str, Any]]
+        self, completed_trades: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Identify bottom performing trades"""
         if not completed_trades:
@@ -722,7 +722,7 @@ class PerformanceAnalyticsDashboard:
         ]
 
     async def _generate_risk_alerts(
-        self, positions: list[dict[str, Any]]
+        self, positions: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Generate risk alerts for current positions"""
         alerts = []
@@ -740,7 +740,7 @@ class PerformanceAnalyticsDashboard:
                         "position": f"{position.get('strategy_name', 'UNKNOWN')}_{position.get('ticker', 'UNKNOWN')}",
                         "message": f"Large unrealized loss: {unrealized_pnl_pct:.1%}",
                         "value": unrealized_pnl_pct,
-                    }
+                    },
                 )
 
             # Extended holding alert
@@ -752,40 +752,40 @@ class PerformanceAnalyticsDashboard:
                         "position": f"{position.get('strategy_name', 'UNKNOWN')}_{position.get('ticker', 'UNKNOWN')}",
                         "message": f"Extended holding period: {days_held} days",
                         "value": days_held,
-                    }
+                    },
                 )
 
         return alerts
 
     def _generate_health_recommendations(
-        self, health_components: dict[str, float], portfolio_health_score: float
+        self, health_components: dict[str, float], portfolio_health_score: float,
     ) -> list[str]:
         """Generate health-based recommendations"""
         recommendations = []
 
         if health_components.get("performance", 0) < 40:
             recommendations.append(
-                "Consider reviewing strategy performance and optimizing parameters"
+                "Consider reviewing strategy performance and optimizing parameters",
             )
 
         if health_components.get("risk", 0) < 50:
             recommendations.append(
-                "High risk detected - review position sizes and stop-loss levels"
+                "High risk detected - review position sizes and stop-loss levels",
             )
 
         if health_components.get("diversification", 0) < 30:
             recommendations.append(
-                "Increase portfolio diversification across strategies and assets"
+                "Increase portfolio diversification across strategies and assets",
             )
 
         if health_components.get("exit_efficiency", 0) < 70:
             recommendations.append(
-                "Focus on improving exit timing through statistical analysis"
+                "Focus on improving exit timing through statistical analysis",
             )
 
         if portfolio_health_score < 60:
             recommendations.append(
-                "Portfolio health below target - prioritize risk management"
+                "Portfolio health below target - prioritize risk management",
             )
 
         return recommendations
@@ -803,18 +803,18 @@ class PerformanceAnalyticsDashboard:
         if exit_efficiency.current_efficiency < exit_efficiency.target_efficiency:
             gap = exit_efficiency.target_efficiency - exit_efficiency.current_efficiency
             recommendations.append(
-                f"Exit efficiency gap: {gap:.1%} - implement statistical exit signals"
+                f"Exit efficiency gap: {gap:.1%} - implement statistical exit signals",
             )
 
         # Performance recommendations
         if performance_metrics.win_rate < 0.6:
             recommendations.append(
-                f"Win rate {performance_metrics.win_rate:.1%} below target - review entry criteria"
+                f"Win rate {performance_metrics.win_rate:.1%} below target - review entry criteria",
             )
 
         if performance_metrics.sharpe_ratio < 1.0:
             recommendations.append(
-                f"Sharpe ratio {performance_metrics.sharpe_ratio:.2f} below 1.0 - optimize risk-adjusted returns"
+                f"Sharpe ratio {performance_metrics.sharpe_ratio:.2f} below 1.0 - optimize risk-adjusted returns",
             )
 
         # Health recommendations
@@ -861,10 +861,10 @@ class PerformanceAnalyticsDashboard:
 
                     except Exception as e:
                         self.logger.warning(
-                            f"Failed to load trades from {position_file}: {e}"
+                            f"Failed to load trades from {position_file}: {e}",
                         )
 
         except Exception as e:
-            self.logger.error(f"Trade loading failed: {e}")
+            self.logger.exception(f"Trade loading failed: {e}")
 
         return completed_trades

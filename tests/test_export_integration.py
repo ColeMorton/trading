@@ -90,7 +90,7 @@ class TestExportIntegration:
         orchestrator = PortfolioOrchestrator(log)
 
         with patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
+            "app.tools.strategy.export_portfolios.export_portfolios",
         ) as mock_export:
             # Mock the sort_portfolios function to return the input
             with patch(
@@ -288,7 +288,7 @@ class TestExportSystemRealFiles:
                 "ticker": ["BTC-USD", "ETH-USD"],
                 "trades": [100, 75],
                 "win_rate": [0.555, 0.602],
-            }
+            },
         )
 
         config = {"BASE_DIR": str(temp_dir), "TICKER": "CRYPTO", "USE_HOURLY": False}

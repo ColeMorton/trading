@@ -189,28 +189,28 @@ class TestEquityDataExtractor:
                 [1100, 1080, 1120],
                 [1080, 1070, 1090],
                 [1120, 1100, 1140],
-            ]
+            ],
         )
 
         portfolio.value.return_value = pd.DataFrame(equity_data)
 
         # Test mean metric
         result_mean = self.extractor._extract_base_equity_curve(
-            portfolio, MetricType.MEAN
+            portfolio, MetricType.MEAN,
         )
         expected_mean = np.mean(equity_data, axis=1)
         np.testing.assert_array_almost_equal(result_mean, expected_mean)
 
         # Test median metric
         result_median = self.extractor._extract_base_equity_curve(
-            portfolio, MetricType.MEDIAN
+            portfolio, MetricType.MEDIAN,
         )
         expected_median = np.median(equity_data, axis=1)
         np.testing.assert_array_almost_equal(result_median, expected_median)
 
         # Test best metric (highest final value)
         result_best = self.extractor._extract_base_equity_curve(
-            portfolio, MetricType.BEST
+            portfolio, MetricType.BEST,
         )
         best_column = np.argmax(equity_data[-1, :])  # Column 2 (1140)
         expected_best = equity_data[:, best_column]
@@ -218,7 +218,7 @@ class TestEquityDataExtractor:
 
         # Test worst metric (lowest final value)
         result_worst = self.extractor._extract_base_equity_curve(
-            portfolio, MetricType.WORST
+            portfolio, MetricType.WORST,
         )
         worst_column = np.argmin(equity_data[-1, :])  # Column 1 (1100)
         expected_worst = equity_data[:, worst_column]
@@ -228,7 +228,7 @@ class TestEquityDataExtractor:
         """Test timestamp index extraction."""
         timestamp = pd.date_range("2023-01-01", periods=5, freq="D")
         portfolio = self.create_mock_portfolio(
-            [1000, 1050, 1100, 1080, 1120], timestamp
+            [1000, 1050, 1100, 1080, 1120], timestamp,
         )
 
         result = self.extractor._extract_timestamp_index(portfolio)
@@ -245,7 +245,7 @@ class TestEquityDataExtractor:
         # Remove all timestamp sources
         del portfolio.wrapper
         portfolio.value.return_value = np.array(
-            [1000, 1050, 1100]
+            [1000, 1050, 1100],
         )  # Raw array, no index
         del portfolio.close
 
@@ -275,7 +275,7 @@ class TestEquityDataExtractor:
         # Test equity change percentage - note: implementation may have precision issues
         # We'll test with the actual output values for now
         expected_change_pct = np.array(
-            [0, 5, 4, -1, 3]
+            [0, 5, 4, -1, 3],
         )  # Rounded values from actual output
         np.testing.assert_array_equal(result["equity_change_pct"], expected_change_pct)
 
@@ -295,7 +295,7 @@ class TestEquityDataExtractor:
 
         # Test percentage drawdown - using actual output values
         expected_drawdown_pct = np.array(
-            [0, 0, 0, 1, 0]
+            [0, 0, 0, 1, 0],
         )  # Rounded values from actual output
         np.testing.assert_array_equal(result["drawdown_pct"], expected_drawdown_pct)
 
@@ -364,7 +364,7 @@ class TestEquityDataExtractor:
 
         wrapper = Mock()
         wrapper.index = pd.date_range(
-            "2023-01-01", periods=5, freq="D"
+            "2023-01-01", periods=5, freq="D",
         )  # Different length
         portfolio.wrapper = wrapper
 
@@ -429,18 +429,18 @@ class TestConvenienceFunctions:
         portfolio = self.create_mock_portfolio([1000, 1050, 1100])
 
         result = extract_equity_data_from_portfolio(
-            portfolio, metric_type="mean", log=self.mock_log
+            portfolio, metric_type="mean", log=self.mock_log,
         )
 
         assert result == mock_equity_data
         mock_extractor_class.assert_called_once_with(log=self.mock_log)
         mock_extractor.extract_equity_data.assert_called_once_with(
-            portfolio, MetricType.MEAN, None
+            portfolio, MetricType.MEAN, None,
         )
 
     @patch("app.tools.equity_data_extractor.EquityDataExtractor")
     def test_extract_equity_data_from_portfolio_invalid_metric(
-        self, mock_extractor_class
+        self, mock_extractor_class,
     ):
         """Test handling of invalid metric type."""
         mock_extractor = Mock()
@@ -451,13 +451,13 @@ class TestConvenienceFunctions:
         portfolio = self.create_mock_portfolio([1000, 1050, 1100])
 
         result = extract_equity_data_from_portfolio(
-            portfolio, metric_type="invalid_metric", log=self.mock_log
+            portfolio, metric_type="invalid_metric", log=self.mock_log,
         )
 
         # Should default to MEAN and log warning
         assert result == mock_equity_data
         mock_extractor.extract_equity_data.assert_called_once_with(
-            portfolio, MetricType.MEAN, None
+            portfolio, MetricType.MEAN, None,
         )
 
         # Check that warning was logged

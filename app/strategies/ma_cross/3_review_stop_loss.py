@@ -163,7 +163,7 @@ def run(config: CacheConfig) -> bool:
         - Beats Buy-and-Hold [%], Avg Trade Duration, Trades Per Day
     """
     log, log_close, _, _ = setup_logging(
-        module_name="ma_cross", log_file="3_review_stop_loss.log"
+        module_name="ma_cross", log_file="3_review_stop_loss.log",
     )
 
     try:
@@ -181,7 +181,7 @@ def run(config: CacheConfig) -> bool:
         # Combine ranges and round to 2 decimal places (total: 300 points)
         stop_loss_range = np.round(np.concatenate([range1, range2, range3]), decimals=2)
         log(
-            f"Using stop loss range: {stop_loss_range[0]:.2f}% to {stop_loss_range[-1]:.2f}%"
+            f"Using stop loss range: {stop_loss_range[0]:.2f}% to {stop_loss_range[-1]:.2f}%",
         )
 
         # Check for cached results
@@ -204,11 +204,12 @@ def run(config: CacheConfig) -> bool:
             data = get_data(config["TICKER"], config, log)
 
             metric_matrices = analyze_stop_loss_parameters(
-                data=data, config=config, stop_loss_range=stop_loss_range, log=log
+                data=data, config=config, stop_loss_range=stop_loss_range, log=log,
             )
 
         if metric_matrices is None:
-            raise Exception("Failed to generate or load metric matrices")
+            msg = "Failed to generate or load metric matrices"
+            raise Exception(msg)
 
         # Export sensitivity analysis results to CSV
         try:
@@ -232,7 +233,8 @@ def run(config: CacheConfig) -> bool:
         )
 
         if not figures:
-            raise Exception("Failed to create heatmap figures")
+            msg = "Failed to create heatmap figures"
+            raise Exception(msg)
 
         # Display all heatmaps in specific order
         metrics_to_display = ["trades", "returns", "score", "win_rate"]
@@ -241,8 +243,9 @@ def run(config: CacheConfig) -> bool:
                 figures[metric_name].show()
                 log(f"Displayed {metric_name} heatmap")
             else:
+                msg = f"Required {metric_name} heatmap not found in figures dictionary"
                 raise Exception(
-                    f"Required {metric_name} heatmap not found in figures dictionary"
+                    msg,
                 )
 
         log_close()

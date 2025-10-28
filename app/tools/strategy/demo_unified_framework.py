@@ -34,17 +34,17 @@ def demo_strategy_factory():
 
     sma_strategy = factory.create_strategy("UNIFIED_SMA")
     print(
-        f"✓ SMA Strategy: {sma_strategy.__class__.__name__} (type: {sma_strategy.get_strategy_type()})"
+        f"✓ SMA Strategy: {sma_strategy.__class__.__name__} (type: {sma_strategy.get_strategy_type()})",
     )
 
     ema_strategy = factory.create_strategy("UNIFIED_EMA")
     print(
-        f"✓ EMA Strategy: {ema_strategy.__class__.__name__} (type: {ema_strategy.get_strategy_type()})"
+        f"✓ EMA Strategy: {ema_strategy.__class__.__name__} (type: {ema_strategy.get_strategy_type()})",
     )
 
     macd_strategy = factory.create_strategy("UNIFIED_MACD")
     print(
-        f"✓ MACD Strategy: {macd_strategy.__class__.__name__} (type: {macd_strategy.get_strategy_type()})"
+        f"✓ MACD Strategy: {macd_strategy.__class__.__name__} (type: {macd_strategy.get_strategy_type()})",
     )
 
     # Test aliases
@@ -108,7 +108,7 @@ def demo_strategy_interfaces():
 
         print(f"  ✓ Extends BaseStrategy: {isinstance(strategy, BaseStrategy)}")
         print(
-            f"  ✓ Implements StrategyInterface: {isinstance(strategy, StrategyInterface)}"
+            f"  ✓ Implements StrategyInterface: {isinstance(strategy, StrategyInterface)}",
         )
 
         # Test parameter ranges
@@ -143,7 +143,7 @@ def demo_migration_capabilities():
     print(f"Configuration: {macd_config}")
     print(f"Valid: {validation_result['is_valid']}")
     print(
-        f"Parameter ranges available: {len(validation_result['parameter_ranges'])} parameters"
+        f"Parameter ranges available: {len(validation_result['parameter_ranges'])} parameters",
     )
 
     # Test incomplete configuration

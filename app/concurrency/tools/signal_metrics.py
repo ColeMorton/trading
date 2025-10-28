@@ -22,7 +22,7 @@ USE_FIXED_SIGNAL_PROC = os.getenv("USE_FIXED_SIGNAL_PROC", "true").lower() == "t
 
 
 def calculate_signal_metrics(
-    aligned_data: list[pl.DataFrame], log: Callable | None = None
+    aligned_data: list[pl.DataFrame], log: Callable | None = None,
 ) -> dict[str, Any]:
     """Calculate signal metrics for all strategies.
 
@@ -36,7 +36,7 @@ def calculate_signal_metrics(
     if log is None:
         # Create a default logger if none provided
         log, _, _, _ = setup_logging(
-            "signal_metrics", Path("./logs"), "signal_metrics.log"
+            "signal_metrics", Path("./logs"), "signal_metrics.log",
         )
 
     try:
@@ -73,7 +73,7 @@ def calculate_signal_metrics(
                 # Use position signals for time-based analysis (consistent with legacy)
                 signal_processor.count_position_signals(df_pd, signal_def)
                 _, filtered_signals_df = signal_processor.count_filtered_signals(
-                    df_pd, signal_def
+                    df_pd, signal_def,
                 )
 
                 # Create signals dataframe for monthly analysis
@@ -251,7 +251,7 @@ def calculate_signal_metrics(
 
 
 def _calculate_unique_portfolio_signals(
-    all_signals: list[pd.DataFrame], log: Callable
+    all_signals: list[pd.DataFrame], log: Callable,
 ) -> pd.DataFrame:
     """
     Calculate unique portfolio signals by removing duplicates across strategies.
@@ -290,7 +290,7 @@ def _calculate_unique_portfolio_signals(
         if unique_signal_dates:
             unique_dates_sorted = sorted(unique_signal_dates)
             unique_signals = pd.DataFrame(
-                index=pd.DatetimeIndex(unique_dates_sorted), data={"unique_signal": 1}
+                index=pd.DatetimeIndex(unique_dates_sorted), data={"unique_signal": 1},
             )
             log(
                 f"Portfolio unique signals: {len(unique_signals)} (from {sum(len(s) for s in all_signals)} total strategy signals)",

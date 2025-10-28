@@ -17,7 +17,7 @@ from app.tools.portfolio.strategy_types import (
 
 
 def determine_strategy_type(
-    row: dict[str, Any], log: Callable[[str, str], None] | None = None
+    row: dict[str, Any], log: Callable[[str, str], None] | None = None,
 ) -> StrategyTypeLiteral:
     """
     Determine strategy type from row data with consistent priority.
@@ -101,7 +101,7 @@ def create_strategy_type_fields(strategy_type: StrategyTypeLiteral) -> dict[str,
 
 
 def get_strategy_type_for_export(
-    df: dict[str, Any], log: Callable[[str, str], None] | None = None
+    df: dict[str, Any], log: Callable[[str, str], None] | None = None,
 ) -> StrategyTypeLiteral:
     """
     Get the strategy type for export, handling all possible field names.
@@ -123,8 +123,7 @@ def get_strategy_type_for_export(
 
     for field in field_priority:
         if field in df and df[field] is not None:
-            strategy_type = df[field]
-            return strategy_type
+            return df[field]
 
     # Check if this might be a MACD strategy based on presence of SIGNAL_PERIOD
     if "SIGNAL_PERIOD" in df and df["SIGNAL_PERIOD"] is not None:

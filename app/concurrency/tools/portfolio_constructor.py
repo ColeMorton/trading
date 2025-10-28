@@ -74,7 +74,7 @@ class PortfolioConstructor:
         # Load strategies for asset
         try:
             strategies = self.strategy_loader.load_strategies_for_asset(
-                asset, min_score=min_score
+                asset, min_score=min_score,
             )
         except DataLoadError as e:
             log_func(f"Failed to load strategies for {asset}: {e}", "error")
@@ -97,8 +97,9 @@ class PortfolioConstructor:
             ]
 
         if not portfolio_sizes:
+            msg = f"Not enough strategies for any portfolio construction (need at least {min(portfolio_sizes or [5])})"
             raise DataLoadError(
-                f"Not enough strategies for any portfolio construction (need at least {min(portfolio_sizes or [5])})"
+                msg,
             )
 
         # Test each portfolio size
@@ -132,7 +133,7 @@ class PortfolioConstructor:
                 }
 
                 log_func(
-                    f"Size {size} - Efficiency Score: {efficiency_score:.4f}", "info"
+                    f"Size {size} - Efficiency Score: {efficiency_score:.4f}", "info",
                 )
 
                 # Track best result
@@ -148,7 +149,8 @@ class PortfolioConstructor:
 
         # Validate we found at least one viable portfolio
         if best_portfolio is None:
-            raise DataLoadError(f"Failed to construct viable portfolio for {asset}")
+            msg = f"Failed to construct viable portfolio for {asset}"
+            raise DataLoadError(msg)
 
         log_func(
             f"Optimal portfolio: {best_size} strategies with efficiency_score {best_score:.4f}",
@@ -156,7 +158,7 @@ class PortfolioConstructor:
         )
 
         # Create result
-        result = PortfolioConstructionResult(
+        return PortfolioConstructionResult(
             asset=asset,
             optimal_size=best_size,
             optimal_portfolio=best_portfolio,
@@ -166,10 +168,9 @@ class PortfolioConstructor:
             total_strategies_evaluated=len(strategies),
         )
 
-        return result
 
     def generate_construction_report(
-        self, result: PortfolioConstructionResult
+        self, result: PortfolioConstructionResult,
     ) -> dict[str, Any]:
         """Generate comprehensive report of portfolio construction process."""
 
@@ -188,7 +189,7 @@ class PortfolioConstructor:
                     "total_return": strategy.total_return,
                     "max_drawdown": strategy.max_drawdown,
                     "allocation": strategy.allocation,
-                }
+                },
             )
 
         # Size comparison summary
@@ -212,20 +213,20 @@ class PortfolioConstructor:
             portfolio_metrics = {
                 "efficiency_score": result.efficiency_score,
                 "total_weighted_efficiency": result.portfolio_stats.get(
-                    "total_weighted_efficiency", 0.0
+                    "total_weighted_efficiency", 0.0,
                 ),
                 "average_efficiency": result.portfolio_stats.get(
-                    "average_efficiency", 0.0
+                    "average_efficiency", 0.0,
                 ),
                 "total_periods": result.portfolio_stats.get("total_periods", 0),
                 "concurrent_periods": result.portfolio_stats.get(
-                    "concurrent_periods", 0
+                    "concurrent_periods", 0,
                 ),
                 "diversification_score": result.portfolio_stats.get(
-                    "diversification_score", 0.0
+                    "diversification_score", 0.0,
                 ),
                 "independence_factor": result.portfolio_stats.get(
-                    "independence_factor", 0.0
+                    "independence_factor", 0.0,
                 ),
             }
 
@@ -279,7 +280,7 @@ class PortfolioConstructor:
         }
 
     def validate_construction_feasibility(
-        self, asset: str, min_score: float = 1.0
+        self, asset: str, min_score: float = 1.0,
     ) -> dict[str, Any]:
         """Validate if portfolio construction is feasible for given asset."""
         try:

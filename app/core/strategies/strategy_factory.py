@@ -44,7 +44,8 @@ class StrategyFactory:
             return MACrossStrategy()
         if strategy_type == StrategyTypeEnum.MACD:
             return MACDStrategy()
-        raise ValueError(f"Unsupported strategy type: {strategy_type}")
+        msg = f"Unsupported strategy type: {strategy_type}"
+        raise ValueError(msg)
 
     @staticmethod
     def get_supported_strategies() -> list[StrategyTypeEnum]:
@@ -53,7 +54,7 @@ class StrategyFactory:
 
     @staticmethod
     def validate_strategy_config(
-        strategy_type: StrategyTypeEnum, config: dict[str, Any]
+        strategy_type: StrategyTypeEnum, config: dict[str, Any],
     ) -> bool:
         """Validate configuration for a specific strategy type.
 

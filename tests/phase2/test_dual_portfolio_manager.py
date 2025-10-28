@@ -57,7 +57,7 @@ class TestDualPortfolioManager:
 
         # Test invalid allocation percentage
         with pytest.raises(
-            ValueError, match="Allocation percentage must be between 0 and 100"
+            ValueError, match="Allocation percentage must be between 0 and 100",
         ):
             self.manager.add_portfolio_holding("AAPL", PortfolioType.RISK_ON, 1000, 150)
 
@@ -125,7 +125,7 @@ class TestDualPortfolioManager:
 
         # Test Risk On holdings
         risk_on_holdings = self.manager.get_holdings_by_portfolio_type(
-            PortfolioType.RISK_ON
+            PortfolioType.RISK_ON,
         )
         assert len(risk_on_holdings) == 2
         symbols = [h.symbol for h in risk_on_holdings]
@@ -134,7 +134,7 @@ class TestDualPortfolioManager:
 
         # Test Investment holdings
         investment_holdings = self.manager.get_holdings_by_portfolio_type(
-            PortfolioType.INVESTMENT
+            PortfolioType.INVESTMENT,
         )
         assert len(investment_holdings) == 2
         symbols = [h.symbol for h in investment_holdings]
@@ -153,10 +153,10 @@ class TestDualPortfolioManager:
         """Test portfolio summary calculation."""
         # Add holdings
         self.manager.add_portfolio_holding(
-            "AAPL", PortfolioType.RISK_ON, 5000, 10, risk_amount=250
+            "AAPL", PortfolioType.RISK_ON, 5000, 10, risk_amount=250,
         )
         self.manager.add_portfolio_holding(
-            "TSLA", PortfolioType.RISK_ON, 7500, 15, risk_amount=375
+            "TSLA", PortfolioType.RISK_ON, 7500, 15, risk_amount=375,
         )
         self.manager.add_portfolio_holding("SPY", PortfolioType.INVESTMENT, 15000, 50)
         self.manager.add_portfolio_holding("QQQ", PortfolioType.INVESTMENT, 10000, 33)
@@ -235,7 +235,7 @@ class TestDualPortfolioManager:
 
         # Add some holdings
         self.manager.add_portfolio_holding(
-            "AAPL", PortfolioType.RISK_ON, 5000, 10, risk_amount=250
+            "AAPL", PortfolioType.RISK_ON, 5000, 10, risk_amount=250,
         )
         self.manager.add_portfolio_holding("SPY", PortfolioType.INVESTMENT, 15000, 50)
 

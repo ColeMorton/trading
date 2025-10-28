@@ -39,7 +39,7 @@ def standard_5yr_data():
         prices.append(prices[-1] * (1 + r))
 
     return pd.DataFrame(
-        {"Date": dates, "Close": prices[:-1]}  # Remove last price (one extra from loop)
+        {"Date": dates, "Close": prices[:-1]},  # Remove last price (one extra from loop)
     ).set_index("Date")
 
 
@@ -208,7 +208,7 @@ def mock_yfinance_multiindex_data():
             ("Low", "TEST"),
             ("Close", "TEST"),
             ("Volume", "TEST"),
-        ]
+        ],
     )
 
     data = pd.DataFrame(

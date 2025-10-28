@@ -55,8 +55,9 @@ def analyze_parameter_combinations(
         signal_range = signal_periods or signal_windows
 
         if fast_range is None or slow_range is None or signal_range is None:
+            msg = "Must provide either fast_periods/slow_periods/signal_periods or short_windows/long_windows/signal_windows"
             raise ValueError(
-                "Must provide either fast_periods/slow_periods/signal_periods or short_windows/long_windows/signal_windows"
+                msg,
             )
 
         # Generate MACD parameter combinations from the provided ranges
@@ -71,7 +72,7 @@ def analyze_parameter_combinations(
                             "fast_period": fast_period,
                             "slow_period": slow_period,
                             "signal_period": signal_period,
-                        }
+                        },
                     )
 
         log(f"Generated {len(parameter_sets)} MACD parameter combinations")
@@ -141,8 +142,9 @@ def analyze_parameter_combination(
         signal = signal_period or signal_period
 
         if fast is None or slow is None or signal is None:
+            msg = "Must provide either fast_period/slow_period/signal_period or fast_period/slow_period/signal_period parameters"
             raise ValueError(
-                "Must provide either fast_period/slow_period/signal_period or fast_period/slow_period/signal_period parameters"
+                msg,
             )
 
         # Create temporary config for this parameter combination
@@ -152,7 +154,7 @@ def analyze_parameter_combination(
                 "fast_period": fast,
                 "slow_period": slow,
                 "signal_period": signal,
-            }
+            },
         )
 
         # Generate signals for this parameter combination
@@ -165,7 +167,7 @@ def analyze_parameter_combination(
 
         # Analyze the portfolio using the centralized framework
         result = analyze_single_portfolio(
-            signal_data, temp_config, log, strategy_type="MACD"
+            signal_data, temp_config, log, strategy_type="MACD",
         )
 
         if result is not None:
@@ -175,7 +177,7 @@ def analyze_parameter_combination(
                     "Fast Period": fast,
                     "Slow Period": slow,
                     "Signal Period": signal,
-                }
+                },
             )
 
         return result
@@ -208,7 +210,7 @@ def export_results(df: pl.DataFrame, config: dict[str, Any], log: Callable) -> N
 
         # Export using centralized portfolio export functionality
         export_portfolios(
-            portfolios=df.to_dicts(), config=config, export_type="portfolios", log=log
+            portfolios=df.to_dicts(), config=config, export_type="portfolios", log=log,
         )
 
         log("MACD analysis results exported successfully")

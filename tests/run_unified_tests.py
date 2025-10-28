@@ -121,7 +121,7 @@ class UnifiedTestRunner:
         }
 
     def _calculate_optimal_workers(
-        self, category: str, parallel_override: bool | None = None
+        self, category: str, parallel_override: bool | None = None,
     ) -> int:
         """Calculate optimal number of workers for a test category."""
         config = self.test_categories[category]
@@ -185,7 +185,7 @@ class UnifiedTestRunner:
 
         if available_memory_gb < required_memory_gb + 0.5:  # 500MB buffer
             print(
-                f"⚠️ Warning: Low memory for {category} tests. Required: {required_memory_gb:.1f}GB, Available: {available_memory_gb:.1f}GB"
+                f"⚠️ Warning: Low memory for {category} tests. Required: {required_memory_gb:.1f}GB, Available: {available_memory_gb:.1f}GB",
             )
             return False
 
@@ -195,7 +195,7 @@ class UnifiedTestRunner:
 
         if available_cores < required_cores:
             print(
-                f"⚠️ Warning: Insufficient CPU cores for {category} tests. Required: {required_cores}, Available: {available_cores}"
+                f"⚠️ Warning: Insufficient CPU cores for {category} tests. Required: {required_cores}, Available: {available_cores}",
             )
             return False
 
@@ -225,7 +225,8 @@ class UnifiedTestRunner:
             Test execution results with performance metrics
         """
         if category not in self.test_categories:
-            raise ValueError(f"Unknown test category: {category}")
+            msg = f"Unknown test category: {category}"
+            raise ValueError(msg)
 
         config = self.test_categories[category]
 
@@ -282,7 +283,7 @@ class UnifiedTestRunner:
                     "--cov-report=term-missing",
                     "--cov-report=xml",
                     "--cov-branch",  # Enable branch coverage
-                ]
+                ],
             )
 
         # Add intelligent parallel execution
@@ -297,7 +298,7 @@ class UnifiedTestRunner:
                 [
                     "--dist=worksteal",  # Intelligent work distribution
                     "--tx=popen//python",  # Use process-based workers
-                ]
+                ],
             )
 
         # Add failure handling
@@ -321,14 +322,14 @@ class UnifiedTestRunner:
                 "--strict-markers",
                 "--disable-warnings",  # Reduce noise
                 "--no-header",  # Faster startup
-            ]
+            ],
         )
 
         # Add performance tracking
         cmd.extend(
             [
                 "--durations=10",  # Show 10 slowest tests
-            ]
+            ],
         )
 
         # Display execution plan
@@ -343,10 +344,10 @@ class UnifiedTestRunner:
 
         print(f"\n🧪 Running {category} tests: {config['description']}")
         print(
-            f"{isolation_indicator} Isolation: {config['isolation_level']} | {parallel_indicator} | ⏱️ Max: {timeout_seconds//60}m{timeout_seconds%60}s"
+            f"{isolation_indicator} Isolation: {config['isolation_level']} | {parallel_indicator} | ⏱️ Max: {timeout_seconds//60}m{timeout_seconds%60}s",
         )
         print(
-            f"💾 Memory: {config['resource_requirements']['memory_mb']}MB | 🖥️ CPU: {config['resource_requirements']['cpu_cores']} cores"
+            f"💾 Memory: {config['resource_requirements']['memory_mb']}MB | 🖥️ CPU: {config['resource_requirements']['cpu_cores']} cores",
         )
         print(f"Command: {' '.join(cmd)}")
 
@@ -382,7 +383,7 @@ class UnifiedTestRunner:
             final_resources = self._monitor_system_resources()
 
             # Parse test results with enhanced metrics
-            test_result = self._parse_test_results(
+            return self._parse_test_results(
                 category,
                 cmd,
                 result,
@@ -392,7 +393,6 @@ class UnifiedTestRunner:
                 workers,
             )
 
-            return test_result
 
         except subprocess.TimeoutExpired:
             end_time = time.time()
@@ -412,7 +412,7 @@ class UnifiedTestRunner:
                     "initial_resources": initial_resources,
                     "final_resources": final_resources,
                     "resource_delta": self._calculate_resource_delta(
-                        initial_resources, final_resources
+                        initial_resources, final_resources,
                     ),
                 },
             }
@@ -498,13 +498,13 @@ class UnifiedTestRunner:
             "initial_resources": initial_resources,
             "final_resources": final_resources,
             "resource_delta": self._calculate_resource_delta(
-                initial_resources, final_resources
+                initial_resources, final_resources,
             ),
             "tests_per_second": (
                 test_counts.get("total_tests", 0) / duration if duration > 0 else 0
             ),
             "memory_efficiency": self._calculate_memory_efficiency(
-                initial_resources, final_resources, test_counts.get("total_tests", 0)
+                initial_resources, final_resources, test_counts.get("total_tests", 0),
             ),
             "parallel_efficiency": (
                 self._calculate_parallel_efficiency(duration, workers)
@@ -596,13 +596,13 @@ class UnifiedTestRunner:
                             "duration": float(duration),
                             "phase": phase,
                             "test": test_name,
-                        }
+                        },
                     )
 
         return slow_tests[:10]  # Top 10 slowest
 
     def _calculate_resource_delta(
-        self, initial: dict[str, float], final: dict[str, float]
+        self, initial: dict[str, float], final: dict[str, float],
     ) -> dict[str, float]:
         """Calculate the change in system resources during test execution."""
         return {
@@ -617,7 +617,7 @@ class UnifiedTestRunner:
         }
 
     def _calculate_memory_efficiency(
-        self, initial: dict[str, float], final: dict[str, float], test_count: int
+        self, initial: dict[str, float], final: dict[str, float], test_count: int,
     ) -> float:
         """Calculate memory efficiency metric (tests per MB of memory used)."""
         memory_used_mb = (final["memory_used_gb"] - initial["memory_used_gb"]) * 1024
@@ -640,7 +640,7 @@ class UnifiedTestRunner:
         return min(1.0, theoretical_speedup / workers)
 
     def run_multiple_categories(
-        self, categories: list[str], concurrent: bool = False, **kwargs
+        self, categories: list[str], concurrent: bool = False, **kwargs,
     ) -> dict[str, any]:
         """Run multiple test categories with optional concurrent execution."""
         self.start_time = time.time()
@@ -650,10 +650,10 @@ class UnifiedTestRunner:
 
         # Display system information
         print(
-            f"🖥️ System: {self.system_info['cpu_count']} cores, {self.system_info['memory_total_gb']:.1f}GB RAM"
+            f"🖥️ System: {self.system_info['cpu_count']} cores, {self.system_info['memory_total_gb']:.1f}GB RAM",
         )
         print(
-            f"💾 Available: {self.system_info['memory_available_gb']:.1f}GB ({100 - self.system_info['memory_percent']:.1f}%)"
+            f"💾 Available: {self.system_info['memory_available_gb']:.1f}GB ({100 - self.system_info['memory_percent']:.1f}%)",
         )
 
         if concurrent and len(categories) > 1:
@@ -690,7 +690,7 @@ class UnifiedTestRunner:
         return summary
 
     def _run_categories_sequential(
-        self, categories: list[str], **kwargs
+        self, categories: list[str], **kwargs,
     ) -> dict[str, any]:
         """Run test categories sequentially (traditional approach)."""
         results = {}
@@ -705,7 +705,7 @@ class UnifiedTestRunner:
         return results
 
     def _run_categories_concurrent(
-        self, categories: list[str], **kwargs
+        self, categories: list[str], **kwargs,
     ) -> dict[str, any]:
         """Run test categories concurrently where safe to do so."""
         # Categorize by isolation requirements
@@ -726,21 +726,21 @@ class UnifiedTestRunner:
         # Run high-isolation categories sequentially first
         if sequential_categories:
             print(
-                f"🔒 Running high-isolation categories sequentially: {', '.join(sequential_categories)}"
+                f"🔒 Running high-isolation categories sequentially: {', '.join(sequential_categories)}",
             )
             sequential_results = self._run_categories_sequential(
-                sequential_categories, **kwargs
+                sequential_categories, **kwargs,
             )
             results.update(sequential_results)
 
         # Run parallel-safe categories concurrently
         if parallel_categories:
             print(
-                f"⚡ Running parallel-safe categories concurrently: {', '.join(parallel_categories)}"
+                f"⚡ Running parallel-safe categories concurrently: {', '.join(parallel_categories)}",
             )
 
             max_workers = min(
-                len(parallel_categories), 3
+                len(parallel_categories), 3,
             )  # Limit concurrent categories
 
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -789,14 +789,14 @@ class UnifiedTestRunner:
         parallel_indicator = f"⚡{workers}w" if workers > 1 else "🔄"
 
         print(
-            f"{icon} {category}: {status.upper()} ({duration:.1f}s) {parallel_indicator}"
+            f"{icon} {category}: {status.upper()} ({duration:.1f}s) {parallel_indicator}",
         )
 
         # Additional metrics for passed tests
         if status == "passed" and result.get("total_tests", 0) > 0:
             total_tests = result["total_tests"]
             tests_per_sec = result.get("performance_metrics", {}).get(
-                "tests_per_second", 0
+                "tests_per_second", 0,
             )
             print(f"   📊 {total_tests} tests, {tests_per_sec:.1f} tests/sec")
 
@@ -815,7 +815,7 @@ class UnifiedTestRunner:
                 print(f"   💬 {stderr_preview}...")
 
     def _calculate_aggregate_metrics(
-        self, results: dict[str, any], total_duration: float
+        self, results: dict[str, any], total_duration: float,
     ) -> dict[str, any]:
         """Calculate aggregate performance metrics across all categories."""
         total_tests = sum(r.get("total_tests", 0) for r in results.values())
@@ -888,7 +888,7 @@ class UnifiedTestRunner:
         print(f"🔄 Execution Mode: {execution_mode.title()}")
         print(f"⏱️ Total Duration: {results['total_duration']:.1f} seconds")
         print(
-            f"📂 Categories Run: {len(results['categories_run'])} ({', '.join(results['categories_run'])})"
+            f"📂 Categories Run: {len(results['categories_run'])} ({', '.join(results['categories_run'])})",
         )
         print(f"📈 Success Rate: {results['success_rate']:.1%}")
         print(f"✅ Passed: {results['categories_passed']}")
@@ -904,13 +904,13 @@ class UnifiedTestRunner:
             print(f"⚡ Tests/Second: {metrics.get('tests_per_second_aggregate', 0):.1f}")
             print(f"⏰ Time Efficiency: {metrics.get('time_efficiency', 0):.1%}")
             print(
-                f"🚀 Parallel Efficiency: {metrics.get('average_parallel_efficiency', 1.0):.1%}"
+                f"🚀 Parallel Efficiency: {metrics.get('average_parallel_efficiency', 1.0):.1%}",
             )
 
             memory_used = metrics.get("total_memory_used_mb", 0)
             if memory_used > 0:
                 print(
-                    f"💾 Memory Used: {memory_used:.0f}MB ({metrics.get('memory_efficiency_aggregate', 0):.1f} tests/MB)"
+                    f"💾 Memory Used: {memory_used:.0f}MB ({metrics.get('memory_efficiency_aggregate', 0):.1f} tests/MB)",
                 )
 
         print("\n📋 Category Results:")
@@ -921,7 +921,7 @@ class UnifiedTestRunner:
             parallel_indicator = f"⚡{workers}w" if workers > 1 else "🔄"
 
             print(
-                f"  {status_icon} {category}: {result['status'].upper()} ({duration:.1f}s) {parallel_indicator}"
+                f"  {status_icon} {category}: {result['status'].upper()} ({duration:.1f}s) {parallel_indicator}",
             )
 
             # Show test counts for successful runs
@@ -929,7 +929,7 @@ class UnifiedTestRunner:
                 total_tests = result.get("total_tests", 0)
                 if total_tests > 0:
                     tests_per_sec = result.get("performance_metrics", {}).get(
-                        "tests_per_second", 0
+                        "tests_per_second", 0,
                     )
                     print(f"     📊 {total_tests} tests, {tests_per_sec:.1f} tests/sec")
 
@@ -937,7 +937,7 @@ class UnifiedTestRunner:
                 slow_tests = result.get("slow_tests", [])
                 if slow_tests:
                     print(
-                        f"     🐌 {len(slow_tests)} slow tests (slowest: {slow_tests[0]['duration']:.2f}s)"
+                        f"     🐌 {len(slow_tests)} slow tests (slowest: {slow_tests[0]['duration']:.2f}s)",
                     )
 
                 # Show summary line if available
@@ -966,17 +966,17 @@ class UnifiedTestRunner:
 
                 if duration > expected_max * 0.8:  # More than 80% of max time
                     recommendations.append(
-                        f"⚠️ {category} tests are running slow ({duration:.1f}s)"
+                        f"⚠️ {category} tests are running slow ({duration:.1f}s)",
                     )
 
                 # Check parallel efficiency
                 if result.get("workers", 1) > 1:
                     efficiency = result.get("performance_metrics", {}).get(
-                        "parallel_efficiency", 1.0
+                        "parallel_efficiency", 1.0,
                     )
                     if efficiency < 0.7:  # Less than 70% efficiency
                         recommendations.append(
-                            f"⚠️ {category} parallel efficiency is low ({efficiency:.1%})"
+                            f"⚠️ {category} parallel efficiency is low ({efficiency:.1%})",
                         )
 
         # Check overall metrics
@@ -986,12 +986,12 @@ class UnifiedTestRunner:
 
             if time_efficiency < 0.5 and len(results["categories_run"]) > 1:
                 recommendations.append(
-                    "💡 Consider using --concurrent for better time efficiency"
+                    "💡 Consider using --concurrent for better time efficiency",
                 )
 
             if metrics.get("tests_per_second_aggregate", 0) < 1.0:
                 recommendations.append(
-                    "💡 Consider using --parallel for faster individual test execution"
+                    "💡 Consider using --parallel for faster individual test execution",
                 )
 
         if recommendations:
@@ -1052,10 +1052,10 @@ Examples:
 
     # Test execution options
     parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable verbose output"
+        "-v", "--verbose", action="store_true", help="Enable verbose output",
     )
     parser.add_argument(
-        "-c", "--coverage", action="store_true", help="Enable coverage reporting"
+        "-c", "--coverage", action="store_true", help="Enable coverage reporting",
     )
     parser.add_argument(
         "-p",
@@ -1069,7 +1069,7 @@ Examples:
         help="Enable concurrent execution of multiple categories",
     )
     parser.add_argument(
-        "-f", "--fail-fast", action="store_true", help="Stop on first failure"
+        "-f", "--fail-fast", action="store_true", help="Stop on first failure",
     )
     parser.add_argument(
         "-d",
@@ -1086,7 +1086,7 @@ Examples:
     # Output options
     parser.add_argument("--save", metavar="FILE", help="Save results to JSON file")
     parser.add_argument(
-        "--list", action="store_true", help="List available test categories"
+        "--list", action="store_true", help="List available test categories",
     )
 
     args = parser.parse_args()

@@ -95,7 +95,7 @@ class TestBootstrapSampler(unittest.TestCase):
                 "Open": prices * 0.99,
                 "High": prices * 1.01,
                 "Low": prices * 0.98,
-            }
+            },
         )
 
         self.sampler = BootstrapSampler(block_size=30, min_data_fraction=0.7)
@@ -142,7 +142,7 @@ class TestBootstrapSampler(unittest.TestCase):
         results = []
         for _ in range(100):
             noisy_short, noisy_long = self.sampler.parameter_noise_injection(
-                short, long, noise_std=0.1
+                short, long, noise_std=0.1,
             )
             results.append((noisy_short, noisy_long))
 
@@ -203,7 +203,7 @@ class TestMonteCarloAnalyzer(unittest.TestCase):
                 "Open": prices * 0.999,
                 "High": prices * 1.001,
                 "Low": prices * 0.999,
-            }
+            },
         )
 
     @patch("app.concurrency.tools.monte_carlo.core.calculate_ma_and_signals")
@@ -215,7 +215,7 @@ class TestMonteCarloAnalyzer(unittest.TestCase):
         mock_calculate_signals.return_value = mock_signals_data
 
         performance = self.analyzer._calculate_strategy_performance(
-            self.test_data, 10, 20
+            self.test_data, 10, 20,
         )
 
         self.assertIn("total_return", performance)
@@ -256,14 +256,14 @@ class TestMonteCarloAnalyzer(unittest.TestCase):
 
         # Analyzer is configured to test max 3 parameters
         with patch.object(
-            self.analyzer, "_analyze_single_parameter_combination"
+            self.analyzer, "_analyze_single_parameter_combination",
         ) as mock_analyze:
             mock_analyze.return_value = None
 
             # This would normally fail, but we're just testing the limiting logic
             try:
                 self.analyzer.analyze_parameter_stability(
-                    "TEST", self.test_data, many_params
+                    "TEST", self.test_data, many_params,
                 )
             except:
                 pass  # We expect this to fail due to mocked method

@@ -59,13 +59,13 @@ class WebhookService:
                 )
 
                 logger.info(
-                    f"Webhook sent for job {job_id}: " f"status={response.status_code}"
+                    f"Webhook sent for job {job_id}: " f"status={response.status_code}",
                 )
 
                 return response.status_code, response.text
 
         except httpx.TimeoutException:
-            logger.error(f"Webhook timeout for job {job_id} to {webhook_url}")
+            logger.exception(f"Webhook timeout for job {job_id} to {webhook_url}")
             return 0, "timeout"
         except Exception as e:
             logger.error(f"Webhook error for job {job_id}: {e}", exc_info=True)
@@ -119,6 +119,6 @@ class WebhookService:
                 .values(
                     webhook_sent_at=datetime.utcnow(),
                     webhook_response_status=status_code,
-                )
+                ),
             )
             await session.commit()

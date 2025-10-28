@@ -158,7 +158,7 @@ class PortfolioVisualizationService:
         self.plot_paths: list[str] = []
 
     def _get_line_style(
-        self, color: str, width: int | None = None, dash: str | None = None
+        self, color: str, width: int | None = None, dash: str | None = None,
     ) -> dict:
         """Get consistent line styling."""
         style = {
@@ -174,7 +174,7 @@ class PortfolioVisualizationService:
         return {"color": color, "size": size or self.config.chart_style.marker_size}
 
     def _get_layout_style(
-        self, title: str, height: int | None = None, width: int | None = None
+        self, title: str, height: int | None = None, width: int | None = None,
     ) -> dict:
         """Get consistent layout styling."""
         return {
@@ -222,7 +222,7 @@ class PortfolioVisualizationService:
             # Create output directory using unified 3-layer structure
             os.makedirs(self.config.output_dir, exist_ok=True)
             self._log(
-                f"Using unified directory structure for charts: {self.config.output_dir}"
+                f"Using unified directory structure for charts: {self.config.output_dir}",
             )
 
             generated_files = []
@@ -230,13 +230,13 @@ class PortfolioVisualizationService:
             # 1. Individual portfolio performance charts (4 separate files)
             # Portfolio value chart
             portfolio_value_files = self._create_portfolio_value_chart(
-                portfolio, title_prefix
+                portfolio, title_prefix,
             )
             generated_files.extend(portfolio_value_files)
 
             # Cumulative returns chart
             cumulative_returns_files = self._create_cumulative_returns_chart(
-                portfolio, title_prefix
+                portfolio, title_prefix,
             )
             generated_files.extend(cumulative_returns_files)
 
@@ -246,14 +246,14 @@ class PortfolioVisualizationService:
 
             # Underwater curve chart (with fixed calculation)
             underwater_files = self._create_underwater_curve_chart(
-                portfolio, title_prefix
+                portfolio, title_prefix,
             )
             generated_files.extend(underwater_files)
 
             # 2. Benchmark comparison if available
             if benchmark_portfolio and self.config.include_benchmark:
                 comparison_files = self._create_benchmark_comparison_chart(
-                    portfolio, benchmark_portfolio, comparison_metrics
+                    portfolio, benchmark_portfolio, comparison_metrics,
                 )
                 generated_files.extend(comparison_files)
 
@@ -264,14 +264,14 @@ class PortfolioVisualizationService:
 
             # 4. Drawdown analysis
             drawdown_files = self._create_drawdown_analysis_chart(
-                portfolio, title_prefix
+                portfolio, title_prefix,
             )
             generated_files.extend(drawdown_files)
 
             # 5. Returns analysis (separate histogram and Q-Q plot)
             # Returns histogram chart
             histogram_files = self._create_returns_histogram_chart(
-                portfolio, title_prefix
+                portfolio, title_prefix,
             )
             generated_files.extend(histogram_files)
 
@@ -301,7 +301,7 @@ class PortfolioVisualizationService:
             )
 
     def _create_portfolio_value_chart(
-        self, portfolio: "vbt.Portfolio", title_prefix: str
+        self, portfolio: "vbt.Portfolio", title_prefix: str,
     ) -> list[str]:
         """Create portfolio value chart."""
         try:
@@ -315,18 +315,18 @@ class PortfolioVisualizationService:
                     mode="lines",
                     name="Portfolio Value",
                     line=self._get_line_style(self.config.chart_style.positive_color),
-                )
+                ),
             )
 
             # Apply consistent styling
             layout_style = self._get_layout_style(
-                f"{title_prefix} - Portfolio Value", height=self.config.height // 2
+                f"{title_prefix} - Portfolio Value", height=self.config.height // 2,
             )
             layout_style.update(
                 {
                     "xaxis_title": "Date",
                     "yaxis_title": "Portfolio Value",
-                }
+                },
             )
             fig.update_layout(**layout_style)
 
@@ -337,7 +337,7 @@ class PortfolioVisualizationService:
             return []
 
     def _create_cumulative_returns_chart(
-        self, portfolio: "vbt.Portfolio", title_prefix: str
+        self, portfolio: "vbt.Portfolio", title_prefix: str,
     ) -> list[str]:
         """Create cumulative returns chart."""
         try:
@@ -352,18 +352,18 @@ class PortfolioVisualizationService:
                     mode="lines",
                     name="Cumulative Returns",
                     line=self._get_line_style(self.config.chart_style.secondary_data),
-                )
+                ),
             )
 
             # Apply consistent styling
             layout_style = self._get_layout_style(
-                f"{title_prefix} - Cumulative Returns", height=self.config.height // 2
+                f"{title_prefix} - Cumulative Returns", height=self.config.height // 2,
             )
             layout_style.update(
                 {
                     "xaxis_title": "Date",
                     "yaxis_title": "Cumulative Returns",
-                }
+                },
             )
             fig.update_layout(**layout_style)
 
@@ -374,7 +374,7 @@ class PortfolioVisualizationService:
             return []
 
     def _create_drawdowns_chart(
-        self, portfolio: "vbt.Portfolio", title_prefix: str
+        self, portfolio: "vbt.Portfolio", title_prefix: str,
     ) -> list[str]:
         """Create drawdowns chart with correct calculation."""
         try:
@@ -396,18 +396,18 @@ class PortfolioVisualizationService:
                         width=self.config.chart_style.secondary_line_width,
                     ),
                     fillcolor=self.config.chart_style.get_fill_color("negative"),
-                )
+                ),
             )
 
             # Apply consistent styling
             layout_style = self._get_layout_style(
-                f"{title_prefix} - Drawdowns", height=self.config.height // 2
+                f"{title_prefix} - Drawdowns", height=self.config.height // 2,
             )
             layout_style.update(
                 {
                     "xaxis_title": "Date",
                     "yaxis_title": "Drawdown",
-                }
+                },
             )
             fig.update_layout(**layout_style)
 
@@ -418,7 +418,7 @@ class PortfolioVisualizationService:
             return []
 
     def _create_underwater_curve_chart(
-        self, portfolio: "vbt.Portfolio", title_prefix: str
+        self, portfolio: "vbt.Portfolio", title_prefix: str,
     ) -> list[str]:
         """Create underwater curve chart with correct calculation."""
         try:
@@ -435,18 +435,18 @@ class PortfolioVisualizationService:
                     mode="lines",
                     name="Underwater Curve",
                     line=self._get_line_style(self.config.chart_style.tertiary_data),
-                )
+                ),
             )
 
             # Apply consistent styling
             layout_style = self._get_layout_style(
-                f"{title_prefix} - Underwater Curve", height=self.config.height // 2
+                f"{title_prefix} - Underwater Curve", height=self.config.height // 2,
             )
             layout_style.update(
                 {
                     "xaxis_title": "Date",
                     "yaxis_title": "Underwater",
-                }
+                },
             )
             fig.update_layout(**layout_style)
 
@@ -483,7 +483,7 @@ class PortfolioVisualizationService:
                     mode="lines",
                     name="Strategy Portfolio",
                     line=self._get_line_style(self.config.chart_style.primary_data),
-                )
+                ),
             )
 
             # Add benchmark line
@@ -494,9 +494,9 @@ class PortfolioVisualizationService:
                     mode="lines",
                     name="Benchmark",
                     line=self._get_line_style(
-                        self.config.chart_style.neutral_color, dash="dash"
+                        self.config.chart_style.neutral_color, dash="dash",
                     ),
-                )
+                ),
             )
 
             # Add comparison metrics as annotations if available
@@ -514,25 +514,25 @@ class PortfolioVisualizationService:
                         "showarrow": False,
                         "align": "left",
                         "bgcolor": self.config.chart_style.hex_to_rgba(
-                            self.config.chart_style.background, 0.8
+                            self.config.chart_style.background, 0.8,
                         ),
                         "bordercolor": self.config.chart_style.get_text_color(
-                            "primary"
+                            "primary",
                         ),
                         "borderwidth": 1,
-                    }
+                    },
                 )
 
             # Apply consistent styling
             layout_style = self._get_layout_style(
-                "Portfolio vs Benchmark Comparison", height=self.config.height // 2
+                "Portfolio vs Benchmark Comparison", height=self.config.height // 2,
             )
             layout_style.update(
                 {
                     "xaxis_title": "Date",
                     "yaxis_title": "Normalized Value",
                     "annotations": annotations,
-                }
+                },
             )
             fig.update_layout(**layout_style)
 
@@ -543,7 +543,7 @@ class PortfolioVisualizationService:
             return []
 
     def _create_risk_metrics_chart(
-        self, risk_metrics: RiskMetrics, title_prefix: str
+        self, risk_metrics: RiskMetrics, title_prefix: str,
     ) -> list[str]:
         """Create risk metrics visualization."""
         try:
@@ -630,12 +630,12 @@ class PortfolioVisualizationService:
 
             # Apply consistent styling
             layout_style = self._get_layout_style(
-                f"{title_prefix} Risk Metrics Analysis"
+                f"{title_prefix} Risk Metrics Analysis",
             )
             layout_style.update(
                 {
                     "showlegend": False,
-                }
+                },
             )
             fig.update_layout(**layout_style)
 
@@ -646,7 +646,7 @@ class PortfolioVisualizationService:
             return []
 
     def _create_drawdown_analysis_chart(
-        self, portfolio: "vbt.Portfolio", title_prefix: str
+        self, portfolio: "vbt.Portfolio", title_prefix: str,
     ) -> list[str]:
         """Create detailed drawdown analysis chart."""
         try:
@@ -721,7 +721,7 @@ class PortfolioVisualizationService:
             return []
 
     def _create_returns_distribution_chart(
-        self, portfolio: "vbt.Portfolio", title_prefix: str
+        self, portfolio: "vbt.Portfolio", title_prefix: str,
     ) -> list[str]:
         """Create returns distribution analysis chart."""
         try:
@@ -753,7 +753,7 @@ class PortfolioVisualizationService:
             from scipy import stats
 
             (osm, osr), (slope, intercept, r) = stats.probplot(
-                returns.values, dist="norm", plot=None
+                returns.values, dist="norm", plot=None,
             )
 
             fig.add_trace(
@@ -800,7 +800,7 @@ class PortfolioVisualizationService:
             return []
 
     def _create_returns_histogram_chart(
-        self, portfolio: "vbt.Portfolio", title_prefix: str
+        self, portfolio: "vbt.Portfolio", title_prefix: str,
     ) -> list[str]:
         """Create returns distribution histogram chart."""
         try:
@@ -817,18 +817,18 @@ class PortfolioVisualizationService:
                     name="Returns Distribution",
                     marker_color=self.config.chart_style.primary_data,
                     opacity=0.7,
-                )
+                ),
             )
 
             # Apply consistent styling
             layout_style = self._get_layout_style(
-                f"{title_prefix} - Returns Distribution", height=self.config.height // 2
+                f"{title_prefix} - Returns Distribution", height=self.config.height // 2,
             )
             layout_style.update(
                 {
                     "xaxis_title": "Returns (%)",
                     "yaxis_title": "Frequency",
-                }
+                },
             )
             fig.update_layout(**layout_style)
 
@@ -839,7 +839,7 @@ class PortfolioVisualizationService:
             return []
 
     def _create_qq_plot_chart(
-        self, portfolio: "vbt.Portfolio", title_prefix: str
+        self, portfolio: "vbt.Portfolio", title_prefix: str,
     ) -> list[str]:
         """Create Q-Q plot vs normal distribution chart."""
         try:
@@ -850,7 +850,7 @@ class PortfolioVisualizationService:
             from scipy import stats
 
             (osm, osr), (slope, intercept, r) = stats.probplot(
-                returns.values, dist="norm", plot=None
+                returns.values, dist="norm", plot=None,
             )
 
             fig = go.Figure()
@@ -863,9 +863,9 @@ class PortfolioVisualizationService:
                     mode="markers",
                     name="Sample Quantiles",
                     marker=self._get_marker_style(
-                        self.config.chart_style.secondary_data
+                        self.config.chart_style.secondary_data,
                     ),
-                )
+                ),
             )
 
             # Normal line
@@ -878,20 +878,20 @@ class PortfolioVisualizationService:
                     mode="lines",
                     name=f"Normal Line (R²={r**2:.3f})",
                     line=self._get_line_style(
-                        self.config.chart_style.negative_color, dash="dash"
+                        self.config.chart_style.negative_color, dash="dash",
                     ),
-                )
+                ),
             )
 
             # Apply consistent styling
             layout_style = self._get_layout_style(
-                f"{title_prefix} - Q-Q Plot vs Normal", height=self.config.height // 2
+                f"{title_prefix} - Q-Q Plot vs Normal", height=self.config.height // 2,
             )
             layout_style.update(
                 {
                     "xaxis_title": "Theoretical Quantiles",
                     "yaxis_title": "Sample Quantiles",
-                }
+                },
             )
             fig.update_layout(**layout_style)
 
@@ -918,7 +918,7 @@ class PortfolioVisualizationService:
                 try:
                     png_path = os.path.join(self.config.output_dir, f"{filename}.png")
                     fig.write_image(
-                        png_path, width=self.config.width, height=self.config.height
+                        png_path, width=self.config.width, height=self.config.height,
                     )
                     saved_files.append(png_path)
                     self._log(f"Saved PNG plot: {png_path}")

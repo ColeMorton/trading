@@ -98,7 +98,6 @@ from app.core.interfaces import (
 class ResultAggregationServiceError(Exception):
     """Exception raised by ResultAggregationService."""
 
-    pass
 
 
 class ResultAggregationService:
@@ -149,12 +148,12 @@ class ResultAggregationService:
         try:
             # Log portfolio serialization details for debugging
             response_dict_default = {
-                "portfolios": [p.model_dump() for p in portfolio_metrics]
+                "portfolios": [p.model_dump() for p in portfolio_metrics],
             }
             response_dict_no_exclude = {
                 "portfolios": [
                     p.model_dump(exclude_none=False) for p in portfolio_metrics
-                ]
+                ],
             }
 
             # Debug logging for serialization comparison
@@ -213,7 +212,7 @@ class ResultAggregationService:
             raise ResultAggregationServiceError(error_msg)
 
     def create_async_response(
-        self, request: Any, execution_id: str
+        self, request: Any, execution_id: str,
     ) -> MACrossAsyncResponse:
         """
         Create asynchronous response for long-running analysis.
@@ -259,8 +258,9 @@ class ResultAggregationService:
             ResultAggregationServiceError: If execution ID not found
         """
         if execution_id not in task_status:
+            msg = f"Execution ID not found: {execution_id}"
             raise ResultAggregationServiceError(
-                f"Execution ID not found: {execution_id}"
+                msg,
             )
 
         # Get base status from task_status
@@ -276,17 +276,17 @@ class ResultAggregationService:
                         {
                             "progress_percentage": progress_status.get("progress", 0.0),
                             "progress_message": progress_status.get(
-                                "message", status.get("progress", "")
+                                "message", status.get("progress", ""),
                             ),
                             "operation": progress_status.get(
-                                "operation", "Strategy Analysis"
+                                "operation", "Strategy Analysis",
                             ),
                             "progress_updated_at": (
                                 progress_status.get("updated_at", "").isoformat()
                                 if progress_status.get("updated_at")
                                 else None
                             ),
-                        }
+                        },
                     )
         except Exception:
             # If progress tracker fails, continue with basic status
@@ -394,7 +394,7 @@ class ResultAggregationService:
             task_data["updated_at"] = datetime.now().isoformat()
 
     def get_analysis_summary(
-        self, portfolio_metrics: list[PortfolioMetrics]
+        self, portfolio_metrics: list[PortfolioMetrics],
     ) -> dict[str, Any]:
         """
         Generate summary statistics for analysis results.

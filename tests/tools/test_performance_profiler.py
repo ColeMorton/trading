@@ -94,7 +94,7 @@ class TestPerformanceProfiler:
     def test_profile_operation_success(self):
         """Test successful operation profiling."""
         profiler = PerformanceProfiler(
-            enable_memory_tracking=False
+            enable_memory_tracking=False,
         )  # Disable for test stability
 
         with profiler.profile_operation("test_operation", 5) as metrics:
@@ -122,7 +122,8 @@ class TestPerformanceProfiler:
         with pytest.raises(ValueError):
             with profiler.profile_operation("error_operation", 2) as metrics:
                 metrics.export_count = 0
-                raise ValueError("Test error")
+                msg = "Test error"
+                raise ValueError(msg)
 
         # Check that metrics were recorded even with error
         assert len(profiler.metrics_history) == 1
@@ -330,7 +331,7 @@ class TestBenchmarking:
     def test_run_performance_benchmark_default_sizes(self):
         """Test running benchmark with default portfolio sizes."""
         with patch(
-            "app.tools.performance_profiler.create_large_test_portfolio"
+            "app.tools.performance_profiler.create_large_test_portfolio",
         ) as mock_create:
             mock_create.return_value = [{"_equity_data": Mock()}]
 

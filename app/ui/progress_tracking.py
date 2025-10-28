@@ -76,13 +76,13 @@ class ProgressTracker:
                 [
                     TextColumn("•"),
                     TextColumn("[progress.data]{task.fields[speed]}"),
-                ]
+                ],
             )
 
         columns.append(TimeElapsedColumn())
 
         return Progress(
-            *columns, console=self.console, expand=True, refresh_per_second=10
+            *columns, console=self.console, expand=True, refresh_per_second=10,
         )
 
     def parameter_progress_context(
@@ -124,7 +124,7 @@ class ProgressTracker:
             ]
             if show_parallel_workers:
                 columns.insert(
-                    -1, TextColumn("[dim]({task.fields[workers]} workers)[/dim]")
+                    -1, TextColumn("[dim]({task.fields[workers]} workers)[/dim]"),
                 )
         else:  # detailed/benchmark
             columns = [
@@ -140,7 +140,7 @@ class ProgressTracker:
             ]
             if show_parallel_workers:
                 columns.insert(
-                    -2, TextColumn("[dim]({task.fields[workers]} workers)[/dim]")
+                    -2, TextColumn("[dim]({task.fields[workers]} workers)[/dim]"),
                 )
 
         # Calculate adaptive refresh rate

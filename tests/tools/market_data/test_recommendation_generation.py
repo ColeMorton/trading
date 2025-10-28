@@ -107,7 +107,7 @@ class TestRecommendationGeneration:
     def test_generate_recommendation_strong_buy(self, analyzer, strong_buy_analysis):
         """Test generation of STRONG_BUY recommendation."""
         signal, confidence, reasoning = analyzer.generate_recommendation(
-            strong_buy_analysis
+            strong_buy_analysis,
         )
 
         assert signal == "STRONG_BUY"
@@ -119,7 +119,7 @@ class TestRecommendationGeneration:
     def test_generate_recommendation_strong_sell(self, analyzer, strong_sell_analysis):
         """Test generation of STRONG_SELL recommendation."""
         signal, confidence, reasoning = analyzer.generate_recommendation(
-            strong_sell_analysis
+            strong_sell_analysis,
         )
 
         assert signal == "STRONG_SELL"
@@ -512,7 +512,7 @@ class TestErrorHandling:
         }
 
         signal, confidence, reasoning = analyzer.generate_recommendation(
-            incomplete_analysis
+            incomplete_analysis,
         )
 
         # Should handle gracefully and return valid signal
@@ -535,10 +535,10 @@ class TestErrorHandling:
 
         # This should trigger exception handling
         with pytest.patch.object(
-            analyzer, "_score_momentum", side_effect=Exception("Test error")
+            analyzer, "_score_momentum", side_effect=Exception("Test error"),
         ):
             signal, confidence, reasoning = analyzer.generate_recommendation(
-                {"test": "data"}
+                {"test": "data"},
             )
 
         assert signal == "HOLD"

@@ -82,7 +82,7 @@ class TestMACrossPortfolioComprehensive:
         """Generate realistic market data for different asset classes."""
 
         def generate_asset_data(
-            ticker: str, days: int = 1000, base_price: float = 100.0
+            ticker: str, days: int = 1000, base_price: float = 100.0,
         ) -> pd.DataFrame:
             """Generate realistic OHLCV data for different asset types."""
             np.random.seed(hash(ticker) % 2**32)  # Deterministic but ticker-specific
@@ -98,7 +98,7 @@ class TestMACrossPortfolioComprehensive:
             }
 
             params = asset_params.get(
-                ticker, {"volatility": 0.02, "drift": 0.0002, "base": base_price}
+                ticker, {"volatility": 0.02, "drift": 0.0002, "base": base_price},
             )
 
             # Generate dates
@@ -109,7 +109,7 @@ class TestMACrossPortfolioComprehensive:
             # Generate price series using geometric Brownian motion
             dt = 1 / 252  # Daily time step (252 trading days per year)
             returns = np.random.normal(
-                params["drift"] * dt, params["volatility"] * np.sqrt(dt), days
+                params["drift"] * dt, params["volatility"] * np.sqrt(dt), days,
             )
 
             # Create price series
@@ -151,7 +151,7 @@ class TestMACrossPortfolioComprehensive:
                     "Low": lows,
                     "Close": closes,
                     "Volume": volumes,
-                }
+                },
             )
 
         return generate_asset_data
@@ -164,13 +164,13 @@ class TestMACrossPortfolioComprehensive:
             # Handle special ticker names for filenames
             ticker.replace("=", "_").replace("-", "_")
             data = realistic_market_data(ticker)
-            data.set_index("Date", inplace=True)
+            data = data.set_index("Date")
             return data
 
         return mock_download_func
 
     def test_comprehensive_portfolio_analysis_workflow(
-        self, comprehensive_test_config, mock_yfinance_download, temp_dirs, mock_log
+        self, comprehensive_test_config, mock_yfinance_download, temp_dirs, mock_log,
     ):
         """Test complete portfolio analysis workflow with multiple tickers and strategies."""
 
@@ -188,7 +188,7 @@ class TestMACrossPortfolioComprehensive:
             assert mock_log.call_count > 0, "Logging should be active during execution"
 
     def test_portfolio_file_generation(
-        self, comprehensive_test_config, mock_yfinance_download, temp_dirs, mock_log
+        self, comprehensive_test_config, mock_yfinance_download, temp_dirs, mock_log,
     ):
         """Test that all expected portfolio files are generated."""
 
@@ -222,7 +222,7 @@ class TestMACrossPortfolioComprehensive:
                 ), f"Expected portfolio file {expected_file} not found"
 
     def test_best_portfolio_aggregation(
-        self, comprehensive_test_config, mock_yfinance_download, temp_dirs, mock_log
+        self, comprehensive_test_config, mock_yfinance_download, temp_dirs, mock_log,
     ):
         """Test that best portfolio aggregation works correctly."""
 
@@ -265,7 +265,7 @@ class TestMACrossPortfolioComprehensive:
 
     @pytest.mark.performance
     def test_execution_performance(
-        self, comprehensive_test_config, mock_yfinance_download, temp_dirs, mock_log
+        self, comprehensive_test_config, mock_yfinance_download, temp_dirs, mock_log,
     ):
         """Test execution performance meets expectations."""
 
@@ -304,11 +304,11 @@ class TestMACrossPortfolioComprehensive:
         except Exception as e:
             # If it raises an exception, it should be a known type
             assert isinstance(
-                e, MACrossError | ValueError | KeyError
+                e, MACrossError | ValueError | KeyError,
             ), f"Unexpected exception type: {type(e)}"
 
     def test_use_current_false_behavior(
-        self, comprehensive_test_config, mock_yfinance_download, temp_dirs, mock_log
+        self, comprehensive_test_config, mock_yfinance_download, temp_dirs, mock_log,
     ):
         """Test that USE_CURRENT=False includes all results without current position filtering."""
 
@@ -337,7 +337,7 @@ class TestMACrossPortfolioComprehensive:
                 ), f"Portfolio file {file_path.name} should have substantial results"
 
     def test_no_minimums_behavior(
-        self, comprehensive_test_config, mock_yfinance_download, temp_dirs, mock_log
+        self, comprehensive_test_config, mock_yfinance_download, temp_dirs, mock_log,
     ):
         """Test that empty MINIMUMS includes all results without filtering."""
 
@@ -367,12 +367,13 @@ class TestMACrossPortfolioComprehensive:
 
     @pytest.mark.error_handling
     def test_error_handling_network_failure(
-        self, comprehensive_test_config, temp_dirs, mock_log
+        self, comprehensive_test_config, temp_dirs, mock_log,
     ):
         """Test error handling when data download fails."""
 
         def mock_download_failure(*args, **kwargs):
-            raise ConnectionError("Network connection failed")
+            msg = "Network connection failed"
+            raise ConnectionError(msg)
 
         with patch("yfinance.download", side_effect=mock_download_failure):
             orchestrator = PortfolioOrchestrator(mock_log)
@@ -382,16 +383,16 @@ class TestMACrossPortfolioComprehensive:
                 result = orchestrator.run(comprehensive_test_config)
                 # Either returns False or handles the error gracefully
                 assert isinstance(
-                    result, bool
+                    result, bool,
                 ), "Should return boolean even on network failure"
             except Exception as e:
                 # If it raises an exception, it should be a known error type
                 assert isinstance(
-                    e, MACrossError | ConnectionError
+                    e, MACrossError | ConnectionError,
                 ), f"Unexpected exception: {type(e)}"
 
     def test_special_character_ticker_handling(
-        self, mock_yfinance_download, temp_dirs, mock_log
+        self, mock_yfinance_download, temp_dirs, mock_log,
     ):
         """Test handling of tickers with special characters (futures, forex)."""
 

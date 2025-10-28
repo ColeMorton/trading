@@ -26,7 +26,7 @@ class TestRunner:
         self.total_time = 0
 
     def run_test_layer(
-        self, layer_name: str, test_pattern: str, verbosity: int = 1
+        self, layer_name: str, test_pattern: str, verbosity: int = 1,
     ) -> bool:
         """Run a specific layer of tests."""
         print(f"\n{'='*60}")
@@ -38,13 +38,13 @@ class TestRunner:
         # Discover tests in the specified pattern
         loader = unittest.TestLoader()
         suite = loader.discover(
-            "tests", pattern=test_pattern, top_level_dir=str(project_root)
+            "tests", pattern=test_pattern, top_level_dir=str(project_root),
         )
 
         # Run tests with custom result handling
         stream = StringIO()
         runner = unittest.TextTestRunner(
-            stream=stream, verbosity=verbosity, failfast=False
+            stream=stream, verbosity=verbosity, failfast=False,
         )
 
         result = runner.run(suite)
@@ -110,7 +110,7 @@ class TestRunner:
         for layer_name, results in self.results.items():
             status_icon = "✅" if results["success"] else "❌"
             print(
-                f"   {status_icon} {layer_name.ljust(12)}: {results['tests_run']} tests, {results['time']:.2f}s"
+                f"   {status_icon} {layer_name.ljust(12)}: {results['tests_run']} tests, {results['time']:.2f}s",
             )
 
         return all_passed
@@ -153,7 +153,7 @@ def run_all_redesigned_tests():
             success = runner.run_test_layer(layer_name, pattern, verbosity=1)
             if not success:
                 print(
-                    f"\n⚠️  {layer_name} tests failed - continuing with remaining layers..."
+                    f"\n⚠️  {layer_name} tests failed - continuing with remaining layers...",
                 )
         except Exception as e:
             print(f"\n💥 Error running {layer_name} tests: {e!s}")
@@ -179,7 +179,7 @@ def run_comparison_with_old_tests():
     # Run some existing tests for comparison
     old_runner = TestRunner()
     old_success = old_runner.run_test_layer(
-        "Old USE_CURRENT", "test_use_current_export.py"
+        "Old USE_CURRENT", "test_use_current_export.py",
     )
 
     print(f"\n{'='*60}")

@@ -48,7 +48,7 @@ class StrategyTemplateCLI:
 
         # Create strategy command
         create_parser = subparsers.add_parser(
-            "create", help="Create a new strategy from template"
+            "create", help="Create a new strategy from template",
         )
         self._add_create_arguments(create_parser)
         create_parser.set_defaults(func=self._create_strategy)
@@ -59,17 +59,17 @@ class StrategyTemplateCLI:
 
         # Info command
         info_parser = subparsers.add_parser(
-            "info", help="Get information about a strategy"
+            "info", help="Get information about a strategy",
         )
         info_parser.add_argument("strategy_name", help="Name of the strategy")
         info_parser.set_defaults(func=self._strategy_info)
 
         # Interactive command
         interactive_parser = subparsers.add_parser(
-            "interactive", help="Interactive strategy creation wizard"
+            "interactive", help="Interactive strategy creation wizard",
         )
         interactive_parser.add_argument(
-            "--overwrite", action="store_true", help="Overwrite existing strategy"
+            "--overwrite", action="store_true", help="Overwrite existing strategy",
         )
         interactive_parser.add_argument(
             "--dry-run",
@@ -83,7 +83,7 @@ class StrategyTemplateCLI:
     def _add_create_arguments(self, parser: argparse.ArgumentParser):
         """Add arguments for create command."""
         parser.add_argument(
-            "strategy_name", help="Name of the strategy (e.g., my_custom_strategy)"
+            "strategy_name", help="Name of the strategy (e.g., my_custom_strategy)",
         )
 
         parser.add_argument(
@@ -131,11 +131,11 @@ class StrategyTemplateCLI:
         )
 
         parser.add_argument(
-            "--no-stop-loss", action="store_true", help="Disable stop loss"
+            "--no-stop-loss", action="store_true", help="Disable stop loss",
         )
 
         parser.add_argument(
-            "--no-take-profit", action="store_true", help="Disable take profit"
+            "--no-take-profit", action="store_true", help="Disable take profit",
         )
 
         parser.add_argument(
@@ -146,7 +146,7 @@ class StrategyTemplateCLI:
         )
 
         parser.add_argument(
-            "--overwrite", action="store_true", help="Overwrite existing strategy"
+            "--overwrite", action="store_true", help="Overwrite existing strategy",
         )
 
         parser.add_argument(
@@ -186,7 +186,7 @@ class StrategyTemplateCLI:
                 print(f"Primary indicator: {args.primary_indicator}")
                 if args.secondary_indicators:
                     print(
-                        f"Secondary indicators: {', '.join(args.secondary_indicators)}"
+                        f"Secondary indicators: {', '.join(args.secondary_indicators)}",
                     )
                 print(f"Description: {args.description}")
 
@@ -196,7 +196,7 @@ class StrategyTemplateCLI:
                     print(f"  - {file_path}")
             else:
                 result = self.generator.generate_strategy(
-                    config, overwrite=args.overwrite, dry_run=False
+                    config, overwrite=args.overwrite, dry_run=False,
                 )
 
                 print(f"✅ Successfully created strategy '{args.strategy_name}'")
@@ -206,10 +206,10 @@ class StrategyTemplateCLI:
                 print("1. Review the generated configuration in config_types.py")
                 print("2. Customize the strategy logic in tools/strategy_execution.py")
                 print(
-                    f"3. Run tests: pytest {result['strategy_path']}/test_strategy.py"
+                    f"3. Run tests: pytest {result['strategy_path']}/test_strategy.py",
                 )
                 print(
-                    f"4. Execute strategy: python {result['strategy_path']}/1_get_portfolios.py"
+                    f"4. Execute strategy: python {result['strategy_path']}/1_get_portfolios.py",
                 )
 
         except Exception as e:
@@ -281,7 +281,7 @@ class StrategyTemplateCLI:
                 primary_indicator=primary_indicator,
                 secondary_indicators=secondary_indicators,
                 entry_conditions=self._get_default_entry_conditions(
-                    strategy_type.value
+                    strategy_type.value,
                 ),
                 exit_conditions=self._get_default_exit_conditions(strategy_type.value),
                 stop_loss_enabled=risk_settings["stop_loss"],
@@ -306,7 +306,7 @@ class StrategyTemplateCLI:
                 return
 
             result = self.generator.generate_strategy(
-                config, overwrite=args.overwrite, dry_run=False
+                config, overwrite=args.overwrite, dry_run=False,
             )
 
             print(f"\n✅ Strategy '{strategy_name}' created successfully!")
@@ -351,7 +351,7 @@ class StrategyTemplateCLI:
         while True:
             try:
                 choice = input(
-                    f"\nEnter choice (1-{len(types)}) [default: 7 (Custom)]: "
+                    f"\nEnter choice (1-{len(types)}) [default: 7 (Custom)]: ",
                 ).strip()
 
                 if not choice:
@@ -367,7 +367,7 @@ class StrategyTemplateCLI:
     def _prompt_description(self) -> str:
         """Prompt for strategy description."""
         description = input(
-            "\n📋 Enter strategy description [default: Custom trading strategy]: "
+            "\n📋 Enter strategy description [default: Custom trading strategy]: ",
         ).strip()
         return description or "Custom trading strategy"
 
@@ -381,7 +381,7 @@ class StrategyTemplateCLI:
         while True:
             try:
                 choice = input(
-                    f"\nEnter choice (1-{len(indicators)}) [default: 1 (SMA)]: "
+                    f"\nEnter choice (1-{len(indicators)}) [default: 1 (SMA)]: ",
                 ).strip()
 
                 if not choice:
@@ -471,7 +471,7 @@ class StrategyTemplateCLI:
         print(f"Primary Indicator: {config.primary_indicator.value.upper()}")
         if config.secondary_indicators:
             print(
-                f"Secondary Indicators: {', '.join(ind.value.upper() for ind in config.secondary_indicators)}"
+                f"Secondary Indicators: {', '.join(ind.value.upper() for ind in config.secondary_indicators)}",
             )
         print(f"Default Ticker: {config.default_ticker}")
         print(f"Timeframe: {config.default_timeframe}")

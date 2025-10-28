@@ -73,7 +73,7 @@ def sample_sweep_data():
                 "total_closed_trades": 45,
                 "trades_per_month": 3.2,
                 "avg_trade_duration": "8 days 12:30:00",
-            }
+            },
         ],
     }
 
@@ -130,7 +130,7 @@ def mock_sweep_summary_response():
             "best_slow_period": 28,
             "best_sharpe_ratio": 1.19,
             "best_total_return_pct": 14408.20,
-        }
+        },
     ]
 
 

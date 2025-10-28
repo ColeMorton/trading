@@ -42,7 +42,7 @@ def validate_portfolio_schema(
 
 
 def validate_strategy_config(
-    strategy: dict[str, Any], log: Callable[[str, str], None]
+    strategy: dict[str, Any], log: Callable[[str, str], None],
 ) -> tuple[bool, list[str]]:
     """
     Validate a strategy configuration dictionary.
@@ -73,7 +73,7 @@ def validate_strategy_config(
         for field_pair in required_fields:
             if field_pair[0] not in strategy and field_pair[1] not in strategy:
                 errors.append(
-                    f"Missing required field: {field_pair[0]} or {field_pair[1]}"
+                    f"Missing required field: {field_pair[0]} or {field_pair[1]}",
                 )
     elif strategy_type == "MACD":
         # MACD strategies require FAST_PERIOD, SLOW_PERIOD, and SIGNAL_PERIOD
@@ -93,13 +93,13 @@ def validate_strategy_config(
 
             if not field_found:
                 errors.append(
-                    f"Missing required field for MACD strategy {ticker}: {field_name}"
+                    f"Missing required field for MACD strategy {ticker}: {field_name}",
                 )
             elif any(
                 field in strategy and strategy[field] is None for field in field_options
             ):
                 errors.append(
-                    f"Field {field_name} cannot be null for MACD strategy {ticker}"
+                    f"Field {field_name} cannot be null for MACD strategy {ticker}",
                 )
 
         # Validate window relationships for MACD
@@ -113,11 +113,11 @@ def validate_strategy_config(
         ):
             if fast_period >= slow_period:
                 errors.append(
-                    f"FAST_PERIOD ({fast_period}) must be less than SLOW_PERIOD ({slow_period}) for MACD strategy {ticker}"
+                    f"FAST_PERIOD ({fast_period}) must be less than SLOW_PERIOD ({slow_period}) for MACD strategy {ticker}",
                 )
             if signal_period <= 0:
                 errors.append(
-                    f"SIGNAL_PERIOD ({signal_period}) must be greater than 0 for MACD strategy {ticker}"
+                    f"SIGNAL_PERIOD ({signal_period}) must be greater than 0 for MACD strategy {ticker}",
                 )
     else:
         # MA strategies require FAST_PERIOD and SLOW_PERIOD
@@ -174,7 +174,7 @@ def validate_strategy_config(
     if fast_period is not None and slow_period is not None:
         if fast_period >= slow_period:
             errors.append(
-                f"FAST_PERIOD ({fast_period}) must be less than SLOW_PERIOD ({slow_period})"
+                f"FAST_PERIOD ({fast_period}) must be less than SLOW_PERIOD ({slow_period})",
             )
 
     # Validate stop loss range
@@ -186,7 +186,7 @@ def validate_strategy_config(
         )
         if stop_loss_decimal <= 0 or stop_loss_decimal > 1:
             errors.append(
-                f"Stop loss for {strategy.get('TICKER', 'Unknown')} ({stop_loss_float}%) is outside valid range (0-100%)"
+                f"Stop loss for {strategy.get('TICKER', 'Unknown')} ({stop_loss_float}%) is outside valid range (0-100%)",
             )
         strategy["STOP_LOSS"] = stop_loss_decimal
 
@@ -199,7 +199,7 @@ def validate_strategy_config(
 
 
 def validate_portfolio_configs(
-    strategies: list[dict[str, Any]], log: Callable[[str, str], None]
+    strategies: list[dict[str, Any]], log: Callable[[str, str], None],
 ) -> tuple[bool, list[dict[str, Any]]]:
     """
     Validate a list of strategy configurations.

@@ -57,7 +57,8 @@ class SchemaValidator:
         file_path = Path(file_path)
 
         if not file_path.exists():
-            raise PortfolioSchemaValidationError(f"File not found: {file_path}")
+            msg = f"File not found: {file_path}"
+            raise PortfolioSchemaValidationError(msg)
 
         try:
             # Read CSV with pandas for initial validation
@@ -66,13 +67,13 @@ class SchemaValidator:
 
         except Exception as e:
             error_msg = f"Error reading CSV file {file_path}: {e!s}"
-            logger.error(error_msg)
+            logger.exception(error_msg)
             raise PortfolioSchemaValidationError(
-                error_msg, {"file_path": str(file_path)}
+                error_msg, {"file_path": str(file_path)},
             )
 
     def validate_dataframe(
-        self, df: pd.DataFrame, source_file: str | None = None
+        self, df: pd.DataFrame, source_file: str | None = None,
     ) -> dict[str, Any]:
         """
         Validate a DataFrame against the canonical schema.
@@ -150,7 +151,7 @@ class SchemaValidator:
             result["violations"].append(violation)
 
     def _validate_column_names_and_order(
-        self, df: pd.DataFrame, result: dict[str, Any]
+        self, df: pd.DataFrame, result: dict[str, Any],
     ) -> None:
         """Validate column names and their order match canonical schema."""
         actual_columns = list(df.columns)
@@ -184,11 +185,11 @@ class SchemaValidator:
                 # Find misplaced columns
                 misplaced = []
                 for i, (actual, expected) in enumerate(
-                    zip(actual_columns, expected_columns, strict=False)
+                    zip(actual_columns, expected_columns, strict=False),
                 ):
                     if actual != expected:
                         misplaced.append(
-                            {"position": i, "actual": actual, "expected": expected}
+                            {"position": i, "actual": actual, "expected": expected},
                         )
 
                 violation = {
@@ -200,7 +201,7 @@ class SchemaValidator:
                 result["violations"].append(violation)
 
     def _validate_column_data_types(
-        self, df: pd.DataFrame, result: dict[str, Any]
+        self, df: pd.DataFrame, result: dict[str, Any],
     ) -> None:
         """Validate column data types match expected types."""
         column_types = self.canonical_schema.get_column_types()
@@ -233,7 +234,7 @@ class SchemaValidator:
                     result["warnings"].append(violation)
 
     def _validate_required_columns(
-        self, df: pd.DataFrame, result: dict[str, Any]
+        self, df: pd.DataFrame, result: dict[str, Any],
     ) -> None:
         """Validate that required (non-nullable) columns have data."""
         for col_name in REQUIRED_COLUMNS:
@@ -282,7 +283,7 @@ class SchemaValidator:
                 result["warnings"].append(violation)
 
     def _is_type_compatible(
-        self, series: pd.Series, expected_type: ColumnDataType
+        self, series: pd.Series, expected_type: ColumnDataType,
     ) -> bool:
         """Check if pandas series is compatible with expected column type."""
         try:
@@ -354,7 +355,7 @@ def validate_dataframe_schema(df: pd.DataFrame, strict: bool = True) -> dict[str
 
 
 def batch_validate_csv_files(
-    file_paths: list[str | Path], strict: bool = False
+    file_paths: list[str | Path], strict: bool = False,
 ) -> dict[str, dict[str, Any]]:
     """
     Validate multiple CSV files in batch.
@@ -381,7 +382,7 @@ def batch_validate_csv_files(
                         "type": "validation_error",
                         "severity": "critical",
                         "message": str(e),
-                    }
+                    },
                 ],
             }
 
@@ -405,7 +406,7 @@ def generate_schema_compliance_report(validation_results: dict[str, Any]) -> str
     report_lines.append("=== Portfolio CSV Schema Compliance Report ===")
     report_lines.append(f"Source: {source}")
     report_lines.append(
-        f"Status: {'✅ COMPLIANT' if validation_results['is_valid'] else '❌ NON-COMPLIANT'}"
+        f"Status: {'✅ COMPLIANT' if validation_results['is_valid'] else '❌ NON-COMPLIANT'}",
     )
     report_lines.append("")
 
@@ -413,7 +414,7 @@ def generate_schema_compliance_report(validation_results: dict[str, Any]) -> str
     report_lines.append("📊 Basic Metrics:")
     report_lines.append(f"  Rows: {validation_results['total_rows']:,}")
     report_lines.append(
-        f"  Columns: {validation_results['total_columns']} (expected: {validation_results['expected_columns']})"
+        f"  Columns: {validation_results['total_columns']} (expected: {validation_results['expected_columns']})",
     )
     report_lines.append("")
 
@@ -453,7 +454,7 @@ def generate_schema_compliance_report(validation_results: dict[str, Any]) -> str
                 report_lines.append(f"  Type mismatches: {', '.join(type_issues)}")
             if null_issues:
                 report_lines.append(
-                    f"  High null percentages: {', '.join(null_issues)}"
+                    f"  High null percentages: {', '.join(null_issues)}",
                 )
             report_lines.append("")
 
@@ -464,7 +465,7 @@ def generate_schema_compliance_report(validation_results: dict[str, Any]) -> str
             report_lines.append("  1. Fix critical violations before using this data")
             report_lines.append("  2. Ensure all CSV exports use the canonical schema")
             report_lines.append(
-                "  3. Update export functions to generate compliant outputs"
+                "  3. Update export functions to generate compliant outputs",
             )
         report_lines.append("")
 

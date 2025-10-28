@@ -52,7 +52,8 @@ def load_portfolio_config(portfolio_name: str) -> PortfolioConfig:
     portfolio_path = Path(__file__).parent.parent / "portfolios" / portfolio_name
 
     if not portfolio_path.exists():
-        raise FileNotFoundError(f"Portfolio file not found: {portfolio_path}")
+        msg = f"Portfolio file not found: {portfolio_path}"
+        raise FileNotFoundError(msg)
 
     with open(portfolio_path) as f:
         data = json.load(f)
@@ -61,7 +62,8 @@ def load_portfolio_config(portfolio_name: str) -> PortfolioConfig:
     required_fields = ["initial_value", "target_value", "use_target_value", "portfolio"]
     missing_fields = [field for field in required_fields if field not in data]
     if missing_fields:
-        raise KeyError(f"Missing required fields in portfolio config: {missing_fields}")
+        msg = f"Missing required fields in portfolio config: {missing_fields}"
+        raise KeyError(msg)
 
     return data
 

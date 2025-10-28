@@ -101,7 +101,7 @@ class MADisplayFormatter:
         max_dd = risk_metrics["max_drawdown"]
         dd_rating = self._rate_max_drawdown(max_dd)
         table.add_row(
-            "⬇️ Max Drawdown", f"{max_dd:.2f}%", dd_rating, "<10% Low, <20% Moderate"
+            "⬇️ Max Drawdown", f"{max_dd:.2f}%", dd_rating, "<10% Low, <20% Moderate",
         )
 
         # Volatility
@@ -151,7 +151,7 @@ class MADisplayFormatter:
         # Total Return
         total_return = performance["total_return"]
         table.add_row(
-            "📈 Total Return", f"{total_return:+.2f}%", self._rate_return(total_return)
+            "📈 Total Return", f"{total_return:+.2f}%", self._rate_return(total_return),
         )
 
         # Annualized Return
@@ -169,7 +169,7 @@ class MADisplayFormatter:
         # Calmar Ratio
         calmar = performance["calmar_ratio"]
         table.add_row(
-            "⚖️ Calmar Ratio", f"{calmar:.3f}", self._rate_calmar_ratio(calmar)
+            "⚖️ Calmar Ratio", f"{calmar:.3f}", self._rate_calmar_ratio(calmar),
         )
 
         # Information Ratio
@@ -199,19 +199,19 @@ class MADisplayFormatter:
         # Trend Direction
         direction = trend_metrics["trend_direction"]
         table.add_row(
-            "🎯 Current Trend", direction, self._format_trend_direction(direction)
+            "🎯 Current Trend", direction, self._format_trend_direction(direction),
         )
 
         # Trend Strength
         strength = trend_metrics["trend_strength"]
         table.add_row(
-            "💪 Trend Strength", strength, self._format_trend_strength(strength)
+            "💪 Trend Strength", strength, self._format_trend_strength(strength),
         )
 
         # R-squared
         r_squared = trend_metrics["r_squared"]
         table.add_row(
-            "📊 R² vs Time", f"{r_squared:.3f}", self._rate_r_squared(r_squared)
+            "📊 R² vs Time", f"{r_squared:.3f}", self._rate_r_squared(r_squared),
         )
 
         # Smoothness Factor
@@ -225,7 +225,7 @@ class MADisplayFormatter:
         # Linear Slope
         slope = trend_metrics["linear_slope"]
         table.add_row(
-            "📐 Linear Slope", f"{slope:.6f}", self._format_slope_indicator(slope)
+            "📐 Linear Slope", f"{slope:.6f}", self._format_slope_indicator(slope),
         )
 
         self.console.print(table)
@@ -413,11 +413,11 @@ class MADisplayFormatter:
         """Display complete period analysis with all sections."""
         asset_info = period_metrics.get("asset_info", {})
         self._display_rolling_performance_table(
-            period_metrics["rolling_performance"], asset_info
+            period_metrics["rolling_performance"], asset_info,
         )
         self._display_seasonality_patterns_table(period_metrics["seasonality_patterns"])
         self._display_period_comparison_summary(
-            period_metrics["period_comparison"], asset_info
+            period_metrics["period_comparison"], asset_info,
         )
         self._display_calendar_patterns_table(period_metrics["calendar_analysis"])
 
@@ -468,7 +468,7 @@ class MADisplayFormatter:
             table.add_row(
                 (
                     asset_info.get("period_labels", {}).get(
-                        "monthly", "📅 Monthly (21d)"
+                        "monthly", "📅 Monthly (21d)",
                     )
                     if asset_info
                     else "📅 Monthly (21d)"
@@ -559,14 +559,14 @@ class MADisplayFormatter:
 
         if display_count == 0:
             table.add_row(
-                "No significant patterns found", "N/A", "N/A", "N/A", "N/A", "N/A"
+                "No significant patterns found", "N/A", "N/A", "N/A", "N/A", "N/A",
             )
 
         self.console.print(table)
         self.console.print()  # Add spacing
 
     def _display_period_comparison_summary(
-        self, comparison: dict[str, Any], asset_info: dict[str, Any] | None = None
+        self, comparison: dict[str, Any], asset_info: dict[str, Any] | None = None,
     ) -> None:
         """Display period comparison summary panel."""
         # Get dynamic labels
@@ -635,7 +635,7 @@ class MADisplayFormatter:
         self.console.print()  # Add spacing
 
     def _display_calendar_patterns_table(
-        self, calendar_analysis: dict[str, Any]
+        self, calendar_analysis: dict[str, Any],
     ) -> None:
         """Display calendar patterns (day of week, month of year effects)."""
         table = Table(
@@ -705,7 +705,7 @@ def display_ma_analysis(metrics: dict[str, Any], console: Console = None) -> Non
 
 
 def display_ma_period_analysis(
-    period_metrics: dict[str, Any], console: Console = None
+    period_metrics: dict[str, Any], console: Console = None,
 ) -> None:
     """
     Convenience function to display period-specific MA analysis.
@@ -735,7 +735,7 @@ class SweepAnalyticsDisplayer:
 
         if not analytics_engine.performance_data:
             self.console.print(
-                "[yellow]No performance data available for analysis[/yellow]"
+                "[yellow]No performance data available for analysis[/yellow]",
             )
             return
 

@@ -125,7 +125,7 @@ class SchemaTestFixtures:
                 "Sharpe Ratio": 0.8,
                 "Sortino Ratio": 1.1,
                 "Annualized Volatility": 0.65,  # High volatility for crypto
-            }
+            },
         )
         return portfolio
 
@@ -155,7 +155,7 @@ class SchemaTestFixtures:
                 "Sharpe Ratio": None,
                 "Sortino Ratio": None,
                 "Expectancy per Trade": None,
-            }
+            },
         )
         return portfolio
 
@@ -169,7 +169,7 @@ class SchemaTestFixtures:
                 "Win Rate [%]": "65%",  # Should be numeric
                 "Signal Entry": "yes",  # Should be boolean
                 "Start Value": "10k",  # Should be numeric
-            }
+            },
         )
         return portfolio
 
@@ -183,7 +183,7 @@ class SchemaTestFixtures:
                 "Debug Info": "test_data",
                 "Internal ID": "portfolio_123",
                 "Extra Field": None,
-            }
+            },
         )
         return portfolio
 
@@ -223,7 +223,7 @@ class SchemaTestFixtures:
                     "Win Rate [%]": 50.0 + (i % 50),
                     "Total Return [%]": (i % 200) - 100,  # Range -100 to 99
                     "Total Trades": 50 + (i % 200),
-                }
+                },
             )
             portfolios.append(portfolio)
 

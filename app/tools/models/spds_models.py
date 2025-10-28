@@ -40,12 +40,14 @@ class ExitSignal:
     def __post_init__(self):
         """Validate signal data."""
         if not 0 <= self.confidence <= 100:
+            msg = f"Confidence must be between 0 and 100, got {self.confidence}"
             raise ValueError(
-                f"Confidence must be between 0 and 100, got {self.confidence}"
+                msg,
             )
         if self.risk_level not in ["LOW", "MEDIUM", "HIGH"]:
+            msg = f"Risk level must be LOW, MEDIUM, or HIGH, got {self.risk_level}"
             raise ValueError(
-                f"Risk level must be LOW, MEDIUM, or HIGH, got {self.risk_level}"
+                msg,
             )
 
 
@@ -77,8 +79,9 @@ class AnalysisResult:
     def __post_init__(self):
         """Validate result data."""
         if not 0 <= self.confidence_level <= 100:
+            msg = f"Confidence level must be between 0 and 100, got {self.confidence_level}"
             raise ValueError(
-                f"Confidence level must be between 0 and 100, got {self.confidence_level}"
+                msg,
             )
 
         # Ensure required metrics are present
@@ -180,7 +183,7 @@ class SPDSConfig:
             "exit_immediately": 95.0,
             "exit_soon": 85.0,
             "monitor": 70.0,
-        }
+        },
     )
 
     convergence_threshold: float = 0.85
@@ -194,7 +197,7 @@ class SPDSConfig:
             "data/raw/equity_data",
             "data/raw/backtesting_results",
             "data/raw/strategy_results",
-        ]
+        ],
     )
 
     # Statistical analysis parameters
@@ -222,30 +225,35 @@ class SPDSConfig:
     def __post_init__(self):
         """Validate configuration."""
         if not 0 < self.convergence_threshold <= 1:
+            msg = f"Convergence threshold must be between 0 and 1, got {self.convergence_threshold}"
             raise ValueError(
-                f"Convergence threshold must be between 0 and 1, got {self.convergence_threshold}"
+                msg,
             )
 
         if self.min_sample_size < 1:
+            msg = f"Min sample size must be at least 1, got {self.min_sample_size}"
             raise ValueError(
-                f"Min sample size must be at least 1, got {self.min_sample_size}"
+                msg,
             )
 
         if not 0 < self.max_drawdown_threshold <= 1:
+            msg = f"Max drawdown threshold must be between 0 and 1, got {self.max_drawdown_threshold}"
             raise ValueError(
-                f"Max drawdown threshold must be between 0 and 1, got {self.max_drawdown_threshold}"
+                msg,
             )
 
         if not 0 < self.min_win_rate <= 1:
+            msg = f"Min win rate must be between 0 and 1, got {self.min_win_rate}"
             raise ValueError(
-                f"Min win rate must be between 0 and 1, got {self.min_win_rate}"
+                msg,
             )
 
         # Validate percentile thresholds
         for threshold_name, threshold_value in self.percentile_thresholds.items():
             if not 0 <= threshold_value <= 100:
+                msg = f"Percentile threshold {threshold_name} must be between 0 and 100, got {threshold_value}"
                 raise ValueError(
-                    f"Percentile threshold {threshold_name} must be between 0 and 100, got {threshold_value}"
+                    msg,
                 )
 
     def to_dict(self) -> dict[str, Any]:
@@ -281,7 +289,7 @@ class SPDSConfig:
         # Convert confidence level
         if "confidence_level" in config_data:
             config_data["confidence_level"] = ConfidenceLevel(
-                config_data["confidence_level"]
+                config_data["confidence_level"],
             )
 
         return cls(**config_data)
@@ -293,7 +301,7 @@ class SPDSConfig:
 
     @classmethod
     def create_for_portfolio(
-        cls, portfolio_file: str, use_trade_history: bool = True
+        cls, portfolio_file: str, use_trade_history: bool = True,
     ) -> "SPDSConfig":
         """Create configuration for portfolio analysis."""
         config = cls.create_default()
@@ -406,7 +414,7 @@ def create_default_exit_signal() -> ExitSignal:
 
 
 def create_error_result(
-    strategy_name: str, ticker: str, position_uuid: str, error_message: str
+    strategy_name: str, ticker: str, position_uuid: str, error_message: str,
 ) -> AnalysisResult:
     """Create an error result for failed analysis."""
     return AnalysisResult(
@@ -446,7 +454,7 @@ def validate_analysis_result(result: AnalysisResult) -> list[str]:
         issues.append("Invalid exit signal type")
     elif not 0 <= result.exit_signal.confidence <= 100:
         issues.append(
-            f"Invalid exit signal confidence: {result.exit_signal.confidence}"
+            f"Invalid exit signal confidence: {result.exit_signal.confidence}",
         )
 
     # Check metrics dictionaries

@@ -19,12 +19,12 @@ from app.tools.setup_logging import setup_logging
 
 
 log, log_close, _, _ = setup_logging(
-    module_name="macd_rsi", log_file="2_macd_cross_rsi.log"
+    module_name="macd_rsi", log_file="2_macd_cross_rsi.log",
 )
 
 
 def backtest(
-    data: pl.DataFrame, rsi_threshold: int, config: PortfolioConfig
+    data: pl.DataFrame, rsi_threshold: int, config: PortfolioConfig,
 ) -> list[tuple[float, float]]:
     log(f"Running backtest with RSI threshold: {rsi_threshold}")
     position, entry_price = 0, 0
@@ -39,7 +39,7 @@ def backtest(
             ):
                 position, entry_price = 1, data["Close"][i]
                 log(
-                    f"Entered long position at price: {entry_price}, RSI: {data['RSI'][i]}"
+                    f"Entered long position at price: {entry_price}, RSI: {data['RSI'][i]}",
                 )
         elif position == 1 and (
             data["MACD"][i] < data["Signal_Line"][i]
@@ -74,13 +74,13 @@ def calculate_metrics(
     num_positions = len(trades)
 
     log(
-        f"Metrics - Total Return: {total_return * 100}%, Win Rate: {win_rate * 100}%, Expectancy: {expectancy}, Number of Positions: {num_positions}"
+        f"Metrics - Total Return: {total_return * 100}%, Win Rate: {win_rate * 100}%, Expectancy: {expectancy}, Number of Positions: {num_positions}",
     )
     return total_return * 100, win_rate * 100, expectancy, num_positions
 
 
 def run_sensitivity_analysis(
-    data: pl.DataFrame, rsi_range: np.ndarray, config: PortfolioConfig
+    data: pl.DataFrame, rsi_range: np.ndarray, config: PortfolioConfig,
 ) -> pl.DataFrame:
     log("Starting sensitivity analysis")
     results = []
@@ -94,13 +94,13 @@ def run_sensitivity_analysis(
                 "Win Rate": win_rate,
                 "Expectancy": expectancy,
                 "Number of Positions": num_positions,
-            }
+            },
         )
     return pl.DataFrame(results)
 
 
 def find_prominent_peaks(
-    x: np.ndarray, y: np.ndarray, prominence: float = 1, distance: int = 10
+    x: np.ndarray, y: np.ndarray, prominence: float = 1, distance: int = 10,
 ) -> np.ndarray:
     log("Finding prominent peaks")
     peaks, _ = find_peaks(y, prominence=prominence, distance=distance)
@@ -108,7 +108,7 @@ def find_prominent_peaks(
 
 
 def add_peak_labels(
-    ax: plt.Axes, x: np.ndarray, y: np.ndarray, peaks: np.ndarray, fmt: str = ".2f"
+    ax: plt.Axes, x: np.ndarray, y: np.ndarray, peaks: np.ndarray, fmt: str = ".2f",
 ):
     for peak in peaks:
         ax.annotate(
@@ -152,7 +152,7 @@ def plot_results(ticker: str, results_df: pl.DataFrame):
     ax2_twin = ax2.twinx()
     ax2_twin.set_ylabel("Number of Positions", color=color4)
     ax2_twin.plot(
-        results_df["RSI Threshold"], results_df["Number of Positions"], color=color4
+        results_df["RSI Threshold"], results_df["Number of Positions"], color=color4,
     )
     ax2_twin.tick_params(axis="y", labelcolor=color4)
 
@@ -173,7 +173,7 @@ def plot_results(ticker: str, results_df: pl.DataFrame):
         results_df["RSI Threshold"].to_numpy(),
         results_df["Win Rate"].to_numpy(),
         find_prominent_peaks(
-            results_df["RSI Threshold"].to_numpy(), results_df["Win Rate"].to_numpy()
+            results_df["RSI Threshold"].to_numpy(), results_df["Win Rate"].to_numpy(),
         ),
     )
     add_peak_labels(
@@ -181,7 +181,7 @@ def plot_results(ticker: str, results_df: pl.DataFrame):
         results_df["RSI Threshold"].to_numpy(),
         results_df["Expectancy"].to_numpy(),
         find_prominent_peaks(
-            results_df["RSI Threshold"].to_numpy(), results_df["Expectancy"].to_numpy()
+            results_df["RSI Threshold"].to_numpy(), results_df["Expectancy"].to_numpy(),
         ),
     )
     add_peak_labels(
@@ -231,10 +231,10 @@ def main():
 
     # Log some statistics about the data
     log(
-        f"Data statistics: Close price - Min: {data['Close'].min()}, Max: {data['Close'].max()}, Mean: {data['Close'].mean()}"
+        f"Data statistics: Close price - Min: {data['Close'].min()}, Max: {data['Close'].max()}, Mean: {data['Close'].mean()}",
     )
     log(
-        f"RSI statistics: Min: {data['RSI'].min()}, Max: {data['RSI'].max()}, Mean: {data['RSI'].mean()}"
+        f"RSI statistics: Min: {data['RSI'].min()}, Max: {data['RSI'].max()}, Mean: {data['RSI'].mean()}",
     )
 
     results_df = run_sensitivity_analysis(data, rsi_range, config)

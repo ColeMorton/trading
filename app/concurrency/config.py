@@ -246,7 +246,7 @@ def detect_portfolio_format(file_path: str) -> PortfolioFormat:
 
     if extension == ".csv":
         return PortfolioFormat(
-            extension=".csv", content_type="text/csv", validator=validate_csv_portfolio
+            extension=".csv", content_type="text/csv", validator=validate_csv_portfolio,
         )
     if extension == ".json":
         # Detect JSON subtype by content
@@ -256,7 +256,7 @@ def detect_portfolio_format(file_path: str) -> PortfolioFormat:
                 if not isinstance(data, list) or not data:
                     error = FileFormatError("JSON file must contain a non-empty array")
                     track_error(
-                        error, "portfolio format detection", {"file_path": file_path}
+                        error, "portfolio format detection", {"file_path": file_path},
                     )
                     raise error
 
@@ -351,7 +351,7 @@ def validate_config(config: dict[str, Any]) -> ConcurrencyConfig:
         raise error
 
     if "RATIO_BASED_ALLOCATION" in config and not isinstance(
-        config["RATIO_BASED_ALLOCATION"], bool
+        config["RATIO_BASED_ALLOCATION"], bool,
     ):
         error = ValidationError("RATIO_BASED_ALLOCATION must be a boolean if provided")
         track_error(
@@ -414,7 +414,7 @@ def validate_config(config: dict[str, Any]) -> ConcurrencyConfig:
             or config["OPTIMIZE_MAX_PERMUTATIONS"] < 1
         ):
             error = ValidationError(
-                "OPTIMIZE_MAX_PERMUTATIONS must be a positive integer"
+                "OPTIMIZE_MAX_PERMUTATIONS must be a positive integer",
             )
             track_error(
                 error,
@@ -448,14 +448,17 @@ def validate_csv_portfolio(file_path: str) -> None:
             headers = set(reader.fieldnames or [])
             missing_fields = required_fields - headers
             if missing_fields:
-                raise ValidationError(f"CSV missing required fields: {missing_fields}")
+                msg = f"CSV missing required fields: {missing_fields}"
+                raise ValidationError(msg)
 
             # Validate first row
             first_row = next(reader, None)
             if not first_row:
-                raise ValidationError("CSV file is empty")
+                msg = "CSV file is empty"
+                raise ValidationError(msg)
     except csv.Error as e:
-        raise ValidationError(f"Invalid CSV format: {e!s}")
+        msg = f"Invalid CSV format: {e!s}"
+        raise ValidationError(msg)
 
 
 def validate_ma_portfolio(file_path: str) -> None:
@@ -489,34 +492,41 @@ def validate_ma_portfolio(file_path: str) -> None:
         with open(file_path) as f:
             data = json.load(f)
             if not isinstance(data, list):
-                raise ValidationError("JSON must contain an array of strategies")
+                msg = "JSON must contain an array of strategies"
+                raise ValidationError(msg)
 
             for strategy in data:
                 if "type" not in strategy:
-                    raise ValidationError("Strategy missing 'type' field")
+                    msg = "Strategy missing 'type' field"
+                    raise ValidationError(msg)
 
                 if strategy["type"] == "MACD":
                     missing_fields = macd_required_fields - set(strategy.keys())
                     if missing_fields:
+                        msg = f"MACD strategy missing required fields: {missing_fields}"
                         raise ValidationError(
-                            f"MACD strategy missing required fields: {missing_fields}"
+                            msg,
                         )
                 elif strategy["type"] in ("SMA", "EMA"):
                     missing_fields = ma_required_fields - set(strategy.keys())
                     if missing_fields:
+                        msg = f"MA strategy missing required fields: {missing_fields}"
                         raise ValidationError(
-                            f"MA strategy missing required fields: {missing_fields}"
+                            msg,
                         )
                 elif strategy["type"] == "ATR":
                     missing_fields = atr_required_fields - set(strategy.keys())
                     if missing_fields:
+                        msg = f"ATR strategy missing required fields: {missing_fields}"
                         raise ValidationError(
-                            f"ATR strategy missing required fields: {missing_fields}"
+                            msg,
                         )
                 else:
-                    raise ValidationError(f"Invalid strategy type: {strategy['type']}")
+                    msg = f"Invalid strategy type: {strategy['type']}"
+                    raise ValidationError(msg)
     except json.JSONDecodeError as e:
-        raise ValidationError(f"Invalid JSON format: {e!s}")
+        msg = f"Invalid JSON format: {e!s}"
+        raise ValidationError(msg)
 
 
 def validate_macd_portfolio(file_path: str) -> None:
@@ -542,16 +552,20 @@ def validate_macd_portfolio(file_path: str) -> None:
         with open(file_path) as f:
             data = json.load(f)
             if not isinstance(data, list):
-                raise ValidationError("JSON must contain an array of strategies")
+                msg = "JSON must contain an array of strategies"
+                raise ValidationError(msg)
 
             for strategy in data:
                 missing_fields = required_fields - set(strategy.keys())
                 if missing_fields:
+                    msg = f"Strategy missing required fields: {missing_fields}"
                     raise ValidationError(
-                        f"Strategy missing required fields: {missing_fields}"
+                        msg,
                     )
 
                 if strategy["type"] != "MACD":
-                    raise ValidationError(f"Invalid strategy type: {strategy['type']}")
+                    msg = f"Invalid strategy type: {strategy['type']}"
+                    raise ValidationError(msg)
     except json.JSONDecodeError as e:
-        raise ValidationError(f"Invalid JSON format: {e!s}")
+        msg = f"Invalid JSON format: {e!s}"
+        raise ValidationError(msg)

@@ -42,7 +42,7 @@ class SignalMetrics:
         if log is None:
             # Create a default logger if none provided
             self.log, _, _, _ = setup_logging(
-                "signal_metrics", Path("./logs"), "signal_metrics.log"
+                "signal_metrics", Path("./logs"), "signal_metrics.log",
             )
         else:
             self.log = log
@@ -75,7 +75,7 @@ class SignalMetrics:
 
             # Use the metrics calculator to calculate frequency metrics
             return self.metrics_calculator.calculate_frequency_metrics(
-                data, signal_column, date_column
+                data, signal_column, date_column,
             )
         except Exception as e:
             self.log(f"Error calculating signal frequency metrics: {e!s}", "error")
@@ -158,11 +158,11 @@ class SignalMetrics:
 
             # Use the metrics calculator to calculate portfolio metrics
             return self.metrics_calculator.calculate_portfolio_metrics(
-                data_list, strategy_ids, signal_column, date_column
+                data_list, strategy_ids, signal_column, date_column,
             )
         except Exception as e:
             self.log(
-                f"Error calculating portfolio-level signal metrics: {e!s}", "error"
+                f"Error calculating portfolio-level signal metrics: {e!s}", "error",
             )
             return {
                 "portfolio_mean_signals_per_month": 0.0,
@@ -178,7 +178,7 @@ class SignalMetrics:
 
 
 def calculate_signal_metrics(
-    aligned_data: list[pl.DataFrame], log: Callable | None | None = None
+    aligned_data: list[pl.DataFrame], log: Callable | None | None = None,
 ) -> dict[str, Any]:
     """Calculate signal metrics for all strategies (legacy function).
 

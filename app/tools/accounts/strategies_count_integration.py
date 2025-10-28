@@ -50,14 +50,16 @@ class StrategiesCountIntegration:
             json.JSONDecodeError: If file is not valid JSON
         """
         if not self.portfolio_file.exists():
-            raise FileNotFoundError(f"Portfolio file not found: {self.portfolio_file}")
+            msg = f"Portfolio file not found: {self.portfolio_file}"
+            raise FileNotFoundError(msg)
 
         try:
             with open(self.portfolio_file) as f:
                 return json.load(f)
         except json.JSONDecodeError as e:
+            msg = f"Invalid JSON in portfolio file: {self.portfolio_file}"
             raise json.JSONDecodeError(
-                f"Invalid JSON in portfolio file: {self.portfolio_file}", e.doc, e.pos
+                msg, e.doc, e.pos,
             )
 
     def get_total_strategies_count(self) -> int:
@@ -78,7 +80,8 @@ class StrategiesCountIntegration:
             ]
             return int(total_strategies)
         except KeyError as e:
-            raise KeyError(f"Missing expected key in portfolio.json: {e}")
+            msg = f"Missing expected key in portfolio.json: {e}"
+            raise KeyError(msg)
 
     def get_strategies_count_data(self) -> StrategiesCountData:
         """Get comprehensive strategies count data from portfolio.json.
@@ -100,20 +103,21 @@ class StrategiesCountIntegration:
                 total_strategies_analyzed=int(monte_carlo["total_strategies_analyzed"]),
                 stable_strategies_count=int(monte_carlo["stable_strategies_count"]),
                 stable_strategies_percentage=float(
-                    monte_carlo["stable_strategies_percentage"]
+                    monte_carlo["stable_strategies_percentage"],
                 ),
                 average_stability_score=float(monte_carlo["average_stability_score"]),
                 max_concurrent_strategies=int(
-                    concurrency["max_concurrent_strategies"]["value"]
+                    concurrency["max_concurrent_strategies"]["value"],
                 ),
                 avg_concurrent_strategies=float(
-                    concurrency["avg_concurrent_strategies"]["value"]
+                    concurrency["avg_concurrent_strategies"]["value"],
                 ),
                 last_updated=datetime.now(),
                 data_source="portfolio.json",
             )
         except KeyError as e:
-            raise KeyError(f"Missing expected key in portfolio.json: {e}")
+            msg = f"Missing expected key in portfolio.json: {e}"
+            raise KeyError(msg)
 
     def get_concurrency_metrics(self) -> dict[str, Any]:
         """Get concurrency metrics from portfolio.json.
@@ -140,7 +144,8 @@ class StrategiesCountIntegration:
                 ],
             }
         except KeyError as e:
-            raise KeyError(f"Missing expected concurrency key in portfolio.json: {e}")
+            msg = f"Missing expected concurrency key in portfolio.json: {e}"
+            raise KeyError(msg)
 
     def get_monte_carlo_metrics(self) -> dict[str, Any]:
         """Get Monte Carlo simulation metrics from portfolio.json.
@@ -162,10 +167,11 @@ class StrategiesCountIntegration:
                 "simulation_parameters": monte_carlo.get("simulation_parameters", {}),
             }
         except KeyError as e:
-            raise KeyError(f"Missing expected Monte Carlo key in portfolio.json: {e}")
+            msg = f"Missing expected Monte Carlo key in portfolio.json: {e}"
+            raise KeyError(msg)
 
     def validate_strategies_count(
-        self, expected_count: int, tolerance: int = 0
+        self, expected_count: int, tolerance: int = 0,
     ) -> tuple[bool, str]:
         """Validate strategies count against expected value.
 

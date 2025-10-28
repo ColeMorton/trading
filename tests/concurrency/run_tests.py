@@ -100,7 +100,7 @@ def discover_tests(test_type=None, pattern=None):
         for test_file in ["test_config.py", "test_analysis.py", "test_permutation.py"]:
             if (test_dir / test_file).exists():
                 module_suite = unittest.defaultTestLoader.discover(
-                    str(test_dir), pattern=test_file
+                    str(test_dir), pattern=test_file,
                 )
                 suite.addTests(module_suite)
         return suite
@@ -116,10 +116,9 @@ def discover_tests(test_type=None, pattern=None):
         pattern = pattern or "*error*.py"
         # Include error handling tests from parent directory
         parent_test_dir = test_dir.parent
-        suite = unittest.defaultTestLoader.discover(
-            str(parent_test_dir), pattern="test_concurrency_error_handling.py"
+        return unittest.defaultTestLoader.discover(
+            str(parent_test_dir), pattern="test_concurrency_error_handling.py",
         )
-        return suite
 
     else:
         # Run all tests
@@ -144,7 +143,7 @@ def run_tests(args):
 
     # Run tests
     runner = unittest.TextTestRunner(
-        verbosity=verbosity, stream=sys.stdout, failfast=args.failfast
+        verbosity=verbosity, stream=sys.stdout, failfast=args.failfast,
     )
 
     print(f"\nRunning {args.type or 'all'} tests...\n")
@@ -175,7 +174,7 @@ def main():
     )
 
     parser.add_argument(
-        "--pattern", help="Pattern for test discovery (e.g., 'test_config*.py')"
+        "--pattern", help="Pattern for test discovery (e.g., 'test_config*.py')",
     )
 
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
@@ -221,7 +220,7 @@ def main():
 
         except ImportError:
             print(
-                "Error: coverage.py not installed. Install with: pip install coverage"
+                "Error: coverage.py not installed. Install with: pip install coverage",
             )
             return 1
     else:

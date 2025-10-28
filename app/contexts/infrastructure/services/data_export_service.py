@@ -53,7 +53,7 @@ class DataExportService:
     ) -> Path:
         """Export data to CSV format."""
         export_path = self._get_export_path(
-            filename, subfolder, "csv", include_timestamp
+            filename, subfolder, "csv", include_timestamp,
         )
 
         try:
@@ -67,7 +67,7 @@ class DataExportService:
                 if not data:
                     # Create empty CSV with headers
                     pd.DataFrame(columns=custom_headers or []).to_csv(
-                        export_path, index=False
+                        export_path, index=False,
                     )
                 else:
                     # Convert list of dicts to DataFrame
@@ -80,13 +80,14 @@ class DataExportService:
                 df.to_csv(export_path, index=False, header=custom_headers or True)
 
             else:
-                raise ValueError(f"Unsupported data type for CSV export: {type(data)}")
+                msg = f"Unsupported data type for CSV export: {type(data)}"
+                raise ValueError(msg)
 
             self.logger.info(f"Data exported to CSV: {export_path}")
             return export_path
 
         except Exception as e:
-            self.logger.error(f"CSV export failed: {e!s}")
+            self.logger.exception(f"CSV export failed: {e!s}")
             raise
 
     def export_to_json(
@@ -100,7 +101,7 @@ class DataExportService:
     ) -> Path:
         """Export data to JSON format."""
         export_path = self._get_export_path(
-            filename, subfolder, "json", include_timestamp
+            filename, subfolder, "json", include_timestamp,
         )
 
         try:
@@ -112,7 +113,8 @@ class DataExportService:
             elif isinstance(data, dict | list):
                 json_data = data
             else:
-                raise ValueError(f"Unsupported data type for JSON export: {type(data)}")
+                msg = f"Unsupported data type for JSON export: {type(data)}"
+                raise ValueError(msg)
 
             # Add metadata if requested
             if include_metadata:
@@ -141,7 +143,7 @@ class DataExportService:
             return export_path
 
         except Exception as e:
-            self.logger.error(f"JSON export failed: {e!s}")
+            self.logger.exception(f"JSON export failed: {e!s}")
             raise
 
     def export_to_markdown(
@@ -155,7 +157,7 @@ class DataExportService:
     ) -> Path:
         """Export data to Markdown format."""
         export_path = self._get_export_path(
-            filename, subfolder, "md", include_timestamp
+            filename, subfolder, "md", include_timestamp,
         )
 
         try:
@@ -169,7 +171,7 @@ class DataExportService:
             # Add timestamp
             if include_timestamp:
                 markdown_content.append(
-                    f"*Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*"
+                    f"*Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*",
                 )
                 markdown_content.append("")
 
@@ -209,7 +211,7 @@ class DataExportService:
                         headers = list(first_item.keys())
                         markdown_content.append("| " + " | ".join(headers) + " |")
                         markdown_content.append(
-                            "| " + " | ".join(["---"] * len(headers)) + " |"
+                            "| " + " | ".join(["---"] * len(headers)) + " |",
                         )
 
                         for item in data:
@@ -244,7 +246,7 @@ class DataExportService:
             return export_path
 
         except Exception as e:
-            self.logger.error(f"Markdown export failed: {e!s}")
+            self.logger.exception(f"Markdown export failed: {e!s}")
             raise
 
     def export_to_excel(
@@ -257,7 +259,7 @@ class DataExportService:
     ) -> Path:
         """Export data to Excel format."""
         export_path = self._get_export_path(
-            filename, subfolder, "xlsx", include_timestamp
+            filename, subfolder, "xlsx", include_timestamp,
         )
 
         try:
@@ -274,7 +276,7 @@ class DataExportService:
                             else sheet_name
                         )
                         sheet_data.to_excel(
-                            writer, sheet_name=actual_sheet_name, index=False
+                            writer, sheet_name=actual_sheet_name, index=False,
                         )
 
             else:
@@ -289,7 +291,7 @@ class DataExportService:
             return export_path
 
         except Exception as e:
-            self.logger.error(f"Excel export failed: {e!s}")
+            self.logger.exception(f"Excel export failed: {e!s}")
             raise
 
     def export_to_parquet(
@@ -302,7 +304,7 @@ class DataExportService:
     ) -> Path:
         """Export data to Parquet format."""
         export_path = self._get_export_path(
-            filename, subfolder, "parquet", include_timestamp
+            filename, subfolder, "parquet", include_timestamp,
         )
 
         try:
@@ -311,15 +313,16 @@ class DataExportService:
             elif isinstance(data, pd.DataFrame):
                 data.to_parquet(export_path, compression=compression, index=False)
             else:
+                msg = f"Unsupported data type for Parquet export: {type(data)}"
                 raise ValueError(
-                    f"Unsupported data type for Parquet export: {type(data)}"
+                    msg,
                 )
 
             self.logger.info(f"Data exported to Parquet: {export_path}")
             return export_path
 
         except Exception as e:
-            self.logger.error(f"Parquet export failed: {e!s}")
+            self.logger.exception(f"Parquet export failed: {e!s}")
             raise
 
     def export_multiple_formats(
@@ -338,31 +341,31 @@ class DataExportService:
             try:
                 if format_type.lower() == "csv":
                     export_paths["csv"] = self.export_to_csv(
-                        data, base_filename, subfolder, include_timestamp, **kwargs
+                        data, base_filename, subfolder, include_timestamp, **kwargs,
                     )
                 elif format_type.lower() == "json":
                     export_paths["json"] = self.export_to_json(
-                        data, base_filename, subfolder, include_timestamp, **kwargs
+                        data, base_filename, subfolder, include_timestamp, **kwargs,
                     )
                 elif format_type.lower() == "markdown" or format_type.lower() == "md":
                     export_paths["markdown"] = self.export_to_markdown(
-                        data, base_filename, subfolder, include_timestamp, **kwargs
+                        data, base_filename, subfolder, include_timestamp, **kwargs,
                     )
                 elif format_type.lower() == "excel" or format_type.lower() == "xlsx":
                     if isinstance(data, pd.DataFrame | pl.DataFrame):
                         export_paths["excel"] = self.export_to_excel(
-                            data, base_filename, subfolder, include_timestamp, **kwargs
+                            data, base_filename, subfolder, include_timestamp, **kwargs,
                         )
                 elif format_type.lower() == "parquet":
                     if isinstance(data, pd.DataFrame | pl.DataFrame):
                         export_paths["parquet"] = self.export_to_parquet(
-                            data, base_filename, subfolder, include_timestamp, **kwargs
+                            data, base_filename, subfolder, include_timestamp, **kwargs,
                         )
                 else:
                     self.logger.warning(f"Unsupported export format: {format_type}")
 
             except Exception as e:
-                self.logger.error(f"Export to {format_type} failed: {e!s}")
+                self.logger.exception(f"Export to {format_type} failed: {e!s}")
 
         return export_paths
 

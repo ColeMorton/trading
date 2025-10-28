@@ -24,7 +24,7 @@ class TradingHours:
     """Configuration for market trading hours and sessions."""
 
     def __init__(
-        self, start_time: str, end_time: str, timezone: str, trading_days: list[int]
+        self, start_time: str, end_time: str, timezone: str, trading_days: list[int],
     ):
         """Initialize trading hours configuration.
 
@@ -119,7 +119,7 @@ def is_trading_hour(dt: datetime, market_type: MarketType) -> bool:
 
 
 def filter_trading_hours_pandas(
-    df: pd.DataFrame, market_type: MarketType
+    df: pd.DataFrame, market_type: MarketType,
 ) -> pd.DataFrame:
     """Filter pandas DataFrame to only include trading hours data.
 
@@ -145,7 +145,7 @@ def filter_trading_hours_pandas(
 
 
 def filter_trading_hours_polars(
-    df: pl.DataFrame, market_type: MarketType
+    df: pl.DataFrame, market_type: MarketType,
 ) -> pl.DataFrame:
     """Filter polars DataFrame to only include trading hours data.
 
@@ -163,13 +163,13 @@ def filter_trading_hours_polars(
     trading_hours = get_trading_hours(market_type)
 
     # Convert to market timezone and filter
-    filtered_df = (
+    return (
         df.with_columns(
             [
                 pl.col("Date")
                 .dt.convert_time_zone(str(trading_hours.timezone))
-                .alias("MarketTime")
-            ]
+                .alias("MarketTime"),
+            ],
         )
         .filter(
             # Filter by trading days (Monday=1, Sunday=7 in Polars)
@@ -187,16 +187,15 @@ def filter_trading_hours_polars(
             | (
                 (pl.col("MarketTime").dt.hour() == trading_hours.end_time.hour)
                 & (pl.col("MarketTime").dt.minute() <= trading_hours.end_time.minute)
-            )
+            ),
         )
         .drop("MarketTime")
     )
 
-    return filtered_df
 
 
 def filter_trading_hours(
-    df: pd.DataFrame | pl.DataFrame, market_type: MarketType
+    df: pd.DataFrame | pl.DataFrame, market_type: MarketType,
 ) -> pd.DataFrame | pl.DataFrame:
     """Filter DataFrame to only include trading hours data (supports both pandas and polars).
 
@@ -211,11 +210,12 @@ def filter_trading_hours(
         return filter_trading_hours_pandas(df, market_type)
     if isinstance(df, pl.DataFrame):
         return filter_trading_hours_polars(df, market_type)
-    raise TypeError(f"Unsupported DataFrame type: {type(df)}")
+    msg = f"Unsupported DataFrame type: {type(df)}"
+    raise TypeError(msg)
 
 
 def validate_4hour_bars(
-    df: pd.DataFrame | pl.DataFrame, market_type: MarketType
+    df: pd.DataFrame | pl.DataFrame, market_type: MarketType,
 ) -> dict[str, bool | int | str]:
     """Validate that 4-hour bars are appropriate for the market type.
 
@@ -257,7 +257,7 @@ def validate_4hour_bars(
             # For stocks, recommend checking volume patterns
             results["recommendation"] = "validate_volume_patterns"
             results["issues"].append(
-                "Stock 4-hour bars may include after-hours data - validate volume consistency"
+                "Stock 4-hour bars may include after-hours data - validate volume consistency",
             )
 
             # Additional validation could be added here to check actual bar timestamps
@@ -295,7 +295,7 @@ def get_market_session_boundaries(market_type: MarketType) -> list[time]:
 
 
 def validate_market_hours_data(
-    df: pd.DataFrame | pl.DataFrame, market_type: MarketType
+    df: pd.DataFrame | pl.DataFrame, market_type: MarketType,
 ) -> dict[str, bool | int | float]:
     """Validate that DataFrame contains appropriate market hours data.
 
@@ -329,7 +329,7 @@ def validate_market_hours_data(
         # Convert Date column to datetime if needed
         try:
             df_datetime = df.with_columns(
-                [pl.col("Date").str.to_datetime().alias("Date_dt")]
+                [pl.col("Date").str.to_datetime().alias("Date_dt")],
             )
         except Exception:
             # Assume it's already datetime
@@ -351,7 +351,7 @@ def validate_market_hours_data(
         if isinstance(df, pl.DataFrame):
             # Check for weekend data (Saturday=6, Sunday=7 in polars weekday)
             weekend_mask = df_datetime.with_columns(
-                [pl.col("Date_dt").dt.weekday().is_in([6, 7]).alias("is_weekend")]
+                [pl.col("Date_dt").dt.weekday().is_in([6, 7]).alias("is_weekend")],
             )
             weekend_count = weekend_mask.filter(pl.col("is_weekend")).height
 
@@ -360,8 +360,8 @@ def validate_market_hours_data(
                 [
                     pl.col("Date_dt")
                     .dt.convert_time_zone("America/New_York")
-                    .alias("Date_et")
-                ]
+                    .alias("Date_et"),
+                ],
             )
 
             # Check for data outside trading hours (9:30 AM - 4:00 PM ET)
@@ -374,8 +374,8 @@ def validate_market_hours_data(
                             & (pl.col("Date_et").dt.minute() < 30)
                         )
                         | (pl.col("Date_et").dt.hour() >= 16)
-                    ).alias("is_after_hours")
-                ]
+                    ).alias("is_after_hours"),
+                ],
             )
             after_hours_count = after_hours_mask.filter(pl.col("is_after_hours")).height
 

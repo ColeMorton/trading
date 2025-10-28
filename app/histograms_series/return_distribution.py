@@ -68,7 +68,7 @@ STRIKE_DISTANCE = 7  # Percentage
 # Difference: -12.46%
 
 log, log_close, _, _ = setup_logging(
-    module_name="return_distribution", log_file="return_distribution.log"
+    module_name="return_distribution", log_file="return_distribution.log",
 )
 
 
@@ -107,10 +107,11 @@ def fetch_data(ticker: str) -> pd.DataFrame:
     }
     df = download_data(ticker, data_config, log)
     data = df.to_pandas()
-    data.set_index("Date", inplace=True)
+    data = data.set_index("Date")
     if data.empty:
         log("No data fetched for the given asset and date range.", "error")
-        raise ValueError("No data fetched for the given asset and date range.")
+        msg = "No data fetched for the given asset and date range."
+        raise ValueError(msg)
     log("Data fetched successfully.")
     return data
 
@@ -129,10 +130,12 @@ def calculate_returns(data, timeframe):
         returns = data["Return"].resample("2W-MON").sum().dropna()
     else:
         log(f"Invalid timeframe specified: {timeframe}", "error")
-        raise ValueError("Invalid timeframe specified. Use 'D', '3D', 'W', or '2W'.")
+        msg = "Invalid timeframe specified. Use 'D', '3D', 'W', or '2W'."
+        raise ValueError(msg)
     if returns.empty:
         log("No valid returns calculated. Try increasing the date range.", "error")
-        raise ValueError("No valid returns calculated. Try increasing the date range.")
+        msg = "No valid returns calculated. Try increasing the date range."
+        raise ValueError(msg)
     log("Returns calculated successfully.")
     return returns
 
@@ -164,7 +167,8 @@ def calculate_custom_period_returns(data, days, ticker):
 
     if returns.empty:
         log("No valid returns calculated for custom period.", "error")
-        raise ValueError(f"No valid returns calculated for {days}-day period.")
+        msg = f"No valid returns calculated for {days}-day period."
+        raise ValueError(msg)
 
     log(f"Custom {days}-day returns calculated successfully.")
     return returns
@@ -204,13 +208,13 @@ def compare_probabilities(returns, strike_return, delta):
 
     log(
         f"Historical probability: {historical_probability:.2f}%, "
-        f"Market-implied: {market_implied_probability:.2f}%"
+        f"Market-implied: {market_implied_probability:.2f}%",
     )
     return historical_probability, market_implied_probability, difference
 
 
 def plot_return_distribution(
-    returns, var_95, var_99, ticker, timeframe, ax, current_return, strike_analysis=None
+    returns, var_95, var_99, ticker, timeframe, ax, current_return, strike_analysis=None,
 ):
     """
     Plot the return distribution with VaR lines and additional statistics.
@@ -465,7 +469,7 @@ def export_return_distribution_json(
                     scale=np.std(negative_returns),
                 )
                 percentile = percentileofscore(
-                    negative_returns, current_return, kind="rank"
+                    negative_returns, current_return, kind="rank",
                 )
             else:
                 rarity = 0.0
@@ -479,7 +483,7 @@ def export_return_distribution_json(
                     scale=np.std(positive_returns),
                 )
                 percentile = percentileofscore(
-                    positive_returns, current_return, kind="rank"
+                    positive_returns, current_return, kind="rank",
                 )
             else:
                 rarity = 1.0
@@ -547,7 +551,7 @@ def export_return_distribution_json(
 
         # Compare probabilities
         historical_prob, market_prob, difference = compare_probabilities(
-            custom_returns, strike_return, DELTA
+            custom_returns, strike_return, DELTA,
         )
 
         # Calculate VaR for custom period
@@ -598,7 +602,8 @@ def load_tickers_from_csv(csv_filename):
 
     if not csv_path.exists():
         log(f"CSV file not found: {csv_path}", "error")
-        raise FileNotFoundError(f"CSV file not found: {csv_path}")
+        msg = f"CSV file not found: {csv_path}"
+        raise FileNotFoundError(msg)
 
     # Read CSV and extract unique tickers from first column
     df = pd.read_csv(csv_path)
@@ -639,7 +644,7 @@ def main():
         # Calculate returns and plot for each timeframe
         timeframes = ["2W", "W", "3D", "D"]
         for _i, (timeframe, ax) in enumerate(
-            zip(timeframes, axs.flatten(), strict=False)
+            zip(timeframes, axs.flatten(), strict=False),
         ):
             # Get the last adjusted close price and the one before the resampled period
             current_close = data.Close.iloc[-1]
@@ -668,7 +673,7 @@ def main():
             returns = calculate_returns(data, timeframe)
             var_95, var_99 = calculate_var(returns)
             plot_return_distribution(
-                returns, var_95, var_99, ticker, timeframe, ax, current_return
+                returns, var_95, var_99, ticker, timeframe, ax, current_return,
             )
 
         # Add option strategy analysis if enabled
@@ -682,7 +687,7 @@ def main():
 
             # Calculate custom period returns
             custom_returns = calculate_custom_period_returns(
-                data, DAYS_TO_EXPIRY, ticker
+                data, DAYS_TO_EXPIRY, ticker,
             )
 
             # Calculate VaR for custom period
@@ -701,7 +706,7 @@ def main():
 
             # Compare probabilities
             historical_prob, market_prob, difference = compare_probabilities(
-                custom_returns, strike_return, DELTA
+                custom_returns, strike_return, DELTA,
             )
 
             # Plot custom period with strike analysis
@@ -757,7 +762,7 @@ def main():
             ]
 
             table = summary_ax.table(
-                cellText=table_data, loc="center", cellLoc="center"
+                cellText=table_data, loc="center", cellLoc="center",
             )
             table.auto_set_font_size(False)
             table.set_fontsize(10)

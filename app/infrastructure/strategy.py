@@ -76,14 +76,16 @@ class StrategyAnalyzer(StrategyAnalyzerInterface):
 
         # Validate configuration
         if not self.validate_config(config):
-            raise ValueError("Invalid strategy configuration")
+            msg = "Invalid strategy configuration"
+            raise ValueError(msg)
 
         # Get strategy implementation
         config_dict = config.to_dict() if hasattr(config, "to_dict") else {}
         strategy_type = config_dict.get("strategy_type", "ma_cross")
 
         if strategy_type not in self._strategy_implementations:
-            raise ValueError(f"Unknown strategy type: {strategy_type}")
+            msg = f"Unknown strategy type: {strategy_type}"
+            raise ValueError(msg)
 
         # Run analysis
         implementation = self._strategy_implementations[strategy_type]
@@ -120,7 +122,7 @@ class StrategyAnalyzer(StrategyAnalyzerInterface):
                 "fast_period": 10,
                 "slow_period": 20,
                 "ma_type": "EMA",
-            }
+            },
         )
 
     def _register_strategies(self) -> None:
@@ -154,7 +156,7 @@ class StrategyAnalyzer(StrategyAnalyzerInterface):
                     pl.col("Close")
                     .rolling_mean(slow_period)
                     .alias(f"MA_{slow_period}"),
-                ]
+                ],
             )
 
             # Generate signals
@@ -165,7 +167,7 @@ class StrategyAnalyzer(StrategyAnalyzerInterface):
                         & (
                             pl.col(f"MA_{fast_period}").shift(1)
                             <= pl.col(f"MA_{slow_period}").shift(1)
-                        )
+                        ),
                     )
                     .then(1)
                     .when(
@@ -173,12 +175,12 @@ class StrategyAnalyzer(StrategyAnalyzerInterface):
                         & (
                             pl.col(f"MA_{fast_period}").shift(1)
                             >= pl.col(f"MA_{slow_period}").shift(1)
-                        )
+                        ),
                     )
                     .then(-1)
                     .otherwise(0)
-                    .alias("Signal")
-                ]
+                    .alias("Signal"),
+                ],
             )
         else:
             data[f"MA_{fast_period}"] = data["Close"].rolling(fast_period).mean()
@@ -272,7 +274,7 @@ class StrategyExecutor(StrategyExecutorInterface):
 
         # Use progress tracking
         return await self.execute_with_progress(
-            strategy_type, tickers, config, task_id, self._progress_tracker
+            strategy_type, tickers, config, task_id, self._progress_tracker,
         )
 
     async def execute_with_progress(
@@ -300,12 +302,12 @@ class StrategyExecutor(StrategyExecutorInterface):
                 # Update progress
                 progress = (i / len(tickers)) * 100
                 await progress_tracker.update(
-                    task_id, progress, f"Processing {ticker} ({i+1}/{len(tickers)})"
+                    task_id, progress, f"Processing {ticker} ({i+1}/{len(tickers)})",
                 )
 
                 # Create strategy config
                 strategy_config = ConcreteStrategyConfig(
-                    {"strategy_type": strategy_type, **config}
+                    {"strategy_type": strategy_type, **config},
                 )
 
                 # Analyze strategy
@@ -319,14 +321,14 @@ class StrategyExecutor(StrategyExecutorInterface):
             except Exception as e:
                 if self._logger:
                     self._logger.get_logger(__name__).error(
-                        f"Error processing {ticker}: {e}"
+                        f"Error processing {ticker}: {e}",
                     )
                 errors.append({"ticker": ticker, "error": str(e)})
 
         # Complete tracking
         if errors:
             await progress_tracker.complete(
-                task_id, f"Completed with {len(errors)} errors"
+                task_id, f"Completed with {len(errors)} errors",
             )
         else:
             await progress_tracker.complete(task_id)
@@ -351,7 +353,7 @@ class StrategyExecutor(StrategyExecutorInterface):
         """Validate parameters for a specific strategy."""
         # Create temporary config and validate
         strategy_config = ConcreteStrategyConfig(
-            {"strategy_type": strategy_type, **config}
+            {"strategy_type": strategy_type, **config},
         )
 
         return self._analyzer.validate_config(strategy_config)

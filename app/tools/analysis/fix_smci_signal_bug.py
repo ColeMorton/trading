@@ -51,7 +51,7 @@ class PercentileRankFixer:
                 or not np.isfinite(value)
             ):
                 self.logger.warning(
-                    f"Invalid value for percentile rank calculation: {value}"
+                    f"Invalid value for percentile rank calculation: {value}",
                 )
                 return 50.0
 
@@ -167,7 +167,7 @@ class PercentileRankFixer:
 
             if len(valid_percentiles) < 2:
                 self.logger.warning(
-                    f"Insufficient valid percentile data: {len(valid_percentiles)} valid points"
+                    f"Insufficient valid percentile data: {len(valid_percentiles)} valid points",
                 )
                 return 50.0
 
@@ -209,19 +209,18 @@ class PercentileRankFixer:
                     if val2 == val1:
                         return rank1  # Avoid division by zero
 
-                    interpolated_rank = rank1 + (rank2 - rank1) * (value - val1) / (
+                    return rank1 + (rank2 - rank1) * (value - val1) / (
                         val2 - val1
                     )
-                    return interpolated_rank
 
             # Fallback - should not reach here if logic is correct
             self.logger.warning(
-                f"Unexpected case in percentile rank calculation for value {value}"
+                f"Unexpected case in percentile rank calculation for value {value}",
             )
             return 50.0
 
         except Exception as e:
-            self.logger.error(f"Error in percentile rank calculation: {e}")
+            self.logger.exception(f"Error in percentile rank calculation: {e}")
             return 50.0
 
     def test_smci_fix(self):
@@ -248,7 +247,7 @@ class PercentileRankFixer:
         self.logger.info("Testing SMCI percentile rank fix...")
         self.logger.info(f"SMCI value: {smci_value:.6f} ({smci_value*100:.2f}%)")
         self.logger.info(
-            f"P70 threshold: {mock_percentiles.p70:.6f} ({mock_percentiles.p70*100:.2f}%)"
+            f"P70 threshold: {mock_percentiles.p70:.6f} ({mock_percentiles.p70*100:.2f}%)",
         )
 
         # Test the fixed method
@@ -260,14 +259,14 @@ class PercentileRankFixer:
             expected_rank_min = 70.0
             if fixed_rank > expected_rank_min:
                 self.logger.info(
-                    f"✅ FIX VALIDATED: Rank {fixed_rank:.2f} > {expected_rank_min}"
+                    f"✅ FIX VALIDATED: Rank {fixed_rank:.2f} > {expected_rank_min}",
                 )
                 self.logger.info(
-                    "   This should now trigger SELL signal (rank > 80 threshold)"
+                    "   This should now trigger SELL signal (rank > 80 threshold)",
                 )
             else:
                 self.logger.error(
-                    f"❌ FIX FAILED: Rank {fixed_rank:.2f} <= {expected_rank_min}"
+                    f"❌ FIX FAILED: Rank {fixed_rank:.2f} <= {expected_rank_min}",
                 )
 
         return fixed_rank
@@ -279,7 +278,7 @@ class PercentileRankFixer:
 
         if not divergence_detector_file.exists():
             self.logger.error(
-                f"Divergence detector file not found: {divergence_detector_file}"
+                f"Divergence detector file not found: {divergence_detector_file}",
             )
             return False
 
@@ -416,7 +415,7 @@ class PercentileRankFixer:
         # Apply the fix
         if old_percentile_extraction in content:
             content = content.replace(
-                old_percentile_extraction, new_percentile_extraction
+                old_percentile_extraction, new_percentile_extraction,
             )
 
             # Write the fixed content

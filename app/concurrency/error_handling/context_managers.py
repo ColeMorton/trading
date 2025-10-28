@@ -73,13 +73,15 @@ def concurrency_error_context(
         # Map to appropriate concurrency exception
         if type(e) in error_mapping:
             concurrency_exception = error_mapping[type(e)]
+            msg = f"Error in {operation}: {e!s}"
             raise concurrency_exception(
-                f"Error in {operation}: {e!s}", context=context_data
+                msg, context=context_data,
             ) from e
         elif not isinstance(e, ConcurrencyError):
             # Wrap in generic ConcurrencyError if not already a concurrency exception
+            msg = f"Error in {operation}: {e!s}"
             raise ConcurrencyError(
-                f"Error in {operation}: {e!s}", context=context_data
+                msg, context=context_data,
             ) from e
         elif reraise:
             raise
@@ -279,8 +281,9 @@ def batch_operation_context(
 
             # Check if we should stop
             if max_failures and self.failures >= max_failures:
+                msg = f"Batch operation '{operation}' exceeded maximum failures ({max_failures})"
                 raise ConcurrencyError(
-                    f"Batch operation '{operation}' exceeded maximum failures ({max_failures})",
+                    msg,
                     context={
                         "total_items": total_items,
                         "successes": self.successes,
@@ -317,7 +320,8 @@ def batch_operation_context(
 
     except Exception as e:
         log(f"Batch operation failed: {operation} - {e!s}", "error")
+        msg = f"Batch operation '{operation}' failed: {e!s}"
         raise ConcurrencyError(
-            f"Batch operation '{operation}' failed: {e!s}",
+            msg,
             context=tracker.get_summary(),
         ) from e

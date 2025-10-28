@@ -233,12 +233,12 @@ class StrategyExecutionMetrics:
 
         # Base score from throughput
         base_score = min(
-            self.throughput_portfolios_per_second / 10.0, 10.0
+            self.throughput_portfolios_per_second / 10.0, 10.0,
         )  # Cap at 10
 
         # Penalty for high memory usage (>500MB)
         memory_penalty = max(
-            0, (self.memory_peak_mb - 500) / 100
+            0, (self.memory_peak_mb - 500) / 100,
         )  # 1 point per 100MB over 500MB
 
         # Bonus for concurrent execution
@@ -264,7 +264,7 @@ class StrategyExecutionMetrics:
             "execution_time": round(self.execution_time, 3),
             "memory_peak_mb": round(self.memory_peak_mb, 2),
             "throughput_portfolios_per_second": round(
-                self.throughput_portfolios_per_second, 2
+                self.throughput_portfolios_per_second, 2,
             ),
             "efficiency_score": round(self.calculate_efficiency_score(), 2),
             "error_count": self.error_count,
@@ -272,7 +272,7 @@ class StrategyExecutionMetrics:
             "cache_hits": self.cache_hits,
             "cache_misses": self.cache_misses,
             "cache_hit_rate": round(
-                self.cache_hits / max(1, self.cache_hits + self.cache_misses) * 100, 1
+                self.cache_hits / max(1, self.cache_hits + self.cache_misses) * 100, 1,
             ),
             "timestamp": self.timestamp.isoformat(),
         }
@@ -338,10 +338,10 @@ class StrategyPerformanceTracker:
             if execution_id in self._execution_metrics:
                 metrics = self._execution_metrics[execution_id]
                 metrics.portfolios_generated = max(
-                    metrics.portfolios_generated, portfolios_generated
+                    metrics.portfolios_generated, portfolios_generated,
                 )
                 metrics.portfolios_filtered = max(
-                    metrics.portfolios_filtered, portfolios_filtered
+                    metrics.portfolios_filtered, portfolios_filtered,
                 )
                 metrics.error_count += error_count
                 metrics.warnings_count += warnings_count
@@ -349,7 +349,7 @@ class StrategyPerformanceTracker:
                 metrics.cache_misses += cache_misses
 
     def end_strategy_execution(
-        self, execution_id: str
+        self, execution_id: str,
     ) -> StrategyExecutionMetrics | None:
         """End tracking and finalize metrics for a strategy execution."""
         # End underlying performance monitoring
@@ -372,7 +372,7 @@ class StrategyPerformanceTracker:
         if perf_metrics:
             metrics.execution_time = perf_metrics.duration or 0.0
             metrics.memory_peak_mb = max(
-                perf_metrics.memory_before or 0.0, perf_metrics.memory_after or 0.0
+                perf_metrics.memory_before or 0.0, perf_metrics.memory_after or 0.0,
             )
 
         # Calculate throughput
@@ -388,7 +388,7 @@ class StrategyPerformanceTracker:
         return metrics
 
     def _generate_optimization_insights(
-        self, metrics: StrategyExecutionMetrics
+        self, metrics: StrategyExecutionMetrics,
     ) -> None:
         """Generate actionable optimization insights based on execution metrics."""
         insights = []
@@ -401,7 +401,7 @@ class StrategyPerformanceTracker:
                     "severity": "warning",
                     "message": f"Low throughput detected: {metrics.throughput_portfolios_per_second:.1f} portfolios/sec",
                     "recommendation": "Consider enabling concurrent execution or reducing parameter combinations",
-                }
+                },
             )
 
         # Memory usage insights
@@ -412,7 +412,7 @@ class StrategyPerformanceTracker:
                     "severity": "warning",
                     "message": f"High memory usage: {metrics.memory_peak_mb:.1f}MB",
                     "recommendation": "Consider processing in smaller batches or optimizing data structures",
-                }
+                },
             )
 
         # Concurrency insights
@@ -423,7 +423,7 @@ class StrategyPerformanceTracker:
                     "severity": "info",
                     "message": "Sequential execution used for multi-ticker analysis",
                     "recommendation": "Enable concurrent execution for better performance with multiple tickers",
-                }
+                },
             )
 
         # Error rate insights
@@ -435,7 +435,7 @@ class StrategyPerformanceTracker:
                     "severity": "error",
                     "message": f"High error rate: {error_rate:.1f}%",
                     "recommendation": "Review input validation and error handling logic",
-                }
+                },
             )
 
         # Cache performance insights
@@ -449,7 +449,7 @@ class StrategyPerformanceTracker:
                     "severity": "info",
                     "message": f"Low cache hit rate: {cache_hit_rate:.1f}%",
                     "recommendation": "Review caching strategy or increase cache size",
-                }
+                },
             )
 
         # Batch size optimization
@@ -461,7 +461,7 @@ class StrategyPerformanceTracker:
                         "severity": "info",
                         "message": f"Batch size ({metrics.batch_size}) larger than ticker count ({metrics.ticker_count})",
                         "recommendation": "Optimize batch size for better resource utilization",
-                    }
+                    },
                 )
 
         # Store insights
@@ -493,7 +493,7 @@ class StrategyPerformanceTracker:
         return [m.to_dict() for m in strategy_metrics]
 
     def get_optimization_insights(
-        self, execution_id: str | None = None, limit: int = 10
+        self, execution_id: str | None = None, limit: int = 10,
     ) -> list[dict[str, Any]]:
         """Get optimization insights, optionally filtered by execution ID."""
         insights = (
@@ -550,7 +550,7 @@ class StrategyPerformanceTracker:
             "total_execution_time": round(total_time, 2),
             "average_throughput": round(avg_throughput, 2),
             "concurrent_execution_rate": round(
-                concurrent_executions / total_executions * 100, 1
+                concurrent_executions / total_executions * 100, 1,
             ),
             "performance_insights_count": len(self.get_optimization_insights(limit=50)),
             "timestamp": datetime.now().isoformat(),

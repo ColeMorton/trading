@@ -45,6 +45,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..core.database import get_db
 from ..core.redis import get_redis
 from ..services.job_service import JobService
+from typing import Annotated
 
 
 router = APIRouter()
@@ -76,8 +77,8 @@ async def get_api_key_from_session(request: Request) -> str:
 async def proxy_job_stream(
     job_id: str,
     request: Request,
-    db: AsyncSession = Depends(get_db),
-    redis: Redis = Depends(get_redis),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    redis: Annotated[Redis, Depends(get_redis)],
 ):
     """
     Proxy SSE stream for job progress.

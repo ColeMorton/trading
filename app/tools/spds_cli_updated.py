@@ -15,7 +15,7 @@ import sys
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -62,10 +62,10 @@ Examples:
             help='Portfolio filename (e.g., "risk_on.csv")',
         )
         analyze_group.add_argument(
-            "--strategy", "-s", type=str, help="Strategy name (e.g., AAPL_SMA_20_50)"
+            "--strategy", "-s", type=str, help="Strategy name (e.g., AAPL_SMA_20_50)",
         )
         analyze_group.add_argument(
-            "--position", type=str, help="Position UUID (e.g., AAPL_SMA_20_50_20250101)"
+            "--position", type=str, help="Position UUID (e.g., AAPL_SMA_20_50_20250101)",
         )
 
         # Analysis options
@@ -82,7 +82,7 @@ Examples:
             help="Output format (default: table)",
         )
         analyze_parser.add_argument(
-            "--save-results", type=str, help="Save results to file (JSON format)"
+            "--save-results", type=str, help="Save results to file (JSON format)",
         )
 
         # Health command
@@ -99,7 +99,7 @@ Examples:
 
         # Global options
         parser.add_argument(
-            "--verbose", "-v", action="store_true", help="Verbose output"
+            "--verbose", "-v", action="store_true", help="Verbose output",
         )
         parser.add_argument("--quiet", "-q", action="store_true", help="Quiet mode")
 
@@ -134,7 +134,7 @@ Examples:
             print("\n⚠️  Operation cancelled by user")
             return 1
         except Exception as e:
-            logger.error(f"Application error: {e}")
+            logger.exception(f"Application error: {e}")
             if hasattr(parsed_args, "verbose") and parsed_args.verbose:
                 import traceback
 
@@ -164,7 +164,7 @@ Examples:
             # Determine data source
             use_trade_history = self._determine_data_source(args.data_source)
             print(
-                f"   Data Source: {args.data_source} ({'Trade History' if use_trade_history else 'Equity Curves'})"
+                f"   Data Source: {args.data_source} ({'Trade History' if use_trade_history else 'Equity Curves'})",
             )
 
             # Create request
@@ -257,7 +257,7 @@ Examples:
         # Show high confidence results
         high_confidence = sum(1 for r in results.values() if r.confidence_level >= 75)
         print(
-            f"\nHigh Confidence Results: {high_confidence}/{len(results)} ({high_confidence/len(results)*100:.1f}%)"
+            f"\nHigh Confidence Results: {high_confidence}/{len(results)} ({high_confidence/len(results)*100:.1f}%)",
         )
 
         return 0
@@ -277,13 +277,13 @@ Examples:
 
         # Table header
         print(
-            f"{'Strategy':<30} {'Ticker':<8} {'Signal':<15} {'Risk':<10} {'Confidence':<10} {'Reasoning'}"
+            f"{'Strategy':<30} {'Ticker':<8} {'Signal':<15} {'Risk':<10} {'Confidence':<10} {'Reasoning'}",
         )
         print("-" * 100)
 
         # Sort by confidence level (highest first)
         sorted_results = sorted(
-            results.items(), key=lambda x: x[1].confidence_level, reverse=True
+            results.items(), key=lambda x: x[1].confidence_level, reverse=True,
         )
 
         for strategy_name, result in sorted_results:
@@ -307,7 +307,7 @@ Examples:
             signal_icon = signal_icons.get(signal, "❓")
 
             print(
-                f"{strategy_name:<30} {result.ticker:<8} {signal_icon} {signal:<13} {risk:<10} {confidence:>6.1f}%    {reasoning}"
+                f"{strategy_name:<30} {result.ticker:<8} {signal_icon} {signal:<13} {risk:<10} {confidence:>6.1f}%    {reasoning}",
             )
 
         print("\n💡 Architecture: New 3-layer SPDS system (CLI → Engine → Results)")
@@ -352,7 +352,7 @@ Examples:
             print("5. Simple Analysis Test... ", end="")
             try:
                 request = AnalysisRequest(
-                    analysis_type="strategy", parameter="TEST_SMA_20_50"
+                    analysis_type="strategy", parameter="TEST_SMA_20_50",
                 )
                 await engine.analyze(request)
                 print("✅")
@@ -406,7 +406,7 @@ Examples:
                 if "Ticker" in df.columns:
                     tickers = df["Ticker"].value_counts().head(3)
                     ticker_list = ", ".join(
-                        [f"{ticker}({count})" for ticker, count in tickers.items()]
+                        [f"{ticker}({count})" for ticker, count in tickers.items()],
                     )
                     print(f"   Top Tickers: {ticker_list}")
 
@@ -443,7 +443,7 @@ Examples:
                     "Current_Price": 175.0,
                     "Position_Size": 100,
                     "Unrealized_PnL": 2500,
-                }
+                },
             ]
 
             # Create demo portfolio file
@@ -480,7 +480,7 @@ Examples:
 
             print("\n🎉 Demo completed successfully!")
             print(
-                "💡 Try: python -m app.tools.spds_cli_updated analyze --portfolio demo_new_architecture.csv"
+                "💡 Try: python -m app.tools.spds_cli_updated analyze --portfolio demo_new_architecture.csv",
             )
 
             return 0

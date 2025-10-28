@@ -141,7 +141,7 @@ class TestTradeHistoryPerformance(unittest.TestCase):
 
         # Should be very fast
         self.assertLess(
-            execution_time, 1.0, f"Orders extraction too slow: {execution_time:.2f}s"
+            execution_time, 1.0, f"Orders extraction too slow: {execution_time:.2f}s",
         )
         self.assertEqual(len(orders_df), 2000)  # 2 orders per trade
 
@@ -156,7 +156,7 @@ class TestTradeHistoryPerformance(unittest.TestCase):
 
         # Should be fast
         self.assertLess(
-            execution_time, 2.0, f"Positions extraction too slow: {execution_time:.2f}s"
+            execution_time, 2.0, f"Positions extraction too slow: {execution_time:.2f}s",
         )
         self.assertEqual(len(positions_df), 1000)
 
@@ -165,7 +165,7 @@ class TestTradeHistoryPerformance(unittest.TestCase):
         start_time = time.time()
 
         trade_history = create_comprehensive_trade_history(
-            self.large_portfolio, self.config
+            self.large_portfolio, self.config,
         )
 
         end_time = time.time()
@@ -199,7 +199,7 @@ class TestTradeHistoryPerformance(unittest.TestCase):
             start_time = time.time()
 
             success = export_trade_history(
-                self.large_portfolio, config, export_type="json"
+                self.large_portfolio, config, export_type="json",
             )
 
             end_time = time.time()
@@ -207,7 +207,7 @@ class TestTradeHistoryPerformance(unittest.TestCase):
 
             # Should complete in reasonable time
             self.assertLess(
-                execution_time, 15.0, f"JSON export too slow: {execution_time:.2f}s"
+                execution_time, 15.0, f"JSON export too slow: {execution_time:.2f}s",
             )
             self.assertTrue(success)
 
@@ -236,7 +236,7 @@ class TestTradeHistoryPerformance(unittest.TestCase):
                     ["Big Winner", "Winner", "Breakeven", "Loser", "Big Loser"][i % 5]
                     for i in range(num_trades)
                 ],
-            }
+            },
         )
 
         start_time = time.time()
@@ -280,7 +280,7 @@ class TestTradeHistoryPerformance(unittest.TestCase):
 
         # Create comprehensive history
         trade_history = create_comprehensive_trade_history(
-            very_large_portfolio, self.config
+            very_large_portfolio, self.config,
         )
 
         final_memory = process.memory_info().rss / 1024 / 1024  # MB
@@ -309,7 +309,7 @@ class TestTradeHistoryPerformance(unittest.TestCase):
                     "USE_HOURLY": i % 2 == 0,
                     "DIRECTION": ["Long", "Short"][i % 2],
                     "STOP_LOSS": 0.05 if i % 3 == 0 else None,
-                }
+                },
             )
 
         start_time = time.time()
@@ -321,7 +321,7 @@ class TestTradeHistoryPerformance(unittest.TestCase):
 
         # Should be very fast
         self.assertLess(
-            execution_time, 1.0, f"Filename generation too slow: {execution_time:.2f}s"
+            execution_time, 1.0, f"Filename generation too slow: {execution_time:.2f}s",
         )
 
         # All filenames should be unique
@@ -347,7 +347,7 @@ class TestTradeHistoryDataValidation(unittest.TestCase):
                 "Return": [0.03, -0.0286],
                 "Direction": ["Long", "Long"],
                 "Status": ["Closed", "Closed"],
-            }
+            },
         )
 
         mock_trades = Mock()
@@ -453,7 +453,7 @@ class TestTradeHistoryDataValidation(unittest.TestCase):
                 "Return": [0.03256, -0.02857],
                 "Direction": ["Long", "Long"],
                 "Status": ["Closed", "Closed"],
-            }
+            },
         )
 
         mock_trades = Mock()
@@ -489,7 +489,7 @@ class TestTradeHistoryDataValidation(unittest.TestCase):
 
         # Verify numeric values
         self.assertIsInstance(
-            parsed_data["metadata"]["portfolio_summary"]["total_return"], float
+            parsed_data["metadata"]["portfolio_summary"]["total_return"], float,
         )
 
         # Verify timestamp strings
@@ -515,7 +515,7 @@ class TestTradeHistoryDataValidation(unittest.TestCase):
                 "Return": [float("-inf")],  # Negative infinite return
                 "Direction": ["Long"],
                 "Status": ["Open"],
-            }
+            },
         )
 
         mock_trades = Mock()

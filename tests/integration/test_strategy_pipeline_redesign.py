@@ -113,7 +113,7 @@ class TestMACrossStrategyPipeline(unittest.TestCase):
         # Convert to pandas temporarily for easier manipulation, then back to Polars
         price_data_pandas = price_data.to_pandas()
         price_data_pandas.iloc[
-            -1, price_data_pandas.columns.get_loc("Close")
+            -1, price_data_pandas.columns.get_loc("Close"),
         ] *= 1.1  # 10% jump
         price_data = pl.from_pandas(price_data_pandas)
 
@@ -138,7 +138,7 @@ class TestMACrossStrategyPipeline(unittest.TestCase):
         # At least one date directory should exist
         date_dirs_exist = any(os.path.exists(path) for path in expected_paths)
         self.assertTrue(
-            date_dirs_exist, f"USE_CURRENT should create date directory {today}"
+            date_dirs_exist, f"USE_CURRENT should create date directory {today}",
         )
 
     def test_portfolio_filtering_workflow(self):
@@ -152,7 +152,7 @@ class TestMACrossStrategyPipeline(unittest.TestCase):
                 "WIN_RATE": 60.0,  # 60% minimum win rate
                 "TOTAL_TRADES": 40,  # 40 minimum trades
                 "PROFIT_FACTOR": 1.5,  # 1.5 minimum profit factor
-            }
+            },
         }
 
         from app.tools.portfolio.filtering_service import PortfolioFilterService
@@ -160,12 +160,12 @@ class TestMACrossStrategyPipeline(unittest.TestCase):
         filter_service = PortfolioFilterService()
 
         filtered = filter_service.filter_portfolios_list(
-            portfolios, filter_config, self.log
+            portfolios, filter_config, self.log,
         )
 
         # Should filter out low-performing portfolios
         self.assertLess(
-            len(filtered), len(portfolios), "Filtering should reduce portfolio count"
+            len(filtered), len(portfolios), "Filtering should reduce portfolio count",
         )
 
         # Verify filtering criteria were applied
@@ -216,7 +216,7 @@ class TestMACrossStrategyPipeline(unittest.TestCase):
                 "USE_HOURLY": True,
                 "DIRECTION": "Short",
                 "USE_CURRENT": True,
-            }
+            },
         )
 
         orchestrator = PortfolioOrchestrator(self.log)
@@ -245,12 +245,10 @@ class TestDataPipelineIntegration(unittest.TestCase):
         """Test integration from data fetch through MA calculations."""
         # This would test the complete data pipeline
         # Mocking external data sources but testing real calculation logic
-        pass
 
     def test_calculation_to_export_pipeline(self):
         """Test integration from calculations through export."""
         # This would test calculation results -> filtering -> export
-        pass
 
 
 if __name__ == "__main__":

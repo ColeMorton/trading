@@ -18,6 +18,7 @@ from app.tools.error_handling import (
     validate_dataframe,
     with_fallback,
 )
+import pytest
 
 
 class TestErrorHandling(unittest.TestCase):
@@ -45,7 +46,7 @@ class TestErrorHandling(unittest.TestCase):
         # Test with pandas DataFrame
         try:
             self.error_handler.validate_dataframe(
-                self.test_df_pd, ["A", "B"], "Test pandas DataFrame"
+                self.test_df_pd, ["A", "B"], "Test pandas DataFrame",
             )
             # If no exception is raised, the test passes
             self.assertTrue(True)
@@ -55,7 +56,7 @@ class TestErrorHandling(unittest.TestCase):
         # Test with polars DataFrame
         try:
             self.error_handler.validate_dataframe(
-                self.test_df_pl, ["A", "B"], "Test polars DataFrame"
+                self.test_df_pl, ["A", "B"], "Test polars DataFrame",
             )
             # If no exception is raised, the test passes
             self.assertTrue(True)
@@ -65,7 +66,7 @@ class TestErrorHandling(unittest.TestCase):
     def test_validate_dataframe_failure(self):
         """Test validate_dataframe with invalid data."""
         # Test with missing columns
-        with self.assertRaises(DataValidationError):
+        with pytest.raises(DataValidationError):
             self.error_handler.validate_dataframe(
                 self.test_df_pd,
                 ["A", "D"],  # D is not in the DataFrame
@@ -73,13 +74,13 @@ class TestErrorHandling(unittest.TestCase):
             )
 
         # Test with None DataFrame
-        with self.assertRaises(DataValidationError):
+        with pytest.raises(DataValidationError):
             self.error_handler.validate_dataframe(None, ["A", "B"], "None DataFrame")
 
         # Test with empty DataFrame
-        with self.assertRaises(DataValidationError):
+        with pytest.raises(DataValidationError):
             self.error_handler.validate_dataframe(
-                pd.DataFrame(), ["A", "B"], "Empty DataFrame"
+                pd.DataFrame(), ["A", "B"], "Empty DataFrame",
             )
 
     def test_validate_config_success(self):
@@ -99,7 +100,7 @@ class TestErrorHandling(unittest.TestCase):
     def test_validate_config_failure(self):
         """Test validate_config with invalid config."""
         # Test with missing required keys
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             self.error_handler.validate_config(
                 self.test_config,
                 ["required_key1", "missing_key"],  # missing_key is not in the config
@@ -108,7 +109,7 @@ class TestErrorHandling(unittest.TestCase):
             )
 
         # Test with None config
-        with self.assertRaises(ConfigurationError):
+        with pytest.raises(ConfigurationError):
             self.error_handler.validate_config(
                 None,
                 ["required_key1", "required_key2"],
@@ -128,27 +129,27 @@ class TestErrorHandling(unittest.TestCase):
     def test_validate_numeric_array_failure(self):
         """Test validate_numeric_array with invalid data."""
         # Test with non-numeric array
-        with self.assertRaises(DataValidationError):
+        with pytest.raises(DataValidationError):
             self.error_handler.validate_numeric_array(
-                np.array(["a", "b", "c"]), "Non-numeric array"
+                np.array(["a", "b", "c"]), "Non-numeric array",
             )
 
         # Test with array containing NaN
-        with self.assertRaises(DataValidationError):
+        with pytest.raises(DataValidationError):
             self.error_handler.validate_numeric_array(
-                np.array([1.0, np.nan, 3.0]), "Array with NaN", allow_nan=False
+                np.array([1.0, np.nan, 3.0]), "Array with NaN", allow_nan=False,
             )
 
         # Test with array containing infinity
-        with self.assertRaises(DataValidationError):
+        with pytest.raises(DataValidationError):
             self.error_handler.validate_numeric_array(
-                np.array([1.0, np.inf, 3.0]), "Array with infinity", allow_inf=False
+                np.array([1.0, np.inf, 3.0]), "Array with infinity", allow_inf=False,
             )
 
         # Test with array that's too short
-        with self.assertRaises(DataValidationError):
+        with pytest.raises(DataValidationError):
             self.error_handler.validate_numeric_array(
-                np.array([1.0]), "Short array", min_length=2
+                np.array([1.0]), "Short array", min_length=2,
             )
 
     def test_handle_calculation_error(self):
@@ -159,13 +160,13 @@ class TestErrorHandling(unittest.TestCase):
         fallback_value = 42
 
         result = self.error_handler.handle_calculation_error(
-            error, context, fallback_value
+            error, context, fallback_value,
         )
 
         self.assertEqual(result, fallback_value)
 
         # Test without fallback value
-        with self.assertRaises(CalculationError):
+        with pytest.raises(CalculationError):
             self.error_handler.handle_calculation_error(error, context)
 
     def test_with_error_handling_decorator(self):
@@ -174,7 +175,8 @@ class TestErrorHandling(unittest.TestCase):
         # Define a function that raises an error
         @self.error_handler.with_error_handling(fallback_value=42)
         def function_that_raises():
-            raise ValueError("Test error")
+            msg = "Test error"
+            raise ValueError(msg)
 
         # Define a function that returns a value
         @self.error_handler.with_error_handling(fallback_value=42)
@@ -203,7 +205,7 @@ class TestErrorHandling(unittest.TestCase):
         err_result = Result.err(error)
         self.assertFalse(err_result.is_ok())
         self.assertTrue(err_result.is_err())
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             err_result.unwrap()
         self.assertEqual(err_result.unwrap_or(0), 0)
 
@@ -248,7 +250,8 @@ class TestErrorHandling(unittest.TestCase):
         # Test with_fallback decorator
         @with_fallback(42)
         def function_that_raises():
-            raise ValueError("Test error")
+            msg = "Test error"
+            raise ValueError(msg)
 
         result = function_that_raises()
         self.assertEqual(result, 42)  # Should return fallback value

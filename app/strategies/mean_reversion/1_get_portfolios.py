@@ -39,7 +39,7 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
         Exception: If portfolio analysis fails
     """
     log, log_close, _, _ = setup_logging(
-        module_name="mean_reversion", log_file="1_get_portfolios.log"
+        module_name="mean_reversion", log_file="1_get_portfolios.log",
     )
 
     try:

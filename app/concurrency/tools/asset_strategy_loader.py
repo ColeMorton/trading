@@ -84,7 +84,7 @@ class AssetStrategyLoader:
         self.data_dir = Path(data_dir)
 
     def load_strategies_for_asset(
-        self, asset: str, min_score: float = 1.0
+        self, asset: str, min_score: float = 1.0,
     ) -> list[dict[str, Any]]:
         """
         Load all strategy files for a given asset and apply filtering.
@@ -105,7 +105,8 @@ class AssetStrategyLoader:
         strategy_files = self._discover_strategy_files(asset)
 
         if not strategy_files:
-            raise DataLoadError(f"No strategy files found for asset: {asset}")
+            msg = f"No strategy files found for asset: {asset}"
+            raise DataLoadError(msg)
 
         logger.info(f"Found {len(strategy_files)} strategy files for {asset}")
 
@@ -117,15 +118,16 @@ class AssetStrategyLoader:
                 strategies = self._load_and_filter_file(file_path, min_score)
                 all_strategies.extend(strategies)
                 logger.info(
-                    f"Loaded {len(strategies)} strategies from {file_path.name}"
+                    f"Loaded {len(strategies)} strategies from {file_path.name}",
                 )
             except Exception as e:
                 logger.warning(f"Failed to load {file_path}: {e}")
                 continue
 
         if not all_strategies:
+            msg = f"No strategies meet filtering criteria (Score >= {min_score}) for asset: {asset}"
             raise DataLoadError(
-                f"No strategies meet filtering criteria (Score >= {min_score}) for asset: {asset}"
+                msg,
             )
 
         logger.info(f"Total strategies loaded for {asset}: {len(all_strategies)}")
@@ -139,7 +141,7 @@ class AssetStrategyLoader:
         return [Path(path) for path in sorted(file_paths)]
 
     def _load_and_filter_file(
-        self, file_path: Path, min_score: float
+        self, file_path: Path, min_score: float,
     ) -> list[dict[str, Any]]:
         """Load CSV file and convert to strategy dictionaries with filtering."""
         df = pd.read_csv(file_path)
@@ -164,14 +166,14 @@ class AssetStrategyLoader:
                 filtered_rows.append(best_row)
 
                 logger.debug(
-                    f"Selected best row for {group_key}: Score={best_row['Score']:.3f}"
+                    f"Selected best row for {group_key}: Score={best_row['Score']:.3f}",
                 )
 
             if filtered_rows:
                 df = pd.DataFrame(filtered_rows)
             else:
                 logger.warning(
-                    f"No strategies found after deduplication in {file_path.name}"
+                    f"No strategies found after deduplication in {file_path.name}",
                 )
                 return []
 
@@ -180,7 +182,7 @@ class AssetStrategyLoader:
 
         if filtered_df.empty:
             logger.warning(
-                f"No strategies meet Score >= {min_score} in {file_path.name}"
+                f"No strategies meet Score >= {min_score} in {file_path.name}",
             )
             return []
 
@@ -193,14 +195,14 @@ class AssetStrategyLoader:
                 strategies.append(strategy)
             except Exception as e:
                 logger.warning(
-                    f"Failed to convert strategy {row.get('Strategy_ID', 'unknown')}: {e}"
+                    f"Failed to convert strategy {row.get('Strategy_ID', 'unknown')}: {e}",
                 )
                 continue
 
         return strategies
 
     def _convert_to_strategy_dict(
-        self, row: pd.Series, source_file: Path
+        self, row: pd.Series, source_file: Path,
     ) -> dict[str, Any]:
         """Convert CSV row to strategy dictionary."""
 
@@ -297,7 +299,7 @@ class AssetStrategyLoader:
         """Validate data quality for an asset."""
         try:
             strategies = self.load_strategies_for_asset(
-                asset, min_score=0.0
+                asset, min_score=0.0,
             )  # Load all for validation
 
             # Basic validation metrics

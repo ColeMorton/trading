@@ -40,12 +40,13 @@ class ConfigService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred"
+                "error", "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
-            raise RuntimeError(f"{error_type}: {error_msg}")
+            msg = f"{error_type}: {error_msg}"
+            raise RuntimeError(msg)
 
         await self.update_progress(100, "Profile list retrieved")
 
@@ -68,12 +69,13 @@ class ConfigService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred"
+                "error", "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
-            raise RuntimeError(f"{error_type}: {error_msg}")
+            msg = f"{error_type}: {error_msg}"
+            raise RuntimeError(msg)
 
         await self.update_progress(100, "Profile configuration retrieved")
 
@@ -84,7 +86,7 @@ class ConfigService(BaseCommandService):
         }
 
     async def execute_verify_defaults(
-        self, params: ConfigVerifyDefaultsRequest
+        self, params: ConfigVerifyDefaultsRequest,
     ) -> dict[str, Any]:
         """Execute config verify-defaults command."""
         await self.update_progress(10, "Verifying default profiles...")
@@ -99,12 +101,13 @@ class ConfigService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred"
+                "error", "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
-            raise RuntimeError(f"{error_type}: {error_msg}")
+            msg = f"{error_type}: {error_msg}"
+            raise RuntimeError(msg)
 
         await self.update_progress(100, "Default profiles verified")
 
@@ -114,7 +117,7 @@ class ConfigService(BaseCommandService):
         }
 
     async def execute_set_default(
-        self, params: ConfigSetDefaultRequest
+        self, params: ConfigSetDefaultRequest,
     ) -> dict[str, Any]:
         """Execute config set-default command."""
         await self.update_progress(10, "Setting default profile...")
@@ -129,12 +132,13 @@ class ConfigService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred"
+                "error", "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
-            raise RuntimeError(f"{error_type}: {error_msg}")
+            msg = f"{error_type}: {error_msg}"
+            raise RuntimeError(msg)
 
         await self.update_progress(100, "Default profile set")
 
@@ -158,12 +162,13 @@ class ConfigService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred"
+                "error", "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
-            raise RuntimeError(f"{error_type}: {error_msg}")
+            msg = f"{error_type}: {error_msg}"
+            raise RuntimeError(msg)
 
         await self.update_progress(100, "Profile edited successfully")
 
@@ -188,12 +193,13 @@ class ConfigService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred"
+                "error", "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
             # Raise exception so task handler marks job as FAILED
-            raise RuntimeError(f"{error_type}: {error_msg}")
+            msg = f"{error_type}: {error_msg}"
+            raise RuntimeError(msg)
 
         await self.update_progress(100, "Validation complete")
 

@@ -112,11 +112,11 @@ class TickerBatchProcessor:
         if tickers_to_process:
             self.logger.info(
                 f"Processing {len(tickers_to_process)} tickers "
-                f"({cache_hits} cache hits, {cache_misses} cache misses)"
+                f"({cache_hits} cache hits, {cache_misses} cache misses)",
             )
 
             processed_results = self._process_with_retries(
-                tickers_to_process, processing_fn, batch_size
+                tickers_to_process, processing_fn, batch_size,
             )
 
             # Cache successful results
@@ -149,7 +149,7 @@ class TickerBatchProcessor:
 
         self.logger.info(
             f"Batch processing complete: {len(successful_results)} successful, "
-            f"{len(failed_items)} failed, {processing_time:.2f}s total"
+            f"{len(failed_items)} failed, {processing_time:.2f}s total",
         )
 
         return result
@@ -170,11 +170,11 @@ class TickerBatchProcessor:
                     return ticker, result, None
                 except Exception as e:
                     self.logger.warning(
-                        f"Attempt {attempt + 1} failed for {ticker}: {e}"
+                        f"Attempt {attempt + 1} failed for {ticker}: {e}",
                     )
                     if attempt < self.max_retries:
                         time.sleep(
-                            self.retry_delay * (attempt + 1)
+                            self.retry_delay * (attempt + 1),
                         )  # Exponential backoff
                     else:
                         return ticker, None, e
@@ -194,7 +194,7 @@ class TickerBatchProcessor:
 
         # Collect results as they complete
         for future in as_completed(
-            futures, timeout=len(tickers) * self.timeout_per_ticker
+            futures, timeout=len(tickers) * self.timeout_per_ticker,
         ):
             try:
                 ticker, result, error = future.result()
@@ -205,7 +205,7 @@ class TickerBatchProcessor:
             except Exception as e:
                 ticker = futures[future]
                 failed[ticker] = e
-                self.logger.error(f"Unexpected error processing {ticker}: {e}")
+                self.logger.exception(f"Unexpected error processing {ticker}: {e}")
 
         return {"successful": successful, "failed": failed}
 
@@ -284,7 +284,7 @@ class ParameterSweepProcessor:
         if combinations_to_process:
             self.logger.info(
                 f"Processing {len(combinations_to_process)} parameter combinations "
-                f"in chunks of {self.chunk_size}"
+                f"in chunks of {self.chunk_size}",
             )
 
             chunks = [
@@ -301,7 +301,7 @@ class ParameterSweepProcessor:
             }
 
             for future in as_completed(
-                chunk_futures, timeout=len(chunks) * self.timeout_per_chunk
+                chunk_futures, timeout=len(chunks) * self.timeout_per_chunk,
             ):
                 try:
                     chunk_results = future.result()
@@ -322,14 +322,14 @@ class ParameterSweepProcessor:
                                     )
                                 except Exception as e:
                                     self.logger.warning(
-                                        f"Failed to cache combo_{combo_id}: {e}"
+                                        f"Failed to cache combo_{combo_id}: {e}",
                                     )
                         else:
                             failed_items[f"combo_{combo_id}"] = error
 
                 except Exception as e:
                     chunk_idx = chunk_futures[future]
-                    self.logger.error(f"Chunk {chunk_idx} failed: {e}")
+                    self.logger.exception(f"Chunk {chunk_idx} failed: {e}")
                     # Mark all combinations in failed chunk as failed
                     for combo_id, _ in chunks[chunk_idx]:
                         failed_items[f"combo_{combo_id}"] = e
@@ -346,7 +346,7 @@ class ParameterSweepProcessor:
 
         self.logger.info(
             f"Parameter sweep complete: {len(successful_results)} successful, "
-            f"{len(failed_items)} failed, {processing_time:.2f}s total"
+            f"{len(failed_items)} failed, {processing_time:.2f}s total",
         )
 
         return result
@@ -362,7 +362,7 @@ class ParameterSweepProcessor:
         # Monitor memory during chunk processing
         if self.memory_optimizer:
             monitor_context = self.memory_optimizer.monitor.monitor_operation(
-                f"parameter_chunk_{len(chunk)}_combos"
+                f"parameter_chunk_{len(chunk)}_combos",
             )
         else:
             monitor_context = None
@@ -385,7 +385,7 @@ class ParameterSweepProcessor:
 
                     except Exception as e:
                         self.logger.warning(
-                            f"Parameter combination {combo_id} failed: {e}"
+                            f"Parameter combination {combo_id} failed: {e}",
                         )
                         results.append((combo_id, None, e))
 
@@ -469,7 +469,7 @@ class MemoryEfficientParameterSweep:
         combinations = list(itertools.product(*param_values))
 
         self.logger.info(
-            f"Starting parameter sweep with {len(combinations)} combinations"
+            f"Starting parameter sweep with {len(combinations)} combinations",
         )
 
         start_time = time.time()
@@ -482,7 +482,7 @@ class MemoryEfficientParameterSweep:
             chunk_combinations = combinations[chunk_idx : chunk_idx + self.chunk_size]
 
             with self.memory_optimizer.monitor.monitor_operation(
-                f"sweep_chunk_{chunk_idx}"
+                f"sweep_chunk_{chunk_idx}",
             ):
                 chunk_results = []
 
@@ -499,7 +499,7 @@ class MemoryEfficientParameterSweep:
                             # Add parameter columns to Polars DataFrame
                             for param_name, param_value in params.items():
                                 result = result.with_columns(
-                                    pl.lit(param_value).alias(f"param_{param_name}")
+                                    pl.lit(param_value).alias(f"param_{param_name}"),
                                 )
                         elif isinstance(result, dict):
                             result.update({f"param_{k}": v for k, v in params.items()})
@@ -512,15 +512,15 @@ class MemoryEfficientParameterSweep:
                             self.memory_optimizer.monitor.check_memory()
 
                     except Exception as e:
-                        self.logger.error(
-                            f"Parameter combination failed: {params}, error: {e}"
+                        self.logger.exception(
+                            f"Parameter combination failed: {params}, error: {e}",
                         )
                         total_failed += 1
 
                 # Process chunk results
                 if chunk_results and self.stream_to_disk and output_dir:
                     output_file = self._save_chunk_results(
-                        chunk_results, chunk_idx, base_identifier, output_dir
+                        chunk_results, chunk_idx, base_identifier, output_dir,
                     )
                     output_files.append(output_file)
 
@@ -540,7 +540,7 @@ class MemoryEfficientParameterSweep:
 
         self.logger.info(
             f"Parameter sweep completed: {total_processed} successful, "
-            f"{total_failed} failed, {processing_time:.2f}s total"
+            f"{total_failed} failed, {processing_time:.2f}s total",
         )
 
         return summary

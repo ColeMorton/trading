@@ -60,17 +60,17 @@ class SeasonalityExpectancyService:
         end_date = start_date + timedelta(days=self.config.days)
 
         self.console.print(
-            f"🔍 [cyan]Analyzing expectancy for {self.config.days}-day period[/cyan]"
+            f"🔍 [cyan]Analyzing expectancy for {self.config.days}-day period[/cyan]",
         )
         self.console.print(
-            f"📅 [white]Period: {start_date.strftime('%B %d, %Y')} - {end_date.strftime('%B %d, %Y')}[/white]"
+            f"📅 [white]Period: {start_date.strftime('%B %d, %Y')} - {end_date.strftime('%B %d, %Y')}[/white]",
         )
 
         # Calculate time weights for the period
         time_weights = self._calculate_time_weights(start_date, end_date)
 
         self.console.print(
-            f"⚖️  [yellow]Time weights calculated for {len(time_weights)} periods[/yellow]"
+            f"⚖️  [yellow]Time weights calculated for {len(time_weights)} periods[/yellow]",
         )
 
         # Process seasonality files
@@ -88,7 +88,7 @@ class SeasonalityExpectancyService:
             ]
 
         self.console.print(
-            f"📊 [white]Processing {len(csv_files)} ticker files...[/white]"
+            f"📊 [white]Processing {len(csv_files)} ticker files...[/white]",
         )
 
         with Progress(
@@ -99,7 +99,7 @@ class SeasonalityExpectancyService:
             console=self.console,
         ) as progress:
             task = progress.add_task(
-                "[cyan]Analyzing seasonality patterns...", total=len(csv_files)
+                "[cyan]Analyzing seasonality patterns...", total=len(csv_files),
             )
 
             for csv_file in csv_files:
@@ -110,7 +110,7 @@ class SeasonalityExpectancyService:
                         self.results.append(result)
                 except Exception as e:
                     self.console.print(
-                        f"⚠️  [yellow]Warning: Error processing {csv_file.name}: {e!s}[/yellow]"
+                        f"⚠️  [yellow]Warning: Error processing {csv_file.name}: {e!s}[/yellow]",
                     )
                     self.skipped_tickers.append((ticker, f"Processing error: {e!s}"))
                     continue
@@ -124,28 +124,28 @@ class SeasonalityExpectancyService:
 
         df = pd.DataFrame(self.results)
         df = df.sort_values("risk_adjusted_score", ascending=False).reset_index(
-            drop=True
+            drop=True,
         )
         df["rank"] = df.index + 1
 
         self.console.print(
-            f"✅ [green]Analysis complete! {len(df)} tickers analyzed successfully[/green]"
+            f"✅ [green]Analysis complete! {len(df)} tickers analyzed successfully[/green]",
         )
 
         # Display filtered ticker information if any
         if self.skipped_tickers:
             self.console.print(
-                f"\n⚠️  [yellow]{len(self.skipped_tickers)} ticker(s) filtered out due to quality criteria:[/yellow]"
+                f"\n⚠️  [yellow]{len(self.skipped_tickers)} ticker(s) filtered out due to quality criteria:[/yellow]",
             )
             for ticker, reason in self.skipped_tickers:
                 self.console.print(
-                    f"    - [white]{ticker}[/white]: [dim]{reason}[/dim]"
+                    f"    - [white]{ticker}[/white]: [dim]{reason}[/dim]",
                 )
 
         return df
 
     def _calculate_time_weights(
-        self, start_date: datetime.date, end_date: datetime.date
+        self, start_date: datetime.date, end_date: datetime.date,
     ) -> dict[str, float]:
         """Calculate time weights for different periods based on actual calendar days.
 
@@ -201,7 +201,7 @@ class SeasonalityExpectancyService:
         return weights
 
     def _analyze_ticker_file(
-        self, csv_file: Path, ticker: str, time_weights: dict[str, float]
+        self, csv_file: Path, ticker: str, time_weights: dict[str, float],
     ) -> dict | None:
         """Analyze a single ticker's seasonality file."""
 
@@ -310,7 +310,7 @@ class SeasonalityExpectancyService:
 
         # Calculate risk-adjusted score
         risk_adjusted_score = self._calculate_risk_adjusted_score(
-            combined_return, avg_significance, avg_win_rate, avg_volatility
+            combined_return, avg_significance, avg_win_rate, avg_volatility,
         )
 
         # Determine asset class and confidence
@@ -402,7 +402,8 @@ class SeasonalityExpectancyService:
             Path to saved CSV file
         """
         if results_df.empty:
-            raise ValueError("No results available for CSV generation")
+            msg = "No results available for CSV generation"
+            raise ValueError(msg)
 
         # Generate filename with current date
         current_date = datetime.now().strftime("%Y%m%d")
@@ -440,7 +441,8 @@ class SeasonalityExpectancyService:
             Path to saved markdown file
         """
         if results_df.empty:
-            raise ValueError("No results available for markdown generation")
+            msg = "No results available for markdown generation"
+            raise ValueError(msg)
 
         # Generate filename with current date
         current_date = datetime.now().strftime("%Y%m%d")
@@ -488,7 +490,7 @@ class SeasonalityExpectancyService:
             insight = self._generate_ticker_insight(row)
             lines.append(
                 f"| **{int(row['rank'])}** | **{row['ticker']}** | **{row['expected_return']:+.2f}%** | "
-                f"{row['asset_class']} | {row['win_rate']:.1%} | {row['confidence']} | {insight} |"
+                f"{row['asset_class']} | {row['win_rate']:.1%} | {row['confidence']} | {insight} |",
             )
 
         lines.extend(
@@ -515,7 +517,7 @@ class SeasonalityExpectancyService:
                 "",
                 "### 🏭 Asset Distribution",
                 "",
-            ]
+            ],
         )
 
         # Add asset class distribution
@@ -568,7 +570,7 @@ class SeasonalityExpectancyService:
                 "---",
                 "",
                 "*Generated by Seasonality Expectancy Analysis System*",
-            ]
+            ],
         )
 
         return "\n".join(lines)
@@ -606,12 +608,12 @@ class SeasonalityExpectancyService:
 
         if top_result["volatility"] > 3.0:
             lines.append(
-                "- **Risk Management**: Reduce position size due to higher volatility"
+                "- **Risk Management**: Reduce position size due to higher volatility",
             )
 
         if top_result["win_rate"] < 0.5:
             lines.append(
-                "- **Entry Strategy**: Consider better entry timing given sub-50% win rate"
+                "- **Entry Strategy**: Consider better entry timing given sub-50% win rate",
             )
 
         return "\n".join(lines)

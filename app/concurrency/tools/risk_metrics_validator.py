@@ -222,7 +222,7 @@ class RiskMetricsValidator:
 
             # Calculate portfolio volatility: σ_p = sqrt(w^T * Σ * w)
             expected_portfolio_vol = np.sqrt(
-                np.dot(weights, np.dot(covariance_matrix, weights))
+                np.dot(weights, np.dot(covariance_matrix, weights)),
             )
 
             # Compare with aggregated volatility
@@ -347,7 +347,7 @@ class RiskMetricsValidator:
             if not is_valid and strategy_names:
                 log("Individual risk contributions:", "info")
                 for name, contrib in zip(
-                    strategy_names, individual_risk_contributions, strict=False
+                    strategy_names, individual_risk_contributions, strict=False,
                 ):
                     log(
                         f"  {name}: {contrib:.4f} ({contrib/portfolio_total_risk:.1%} of total)",
@@ -409,7 +409,7 @@ class RiskMetricsValidator:
 
                 # Validate
                 dd_result = self.validate_max_drawdown(
-                    csv_max_dd, json_max_dd, ticker, log
+                    csv_max_dd, json_max_dd, ticker, log,
                 )
                 results[f"max_drawdown_{ticker}"] = dd_result
 
@@ -483,14 +483,16 @@ class DrawdownCalculator:
             return DrawdownComponents(0, None, None, None, 0, 0, np.array([]))
 
         if len(strategy_equity_curves) != len(allocation_weights):
+            msg = "Number of equity curves must match number of allocation weights"
             raise ValueError(
-                "Number of equity curves must match number of allocation weights"
+                msg,
             )
 
         # Normalize allocation weights
         total_allocation = sum(allocation_weights)
         if total_allocation <= 0:
-            raise ValueError("Total allocation must be positive")
+            msg = "Total allocation must be positive"
+            raise ValueError(msg)
 
         normalized_weights = [w / total_allocation for w in allocation_weights]
 
@@ -498,11 +500,12 @@ class DrawdownCalculator:
         portfolio_equity = np.zeros(len(strategy_equity_curves[0]))
 
         for i, (curve, allocation) in enumerate(
-            zip(strategy_equity_curves, normalized_weights, strict=False)
+            zip(strategy_equity_curves, normalized_weights, strict=False),
         ):
             if len(curve) != len(portfolio_equity):
+                msg = f"All equity curves must have same length. Strategy {i} has {len(curve)}, expected {len(portfolio_equity)}"
                 raise ValueError(
-                    f"All equity curves must have same length. Strategy {i} has {len(curve)}, expected {len(portfolio_equity)}"
+                    msg,
                 )
 
             portfolio_equity += curve * allocation
@@ -555,7 +558,7 @@ class DrawdownCalculator:
         )
 
     def calculate_individual_drawdown(
-        self, equity_curve: np.ndarray, log: Callable[[str, str], None] | None = None
+        self, equity_curve: np.ndarray, log: Callable[[str, str], None] | None = None,
     ) -> DrawdownComponents:
         """
         Calculate drawdown for an individual strategy equity curve.
@@ -647,13 +650,15 @@ class VolatilityAggregator:
         n_strategies = len(individual_volatilities)
 
         if len(allocation_weights) != n_strategies:
+            msg = "Number of allocation weights must match number of strategies"
             raise ValueError(
-                "Number of allocation weights must match number of strategies"
+                msg,
             )
 
         if correlation_matrix.shape != (n_strategies, n_strategies):
+            msg = f"Correlation matrix must be {n_strategies}x{n_strategies}"
             raise ValueError(
-                f"Correlation matrix must be {n_strategies}x{n_strategies}"
+                msg,
             )
 
         # Convert to numpy arrays
@@ -707,7 +712,7 @@ class VolatilityAggregator:
         """
         # Calculate portfolio volatility first
         portfolio_vol = self.calculate_portfolio_volatility(
-            individual_volatilities, correlation_matrix, allocation_weights, log
+            individual_volatilities, correlation_matrix, allocation_weights, log,
         )
 
         if portfolio_vol <= 0:

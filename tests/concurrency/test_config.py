@@ -13,6 +13,7 @@ from app.concurrency.config import (
 from app.concurrency.config_defaults import get_default_config
 
 from .base import ConcurrencyTestCase
+import pytest
 
 
 class TestConfigValidation(ConcurrencyTestCase):
@@ -44,7 +45,7 @@ class TestConfigValidation(ConcurrencyTestCase):
             # Missing BASE_DIR and REFRESH
         }
 
-        with self.assertRaises(ValidationError) as cm:
+        with pytest.raises(ValidationError) as cm:
             validate_config(config)
 
         self.assertIn("Missing required fields", str(cm.exception))
@@ -58,7 +59,7 @@ class TestConfigValidation(ConcurrencyTestCase):
             "REFRESH": True,
         }
 
-        with self.assertRaises(ValidationError) as cm:
+        with pytest.raises(ValidationError) as cm:
             validate_config(config)
 
         self.assertIn("PORTFOLIO must be a string", str(cm.exception))
@@ -70,7 +71,7 @@ class TestConfigValidation(ConcurrencyTestCase):
             "REFRESH": "yes",  # Should be boolean
         }
 
-        with self.assertRaises(ValidationError) as cm:
+        with pytest.raises(ValidationError) as cm:
             validate_config(config)
 
         self.assertIn("REFRESH must be a boolean", str(cm.exception))
@@ -108,11 +109,11 @@ class TestConfigValidation(ConcurrencyTestCase):
             "OPTIMIZE_MIN_STRATEGIES": 1,  # Should be >= 2
         }
 
-        with self.assertRaises(ValidationError) as cm:
+        with pytest.raises(ValidationError) as cm:
             validate_config(config)
 
         self.assertIn(
-            "OPTIMIZE_MIN_STRATEGIES must be an integer >= 2", str(cm.exception)
+            "OPTIMIZE_MIN_STRATEGIES must be an integer >= 2", str(cm.exception),
         )
 
 
@@ -132,7 +133,7 @@ class TestPortfolioFormatDetection(ConcurrencyTestCase):
     def test_detect_json_format(self):
         """Test detection of JSON portfolio format."""
         json_file = self.create_portfolio_file(
-            [{"ticker": "BTC", "type": "SMA"}], "test.json"
+            [{"ticker": "BTC", "type": "SMA"}], "test.json",
         )
 
         format_info = detect_portfolio_format(json_file)
@@ -143,7 +144,7 @@ class TestPortfolioFormatDetection(ConcurrencyTestCase):
 
     def test_detect_nonexistent_file(self):
         """Test detection of non-existent file."""
-        with self.assertRaises(FileFormatError) as cm:
+        with pytest.raises(FileFormatError) as cm:
             detect_portfolio_format("/nonexistent/file.json")
 
         self.assertIn("File not found", str(cm.exception))
@@ -154,7 +155,7 @@ class TestPortfolioFormatDetection(ConcurrencyTestCase):
         txt_file = self.test_dir / "test.txt"
         txt_file.write_text("Not a portfolio file")
 
-        with self.assertRaises(FileFormatError) as cm:
+        with pytest.raises(FileFormatError) as cm:
             detect_portfolio_format(str(txt_file))
 
         self.assertIn("Unsupported file extension", str(cm.exception))
@@ -165,7 +166,7 @@ class TestPortfolioFormatDetection(ConcurrencyTestCase):
         json_file = self.test_dir / "invalid.json"
         json_file.write_text("{invalid json}")
 
-        with self.assertRaises(FileFormatError) as cm:
+        with pytest.raises(FileFormatError) as cm:
             detect_portfolio_format(str(json_file))
 
         self.assertIn("Invalid JSON file", str(cm.exception))
@@ -174,7 +175,7 @@ class TestPortfolioFormatDetection(ConcurrencyTestCase):
         """Test detection of empty JSON array."""
         json_file = self.create_portfolio_file([], "empty.json")
 
-        with self.assertRaises(FileFormatError) as cm:
+        with pytest.raises(FileFormatError) as cm:
             detect_portfolio_format(json_file)
 
         self.assertIn("must contain a non-empty array", str(cm.exception))
@@ -205,7 +206,7 @@ BTC-USD,10,30"""
         csv_file = self.test_dir / "invalid.csv"
         csv_file.write_text(csv_content)
 
-        with self.assertRaises(ValidationError) as cm:
+        with pytest.raises(ValidationError) as cm:
             validate_csv_portfolio(str(csv_file))
 
         self.assertIn("missing required fields", str(cm.exception))
@@ -218,7 +219,7 @@ BTC-USD,10,30"""
         csv_file = self.test_dir / "empty.csv"
         csv_file.write_text(csv_content)
 
-        with self.assertRaises(ValidationError) as cm:
+        with pytest.raises(ValidationError) as cm:
             validate_csv_portfolio(str(csv_file))
 
         self.assertIn("CSV file is empty", str(cm.exception))
@@ -260,12 +261,12 @@ BTC-USD,10,30"""
                 "direction": "long",
                 "fast_period": 10,
                 "slow_period": 30,
-            }
+            },
         ]
 
         json_file = self.create_portfolio_file(strategies, "missing_type.json")
 
-        with self.assertRaises(ValidationError) as cm:
+        with pytest.raises(ValidationError) as cm:
             validate_ma_portfolio(json_file)
 
         self.assertIn("missing 'type' field", str(cm.exception))
@@ -280,12 +281,12 @@ BTC-USD,10,30"""
                 "direction": "long",
                 "fast_period": 10,
                 "slow_period": 30,
-            }
+            },
         ]
 
         json_file = self.create_portfolio_file(strategies, "invalid_type.json")
 
-        with self.assertRaises(ValidationError) as cm:
+        with pytest.raises(ValidationError) as cm:
             validate_ma_portfolio(json_file)
 
         self.assertIn("Invalid strategy type", str(cm.exception))
@@ -301,12 +302,12 @@ BTC-USD,10,30"""
                 "fast_period": 12,
                 "slow_period": 26,
                 # Missing signal_period
-            }
+            },
         ]
 
         json_file = self.create_portfolio_file(strategies, "macd_missing.json")
 
-        with self.assertRaises(ValidationError) as cm:
+        with pytest.raises(ValidationError) as cm:
             validate_ma_portfolio(json_file)
 
         self.assertIn("missing required fields", str(cm.exception))

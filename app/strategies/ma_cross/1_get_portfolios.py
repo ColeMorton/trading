@@ -94,7 +94,7 @@ CONFIG: Config = {
 
 # Using standardized strategy utilities from app.tools.strategy_utils
 def filter_portfolios(
-    portfolios: list[dict[str, Any]], config: Config, log
+    portfolios: list[dict[str, Any]], config: Config, log,
 ) -> list[dict[str, Any]]:
     """Filter portfolios based on configuration.
 
@@ -124,19 +124,19 @@ def filter_portfolios(
 
         # Distribute missing allocations if some rows have values and others don't
         distributed_portfolios = distribute_missing_allocations(
-            normalized_portfolios, log
+            normalized_portfolios, log,
         )
 
         # Ensure allocation values sum to 100%
         normalized_portfolios = ensure_allocation_sum_100_percent(
-            distributed_portfolios, log
+            distributed_portfolios, log,
         )
 
         # Calculate position sizes if account value is provided in config
         if "ACCOUNT_VALUE" in config and config["ACCOUNT_VALUE"] > 0:
             account_value = float(config["ACCOUNT_VALUE"])
             normalized_portfolios = calculate_position_sizes(
-                normalized_portfolios, account_value, log
+                normalized_portfolios, account_value, log,
             )
             log(
                 f"Calculated position sizes based on account value: {account_value}",
@@ -153,7 +153,7 @@ def filter_portfolios(
         # If we have entry prices, calculate stop loss levels
         if config.get("ENTRY_PRICES"):
             normalized_portfolios = calculate_stop_loss_levels(
-                normalized_portfolios, config["ENTRY_PRICES"], log
+                normalized_portfolios, config["ENTRY_PRICES"], log,
             )
             log("Calculated stop loss levels based on entry prices", "info")
 
@@ -221,7 +221,7 @@ def execute_all_strategies(config: Config, log) -> list[dict[str, Any]]:
 
         # Pass progress update function directly to strategy execution
         portfolios = execute_strategy(
-            strategy_config, strategy_type, log, progress_update_fn
+            strategy_config, strategy_type, log, progress_update_fn,
         )
 
         # Check if portfolios is not None and not empty
@@ -302,7 +302,7 @@ def run(config: Config = CONFIG, external_log=None, progress_update_fn=None) -> 
 
         return _run_with_log(config, log_wrapper, progress_update_fn)
     with logging_context(
-        module_name="ma_cross", log_file="1_get_portfolios.log"
+        module_name="ma_cross", log_file="1_get_portfolios.log",
     ) as log:
         return _run_with_log(config, log, progress_update_fn)
 
@@ -351,7 +351,7 @@ def run_strategies(config: dict[str, Any] | None = None) -> bool:
         MACrossError: For other unexpected errors
     """
     with logging_context(
-        module_name="ma_cross", log_file="1_get_portfolios.log"
+        module_name="ma_cross", log_file="1_get_portfolios.log",
     ) as log:
         # Prepare config
         if config is not None and config:

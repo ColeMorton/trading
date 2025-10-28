@@ -98,7 +98,7 @@ def check_export_functionality() -> tuple[bool, list[str]]:
                         [
                             f"Export validation failed: {issue}"
                             for issue in validation_issues
-                        ]
+                        ],
                     )
         else:
             issues.append("No test portfolio file available for export testing")
@@ -157,7 +157,7 @@ def check_data_quality() -> tuple[bool, list[str]]:
             missing_columns = [col for col in required_columns if col not in df.columns]
             if missing_columns:
                 issues.append(
-                    f"Missing required columns in live_signals: {missing_columns}"
+                    f"Missing required columns in live_signals: {missing_columns}",
                 )
 
             # Check for open positions
@@ -169,12 +169,12 @@ def check_data_quality() -> tuple[bool, list[str]]:
                     # Check data quality of open positions
                     if open_positions["Current_Unrealized_PnL"].isnull().any():
                         issues.append(
-                            "Null values in Current_Unrealized_PnL for open positions"
+                            "Null values in Current_Unrealized_PnL for open positions",
                         )
 
                     if open_positions["Max_Favourable_Excursion"].isnull().any():
                         issues.append(
-                            "Null values in Max_Favourable_Excursion for open positions"
+                            "Null values in Max_Favourable_Excursion for open positions",
                         )
 
         except Exception as e:
@@ -229,7 +229,7 @@ def display_health_results(results: dict[str, tuple[bool, list[str]]]):
         console.print("[red]⚠️  Overall Status: ISSUES DETECTED[/red]")
         console.print("\n[yellow]💡 Recommendations:[/yellow]")
         console.print(
-            "1. Run: [code]python -m app.tools.spds_health_check --fix[/code]"
+            "1. Run: [code]python -m app.tools.spds_health_check --fix[/code]",
         )
         console.print("2. Check data files and directory structure")
         console.print("3. Verify export functionality manually")

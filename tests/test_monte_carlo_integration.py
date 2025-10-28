@@ -95,7 +95,7 @@ class TestMonteCarloReportIntegration:
         }
 
     def test_monte_carlo_in_json_report(
-        self, mock_strategies, mock_stats, mock_monte_carlo_results
+        self, mock_strategies, mock_stats, mock_monte_carlo_results,
     ):
         """Test Monte Carlo results inclusion in JSON report."""
         config = {
@@ -245,13 +245,13 @@ class TestMonteCarloRunnerIntegration:
             {
                 "Date": [pl.date(2023, 1, 1) + pl.duration(days=i) for i in range(30)],
                 "Close": [1000.0 + i for i in range(30)],
-            }
+            },
         )
         mock_download.return_value = mock_data
 
         # Run analysis
         result = run_analysis(
-            strategies=mock_strategies_for_runner, log=Mock(), config=test_config
+            strategies=mock_strategies_for_runner, log=Mock(), config=test_config,
         )
 
         assert result is True
@@ -273,7 +273,7 @@ class TestMonteCarloRunnerIntegration:
             {
                 "Date": [pl.date(2023, 1, 1) + pl.duration(days=i) for i in range(20)],
                 "Close": [1000.0 + i for i in range(20)],
-            }
+            },
         )
         mock_download.return_value = mock_data
 
@@ -295,7 +295,7 @@ class TestMonteCarloRunnerIntegration:
         ]
 
         config = create_monte_carlo_config(
-            {"MC_NUM_SIMULATIONS": 3, "MC_MAX_WORKERS": 1}
+            {"MC_NUM_SIMULATIONS": 3, "MC_MAX_WORKERS": 1},
         )
 
         manager = PortfolioMonteCarloManager(config=config, max_workers=1, log=Mock())
@@ -320,7 +320,7 @@ class TestMonteCarloRunnerIntegration:
 
             if strategy_type == "MACD":
                 signal_period = strategy.get("signal_period") or strategy.get(
-                    "SIGNAL_PERIOD"
+                    "SIGNAL_PERIOD",
                 )
                 if signal_period:
                     portfolio_strategy["Signal Period"] = signal_period
@@ -398,7 +398,7 @@ class TestMonteCarloCSVPortfolioIntegration:
                 "Fast Period": 12,
                 "Slow Period": 26,
                 # Missing Signal Period
-            }
+            },
         ]
 
         config = create_monte_carlo_config({"MC_NUM_SIMULATIONS": 1})
@@ -457,7 +457,7 @@ ETH-USD,EMA,15,30,"""
                         pl.date(2023, 1, 1) + pl.duration(days=i) for i in range(30)
                     ],
                     "Close": [1000.0 + i * 5 + np.sin(i * 0.2) * 20 for i in range(30)],
-                }
+                },
             )
             mock_download.return_value = mock_data
 
@@ -476,10 +476,10 @@ ETH-USD,EMA,15,30,"""
             # Mock the concurrency analysis components
             with (
                 patch(
-                    "app.concurrency.tools.runner.process_strategies"
+                    "app.concurrency.tools.runner.process_strategies",
                 ) as mock_process,
                 patch(
-                    "app.concurrency.tools.runner.analyze_concurrency"
+                    "app.concurrency.tools.runner.analyze_concurrency",
                 ) as mock_analyze,
                 patch("app.concurrency.tools.runner.save_json_report") as mock_save,
             ):
@@ -506,7 +506,7 @@ ETH-USD,EMA,15,30,"""
 
                 # Run the analysis
                 result = run_analysis(
-                    strategies=mock_strategies, log=Mock(), config=config
+                    strategies=mock_strategies, log=Mock(), config=config,
                 )
 
                 assert result is True
@@ -548,7 +548,7 @@ ETH-USD,EMA,15,30,"""
     def test_error_resilience_in_workflow(self):
         """Test that the workflow is resilient to various errors."""
         config = create_monte_carlo_config(
-            {"MC_NUM_SIMULATIONS": 2, "MC_MAX_WORKERS": 1}
+            {"MC_NUM_SIMULATIONS": 2, "MC_MAX_WORKERS": 1},
         )
         manager = PortfolioMonteCarloManager(config=config, max_workers=1, log=Mock())
 

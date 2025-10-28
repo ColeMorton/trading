@@ -86,7 +86,7 @@ class TestCalculateComponentPosition:
         dates = pd.date_range("2024-01-01", periods=100, freq="D")
         prices = 100 + np.cumsum(np.random.randn(100) * 2)
 
-        data = pl.DataFrame(
+        return pl.DataFrame(
             {
                 "Date": dates,
                 "Open": prices,
@@ -94,9 +94,8 @@ class TestCalculateComponentPosition:
                 "Low": prices - np.random.rand(100) * 2,
                 "Close": prices + np.random.randn(100),
                 "Volume": np.random.randint(1000000, 10000000, 100),
-            }
+            },
         )
-        return data
 
     @pytest.fixture
     def config(self):
@@ -120,17 +119,17 @@ class TestCalculateComponentPosition:
         }
 
         with patch(
-            "app.strategies.comp.calculator.calculate_ma_and_signals"
+            "app.strategies.comp.calculator.calculate_ma_and_signals",
         ) as mock_calc:
             # Mock returns data with Position column
             mock_data = sample_data.clone()
             mock_data = mock_data.with_columns(
-                [pl.Series("Position", [0, 1, 1, 0] * 25)]
+                [pl.Series("Position", [0, 1, 1, 0] * 25)],
             )
             mock_calc.return_value = mock_data
 
             position = calculate_component_position(
-                sample_data, strategy, config, log_func
+                sample_data, strategy, config, log_func,
             )
 
             assert position is not None
@@ -146,14 +145,14 @@ class TestCalculateComponentPosition:
         }
 
         with patch(
-            "app.strategies.comp.calculator.calculate_ma_and_signals"
+            "app.strategies.comp.calculator.calculate_ma_and_signals",
         ) as mock_calc:
             mock_data = sample_data.clone()
             mock_data = mock_data.with_columns([pl.Series("Position", [1] * 100)])
             mock_calc.return_value = mock_data
 
             position = calculate_component_position(
-                sample_data, strategy, config, log_func
+                sample_data, strategy, config, log_func,
             )
 
             assert position is not None
@@ -169,21 +168,21 @@ class TestCalculateComponentPosition:
         }
 
         with patch(
-            "app.strategies.comp.calculator.calculate_macd_and_signals"
+            "app.strategies.comp.calculator.calculate_macd_and_signals",
         ) as mock_calc:
             mock_data = sample_data.clone()
             mock_data = mock_data.with_columns([pl.Series("Position", [0] * 100)])
             mock_calc.return_value = mock_data
 
             position = calculate_component_position(
-                sample_data, strategy, config, log_func
+                sample_data, strategy, config, log_func,
             )
 
             assert position is not None
             assert all(position == 0)
 
     def test_calculate_component_position_unsupported(
-        self, sample_data, config, log_func
+        self, sample_data, config, log_func,
     ):
         """Test that unsupported strategy type returns None."""
         strategy = {
@@ -280,7 +279,7 @@ class TestGenerateCompoundSignals:
                 ],
                 "num_in_position": [1, 2, 3, 3, 4, 3, 3, 2, 2, 1],
                 "total_strategies": [5] * 10,
-            }
+            },
         )
 
         result = generate_compound_signals(data, threshold=50.0, log=log_func)
@@ -315,7 +314,7 @@ class TestGenerateCompoundSignals:
                 ],
                 "num_in_position": [3, 4, 3, 3, 2, 2, 1, 1, 2, 2],
                 "total_strategies": [5] * 10,
-            }
+            },
         )
 
         result = generate_compound_signals(data, threshold=50.0, log=log_func)
@@ -348,7 +347,7 @@ class TestGenerateCompoundSignals:
                 ],
                 "num_in_position": [3] * 10,
                 "total_strategies": [5] * 10,
-            }
+            },
         )
 
         result = generate_compound_signals(data, threshold=50.0, log=log_func)
@@ -367,8 +366,7 @@ class TestCalculateCompoundStrategy:
             f.write("Ticker,Strategy Type,Fast Period,Slow Period,Signal Period\n")
             f.write("BTC-USD,SMA,10,20,9\n")
             f.write("BTC-USD,EMA,12,26,9\n")
-            csv_path = f.name
-        return csv_path
+            return f.name
 
     @pytest.fixture
     def sample_data(self):
@@ -384,7 +382,7 @@ class TestCalculateCompoundStrategy:
                 "Low": prices - 2,
                 "Close": prices,
                 "Volume": [1000000] * 100,
-            }
+            },
         )
 
     def test_calculate_compound_strategy_success(self, sample_csv, sample_data):
@@ -393,13 +391,13 @@ class TestCalculateCompoundStrategy:
         log_func = Mock()
 
         with patch(
-            "app.strategies.comp.calculator.calculate_component_position"
+            "app.strategies.comp.calculator.calculate_component_position",
         ) as mock_pos:
             # Mock component positions
             mock_pos.return_value = pl.Series([1, 0, 1, 0] * 25)
 
             result = calculate_compound_strategy(
-                sample_data, sample_csv, config, log_func
+                sample_data, sample_csv, config, log_func,
             )
 
             assert result is not None
@@ -422,7 +420,7 @@ class TestCalculateCompoundStrategy:
             log_func = Mock()
 
             result = calculate_compound_strategy(
-                sample_data, csv_path, config, log_func
+                sample_data, csv_path, config, log_func,
             )
 
             assert result is None

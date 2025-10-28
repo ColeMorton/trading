@@ -21,7 +21,7 @@ from app.tools.portfolio.strategy_types import derive_use_sma
 
 
 def get_best_portfolios_per_strategy_type(
-    portfolios: pl.DataFrame, config: Config, log: Callable
+    portfolios: pl.DataFrame, config: Config, log: Callable,
 ) -> list[dict]:
     """
     Get the best portfolio for each strategy type based on consistent parameter combinations.
@@ -68,7 +68,7 @@ def get_best_portfolios_per_strategy_type(
 
             for strategy_type in unique_strategy_types:
                 strategy_portfolios = portfolios.filter(
-                    pl.col("Strategy Type") == strategy_type
+                    pl.col("Strategy Type") == strategy_type,
                 )
                 log(
                     f"Processing {len(strategy_portfolios)} portfolios for {strategy_type}",
@@ -76,7 +76,7 @@ def get_best_portfolios_per_strategy_type(
                 )
 
                 best_portfolio = _get_best_single_strategy_portfolio(
-                    strategy_portfolios, config, log
+                    strategy_portfolios, config, log,
                 )
                 if best_portfolio:
                     best_portfolios.append(best_portfolio)
@@ -92,7 +92,7 @@ def get_best_portfolios_per_strategy_type(
         else:
             # Legacy mode - use single strategy selection
             best_portfolio = _get_best_single_strategy_portfolio(
-                portfolios, config, log
+                portfolios, config, log,
             )
             if best_portfolio:
                 best_portfolios.append(best_portfolio)
@@ -109,7 +109,7 @@ def get_best_portfolios_per_strategy_type(
 
 
 def get_best_portfolio(
-    portfolios: pl.DataFrame, config: Config, log: Callable
+    portfolios: pl.DataFrame, config: Config, log: Callable,
 ) -> dict | None:
     """
     Legacy compatibility function - returns single best portfolio.
@@ -130,7 +130,7 @@ def get_best_portfolio(
 
 
 def _get_best_single_strategy_portfolio(
-    portfolios: pl.DataFrame, config: Config, log: Callable
+    portfolios: pl.DataFrame, config: Config, log: Callable,
 ) -> dict | None:
     """
     Internal function to get best portfolio for a single strategy type.
@@ -214,7 +214,7 @@ def _get_best_single_strategy_portfolio(
 
         # Function to check if combination appears enough times
         def check_combination_frequency(
-            df: pl.DataFrame, required_count: int
+            df: pl.DataFrame, required_count: int,
         ) -> tuple | None:
             combinations = df.select([fast_col, slow_col]).to_dicts()
             combo_count = {}
@@ -229,11 +229,11 @@ def _get_best_single_strategy_portfolio(
         # 1. All top 3 have same combination
         if result := check_combination_frequency(top_3, 3):
             log(
-                f"Found matching combination in top 3: {fast_col}={result[0]}, {slow_col}={result[1]}"
+                f"Found matching combination in top 3: {fast_col}={result[0]}, {slow_col}={result[1]}",
             )
             portfolio = (
                 sorted_portfolios.filter(
-                    (pl.col(fast_col) == result[0]) & (pl.col(slow_col) == result[1])
+                    (pl.col(fast_col) == result[0]) & (pl.col(slow_col) == result[1]),
                 )
                 .head(1)
                 .to_dicts()[0]
@@ -253,13 +253,13 @@ def _get_best_single_strategy_portfolio(
             # Normalize portfolio data to handle Allocation [%] and Stop Loss [%]
             # columns
             normalized_portfolio_list = normalize_portfolio_data(
-                portfolio_list, schema_version, log
+                portfolio_list, schema_version, log,
             )
 
             # Ensure allocation values sum to 100% if they exist
             if schema_version == SchemaVersion.EXTENDED:
                 normalized_portfolio_list = ensure_allocation_sum_100_percent(
-                    normalized_portfolio_list, log
+                    normalized_portfolio_list, log,
                 )
 
             normalized_portfolio = normalized_portfolio_list[0]
@@ -285,11 +285,11 @@ def _get_best_single_strategy_portfolio(
         # 2. 3 out of top 5 have same combination
         if result := check_combination_frequency(top_5, 3):
             log(
-                f"Found matching combination in top 5: {fast_col}={result[0]}, {slow_col}={result[1]}"
+                f"Found matching combination in top 5: {fast_col}={result[0]}, {slow_col}={result[1]}",
             )
             portfolio = (
                 sorted_portfolios.filter(
-                    (pl.col(fast_col) == result[0]) & (pl.col(slow_col) == result[1])
+                    (pl.col(fast_col) == result[0]) & (pl.col(slow_col) == result[1]),
                 )
                 .head(1)
                 .to_dicts()[0]
@@ -309,13 +309,13 @@ def _get_best_single_strategy_portfolio(
             # Normalize portfolio data to handle Allocation [%] and Stop Loss [%]
             # columns
             normalized_portfolio_list = normalize_portfolio_data(
-                portfolio_list, schema_version, log
+                portfolio_list, schema_version, log,
             )
 
             # Ensure allocation values sum to 100% if they exist
             if schema_version == SchemaVersion.EXTENDED:
                 normalized_portfolio_list = ensure_allocation_sum_100_percent(
-                    normalized_portfolio_list, log
+                    normalized_portfolio_list, log,
                 )
 
             normalized_portfolio = normalized_portfolio_list[0]
@@ -341,11 +341,11 @@ def _get_best_single_strategy_portfolio(
         # 3. 5 out of top 8 have same combination
         if result := check_combination_frequency(top_8, 5):
             log(
-                f"Found matching combination in top 8: {fast_col}={result[0]}, {slow_col}={result[1]}"
+                f"Found matching combination in top 8: {fast_col}={result[0]}, {slow_col}={result[1]}",
             )
             portfolio = (
                 sorted_portfolios.filter(
-                    (pl.col(fast_col) == result[0]) & (pl.col(slow_col) == result[1])
+                    (pl.col(fast_col) == result[0]) & (pl.col(slow_col) == result[1]),
                 )
                 .head(1)
                 .to_dicts()[0]
@@ -365,13 +365,13 @@ def _get_best_single_strategy_portfolio(
             # Normalize portfolio data to handle Allocation [%] and Stop Loss [%]
             # columns
             normalized_portfolio_list = normalize_portfolio_data(
-                portfolio_list, schema_version, log
+                portfolio_list, schema_version, log,
             )
 
             # Ensure allocation values sum to 100% if they exist
             if schema_version == SchemaVersion.EXTENDED:
                 normalized_portfolio_list = ensure_allocation_sum_100_percent(
-                    normalized_portfolio_list, log
+                    normalized_portfolio_list, log,
                 )
 
             normalized_portfolio = normalized_portfolio_list[0]
@@ -398,11 +398,11 @@ def _get_best_single_strategy_portfolio(
         top_2 = sorted_portfolios.head(2)
         if result := check_combination_frequency(top_2, 2):
             log(
-                f"Found matching combination in top 2: {fast_col}={result[0]}, {slow_col}={result[1]}"
+                f"Found matching combination in top 2: {fast_col}={result[0]}, {slow_col}={result[1]}",
             )
             portfolio = (
                 sorted_portfolios.filter(
-                    (pl.col(fast_col) == result[0]) & (pl.col(slow_col) == result[1])
+                    (pl.col(fast_col) == result[0]) & (pl.col(slow_col) == result[1]),
                 )
                 .head(1)
                 .to_dicts()[0]
@@ -422,13 +422,13 @@ def _get_best_single_strategy_portfolio(
             # Normalize portfolio data to handle Allocation [%] and Stop Loss [%]
             # columns
             normalized_portfolio_list = normalize_portfolio_data(
-                portfolio_list, schema_version, log
+                portfolio_list, schema_version, log,
             )
 
             # Ensure allocation values sum to 100% if they exist
             if schema_version == SchemaVersion.EXTENDED:
                 normalized_portfolio_list = ensure_allocation_sum_100_percent(
-                    normalized_portfolio_list, log
+                    normalized_portfolio_list, log,
                 )
 
             normalized_portfolio = normalized_portfolio_list[0]

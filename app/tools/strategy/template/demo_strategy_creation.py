@@ -58,7 +58,7 @@ def demo_basic_rsi_strategy():
     print(f"Strategy Type: {config.strategy_type.value}")
     print(f"Primary Indicator: {config.primary_indicator.value.upper()}")
     print(
-        f"Secondary Indicators: {[ind.value.upper() for ind in config.secondary_indicators]}"
+        f"Secondary Indicators: {[ind.value.upper() for ind in config.secondary_indicators]}",
     )
     print()
 
@@ -124,7 +124,7 @@ def demo_advanced_macd_strategy():
     print(f"Strategy Type: {config.strategy_type.value.upper()}")
     print(f"Primary Indicator: {config.primary_indicator.value.upper()}")
     print(
-        f"Secondary Indicators: {', '.join(ind.value.upper() for ind in config.secondary_indicators)}"
+        f"Secondary Indicators: {', '.join(ind.value.upper() for ind in config.secondary_indicators)}",
     )
     print(f"Position Sizing: {config.position_sizing.title()}")
     print()
@@ -147,7 +147,7 @@ def demo_advanced_macd_strategy():
     # Generate strategy (dry run)
     files = generator.generate_strategy(config, dry_run=True)
     print(
-        f"Would generate {len(files)} files with {sum(len(content) for content in files.values())} total characters"
+        f"Would generate {len(files)} files with {sum(len(content) for content in files.values())} total characters",
     )
     print()
 
@@ -272,7 +272,7 @@ def demo_validation_and_testing():
     total_lines = sum(content.count("\n") + 1 for content in files.values())
     total_chars = sum(len(content) for content in files.values())
     print(
-        f"\nTotal: {total_lines} lines, {total_chars} characters across {len(files)} files"
+        f"\nTotal: {total_lines} lines, {total_chars} characters across {len(files)} files",
     )
     print()
 
@@ -389,17 +389,17 @@ def main():
         print("=" * 60)
         print("Next Steps:")
         print(
-            "1. Try the interactive CLI: python -m app.tools.strategy.template.cli interactive"
+            "1. Try the interactive CLI: python -m app.tools.strategy.template.cli interactive",
         )
         print(
-            "2. Create a real strategy: python -m app.tools.strategy.template.cli create my_strategy"
+            "2. Create a real strategy: python -m app.tools.strategy.template.cli create my_strategy",
         )
         print(
-            "3. Run the generated tests: pytest app/strategies/my_strategy/test_strategy.py"
+            "3. Run the generated tests: pytest app/strategies/my_strategy/test_strategy.py",
         )
         print("4. Customize the strategy logic in tools/strategy_execution.py")
         print(
-            "5. Execute the strategy: python app/strategies/my_strategy/1_get_portfolios.py"
+            "5. Execute the strategy: python app/strategies/my_strategy/1_get_portfolios.py",
         )
         print()
 

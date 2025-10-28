@@ -43,20 +43,20 @@ def get_current_signals(
                 if fast < slow:  # Ensure fast period is always less than slow period
                     temp_data = data.clone()
                     temp_data = calculate_ma_and_signals(
-                        temp_data, fast, slow, config, log, strategy_type
+                        temp_data, fast, slow, config, log, strategy_type,
                     )
 
                     if temp_data is not None and len(temp_data) > 0:
                         current = is_signal_current(temp_data, config)
                         if current:
                             signals.append(
-                                {"Fast Period": int(fast), "Slow Period": int(slow)}
+                                {"Fast Period": int(fast), "Slow Period": int(slow)},
                             )
 
         # Create DataFrame with explicit schema
         if signals:
             return pl.DataFrame(
-                signals, schema={"Fast Period": pl.Int32, "Slow Period": pl.Int32}
+                signals, schema={"Fast Period": pl.Int32, "Slow Period": pl.Int32},
             )
         return pl.DataFrame(schema={"Fast Period": pl.Int32, "Slow Period": pl.Int32})
     except Exception as e:
@@ -97,7 +97,7 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
                 if "TICKER_2" not in config_copy:
                     config_copy["TICKER_2"] = ticker_parts[1]
                 log(
-                    f"Extracted ticker components: {config_copy['TICKER_1']} and {config_copy['TICKER_2']}"
+                    f"Extracted ticker components: {config_copy['TICKER_1']} and {config_copy['TICKER_2']}",
                 )
 
         # Get data for the actual ticker first to determine last trading day
@@ -110,7 +110,7 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
         if data is None:
             log("Failed to get price data", "error")
             return pl.DataFrame(
-                schema={"Fast Period": pl.Int32, "Slow Period": pl.Int32}
+                schema={"Fast Period": pl.Int32, "Slow Period": pl.Int32},
             )
 
         # Set the last trading day from the data
@@ -139,7 +139,7 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
         if fast_period is not None and slow_period is not None:
             # Use specific windows from config
             current_signals = get_current_signals(
-                data, [fast_period], [slow_period], config, log
+                data, [fast_period], [slow_period], config, log,
             )
         else:
             # Use window permutations from explicit ranges for full analysis
@@ -165,7 +165,7 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
                     if windows is None or windows < 2:
                         log("Missing or invalid WINDOWS parameter", "error")
                         return pl.DataFrame(
-                            schema={"Fast Period": pl.Int32, "Slow Period": pl.Int32}
+                            schema={"Fast Period": pl.Int32, "Slow Period": pl.Int32},
                         )
                     # Legacy behavior
                     fast_periods = list(np.arange(2, windows))
@@ -184,7 +184,7 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
                 slow_periods = list(np.arange(slow_range[0], slow_range[1] + 1))
 
             current_signals = get_current_signals(
-                data, fast_periods, slow_periods, config, log
+                data, fast_periods, slow_periods, config, log,
             )
 
         if not config.get("USE_SCANNER", False):
@@ -229,13 +229,12 @@ def process_ma_signals(
             "USE_SMA": ma_type == "SMA",
             "FAST_PERIOD": fast_period,
             "SLOW_PERIOD": slow_period,
-        }
+        },
     )
 
     signals = generate_current_signals(ma_config, log)
 
-    is_current = check_signal_match(
-        signals.to_dicts() if len(signals) > 0 else [], fast_period, slow_period
+    return check_signal_match(
+        signals.to_dicts() if len(signals) > 0 else [], fast_period, slow_period,
     )
 
-    return is_current

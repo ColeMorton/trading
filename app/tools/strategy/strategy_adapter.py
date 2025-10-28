@@ -58,8 +58,9 @@ class StrategyAdapter:
             if isinstance(strategy, StrategyInterface):
                 # Validate parameters before execution
                 if not strategy.validate_parameters(config):
+                    msg = f"Invalid parameters for strategy {strategy_type}"
                     raise StrategyError(
-                        f"Invalid parameters for strategy {strategy_type}"
+                        msg,
                     )
 
                 # Execute using the unified interface
@@ -69,7 +70,8 @@ class StrategyAdapter:
             return self._execute_legacy_strategy(strategy, config, log)
 
         except Exception as e:
-            raise StrategyError(f"Failed to execute strategy {strategy_type}: {e}")
+            msg = f"Failed to execute strategy {strategy_type}: {e}"
+            raise StrategyError(msg)
 
     def _map_legacy_strategy_type(self, strategy_type: str) -> str:
         """Map legacy strategy types to unified strategy types."""
@@ -85,7 +87,7 @@ class StrategyAdapter:
         return mapping.get(strategy_type.upper(), strategy_type.upper())
 
     def _execute_legacy_strategy(
-        self, strategy, config: dict[str, Any], log: Callable[[str, str], None]
+        self, strategy, config: dict[str, Any], log: Callable[[str, str], None],
     ) -> list[dict[str, Any]]:
         """Execute legacy strategy that doesn't implement StrategyInterface."""
         # This is a fallback for strategies that haven't been migrated yet
@@ -163,7 +165,7 @@ class StrategyAdapter:
         return defaults.get(strategy_type.upper(), {})
 
     def validate_strategy_parameters(
-        self, strategy_type: str, config: dict[str, Any]
+        self, strategy_type: str, config: dict[str, Any],
     ) -> bool:
         """
         Validate parameters for a strategy type using unified configuration system.
@@ -194,7 +196,7 @@ class StrategyAdapter:
                 return False
 
     def _validate_legacy_parameters(
-        self, strategy_type: str, config: dict[str, Any]
+        self, strategy_type: str, config: dict[str, Any],
     ) -> bool:
         """Basic parameter validation for legacy strategies."""
         required_params = ["FAST_PERIOD", "SLOW_PERIOD"]

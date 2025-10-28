@@ -22,6 +22,7 @@ from ..models.schemas import (
 )
 from ..services.job_service import JobService
 from ..services.queue_service import enqueue_job
+from typing import Annotated
 
 
 router = APIRouter()
@@ -30,8 +31,8 @@ router = APIRouter()
 @router.post("/run", response_model=JobResponse)
 async def strategy_run(
     request: StrategyRunRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("strategy")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("strategy"))],
 ):
     """
     Execute strategy run command.
@@ -78,10 +79,10 @@ async def strategy_run(
 
 @router.post("/sweep", response_model=JobResponse)
 async def strategy_sweep(
-    request: StrategySweepRequest = Body(...),
+    request: Annotated[StrategySweepRequest, Body(...)],
     # Dependencies
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("strategy")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("strategy"))],
 ):
     """
     Execute parameter sweep analysis.
@@ -157,8 +158,8 @@ async def strategy_sweep(
 @router.post("/review", response_model=JobResponse)
 async def strategy_review(
     request: StrategyReviewRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("strategy")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("strategy"))],
 ):
     """
     Execute detailed strategy review.
@@ -204,8 +205,8 @@ async def strategy_review(
 @router.post("/sector-compare", response_model=JobResponse)
 async def sector_compare(
     request: SectorCompareRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("strategy")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("strategy"))],
 ):
     """
     Compare strategy performance across sectors.

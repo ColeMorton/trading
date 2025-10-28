@@ -78,7 +78,7 @@ class TestAdvancedStrategyIntegration:
 
     @stabilize_integration_test(tickers=["AAPL", "MSFT", "GOOGL"], timeout_override=45)
     def test_full_pipeline_data_to_export_integration(
-        self, integration_workspace, mock_strategy_factory
+        self, integration_workspace, mock_strategy_factory,
     ):
         """
         Test complete pipeline: Data acquisition → Strategy execution → Portfolio generation → Export
@@ -102,7 +102,7 @@ class TestAdvancedStrategyIntegration:
 
         # Step 2: Mock complete strategy pipeline
         with patch(
-            "app.cli.services.strategy_services.MAStrategyService"
+            "app.cli.services.strategy_services.MAStrategyService",
         ) as mock_service:
             mock_service.return_value.execute_strategy.return_value = True
             mock_service.return_value.convert_config_to_legacy.return_value = {
@@ -169,7 +169,7 @@ class TestAdvancedStrategyIntegration:
 
             # Modify profile state
             editor_service.set_field_value(
-                loaded_profile, "config.ticker", "AAPL,MSFT,GOOGL"
+                loaded_profile, "config.ticker", "AAPL,MSFT,GOOGL",
             )
 
             # Save modified profile
@@ -182,7 +182,7 @@ class TestAdvancedStrategyIntegration:
         # Step 4: Test portfolio service with modified state
         mock_tickers = loaded_profile["config"]["ticker"]
         with patch.object(
-            portfolio_service, "aggregate_portfolios_best"
+            portfolio_service, "aggregate_portfolios_best",
         ) as mock_aggregate:
             import pandas as pd
 
@@ -191,7 +191,7 @@ class TestAdvancedStrategyIntegration:
                     "Ticker": mock_tickers * 2,
                     "Score": [0.8, 0.75, 0.9, 0.82, 0.77, 0.88],
                     "Strategy Type": ["SMA"] * 6,
-                }
+                },
             )
             mock_aggregate.return_value = mock_df
 
@@ -248,7 +248,7 @@ config:
 
         # Step 3: Load and validate complex configuration
         profile_loader = ProfileLoader(
-            str(integration_workspace / "app" / "cli" / "profiles")
+            str(integration_workspace / "app" / "cli" / "profiles"),
         )
 
         try:
@@ -279,7 +279,7 @@ config:
 
     @pytest.mark.slow
     @stabilize_integration_test(
-        tickers=["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"], timeout_override=60
+        tickers=["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"], timeout_override=60,
     )
     def test_large_scale_integration_workflow(self, integration_workspace):
         """
@@ -307,7 +307,7 @@ config:
             years=2,  # Reduce for testing performance
             multi_ticker=True,
             minimums=StrategyMinimums(
-                win_rate=0.5, trades=20
+                win_rate=0.5, trades=20,
             ),  # Lower for more results
         )
 
@@ -356,10 +356,10 @@ config:
 
         # Step 1: Create multiple service instances with different states
         service1 = PortfolioAnalysisService(
-            str(integration_workspace), use_current=True
+            str(integration_workspace), use_current=True,
         )
         service2 = PortfolioAnalysisService(
-            str(integration_workspace), use_current=False
+            str(integration_workspace), use_current=False,
         )
 
         # Step 2: Create temporary files in workspace
@@ -421,11 +421,11 @@ class TestCrossComponentCommunication:
 
         # Step 2: Test data flow between services
         test_profile = {
-            "config": {"ticker": ["AAPL", "MSFT"], "minimums": {"win_rate": 0.6}}
+            "config": {"ticker": ["AAPL", "MSFT"], "minimums": {"win_rate": 0.6}},
         }
 
         with patch.object(
-            config_manager.profile_manager, "load_profile", return_value=test_profile
+            config_manager.profile_manager, "load_profile", return_value=test_profile,
         ):
             # Load profile through editor
             profile_data = editor_service.load_profile("test_profile")
@@ -435,12 +435,12 @@ class TestCrossComponentCommunication:
 
             # Use tickers in portfolio service
             with patch.object(
-                portfolio_service, "aggregate_portfolios_best"
+                portfolio_service, "aggregate_portfolios_best",
             ) as mock_aggregate:
                 import pandas as pd
 
                 mock_aggregate.return_value = pd.DataFrame(
-                    {"Ticker": tickers, "Score": [0.8, 0.75]}
+                    {"Ticker": tickers, "Score": [0.8, 0.75]},
                 )
 
                 result = portfolio_service.aggregate_portfolios_best(tickers)
@@ -463,7 +463,7 @@ class TestCrossComponentCommunication:
         with (
             patch("app.cli.commands.config.ConfigManager"),
             patch(
-                "app.cli.services.profile_editor_service.ProfileEditorService"
+                "app.cli.services.profile_editor_service.ProfileEditorService",
             ) as mock_service_class,
         ):
             # Setup mocks
@@ -487,12 +487,12 @@ class TestCrossComponentCommunication:
 
         def event_logger(event_type, **kwargs):
             events.append(
-                {"type": event_type, "data": kwargs, "timestamp": time.time()}
+                {"type": event_type, "data": kwargs, "timestamp": time.time()},
             )
 
         # Step 2: Mock components with event emission
         with patch(
-            "app.cli.services.portfolio_analysis_service.PortfolioAnalysisService"
+            "app.cli.services.portfolio_analysis_service.PortfolioAnalysisService",
         ) as MockService:
             mock_service = MockService.return_value
 
@@ -502,7 +502,7 @@ class TestCrossComponentCommunication:
                 import pandas as pd
 
                 result = pd.DataFrame(
-                    {"Ticker": tickers, "Score": [0.8] * len(tickers)}
+                    {"Ticker": tickers, "Score": [0.8] * len(tickers)},
                 )
                 event_logger("portfolio_aggregation_complete", result_count=len(result))
                 return result

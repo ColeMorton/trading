@@ -108,7 +108,7 @@ def run(config: Config = config) -> bool:
         Exception: If analysis fails
     """
     log, log_close, _, _ = setup_logging(
-        module_name="ma_cross", log_file="5_review_slippage.log"
+        module_name="ma_cross", log_file="5_review_slippage.log",
     )
 
     try:

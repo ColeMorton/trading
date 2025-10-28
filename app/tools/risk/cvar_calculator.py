@@ -39,7 +39,8 @@ class CVaRCalculator:
             json.JSONDecodeError: If file is not valid JSON
         """
         if not file_path.exists():
-            raise FileNotFoundError(f"File not found: {file_path}")
+            msg = f"File not found: {file_path}"
+            raise FileNotFoundError(msg)
 
         with open(file_path) as f:
             return json.load(f)
@@ -66,7 +67,8 @@ class CVaRCalculator:
             ]
             return float(cvar_95)
         except KeyError as e:
-            raise KeyError(f"Missing expected key in trades.json: {e}")
+            msg = f"Missing expected key in trades.json: {e}"
+            raise KeyError(msg)
 
     def calculate_investment_cvar(self) -> float:
         """Calculate CVaR 95% for investment portfolio.
@@ -90,7 +92,8 @@ class CVaRCalculator:
             ]
             return float(cvar_95)
         except KeyError as e:
-            raise KeyError(f"Missing expected key in portfolio.json: {e}")
+            msg = f"Missing expected key in portfolio.json: {e}"
+            raise KeyError(msg)
 
     def get_portfolio_risk_metrics(self) -> dict[str, float]:
         """Get comprehensive portfolio risk metrics.
@@ -139,8 +142,9 @@ class CVaRCalculator:
         strategy_file = self.strategies_dir / f"{strategy_name}.csv"
 
         if not strategy_file.exists():
+            msg = f"Strategy backtest file not found: {strategy_file}"
             raise FileNotFoundError(
-                f"Strategy backtest file not found: {strategy_file}"
+                msg,
             )
 
         return pl.read_csv(strategy_file)

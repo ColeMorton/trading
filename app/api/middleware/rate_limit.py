@@ -31,7 +31,7 @@ class SSERateLimiter(BaseHTTPMiddleware):
     """
 
     def __init__(
-        self, app, max_concurrent: int | None = None, max_duration: int | None = None
+        self, app, max_concurrent: int | None = None, max_duration: int | None = None,
     ):
         """
         Initialize SSE rate limiter.
@@ -97,8 +97,7 @@ class SSERateLimiter(BaseHTTPMiddleware):
 
         try:
             # Process request
-            response = await call_next(request)
-            return response
+            return await call_next(request)
 
         finally:
             # Remove connection when done

@@ -134,7 +134,7 @@ class CSVDirectoryScanner:
                     # Unknown file type
                     file_result["schema_type"] = "unknown"
                     file_result["issues"].append(
-                        "Unknown file type - cannot validate schema"
+                        "Unknown file type - cannot validate schema",
                     )
 
                 # Additional validation for non-empty files
@@ -199,7 +199,7 @@ class CSVDirectoryScanner:
         # Check column count
         if len(headers) != CANONICAL_COLUMN_COUNT:
             validation_result["issues"].append(
-                f"Expected {CANONICAL_COLUMN_COUNT} columns, got {len(headers)}"
+                f"Expected {CANONICAL_COLUMN_COUNT} columns, got {len(headers)}",
             )
 
         # Check column names and order
@@ -210,18 +210,18 @@ class CSVDirectoryScanner:
 
             if missing_columns:
                 validation_result["issues"].append(
-                    f"Missing columns: {', '.join(sorted(missing_columns))}"
+                    f"Missing columns: {', '.join(sorted(missing_columns))}",
                 )
 
             if extra_columns:
                 validation_result["issues"].append(
-                    f"Extra columns: {', '.join(sorted(extra_columns))}"
+                    f"Extra columns: {', '.join(sorted(extra_columns))}",
                 )
 
             # Check order if columns match
             if not missing_columns and not extra_columns:
                 validation_result["issues"].append(
-                    "Column order doesn't match canonical schema"
+                    "Column order doesn't match canonical schema",
                 )
 
         # Mark as compliant if no issues
@@ -251,7 +251,7 @@ class CSVDirectoryScanner:
 
         if missing_price_columns:
             validation_result["issues"].append(
-                f"Missing price data columns: {', '.join(sorted(missing_price_columns))}"
+                f"Missing price data columns: {', '.join(sorted(missing_price_columns))}",
             )
         else:
             validation_result["is_compliant"] = True
@@ -302,7 +302,7 @@ class CSVDirectoryScanner:
                     f"   Files: {directory_files} | Compliant: {directory_compliant} | Non-compliant: {directory_non_compliant}",
                     f"   Compliance Rate: {compliance_rate:.1f}%",
                     "",
-                ]
+                ],
             )
 
             # Show details for non-compliant files
@@ -337,7 +337,7 @@ class CSVDirectoryScanner:
                 f"Overall Compliance Rate: {overall_compliance:.1f}%",
                 f"Status: {overall_status}",
                 "",
-            ]
+            ],
         )
 
         return "\n".join(report_lines)

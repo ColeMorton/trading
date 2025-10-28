@@ -71,7 +71,7 @@ def calculate_atr(data: pd.DataFrame, length: int) -> pd.Series:
     # Create a DataFrame with the three components, ensuring it has the same
     # index as the input data
     ranges = pd.DataFrame(
-        {"HL": high_low, "HC": high_close, "LC": low_close}, index=data.index
+        {"HL": high_low, "HC": high_close, "LC": low_close}, index=data.index,
     )
 
     # Calculate the true range as the maximum of the three components
@@ -112,7 +112,7 @@ def calculate_atr_trailing_stop(
 
 
 def generate_signals(
-    data: pd.DataFrame, atr_length: int, atr_multiplier: float
+    data: pd.DataFrame, atr_length: int, atr_multiplier: float,
 ) -> pd.DataFrame:
     """
     Generate trading signals based on ATR Trailing Stop using optimized operations.
@@ -126,7 +126,7 @@ def generate_signals(
         pd.DataFrame: Data with signals
     """
     log(
-        f"Generating signals with ATR length: {atr_length}, multiplier: {atr_multiplier}"
+        f"Generating signals with ATR length: {atr_length}, multiplier: {atr_multiplier}",
     )
 
     # Debug input data
@@ -161,7 +161,7 @@ def generate_signals(
             # Check if values are 2D and flatten if needed
             if hasattr(data[col].values, "shape") and len(data[col].values.shape) > 1:
                 log(
-                    f"DEBUG: Flattening {col} values from shape {data[col].values.shape}"
+                    f"DEBUG: Flattening {col} values from shape {data[col].values.shape}",
                 )
                 data[col] = pd.Series(data[col].values.flatten(), index=data.index)
 
@@ -172,11 +172,11 @@ def generate_signals(
     data["Signal"] = pd.Series(np.zeros(len(data)), index=data.index)
     data["ATR_Trailing_Stop"] = pd.Series(np.full(len(data), np.nan), index=data.index)
     data["Highest_Since_Entry"] = pd.Series(
-        np.full(len(data), np.nan), index=data.index
+        np.full(len(data), np.nan), index=data.index,
     )
 
     log(
-        f"Data shape after initialization: {data.shape}, columns: {data.columns.tolist()}"
+        f"Data shape after initialization: {data.shape}, columns: {data.columns.tolist()}",
     )
 
     # Skip first row due to ATR calculation requiring previous values
@@ -200,14 +200,14 @@ def generate_signals(
         else:
             # Update highest price since entry
             prev_highest = float(
-                data["Highest_Since_Entry"].iloc[i - 1]
+                data["Highest_Since_Entry"].iloc[i - 1],
             )  # Ensure scalar value
             current_highest = max(prev_highest, current_close)
             data.loc[data.index[i], "Highest_Since_Entry"] = current_highest
 
             # Get previous stop
             prev_stop = float(
-                data["ATR_Trailing_Stop"].iloc[i - 1]
+                data["ATR_Trailing_Stop"].iloc[i - 1],
             )  # Ensure scalar value
 
             # Calculate new trailing stop
@@ -230,7 +230,7 @@ def generate_signals(
             # Check if values are 2D and flatten if needed
             if hasattr(data[col].values, "shape") and len(data[col].values.shape) > 1:
                 log(
-                    f"DEBUG: Final flattening of {col} values from shape {data[col].values.shape}"
+                    f"DEBUG: Final flattening of {col} values from shape {data[col].values.shape}",
                 )
                 data[col] = pd.Series(data[col].values.flatten(), index=data.index)
 
@@ -262,12 +262,14 @@ def backtest_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
 
     # Validate input data
     if data.empty:
-        raise ValueError("Input data is empty")
+        msg = "Input data is empty"
+        raise ValueError(msg)
 
     required_columns = ["Close", "Signal"]
     for col in required_columns:
         if col not in data.columns:
-            raise ValueError(f"Required column '{col}' not found in data")
+            msg = f"Required column '{col}' not found in data"
+            raise ValueError(msg)
 
     # Ensure data has proper index
     if not isinstance(data.index, pd.DatetimeIndex):
@@ -286,7 +288,7 @@ def backtest_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
     for col in ["Close", "Signal"]:
         if hasattr(data[col].values, "shape"):
             log(
-                f"DEBUG: {col} values shape before processing: {data[col].values.shape}"
+                f"DEBUG: {col} values shape before processing: {data[col].values.shape}",
             )
             # Ensure 1D
             if len(data[col].values.shape) > 1:
@@ -311,13 +313,13 @@ def backtest_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
 
         # Debug values shapes
         log(
-            f"DEBUG: close_values shape: {close_values.shape if hasattr(close_values, 'shape') else 'no shape'}"
+            f"DEBUG: close_values shape: {close_values.shape if hasattr(close_values, 'shape') else 'no shape'}",
         )
         log(
-            f"DEBUG: entries_values shape: {entries_values.shape if hasattr(entries_values, 'shape') else 'no shape'}"
+            f"DEBUG: entries_values shape: {entries_values.shape if hasattr(entries_values, 'shape') else 'no shape'}",
         )
         log(
-            f"DEBUG: exits_values shape: {exits_values.shape if hasattr(exits_values, 'shape') else 'no shape'}"
+            f"DEBUG: exits_values shape: {exits_values.shape if hasattr(exits_values, 'shape') else 'no shape'}",
         )
 
         # Flatten if needed
@@ -362,18 +364,17 @@ def backtest_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
         dummy_entries = pd.Series(False, index=dummy_index)
         dummy_exits = pd.Series(False, index=dummy_index)
 
-        dummy_portfolio = vbt.Portfolio.from_signals(
+        return vbt.Portfolio.from_signals(
             close=dummy_close,
             entries=dummy_entries,
             exits=dummy_exits,
             init_cash=1000,
             fees=0.001,
         )
-        return dummy_portfolio
 
 
 def analyze_params(
-    data: pd.DataFrame, atr_length: int, atr_multiplier: float
+    data: pd.DataFrame, atr_length: int, atr_multiplier: float,
 ) -> tuple[int, float, float]:
     """
     Analyze parameters for ATR trailing stop strategy.
@@ -391,7 +392,7 @@ def analyze_params(
     try:
         # Generate signals with optimized function
         data_with_signals: pd.DataFrame = generate_signals(
-            data.copy(), atr_length, atr_multiplier
+            data.copy(), atr_length, atr_multiplier,
         )
 
         # Debug information
@@ -433,7 +434,7 @@ def analyze_params(
         # Convert to scalar if needed
         if isinstance(total_return_value, pd.Series):
             log(
-                f"DEBUG: total_return_value is a Series with length {len(total_return_value)}"
+                f"DEBUG: total_return_value is a Series with length {len(total_return_value)}",
             )
             if len(total_return_value) == 1:
                 total_return_value = total_return_value.item()
@@ -463,7 +464,7 @@ def analyze_params(
 
 
 def parameter_sensitivity_analysis(
-    data: pd.DataFrame, atr_lengths: list[int], atr_multipliers: list[float]
+    data: pd.DataFrame, atr_lengths: list[int], atr_multipliers: list[float],
 ) -> pd.DataFrame:
     """
     Perform parameter sensitivity analysis with sequential processing for reliability.
@@ -477,7 +478,7 @@ def parameter_sensitivity_analysis(
         pd.DataFrame: Results matrix with ATR lengths as index and ATR multipliers as columns
     """
     log(
-        f"Starting parameter sensitivity analysis with {len(atr_lengths)} lengths and {len(atr_multipliers)} multipliers"
+        f"Starting parameter sensitivity analysis with {len(atr_lengths)} lengths and {len(atr_multipliers)} multipliers",
     )
 
     try:
@@ -495,16 +496,16 @@ def parameter_sensitivity_analysis(
             for multiplier in atr_multipliers:
                 current_combination += 1
                 log(
-                    f"Processing combination {current_combination}/{total_combinations}: length={length}, multiplier={multiplier}"
+                    f"Processing combination {current_combination}/{total_combinations}: length={length}, multiplier={multiplier}",
                 )
 
                 try:
                     # Analyze parameters
                     length_val, multiplier_val, total_return = analyze_params(
-                        data.copy(), length, multiplier
+                        data.copy(), length, multiplier,
                     )
                     log(
-                        f"Result for length={length}, multiplier={multiplier}: total_return={total_return:.4f}"
+                        f"Result for length={length}, multiplier={multiplier}: total_return={total_return:.4f}",
                     )
 
                     # Store result in dictionary - ensure it's a float
@@ -620,13 +621,13 @@ def main(config: ATRConfig | None = None) -> None:
         atr_lengths: list[int] = list(range(2, 15))
         atr_multipliers: list[float] = list(np.arange(1.5, 8.5, 0.5))
         log(
-            f"Testing {len(atr_lengths)} ATR lengths and {len(atr_multipliers)} ATR multipliers"
+            f"Testing {len(atr_lengths)} ATR lengths and {len(atr_multipliers)} ATR multipliers",
         )
 
         # Get data based on configuration
         if config["USE_SYNTHETIC"]:
             log(
-                f"Using synthetic ticker with {config['TICKER_1']} and {config['TICKER_2']}"
+                f"Using synthetic ticker with {config['TICKER_1']} and {config['TICKER_2']}",
             )
 
             # Create data configs for both tickers
@@ -650,10 +651,10 @@ def main(config: ATRConfig | None = None) -> None:
             log("DEBUG: Downloading data using centralized download_data function")
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 future1 = executor.submit(
-                    download_data, config["TICKER_1"], data_config_1, log
+                    download_data, config["TICKER_1"], data_config_1, log,
                 )
                 future2 = executor.submit(
-                    download_data, config["TICKER_2"], data_config_2, log
+                    download_data, config["TICKER_2"], data_config_2, log,
                 )
                 polars_data_1 = future1.result()
                 polars_data_2 = future2.result()
@@ -693,7 +694,7 @@ def main(config: ATRConfig | None = None) -> None:
             log(f"DEBUG: Synthetic data shape: {data.shape}")
             for col in data.columns:
                 log(
-                    f"DEBUG: Column {col} type: {type(data[col])}, shape: {data[col].shape}"
+                    f"DEBUG: Column {col} type: {type(data[col])}, shape: {data[col].shape}",
                 )
         else:
             log(f"Using single ticker: {config['TICKER_1']}")
@@ -716,14 +717,14 @@ def main(config: ATRConfig | None = None) -> None:
             data = polars_data.to_pandas()
 
             log(
-                f"DEBUG: Pandas DataFrame columns before setting index: {data.columns.tolist()}"
+                f"DEBUG: Pandas DataFrame columns before setting index: {data.columns.tolist()}",
             )
             log(f"DEBUG: Pandas DataFrame shape before setting index: {data.shape}")
 
             data = data.set_index("Date")
 
             log(
-                f"DEBUG: Pandas DataFrame columns after setting index: {data.columns.tolist()}"
+                f"DEBUG: Pandas DataFrame columns after setting index: {data.columns.tolist()}",
             )
             log(f"DEBUG: Pandas DataFrame shape after setting index: {data.shape}")
 
@@ -733,7 +734,7 @@ def main(config: ATRConfig | None = None) -> None:
             # Debug column structure
             for col in data.columns:
                 log(
-                    f"DEBUG: Column {col} type: {type(data[col])}, shape: {data[col].shape}"
+                    f"DEBUG: Column {col} type: {type(data[col])}, shape: {data[col].shape}",
                 )
 
         # Run parameter sensitivity analysis
@@ -749,10 +750,10 @@ def main(config: ATRConfig | None = None) -> None:
 
             # Log and print results
             log(
-                f"Best parameters: ATR Length: {best_params[0]}, ATR Multiplier: {best_params[1]}, Return: {best_return:.3f}"
+                f"Best parameters: ATR Length: {best_params[0]}, ATR Multiplier: {best_params[1]}, Return: {best_return:.3f}",
             )
             print(
-                f"Best parameters for {interval} {ticker}: ATR Length: {best_params[0]}, ATR Multiplier: {best_params[1]}"
+                f"Best parameters for {interval} {ticker}: ATR Length: {best_params[0]}, ATR Multiplier: {best_params[1]}",
             )
             print(f"Best total return: {best_return:.3f}")
 

@@ -105,7 +105,7 @@ class TestConcurrentExecution:
 
     @patch("app.strategies.ma_cross.tools.strategy_execution.process_single_ticker")
     def test_process_ticker_batch(
-        self, mock_process_single_ticker, mock_log, basic_config
+        self, mock_process_single_ticker, mock_log, basic_config,
     ):
         """Test processing a batch of tickers."""
         # Mock successful processing
@@ -131,7 +131,7 @@ class TestConcurrentExecution:
 
     @patch("app.strategies.ma_cross.tools.strategy_execution.process_single_ticker")
     def test_process_ticker_batch_with_errors(
-        self, mock_process_single_ticker, mock_log, basic_config
+        self, mock_process_single_ticker, mock_log, basic_config,
     ):
         """Test batch processing handles errors gracefully."""
         # Mock one success and one failure
@@ -149,7 +149,7 @@ class TestConcurrentExecution:
 
     @patch("app.strategies.ma_cross.tools.strategy_execution.process_ticker_batch")
     def test_execute_strategy_concurrent_performance(
-        self, mock_process_ticker_batch, mock_log, basic_config
+        self, mock_process_ticker_batch, mock_log, basic_config,
     ):
         """Test that concurrent execution is faster than sequential for multiple tickers."""
 
@@ -163,7 +163,7 @@ class TestConcurrentExecution:
         # Test concurrent execution
         start_time = time.time()
         results = execute_strategy_concurrent(
-            basic_config, "SMA", mock_log, None, max_workers=4
+            basic_config, "SMA", mock_log, None, max_workers=4,
         )
         concurrent_time = time.time() - start_time
 
@@ -177,11 +177,11 @@ class TestConcurrentExecution:
 
     @patch("app.strategies.ma_cross.tools.strategy_execution.execute_strategy")
     def test_execute_strategy_concurrent_falls_back_to_sequential(
-        self, mock_execute_strategy, mock_log, small_config
+        self, mock_execute_strategy, mock_log, small_config,
     ):
         """Test that small ticker lists use sequential execution."""
         mock_execute_strategy.return_value = [
-            {"Ticker": "AAPL", "Total Return [%]": 10.0}
+            {"Ticker": "AAPL", "Total Return [%]": 10.0},
         ]
 
         results = execute_strategy_concurrent(small_config, "SMA", mock_log, None)
@@ -192,14 +192,15 @@ class TestConcurrentExecution:
 
     @patch("app.strategies.ma_cross.tools.strategy_execution.process_ticker_batch")
     def test_execute_strategy_concurrent_error_handling(
-        self, mock_process_ticker_batch, mock_log, basic_config
+        self, mock_process_ticker_batch, mock_log, basic_config,
     ):
         """Test concurrent execution handles batch failures gracefully."""
 
         # Mock some batches succeeding and some failing
         def mock_batch_processing(batch, config, strategy_type, log):
             if batch[0] == "AAPL":
-                raise Exception("Batch processing failed")
+                msg = "Batch processing failed"
+                raise Exception(msg)
             if batch[0] == "MSFT":
                 return [{"Ticker": "MSFT", "Total Return [%]": 10.0}]
             return [{"Ticker": ticker, "Total Return [%]": 5.0} for ticker in batch]
@@ -242,7 +243,7 @@ class TestConcurrentExecution:
             side_effect=mock_batch_processing,
         ):
             results = execute_strategy_concurrent(
-                config, "SMA", mock_log, None, max_workers=4
+                config, "SMA", mock_log, None, max_workers=4,
             )
 
             # All tickers should be processed
@@ -254,18 +255,18 @@ class TestConcurrentExecution:
 
     @patch("app.strategies.ma_cross.tools.strategy_execution.process_ticker_batch")
     def test_concurrent_execution_progress_tracking(
-        self, mock_process_ticker_batch, mock_log, basic_config
+        self, mock_process_ticker_batch, mock_log, basic_config,
     ):
         """Test that concurrent execution provides progress updates."""
         mock_progress_tracker = Mock()
 
         # Mock batch processing
         mock_process_ticker_batch.return_value = [
-            {"Ticker": "TEST", "Total Return [%]": 10.0}
+            {"Ticker": "TEST", "Total Return [%]": 10.0},
         ]
 
         execute_strategy_concurrent(
-            basic_config, "SMA", mock_log, mock_progress_tracker
+            basic_config, "SMA", mock_log, mock_progress_tracker,
         )
 
         # Should call progress tracker methods
@@ -325,7 +326,7 @@ class TestConcurrentExecutionIntegration:
     @pytest.mark.integration
     @patch("app.strategies.ma_cross.tools.strategy_execution.process_single_ticker")
     def test_concurrent_vs_sequential_accuracy(
-        self, mock_process_single_ticker, integration_config
+        self, mock_process_single_ticker, integration_config,
     ):
         """Test that concurrent and sequential execution produce identical results."""
         # Mock consistent results
@@ -355,7 +356,7 @@ class TestConcurrentExecutionIntegration:
 
         # Run concurrent execution
         concurrent_results = execute_strategy_concurrent(
-            integration_config, "SMA", mock_log, None
+            integration_config, "SMA", mock_log, None,
         )
 
         # Results should be identical (order may differ)
@@ -377,12 +378,12 @@ class TestConcurrentExecutionIntegration:
 
         # Test that concurrent execution is chosen for multiple tickers
         with patch(
-            "app.strategies.ma_cross.tools.strategy_execution.process_ticker_batch"
+            "app.strategies.ma_cross.tools.strategy_execution.process_ticker_batch",
         ) as mock_batch:
             mock_batch.return_value = [{"Ticker": "TEST", "Total Return [%]": 10.0}]
 
             results = execute_strategy_concurrent(
-                integration_config, "SMA", mock_log, None
+                integration_config, "SMA", mock_log, None,
             )
 
             # Should have called batch processing (indicating concurrent execution)

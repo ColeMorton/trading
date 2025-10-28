@@ -93,7 +93,7 @@ def stable_market_data(
                     )
 
                 patches.append(
-                    patch("app.tools.get_data.get_data", side_effect=mock_get_data_func)
+                    patch("app.tools.get_data.get_data", side_effect=mock_get_data_func),
                 )
 
             # Apply all patches
@@ -115,7 +115,7 @@ def stable_market_data(
 
 
 def mock_external_apis(
-    apis: list[str] | None = None, return_values: dict[str, Any] | None = None
+    apis: list[str] | None = None, return_values: dict[str, Any] | None = None,
 ):
     """
     Decorator to mock specific external APIs with custom return values.
@@ -183,7 +183,7 @@ def fast_test_data(pattern: str = "simple", periods: int = 100):
         def wrapper(*args, **kwargs):
             def mock_fast_get_data(ticker, config, log):
                 return _stabilizer.factory.create_strategy_test_data(
-                    ticker=ticker, periods=periods, pattern="trending_with_signals"
+                    ticker=ticker, periods=periods, pattern="trending_with_signals",
                 )
 
             def mock_fast_yf_download(symbols, **yf_kwargs):
@@ -194,9 +194,9 @@ def fast_test_data(pattern: str = "simple", periods: int = 100):
                 data_dict = {}
                 for symbol in symbols:
                     df = _stabilizer.factory.create_strategy_test_data(
-                        ticker=symbol, periods=periods
+                        ticker=symbol, periods=periods,
                     ).to_pandas()
-                    df.set_index("Date", inplace=True)
+                    df = df.set_index("Date")
                     data_dict.update(
                         {
                             ("Open", symbol): df["Open"],
@@ -204,7 +204,7 @@ def fast_test_data(pattern: str = "simple", periods: int = 100):
                             ("Low", symbol): df["Low"],
                             ("Close", symbol): df["Close"],
                             ("Volume", symbol): df["Volume"],
-                        }
+                        },
                     )
 
                 import pandas as pd
@@ -277,7 +277,7 @@ def stabilize_integration_test(
 
             def mock_comprehensive_yf_download(symbols, **yf_kwargs):
                 return _stabilizer.factory.create_yfinance_compatible_data(
-                    symbols, **yf_kwargs
+                    symbols, **yf_kwargs,
                 )
 
             # Comprehensive API mocking
@@ -326,7 +326,7 @@ def create_test_fixtures(tickers: list[str]) -> dict[str, Any]:
     """Create common test fixtures for a set of tickers."""
     factory = _stabilizer.factory
 
-    fixtures = {
+    return {
         "price_data": factory.create_multi_ticker_data(tickers),
         "single_ticker_data": (
             factory.create_price_data(tickers[0]) if tickers else None
@@ -337,7 +337,6 @@ def create_test_fixtures(tickers: list[str]) -> dict[str, Any]:
         ),
     }
 
-    return fixtures
 
 
 # Context managers for temporary API mocking
@@ -401,7 +400,7 @@ class TestPerformanceTracker:
             "slow_tests": self.get_slow_tests(),
             "total_api_calls": sum(self.api_call_counts.values()),
             "tests_with_api_calls": len(
-                [c for c in self.api_call_counts.values() if c > 0]
+                [c for c in self.api_call_counts.values() if c > 0],
             ),
         }
 

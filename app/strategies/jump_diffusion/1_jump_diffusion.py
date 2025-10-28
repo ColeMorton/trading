@@ -11,7 +11,7 @@ from app.tools.setup_logging import setup_logging
 
 
 log, log_close, _, _ = setup_logging(
-    module_name="ma_cross", log_file="1_jump_diffusion.log"
+    module_name="ma_cross", log_file="1_jump_diffusion.log",
 )
 
 TICKER = "SUI20947-USD"
@@ -44,7 +44,7 @@ sigma = returns.std() / np.sqrt(dt)
 
 
 def merton_jump_diffusion_model(
-    S0, mu, sigma, lambda_jump, jump_mean, jump_std, dt, num_steps, num_simulations
+    S0, mu, sigma, lambda_jump, jump_mean, jump_std, dt, num_steps, num_simulations,
 ):
     dW = np.random.normal(0, np.sqrt(dt), size=(num_steps, num_simulations))
     N = np.random.poisson(lambda_jump * dt, size=(num_steps, num_simulations))
@@ -62,7 +62,7 @@ def merton_jump_diffusion_model(
             )
             * dt
             + sigma * dW[t - 1]
-            + N[t - 1] * J[t - 1]
+            + N[t - 1] * J[t - 1],
         )
 
     return S
@@ -145,10 +145,10 @@ if USE_MERTON:
     )
 else:
     jd_simulations = geometric_brownian_motion(
-        S0, mu_est, sigma_est, dt, num_steps, num_simulations
+        S0, mu_est, sigma_est, dt, num_steps, num_simulations,
     )
 gbm_simulations = geometric_brownian_motion(
-    S0, mu_est, sigma_est, dt, num_steps, num_simulations
+    S0, mu_est, sigma_est, dt, num_steps, num_simulations,
 )
 
 # Calculate returns
@@ -177,7 +177,7 @@ for i in range(5):  # Plot 5 simulations for each model
     )
 
 plt.title(
-    f'{"Merton Jump-Diffusion" if USE_MERTON else "Geometric Brownian Motion"} vs GBM Model - SOL-USD'
+    f'{"Merton Jump-Diffusion" if USE_MERTON else "Geometric Brownian Motion"} vs GBM Model - SOL-USD',
 )
 plt.xlabel("Date")
 plt.ylabel("Price")
@@ -223,7 +223,7 @@ results_df = pl.DataFrame(
             gbm_final_prices.std(),
             gbm_var,
         ],
-    }
+    },
 )
 
 # Create directory if it doesn't exist

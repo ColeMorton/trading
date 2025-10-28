@@ -24,7 +24,7 @@ class TestHorizonAnalysis(unittest.TestCase):
         # Returns pattern: first signal followed by positive returns,
         # second signal followed by negative returns
         returns = np.array(
-            [0.01, 0.01, 0.02, 0.03, 0.01, -0.01, -0.02, -0.03, -0.01, 0.01]
+            [0.01, 0.01, 0.02, 0.03, 0.01, -0.01, -0.02, -0.03, -0.01, 0.01],
         )
 
         # Calculate horizon metrics
@@ -63,7 +63,7 @@ class TestHorizonAnalysis(unittest.TestCase):
 
         # Returns that would make some positions profitable and others not
         returns = np.array(
-            [0.01, 0.01, -0.02, 0.03, 0.01, 0.02, -0.02, -0.03, 0.01, 0.01]
+            [0.01, 0.01, -0.02, 0.03, 0.01, 0.02, -0.02, -0.03, 0.01, 0.01],
         )
 
         # Calculate horizon metrics
@@ -97,7 +97,7 @@ class TestHorizonAnalysis(unittest.TestCase):
 
         # Test with lower min_sample_size
         best_horizon_low_threshold = _find_best_horizon(
-            horizon_metrics, min_sample_size=10
+            horizon_metrics, min_sample_size=10,
         )
 
         # Now horizon 5 should be selected

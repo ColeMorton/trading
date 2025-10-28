@@ -94,7 +94,7 @@ def demonstrate_signal_variance_fix():
             "Position": positions,
             "Volume": volumes,
             "RSI": rsi,
-        }
+        },
     )
 
     # Define signal criteria
@@ -116,7 +116,7 @@ def demonstrate_signal_variance_fix():
     print(f"Filtered Signals (volume + RSI): {counts.filtered_signals}")
     print(f"Position Signals (actual changes): {counts.position_signals}")
     print(f"Trade Signals (completed trades): {counts.trade_signals}")
-    print("")
+    print()
     print(f"Filter Efficiency: {counts.filter_efficiency:.1%}")
     print(f"Execution Efficiency: {counts.execution_efficiency:.1%}")
     print(f"Overall Efficiency: {reconciliation['overall_efficiency']:.1%}")
@@ -145,7 +145,7 @@ def demonstrate_consistency_across_modules():
             "Position": [0, 1, 1, -1, -1, 1, 1, 1, -1, -1],
             "Volume": [3000, 2500, 4000, 1500, 3500, 2800, 1800, 5000, 2200, 4500],
             "RSI": [25, 35, 75, 50, 30, 45, 55, 70, 40, 20],
-        }
+        },
     )
 
     signal_def = SignalDefinition(min_volume=2000, rsi_column="RSI")
@@ -158,13 +158,13 @@ def demonstrate_consistency_across_modules():
 
     # Method 2: Convenience function
     method2_raw = calculate_signal_count_standardized(
-        test_data, SignalType.RAW, signal_def
+        test_data, SignalType.RAW, signal_def,
     )
     method2_filtered = calculate_signal_count_standardized(
-        test_data, SignalType.FILTERED, signal_def
+        test_data, SignalType.FILTERED, signal_def,
     )
     method2_position = calculate_signal_count_standardized(
-        test_data, SignalType.POSITION, signal_def
+        test_data, SignalType.POSITION, signal_def,
     )
 
     # Method 3: Legacy approach (manual counting)
@@ -177,10 +177,10 @@ def demonstrate_consistency_across_modules():
     print(f"{'Method':<20} {'Raw':<8} {'Filtered':<10} {'Position':<10}")
     print("-" * 50)
     print(
-        f"{'SignalProcessor':<20} {method1_raw:<8} {method1_filtered:<10} {method1_position:<10}"
+        f"{'SignalProcessor':<20} {method1_raw:<8} {method1_filtered:<10} {method1_position:<10}",
     )
     print(
-        f"{'Convenience Func':<20} {method2_raw:<8} {method2_filtered:<10} {method2_position:<10}"
+        f"{'Convenience Func':<20} {method2_raw:<8} {method2_filtered:<10} {method2_position:<10}",
     )
     print(f"{'Legacy Manual':<20} {method3_raw:<8} {'N/A':<10} {method3_position:<10}")
 
@@ -210,17 +210,17 @@ def demonstrate_filtering_transparency():
             "Position": [0, 1, -1, -1, 1, 0],
             "Volume": [5000, 1000, 3000, 4000, 800, 2500],  # Some below threshold
             "RSI": [25, 70, 35, 65, 20, 75],  # Mix of valid/invalid RSI levels
-        }
+        },
     )
 
     signal_def = SignalDefinition(
-        min_volume=2000, rsi_column="RSI", rsi_oversold=30, rsi_overbought=70
+        min_volume=2000, rsi_column="RSI", rsi_oversold=30, rsi_overbought=70,
     )
 
     processor = SignalProcessor()
     raw_count = processor.count_raw_signals(filter_data, signal_def)
     filtered_count, filtered_df = processor.count_filtered_signals(
-        filter_data, signal_def
+        filter_data, signal_def,
     )
 
     print("Filtering Process Analysis:")
@@ -251,7 +251,7 @@ def demonstrate_filtering_transparency():
         final_ok = (signal != 0) and vol_ok and rsi_ok
 
         print(
-            f"{idx:5} | {signal:6} | {volume:6} | {rsi:3.0f} | {vol_ok!s:6} | {rsi_ok!s:6} | {final_ok!s}"
+            f"{idx:5} | {signal:6} | {volume:6} | {rsi:3.0f} | {vol_ok!s:6} | {rsi_ok!s:6} | {final_ok!s}",
         )
 
 

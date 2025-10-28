@@ -53,7 +53,7 @@ class TestPortfolioSizeBugRegression:
         ]
 
     def test_portfolio_files_created_with_different_sizes(
-        self, sample_strategies, tmp_path
+        self, sample_strategies, tmp_path,
     ):
         """Test that separate portfolio files are created for each size."""
         # Simulate creating size-specific files
@@ -110,7 +110,7 @@ class TestPortfolioSizeBugRegression:
         assert file_sizes == [5, 7, 9], f"Expected [5, 7, 9], got {file_sizes}"
 
     def test_portfolio_sizes_should_have_different_strategy_counts(
-        self, sample_strategies
+        self, sample_strategies,
     ):
         """
         REGRESSION TEST: Verify that different portfolio sizes contain different numbers of strategies.
@@ -208,7 +208,7 @@ class TestPortfolioSizeBugRegression:
 
     @pytest.mark.integration
     def test_construct_command_creates_size_specific_files(
-        self, sample_strategies, tmp_path
+        self, sample_strategies, tmp_path,
     ):
         """
         Integration test: Verify the construct command creates separate files for each size.
@@ -405,7 +405,7 @@ class TestDiversificationScoring:
                 "strategy_type": "SMA",
                 "fast_period": 10,
                 "slow_period": 50,
-            }
+            },
         ]
 
         div_scores = _calculate_strategy_diversification_scores(strategies)
@@ -452,7 +452,7 @@ class TestStratifiedPortfolioSelection:
                     "fast_period": 10 + i * 5,
                     "slow_period": 50 + i * 10,
                     "score": 1.5 - i * 0.05,  # SMA scores: 1.50, 1.45, 1.40, ...
-                }
+                },
             )
         for i in range(2):
             strategies.append(
@@ -462,7 +462,7 @@ class TestStratifiedPortfolioSelection:
                     "fast_period": 10 + i * 3,
                     "slow_period": 40 + i * 8,
                     "score": 1.3 - i * 0.05,  # EMA scores: 1.30, 1.25 (lower than SMA)
-                }
+                },
             )
 
         div_scores = _calculate_strategy_diversification_scores(strategies)
@@ -494,7 +494,7 @@ class TestStratifiedPortfolioSelection:
                     "fast_period": 10 + i * 5,
                     "slow_period": 50 + i * 10,
                     "score": 1.6 - i * 0.08,  # Best scores
-                }
+                },
             )
         for i in range(3):
             strategies.append(
@@ -504,7 +504,7 @@ class TestStratifiedPortfolioSelection:
                     "fast_period": 10 + i * 3,
                     "slow_period": 40 + i * 8,
                     "score": 1.4 - i * 0.05,  # Mid scores
-                }
+                },
             )
         for i in range(2):
             strategies.append(
@@ -514,7 +514,7 @@ class TestStratifiedPortfolioSelection:
                     "fast_period": 12 + i * 2,
                     "slow_period": 26 + i * 4,
                     "score": 1.2 - i * 0.05,  # Lower scores
-                }
+                },
             )
 
         div_scores = _calculate_strategy_diversification_scores(strategies)
@@ -550,7 +550,7 @@ class TestStratifiedPortfolioSelection:
                     "fast_period": 10 + i * 10,
                     "slow_period": 50 + i * 20,
                     "score": 1.6 - i * 0.2,  # 1.6, 1.4, 1.2
-                }
+                },
             )
         # 3 EMA with decreasing scores
         for i in range(3):
@@ -561,7 +561,7 @@ class TestStratifiedPortfolioSelection:
                     "fast_period": 10 + i * 8,
                     "slow_period": 40 + i * 15,
                     "score": 1.5 - i * 0.2,  # 1.5, 1.3, 1.1
-                }
+                },
             )
         # 3 MACD with decreasing scores
         for i in range(3):
@@ -572,7 +572,7 @@ class TestStratifiedPortfolioSelection:
                     "fast_period": 12 + i * 4,
                     "slow_period": 26 + i * 8,
                     "score": 1.4 - i * 0.2,  # 1.4, 1.2, 1.0
-                }
+                },
             )
 
         div_scores = _calculate_strategy_diversification_scores(strategies)
@@ -615,7 +615,7 @@ class TestStratifiedPortfolioSelection:
                     "fast_period": 15 + i,
                     "slow_period": 20 + i * 2,
                     "score": 1.58 - i * 0.01,  # 1.58, 1.57, 1.56, ...
-                }
+                },
             )
 
         # 3 SMA strategies with good scores (1.40-1.55)
@@ -627,7 +627,7 @@ class TestStratifiedPortfolioSelection:
                     "fast_period": 80 + i * 4,
                     "slow_period": 85 + i * 4,
                     "score": 1.55 - i * 0.075,  # 1.55, 1.475, 1.40
-                }
+                },
             )
 
         # 2 EMA strategies with decent scores (1.25-1.33)
@@ -639,7 +639,7 @@ class TestStratifiedPortfolioSelection:
                     "fast_period": 12 + i * 6,
                     "slow_period": 55 + i * 8,
                     "score": 1.33 - i * 0.08,  # 1.33, 1.25
-                }
+                },
             )
 
         div_scores = _calculate_strategy_diversification_scores(strategies)
@@ -684,7 +684,7 @@ class TestStratifiedPortfolioSelection:
                     "slow_period": 55,
                     "score": 1.3,
                 },
-            ]
+            ],
         )
 
         # Type B: 2 strategies, scores 1.45 and 1.25
@@ -704,7 +704,7 @@ class TestStratifiedPortfolioSelection:
                     "slow_period": 65,
                     "score": 1.25,
                 },
-            ]
+            ],
         )
 
         # Type C: 1 strategy, score 1.4
@@ -717,7 +717,7 @@ class TestStratifiedPortfolioSelection:
                     "slow_period": 70,
                     "score": 1.4,
                 },
-            ]
+            ],
         )
 
         div_scores = _calculate_strategy_diversification_scores(strategies)
@@ -819,7 +819,7 @@ class TestStratifiedPortfolioSelection:
                     "fast_period": 15 + i,
                     "slow_period": 20 + i * 2,
                     "score": 1.58 - i * 0.01,
-                }
+                },
             )
 
         # 5 SMA with scores 1.35-1.55 (good but fewer high scorers)
@@ -831,7 +831,7 @@ class TestStratifiedPortfolioSelection:
                     "fast_period": 80 + i * 4,
                     "slow_period": 85 + i * 4,
                     "score": 1.55 - i * 0.05,
-                }
+                },
             )
 
         # 3 EMA with scores 1.20-1.33 (lower scores)
@@ -843,14 +843,14 @@ class TestStratifiedPortfolioSelection:
                     "fast_period": 10 + i * 6,
                     "slow_period": 55 + i * 8,
                     "score": 1.33 - i * 0.065,
-                }
+                },
             )
 
         div_scores = _calculate_strategy_diversification_scores(strategies)
 
         # Test 5-strategy portfolio
         selected_5 = _select_diversified_portfolio(
-            strategies, div_scores, target_size=5
+            strategies, div_scores, target_size=5,
         )
         type_counts_5 = {}
         for s in selected_5:
@@ -868,7 +868,7 @@ class TestStratifiedPortfolioSelection:
 
         # Test 7-strategy portfolio
         selected_7 = _select_diversified_portfolio(
-            strategies, div_scores, target_size=7
+            strategies, div_scores, target_size=7,
         )
         type_counts_7 = {}
         for s in selected_7:

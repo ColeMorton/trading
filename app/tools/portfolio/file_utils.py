@@ -26,14 +26,13 @@ def extract_file_metadata(filename: str) -> dict[str, str]:
     # Example: AAPL_D_SMA.csv -> ticker=AAPL, timeframe=D, strategy=SMA
     parts = filename.replace(".csv", "").split("_")
 
-    metadata = {
+    return {
         "filename": filename,
         "ticker": parts[0] if len(parts) > 0 else "UNKNOWN",
         "timeframe": parts[1] if len(parts) > 1 else "D",
         "strategy": parts[2] if len(parts) > 2 else "SMA",
     }
 
-    return metadata
 
 
 def save_aggregation_csv(aggregation_results: dict[str, Any], output_path: Path):

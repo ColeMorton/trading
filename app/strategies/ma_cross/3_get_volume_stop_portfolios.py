@@ -128,7 +128,7 @@ def execute_volume_analysis_for_ticker(
         # Log volume parameter ranges
         ema_periods = config.get("EMA_PERIODS", [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
         rvol_thresholds = config.get(
-            "RVOL_THRESHOLDS", [1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0]
+            "RVOL_THRESHOLDS", [1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0],
         )
         volume_lookbacks = config.get("VOLUME_LOOKBACKS", [10, 15, 20])
 
@@ -153,7 +153,7 @@ def execute_volume_analysis_for_ticker(
 
         # Validate sweep results
         is_valid, validation_errors = sweep_engine.validate_sweep_results(
-            portfolio_results, log
+            portfolio_results, log,
         )
         if not is_valid:
             log(
@@ -218,7 +218,7 @@ def export_volume_portfolios(
         # Apply MINIMUMS filtering before sorting using the same logic as 1_get_portfolios.py
         filter_service = PortfolioFilterService()
         filtered_portfolios = filter_service.filter_portfolios_list(
-            portfolios, config, log
+            portfolios, config, log,
         )
 
         if not filtered_portfolios:
@@ -310,7 +310,7 @@ def run_volume_analysis(config: CacheConfig = None) -> bool:
         config = default_config.copy()
 
     with logging_context(
-        module_name="ma_cross_volume", log_file="3_get_volume_stop_portfolios.log"
+        module_name="ma_cross_volume", log_file="3_get_volume_stop_portfolios.log",
     ) as log:
         log("=== Volume-Based Exit Parameter Sensitivity Analysis ===", "info")
         log(
@@ -321,7 +321,7 @@ def run_volume_analysis(config: CacheConfig = None) -> bool:
         # Calculate and log target combinations dynamically
         ema_periods = config.get("EMA_PERIODS", [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
         rvol_thresholds = config.get(
-            "RVOL_THRESHOLDS", [1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0]
+            "RVOL_THRESHOLDS", [1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0],
         )
         volume_lookbacks = config.get("VOLUME_LOOKBACKS", [10, 15, 20])
 
@@ -389,5 +389,5 @@ def run_volume_analysis(config: CacheConfig = None) -> bool:
 
 if __name__ == "__main__":
     run_from_command_line(
-        run_volume_analysis, default_config, "Volume-Based Exit Parameter Analysis"
+        run_volume_analysis, default_config, "Volume-Based Exit Parameter Analysis",
     )

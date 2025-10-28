@@ -28,7 +28,7 @@ from app.tools.logging_context import logging_context
 def parse_arguments():
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(
-        description="Comprehensive Quantitative Analysis for Trading Strategies"
+        description="Comprehensive Quantitative Analysis for Trading Strategies",
     )
 
     parser.add_argument(
@@ -82,13 +82,13 @@ def create_charts(analyzer: QuantitativeAnalyzer) -> bool:
         # Correlation heatmap for existing strategies
         if analyzer.trades_data is not None:
             correlation_data = analyzer.analyze_portfolio_correlation(
-                analyzer.trades_data
+                analyzer.trades_data,
             )
 
             if not correlation_data.empty:
                 plt.figure(figsize=(12, 10))
                 sns.heatmap(
-                    correlation_data, annot=True, cmap="RdYlBu_r", center=0, fmt=".2f"
+                    correlation_data, annot=True, cmap="RdYlBu_r", center=0, fmt=".2f",
                 )
                 plt.title("Strategy Metrics Correlation Matrix - Existing Portfolio")
                 plt.tight_layout()
@@ -100,14 +100,14 @@ def create_charts(analyzer: QuantitativeAnalyzer) -> bool:
                 plt.close()
 
                 print(
-                    f"Correlation matrix saved to: {charts_dir / 'existing_correlation_matrix.png'}"
+                    f"Correlation matrix saved to: {charts_dir / 'existing_correlation_matrix.png'}",
                 )
 
         # Performance comparison chart
         if analyzer.trades_data is not None and analyzer.incoming_data is not None:
             existing_metrics = analyzer.calculate_strategy_metrics(analyzer.trades_data)
             incoming_metrics = analyzer.calculate_strategy_metrics(
-                analyzer.incoming_data
+                analyzer.incoming_data,
             )
 
             # Risk-Return scatter plot
@@ -150,12 +150,12 @@ def create_charts(analyzer: QuantitativeAnalyzer) -> bool:
             plt.grid(True, alpha=0.3)
             plt.tight_layout()
             plt.savefig(
-                charts_dir / "risk_return_comparison.png", dpi=300, bbox_inches="tight"
+                charts_dir / "risk_return_comparison.png", dpi=300, bbox_inches="tight",
             )
             plt.close()
 
             print(
-                f"Risk-return comparison saved to: {charts_dir / 'risk_return_comparison.png'}"
+                f"Risk-return comparison saved to: {charts_dir / 'risk_return_comparison.png'}",
             )
 
         return True
@@ -228,23 +228,23 @@ def run_comprehensive_analysis(args):
                     "info",
                 )
                 existing_metrics = analyzer.calculate_strategy_metrics(
-                    analyzer.trades_data
+                    analyzer.trades_data,
                 )
                 mc_results = analyzer.run_monte_carlo_analysis(
-                    existing_metrics, num_simulations=args.monte_carlo_sims
+                    existing_metrics, num_simulations=args.monte_carlo_sims,
                 )
 
                 if mc_results:
                     log("Monte Carlo analysis completed", "info")
                     print(
-                        f"\nMonte Carlo Results ({args.monte_carlo_sims} simulations):"
+                        f"\nMonte Carlo Results ({args.monte_carlo_sims} simulations):",
                     )
                     print(
-                        f"Expected Portfolio Value: {mc_results['mean_final_value']:.3f}"
+                        f"Expected Portfolio Value: {mc_results['mean_final_value']:.3f}",
                     )
                     print(f"95% Confidence Interval: {mc_results['var_95']:.3f}")
                     print(
-                        f"Probability of Loss: {mc_results['probability_of_loss']*100:.1f}%"
+                        f"Probability of Loss: {mc_results['probability_of_loss']*100:.1f}%",
                     )
                 else:
                     log("Monte Carlo analysis failed", "warning")

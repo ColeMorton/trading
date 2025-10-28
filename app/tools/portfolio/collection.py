@@ -54,7 +54,7 @@ class PortfolioExportError(Exception):
 
 
 def sort_portfolios(
-    portfolios: list[dict[str, Any]] | pl.DataFrame, config: Config
+    portfolios: list[dict[str, Any]] | pl.DataFrame, config: Config,
 ) -> list[dict[str, Any]] | pl.DataFrame:
     """Sort portfolios using consistent logic across the application.
 
@@ -77,7 +77,8 @@ def sort_portfolios(
         try:
             df = pl.DataFrame(portfolios)
         except Exception as e:
-            raise ValueError(f"Failed to create DataFrame from portfolios: {e}")
+            msg = f"Failed to create DataFrame from portfolios: {e}"
+            raise ValueError(msg)
     else:
         df = portfolios
         if len(df) == 0:
@@ -93,7 +94,7 @@ def sort_portfolios(
             try:
                 # Create Score column from Total Return [%]
                 df = df.with_columns(
-                    pl.col("Total Return [%]").cast(pl.Float64).alias("Score")
+                    pl.col("Total Return [%]").cast(pl.Float64).alias("Score"),
                 )
             except Exception:
                 # Use the original Total Return [%] column
@@ -101,7 +102,8 @@ def sort_portfolios(
         else:
             # Fall back to a different sort column with safety check
             if len(df.columns) == 0:
-                raise ValueError("Cannot sort empty DataFrame - no columns available")
+                msg = "Cannot sort empty DataFrame - no columns available"
+                raise ValueError(msg)
 
             sort_by = (
                 "Total Return [%]"
@@ -195,12 +197,12 @@ def deduplicate_and_aggregate_portfolios(
     if "Metric Type" in df.columns:
         # Group by configuration to validate metric type completeness
         config_groups_df = df.group_by(
-            ["Ticker", "Strategy Type", fast_period_col, slow_period_col]
+            ["Ticker", "Strategy Type", fast_period_col, slow_period_col],
         ).agg(
             [
                 pl.col("Metric Type").unique().alias("metric_types"),
                 pl.len().alias("row_count"),
-            ]
+            ],
         )
 
         total_configs = len(config_groups_df)
@@ -278,7 +280,7 @@ def deduplicate_and_aggregate_portfolios(
         # Use Total Return [%] as fallback
         elif "Total Return [%]" in df.columns:
             df = df.with_columns(
-                pl.col("Total Return [%]").cast(pl.Float64).alias("Score")
+                pl.col("Total Return [%]").cast(pl.Float64).alias("Score"),
             )
             if log:
                 log("Using 'Total Return [%]' as Score column", "info")
@@ -288,7 +290,8 @@ def deduplicate_and_aggregate_portfolios(
                     "ERROR: Neither Score nor Total Return [%] column found",
                     "error",
                 )
-            raise ValueError("Neither Score nor Total Return [%] column found")
+            msg = "Neither Score nor Total Return [%] column found"
+            raise ValueError(msg)
 
     # Check if Metric Type column exists
     if "Metric Type" not in df.columns:
@@ -313,7 +316,7 @@ def deduplicate_and_aggregate_portfolios(
 
         # Get all portfolios for this ticker+strategy combination
         ticker_strategy_df = df.filter(
-            (pl.col("Ticker") == ticker) & (pl.col("Strategy Type") == strategy_type)
+            (pl.col("Ticker") == ticker) & (pl.col("Strategy Type") == strategy_type),
         )
 
         if log:
@@ -348,7 +351,7 @@ def deduplicate_and_aggregate_portfolios(
             best_fast_col = best_portfolio_mapping["fast_period"]
             best_slow_col = best_portfolio_mapping["slow_period"]
             best_signal_col = best_portfolio_mapping.get(
-                "signal_period", "Signal Period"
+                "signal_period", "Signal Period",
             )
 
             # Extract values using the correct column names from best_portfolio
@@ -375,12 +378,12 @@ def deduplicate_and_aggregate_portfolios(
             # Add signal period condition if column exists
             if signal_period_col and signal_period_col in ticker_strategy_df.columns:
                 filter_conditions.append(
-                    pl.col(signal_period_col) == best_signal_period
+                    pl.col(signal_period_col) == best_signal_period,
                 )
 
             # First try direct comparison for performance
             best_config_df = ticker_strategy_df.filter(
-                pl.all_horizontal(filter_conditions)
+                pl.all_horizontal(filter_conditions),
             )
 
             # If no results, fall back to string conversion for data type compatibility
@@ -403,11 +406,11 @@ def deduplicate_and_aggregate_portfolios(
                 ):
                     string_filter_conditions.append(
                         pl.col(signal_period_col).cast(pl.Utf8)
-                        == str(best_signal_period)
+                        == str(best_signal_period),
                     )
 
                 best_config_df = ticker_strategy_df.filter(
-                    pl.all_horizontal(string_filter_conditions)
+                    pl.all_horizontal(string_filter_conditions),
                 )
 
         except Exception as e:
@@ -429,11 +432,11 @@ def deduplicate_and_aggregate_portfolios(
                 ):
                     fallback_conditions.append(
                         pl.col(signal_period_col).cast(pl.Utf8)
-                        == str(best_signal_period)
+                        == str(best_signal_period),
                     )
 
                 best_config_df = ticker_strategy_df.filter(
-                    pl.all_horizontal(fallback_conditions)
+                    pl.all_horizontal(fallback_conditions),
                 )
             except Exception as fallback_error:
                 if log:
@@ -554,7 +557,7 @@ def deduplicate_and_aggregate_portfolios(
 
             # Validate schema compliance
             is_valid, validation_errors = transformer.validate_schema(
-                normalized_portfolio, SchemaType.FILTERED
+                normalized_portfolio, SchemaType.FILTERED,
             )
             if not is_valid:
                 if log:
@@ -832,7 +835,7 @@ def test_bkng_metric_aggregation(log: Callable | None = None) -> bool:
 
 
 def export_best_portfolios(
-    portfolios: list[dict[str, Any]], config: Config, log: Callable
+    portfolios: list[dict[str, Any]], config: Config, log: Callable,
 ) -> bool:
     """Export the best portfolios to a CSV file with deduplication.
 
@@ -946,7 +949,7 @@ def export_best_portfolios(
 
             # Apply deduplication and metric type aggregation
             deduplicated_portfolios = deduplicate_and_aggregate_portfolios(
-                sorted_portfolios, log, desired_metric_types
+                sorted_portfolios, log, desired_metric_types,
             )
 
         # Restore original sort configuration
@@ -972,7 +975,7 @@ def export_best_portfolios(
         )
 
         log(
-            f"Exported {len(deduplicated_portfolios)} unique portfolios sorted by Score"
+            f"Exported {len(deduplicated_portfolios)} unique portfolios sorted by Score",
         )
         return True
 
@@ -982,7 +985,7 @@ def export_best_portfolios(
 
 
 def combine_strategy_portfolios(
-    ema_portfolios: list[dict[str, Any]], sma_portfolios: list[dict[str, Any]]
+    ema_portfolios: list[dict[str, Any]], sma_portfolios: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     """Combine portfolios from EMA and SMA strategies.
 
@@ -1029,7 +1032,7 @@ def combine_strategy_portfolios(
 
 
 def collect_filtered_portfolios_for_export(
-    config: dict[str, Any], strategy_types: list[str], log: Callable
+    config: dict[str, Any], strategy_types: list[str], log: Callable,
 ) -> list[dict[str, Any]]:
     """
     Collect filtered portfolios data (multiple metric types per configuration)
@@ -1107,7 +1110,7 @@ def collect_filtered_portfolios_for_export(
                         if date_filtered_file.exists():
                             filtered_file = date_filtered_file
                             log(
-                                f"Found filtered file for {ticker} in date directory: {date_dir.name}"
+                                f"Found filtered file for {ticker} in date directory: {date_dir.name}",
                             )
                             break
 
@@ -1133,7 +1136,7 @@ def collect_filtered_portfolios_for_export(
                     # Convert to dictionaries
                     portfolios_data = df.to_dicts()
                     log(
-                        f"Found {len(portfolios_data)} filtered portfolios from {ticker} {strategy_type}"
+                        f"Found {len(portfolios_data)} filtered portfolios from {ticker} {strategy_type}",
                     )
 
                     # Verify the data has Metric Type column
@@ -1141,10 +1144,10 @@ def collect_filtered_portfolios_for_export(
                         first_portfolio = portfolios_data[0]
                         if "Metric Type" in first_portfolio:
                             log(
-                                f"Confirmed Metric Type column present in {ticker} {strategy_type} data"
+                                f"Confirmed Metric Type column present in {ticker} {strategy_type} data",
                             )
                             log(
-                                f"Sample metric types: {[p.get('Metric Type', 'N/A') for p in portfolios_data[:3]]}"
+                                f"Sample metric types: {[p.get('Metric Type', 'N/A') for p in portfolios_data[:3]]}",
                             )
                         else:
                             log(
@@ -1186,7 +1189,7 @@ def collect_filtered_portfolios_for_export(
 
             for config_key, metric_types in sample_config_groups.items():
                 log(
-                    f"Config {config_key}: {len(metric_types)} metric types - {', '.join(metric_types[:3])}{'...' if len(metric_types) > 3 else ''}"
+                    f"Config {config_key}: {len(metric_types)} metric types - {', '.join(metric_types[:3])}{'...' if len(metric_types) > 3 else ''}",
                 )
 
         return all_portfolios

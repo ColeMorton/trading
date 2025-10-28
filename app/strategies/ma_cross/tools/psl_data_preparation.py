@@ -17,7 +17,7 @@ from app.tools.calculate_rsi import calculate_rsi
 
 
 def prepare_data(
-    data: pl.DataFrame, config: PSLConfig, log: Callable
+    data: pl.DataFrame, config: PSLConfig, log: Callable,
 ) -> tuple[pl.DataFrame, np.ndarray]:
     """
     Prepare data by calculating technical indicators and generating entry signals.

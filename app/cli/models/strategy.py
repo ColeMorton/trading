@@ -35,25 +35,25 @@ class StrategyParams(BaseModel):
     """Strategy-specific parameter configuration."""
 
     fast_period_min: int | None = Field(
-        default=None, gt=0, description="Minimum fast period for this strategy"
+        default=None, gt=0, description="Minimum fast period for this strategy",
     )
     fast_period_max: int | None = Field(
-        default=None, gt=0, description="Maximum fast period for this strategy"
+        default=None, gt=0, description="Maximum fast period for this strategy",
     )
     slow_period_min: int | None = Field(
-        default=None, gt=0, description="Minimum slow period for this strategy"
+        default=None, gt=0, description="Minimum slow period for this strategy",
     )
     slow_period_max: int | None = Field(
-        default=None, gt=0, description="Maximum slow period for this strategy"
+        default=None, gt=0, description="Maximum slow period for this strategy",
     )
     signal_period_min: int | None = Field(
-        default=None, gt=0, description="Minimum signal period for this strategy"
+        default=None, gt=0, description="Minimum signal period for this strategy",
     )
     signal_period_max: int | None = Field(
-        default=None, gt=0, description="Maximum signal period for this strategy"
+        default=None, gt=0, description="Maximum signal period for this strategy",
     )
     step: int | None = Field(
-        default=None, gt=0, description="Step increment for parameter sweep"
+        default=None, gt=0, description="Step increment for parameter sweep",
     )
 
     @field_validator("fast_period_max")
@@ -62,7 +62,8 @@ class StrategyParams(BaseModel):
         """Ensure fast period max is greater than fast period min."""
         fast_period_min = info.data.get("fast_period_min")
         if (v is not None and fast_period_min is not None) and v <= fast_period_min:
-            raise ValueError("Fast period max must be greater than fast period min")
+            msg = "Fast period max must be greater than fast period min"
+            raise ValueError(msg)
         return v
 
     @field_validator("slow_period_max")
@@ -71,7 +72,8 @@ class StrategyParams(BaseModel):
         """Ensure slow period max is greater than slow period min."""
         slow_period_min = info.data.get("slow_period_min")
         if (v is not None and slow_period_min is not None) and v <= slow_period_min:
-            raise ValueError("Slow period max must be greater than slow period min")
+            msg = "Slow period max must be greater than slow period min"
+            raise ValueError(msg)
         return v
 
     @field_validator("signal_period_max")
@@ -80,7 +82,8 @@ class StrategyParams(BaseModel):
         """Ensure signal period max is greater than signal period min."""
         signal_period_min = info.data.get("signal_period_min")
         if (v is not None and signal_period_min is not None) and v <= signal_period_min:
-            raise ValueError("Signal period max must be greater than signal period min")
+            msg = "Signal period max must be greater than signal period min"
+            raise ValueError(msg)
         return v
 
 
@@ -88,19 +91,19 @@ class StrategyParamsCollection(BaseModel):
     """Collection of strategy-specific parameter configurations."""
 
     SMA: StrategyParams | None = Field(
-        default=None, description="SMA strategy-specific parameters"
+        default=None, description="SMA strategy-specific parameters",
     )
     EMA: StrategyParams | None = Field(
-        default=None, description="EMA strategy-specific parameters"
+        default=None, description="EMA strategy-specific parameters",
     )
     MACD: StrategyParams | None = Field(
-        default=None, description="MACD strategy-specific parameters"
+        default=None, description="MACD strategy-specific parameters",
     )
     ATR: StrategyParams | None = Field(
-        default=None, description="ATR strategy-specific parameters"
+        default=None, description="ATR strategy-specific parameters",
     )
     SMA_ATR: StrategyParams | None = Field(
-        default=None, description="SMA_ATR strategy-specific parameters"
+        default=None, description="SMA_ATR strategy-specific parameters",
     )
 
 
@@ -108,13 +111,13 @@ class SyntheticTickerConfig(BaseModel):
     """Configuration for synthetic ticker processing."""
 
     use_synthetic: bool = Field(
-        default=False, description="Enable synthetic ticker processing"
+        default=False, description="Enable synthetic ticker processing",
     )
     ticker_1: str | None = Field(
-        default=None, description="First component of synthetic ticker"
+        default=None, description="First component of synthetic ticker",
     )
     ticker_2: str | None = Field(
-        default=None, description="Second component of synthetic ticker"
+        default=None, description="Second component of synthetic ticker",
     )
 
 
@@ -122,22 +125,22 @@ class StrategyMinimums(BaseModel):
     """Minimum criteria for strategy filtering."""
 
     win_rate: float | None = Field(
-        default=None, ge=0, le=1, description="Minimum win rate (0.0 to 1.0)"
+        default=None, ge=0, le=1, description="Minimum win rate (0.0 to 1.0)",
     )
     trades: int | None = Field(
-        default=None, ge=0, description="Minimum number of trades"
+        default=None, ge=0, description="Minimum number of trades",
     )
     expectancy_per_trade: float | None = Field(
-        default=None, description="Minimum expectancy per trade"
+        default=None, description="Minimum expectancy per trade",
     )
     profit_factor: float | None = Field(
-        default=None, ge=0, description="Minimum profit factor"
+        default=None, ge=0, description="Minimum profit factor",
     )
     sortino_ratio: float | None = Field(
-        default=None, description="Minimum Sortino ratio"
+        default=None, description="Minimum Sortino ratio",
     )
     beats_bnh: float | None = Field(
-        default=None, description="Minimum beats buy-and-hold percentage"
+        default=None, description="Minimum beats buy-and-hold percentage",
     )
     score: float | None = Field(default=None, description="Minimum portfolio score")
 
@@ -147,7 +150,7 @@ class StrategyConfig(BaseConfig):
 
     # Ticker configuration
     ticker: str | list[str] = Field(
-        description="Single ticker or list of tickers to analyze"
+        description="Single ticker or list of tickers to analyze",
     )
 
     # Strategy types
@@ -175,47 +178,47 @@ class StrategyConfig(BaseConfig):
 
     # Strategy-specific parameters
     fast_period: int | None = Field(
-        default=None, gt=0, description="Fast moving average period"
+        default=None, gt=0, description="Fast moving average period",
     )
     slow_period: int | None = Field(
-        default=None, gt=0, description="Slow moving average period"
+        default=None, gt=0, description="Slow moving average period",
     )
     signal_period: int | None = Field(
-        default=9, gt=0, description="MACD signal line period"
+        default=9, gt=0, description="MACD signal line period",
     )
 
     # Parameter sweep configuration - individual min/max fields
     fast_period_min: int | None = Field(
-        default=None, gt=0, description="Minimum fast period for parameter sweep"
+        default=None, gt=0, description="Minimum fast period for parameter sweep",
     )
     fast_period_max: int | None = Field(
-        default=None, gt=0, description="Maximum fast period for parameter sweep"
+        default=None, gt=0, description="Maximum fast period for parameter sweep",
     )
     slow_period_min: int | None = Field(
-        default=None, gt=0, description="Minimum slow period for parameter sweep"
+        default=None, gt=0, description="Minimum slow period for parameter sweep",
     )
     slow_period_max: int | None = Field(
-        default=None, gt=0, description="Maximum slow period for parameter sweep"
+        default=None, gt=0, description="Maximum slow period for parameter sweep",
     )
     signal_period_min: int | None = Field(
-        default=None, gt=0, description="Minimum signal period for parameter sweep"
+        default=None, gt=0, description="Minimum signal period for parameter sweep",
     )
     signal_period_max: int | None = Field(
-        default=None, gt=0, description="Maximum signal period for parameter sweep"
+        default=None, gt=0, description="Maximum signal period for parameter sweep",
     )
 
     # ATR-specific parameter configuration
     atr_length_min: int | None = Field(
-        default=None, gt=0, description="Minimum ATR length for parameter sweep"
+        default=None, gt=0, description="Minimum ATR length for parameter sweep",
     )
     atr_length_max: int | None = Field(
-        default=None, gt=0, description="Maximum ATR length for parameter sweep"
+        default=None, gt=0, description="Maximum ATR length for parameter sweep",
     )
     atr_multiplier_min: float | None = Field(
-        default=None, gt=0, description="Minimum ATR multiplier for parameter sweep"
+        default=None, gt=0, description="Minimum ATR multiplier for parameter sweep",
     )
     atr_multiplier_max: float | None = Field(
-        default=None, gt=0, description="Maximum ATR multiplier for parameter sweep"
+        default=None, gt=0, description="Maximum ATR multiplier for parameter sweep",
     )
     atr_multiplier_step: float | None = Field(
         default=None,
@@ -258,7 +261,7 @@ class StrategyConfig(BaseConfig):
 
     # Multi-ticker support
     multi_ticker: bool = Field(
-        default=False, description="Enable multi-ticker analysis"
+        default=False, description="Enable multi-ticker analysis",
     )
 
     # Legacy MACD-specific parameters - mapped to standard min/max fields
@@ -293,16 +296,16 @@ class StrategyConfig(BaseConfig):
         description="MACD signal period end - DEPRECATED, use signal_period_max",
     )
     step: int | None = Field(
-        default=None, gt=0, description="MACD parameter step increment"
+        default=None, gt=0, description="MACD parameter step increment",
     )
     direction: Direction | None = Field(
-        default=None, description="Trading direction (Long/Short)"
+        default=None, description="Trading direction (Long/Short)",
     )
     use_current: bool | None = Field(
-        default=None, description="Use current market data"
+        default=None, description="Use current market data",
     )
     use_hourly: bool | None = Field(
-        default=None, description="Use hourly data instead of daily"
+        default=None, description="Use hourly data instead of daily",
     )
     use_4hour: bool | None = Field(
         default=None,
@@ -313,7 +316,7 @@ class StrategyConfig(BaseConfig):
         description="Use 2-day data instead of daily (converted from daily data)",
     )
     refresh: bool | None = Field(
-        default=False, description="Force refresh of market data"
+        default=False, description="Force refresh of market data",
     )
     market_type: MarketType = Field(
         default=MarketType.AUTO,
@@ -357,7 +360,8 @@ class StrategyConfig(BaseConfig):
             return v.strip().upper()
         if isinstance(v, list):
             return [t.strip().upper() for t in v if t.strip()]
-        raise ValueError("Ticker must be a string or list of strings")
+        msg = "Ticker must be a string or list of strings"
+        raise ValueError(msg)
 
     @field_validator("strategy_types", mode="before")
     @classmethod
@@ -377,7 +381,7 @@ class StrategyConfig(BaseConfig):
                     if "," in item:
                         # Handle comma-separated strings within list items
                         processed.extend(
-                            [s.strip().upper() for s in item.split(",") if s.strip()]
+                            [s.strip().upper() for s in item.split(",") if s.strip()],
                         )
                     else:
                         processed.append(item.strip().upper())
@@ -392,9 +396,11 @@ class StrategyConfig(BaseConfig):
         """Validate period range tuples - LEGACY support."""
         if v is not None:
             if not isinstance(v, tuple | list) or len(v) != 2:
-                raise ValueError("Period range must be a tuple/list of 2 values")
+                msg = "Period range must be a tuple/list of 2 values"
+                raise ValueError(msg)
             if v[0] > v[1]:
-                raise ValueError("Range minimum must be less than or equal to maximum")
+                msg = "Range minimum must be less than or equal to maximum"
+                raise ValueError(msg)
         return v
 
     @field_validator("fast_period_max")
@@ -403,8 +409,9 @@ class StrategyConfig(BaseConfig):
         """Ensure fast period max is greater than or equal to fast period min."""
         fast_period_min = info.data.get("fast_period_min")
         if (v is not None and fast_period_min is not None) and v < fast_period_min:
+            msg = "Fast period max must be greater than or equal to fast period min"
             raise ValueError(
-                "Fast period max must be greater than or equal to fast period min"
+                msg,
             )
         return v
 
@@ -414,8 +421,9 @@ class StrategyConfig(BaseConfig):
         """Ensure slow period max is greater than or equal to slow period min."""
         slow_period_min = info.data.get("slow_period_min")
         if (v is not None and slow_period_min is not None) and v < slow_period_min:
+            msg = "Slow period max must be greater than or equal to slow period min"
             raise ValueError(
-                "Slow period max must be greater than or equal to slow period min"
+                msg,
             )
         return v
 
@@ -425,8 +433,9 @@ class StrategyConfig(BaseConfig):
         """Ensure signal period max is greater than or equal to signal period min."""
         signal_period_min = info.data.get("signal_period_min")
         if (v is not None and signal_period_min is not None) and v < signal_period_min:
+            msg = "Signal period max must be greater than or equal to signal period min"
             raise ValueError(
-                "Signal period max must be greater than or equal to signal period min"
+                msg,
             )
         return v
 
@@ -436,7 +445,8 @@ class StrategyConfig(BaseConfig):
         """Ensure ATR length max is greater than ATR length min."""
         atr_length_min = info.data.get("atr_length_min")
         if (v is not None and atr_length_min is not None) and v <= atr_length_min:
-            raise ValueError("ATR length max must be greater than ATR length min")
+            msg = "ATR length max must be greater than ATR length min"
+            raise ValueError(msg)
         return v
 
     @field_validator("atr_multiplier_max")
@@ -447,8 +457,9 @@ class StrategyConfig(BaseConfig):
         if (
             v is not None and atr_multiplier_min is not None
         ) and v <= atr_multiplier_min:
+            msg = "ATR multiplier max must be greater than ATR multiplier min"
             raise ValueError(
-                "ATR multiplier max must be greater than ATR multiplier min"
+                msg,
             )
         return v
 
@@ -463,7 +474,8 @@ class StrategyConfig(BaseConfig):
                 return Direction.LONG
             if normalized == "short":
                 return Direction.SHORT
-            raise ValueError(f"Invalid direction: {v}. Must be 'Long' or 'Short'")
+            msg = f"Invalid direction: {v}. Must be 'Long' or 'Short'"
+            raise ValueError(msg)
         return v
 
     @field_validator("slow_period")
@@ -472,7 +484,8 @@ class StrategyConfig(BaseConfig):
         """Ensure slow period is greater than fast period when both are specified."""
         fast_period = info.data.get("fast_period")
         if (v is not None and fast_period is not None) and v <= fast_period:
-            raise ValueError("Slow period must be greater than fast period")
+            msg = "Slow period must be greater than fast period"
+            raise ValueError(msg)
         return v
 
     @field_validator("use_4hour")
@@ -481,12 +494,14 @@ class StrategyConfig(BaseConfig):
         """Ensure use_4hour is not used with other timeframe options."""
         if v is True:
             if info.data.get("use_hourly") is True:
+                msg = "Cannot use both use_hourly and use_4hour options simultaneously. Choose one timeframe."
                 raise ValueError(
-                    "Cannot use both use_hourly and use_4hour options simultaneously. Choose one timeframe."
+                    msg,
                 )
             if info.data.get("use_2day") is True:
+                msg = "Cannot use both use_2day and use_4hour options simultaneously. Choose one timeframe."
                 raise ValueError(
-                    "Cannot use both use_2day and use_4hour options simultaneously. Choose one timeframe."
+                    msg,
                 )
         return v
 
@@ -496,12 +511,14 @@ class StrategyConfig(BaseConfig):
         """Ensure use_2day is not used with other timeframe options."""
         if v is True:
             if info.data.get("use_hourly") is True:
+                msg = "Cannot use both use_hourly and use_2day options simultaneously. Choose one timeframe."
                 raise ValueError(
-                    "Cannot use both use_hourly and use_2day options simultaneously. Choose one timeframe."
+                    msg,
                 )
             if info.data.get("use_4hour") is True:
+                msg = "Cannot use both use_4hour and use_2day options simultaneously. Choose one timeframe."
                 raise ValueError(
-                    "Cannot use both use_4hour and use_2day options simultaneously. Choose one timeframe."
+                    msg,
                 )
         return v
 
@@ -525,10 +542,12 @@ class StrategyConfig(BaseConfig):
         """Ensure batch_size is provided when batch mode is enabled."""
         batch_enabled = info.data.get("batch", False)
         if batch_enabled and v is None:
-            raise ValueError("batch_size must be specified when batch mode is enabled")
+            msg = "batch_size must be specified when batch mode is enabled"
+            raise ValueError(msg)
         if not batch_enabled and v is not None:
+            msg = "batch_size can only be specified when batch mode is enabled"
             raise ValueError(
-                "batch_size can only be specified when batch mode is enabled"
+                msg,
             )
         return v
 
@@ -540,7 +559,6 @@ class MACrossConfig(StrategyConfig):
     It exists for backward compatibility and specific MA Cross defaults.
     """
 
-    pass
 
 
 class MACDConfig(StrategyConfig):
@@ -552,13 +570,13 @@ class MACDConfig(StrategyConfig):
 
     # Override defaults for MACD
     fast_period: int | None = Field(
-        default=12, gt=0, description="MACD fast EMA period"
+        default=12, gt=0, description="MACD fast EMA period",
     )
     slow_period: int | None = Field(
-        default=26, gt=0, description="MACD slow EMA period"
+        default=26, gt=0, description="MACD slow EMA period",
     )
     multi_ticker: bool = Field(
-        default=True, description="Enable multi-ticker MACD analysis"
+        default=True, description="Enable multi-ticker MACD analysis",
     )
 
 
@@ -571,14 +589,14 @@ class StrategyPortfolioResults(BaseModel):
     filtered_portfolios: int = Field(description="Portfolios after filtering")
     extreme_value_portfolios: int = Field(description="Extreme value portfolios")
     best_config: str | None = Field(
-        default=None, description="Best configuration (e.g., '5/23')"
+        default=None, description="Best configuration (e.g., '5/23')",
     )
     best_score: float | None = Field(default=None, description="Best portfolio score")
     win_rate: float | None = Field(default=None, description="Best portfolio win rate")
     avg_win: float | None = Field(default=None, description="Average winning trade %")
     avg_loss: float | None = Field(default=None, description="Average losing trade %")
     files_exported: list[str] = Field(
-        default_factory=list, description="List of exported files"
+        default_factory=list, description="List of exported files",
     )
 
 
@@ -597,23 +615,23 @@ class StrategyExecutionSummary(BaseModel):
 
     # Portfolio analysis results
     portfolio_results: list[StrategyPortfolioResults] = Field(
-        default_factory=list, description="Results for each ticker-strategy combination"
+        default_factory=list, description="Results for each ticker-strategy combination",
     )
 
     # Overall statistics
     total_portfolios_generated: int = Field(
-        default=0, description="Total portfolios across all strategies"
+        default=0, description="Total portfolios across all strategies",
     )
     total_filtered_portfolios: int = Field(
-        default=0, description="Total filtered portfolios"
+        default=0, description="Total filtered portfolios",
     )
     total_files_exported: int = Field(
-        default=0, description="Total number of files exported"
+        default=0, description="Total number of files exported",
     )
 
     # Best opportunities
     best_opportunity: StrategyPortfolioResults | None = Field(
-        default=None, description="Best performing strategy configuration"
+        default=None, description="Best performing strategy configuration",
     )
 
     def add_portfolio_result(self, result: StrategyPortfolioResults) -> None:

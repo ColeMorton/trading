@@ -66,7 +66,8 @@ def calculate_gbm_parameters(data: pl.DataFrame) -> tuple[float, float, float, f
         ValueError: If data is empty or required columns are missing
     """
     if len(data) == 0:
-        raise ValueError("Empty data provided")
+        msg = "Empty data provided"
+        raise ValueError(msg)
 
     initial_price = data["Close"][0]
     returns = data["Close"].pct_change().drop_nulls()
@@ -105,14 +106,14 @@ def generate_gbm_simulations(
     for i in range(1, n_steps):
         Z = np.random.standard_normal(n_sims)
         simulations[:, i] = simulations[:, i - 1] * np.exp(
-            (drift - 0.5 * volatility**2) * dt + volatility * np.sqrt(dt) * Z
+            (drift - 0.5 * volatility**2) * dt + volatility * np.sqrt(dt) * Z,
         )
 
     return simulations
 
 
 def plot_simulations(
-    simulations: np.ndarray, config: GBMConfig, data: pl.DataFrame
+    simulations: np.ndarray, config: GBMConfig, data: pl.DataFrame,
 ) -> None:
     """
     Plot and save the GBM simulations.
@@ -174,7 +175,7 @@ def main() -> bool:
         bool: True if execution successful, False otherwise
     """
     log, log_close, _, _ = setup_logging(
-        "geometric_brownian_motion", "1_generate_gbm_simulations.log"
+        "geometric_brownian_motion", "1_generate_gbm_simulations.log",
     )
 
     try:
@@ -204,7 +205,7 @@ def main() -> bool:
         log(f"Generating {config['SIMULATIONS']} simulations over {n_steps} steps")
 
         simulations = generate_gbm_simulations(
-            initial_price, drift, volatility, dt, n_steps, config["SIMULATIONS"]
+            initial_price, drift, volatility, dt, n_steps, config["SIMULATIONS"],
         )
 
         plot_simulations(simulations, config, data)

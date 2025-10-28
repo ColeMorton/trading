@@ -38,7 +38,6 @@ from app.tools.services.strategy_data_coordinator import StrategyDataCoordinator
 class StrategyExecutionEngineError(Exception):
     """Exception raised by StrategyExecutionEngine."""
 
-    pass
 
 
 class StrategyExecutionEngine:
@@ -115,12 +114,12 @@ class StrategyExecutionEngine:
 
             # Validate strategy parameters
             self._validate_strategy_parameters(
-                strategy, strategy_config, strategy_type, log
+                strategy, strategy_config, strategy_type, log,
             )
 
             # Configure strategy parameters
             configured_params = self._configure_strategy_parameters(
-                strategy_type, strategy_config, log
+                strategy_type, strategy_config, log,
             )
 
             # Add project root to Python path
@@ -128,7 +127,7 @@ class StrategyExecutionEngine:
 
             # Execute strategy analysis
             return await self._execute_strategy_with_tracking(
-                strategy, configured_params, log, execution_id
+                strategy, configured_params, log, execution_id,
             )
 
         except Exception as e:
@@ -183,7 +182,7 @@ class StrategyExecutionEngine:
         log(f"Strategy parameters validated for {strategy_type_str}")
 
     def _configure_strategy_parameters(
-        self, strategy_type: StrategyTypeEnum, strategy_config: dict[str, Any], log
+        self, strategy_type: StrategyTypeEnum, strategy_config: dict[str, Any], log,
     ) -> dict[str, Any]:
         """Configure strategy-specific parameters."""
         configured_params = strategy_config.copy()
@@ -222,14 +221,14 @@ class StrategyExecutionEngine:
         # Update cache hit tracking if execution_id provided
         if execution_id:
             get_strategy_performance_tracker().update_execution_progress(
-                execution_id=execution_id, cache_hits=0
+                execution_id=execution_id, cache_hits=0,
             )
 
         # Monitor memory during execution if optimization enabled
         monitor_context = None
         if self.memory_optimizer:
             monitor_context = self.memory_optimizer.monitor.monitor_operation(
-                f"strategy_execution_{strategy_config.get('STRATEGY_TYPES', ['unknown'])[0]}"
+                f"strategy_execution_{strategy_config.get('STRATEGY_TYPES', ['unknown'])[0]}",
             )
 
         try:
@@ -237,13 +236,13 @@ class StrategyExecutionEngine:
                 # Execute strategy analysis in thread pool
                 loop = asyncio.get_event_loop()
                 all_portfolio_dicts = await loop.run_in_executor(
-                    self.executor, strategy.execute, strategy_config, log
+                    self.executor, strategy.execute, strategy_config, log,
                 )
 
                 # Optimize portfolio dictionaries if memory optimization enabled
                 if self.memory_optimizer and all_portfolio_dicts:
                     all_portfolio_dicts = self._optimize_portfolio_results(
-                        all_portfolio_dicts, log
+                        all_portfolio_dicts, log,
                     )
 
         finally:
@@ -257,7 +256,7 @@ class StrategyExecutionEngine:
         return all_portfolio_dicts or []
 
     def _optimize_portfolio_results(
-        self, portfolio_dicts: list[dict[str, Any]], log
+        self, portfolio_dicts: list[dict[str, Any]], log,
     ) -> list[dict[str, Any]]:
         """Optimize portfolio results for memory efficiency."""
         if not self.memory_optimizer:
@@ -272,7 +271,7 @@ class StrategyExecutionEngine:
                 for key, value in portfolio_dict.items():
                     if hasattr(value, "memory_usage"):  # pandas DataFrame
                         optimized_dict[key] = self.memory_optimizer.optimize_dataframe(
-                            value
+                            value,
                         )
                     elif hasattr(value, "estimated_size"):  # polars DataFrame
                         # Polars is already memory-efficient, but we can convert to pandas if needed
@@ -287,7 +286,7 @@ class StrategyExecutionEngine:
                 optimized_results.append(portfolio_dict)  # Fallback to original
 
         log(
-            f"Optimized {len(optimized_results)} portfolio results for memory efficiency"
+            f"Optimized {len(optimized_results)} portfolio results for memory efficiency",
         )
         return optimized_results
 
@@ -341,7 +340,7 @@ class StrategyExecutionEngine:
         use_concurrent = len(tickers) > 2  # Use concurrent for 3+ tickers
 
         log(
-            f"Processing {len(tickers)} tickers with {'concurrent' if use_concurrent else 'sequential'} execution"
+            f"Processing {len(tickers)} tickers with {'concurrent' if use_concurrent else 'sequential'} execution",
         )
 
         # Log data coordination status
@@ -392,7 +391,7 @@ class StrategyExecutionEngine:
                     )
 
                 log(
-                    f"execute_strategy returned {len(portfolios) if portfolios else 0} portfolios for {strategy_type}"
+                    f"execute_strategy returned {len(portfolios) if portfolios else 0} portfolios for {strategy_type}",
                 )
 
                 if portfolios:

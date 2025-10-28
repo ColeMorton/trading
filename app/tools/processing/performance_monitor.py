@@ -105,7 +105,7 @@ class MetricsCollector:
             self._check_thresholds(metric)
 
     def start_operation(
-        self, operation_name: str, tags: dict[str, str] | None = None
+        self, operation_name: str, tags: dict[str, str] | None = None,
     ) -> str:
         """Start tracking an operation."""
         operation_id = f"{operation_name}_{int(time.time() * 1000)}"
@@ -129,7 +129,7 @@ class MetricsCollector:
         return operation_id
 
     def end_operation(
-        self, operation_id: str, additional_metrics: dict[str, float] | None = None
+        self, operation_id: str, additional_metrics: dict[str, float] | None = None,
     ):
         """End tracking an operation."""
         with self._lock:
@@ -237,7 +237,7 @@ class MetricsCollector:
                         tags=tags,
                         category="cache",
                     ),
-                ]
+                ],
             )
 
         # Add custom metrics
@@ -250,7 +250,7 @@ class MetricsCollector:
                     timestamp=operation.end_time,
                     tags=tags,
                     category="custom",
-                )
+                ),
             )
 
         # Add metrics to collection
@@ -297,7 +297,7 @@ class MetricsCollector:
         agg["values"].append(metric.value)
 
     def _check_thresholds(
-        self, metric: PerformanceMetric, operation_name: str | None = None
+        self, metric: PerformanceMetric, operation_name: str | None = None,
     ):
         """Check if metric violates any thresholds."""
         if metric.name in self.thresholds:
@@ -324,7 +324,7 @@ class MetricsCollector:
             try:
                 handler(alert)
             except Exception as e:
-                logger.error(f"Alert handler failed: {e}")
+                logger.exception(f"Alert handler failed: {e}")
 
     def add_alert_handler(self, handler: Callable[[PerformanceAlert], None]):
         """Add an alert handler."""
@@ -367,7 +367,7 @@ class MetricsCollector:
             }
 
     def get_operation_summary(
-        self, operation_name: str | None = None, hours: int = 1
+        self, operation_name: str | None = None, hours: int = 1,
     ) -> dict[str, Any]:
         """Get operation summary."""
         cutoff_time = datetime.now() - timedelta(hours=hours)
@@ -470,7 +470,7 @@ class PerformanceMonitor:
 
     @contextmanager
     def monitor_operation(
-        self, operation_name: str, tags: dict[str, str] | None = None
+        self, operation_name: str, tags: dict[str, str] | None = None,
     ):
         """Context manager for monitoring an operation."""
         operation_id = self.collector.start_operation(operation_name, tags)
@@ -546,13 +546,13 @@ class PerformanceMonitor:
         return self.collector.get_metrics_summary(hours)
 
     def get_operation_summary(
-        self, operation_name: str | None = None, hours: int = 1
+        self, operation_name: str | None = None, hours: int = 1,
     ) -> dict[str, Any]:
         """Get operation summary."""
         return self.collector.get_operation_summary(operation_name, hours)
 
     def export_metrics(
-        self, output_file: Path, hours: int = 24, format: str = "json"
+        self, output_file: Path, hours: int = 24, format: str = "json",
     ) -> int:
         """Export metrics to file."""
         cutoff_time = datetime.now() - timedelta(hours=hours)
@@ -634,7 +634,7 @@ def monitor_operation(operation_name: str, tags: dict[str, str] | None = None):
 
 
 def monitor_function(
-    operation_name: str | None = None, tags: dict[str, str] | None = None
+    operation_name: str | None = None, tags: dict[str, str] | None = None,
 ):
     """Decorator for monitoring function performance."""
     return get_performance_monitor().monitor_function(operation_name, tags)

@@ -41,9 +41,8 @@ def calculate_expectancy(win_rate: float, avg_win: float, avg_loss: float) -> fl
     avg_loss_abs = abs(avg_loss)
 
     # Apply the standard expectancy formula
-    expectancy = (win_rate * avg_win) - ((1.0 - win_rate) * avg_loss_abs)
+    return (win_rate * avg_win) - ((1.0 - win_rate) * avg_loss_abs)
 
-    return expectancy
 
 
 def calculate_expectancy_from_returns(
@@ -172,7 +171,7 @@ def calculate_expectancy_with_stop_loss(
 
     # Calculate expectancy with adjusted returns
     expectancy, components = calculate_expectancy_from_returns(
-        np.array(adjusted_returns)
+        np.array(adjusted_returns),
     )
 
     # Override loss_count to match the actual number of losses
@@ -182,7 +181,7 @@ def calculate_expectancy_with_stop_loss(
 
 
 def calculate_expectancy_per_month(
-    expectancy_per_trade: float, trades_per_month: float
+    expectancy_per_trade: float, trades_per_month: float,
 ) -> float:
     """Calculate monthly expectancy from per-trade expectancy.
 
@@ -197,7 +196,7 @@ def calculate_expectancy_per_month(
 
 
 def calculate_expectancy_metrics(
-    returns: list[float] | np.ndarray | pd.Series, config: dict[str, Any]
+    returns: list[float] | np.ndarray | pd.Series, config: dict[str, Any],
 ) -> dict[str, float]:
     """Calculate comprehensive expectancy metrics.
 
@@ -231,7 +230,7 @@ def calculate_expectancy_metrics(
     if "STOP_LOSS" in config and config["STOP_LOSS"] is not None:
         direction = config.get("DIRECTION", "Long")
         sl_expectancy, sl_components = calculate_expectancy_with_stop_loss(
-            returns, config["STOP_LOSS"], direction
+            returns, config["STOP_LOSS"], direction,
         )
 
         # Update results with stop-loss adjusted metrics
@@ -250,7 +249,7 @@ def calculate_expectancy_metrics(
     # Calculate monthly expectancy if trades per month is provided
     if "TRADES_PER_MONTH" in config and config["TRADES_PER_MONTH"] is not None:
         expectancy_per_month = calculate_expectancy_per_month(
-            results["Expectancy per Trade"], config["TRADES_PER_MONTH"]
+            results["Expectancy per Trade"], config["TRADES_PER_MONTH"],
         )
         results["Expectancy per Month"] = expectancy_per_month
 

@@ -19,6 +19,7 @@ from app.concurrency.tools.permutation import (
 )
 
 from .base import ConcurrencyTestCase, MockDataMixin
+import pytest
 
 
 class TestPermutationGeneration(unittest.TestCase):
@@ -47,13 +48,13 @@ class TestPermutationGeneration(unittest.TestCase):
         strategies = [{"ticker": "BTC"}]
 
         # Should raise ValueError when min_strategies > available
-        with self.assertRaises(ValueError) as cm:
+        with pytest.raises(ValueError) as cm:
             generate_strategy_permutations(strategies, min_strategies=2)
 
         self.assertIn("cannot be greater than", str(cm.exception))
 
         # Should raise ValueError when min_strategies < 2
-        with self.assertRaises(ValueError) as cm:
+        with pytest.raises(ValueError) as cm:
             generate_strategy_permutations(strategies, min_strategies=1)
 
         self.assertIn("must be at least 2", str(cm.exception))
@@ -101,14 +102,14 @@ class TestPermutationAnalysis(ConcurrencyTestCase, MockDataMixin):
         mock_analyze = Mock(return_value=({"efficiency_score": 0.85}, []))
 
         stats, aligned = analyze_permutation(
-            permutation, mock_process, mock_analyze, self.log_mock
+            permutation, mock_process, mock_analyze, self.log_mock,
         )
 
         # Check that allocations were equalized
         expected_allocation = 1.0 / 3
         for strategy in permutation:
             self.assertAlmostEqual(
-                strategy["ALLOCATION"], expected_allocation, places=5
+                strategy["ALLOCATION"], expected_allocation, places=5,
             )
 
         # Verify log message about equal allocations
@@ -186,7 +187,7 @@ class TestPermutationAnalysis(ConcurrencyTestCase, MockDataMixin):
             return {"efficiency_score": score}, []
 
         best_perm, best_stats, best_aligned = find_optimal_permutation(
-            strategies, mock_process, mock_analyze, self.log_mock, min_strategies=2
+            strategies, mock_process, mock_analyze, self.log_mock, min_strategies=2,
         )
 
         # Should find the permutation with 0.9 efficiency
@@ -229,12 +230,13 @@ class TestPermutationAnalysis(ConcurrencyTestCase, MockDataMixin):
             nonlocal call_count
             call_count += 1
             if call_count <= 2:
-                raise ValueError("Test error")
+                msg = "Test error"
+                raise ValueError(msg)
             return {"efficiency_score": 0.8}, []
 
         # Should still find best despite errors
         best_perm, best_stats, best_aligned = find_optimal_permutation(
-            strategies, mock_process, mock_analyze, self.log_mock, min_strategies=2
+            strategies, mock_process, mock_analyze, self.log_mock, min_strategies=2,
         )
 
         self.assertEqual(best_stats["efficiency_score"], 0.8)
@@ -312,7 +314,7 @@ class TestOptimizationReport(ConcurrencyTestCase):
         # Check improvement calculation
         expected_improvement = (0.85 - 0.7) / 0.7 * 100
         self.assertAlmostEqual(
-            summary["efficiency_improvement_percent"], expected_improvement, places=2
+            summary["efficiency_improvement_percent"], expected_improvement, places=2,
         )
 
     def test_save_optimization_report(self):

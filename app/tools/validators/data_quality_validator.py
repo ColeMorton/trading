@@ -91,7 +91,7 @@ class DataQualityValidator:
 
         if len(incorrect_sma_ema) > 0:
             issues.append(
-                f"Found {len(incorrect_sma_ema)} SMA/EMA positions with incorrect UUID format (contains Signal_Period)"
+                f"Found {len(incorrect_sma_ema)} SMA/EMA positions with incorrect UUID format (contains Signal_Period)",
             )
 
         # Check MACD strategies should have signal period in UUID
@@ -102,7 +102,7 @@ class DataQualityValidator:
             incorrect_macd = len(macd_df) - len(correct_macd)
             if incorrect_macd > 0:
                 issues.append(
-                    f"Found {incorrect_macd} MACD positions with incorrect UUID format"
+                    f"Found {incorrect_macd} MACD positions with incorrect UUID format",
                 )
 
         # Check for duplicate UUIDs
@@ -152,7 +152,7 @@ class DataQualityValidator:
             ]
             if len(extreme_values) > 0:
                 issues.append(
-                    f"Found {len(extreme_values)} positions with extreme Exit_Efficiency values (>|100|)"
+                    f"Found {len(extreme_values)} positions with extreme Exit_Efficiency values (>|100|)",
                 )
 
         # Check MFE/MAE consistency
@@ -166,7 +166,7 @@ class DataQualityValidator:
             ]
             if len(negative_mfe) > 0:
                 issues.append(
-                    f"Found {len(negative_mfe)} positions with negative MFE values"
+                    f"Found {len(negative_mfe)} positions with negative MFE values",
                 )
 
             negative_mae = df[
@@ -175,7 +175,7 @@ class DataQualityValidator:
             ]
             if len(negative_mae) > 0:
                 issues.append(
-                    f"Found {len(negative_mae)} positions with negative MAE values"
+                    f"Found {len(negative_mae)} positions with negative MAE values",
                 )
 
         # Check for infinite values
@@ -184,7 +184,7 @@ class DataQualityValidator:
             inf_values = df[df[col].isin([np.inf, -np.inf])]
             if len(inf_values) > 0:
                 issues.append(
-                    f"Found {len(inf_values)} infinite values in column '{col}'"
+                    f"Found {len(inf_values)} infinite values in column '{col}'",
                 )
 
         return issues
@@ -217,7 +217,7 @@ class DataQualityValidator:
                     if pd.notna(max_decimals) and max_decimals > 6:
                         over_precision_count = (decimal_places > 6).sum()
                         warnings.append(
-                            f"Column '{col}' has {over_precision_count} values with more than 6 decimal places"
+                            f"Column '{col}' has {over_precision_count} values with more than 6 decimal places",
                         )
 
         return warnings
@@ -236,7 +236,7 @@ class DataQualityValidator:
             if scientific_values.any():
                 count = scientific_values.sum()
                 issues.append(
-                    f"Found {count} values in scientific notation in column '{col}'"
+                    f"Found {count} values in scientific notation in column '{col}'",
                 )
 
         return issues
@@ -286,7 +286,7 @@ class DataQualityValidator:
         if "Strategy_Type" in df_fixed.columns and "Position_UUID" in df_fixed.columns:
             sma_ema_mask = df_fixed["Strategy_Type"].isin(["SMA", "EMA"])
             incorrect_uuid_mask = df_fixed["Position_UUID"].str.contains(
-                "_0_", na=False
+                "_0_", na=False,
             )
 
             positions_to_fix = sma_ema_mask & incorrect_uuid_mask
@@ -295,7 +295,7 @@ class DataQualityValidator:
                 count = positions_to_fix.sum()
                 # Fix UUID format by removing "_0"
                 df_fixed.loc[positions_to_fix, "Position_UUID"] = df_fixed.loc[
-                    positions_to_fix, "Position_UUID"
+                    positions_to_fix, "Position_UUID",
                 ].str.replace("_0_", "_", regex=False)
                 fixes_applied.append(f"Fixed UUID format for {count} SMA/EMA positions")
 
@@ -307,7 +307,7 @@ class DataQualityValidator:
             if missing_trade_type.any():
                 count = missing_trade_type.sum()
                 df_fixed.loc[missing_trade_type, "Trade_Type"] = df_fixed.loc[
-                    missing_trade_type, "Direction"
+                    missing_trade_type, "Direction",
                 ]
                 fixes_applied.append(f"Populated Trade_Type for {count} positions")
 
@@ -329,13 +329,13 @@ class DataQualityValidator:
                 numeric_mask = pd.to_numeric(df_fixed[col], errors="coerce").notna()
                 if numeric_mask.any():
                     df_fixed.loc[numeric_mask, col] = pd.to_numeric(
-                        df_fixed.loc[numeric_mask, col]
+                        df_fixed.loc[numeric_mask, col],
                     ).round(6)
                     precision_fixes += numeric_mask.sum()
 
         if precision_fixes > 0:
             fixes_applied.append(
-                f"Standardized precision for {precision_fixes} numeric values"
+                f"Standardized precision for {precision_fixes} numeric values",
             )
 
         # 4. Convert scientific notation
@@ -352,7 +352,7 @@ class DataQualityValidator:
 
         if sci_notation_fixes > 0:
             fixes_applied.append(
-                f"Converted {sci_notation_fixes} scientific notation values to proper format"
+                f"Converted {sci_notation_fixes} scientific notation values to proper format",
             )
 
         return df_fixed, fixes_applied

@@ -192,7 +192,7 @@ class SignalConfigManager:
         if log is None:
             # Create a default logger if none provided
             self.log, _, _, _ = setup_logging(
-                "signal_config", "./logs", "signal_config.log"  # type: ignore[arg-type]
+                "signal_config", "./logs", "signal_config.log",  # type: ignore[arg-type]
             )
         else:
             self.log = log
@@ -411,13 +411,13 @@ class SignalConfigManager:
 
         if "MIN_ATR" in config and config["MIN_ATR"] < 0:
             self.log(
-                f"Invalid MIN_ATR: {config['MIN_ATR']}, must be non-negative", "warning"
+                f"Invalid MIN_ATR: {config['MIN_ATR']}, must be non-negative", "warning",
             )
             config.pop("MIN_ATR", None)
 
         if "MAX_ATR" in config and config["MAX_ATR"] < 0:
             self.log(
-                f"Invalid MAX_ATR: {config['MAX_ATR']}, must be non-negative", "warning"
+                f"Invalid MAX_ATR: {config['MAX_ATR']}, must be non-negative", "warning",
             )
             config.pop("MAX_ATR", None)
 
@@ -449,7 +449,7 @@ class SignalConfigManager:
         for i, weight in enumerate(weights):
             if weight < 0 or weight > 1:
                 self.log(
-                    f"Invalid weight: {weight}, must be between 0 and 1", "warning"
+                    f"Invalid weight: {weight}, must be between 0 and 1", "warning",
                 )
                 weights[i] = DEFAULT_SIGNAL_QUALITY_CONFIG[
                     list(DEFAULT_SIGNAL_QUALITY_CONFIG.keys())[i]
@@ -518,7 +518,7 @@ class SignalConfigManager:
         for i, weight in enumerate(weights):
             if weight < 0 or weight > 1:
                 self.log(
-                    f"Invalid weight: {weight}, must be between 0 and 1", "warning"
+                    f"Invalid weight: {weight}, must be between 0 and 1", "warning",
                 )
                 weights[i] = DEFAULT_HORIZON_ANALYSIS_CONFIG[
                     list(DEFAULT_HORIZON_ANALYSIS_CONFIG.keys())[i + 2]
@@ -597,7 +597,7 @@ def get_default_config() -> dict[str, dict[str, Any]]:
 
 # Convenience function to load configuration from file
 def load_config_from_file(
-    filepath: str | Path, log: Callable[[str, str], None] | None = None
+    filepath: str | Path, log: Callable[[str, str], None] | None = None,
 ) -> SignalConfigManager:
     """Load configuration from a file and return a config manager.
 
@@ -615,7 +615,7 @@ def load_config_from_file(
 
 # Convenience function to create a configuration file with default values
 def create_default_config_file(
-    filepath: str | Path, log: Callable[[str, str], None] | None = None
+    filepath: str | Path, log: Callable[[str, str], None] | None = None,
 ) -> bool:
     """Create a configuration file with default values.
 

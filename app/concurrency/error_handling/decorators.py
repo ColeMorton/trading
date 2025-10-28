@@ -80,14 +80,16 @@ def handle_concurrency_errors(
                 error_mapping_to_use = error_mapping or {}
                 if type(e) in error_mapping_to_use:
                     concurrency_exception = error_mapping_to_use[type(e)]
+                    msg = f"Error in {operation}: {e!s}"
                     raise concurrency_exception(
-                        f"Error in {operation}: {e!s}", context=context_data
+                        msg, context=context_data,
                     ) from e
                 if not isinstance(e, ConcurrencyError) and reraise:
                     # Wrap in generic ConcurrencyError if not already a concurrency
                     # exception
+                    msg = f"Error in {operation}: {e!s}"
                     raise ConcurrencyError(
-                        f"Error in {operation}: {e!s}", context=context_data
+                        msg, context=context_data,
                     ) from e
                 if reraise:
                     raise
@@ -132,8 +134,9 @@ def validate_inputs(**validation_rules):
                     value = bound_args.arguments[param_name]
                     try:
                         if not validation_func(value):
+                            msg = f"Validation failed for parameter '{param_name}'"
                             raise ValidationError(
-                                f"Validation failed for parameter '{param_name}'",
+                                msg,
                                 field_name=param_name,
                                 actual_value=value,
                                 context={"function": func.__name__},
@@ -141,8 +144,9 @@ def validate_inputs(**validation_rules):
                     except Exception as e:
                         if isinstance(e, ValidationError):
                             raise
+                        msg = f"Validation error for parameter '{param_name}': {e!s}"
                         raise ValidationError(
-                            f"Validation error for parameter '{param_name}': {e!s}",
+                            msg,
                             field_name=param_name,
                             actual_value=value,
                             context={"function": func.__name__},
@@ -151,8 +155,9 @@ def validate_inputs(**validation_rules):
                     # Parameter not provided, check if it's required
                     param = sig.parameters[param_name]
                     if param.default is inspect.Parameter.empty:
+                        msg = f"Required parameter '{param_name}' not provided"
                         raise ValidationError(
-                            f"Required parameter '{param_name}' not provided",
+                            msg,
                             field_name=param_name,
                             context={"function": func.__name__},
                         )
@@ -269,8 +274,7 @@ def track_performance(
             start_time = time.time()
 
             try:
-                result = func(*args, **kwargs)
-                return result
+                return func(*args, **kwargs)
 
             finally:
                 end_time = time.time()
@@ -321,8 +325,9 @@ def require_fields(*required_fields):
                             missing_fields.append(field)
 
                     if missing_fields:
+                        msg = f"Missing required fields in {param_name}: {missing_fields}"
                         raise ValidationError(
-                            f"Missing required fields in {param_name}: {missing_fields}",
+                            msg,
                             field_name=param_name,
                             context={
                                 "function": func.__name__,

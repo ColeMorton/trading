@@ -36,7 +36,6 @@ def main():
 
     # Check if fixed implementation is available
     try:
-        pass
 
         print("\n✅ Fixed risk calculation module is available")
     except ImportError:
@@ -77,7 +76,7 @@ def main():
 
     # Calculate risk contributions
     result = calculate_risk_contributions(
-        position_arrays, data_list, allocations, mock_log
+        position_arrays, data_list, allocations, mock_log,
     )
 
     # Check logs for which implementation was used

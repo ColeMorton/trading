@@ -31,7 +31,7 @@ class CoverageReporter:
         self.analysis = {}
 
     def run_coverage_tests(
-        self, test_categories: list[str] | None = None, verbose: bool = False
+        self, test_categories: list[str] | None = None, verbose: bool = False,
     ) -> dict:
         """
         Run tests with coverage collection.
@@ -225,7 +225,7 @@ class CoverageReporter:
             gap = self.target_coverage - line_coverage
             recommendations.append(
                 f"Overall coverage is {gap:.1f}% below target. "
-                f"Focus on modules with <80% coverage."
+                f"Focus on modules with <80% coverage.",
             )
 
         # Find modules needing attention
@@ -237,7 +237,7 @@ class CoverageReporter:
             module_names = [m["name"] for m in poor_modules]
             recommendations.append(
                 f"Critical: {len(poor_modules)} modules have <60% coverage: "
-                f"{', '.join(module_names)}"
+                f"{', '.join(module_names)}",
             )
 
         fair_modules = [
@@ -248,14 +248,14 @@ class CoverageReporter:
             module_names = [m["name"] for m in fair_modules]
             recommendations.append(
                 f"Priority: {len(fair_modules)} modules need improvement (60-80%): "
-                f"{', '.join(module_names)}"
+                f"{', '.join(module_names)}",
             )
 
         # Branch coverage recommendations
         if branch_coverage < line_coverage - 10:
             recommendations.append(
                 f"Branch coverage ({branch_coverage:.1f}%) significantly lower "
-                f"than line coverage. Add conditional logic tests."
+                f"than line coverage. Add conditional logic tests.",
             )
 
         analysis["recommendations"] = recommendations
@@ -273,7 +273,7 @@ class CoverageReporter:
                             "class": class_data.get("name"),
                             "coverage": class_coverage,
                             "severity": "critical",
-                        }
+                        },
                     )
 
         analysis["critical_gaps"] = critical_gaps
@@ -281,7 +281,7 @@ class CoverageReporter:
         return analysis
 
     def generate_report(
-        self, output_file: str | None = None, format_type: str = "console"
+        self, output_file: str | None = None, format_type: str = "console",
     ) -> dict:
         """
         Generate comprehensive coverage report.
@@ -444,7 +444,7 @@ Examples:
         help="Skip running tests, use existing coverage data",
     )
     parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable verbose output"
+        "-v", "--verbose", action="store_true", help="Enable verbose output",
     )
 
     args = parser.parse_args()
@@ -455,7 +455,7 @@ Examples:
         # Run tests with coverage (unless skipped)
         if not args.skip_tests:
             test_result = reporter.run_coverage_tests(
-                test_categories=args.categories, verbose=args.verbose
+                test_categories=args.categories, verbose=args.verbose,
             )
 
             if test_result.get("status") == "error":
@@ -464,7 +464,7 @@ Examples:
 
         # Generate report
         report = reporter.generate_report(
-            output_file=args.save, format_type=args.format
+            output_file=args.save, format_type=args.format,
         )
 
         if not report:
@@ -475,7 +475,7 @@ Examples:
         overall = report.get("analysis", {}).get("overall_assessment", {})
         if not overall.get("meets_target", False):
             print(
-                f"\nWARNING: Coverage {overall.get('line_coverage', 0):.1f}% below target {args.target}%"
+                f"\nWARNING: Coverage {overall.get('line_coverage', 0):.1f}% below target {args.target}%",
             )
             sys.exit(2)  # Warning exit code
 

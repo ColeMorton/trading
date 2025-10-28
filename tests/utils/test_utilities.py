@@ -65,7 +65,7 @@ class MockDataFactory:
                 "Low": [p * 0.98 for p in prices],
                 "Open": [p * (1 + ((i % 5 - 2) * 0.005)) for i, p in enumerate(prices)],
                 "Volume": [1000000 + (i % 500000) for i in range(len(prices))],
-            }
+            },
         )
 
     @staticmethod
@@ -132,7 +132,7 @@ class MockDataFactory:
 
     @staticmethod
     def create_multi_ticker_results(
-        tickers: list[str], strategy_types: list[str], results_per_combination: int = 3
+        tickers: list[str], strategy_types: list[str], results_per_combination: int = 3,
     ) -> pl.DataFrame:
         """Create multi-ticker, multi-strategy results."""
         all_results = []
@@ -169,7 +169,7 @@ class MockDataFactory:
                 "Sharpe Ratio": [1.2],
                 "Score": [7.5],
                 "Metric Type": ["Most Total Return [%]"],
-            }
+            },
         )
 
     @staticmethod
@@ -356,24 +356,29 @@ class ExportValidator:
     def validate_csv_file(file_path: Path) -> dict[str, Any]:
         """Validate CSV file structure and return metadata."""
         if not file_path.exists():
-            raise AssertionError(f"CSV file does not exist: {file_path}")
+            msg = f"CSV file does not exist: {file_path}"
+            raise AssertionError(msg)
 
         if not file_path.is_file():
-            raise AssertionError(f"Path is not a file: {file_path}")
+            msg = f"Path is not a file: {file_path}"
+            raise AssertionError(msg)
 
         # Read CSV file
         try:
             df_pandas = pd.read_csv(file_path)
             df_polars = pl.read_csv(file_path)
         except Exception as e:
-            raise AssertionError(f"Failed to read CSV file {file_path}: {e}")
+            msg = f"Failed to read CSV file {file_path}: {e}"
+            raise AssertionError(msg)
 
         # Validate basic structure
         if len(df_pandas) == 0:
-            raise AssertionError(f"CSV file is empty: {file_path}")
+            msg = f"CSV file is empty: {file_path}"
+            raise AssertionError(msg)
 
         if len(df_pandas.columns) == 0:
-            raise AssertionError(f"CSV file has no columns: {file_path}")
+            msg = f"CSV file has no columns: {file_path}"
+            raise AssertionError(msg)
 
         # Check for required columns
         required_columns = ["Ticker", "Strategy Type", "Score"]
@@ -381,8 +386,9 @@ class ExportValidator:
             col for col in required_columns if col not in df_pandas.columns
         ]
         if missing_columns:
+            msg = f"CSV file missing required columns {missing_columns}: {file_path}"
             raise AssertionError(
-                f"CSV file missing required columns {missing_columns}: {file_path}"
+                msg,
             )
 
         return {
@@ -401,16 +407,19 @@ class ExportValidator:
         expected_path = base_dir / "data" / "raw" / export_type
 
         if not expected_path.exists():
-            raise AssertionError(f"Export directory does not exist: {expected_path}")
+            msg = f"Export directory does not exist: {expected_path}"
+            raise AssertionError(msg)
 
         if not expected_path.is_dir():
-            raise AssertionError(f"Export path is not a directory: {expected_path}")
+            msg = f"Export path is not a directory: {expected_path}"
+            raise AssertionError(msg)
 
         # Check for CSV files
         csv_files = list(expected_path.glob("*.csv"))
         if not csv_files:
+            msg = f"No CSV files found in export directory: {expected_path}"
             raise AssertionError(
-                f"No CSV files found in export directory: {expected_path}"
+                msg,
             )
 
         return {
@@ -429,39 +438,44 @@ class ExportValidator:
         }
 
         if schema_type not in required_schemas:
-            raise ValueError(f"Unknown schema type: {schema_type}")
+            msg = f"Unknown schema type: {schema_type}"
+            raise ValueError(msg)
 
         required_columns = required_schemas[schema_type]
         missing_columns = [col for col in required_columns if col not in df.columns]
 
         if missing_columns:
+            msg = f"DataFrame missing required columns for {schema_type}: {missing_columns}"
             raise AssertionError(
-                f"DataFrame missing required columns for {schema_type}: {missing_columns}"
+                msg,
             )
 
         # Validate column ordering for filtered/best schemas
         if schema_type in ["portfolios_filtered", "portfolios_best"]:
             if df.columns[0] != "Metric Type":
+                msg = f"First column should be 'Metric Type' for {schema_type}, got: {df.columns[0]}"
                 raise AssertionError(
-                    f"First column should be 'Metric Type' for {schema_type}, got: {df.columns[0]}"
+                    msg,
                 )
 
         return True
 
     @staticmethod
     def validate_metric_type_preservation(
-        df: pl.DataFrame, expected_metric_types: list[str]
+        df: pl.DataFrame, expected_metric_types: list[str],
     ):
         """Validate that metric types are preserved correctly."""
         if "Metric Type" not in df.columns:
-            raise AssertionError("DataFrame missing 'Metric Type' column")
+            msg = "DataFrame missing 'Metric Type' column"
+            raise AssertionError(msg)
 
         actual_metric_types = set(df["Metric Type"].unique().to_list())
         expected_metric_types_set = set(expected_metric_types)
 
         missing_types = expected_metric_types_set - actual_metric_types
         if missing_types:
-            raise AssertionError(f"Missing expected metric types: {missing_types}")
+            msg = f"Missing expected metric types: {missing_types}"
+            raise AssertionError(msg)
 
         return True
 
@@ -481,21 +495,24 @@ class ExportValidator:
                 # Check for null values
                 null_count = df[col].null_count()
                 if null_count > 0:
-                    raise AssertionError(f"Column {col} has {null_count} null values")
+                    msg = f"Column {col} has {null_count} null values"
+                    raise AssertionError(msg)
 
                 # Check for reasonable ranges
                 if col == "Win Rate [%]":
                     values = df[col].to_list()
                     if any(v < 0 or v > 100 for v in values):
+                        msg = f"Win Rate values outside valid range [0,100]: {values}"
                         raise AssertionError(
-                            f"Win Rate values outside valid range [0,100]: {values}"
+                            msg,
                         )
 
                 if col == "Total Trades":
                     values = df[col].to_list()
                     if any(v <= 0 for v in values):
+                        msg = f"Total Trades has non-positive values: {values}"
                         raise AssertionError(
-                            f"Total Trades has non-positive values: {values}"
+                            msg,
                         )
 
         return True
@@ -531,7 +548,7 @@ class ConfigBuilder:
         return self
 
     def with_minimums(
-        self, win_rate: float = 0.5, trades: int = 20, profit_factor: float = 1.0
+        self, win_rate: float = 0.5, trades: int = 20, profit_factor: float = 1.0,
     ):
         """Add minimum criteria."""
         self.config["minimums"] = {
@@ -587,104 +604,120 @@ class AssertionHelpers:
     def assert_valid_ticker_format(ticker: str):
         """Assert ticker has valid format."""
         if not ticker or not isinstance(ticker, str):
-            raise AssertionError(f"Invalid ticker format: {ticker}")
+            msg = f"Invalid ticker format: {ticker}"
+            raise AssertionError(msg)
 
         if len(ticker.strip()) == 0:
-            raise AssertionError("Ticker cannot be empty")
+            msg = "Ticker cannot be empty"
+            raise AssertionError(msg)
 
         # Allow various ticker formats
         valid_chars = set("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/.=^")
         if not all(c in valid_chars for c in ticker.upper().replace(" ", "")):
-            raise AssertionError(f"Ticker contains invalid characters: {ticker}")
+            msg = f"Ticker contains invalid characters: {ticker}"
+            raise AssertionError(msg)
 
     @staticmethod
     def assert_valid_strategy_results(df: pl.DataFrame):
         """Assert DataFrame contains valid strategy results."""
         if len(df) == 0:
-            raise AssertionError("Strategy results DataFrame is empty")
+            msg = "Strategy results DataFrame is empty"
+            raise AssertionError(msg)
 
         required_columns = ["Ticker", "Strategy Type", "Score"]
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
-            raise AssertionError(f"Missing required columns: {missing_columns}")
+            msg = f"Missing required columns: {missing_columns}"
+            raise AssertionError(msg)
 
         # Validate data types and ranges
         if "Score" in df.columns:
             scores = df["Score"].to_list()
             if any(not isinstance(score, int | float) for score in scores):
-                raise AssertionError("Score column contains non-numeric values")
+                msg = "Score column contains non-numeric values"
+                raise AssertionError(msg)
             if any(score < 0 or score > 10 for score in scores):
+                msg = f"Score values outside valid range [0,10]: {scores}"
                 raise AssertionError(
-                    f"Score values outside valid range [0,10]: {scores}"
+                    msg,
                 )
 
     @staticmethod
     def assert_export_file_naming_convention(
-        file_path: Path, ticker: str, strategy: str | None = None
+        file_path: Path, ticker: str, strategy: str | None = None,
     ):
         """Assert export file follows naming convention."""
         filename = file_path.name
 
         # Should contain ticker
         if ticker.replace("/", "_").replace("-", "_") not in filename:
-            raise AssertionError(f"Filename should contain ticker {ticker}: {filename}")
+            msg = f"Filename should contain ticker {ticker}: {filename}"
+            raise AssertionError(msg)
 
         # Should contain strategy if single strategy
         if strategy and len([strategy]) == 1 and strategy not in filename:
+            msg = f"Filename should contain strategy {strategy}: {filename}"
             raise AssertionError(
-                f"Filename should contain strategy {strategy}: {filename}"
+                msg,
             )
 
         # Should have .csv extension
         if not filename.endswith(".csv"):
-            raise AssertionError(f"Filename should have .csv extension: {filename}")
+            msg = f"Filename should have .csv extension: {filename}"
+            raise AssertionError(msg)
 
     @staticmethod
     def assert_cli_command_success(result, expected_messages: list[str] | None = None):
         """Assert CLI command executed successfully."""
         if result.exit_code != 0:
+            msg = f"CLI command failed with exit code {result.exit_code}. Output: {result.stdout}"
             raise AssertionError(
-                f"CLI command failed with exit code {result.exit_code}. Output: {result.stdout}"
+                msg,
             )
 
         if expected_messages:
             for message in expected_messages:
                 if message not in result.stdout:
+                    msg = f"Expected message '{message}' not found in output: {result.stdout}"
                     raise AssertionError(
-                        f"Expected message '{message}' not found in output: {result.stdout}"
+                        msg,
                     )
 
     @staticmethod
     def assert_cli_command_failure(
-        result, expected_error_messages: list[str] | None = None
+        result, expected_error_messages: list[str] | None = None,
     ):
         """Assert CLI command failed appropriately."""
         if result.exit_code == 0:
+            msg = f"CLI command should have failed but succeeded. Output: {result.stdout}"
             raise AssertionError(
-                f"CLI command should have failed but succeeded. Output: {result.stdout}"
+                msg,
             )
 
         if expected_error_messages:
             output_lower = result.stdout.lower()
             for error_msg in expected_error_messages:
                 if error_msg.lower() not in output_lower:
+                    msg = f"Expected error message '{error_msg}' not found in output: {result.stdout}"
                     raise AssertionError(
-                        f"Expected error message '{error_msg}' not found in output: {result.stdout}"
+                        msg,
                     )
 
     @staticmethod
     def assert_dataframe_equals_with_tolerance(
-        df1: pl.DataFrame, df2: pl.DataFrame, tolerance: float = 1e-6
+        df1: pl.DataFrame, df2: pl.DataFrame, tolerance: float = 1e-6,
     ):
         """Assert DataFrames are equal with numerical tolerance."""
         if df1.shape != df2.shape:
+            msg = f"DataFrames have different shapes: {df1.shape} vs {df2.shape}"
             raise AssertionError(
-                f"DataFrames have different shapes: {df1.shape} vs {df2.shape}"
+                msg,
             )
 
         if df1.columns != df2.columns:
+            msg = f"DataFrames have different columns: {df1.columns} vs {df2.columns}"
             raise AssertionError(
-                f"DataFrames have different columns: {df1.columns} vs {df2.columns}"
+                msg,
             )
 
         # Check numerical columns with tolerance
@@ -692,26 +725,30 @@ class AssertionHelpers:
             if df1[col].dtype in [pl.Float64, pl.Float32, pl.Int64, pl.Int32]:
                 diff = abs(df1[col] - df2[col]).max()
                 if diff > tolerance:
+                    msg = f"Column {col} differs by more than tolerance {tolerance}: max diff = {diff}"
                     raise AssertionError(
-                        f"Column {col} differs by more than tolerance {tolerance}: max diff = {diff}"
+                        msg,
                     )
             elif not df1[col].equals(df2[col]):
-                raise AssertionError(f"Column {col} values are not equal")
+                msg = f"Column {col} values are not equal"
+                raise AssertionError(msg)
 
     @staticmethod
     def assert_performance_within_bounds(execution_time: float, max_time: float):
         """Assert execution time is within performance bounds."""
         if execution_time > max_time:
+            msg = f"Execution time {execution_time:.2f}s exceeds maximum {max_time:.2f}s"
             raise AssertionError(
-                f"Execution time {execution_time:.2f}s exceeds maximum {max_time:.2f}s"
+                msg,
             )
 
     @staticmethod
     def assert_memory_usage_reasonable(memory_usage_mb: float, max_memory_mb: float):
         """Assert memory usage is within reasonable bounds."""
         if memory_usage_mb > max_memory_mb:
+            msg = f"Memory usage {memory_usage_mb:.2f}MB exceeds maximum {max_memory_mb:.2f}MB"
             raise AssertionError(
-                f"Memory usage {memory_usage_mb:.2f}MB exceeds maximum {max_memory_mb:.2f}MB"
+                msg,
             )
 
 
@@ -723,7 +760,7 @@ def create_test_workspace() -> Path:
     # Create expected directories
     (temp_dir / "data" / "raw" / "portfolios").mkdir(parents=True, exist_ok=True)
     (temp_dir / "data" / "raw" / "portfolios_filtered").mkdir(
-        parents=True, exist_ok=True
+        parents=True, exist_ok=True,
     )
     (temp_dir / "data" / "raw" / "portfolios_best").mkdir(parents=True, exist_ok=True)
     (temp_dir / "app" / "cli" / "profiles").mkdir(parents=True, exist_ok=True)
@@ -732,7 +769,7 @@ def create_test_workspace() -> Path:
 
 
 def create_test_profile(
-    workspace: Path, profile_name: str, config_builder: ConfigBuilder
+    workspace: Path, profile_name: str, config_builder: ConfigBuilder,
 ) -> Path:
     """Create test profile file in workspace."""
     profiles_dir = workspace / "app" / "cli" / "profiles"

@@ -64,7 +64,7 @@ def validate_position_data(position: dict[str, Any]) -> list[str]:
 
     # Validate strategy type
     if "Strategy_Type" in position and not validate_strategy_type(
-        position["Strategy_Type"]
+        position["Strategy_Type"],
     ):
         errors.append(f"Invalid strategy type: {position['Strategy_Type']}")
 
@@ -150,7 +150,7 @@ def normalize_position_data(position: dict[str, Any]) -> dict[str, Any]:
 
 
 def get_portfolio_summary(
-    portfolio_name: str, config: TradingSystemConfig = None
+    portfolio_name: str, config: TradingSystemConfig = None,
 ) -> dict[str, Any]:
     """Get summary statistics for a portfolio."""
     if config is None:
@@ -206,7 +206,7 @@ def get_portfolio_summary(
                 "total_return": float(returns.sum()),
             }
 
-    summary = {
+    return {
         "portfolio_name": portfolio_name,
         "total_positions": total_positions,
         "open_positions": open_positions,
@@ -218,11 +218,10 @@ def get_portfolio_summary(
         "last_updated": datetime.now().isoformat(),
     }
 
-    return summary
 
 
 def compare_portfolios(
-    portfolio_names: list[str], config: TradingSystemConfig = None
+    portfolio_names: list[str], config: TradingSystemConfig = None,
 ) -> dict[str, Any]:
     """Compare multiple portfolios and return comparative analysis."""
     if config is None:
@@ -257,7 +256,7 @@ def compare_portfolios(
         comparison["comparison"]["win_rates"][name] = perf.get("win_rate")
         comparison["comparison"]["avg_returns"][name] = perf.get("avg_return")
         comparison["comparison"]["quality_distributions"][name] = data.get(
-            "trade_quality_breakdown", {}
+            "trade_quality_breakdown", {},
         )
 
     return comparison
@@ -287,7 +286,7 @@ def export_portfolio_summary(
 
 
 def bulk_update_trade_quality(
-    portfolio_name: str, config: TradingSystemConfig = None
+    portfolio_name: str, config: TradingSystemConfig = None,
 ) -> int:
     """Bulk update trade quality assessments for all positions in a portfolio."""
     if config is None:
@@ -316,14 +315,14 @@ def bulk_update_trade_quality(
     if updated_count > 0:
         df.to_csv(portfolio_file, index=False)
         logger.info(
-            f"Updated trade quality for {updated_count} positions in {portfolio_name}"
+            f"Updated trade quality for {updated_count} positions in {portfolio_name}",
         )
 
     return updated_count
 
 
 def find_duplicate_positions(
-    portfolio_name: str, config: TradingSystemConfig = None
+    portfolio_name: str, config: TradingSystemConfig = None,
 ) -> list[str]:
     """Find duplicate positions in a portfolio based on UUID."""
     if config is None:
@@ -342,7 +341,7 @@ def find_duplicate_positions(
     if not duplicates.empty:
         duplicate_uuids = duplicates["Position_UUID"].unique().tolist()
         logger.warning(
-            f"Found {len(duplicate_uuids)} duplicate position UUIDs in {portfolio_name}"
+            f"Found {len(duplicate_uuids)} duplicate position UUIDs in {portfolio_name}",
         )
         return duplicate_uuids
 
@@ -350,7 +349,7 @@ def find_duplicate_positions(
 
 
 def remove_duplicate_positions(
-    portfolio_name: str, config: TradingSystemConfig = None
+    portfolio_name: str, config: TradingSystemConfig = None,
 ) -> int:
     """Remove duplicate positions from a portfolio, keeping the first occurrence."""
     if config is None:
@@ -372,7 +371,7 @@ def remove_duplicate_positions(
     if removed_count > 0:
         df_cleaned.to_csv(portfolio_file, index=False)
         logger.info(
-            f"Removed {removed_count} duplicate positions from {portfolio_name}"
+            f"Removed {removed_count} duplicate positions from {portfolio_name}",
         )
 
     return removed_count
@@ -422,7 +421,7 @@ def merge_portfolios(
 
 # Quick utility functions
 def quick_add_position(
-    ticker: str, strategy: str, short: int, long: int, portfolio: str = "live_signals"
+    ticker: str, strategy: str, short: int, long: int, portfolio: str = "live_signals",
 ) -> str:
     """Quick way to add a position with minimal parameters."""
     return add_position_to_portfolio(
@@ -450,7 +449,7 @@ def list_portfolios(config: TradingSystemConfig = None) -> list[str]:
 
 
 def get_position_by_uuid(
-    uuid: str, portfolio_name: str | None = None, config: TradingSystemConfig = None
+    uuid: str, portfolio_name: str | None = None, config: TradingSystemConfig = None,
 ) -> dict[str, Any] | None:
     """Get a specific position by UUID from a portfolio or search all portfolios."""
     if config is None:
@@ -508,64 +507,64 @@ Examples:
     # Configuration options
     config_group = parser.add_argument_group("Configuration")
     config_group.add_argument(
-        "--base-dir", type=str, help="Base directory for trading system"
+        "--base-dir", type=str, help="Base directory for trading system",
     )
     config_group.add_argument(
-        "--verbose", "-v", action="store_true", help="Verbose output"
+        "--verbose", "-v", action="store_true", help="Verbose output",
     )
     config_group.add_argument("--debug", action="store_true", help="Debug mode")
     config_group.add_argument(
-        "--health-check", action="store_true", help="Check system health"
+        "--health-check", action="store_true", help="Check system health",
     )
 
     # Main operations
     operations = parser.add_mutually_exclusive_group(required=True)
     operations.add_argument(
-        "--summary", action="store_true", help="Get portfolio summary"
+        "--summary", action="store_true", help="Get portfolio summary",
     )
     operations.add_argument(
-        "--compare", action="store_true", help="Compare multiple portfolios"
+        "--compare", action="store_true", help="Compare multiple portfolios",
     )
     operations.add_argument(
-        "--update-quality", action="store_true", help="Update trade quality assessments"
+        "--update-quality", action="store_true", help="Update trade quality assessments",
     )
     operations.add_argument("--merge", action="store_true", help="Merge portfolios")
     operations.add_argument(
-        "--list-portfolios", action="store_true", help="List all portfolios"
+        "--list-portfolios", action="store_true", help="List all portfolios",
     )
     operations.add_argument(
-        "--remove-duplicates", action="store_true", help="Remove duplicate positions"
+        "--remove-duplicates", action="store_true", help="Remove duplicate positions",
     )
     operations.add_argument(
-        "--find-duplicates", action="store_true", help="Find duplicate positions"
+        "--find-duplicates", action="store_true", help="Find duplicate positions",
     )
     operations.add_argument(
-        "--find-position", action="store_true", help="Find position by UUID"
+        "--find-position", action="store_true", help="Find position by UUID",
     )
     operations.add_argument(
-        "--export-summary", action="store_true", help="Export portfolio summary to JSON"
+        "--export-summary", action="store_true", help="Export portfolio summary to JSON",
     )
     operations.add_argument(
-        "--validate-portfolio", action="store_true", help="Validate portfolio data"
+        "--validate-portfolio", action="store_true", help="Validate portfolio data",
     )
     operations.add_argument(
-        "--normalize-portfolio", action="store_true", help="Normalize portfolio data"
+        "--normalize-portfolio", action="store_true", help="Normalize portfolio data",
     )
     operations.add_argument(
-        "--fix-quality", action="store_true", help="Fix data quality issues"
+        "--fix-quality", action="store_true", help="Fix data quality issues",
     )
 
     # Portfolio parameters
     portfolio_group = parser.add_argument_group("Portfolio Parameters")
     portfolio_group.add_argument("--portfolio", type=str, help="Portfolio name")
     portfolio_group.add_argument(
-        "--portfolios", type=str, help="Comma-separated portfolio names"
+        "--portfolios", type=str, help="Comma-separated portfolio names",
     )
     portfolio_group.add_argument(
-        "--source", type=str, help="Source portfolios for merge (comma-separated)"
+        "--source", type=str, help="Source portfolios for merge (comma-separated)",
     )
     portfolio_group.add_argument(
-        "--target", type=str, help="Target portfolio for merge"
+        "--target", type=str, help="Target portfolio for merge",
     )
     portfolio_group.add_argument("--uuid", type=str, help="Position UUID to find")
     portfolio_group.add_argument("--output", type=str, help="Output file path")
@@ -602,10 +601,10 @@ Examples:
             print("System Health Check:")
             print(f"✓ Base directory: {config.base_dir}")
             print(
-                f"✓ Price data directory: {config.prices_dir} ({'exists' if config.prices_dir.exists() else 'missing'})"
+                f"✓ Price data directory: {config.prices_dir} ({'exists' if config.prices_dir.exists() else 'missing'})",
             )
             print(
-                f"✓ Positions directory: {config.positions_dir} ({'exists' if config.positions_dir.exists() else 'missing'})"
+                f"✓ Positions directory: {config.positions_dir} ({'exists' if config.positions_dir.exists() else 'missing'})",
             )
             print(f"✓ Available portfolios: {len(list_portfolios())}")
 
@@ -750,7 +749,7 @@ Examples:
             duplicates = find_duplicate_positions(args.portfolio)
             if duplicates:
                 print(
-                    f"Found {len(duplicates)} duplicate position UUIDs in {args.portfolio}:"
+                    f"Found {len(duplicates)} duplicate position UUIDs in {args.portfolio}:",
                 )
                 for uuid in duplicates:
                     print(f"  {uuid}")
@@ -806,7 +805,7 @@ Examples:
                 errors = validate_position_data(position)
                 if errors:
                     print(
-                        f"Position {idx + 1} ({position.get('Position_UUID', 'No UUID')}):"
+                        f"Position {idx + 1} ({position.get('Position_UUID', 'No UUID')}):",
                     )
                     for error in errors:
                         print(f"  ✗ {error}")
@@ -814,11 +813,11 @@ Examples:
 
             if total_errors == 0:
                 print(
-                    f"✓ Portfolio {args.portfolio} validation passed - no errors found"
+                    f"✓ Portfolio {args.portfolio} validation passed - no errors found",
                 )
             else:
                 print(
-                    f"✗ Portfolio {args.portfolio} validation failed - {total_errors} errors found"
+                    f"✗ Portfolio {args.portfolio} validation failed - {total_errors} errors found",
                 )
                 return 1
 
@@ -851,7 +850,7 @@ Examples:
             normalized_df.to_csv(portfolio_file, index=False)
 
             print(
-                f"✓ Normalized {len(normalized_positions)} positions in {args.portfolio}"
+                f"✓ Normalized {len(normalized_positions)} positions in {args.portfolio}",
             )
 
         elif args.fix_quality:
@@ -895,7 +894,7 @@ Examples:
         return 0
 
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger.exception(f"Error: {e}")
         if args.debug or args.verbose:
             logger.exception("Full error details:")
         return 1

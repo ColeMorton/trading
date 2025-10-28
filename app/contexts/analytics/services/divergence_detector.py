@@ -77,7 +77,7 @@ class DivergenceDetector:
 
         # Calculate convergence metrics
         convergence_score = self._calculate_convergence_score(
-            source1_data, source2_data
+            source1_data, source2_data,
         )
         is_converged = convergence_score < convergence_threshold
 
@@ -87,7 +87,7 @@ class DivergenceDetector:
             convergence_score=convergence_score,
             is_converged=is_converged,
             divergence_magnitude=self._calculate_divergence_magnitude(
-                source1_data, source2_data
+                source1_data, source2_data,
             ),
         )
 
@@ -104,13 +104,13 @@ class DivergenceDetector:
 
         # Calculate various divergence measures
         statistical_divergence = self._calculate_statistical_divergence(
-            reference_data, comparison_data
+            reference_data, comparison_data,
         )
         trend_divergence = self._calculate_trend_divergence(
-            reference_data, comparison_data
+            reference_data, comparison_data,
         )
         volatility_divergence = self._calculate_volatility_divergence(
-            reference_data, comparison_data
+            reference_data, comparison_data,
         )
 
         return DivergenceMetrics(
@@ -118,12 +118,12 @@ class DivergenceDetector:
             trend_divergence=trend_divergence,
             volatility_divergence=volatility_divergence,
             overall_divergence=np.mean(
-                [statistical_divergence, trend_divergence, volatility_divergence]
+                [statistical_divergence, trend_divergence, volatility_divergence],
             ),
         )
 
     def _calculate_convergence_score(
-        self, data1: pd.DataFrame, data2: pd.DataFrame
+        self, data1: pd.DataFrame, data2: pd.DataFrame,
     ) -> float:
         """Calculate convergence score between two datasets."""
         if data1.empty or data2.empty:
@@ -168,7 +168,7 @@ class DivergenceDetector:
         return self._extract_layer_metrics(data)
 
     def _identify_divergence_areas(
-        self, data1: pd.DataFrame, data2: pd.DataFrame
+        self, data1: pd.DataFrame, data2: pd.DataFrame,
     ) -> list[str]:
         """Identify areas of divergence between datasets."""
         divergence_areas = []
@@ -185,7 +185,7 @@ class DivergenceDetector:
         return divergence_areas
 
     def _calculate_divergence_magnitude(
-        self, data1: pd.DataFrame, data2: pd.DataFrame
+        self, data1: pd.DataFrame, data2: pd.DataFrame,
     ) -> float:
         """Calculate the magnitude of divergence."""
         metrics1 = self._extract_source_metrics(data1)
@@ -208,7 +208,7 @@ class DivergenceDetector:
         return total_diff / count if count > 0 else 1.0
 
     def _calculate_statistical_divergence(
-        self, ref_data: pd.DataFrame, comp_data: pd.DataFrame
+        self, ref_data: pd.DataFrame, comp_data: pd.DataFrame,
     ) -> float:
         """Calculate statistical divergence between datasets."""
         ref_metrics = self._extract_layer_metrics(ref_data)
@@ -227,7 +227,7 @@ class DivergenceDetector:
         return 1.0
 
     def _calculate_trend_divergence(
-        self, ref_data: pd.DataFrame, comp_data: pd.DataFrame
+        self, ref_data: pd.DataFrame, comp_data: pd.DataFrame,
     ) -> float:
         """Calculate trend divergence between datasets."""
         # Simple trend calculation using linear regression slope
@@ -239,7 +239,7 @@ class DivergenceDetector:
         return 0.5  # Placeholder
 
     def _calculate_volatility_divergence(
-        self, ref_data: pd.DataFrame, comp_data: pd.DataFrame
+        self, ref_data: pd.DataFrame, comp_data: pd.DataFrame,
     ) -> float:
         """Calculate volatility divergence between datasets."""
         ref_metrics = self._extract_layer_metrics(ref_data)

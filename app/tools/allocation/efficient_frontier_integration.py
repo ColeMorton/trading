@@ -28,7 +28,7 @@ class AllocationOptimizer:
         )
 
     def _run_efficient_frontier_analysis(
-        self, assets: list[str], half_rule: bool = True
+        self, assets: list[str], half_rule: bool = True,
     ) -> dict[str, Any]:
         """Run efficient frontier analysis for given assets.
 
@@ -87,7 +87,7 @@ class AllocationOptimizer:
             sys.path.remove(str(efficient_frontier_dir))
 
     def calculate_max_allocation_percentage(
-        self, assets: list[str], use_sortino: bool = True, apply_half_rule: bool = True
+        self, assets: list[str], use_sortino: bool = True, apply_half_rule: bool = True,
     ) -> dict[str, float]:
         """Run efficient frontier analysis and return optimized allocation percentages.
 
@@ -140,7 +140,7 @@ class AllocationOptimizer:
 
         def log_func(message: str, level: str = "info"):
             """Simple logging function for get_data."""
-            pass  # Silent logging for price fetching
+            # Silent logging for price fetching
 
         try:
             data = get_data(symbol, config, log_func)
@@ -152,10 +152,12 @@ class AllocationOptimizer:
             # Get latest close price
             if len(data) > 0:
                 return float(data["Close"].tail(1).item())
-            raise ValueError(f"No price data available for {symbol}")
+            msg = f"No price data available for {symbol}"
+            raise ValueError(msg)
 
         except Exception as e:
-            raise ValueError(f"Failed to fetch price for {symbol}: {e!s}")
+            msg = f"Failed to fetch price for {symbol}: {e!s}"
+            raise ValueError(msg)
 
     def get_multiple_prices(self, symbols: list[str]) -> dict[str, float]:
         """Fetch current prices for multiple symbols.
@@ -177,7 +179,7 @@ class AllocationOptimizer:
         return prices
 
     def calculate_position_values(
-        self, allocations: dict[str, float], total_allocation_amount: float
+        self, allocations: dict[str, float], total_allocation_amount: float,
     ) -> dict[str, float]:
         """Calculate position values based on allocations and total amount.
 
@@ -221,7 +223,7 @@ class AllocationOptimizer:
         }
 
     def validate_allocation_constraints(
-        self, allocations: dict[str, float], tolerance: float = 0.01
+        self, allocations: dict[str, float], tolerance: float = 0.01,
     ) -> tuple[bool, str]:
         """Validate that allocations sum to approximately 100% and meet constraints.
 

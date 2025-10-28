@@ -21,5 +21,5 @@ def prepare_prices(results_pl: pl.DataFrame, ticker: str) -> pd.DataFrame:
 
     # Convert to pandas only at the end (required for vectorbt)
     prices_pd = prices_pl.to_pandas()
-    prices_pd.set_index(date_col, inplace=True)
+    prices_pd = prices_pd.set_index(date_col)
     return prices_pd

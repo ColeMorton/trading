@@ -18,7 +18,7 @@ class ValidationTemplate:
         strategy_name = self.config.strategy_name
         class_name = strategy_name.replace("_", "").title()
 
-        template = f'''"""
+        return f'''"""
 Test Suite for {class_name} Strategy
 
 Comprehensive tests for {strategy_name} strategy including configuration validation,
@@ -319,14 +319,13 @@ if __name__ == "__main__":
     pytest.main([__file__])
 '''
 
-        return template
 
     def _generate_config_field_tests(self) -> str:
         """Generate configuration field tests based on strategy type."""
         lines = []
         indent = "        "
 
-        for key, _value in self.config.config_fields.items():
+        for key in self.config.config_fields:
             if key in ["TICKER", "BASE_DIR", "REFRESH", "DIRECTION", "USE_CURRENT"]:
                 continue  # Already tested above
 
@@ -358,7 +357,7 @@ if __name__ == "__main__":
                     f"{indent}    ",
                     f'{indent}    with pytest.raises(ValueError, match="Window sizes must be positive"):',
                     f"{indent}        validate_strategy_config(config)",
-                ]
+                ],
             )
 
         elif self.config.strategy_type.value == "rsi":
@@ -372,7 +371,7 @@ if __name__ == "__main__":
                     f"{indent}    ",
                     f'{indent}    with pytest.raises(ValueError, match="Invalid RSI thresholds"):',
                     f"{indent}        validate_strategy_config(config)",
-                ]
+                ],
             )
 
         return "\n".join(lines)
@@ -394,7 +393,7 @@ if __name__ == "__main__":
                     f"{indent}# Check data types",
                     f"{indent}assert result['SMA_Short'].dtype in [pl.Float32, pl.Float64]",
                     f"{indent}assert result['SMA_Long'].dtype in [pl.Float32, pl.Float64]",
-                ]
+                ],
             )
 
         elif self.config.strategy_type.value == "rsi":
@@ -406,7 +405,7 @@ if __name__ == "__main__":
                     f"{indent}# Check RSI values are in valid range",
                     f"{indent}rsi_values = result['RSI'].drop_nulls()",
                     f"{indent}assert all(0 <= val <= 100 for val in rsi_values)",
-                ]
+                ],
             )
 
         elif self.config.strategy_type.value == "macd":
@@ -416,7 +415,7 @@ if __name__ == "__main__":
                     f"{indent}assert 'MACD_Line' in result.columns",
                     f"{indent}assert 'MACD_Signal' in result.columns",
                     f"{indent}assert 'MACD_Histogram' in result.columns",
-                ]
+                ],
             )
 
         else:
@@ -424,7 +423,7 @@ if __name__ == "__main__":
                 [
                     f"{indent}# Should have custom indicator columns",
                     f"{indent}assert 'Momentum' in result.columns",
-                ]
+                ],
             )
 
         return "\n".join(lines)
@@ -447,7 +446,7 @@ if __name__ == "__main__":
                     f"{indent}    pl.Series('EMA_Short', short_ma),",
                     f"{indent}    pl.Series('EMA_Long', long_ma),",
                     f"{indent}])",
-                ]
+                ],
             )
 
         elif self.config.strategy_type.value == "rsi":
@@ -459,7 +458,7 @@ if __name__ == "__main__":
                     f"{indent}self.sample_data = self.sample_data.with_columns([",
                     f"{indent}    pl.Series('RSI', rsi_values),",
                     f"{indent}])",
-                ]
+                ],
             )
 
         else:
@@ -471,7 +470,7 @@ if __name__ == "__main__":
                     f"{indent}self.sample_data = self.sample_data.with_columns([",
                     f"{indent}    pl.Series('Momentum', momentum_values),",
                     f"{indent}])",
-                ]
+                ],
             )
 
         return "\n".join(lines)
@@ -497,7 +496,7 @@ if __name__ == "__main__":
                     f"{indent}    ",
                     f"{indent}    # In trending data, should have at least one entry signal",
                     f"{indent}    assert entry_signals >= 0",
-                ]
+                ],
             )
 
         elif self.config.strategy_type.value == "rsi":
@@ -515,7 +514,7 @@ if __name__ == "__main__":
                     f"{indent}    # Should have entry and exit signals",
                     f'{indent}    assert "Entry_Signal" in result.columns',
                     f'{indent}    assert "Exit_Signal" in result.columns',
-                ]
+                ],
             )
 
         return "\n".join(lines)
@@ -525,7 +524,7 @@ if __name__ == "__main__":
         strategy_name = self.config.strategy_name
         class_name = strategy_name.replace("_", "").title()
 
-        template = f'''"""
+        return f'''"""
 Performance Benchmarks for {class_name} Strategy
 
 Benchmarks to ensure strategy performance meets expectations.
@@ -681,4 +680,3 @@ if __name__ == "__main__":
     pytest.main([__file__, "-v", "-s"])
 '''
 
-        return template

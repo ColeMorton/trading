@@ -48,7 +48,7 @@ class PortfolioSeasonalityService:
             transient=True,
         ) as progress:
             task = progress.add_task(
-                "Analyzing seasonality patterns...", total=len(ticker_periods)
+                "Analyzing seasonality patterns...", total=len(ticker_periods),
             )
 
             for ticker, time_period_days in ticker_periods.items():
@@ -118,7 +118,7 @@ class PortfolioSeasonalityService:
             "ticker_results": results,
             "total_tickers": len(ticker_periods),
             "successful_analyses": len(
-                [r for r in results.values() if "error" not in r]
+                [r for r in results.values() if "error" not in r],
             ),
             "display_data": self._prepare_display_data(results),
         }
@@ -139,24 +139,31 @@ class PortfolioSeasonalityService:
         # Check if file exists
         if not portfolio_path.exists():
             available_files = [f.name for f in self.strategies_dir.glob("*.csv")]
-            raise ValueError(
+            msg = (
                 f"Portfolio file not found: {portfolio_path}\n"
                 f"Available files: {', '.join(available_files)}"
+            )
+            raise ValueError(
+                msg,
             )
 
         # Load CSV
         try:
             df = pd.read_csv(portfolio_path)
         except Exception as e:
-            raise ValueError(f"Error reading portfolio CSV: {e!s}")
+            msg = f"Error reading portfolio CSV: {e!s}"
+            raise ValueError(msg)
 
         # Validate required columns
         required_columns = ["Ticker", "Signal Entry", "Avg Trade Duration"]
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
-            raise ValueError(
+            msg = (
                 f"Missing required columns in portfolio CSV: {', '.join(missing_columns)}\n"
                 f"Available columns: {', '.join(df.columns)}"
+            )
+            raise ValueError(
+                msg,
             )
 
         return df
@@ -204,7 +211,7 @@ class PortfolioSeasonalityService:
                     # Use average duration across all signal entry strategies
                     avg_duration = int(round(sum(durations) / len(durations)))
                     ticker_periods[ticker] = max(
-                        1, avg_duration
+                        1, avg_duration,
                     )  # Ensure at least 1 day
                 else:
                     # Fallback to default if duration parsing failed
@@ -250,7 +257,7 @@ class PortfolioSeasonalityService:
             ticker_periods: Dictionary mapping ticker to time period in days
         """
         self.console.print(
-            "\n[bold cyan]Portfolio Seasonality Analysis Plan[/bold cyan]"
+            "\n[bold cyan]Portfolio Seasonality Analysis Plan[/bold cyan]",
         )
         self.console.print(f"Portfolio: [yellow]{self.config.portfolio}[/yellow]")
         self.console.print(f"Total tickers: [green]{len(ticker_periods)}[/green]")
@@ -258,7 +265,7 @@ class PortfolioSeasonalityService:
         # Show override message if applicable
         if self.config.time_period_days is not None:
             self.console.print(
-                f"[bold red]⚠️  Using OVERRIDE time period: {self.config.time_period_days} days for ALL tickers[/bold red]"
+                f"[bold red]⚠️  Using OVERRIDE time period: {self.config.time_period_days} days for ALL tickers[/bold red]",
             )
 
         self.console.print()
@@ -308,15 +315,15 @@ class PortfolioSeasonalityService:
         if self.config.time_period_days is not None:
             # All tickers use override
             self.console.print(
-                f"[red]• {len(ticker_periods)} tickers using OVERRIDE {self.config.time_period_days}-day period[/red]"
+                f"[red]• {len(ticker_periods)} tickers using OVERRIDE {self.config.time_period_days}-day period[/red]",
             )
         else:
             # Normal mode with signal-based and default
             self.console.print(
-                f"[green]• {len(signal_based)} tickers using signal-based time periods[/green]"
+                f"[green]• {len(signal_based)} tickers using signal-based time periods[/green]",
             )
             self.console.print(
-                f"[yellow]• {len(default_based)} tickers using default {self.config.default_time_period_days}-day period[/yellow]"
+                f"[yellow]• {len(default_based)} tickers using default {self.config.default_time_period_days}-day period[/yellow]",
             )
         self.console.print()
 
@@ -357,7 +364,7 @@ class PortfolioSeasonalityService:
                         "Best_Pattern": strongest_pattern.pattern_type,
                         "Period": strongest_pattern.period,
                         "Avg_Return_Percent": round(
-                            strongest_pattern.average_return, 2
+                            strongest_pattern.average_return, 2,
                         ),
                         "Win_Rate": round(strongest_pattern.win_rate, 3),
                         "Expectancy": round(
@@ -367,11 +374,11 @@ class PortfolioSeasonalityService:
                         ),
                         "Sample_Size": strongest_pattern.sample_size,
                         "Statistical_Significance": round(
-                            strongest_pattern.statistical_significance, 3
+                            strongest_pattern.statistical_significance, 3,
                         ),
                         "Time_Period_Days": result_info["time_period_days"],
                         "Analysis_Source": result_info["analysis_source"],
-                    }
+                    },
                 )
 
         if summary_data:
@@ -405,7 +412,7 @@ class PortfolioSeasonalityService:
                     json.dump(summary_dict, f, indent=2)
 
                 self.console.print(
-                    f"[green]✓ Portfolio JSON saved: {json_filename}[/green]"
+                    f"[green]✓ Portfolio JSON saved: {json_filename}[/green]",
                 )
 
     def _prepare_display_data(self, results: dict[str, dict]) -> list[dict]:
@@ -431,7 +438,7 @@ class PortfolioSeasonalityService:
                         "avg_return": "N/A",
                         "time_period_days": result_info["time_period_days"],
                         "analysis_source": result_info["analysis_source"],
-                    }
+                    },
                 )
                 continue
 
@@ -461,11 +468,11 @@ class PortfolioSeasonalityService:
                         ),
                         "sample_size": strongest_pattern.sample_size,
                         "statistical_significance": round(
-                            strongest_pattern.statistical_significance, 3
+                            strongest_pattern.statistical_significance, 3,
                         ),
                         "time_period_days": result_info["time_period_days"],
                         "analysis_source": result_info["analysis_source"],
-                    }
+                    },
                 )
 
         # Sort by expectancy (highest first)

@@ -283,7 +283,7 @@ def analyze_allocation_impact(
         profit_factor = 1.0
         if len(negative_returns) > 0 and np.sum(np.abs(negative_returns)) > 0:
             profit_factor = float(
-                np.sum(positive_returns) / np.sum(np.abs(negative_returns))
+                np.sum(positive_returns) / np.sum(np.abs(negative_returns)),
             )
 
         # Calculate max drawdown

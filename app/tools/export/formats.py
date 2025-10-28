@@ -76,7 +76,8 @@ class CSVExporter(ExportStrategy):
             elif isinstance(df, pd.DataFrame):
                 df.to_csv(str(full_path), index=False)
             else:
-                raise ExportValidationError(f"Unsupported DataFrame type: {type(df)}")
+                msg = f"Unsupported DataFrame type: {type(df)}"
+                raise ExportValidationError(msg)
 
             # Log success (debug level to avoid duplication)
             rows_exported = len(df)
@@ -84,17 +85,17 @@ class CSVExporter(ExportStrategy):
                 context.log(f"✅ {rows_exported} results → {full_path}", "debug")
 
             return ExportResult(
-                success=True, path=str(full_path), rows_exported=rows_exported
+                success=True, path=str(full_path), rows_exported=rows_exported,
             )
 
         except Exception as e:
             error_msg = f"Failed to export CSV: {e!s}"
             if context.log:
                 context.log(error_msg, "error")
-            logging.error(error_msg)
+            logging.exception(error_msg)
 
             return ExportResult(
-                success=False, path="", rows_exported=0, error_message=error_msg
+                success=False, path="", rows_exported=0, error_message=error_msg,
             )
 
     def _prepare_dataframe(self, context: ExportContext) -> pl.DataFrame | pd.DataFrame:
@@ -119,15 +120,16 @@ class CSVExporter(ExportStrategy):
         elif isinstance(data, dict):
             df = pl.DataFrame([data])
         else:
+            msg = f"Cannot convert data of type {type(data)} to DataFrame"
             raise ExportValidationError(
-                f"Cannot convert data of type {type(data)} to DataFrame"
+                msg,
             )
 
         # Ensure canonical schema compliance
         return self._ensure_canonical_schema_compliance(df, context)
 
     def _ensure_canonical_schema_compliance(
-        self, df: pl.DataFrame | pd.DataFrame, context: ExportContext
+        self, df: pl.DataFrame | pd.DataFrame, context: ExportContext,
     ) -> pl.DataFrame | pd.DataFrame:
         """Ensure DataFrame complies with canonical 59-column schema.
 
@@ -160,7 +162,7 @@ class CSVExporter(ExportStrategy):
             if context.log:
                 if validation_result["is_valid"]:
                     context.log(
-                        "Export data is fully compliant with canonical schema", "info"
+                        "Export data is fully compliant with canonical schema", "info",
                     )
                 else:
                     violations = len(validation_result.get("violations", []))
@@ -173,7 +175,7 @@ class CSVExporter(ExportStrategy):
                     # Log specific violations
                     for violation in validation_result.get("violations", []):
                         context.log(
-                            f"Schema violation: {violation['message']}", "warning"
+                            f"Schema violation: {violation['message']}", "warning",
                         )
 
         except Exception as e:
@@ -189,7 +191,7 @@ class CSVExporter(ExportStrategy):
         return canonical_df
 
     def _apply_canonical_column_order(
-        self, df: pd.DataFrame, context: ExportContext
+        self, df: pd.DataFrame, context: ExportContext,
     ) -> pd.DataFrame:
         """Apply canonical column order and add missing columns.
 
@@ -220,7 +222,7 @@ class CSVExporter(ExportStrategy):
             else:
                 # Add missing column with appropriate default
                 canonical_df[col_name] = self._get_default_column_value(
-                    col_name, len(df)
+                    col_name, len(df),
                 )
                 missing_columns.append(col_name)
 
@@ -344,14 +346,16 @@ class CSVExporter(ExportStrategy):
 
             # Verify directory is writable
             if not os.access(export_path, os.W_OK):
-                raise ExportIOError(f"Directory {export_path} is not writable")
+                msg = f"Directory {export_path} is not writable"
+                raise ExportIOError(msg)
 
             return export_path
 
         except Exception as e:
             if context.log:
                 context.log(f"Failed to create directory {export_path}: {e!s}", "error")
-            raise ExportIOError(f"Failed to create directory: {e!s}")
+            msg = f"Failed to create directory: {e!s}"
+            raise ExportIOError(msg)
 
     def _generate_filename(self, context: ExportContext) -> str:
         """Generate filename based on configuration.
@@ -393,7 +397,7 @@ class CSVExporter(ExportStrategy):
         if strategy_type:
             # Clean up strategy type if it has enum prefix
             if isinstance(strategy_type, str) and strategy_type.startswith(
-                "StrategyTypeEnum."
+                "StrategyTypeEnum.",
             ):
                 strategy_type = strategy_type.replace("StrategyTypeEnum.", "")
             components.append(strategy_type)
@@ -405,7 +409,7 @@ class CSVExporter(ExportStrategy):
         return f"{filename}.csv" if filename else "export.csv"
 
     def _validate_metrics(
-        self, df: pl.DataFrame | pd.DataFrame, context: ExportContext
+        self, df: pl.DataFrame | pd.DataFrame, context: ExportContext,
     ) -> None:
         """Validate and log missing risk metrics.
 
@@ -507,7 +511,7 @@ class JSONExporter(ExportStrategy):
             with open(full_path, "w") as f:
                 if context.json_encoder:
                     json.dump(
-                        json_data, f, indent=context.indent, cls=context.json_encoder
+                        json_data, f, indent=context.indent, cls=context.json_encoder,
                     )
                 else:
                     json.dump(json_data, f, indent=context.indent)
@@ -522,17 +526,17 @@ class JSONExporter(ExportStrategy):
             logging.info(message)
 
             return ExportResult(
-                success=True, path=str(full_path), rows_exported=rows_exported
+                success=True, path=str(full_path), rows_exported=rows_exported,
             )
 
         except Exception as e:
             error_msg = f"Failed to export JSON: {e!s}"
             if context.log:
                 context.log(error_msg, "error")
-            logging.error(error_msg)
+            logging.exception(error_msg)
 
             return ExportResult(
-                success=False, path="", rows_exported=0, error_message=error_msg
+                success=False, path="", rows_exported=0, error_message=error_msg,
             )
 
     def _prepare_json_data(self, context: ExportContext) -> dict | list:
@@ -558,7 +562,8 @@ class JSONExporter(ExportStrategy):
         if isinstance(data, pd.DataFrame):
             return data.to_dict(orient="records")
 
-        raise ExportValidationError(f"Cannot convert data of type {type(data)} to JSON")
+        msg = f"Cannot convert data of type {type(data)} to JSON"
+        raise ExportValidationError(msg)
 
     def _create_export_directory(self, context: ExportContext) -> Path:
         """Create the export directory structure.
@@ -593,7 +598,8 @@ class JSONExporter(ExportStrategy):
         except Exception as e:
             if context.log:
                 context.log(f"Failed to create directory {export_path}: {e!s}", "error")
-            raise ExportIOError(f"Failed to create directory: {e!s}")
+            msg = f"Failed to create directory: {e!s}"
+            raise ExportIOError(msg)
 
     def _generate_filename(self, context: ExportContext) -> str:
         """Generate filename based on configuration.
@@ -633,7 +639,7 @@ class JSONExporter(ExportStrategy):
         if strategy_type:
             # Clean up strategy type if it has enum prefix
             if isinstance(strategy_type, str) and strategy_type.startswith(
-                "StrategyTypeEnum."
+                "StrategyTypeEnum.",
             ):
                 strategy_type = strategy_type.replace("StrategyTypeEnum.", "")
             components.append(strategy_type)

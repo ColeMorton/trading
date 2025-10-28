@@ -46,12 +46,12 @@ class WebhookReceiver:
         try:
             data = await request.json()
             logger.info(
-                f"📥 Webhook received: job_id={data.get('job_id')}, status={data.get('status')}"
+                f"📥 Webhook received: job_id={data.get('job_id')}, status={data.get('status')}",
             )
             await self.received_webhooks.put(data)
             return web.Response(text=json.dumps({"status": "received"}), status=200)
         except Exception as e:
-            logger.error(f"Error handling webhook: {e}")
+            logger.exception(f"Error handling webhook: {e}")
             return web.Response(text=str(e), status=500)
 
     async def start(self):
@@ -62,7 +62,7 @@ class WebhookReceiver:
         await self.site.start()
         self.actual_port = self.site._server.sockets[0].getsockname()[1]
         logger.info(
-            f"🌐 Webhook receiver started on http://localhost:{self.actual_port}/webhook"
+            f"🌐 Webhook receiver started on http://localhost:{self.actual_port}/webhook",
         )
 
     async def stop(self):
@@ -83,12 +83,11 @@ class WebhookReceiver:
             Webhook data or None if timeout
         """
         try:
-            webhook_data = await asyncio.wait_for(
-                self.received_webhooks.get(), timeout=timeout
+            return await asyncio.wait_for(
+                self.received_webhooks.get(), timeout=timeout,
             )
-            return webhook_data
         except asyncio.TimeoutError:
-            logger.error(f"⏰ Timeout waiting for webhook after {timeout}s")
+            logger.exception(f"⏰ Timeout waiting for webhook after {timeout}s")
             return None
 
     @property
@@ -115,7 +114,7 @@ class SweepTestClient:
         self.api_key = api_key
         self.session = requests.Session()
         self.session.headers.update(
-            {"X-API-Key": api_key, "Content-Type": "application/json"}
+            {"X-API-Key": api_key, "Content-Type": "application/json"},
         )
 
     def submit_sweep(self, webhook_url: str) -> dict:
@@ -168,7 +167,7 @@ class SweepTestClient:
 
         data = response.json()
         logger.info(
-            f"✅ Best result fetched: score={data['results'][0].get('score') if data.get('results') else 'N/A'}"
+            f"✅ Best result fetched: score={data['results'][0].get('score') if data.get('results') else 'N/A'}",
         )
         return data
 
@@ -258,7 +257,7 @@ async def test_complete_webhook_flow():
         # The result_data might have different structures depending on the command
         # For sweep, it should contain sweep results or sweep_run_id
         logger.info(
-            f"Result data keys: {result_data.keys() if isinstance(result_data, dict) else type(result_data)}"
+            f"Result data keys: {result_data.keys() if isinstance(result_data, dict) else type(result_data)}",
         )
 
         # Try to get sweep_run_id from various possible locations
@@ -271,7 +270,7 @@ async def test_complete_webhook_flow():
             )
 
         logger.info(
-            f"✅ Webhook validated: status={webhook_data['status']}, sweep_id={sweep_run_id}"
+            f"✅ Webhook validated: status={webhook_data['status']}, sweep_id={sweep_run_id}",
         )
 
         # Step 4: Fetch best results (if we have sweep_run_id)
@@ -287,7 +286,7 @@ async def test_complete_webhook_flow():
 
             first_result = best_result["results"][0]
             logger.info(
-                f"✅ Best result fetched: {first_result.get('ticker')} score={first_result.get('score')}"
+                f"✅ Best result fetched: {first_result.get('ticker')} score={first_result.get('score')}",
             )
 
             # Step 5: Validate data integrity
@@ -303,7 +302,7 @@ async def test_complete_webhook_flow():
             logger.info("✅ Data integrity validated")
         else:
             logger.warning(
-                "⚠️  No sweep_run_id found in result_data, skipping API fetch"
+                "⚠️  No sweep_run_id found in result_data, skipping API fetch",
             )
             logger.info("This might be expected if the sweep saves results differently")
 

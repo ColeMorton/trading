@@ -216,7 +216,8 @@ def get_test_case(case_name: str) -> dict[str, Any]:
     """
     if case_name not in TEST_CASES:
         available = ", ".join(TEST_CASES.keys())
-        raise ValueError(f"Unknown test case: {case_name}. Available: {available}")
+        msg = f"Unknown test case: {case_name}. Available: {available}"
+        raise ValueError(msg)
 
     test_case = TEST_CASES[case_name].copy()
     test_case["data"] = test_case["data_func"]()

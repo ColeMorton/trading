@@ -32,7 +32,7 @@ console = Console()
 
 
 def calculate_comp_status_from_aggregates(
-    entry_count: int, exit_count: int, active_count: int, total_count: int
+    entry_count: int, exit_count: int, active_count: int, total_count: int,
 ) -> str:
     """Calculate COMP status from aggregated strategy counts.
 
@@ -73,7 +73,7 @@ def calculate_comp_status_from_aggregates(
 
 
 def filter_open_trades(
-    portfolios: list[dict[str, Any]], log_func=None
+    portfolios: list[dict[str, Any]], log_func=None,
 ) -> list[dict[str, Any]]:
     """Filter portfolios to only include open trades.
 
@@ -161,7 +161,7 @@ def filter_open_trades(
         # Summary statistics for open trades
         if len(open_trades) > 1:
             avg_score = sum(float(p.get("Score", 0)) for p in open_trades) / len(
-                open_trades
+                open_trades,
             )
             avg_win_rate = sum(
                 float(p.get("Win Rate [%]", 0)) for p in open_trades
@@ -178,7 +178,7 @@ def filter_open_trades(
         create_section_header("Portfolio Status", "🔍")
         rprint("[yellow]⚠️  No open positions found[/yellow]")
         rprint(
-            "[dim]   All strategies are currently in cash or have exited positions[/dim]"
+            "[dim]   All strategies are currently in cash or have exited positions[/dim]",
         )
 
     # Also log to the traditional log function if provided
@@ -186,7 +186,7 @@ def filter_open_trades(
         if open_trades:
             log_func("\n=== Open Trades ===")
             log_func(
-                "Ticker, Strategy Type, Fast Period, Slow Period, Signal Period, Score"
+                "Ticker, Strategy Type, Fast Period, Slow Period, Signal Period, Score",
             )
             for p in open_trades:
                 ticker = p.get("Ticker", "Unknown")
@@ -196,7 +196,7 @@ def filter_open_trades(
                 signal_period = p.get("Signal Period", "N/A")
                 score = p.get("Score", 0)
                 log_func(
-                    f"{ticker}, {strategy_type}, {fast_period}, {slow_period}, {signal_period}, {score:.4f}"
+                    f"{ticker}, {strategy_type}, {fast_period}, {slow_period}, {signal_period}, {score:.4f}",
                 )
         else:
             log_func("\n=== No Open Trades found ===")
@@ -309,7 +309,7 @@ def _display_portfolio_table_core(
             status_counts[status] = status_counts.get(status, 0) + 1
 
         avg_score = sum(float(p.get("Score", 0)) for p in display_portfolios) / len(
-            display_portfolios
+            display_portfolios,
         )
         avg_win_rate = sum(
             float(p.get("Win Rate [%]", 0)) for p in display_portfolios
@@ -354,14 +354,14 @@ def _display_portfolio_table_core(
             relevant_statuses = {k: v for k, v in status_counts.items() if v > 0}
 
         for status, count in sorted(
-            relevant_statuses.items(), key=lambda x: x[1], reverse=True
+            relevant_statuses.items(), key=lambda x: x[1], reverse=True,
         ):
             percentage = (count / total_strategies) * 100
             bar_length = int(percentage / 5)  # Scale for visual bar
             bar = "█" * bar_length + "░" * (20 - bar_length)
             color = status_colors.get(status, "cyan")
             rprint(
-                f"     {status}: [{color}]{bar}[/{color}] {count} ({percentage:.1f}%)"
+                f"     {status}: [{color}]{bar}[/{color}] {count} ({percentage:.1f}%)",
             )
 
     # Traditional logging if provided
@@ -374,7 +374,7 @@ def _display_portfolio_table_core(
             )
             log_func(f"\n=== {log_title} ===")
             log_func(
-                "Ticker, Strategy Type, Fast Period, Slow Period, Signal Period, Total Trades, Score, Status"
+                "Ticker, Strategy Type, Fast Period, Slow Period, Signal Period, Total Trades, Score, Status",
             )
             for p in display_portfolios:
                 ticker = p.get("Ticker", "Unknown")
@@ -386,7 +386,7 @@ def _display_portfolio_table_core(
                 score = p.get("Score", 0)
                 status = determine_portfolio_status(p)
                 log_func(
-                    f"{ticker}, {strategy_type}, {fast_period}, {slow_period}, {signal_period}, {total_trades}, {score:.4f}, {status}"
+                    f"{ticker}, {strategy_type}, {fast_period}, {slow_period}, {signal_period}, {total_trades}, {score:.4f}, {status}",
                 )
         else:
             not_found_title = (
@@ -398,7 +398,7 @@ def _display_portfolio_table_core(
 
 
 def display_portfolio_table(
-    portfolios: list[dict[str, Any]], log_func=None
+    portfolios: list[dict[str, Any]], log_func=None,
 ) -> list[dict[str, Any]]:
     """Display all portfolios in a comprehensive table.
 
@@ -433,7 +433,7 @@ def display_portfolio_table(
 
 
 def display_portfolio_entry_exit_table(
-    portfolios: list[dict[str, Any]], log_func=None
+    portfolios: list[dict[str, Any]], log_func=None,
 ) -> list[dict[str, Any]]:
     """Display only Entry/Exit portfolios in a comprehensive table.
 
@@ -475,7 +475,7 @@ def display_portfolio_entry_exit_table(
 
 
 def display_ticker_summary_table(
-    portfolios: list[dict[str, Any]], log_func=None
+    portfolios: list[dict[str, Any]], log_func=None,
 ) -> None:
     """Display ticker-level summary when multiple strategies exist per ticker.
 
@@ -504,7 +504,7 @@ def display_ticker_summary_table(
             "active": 0,
             "entry_signal_count": 0,
             "exit_signal_count": 0,
-        }
+        },
     )
 
     for portfolio in portfolios:
@@ -607,7 +607,7 @@ def display_ticker_summary_table(
 
     if log_func:
         log_func(
-            f"Displayed ticker summary for {len(multi_strategy_tickers)} tickers with multiple strategies"
+            f"Displayed ticker summary for {len(multi_strategy_tickers)} tickers with multiple strategies",
         )
 
 
@@ -734,7 +734,7 @@ def filter_signal_entries(
                 and float(p.get("Win Rate [%]", 0)) >= 55
             ]
             avg_score = sum(float(p.get("Score", 0)) for p in signal_entries) / len(
-                signal_entries
+                signal_entries,
             )
             avg_win_rate = sum(
                 float(p.get("Win Rate [%]", 0)) for p in signal_entries
@@ -742,27 +742,27 @@ def filter_signal_entries(
 
             rprint("\n🔍 [bold yellow]Entry Signal Analysis:[/bold yellow]")
             rprint(
-                f"   🎯 High Quality Signals: [bold green]{len(high_quality_signals)}[/bold green] of {len(signal_entries)}"
+                f"   🎯 High Quality Signals: [bold green]{len(high_quality_signals)}[/bold green] of {len(signal_entries)}",
             )
             rprint(f"   📊 Average Score: {format_score(avg_score)}")
             rprint(f"   🎯 Average Win Rate: {format_win_rate(avg_win_rate)}")
 
             if high_quality_signals:
                 rprint(
-                    f"   💡 [green]Recommended action: Consider {len(high_quality_signals)} high-quality opportunities[/green]"
+                    f"   💡 [green]Recommended action: Consider {len(high_quality_signals)} high-quality opportunities[/green]",
                 )
             else:
                 rprint(
-                    "   ⚠️ [yellow]Caution: No high-quality signals detected - wait for better setups[/yellow]"
+                    "   ⚠️ [yellow]Caution: No high-quality signals detected - wait for better setups[/yellow]",
                 )
     else:
         create_section_header("Market Scan", "🔍")
         rprint("[blue]📊 No entry signals detected[/blue]")
         rprint(
-            "[dim]   Market is consolidating or trending against strategy parameters[/dim]"
+            "[dim]   Market is consolidating or trending against strategy parameters[/dim]",
         )
         rprint(
-            "[dim]   This could be a good time to wait for better opportunities[/dim]"
+            "[dim]   This could be a good time to wait for better opportunities[/dim]",
         )
 
     # Also log to the traditional log function if provided
@@ -770,7 +770,7 @@ def filter_signal_entries(
         if signal_entries:
             log_func("\n=== Signal Entries ===")
             log_func(
-                "Ticker, Strategy Type, Fast Period, Slow Period, Signal Period, Score, Total Open Trades"
+                "Ticker, Strategy Type, Fast Period, Slow Period, Signal Period, Score, Total Open Trades",
             )
             for p in signal_entries:
                 ticker = p.get("Ticker", "Unknown")
@@ -781,7 +781,7 @@ def filter_signal_entries(
                 score = p.get("Score", 0)
                 open_trade_count = p.get("open_trade_count", 0)
                 log_func(
-                    f"{ticker}, {strategy_type}, {fast_period}, {slow_period}, {signal_period}, {score:.4f}, {open_trade_count}"
+                    f"{ticker}, {strategy_type}, {fast_period}, {slow_period}, {signal_period}, {score:.4f}, {open_trade_count}",
                 )
         else:
             log_func("Filtered out 7 portfolios with Signal Entry = False")
@@ -830,7 +830,7 @@ def calculate_breadth_metrics(
                     )
                 )
                 and str(p.get("Signal Entry", "")).lower() != "true"
-            ]
+            ],
         )
     )
 
@@ -839,7 +839,7 @@ def calculate_breadth_metrics(
         len(signal_entries)
         if signal_entries is not None
         else len(
-            [p for p in portfolios if str(p.get("Signal Entry", "")).lower() == "true"]
+            [p for p in portfolios if str(p.get("Signal Entry", "")).lower() == "true"],
         )
     )
 
@@ -906,7 +906,7 @@ def calculate_breadth_metrics(
         sentiment_color = "red"
 
     rprint(
-        f"\n🌡️  [bold]Market Sentiment: {sentiment_emoji} [{sentiment_color}]{sentiment_text}[/{sentiment_color}][/bold]"
+        f"\n🌡️  [bold]Market Sentiment: {sentiment_emoji} [{sentiment_color}]{sentiment_text}[/{sentiment_color}][/bold]",
     )
 
     # Breadth Dashboard Table
@@ -964,7 +964,7 @@ def calculate_breadth_metrics(
     momentum_text = Text(f"{breadth_momentum:.2f}", style=momentum_color)
 
     breadth_table.add_row(
-        "Total Strategies", str(total_strategies), "100%", "Universe size"
+        "Total Strategies", str(total_strategies), "100%", "Universe size",
     )
     breadth_table.add_row(
         "🎯 Open Positions",
@@ -993,11 +993,11 @@ def calculate_breadth_metrics(
 
     if total_signal_entries > total_signal_exits:
         rprint(
-            f"   🔥 [green]Bullish setup: {total_signal_entries} entries vs {total_signal_exits} exits[/green]"
+            f"   🔥 [green]Bullish setup: {total_signal_entries} entries vs {total_signal_exits} exits[/green]",
         )
     elif total_signal_exits > total_signal_entries:
         rprint(
-            f"   ❄️ [red]Bearish setup: {total_signal_exits} exits vs {total_signal_entries} entries[/red]"
+            f"   ❄️ [red]Bearish setup: {total_signal_exits} exits vs {total_signal_entries} entries[/red]",
         )
     else:
         rprint("   ⚖️ [yellow]Balanced market: Equal entry/exit pressure[/yellow]")
@@ -1007,27 +1007,27 @@ def calculate_breadth_metrics(
         concentration = total_open_trades / total_strategies
         if concentration > 0.8:
             rprint(
-                f"   ⚠️ [red]High concentration risk: {concentration:.1%} of strategies active[/red]"
+                f"   ⚠️ [red]High concentration risk: {concentration:.1%} of strategies active[/red]",
             )
         elif concentration < 0.2:
             rprint(
-                f"   🛡️ [green]Conservative positioning: {concentration:.1%} exposure[/green]"
+                f"   🛡️ [green]Conservative positioning: {concentration:.1%} exposure[/green]",
             )
         else:
             rprint(
-                f"   ✅ [blue]Balanced exposure: {concentration:.1%} of strategies active[/blue]"
+                f"   ✅ [blue]Balanced exposure: {concentration:.1%} of strategies active[/blue]",
             )
 
     # Momentum analysis
     if breadth_momentum > 1.5:
         rprint(
-            "   🚀 [bright_green]Strong buying momentum - consider position sizing up[/bright_green]"
+            "   🚀 [bright_green]Strong buying momentum - consider position sizing up[/bright_green]",
         )
     elif breadth_momentum < 0.5 and signal_exit_ratio > 0:
         rprint("   📉 [red]Selling pressure detected - consider risk management[/red]")
     elif total_signal_entries == 0 and total_signal_exits == 0:
         rprint(
-            "   😴 [yellow]Quiet market - good time for patience and preparation[/yellow]"
+            "   😴 [yellow]Quiet market - good time for patience and preparation[/yellow]",
         )
 
     # Also log to the traditional log function if provided
@@ -1039,10 +1039,10 @@ def calculate_breadth_metrics(
         log_func(f"Total Signal Exits: {total_signal_exits}")
         log_func(f"Breadth Ratio: {breadth_ratio:.4f} (Open Trades / Total Strategies)")
         log_func(
-            f"Signal Entry Ratio: {signal_entry_ratio:.4f} (Signal Entries / Total Strategies)"
+            f"Signal Entry Ratio: {signal_entry_ratio:.4f} (Signal Entries / Total Strategies)",
         )
         log_func(
-            f"Signal Exit Ratio: {signal_exit_ratio:.4f} (Signal Exits / Total Strategies)"
+            f"Signal Exit Ratio: {signal_exit_ratio:.4f} (Signal Exits / Total Strategies)",
         )
         momentum_msg = (
             f"Breadth Momentum: {breadth_momentum:.4f} (Signal Entry Ratio / Signal Exit Ratio)"
@@ -1055,7 +1055,7 @@ def calculate_breadth_metrics(
 
 
 def display_portfolio_summary(
-    portfolios: list[dict[str, Any]], execution_time: float | None = None, log_func=None
+    portfolios: list[dict[str, Any]], execution_time: float | None = None, log_func=None,
 ) -> None:
     """Display comprehensive portfolio summary with market insights and key takeaways.
 
@@ -1072,15 +1072,15 @@ def display_portfolio_summary(
     # Calculate key performance metrics
     total_strategies = len(portfolios)
     profitable_strategies = len(
-        [p for p in portfolios if float(p.get("Total Return [%]", 0)) > 0]
+        [p for p in portfolios if float(p.get("Total Return [%]", 0)) > 0],
     )
     high_score_strategies = len(
-        [p for p in portfolios if float(p.get("Score", 0)) >= 1.2]
+        [p for p in portfolios if float(p.get("Score", 0)) >= 1.2],
     )
 
     # Get top performers
     sorted_portfolios = sorted(
-        portfolios, key=lambda x: float(x.get("Score", 0)), reverse=True
+        portfolios, key=lambda x: float(x.get("Score", 0)), reverse=True,
     )
     top_3_performers = sorted_portfolios[:3]
 
@@ -1226,7 +1226,7 @@ def display_portfolio_summary(
         "Score ≥ 1.2",
     )
     perf_table.add_row(
-        "Average Score", f"{avg_score:.3f}", format_score(avg_score), "> 1.0 is good"
+        "Average Score", f"{avg_score:.3f}", format_score(avg_score), "> 1.0 is good",
     )
     perf_table.add_row(
         "Average Win Rate",
@@ -1314,7 +1314,7 @@ def display_portfolio_summary(
     if strategy_types:
         rprint("\n📊 [bold yellow]Strategy Distribution:[/bold yellow]")
         for strategy, count in sorted(
-            strategy_types.items(), key=lambda x: x[1], reverse=True
+            strategy_types.items(), key=lambda x: x[1], reverse=True,
         ):
             percentage = (count / total_strategies) * 100
             bar_length = int(percentage / 5)  # Scale for visual bar
@@ -1326,33 +1326,33 @@ def display_portfolio_summary(
 
     if avg_score >= 1.3:
         rprint(
-            f"   🔥 [bright_green]Exceptional portfolio performance - average score {avg_score:.3f}[/bright_green]"
+            f"   🔥 [bright_green]Exceptional portfolio performance - average score {avg_score:.3f}[/bright_green]",
         )
     elif avg_score >= 1.1:
         rprint(
-            f"   📈 [green]Strong portfolio performance - average score {avg_score:.3f}[/green]"
+            f"   📈 [green]Strong portfolio performance - average score {avg_score:.3f}[/green]",
         )
     elif avg_score >= 0.9:
         rprint(
-            f"   ⚖️ [yellow]Moderate performance - average score {avg_score:.3f}[/yellow]"
+            f"   ⚖️ [yellow]Moderate performance - average score {avg_score:.3f}[/yellow]",
         )
     else:
         rprint("   📉 [red]Below-average performance - review strategy parameters[/red]")
 
     if profit_rate >= 70:
         rprint(
-            f"   💰 [green]Strong profitability: {profit_rate:.1f}% of strategies profitable[/green]"
+            f"   💰 [green]Strong profitability: {profit_rate:.1f}% of strategies profitable[/green]",
         )
     elif profit_rate < 50:
         rprint(
-            f"   ⚠️ [yellow]Profitability concern: Only {profit_rate:.1f}% strategies profitable[/yellow]"
+            f"   ⚠️ [yellow]Profitability concern: Only {profit_rate:.1f}% strategies profitable[/yellow]",
         )
 
     # Strategy-specific insights
     if strategy_types:
         best_strategy = max(strategy_types.items(), key=lambda x: x[1])
         rprint(
-            f"   📊 [blue]Most used strategy: {best_strategy[0]} ({best_strategy[1]} strategies)[/blue]"
+            f"   📊 [blue]Most used strategy: {best_strategy[0]} ({best_strategy[1]} strategies)[/blue]",
         )
     else:
         rprint("   ⚠️ [yellow]No strategy types detected in portfolio data[/yellow]")
@@ -1367,21 +1367,21 @@ def display_portfolio_summary(
 
     if len(signal_entries) > len(signal_exits):
         rprint(
-            f"   🎯 [green]Opportunity-rich environment: {len(signal_entries)} entries vs {len(signal_exits)} exits[/green]"
+            f"   🎯 [green]Opportunity-rich environment: {len(signal_entries)} entries vs {len(signal_exits)} exits[/green]",
         )
     elif len(signal_exits) > len(signal_entries):
         rprint(
-            f"   🛡️ [yellow]Risk management mode: {len(signal_exits)} exits vs {len(signal_entries)} entries[/yellow]"
+            f"   🛡️ [yellow]Risk management mode: {len(signal_exits)} exits vs {len(signal_entries)} entries[/yellow]",
         )
 
     # Execution summary
     if execution_time:
         create_section_header("Execution Summary", "⚡")
         rprint(
-            f"🕐 Analysis completed in [bold cyan]{execution_time:.2f} seconds[/bold cyan]"
+            f"🕐 Analysis completed in [bold cyan]{execution_time:.2f} seconds[/bold cyan]",
         )
         rprint(
-            f"📊 Processed [bold green]{total_strategies} strategies[/bold green] across [bold blue]{len({p.get('Ticker', '') for p in portfolios})} tickers[/bold blue]"
+            f"📊 Processed [bold green]{total_strategies} strategies[/bold green] across [bold blue]{len({p.get('Ticker', '') for p in portfolios})} tickers[/bold blue]",
         )
 
         if execution_time < 5:
@@ -1393,5 +1393,5 @@ def display_portfolio_summary(
 
     rprint("\n✨ [bold green]Portfolio update completed successfully![/bold green]")
     rprint(
-        "[dim]Use these insights to guide your trading decisions and risk management.[/dim]"
+        "[dim]Use these insights to guide your trading decisions and risk management.[/dim]",
     )

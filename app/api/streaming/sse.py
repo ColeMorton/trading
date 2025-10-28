@@ -17,7 +17,7 @@ from ..models.tables import JobStatus
 
 
 async def stream_job_progress(
-    job_id: str, db: AsyncSession, redis: Redis
+    job_id: str, db: AsyncSession, redis: Redis,
 ) -> StreamingResponse:
     """
     Create SSE stream for job progress.
@@ -58,7 +58,7 @@ async def stream_job_progress(
 
                 # Check job status in database
                 result = await db.execute(
-                    f"SELECT status FROM jobs WHERE id = '{job_id}'"
+                    f"SELECT status FROM jobs WHERE id = '{job_id}'",
                 )
                 job_status = result.scalar()
 

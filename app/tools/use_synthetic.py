@@ -8,7 +8,7 @@ from app.tools.download_data import download_data
 
 
 def use_synthetic(
-    ticker1: str, ticker2: str, config: DataConfig, log: Callable
+    ticker1: str, ticker2: str, config: DataConfig, log: Callable,
 ) -> tuple[pl.DataFrame, str]:
     """Create a synthetic pair from two tickers.
 
@@ -45,15 +45,15 @@ def use_synthetic(
 
         # Extract date part only (without time) for joining
         data_ticker_1 = data_ticker_1.with_columns(
-            pl.col("Date").dt.truncate("1h").alias("DateHour")
+            pl.col("Date").dt.truncate("1h").alias("DateHour"),
         )
         data_ticker_2 = data_ticker_2.with_columns(
-            pl.col("Date").dt.truncate("1h").alias("DateHour")
+            pl.col("Date").dt.truncate("1h").alias("DateHour"),
         )
 
         # Join on DateHour instead of exact timestamp
         data_merged = data_ticker_1.join(
-            data_ticker_2, on="DateHour", how="inner", suffix="_2"
+            data_ticker_2, on="DateHour", how="inner", suffix="_2",
         )
         log(f"Merged data contains {len(data_merged)} rows")
 
@@ -63,15 +63,15 @@ def use_synthetic(
 
             # Extract date part only (without time) for joining
             data_ticker_1 = data_ticker_1.with_columns(
-                pl.col("Date").dt.date().alias("DateOnly")
+                pl.col("Date").dt.date().alias("DateOnly"),
             )
             data_ticker_2 = data_ticker_2.with_columns(
-                pl.col("Date").dt.date().alias("DateOnly")
+                pl.col("Date").dt.date().alias("DateOnly"),
             )
 
             # Join on DateOnly
             data_merged = data_ticker_1.join(
-                data_ticker_2, on="DateOnly", how="inner", suffix="_2"
+                data_ticker_2, on="DateOnly", how="inner", suffix="_2",
             )
             log(f"Date-only merge contains {len(data_merged)} rows")
 
@@ -83,7 +83,7 @@ def use_synthetic(
                 # Handle Open prices - fill nulls with Close prices
                 pl.col("Open").fill_null(pl.col("Close")).alias("Open_clean"),
                 pl.col("Open_2").fill_null(pl.col("Close_2")).alias("Open_2_clean"),
-            ]
+            ],
         ).with_columns(
             [
                 # Replace zeros with Close prices
@@ -95,7 +95,7 @@ def use_synthetic(
                 .then(pl.col("Close_2"))
                 .otherwise(pl.col("Open_2_clean"))
                 .alias("Open_2_final"),
-            ]
+            ],
         )
 
         # Calculate ratios with clean data
@@ -103,17 +103,17 @@ def use_synthetic(
             {
                 "Date": data_merged["Date"],
                 "Close": (data_merged["Close"] / data_merged["Close_2"]).cast(
-                    pl.Float64
+                    pl.Float64,
                 ),
                 "Open": (data_merged["Open_final"] / data_merged["Open_2_final"]).cast(
-                    pl.Float64
+                    pl.Float64,
                 ),
                 "High": (data_merged["High"] / data_merged["High_2"]).cast(pl.Float64),
                 "Low": (data_merged["Low"] / data_merged["Low_2"]).cast(pl.Float64),
                 "Volume": data_merged["Volume"].cast(
-                    pl.Float64
+                    pl.Float64,
                 ),  # Keep original volume
-            }
+            },
         )
 
         log("Synthetic pair statistics:")

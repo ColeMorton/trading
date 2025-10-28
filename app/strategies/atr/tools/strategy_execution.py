@@ -41,7 +41,7 @@ def calculate_atr(data: pd.DataFrame, length: int) -> pd.Series:
     # Create a DataFrame with the three components, ensuring it has the same
     # index as the input data
     ranges = pd.DataFrame(
-        {"HL": high_low, "HC": high_close, "LC": low_close}, index=data.index
+        {"HL": high_low, "HC": high_close, "LC": low_close}, index=data.index,
     )
 
     # Calculate the true range as the maximum of the three components
@@ -55,7 +55,7 @@ def calculate_atr(data: pd.DataFrame, length: int) -> pd.Series:
 
 
 def generate_signals(
-    data: pd.DataFrame, atr_length: int, atr_multiplier: float, direction: str = "Long"
+    data: pd.DataFrame, atr_length: int, atr_multiplier: float, direction: str = "Long",
 ) -> pd.DataFrame:
     """
     Generate trading signals based on proper ATR Trailing Stop algorithm.
@@ -208,12 +208,14 @@ def backtest_atr_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
     """
     # Validate input data
     if len(data) == 0:
-        raise ValueError("Input data is empty")
+        msg = "Input data is empty"
+        raise ValueError(msg)
 
     required_columns = ["Close", "Signal"]
     for col in required_columns:
         if col not in data.columns:
-            raise ValueError(f"Required column '{col}' not found in data")
+            msg = f"Required column '{col}' not found in data"
+            raise ValueError(msg)
 
     # Ensure data has proper index
     if not isinstance(data.index, pd.DatetimeIndex):
@@ -273,14 +275,13 @@ def backtest_atr_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
         dummy_entries = pd.Series(False, index=dummy_index)
         dummy_exits = pd.Series(False, index=dummy_index)
 
-        dummy_portfolio = vbt.Portfolio.from_signals(
+        return vbt.Portfolio.from_signals(
             close=dummy_close,
             entries=dummy_entries,
             exits=dummy_exits,
             init_cash=1000,
             fees=0.001,
         )
-        return dummy_portfolio
 
 
 def analyze_params(
@@ -311,7 +312,7 @@ def analyze_params(
 
         # Generate signals with optimized function
         data_with_signals: pd.DataFrame = generate_signals(
-            data.copy(), atr_length, atr_multiplier, direction
+            data.copy(), atr_length, atr_multiplier, direction,
         )
 
         # Create config for shared backtest strategy with ATR-specific parameters
@@ -321,7 +322,7 @@ def analyze_params(
             "DIRECTION": direction,  # Use direction from config (Long or Short)
             "fast_period": atr_length,  # Map ATR length to fast period
             "slow_period": int(
-                atr_multiplier * 10
+                atr_multiplier * 10,
             ),  # Map ATR multiplier to slow period
             "signal_period": 0,  # ATR doesn't use signal period
         }
@@ -354,7 +355,7 @@ def analyze_params(
 
         # Use convert_stats for consistency with other strategies (calculates Score field)
         converted_stats = convert_stats(
-            stats, log, backtest_config, current_signal, exit_signal
+            stats, log, backtest_config, current_signal, exit_signal,
         )
 
         # Override with ATR-specific field mappings to maintain proper naming
@@ -365,13 +366,13 @@ def analyze_params(
                 "Strategy Type": "ATR",
                 "Fast Period": int(atr_length),  # Use ATR length as Fast Period
                 "Slow Period": int(
-                    atr_multiplier * 10
+                    atr_multiplier * 10,
                 ),  # Convert multiplier to int for Slow Period
                 "Signal Period": 0,  # ATR doesn't use signal period
                 # Ensure signal fields reflect our ATR-specific detection
                 "Signal Entry": current_signal,
                 "Signal Exit": exit_signal,
-            }
+            },
         )
 
         # Ensure critical numeric fields are proper types (fix string conversion issue)
@@ -427,7 +428,7 @@ def analyze_params(
 
 
 def execute_strategy(
-    config: ATRConfig, strategy_type: str, log: Callable
+    config: ATRConfig, strategy_type: str, log: Callable,
 ) -> list[dict[str, Any]]:
     """Execute ATR strategy with parameter sweep and return portfolio results.
 
@@ -471,11 +472,11 @@ def execute_strategy(
             atr_multiplier_start,
             atr_multiplier_end + atr_multiplier_step,
             atr_multiplier_step,
-        )
+        ),
     )
 
     log(
-        f"Testing {len(atr_lengths)} ATR lengths and {len(atr_multipliers)} multipliers across {len(tickers)} tickers"
+        f"Testing {len(atr_lengths)} ATR lengths and {len(atr_multipliers)} multipliers across {len(tickers)} tickers",
     )
 
     for ticker in tickers:

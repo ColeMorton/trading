@@ -50,7 +50,7 @@ def calculate_comp_score(stats: dict, log: Callable) -> float:
         sortino_normalized = calculate_sortino_normalized(sortino)
         profit_factor_normalized = calculate_profit_factor_normalized(profit_factor)
         expectancy_per_trade_normalized = calculate_expectancy_per_trade_normalized(
-            expectancy_per_trade
+            expectancy_per_trade,
         )
         beats_bnh_normalized = calculate_beats_bnh_normalized(beats_bnh)
 
@@ -75,7 +75,7 @@ def calculate_comp_score(stats: dict, log: Callable) -> float:
         score = base_score * confidence_multiplier
 
         log(
-            f"Calculated Score: {score:.4f} (base: {base_score:.4f}, confidence: {confidence_multiplier:.4f})"
+            f"Calculated Score: {score:.4f} (base: {base_score:.4f}, confidence: {confidence_multiplier:.4f})",
         )
 
         return score
@@ -87,7 +87,9 @@ def calculate_comp_score(stats: dict, log: Callable) -> float:
 
 
 def run(
-    config: dict, external_log: Callable | None = None, progress_update_fn: Callable | None = None
+    config: dict,
+    external_log: Callable | None = None,
+    progress_update_fn: Callable | None = None,
 ) -> bool:
     """
     Execute the COMP strategy analysis.
@@ -125,7 +127,7 @@ def run(
             success = True
             for ticker in ticker_list:
                 ticker_success = process_ticker(
-                    ticker, config, log_func, progress_update_fn
+                    ticker, config, log_func, progress_update_fn,
                 )
                 success = success and ticker_success
 
@@ -178,7 +180,7 @@ def process_ticker(
             return False
 
         log(
-            f"Retrieved {len(data)} data points from {data['Date'].min()} to {data['Date'].max()}"
+            f"Retrieved {len(data)} data points from {data['Date'].min()} to {data['Date'].max()}",
         )
 
         # Calculate compound strategy signals
@@ -261,9 +263,8 @@ def get_strategies_csv_path(ticker: str, config: dict) -> Path:
 
     # Default: look in data/raw/strategies/{ticker}.csv
     base_dir = Path(config.get("BASE_DIR", get_project_root()))
-    csv_path = base_dir / "data" / "raw" / "strategies" / f"{ticker}.csv"
+    return base_dir / "data" / "raw" / "strategies" / f"{ticker}.csv"
 
-    return csv_path
 
 
 def export_compound_results(

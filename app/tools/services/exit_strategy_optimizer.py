@@ -113,7 +113,7 @@ class ExitStrategyOptimizer:
 
             # Score and rank scenarios
             ranked_scenarios = self._rank_scenarios(
-                exit_scenarios, strategy_data, market_condition
+                exit_scenarios, strategy_data, market_condition,
             )
 
             # Select primary recommendation
@@ -126,7 +126,7 @@ class ExitStrategyOptimizer:
 
             # Calculate expected outcomes
             expected_outcomes = self._calculate_expected_outcomes(
-                ranked_scenarios, strategy_data
+                ranked_scenarios, strategy_data,
             )
 
             # Generate risk mitigation plan
@@ -134,12 +134,12 @@ class ExitStrategyOptimizer:
 
             # Set monitoring thresholds
             monitoring_thresholds = self._calculate_monitoring_thresholds(
-                strategy_data, primary
+                strategy_data, primary,
             )
 
             # Calculate overall optimization confidence
             optimization_confidence = self._calculate_optimization_confidence(
-                strategy_data, ranked_scenarios
+                strategy_data, ranked_scenarios,
             )
 
             return OptimizationResult(
@@ -153,11 +153,11 @@ class ExitStrategyOptimizer:
             )
 
         except Exception as e:
-            logger.error(f"Error optimizing exit strategy: {e}")
+            logger.exception(f"Error optimizing exit strategy: {e}")
             return self._create_fallback_result(strategy_data)
 
     def _generate_exit_scenarios(
-        self, data: StrategyData, current_price: float | None
+        self, data: StrategyData, current_price: float | None,
     ) -> list[ExitRecommendation]:
         """Generate all possible exit scenarios"""
         scenarios = []
@@ -187,7 +187,7 @@ class ExitStrategyOptimizer:
         return [s for s in scenarios if s is not None]
 
     def _create_take_profit_scenario(
-        self, data: StrategyData, current_price: float | None
+        self, data: StrategyData, current_price: float | None,
     ) -> ExitRecommendation:
         """Create take profit exit scenario"""
         trigger_condition = f"Price reaches {data.take_profit_pct:.2f}% gain"
@@ -218,7 +218,7 @@ class ExitStrategyOptimizer:
         )
 
     def _create_stop_loss_scenario(
-        self, data: StrategyData, current_price: float | None
+        self, data: StrategyData, current_price: float | None,
     ) -> ExitRecommendation:
         """Create stop loss exit scenario"""
         trigger_condition = f"Price falls to {data.stop_loss_pct:.2f}% loss"
@@ -248,7 +248,7 @@ class ExitStrategyOptimizer:
         )
 
     def _create_trailing_stop_scenario(
-        self, data: StrategyData, current_price: float | None
+        self, data: StrategyData, current_price: float | None,
     ) -> ExitRecommendation:
         """Create trailing stop exit scenario"""
         trigger_condition = (
@@ -269,7 +269,7 @@ class ExitStrategyOptimizer:
             trigger_condition=trigger_condition,
             confidence=confidence,
             expected_return=max(
-                0, data.unrealized_pnl / 100.0 - data.trailing_stop_pct / 100.0
+                0, data.unrealized_pnl / 100.0 - data.trailing_stop_pct / 100.0,
             ),
             risk_score=3.0,
             timing_urgency=urgency,
@@ -325,7 +325,7 @@ class ExitStrategyOptimizer:
         )
 
     def _create_statistical_exit_scenario(
-        self, data: StrategyData
+        self, data: StrategyData,
     ) -> ExitRecommendation:
         """Create statistical signal-based exit scenario"""
         signal_priority_map = {
@@ -387,7 +387,7 @@ class ExitStrategyOptimizer:
 
             # Urgency bonus for time-sensitive situations
             urgency_bonus = {"immediate": 20, "high": 15, "moderate": 5, "low": 0}.get(
-                scenario.timing_urgency, 0
+                scenario.timing_urgency, 0,
             )
 
             # Market condition adjustment
@@ -430,7 +430,7 @@ class ExitStrategyOptimizer:
         return MarketCondition.SIDEWAYS
 
     def _calculate_expected_outcomes(
-        self, scenarios: list[ExitRecommendation], data: StrategyData
+        self, scenarios: list[ExitRecommendation], data: StrategyData,
     ) -> dict[str, float]:
         """Calculate expected outcomes for different scenarios"""
         if not scenarios:
@@ -459,7 +459,7 @@ class ExitStrategyOptimizer:
         }
 
     def _generate_risk_mitigation_plan(
-        self, data: StrategyData, primary: ExitRecommendation
+        self, data: StrategyData, primary: ExitRecommendation,
     ) -> list[str]:
         """Generate risk mitigation plan"""
         plan = []
@@ -467,13 +467,13 @@ class ExitStrategyOptimizer:
         # Always include stop loss if available
         if data.stop_loss_pct > 0:
             plan.append(
-                f"Maintain hard stop loss at {data.stop_loss_pct:.2f}% to limit maximum downside"
+                f"Maintain hard stop loss at {data.stop_loss_pct:.2f}% to limit maximum downside",
             )
 
         # Add position sizing recommendation
         if primary.risk_score > 7:
             plan.append(
-                "Consider reducing position size by 25-50% to manage high risk exposure"
+                "Consider reducing position size by 25-50% to manage high risk exposure",
             )
 
         # Add monitoring recommendations
@@ -482,18 +482,18 @@ class ExitStrategyOptimizer:
 
         # Add correlation risk management
         plan.append(
-            f"Monitor correlation with other {data.ticker} positions and sector exposure"
+            f"Monitor correlation with other {data.ticker} positions and sector exposure",
         )
 
         # Add liquidity management
         plan.append(
-            "Ensure adequate liquidity for exit execution during normal trading hours"
+            "Ensure adequate liquidity for exit execution during normal trading hours",
         )
 
         return plan
 
     def _calculate_monitoring_thresholds(
-        self, data: StrategyData, primary: ExitRecommendation
+        self, data: StrategyData, primary: ExitRecommendation,
     ) -> dict[str, float]:
         """Calculate key monitoring thresholds"""
         thresholds = {}
@@ -513,13 +513,13 @@ class ExitStrategyOptimizer:
 
         # Convergence threshold
         thresholds["convergence_alert"] = max(
-            0.5, data.dual_layer_convergence_score - 0.1
+            0.5, data.dual_layer_convergence_score - 0.1,
         )
 
         return thresholds
 
     def _calculate_optimization_confidence(
-        self, data: StrategyData, scenarios: list[ExitRecommendation]
+        self, data: StrategyData, scenarios: list[ExitRecommendation],
     ) -> float:
         """Calculate overall confidence in optimization"""
         if not scenarios:
@@ -536,7 +536,7 @@ class ExitStrategyOptimizer:
 
         # Scenario consensus confidence
         scenario_confidence = sum(s.confidence for s in scenarios[:3]) / min(
-            3, len(scenarios)
+            3, len(scenarios),
         )
 
         # Final confidence is weighted average
@@ -592,7 +592,7 @@ def optimize_exit_strategy(
     """
     optimizer = ExitStrategyOptimizer()
     return optimizer.optimize_exit_strategy(
-        strategy_data, current_price, market_condition
+        strategy_data, current_price, market_condition,
     )
 
 
@@ -604,7 +604,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Exit Strategy Optimizer")
     parser.add_argument(
-        "--strategy", required=True, help="Strategy name or Position_UUID"
+        "--strategy", required=True, help="Strategy name or Position_UUID",
     )
     parser.add_argument("--current-price", type=float, help="Current market price")
     parser.add_argument("--base-path", help="Base path to trading system")

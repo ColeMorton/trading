@@ -17,6 +17,7 @@ from ..models.schemas import (
     SweepResultsResponse,
     SweepSummaryResponse,
 )
+from typing import Annotated
 
 
 router = APIRouter()
@@ -24,11 +25,11 @@ router = APIRouter()
 
 @router.get("/", response_model=list[SweepSummaryResponse])
 async def list_sweeps(
-    limit: int = Query(
-        10, ge=1, le=100, description="Maximum number of sweeps to return"
-    ),
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(validate_api_key),
+    limit: Annotated[int, Query(
+        10, ge=1, le=100, description="Maximum number of sweeps to return",
+    )],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(validate_api_key)],
 ):
     """
     List all sweep runs with summary statistics.
@@ -59,7 +60,7 @@ async def list_sweeps(
         FROM v_sweep_run_summary
         ORDER BY run_date DESC
         LIMIT :limit
-    """
+    """,
     )
 
     result = await db.execute(query, {"limit": limit})
@@ -89,9 +90,9 @@ async def list_sweeps(
 
 @router.get("/latest", response_model=BestResultsResponse)
 async def get_latest_sweep_results(
-    limit: int = Query(10, ge=1, le=100, description="Number of top results to return"),
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(validate_api_key),
+    limit: Annotated[int, Query(10, ge=1, le=100, description="Number of top results to return")],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(validate_api_key)],
 ):
     """
     Get best results from the most recent sweep run.
@@ -123,7 +124,7 @@ async def get_latest_sweep_results(
         FROM v_latest_best_results
         ORDER BY score DESC
         LIMIT :limit
-    """
+    """,
     )
 
     result = await db.execute(query, {"limit": limit})
@@ -131,7 +132,7 @@ async def get_latest_sweep_results(
 
     if not rows:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="No sweep results found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="No sweep results found",
         )
 
     # Get sweep run info from first row
@@ -171,11 +172,11 @@ async def get_latest_sweep_results(
 @router.get("/{sweep_run_id}", response_model=SweepResultsResponse)
 async def get_sweep_results(
     sweep_run_id: str,
-    ticker: str | None = Query(None, description="Filter by specific ticker"),
-    limit: int = Query(50, ge=1, le=500, description="Maximum results to return"),
-    offset: int = Query(0, ge=0, description="Pagination offset"),
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(validate_api_key),
+    ticker: Annotated[str | None, Query(None, description="Filter by specific ticker")],
+    limit: Annotated[int, Query(50, ge=1, le=500, description="Maximum results to return")],
+    offset: Annotated[int, Query(0, ge=0, description="Pagination offset")],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(validate_api_key)],
 ):
     """
     Get detailed results for a specific sweep run.
@@ -220,7 +221,7 @@ async def get_sweep_results(
               AND t.ticker = :ticker
             ORDER BY sr.score DESC
             LIMIT :limit OFFSET :offset
-        """
+        """,
         )
         params = {
             "sweep_run_id": sweep_run_id,
@@ -260,7 +261,7 @@ async def get_sweep_results(
             WHERE sr.sweep_run_id = :sweep_run_id
             ORDER BY sr.score DESC
             LIMIT :limit OFFSET :offset
-        """
+        """,
         )
         params = {"sweep_run_id": sweep_run_id, "limit": limit, "offset": offset}
 
@@ -281,7 +282,7 @@ async def get_sweep_results(
         JOIN tickers t ON sr.ticker_id = t.id
         WHERE sr.sweep_run_id = :sweep_run_id
         """
-        + (" AND t.ticker = :ticker" if ticker else "")
+        + (" AND t.ticker = :ticker" if ticker else ""),
     )
 
     count_result = await db.execute(
@@ -334,9 +335,9 @@ async def get_sweep_results(
 @router.get("/{sweep_run_id}/best", response_model=BestResultsResponse)
 async def get_best_results_for_sweep(
     sweep_run_id: str,
-    ticker: str | None = Query(None, description="Filter by specific ticker"),
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(validate_api_key),
+    ticker: Annotated[str | None, Query(None, description="Filter by specific ticker")],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(validate_api_key)],
 ):
     """
     Get the best result(s) for a specific sweep run.
@@ -375,7 +376,7 @@ async def get_best_results_for_sweep(
             FROM v_best_by_sweep_and_ticker
             WHERE sweep_run_id = :sweep_run_id
               AND ticker = :ticker
-        """
+        """,
         )
         params = {"sweep_run_id": sweep_run_id, "ticker": ticker}
     else:
@@ -402,7 +403,7 @@ async def get_best_results_for_sweep(
                 NULL::numeric as expectancy_per_trade
             FROM v_best_results_per_sweep
             WHERE sweep_run_id = :sweep_run_id
-        """
+        """,
         )
         params = {"sweep_run_id": sweep_run_id}
 
@@ -445,8 +446,8 @@ async def get_best_results_for_sweep(
 @router.get("/{sweep_run_id}/best-per-ticker", response_model=BestResultsResponse)
 async def get_best_per_ticker(
     sweep_run_id: str,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(validate_api_key),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(validate_api_key)],
 ):
     """
     Get the best result for each ticker in a sweep run.
@@ -480,7 +481,7 @@ async def get_best_per_ticker(
         FROM v_best_by_sweep_and_ticker
         WHERE sweep_run_id = :sweep_run_id
         ORDER BY score DESC
-    """
+    """,
     )
 
     result = await db.execute(query, {"sweep_run_id": sweep_run_id})

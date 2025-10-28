@@ -63,7 +63,7 @@ def calculate_signal_value_metrics(
                 position_column="signal",  # Using signal column as position for this case
             )
             signal_counts = signal_processor.get_comprehensive_counts(
-                joined_df, signal_def
+                joined_df, signal_def,
             )
             signal_count = signal_counts.raw_signals
         else:
@@ -264,7 +264,7 @@ def integrate_signal_value_metrics(
 
         # Calculate metrics for each strategy
         for i, (signals_df, returns_df) in enumerate(
-            zip(signals_df_list, returns_df_list, strict=False)
+            zip(signals_df_list, returns_df_list, strict=False),
         ):
             strategy_id = f"strategy_{i+1}"
 
@@ -296,7 +296,7 @@ def integrate_signal_value_metrics(
 
 
 def _calculate_aggregate_signal_value_metrics(
-    strategy_metrics: dict[str, dict[str, float]], log: Callable[[str, str], None]
+    strategy_metrics: dict[str, dict[str, float]], log: Callable[[str, str], None],
 ) -> dict[str, float]:
     """Calculate aggregate signal value metrics across all strategies.
 
@@ -326,7 +326,7 @@ def _calculate_aggregate_signal_value_metrics(
         valid_strategies = 0
 
         # Sum metrics across all strategies
-        for _strategy_id, metrics in strategy_metrics.items():
+        for metrics in strategy_metrics.values():
             if not metrics:
                 continue
 

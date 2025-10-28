@@ -34,16 +34,19 @@ def validate_inputs(
         ValueError: If invalid input data
     """
     if len(data_list) != len(config_list):
-        raise ValueError("Number of dataframes must match number of configurations")
+        msg = "Number of dataframes must match number of configurations"
+        raise ValueError(msg)
 
     if len(data_list) < 2:
-        raise ValueError("At least two strategies are required for analysis")
+        msg = "At least two strategies are required for analysis"
+        raise ValueError(msg)
 
     required_cols = ["Date", "Position", "Close"]
     for df in data_list:
         missing = [col for col in required_cols if col not in df.columns]
         if missing:
-            raise ValueError(f"Missing required columns: {missing}")
+            msg = f"Missing required columns: {missing}"
+            raise ValueError(msg)
 
 
 def compile_statistics(
@@ -102,7 +105,7 @@ def compile_statistics(
         # Store individual strategy efficiency metrics
         strategy_efficiency_metrics = {}
         for idx, ((efficiency, div, ind, act), expectancy) in enumerate(
-            zip(strategy_efficiencies, strategy_expectancies, strict=False), 1
+            zip(strategy_efficiencies, strategy_expectancies, strict=False), 1,
         ):
             strategy_efficiency_metrics.update(
                 {
@@ -111,7 +114,7 @@ def compile_statistics(
                     f"strategy_{idx}_diversification": div,
                     f"strategy_{idx}_independence": ind,
                     f"strategy_{idx}_activity": act,
-                }
+                },
             )
 
         stats = {
@@ -126,7 +129,7 @@ def compile_statistics(
             "max_concurrent_strategies": max_concurrent,
             "strategy_correlations": correlations,
             "avg_position_length": float(
-                sum(df["Position"].sum() for df in aligned_data) / len(aligned_data)
+                sum(df["Position"].sum() for df in aligned_data) / len(aligned_data),
             ),
             "efficiency_score": efficiency_score,
             "total_expectancy": total_expectancy,
@@ -204,7 +207,7 @@ def analyze_concurrency(
         total_allocation = sum(strategy_allocations)
         if total_allocation == 0:
             log(
-                "No allocations provided for any strategy. Using equal weights.", "info"
+                "No allocations provided for any strategy. Using equal weights.", "info",
             )
             equal_weight = 100.0 / len(strategy_allocations)
             strategy_allocations = [equal_weight] * len(strategy_allocations)
@@ -215,7 +218,7 @@ def analyze_concurrency(
         else:
             # Log individual allocations when they are provided
             for config, allocation in zip(
-                config_list, strategy_allocations, strict=False
+                config_list, strategy_allocations, strict=False,
             ):
                 ticker = config.get("TICKER", "unknown")
                 log(f"Using allocation {allocation:.2f}% for {ticker}", "info")
@@ -247,7 +250,7 @@ def analyze_concurrency(
                 # Direct top-level field (rare, but check first)
                 expectancy = config["EXPECTANCY_PER_TRADE"]
                 log(
-                    f"Using EXPECTANCY_PER_TRADE for {ticker}: {expectancy:.6f}", "info"
+                    f"Using EXPECTANCY_PER_TRADE for {ticker}: {expectancy:.6f}", "info",
                 )
             elif (
                 "PORTFOLIO_STATS" in config
@@ -376,12 +379,12 @@ def analyze_concurrency(
             try:
                 # Calculate returns from Close prices
                 returns_df = df.select(["Date", "Close"]).with_columns(
-                    pl.col("Close").pct_change().alias("return")
+                    pl.col("Close").pct_change().alias("return"),
                 )
 
                 # Create signals dataframe
                 signals_df = df.select(["Date", "Position"]).with_columns(
-                    pl.col("Position").diff().alias("signal")
+                    pl.col("Position").diff().alias("signal"),
                 )
 
                 # Calculate signal quality metrics for this strategy
@@ -429,7 +432,7 @@ def analyze_concurrency(
             if aggregate_metrics:
                 signal_quality_metrics["aggregate"] = aggregate_metrics
                 log(
-                    "Allocation-weighted aggregate signal quality metrics added", "info"
+                    "Allocation-weighted aggregate signal quality metrics added", "info",
                 )
         except Exception as e:
             log(f"Error calculating aggregate signal quality metrics: {e!s}", "error")
@@ -517,12 +520,12 @@ def analyze_concurrency(
                 except (ValueError, TypeError):
                     # If original allocation is invalid, use the calculated allocation
                     stats[f"strategy_{i}_original_allocation"] = stats.get(
-                        f"strategy_{i}_allocation", 0.0
+                        f"strategy_{i}_allocation", 0.0,
                     )
             else:
                 # If no original allocation exists, use the calculated allocation
                 stats[f"strategy_{i}_original_allocation"] = stats.get(
-                    f"strategy_{i}_allocation", 0.0
+                    f"strategy_{i}_allocation", 0.0,
                 )
 
             # Add stop loss values to stats

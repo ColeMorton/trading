@@ -41,7 +41,7 @@ class ExportValidator:
         is_enhanced_analysis = portfolio_base.startswith("enhanced_")
         if is_enhanced_analysis:
             self.logger.debug(
-                f"Skipping position validation for enhanced analysis: {portfolio_base}"
+                f"Skipping position validation for enhanced analysis: {portfolio_base}",
             )
             # For enhanced analysis, only validate that export files were created
             return self._validate_enhanced_exports(portfolio_base)
@@ -108,7 +108,7 @@ class ExportValidator:
         return len(issues) == 0, issues
 
     def generate_fallback_exports(
-        self, portfolio_name: str, position_data_path: str | None = None
+        self, portfolio_name: str, position_data_path: str | None = None,
     ) -> bool:
         """
         Generate fallback exports using position data when standard exports fail.
@@ -132,7 +132,7 @@ class ExportValidator:
                 # Check if this is an enhanced analysis that shouldn't have position data
                 if portfolio_name.startswith("enhanced_"):
                     self.logger.debug(
-                        f"Enhanced analysis fallback export - skipping position validation: {position_data_path}"
+                        f"Enhanced analysis fallback export - skipping position validation: {position_data_path}",
                     )
                     return True  # Enhanced analysis doesn't need position data
                 self.logger.error(f"Position data not found: {position_data_path}")
@@ -149,7 +149,7 @@ class ExportValidator:
             else:
                 # Generate analysis results and backtesting parameters
                 results, backtesting_params = self._generate_analysis_data(
-                    open_positions
+                    open_positions,
                 )
 
             # Generate statistical analysis exports
@@ -162,16 +162,16 @@ class ExportValidator:
             self._export_markdown_report(portfolio_base, results, open_positions)
 
             self.logger.info(
-                f"Fallback exports generated for {portfolio_name}: {len(results)} strategies"
+                f"Fallback exports generated for {portfolio_name}: {len(results)} strategies",
             )
             return True
 
         except Exception as e:
-            self.logger.error(f"Failed to generate fallback exports: {e}")
+            self.logger.exception(f"Failed to generate fallback exports: {e}")
             return False
 
     def _generate_analysis_data(
-        self, open_positions: pd.DataFrame
+        self, open_positions: pd.DataFrame,
     ) -> tuple[list[dict], list[dict]]:
         """Generate analysis results and backtesting parameters from position data."""
         results = []
@@ -256,7 +256,7 @@ class ExportValidator:
         return results, backtesting_params
 
     def _export_statistical_analysis(
-        self, portfolio_base: str, results: list[dict], open_positions: pd.DataFrame
+        self, portfolio_base: str, results: list[dict], open_positions: pd.DataFrame,
     ):
         """Export statistical analysis to JSON and CSV."""
         # Generate portfolio summary
@@ -324,7 +324,7 @@ class ExportValidator:
             pd.DataFrame(results).to_csv(csv_file, index=False)
 
     def _export_backtesting_parameters(
-        self, portfolio_base: str, backtesting_params: list[dict]
+        self, portfolio_base: str, backtesting_params: list[dict],
     ):
         """Export backtesting parameters to JSON and CSV."""
         export_data = {
@@ -347,7 +347,7 @@ class ExportValidator:
             pd.DataFrame(backtesting_params).to_csv(csv_file, index=False)
 
     def _export_markdown_report(
-        self, portfolio_base: str, results: list[dict], open_positions: pd.DataFrame
+        self, portfolio_base: str, results: list[dict], open_positions: pd.DataFrame,
     ):
         """Export comprehensive SPDS analysis report."""
         md_file = self.statistical_dir / f"{portfolio_base}.md"
@@ -361,7 +361,7 @@ class ExportValidator:
 
         # Generate comprehensive markdown content using the enhanced format
         content = self._generate_comprehensive_fallback_report(
-            portfolio_base, results, open_positions, signal_dist
+            portfolio_base, results, open_positions, signal_dist,
         )
 
         with open(md_file, "w") as f:
@@ -444,7 +444,7 @@ class ExportValidator:
                 "",
                 "| Position | Signal Type | Action Required | Confidence | Performance |",
                 "|----------|-------------|-----------------|------------|-------------|",
-            ]
+            ],
         )
 
         # Signal priority for sorting
@@ -494,7 +494,7 @@ class ExportValidator:
             )
 
             report_lines.append(
-                f"| {position_name} | **{signal}** | {action} | {confidence} | {performance} |"
+                f"| {position_name} | **{signal}** | {action} | {confidence} | {performance} |",
             )
 
         report_lines.extend(
@@ -504,7 +504,7 @@ class ExportValidator:
                 "",
                 "## 📈 Key Insights",
                 "",
-            ]
+            ],
         )
 
         # Immediate action required section
@@ -513,7 +513,7 @@ class ExportValidator:
                 [
                     "### 🚨 Immediate Action Required:",
                     "",
-                ]
+                ],
             )
 
             for result in sorted_results:
@@ -525,7 +525,7 @@ class ExportValidator:
                         else "N/A"
                     )
                     report_lines.append(
-                        f"- **{ticker}**: At 95th percentile performance ({performance}) - statistical exhaustion detected"
+                        f"- **{ticker}**: At 95th percentile performance ({performance}) - statistical exhaustion detected",
                     )
 
                 elif result.get("exit_signal") == "STRONG_SELL":
@@ -536,7 +536,7 @@ class ExportValidator:
                         else "N/A"
                     )
                     report_lines.append(
-                        f"- **{ticker}**: At 90th percentile ({performance}) - approaching performance limits"
+                        f"- **{ticker}**: At 90th percentile ({performance}) - approaching performance limits",
                     )
 
             report_lines.extend(["", ""])
@@ -560,7 +560,7 @@ class ExportValidator:
                 "",
                 "## 💡 Recommendations",
                 "",
-            ]
+            ],
         )
 
         # Generate specific recommendations
@@ -571,23 +571,23 @@ class ExportValidator:
 
             if signal == "EXIT_IMMEDIATELY":
                 recommendations.append(
-                    f"{i}. **Consider taking profits** on {ticker} immediately (95th percentile exhaustion)"
+                    f"{i}. **Consider taking profits** on {ticker} immediately (95th percentile exhaustion)",
                 )
             elif signal == "STRONG_SELL":
                 recommendations.append(
-                    f"{i}. **Monitor {ticker} closely** for exit opportunity (approaching limits)"
+                    f"{i}. **Monitor {ticker} closely** for exit opportunity (approaching limits)",
                 )
             elif signal == "SELL":
                 recommendations.append(
-                    f"{i}. **Prepare exit strategy** for {ticker} (80th percentile threshold)"
+                    f"{i}. **Prepare exit strategy** for {ticker} (80th percentile threshold)",
                 )
             elif signal == "TIME_EXIT":
                 recommendations.append(
-                    f"{i}. **Review {ticker}** position due to extended holding period"
+                    f"{i}. **Review {ticker}** position due to extended holding period",
                 )
             elif signal == "HOLD" and i <= 3:  # Only mention top 3 holds
                 recommendations.append(
-                    f"{i}. **Continue holding** {ticker} position (below statistical thresholds)"
+                    f"{i}. **Continue holding** {ticker} position (below statistical thresholds)",
                 )
 
         # Limit to top 6 recommendations
@@ -596,7 +596,7 @@ class ExportValidator:
 
         if len(recommendations) > 6:
             report_lines.append(
-                f"... and {len(recommendations) - 6} additional positions to monitor"
+                f"... and {len(recommendations) - 6} additional positions to monitor",
             )
 
         report_lines.extend(
@@ -624,7 +624,7 @@ class ExportValidator:
                 "- **✅ HOLD**: Continue monitoring (below 70th percentile)",
                 "",
                 f"*Generated by Statistical Performance Divergence System (SPDS) v2.0 on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*",
-            ]
+            ],
         )
 
         return "\n".join(report_lines)

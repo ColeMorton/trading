@@ -43,7 +43,7 @@ class TestMACDMultiTicker:
             shutil.rmtree(self.temp_dir)
 
     def _create_test_config(
-        self, ticker: str | list[str], use_current: bool = True, **kwargs
+        self, ticker: str | list[str], use_current: bool = True, **kwargs,
     ) -> PortfolioConfig:
         """Create a test configuration."""
         config: PortfolioConfig = {

@@ -64,7 +64,7 @@ class PortfolioMetricsValidator:
         """Initialize the validator with logging."""
         if log is None:
             self.log, _, _, _ = setup_logging(
-                "portfolio_validator", Path("./logs"), "validation.log"
+                "portfolio_validator", Path("./logs"), "validation.log",
             )
         else:
             self.log = log
@@ -104,16 +104,16 @@ class PortfolioMetricsValidator:
         # Run validation checks
         self._validate_trade_counts(csv_data, json_metrics, tolerances["trade_count"])
         self._validate_performance_signs(
-            csv_data, json_metrics, tolerances["performance"]
+            csv_data, json_metrics, tolerances["performance"],
         )
         self._validate_risk_bounds(csv_data, json_metrics, tolerances["risk"])
         self._validate_allocation_weights(json_metrics, tolerances["allocation"])
         self._validate_unit_consistency(
-            csv_data, json_metrics, tolerances["unit_consistency"]
+            csv_data, json_metrics, tolerances["unit_consistency"],
         )
         self._validate_win_rates(csv_data, json_metrics, tolerances["performance"])
         self._validate_expectancy_units(
-            csv_data, json_metrics, tolerances["unit_consistency"]
+            csv_data, json_metrics, tolerances["unit_consistency"],
         )
 
         # Generate summary
@@ -123,7 +123,7 @@ class PortfolioMetricsValidator:
         return summary
 
     def _validate_trade_counts(
-        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float
+        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float,
     ) -> None:
         """Validate that signal counts are consistent with actual trade counts."""
         try:
@@ -164,7 +164,7 @@ class PortfolioMetricsValidator:
                         tolerance=tolerance,
                         error_message=f"Signal-to-trade ratio {ratio:.2f} is outside expected range {expected_ratio_range}",
                         severity="critical" if ratio > 10.0 else "warning",
-                    )
+                    ),
                 )
 
             # Check 2: Signal quality count vs CSV trades
@@ -180,7 +180,7 @@ class PortfolioMetricsValidator:
                         tolerance=tolerance,
                         error_message=f"Signal quality count {quality_signal_count} differs from CSV trades {csv_total_trades} by {abs(ratio - 1.0)*100:.1f}%",
                         severity="critical" if abs(ratio - 1.0) > 0.5 else "warning",
-                    )
+                    ),
                 )
 
         except Exception as e:
@@ -194,11 +194,11 @@ class PortfolioMetricsValidator:
                     tolerance=tolerance,
                     error_message=f"Validation error: {e!s}",
                     severity="critical",
-                )
+                ),
             )
 
     def _validate_performance_signs(
-        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float
+        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float,
     ) -> None:
         """Validate that performance metrics maintain correct signs."""
         try:
@@ -248,7 +248,7 @@ class PortfolioMetricsValidator:
                                 if not signs_match and abs(csv_sharpe) > 0.1
                                 else "warning"
                             ),
-                        )
+                        ),
                     )
 
         except Exception as e:
@@ -262,11 +262,11 @@ class PortfolioMetricsValidator:
                     tolerance=tolerance,
                     error_message=f"Validation error: {e!s}",
                     severity="critical",
-                )
+                ),
             )
 
     def _validate_risk_bounds(
-        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float
+        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float,
     ) -> None:
         """Validate that JSON risk metrics don't exceed CSV bounds."""
         try:
@@ -308,7 +308,7 @@ class PortfolioMetricsValidator:
                                 if json_max_dd <= csv_max_dd * 1.5
                                 else "critical"
                             ),
-                        )
+                        ),
                     )
 
         except Exception as e:
@@ -322,11 +322,11 @@ class PortfolioMetricsValidator:
                     tolerance=tolerance,
                     error_message=f"Validation error: {e!s}",
                     severity="critical",
-                )
+                ),
             )
 
     def _validate_allocation_weights(
-        self, json_metrics: dict[str, Any], tolerance: float
+        self, json_metrics: dict[str, Any], tolerance: float,
     ) -> None:
         """Validate that allocation weights sum to 1.0."""
         try:
@@ -334,7 +334,7 @@ class PortfolioMetricsValidator:
 
             # Extract allocation weights if available
             allocations = []
-            for _ticker, metrics in ticker_metrics.items():
+            for metrics in ticker_metrics.values():
                 if "allocation" in metrics:
                     allocations.append(metrics["allocation"])
 
@@ -355,7 +355,7 @@ class PortfolioMetricsValidator:
                             if abs(total_allocation - 1.0) > 0.1
                             else "warning"
                         ),
-                    )
+                    ),
                 )
             else:
                 self.results.append(
@@ -367,7 +367,7 @@ class PortfolioMetricsValidator:
                         tolerance=tolerance,
                         error_message="No allocation weights found in JSON metrics",
                         severity="info",
-                    )
+                    ),
                 )
 
         except Exception as e:
@@ -381,11 +381,11 @@ class PortfolioMetricsValidator:
                     tolerance=tolerance,
                     error_message=f"Validation error: {e!s}",
                     severity="warning",
-                )
+                ),
             )
 
     def _validate_unit_consistency(
-        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float
+        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float,
     ) -> None:
         """Validate unit consistency across metrics."""
         try:
@@ -412,7 +412,7 @@ class PortfolioMetricsValidator:
                     severity=(
                         "critical" if abs(portfolio_expectancy) > 10000 else "warning"
                     ),
-                )
+                ),
             )
 
             # Check that percentages are in decimal form (0-1) not percentage form
@@ -440,7 +440,7 @@ class PortfolioMetricsValidator:
                             severity=(
                                 "warning" if value > 1 and value <= 100 else "critical"
                             ),
-                        )
+                        ),
                     )
 
         except Exception as e:
@@ -454,11 +454,11 @@ class PortfolioMetricsValidator:
                     tolerance=tolerance,
                     error_message=f"Validation error: {e!s}",
                     severity="warning",
-                )
+                ),
             )
 
     def _validate_win_rates(
-        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float
+        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float,
     ) -> None:
         """Validate win rate calculations against CSV data."""
         try:
@@ -499,7 +499,7 @@ class PortfolioMetricsValidator:
                             severity=(
                                 "warning" if difference <= tolerance * 2 else "critical"
                             ),
-                        )
+                        ),
                     )
 
         except Exception as e:
@@ -513,11 +513,11 @@ class PortfolioMetricsValidator:
                     tolerance=tolerance,
                     error_message=f"Validation error: {e!s}",
                     severity="warning",
-                )
+                ),
             )
 
     def _validate_expectancy_units(
-        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float
+        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float,
     ) -> None:
         """Validate that expectancy values use consistent units."""
         try:
@@ -556,7 +556,7 @@ class PortfolioMetricsValidator:
                         tolerance=tolerance,
                         error_message=f"Portfolio expectancy {portfolio_expectancy:.2f} outside reasonable range based on CSV data",
                         severity="critical" if not within_range else "info",
-                    )
+                    ),
                 )
 
         except Exception as e:
@@ -570,7 +570,7 @@ class PortfolioMetricsValidator:
                     tolerance=tolerance,
                     error_message=f"Validation error: {e!s}",
                     severity="warning",
-                )
+                ),
             )
 
     def _generate_summary(self) -> ValidationSummary:

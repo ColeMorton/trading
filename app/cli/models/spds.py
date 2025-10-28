@@ -72,7 +72,8 @@ class SPDSThresholds(BaseModel):
     def validate_thresholds(cls, v, values):
         """Ensure thresholds are in descending order."""
         if v < 0 or v > 100:
-            raise ValueError("Thresholds must be between 0 and 100")
+            msg = "Thresholds must be between 0 and 100"
+            raise ValueError(msg)
         return v
 
 
@@ -80,13 +81,13 @@ class SPDSSampleSize(BaseModel):
     """SPDS sample size configuration."""
 
     minimum: int = Field(
-        default=15, ge=1, description="Minimum sample size for analysis"
+        default=15, ge=1, description="Minimum sample size for analysis",
     )
     preferred: int = Field(
-        default=30, ge=1, description="Preferred sample size for reliable analysis"
+        default=30, ge=1, description="Preferred sample size for reliable analysis",
     )
     optimal: int = Field(
-        default=50, ge=1, description="Optimal sample size for high-confidence analysis"
+        default=50, ge=1, description="Optimal sample size for high-confidence analysis",
     )
 
     @field_validator("preferred")
@@ -94,7 +95,8 @@ class SPDSSampleSize(BaseModel):
     def validate_preferred_vs_minimum(cls, v, values):
         """Ensure preferred >= minimum."""
         if "minimum" in values and v < values["minimum"]:
-            raise ValueError("Preferred sample size must be >= minimum")
+            msg = "Preferred sample size must be >= minimum"
+            raise ValueError(msg)
         return v
 
     @field_validator("optimal")
@@ -102,7 +104,8 @@ class SPDSSampleSize(BaseModel):
     def validate_optimal_vs_preferred(cls, v, values):
         """Ensure optimal >= preferred."""
         if "preferred" in values and v < values["preferred"]:
-            raise ValueError("Optimal sample size must be >= preferred")
+            msg = "Optimal sample size must be >= preferred"
+            raise ValueError(msg)
         return v
 
 
@@ -110,10 +113,10 @@ class SPDSBootstrap(BaseModel):
     """SPDS bootstrap analysis configuration."""
 
     enabled: bool = Field(
-        default=True, description="Enable bootstrap statistical validation"
+        default=True, description="Enable bootstrap statistical validation",
     )
     iterations: int = Field(
-        default=1000, ge=100, le=10000, description="Number of bootstrap iterations"
+        default=1000, ge=100, le=10000, description="Number of bootstrap iterations",
     )
     sample_size: int = Field(
         default=100,
@@ -134,40 +137,40 @@ class SPDSAnalysisConfig(BaseModel):
 
     # Data source
     trade_history: bool = Field(
-        default=False, description="Use trade history data vs equity curves"
+        default=False, description="Use trade history data vs equity curves",
     )
 
     # Analysis parameters
     dual_layer_threshold: float = Field(
-        default=0.85, ge=0.0, le=1.0, description="Dual layer convergence threshold"
+        default=0.85, ge=0.0, le=1.0, description="Dual layer convergence threshold",
     )
     confidence_level: ConfidenceLevel = Field(
-        default=ConfidenceLevel.MEDIUM, description="Minimum confidence level required"
+        default=ConfidenceLevel.MEDIUM, description="Minimum confidence level required",
     )
 
     # Thresholds and sample sizes
     thresholds: SPDSThresholds = Field(
-        default_factory=SPDSThresholds, description="SPDS signal thresholds"
+        default_factory=SPDSThresholds, description="SPDS signal thresholds",
     )
     sample_size: SPDSSampleSize = Field(
-        default_factory=SPDSSampleSize, description="Sample size requirements"
+        default_factory=SPDSSampleSize, description="Sample size requirements",
     )
     bootstrap: SPDSBootstrap = Field(
-        default_factory=SPDSBootstrap, description="Bootstrap analysis configuration"
+        default_factory=SPDSBootstrap, description="Bootstrap analysis configuration",
     )
 
     # Risk and divergence analysis
     var_confidence_levels: list = Field(
-        default=[0.95, 0.99], description="VaR confidence levels for risk analysis"
+        default=[0.95, 0.99], description="VaR confidence levels for risk analysis",
     )
     enable_rarity_analysis: bool = Field(
-        default=True, description="Enable rarity-based divergence analysis"
+        default=True, description="Enable rarity-based divergence analysis",
     )
     enable_z_score_analysis: bool = Field(
-        default=True, description="Enable Z-score divergence analysis"
+        default=True, description="Enable Z-score divergence analysis",
     )
     enable_iqr_analysis: bool = Field(
-        default=True, description="Enable IQR-based divergence analysis"
+        default=True, description="Enable IQR-based divergence analysis",
     )
 
 
@@ -176,28 +179,28 @@ class SPDSOutputConfig(BaseModel):
 
     # Output format
     output_format: OutputFormat = Field(
-        default=OutputFormat.TABLE, description="Primary output format"
+        default=OutputFormat.TABLE, description="Primary output format",
     )
     save_results: str | None = Field(
-        default=None, description="File path to save results (JSON format)"
+        default=None, description="File path to save results (JSON format)",
     )
 
     # Export options
     export_backtesting: bool = Field(
-        default=False, description="Export deterministic backtesting parameters"
+        default=False, description="Export deterministic backtesting parameters",
     )
     export_format: ExportFormat = Field(
-        default=ExportFormat.ALL, description="Export format for analysis results"
+        default=ExportFormat.ALL, description="Export format for analysis results",
     )
     output_dir: str | None = Field(
-        default=None, description="Custom output directory for exports"
+        default=None, description="Custom output directory for exports",
     )
 
     # Display options
     verbose: bool = Field(default=False, description="Enable verbose output")
     quiet: bool = Field(default=False, description="Quiet mode (errors only)")
     show_progress: bool = Field(
-        default=True, description="Show progress indicators during analysis"
+        default=True, description="Show progress indicators during analysis",
     )
 
 
@@ -206,29 +209,29 @@ class SPDSParameterConfig(BaseModel):
 
     # Parameter information
     parameter_type: ParameterType = Field(
-        ..., description="Type of parameter being analyzed"
+        ..., description="Type of parameter being analyzed",
     )
     parsed_parameter: ParsedParameter = Field(
-        ..., description="Parsed parameter components"
+        ..., description="Parsed parameter components",
     )
 
     # Analysis scope
     enable_asset_distribution: bool = Field(
-        default=True, description="Enable asset distribution analysis"
+        default=True, description="Enable asset distribution analysis",
     )
     enable_strategy_analysis: bool = Field(
-        default=True, description="Enable strategy-specific analysis"
+        default=True, description="Enable strategy-specific analysis",
     )
     enable_position_analysis: bool = Field(
-        default=True, description="Enable position-specific analysis"
+        default=True, description="Enable position-specific analysis",
     )
 
     # Data source preferences
     prefer_trade_history: bool = Field(
-        default=True, description="Prefer trade history when available"
+        default=True, description="Prefer trade history when available",
     )
     require_equity_data: bool = Field(
-        default=False, description="Require equity curve data for analysis"
+        default=False, description="Require equity curve data for analysis",
     )
     fallback_to_market_data: bool = Field(
         default=True,
@@ -243,13 +246,13 @@ class SPDSTickerConfig(BaseModel):
 
     # Analysis options
     lookback_periods: int = Field(
-        default=252, ge=30, description="Number of periods for distribution analysis"
+        default=252, ge=30, description="Number of periods for distribution analysis",
     )
     include_crypto_pairs: bool = Field(
-        default=True, description="Include crypto trading pairs (e.g., BTC-USD)"
+        default=True, description="Include crypto trading pairs (e.g., BTC-USD)",
     )
     market_hours_only: bool = Field(
-        default=False, description="Analyze only market hours data"
+        default=False, description="Analyze only market hours data",
     )
 
 
@@ -264,10 +267,10 @@ class SPDSStrategyConfig(BaseModel):
 
     # Strategy analysis options
     include_backtest_metrics: bool = Field(
-        default=True, description="Include backtesting performance metrics"
+        default=True, description="Include backtesting performance metrics",
     )
     compare_with_benchmark: bool = Field(
-        default=True, description="Compare strategy performance with buy-and-hold"
+        default=True, description="Compare strategy performance with buy-and-hold",
     )
 
     @field_validator("slow_period")
@@ -275,7 +278,8 @@ class SPDSStrategyConfig(BaseModel):
     def validate_windows(cls, v, values):
         """Ensure slow period > fast period."""
         if "fast_period" in values and v <= values["fast_period"]:
-            raise ValueError("Slow period must be greater than fast period")
+            msg = "Slow period must be greater than fast period"
+            raise ValueError(msg)
         return v
 
 
@@ -291,16 +295,16 @@ class SPDSPositionConfig(BaseModel):
 
     # Position analysis options
     include_trade_metrics: bool = Field(
-        default=True, description="Include individual trade performance metrics"
+        default=True, description="Include individual trade performance metrics",
     )
     calculate_mfe_mae: bool = Field(
-        default=True, description="Calculate Maximum Favorable/Adverse Excursion"
+        default=True, description="Calculate Maximum Favorable/Adverse Excursion",
     )
     include_exit_efficiency: bool = Field(
-        default=True, description="Calculate exit efficiency metrics"
+        default=True, description="Calculate exit efficiency metrics",
     )
     track_unrealized_pnl: bool = Field(
-        default=True, description="Track current unrealized P&L"
+        default=True, description="Track current unrealized P&L",
     )
 
 
@@ -313,7 +317,7 @@ class SPDSConfig(BaseConfig):
         description="Core SPDS analysis configuration",
     )
     output: SPDSOutputConfig = Field(
-        default_factory=SPDSOutputConfig, description="Output and export configuration"
+        default_factory=SPDSOutputConfig, description="Output and export configuration",
     )
 
     # Enhanced parameter support
@@ -327,10 +331,10 @@ class SPDSConfig(BaseConfig):
 
     # Memory optimization
     enable_memory_optimization: bool = Field(
-        default=True, description="Enable memory optimization for large datasets"
+        default=True, description="Enable memory optimization for large datasets",
     )
     max_memory_mb: float = Field(
-        default=1000.0, ge=100.0, description="Maximum memory usage in MB"
+        default=1000.0, ge=100.0, description="Maximum memory usage in MB",
     )
 
     @field_validator("portfolio")
@@ -338,7 +342,8 @@ class SPDSConfig(BaseConfig):
     def validate_portfolio_required(cls, v):
         """Ensure portfolio is provided for SPDS analysis."""
         if not v or not v.strip():
-            raise ValueError("Portfolio filename is required for SPDS analysis")
+            msg = "Portfolio filename is required for SPDS analysis"
+            raise ValueError(msg)
         return v.strip()
 
     @property
@@ -408,7 +413,7 @@ class SPDSConfig(BaseConfig):
 
     @classmethod
     def for_ticker_analysis(
-        cls, ticker: str, parsed_param: ParsedParameter, **kwargs
+        cls, ticker: str, parsed_param: ParsedParameter, **kwargs,
     ) -> "SPDSConfig":
         """Create configuration for ticker-only analysis."""
         parameter_config = SPDSParameterConfig(
@@ -501,12 +506,12 @@ class SPDSAnalyzeConfig(SPDSConfig):
         default_factory=lambda: SPDSAnalysisConfig(
             trade_history=False,  # Default to equity curves
             confidence_level=ConfidenceLevel.MEDIUM,
-        )
+        ),
     )
     output: SPDSOutputConfig = Field(
         default_factory=lambda: SPDSOutputConfig(
-            output_format=OutputFormat.TABLE, export_backtesting=False
-        )
+            output_format=OutputFormat.TABLE, export_backtesting=False,
+        ),
     )
 
 
@@ -516,8 +521,8 @@ class SPDSExportConfig(SPDSConfig):
     # Override defaults for export
     output: SPDSOutputConfig = Field(
         default_factory=lambda: SPDSOutputConfig(
-            export_format=ExportFormat.ALL, export_backtesting=True, verbose=True
-        )
+            export_format=ExportFormat.ALL, export_backtesting=True, verbose=True,
+        ),
     )
 
 
@@ -525,14 +530,14 @@ class SPDSDemoConfig(BaseModel):
     """Configuration for SPDS demo mode."""
 
     create_sample_data: bool = Field(
-        default=True, description="Create sample portfolio data for demo"
+        default=True, description="Create sample portfolio data for demo",
     )
     run_analysis: bool = Field(default=True, description="Run analysis on demo data")
     cleanup_after: bool = Field(
-        default=False, description="Clean up demo files after completion"
+        default=False, description="Clean up demo files after completion",
     )
     demo_portfolio: str = Field(
-        default="demo_portfolio.csv", description="Demo portfolio filename"
+        default="demo_portfolio.csv", description="Demo portfolio filename",
     )
 
 
@@ -540,20 +545,20 @@ class SPDSHealthConfig(BaseModel):
     """Configuration for SPDS health check."""
 
     check_data_directories: bool = Field(
-        default=True, description="Check SPDS data directories"
+        default=True, description="Check SPDS data directories",
     )
     check_configuration: bool = Field(
-        default=True, description="Check SPDS configuration validity"
+        default=True, description="Check SPDS configuration validity",
     )
     check_dependencies: bool = Field(
-        default=True, description="Check SPDS module dependencies"
+        default=True, description="Check SPDS module dependencies",
     )
     check_portfolio_files: bool = Field(
-        default=True, description="Check portfolio file availability"
+        default=True, description="Check portfolio file availability",
     )
     check_export_directories: bool = Field(
-        default=True, description="Check export directory structure"
+        default=True, description="Check export directory structure",
     )
     detailed_output: bool = Field(
-        default=False, description="Show detailed health check information"
+        default=False, description="Show detailed health check information",
     )

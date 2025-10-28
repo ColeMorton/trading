@@ -84,7 +84,7 @@ class PerformanceBaseline:
             with open(self.baseline_file, "w") as f:
                 json.dump(data, f, indent=2)
         except Exception as e:
-            logger.error(f"Failed to save baselines: {e}")
+            logger.exception(f"Failed to save baselines: {e}")
 
     def get_baseline(self, category: str, metric: str) -> float | None:
         """Get baseline value for a metric."""
@@ -97,7 +97,7 @@ class PerformanceBaseline:
         self.baselines[category][metric] = value
 
     def check_regression(
-        self, category: str, metric: str, current_value: float, tolerance: float = 0.2
+        self, category: str, metric: str, current_value: float, tolerance: float = 0.2,
     ) -> dict[str, Any]:
         """Check if current value represents a performance regression."""
         baseline = self.get_baseline(category, metric)
@@ -167,7 +167,7 @@ class TestCachePerformanceRegression:
 
         # Check regression
         result = performance_baseline.check_regression(
-            "cache_operations", "cache_write_ms", avg_write_time
+            "cache_operations", "cache_write_ms", avg_write_time,
         )
 
         assert not result["regression"], (
@@ -197,7 +197,7 @@ class TestCachePerformanceRegression:
 
         # Check regression
         result = performance_baseline.check_regression(
-            "cache_operations", "cache_read_ms", avg_read_time
+            "cache_operations", "cache_read_ms", avg_read_time,
         )
 
         assert not result["regression"], (
@@ -227,7 +227,7 @@ class TestCachePerformanceRegression:
 
         # Check regression
         result = performance_baseline.check_regression(
-            "cache_operations", "cache_hit_rate", hit_rate
+            "cache_operations", "cache_hit_rate", hit_rate,
         )
 
         assert not result["regression"], (
@@ -253,7 +253,7 @@ class TestMemoryOptimizationRegression:
                 "float_col": np.random.random(10000).astype("float64"),
                 "category_col": np.random.choice(["A", "B", "C", "D"], 10000),
                 "string_col": [f"item_{i}" for i in range(10000)],
-            }
+            },
         )
 
         # Measure optimization performance
@@ -307,7 +307,7 @@ class TestMemoryOptimizationRegression:
                 {
                     "data": np.random.random(5000),
                     "category": np.random.choice(["X", "Y", "Z"], 5000),
-                }
+                },
             )
             optimized_df = memory_optimizer.optimize_dataframe(df)
             dataframes.append(optimized_df)
@@ -322,7 +322,7 @@ class TestMemoryOptimizationRegression:
 
         # Check regression
         result = performance_baseline.check_regression(
-            "memory_optimization", "memory_usage_mb", memory_increase
+            "memory_optimization", "memory_usage_mb", memory_increase,
         )
 
         # Allow some tolerance for memory usage
@@ -345,7 +345,7 @@ class TestParallelProcessingRegression:
             start_time = time.time()
 
             executor = AdaptiveThreadPoolExecutor(
-                workload_type="cpu_bound", max_workers=4
+                workload_type="cpu_bound", max_workers=4,
             )
 
             setup_time = (time.time() - start_time) * 1000  # Convert to ms
@@ -358,7 +358,7 @@ class TestParallelProcessingRegression:
 
         # Check regression
         result = performance_baseline.check_regression(
-            "parallel_processing", "thread_pool_setup_ms", avg_setup_time
+            "parallel_processing", "thread_pool_setup_ms", avg_setup_time,
         )
 
         assert not result["regression"], (
@@ -391,7 +391,7 @@ class TestParallelProcessingRegression:
 
         # Check regression
         result = performance_baseline.check_regression(
-            "parallel_processing", "batch_processing_throughput", throughput
+            "parallel_processing", "batch_processing_throughput", throughput,
         )
 
         assert not result["regression"], (
@@ -431,7 +431,7 @@ class TestOverallSystemRegression:
                     "low": np.random.uniform(100, 200, 1000),
                     "close": np.random.uniform(100, 200, 1000),
                     "volume": np.random.randint(1000, 10000, 1000),
-                }
+                },
             )
 
             # Optimize dataframe
@@ -455,7 +455,7 @@ class TestOverallSystemRegression:
 
         # Check regression
         result = performance_baseline.check_regression(
-            "overall_system", "portfolio_analysis_ms", avg_analysis_time
+            "overall_system", "portfolio_analysis_ms", avg_analysis_time,
         )
 
         assert not result["regression"], (
@@ -490,12 +490,12 @@ class TestOverallSystemRegression:
                         "request_id": request_id,
                         "success": cached_result is not None,
                         "processing_time": processing_time,
-                    }
+                    },
                 )
 
             except Exception as e:
                 result_queue.put(
-                    {"request_id": request_id, "success": False, "error": str(e)}
+                    {"request_id": request_id, "success": False, "error": str(e)},
                 )
 
         # Test with increasing number of concurrent requests
@@ -508,7 +508,7 @@ class TestOverallSystemRegression:
         threads = []
         for i in range(max_concurrent):
             thread = threading.Thread(
-                target=mock_request_handler, args=(i, result_queue)
+                target=mock_request_handler, args=(i, result_queue),
             )
             threads.append(thread)
             thread.start()
@@ -536,7 +536,7 @@ class TestOverallSystemRegression:
 
         # Check throughput regression
         result = performance_baseline.check_regression(
-            "overall_system", "concurrent_requests", requests_per_second
+            "overall_system", "concurrent_requests", requests_per_second,
         )
 
         # Allow more tolerance for concurrent request testing
@@ -631,12 +631,12 @@ class TestEndToEndPerformanceRegression:
                 data = pd.DataFrame(
                     {
                         "timestamp": pd.date_range(
-                            "2023-01-01", periods=5000, freq="1min"
+                            "2023-01-01", periods=5000, freq="1min",
                         ),
                         "price": np.random.uniform(100, 200, 5000),
                         "volume": np.random.randint(1000, 10000, 5000),
                         "symbol": np.random.choice(["AAPL", "GOOGL", "MSFT"], 5000),
-                    }
+                    },
                 )
 
                 # Step 2: Memory optimization
@@ -662,7 +662,7 @@ class TestEndToEndPerformanceRegression:
 
         # Check overall pipeline performance
         result = performance_baseline.check_regression(
-            "overall_system", "portfolio_analysis_ms", avg_pipeline_time, tolerance=0.3
+            "overall_system", "portfolio_analysis_ms", avg_pipeline_time, tolerance=0.3,
         )
 
         assert not result["regression"], (

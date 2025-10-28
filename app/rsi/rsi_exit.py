@@ -10,8 +10,7 @@ def rsi(data, window):
     gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
     rs = gain / loss
-    rsi = 100 - (100 / (1 + rs))
-    return rsi
+    return 100 - (100 / (1 + rs))
 
 
 # Define a function to run the backtest
@@ -25,7 +24,7 @@ def backtest_rsi(data, rsi_window, rsi_overbought):
 
     # Use VectorBT for portfolio simulation
     pf = vbt.Portfolio.from_signals(
-        data["Close"], entries=buy_signal, exits=sell_signal, direction="longonly"
+        data["Close"], entries=buy_signal, exits=sell_signal, direction="longonly",
     )
 
     # Check the number of trades
@@ -65,7 +64,7 @@ fig.add_trace(
         mode="lines+markers",
         name="Total Return",
         marker={"size": 10},
-    )
+    ),
 )
 
 # Update layout

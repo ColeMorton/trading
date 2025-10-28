@@ -72,7 +72,8 @@ class StrategyFactory:
             ValueError: If strategy_class doesn't inherit from BaseStrategy
         """
         if not issubclass(strategy_class, BaseStrategy):
-            raise ValueError(f"{strategy_class} must inherit from BaseStrategy")
+            msg = f"{strategy_class} must inherit from BaseStrategy"
+            raise ValueError(msg)
 
         self._strategies[strategy_type.upper()] = strategy_class
 
@@ -93,9 +94,12 @@ class StrategyFactory:
 
         if strategy_type not in self._strategies:
             available = ", ".join(self._strategies.keys())
-            raise StrategyError(
+            msg = (
                 f"Unknown strategy type: {strategy_type}. "
                 f"Available strategies: {available}"
+            )
+            raise StrategyError(
+                msg,
             )
 
         strategy_factory = self._strategies[strategy_type]

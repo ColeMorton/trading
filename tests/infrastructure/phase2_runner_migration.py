@@ -332,10 +332,10 @@ class RunnerMigrationValidator:
 
         print("\n📊 Migration Summary:")
         print(
-            f"🔄 Legacy Runners: {legacy_count}/{len(self.legacy_runners)} still exist"
+            f"🔄 Legacy Runners: {legacy_count}/{len(self.legacy_runners)} still exist",
         )
         print(
-            f"✅ Unified Capabilities: {capability_count}/{len(capabilities)} working ({capability_percentage:.1f}%)"
+            f"✅ Unified Capabilities: {capability_count}/{len(capabilities)} working ({capability_percentage:.1f}%)",
         )
         print(f"📈 Feature Coverage: {avg_coverage:.1f}% average coverage")
         print(f"🚀 Performance Improvements: {len(improvements)} major enhancements")
@@ -344,7 +344,7 @@ class RunnerMigrationValidator:
         if report["migration_status"] == "SUCCESS":
             print("\n🎉 Phase 2 Migration Complete!")
             print(
-                "The unified runner successfully replaces 9 legacy test runners with:"
+                "The unified runner successfully replaces 9 legacy test runners with:",
             )
             print("  • Intelligent parallel execution")
             print("  • Smart test categorization")

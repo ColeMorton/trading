@@ -45,7 +45,7 @@ class TestUnifiedExportPerformance:
                 "Win Rate [%]": [65.0, 58.0, 72.0],
                 "Number of Trades": [45, 38, 52],
                 "Profit Factor": [1.8, 1.6, 2.1],
-            }
+            },
         )
 
     @pytest.fixture
@@ -170,7 +170,7 @@ class TestUnifiedExportPerformance:
         # Perform multiple exports
         for i in range(5):
             processor.export_single(
-                data=sample_portfolio_polars, filename=f"perf_test_{i}.csv"
+                data=sample_portfolio_polars, filename=f"perf_test_{i}.csv",
             )
 
         # Check performance summary
@@ -188,12 +188,12 @@ class TestUnifiedExportPerformance:
 
         # First export - should cache schema
         result1 = processor.export_single(
-            data=sample_portfolio_polars, filename="cache_test_1.csv"
+            data=sample_portfolio_polars, filename="cache_test_1.csv",
         )
 
         # Second export with same data - should use cache
         result2 = processor.export_single(
-            data=sample_portfolio_polars, filename="cache_test_2.csv"
+            data=sample_portfolio_polars, filename="cache_test_2.csv",
         )
 
         assert result1.success and result2.success
@@ -221,7 +221,7 @@ class TestUnifiedExportPerformance:
         ]
 
         results = export_portfolio_batch(
-            export_jobs=export_jobs, output_dir=temp_output_dir
+            export_jobs=export_jobs, output_dir=temp_output_dir,
         )
 
         assert len(results) == 3
@@ -243,7 +243,7 @@ class TestUnifiedExportPerformance:
 
     @pytest.mark.benchmark
     def test_performance_comparison_with_legacy(
-        self, temp_output_dir, sample_portfolio_polars, sample_portfolio_pandas
+        self, temp_output_dir, sample_portfolio_polars, sample_portfolio_pandas,
     ):
         """
         Compare performance of unified export vs legacy export system.
@@ -252,14 +252,14 @@ class TestUnifiedExportPerformance:
         """
         # Test unified system
         config = ExportConfig(
-            output_dir=temp_output_dir, enable_performance_monitoring=True
+            output_dir=temp_output_dir, enable_performance_monitoring=True,
         )
         processor = UnifiedExportProcessor(config)
 
         # Unified system timing
         start_time = time.time()
         unified_result = processor.export_single(
-            data=sample_portfolio_polars, filename="unified_benchmark.csv"
+            data=sample_portfolio_polars, filename="unified_benchmark.csv",
         )
         unified_time = time.time() - start_time
 
@@ -268,7 +268,7 @@ class TestUnifiedExportPerformance:
             start_time = time.time()
             legacy_path = Path(temp_output_dir) / "legacy_benchmark.csv"
             export_portfolio_to_csv(
-                data=sample_portfolio_pandas, file_path=str(legacy_path)
+                data=sample_portfolio_pandas, file_path=str(legacy_path),
             )
             legacy_time = time.time() - start_time
 
@@ -303,14 +303,14 @@ class TestUnifiedExportPerformance:
                 "Win Rate [%]": [50.0 + (i * 0.02) for i in range(1000)],
                 "Number of Trades": [10 + i for i in range(1000)],
                 "Profit Factor": [1.0 + (i * 0.002) for i in range(1000)],
-            }
+            },
         )
 
         processor = UnifiedExportProcessor(export_config)
 
         start_time = time.time()
         result = processor.export_single(
-            data=large_data, filename="large_dataset_test.csv"
+            data=large_data, filename="large_dataset_test.csv",
         )
         execution_time = time.time() - start_time
 

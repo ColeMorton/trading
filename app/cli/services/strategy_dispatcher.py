@@ -70,7 +70,7 @@ class StrategyDispatcher:
         self.batch_service = None  # Will be initialized when needed
 
     def _extract_strategy_parameters(
-        self, config: StrategyConfig, strategy_type: StrategyType | str
+        self, config: StrategyConfig, strategy_type: StrategyType | str,
     ) -> dict[str, int | None]:
         """
         Extract strategy-specific parameters from StrategyConfig with proper fallback hierarchy.
@@ -125,7 +125,7 @@ class StrategyDispatcher:
                         "slow_max": strategy_specific.slow_period_max,
                         "signal_min": strategy_specific.signal_period_min,
                         "signal_max": strategy_specific.signal_period_max,
-                    }
+                    },
                 )
 
         # Priority 2: Global CLI parameters (only if strategy-specific not already set)
@@ -185,7 +185,7 @@ class StrategyDispatcher:
         return params
 
     def _analyze_cached_results(
-        self, config: StrategyConfig, resume_analysis
+        self, config: StrategyConfig, resume_analysis,
     ) -> dict[str, Any]:
         """
         PHASE 1: Analyze cached results from existing CSV files.
@@ -204,7 +204,7 @@ class StrategyDispatcher:
         project_root = Path(get_project_root())
         analysis: dict[str, Any] = {
             "export_summary": defaultdict(
-                lambda: {"files": 0, "portfolios": 0, "exists": False}
+                lambda: {"files": 0, "portfolios": 0, "exists": False},
             ),
             "best_strategies": [],
             "file_paths": [],
@@ -299,28 +299,28 @@ class StrategyDispatcher:
                                                 "ticker": ticker,
                                                 "strategy": strategy,
                                                 "fast_period": best_row.get(
-                                                    "Fast Period", "N/A"
+                                                    "Fast Period", "N/A",
                                                 ),
                                                 "slow_period": best_row.get(
-                                                    "Slow Period", "N/A"
+                                                    "Slow Period", "N/A",
                                                 ),
                                                 "total_return": float(
-                                                    best_row.get("Total Return [%]", 0)
+                                                    best_row.get("Total Return [%]", 0),
                                                 ),
                                                 "win_rate": float(
-                                                    best_row.get("Win Rate [%]", 0)
+                                                    best_row.get("Win Rate [%]", 0),
                                                 ),
                                                 "max_drawdown": float(
-                                                    best_row.get("Max Drawdown [%]", 0)
+                                                    best_row.get("Max Drawdown [%]", 0),
                                                 ),
                                                 "total_trades": int(
-                                                    best_row.get("Total Trades", 0)
+                                                    best_row.get("Total Trades", 0),
                                                 ),
-                                            }
+                                            },
                                         )
                                     except (KeyError, ValueError, TypeError) as e:
                                         self.console.warning(
-                                            f"Error extracting best strategy from {ticker}_{strategy}: {e}"
+                                            f"Error extracting best strategy from {ticker}_{strategy}: {e}",
                                         )
 
                                 # Add file path
@@ -329,7 +329,7 @@ class StrategyDispatcher:
                                         "type": export_name,
                                         "path": str(file_path),
                                         "portfolios": portfolio_count,
-                                    }
+                                    },
                                 )
 
                                 # Only process the first found file to avoid duplicates
@@ -357,7 +357,7 @@ class StrategyDispatcher:
 
                                 if hasattr(self.console, "debug"):
                                     self.console.debug(
-                                        f"Found file via glob pattern: {file_path}"
+                                        f"Found file via glob pattern: {file_path}",
                                     )
 
                                 analysis["export_summary"][export_name]["exists"] = True
@@ -383,32 +383,32 @@ class StrategyDispatcher:
                                                     "ticker": ticker,
                                                     "strategy": strategy,
                                                     "fast_period": best_row.get(
-                                                        "Fast Period", "N/A"
+                                                        "Fast Period", "N/A",
                                                     ),
                                                     "slow_period": best_row.get(
-                                                        "Slow Period", "N/A"
+                                                        "Slow Period", "N/A",
                                                     ),
                                                     "total_return": float(
                                                         best_row.get(
-                                                            "Total Return [%]", 0
-                                                        )
+                                                            "Total Return [%]", 0,
+                                                        ),
                                                     ),
                                                     "win_rate": float(
-                                                        best_row.get("Win Rate [%]", 0)
+                                                        best_row.get("Win Rate [%]", 0),
                                                     ),
                                                     "max_drawdown": float(
                                                         best_row.get(
-                                                            "Max Drawdown [%]", 0
-                                                        )
+                                                            "Max Drawdown [%]", 0,
+                                                        ),
                                                     ),
                                                     "total_trades": int(
-                                                        best_row.get("Total Trades", 0)
+                                                        best_row.get("Total Trades", 0),
                                                     ),
-                                                }
+                                                },
                                             )
                                         except (KeyError, ValueError, TypeError) as e:
                                             self.console.warning(
-                                                f"Error extracting best strategy: {e}"
+                                                f"Error extracting best strategy: {e}",
                                             )
 
                                     # Add file path
@@ -417,14 +417,14 @@ class StrategyDispatcher:
                                             "type": export_name,
                                             "path": str(file_path),
                                             "portfolios": portfolio_count,
-                                        }
+                                        },
                                     )
 
                                     break  # Only use first matching file
 
                                 except Exception as e:
                                     self.console.warning(
-                                        f"Error reading {file_path}: {e}"
+                                        f"Error reading {file_path}: {e}",
                                     )
 
                             if file_found:
@@ -433,7 +433,7 @@ class StrategyDispatcher:
         return analysis
 
     def _display_cached_results_summary(
-        self, analysis: dict[str, Any], config: StrategyConfig
+        self, analysis: dict[str, Any], config: StrategyConfig,
     ):
         """
         PHASE 2: Display comprehensive Rich CLI summary for cached results.
@@ -446,7 +446,7 @@ class StrategyDispatcher:
 
         # Export Summary Table
         export_table = Table(
-            title="📁 Export Summary", show_header=True, header_style="bold magenta"
+            title="📁 Export Summary", show_header=True, header_style="bold magenta",
         )
         export_table.add_column("Export Type", style="cyan", no_wrap=True)
         export_table.add_column("Files", justify="center", style="green")
@@ -456,7 +456,7 @@ class StrategyDispatcher:
         for export_type, data in analysis["export_summary"].items():
             status = "✅ Complete" if data["exists"] else "❌ Missing"
             export_table.add_row(
-                export_type, str(data["files"]), f"{data['portfolios']:,}", status
+                export_type, str(data["files"]), f"{data['portfolios']:,}", status,
             )
 
         console.print(export_table)
@@ -514,24 +514,24 @@ class StrategyDispatcher:
                         file_info = files_by_type[file_type][0]
                         # Make path relative for cleaner display
                         relative_path = str(
-                            Path(file_info["path"]).relative_to(Path.cwd())
+                            Path(file_info["path"]).relative_to(Path.cwd()),
                         )
                         console.print(
-                            f"{icon} [cyan]{file_type}:[/cyan] [link]{relative_path}[/link] [dim]({file_info['portfolios']:,} portfolios)[/dim]"
+                            f"{icon} [cyan]{file_type}:[/cyan] [link]{relative_path}[/link] [dim]({file_info['portfolios']:,} portfolios)[/dim]",
                         )
                     else:
                         console.print(
-                            f"{icon} [cyan]{file_type}:[/cyan] [dim]{len(files_by_type[file_type])} files ({total_portfolios:,} total portfolios)[/dim]"
+                            f"{icon} [cyan]{file_type}:[/cyan] [dim]{len(files_by_type[file_type])} files ({total_portfolios:,} total portfolios)[/dim]",
                         )
             console.print()
         else:
             console.print(
-                "[yellow]⚠️  No cached files found - this might indicate an issue with resume detection[/yellow]"
+                "[yellow]⚠️  No cached files found - this might indicate an issue with resume detection[/yellow]",
             )
             console.print()
 
     def _calculate_parameter_combinations(
-        self, config: StrategyConfig, strategy_type: StrategyType | str
+        self, config: StrategyConfig, strategy_type: StrategyType | str,
     ) -> int:
         """
         Calculate expected parameter combinations for a strategy type.
@@ -608,7 +608,7 @@ class StrategyDispatcher:
                     multiplier_combinations = (
                         int(
                             (config.atr_multiplier_max - config.atr_multiplier_min)
-                            / multiplier_step
+                            / multiplier_step,
                         )
                         + 1
                     )
@@ -677,7 +677,7 @@ class StrategyDispatcher:
                     multiplier_combinations = (
                         int(
                             (config.atr_multiplier_max - config.atr_multiplier_min)
-                            / multiplier_step
+                            / multiplier_step,
                         )
                         + 1
                     )
@@ -692,13 +692,13 @@ class StrategyDispatcher:
                 if hasattr(self.console, "debug"):
                     self.console.debug("SMA_ATR parameter calculation:")
                     self.console.debug(
-                        f"  SMA combinations (step={sma_step}): {sma_combinations}"
+                        f"  SMA combinations (step={sma_step}): {sma_combinations}",
                     )
                     self.console.debug(
-                        f"  ATR length combinations: {length_combinations}"
+                        f"  ATR length combinations: {length_combinations}",
                     )
                     self.console.debug(
-                        f"  ATR multiplier combinations: {multiplier_combinations}"
+                        f"  ATR multiplier combinations: {multiplier_combinations}",
                     )
                     self.console.debug(f"  Total: {total}")
 
@@ -712,7 +712,7 @@ class StrategyDispatcher:
             return 100
 
     def _calculate_actual_current_signal_combinations(
-        self, config: StrategyConfig, strategy_type: StrategyType | str
+        self, config: StrategyConfig, strategy_type: StrategyType | str,
     ) -> int:
         """
         Calculate actual current signal combinations when USE_CURRENT mode is enabled.
@@ -759,10 +759,10 @@ class StrategyDispatcher:
 
                     # DEBUG: Check if parameter ranges are present
                     self.console.debug(
-                        f"Ticker {ticker} config has FAST_PERIOD_RANGE: {ticker_config.get('FAST_PERIOD_RANGE')}"
+                        f"Ticker {ticker} config has FAST_PERIOD_RANGE: {ticker_config.get('FAST_PERIOD_RANGE')}",
                     )
                     self.console.debug(
-                        f"Ticker {ticker} config has SLOW_PERIOD_RANGE: {ticker_config.get('SLOW_PERIOD_RANGE')}"
+                        f"Ticker {ticker} config has SLOW_PERIOD_RANGE: {ticker_config.get('SLOW_PERIOD_RANGE')}",
                     )
 
                     # Generate current signals for this ticker
@@ -777,12 +777,12 @@ class StrategyDispatcher:
                     total_current_signals += signal_count
 
                     self.console.debug(
-                        f"Ticker {ticker}: {signal_count} current signals"
+                        f"Ticker {ticker}: {signal_count} current signals",
                     )
 
                 except Exception as e:
                     self.console.warning(
-                        f"Failed to pre-analyze signals for {ticker}: {e}"
+                        f"Failed to pre-analyze signals for {ticker}: {e}",
                     )
                     # Continue with other tickers
                     continue
@@ -791,12 +791,12 @@ class StrategyDispatcher:
 
         except Exception as e:
             self.console.error(
-                f"Error calculating actual current signal combinations: {e}"
+                f"Error calculating actual current signal combinations: {e}",
             )
             # Fallback to theoretical calculation as conservative estimate
             ticker_count = len(config.ticker) if isinstance(config.ticker, list) else 1
             combinations_per_ticker = self._calculate_parameter_combinations(
-                config, strategy_type
+                config, strategy_type,
             )
             return ticker_count * combinations_per_ticker
 
@@ -832,14 +832,14 @@ class StrategyDispatcher:
 
             if batch_size is None:
                 self.console.error(
-                    "Batch size must be specified when batch mode is enabled"
+                    "Batch size must be specified when batch mode is enabled",
                 )
                 summary.execution_time = time.time() - start_time
                 return summary
 
             # Initialize batch service
             self.batch_service = BatchProcessingService(
-                batch_file_path=batch_file_path, console=self.console
+                batch_file_path=batch_file_path, console=self.console,
             )
 
             # Validate batch file
@@ -857,7 +857,7 @@ class StrategyDispatcher:
             cleaned_count = self.batch_service.clean_old_entries()
             if cleaned_count > 0:
                 self.console.info(
-                    f"Cleaned {cleaned_count} old entries from batch file"
+                    f"Cleaned {cleaned_count} old entries from batch file",
                 )
 
             # Create resume check function for smart batch selection
@@ -874,10 +874,10 @@ class StrategyDispatcher:
 
                 # Convert to legacy format and analyze
                 legacy_config = self._convert_strategy_config_to_legacy(
-                    single_ticker_config
+                    single_ticker_config,
                 )
                 ticker_resume_analysis = self.resume_service.analyze_resume_status(
-                    legacy_config
+                    legacy_config,
                 )
 
                 # Return True if ticker needs processing (not complete)
@@ -885,12 +885,12 @@ class StrategyDispatcher:
 
             # Get tickers that actually need processing using resume-aware selection
             pending_tickers = self.batch_service.get_tickers_needing_processing(
-                original_tickers, batch_size, resume_check_function
+                original_tickers, batch_size, resume_check_function,
             )
 
             if not pending_tickers:
                 self.console.success(
-                    "All tickers have been processed today. Nothing to do."
+                    "All tickers have been processed today. Nothing to do.",
                 )
                 summary.execution_time = time.time() - start_time
                 summary.success_rate = 1.0
@@ -904,19 +904,19 @@ class StrategyDispatcher:
             config.ticker = pending_tickers
 
             self.console.heading(
-                f"Batch Processing: {len(pending_tickers)} tickers", level=2
+                f"Batch Processing: {len(pending_tickers)} tickers", level=2,
             )
             self.console.info(f"Processing tickers: {', '.join(pending_tickers)}")
 
             # Resume analysis summary for selected tickers
             self.console.info(
-                f"📋 Resume Analysis: ✓ Selected {len(pending_tickers)} tickers that need processing"
+                f"📋 Resume Analysis: ✓ Selected {len(pending_tickers)} tickers that need processing",
             )
 
         # Smart Resume Analysis (unless refresh is enabled or in batch mode)
         # Skip resume analysis for batch mode since it's already handled during batch selection
         if not getattr(config, "refresh", False) and not getattr(
-            config, "batch", False
+            config, "batch", False,
         ):
             # Convert StrategyConfig to legacy format for resume analysis
             legacy_config = self._convert_strategy_config_to_legacy(config)
@@ -931,19 +931,19 @@ class StrategyDispatcher:
             # If everything is complete, skip execution with ENHANCED CLI OUTPUT
             if resume_analysis.is_complete():
                 self.console.success(
-                    "🎉 All analysis is complete and up-to-date! Skipping execution."
+                    "🎉 All analysis is complete and up-to-date! Skipping execution.",
                 )
 
                 # PHASE 1 & 2: Analyze cached results and display Rich CLI summary
                 try:
                     cached_analysis = self._analyze_cached_results(
-                        config, resume_analysis
+                        config, resume_analysis,
                     )
                     self._display_cached_results_summary(cached_analysis, config)
 
                     # Update summary with actual portfolio count from cached analysis
                     summary.total_portfolios_generated = cached_analysis.get(
-                        "total_portfolios", 0
+                        "total_portfolios", 0,
                     )
                 except Exception as e:
                     self.console.warning(f"Error analyzing cached results: {e}")
@@ -965,29 +965,29 @@ class StrategyDispatcher:
 
             # Filter config to only process remaining work
             filtered_legacy_config = self.resume_service.filter_config_for_resume(
-                legacy_config, resume_analysis
+                legacy_config, resume_analysis,
             )
 
             # Convert back to StrategyConfig format
             config = self._convert_legacy_to_strategy_config(
-                filtered_legacy_config, config
+                filtered_legacy_config, config,
             )
 
             if filtered_legacy_config.get("_RESUME_SKIP_ALL", False):
                 self.console.success(
-                    "🎉 All analysis is complete and up-to-date! Skipping execution."
+                    "🎉 All analysis is complete and up-to-date! Skipping execution.",
                 )
 
                 # PHASE 1 & 2: Enhanced CLI output for secondary skip check
                 try:
                     cached_analysis = self._analyze_cached_results(
-                        config, resume_analysis
+                        config, resume_analysis,
                     )
                     self._display_cached_results_summary(cached_analysis, config)
 
                     # Update summary with actual portfolio count from cached analysis
                     summary.total_portfolios_generated = cached_analysis.get(
-                        "total_portfolios", 0
+                        "total_portfolios", 0,
                     )
                 except Exception as e:
                     self.console.warning(f"Error analyzing cached results: {e}")
@@ -1024,19 +1024,19 @@ class StrategyDispatcher:
             total_phases += 2  # Portfolio processing + file export phases
 
             self.console.info(
-                f"🎯 Starting strategy execution with {total_phases} phases"
+                f"🎯 Starting strategy execution with {total_phases} phases",
             )
         # Check if we should skip analysis and run portfolio processing only
         if config.skip_analysis:
             if isinstance(self.console, PerformanceAwareConsoleLogger):
                 with self.console.performance_context(
-                    "portfolio_processing", "Processing existing portfolios", 5.0
+                    "portfolio_processing", "Processing existing portfolios", 5.0,
                 ) as phase:
                     success = self._execute_skip_analysis_mode(config)
                     phase.add_detail("portfolios_processed", "existing")
             else:
                 self.console.info(
-                    "Skip analysis mode enabled - processing existing portfolios"
+                    "Skip analysis mode enabled - processing existing portfolios",
                 )
                 success = self._execute_skip_analysis_mode(config)
 
@@ -1059,7 +1059,7 @@ class StrategyDispatcher:
 
         if not strategy_service:
             self.console.error(
-                "No compatible service found for specified strategy type"
+                "No compatible service found for specified strategy type",
             )
             summary.execution_time = time.time() - start_time
             summary.success_rate = 0.0
@@ -1080,25 +1080,25 @@ class StrategyDispatcher:
             if config.use_current:
                 # When USE_CURRENT is enabled, calculate actual current signal combinations
                 self.console.info(
-                    "🔍 Pre-analyzing current signals to calculate accurate progress..."
+                    "🔍 Pre-analyzing current signals to calculate accurate progress...",
                 )
                 actual_combinations = (
                     self._calculate_actual_current_signal_combinations(
-                        config, config.strategy_types[0]
+                        config, config.strategy_types[0],
                     )
                 )
                 total_combinations = actual_combinations
                 self.console.info(
-                    f"📊 Current signal combinations found: {total_combinations:,} (filtered from theoretical maximum)"
+                    f"📊 Current signal combinations found: {total_combinations:,} (filtered from theoretical maximum)",
                 )
             else:
                 # Use theoretical combinations for full parameter sweeps
                 combinations_per_ticker = self._calculate_parameter_combinations(
-                    config, config.strategy_types[0]
+                    config, config.strategy_types[0],
                 )
                 total_combinations = ticker_count * combinations_per_ticker
                 self.console.info(
-                    f"📊 Total parameter combinations: {total_combinations:,}"
+                    f"📊 Total parameter combinations: {total_combinations:,}",
                 )
 
             # Use holistic progress context that will be updated by actual work
@@ -1126,7 +1126,7 @@ class StrategyDispatcher:
 
                 # Execute strategy with progress update function
                 success = strategy_service.execute_strategy(
-                    config, progress_update_fn=update_progress
+                    config, progress_update_fn=update_progress,
                 )
 
                 # Validate progress reached expected total
@@ -1134,7 +1134,7 @@ class StrategyDispatcher:
                     # Note: This is expected - progress checkpoints are saved at intervals
                     # for performance. All combinations are still analyzed.
                     self.console.debug(
-                        f"Progress checkpoints: {completed_combinations}/{total_combinations} saved (all combinations analyzed)"
+                        f"Progress checkpoints: {completed_combinations}/{total_combinations} saved (all combinations analyzed)",
                     )
                     # Force progress bar to 100% to avoid visual confusion
                     progress.update(task, completed=total_combinations)
@@ -1152,7 +1152,7 @@ class StrategyDispatcher:
                 config.strategy_types[0].value
                 if hasattr(config.strategy_types[0], "value")
                 else str(config.strategy_types[0])
-            )
+            ),
         ]
 
         # Process tickers
@@ -1177,7 +1177,7 @@ class StrategyDispatcher:
         return summary
 
     def _extract_portfolio_results_from_files(
-        self, ticker: str, strategy_type: str, config: StrategyConfig
+        self, ticker: str, strategy_type: str, config: StrategyConfig,
     ) -> StrategyPortfolioResults:
         """
         Extract actual portfolio results by reading generated CSV files.
@@ -1322,7 +1322,7 @@ class StrategyDispatcher:
             summary.tickers_processed = [config.ticker]
 
         self.console.heading(
-            f"Executing {len(config.strategy_types)} strategies", level=2
+            f"Executing {len(config.strategy_types)} strategies", level=2,
         )
 
         # Calculate total combinations across all strategies and tickers for holistic progress
@@ -1332,7 +1332,7 @@ class StrategyDispatcher:
         if use_current_mode:
             # When USE_CURRENT is enabled, calculate actual current signal combinations for all strategies
             self.console.info(
-                "🔍 Pre-analyzing current signals across all strategies to calculate accurate progress..."
+                "🔍 Pre-analyzing current signals across all strategies to calculate accurate progress...",
             )
             total_combinations = 0
             strategy_details = []
@@ -1340,7 +1340,7 @@ class StrategyDispatcher:
             for strategy_type in config.strategy_types:
                 actual_combinations = (
                     self._calculate_actual_current_signal_combinations(
-                        config, strategy_type
+                        config, strategy_type,
                     )
                 )
                 total_combinations += actual_combinations
@@ -1351,11 +1351,11 @@ class StrategyDispatcher:
                 )
                 strategy_details.append(f"{strategy_name}")
                 self.console.debug(
-                    f"{strategy_name}: {actual_combinations} current signals"
+                    f"{strategy_name}: {actual_combinations} current signals",
                 )
 
             self.console.info(
-                f"📊 Current signal combinations across all strategies: {total_combinations:,} (filtered from theoretical maximum)"
+                f"📊 Current signal combinations across all strategies: {total_combinations:,} (filtered from theoretical maximum)",
             )
         else:
             # Use theoretical combinations for full parameter sweeps
@@ -1364,7 +1364,7 @@ class StrategyDispatcher:
 
             for strategy_type in config.strategy_types:
                 combinations = self._calculate_parameter_combinations(
-                    config, strategy_type
+                    config, strategy_type,
                 )
                 total_combinations += ticker_count * combinations
                 strategy_name = (
@@ -1375,13 +1375,13 @@ class StrategyDispatcher:
                 strategy_details.append(f"{strategy_name}")
 
             self.console.info(
-                f"📊 Total parameter combinations across all strategies: {total_combinations:,}"
+                f"📊 Total parameter combinations across all strategies: {total_combinations:,}",
             )
 
         # Execute strategies with holistic progress tracking
         # Show progress bar for parameter sweeps (>10 combinations) OR USE_CURRENT mode (always valuable)
         should_show_progress = isinstance(
-            self.console, PerformanceAwareConsoleLogger
+            self.console, PerformanceAwareConsoleLogger,
         ) and (total_combinations > 10 or use_current_mode)
 
         if should_show_progress:
@@ -1428,7 +1428,7 @@ class StrategyDispatcher:
 
                     # Create single-strategy config
                     single_config = self._create_single_strategy_config(
-                        config, strategy_type
+                        config, strategy_type,
                     )
 
                     # Add global progress allocation for accurate multi-ticker progress
@@ -1447,14 +1447,14 @@ class StrategyDispatcher:
 
                     if not service:
                         self.console.error(
-                            f"No service found for strategy type: {strategy_type}"
+                            f"No service found for strategy type: {strategy_type}",
                         )
                         results.append(False)
                         continue
 
                     # Execute strategy with progress update function
                     success = service.execute_strategy(
-                        single_config, progress_update_fn=update_progress
+                        single_config, progress_update_fn=update_progress,
                     )
                     results.append(success)
 
@@ -1476,7 +1476,7 @@ class StrategyDispatcher:
                         summary.add_portfolio_result(portfolio_result)
 
                         self.console.success(
-                            f"{strategy_type} strategy completed successfully"
+                            f"{strategy_type} strategy completed successfully",
                         )
                     else:
                         self.console.error(f"{strategy_type} strategy failed")
@@ -1486,7 +1486,7 @@ class StrategyDispatcher:
                     # Note: This is expected - progress checkpoints are saved at intervals
                     # for performance. All combinations are still analyzed.
                     self.console.debug(
-                        f"Progress checkpoints: {completed_combinations}/{total_combinations} saved (all combinations analyzed)"
+                        f"Progress checkpoints: {completed_combinations}/{total_combinations} saved (all combinations analyzed)",
                     )
                     # Force progress bar to 100% to avoid visual confusion
                     progress.update(task, completed=total_combinations)
@@ -1501,7 +1501,7 @@ class StrategyDispatcher:
 
                 # Create single-strategy config
                 single_config = self._create_single_strategy_config(
-                    config, strategy_type
+                    config, strategy_type,
                 )
 
                 # Get appropriate service for this strategy type
@@ -1509,7 +1509,7 @@ class StrategyDispatcher:
 
                 if not service:
                     self.console.error(
-                        f"No service found for strategy type: {strategy_type}"
+                        f"No service found for strategy type: {strategy_type}",
                     )
                     results.append(False)
                     continue
@@ -1536,7 +1536,7 @@ class StrategyDispatcher:
                     summary.add_portfolio_result(portfolio_result)
 
                     self.console.success(
-                        f"{strategy_type} strategy completed successfully"
+                        f"{strategy_type} strategy completed successfully",
                     )
                 else:
                     self.console.error(f"{strategy_type} strategy failed")
@@ -1552,7 +1552,7 @@ class StrategyDispatcher:
         # Show completion summary with enhanced formatting
         if successful_count == len(results):
             self.console.completion_banner(
-                f"All {len(results)} strategies completed successfully"
+                f"All {len(results)} strategies completed successfully",
             )
             # Show basic results summary
             self.console.results_summary_table(
@@ -1562,13 +1562,13 @@ class StrategyDispatcher:
             )
         else:
             self.console.warning(
-                f"Mixed results: {successful_count}/{len(results)} strategies successful"
+                f"Mixed results: {successful_count}/{len(results)} strategies successful",
             )
 
         return summary
 
     def _create_single_strategy_config(
-        self, original_config: StrategyConfig, strategy_type: StrategyType | str
+        self, original_config: StrategyConfig, strategy_type: StrategyType | str,
     ) -> StrategyConfig:
         """
         Create a single-strategy configuration from a multi-strategy config.
@@ -1599,7 +1599,7 @@ class StrategyDispatcher:
         return single_config
 
     def _determine_single_service(
-        self, strategy_type: StrategyType | str
+        self, strategy_type: StrategyType | str,
     ) -> BaseStrategyService | None:
         """
         Determine service for a single strategy type.
@@ -1631,7 +1631,7 @@ class StrategyDispatcher:
         return None
 
     def _determine_service(
-        self, strategy_types: list[StrategyType | str]
+        self, strategy_types: list[StrategyType | str],
     ) -> BaseStrategyService | None:
         """
         Determine which service to use based on strategy types.
@@ -1654,7 +1654,7 @@ class StrategyDispatcher:
         if StrategyType.MACD.value in strategy_type_values:
             if len(strategy_types) > 1:
                 self.console.warning(
-                    "Multiple strategy types specified with MACD. Using MACD service."
+                    "Multiple strategy types specified with MACD. Using MACD service.",
                 )
             return self._services["MACD"]
 
@@ -1667,7 +1667,7 @@ class StrategyDispatcher:
         if StrategyType.ATR.value in strategy_type_values:
             if len(strategy_types) > 1:
                 self.console.warning(
-                    "Multiple strategy types specified with ATR. Using mixed strategy execution."
+                    "Multiple strategy types specified with ATR. Using mixed strategy execution.",
                 )
             return self._services["ATR"]
 
@@ -1675,7 +1675,7 @@ class StrategyDispatcher:
         if StrategyType.SMA_ATR.value in strategy_type_values:
             if len(strategy_types) > 1:
                 self.console.warning(
-                    "Multiple strategy types specified with SMA_ATR. Using mixed strategy execution."
+                    "Multiple strategy types specified with SMA_ATR. Using mixed strategy execution.",
                 )
             return self._services["SMA_ATR"]
 
@@ -1683,14 +1683,14 @@ class StrategyDispatcher:
         if StrategyType.COMP.value in strategy_type_values:
             if len(strategy_types) > 1:
                 self.console.warning(
-                    "Multiple strategy types specified with COMP. Using mixed strategy execution."
+                    "Multiple strategy types specified with COMP. Using mixed strategy execution.",
                 )
             return self._services["COMP"]
 
         # No compatible service found
         self.console.error(f"Unsupported strategy types: {strategy_type_values}")
         self.console.debug(
-            "Supported strategy types: SMA, EMA, MACD, ATR, SMA_ATR, COMP"
+            "Supported strategy types: SMA, EMA, MACD, ATR, SMA_ATR, COMP",
         )
         return None
 
@@ -1706,7 +1706,7 @@ class StrategyDispatcher:
         }
 
     def validate_strategy_compatibility(
-        self, strategy_types: list[StrategyType | str]
+        self, strategy_types: list[StrategyType | str],
     ) -> bool:
         """
         Validate that strategy types are compatible with available services.
@@ -1757,7 +1757,7 @@ class StrategyDispatcher:
             return False
 
     def _convert_config_to_legacy_for_skip_mode(
-        self, config: StrategyConfig
+        self, config: StrategyConfig,
     ) -> dict[str, Any]:
         """
         Convert StrategyConfig to legacy format for PortfolioOrchestrator in skip mode.
@@ -1811,7 +1811,7 @@ class StrategyDispatcher:
         return legacy_config
 
     def _convert_strategy_config_to_legacy(
-        self, config: StrategyConfig
+        self, config: StrategyConfig,
     ) -> dict[str, Any]:
         """
         Convert StrategyConfig to legacy format for resume analysis.
@@ -1860,7 +1860,7 @@ class StrategyDispatcher:
         def get_strategy_specific_params(strategy_type: str):
             """Extract strategy-specific parameters with fallback to global parameters."""
             if config.strategy_params and hasattr(
-                config.strategy_params, strategy_type
+                config.strategy_params, strategy_type,
             ):
                 strategy_params = getattr(config.strategy_params, strategy_type)
                 if strategy_params:
@@ -1925,7 +1925,7 @@ class StrategyDispatcher:
         return legacy_config
 
     def _convert_legacy_to_strategy_config(
-        self, legacy_config: dict[str, Any], original_config: StrategyConfig
+        self, legacy_config: dict[str, Any], original_config: StrategyConfig,
     ) -> StrategyConfig:
         """
         Convert filtered legacy config back to StrategyConfig format.
@@ -1989,12 +1989,12 @@ class StrategyDispatcher:
         failed_tickers = []
 
         self.console.heading(
-            f"Batch Processing: {len(tickers_to_process)} tickers", level=2
+            f"Batch Processing: {len(tickers_to_process)} tickers", level=2,
         )
 
         for idx, ticker in enumerate(tickers_to_process, 1):
             self.console.info(
-                f"Processing ticker {idx}/{len(tickers_to_process)}: {ticker}"
+                f"Processing ticker {idx}/{len(tickers_to_process)}: {ticker}",
             )
 
             # Create a copy of config for single ticker
@@ -2023,31 +2023,31 @@ class StrategyDispatcher:
                 else:
                     # Single strategy execution
                     strategy_service = self._determine_single_service(
-                        config.strategy_types[0]
+                        config.strategy_types[0],
                     )
                     if not strategy_service:
                         self.console.error(
-                            f"No compatible service found for strategy type: {config.strategy_types[0]}"
+                            f"No compatible service found for strategy type: {config.strategy_types[0]}",
                         )
                         success = False
                     else:
                         success = strategy_service.execute_strategy(
-                            single_ticker_config
+                            single_ticker_config,
                         )
 
                 if success:
                     # Update batch file with successful completion
                     batch_update_success = self.batch_service.update_ticker_status(
-                        ticker
+                        ticker,
                     )
                     if batch_update_success:
                         successful_tickers.append(ticker)
                         self.console.success(
-                            f"✅ {ticker} processed successfully and batch file updated"
+                            f"✅ {ticker} processed successfully and batch file updated",
                         )
                     else:
                         self.console.warning(
-                            f"⚠️  {ticker} processed successfully but batch file update failed"
+                            f"⚠️  {ticker} processed successfully but batch file update failed",
                         )
                         successful_tickers.append(ticker)  # Still count as success
                 else:
@@ -2076,7 +2076,7 @@ class StrategyDispatcher:
         # Display batch processing summary
         self.console.heading("Batch Processing Summary", level=2)
         self.console.success(
-            f"Successfully processed: {len(successful_tickers)} tickers"
+            f"Successfully processed: {len(successful_tickers)} tickers",
         )
         if failed_tickers:
             self.console.error(f"Failed to process: {len(failed_tickers)} tickers")

@@ -79,8 +79,9 @@ class PortfolioReturnsCalculator:
 
         # Validate allocations
         if len(allocations) != n_strategies:
+            msg = f"Allocation count ({len(allocations)}) doesn't match strategies ({n_strategies})"
             raise DataAlignmentError(
-                f"Allocation count ({len(allocations)}) doesn't match strategies ({n_strategies})"
+                msg,
             )
 
         # Handle missing or zero allocations
@@ -99,12 +100,12 @@ class PortfolioReturnsCalculator:
 
         # Calculate weighted portfolio returns
         portfolio_returns = self._calculate_weighted_returns(
-            returns_matrix, weights, position_arrays
+            returns_matrix, weights, position_arrays,
         )
 
         # Calculate diagnostics
         diagnostics = self._calculate_diagnostics(
-            portfolio_returns, returns_matrix, weights, return_columns
+            portfolio_returns, returns_matrix, weights, return_columns,
         )
 
         self.log("Portfolio return calculation completed", "info")
@@ -201,7 +202,7 @@ class PortfolioReturnsCalculator:
             "diversification": {
                 "diversification_ratio": float(diversification_ratio),
                 "effective_n": float(
-                    1 / np.sum(weights**2)
+                    1 / np.sum(weights**2),
                 ),  # Effective number of strategies
                 "concentration": float(np.max(weights)),  # Highest single weight
             },
@@ -249,9 +250,8 @@ class PortfolioReturnsCalculator:
             return 0.0
 
         n = len(returns)
-        skewness = n / ((n - 1) * (n - 2)) * np.sum(((returns - mean) / std) ** 3)
+        return n / ((n - 1) * (n - 2)) * np.sum(((returns - mean) / std) ** 3)
 
-        return skewness
 
     def _calculate_kurtosis(self, returns: np.ndarray) -> float:
         """Calculate excess kurtosis of return distribution."""
@@ -266,9 +266,8 @@ class PortfolioReturnsCalculator:
 
         len(returns)
         m4 = np.mean((returns - mean) ** 4)
-        excess_kurtosis = m4 / (std**4) - 3
+        return m4 / (std**4) - 3
 
-        return excess_kurtosis
 
     def calculate_rolling_metrics(
         self,
@@ -313,7 +312,7 @@ class PortfolioReturnsCalculator:
                     / pl.col("returns").rolling_std(window, min_periods=min_periods)
                     * np.sqrt(252)
                 ).alias("rolling_sharpe"),
-            ]
+            ],
         )
 
         # Calculate rolling VaR and CVaR using a custom function
@@ -341,7 +340,7 @@ class PortfolioReturnsCalculator:
             [
                 pl.Series("rolling_var_95", var_95_values),
                 pl.Series("rolling_cvar_95", cvar_95_values),
-            ]
+            ],
         )
 
         self.log(f"Calculated rolling metrics with window {window}", "info")
@@ -379,11 +378,11 @@ class PortfolioReturnsCalculator:
             # Prepare portfolios for alignment
             portfolios = []
             for i, (df, positions, name) in enumerate(
-                zip(data_list, position_arrays, strategy_names, strict=False)
+                zip(data_list, position_arrays, strategy_names, strict=False),
             ):
                 # Add position data
                 df_with_position = df.with_columns(
-                    [pl.Series("Position", positions[: len(df)])]
+                    [pl.Series("Position", positions[: len(df)])],
                 )
 
                 # Parse strategy info from name
@@ -398,17 +397,17 @@ class PortfolioReturnsCalculator:
                         "strategy_type": strategy_type,
                         "period": period,
                         "data": df_with_position,
-                    }
+                    },
                 )
 
             # Align returns
             aligned_returns, aligned_names = align_portfolio_returns(
-                portfolios, self.log, min_observations=10
+                portfolios, self.log, min_observations=10,
             )
 
             # Calculate portfolio returns
             portfolio_returns, diagnostics = self.calculate_portfolio_returns(
-                aligned_returns, allocations, position_arrays, aligned_names
+                aligned_returns, allocations, position_arrays, aligned_names,
             )
 
             # Calculate portfolio variance and risk
@@ -442,4 +441,5 @@ class PortfolioReturnsCalculator:
             return metrics
 
         except Exception as e:
-            raise RiskCalculationError(f"Failed to calculate portfolio metrics: {e!s}")
+            msg = f"Failed to calculate portfolio metrics: {e!s}"
+            raise RiskCalculationError(msg)

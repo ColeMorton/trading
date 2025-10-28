@@ -41,7 +41,7 @@ def get_allocation_field_name(row: dict[str, Any]) -> str:
 
 
 def validate_allocations(
-    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None
+    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None,
 ) -> list[dict[str, Any]]:
     """Validate allocation values in portfolio data.
 
@@ -93,7 +93,7 @@ def validate_allocations(
 
 
 def normalize_allocations(
-    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None
+    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None,
 ) -> list[dict[str, Any]]:
     """Normalize allocation values in portfolio data.
 
@@ -138,7 +138,7 @@ def normalize_allocations(
 
 
 def distribute_missing_allocations(
-    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None
+    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None,
 ) -> list[dict[str, Any]]:
     """Distribute equal allocations to rows with missing allocation values.
 
@@ -215,7 +215,7 @@ def distribute_missing_allocations(
 
 
 def ensure_allocation_sum_100_percent(
-    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None
+    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None,
 ) -> list[dict[str, Any]]:
     """Ensure the sum of all allocations equals 100%.
 
@@ -376,7 +376,7 @@ def calculate_position_sizes(
 
                 # Round to 2 decimal places for currency values
                 position_size_decimal = Decimal(str(position_size)).quantize(
-                    Decimal("0.01"), rounding=ROUND_HALF_UP
+                    Decimal("0.01"), rounding=ROUND_HALF_UP,
                 )
                 row["Position Size"] = float(position_size_decimal)
             except (ValueError, TypeError):
@@ -394,7 +394,7 @@ def calculate_position_sizes(
 
 
 def get_allocation_summary(
-    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None
+    portfolio_data: list[T], log: Callable[[str, str | None], None] | None = None,
 ) -> dict[str, Any]:
     """Get a summary of allocation statistics for the portfolio.
 

@@ -59,7 +59,7 @@ class WinRateCalculator:
         self.use_fixed = use_fixed
 
     def calculate_signal_win_rate(
-        self, returns: np.ndarray, signals: np.ndarray, include_zeros: bool = False
+        self, returns: np.ndarray, signals: np.ndarray, include_zeros: bool = False,
     ) -> WinRateComponents:
         """
         Calculate win rate based on signal returns.
@@ -75,7 +75,8 @@ class WinRateCalculator:
             WinRateComponents with signal-based win rate
         """
         if len(returns) != len(signals):
-            raise ValueError("Returns and signals arrays must have same length")
+            msg = "Returns and signals arrays must have same length"
+            raise ValueError(msg)
 
         # Filter to only periods with active signals
         active_mask = signals != 0
@@ -87,7 +88,7 @@ class WinRateCalculator:
         return self._calculate_from_returns(signal_returns, include_zeros, "signal")
 
     def calculate_trade_win_rate(
-        self, trade_returns: np.ndarray, include_zeros: bool = False
+        self, trade_returns: np.ndarray, include_zeros: bool = False,
     ) -> WinRateComponents:
         """
         Calculate win rate based on completed trade returns.
@@ -105,7 +106,7 @@ class WinRateCalculator:
         return self._calculate_from_returns(trade_returns, include_zeros, "trade")
 
     def calculate_weighted_win_rate(
-        self, returns: np.ndarray, weights: np.ndarray, include_zeros: bool = False
+        self, returns: np.ndarray, weights: np.ndarray, include_zeros: bool = False,
     ) -> WinRateComponents:
         """
         Calculate portfolio-weighted win rate.
@@ -121,13 +122,14 @@ class WinRateCalculator:
             WinRateComponents with weighted win rate
         """
         if len(returns) != len(weights):
-            raise ValueError("Returns and weights arrays must have same length")
+            msg = "Returns and weights arrays must have same length"
+            raise ValueError(msg)
 
         weighted_returns = returns * weights
         return self._calculate_from_returns(weighted_returns, include_zeros, "weighted")
 
     def _calculate_from_returns(
-        self, returns: np.ndarray, include_zeros: bool, calc_type: str
+        self, returns: np.ndarray, include_zeros: bool, calc_type: str,
     ) -> WinRateComponents:
         """
         Internal method to calculate win rate from returns array.
@@ -191,7 +193,7 @@ class WinRateCalculator:
         return float(np.mean(positive_returns))
 
     def compare_calculations(
-        self, returns: np.ndarray, signals: np.ndarray | None = None
+        self, returns: np.ndarray, signals: np.ndarray | None = None,
     ) -> dict[str, WinRateComponents]:
         """
         Compare different win rate calculation methods.
@@ -207,19 +209,19 @@ class WinRateCalculator:
 
         # Standard trade-based calculation
         results["trade_standard"] = self.calculate_trade_win_rate(
-            returns, include_zeros=False
+            returns, include_zeros=False,
         )
         results["trade_with_zeros"] = self.calculate_trade_win_rate(
-            returns, include_zeros=True
+            returns, include_zeros=True,
         )
 
         # Signal-based calculation if signals provided
         if signals is not None:
             results["signal_standard"] = self.calculate_signal_win_rate(
-                returns, signals, include_zeros=False
+                returns, signals, include_zeros=False,
             )
             results["signal_with_zeros"] = self.calculate_signal_win_rate(
-                returns, signals, include_zeros=True
+                returns, signals, include_zeros=True,
             )
 
         # Legacy calculation
@@ -270,19 +272,22 @@ class WinRateCalculator:
             WinRateComponents with calculated win rate
         """
         if return_col not in df.columns:
-            raise ValueError(f"Return column '{return_col}' not found in DataFrame")
+            msg = f"Return column '{return_col}' not found in DataFrame"
+            raise ValueError(msg)
 
         returns = df[return_col].values
 
         if method == WinRateType.SIGNAL:
             if signal_col not in df.columns:
-                raise ValueError(f"Signal column '{signal_col}' not found in DataFrame")
+                msg = f"Signal column '{signal_col}' not found in DataFrame"
+                raise ValueError(msg)
             signals = df[signal_col].values
             return self.calculate_signal_win_rate(returns, signals)
 
         if method == WinRateType.WEIGHTED:
             if weight_col is None or weight_col not in df.columns:
-                raise ValueError(f"Weight column '{weight_col}' not found in DataFrame")
+                msg = f"Weight column '{weight_col}' not found in DataFrame"
+                raise ValueError(msg)
             weights = df[weight_col].values
             return self.calculate_weighted_win_rate(returns, weights)
 
@@ -313,9 +318,10 @@ def calculate_win_rate_standardized(
 
     if method == "signal":
         if signals is None:
-            raise ValueError("Signals array required for signal method")
+            msg = "Signals array required for signal method"
+            raise ValueError(msg)
         result = calc.calculate_signal_win_rate(
-            returns_array, np.array(signals), include_zeros
+            returns_array, np.array(signals), include_zeros,
         )
     elif method == "legacy":
         return calc.calculate_legacy_win_rate(returns_array)

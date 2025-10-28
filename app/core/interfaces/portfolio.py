@@ -49,25 +49,25 @@ class PortfolioManagerInterface(ABC):
 
     @abstractmethod
     def list_portfolios(
-        self, directory: Path, pattern: str | None | None = None
+        self, directory: Path, pattern: str | None | None = None,
     ) -> list[Portfolio]:
         """List all portfolios in a directory."""
 
     @abstractmethod
     def filter_portfolios(
-        self, portfolios: list[Portfolio], filters: list[PortfolioFilter]
+        self, portfolios: list[Portfolio], filters: list[PortfolioFilter],
     ) -> list[Portfolio]:
         """Filter portfolios based on criteria."""
 
     @abstractmethod
     def aggregate_portfolios(
-        self, portfolios: list[Portfolio]
+        self, portfolios: list[Portfolio],
     ) -> pd.DataFrame | pl.DataFrame:
         """Aggregate multiple portfolios into a summary."""
 
     @abstractmethod
     def get_best_portfolios(
-        self, portfolios: list[Portfolio], metric: str = "sharpe_ratio", top_n: int = 10
+        self, portfolios: list[Portfolio], metric: str = "sharpe_ratio", top_n: int = 10,
     ) -> list[Portfolio]:
         """Get best performing portfolios by metric."""
 

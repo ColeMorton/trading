@@ -336,7 +336,7 @@ class TestEdgeCases:
                 "METRIC": "median",
                 "EXTRA_FIELD": "ignored",
                 "ANOTHER_FIELD": 123,
-            }
+            },
         }
 
         is_valid, validated_config, warnings = validate_equity_data_config(config)

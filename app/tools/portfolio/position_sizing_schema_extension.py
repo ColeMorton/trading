@@ -524,7 +524,7 @@ class PositionSizingSchemaValidator:
         for formula_name, matches in formula_matches.items():
             if not matches:
                 calc_errors.append(
-                    f"{formula_name} calculation does not match expected Excel formula"
+                    f"{formula_name} calculation does not match expected Excel formula",
                 )
 
         is_valid = (

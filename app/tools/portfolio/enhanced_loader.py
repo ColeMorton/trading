@@ -61,21 +61,22 @@ def load_portfolio_with_logging(
 
         # Get the project root directory
         project_root = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..", "..")
+            os.path.join(os.path.dirname(__file__), "..", "..", ".."),
         )
         log(f"Project root directory: {project_root}", "info")
 
     try:
         # Resolve portfolio path
         portfolio_path = resolve_portfolio_file_path(
-            portfolio_name, config.get("BASE_DIR")
+            portfolio_name, config.get("BASE_DIR"),
         )
         log(f"Resolved portfolio path: {portfolio_path}", "info")
         log(f"Path exists: {portfolio_path.exists()}", "info")
     except FileNotFoundError as e:
         log(f"Portfolio not found: {portfolio_name}", "error")
         log(f"Error details: {e!s}", "error")
-        raise PortfolioLoadError(f"Portfolio not found: {portfolio_name}") from e
+        msg = f"Portfolio not found: {portfolio_name}"
+        raise PortfolioLoadError(msg) from e
 
     try:
         # Load portfolio
@@ -84,12 +85,13 @@ def load_portfolio_with_logging(
         return strategies
     except Exception as e:
         log(f"Failed to load portfolio: {e!s}", "error")
-        raise PortfolioLoadError(f"Failed to load portfolio: {e!s}") from e
+        msg = f"Failed to load portfolio: {e!s}"
+        raise PortfolioLoadError(msg) from e
 
 
 @contextlib.contextmanager
 def portfolio_context(
-    portfolio_name: str, log: Callable[[str, str], None], config: dict[str, Any]
+    portfolio_name: str, log: Callable[[str, str], None], config: dict[str, Any],
 ) -> Generator[list[StrategyConfig], None, None]:
     """Context manager for portfolio loading with automatic error handling.
 
@@ -119,8 +121,9 @@ def portfolio_context(
         if not isinstance(e, PortfolioLoadError):
             # Catch and convert any non-PortfolioLoadError exceptions
             log(f"Unexpected error in portfolio context: {e!s}", "error")
+            msg = f"Unexpected error in portfolio context: {e!s}"
             raise PortfolioLoadError(
-                f"Unexpected error in portfolio context: {e!s}"
+                msg,
             ) from e
         # Re-raise PortfolioLoadError exceptions
         raise

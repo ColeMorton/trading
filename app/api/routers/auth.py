@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..core.database import get_db
 from ..core.security import validate_api_key
 from ..models.schemas import LoginRequest, LoginResponse, LogoutResponse, UserInfo
+from typing import Annotated
 
 
 router = APIRouter()
@@ -20,7 +21,7 @@ router = APIRouter()
 async def login(
     credentials: LoginRequest,
     request: Request,
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """
     Authenticate user and create session.
@@ -107,7 +108,7 @@ async def logout(request: Request):
 @router.get("/me", response_model=UserInfo)
 async def get_current_user(
     request: Request,
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """
     Get current authenticated user information from session.

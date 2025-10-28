@@ -81,7 +81,7 @@ class CSVJSONCrossValidator:
         """Initialize the cross-validator with logging."""
         if log is None:
             self.log, _, _, _ = setup_logging(
-                "cross_validator", Path("./logs"), "cross_validation.log"
+                "cross_validator", Path("./logs"), "cross_validation.log",
             )
         else:
             self.log = log
@@ -105,31 +105,32 @@ class CSVJSONCrossValidator:
             csv_data = pd.read_csv(config.csv_path)
             self.log(f"Loaded CSV data with {len(csv_data)} strategies", "info")
         except Exception as e:
-            raise ValueError(f"Failed to load CSV data from {config.csv_path}: {e!s}")
+            msg = f"Failed to load CSV data from {config.csv_path}: {e!s}"
+            raise ValueError(msg)
 
         # Run basic validation checks
         validation_summary = self.validator.validate_all(
-            csv_data, config.json_metrics, config.tolerances
+            csv_data, config.json_metrics, config.tolerances,
         )
 
         # Perform detailed ticker-level comparisons
         ticker_comparisons = self._compare_ticker_metrics(
-            csv_data, config.json_metrics, config.tolerances or {}
+            csv_data, config.json_metrics, config.tolerances or {},
         )
 
         # Identify portfolio-level issues
         portfolio_issues = self._identify_portfolio_issues(
-            csv_data, config.json_metrics
+            csv_data, config.json_metrics,
         )
 
         # Generate recommendations
         recommendations = self._generate_recommendations(
-            validation_summary, ticker_comparisons, portfolio_issues
+            validation_summary, ticker_comparisons, portfolio_issues,
         )
 
         # Calculate overall data quality score
         data_quality_score = self._calculate_data_quality_score(
-            validation_summary, ticker_comparisons
+            validation_summary, ticker_comparisons,
         )
 
         # Create report
@@ -247,21 +248,21 @@ class CSVJSONCrossValidator:
                             relative_difference=relative_difference,
                             within_tolerance=within_tolerance,
                             tolerance_used=tolerance,
-                        )
+                        ),
                     )
 
             # Calculate overall score for this ticker
             if metrics:
                 overall_score = sum(1 for m in metrics if m.within_tolerance) / len(
-                    metrics
+                    metrics,
                 )
             else:
                 overall_score = 0.0
 
             ticker_comparisons.append(
                 TickerComparison(
-                    ticker=ticker, metrics=metrics, overall_score=overall_score
-                )
+                    ticker=ticker, metrics=metrics, overall_score=overall_score,
+                ),
             )
 
             self.log(
@@ -272,7 +273,7 @@ class CSVJSONCrossValidator:
         return ticker_comparisons
 
     def _identify_portfolio_issues(
-        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any]
+        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any],
     ) -> list[str]:
         """Identify specific issues at the portfolio level."""
         issues = []
@@ -290,7 +291,7 @@ class CSVJSONCrossValidator:
 
             if portfolio_signals > csv_total_trades * 10:
                 issues.append(
-                    f"Severe signal count inflation: {portfolio_signals:,} portfolio signals vs {csv_total_trades:,} CSV trades (ratio: {portfolio_signals/csv_total_trades:.1f}×)"
+                    f"Severe signal count inflation: {portfolio_signals:,} portfolio signals vs {csv_total_trades:,} CSV trades (ratio: {portfolio_signals/csv_total_trades:.1f}×)",
                 )
 
             # Issue 2: Expectancy magnitude
@@ -306,7 +307,7 @@ class CSVJSONCrossValidator:
                 csv_median_expectancy = csv_expectancies.median()
                 if abs(portfolio_expectancy) > abs(csv_median_expectancy) * 100:
                     issues.append(
-                        f"Expectancy magnitude issue: Portfolio expectancy {portfolio_expectancy:.2f} vs CSV median {csv_median_expectancy:.2f} (ratio: {portfolio_expectancy/csv_median_expectancy:.1f}×)"
+                        f"Expectancy magnitude issue: Portfolio expectancy {portfolio_expectancy:.2f} vs CSV median {csv_median_expectancy:.2f} (ratio: {portfolio_expectancy/csv_median_expectancy:.1f}×)",
                     )
 
             # Issue 3: Performance sign flips
@@ -323,10 +324,10 @@ class CSVJSONCrossValidator:
                     positive_sharpe_count += 1
 
                     ticker_metrics = json_metrics.get("ticker_metrics", {}).get(
-                        ticker, {}
+                        ticker, {},
                     )
                     json_sharpe = ticker_metrics.get("signal_quality_metrics", {}).get(
-                        "sharpe_ratio", 0
+                        "sharpe_ratio", 0,
                     )
 
                     if json_sharpe < -0.01:  # Negative in JSON
@@ -334,7 +335,7 @@ class CSVJSONCrossValidator:
 
             if negative_json_sharpe_count > 0:
                 issues.append(
-                    f"Performance sign flips: {negative_json_sharpe_count} out of {positive_sharpe_count} positive CSV Sharpe ratios became negative in JSON"
+                    f"Performance sign flips: {negative_json_sharpe_count} out of {positive_sharpe_count} positive CSV Sharpe ratios became negative in JSON",
                 )
 
             # Issue 4: Risk understatement
@@ -358,7 +359,7 @@ class CSVJSONCrossValidator:
 
             if risk_understatement_count > 0:
                 issues.append(
-                    f"Risk understatement: {risk_understatement_count} tickers have JSON max drawdown significantly lower than CSV maximum"
+                    f"Risk understatement: {risk_understatement_count} tickers have JSON max drawdown significantly lower than CSV maximum",
                 )
 
         except Exception as e:
@@ -379,26 +380,26 @@ class CSVJSONCrossValidator:
         # Critical failure recommendations
         if validation_summary.critical_failures > 0:
             recommendations.append(
-                "URGENT: Address critical validation failures before using metrics for decisions"
+                "URGENT: Address critical validation failures before using metrics for decisions",
             )
 
             for result in validation_summary.results:
                 if not result.passed and result.severity == "critical":
                     if "signal count" in result.check_name.lower():
                         recommendations.append(
-                            "Fix signal counting logic in app/concurrency/tools/signal_metrics.py:120"
+                            "Fix signal counting logic in app/concurrency/tools/signal_metrics.py:120",
                         )
                     elif "sharpe ratio" in result.check_name.lower():
                         recommendations.append(
-                            "Fix Sharpe ratio aggregation in signal_quality.py:calculate_aggregate_signal_quality"
+                            "Fix Sharpe ratio aggregation in signal_quality.py:calculate_aggregate_signal_quality",
                         )
                     elif "expectancy" in result.check_name.lower():
                         recommendations.append(
-                            "Fix expectancy calculation units in efficiency.py"
+                            "Fix expectancy calculation units in efficiency.py",
                         )
                     elif "drawdown" in result.check_name.lower():
                         recommendations.append(
-                            "Fix risk metric aggregation to use portfolio equity curves"
+                            "Fix risk metric aggregation to use portfolio equity curves",
                         )
 
         # Ticker-specific recommendations
@@ -406,38 +407,38 @@ class CSVJSONCrossValidator:
         if poor_ticker_scores:
             tickers = [tc.ticker for tc in poor_ticker_scores]
             recommendations.append(
-                f"Review metric calculations for tickers with poor validation scores: {', '.join(tickers)}"
+                f"Review metric calculations for tickers with poor validation scores: {', '.join(tickers)}",
             )
 
         # Portfolio-level recommendations
         if any("signal count inflation" in issue for issue in portfolio_issues):
             recommendations.append(
-                "Implement unique signal counting to distinguish strategy signals from portfolio signals"
+                "Implement unique signal counting to distinguish strategy signals from portfolio signals",
             )
 
         if any("expectancy magnitude" in issue for issue in portfolio_issues):
             recommendations.append(
-                "Standardize expectancy units and calculation methodology"
+                "Standardize expectancy units and calculation methodology",
             )
 
         if any("sign flips" in issue for issue in portfolio_issues):
             recommendations.append(
-                "Review performance aggregation to preserve metric signs"
+                "Review performance aggregation to preserve metric signs",
             )
 
         if any("risk understatement" in issue for issue in portfolio_issues):
             recommendations.append(
-                "Use actual portfolio equity curves for risk calculations instead of weighted averages"
+                "Use actual portfolio equity curves for risk calculations instead of weighted averages",
             )
 
         # Data quality recommendations
         if validation_summary.success_rate < 0.7:
             recommendations.append(
-                "Overall data quality is poor - recommend comprehensive metric system review"
+                "Overall data quality is poor - recommend comprehensive metric system review",
             )
         elif validation_summary.success_rate < 0.9:
             recommendations.append(
-                "Data quality needs improvement - address warning-level validation failures"
+                "Data quality needs improvement - address warning-level validation failures",
             )
 
         return recommendations
@@ -460,7 +461,7 @@ class CSVJSONCrossValidator:
         # Ticker comparison score
         if ticker_comparisons:
             ticker_score = sum(tc.overall_score for tc in ticker_comparisons) / len(
-                ticker_comparisons
+                ticker_comparisons,
             )
         else:
             ticker_score = 0.5  # Neutral if no ticker comparisons
@@ -469,9 +470,8 @@ class CSVJSONCrossValidator:
         combined_score = (base_score + ticker_score) / 2
 
         # Apply penalties
-        final_score = max(0.0, combined_score - critical_penalty - warning_penalty)
+        return max(0.0, combined_score - critical_penalty - warning_penalty)
 
-        return final_score
 
     def _get_nested_value(self, data: dict[str, Any], path: str, default: Any) -> Any:
         """Get a nested value from a dictionary using dot notation."""
@@ -485,7 +485,7 @@ class CSVJSONCrossValidator:
             return default
 
     def _generate_report_file(
-        self, report: CrossValidationReport, output_path: str
+        self, report: CrossValidationReport, output_path: str,
     ) -> None:
         """Generate a detailed report file."""
         try:
@@ -510,7 +510,7 @@ class CSVJSONCrossValidator:
             self.log(f"Error generating report file: {e!s}", "error")
 
     def _generate_markdown_report(
-        self, report: CrossValidationReport, output_file: Path
+        self, report: CrossValidationReport, output_file: Path,
     ) -> None:
         """Generate a markdown format report."""
         with open(output_file, "w") as f:
@@ -518,7 +518,7 @@ class CSVJSONCrossValidator:
             f.write(f"**Generated:** {report.timestamp}\n")
             f.write(f"**CSV Source:** {report.csv_path}\n")
             f.write(
-                f"**Data Quality Score:** {report.data_quality_score:.2f} / 1.00\n\n"
+                f"**Data Quality Score:** {report.data_quality_score:.2f} / 1.00\n\n",
             )
 
             # Validation Summary
@@ -548,7 +548,7 @@ class CSVJSONCrossValidator:
                     for metric in tc.metrics:
                         status = "✅" if metric.within_tolerance else "❌"
                         f.write(
-                            f"- {status} **{metric.metric_name}:** CSV={metric.csv_value:.3f}, JSON={metric.json_value:.3f}, Diff={metric.relative_difference:.1%}\n"
+                            f"- {status} **{metric.metric_name}:** CSV={metric.csv_value:.3f}, JSON={metric.json_value:.3f}, Diff={metric.relative_difference:.1%}\n",
                         )
                     f.write("\n")
 

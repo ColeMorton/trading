@@ -57,9 +57,11 @@ class ConfigurationService(ConfigurationInterface):
                 self._config = json.load(f)
         elif path.suffix in [".yaml", ".yml"]:
             # Add YAML support if needed
-            raise NotImplementedError("YAML configuration not yet supported")
+            msg = "YAML configuration not yet supported"
+            raise NotImplementedError(msg)
         else:
-            raise ValueError(f"Unsupported configuration file type: {path.suffix}")
+            msg = f"Unsupported configuration file type: {path.suffix}"
+            raise ValueError(msg)
 
     def save_to_file(self, path: Path) -> None:
         """Save configuration to file."""

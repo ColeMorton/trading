@@ -168,7 +168,7 @@ class TickerResult:
                     "expectancy_per_trade": self.expectancy_per_trade,
                     "sortino_ratio": self.sortino_ratio,
                     "beats_bnh_pct": self.beats_bnh_pct,
-                }
+                },
             )
 
         return result

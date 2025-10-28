@@ -35,7 +35,7 @@ class Normalizer:
             self.log = log
 
     def min_max_scale(
-        self, data: T, feature_range: tuple[float, float] = (0, 1), clip: bool = True
+        self, data: T, feature_range: tuple[float, float] = (0, 1), clip: bool = True,
     ) -> T:
         """Scale data to a specified range using min-max scaling.
 
@@ -117,7 +117,7 @@ class Normalizer:
             return data
 
     def z_score_normalize(
-        self, data: T, clip: bool = False, clip_range: tuple[float, float] = (-3, 3)
+        self, data: T, clip: bool = False, clip_range: tuple[float, float] = (-3, 3),
     ) -> T:
         """Normalize data using z-score (standard score) normalization.
 
@@ -211,7 +211,7 @@ class Normalizer:
         """
         try:
             self.log(
-                f"Applying robust scaling with quantile range {quantile_range}", "debug"
+                f"Applying robust scaling with quantile range {quantile_range}", "debug",
             )
 
             # Convert to numpy array for processing
@@ -242,7 +242,7 @@ class Normalizer:
 
             # Calculate quantiles
             q_low, q_high = np.percentile(
-                values, [quantile_range[0] * 100, quantile_range[1] * 100]
+                values, [quantile_range[0] * 100, quantile_range[1] * 100],
             )
             iqr = q_high - q_low
 
@@ -357,7 +357,7 @@ class Normalizer:
         """
         try:
             self.log(
-                f"Normalizing DataFrame columns {columns} using {method} method", "info"
+                f"Normalizing DataFrame columns {columns} using {method} method", "info",
             )
 
             # Convert to pandas if polars

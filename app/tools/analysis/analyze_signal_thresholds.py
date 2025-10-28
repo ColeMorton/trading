@@ -46,7 +46,7 @@ def analyze_signal_thresholds():
     print("\n=== SIGNAL LOGIC ANALYSIS ===")
     print("Current system logic:")
     print(
-        f"  - Exit immediately: rank > {config.PERCENTILE_THRESHOLDS['exit_immediately']}"
+        f"  - Exit immediately: rank > {config.PERCENTILE_THRESHOLDS['exit_immediately']}",
     )
     print(f"  - Strong sell: rank > {config.PERCENTILE_THRESHOLDS['strong_sell']}")
     print(f"  - Sell: rank > {config.PERCENTILE_THRESHOLDS['sell']}")
@@ -54,16 +54,16 @@ def analyze_signal_thresholds():
 
     print("\nSMCI triggers:")
     print(
-        f"  - Exit immediately: {smci_percentile_rank} > {config.PERCENTILE_THRESHOLDS['exit_immediately']} = {smci_percentile_rank > config.PERCENTILE_THRESHOLDS['exit_immediately']}"
+        f"  - Exit immediately: {smci_percentile_rank} > {config.PERCENTILE_THRESHOLDS['exit_immediately']} = {smci_percentile_rank > config.PERCENTILE_THRESHOLDS['exit_immediately']}",
     )
     print(
-        f"  - Strong sell: {smci_percentile_rank} > {config.PERCENTILE_THRESHOLDS['strong_sell']} = {smci_percentile_rank > config.PERCENTILE_THRESHOLDS['strong_sell']}"
+        f"  - Strong sell: {smci_percentile_rank} > {config.PERCENTILE_THRESHOLDS['strong_sell']} = {smci_percentile_rank > config.PERCENTILE_THRESHOLDS['strong_sell']}",
     )
     print(
-        f"  - Sell: {smci_percentile_rank} > {config.PERCENTILE_THRESHOLDS['sell']} = {smci_percentile_rank > config.PERCENTILE_THRESHOLDS['sell']}"
+        f"  - Sell: {smci_percentile_rank} > {config.PERCENTILE_THRESHOLDS['sell']} = {smci_percentile_rank > config.PERCENTILE_THRESHOLDS['sell']}",
     )
     print(
-        f"  - Hold: {smci_percentile_rank} <= {config.PERCENTILE_THRESHOLDS['hold']} = {smci_percentile_rank <= config.PERCENTILE_THRESHOLDS['hold']}"
+        f"  - Hold: {smci_percentile_rank} <= {config.PERCENTILE_THRESHOLDS['hold']} = {smci_percentile_rank <= config.PERCENTILE_THRESHOLDS['hold']}",
     )
 
     # Determine current signal
@@ -81,33 +81,33 @@ def analyze_signal_thresholds():
     print("\n=== ASSESSMENT INTERPRETATION ===")
     print("The assessment states:")
     print(
-        "  'SMCI_SMA_58_60: Return of 0.1297 > P70 threshold (0.1274) but marked HOLD instead of SELL'"
+        "  'SMCI_SMA_58_60: Return of 0.1297 > P70 threshold (0.1274) but marked HOLD instead of SELL'",
     )
     print()
     print("Two possible interpretations:")
     print(
-        "1. The system should generate SELL when value > P70 (not when percentile rank > 80)"
+        "1. The system should generate SELL when value > P70 (not when percentile rank > 80)",
     )
     print("2. The P70 threshold calculation or percentile ranking is incorrect")
     print()
     print("Analysis:")
     print(
-        f"  - SMCI value {smci_value:.6f} > P70 {p70_threshold:.6f}: {smci_value > p70_threshold}"
+        f"  - SMCI value {smci_value:.6f} > P70 {p70_threshold:.6f}: {smci_value > p70_threshold}",
     )
     print(
-        f"  - SMCI percentile rank {smci_percentile_rank:.2f} correctly places it between P70 and P75"
+        f"  - SMCI percentile rank {smci_percentile_rank:.2f} correctly places it between P70 and P75",
     )
     print("  - Current system requires rank > 80 for SELL, but SMCI is only at 70.91")
     print()
     print("CONCLUSION:")
     print(
-        "The bug is likely in the signal generation logic. If a value exceeds the P70 threshold,"
+        "The bug is likely in the signal generation logic. If a value exceeds the P70 threshold,",
     )
     print(
-        "it should generate a SELL signal regardless of the exact percentile rank calculation."
+        "it should generate a SELL signal regardless of the exact percentile rank calculation.",
     )
     print(
-        "The system should use value-based thresholds, not percentile-rank-based thresholds."
+        "The system should use value-based thresholds, not percentile-rank-based thresholds.",
     )
 
     return current_signal

@@ -37,7 +37,7 @@ class DataProcessor:
             # Create a default logger if none provided
             try:
                 self.log, _, _, _ = setup_logging(
-                    "data_processor", Path("./logs"), "data_processor.log"
+                    "data_processor", Path("./logs"), "data_processor.log",
                 )
             except Exception:
                 # Fallback to a simple print-based logger if setup fails
@@ -104,7 +104,8 @@ class DataProcessor:
             if isinstance(df, pl.DataFrame):
                 self.log("Processing in polars format", "debug")
                 return process_polars(df)
-            raise TypeError(f"Unsupported DataFrame type: {type(df)}")
+            msg = f"Unsupported DataFrame type: {type(df)}"
+            raise TypeError(msg)
         except Exception as e:
             self.log(f"Error in process_in_native_format: {e!s}", "error")
             # Return the original DataFrame on error
@@ -114,7 +115,7 @@ class DataProcessor:
         self,
         dfs: list[pd.DataFrame | pl.DataFrame],
         process_func: Callable[
-            [pd.DataFrame | pl.DataFrame], pd.DataFrame | pl.DataFrame
+            [pd.DataFrame | pl.DataFrame], pd.DataFrame | pl.DataFrame,
         ],
         batch_size: int = 10,
         parallel: bool = False,
@@ -152,8 +153,8 @@ class DataProcessor:
                             batch = dfs[i : i + batch_size]
                             futures.append(
                                 executor.submit(
-                                    self._process_batch, batch, process_func
-                                )
+                                    self._process_batch, batch, process_func,
+                                ),
                             )
 
                         # Collect results
@@ -184,7 +185,7 @@ class DataProcessor:
         self,
         batch: list[pd.DataFrame | pl.DataFrame],
         process_func: Callable[
-            [pd.DataFrame | pl.DataFrame], pd.DataFrame | pl.DataFrame
+            [pd.DataFrame | pl.DataFrame], pd.DataFrame | pl.DataFrame,
         ],
     ) -> list[pd.DataFrame | pl.DataFrame]:
         """Process a batch of DataFrames.
@@ -264,10 +265,10 @@ class DataProcessor:
             return self.process_in_native_format(
                 df,
                 lambda pandas_df: self._optimize_pandas_dataframe(
-                    pandas_df, categorical_threshold, date_columns
+                    pandas_df, categorical_threshold, date_columns,
                 ),
                 lambda polars_df: self._optimize_polars_dataframe(
-                    polars_df, categorical_threshold, date_columns
+                    polars_df, categorical_threshold, date_columns,
                 ),
             )
         except Exception as e:
@@ -471,7 +472,7 @@ class DataProcessor:
         try:
             # Validate DataFrame
             self.error_handler.validate_dataframe(
-                data, [signal_column, return_column], "Data for signal extraction"
+                data, [signal_column, return_column], "Data for signal extraction",
             )
 
             # Extract based on DataFrame type
@@ -493,7 +494,7 @@ class DataProcessor:
             return np.array([]), np.array([])
 
     def convert_hourly_to_4hour(
-        self, df: pd.DataFrame | pl.DataFrame, ticker: str | None = None
+        self, df: pd.DataFrame | pl.DataFrame, ticker: str | None = None,
     ) -> pd.DataFrame | pl.DataFrame:
         """Convert 1-hour OHLC data to 4-hour OHLC bars with market-aware logic.
 
@@ -523,7 +524,7 @@ class DataProcessor:
             return df
 
     def convert_hourly_to_4hour_market_aware(
-        self, df: pd.DataFrame | pl.DataFrame, market_type
+        self, df: pd.DataFrame | pl.DataFrame, market_type,
     ) -> pd.DataFrame | pl.DataFrame:
         """Convert 1-hour OHLC data to 4-hour OHLC bars with market-specific logic.
 
@@ -577,7 +578,8 @@ class DataProcessor:
         required_columns = ["Date", "Open", "High", "Low", "Close", "Volume"]
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
-            raise ValueError(f"Missing required columns: {missing_columns}")
+            msg = f"Missing required columns: {missing_columns}"
+            raise ValueError(msg)
 
         # Create a copy to avoid modifying the original
         result = df.copy()
@@ -598,7 +600,7 @@ class DataProcessor:
                     "Low": "min",  # Minimum value in the 4-hour period
                     "Close": "last",  # Last value in the 4-hour period
                     "Volume": "sum",  # Sum of volume in the 4-hour period
-                }
+                },
             )
             .dropna()
         )  # Remove any rows with NaN values
@@ -626,13 +628,14 @@ class DataProcessor:
         required_columns = ["Date", "Open", "High", "Low", "Close", "Volume"]
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
-            raise ValueError(f"Missing required columns: {missing_columns}")
+            msg = f"Missing required columns: {missing_columns}"
+            raise ValueError(msg)
 
         # Ensure Date column is datetime (handle both string and existing datetime types)
         try:
             # Try to convert from string first
             df_with_datetime = df.with_columns(
-                [pl.col("Date").str.to_datetime().alias("Date")]
+                [pl.col("Date").str.to_datetime().alias("Date")],
             )
         except Exception:
             # If that fails, assume it's already datetime and just use it as-is
@@ -640,7 +643,7 @@ class DataProcessor:
 
         # Create 4-hour groups by truncating datetime to 4-hour intervals
         df_grouped = df_with_datetime.with_columns(
-            [pl.col("Date").dt.truncate("4h").alias("Date_4H")]
+            [pl.col("Date").dt.truncate("4h").alias("Date_4H")],
         )
 
         # Group by 4-hour intervals and aggregate OHLC data
@@ -663,7 +666,7 @@ class DataProcessor:
                     pl.col("Volume")
                     .sum()
                     .alias("Volume"),  # Sum of volume in the 4-hour period
-                ]
+                ],
             )
             .select(
                 [
@@ -673,7 +676,7 @@ class DataProcessor:
                     pl.col("Low"),
                     pl.col("Close"),
                     pl.col("Volume"),
-                ]
+                ],
             )
             .sort("Date")
         )
@@ -701,7 +704,8 @@ class DataProcessor:
         required_columns = ["Date", "Open", "High", "Low", "Close", "Volume"]
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
-            raise ValueError(f"Missing required columns: {missing_columns}")
+            msg = f"Missing required columns: {missing_columns}"
+            raise ValueError(msg)
 
         # Create a copy to avoid modifying the original
         result = df.copy()
@@ -725,7 +729,7 @@ class DataProcessor:
                     "Low": "min",  # Minimum value in the period
                     "Close": "last",  # Last value in the period
                     "Volume": "sum",  # Sum of volume in the period
-                }
+                },
             )
             .dropna()
         )  # Remove any rows with NaN values
@@ -756,13 +760,14 @@ class DataProcessor:
         required_columns = ["Date", "Open", "High", "Low", "Close", "Volume"]
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
-            raise ValueError(f"Missing required columns: {missing_columns}")
+            msg = f"Missing required columns: {missing_columns}"
+            raise ValueError(msg)
 
         # Ensure Date column is datetime (handle both string and existing datetime types)
         try:
             # Try to convert from string first
             df_with_datetime = df.with_columns(
-                [pl.col("Date").str.to_datetime().alias("Date")]
+                [pl.col("Date").str.to_datetime().alias("Date")],
             )
         except Exception:
             # If that fails, assume it's already datetime and just use it as-is
@@ -770,13 +775,13 @@ class DataProcessor:
 
         # Convert to ET timezone for stock market alignment
         df_et = df_with_datetime.with_columns(
-            [pl.col("Date").dt.convert_time_zone("America/New_York").alias("Date")]
+            [pl.col("Date").dt.convert_time_zone("America/New_York").alias("Date")],
         )
 
         # Create 4-hour groups by truncating datetime to 4-hour intervals
         # This will create trading-session aligned bars
         df_grouped = df_et.with_columns(
-            [pl.col("Date").dt.truncate("4h").alias("Date_4H")]
+            [pl.col("Date").dt.truncate("4h").alias("Date_4H")],
         )
 
         # Group by 4-hour intervals and aggregate OHLC data
@@ -799,7 +804,7 @@ class DataProcessor:
                     pl.col("Volume")
                     .sum()
                     .alias("Volume"),  # Sum of volume in the 4-hour period
-                ]
+                ],
             )
             .select(
                 [
@@ -811,7 +816,7 @@ class DataProcessor:
                     pl.col("Low"),
                     pl.col("Close"),
                     pl.col("Volume"),
-                ]
+                ],
             )
             .sort("Date")
         )
@@ -827,7 +832,7 @@ class DataProcessor:
         return four_hour_data
 
     def convert_daily_to_2day(
-        self, df: pd.DataFrame | pl.DataFrame, ticker: str | None = None
+        self, df: pd.DataFrame | pl.DataFrame, ticker: str | None = None,
     ) -> pd.DataFrame | pl.DataFrame:
         """Convert daily OHLC data to 2-day OHLC bars with market-aware logic.
 
@@ -857,7 +862,7 @@ class DataProcessor:
             return df
 
     def convert_daily_to_2day_market_aware(
-        self, df: pd.DataFrame | pl.DataFrame, market_type
+        self, df: pd.DataFrame | pl.DataFrame, market_type,
     ) -> pd.DataFrame | pl.DataFrame:
         """Convert daily OHLC data to 2-day OHLC bars with market-specific logic.
 
@@ -908,7 +913,8 @@ class DataProcessor:
         required_columns = ["Date", "Open", "High", "Low", "Close", "Volume"]
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
-            raise ValueError(f"Missing required columns: {missing_columns}")
+            msg = f"Missing required columns: {missing_columns}"
+            raise ValueError(msg)
 
         # Create a copy to avoid modifying the original
         result = df.copy()
@@ -929,7 +935,7 @@ class DataProcessor:
                     "Low": "min",  # Minimum value in the 2-day period
                     "Close": "last",  # Last value in the 2-day period
                     "Volume": "sum",  # Sum of volume in the 2-day period
-                }
+                },
             )
             .dropna()
         )  # Remove any rows with NaN values
@@ -957,13 +963,14 @@ class DataProcessor:
         required_columns = ["Date", "Open", "High", "Low", "Close", "Volume"]
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
-            raise ValueError(f"Missing required columns: {missing_columns}")
+            msg = f"Missing required columns: {missing_columns}"
+            raise ValueError(msg)
 
         # Ensure Date column is datetime (handle both string and existing datetime types)
         try:
             # Try to convert from string first
             df_with_datetime = df.with_columns(
-                [pl.col("Date").str.to_datetime().alias("Date")]
+                [pl.col("Date").str.to_datetime().alias("Date")],
             )
         except Exception:
             # If that fails, assume it's already datetime and just use it as-is
@@ -971,7 +978,7 @@ class DataProcessor:
 
         # Create 2-day groups by truncating datetime to 2-day intervals
         df_grouped = df_with_datetime.with_columns(
-            [pl.col("Date").dt.truncate("2d").alias("Date_2D")]
+            [pl.col("Date").dt.truncate("2d").alias("Date_2D")],
         )
 
         # Group by 2-day intervals and aggregate OHLC data
@@ -994,7 +1001,7 @@ class DataProcessor:
                     pl.col("Volume")
                     .sum()
                     .alias("Volume"),  # Sum of volume in the 2-day period
-                ]
+                ],
             )
             .select(
                 [
@@ -1004,7 +1011,7 @@ class DataProcessor:
                     pl.col("Low"),
                     pl.col("Close"),
                     pl.col("Volume"),
-                ]
+                ],
             )
             .sort("Date")
         )
@@ -1032,7 +1039,8 @@ class DataProcessor:
         required_columns = ["Date", "Open", "High", "Low", "Close", "Volume"]
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
-            raise ValueError(f"Missing required columns: {missing_columns}")
+            msg = f"Missing required columns: {missing_columns}"
+            raise ValueError(msg)
 
         # Create a copy to avoid modifying the original
         result = df.copy()
@@ -1053,7 +1061,7 @@ class DataProcessor:
                     "Low": "min",  # Minimum value in the 2-business-day period
                     "Close": "last",  # Last value in the 2-business-day period
                     "Volume": "sum",  # Sum of volume in the 2-business-day period
-                }
+                },
             )
             .dropna()
         )  # Remove any rows with NaN values
@@ -1081,12 +1089,13 @@ class DataProcessor:
         required_columns = ["Date", "Open", "High", "Low", "Close", "Volume"]
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
-            raise ValueError(f"Missing required columns: {missing_columns}")
+            msg = f"Missing required columns: {missing_columns}"
+            raise ValueError(msg)
 
         # Ensure Date column is datetime
         try:
             df_with_datetime = df.with_columns(
-                [pl.col("Date").str.to_datetime().alias("Date")]
+                [pl.col("Date").str.to_datetime().alias("Date")],
             )
         except Exception:
             df_with_datetime = df
@@ -1095,18 +1104,18 @@ class DataProcessor:
         # and then create 2-day groups based on business day sequence
         df_weekdays = df_with_datetime.filter(
             pl.col("Date").dt.weekday()
-            < 6  # Monday=1, Sunday=7, so <6 excludes weekends
+            < 6,  # Monday=1, Sunday=7, so <6 excludes weekends
         )
 
         # Create groups of every 2 business days
         # We'll use a custom grouping approach since polars doesn't have direct 2B support
         df_with_business_day_rank = df_weekdays.with_columns(
-            [pl.col("Date").rank("ordinal").alias("business_day_rank")]
+            [pl.col("Date").rank("ordinal").alias("business_day_rank")],
         )
 
         # Create groups of 2 business days
         df_grouped = df_with_business_day_rank.with_columns(
-            [((pl.col("business_day_rank") - 1) // 2).alias("group_id")]
+            [((pl.col("business_day_rank") - 1) // 2).alias("group_id")],
         )
 
         # Group by 2-business-day intervals and aggregate OHLC data
@@ -1130,7 +1139,7 @@ class DataProcessor:
                     pl.col("Volume")
                     .sum()
                     .alias("Volume"),  # Sum of volume in the 2-business-day period
-                ]
+                ],
             )
             .select(
                 [
@@ -1140,7 +1149,7 @@ class DataProcessor:
                     pl.col("Low"),
                     pl.col("Close"),
                     pl.col("Volume"),
-                ]
+                ],
             )
             .sort("Date")
         )
@@ -1156,7 +1165,7 @@ class DataProcessor:
         return two_day_data
 
     def time_operation(
-        self, operation: Callable[..., T], *args, **kwargs
+        self, operation: Callable[..., T], *args, **kwargs,
     ) -> tuple[T, float]:
         """Time the execution of an operation.
 
@@ -1174,7 +1183,7 @@ class DataProcessor:
         execution_time = end_time - start_time
 
         self.log(
-            f"Operation {operation.__name__} took {execution_time:.4f} seconds", "info"
+            f"Operation {operation.__name__} took {execution_time:.4f} seconds", "info",
         )
 
         return result, execution_time
@@ -1184,7 +1193,7 @@ class DataProcessor:
 
 
 def ensure_polars(
-    df: pd.DataFrame | pl.DataFrame, log: Callable | None | None = None
+    df: pd.DataFrame | pl.DataFrame, log: Callable | None | None = None,
 ) -> pl.DataFrame:
     """Ensure a DataFrame is a polars DataFrame.
 
@@ -1200,7 +1209,7 @@ def ensure_polars(
 
 
 def ensure_pandas(
-    df: pd.DataFrame | pl.DataFrame, log: Callable | None | None = None
+    df: pd.DataFrame | pl.DataFrame, log: Callable | None | None = None,
 ) -> pd.DataFrame:
     """Ensure a DataFrame is a pandas DataFrame.
 
@@ -1216,7 +1225,7 @@ def ensure_pandas(
 
 
 def optimize_dataframe(
-    df: pd.DataFrame | pl.DataFrame, log: Callable | None | None = None
+    df: pd.DataFrame | pl.DataFrame, log: Callable | None | None = None,
 ) -> pd.DataFrame | pl.DataFrame:
     """Optimize a DataFrame for memory usage.
 

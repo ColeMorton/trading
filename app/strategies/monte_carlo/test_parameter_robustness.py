@@ -55,7 +55,7 @@ def test_basic_parameter_robustness():
     print("- Ticker: BTC-USD")
     print(f"- Monte Carlo simulations: {mc_config.num_simulations}")
     print(
-        f"- Parameter combinations: {len(parameter_ranges['short_windows']) * len(parameter_ranges['long_windows'])}"
+        f"- Parameter combinations: {len(parameter_ranges['short_windows']) * len(parameter_ranges['long_windows'])}",
     )
     print(f"- Data period: {test_config['YEARS']} years")
     print(f"- Strategy type: {test_config['STRATEGY_TYPE']}")
@@ -75,7 +75,7 @@ def test_basic_parameter_robustness():
             btc_results = results["BTC-USD"]
             print("\nAnalysis completed successfully!")
             print(
-                f"Results for BTC-USD: {len(btc_results)} parameter combinations tested"
+                f"Results for BTC-USD: {len(btc_results)} parameter combinations tested",
             )
 
             # Display summary statistics
@@ -89,7 +89,7 @@ def test_basic_parameter_robustness():
 
             # Show top 3 most stable combinations
             sorted_results = sorted(
-                btc_results, key=lambda x: x.stability_score, reverse=True
+                btc_results, key=lambda x: x.stability_score, reverse=True,
             )
 
             print("\nTop 3 Most Stable Parameter Combinations:")
@@ -101,13 +101,13 @@ def test_basic_parameter_robustness():
                 print(f"   Parameter Robustness: {result.parameter_robustness:.3f}")
                 print(f"   Regime Consistency: {result.regime_consistency:.3f}")
                 print(
-                    f"   Base Sharpe Ratio: {result.base_performance.get('Sharpe Ratio', 0):.3f}"
+                    f"   Base Sharpe Ratio: {result.base_performance.get('Sharpe Ratio', 0):.3f}",
                 )
 
                 if result.performance_mean.get("Sharpe Ratio"):
                     ci = result.confidence_intervals.get("Sharpe Ratio", (0, 0))
                     print(
-                        f"   MC Mean Sharpe: {result.performance_mean['Sharpe Ratio']:.3f}"
+                        f"   MC Mean Sharpe: {result.performance_mean['Sharpe Ratio']:.3f}",
                     )
                     print(f"   Sharpe 95% CI: [{ci[0]:.3f}, {ci[1]:.3f}]")
                 print()
@@ -118,16 +118,16 @@ def test_basic_parameter_robustness():
 
             # Create stability heatmap
             visualizer.create_stability_heatmap(
-                btc_results, "BTC-USD", "stability_score"
+                btc_results, "BTC-USD", "stability_score",
             )
             visualizer.create_confidence_interval_plot(
-                btc_results, "BTC-USD", "Sharpe Ratio"
+                btc_results, "BTC-USD", "Sharpe Ratio",
             )
 
             # Create distribution plot for best parameter combination
             if sorted_results:
                 visualizer.create_performance_distribution_plot(
-                    sorted_results[0], "BTC-USD_best", "Sharpe Ratio"
+                    sorted_results[0], "BTC-USD_best", "Sharpe Ratio",
                 )
 
             print("Visualizations saved to: png/monte_carlo/test_results/")
@@ -164,7 +164,7 @@ def test_visualization_only():
             )
 
             visualize_monte_carlo_results(
-                results_file, "png/monte_carlo/test_visualizations"
+                results_file, "png/monte_carlo/test_visualizations",
             )
 
             print("Visualization test completed!")
@@ -198,12 +198,12 @@ def main():
 
     if success1 and success2:
         print(
-            "\nAll tests passed! The Monte Carlo parameter robustness system is working correctly."
+            "\nAll tests passed! The Monte Carlo parameter robustness system is working correctly.",
         )
         print("\nNext steps:")
         print("1. Review the generated visualizations in png/monte_carlo/test_results/")
         print(
-            "2. Check the detailed results in data/raw/monte_carlo/parameter_robustness_1_tickers/"
+            "2. Check the detailed results in data/raw/monte_carlo/parameter_robustness_1_tickers/",
         )
         print("3. Use the integration script for full pipeline testing")
     else:

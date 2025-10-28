@@ -101,7 +101,7 @@ class TestPhase5ComprehensiveValidation:
                 "Signal Count": 50,
                 "Position Count": 25,
                 "Total Period": 200.0,
-            }
+            },
         ]
 
     def test_canonical_schema_constants_integrity(self):
@@ -137,7 +137,7 @@ class TestPhase5ComprehensiveValidation:
             ), f"Critical column '{col}' missing from canonical schema"
 
     def test_core_export_infrastructure_compliance(
-        self, sample_canonical_data, mock_log, tmp_path
+        self, sample_canonical_data, mock_log, tmp_path,
     ):
         """Test that core export infrastructure maintains schema compliance."""
         from app.tools.export_csv import export_csv
@@ -195,7 +195,7 @@ class TestPhase5ComprehensiveValidation:
 
         # Mock the strategy execution to return our sample data
         with patch(
-            "app.strategies.ma_cross.tools.strategy_execution.execute_strategy"
+            "app.strategies.ma_cross.tools.strategy_execution.execute_strategy",
         ) as mock_execute:
             mock_execute.return_value = sample_canonical_data
 
@@ -204,7 +204,7 @@ class TestPhase5ComprehensiveValidation:
 
                 # Create and execute request
                 request = MACrossRequest(
-                    ticker="BTC-USD", strategy_types=["EMA"], windows=50
+                    ticker="BTC-USD", strategy_types=["EMA"], windows=50,
                 )
 
                 # Test async version
@@ -234,7 +234,7 @@ class TestPhase5ComprehensiveValidation:
                             assert headers == CANONICAL_COLUMN_NAMES
 
     def test_strategy_export_compliance(
-        self, sample_canonical_data, mock_log, tmp_path
+        self, sample_canonical_data, mock_log, tmp_path,
     ):
         """Test that all strategy export functions maintain compliance."""
         strategy_modules = [
@@ -261,7 +261,7 @@ class TestPhase5ComprehensiveValidation:
 
                 # Test that the module has the required functions
                 assert hasattr(
-                    module, "export_portfolios"
+                    module, "export_portfolios",
                 ), f"Missing export_portfolios in {module_name}"
 
                 # Test enrichment function if it exists
@@ -273,7 +273,7 @@ class TestPhase5ComprehensiveValidation:
                 if hasattr(module, enrichment_func_name):
                     enrichment_func = getattr(module, enrichment_func_name)
                     enriched_data = enrichment_func(
-                        sample_canonical_data, config, mock_log
+                        sample_canonical_data, config, mock_log,
                     )
 
                     # Verify enriched data maintains canonical structure
@@ -296,7 +296,7 @@ class TestPhase5ComprehensiveValidation:
             except ImportError as e:
                 # Module might have dependencies not available in test environment
                 mock_log(
-                    f"Could not test {module_name} due to import error: {e}", "warning"
+                    f"Could not test {module_name} due to import error: {e}", "warning",
                 )
 
     def test_schema_validation_module_integrity(self):
@@ -307,7 +307,7 @@ class TestPhase5ComprehensiveValidation:
 
         # Test with compliant data
         compliant_data = pd.DataFrame(
-            [{col: "test_value" for col in CANONICAL_COLUMN_NAMES}]
+            [{col: "test_value" for col in CANONICAL_COLUMN_NAMES}],
         )
         result = validate_dataframe_schema(compliant_data, strict=False)
 
@@ -318,7 +318,7 @@ class TestPhase5ComprehensiveValidation:
 
         # Test with non-compliant data
         non_compliant_data = pd.DataFrame(
-            [{"Invalid_Column": "test", "Another_Invalid": "test"}]
+            [{"Invalid_Column": "test", "Another_Invalid": "test"}],
         )
         result = validate_dataframe_schema(non_compliant_data, strict=False)
 
@@ -333,7 +333,7 @@ class TestPhase5ComprehensiveValidation:
 
         # Test with minimal data
         minimal_data = [
-            {"Ticker": "BTC-USD", "Total Return [%]": 50.0, "Sharpe Ratio": 1.5}
+            {"Ticker": "BTC-USD", "Total Return [%]": 50.0, "Sharpe Ratio": 1.5},
         ]
 
         normalized_data = normalize_portfolio_data(minimal_data, log=mock_log)
@@ -427,7 +427,7 @@ class TestPhase5ComprehensiveValidation:
                     "Total Return [%]": 50.0 + len(strategy_name),  # Vary by strategy
                     "Sharpe Ratio": 1.0 + (len(strategy_name) * 0.1),
                     **strategy_data,
-                }
+                },
             )
             aggregated_data.append(row)
 
@@ -475,7 +475,7 @@ class TestPhase5ComprehensiveValidation:
         # Step 2: Export processing
         config = {"BASE_DIR": str(tmp_path), "TICKER": "BTC-USD"}
         df, success = export_csv(
-            data=normalized_data, feature1="strategies", config=config, log=mock_log
+            data=normalized_data, feature1="strategies", config=config, log=mock_log,
         )
 
         assert success, "Complete pipeline should succeed"
@@ -501,7 +501,7 @@ class TestPhase5ComprehensiveValidation:
             assert float(first_row["Total Return [%]"]) == 82.35
 
     def test_performance_regression_check(
-        self, sample_canonical_data, mock_log, tmp_path
+        self, sample_canonical_data, mock_log, tmp_path,
     ):
         """Basic performance regression test for export operations."""
         import time
@@ -515,7 +515,7 @@ class TestPhase5ComprehensiveValidation:
 
         start_time = time.time()
         df, success = export_csv(
-            data=large_dataset, feature1="portfolios_best", config=config, log=mock_log
+            data=large_dataset, feature1="portfolios_best", config=config, log=mock_log,
         )
         end_time = time.time()
 

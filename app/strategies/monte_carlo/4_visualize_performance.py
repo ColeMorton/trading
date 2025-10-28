@@ -31,8 +31,8 @@ def visualize_performance(csv_file):
     plt.ylabel("Frequency")
     plt.savefig(
         os.path.join(
-            BASE_DIR, f"png/monte_carlo/max_drawdown_distribution/{TICKER}.png"
-        )
+            BASE_DIR, f"png/monte_carlo/max_drawdown_distribution/{TICKER}.png",
+        ),
     )
     plt.close()
 
@@ -46,8 +46,8 @@ def visualize_performance(csv_file):
     plt.ylabel("Cumulative Probability")
     plt.savefig(
         os.path.join(
-            BASE_DIR, f"png/monte_carlo/returns_cumulative_distribution/{TICKER}.png"
-        )
+            BASE_DIR, f"png/monte_carlo/returns_cumulative_distribution/{TICKER}.png",
+        ),
     )
     plt.close()
 
@@ -59,8 +59,8 @@ def visualize_performance(csv_file):
     plt.ylabel("Frequency")
     plt.savefig(
         os.path.join(
-            BASE_DIR, f"png/monte_carlo/sharpe_ratio_distribution/{TICKER}.png"
-        )
+            BASE_DIR, f"png/monte_carlo/sharpe_ratio_distribution/{TICKER}.png",
+        ),
     )
     plt.close()
 
@@ -70,13 +70,13 @@ def visualize_performance(csv_file):
     # Calculate the kernel density estimation
     kde = stats.gaussian_kde(final_portfolio_values)
     x_range = np.linspace(
-        min(final_portfolio_values), max(final_portfolio_values), 1000
+        min(final_portfolio_values), max(final_portfolio_values), 1000,
     )
     kde_values = kde(x_range)
 
     # Plot histogram
     plt.hist(
-        final_portfolio_values, bins=50, edgecolor="black", density=True, alpha=0.7
+        final_portfolio_values, bins=50, edgecolor="black", density=True, alpha=0.7,
     )
 
     # Plot KDE
@@ -89,7 +89,7 @@ def visualize_performance(csv_file):
 
     # Format x-axis labels
     plt.gca().xaxis.set_major_formatter(
-        plt.FuncFormatter(lambda x, p: format(int(x), ","))
+        plt.FuncFormatter(lambda x, p: format(int(x), ",")),
     )
 
     plt.axvline(
@@ -103,14 +103,14 @@ def visualize_performance(csv_file):
     plt.tight_layout()
     plt.savefig(
         os.path.join(
-            BASE_DIR, f"png/monte_carlo/final_portfolio_value_distribution/{TICKER}.png"
-        )
+            BASE_DIR, f"png/monte_carlo/final_portfolio_value_distribution/{TICKER}.png",
+        ),
     )
     plt.close()
 
 
 if __name__ == "__main__":
     visualize_performance(
-        os.path.join(BASE_DIR, f"data/outputs/monte_carlo/{TICKER}_performance.csv")
+        os.path.join(BASE_DIR, f"data/outputs/monte_carlo/{TICKER}_performance.csv"),
     )
     print("Visualization complete. Check the output directory for the generated plots.")

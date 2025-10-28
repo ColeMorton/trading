@@ -29,18 +29,18 @@ class ProfileMetadata(BaseModel):
     name: str = Field(description="Profile name")
     description: str | None = Field(default=None, description="Profile description")
     created_at: datetime = Field(
-        default_factory=datetime.now, description="Creation timestamp"
+        default_factory=datetime.now, description="Creation timestamp",
     )
     updated_at: datetime = Field(
-        default_factory=datetime.now, description="Last update timestamp"
+        default_factory=datetime.now, description="Last update timestamp",
     )
     version: str = Field(default="1.0", description="Profile version")
     tags: list[str] = Field(
-        default_factory=list, description="Profile tags for organization"
+        default_factory=list, description="Profile tags for organization",
     )
     author: str | None = Field(default=None, description="Profile author")
     is_template: bool = Field(
-        default=False, description="Whether this is a base template profile"
+        default=False, description="Whether this is a base template profile",
     )
 
 
@@ -50,7 +50,7 @@ class Profile(BaseModel):
     metadata: ProfileMetadata = Field(description="Profile metadata")
     inherits_from: str | None = Field(default=None, description="Parent profile name")
     config_type: str = Field(
-        description="Type of configuration (strategy, portfolio, concurrency)"
+        description="Type of configuration (strategy, portfolio, concurrency)",
     )
     config: dict[str, Any] = Field(description="Configuration data")
 
@@ -71,7 +71,8 @@ class Profile(BaseModel):
             "spds",
         }
         if v not in valid_types:
-            raise ValueError(f"Config type must be one of: {', '.join(valid_types)}")
+            msg = f"Config type must be one of: {', '.join(valid_types)}"
+            raise ValueError(msg)
         return v
 
     def get_config_model(self) -> BaseModel:
@@ -114,11 +115,11 @@ class Profile(BaseModel):
         if "metadata" in data:
             if "created_at" in data["metadata"]:
                 data["metadata"]["created_at"] = datetime.fromisoformat(
-                    data["metadata"]["created_at"]
+                    data["metadata"]["created_at"],
                 )
             if "updated_at" in data["metadata"]:
                 data["metadata"]["updated_at"] = datetime.fromisoformat(
-                    data["metadata"]["updated_at"]
+                    data["metadata"]["updated_at"],
                 )
 
         return cls(**data)
@@ -136,13 +137,13 @@ class ProfileConfig(BaseModel):
         description="Directory containing profile files",
     )
     default_profile: str | None = Field(
-        default=None, description="Default profile name to use"
+        default=None, description="Default profile name to use",
     )
     auto_save: bool = Field(
-        default=True, description="Automatically save profile changes"
+        default=True, description="Automatically save profile changes",
     )
     backup_count: int = Field(
-        default=5, ge=0, description="Number of backup copies to keep"
+        default=5, ge=0, description="Number of backup copies to keep",
     )
 
     @field_validator("profiles_dir", mode="before")

@@ -105,15 +105,15 @@ class PositionSizingPortfolioIntegration:
         kelly_value = manual_data.get("kelly_criterion_value", 0.25)
 
         confidence_metrics = self.kelly_sizer.calculate_confidence_metrics(
-            num_primary, num_outliers
+            num_primary, num_outliers,
         )
         kelly_position = self.kelly_sizer.calculate_kelly_position(
-            num_primary, num_outliers, kelly_value
+            num_primary, num_outliers, kelly_value,
         )
 
         # Get risk allocation
         risk_allocation = self.risk_allocator.calculate_excel_b5_equivalent(
-            net_worth_calc.total_net_worth
+            net_worth_calc.total_net_worth,
         )
 
         # Get price data
@@ -125,7 +125,7 @@ class PositionSizingPortfolioIntegration:
         # Get allocation optimization
         try:
             allocations = self.allocation_optimizer.calculate_max_allocation_percentage(
-                [ticker]
+                [ticker],
             )
             max_allocation = allocations.get(ticker, 0.0)
 
@@ -173,7 +173,7 @@ class PositionSizingPortfolioIntegration:
         portfolio_summary = self.dual_portfolio.calculate_portfolio_summary()
 
         # Construct complete row
-        row = PositionSizingPortfolioRow(
+        return PositionSizingPortfolioRow(
             # Base portfolio fields
             ticker=ticker,
             strategy_type=strategy_type,
@@ -226,7 +226,6 @@ class PositionSizingPortfolioIntegration:
             Sortino_Weight=sortino_weight,
         )
 
-        return row
 
     def create_position_sizing_portfolio(
         self,
@@ -280,7 +279,7 @@ class PositionSizingPortfolioIntegration:
         return output_path
 
     def validate_position_sizing_data(
-        self, row_data: dict[str, Any]
+        self, row_data: dict[str, Any],
     ) -> tuple[bool, dict[str, Any]]:
         """Validate position sizing data against schema and Excel formulas.
 
@@ -334,7 +333,7 @@ class PositionSizingPortfolioIntegration:
         # Import account balances
         if "account_balances" in excel_data:
             self.balance_service.update_multiple_balances(
-                excel_data["account_balances"]
+                excel_data["account_balances"],
             )
 
         # Import position data
@@ -361,7 +360,7 @@ class PositionSizingPortfolioIntegration:
         # Import portfolio holdings
         if "portfolio_holdings" in excel_data:
             self.dual_portfolio.import_portfolio_from_dict(
-                excel_data["portfolio_holdings"]
+                excel_data["portfolio_holdings"],
             )
 
     def get_comprehensive_portfolio_summary(self) -> dict[str, Any]:
@@ -374,7 +373,7 @@ class PositionSizingPortfolioIntegration:
         net_worth_summary = self.balance_service.get_account_summary()
         position_summary = self.position_tracker.calculate_position_summary()
         drawdown_summary = self.drawdown_calculator.calculate_drawdown_summary(
-            net_worth_summary["net_worth"]["total"]
+            net_worth_summary["net_worth"]["total"],
         )
         strategies_summary = self.strategies_integration.get_comprehensive_summary()
         portfolio_summary = self.dual_portfolio.calculate_portfolio_summary()
@@ -430,7 +429,7 @@ class PositionSizingPortfolioIntegration:
         df = self.create_position_sizing_portfolio(tickers)
 
         # Convert to Excel-friendly format
-        excel_data = {
+        return {
             "portfolio_data": df.to_dicts(),
             "summary": self.get_comprehensive_portfolio_summary(),
             "manual_entry_template": {
@@ -451,10 +450,9 @@ class PositionSizingPortfolioIntegration:
             },
         }
 
-        return excel_data
 
     def save_excel_compatible_export(
-        self, tickers: list[str], output_path: str | None = None
+        self, tickers: list[str], output_path: str | None = None,
     ) -> str:
         """Save Excel-compatible export to JSON file.
 
@@ -470,7 +468,7 @@ class PositionSizingPortfolioIntegration:
             output_dir.mkdir(parents=True, exist_ok=True)
             timestamp = datetime.now().strftime("%Y%m%d_%H%M")
             output_path = str(
-                output_dir / f"position_sizing_excel_export_{timestamp}.json"
+                output_dir / f"position_sizing_excel_export_{timestamp}.json",
             )
 
         excel_data = self.generate_excel_compatible_export(tickers)

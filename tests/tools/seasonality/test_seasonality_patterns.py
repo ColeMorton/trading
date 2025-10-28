@@ -458,7 +458,7 @@ class TestPatternAnalysisIntegration:
 
         # Run with detrending
         patterns_detrended = analyzer.analyze_all_patterns(
-            standard_5yr_data, detrend=True
+            standard_5yr_data, detrend=True,
         )
 
         # Run without detrending
@@ -480,7 +480,7 @@ class TestPatternAnalysisIntegration:
 
         # Empty dataframe
         empty_data = pd.DataFrame(
-            {"Date": pd.DatetimeIndex([]), "Close": []}
+            {"Date": pd.DatetimeIndex([]), "Close": []},
         ).set_index("Date")
 
         patterns = analyzer.analyze_all_patterns(empty_data, detrend=False)
@@ -495,13 +495,13 @@ class TestPatternAnalysisIntegration:
         # High min_sample_size should filter out more patterns
         analyzer_strict = SeasonalityAnalyzer(min_sample_size=100)
         patterns_strict = analyzer_strict.analyze_all_patterns(
-            standard_5yr_data, detrend=False
+            standard_5yr_data, detrend=False,
         )
 
         # Low min_sample_size should allow more patterns
         analyzer_lenient = SeasonalityAnalyzer(min_sample_size=5)
         patterns_lenient = analyzer_lenient.analyze_all_patterns(
-            standard_5yr_data, detrend=False
+            standard_5yr_data, detrend=False,
         )
 
         # Lenient should have >= strict

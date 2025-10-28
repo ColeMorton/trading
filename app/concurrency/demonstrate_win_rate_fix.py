@@ -45,14 +45,14 @@ def demonstrate_discrepancy_fix():
             -0.003,
             0.004,
             -0.007,  # Trade 2: net -1.6%
-        ]
+        ],
     )
 
     signals = np.array([1, 1, 1, 0, -1, -1, -1, 0])  # Signals active during trades
 
     # Calculate using different methods
     signal_result = calc.calculate_signal_win_rate(
-        returns, signals, include_zeros=False
+        returns, signals, include_zeros=False,
     )
     trade_result = calc.calculate_trade_win_rate(returns, include_zeros=False)
     legacy_rate = calc.calculate_legacy_win_rate(returns)
@@ -63,7 +63,7 @@ def demonstrate_discrepancy_fix():
     print(f"Trade-based Win Rate:  {trade_result.win_rate:.3%}")
     print(f"Legacy Win Rate:       {legacy_rate:.3%}")
     print(
-        f"Discrepancy (Signal vs Trade): {abs(signal_result.win_rate - trade_result.win_rate):.3%}"
+        f"Discrepancy (Signal vs Trade): {abs(signal_result.win_rate - trade_result.win_rate):.3%}",
     )
 
 
@@ -76,31 +76,31 @@ def demonstrate_zero_handling():
 
     # Returns with zero values
     returns_with_zeros = np.array(
-        [0.02, 0.0, 0.015, 0.0, -0.005, 0.01, -0.02, 0.0, 0.005, -0.01]
+        [0.02, 0.0, 0.015, 0.0, -0.005, 0.01, -0.02, 0.0, 0.005, -0.01],
     )
     signals_with_zeros = np.array([1, 0, -1, 0, -1, 1, 1, 0, 1, -1])
 
     # Compare different zero handling approaches
     exclude_zeros = calc.calculate_trade_win_rate(
-        returns_with_zeros, include_zeros=False
+        returns_with_zeros, include_zeros=False,
     )
     include_zeros = calc.calculate_trade_win_rate(
-        returns_with_zeros, include_zeros=True
+        returns_with_zeros, include_zeros=True,
     )
     signal_based = calc.calculate_signal_win_rate(
-        returns_with_zeros, signals_with_zeros, include_zeros=False
+        returns_with_zeros, signals_with_zeros, include_zeros=False,
     )
 
     print(f"Returns: {[f'{r:.3f}' for r in returns_with_zeros]}")
     print(f"Signals: {signals_with_zeros.tolist()}")
     print(
-        f"\nExclude Zeros - Wins: {exclude_zeros.wins}, Losses: {exclude_zeros.losses}, Rate: {exclude_zeros.win_rate:.3%}"
+        f"\nExclude Zeros - Wins: {exclude_zeros.wins}, Losses: {exclude_zeros.losses}, Rate: {exclude_zeros.win_rate:.3%}",
     )
     print(
-        f"Include Zeros - Wins: {include_zeros.wins}, Losses: {include_zeros.losses}, Rate: {include_zeros.win_rate:.3%}"
+        f"Include Zeros - Wins: {include_zeros.wins}, Losses: {include_zeros.losses}, Rate: {include_zeros.win_rate:.3%}",
     )
     print(
-        f"Signal-based  - Wins: {signal_based.wins}, Losses: {signal_based.losses}, Rate: {signal_based.win_rate:.3%}"
+        f"Signal-based  - Wins: {signal_based.wins}, Losses: {signal_based.losses}, Rate: {signal_based.win_rate:.3%}",
     )
     print(f"Zero Returns Found: {exclude_zeros.zero_returns}")
 
@@ -120,7 +120,7 @@ def demonstrate_real_portfolio():
         [
             np.random.normal(0.005, 0.002, 70),  # 70 small wins
             np.random.normal(-0.015, 0.005, 30),  # 30 larger losses
-        ]
+        ],
     )
     np.random.shuffle(strategy_a_returns)
 
@@ -129,7 +129,7 @@ def demonstrate_real_portfolio():
         [
             np.random.normal(0.025, 0.008, 40),  # 40 larger wins
             np.random.normal(-0.005, 0.002, 60),  # 60 small losses
-        ]
+        ],
     )
     np.random.shuffle(strategy_b_returns)
 
@@ -159,7 +159,7 @@ def demonstrate_comparison_methods():
 
     # Mixed scenario with signals and trades
     returns = np.array(
-        [0.02, -0.01, 0.015, 0.0, -0.005, 0.01, -0.02, 0.025, 0.005, -0.008]
+        [0.02, -0.01, 0.015, 0.0, -0.005, 0.01, -0.02, 0.025, 0.005, -0.008],
     )
     signals = np.array([1, 1, -1, 0, -1, 1, 1, -1, 1, -1])
 
@@ -172,7 +172,7 @@ def demonstrate_comparison_methods():
 
     for method, result in comparisons.items():
         print(
-            f"{method:<20} {result.wins:<5} {result.losses:<7} {result.total:<5} {result.win_rate:<10.3%}"
+            f"{method:<20} {result.wins:<5} {result.losses:<7} {result.total:<5} {result.win_rate:<10.3%}",
         )
 
 

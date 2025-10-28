@@ -53,7 +53,7 @@ def convert_signals_to_positions(
         if direction == "Long":
             # For long positions, only enter when RSI >= threshold
             data_pd.loc[
-                (data_pd["Signal"] != 0) & (data_pd["RSI"] < rsi_threshold), "Signal"
+                (data_pd["Signal"] != 0) & (data_pd["RSI"] < rsi_threshold), "Signal",
             ] = 0
         else:
             # For short positions, only enter when RSI <= (100 - threshold)

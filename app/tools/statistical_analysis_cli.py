@@ -33,7 +33,7 @@ from typing import Any
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -84,7 +84,7 @@ Examples:
             help="Show current configuration",
         )
         operation_group.add_argument(
-            "--interactive", "-i", action="store_true", help="Interactive mode"
+            "--interactive", "-i", action="store_true", help="Interactive mode",
         )
         operation_group.add_argument(
             "--list-portfolios",
@@ -96,7 +96,7 @@ Examples:
         # Analysis options
         analysis_group = parser.add_argument_group("Analysis Options")
         analysis_group.add_argument(
-            "--trade-history", action="store_true", help="Use trade history data"
+            "--trade-history", action="store_true", help="Use trade history data",
         )
         analysis_group.add_argument(
             "--no-trade-history",
@@ -110,7 +110,7 @@ Examples:
             help="Output format (default: table)",
         )
         analysis_group.add_argument(
-            "--save-results", type=str, help="Save results to file (JSON format)"
+            "--save-results", type=str, help="Save results to file (JSON format)",
         )
         analysis_group.add_argument(
             "--export-backtesting-parameters",
@@ -148,10 +148,10 @@ Examples:
         # Utility options
         util_group = parser.add_argument_group("Utility Options")
         util_group.add_argument(
-            "--verbose", "-v", action="store_true", help="Verbose output"
+            "--verbose", "-v", action="store_true", help="Verbose output",
         )
         util_group.add_argument(
-            "--quiet", "-q", action="store_true", help="Quiet mode (errors only)"
+            "--quiet", "-q", action="store_true", help="Quiet mode (errors only)",
         )
         util_group.add_argument(
             "--demo",
@@ -190,7 +190,7 @@ Examples:
             print("\n⚠️  Operation cancelled by user")
             return 1
         except Exception as e:
-            logger.error(f"Application error: {e}")
+            logger.exception(f"Application error: {e}")
             if parsed_args.verbose:
                 import traceback
 
@@ -213,7 +213,7 @@ Examples:
 
         print(f"📊 Analyzing Portfolio: {portfolio}")
         print(
-            f"   Data Source: {'Trade History' if use_trade_history else 'Equity Curves'}"
+            f"   Data Source: {'Trade History' if use_trade_history else 'Equity Curves'}",
         )
         print("-" * 60)
 
@@ -264,7 +264,7 @@ Examples:
             return 1
 
     def _create_config_from_args(
-        self, args, portfolio: str, use_trade_history: bool
+        self, args, portfolio: str, use_trade_history: bool,
     ) -> StatisticalAnalysisConfig:
         """Create configuration from command line arguments"""
         config = StatisticalAnalysisConfig.create(portfolio, use_trade_history)
@@ -272,7 +272,7 @@ Examples:
         # Override with command line arguments
         if args.percentile_threshold != 95:
             config.PERCENTILE_THRESHOLDS["exit_immediately"] = float(
-                args.percentile_threshold
+                args.percentile_threshold,
             )
         if args.dual_layer_threshold != 0.85:
             config.CONVERGENCE_THRESHOLD = args.dual_layer_threshold
@@ -282,7 +282,7 @@ Examples:
         return config
 
     def _output_json_results(
-        self, results: dict, summary: dict, save_path: str | None = None
+        self, results: dict, summary: dict, save_path: str | None = None,
     ) -> int:
         """Output results in JSON format"""
         output_data = {
@@ -334,7 +334,7 @@ Examples:
         print(f"Portfolio: {summary['portfolio']}")
         print(f"Total Strategies: {summary['total_strategies']}")
         print(
-            f"Data Source: {'Trade History' if summary['use_trade_history'] else 'Equity Curves'}"
+            f"Data Source: {'Trade History' if summary['use_trade_history'] else 'Equity Curves'}",
         )
         print()
 
@@ -351,7 +351,7 @@ Examples:
         print("🚨 Action Items:")
         if summary["immediate_exits"] > 0:
             print(
-                f"  ⚠️  {summary['immediate_exits']} strategies require IMMEDIATE EXIT"
+                f"  ⚠️  {summary['immediate_exits']} strategies require IMMEDIATE EXIT",
             )
         if summary["strong_sells"] > 0:
             print(f"  📉 {summary['strong_sells']} strategies show STRONG SELL signals")
@@ -361,7 +361,7 @@ Examples:
         return 0
 
     def _output_table_results(
-        self, results: dict, summary: dict, analyzer: PortfolioStatisticalAnalyzer
+        self, results: dict, summary: dict, analyzer: PortfolioStatisticalAnalyzer,
     ) -> int:
         """Output detailed table results"""
         # Summary first
@@ -375,7 +375,7 @@ Examples:
 
         # Table header
         print(
-            f"{'Strategy':<25} {'Ticker':<8} {'Signal':<15} {'Confidence':<10} {'Recommendation'}"
+            f"{'Strategy':<25} {'Ticker':<8} {'Signal':<15} {'Confidence':<10} {'Recommendation'}",
         )
         print("-" * 80)
 
@@ -421,7 +421,7 @@ Examples:
             }.get(signal, "Unknown")
 
             print(
-                f"{strategy_name:<25} {ticker:<8} {signal_icon} {signal:<13} {confidence:>6.1f}%    {recommendation}"
+                f"{strategy_name:<25} {ticker:<8} {signal_icon} {signal:<13} {confidence:>6.1f}%    {recommendation}",
             )
 
         print("\n💡 Legend:")
@@ -449,7 +449,7 @@ Examples:
 
         print("🎯 Analysis Thresholds:")
         print(
-            f"  Exit Immediately: {config.PERCENTILE_THRESHOLDS['exit_immediately']}%"
+            f"  Exit Immediately: {config.PERCENTILE_THRESHOLDS['exit_immediately']}%",
         )
         print(f"  Strong Sell: {config.PERCENTILE_THRESHOLDS['strong_sell']}%")
         print(f"  Sell: {config.PERCENTILE_THRESHOLDS['sell']}%")
@@ -474,7 +474,7 @@ Examples:
         print("💡 Usage Examples:")
         print("  python -m app.tools.statistical_analysis_cli --portfolio risk_on.csv")
         print(
-            "  python -m app.tools.statistical_analysis_cli --portfolio conservative.csv --no-trade-history"
+            "  python -m app.tools.statistical_analysis_cli --portfolio conservative.csv --no-trade-history",
         )
         print("  python -m app.tools.statistical_analysis_cli --interactive")
 
@@ -620,7 +620,7 @@ Examples:
             print("\n🎉 Demo completed successfully!")
             print("💡 You can now analyze the created portfolios:")
             print(
-                "  python -m app.tools.statistical_analysis_cli --portfolio risk_on.csv"
+                "  python -m app.tools.statistical_analysis_cli --portfolio risk_on.csv",
             )
 
             return 0
@@ -660,7 +660,7 @@ Examples:
 
             if not validation_results["is_valid"]:
                 print(
-                    "   ⚠️  Warning: Data quality below threshold - some results may contain placeholder data"
+                    "   ⚠️  Warning: Data quality below threshold - some results may contain placeholder data",
                 )
 
             # 3. Initialize export service and export to JSON/CSV
@@ -695,7 +695,7 @@ Examples:
                 try:
                     # Initialize backtesting parameter export service
                     backtesting_service = BacktestingParameterExportService(
-                        config=spds_config, logger=logger
+                        config=spds_config, logger=logger,
                     )
 
                     # Generate deterministic parameters from statistical analysis
@@ -709,7 +709,7 @@ Examples:
 
                     # Export backtesting parameters to all frameworks
                     parameter_files = await backtesting_service.export_all_frameworks(
-                        parameters_data=parameters_data, export_name=portfolio_name
+                        parameters_data=parameters_data, export_name=portfolio_name,
                     )
 
                     print("🔧 Backtesting parameters exported to:")
@@ -718,11 +718,11 @@ Examples:
 
                 except Exception as e:
                     print(f"⚠️  Failed to export backtesting parameters: {e}")
-                    logger.error(f"Backtesting parameter export failed: {e}")
+                    logger.exception(f"Backtesting parameter export failed: {e}")
 
         except Exception as e:
             print(f"⚠️  Failed to export portfolio analysis: {e}")
-            logger.error(f"Export failed: {e}")
+            logger.exception(f"Export failed: {e}")
 
     def _convert_to_analysis_results(self, results: dict, summary: dict) -> list:
         """Convert portfolio analysis results to LegacyStatisticalAnalysisResult format"""
@@ -759,13 +759,13 @@ Examples:
                     and result.dual_layer_convergence
                 ):
                     dual_layer_convergence_score = getattr(
-                        result.dual_layer_convergence, "convergence_score", 0.0
+                        result.dual_layer_convergence, "convergence_score", 0.0,
                     )
                     asset_layer_percentile = getattr(
-                        result.dual_layer_convergence, "asset_layer_percentile", 0.0
+                        result.dual_layer_convergence, "asset_layer_percentile", 0.0,
                     )
                     strategy_layer_percentile = getattr(
-                        result.dual_layer_convergence, "strategy_layer_percentile", 0.0
+                        result.dual_layer_convergence, "strategy_layer_percentile", 0.0,
                     )
 
                 # Extract exit signal data
@@ -796,7 +796,7 @@ Examples:
                     z_score = getattr(result.strategy_divergence, "z_score", 0.0)
                     iqr_score = getattr(result.strategy_divergence, "iqr_position", 0.0)
                     rarity_score = getattr(
-                        result.strategy_divergence, "rarity_score", 0.0
+                        result.strategy_divergence, "rarity_score", 0.0,
                     )
                 elif hasattr(result, "asset_divergence") and result.asset_divergence:
                     z_score = getattr(result.asset_divergence, "z_score", 0.0)
@@ -827,14 +827,14 @@ Examples:
                         and result.trade_history_metrics.mfe_distribution
                     ):
                         mfe = getattr(
-                            result.trade_history_metrics.mfe_distribution, "mean", 0.0
+                            result.trade_history_metrics.mfe_distribution, "mean", 0.0,
                         )
                     if (
                         hasattr(result.trade_history_metrics, "mae_distribution")
                         and result.trade_history_metrics.mae_distribution
                     ):
                         mae = getattr(
-                            result.trade_history_metrics.mae_distribution, "mean", 0.0
+                            result.trade_history_metrics.mae_distribution, "mean", 0.0,
                         )
 
                 # Extract MFE/MAE from temporary attributes set by portfolio analyzer
@@ -865,14 +865,14 @@ Examples:
                 if hasattr(result, "strategy_analysis") and result.strategy_analysis:
                     if hasattr(result.strategy_analysis, "statistics"):
                         sample_size = getattr(
-                            result.strategy_analysis.statistics, "count", 0
+                            result.strategy_analysis.statistics, "count", 0,
                         )
                 elif (
                     hasattr(result, "trade_history_metrics")
                     and result.trade_history_metrics
                 ):
                     sample_size = getattr(
-                        result.trade_history_metrics, "total_trades", 0
+                        result.trade_history_metrics, "total_trades", 0,
                     )
 
                 # Determine statistical significance based on sample size
@@ -916,7 +916,7 @@ Examples:
 
                 # Get overall confidence
                 overall_confidence = getattr(
-                    result, "overall_confidence", signal_confidence * 100.0
+                    result, "overall_confidence", signal_confidence * 100.0,
                 )
                 if overall_confidence <= 1.0:
                     overall_confidence *= 100.0  # Convert to percentage
@@ -927,7 +927,7 @@ Examples:
                     ticker=ticker,
                     timeframe="D",  # Default timeframe
                     analysis_timestamp=getattr(
-                        result, "analysis_timestamp", datetime.now()
+                        result, "analysis_timestamp", datetime.now(),
                     ),
                     sample_size=sample_size,
                     sample_size_confidence=sample_size_confidence,
@@ -937,7 +937,7 @@ Examples:
                     exit_signal=exit_signal_str,
                     signal_confidence=overall_confidence,
                     exit_recommendation=getattr(
-                        result, "recommendation_summary", "Continue monitoring"
+                        result, "recommendation_summary", "Continue monitoring",
                     ),
                     target_exit_timeframe="",  # Not available in current model
                     statistical_significance=statistical_significance,
@@ -1052,7 +1052,7 @@ Examples:
             if dual_layer_convergence_score > 0:
                 # Convergence score 0-1, where higher = more convergent = more significant
                 convergence_adjustment = max(
-                    0.7, 1.0 - (dual_layer_convergence_score * 0.3)
+                    0.7, 1.0 - (dual_layer_convergence_score * 0.3),
                 )
             else:
                 convergence_adjustment = 1.0
@@ -1108,7 +1108,7 @@ Examples:
 
         if not analysis_results:
             validation_results["validation_warnings"].append(
-                "No analysis results to validate"
+                "No analysis results to validate",
             )
             return validation_results
 
@@ -1162,7 +1162,7 @@ Examples:
                 meaningful_count += 1
             else:
                 validation_results["validation_warnings"].append(
-                    f"Strategy {result.strategy_name} appears to have placeholder data only"
+                    f"Strategy {result.strategy_name} appears to have placeholder data only",
                 )
 
         validation_results["meaningful_data_count"] = meaningful_count
@@ -1189,7 +1189,7 @@ Examples:
             )
         else:
             validation_results["validation_warnings"].insert(
-                0, "✅ GOOD: Most results contain meaningful statistical data"
+                0, "✅ GOOD: Most results contain meaningful statistical data",
             )
 
         return validation_results
@@ -1215,7 +1215,7 @@ Examples:
 
             # Generate markdown content
             markdown_content = self._generate_markdown_content(
-                results, summary, analyzer
+                results, summary, analyzer,
             )
 
             # Write to file
@@ -1228,7 +1228,7 @@ Examples:
             print(f"⚠️  Failed to export markdown report: {e}")
 
     def _generate_markdown_content(
-        self, results: dict, summary: dict, analyzer: PortfolioStatisticalAnalyzer
+        self, results: dict, summary: dict, analyzer: PortfolioStatisticalAnalyzer,
     ) -> str:
         """Generate markdown content for the portfolio analysis report"""
         from datetime import datetime

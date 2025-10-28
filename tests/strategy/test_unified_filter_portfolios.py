@@ -83,7 +83,7 @@ class TestCreateMetricResult:
                 "Slow Period": [50, 100],
                 "Total Return [%]": [5.0, 8.0],
                 "Win Rate [%]": [60.0, 70.0],
-            }
+            },
         )
 
         result = create_metric_result(
@@ -108,7 +108,7 @@ class TestCreateMetricResult:
                 "Slow Period": [26, 30],
                 "Signal Period": [9, 12],
                 "Total Return [%]": [6.0, 9.0],
-            }
+            },
         )
 
         result = create_metric_result(
@@ -195,7 +195,7 @@ class TestCreateMetricResultFromRows:
                 "Fast Period": [10, 20, 15],
                 "Slow Period": [50, 100, 75],
                 "Total Return [%]": [5.0, 10.0, 7.5],
-            }
+            },
         )
 
         rows = {"most": 1, "least": 0, "mean": 2}
@@ -230,7 +230,7 @@ class TestCreateMetricResultFromRows:
         rows = {"most": 1, "least": None, "mean": 0}
 
         results = create_metric_result_from_rows(
-            metric="Total Return [%]", rows=rows, df=df
+            metric="Total Return [%]", rows=rows, df=df,
         )
 
         assert len(results) == 2  # Should skip None values
@@ -250,7 +250,7 @@ class TestProcessMetrics:
                 "Slow Period": [50, 100, 75],
                 "Total Return [%]": [5.0, 10.0, 7.5],
                 "Win Rate [%]": [60.0, 80.0, 70.0],
-            }
+            },
         )
 
         metrics = ["Total Return [%]", "Win Rate [%]"]
@@ -273,7 +273,7 @@ class TestProcessMetrics:
         df = pl.DataFrame(
             {
                 "Total Return [%]": [5.0, 10.0],
-            }
+            },
         )
 
         metrics = ["Total Return [%]", "Missing Metric", "Another Missing"]
@@ -289,7 +289,7 @@ class TestProcessMetrics:
         df = pl.DataFrame(
             {
                 "Total Return [%]": [5.0, 10.0],
-            }
+            },
         )
 
         results = _process_metrics(df, [])
@@ -309,7 +309,7 @@ class TestFilterPortfolios:
                 "Total Return [%]": [5.0, 10.0, 7.5],
                 "Win Rate [%]": [60.0, 80.0, 70.0],
                 "Profit Factor": [1.2, 1.5, 1.3],
-            }
+            },
         )
 
         config = {
@@ -346,7 +346,7 @@ class TestFilterPortfolios:
                 "Slow Period": [26, 30],
                 "Signal Period": [9, 12],
                 "Total Return [%]": [6.0, 9.0],
-            }
+            },
         )
 
         config = {"STRATEGY_TYPE": "MACD"}
@@ -362,7 +362,7 @@ class TestFilterPortfolios:
                 "Fast Period": [10, 20],
                 "Slow Period": [50, 100],
                 "Total Return [%]": [5.0, 10.0],
-            }
+            },
         )
 
         config = {}
@@ -383,7 +383,7 @@ class TestFilterAndExportPortfolios:
                 "Fast Period": [10, 20],
                 "Slow Period": [50, 100],
                 "Total Return [%]": [5.0, 10.0],
-            }
+            },
         )
 
         config = {"STRATEGY_TYPE": "SMA"}
@@ -442,7 +442,7 @@ class TestConvenienceFunctions:
                 "Fast Period": [10, 20, 15],
                 "Slow Period": [50, 100, 75],
                 "Total Return [%]": [5.0, 10.0, 7.5],
-            }
+            },
         )
 
         summary = create_metric_summary(df, "Total Return [%]", "SMA")
@@ -460,7 +460,7 @@ class TestConvenienceFunctions:
                 "Slow Period": [50, 100],
                 "Total Return [%]": [5.0, 10.0],
                 "Win Rate [%]": [60.0, 80.0],
-            }
+            },
         )
 
         result = get_extreme_values(df, strategy_type="SMA")
@@ -476,11 +476,11 @@ class TestConvenienceFunctions:
                 "Slow Period": [50, 100],
                 "Total Return [%]": [5.0, 10.0],
                 "Win Rate [%]": [60.0, 80.0],
-            }
+            },
         )
 
         result = get_extreme_values(
-            df, metrics=["Total Return [%]"], strategy_type="SMA"
+            df, metrics=["Total Return [%]"], strategy_type="SMA",
         )
 
         assert not result.is_empty()

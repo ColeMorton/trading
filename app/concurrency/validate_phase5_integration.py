@@ -93,7 +93,7 @@ class IntegrationValidator:
                             "strategy": strategy_id,
                             "actual": win_rate,
                             "expected": expected_win_rate,
-                        }
+                        },
                     )
 
         results["checks"]["win_rates"] = {
@@ -117,7 +117,7 @@ class IntegrationValidator:
                         "strategy": strategy_id,
                         "actual": expectancy,
                         "expected": expected_expectancy,
-                    }
+                    },
                 )
 
         results["checks"]["expectancy"] = {
@@ -137,7 +137,7 @@ class IntegrationValidator:
                     {
                         "strategy": strategy_id,
                         "issue": f"Negative trade count: {total_trades}",
-                    }
+                    },
                 )
 
         results["checks"]["signals"] = {
@@ -245,7 +245,7 @@ class IntegrationValidator:
                 print("- Expectancy values are mathematically correct")
                 print("- Signal processing is consistent")
                 print(
-                    "\nAll concurrency calculation fixes are working correctly together."
+                    "\nAll concurrency calculation fixes are working correctly together.",
                 )
             else:
                 print("\n✗ Some validation checks failed")

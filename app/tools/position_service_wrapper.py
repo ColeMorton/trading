@@ -20,7 +20,6 @@ def get_config():
 
 def set_config(config):
     """Set global configuration (no-op for compatibility)."""
-    pass
 
 
 def get_position_service():

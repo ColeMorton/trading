@@ -19,7 +19,7 @@ from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
 from app.tools.config.statistical_analysis_config import StatisticalAnalysisConfig
@@ -45,14 +45,14 @@ async def demo_simplified_interface():
     for portfolio_name, use_trade_history in portfolios:
         print(f"\n📊 Analyzing Portfolio: {portfolio_name}")
         print(
-            f"   Data Source: {'Trade History' if use_trade_history else 'Equity Curves'}"
+            f"   Data Source: {'Trade History' if use_trade_history else 'Equity Curves'}",
         )
         print("-" * 50)
 
         try:
             # Method 1: Using the analyzer class
             analyzer = PortfolioStatisticalAnalyzer(
-                portfolio=portfolio_name, use_trade_history=use_trade_history
+                portfolio=portfolio_name, use_trade_history=use_trade_history,
             )
 
             # Show file paths that will be used
@@ -72,7 +72,7 @@ async def demo_simplified_interface():
             print(f"   Portfolio exists: {'✅' if portfolio_exists else '❌'}")
             if use_trade_history:
                 print(
-                    f"   Trade history exists: {'✅' if trade_history_exists else '❌'}"
+                    f"   Trade history exists: {'✅' if trade_history_exists else '❌'}",
                 )
 
             if portfolio_exists and (trade_history_exists or config.FALLBACK_TO_EQUITY):
@@ -120,7 +120,7 @@ async def demo_quick_analysis():
 
         # This is literally all you need:
         results, summary = await analyze_portfolio(
-            "risk_on.csv", use_trade_history=True
+            "risk_on.csv", use_trade_history=True,
         )
 
         print("✅ Analysis complete!")
@@ -147,15 +147,15 @@ def demo_configuration():
     # Method 1: Simple interface
     config1 = StatisticalAnalysisConfig.create("risk_on.csv", use_trade_history=True)
     print(
-        f"   Config 1: {config1.PORTFOLIO} (trade history: {config1.USE_TRADE_HISTORY})"
+        f"   Config 1: {config1.PORTFOLIO} (trade history: {config1.USE_TRADE_HISTORY})",
     )
 
     # Method 2: Quick config for different scenarios
     config2 = StatisticalAnalysisConfig.create(
-        "conservative.csv", use_trade_history=False
+        "conservative.csv", use_trade_history=False,
     )
     print(
-        f"   Config 2: {config2.PORTFOLIO} (trade history: {config2.USE_TRADE_HISTORY})"
+        f"   Config 2: {config2.PORTFOLIO} (trade history: {config2.USE_TRADE_HISTORY})",
     )
 
     # Show automatic path resolution
@@ -172,9 +172,9 @@ def demo_configuration():
     print("      DUAL_LAYER_THRESHOLD=0.85,")
     print("      ... 20+ more parameters")
     print("   ))")
-    print("")
+    print()
     print(
-        "   NEW (simple): PortfolioStatisticalAnalyzer('risk_on.csv', use_trade_history=True)"
+        "   NEW (simple): PortfolioStatisticalAnalyzer('risk_on.csv', use_trade_history=True)",
     )
 
 
@@ -234,7 +234,7 @@ async def main():
     print("🎯 Statistical Performance Divergence System")
     print("   Simplified Interface - Two Parameter Solution")
     print("   Portfolio-Centric Analysis")
-    print("")
+    print()
 
     # Show the simplified configuration interface
     demo_configuration()
@@ -254,16 +254,16 @@ async def main():
     print("✅ The interface has been dramatically simplified to TWO parameters:")
     print("   1. PORTFOLIO - filename (e.g., 'risk_on.csv')")
     print("   2. USE_TRADE_HISTORY - True (trade history) or False (equity curves)")
-    print("")
+    print()
     print("📂 File locations are automatic:")
     print("   - Portfolios: ./data/raw/strategies/{portfolio}")
     print("   - Trade History: ./data/raw/positions/{portfolio}")
     print("   - Return Distributions: ./data/raw/reports/return_distribution/")
-    print("")
+    print()
     print("🚀 Usage is now incredibly simple:")
     print("   analyzer = PortfolioStatisticalAnalyzer('risk_on.csv', True)")
     print("   results = await analyzer.analyze()")
-    print("")
+    print()
     print("   # Or even simpler:")
     print("   results, summary = await analyze_portfolio('risk_on.csv', True)")
 

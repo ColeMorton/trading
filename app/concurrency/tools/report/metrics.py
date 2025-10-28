@@ -100,7 +100,7 @@ def calculate_ticker_metrics(strategies: list[Strategy]) -> dict[str, Any]:
 
 
 def create_portfolio_metrics(
-    stats: dict[str, Any], config: dict[str, Any] | None = None
+    stats: dict[str, Any], config: dict[str, Any] | None = None,
 ) -> PortfolioMetrics:
     """Create portfolio metrics with the optimized structure.
 

@@ -28,7 +28,7 @@ def calculate_atr(data: pd.DataFrame, length: int) -> pd.Series:
 
     # Create a DataFrame with the three components
     ranges = pd.DataFrame(
-        {"HL": high_low, "HC": high_close, "LC": low_close}, index=data.index
+        {"HL": high_low, "HC": high_close, "LC": low_close}, index=data.index,
     )
 
     # Calculate the true range as the maximum of the three components

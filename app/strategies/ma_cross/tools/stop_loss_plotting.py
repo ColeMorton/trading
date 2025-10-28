@@ -121,7 +121,7 @@ def create_stop_loss_heatmap(
                     + ("%{z:" + format_info["format"] + "}")
                     + "<extra></extra>"
                 ),
-            )
+            ),
         )
 
         # Update layout

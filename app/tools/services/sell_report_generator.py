@@ -53,7 +53,7 @@ class SellReportGenerator:
             self.aggregator = aggregator or SignalDataAggregator()
             self.data_coordinator = None
             logger.info(
-                "SellReportGenerator initialized with legacy SignalDataAggregator"
+                "SellReportGenerator initialized with legacy SignalDataAggregator",
             )
 
     def generate_sell_report(
@@ -92,18 +92,18 @@ class SellReportGenerator:
         return "\n\n".join(report_sections)
 
     def _get_strategy_data(
-        self, strategy_identifier: str, snapshot_id: str | None = None
+        self, strategy_identifier: str, snapshot_id: str | None = None,
     ) -> UnifiedStrategyData | None:
         """Get strategy data using coordinator or fallback to aggregator"""
         try:
             if self.use_coordinator and self.data_coordinator:
                 # Use central coordinator for data loading
                 unified_data = self.data_coordinator.get_strategy_data(
-                    strategy_identifier, force_refresh=False, snapshot_id=snapshot_id
+                    strategy_identifier, force_refresh=False, snapshot_id=snapshot_id,
                 )
                 if unified_data:
                     logger.debug(
-                        f"Retrieved coordinated data for {strategy_identifier}"
+                        f"Retrieved coordinated data for {strategy_identifier}",
                     )
                     return unified_data
                 logger.warning(f"No coordinated data found for {strategy_identifier}")
@@ -115,18 +115,18 @@ class SellReportGenerator:
                 unified_data = UnifiedStrategyData.from_legacy_strategy_data(
                     legacy_data.to_dict()
                     if hasattr(legacy_data, "to_dict")
-                    else vars(legacy_data)
+                    else vars(legacy_data),
                 )
                 logger.debug(
-                    f"Retrieved and converted legacy data for {strategy_identifier}"
+                    f"Retrieved and converted legacy data for {strategy_identifier}",
                 )
                 return unified_data
             logger.warning(f"No legacy data found for {strategy_identifier}")
             return None
 
         except (StrategyDataCoordinatorError, Exception) as e:
-            logger.error(
-                f"Error retrieving strategy data for {strategy_identifier}: {e}"
+            logger.exception(
+                f"Error retrieving strategy data for {strategy_identifier}: {e}",
             )
             return None
 
@@ -377,7 +377,7 @@ ELSE:
 - [ ] Schedule post-exit analysis"""
 
     def _generate_appendices(
-        self, data: UnifiedStrategyData, include_raw_data: bool
+        self, data: UnifiedStrategyData, include_raw_data: bool,
     ) -> str:
         """Generate appendices with supporting data"""
         appendix = f"""## 📚 Appendices
@@ -680,13 +680,13 @@ def generate_sell_report(
     if use_coordinator and (data_coordinator or base_path is None):
         # Use central data coordination for consistency
         coordinator = data_coordinator or StrategyDataCoordinator(
-            config=DataCoordinationConfig(), logger=None
+            config=DataCoordinationConfig(), logger=None,
         )
         generator = SellReportGenerator(
-            aggregator=None, data_coordinator=coordinator, use_coordinator=True
+            aggregator=None, data_coordinator=coordinator, use_coordinator=True,
         )
         return generator.generate_sell_report(
-            strategy_identifier, include_raw_data, snapshot_id
+            strategy_identifier, include_raw_data, snapshot_id,
         )
     # Fallback to legacy aggregator
     aggregator = SignalDataAggregator(base_path)
@@ -700,11 +700,11 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Sell Report Generator")
     parser.add_argument(
-        "--strategy", required=True, help="Strategy name or Position_UUID"
+        "--strategy", required=True, help="Strategy name or Position_UUID",
     )
     parser.add_argument("--output", help="Output file path")
     parser.add_argument(
-        "--include-raw", action="store_true", help="Include raw statistical data"
+        "--include-raw", action="store_true", help="Include raw statistical data",
     )
     parser.add_argument("--base-path", help="Base path to trading system")
 

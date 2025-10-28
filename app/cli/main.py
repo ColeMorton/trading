@@ -39,16 +39,16 @@ app = typer.Typer(
 
 # Add subcommands
 app.add_typer(
-    strategy.app, name="strategy", help="MA Cross strategy execution and analysis"
+    strategy.app, name="strategy", help="MA Cross strategy execution and analysis",
 )
 app.add_typer(
-    portfolio.app, name="portfolio", help="Portfolio processing and aggregation"
+    portfolio.app, name="portfolio", help="Portfolio processing and aggregation",
 )
 app.add_typer(
-    positions.app, name="positions", help="Position management and equity generation"
+    positions.app, name="positions", help="Position management and equity generation",
 )
 app.add_typer(
-    concurrency.app, name="concurrency", help="Concurrency analysis and trade history"
+    concurrency.app, name="concurrency", help="Concurrency analysis and trade history",
 )
 app.add_typer(config.app, name="config", help="Configuration and profile management")
 app.add_typer(tools.app, name="tools", help="Utility tools and system management")
@@ -89,7 +89,7 @@ def status():
 
         # Create status table
         table = Table(
-            title="Trading CLI Status", show_header=True, header_style="bold magenta"
+            title="Trading CLI Status", show_header=True, header_style="bold magenta",
         )
         table.add_column("Component", style="cyan", no_wrap=True)
         table.add_column("Status", style="green")
@@ -138,11 +138,11 @@ def status():
         # Show quick help
         rprint("\n[bold]Quick Start:[/bold]")
         rprint(
-            "• [cyan]trading-cli init[/cyan] - Initialize and verify default configuration profiles"
+            "• [cyan]trading-cli init[/cyan] - Initialize and verify default configuration profiles",
         )
         rprint("• [cyan]trading-cli config list[/cyan] - List available profiles")
         rprint(
-            "• [cyan]trading-cli strategy run --help[/cyan] - Get help for strategy commands"
+            "• [cyan]trading-cli strategy run --help[/cyan] - Get help for strategy commands",
         )
         rprint("• [cyan]trading-cli --help[/cyan] - Show all available commands")
 
@@ -182,7 +182,7 @@ def init():
                     verified_profiles.append(profile_name)
                 except Exception:
                     rprint(
-                        f"⚠ Profile not found or invalid: [yellow]{profile_name}[/yellow]"
+                        f"⚠ Profile not found or invalid: [yellow]{profile_name}[/yellow]",
                     )
 
         for profile_name in verified_profiles:
@@ -219,10 +219,10 @@ def pinescript(
         help="Filter to specific ticker(s), comma-separated (e.g., 'BTC-USD' or 'HIMS,MP,NVDA')",
     ),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Preview generation without writing files"
+        False, "--dry-run", help="Preview generation without writing files",
     ),
     verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Show detailed generation information"
+        False, "--verbose", "-v", help="Show detailed generation information",
     ),
     quiet: bool = typer.Option(
         False,
@@ -333,7 +333,7 @@ def pinescript(
             from rich.panel import Panel
 
             table = Table(
-                title="Strategy Breakdown", show_header=True, header_style="bold cyan"
+                title="Strategy Breakdown", show_header=True, header_style="bold cyan",
             )
             table.add_column("Ticker", style="cyan", no_wrap=True)
             table.add_column("Strategies", justify="right", style="green")
@@ -394,7 +394,7 @@ def pinescript(
                 count = stats["strategies_per_ticker"][ticker_name]
                 types = stats["strategy_types_per_ticker"][ticker_name]
                 rprint(
-                    f"  [cyan]{ticker_name}:[/cyan] {count} strategies ({', '.join(types)})"
+                    f"  [cyan]{ticker_name}:[/cyan] {count} strategies ({', '.join(types)})",
                 )
 
     except ValueError as e:
@@ -412,7 +412,7 @@ def pinescript(
 def main(
     ctx: typer.Context,
     verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output with rich formatting"
+        False, "--verbose", "-v", help="Enable verbose output with rich formatting",
     ),
     show_output: bool = typer.Option(
         False,
@@ -448,7 +448,7 @@ def main(
     # Configure console for verbose output
     if verbose:
         console.print(
-            f"[dim]Using profiles directory: {profiles_dir or 'default'}[/dim]"
+            f"[dim]Using profiles directory: {profiles_dir or 'default'}[/dim]",
         )
 
 

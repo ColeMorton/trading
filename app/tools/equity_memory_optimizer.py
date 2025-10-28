@@ -53,11 +53,11 @@ class EquityDataOptimizer:
             elif arr.dtype == np.int64:
                 # Try to downcast integers
                 if np.all(
-                    (arr >= np.iinfo(np.int32).min) & (arr <= np.iinfo(np.int32).max)
+                    (arr >= np.iinfo(np.int32).min) & (arr <= np.iinfo(np.int32).max),
                 ):
                     return arr.astype(np.int32)
                 if np.all(
-                    (arr >= np.iinfo(np.int16).min) & (arr <= np.iinfo(np.int16).max)
+                    (arr >= np.iinfo(np.int16).min) & (arr <= np.iinfo(np.int16).max),
                 ):
                     return arr.astype(np.int16)
             return arr
@@ -132,7 +132,7 @@ class StreamingEquityExporter:
         self.memory_peak = 0.0
 
     def chunk_portfolios(
-        self, portfolios: list[dict[str, Any]]
+        self, portfolios: list[dict[str, Any]],
     ) -> Iterator[list[dict[str, Any]]]:
         """
         Split portfolios into memory-efficient chunks.
@@ -377,7 +377,7 @@ def analyze_memory_requirements(portfolios: list[dict[str, Any]]) -> dict[str, A
         memory_usage = optimizer.estimate_memory_usage(equity_data)
         analysis["estimated_memory_mb"] += memory_usage
         analysis["largest_equity_dataset_mb"] = max(
-            analysis["largest_equity_dataset_mb"], memory_usage
+            analysis["largest_equity_dataset_mb"], memory_usage,
         )
 
         # Track by strategy type
@@ -394,22 +394,22 @@ def analyze_memory_requirements(portfolios: list[dict[str, Any]]) -> dict[str, A
     # Generate recommendations
     if analysis["estimated_memory_mb"] > 1000:  # > 1GB
         analysis["recommendations"].append(
-            "Consider enabling streaming export for large datasets"
+            "Consider enabling streaming export for large datasets",
         )
 
     if analysis["largest_equity_dataset_mb"] > 100:  # > 100MB for single dataset
         analysis["recommendations"].append(
-            "Consider data type optimization for large individual datasets"
+            "Consider data type optimization for large individual datasets",
         )
 
     if analysis["portfolios_with_equity_data"] > 500:
         analysis["recommendations"].append(
-            "Consider chunked processing for large portfolio counts"
+            "Consider chunked processing for large portfolio counts",
         )
 
     if not analysis["recommendations"]:
         analysis["recommendations"].append(
-            "Current dataset size is within optimal memory limits"
+            "Current dataset size is within optimal memory limits",
         )
 
     return analysis

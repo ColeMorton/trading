@@ -77,7 +77,7 @@ class PerformanceRegressionChecker:
         return metrics
 
     def compare_metrics(
-        self, current_metrics: dict[str, float], baseline_metrics: dict[str, float]
+        self, current_metrics: dict[str, float], baseline_metrics: dict[str, float],
     ) -> dict[str, dict]:
         """
         Compare current metrics against baseline.
@@ -99,7 +99,7 @@ class PerformanceRegressionChecker:
                         "metric": metric_name,
                         "issue": "No baseline data available",
                         "current": current_metrics[metric_name],
-                    }
+                    },
                 )
                 continue
 
@@ -150,7 +150,7 @@ class PerformanceRegressionChecker:
         return comparison
 
     def check_regression(
-        self, current_file: str, baseline_file: str
+        self, current_file: str, baseline_file: str,
     ) -> tuple[bool, dict]:
         """
         Check for performance regressions.
@@ -173,7 +173,7 @@ class PerformanceRegressionChecker:
         baseline_metrics = self.extract_metrics(baseline_results)
 
         print(
-            f"Comparing {len(current_metrics)} metrics with tolerance {self.tolerance:.1%}"
+            f"Comparing {len(current_metrics)} metrics with tolerance {self.tolerance:.1%}",
         )
         comparison = self.compare_metrics(current_metrics, baseline_metrics)
 
@@ -190,7 +190,7 @@ class PerformanceRegressionChecker:
         # Regressions
         if comparison["regressions"]:
             print(
-                f"\n❌ REGRESSIONS DETECTED ({len(comparison['regressions'])} metrics)"
+                f"\n❌ REGRESSIONS DETECTED ({len(comparison['regressions'])} metrics)",
             )
             print("-" * 40)
             for regression in comparison["regressions"]:
@@ -199,7 +199,7 @@ class PerformanceRegressionChecker:
                 print(f"   Current: {regression['current']:.2f}")
                 print(f"   Baseline: {regression['baseline']:.2f}")
                 print(
-                    f"   Change: {regression['change_pct']:.1%} ({regression['change_abs']:+.2f})"
+                    f"   Change: {regression['change_pct']:.1%} ({regression['change_abs']:+.2f})",
                 )
                 print()
         else:
@@ -208,7 +208,7 @@ class PerformanceRegressionChecker:
         # Improvements
         if comparison["improvements"]:
             print(
-                f"\n🚀 IMPROVEMENTS DETECTED ({len(comparison['improvements'])} metrics)"
+                f"\n🚀 IMPROVEMENTS DETECTED ({len(comparison['improvements'])} metrics)",
             )
             print("-" * 40)
             for improvement in comparison["improvements"]:
@@ -217,7 +217,7 @@ class PerformanceRegressionChecker:
                 print(f"   Current: {improvement['current']:.2f}")
                 print(f"   Baseline: {improvement['baseline']:.2f}")
                 print(
-                    f"   Change: {improvement['change_pct']:.1%} ({improvement['change_abs']:+.2f})"
+                    f"   Change: {improvement['change_pct']:.1%} ({improvement['change_abs']:+.2f})",
                 )
                 print()
 
@@ -249,7 +249,7 @@ class PerformanceRegressionChecker:
             stable_rate = len(comparison["stable"]) / total_metrics
 
             print(
-                f"Summary: {regression_rate:.1%} regressions, {improvement_rate:.1%} improvements, {stable_rate:.1%} stable"
+                f"Summary: {regression_rate:.1%} regressions, {improvement_rate:.1%} improvements, {stable_rate:.1%} stable",
             )
 
     def save_report(self, comparison: dict, output_file: str):
@@ -294,7 +294,7 @@ Examples:
         help="Regression tolerance as decimal (default: 0.2 = 20%%)",
     )
     parser.add_argument(
-        "--save", metavar="FILE", help="Save comparison report to JSON file"
+        "--save", metavar="FILE", help="Save comparison report to JSON file",
     )
     parser.add_argument(
         "--fail-on-regression",
@@ -318,7 +318,7 @@ Examples:
 
     try:
         has_regressions, comparison = checker.check_regression(
-            args.current_file, args.baseline_file
+            args.current_file, args.baseline_file,
         )
 
         # Print report
@@ -331,12 +331,12 @@ Examples:
         # Exit with appropriate code
         if has_regressions and args.fail_on_regression:
             print(
-                f"\nERROR: {len(comparison['regressions'])} performance regressions detected!"
+                f"\nERROR: {len(comparison['regressions'])} performance regressions detected!",
             )
             sys.exit(1)
         elif has_regressions:
             print(
-                f"\nWARNING: {len(comparison['regressions'])} performance regressions detected"
+                f"\nWARNING: {len(comparison['regressions'])} performance regressions detected",
             )
 
         print("\nPerformance check completed successfully")

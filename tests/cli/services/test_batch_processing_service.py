@@ -134,7 +134,7 @@ class TestBatchProcessingService:
             [
                 {"Ticker": "aapl", "Last Modified": "2025-01-01"},
                 {"Ticker": " msft ", "Last Modified": "2025-01-01"},
-            ]
+            ],
         )
         df.to_csv(batch_service.batch_file_path, index=False)
 
@@ -183,7 +183,7 @@ class TestBatchProcessingService:
         assert len(processed) == 0
 
     def test_get_processed_tickers_today_with_data(
-        self, batch_service, sample_batch_data
+        self, batch_service, sample_batch_data,
     ):
         """Test getting processed tickers for today."""
         df = pd.DataFrame(sample_batch_data)
@@ -364,7 +364,7 @@ class TestBatchProcessingServiceResumeAware:
             return True
 
         result = batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check
+            all_tickers, batch_size, mock_resume_check,
         )
 
         assert len(result) == 2  # Batch size limit
@@ -380,7 +380,7 @@ class TestBatchProcessingServiceResumeAware:
             return ticker not in ["AAPL", "GOOGL"]
 
         result = batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check
+            all_tickers, batch_size, mock_resume_check,
         )
 
         assert len(result) == 2
@@ -396,7 +396,7 @@ class TestBatchProcessingServiceResumeAware:
             return ticker == "MSFT"
 
         result = batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check
+            all_tickers, batch_size, mock_resume_check,
         )
 
         assert len(result) == 1
@@ -421,7 +421,7 @@ class TestBatchProcessingServiceResumeAware:
             return True
 
         result = batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check
+            all_tickers, batch_size, mock_resume_check,
         )
 
         # Should exclude AAPL and MSFT (already processed today)
@@ -442,14 +442,14 @@ class TestBatchProcessingServiceResumeAware:
             return True  # All need processing
 
         result = batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check
+            all_tickers, batch_size, mock_resume_check,
         )
 
         assert len(result) == 2
         assert call_count == 2  # Should stop after finding 2 tickers
 
     def test_get_tickers_needing_processing_resume_check_exception(
-        self, batch_service, mock_console
+        self, batch_service, mock_console,
     ):
         """Test handling of resume check exceptions."""
         all_tickers = ["AAPL", "MSFT", "GOOGL"]
@@ -458,11 +458,12 @@ class TestBatchProcessingServiceResumeAware:
         # Mock resume function that raises exception for MSFT
         def mock_resume_check(ticker):
             if ticker == "MSFT":
-                raise ValueError("Resume check failed")
+                msg = "Resume check failed"
+                raise ValueError(msg)
             return True
 
         result = batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check
+            all_tickers, batch_size, mock_resume_check,
         )
 
         # Should handle exception gracefully and continue
@@ -470,7 +471,7 @@ class TestBatchProcessingServiceResumeAware:
         assert "MSFT" not in result  # Should be excluded due to exception
 
     def test_get_tickers_needing_processing_debug_logging(
-        self, batch_service, mock_console
+        self, batch_service, mock_console,
     ):
         """Test that debug logging works for skipped tickers."""
         all_tickers = ["AAPL", "MSFT", "GOOGL"]
@@ -481,7 +482,7 @@ class TestBatchProcessingServiceResumeAware:
             return ticker != "AAPL"
 
         batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check
+            all_tickers, batch_size, mock_resume_check,
         )
 
         # Should have debug log for skipped ticker

@@ -39,7 +39,7 @@ class TestATRPerformanceMetrics(unittest.TestCase):
         # Create large dataset for performance testing
         self.large_dataset_size = 5000  # 5000 days ≈ 13.7 years
         self.dates = pd.date_range(
-            "2010-01-01", periods=self.large_dataset_size, freq="D"
+            "2010-01-01", periods=self.large_dataset_size, freq="D",
         )
 
         # Create realistic large dataset
@@ -48,7 +48,7 @@ class TestATRPerformanceMetrics(unittest.TestCase):
 
         # Generate realistic price series with trends and volatility
         returns = np.random.normal(
-            0.0005, 0.02, self.large_dataset_size
+            0.0005, 0.02, self.large_dataset_size,
         )  # 0.05% drift, 2% volatility
         prices = base_price * np.exp(np.cumsum(returns))
 
@@ -73,7 +73,7 @@ class TestATRPerformanceMetrics(unittest.TestCase):
                 "Low": lows,
                 "Close": prices,
                 "Volume": volumes,
-            }
+            },
         ).set_index("Date")
 
         # Performance monitoring setup
@@ -83,7 +83,7 @@ class TestATRPerformanceMetrics(unittest.TestCase):
         # Mock logger
         self.performance_log = []
         self.test_log = lambda msg, level="info": self.performance_log.append(
-            f"{level}: {msg}"
+            f"{level}: {msg}",
         )
 
     def tearDown(self):
@@ -147,7 +147,7 @@ class TestATRPerformanceMetrics(unittest.TestCase):
         results = []
         for atr_length, atr_multiplier in test_params:
             signals_df = generate_signals(
-                self.large_test_data, atr_length, atr_multiplier
+                self.large_test_data, atr_length, atr_multiplier,
             )
             results.append(signals_df)
 
@@ -220,7 +220,7 @@ class TestATRPerformanceMetrics(unittest.TestCase):
         time_per_combination = execution_time / combinations
 
         self.assertEqual(
-            len(results), combinations, "Should complete all parameter combinations"
+            len(results), combinations, "Should complete all parameter combinations",
         )
 
         self.assertLess(
@@ -381,7 +381,7 @@ class TestATRPerformanceMetrics(unittest.TestCase):
         # Force errors during processing
         problematic_data = self.large_test_data.copy()
         problematic_data.loc[
-            problematic_data.index[100:110], "Close"
+            problematic_data.index[100:110], "Close",
         ] = np.nan  # Inject NaN values
 
         try:
@@ -502,7 +502,7 @@ class TestATRPerformanceMetrics(unittest.TestCase):
                     "memory": memory_usage,
                     "time_per_row": execution_time / size,
                     "memory_per_row": memory_usage / size,
-                }
+                },
             )
 
             # Verify analysis completed

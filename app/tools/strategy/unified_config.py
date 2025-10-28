@@ -256,10 +256,9 @@ class ConfigValidator:
     @staticmethod
     def validate_ma_config(config: MAConfig) -> dict[str, Any]:
         """Validate MA-specific configuration."""
-        result = ConfigValidator.validate_base_config(config)
+        return ConfigValidator.validate_base_config(config)
 
         # MA-specific validations can be added here
-        return result
 
     @staticmethod
     def validate_macd_config(config: MACDConfig) -> dict[str, Any]:
@@ -269,7 +268,7 @@ class ConfigValidator:
         # MACD requires SIGNAL_PERIOD for proper calculation
         if not any(key in config for key in ["SIGNAL_PERIOD", "SIGNAL_WINDOW_START"]):
             result["errors"].append(
-                "MACD strategy requires SIGNAL_PERIOD or SIGNAL_WINDOW_START/END"
+                "MACD strategy requires SIGNAL_PERIOD or SIGNAL_WINDOW_START/END",
             )
             result["is_valid"] = False
             result["suggestions"]["SIGNAL_PERIOD"] = 9
@@ -288,7 +287,7 @@ class ConfigValidator:
 
             if start >= end:
                 result["errors"].append(
-                    "CHANGE_PCT_START must be less than CHANGE_PCT_END"
+                    "CHANGE_PCT_START must be less than CHANGE_PCT_END",
                 )
                 result["is_valid"] = False
 
@@ -297,10 +296,9 @@ class ConfigValidator:
     @staticmethod
     def validate_range_config(config: RangeConfig) -> dict[str, Any]:
         """Validate Range trading specific configuration."""
-        result = ConfigValidator.validate_base_config(config)
+        return ConfigValidator.validate_base_config(config)
 
         # Range specific validations can be added here
-        return result
 
 
 class ConfigFactory:
@@ -331,7 +329,7 @@ class ConfigFactory:
 
     @classmethod
     def create_config(
-        cls, strategy_type: str, **kwargs
+        cls, strategy_type: str, **kwargs,
     ) -> MAConfig | MACDConfig | MeanReversionConfig | RangeConfig:
         """
         Create a configuration for the specified strategy type.
@@ -350,8 +348,9 @@ class ConfigFactory:
 
         if strategy_type not in cls._strategy_config_map:
             available = ", ".join(cls._strategy_config_map.keys())
+            msg = f"Unknown strategy type: {strategy_type}. Available: {available}"
             raise ValueError(
-                f"Unknown strategy type: {strategy_type}. Available: {available}"
+                msg,
             )
 
         config_class = cls._strategy_config_map[strategy_type]
@@ -359,7 +358,7 @@ class ConfigFactory:
 
     @classmethod
     def validate_config(
-        cls, strategy_type: str, config: dict[str, Any]
+        cls, strategy_type: str, config: dict[str, Any],
     ) -> dict[str, Any]:
         """
         Validate configuration for the specified strategy type.
@@ -475,7 +474,7 @@ def create_range_config(
 
 
 def validate_strategy_config(
-    strategy_type: str, config: dict[str, Any]
+    strategy_type: str, config: dict[str, Any],
 ) -> dict[str, Any]:
     """Convenience function for configuration validation."""
     return ConfigFactory.validate_config(strategy_type, config)

@@ -79,13 +79,13 @@ def analyze(
     # General configuration options
     base_dir: str
     | None = typer.Option(
-        None, "--base-dir", help="Base directory for logs and outputs"
+        None, "--base-dir", help="Base directory for logs and outputs",
     ),
     refresh: bool = typer.Option(
-        True, "--refresh/--no-refresh", help="Refresh cached market data"
+        True, "--refresh/--no-refresh", help="Refresh cached market data",
     ),
     csv_use_hourly: bool = typer.Option(
-        False, "--hourly/--daily", help="Use hourly timeframe for CSV strategies"
+        False, "--hourly/--daily", help="Use hourly timeframe for CSV strategies",
     ),
     sort_by: str
     | None = typer.Option(
@@ -100,20 +100,20 @@ def analyze(
     ),
     initial_value: float
     | None = typer.Option(
-        None, "--initial-value", help="Initial portfolio value for position sizing"
+        None, "--initial-value", help="Initial portfolio value for position sizing",
     ),
     target_var: float
     | None = typer.Option(
-        None, "--target-var", help="Target Value at Risk (VaR) threshold (0.0-1.0)"
+        None, "--target-var", help="Target Value at Risk (VaR) threshold (0.0-1.0)",
     ),
     # Risk management options
     max_risk_per_strategy: float
     | None = typer.Option(
-        None, "--max-risk-strategy", help="Maximum risk percentage per strategy"
+        None, "--max-risk-strategy", help="Maximum risk percentage per strategy",
     ),
     max_risk_total: float
     | None = typer.Option(
-        None, "--max-risk-total", help="Maximum total portfolio risk percentage"
+        None, "--max-risk-total", help="Maximum total portfolio risk percentage",
     ),
     risk_calculation_method: str
     | None = typer.Option(
@@ -146,13 +146,13 @@ def analyze(
         help="Enable visualization of results",
     ),
     export_trade_history: bool = typer.Option(
-        True, "--export-trade-history/--no-export", help="Export trade history data"
+        True, "--export-trade-history/--no-export", help="Export trade history data",
     ),
     allocation: bool = typer.Option(
-        True, "--allocation/--no-allocation", help="Include allocation analysis"
+        True, "--allocation/--no-allocation", help="Include allocation analysis",
     ),
     stop_loss: bool = typer.Option(
-        True, "--stop-loss/--no-stop-loss", help="Include stop loss analysis"
+        True, "--stop-loss/--no-stop-loss", help="Include stop loss analysis",
     ),
     # Memory optimization options
     memory_optimization: bool = typer.Option(
@@ -161,11 +161,11 @@ def analyze(
         help="Enable memory optimization for large portfolios",
     ),
     memory_threshold: int = typer.Option(
-        1000, "--memory-threshold", help="Memory threshold in MB for optimization"
+        1000, "--memory-threshold", help="Memory threshold in MB for optimization",
     ),
     # Control options
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Preview configuration without executing"
+        False, "--dry-run", help="Preview configuration without executing",
     ),
 ):
     """
@@ -247,7 +247,7 @@ def analyze(
         if profile:
             # Use smart portfolio resolution
             portfolio_path, resolution_type = resolve_portfolio_from_profile(
-                profile, loader
+                profile, loader,
             )
 
             if resolution_type == "concurrency":
@@ -265,18 +265,18 @@ def analyze(
                 overrides["general"]["portfolio"] = portfolio_filename
 
                 config = loader.load_from_profile(
-                    "default_concurrency", ConcurrencyConfig, overrides
+                    "default_concurrency", ConcurrencyConfig, overrides,
                 )
 
                 rprint(
-                    f"[dim]Using portfolio definition: {portfolio_path} (resolved from profile '{profile}')[/dim]"
+                    f"[dim]Using portfolio definition: {portfolio_path} (resolved from profile '{profile}')[/dim]",
                 )
             else:
                 # Fallback to direct profile loading
                 config = loader.load_from_profile(profile, ConcurrencyConfig, overrides)
         else:
             config = loader.load_from_profile(
-                "default_concurrency", ConcurrencyConfig, overrides
+                "default_concurrency", ConcurrencyConfig, overrides,
             )
 
         # Validate that we have a portfolio to analyze
@@ -284,14 +284,14 @@ def analyze(
         if not final_portfolio:
             if profile:
                 rprint(
-                    f"[red]❌ Error: Profile '{profile}' does not specify a portfolio and no portfolio argument provided[/red]"
+                    f"[red]❌ Error: Profile '{profile}' does not specify a portfolio and no portfolio argument provided[/red]",
                 )
                 rprint(
-                    "Either specify a portfolio argument or use a profile that contains portfolio configuration."
+                    "Either specify a portfolio argument or use a profile that contains portfolio configuration.",
                 )
             else:
                 rprint(
-                    "[red]❌ Error: No portfolio specified and no profile provided[/red]"
+                    "[red]❌ Error: No portfolio specified and no profile provided[/red]",
                 )
                 rprint("Usage: trading-cli concurrency analyze PORTFOLIO [OPTIONS]")
                 rprint("   or: trading-cli concurrency analyze --profile PROFILE_NAME")
@@ -306,7 +306,7 @@ def analyze(
             )
         )
         rprint(
-            f"[bold]Starting concurrency analysis for: {final_portfolio}[/bold] [dim]({portfolio_source})[/dim]"
+            f"[bold]Starting concurrency analysis for: {final_portfolio}[/bold] [dim]({portfolio_source})[/dim]",
         )
 
         if dry_run:
@@ -335,19 +335,19 @@ def analyze(
                 "MEMORY_THRESHOLD_MB": config.memory_optimization.memory_threshold_mb,
                 # Add missing optimization settings with safe attribute access
                 "OPTIMIZE": getattr(
-                    getattr(config, "optimization", None), "enable_optimization", False
+                    getattr(config, "optimization", None), "enable_optimization", False,
                 ),
                 "OPTIMIZE_MIN_STRATEGIES": getattr(
-                    getattr(config, "optimization", None), "min_strategies", 3
+                    getattr(config, "optimization", None), "min_strategies", 3,
                 ),
                 "OPTIMIZE_MAX_PERMUTATIONS": getattr(
-                    getattr(config, "optimization", None), "max_permutations", 1000
+                    getattr(config, "optimization", None), "max_permutations", 1000,
                 ),
                 "OPTIMIZE_PARALLEL_PROCESSING": getattr(
-                    getattr(config, "optimization", None), "parallel_processing", False
+                    getattr(config, "optimization", None), "parallel_processing", False,
                 ),
                 "OPTIMIZE_MAX_WORKERS": getattr(
-                    getattr(config, "optimization", None), "max_workers", 4
+                    getattr(config, "optimization", None), "max_workers", 4,
                 ),
                 "REPORT_INCLUDES": {
                     "TICKER_METRICS": True,
@@ -409,17 +409,17 @@ def analyze(
 @app.command()
 def export(
     portfolio: str = typer.Argument(
-        help="Portfolio filename to export trade history from"
+        help="Portfolio filename to export trade history from",
     ),
     output_dir: Path
     | None = typer.Option(
-        None, "--output-dir", "-o", help="Output directory for trade history files"
+        None, "--output-dir", "-o", help="Output directory for trade history files",
     ),
     format: str = typer.Option(
-        "json", "--format", "-f", help="Export format: json, csv"
+        "json", "--format", "-f", help="Export format: json, csv",
     ),
     include_analytics: bool = typer.Option(
-        True, "--analytics/--no-analytics", help="Include trade analytics and metrics"
+        True, "--analytics/--no-analytics", help="Include trade analytics and metrics",
     ),
 ):
     """
@@ -499,10 +499,10 @@ def export(
                             _convert_trade_history_to_csv(trade_files, output_dir)
                     else:
                         rprint(
-                            "[yellow]⚠️ No trade history files were generated[/yellow]"
+                            "[yellow]⚠️ No trade history files were generated[/yellow]",
                         )
                         rprint(
-                            "This may indicate no trades were executed in the analysis"
+                            "This may indicate no trades were executed in the analysis",
                         )
                 else:
                     rprint("[yellow]⚠️ Trade history directory not found[/yellow]")
@@ -520,10 +520,10 @@ def export(
 def review(
     portfolio: str = typer.Argument(help="Portfolio filename to review"),
     focus: str = typer.Option(
-        "all", "--focus", help="Analysis focus: all, relationships, allocation, metrics"
+        "all", "--focus", help="Analysis focus: all, relationships, allocation, metrics",
     ),
     output_format: str = typer.Option(
-        "table", "--output", help="Output format: table, json, summary"
+        "table", "--output", help="Output format: table, json, summary",
     ),
     save_report: str
     | None = typer.Option(None, "--save-report", help="Save detailed report to file"),
@@ -606,11 +606,11 @@ def _show_concurrency_config_preview(config: ConcurrencyConfig):
 
     # Risk management
     table.add_row(
-        "Max Risk Per Strategy", f"{config.risk_management.max_risk_per_strategy:.1f}%"
+        "Max Risk Per Strategy", f"{config.risk_management.max_risk_per_strategy:.1f}%",
     )
     table.add_row("Max Risk Total", f"{config.risk_management.max_risk_total:.1f}%")
     table.add_row(
-        "Risk Calculation Method", str(config.risk_management.risk_calculation_method)
+        "Risk Calculation Method", str(config.risk_management.risk_calculation_method),
     )
 
     # Execution modes
@@ -631,7 +631,7 @@ def _show_concurrency_config_preview(config: ConcurrencyConfig):
     # Analysis options
     table.add_row("Visualization", str(config.visualization))
     table.add_row(
-        "Export Trade History", str(config.trade_history.export_trade_history)
+        "Export Trade History", str(config.trade_history.export_trade_history),
     )
     table.add_row("Include Allocation", str(config.report_includes.allocation))
 
@@ -642,7 +642,7 @@ def _show_concurrency_config_preview(config: ConcurrencyConfig):
     )
     if config.memory_optimization.enable_memory_optimization:
         table.add_row(
-            "Memory Threshold", f"{config.memory_optimization.memory_threshold_mb} MB"
+            "Memory Threshold", f"{config.memory_optimization.memory_threshold_mb} MB",
         )
 
     console.print(table)
@@ -694,13 +694,13 @@ def _generate_portfolio_review(portfolio_data: list, focus: str) -> dict:
             "index": i + 1,
             "ticker": strategy.get("Ticker", strategy.get("TICKER", "Unknown")),
             "strategy_type": strategy.get(
-                "Strategy Type", strategy.get("STRATEGY_TYPE", "Unknown")
+                "Strategy Type", strategy.get("STRATEGY_TYPE", "Unknown"),
             ),
             "score": strategy.get("Score", 0),
             "win_rate": strategy.get("Win Rate [%]", 0),
             "total_return": strategy.get("Total Return [%]", 0),
             "allocation": strategy.get(
-                "Allocation [%]", strategy.get("ALLOCATION", None)
+                "Allocation [%]", strategy.get("ALLOCATION", None),
             ),
             "stop_loss": strategy.get("Stop Loss [%]", strategy.get("STOP_LOSS", None)),
         }
@@ -818,7 +818,7 @@ def _display_portfolio_review_table(review_data: dict):
 
         if len(review_data["strategies"]) > 10:
             rprint(
-                f"\n[dim]Showing top 10 of {len(review_data['strategies'])} strategies[/dim]"
+                f"\n[dim]Showing top 10 of {len(review_data['strategies'])} strategies[/dim]",
             )
 
 
@@ -837,16 +837,16 @@ def _display_portfolio_review_summary(review_data: dict):
 
     rprint(f"📊 Portfolio contains {total} trading strategies")
     rprint(
-        f"💰 Allocation: {alloc['allocated_strategies']}/{total} strategies ({alloc['allocation_percentage']:.1f}%), Total: {alloc['total_allocation']:.1f}%"
+        f"💰 Allocation: {alloc['allocated_strategies']}/{total} strategies ({alloc['allocation_percentage']:.1f}%), Total: {alloc['total_allocation']:.1f}%",
     )
     rprint(
-        f"🛡️ Risk Protection: {risk['stop_loss_strategies']}/{total} strategies ({risk['stop_loss_coverage']:.1f}%) have stop losses"
+        f"🛡️ Risk Protection: {risk['stop_loss_strategies']}/{total} strategies ({risk['stop_loss_coverage']:.1f}%) have stop losses",
     )
 
     if review_data["performance_summary"]:
         perf = review_data["performance_summary"]
         rprint(
-            f"📈 Performance: Avg Score {perf['avg_score']:.2f}, Win Rate {perf['avg_win_rate']:.1f}%, Return {perf['avg_return']:.1f}%"
+            f"📈 Performance: Avg Score {perf['avg_score']:.2f}, Win Rate {perf['avg_win_rate']:.1f}%, Return {perf['avg_return']:.1f}%",
         )
 
 
@@ -870,7 +870,7 @@ def _display_portfolio_size_comparison(size_results: dict, best_size: int) -> No
 
     # Create comparison table
     comparison_table = Table(
-        title="📊 Portfolio Size Analysis Results", show_header=True
+        title="📊 Portfolio Size Analysis Results", show_header=True,
     )
     comparison_table.add_column("Portfolio\nSize", style="cyan", justify="center")
     comparison_table.add_column("Efficiency\nScore", style="green", justify="right")
@@ -915,7 +915,7 @@ def _display_portfolio_size_comparison(size_results: dict, best_size: int) -> No
         )
 
         rprint(
-            f"\n[dim]Best: {best_size}-strategy portfolio (+{improvement_pct:+.1f}% efficiency vs {sizes[0]}-strategy)[/dim]\n"
+            f"\n[dim]Best: {best_size}-strategy portfolio (+{improvement_pct:+.1f}% efficiency vs {sizes[0]}-strategy)[/dim]\n",
         )
 
 
@@ -1070,7 +1070,7 @@ def _select_diversified_portfolio(
     if n_types == 1:
         if verbose:
             rprint(
-                "[yellow]⚠️ Only one strategy type available - diversity constraints cannot be applied[/yellow]"
+                "[yellow]⚠️ Only one strategy type available - diversity constraints cannot be applied[/yellow]",
             )
         return strategies[:target_size]
 
@@ -1105,7 +1105,7 @@ def _select_diversified_portfolio(
 
         if verbose:
             rprint(
-                f"[green]✓ Diversity enforced: {len(strata[minority_type][:min_minority])} {minority_type} + {len(strata[majority_type][:max_majority])} {majority_type}[/green]"
+                f"[green]✓ Diversity enforced: {len(strata[minority_type][:min_minority])} {minority_type} + {len(strata[majority_type][:max_majority])} {majority_type}[/green]",
             )
 
         return portfolio[:target_size]
@@ -1135,11 +1135,11 @@ def _select_diversified_portfolio(
 
                 if verbose:
                     div_score = diversification_scores.get(
-                        best_strategy["strategy_id"], 1.0
+                        best_strategy["strategy_id"], 1.0,
                     )
                     weighted = best_strategy["score"] * div_score
                     rprint(
-                        f"[dim]  Round 1: {stype} → {best_strategy['strategy_id']} (weighted: {weighted:.3f})[/dim]"
+                        f"[dim]  Round 1: {stype} → {best_strategy['strategy_id']} (weighted: {weighted:.3f})[/dim]",
                     )
 
         # Round 2: Fill remaining slots from all types by weighted score
@@ -1166,7 +1166,7 @@ def _select_diversified_portfolio(
 
             if verbose:
                 rprint(
-                    f"[dim]  Round 2: Added {len(additional_selections)} strategies by weighted score[/dim]"
+                    f"[dim]  Round 2: Added {len(additional_selections)} strategies by weighted score[/dim]",
                 )
 
         # Display final type distribution
@@ -1188,7 +1188,7 @@ def _select_diversified_portfolio(
 
 
 def _export_strategies_to_file(
-    asset: str, strategies: list, force_overwrite: bool = False
+    asset: str, strategies: list, force_overwrite: bool = False,
 ) -> None:
     """Export strategies to data/raw/strategies/{asset}.csv.
 
@@ -1204,7 +1204,7 @@ def _export_strategies_to_file(
     # Check overwrite conditions
     if export_path.exists() and not force_overwrite:
         rprint(
-            f"[dim]Export skipped: {export_path} already exists (use --export to overwrite)[/dim]"
+            f"[dim]Export skipped: {export_path} already exists (use --export to overwrite)[/dim]",
         )
         return
 
@@ -1238,7 +1238,7 @@ def _export_strategies_to_file(
                 combined_rows.append(matching.iloc[0])
             else:
                 rprint(
-                    f"[yellow]⚠️ Strategy not found in {source_file.name}: {ticker}_{strat_type}_{fast}_{slow}[/yellow]"
+                    f"[yellow]⚠️ Strategy not found in {source_file.name}: {ticker}_{strat_type}_{fast}_{slow}[/yellow]",
                 )
         except Exception as e:
             rprint(f"[red]❌ Error reading {source_file}: {e}[/red]")
@@ -1253,7 +1253,7 @@ def _export_strategies_to_file(
 
         result_df.to_csv(export_path, index=False)
         rprint(
-            f"[green]✓ Exported {len(combined_rows)} strategies to: {export_path}[/green]"
+            f"[green]✓ Exported {len(combined_rows)} strategies to: {export_path}[/green]",
         )
     else:
         rprint("[red]❌ No strategies found to export[/red]")
@@ -1275,7 +1275,7 @@ def construct(
     ),
     ticker_1: str
     | None = typer.Option(
-        None, "--ticker-1", "-t1", help="First ticker for synthetic pair analysis"
+        None, "--ticker-1", "-t1", help="First ticker for synthetic pair analysis",
     ),
     ticker_2: str
     | None = typer.Option(
@@ -1285,12 +1285,12 @@ def construct(
         help="Second ticker for synthetic pair analysis (automatically enables synthetic mode)",
     ),
     min_score: float = typer.Option(
-        1.0, "--min-score", help="Minimum Score threshold for strategy inclusion"
+        1.0, "--min-score", help="Minimum Score threshold for strategy inclusion",
     ),
     profile: str
     | None = typer.Option(None, "--profile", "-p", help="Configuration profile to use"),
     output_format: str = typer.Option(
-        "table", "--format", help="Output format: table, json, csv"
+        "table", "--format", help="Output format: table, json, csv",
     ),
     save_portfolio: str
     | None = typer.Option(None, "--save", help="Save optimal portfolio to file"),
@@ -1301,7 +1301,7 @@ def construct(
         help="Export strategies to data/raw/strategies/{TICKER}.csv (overwrites if exists)",
     ),
     verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
+        False, "--verbose", "-v", help="Enable verbose output",
     ),
 ):
     """Construct optimal portfolio from asset strategy universe.
@@ -1337,13 +1337,13 @@ def construct(
             # Synthetic mode: ticker_1 + ticker_2
             if ticker_1 is None:
                 rprint(
-                    "[red]❌ Error: -t1 is required when using -t2 for synthetic pairs[/red]"
+                    "[red]❌ Error: -t1 is required when using -t2 for synthetic pairs[/red]",
                 )
                 raise typer.Exit(1)
 
             asset_names = [f"{ticker_1}_{ticker_2}"]
             rprint(
-                f"[bold]Constructing synthetic pair portfolio: {asset_names[0]}[/bold]"
+                f"[bold]Constructing synthetic pair portfolio: {asset_names[0]}[/bold]",
             )
         elif ticker_1 is not None:
             # Single ticker mode via -t1 flag
@@ -1359,11 +1359,11 @@ def construct(
 
             if len(asset_names) == 1:
                 rprint(
-                    f"[bold]Constructing optimal portfolio for {asset_names[0]}[/bold]"
+                    f"[bold]Constructing optimal portfolio for {asset_names[0]}[/bold]",
                 )
             else:
                 rprint(
-                    f"[bold]Constructing optimal portfolios for {len(asset_names)} tickers: {', '.join(asset_names)}[/bold]"
+                    f"[bold]Constructing optimal portfolios for {len(asset_names)} tickers: {', '.join(asset_names)}[/bold]",
                 )
         elif asset is not None:
             # Direct asset argument
@@ -1371,15 +1371,15 @@ def construct(
             rprint(f"[bold]Constructing optimal portfolio for {asset_names[0]}[/bold]")
         else:
             rprint(
-                "[red]❌ Error: Must specify either ASSET argument or use -t/-t1/-t2 flags[/red]"
+                "[red]❌ Error: Must specify either ASSET argument or use -t/-t1/-t2 flags[/red]",
             )
             rprint("[dim]Examples:[/dim]")
             rprint("[dim]  Single asset: trading-cli concurrency construct NVDA[/dim]")
             rprint(
-                "[dim]  Multiple tickers: trading-cli concurrency construct -t HIMS,NVDA,SMR --export[/dim]"
+                "[dim]  Multiple tickers: trading-cli concurrency construct -t HIMS,NVDA,SMR --export[/dim]",
             )
             rprint(
-                "[dim]  Synthetic pair: trading-cli concurrency construct -t1 NVDA -t2 QQQ[/dim]"
+                "[dim]  Synthetic pair: trading-cli concurrency construct -t1 NVDA -t2 QQQ[/dim]",
             )
             raise typer.Exit(1)
 
@@ -1392,7 +1392,7 @@ def construct(
             if len(asset_names) > 1:
                 rprint(f"\n[bold cyan]{'='*60}[/bold cyan]")
                 rprint(
-                    f"[bold cyan]Processing ticker {ticker_idx}/{len(asset_names)}: {asset_name}[/bold cyan]"
+                    f"[bold cyan]Processing ticker {ticker_idx}/{len(asset_names)}: {asset_name}[/bold cyan]",
                 )
                 rprint(f"[bold cyan]{'='*60}[/bold cyan]\n")
 
@@ -1406,29 +1406,29 @@ def construct(
                     rprint(f"[yellow]⚠️ Warning: {feasibility['error']}[/yellow]")
                 else:
                     rprint(
-                        "[yellow]⚠️ Warning: Insufficient strategies for portfolio construction[/yellow]"
+                        "[yellow]⚠️ Warning: Insufficient strategies for portfolio construction[/yellow]",
                     )
                     rprint(
-                        f"Available strategies with Score >= {min_score}: {feasibility.get('score_filtered_strategies', 0)}"
+                        f"Available strategies with Score >= {min_score}: {feasibility.get('score_filtered_strategies', 0)}",
                     )
                     rprint("Need at least 5 strategies for portfolio construction")
 
                 # Load strategies for potential export even when insufficient for analysis
                 rprint(
-                    f"[yellow]⚠️ Skipping analysis for {asset_name} (need 5+ strategies)[/yellow]"
+                    f"[yellow]⚠️ Skipping analysis for {asset_name} (need 5+ strategies)[/yellow]",
                 )
 
                 strategies = loader.load_strategies_for_asset(
-                    asset_name, min_score=min_score
+                    asset_name, min_score=min_score,
                 )
 
                 # Export strategies if requested
                 if export:
                     _export_strategies_to_file(
-                        asset_name, strategies, force_overwrite=True
+                        asset_name, strategies, force_overwrite=True,
                     )
                     rprint(
-                        f"[green]✓ Exported {len(strategies)} available strategies to data/raw/strategies/{asset_name}.csv[/green]"
+                        f"[green]✓ Exported {len(strategies)} available strategies to data/raw/strategies/{asset_name}.csv[/green]",
                     )
 
                 # Track result
@@ -1439,7 +1439,7 @@ def construct(
                         "error": f"Insufficient strategies for analysis (need 5+, have {len(strategies)})",
                         "portfolio_size": len(strategies),
                         "efficiency_score": None,
-                    }
+                    },
                 )
                 continue
 
@@ -1448,13 +1448,13 @@ def construct(
 
             # Load strategies and create temporary portfolio file
             strategies = loader.load_strategies_for_asset(
-                asset_name, min_score=min_score
+                asset_name, min_score=min_score,
             )
 
             # Calculate diversification scores for strategy selection
             rprint("[dim]Calculating diversification-weighted scores...[/dim]")
             diversification_scores = _calculate_strategy_diversification_scores(
-                strategies
+                strategies,
             )
 
             # Sort strategies by score * diversification_multiplier (descending)
@@ -1468,13 +1468,13 @@ def construct(
 
             if verbose:
                 rprint(
-                    f"[dim]Loaded {len(strategies)} strategies, sorted by score × diversification (highest first)[/dim]"
+                    f"[dim]Loaded {len(strategies)} strategies, sorted by score × diversification (highest first)[/dim]",
                 )
                 if strategies:
                     top_strat = strategies[0]
                     top_div = diversification_scores.get(top_strat["strategy_id"], 1.0)
                     rprint(
-                        f"[dim]Top strategy: {top_strat['strategy_id']} (Score: {top_strat['score']:.3f}, Div: {top_div:.3f}, Weighted: {top_strat['score'] * top_div:.3f})[/dim]"
+                        f"[dim]Top strategy: {top_strat['strategy_id']} (Score: {top_strat['score']:.3f}, Div: {top_div:.3f}, Weighted: {top_strat['score'] * top_div:.3f})[/dim]",
                     )
                     if len(strategies) >= 5:
                         rprint("[dim]Top 5 strategies by weighted score:[/dim]")
@@ -1482,7 +1482,7 @@ def construct(
                             div = diversification_scores.get(s["strategy_id"], 1.0)
                             weighted = s["score"] * div
                             rprint(
-                                f"[dim]  {i}. {s['strategy_id']}: Score={s['score']:.3f}, Div={div:.3f}, Weighted={weighted:.3f}[/dim]"
+                                f"[dim]  {i}. {s['strategy_id']}: Score={s['score']:.3f}, Div={div:.3f}, Weighted={weighted:.3f}[/dim]",
                             )
 
                         # Show type distribution
@@ -1499,10 +1499,10 @@ def construct(
             is_exact_match = len(strategies) in [5, 7, 9]
             if is_exact_match:
                 rprint(
-                    f"[green]✓ Exact match: {len(strategies)} strategies available[/green]"
+                    f"[green]✓ Exact match: {len(strategies)} strategies available[/green]",
                 )
                 rprint(
-                    "[dim]Running optimization to calculate efficiency metrics...[/dim]"
+                    "[dim]Running optimization to calculate efficiency metrics...[/dim]",
                 )
 
             # Prepare JSON portfolios directory
@@ -1527,15 +1527,15 @@ def construct(
                     if len(strategies) >= size:
                         if is_exact_match:
                             rprint(
-                                f"[bold]Calculating efficiency metrics for {size} strategies[/bold]"
+                                f"[bold]Calculating efficiency metrics for {size} strategies[/bold]",
                             )
                             rprint(
-                                "[dim]Running concurrency analysis (this may take 15-30 seconds)...[/dim]"
+                                "[dim]Running concurrency analysis (this may take 15-30 seconds)...[/dim]",
                             )
                         else:
                             rprint(f"[bold]Testing portfolio size: {size}[/bold]")
                             rprint(
-                                f"[dim]Analyzing {size}-strategy combinations (this may take 30-90 seconds)...[/dim]"
+                                f"[dim]Analyzing {size}-strategy combinations (this may take 30-90 seconds)...[/dim]",
                             )
 
                         # ===== STRATIFIED SELECTION: Apply diversity constraints =====
@@ -1595,7 +1595,7 @@ def construct(
 
                         if verbose:
                             rprint(
-                                f"[dim]Created size-specific temp file: {size_temp_filename} with {len(size_portfolio_data)} strategies[/dim]"
+                                f"[dim]Created size-specific temp file: {size_temp_filename} with {len(size_portfolio_data)} strategies[/dim]",
                             )
                         # ===== END BUG FIX =====
 
@@ -1618,7 +1618,7 @@ def construct(
 
                         # Run direct analysis on THIS SIZE
                         success = run_concurrency_review(
-                            size_temp_filename, config_overrides=config_overrides
+                            size_temp_filename, config_overrides=config_overrides,
                         )
 
                         if success:
@@ -1642,18 +1642,18 @@ def construct(
 
                                     # Extract metrics from nested report structure
                                     portfolio_metrics = report_data.get(
-                                        "portfolio_metrics", {}
+                                        "portfolio_metrics", {},
                                     )
                                     efficiency_metrics = portfolio_metrics.get(
-                                        "efficiency", {}
+                                        "efficiency", {},
                                     )
                                     risk_metrics = portfolio_metrics.get(
-                                        "risk", {}
+                                        "risk", {},
                                     ).get("portfolio_metrics", {})
 
                                     # Extract efficiency score and multipliers from nested structure
                                     efficiency_score = efficiency_metrics.get(
-                                        "efficiency_score", {}
+                                        "efficiency_score", {},
                                     ).get("value", 0.0)
                                     diversification = (
                                         efficiency_metrics.get("multipliers", {})
@@ -1671,13 +1671,13 @@ def construct(
                                         .get("value", 0.0)
                                     )
                                     total_expectancy = efficiency_metrics.get(
-                                        "expectancy", {}
+                                        "expectancy", {},
                                     ).get("value", 0.0)
                                     average_expectancy = (
                                         total_expectancy / size if size > 0 else 0.0
                                     )
                                     risk_concentration = risk_metrics.get(
-                                        "risk_concentration_index", {}
+                                        "risk_concentration_index", {},
                                     ).get("value", 0.0)
 
                                     metrics_loaded = True
@@ -1697,15 +1697,15 @@ def construct(
 
                                     if verbose:
                                         rprint(
-                                            f"[dim]✓ Loaded metrics from: {report_file.name}[/dim]"
+                                            f"[dim]✓ Loaded metrics from: {report_file.name}[/dim]",
                                         )
                                         rprint(
-                                            f"[dim]   Efficiency: {efficiency_score:.4f}, Div: {diversification:.3f}, Ind: {independence:.3f}, Activity: {activity:.3f}[/dim]"
+                                            f"[dim]   Efficiency: {efficiency_score:.4f}, Div: {diversification:.3f}, Ind: {independence:.3f}, Activity: {activity:.3f}[/dim]",
                                         )
 
                                 except Exception as e:
                                     rprint(
-                                        f"[yellow]⚠️ Could not load analysis results: {e}[/yellow]"
+                                        f"[yellow]⚠️ Could not load analysis results: {e}[/yellow]",
                                     )
                                     if verbose:
                                         import traceback
@@ -1713,14 +1713,14 @@ def construct(
                                         rprint(f"[dim]{traceback.format_exc()}[/dim]")
                             else:
                                 rprint(
-                                    f"[yellow]⚠️ Analysis report not generated: {report_file.name}[/yellow]"
+                                    f"[yellow]⚠️ Analysis report not generated: {report_file.name}[/yellow]",
                                 )
                                 if verbose:
                                     rprint(
-                                        f"[dim]   Expected location: {report_file}[/dim]"
+                                        f"[dim]   Expected location: {report_file}[/dim]",
                                     )
                                     rprint(
-                                        f"[dim]   Checking if directory exists: {report_file.parent.exists()}[/dim]"
+                                        f"[dim]   Checking if directory exists: {report_file.parent.exists()}[/dim]",
                                     )
 
                             # Only use this result if metrics were successfully loaded
@@ -1735,7 +1735,7 @@ def construct(
                             elif not metrics_loaded:
                                 # If no metrics loaded, still create a result but mark it
                                 rprint(
-                                    "[dim]   Using fallback: Will display portfolio without efficiency metrics[/dim]"
+                                    "[dim]   Using fallback: Will display portfolio without efficiency metrics[/dim]",
                                 )
                                 if best_result is None:
                                     # Create a basic result without metrics
@@ -1762,11 +1762,11 @@ def construct(
                     # Handle efficiency score display - None means metrics weren't generated
                     if best_result["efficiency_score"] is not None:
                         rprint(
-                            f"Efficiency Score: {best_result['efficiency_score']:.4f}"
+                            f"Efficiency Score: {best_result['efficiency_score']:.4f}",
                         )
                     else:
                         rprint(
-                            "Efficiency Score: [yellow]N/A (optimization metrics not generated)[/yellow]"
+                            "Efficiency Score: [yellow]N/A (optimization metrics not generated)[/yellow]",
                         )
 
                     rprint(f"Total Strategies Evaluated: {len(strategies)}")
@@ -1779,18 +1779,18 @@ def construct(
                             # Only show table if single size (no comparison was done)
                             strategy_table = Table(show_header=True)
                             strategy_table.add_column(
-                                "#", style="white", justify="right"
+                                "#", style="white", justify="right",
                             )
                             strategy_table.add_column("Strategy ID", style="cyan")
                             strategy_table.add_column(
-                                "Score", style="green", justify="right"
+                                "Score", style="green", justify="right",
                             )
                             strategy_table.add_column(
-                                "Sharpe", style="yellow", justify="right"
+                                "Sharpe", style="yellow", justify="right",
                             )
 
                             for i, strategy in enumerate(
-                                best_result["strategies"][: best_result["size"]], 1
+                                best_result["strategies"][: best_result["size"]], 1,
                             ):
                                 strategy_table.add_row(
                                     str(i),
@@ -1836,19 +1836,19 @@ def construct(
                             "portfolio_size": best_result["size"],
                             "efficiency_score": best_result["efficiency_score"],
                             "strategies_evaluated": len(strategies),
-                        }
+                        },
                     )
 
                 else:
                     rprint(
-                        f"[red]❌ Failed to construct viable portfolio for {asset_name}[/red]"
+                        f"[red]❌ Failed to construct viable portfolio for {asset_name}[/red]",
                     )
                     all_results.append(
                         {
                             "asset": asset_name,
                             "success": False,
                             "error": "Failed to construct viable portfolio",
-                        }
+                        },
                     )
 
                     # For single ticker, exit immediately; for multiple, continue
@@ -1867,7 +1867,7 @@ def construct(
         if len(asset_names) > 1:
             rprint(f"\n[bold cyan]{'='*60}[/bold cyan]")
             rprint(
-                f"[bold cyan]Summary: Processed {len(asset_names)} Tickers[/bold cyan]"
+                f"[bold cyan]Summary: Processed {len(asset_names)} Tickers[/bold cyan]",
             )
             rprint(f"[bold cyan]{'='*60}[/bold cyan]\n")
 
@@ -1876,7 +1876,7 @@ def construct(
 
             if successful:
                 rprint(
-                    f"[green]✓ Successfully constructed {len(successful)} portfolios:[/green]"
+                    f"[green]✓ Successfully constructed {len(successful)} portfolios:[/green]",
                 )
                 for result in successful:
                     efficiency_display = (
@@ -1885,18 +1885,18 @@ def construct(
                         else "N/A"
                     )
                     rprint(
-                        f"  • {result['asset']}: {result['portfolio_size']} strategies (Efficiency: {efficiency_display})"
+                        f"  • {result['asset']}: {result['portfolio_size']} strategies (Efficiency: {efficiency_display})",
                     )
 
             if failed:
                 rprint(f"\n[red]✗ Failed to construct {len(failed)} portfolios:[/red]")
                 for result in failed:
                     rprint(
-                        f"  • {result['asset']}: {result.get('error', 'Unknown error')}"
+                        f"  • {result['asset']}: {result.get('error', 'Unknown error')}",
                     )
 
             rprint(
-                f"\n[bold]Overall Success Rate: {len(successful)}/{len(asset_names)} ({len(successful)/len(asset_names)*100:.1f}%)[/bold]"
+                f"\n[bold]Overall Success Rate: {len(successful)}/{len(asset_names)} ({len(successful)/len(asset_names)*100:.1f}%)[/bold]",
             )
 
     except Exception as e:
@@ -1913,11 +1913,11 @@ def optimize(
     ctx: typer.Context,
     portfolio: str = typer.Argument(help="Portfolio filename to optimize"),
     min_strategies: int = typer.Option(
-        3, "--min-strategies", "-m", help="Minimum strategies per combination"
+        3, "--min-strategies", "-m", help="Minimum strategies per combination",
     ),
     max_permutations: int
     | None = typer.Option(
-        None, "--max-permutations", help="Maximum permutations to evaluate"
+        None, "--max-permutations", help="Maximum permutations to evaluate",
     ),
     allocation_mode: str = typer.Option(
         "EQUAL",
@@ -1926,13 +1926,13 @@ def optimize(
     ),
     output_file: Path
     | None = typer.Option(
-        None, "--output", "-o", help="Save optimization results to file"
+        None, "--output", "-o", help="Save optimization results to file",
     ),
     visualize: bool = typer.Option(
-        True, "--visualize/--no-visualize", help="Generate visualization charts"
+        True, "--visualize/--no-visualize", help="Generate visualization charts",
     ),
     parallel: bool = typer.Option(
-        False, "--parallel", help="Enable parallel processing for faster execution"
+        False, "--parallel", help="Enable parallel processing for faster execution",
     ),
 ):
     """
@@ -1992,7 +1992,7 @@ def optimize(
             ) as progress:
                 # Run optimization with progress tracking
                 task = progress.add_task(
-                    "Optimizing strategy combinations...", total=100
+                    "Optimizing strategy combinations...", total=100,
                 )
 
                 def update_progress(current: int, total: int):
@@ -2010,7 +2010,7 @@ def optimize(
                     rprint("[green]✅ Optimization completed successfully![/green]")
                     rprint(f"📊 Analyzed {opt_results['total_analyzed']} combinations")
                     rprint(
-                        f"🏆 Best efficiency score: {opt_results['best_efficiency']:.4f}"
+                        f"🏆 Best efficiency score: {opt_results['best_efficiency']:.4f}",
                     )
 
                     if opt_results.get("best_permutation"):
@@ -2021,7 +2021,7 @@ def optimize(
                     if opt_results.get("improvement_percentage"):
                         rprint(
                             f"📊 Improvement over full portfolio: "
-                            f"{opt_results['improvement_percentage']:.1f}%"
+                            f"{opt_results['improvement_percentage']:.1f}%",
                         )
 
                     # Save results if requested
@@ -2034,7 +2034,7 @@ def optimize(
 
                     if visualize and opt_results.get("visualization_path"):
                         rprint(
-                            f"📊 Visualization saved to: {opt_results['visualization_path']}"
+                            f"📊 Visualization saved to: {opt_results['visualization_path']}",
                         )
                 else:
                     rprint("[red]❌ Optimization failed[/red]")
@@ -2051,7 +2051,7 @@ def optimize(
 def monte_carlo(
     portfolio: str = typer.Argument(help="Portfolio filename for Monte Carlo analysis"),
     simulations: int = typer.Option(
-        10000, "--simulations", "-n", help="Number of Monte Carlo simulations"
+        10000, "--simulations", "-n", help="Number of Monte Carlo simulations",
     ),
     confidence_levels: str = typer.Option(
         "95,99",
@@ -2059,20 +2059,20 @@ def monte_carlo(
         help="Confidence levels for risk metrics (comma-separated)",
     ),
     horizon_days: int = typer.Option(
-        252, "--horizon", help="Forecast horizon in days (252 = 1 year)"
+        252, "--horizon", help="Forecast horizon in days (252 = 1 year)",
     ),
     bootstrap: bool = typer.Option(
-        True, "--bootstrap/--no-bootstrap", help="Use bootstrap resampling"
+        True, "--bootstrap/--no-bootstrap", help="Use bootstrap resampling",
     ),
     save_simulations: bool = typer.Option(
-        False, "--save-simulations", help="Save individual simulation paths"
+        False, "--save-simulations", help="Save individual simulation paths",
     ),
     output_file: Path
     | None = typer.Option(
-        None, "--output", "-o", help="Save Monte Carlo results to file"
+        None, "--output", "-o", help="Save Monte Carlo results to file",
     ),
     visualize: bool = typer.Option(
-        True, "--visualize/--no-visualize", help="Generate visualization charts"
+        True, "--visualize/--no-visualize", help="Generate visualization charts",
     ),
 ):
     """
@@ -2116,7 +2116,7 @@ def monte_carlo(
                 TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
             ) as progress:
                 task = progress.add_task(
-                    f"Running {simulations:,} simulations...", total=simulations
+                    f"Running {simulations:,} simulations...", total=simulations,
                 )
 
                 # Initialize Monte Carlo manager
@@ -2137,7 +2137,7 @@ def monte_carlo(
                     progress.update(task, completed=completed)
 
                 results = mc_manager.run_portfolio_simulation(
-                    portfolio_data, progress_callback=update_progress
+                    portfolio_data, progress_callback=update_progress,
                 )
 
                 if results:
@@ -2162,7 +2162,7 @@ def monte_carlo(
                     rprint(
                         f"  • 95% Confidence Interval: "
                         f"[{results['forecast']['lower_95']:.2%}, "
-                        f"{results['forecast']['upper_95']:.2%}]"
+                        f"{results['forecast']['upper_95']:.2%}]",
                     )
 
                     # Save results if requested
@@ -2195,16 +2195,16 @@ def monte_carlo(
 @app.command()
 def health(
     check_dependencies: bool = typer.Option(
-        True, "--deps/--no-deps", help="Check system dependencies"
+        True, "--deps/--no-deps", help="Check system dependencies",
     ),
     check_data: bool = typer.Option(
-        True, "--data/--no-data", help="Validate data directories"
+        True, "--data/--no-data", help="Validate data directories",
     ),
     check_config: bool = typer.Option(
-        True, "--config/--no-config", help="Validate configuration files"
+        True, "--config/--no-config", help="Validate configuration files",
     ),
     fix_issues: bool = typer.Option(
-        False, "--fix", help="Attempt to fix identified issues"
+        False, "--fix", help="Attempt to fix identified issues",
     ),
 ):
     """
@@ -2305,7 +2305,7 @@ def health(
         # Exit with appropriate code
         if issues_found and not fix_issues:
             rprint(
-                "\n[yellow]💡 Tip: Run with --fix to attempt automatic fixes[/yellow]"
+                "\n[yellow]💡 Tip: Run with --fix to attempt automatic fixes[/yellow]",
             )
             raise typer.Exit(1)
         if issues_found and fix_issues:
@@ -2321,13 +2321,13 @@ def health(
 def demo(
     output_dir: Path
     | None = typer.Option(
-        None, "--output", "-o", help="Output directory for demo results"
+        None, "--output", "-o", help="Output directory for demo results",
     ),
     strategies: int = typer.Option(
-        5, "--strategies", help="Number of strategies to generate"
+        5, "--strategies", help="Number of strategies to generate",
     ),
     run_analysis: bool = typer.Option(
-        True, "--analyze/--no-analyze", help="Run full analysis after generation"
+        True, "--analyze/--no-analyze", help="Run full analysis after generation",
     ),
 ):
     """
@@ -2366,10 +2366,10 @@ def demo(
         rprint("\n[bold]Demo Portfolio Summary:[/bold]")
         rprint(f"  • Total strategies: {len(demo_portfolio['strategies'])}")
         rprint(
-            f"  • Tickers: {', '.join({s['ticker'] for s in demo_portfolio['strategies']})}"
+            f"  • Tickers: {', '.join({s['ticker'] for s in demo_portfolio['strategies']})}",
         )
         rprint(
-            f"  • Strategy types: {', '.join({s['strategy_type'] for s in demo_portfolio['strategies']})}"
+            f"  • Strategy types: {', '.join({s['strategy_type'] for s in demo_portfolio['strategies']})}",
         )
 
         if run_analysis:
@@ -2400,17 +2400,17 @@ def demo(
                         rprint("\n[bold]Key Metrics:[/bold]")
                         rprint(
                             f"  • Efficiency Score: "
-                            f"{metrics.get('efficiency', {}).get('score', {}).get('value', 0):.3f}"
+                            f"{metrics.get('efficiency', {}).get('score', {}).get('value', 0):.3f}",
                         )
                         rprint(
                             f"  • Concurrent Ratio: "
-                            f"{metrics.get('concurrency', {}).get('concurrent_ratio', {}).get('value', 0):.2%}"
+                            f"{metrics.get('concurrency', {}).get('concurrent_ratio', {}).get('value', 0):.2%}",
                         )
                 else:
                     rprint("[red]❌ Demo analysis failed[/red]")
         else:
             rprint(
-                "\n[yellow]ℹ️ Demo portfolio generated. Run with --analyze to perform analysis.[/yellow]"
+                "\n[yellow]ℹ️ Demo portfolio generated. Run with --analyze to perform analysis.[/yellow]",
             )
 
     except Exception as e:

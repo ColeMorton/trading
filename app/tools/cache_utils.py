@@ -112,7 +112,8 @@ def get_cache_filepath(config: CacheConfig, analysis_type: str) -> tuple[str, st
         filename = f"{base_name}{rsi_suffix}{stop_loss_suffix}.csv"
         subdir = "protective_stop_loss"
     else:
-        raise ValueError(f"Unknown analysis type: {analysis_type}")
+        msg = f"Unknown analysis type: {analysis_type}"
+        raise ValueError(msg)
 
     directory = os.path.join(config["BASE_DIR"], "csv", "ma_cross", subdir)
     return directory, filename
@@ -162,12 +163,12 @@ def load_cached_analysis(
 
             # Populate matrices with correct indexing
             for i, threshold in enumerate(
-                param_range if param_range is not None else df[param_column].unique()
+                param_range if param_range is not None else df[param_column].unique(),
             ):
                 for j, window in enumerate(param_range_2):
                     row = df.filter(
                         (pl.col(param_column) == threshold)
-                        & (pl.col(param_column_2) == window)
+                        & (pl.col(param_column_2) == window),
                     ).row(0, named=True)
 
                     trades_matrix[i, j] = row.get("Total Closed Trades", 0)

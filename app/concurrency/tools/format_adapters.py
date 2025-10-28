@@ -108,7 +108,7 @@ class FormatAdapter(ABC):
         """
 
     def validate_adapted_data(
-        self, data: pd.DataFrame, log: Callable[[str, str], None] | None = None
+        self, data: pd.DataFrame, log: Callable[[str, str], None] | None = None,
     ) -> dict[str, Any]:
         """
         Validate adapted data against standard format.
@@ -142,10 +142,10 @@ class FormatAdapter(ABC):
             if col in data.columns:
                 actual_type = str(data[col].dtype)
                 if expected_type not in actual_type and not self._is_compatible_type(
-                    actual_type, expected_type
+                    actual_type, expected_type,
                 ):
                     validation["warnings"].append(
-                        f"Column {col} has type {actual_type}, expected {expected_type}"
+                        f"Column {col} has type {actual_type}, expected {expected_type}",
                     )
 
         validation["checks_performed"].append("data_types")
@@ -161,7 +161,7 @@ class FormatAdapter(ABC):
                         validation["valid"] = False
             except Exception as e:
                 validation["warnings"].append(
-                    f"Validation rule {rule_name} failed: {e!s}"
+                    f"Validation rule {rule_name} failed: {e!s}",
                 )
 
         validation["checks_performed"].append("validation_rules")
@@ -180,7 +180,7 @@ class FormatAdapter(ABC):
         return actual_type in compatibility_map.get(expected_type, [expected_type])
 
     def _apply_validation_rule(
-        self, data: pd.DataFrame, rule_name: str, rule_config: dict[str, Any]
+        self, data: pd.DataFrame, rule_name: str, rule_config: dict[str, Any],
     ) -> dict[str, Any]:
         """Apply a specific validation rule."""
         result = {"passed": True, "warnings": [], "errors": []}
@@ -196,14 +196,14 @@ class FormatAdapter(ABC):
                         violations = data[data[column] < min_val]
                         if len(violations) > 0:
                             result["warnings"].append(
-                                f"{column}: {len(violations)} values below minimum {min_val}"
+                                f"{column}: {len(violations)} values below minimum {min_val}",
                             )
 
                     if max_val is not None:
                         violations = data[data[column] > max_val]
                         if len(violations) > 0:
                             result["warnings"].append(
-                                f"{column}: {len(violations)} values above maximum {max_val}"
+                                f"{column}: {len(violations)} values above maximum {max_val}",
                             )
 
             elif rule_name == "completeness_check":
@@ -214,7 +214,7 @@ class FormatAdapter(ABC):
                     completeness = data[column].notna().sum() / len(data)
                     if completeness < min_completeness:
                         result["errors"].append(
-                            f"{column}: completeness {completeness:.2%} below threshold {min_completeness:.2%}"
+                            f"{column}: completeness {completeness:.2%} below threshold {min_completeness:.2%}",
                         )
                         result["critical"] = True
                         result["passed"] = False
@@ -227,7 +227,7 @@ class FormatAdapter(ABC):
                     duplicates = data.duplicated(subset=available_columns)
                     if duplicates.any():
                         result["warnings"].append(
-                            f"Found {duplicates.sum()} duplicate rows based on {available_columns}"
+                            f"Found {duplicates.sum()} duplicate rows based on {available_columns}",
                         )
 
         except Exception as e:
@@ -371,7 +371,7 @@ class VectorBTAdapter(FormatAdapter):
                 if date_col in adapted_df.columns:
                     try:
                         adapted_df[f"{date_col.lower()}_date"] = pd.to_datetime(
-                            adapted_df[date_col]
+                            adapted_df[date_col],
                         )
                         columns_mapped[date_col] = f"{date_col.lower()}_date"
                     except Exception as e:
@@ -436,7 +436,7 @@ class CustomCSVAdapter(FormatAdapter):
             required_columns=["ticker"],  # Minimal requirement
             optional_columns=[],
             validation_rules={
-                "basic_completeness": {"column": "ticker", "min_completeness": 0.9}
+                "basic_completeness": {"column": "ticker", "min_completeness": 0.9},
             },
         )
         super().__init__(format_spec)
@@ -459,7 +459,7 @@ class CustomCSVAdapter(FormatAdapter):
             }
 
             matches = 0
-            for _concept, variations in column_variations.items():
+            for variations in column_variations.values():
                 if any(
                     var.lower() in [col.lower() for col in df.columns]
                     for var in variations
@@ -590,8 +590,8 @@ class JSONAdapter(FormatAdapter):
             optional_columns=[],
             validation_rules={
                 "structure_check": {
-                    "required_keys": ["ticker_metrics", "portfolio_metrics"]
-                }
+                    "required_keys": ["ticker_metrics", "portfolio_metrics"],
+                },
             },
         )
         super().__init__(format_spec)
@@ -627,14 +627,15 @@ class JSONAdapter(FormatAdapter):
                 with open(data) as f:
                     json_data = json.load(f)
             else:
-                raise ValueError("Unsupported data type for JSON adaptation")
+                msg = "Unsupported data type for JSON adaptation"
+                raise ValueError(msg)
 
             # Standardize JSON structure
             standardized_json = self._standardize_json_structure(json_data)
 
             # Convert to DataFrame format for consistency with CSV adapters
             ticker_metrics_df = self._json_to_dataframe(
-                standardized_json.get("ticker_metrics", {})
+                standardized_json.get("ticker_metrics", {}),
             )
 
             validation_results = {"valid": True, "warnings": [], "errors": []}

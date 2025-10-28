@@ -34,16 +34,16 @@ class ReportIncludeOptions(BaseModel):
     """Options for what to include in concurrency reports."""
 
     ticker_metrics: bool = Field(
-        default=True, description="Include ticker-level metrics in report"
+        default=True, description="Include ticker-level metrics in report",
     )
     strategies: bool = Field(
-        default=True, description="Include detailed strategy information"
+        default=True, description="Include detailed strategy information",
     )
     strategy_relationships: bool = Field(
-        default=True, description="Include strategy relationship analysis"
+        default=True, description="Include strategy relationship analysis",
     )
     allocation: bool = Field(
-        default=True, description="Include allocation calculations and fields"
+        default=True, description="Include allocation calculations and fields",
     )
 
 
@@ -63,7 +63,7 @@ class TradeHistoryConfig(BaseModel):
         description="Output format for trade history",
     )
     output_dir: Path | None = Field(
-        default=None, description="Output directory for trade history files"
+        default=None, description="Output directory for trade history files",
     )
 
 
@@ -71,22 +71,22 @@ class MemoryOptimizationConfig(BaseModel):
     """Configuration for memory optimization features."""
 
     enable_memory_optimization: bool = Field(
-        default=False, description="Enable memory optimization features"
+        default=False, description="Enable memory optimization features",
     )
     memory_threshold_mb: float = Field(
-        default=1000.0, description="Memory threshold for GC triggers (MB)"
+        default=1000.0, description="Memory threshold for GC triggers (MB)",
     )
     streaming_threshold_mb: float = Field(
-        default=5.0, description="File size threshold for streaming (MB)"
+        default=5.0, description="File size threshold for streaming (MB)",
     )
     enable_pooling: bool = Field(
-        default=True, description="Enable DataFrame object pooling"
+        default=True, description="Enable DataFrame object pooling",
     )
     enable_monitoring: bool = Field(
-        default=True, description="Enable memory usage monitoring"
+        default=True, description="Enable memory usage monitoring",
     )
     chunk_size_rows: int = Field(
-        default=10000, description="Chunk size for streaming operations"
+        default=10000, description="Chunk size for streaming operations",
     )
 
 
@@ -94,7 +94,7 @@ class GeneralConfig(BaseModel):
     """General configuration settings for concurrency analysis."""
 
     portfolio: str = Field(
-        default="risk_on.csv", description="Portfolio filename (CSV or JSON)"
+        default="risk_on.csv", description="Portfolio filename (CSV or JSON)",
     )
     base_dir: str = Field(
         default="",
@@ -102,17 +102,17 @@ class GeneralConfig(BaseModel):
     )
     refresh: bool = Field(default=True, description="Refresh cached market data")
     csv_use_hourly: bool = Field(
-        default=False, description="Use hourly timeframe for CSV strategies"
+        default=False, description="Use hourly timeframe for CSV strategies",
     )
     sort_by: str = Field(default="score", description="Field to sort results by")
     ensure_counterpart: bool = Field(
-        default=True, description="Ensure strategy counterpart validation"
+        default=True, description="Ensure strategy counterpart validation",
     )
     initial_value: float = Field(
-        default=10000.0, ge=0, description="Initial portfolio value for position sizing"
+        default=10000.0, ge=0, description="Initial portfolio value for position sizing",
     )
     target_var: float = Field(
-        default=0.05, ge=0, le=1, description="Target Value at Risk (VaR) threshold"
+        default=0.05, ge=0, le=1, description="Target Value at Risk (VaR) threshold",
     )
 
     @field_validator("portfolio")
@@ -120,7 +120,8 @@ class GeneralConfig(BaseModel):
     def validate_portfolio_extension(cls, v):
         """Validate portfolio file has proper extension."""
         if not v.endswith((".csv", ".json", ".yaml")):
-            raise ValueError("Portfolio file must have .csv, .json, or .yaml extension")
+            msg = "Portfolio file must have .csv, .json, or .yaml extension"
+            raise ValueError(msg)
         return v
 
     @field_validator("sort_by")
@@ -135,7 +136,8 @@ class GeneralConfig(BaseModel):
             "allocation",
         ]
         if v not in valid_fields:
-            raise ValueError(f"sort_by must be one of: {valid_fields}")
+            msg = f"sort_by must be one of: {valid_fields}"
+            raise ValueError(msg)
         return v
 
 
@@ -143,13 +145,13 @@ class RiskManagementConfig(BaseModel):
     """Risk management configuration settings."""
 
     max_risk_per_strategy: float = Field(
-        default=100.0, ge=0, description="Maximum risk percentage per strategy"
+        default=100.0, ge=0, description="Maximum risk percentage per strategy",
     )
     max_risk_total: float = Field(
-        default=100.0, ge=0, description="Maximum total portfolio risk percentage"
+        default=100.0, ge=0, description="Maximum total portfolio risk percentage",
     )
     risk_calculation_method: str = Field(
-        default="standard", description="Risk calculation method"
+        default="standard", description="Risk calculation method",
     )
 
     @field_validator("risk_calculation_method")
@@ -158,7 +160,8 @@ class RiskManagementConfig(BaseModel):
         """Validate risk calculation method."""
         valid_methods = ["standard", "monte_carlo", "bootstrap", "var"]
         if v not in valid_methods:
-            raise ValueError(f"risk_calculation_method must be one of: {valid_methods}")
+            msg = f"risk_calculation_method must be one of: {valid_methods}"
+            raise ValueError(msg)
         return v
 
 
@@ -167,7 +170,7 @@ class ConcurrencyConfig(BaseConfig):
 
     # General configuration
     general: GeneralConfig = Field(
-        default_factory=GeneralConfig, description="General configuration settings"
+        default_factory=GeneralConfig, description="General configuration settings",
     )
 
     # Risk management
@@ -178,7 +181,7 @@ class ConcurrencyConfig(BaseConfig):
 
     # Execution and signal modes
     execution_mode: ExecutionMode = Field(
-        default=ExecutionMode.SAME_PERIOD, description="Signal execution timing mode"
+        default=ExecutionMode.SAME_PERIOD, description="Signal execution timing mode",
     )
     signal_definition_mode: SignalDefinitionMode = Field(
         default=SignalDefinitionMode.COMPLETE_TRADE,
@@ -187,17 +190,17 @@ class ConcurrencyConfig(BaseConfig):
 
     # Portfolio allocation modes
     ratio_based_allocation: bool = Field(
-        default=False, description="Enable ratio-based allocation"
+        default=False, description="Enable ratio-based allocation",
     )
 
     # Visualization
     visualization: bool = Field(
-        default=False, description="Enable visualization of results"
+        default=False, description="Enable visualization of results",
     )
 
     # Report configuration
     report_includes: ReportIncludeOptions = Field(
-        default_factory=ReportIncludeOptions, description="Options for report content"
+        default_factory=ReportIncludeOptions, description="Options for report content",
     )
 
     # Trade history export
@@ -259,9 +262,12 @@ class ConcurrencyConfig(BaseConfig):
     def validate_risk_management_consistency(cls, v, values):
         """Validate risk management configuration consistency."""
         if v.max_risk_per_strategy > v.max_risk_total:
-            raise ValueError(
+            msg = (
                 f"max_risk_per_strategy ({v.max_risk_per_strategy}) cannot exceed "
                 f"max_risk_total ({v.max_risk_total})"
+            )
+            raise ValueError(
+                msg,
             )
         return v
 
@@ -270,10 +276,12 @@ class ConcurrencyConfig(BaseConfig):
     def validate_general_configuration(cls, v):
         """Validate general configuration for business logic consistency."""
         if v.target_var <= 0 or v.target_var >= 1:
-            raise ValueError("target_var must be between 0 and 1 (exclusive)")
+            msg = "target_var must be between 0 and 1 (exclusive)"
+            raise ValueError(msg)
 
         if v.initial_value <= 0:
-            raise ValueError("initial_value must be positive")
+            msg = "initial_value must be positive"
+            raise ValueError(msg)
 
         return v
 
@@ -284,8 +292,9 @@ class ConcurrencyConfig(BaseConfig):
             self.memory_optimization.enable_memory_optimization
             and self.memory_optimization.memory_threshold_mb <= 0
         ):
+            msg = "memory_threshold_mb must be positive when memory optimization is enabled"
             raise ValueError(
-                "memory_threshold_mb must be positive when memory optimization is enabled"
+                msg,
             )
 
         # Validate risk management with general configuration
@@ -301,28 +310,28 @@ class OptimizationConfig(BaseModel):
     """Configuration for strategy optimization features."""
 
     enable_optimization: bool = Field(
-        default=False, description="Enable strategy combination optimization"
+        default=False, description="Enable strategy combination optimization",
     )
     min_strategies: int = Field(
-        default=3, ge=2, description="Minimum strategies per combination"
+        default=3, ge=2, description="Minimum strategies per combination",
     )
     max_permutations: int | None = Field(
-        default=None, gt=0, description="Maximum permutations to evaluate"
+        default=None, gt=0, description="Maximum permutations to evaluate",
     )
     enable_early_stopping: bool = Field(
-        default=True, description="Enable early stopping when convergence detected"
+        default=True, description="Enable early stopping when convergence detected",
     )
     convergence_threshold: float = Field(
-        default=0.001, gt=0, description="Threshold for convergence detection"
+        default=0.001, gt=0, description="Threshold for convergence detection",
     )
     convergence_window: int = Field(
-        default=50, gt=0, description="Window size for convergence detection"
+        default=50, gt=0, description="Window size for convergence detection",
     )
     parallel_processing: bool = Field(
-        default=False, description="Enable parallel processing for optimization"
+        default=False, description="Enable parallel processing for optimization",
     )
     max_workers: int = Field(
-        default=4, ge=1, le=16, description="Maximum worker threads/processes"
+        default=4, ge=1, le=16, description="Maximum worker threads/processes",
     )
 
 
@@ -330,7 +339,7 @@ class RiskAnalysisConfig(BaseModel):
     """Configuration for Monte Carlo risk analysis."""
 
     enable_monte_carlo: bool = Field(
-        default=False, description="Enable Monte Carlo simulations"
+        default=False, description="Enable Monte Carlo simulations",
     )
     n_simulations: int = Field(
         default=10000,
@@ -339,10 +348,10 @@ class RiskAnalysisConfig(BaseModel):
         description="Number of Monte Carlo simulations",
     )
     confidence_levels: list[float] = Field(
-        default=[95, 99], description="Confidence levels for risk metrics"
+        default=[95, 99], description="Confidence levels for risk metrics",
     )
     horizon_days: int = Field(
-        default=252, ge=1, le=2520, description="Forecast horizon in trading days"
+        default=252, ge=1, le=2520, description="Forecast horizon in trading days",
     )
     use_bootstrap: bool = Field(default=True, description="Use bootstrap resampling")
 
@@ -352,8 +361,9 @@ class RiskAnalysisConfig(BaseModel):
         """Validate confidence levels are within valid range."""
         for level in v:
             if not (50 <= level <= 99.9):
+                msg = f"Confidence level {level} must be between 50 and 99.9"
                 raise ValueError(
-                    f"Confidence level {level} must be between 50 and 99.9"
+                    msg,
                 )
         return sorted(v)
 
@@ -369,31 +379,31 @@ class ConcurrencyAnalysisConfig(ConcurrencyConfig):
         description="Correlation threshold for filtering strategies",
     )
     max_concurrent_positions: int | None = Field(
-        default=None, gt=0, description="Maximum number of concurrent positions"
+        default=None, gt=0, description="Maximum number of concurrent positions",
     )
 
     # Risk management
     max_portfolio_risk: float | None = Field(
-        default=None, gt=0, le=1, description="Maximum portfolio risk exposure"
+        default=None, gt=0, le=1, description="Maximum portfolio risk exposure",
     )
     sector_concentration_limit: float | None = Field(
-        default=None, gt=0, le=1, description="Maximum concentration per sector"
+        default=None, gt=0, le=1, description="Maximum concentration per sector",
     )
 
     # Analysis modes
     enable_correlation_filtering: bool = Field(
-        default=False, description="Enable correlation-based strategy filtering"
+        default=False, description="Enable correlation-based strategy filtering",
     )
     enable_concurrency_limits: bool = Field(
-        default=False, description="Enable concurrency limit enforcement"
+        default=False, description="Enable concurrency limit enforcement",
     )
     enable_risk_management: bool = Field(
-        default=False, description="Enable risk management rules"
+        default=False, description="Enable risk management rules",
     )
 
     # Optimization configuration
     optimization: OptimizationConfig = Field(
-        default_factory=OptimizationConfig, description="Optimization configuration"
+        default_factory=OptimizationConfig, description="Optimization configuration",
     )
 
     # Risk analysis configuration
@@ -405,10 +415,10 @@ class ConcurrencyAnalysisConfig(ConcurrencyConfig):
     # Performance settings
     enable_caching: bool = Field(default=False, description="Enable result caching")
     cache_ttl_hours: int = Field(
-        default=24, ge=1, le=168, description="Cache time-to-live in hours"
+        default=24, ge=1, le=168, description="Cache time-to-live in hours",
     )
     enable_compression: bool = Field(
-        default=False, description="Enable data compression"
+        default=False, description="Enable data compression",
     )
 
     @field_validator("correlation_threshold")
@@ -416,7 +426,8 @@ class ConcurrencyAnalysisConfig(ConcurrencyConfig):
     def validate_correlation_threshold(cls, v):
         """Validate correlation threshold is within valid range."""
         if v is not None and not (-1 <= v <= 1):
-            raise ValueError("Correlation threshold must be between -1 and 1")
+            msg = "Correlation threshold must be between -1 and 1"
+            raise ValueError(msg)
         return v
 
     @field_validator("optimization")
@@ -428,7 +439,8 @@ class ConcurrencyAnalysisConfig(ConcurrencyConfig):
             and v.max_permutations
             and v.max_permutations < v.min_strategies
         ):
-            raise ValueError("max_permutations must be greater than min_strategies")
+            msg = "max_permutations must be greater than min_strategies"
+            raise ValueError(msg)
 
         if v.parallel_processing and v.max_workers > 8:
             # Warning: too many workers might not improve performance
@@ -455,8 +467,9 @@ class ConcurrencyAnalysisConfig(ConcurrencyConfig):
             self.risk_management.risk_calculation_method == "monte_carlo"
             and not self.risk_analysis.enable_monte_carlo
         ):
+            msg = "Monte Carlo risk analysis must be enabled when using monte_carlo risk calculation method"
             raise ValueError(
-                "Monte Carlo risk analysis must be enabled when using monte_carlo risk calculation method"
+                msg,
             )
 
         # Validate memory optimization with optimization settings
@@ -470,12 +483,14 @@ class ConcurrencyAnalysisConfig(ConcurrencyConfig):
 
         # Validate concurrency limits consistency
         if self.enable_concurrency_limits and self.max_concurrent_positions is None:
+            msg = "max_concurrent_positions must be set when enable_concurrency_limits is True"
             raise ValueError(
-                "max_concurrent_positions must be set when enable_concurrency_limits is True"
+                msg,
             )
 
         # Validate correlation filtering consistency
         if self.enable_correlation_filtering and self.correlation_threshold is None:
+            msg = "correlation_threshold must be set when enable_correlation_filtering is True"
             raise ValueError(
-                "correlation_threshold must be set when enable_correlation_filtering is True"
+                msg,
             )

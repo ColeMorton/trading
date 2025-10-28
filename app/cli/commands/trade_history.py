@@ -28,7 +28,7 @@ console = Console()
 def close(
     ctx: typer.Context,
     strategy: str = typer.Argument(
-        ..., help="Strategy name (e.g., 'MA_SMA_78_82') or Position_UUID to analyze"
+        ..., help="Strategy name (e.g., 'MA_SMA_78_82') or Position_UUID to analyze",
     ),
     portfolio: str
     | None = typer.Option(
@@ -52,10 +52,10 @@ def close(
     | None = typer.Option(None, "--profile", "-p", help="Configuration profile name"),
     output: str
     | None = typer.Option(
-        None, "--output", "-o", help="Output file path (default: stdout)"
+        None, "--output", "-o", help="Output file path (default: stdout)",
     ),
     format: str = typer.Option(
-        "markdown", "--format", "-f", help="Output format: markdown, json, html"
+        "markdown", "--format", "-f", help="Output format: markdown, json, html",
     ),
     include_raw_data: bool = typer.Option(
         False,
@@ -64,7 +64,7 @@ def close(
     ),
     current_price: float
     | None = typer.Option(
-        None, "--current-price", help="Current market price for enhanced analysis"
+        None, "--current-price", help="Current market price for enhanced analysis",
     ),
     market_condition: str
     | None = typer.Option(
@@ -74,7 +74,7 @@ def close(
     ),
     base_path: str
     | None = typer.Option(
-        None, "--base-path", help="Base path to trading system directory"
+        None, "--base-path", help="Base path to trading system directory",
     ),
 ):
     """
@@ -105,12 +105,12 @@ def close(
             # Both portfolio and price are required for position closing
             if portfolio is None:
                 rprint(
-                    "[red]❌ Error: --portfolio is required when --price is specified[/red]"
+                    "[red]❌ Error: --portfolio is required when --price is specified[/red]",
                 )
                 raise typer.Exit(1)
             if price is None:
                 rprint(
-                    "[red]❌ Error: --price is required when --portfolio is specified[/red]"
+                    "[red]❌ Error: --price is required when --portfolio is specified[/red]",
                 )
                 raise typer.Exit(1)
             if price <= 0:
@@ -121,7 +121,7 @@ def close(
             from pathlib import Path
 
             portfolio_file = Path(
-                f"data/raw/positions/{resolve_portfolio_path(portfolio)}"
+                f"data/raw/positions/{resolve_portfolio_path(portfolio)}",
             )
             if not portfolio_file.exists():
                 rprint(f"[red]❌ Portfolio file not found: {portfolio_file}[/red]")
@@ -157,7 +157,7 @@ def close(
             loader.load_from_profile(profile, TradeHistoryConfig, overrides)
         else:
             loader.load_from_profile(
-                "default_trade_history", TradeHistoryConfig, overrides
+                "default_trade_history", TradeHistoryConfig, overrides,
             )
 
         if global_verbose:
@@ -228,11 +228,11 @@ def close(
             # For now, provide a simplified report message
             # TODO: Integrate with proper report generation service in future
             rprint(
-                "[yellow]⚠️  Advanced report generation temporarily unavailable[/yellow]"
+                "[yellow]⚠️  Advanced report generation temporarily unavailable[/yellow]",
             )
             rprint("[dim]Position closing functionality is fully operational[/dim]")
             rprint(
-                "[dim]Advanced reporting features will be restored in a future update[/dim]"
+                "[dim]Advanced reporting features will be restored in a future update[/dim]",
             )
 
         rprint("[green]✅ Command completed successfully![/green]")
@@ -276,17 +276,17 @@ def add(
     profile: str
     | None = typer.Option(None, "--profile", "-p", help="Configuration profile name"),
     timeframe: str = typer.Option(
-        "D", "--timeframe", "-t", help="Timeframe: D, H, 4H, 1H"
+        "D", "--timeframe", "-t", help="Timeframe: D, H, 4H, 1H",
     ),
     entry_price: float
     | None = typer.Option(None, "--entry-price", help="Manual entry price override"),
     quantity: float | None = typer.Option(None, "--quantity", help="Position quantity"),
     signal_date: str
     | None = typer.Option(
-        None, "--signal-date", help="Signal date (YYYY-MM-DD format)"
+        None, "--signal-date", help="Signal date (YYYY-MM-DD format)",
     ),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Preview the addition without executing"
+        False, "--dry-run", help="Preview the addition without executing",
     ),
 ):
     """
@@ -311,10 +311,10 @@ def add(
         if portfolio is None:
             rprint("[red]❌ Error: --portfolio parameter is required[/red]")
             rprint(
-                "[yellow]Available portfolios: live_signals, protected, risk_on, or custom portfolio name[/yellow]"
+                "[yellow]Available portfolios: live_signals, protected, risk_on, or custom portfolio name[/yellow]",
             )
             rprint(
-                "[dim]Example: trading-cli trade-history add TSLA --portfolio risk_on[/dim]"
+                "[dim]Example: trading-cli trade-history add TSLA --portfolio risk_on[/dim]",
             )
             raise typer.Exit(1)
 
@@ -324,7 +324,7 @@ def add(
         portfolio_path = f"data/raw/positions/{resolve_portfolio_path(portfolio)}"
         if not os.path.exists(portfolio_path):
             rprint(
-                f"[red]❌ Portfolio '{portfolio}' not found at {portfolio_path}[/red]"
+                f"[red]❌ Portfolio '{portfolio}' not found at {portfolio_path}[/red]",
             )
             # List available portfolios
             try:
@@ -339,7 +339,7 @@ def add(
                         rprint(f"  - {p}")
                 else:
                     rprint(
-                        "[yellow]No portfolios found in data/raw/positions/[/yellow]"
+                        "[yellow]No portfolios found in data/raw/positions/[/yellow]",
                     )
             except:
                 pass
@@ -391,7 +391,7 @@ def add(
 
                 if global_verbose:
                     rprint(
-                        f"[green]✅ Auto-selected: {strategy_type} {fast_period}/{slow_period} (Score: {best_strategy['Score']:.4f})[/green]"
+                        f"[green]✅ Auto-selected: {strategy_type} {fast_period}/{slow_period} (Score: {best_strategy['Score']:.4f})[/green]",
                     )
 
             except Exception as e:
@@ -420,7 +420,7 @@ def add(
         table.add_row("Slow Period", str(slow_period))
         table.add_row("Timeframe", timeframe)
         table.add_row(
-            "Entry Price", str(entry_price) if entry_price else "Market Price"
+            "Entry Price", str(entry_price) if entry_price else "Market Price",
         )
         table.add_row("Quantity", str(quantity) if quantity else "Auto-calculated")
         table.add_row("Signal Date", signal_date if signal_date else "Today")
@@ -429,7 +429,7 @@ def add(
 
         if dry_run:
             rprint(
-                "\n[green]✅ Dry run completed - Position would be added successfully[/green]"
+                "\n[green]✅ Dry run completed - Position would be added successfully[/green]",
             )
         else:
             # Import and use the unified PositionService
@@ -463,7 +463,7 @@ def add(
                 )
 
                 rprint(
-                    f"\n[green]✅ Position added successfully to {portfolio} portfolio![/green]"
+                    f"\n[green]✅ Position added successfully to {portfolio} portfolio![/green]",
                 )
                 rprint(f"[dim]Position UUID: {position_uuid}[/dim]")
                 rprint(f"[dim]Strategy: {strategy_name}[/dim]")
@@ -486,7 +486,7 @@ def add(
 def update(
     ctx: typer.Context,
     portfolio: str = typer.Option(
-        "live_signals", "--portfolio", "-f", help="Portfolio name to update"
+        "live_signals", "--portfolio", "-f", help="Portfolio name to update",
     ),
     refresh: bool = typer.Option(
         False,
@@ -511,13 +511,13 @@ def update(
         help="Refresh current market prices",
     ),
     recalculate_metrics: bool = typer.Option(
-        True, "--recalculate/--no-recalculate", help="Recalculate MFE/MAE metrics"
+        True, "--recalculate/--no-recalculate", help="Recalculate MFE/MAE metrics",
     ),
     update_risk_assessment: bool = typer.Option(
-        True, "--update-risk/--no-update-risk", help="Update risk assessment scores"
+        True, "--update-risk/--no-update-risk", help="Update risk assessment scores",
     ),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Preview updates without executing"
+        False, "--dry-run", help="Preview updates without executing",
     ),
 ):
     """
@@ -556,15 +556,15 @@ def update(
         rprint(f"🔄 Updating Trade History: [cyan]{portfolio}[/cyan]")
         if refresh:
             rprint(
-                "   [yellow]📊 COMPREHENSIVE REFRESH: Using centralized PositionCalculator[/yellow]"
+                "   [yellow]📊 COMPREHENSIVE REFRESH: Using centralized PositionCalculator[/yellow]",
             )
             if validate_calculations:
                 rprint(
-                    "   [green]🔍 Validation enabled: P&L and Return calculations[/green]"
+                    "   [green]🔍 Validation enabled: P&L and Return calculations[/green]",
                 )
             if auto_fix_errors:
                 rprint(
-                    "   [blue]🔧 Auto-fix enabled: Correcting calculation errors[/blue]"
+                    "   [blue]🔧 Auto-fix enabled: Correcting calculation errors[/blue]",
                 )
         if dry_run:
             rprint("   [yellow]DRY RUN - No changes will be made[/yellow]")
@@ -575,13 +575,13 @@ def update(
         if refresh:
             update_items.append("✅ Force fresh price data download")
             update_items.append(
-                "✅ Recalculate ALL derived fields (P&L, Return, MFE/MAE)"
+                "✅ Recalculate ALL derived fields (P&L, Return, MFE/MAE)",
             )
             update_items.append(
-                "✅ Apply standardized precision across all calculations"
+                "✅ Apply standardized precision across all calculations",
             )
             update_items.append(
-                "✅ Update Exit Efficiency and Trade Quality assessments"
+                "✅ Update Exit Efficiency and Trade Quality assessments",
             )
             if validate_calculations:
                 update_items.append("✅ Validate calculation consistency")
@@ -623,7 +623,7 @@ def update(
             else:
                 # Default mode: update only open positions
                 result = service.update_open_positions(
-                    portfolio_name=portfolio, dry_run=dry_run, verbose=global_verbose
+                    portfolio_name=portfolio, dry_run=dry_run, verbose=global_verbose,
                 )
 
             if result["success"]:
@@ -639,10 +639,10 @@ def update(
                 if result.get("refresh_mode"):
                     # Comprehensive refresh mode shows additional statistics
                     rprint(
-                        f"   Open positions: [green]{result.get('open_positions', 0)}[/green]"
+                        f"   Open positions: [green]{result.get('open_positions', 0)}[/green]",
                     )
                     rprint(
-                        f"   Closed positions: [yellow]{result.get('closed_positions', 0)}[/yellow]"
+                        f"   Closed positions: [yellow]{result.get('closed_positions', 0)}[/yellow]",
                     )
 
                     # Show validation and fix results if available
@@ -652,7 +652,7 @@ def update(
 
                         if calculation_fixes:
                             rprint(
-                                f"   [blue]🔧 Calculation fixes applied: {len(calculation_fixes)}[/blue]"
+                                f"   [blue]🔧 Calculation fixes applied: {len(calculation_fixes)}[/blue]",
                             )
                             if global_verbose:
                                 rprint("   [dim]Fixes made:[/dim]")
@@ -660,12 +660,12 @@ def update(
                                     rprint(f"      • {fix}")
                                 if len(calculation_fixes) > 3:
                                     rprint(
-                                        f"      ... and {len(calculation_fixes) - 3} more fixes"
+                                        f"      ... and {len(calculation_fixes) - 3} more fixes",
                                     )
 
                         if validation_errors:
                             rprint(
-                                f"   [red]❌ Validation errors remaining: {len(validation_errors)}[/red]"
+                                f"   [red]❌ Validation errors remaining: {len(validation_errors)}[/red]",
                             )
                             if global_verbose:
                                 for error in validation_errors[
@@ -674,24 +674,24 @@ def update(
                                     rprint(f"      • {error}")
                                 if len(validation_errors) > 2:
                                     rprint(
-                                        f"      ... and {len(validation_errors) - 2} more errors"
+                                        f"      ... and {len(validation_errors) - 2} more errors",
                                     )
 
                         if result.get("validation_enabled") and not validation_errors:
                             rprint(
-                                "   [green]✅ All calculations validated successfully[/green]"
+                                "   [green]✅ All calculations validated successfully[/green]",
                             )
 
                 else:
                     # Default mode shows open positions only
                     rprint(
-                        f"   Open positions: [dim]{result.get('open_positions', 'N/A')}[/dim]"
+                        f"   Open positions: [dim]{result.get('open_positions', 'N/A')}[/dim]",
                     )
 
                 # Show processing errors if any
                 if result.get("errors"):
                     rprint(
-                        f"\n[yellow]⚠️  Processing warnings ({len(result['errors'])}):[/yellow]"
+                        f"\n[yellow]⚠️  Processing warnings ({len(result['errors'])}):[/yellow]",
                     )
                     for error in result["errors"][:5]:  # Show first 5 errors
                         rprint(f"   - {error}")
@@ -722,14 +722,14 @@ def update(
 def list(
     ctx: typer.Context,
     show_signals: bool = typer.Option(
-        True, "--show-signals/--no-signals", help="Show exit signals in listing"
+        True, "--show-signals/--no-signals", help="Show exit signals in listing",
     ),
     filter_signal: str
     | None = typer.Option(
-        None, "--filter-signal", help="Filter by signal type: SELL, HOLD, BUY"
+        None, "--filter-signal", help="Filter by signal type: SELL, HOLD, BUY",
     ),
     sort_by: str = typer.Option(
-        "confidence", "--sort-by", help="Sort by: confidence, ticker, signal, strategy"
+        "confidence", "--sort-by", help="Sort by: confidence, ticker, signal, strategy",
     ),
     limit: int
     | None = typer.Option(None, "--limit", "-n", help="Limit number of results"),
@@ -768,7 +768,7 @@ def list(
                 try:
                     positions = position_service.list_positions(portfolio)
                     rprint(
-                        f"\n[cyan]{portfolio.upper()} Portfolio:[/cyan] {len(positions)} positions"
+                        f"\n[cyan]{portfolio.upper()} Portfolio:[/cyan] {len(positions)} positions",
                     )
                     if show_signals and positions:
                         for pos in positions[:limit] if limit else positions:
@@ -776,14 +776,14 @@ def list(
                                 "green" if pos.get("Status") == "Open" else "yellow"
                             )
                             rprint(
-                                f"  • [{status_color}]{pos.get('Position_UUID', 'Unknown')}[/{status_color}]"
+                                f"  • [{status_color}]{pos.get('Position_UUID', 'Unknown')}[/{status_color}]",
                             )
                 except Exception:
                     rprint(f"  [dim]Portfolio {portfolio} not accessible[/dim]")
 
             rprint("\n[green]✅ Strategy listing completed![/green]")
             rprint(
-                "[dim]Advanced filtering and signal analysis will be restored in future update[/dim]"
+                "[dim]Advanced filtering and signal analysis will be restored in future update[/dim]",
             )
 
         except Exception as e:
@@ -806,7 +806,7 @@ def validate(
         help="Check data integrity across sources",
     ),
     check_file_existence: bool = typer.Option(
-        True, "--check-files/--no-check-files", help="Check required file existence"
+        True, "--check-files/--no-check-files", help="Check required file existence",
     ),
     check_strategy_data: bool = typer.Option(
         True,
@@ -814,7 +814,7 @@ def validate(
         help="Validate strategy data quality",
     ),
     show_details: bool = typer.Option(
-        False, "--show-details", help="Show detailed validation results"
+        False, "--show-details", help="Show detailed validation results",
     ),
 ):
     """
@@ -840,7 +840,7 @@ def validate(
 
         rprint("[yellow]⚠️  Advanced validation temporarily simplified[/yellow]")
         rprint(
-            "[dim]Basic validation available - full features will be restored in future update[/dim]"
+            "[dim]Basic validation available - full features will be restored in future update[/dim]",
         )
 
         if check_file_existence or check_data_integrity:
@@ -860,7 +860,7 @@ def validate(
                     try:
                         positions = position_service.list_positions(portfolio)
                         rprint(
-                            f"  ✅ Portfolio {portfolio}: Accessible ({len(positions)} positions)"
+                            f"  ✅ Portfolio {portfolio}: Accessible ({len(positions)} positions)",
                         )
                     except Exception:
                         rprint(f"  ⚠️  Portfolio {portfolio}: Issues detected")
@@ -879,7 +879,7 @@ def validate(
             rprint("[green]✅ All validations passed - System is healthy![/green]")
         else:
             rprint(
-                f"[red]❌ {validation_results['issues_found']} validation issues found[/red]"
+                f"[red]❌ {validation_results['issues_found']} validation issues found[/red]",
             )
             raise typer.Exit(1)
 
@@ -920,15 +920,15 @@ def health():
                     positions = position_service.list_positions(portfolio)
                     accessible_portfolios += 1
                     rprint(
-                        f"[green]✅ Portfolio {portfolio}: {len(positions)} positions[/green]"
+                        f"[green]✅ Portfolio {portfolio}: {len(positions)} positions[/green]",
                     )
                 except Exception as e:
                     rprint(
-                        f"[yellow]⚠️  Portfolio {portfolio}: Not accessible ({str(e)[:50]}...)[/yellow]"
+                        f"[yellow]⚠️  Portfolio {portfolio}: Not accessible ({str(e)[:50]}...)[/yellow]",
                     )
 
             rprint(
-                f"\n[cyan]System Status: {accessible_portfolios}/{len(portfolios)} portfolios accessible[/cyan]"
+                f"\n[cyan]System Status: {accessible_portfolios}/{len(portfolios)} portfolios accessible[/cyan]",
             )
             rprint("[dim]Advanced diagnostics will be restored in future update[/dim]")
             result = 0

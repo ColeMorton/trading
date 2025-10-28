@@ -67,7 +67,7 @@ class PerformanceLogger:
         }
 
     def start_execution_monitoring(
-        self, operation_name: str = "strategy_execution"
+        self, operation_name: str = "strategy_execution",
     ) -> None:
         """
         Start monitoring overall execution performance.
@@ -135,7 +135,7 @@ class PerformanceLogger:
         # Display phase start
         if estimated_duration:
             self.console.show_progress(
-                f"🚀 {description or phase_name} (est. {estimated_duration:.1f}s)"
+                f"🚀 {description or phase_name} (est. {estimated_duration:.1f}s)",
             )
         else:
             self.console.show_progress(f"🚀 {description or phase_name}")
@@ -148,7 +148,7 @@ class PerformanceLogger:
         )
 
     def end_phase(
-        self, success: bool = True, details: dict[str, Any] | None = None
+        self, success: bool = True, details: dict[str, Any] | None = None,
     ) -> None:
         """
         End the current execution phase.
@@ -185,13 +185,13 @@ class PerformanceLogger:
 
             # Check for bottlenecks
             self._detect_bottlenecks(
-                self._current_phase, duration, memory_delta, details
+                self._current_phase, duration, memory_delta, details,
             )
 
         # Display phase completion
         if success:
             self.console.show_success(
-                f"✅ {self._current_phase} completed in {duration:.1f}s"
+                f"✅ {self._current_phase} completed in {duration:.1f}s",
             )
             self.logger.info(
                 "phase_completed",
@@ -201,7 +201,7 @@ class PerformanceLogger:
             )
         else:
             self.console.show_error(
-                f"❌ {self._current_phase} failed after {duration:.1f}s"
+                f"❌ {self._current_phase} failed after {duration:.1f}s",
             )
             self.logger.error(
                 "phase_failed",
@@ -229,7 +229,7 @@ class PerformanceLogger:
             details: Additional phase details
         """
         thresholds = self._phase_thresholds.get(
-            phase_name, {"target": 30.0, "warning": 60.0, "critical": 120.0}
+            phase_name, {"target": 30.0, "warning": 60.0, "critical": 120.0},
         )
 
         severity = None
@@ -261,7 +261,7 @@ class PerformanceLogger:
 
             if severity == "critical":
                 self.console.show_warning(
-                    f"🚨 Critical bottleneck in {phase_name}: {duration:.1f}s"
+                    f"🚨 Critical bottleneck in {phase_name}: {duration:.1f}s",
                 )
 
     def complete_execution_monitoring(self) -> None:
@@ -307,7 +307,7 @@ class PerformanceLogger:
             pct_total = (duration / total_time) * 100 if total_time > 0 else 0
 
             thresholds = self._phase_thresholds.get(
-                phase_name, {"target": 30.0, "warning": 60.0, "critical": 120.0}
+                phase_name, {"target": 30.0, "warning": 60.0, "critical": 120.0},
             )
 
             if duration <= thresholds["target"]:
@@ -343,5 +343,5 @@ class PerformanceLogger:
             if summary:
                 self.console.show_info(
                     f"Resource Usage: CPU avg={summary['cpu_avg']:.1f}% max={summary['cpu_max']:.1f}%, "
-                    f"Memory avg={summary['memory_avg']:.1f}% max={summary['memory_max']:.1f}%"
+                    f"Memory avg={summary['memory_avg']:.1f}% max={summary['memory_max']:.1f}%",
                 )

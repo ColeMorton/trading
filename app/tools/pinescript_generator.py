@@ -33,8 +33,9 @@ class PineScriptGenerator:
             filtered_count = len(self.df)
 
             if filtered_count == 0:
+                msg = f"No strategies found for tickers: {', '.join(ticker_filter)}"
                 raise ValueError(
-                    f"No strategies found for tickers: {', '.join(ticker_filter)}"
+                    msg,
                 )
 
             self.ticker_filter_applied = True
@@ -48,7 +49,8 @@ class PineScriptGenerator:
         required_cols = ["Ticker", "Strategy Type", "Fast Period", "Slow Period"]
         missing_cols = [col for col in required_cols if col not in self.df.columns]
         if missing_cols:
-            raise ValueError(f"CSV missing required columns: {missing_cols}")
+            msg = f"CSV missing required columns: {missing_cols}"
+            raise ValueError(msg)
 
     def _get_tickers(self) -> list[str]:
         """Get unique list of tickers from CSV."""
@@ -80,7 +82,8 @@ class PineScriptGenerator:
         if strategy_type == "MACD":
             signal = int(strategy["Signal Period"])
             return f"        if macdSignal({fast}, {slow}, {signal})\n            active += 1\n"
-        raise ValueError(f"Unknown strategy type: {strategy_type}")
+        msg = f"Unknown strategy type: {strategy_type}"
+        raise ValueError(msg)
 
     def _generate_ticker_block(self, ticker: str, strategies: pd.DataFrame) -> str:
         """Generate PineScript code block for a ticker's strategies."""
@@ -253,7 +256,7 @@ class PineScriptGenerator:
             ticker_strategies = self._get_ticker_strategies(ticker)
             stats["strategies_per_ticker"][ticker] = len(ticker_strategies)
             stats["strategy_types_per_ticker"][ticker] = self._get_strategy_types(
-                ticker
+                ticker,
             )
 
         return stats

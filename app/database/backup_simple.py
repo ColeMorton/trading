@@ -27,7 +27,7 @@ class SimpleBackupManager:
     def __init__(self):
         # Simple settings without Prisma
         self.database_url = os.getenv(
-            "DATABASE_URL", "postgresql://colemorton@localhost:5432/trading_db"
+            "DATABASE_URL", "postgresql://colemorton@localhost:5432/trading_db",
         )
         self.database_host = os.getenv("DATABASE_HOST", "localhost")
         self.database_port = os.getenv("DATABASE_PORT", "5432")
@@ -81,7 +81,7 @@ class SimpleBackupManager:
             return str(compressed_backup)
 
         except Exception as e:
-            logger.error(f"Backup failed: {e}")
+            logger.exception(f"Backup failed: {e}")
             # Cleanup failed backup
             if backup_path.exists():
                 shutil.rmtree(backup_path)
@@ -126,8 +126,9 @@ class SimpleBackupManager:
             return str(dump_file)
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"pg_dump failed: {e.stderr}")
-            raise RuntimeError(f"PostgreSQL backup failed: {e.stderr}")
+            logger.exception(f"pg_dump failed: {e.stderr}")
+            msg = f"PostgreSQL backup failed: {e.stderr}"
+            raise RuntimeError(msg)
 
     async def _backup_redis(self, backup_path: Path) -> str:
         """Backup Redis data."""
@@ -192,8 +193,9 @@ class SimpleBackupManager:
             return str(redis_file)
 
         except Exception as e:
-            logger.error(f"Redis backup failed: {e}")
-            raise RuntimeError(f"Redis backup failed: {e}")
+            logger.exception(f"Redis backup failed: {e}")
+            msg = f"Redis backup failed: {e}"
+            raise RuntimeError(msg)
 
     async def _compress_backup(self, backup_path: Path) -> Path:
         """Compress backup directory."""
@@ -219,8 +221,9 @@ class SimpleBackupManager:
             return compressed_file
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Backup compression failed: {e.stderr}")
-            raise RuntimeError(f"Backup compression failed: {e.stderr}")
+            logger.exception(f"Backup compression failed: {e.stderr}")
+            msg = f"Backup compression failed: {e.stderr}"
+            raise RuntimeError(msg)
 
     async def test_backup_system(self) -> bool:
         """Test backup system functionality."""
@@ -243,7 +246,7 @@ class SimpleBackupManager:
             return False
 
         except Exception as e:
-            logger.error(f"Backup system test failed: {e}")
+            logger.exception(f"Backup system test failed: {e}")
             return False
 
 

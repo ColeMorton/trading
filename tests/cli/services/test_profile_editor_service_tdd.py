@@ -43,7 +43,7 @@ class TestProfileEditorServiceTDD:
         }
 
     def test_load_profile_success(
-        self, editor_service, mock_config_manager, sample_profile
+        self, editor_service, mock_config_manager, sample_profile,
     ):
         """Test successful profile loading."""
         mock_config_manager.profile_manager.load_profile.return_value = sample_profile
@@ -52,7 +52,7 @@ class TestProfileEditorServiceTDD:
 
         assert result == sample_profile
         mock_config_manager.profile_manager.load_profile.assert_called_once_with(
-            "test_profile"
+            "test_profile",
         )
 
     def test_load_profile_not_found(self, editor_service, mock_config_manager):
@@ -67,7 +67,7 @@ class TestProfileEditorServiceTDD:
     def test_load_profile_invalid(self, editor_service, mock_config_manager):
         """Test invalid profile handling."""
         mock_config_manager.profile_manager.load_profile.side_effect = Exception(
-            "Invalid YAML"
+            "Invalid YAML",
         )
 
         with pytest.raises(ValueError, match="Error loading profile: Invalid YAML"):
@@ -82,25 +82,25 @@ class TestProfileEditorServiceTDD:
     def test_set_field_value_win_rate_valid(self, editor_service, sample_profile):
         """Test setting valid win rate."""
         editor_service.set_field_value(
-            sample_profile, "config.minimums.win_rate", "0.75"
+            sample_profile, "config.minimums.win_rate", "0.75",
         )
 
         assert sample_profile["config"]["minimums"]["win_rate"] == 0.75
 
     def test_set_field_value_win_rate_invalid_high(
-        self, editor_service, sample_profile
+        self, editor_service, sample_profile,
     ):
         """Test setting invalid win rate (too high)."""
         with pytest.raises(ValueError, match="win_rate must be between 0 and 1"):
             editor_service.set_field_value(
-                sample_profile, "config.minimums.win_rate", "1.5"
+                sample_profile, "config.minimums.win_rate", "1.5",
             )
 
     def test_set_field_value_win_rate_invalid_low(self, editor_service, sample_profile):
         """Test setting invalid win rate (too low)."""
         with pytest.raises(ValueError, match="win_rate must be between 0 and 1"):
             editor_service.set_field_value(
-                sample_profile, "config.minimums.win_rate", "-0.1"
+                sample_profile, "config.minimums.win_rate", "-0.1",
             )
 
     def test_set_field_value_trades_valid(self, editor_service, sample_profile):
@@ -113,23 +113,23 @@ class TestProfileEditorServiceTDD:
         """Test setting invalid trades count."""
         with pytest.raises(ValueError, match="trades must be non-negative"):
             editor_service.set_field_value(
-                sample_profile, "config.minimums.trades", "-5"
+                sample_profile, "config.minimums.trades", "-5",
             )
 
     def test_set_field_value_strategy_types(self, editor_service, sample_profile):
         """Test setting strategy types."""
         editor_service.set_field_value(
-            sample_profile, "config.strategy_types", "SMA,EMA,MACD"
+            sample_profile, "config.strategy_types", "SMA,EMA,MACD",
         )
 
         assert sample_profile["config"]["strategy_types"] == ["SMA", "EMA", "MACD"]
 
     def test_set_field_value_creates_nested_structure(
-        self, editor_service, sample_profile
+        self, editor_service, sample_profile,
     ):
         """Test that setting field creates nested structure if needed."""
         editor_service.set_field_value(
-            sample_profile, "config.new_section.new_field", "test_value"
+            sample_profile, "config.new_section.new_field", "test_value",
         )
 
         assert sample_profile["config"]["new_section"]["new_field"] == "test_value"
@@ -160,7 +160,7 @@ class TestProfileEditorServiceTDD:
         editor_service.save_profile("test_profile", sample_profile)
 
         mock_config_manager.profile_manager.save_profile.assert_called_once_with(
-            "test_profile", sample_profile
+            "test_profile", sample_profile,
         )
 
     @patch("shutil.copy2")
@@ -180,23 +180,23 @@ class TestProfileEditorServiceTDD:
     def test_convert_and_validate_value_string_field(self, editor_service):
         """Test converting unknown field as string."""
         result = editor_service._convert_and_validate_value(
-            "custom_field", "test_value"
+            "custom_field", "test_value",
         )
         assert result == "test_value"
 
     def test_convert_and_validate_value_ticker_with_spaces(self, editor_service):
         """Test converting ticker field with spaces."""
         result = editor_service._convert_and_validate_value(
-            "ticker", "AAPL, MSFT , GOOGL"
+            "ticker", "AAPL, MSFT , GOOGL",
         )
         assert result == ["AAPL", "MSFT", "GOOGL"]
 
     def test_convert_and_validate_value_strategy_types_with_spaces(
-        self, editor_service
+        self, editor_service,
     ):
         """Test converting strategy_types field with spaces."""
         result = editor_service._convert_and_validate_value(
-            "strategy_types", "SMA, EMA , MACD"
+            "strategy_types", "SMA, EMA , MACD",
         )
         assert result == ["SMA", "EMA", "MACD"]
 

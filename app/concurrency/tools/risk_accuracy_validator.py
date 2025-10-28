@@ -80,7 +80,7 @@ class RiskAccuracyValidator:
         }
 
     def validate_return_data(
-        self, returns_matrix: np.ndarray, strategy_names: list[str]
+        self, returns_matrix: np.ndarray, strategy_names: list[str],
     ) -> ValidationResult:
         """
         Validate return data quality for variance estimation.
@@ -102,7 +102,7 @@ class RiskAccuracyValidator:
         # Basic shape validation
         if returns_matrix.shape[1] != len(strategy_names):
             messages.append(
-                f"Return matrix columns ({returns_matrix.shape[1]}) != strategy names ({len(strategy_names)})"
+                f"Return matrix columns ({returns_matrix.shape[1]}) != strategy names ({len(strategy_names)})",
             )
             return ValidationResult(
                 False,
@@ -118,10 +118,10 @@ class RiskAccuracyValidator:
         # 1. Sufficient observations check
         if n_obs < thresholds["min_observations"]:
             messages.append(
-                f"Insufficient observations: {n_obs} < {thresholds['min_observations']} required"
+                f"Insufficient observations: {n_obs} < {thresholds['min_observations']} required",
             )
             corrective_actions.append(
-                "Collect more historical data or use Bayesian/bootstrap methods"
+                "Collect more historical data or use Bayesian/bootstrap methods",
             )
             if self.validation_level == ValidationLevel.STRICT:
                 return ValidationResult(
@@ -142,7 +142,7 @@ class RiskAccuracyValidator:
 
         if missing_ratio > thresholds["max_missing_ratio"]:
             messages.append(
-                f"Too many missing/invalid values: {missing_ratio:.3f} > {thresholds['max_missing_ratio']:.3f}"
+                f"Too many missing/invalid values: {missing_ratio:.3f} > {thresholds['max_missing_ratio']:.3f}",
             )
             corrective_actions.append("Clean data or use interpolation methods")
             if self.validation_level in [
@@ -159,7 +159,7 @@ class RiskAccuracyValidator:
                 )
         elif missing_ratio > 0:
             warnings.append(
-                f"Some missing/invalid values detected: {missing_ratio:.3f}"
+                f"Some missing/invalid values detected: {missing_ratio:.3f}",
             )
 
         quality_factors.append(1.0 - missing_ratio)
@@ -187,10 +187,10 @@ class RiskAccuracyValidator:
 
         if zero_variance_strategies:
             messages.append(
-                f"Strategies with zero variance: {zero_variance_strategies}"
+                f"Strategies with zero variance: {zero_variance_strategies}",
             )
             corrective_actions.append(
-                "Remove constant strategies or check data quality"
+                "Remove constant strategies or check data quality",
             )
             if self.validation_level == ValidationLevel.STRICT:
                 return ValidationResult(
@@ -204,7 +204,7 @@ class RiskAccuracyValidator:
 
         if low_variance_strategies:
             warnings.append(
-                f"Strategies with very low variance: {low_variance_strategies}"
+                f"Strategies with very low variance: {low_variance_strategies}",
             )
 
         # Variance quality score
@@ -224,7 +224,7 @@ class RiskAccuracyValidator:
             valid_mask = ~np.isnan(returns_matrix).any(axis=1)
             if np.sum(valid_mask) < 2:
                 messages.append(
-                    "Insufficient valid observations for correlation calculation"
+                    "Insufficient valid observations for correlation calculation",
                 )
                 return ValidationResult(
                     False,
@@ -249,17 +249,17 @@ class RiskAccuracyValidator:
                     if not np.isnan(corr_val):
                         if abs(corr_val) >= 0.99:
                             perfect_corr_pairs.append(
-                                (strategy_names[i], strategy_names[j], corr_val)
+                                (strategy_names[i], strategy_names[j], corr_val),
                             )
                         elif abs(corr_val) > thresholds["max_correlation"]:
                             high_corr_pairs.append(
-                                (strategy_names[i], strategy_names[j], corr_val)
+                                (strategy_names[i], strategy_names[j], corr_val),
                             )
 
             if perfect_corr_pairs:
                 messages.append(f"Perfect correlations detected: {perfect_corr_pairs}")
                 corrective_actions.append(
-                    "Remove redundant strategies or check for data duplication"
+                    "Remove redundant strategies or check for data duplication",
                 )
                 if self.validation_level == ValidationLevel.STRICT:
                     return ValidationResult(
@@ -275,7 +275,7 @@ class RiskAccuracyValidator:
                 warnings.append(f"High correlations detected: {high_corr_pairs}")
                 if self.validation_level == ValidationLevel.STRICT:
                     corrective_actions.append(
-                        "Consider reducing correlation through diversification"
+                        "Consider reducing correlation through diversification",
                     )
 
             # Correlation quality score (penalize extreme correlations)
@@ -284,7 +284,7 @@ class RiskAccuracyValidator:
 
             if len(valid_corr_values) > 0:
                 extreme_corr_ratio = np.sum(np.abs(valid_corr_values) > 0.9) / len(
-                    valid_corr_values
+                    valid_corr_values,
                 )
                 correlation_quality = max(0.0, 1.0 - extreme_corr_ratio)
             else:
@@ -316,7 +316,7 @@ class RiskAccuracyValidator:
 
             if condition_number > thresholds["max_condition_number"]:
                 messages.append(
-                    f"Covariance matrix ill-conditioned: condition number {condition_number:.0f}"
+                    f"Covariance matrix ill-conditioned: condition number {condition_number:.0f}",
                 )
                 corrective_actions.append("Use regularization or shrinkage estimation")
                 if self.validation_level == ValidationLevel.STRICT:
@@ -330,13 +330,13 @@ class RiskAccuracyValidator:
                     )
             elif condition_number > thresholds["max_condition_number"] / 2:
                 warnings.append(
-                    f"Covariance matrix condition number high: {condition_number:.0f}"
+                    f"Covariance matrix condition number high: {condition_number:.0f}",
                 )
 
             # Condition number quality score
             max_acceptable = thresholds["max_condition_number"]
             condition_quality = max(
-                0.0, 1.0 - min(1.0, condition_number / max_acceptable)
+                0.0, 1.0 - min(1.0, condition_number / max_acceptable),
             )
             quality_factors.append(condition_quality)
 
@@ -362,10 +362,10 @@ class RiskAccuracyValidator:
         # Final quality threshold check
         if overall_quality < thresholds["min_quality_score"]:
             messages.append(
-                f"Overall data quality too low: {overall_quality:.3f} < {thresholds['min_quality_score']:.3f}"
+                f"Overall data quality too low: {overall_quality:.3f} < {thresholds['min_quality_score']:.3f}",
             )
             corrective_actions.append(
-                "Improve data collection or use more robust estimation methods"
+                "Improve data collection or use more robust estimation methods",
             )
             if self.validation_level == ValidationLevel.STRICT:
                 return ValidationResult(
@@ -401,7 +401,7 @@ class RiskAccuracyValidator:
         )
 
     def validate_covariance_matrix(
-        self, cov_matrix: np.ndarray, strategy_names: list[str]
+        self, cov_matrix: np.ndarray, strategy_names: list[str],
     ) -> ValidationResult:
         """
         Validate covariance matrix properties for risk calculation.
@@ -424,7 +424,7 @@ class RiskAccuracyValidator:
         n_strategies = len(strategy_names)
         if cov_matrix.shape != (n_strategies, n_strategies):
             messages.append(
-                f"Covariance matrix shape {cov_matrix.shape} != expected ({n_strategies}, {n_strategies})"
+                f"Covariance matrix shape {cov_matrix.shape} != expected ({n_strategies}, {n_strategies})",
             )
             return ValidationResult(
                 False,
@@ -439,7 +439,7 @@ class RiskAccuracyValidator:
         if not np.allclose(cov_matrix, cov_matrix.T, rtol=1e-10):
             messages.append("Covariance matrix is not symmetric")
             corrective_actions.append(
-                "Ensure proper covariance calculation or enforce symmetry"
+                "Ensure proper covariance calculation or enforce symmetry",
             )
             if self.validation_level == ValidationLevel.STRICT:
                 return ValidationResult(
@@ -452,7 +452,7 @@ class RiskAccuracyValidator:
                 )
 
         quality_factors.append(
-            1.0 if np.allclose(cov_matrix, cov_matrix.T, rtol=1e-8) else 0.8
+            1.0 if np.allclose(cov_matrix, cov_matrix.T, rtol=1e-8) else 0.8,
         )
 
         # 3. Positive definiteness
@@ -462,10 +462,10 @@ class RiskAccuracyValidator:
 
             if min_eigenvalue <= 0:
                 messages.append(
-                    f"Covariance matrix not positive definite (min eigenvalue: {min_eigenvalue:.2e})"
+                    f"Covariance matrix not positive definite (min eigenvalue: {min_eigenvalue:.2e})",
                 )
                 corrective_actions.append(
-                    "Use regularization or check for linear dependencies"
+                    "Use regularization or check for linear dependencies",
                 )
                 if self.validation_level in [
                     ValidationLevel.STRICT,
@@ -481,7 +481,7 @@ class RiskAccuracyValidator:
                     )
             elif min_eigenvalue < 1e-8:
                 warnings.append(
-                    f"Covariance matrix nearly singular (min eigenvalue: {min_eigenvalue:.2e})"
+                    f"Covariance matrix nearly singular (min eigenvalue: {min_eigenvalue:.2e})",
                 )
 
             # Eigenvalue quality score
@@ -489,7 +489,7 @@ class RiskAccuracyValidator:
                 min_eigenvalue / np.max(eigenvalues) if np.max(eigenvalues) > 0 else 0
             )
             eigenvalue_quality = min(
-                1.0, max(0.0, np.log10(eigenvalue_ratio) + 8) / 8
+                1.0, max(0.0, np.log10(eigenvalue_ratio) + 8) / 8,
             )  # Scale -8 to 0 -> 0 to 1
             quality_factors.append(eigenvalue_quality)
 
@@ -512,7 +512,7 @@ class RiskAccuracyValidator:
 
             if condition_number > thresholds["max_condition_number"]:
                 messages.append(
-                    f"Covariance matrix ill-conditioned: {condition_number:.0f}"
+                    f"Covariance matrix ill-conditioned: {condition_number:.0f}",
                 )
                 corrective_actions.append("Apply shrinkage or regularization")
                 if self.validation_level == ValidationLevel.STRICT:
@@ -544,10 +544,10 @@ class RiskAccuracyValidator:
                 zero_var_indices = np.where(diagonal_elements <= 0)[0]
                 zero_var_strategies = [strategy_names[i] for i in zero_var_indices]
                 messages.append(
-                    f"Zero/negative variances for strategies: {zero_var_strategies}"
+                    f"Zero/negative variances for strategies: {zero_var_strategies}",
                 )
                 corrective_actions.append(
-                    "Remove strategies with zero variance or fix data"
+                    "Remove strategies with zero variance or fix data",
                 )
                 if self.validation_level in [
                     ValidationLevel.STRICT,
@@ -568,7 +568,7 @@ class RiskAccuracyValidator:
             if len(small_var_indices) > 0:
                 small_var_strategies = [strategy_names[i] for i in small_var_indices]
                 warnings.append(
-                    f"Very small variances for strategies: {small_var_strategies}"
+                    f"Very small variances for strategies: {small_var_strategies}",
                 )
 
             variance_quality = np.mean(diagonal_elements >= min_variance)
@@ -601,10 +601,10 @@ class RiskAccuracyValidator:
                 invalid_corr = np.sum((valid_corr < -1.01) | (valid_corr > 1.01))
                 if invalid_corr > 0:
                     messages.append(
-                        f"Invalid correlation values outside [-1,1]: {invalid_corr}"
+                        f"Invalid correlation values outside [-1,1]: {invalid_corr}",
                     )
                     corrective_actions.append(
-                        "Check covariance calculation for numerical errors"
+                        "Check covariance calculation for numerical errors",
                     )
                     if self.validation_level == ValidationLevel.STRICT:
                         return ValidationResult(
@@ -639,7 +639,7 @@ class RiskAccuracyValidator:
             )
         else:
             self.log(
-                f"Covariance matrix validation failed: {'; '.join(messages)}", "error"
+                f"Covariance matrix validation failed: {'; '.join(messages)}", "error",
             )
 
         if warnings:
@@ -655,7 +655,7 @@ class RiskAccuracyValidator:
         )
 
     def validate_portfolio_weights(
-        self, weights: np.ndarray, strategy_names: list[str]
+        self, weights: np.ndarray, strategy_names: list[str],
     ) -> ValidationResult:
         """
         Validate portfolio weights for risk calculation.
@@ -674,7 +674,7 @@ class RiskAccuracyValidator:
         # 1. Shape validation
         if len(weights) != len(strategy_names):
             messages.append(
-                f"Weight array length ({len(weights)}) != strategy count ({len(strategy_names)})"
+                f"Weight array length ({len(weights)}) != strategy count ({len(strategy_names)})",
             )
             return ValidationResult(
                 False,
@@ -735,7 +735,7 @@ class RiskAccuracyValidator:
         weight_sum = np.sum(weights)
         if weight_sum <= 0:
             messages.append(
-                f"Portfolio weights sum to {weight_sum:.6f} (must be positive)"
+                f"Portfolio weights sum to {weight_sum:.6f} (must be positive)",
             )
             corrective_actions.append("Use equal weights or check allocation data")
             return ValidationResult(
@@ -759,7 +759,7 @@ class RiskAccuracyValidator:
 
         # Calculate quality score
         concentration_score = 1.0 - max(
-            0, (max_weight - 0.5) / 0.5
+            0, (max_weight - 0.5) / 0.5,
         )  # Penalize concentration > 50%
         sum_score = (
             1.0 if abs(weight_sum - 1.0) < 0.1 else 0.8
@@ -775,7 +775,7 @@ class RiskAccuracyValidator:
             )
         else:
             self.log(
-                f"Portfolio weights validation failed: {'; '.join(messages)}", "error"
+                f"Portfolio weights validation failed: {'; '.join(messages)}", "error",
             )
 
         if warnings:
@@ -865,7 +865,7 @@ class RiskAccuracyValidator:
 
 
 def create_validator(
-    log: Callable[[str, str], None], validation_level: str = "strict"
+    log: Callable[[str, str], None], validation_level: str = "strict",
 ) -> RiskAccuracyValidator:
     """
     Factory function to create a RiskAccuracyValidator with specified validation level.
@@ -887,8 +887,9 @@ def create_validator(
     }
 
     if validation_level not in level_map:
+        msg = f"Unknown validation level: {validation_level}. Must be one of {list(level_map.keys())}"
         raise ValueError(
-            f"Unknown validation level: {validation_level}. Must be one of {list(level_map.keys())}"
+            msg,
         )
 
     return RiskAccuracyValidator(log, level_map[validation_level])

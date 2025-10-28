@@ -17,7 +17,7 @@ from app.tools.portfolio.schema_detection import (
 
 
 def process_ticker_portfolios_all(
-    ticker: str, config: Config, log: callable
+    ticker: str, config: Config, log: callable,
 ) -> list[dict[str, Any]]:
     """Process portfolios for a single ticker and return ALL analyzed portfolios.
 
@@ -88,7 +88,7 @@ def process_ticker_portfolios_all(
     # Apply consolidated filtering using PortfolioFilterService
     filter_service = PortfolioFilterService()
     filtered_df = filter_service.filter_portfolios_dataframe(
-        portfolios_df, ticker_config, log
+        portfolios_df, ticker_config, log,
     )
 
     # Check if any portfolios remain after filtering
@@ -105,13 +105,13 @@ def process_ticker_portfolios_all(
 
     # Normalize portfolio data to handle Allocation [%] and Stop Loss [%] columns
     normalized_portfolios = normalize_portfolio_data(
-        portfolio_dicts, schema_version, log
+        portfolio_dicts, schema_version, log,
     )
 
     # Ensure allocation values sum to 100% if they exist
     if schema_version == SchemaVersion.EXTENDED:
         normalized_portfolios = ensure_allocation_sum_100_percent(
-            normalized_portfolios, log
+            normalized_portfolios, log,
         )
 
     log(f"Returning {len(normalized_portfolios)} portfolios for {ticker}")
@@ -152,7 +152,7 @@ def execute_strategy_all(
     if progress_tracker:
         progress_tracker.set_total_steps(len(tickers))
         progress_tracker.update(
-            phase="analysis", message=f"Starting {strategy_type} strategy analysis"
+            phase="analysis", message=f"Starting {strategy_type} strategy analysis",
         )
 
     for i, ticker in enumerate(tickers):
@@ -173,7 +173,7 @@ def execute_strategy_all(
                 if "TICKER_2" not in ticker_config:
                     ticker_config["TICKER_2"] = ticker_parts[1]
                 log(
-                    f"Extracted ticker components: {ticker_config['TICKER_1']} and {ticker_config['TICKER_2']}"
+                    f"Extracted ticker components: {ticker_config['TICKER_1']} and {ticker_config['TICKER_2']}",
                 )
 
         # Ensure synthetic tickers use underscore format
@@ -188,12 +188,12 @@ def execute_strategy_all(
         # Update progress before processing ticker
         if progress_tracker:
             progress_tracker.update(
-                step=i, message=f"Processing {ticker} ({i+1}/{len(tickers)})"
+                step=i, message=f"Processing {ticker} ({i+1}/{len(tickers)})",
             )
 
         # Get ALL portfolios for this ticker
         ticker_portfolios = process_ticker_portfolios_all(
-            formatted_ticker, ticker_config, log
+            formatted_ticker, ticker_config, log,
         )
 
         if ticker_portfolios:
@@ -203,13 +203,13 @@ def execute_strategy_all(
         # Update progress after processing ticker
         if progress_tracker:
             progress_tracker.increment(
-                message=f"Completed {ticker} ({i+1}/{len(tickers)})"
+                message=f"Completed {ticker} ({i+1}/{len(tickers)})",
             )
 
     # Mark analysis complete
     if progress_tracker:
         progress_tracker.complete(
-            f"Completed {strategy_type} analysis for {len(tickers)} tickers"
+            f"Completed {strategy_type} analysis for {len(tickers)} tickers",
         )
 
     log(f"Total portfolios from all tickers: {len(all_portfolios)}")

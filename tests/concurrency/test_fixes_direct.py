@@ -59,7 +59,7 @@ def test_risk_calc_fix():
                 "Date": pl.date_range(start_date, end_date, interval="1d", eager=True),
                 "Close": prices,
                 "Position": position_arrays[i],
-            }
+            },
         )
         data_list.append(df)
 
@@ -73,7 +73,7 @@ def test_risk_calc_fix():
     # Calculate risk contributions
     print("\nCalculating risk contributions...")
     risk_metrics = calculate_risk_contributions(
-        position_arrays, data_list, allocations, log
+        position_arrays, data_list, allocations, log,
     )
 
     # Check results
@@ -90,7 +90,7 @@ def test_risk_calc_fix():
     # Check if fixed implementation was used
     if total_risk == 0:
         print(
-            "\n⚠️ Risk contributions are all zero - fixed implementation may not be active"
+            "\n⚠️ Risk contributions are all zero - fixed implementation may not be active",
         )
 
     return abs(total_risk - 1.0) < 1e-6
@@ -186,7 +186,7 @@ def test_signal_processor_fix():
         print(f"Calculated trades: {signal_counts.trade_signals}")
         print(f"Expected trades: {expected_trades}")
         print(
-            f"Valid: {'✓' if signal_counts.trade_signals == expected_trades else '✗'}"
+            f"Valid: {'✓' if signal_counts.trade_signals == expected_trades else '✗'}",
         )
 
         return signal_counts.trade_signals == expected_trades
@@ -205,13 +205,13 @@ def main():
     print("\nEnvironment Variables:")
     print(f"USE_FIXED_RISK_CALC: {os.environ.get('USE_FIXED_RISK_CALC', 'not set')}")
     print(
-        f"USE_FIXED_EXPECTANCY_CALC: {os.environ.get('USE_FIXED_EXPECTANCY_CALC', 'not set')}"
+        f"USE_FIXED_EXPECTANCY_CALC: {os.environ.get('USE_FIXED_EXPECTANCY_CALC', 'not set')}",
     )
     print(
-        f"USE_FIXED_WIN_RATE_CALC: {os.environ.get('USE_FIXED_WIN_RATE_CALC', 'not set')}"
+        f"USE_FIXED_WIN_RATE_CALC: {os.environ.get('USE_FIXED_WIN_RATE_CALC', 'not set')}",
     )
     print(
-        f"USE_FIXED_SIGNAL_PROC: {os.environ.get('USE_FIXED_SIGNAL_PROC', 'not set')}"
+        f"USE_FIXED_SIGNAL_PROC: {os.environ.get('USE_FIXED_SIGNAL_PROC', 'not set')}",
     )
 
     # Run tests

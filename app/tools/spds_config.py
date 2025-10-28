@@ -41,7 +41,7 @@ class SPDSConfigManager:
         return self._config_cache["default"]
 
     def get_config_for_portfolio(
-        self, portfolio_file: str, use_trade_history: bool = True
+        self, portfolio_file: str, use_trade_history: bool = True,
     ) -> SPDSConfig:
         """Get configuration optimized for portfolio analysis."""
         cache_key = f"portfolio_{portfolio_file}_{use_trade_history}"
@@ -79,15 +79,15 @@ class SPDSConfigManager:
         """Load configuration from JSON file."""
         config_path = Path(config_file)
         if not config_path.exists():
-            raise FileNotFoundError(f"Configuration file not found: {config_path}")
+            msg = f"Configuration file not found: {config_path}"
+            raise FileNotFoundError(msg)
 
         with open(config_path) as f:
             config_data = json.load(f)
 
         config = SPDSConfig.from_dict(config_data)
-        config = self._apply_environment_overrides(config)
+        return self._apply_environment_overrides(config)
 
-        return config
 
     def save_config_to_file(self, config: SPDSConfig, config_file: str):
         """Save configuration to JSON file."""
@@ -98,7 +98,7 @@ class SPDSConfigManager:
             json.dump(config.to_dict(), f, indent=2)
 
     def create_config_with_overrides(
-        self, base_config: SPDSConfig, overrides: dict[str, Any]
+        self, base_config: SPDSConfig, overrides: dict[str, Any],
     ) -> SPDSConfig:
         """Create configuration with runtime overrides."""
         config_data = base_config.to_dict()
@@ -198,11 +198,11 @@ def get_default_config() -> SPDSConfig:
 
 
 def get_portfolio_config(
-    portfolio_file: str, use_trade_history: bool = True
+    portfolio_file: str, use_trade_history: bool = True,
 ) -> SPDSConfig:
     """Get configuration optimized for portfolio analysis."""
     return get_config_manager().get_config_for_portfolio(
-        portfolio_file, use_trade_history
+        portfolio_file, use_trade_history,
     )
 
 
@@ -227,7 +227,7 @@ def save_config_to_file(config: SPDSConfig, config_file: str):
 
 
 def create_config_with_overrides(
-    base_config: SPDSConfig, overrides: dict[str, Any]
+    base_config: SPDSConfig, overrides: dict[str, Any],
 ) -> SPDSConfig:
     """Create configuration with runtime overrides."""
     return get_config_manager().create_config_with_overrides(base_config, overrides)
@@ -314,7 +314,7 @@ def validate_config(config: SPDSConfig) -> list[str]:
     if "exit_immediately" in thresholds and "exit_soon" in thresholds:
         if thresholds["exit_immediately"] <= thresholds["exit_soon"]:
             issues.append(
-                "exit_immediately threshold must be higher than exit_soon threshold"
+                "exit_immediately threshold must be higher than exit_soon threshold",
             )
 
     # Check data paths
@@ -333,7 +333,7 @@ def validate_config(config: SPDSConfig) -> list[str]:
     # Check worker count
     if config.parallel_processing and config.max_workers < 1:
         issues.append(
-            "max_workers must be at least 1 when parallel processing is enabled"
+            "max_workers must be at least 1 when parallel processing is enabled",
         )
 
     return issues

@@ -48,7 +48,8 @@ def test_error_flow():
 
     try:
         # Simulate error
-        raise ValueError("Test error")
+        msg = "Test error"
+        raise ValueError(msg)
     except ValueError as e:
         console.show_error(f"Error occurred: {e!s}")
         logger.error("error_occurred", error=str(e), exc_info=True)
@@ -101,7 +102,7 @@ def test_performance_monitoring_flow():
     from app.monitoring.performance_logger import PerformanceLogger
 
     perf_logger = PerformanceLogger(
-        __name__, performance_mode="minimal", show_resources=False
+        __name__, performance_mode="minimal", show_resources=False,
     )
 
     # Start monitoring

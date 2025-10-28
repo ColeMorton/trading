@@ -121,19 +121,19 @@ class RiskMetricsCalculator:
             volatility = np.std(returns_array)
             annualized_volatility = volatility * np.sqrt(frequency)
             downside_volatility = self._calculate_downside_volatility(
-                returns_array, frequency
+                returns_array, frequency,
             )
 
             # Calculate drawdown metrics
             if prices is not None:
                 max_dd, avg_dd, max_dd_duration = self._calculate_drawdown_metrics(
-                    prices
+                    prices,
                 )
             else:
                 # Estimate from returns if prices not available
                 cumulative_returns = np.cumprod(1 + returns_array)
                 max_dd, avg_dd, max_dd_duration = self._calculate_drawdown_from_returns(
-                    cumulative_returns
+                    cumulative_returns,
                 )
 
             # Calculate risk-adjusted ratios
@@ -207,7 +207,7 @@ class RiskMetricsCalculator:
 
             # Calculate confidence intervals using bootstrap
             confidence_intervals = self._calculate_confidence_intervals(
-                returns, confidence_level, bootstrap_samples
+                returns, confidence_level, bootstrap_samples,
             )
 
             # Perform stress tests
@@ -228,7 +228,7 @@ class RiskMetricsCalculator:
             )
 
     def _calculate_var_cvar(
-        self, returns: np.ndarray
+        self, returns: np.ndarray,
     ) -> tuple[float, float, float, float]:
         """Calculate Value at Risk and Conditional VaR at 95% and 99% levels."""
         try:
@@ -260,7 +260,7 @@ class RiskMetricsCalculator:
             return 0.0, 0.0, 0.0, 0.0
 
     def _calculate_downside_volatility(
-        self, returns: np.ndarray, frequency: int
+        self, returns: np.ndarray, frequency: int,
     ) -> float:
         """Calculate downside volatility (volatility of negative returns only)."""
         try:
@@ -268,14 +268,13 @@ class RiskMetricsCalculator:
             if len(negative_returns) == 0:
                 return 0.0
 
-            downside_vol = np.std(negative_returns) * np.sqrt(frequency)
-            return downside_vol
+            return np.std(negative_returns) * np.sqrt(frequency)
 
         except Exception:
             return 0.0
 
     def _calculate_drawdown_metrics(
-        self, prices: pd.Series | np.ndarray
+        self, prices: pd.Series | np.ndarray,
     ) -> tuple[float, float, int]:
         """Calculate drawdown metrics from price series."""
         try:
@@ -309,7 +308,7 @@ class RiskMetricsCalculator:
             return 0.0, 0.0, 0
 
     def _calculate_drawdown_from_returns(
-        self, cumulative_returns: np.ndarray
+        self, cumulative_returns: np.ndarray,
     ) -> tuple[float, float, int]:
         """Calculate drawdown metrics from cumulative returns."""
         try:
@@ -370,7 +369,7 @@ class RiskMetricsCalculator:
             return 0.0
 
     def _calculate_calmar_ratio(
-        self, mean_return: float, max_drawdown: float, frequency: int
+        self, mean_return: float, max_drawdown: float, frequency: int,
     ) -> float:
         """Calculate Calmar ratio (annual return / max drawdown)."""
         try:
@@ -408,15 +407,14 @@ class RiskMetricsCalculator:
             drawdowns = (cumulative_returns - cummax) / cummax
 
             # Pain index is the square root of mean squared drawdowns
-            pain_index = np.sqrt(np.mean(drawdowns**2))
+            return np.sqrt(np.mean(drawdowns**2))
 
-            return pain_index
 
         except Exception:
             return 0.0
 
     def _calculate_confidence_intervals(
-        self, returns: np.ndarray, confidence_level: float, bootstrap_samples: int
+        self, returns: np.ndarray, confidence_level: float, bootstrap_samples: int,
     ) -> dict[str, tuple[float, float]]:
         """Calculate confidence intervals for key metrics using bootstrap."""
         try:
@@ -426,7 +424,7 @@ class RiskMetricsCalculator:
             for _ in range(bootstrap_samples):
                 # Sample with replacement
                 bootstrap_returns = np.random.choice(
-                    returns, size=len(returns), replace=True
+                    returns, size=len(returns), replace=True,
                 )
 
                 # Calculate metrics for this sample

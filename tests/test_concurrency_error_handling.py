@@ -95,7 +95,7 @@ class TestContextManagers:
             [
                 call("Starting test operation", "debug"),
                 call("Completed test operation", "debug"),
-            ]
+            ],
         )
 
     def test_concurrency_error_context_with_error(self):
@@ -104,7 +104,8 @@ class TestContextManagers:
 
         with pytest.raises(ConcurrencyError):
             with concurrency_error_context("test operation", log_mock):
-                raise ValueError("Test error")
+                msg = "Test error"
+                raise ValueError(msg)
 
         assert log_mock.call_count >= 2  # Start + error logs
 
@@ -115,7 +116,8 @@ class TestContextManagers:
 
         with pytest.raises(StrategyProcessingError):
             with concurrency_error_context("test operation", log_mock, error_mapping):
-                raise ValueError("Test error")
+                msg = "Test error"
+                raise ValueError(msg)
 
     def test_concurrency_error_context_with_recovery(self):
         """Test context manager with recovery function."""
@@ -123,9 +125,10 @@ class TestContextManagers:
         recovery_func = Mock(return_value="recovered")
 
         with concurrency_error_context(
-            "test operation", log_mock, recovery_func=recovery_func
+            "test operation", log_mock, recovery_func=recovery_func,
         ):
-            raise ValueError("Test error")
+            msg = "Test error"
+            raise ValueError(msg)
 
         recovery_func.assert_called_once()
         log_mock.assert_any_call("Attempting recovery for test operation", "info")
@@ -137,7 +140,8 @@ class TestContextManagers:
 
         with pytest.raises(StrategyProcessingError):
             with strategy_processing_context("BTC-USD", "loading", log_mock):
-                raise ValueError("Strategy load failed")
+                msg = "Strategy load failed"
+                raise ValueError(msg)
 
     def test_permutation_analysis_context(self):
         """Test permutation analysis context manager."""
@@ -145,7 +149,8 @@ class TestContextManagers:
 
         with pytest.raises(PermutationAnalysisError):
             with permutation_analysis_context(100, 50, "analysis", log_mock):
-                raise RuntimeError("Analysis failed")
+                msg = "Analysis failed"
+                raise RuntimeError(msg)
 
     def test_batch_operation_context_success(self):
         """Test batch operation context with all successes."""
@@ -165,7 +170,7 @@ class TestContextManagers:
         log_mock = Mock()
 
         with batch_operation_context(
-            "batch test", 5, log_mock, max_failures=3
+            "batch test", 5, log_mock, max_failures=3,
         ) as tracker:
             tracker.record_success()
             tracker.record_error(ValueError("Error 1"), 1)
@@ -184,7 +189,7 @@ class TestContextManagers:
         with (
             pytest.raises(ConcurrencyError),
             batch_operation_context(
-                "batch test", 5, log_mock, max_failures=2
+                "batch test", 5, log_mock, max_failures=2,
             ) as tracker,
         ):
             tracker.record_error(ValueError("Error 1"))
@@ -212,7 +217,8 @@ class TestDecorators:
 
         @handle_concurrency_errors("test operation")
         def test_func(log):
-            raise ValueError("Test error")
+            msg = "Test error"
+            raise ValueError(msg)
 
         with pytest.raises(ConcurrencyError):
             test_func(log_mock)
@@ -224,7 +230,8 @@ class TestDecorators:
 
         @handle_concurrency_errors("test operation", error_mapping)
         def test_func(log):
-            raise ValueError("Test error")
+            msg = "Test error"
+            raise ValueError(msg)
 
         with pytest.raises(StrategyProcessingError):
             test_func(log_mock)
@@ -273,7 +280,8 @@ class TestDecorators:
             nonlocal call_count
             call_count += 1
             if call_count < 3:
-                raise ValueError("Temporary error")
+                msg = "Temporary error"
+                raise ValueError(msg)
             return "success"
 
         result = test_func(log_mock)
@@ -286,7 +294,8 @@ class TestDecorators:
 
         @retry_on_failure(max_retries=2, delay=0.01)
         def test_func(log):
-            raise ValueError("Persistent error")
+            msg = "Persistent error"
+            raise ValueError(msg)
 
         with pytest.raises(ValueError):
             test_func(log_mock)
@@ -333,7 +342,7 @@ class TestErrorRecovery:
     def test_create_recovery_policy(self):
         """Test recovery policy creation."""
         policy = create_recovery_policy(
-            strategy=RecoveryStrategy.RETRY, max_retries=5, retry_delay=2.0
+            strategy=RecoveryStrategy.RETRY, max_retries=5, retry_delay=2.0,
         )
 
         assert policy.strategy == RecoveryStrategy.RETRY
@@ -349,11 +358,12 @@ class TestErrorRecovery:
             nonlocal call_count
             call_count += 1
             if call_count < 3:
-                raise ValueError("Temporary error")
+                msg = "Temporary error"
+                raise ValueError(msg)
             return "success"
 
         policy = create_recovery_policy(
-            RecoveryStrategy.RETRY, max_retries=3, retry_delay=0.01
+            RecoveryStrategy.RETRY, max_retries=3, retry_delay=0.01,
         )
         result = apply_error_recovery(test_func, policy, log_mock, "test operation")
 
@@ -365,7 +375,8 @@ class TestErrorRecovery:
         log_mock = Mock()
 
         def test_func():
-            raise ValueError("Error")
+            msg = "Error"
+            raise ValueError(msg)
 
         def fallback_func():
             return "fallback result"
@@ -384,7 +395,8 @@ class TestErrorRecovery:
         log_mock = Mock()
 
         def test_func():
-            raise ValueError("Error")
+            msg = "Error"
+            raise ValueError(msg)
 
         policy = create_recovery_policy(
             RecoveryStrategy.SKIP,
@@ -400,7 +412,8 @@ class TestErrorRecovery:
         log_mock = Mock()
 
         def test_func():
-            raise ValueError("Error")
+            msg = "Error"
+            raise ValueError(msg)
 
         policy = create_recovery_policy(
             RecoveryStrategy.FALLBACK,
@@ -625,7 +638,8 @@ class TestIntegration:
 
         with pytest.raises(ConcurrencyError):
             with concurrency_error_context("integration test", log_mock):
-                raise ValueError("Integration test error")
+                msg = "Integration test error"
+                raise ValueError(msg)
 
         # Check that error was tracked
         new_stats = get_error_stats()
@@ -649,12 +663,13 @@ class TestIntegration:
             nonlocal call_count
             call_count += 1
             if call_count < 3:
-                raise ValueError("Retryable error")
+                msg = "Retryable error"
+                raise ValueError(msg)
             return "success"
 
         # Apply recovery to the decorated function
         result = apply_error_recovery(
-            lambda: test_func(log_mock), policy, log_mock, "decorated function"
+            lambda: test_func(log_mock), policy, log_mock, "decorated function",
         )
 
         assert result == "success"

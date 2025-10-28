@@ -71,7 +71,8 @@ def detect_schema_version_from_file(file_path: str) -> SchemaType:
         ValueError: If the file is not a valid CSV file
     """
     if not os.path.exists(file_path):
-        raise FileNotFoundError(f"File not found: {file_path}")
+        msg = f"File not found: {file_path}"
+        raise FileNotFoundError(msg)
 
     with open(file_path, newline="", encoding="utf-8") as f:
         # Read the header row to detect the schema version
@@ -79,7 +80,8 @@ def detect_schema_version_from_file(file_path: str) -> SchemaType:
         header = next(reader, None)
 
         if not header:
-            raise ValueError(f"Empty CSV file: {file_path}")
+            msg = f"Empty CSV file: {file_path}"
+            raise ValueError(msg)
 
         # Use the new schema detection logic
         try:
@@ -271,7 +273,7 @@ def _transform_to_canonical_schema(
                 if not mapped:
                     # Apply transformation rules for missing columns
                     canonical_row[col_name] = _get_canonical_default_value(
-                        col_name, row, current_schema
+                        col_name, row, current_schema,
                     )
 
         canonical_data.append(canonical_row)
@@ -286,7 +288,7 @@ def _transform_to_canonical_schema(
 
 
 def _get_canonical_default_value(
-    column_name: str, source_row: dict[str, Any], source_schema: SchemaVersion
+    column_name: str, source_row: dict[str, Any], source_schema: SchemaVersion,
 ) -> Any:
     """
     Get appropriate default value for a missing canonical column.
@@ -302,7 +304,7 @@ def _get_canonical_default_value(
     # Handle legacy column name mappings
     legacy_mappings = {
         "Expectancy per Trade": source_row.get(
-            "Expectancy (per trade)"
+            "Expectancy (per trade)",
         ),  # Handle name variation
     }
 

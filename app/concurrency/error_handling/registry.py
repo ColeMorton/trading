@@ -132,7 +132,7 @@ class ErrorRegistry:
         """
         with self._lock:
             cutoff_time = datetime.now().replace(
-                hour=0, minute=0, second=0, microsecond=0
+                hour=0, minute=0, second=0, microsecond=0,
             )
             if hours_back < 24:
                 from datetime import timedelta

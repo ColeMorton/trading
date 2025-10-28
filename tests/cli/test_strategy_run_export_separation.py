@@ -304,7 +304,7 @@ class TestStrategySweepCSVExportSeparation:
             ), f"File in wrong directory: {file_path}"
 
     def _verify_file_content_purity(
-        self, file_path: Path, expected_ticker: str, expected_strategy: str
+        self, file_path: Path, expected_ticker: str, expected_strategy: str,
     ):
         """
         Verify file contains only expected ticker and strategy - no mixing.
@@ -549,10 +549,10 @@ class TestStrategyDispatcherBugDocumentation:
 
         # Test that both configurations are considered valid
         single_compatible = dispatcher.validate_strategy_compatibility(
-            single_config.strategy_types
+            single_config.strategy_types,
         )
         mixed_compatible = dispatcher.validate_strategy_compatibility(
-            mixed_config.strategy_types
+            mixed_config.strategy_types,
         )
 
         assert single_compatible, "Single strategy config should be compatible"

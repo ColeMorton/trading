@@ -48,10 +48,12 @@ class SMAStrategy(BaseStrategy):
         """
         # Validate inputs
         if not self.validate_periods(fast_period, slow_period, log):
-            raise ValueError("Invalid period parameters")
+            msg = "Invalid period parameters"
+            raise ValueError(msg)
 
         if not self.validate_data(data, log):
-            raise ValueError("Invalid data")
+            msg = "Invalid data"
+            raise ValueError(msg)
 
         direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
         log(
@@ -75,11 +77,11 @@ class SMAStrategy(BaseStrategy):
             # Add Signal column (-1 for short entry, 1 for long entry, 0 for no signal)
             if config.get("DIRECTION", "Long") == "Short":
                 data = data.with_columns(
-                    [pl.when(entries).then(-1).otherwise(0).alias("Signal")]
+                    [pl.when(entries).then(-1).otherwise(0).alias("Signal")],
                 )
             else:
                 data = data.with_columns(
-                    [pl.when(entries).then(1).otherwise(0).alias("Signal")]
+                    [pl.when(entries).then(1).otherwise(0).alias("Signal")],
                 )
 
             # Convert signals to positions with audit trail
@@ -91,11 +93,10 @@ class SMAStrategy(BaseStrategy):
             strategy_config["FAST_PERIOD"] = fast_period
             strategy_config["SLOW_PERIOD"] = slow_period
 
-            data = convert_signals_to_positions(
-                data=data, config=strategy_config, log=log
+            return convert_signals_to_positions(
+                data=data, config=strategy_config, log=log,
             )
 
-            return data
 
         except Exception as e:
             log(f"Failed to calculate {direction} SMAs and signals: {e}", "error")
@@ -133,10 +134,12 @@ class EMAStrategy(BaseStrategy):
         """
         # Validate inputs
         if not self.validate_periods(fast_period, slow_period, log):
-            raise ValueError("Invalid period parameters")
+            msg = "Invalid period parameters"
+            raise ValueError(msg)
 
         if not self.validate_data(data, log):
-            raise ValueError("Invalid data")
+            msg = "Invalid data"
+            raise ValueError(msg)
 
         direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
         log(
@@ -160,11 +163,11 @@ class EMAStrategy(BaseStrategy):
             # Add Signal column (-1 for short entry, 1 for long entry, 0 for no signal)
             if config.get("DIRECTION", "Long") == "Short":
                 data = data.with_columns(
-                    [pl.when(entries).then(-1).otherwise(0).alias("Signal")]
+                    [pl.when(entries).then(-1).otherwise(0).alias("Signal")],
                 )
             else:
                 data = data.with_columns(
-                    [pl.when(entries).then(1).otherwise(0).alias("Signal")]
+                    [pl.when(entries).then(1).otherwise(0).alias("Signal")],
                 )
 
             # Convert signals to positions with audit trail
@@ -176,11 +179,10 @@ class EMAStrategy(BaseStrategy):
             strategy_config["FAST_PERIOD"] = fast_period
             strategy_config["SLOW_PERIOD"] = slow_period
 
-            data = convert_signals_to_positions(
-                data=data, config=strategy_config, log=log
+            return convert_signals_to_positions(
+                data=data, config=strategy_config, log=log,
             )
 
-            return data
 
         except Exception as e:
             log(f"Failed to calculate {direction} EMAs and signals: {e}", "error")
@@ -222,16 +224,19 @@ class MACDStrategy(BaseStrategy):
         """
         # Validate inputs
         if not self.validate_periods(fast_period, slow_period, log):
-            raise ValueError("Invalid period parameters")
+            msg = "Invalid period parameters"
+            raise ValueError(msg)
 
         if not self.validate_data(data, log):
-            raise ValueError("Invalid data")
+            msg = "Invalid data"
+            raise ValueError(msg)
 
         # Get signal period from config
         signal_period = config.get("SIGNAL_PERIOD")
         if signal_period is None or signal_period <= 0:
+            msg = f"MACD strategy requires valid SIGNAL_PERIOD, got: {signal_period}"
             raise ValueError(
-                f"MACD strategy requires valid SIGNAL_PERIOD, got: {signal_period}"
+                msg,
             )
 
         direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"
@@ -243,7 +248,7 @@ class MACDStrategy(BaseStrategy):
         try:
             # Calculate MACD components
             data = self._calculate_macd_components(
-                data, fast_period, slow_period, signal_period, log
+                data, fast_period, slow_period, signal_period, log,
             )
 
             # Calculate RSI if enabled
@@ -258,11 +263,11 @@ class MACDStrategy(BaseStrategy):
             # Add Signal column (-1 for short entry, 1 for long entry, 0 for no signal)
             if config.get("DIRECTION", "Long") == "Short":
                 data = data.with_columns(
-                    [pl.when(entries).then(-1).otherwise(0).alias("Signal")]
+                    [pl.when(entries).then(-1).otherwise(0).alias("Signal")],
                 )
             else:
                 data = data.with_columns(
-                    [pl.when(entries).then(1).otherwise(0).alias("Signal")]
+                    [pl.when(entries).then(1).otherwise(0).alias("Signal")],
                 )
 
             # Convert signals to positions with audit trail
@@ -276,11 +281,10 @@ class MACDStrategy(BaseStrategy):
             strategy_config["SLOW_PERIOD"] = slow_period
             strategy_config["SIGNAL_PERIOD"] = signal_period
 
-            data = convert_signals_to_positions(
-                data=data, config=strategy_config, log=log
+            return convert_signals_to_positions(
+                data=data, config=strategy_config, log=log,
             )
 
-            return data
 
         except Exception as e:
             log(f"Failed to calculate {direction} MACD signals: {e}", "error")
@@ -306,32 +310,32 @@ class MACDStrategy(BaseStrategy):
             [
                 pl.col("Close").ewm_mean(span=fast_period).alias("EMA_Fast"),
                 pl.col("Close").ewm_mean(span=slow_period).alias("EMA_Slow"),
-            ]
+            ],
         )
 
         # Calculate MACD line (fast EMA - slow EMA)
         data = data.with_columns(
-            [(pl.col("EMA_Fast") - pl.col("EMA_Slow")).alias("MACD_Line")]
+            [(pl.col("EMA_Fast") - pl.col("EMA_Slow")).alias("MACD_Line")],
         )
 
         # Calculate signal line (EMA of MACD line)
         data = data.with_columns(
-            [pl.col("MACD_Line").ewm_mean(span=signal_period).alias("MACD_Signal")]
+            [pl.col("MACD_Line").ewm_mean(span=signal_period).alias("MACD_Signal")],
         )
 
         # Calculate histogram (MACD line - signal line)
         data = data.with_columns(
-            [(pl.col("MACD_Line") - pl.col("MACD_Signal")).alias("MACD_Histogram")]
+            [(pl.col("MACD_Line") - pl.col("MACD_Signal")).alias("MACD_Histogram")],
         )
 
         log(
-            f"Calculated MACD components: Fast EMA({fast_period}), Slow EMA({slow_period}), Signal({signal_period})"
+            f"Calculated MACD components: Fast EMA({fast_period}), Slow EMA({slow_period}), Signal({signal_period})",
         )
 
         return data
 
     def _calculate_macd_signals(
-        self, data: pl.DataFrame, config: dict[str, Any]
+        self, data: pl.DataFrame, config: dict[str, Any],
     ) -> tuple:
         """Calculate MACD entry and exit signals based on MACD line crossing signal line."""
 
@@ -389,10 +393,12 @@ class SMAAtrStrategy(BaseStrategy):
         """
         # Validate inputs
         if not self.validate_periods(fast_period, slow_period, log):
-            raise ValueError("Invalid period parameters")
+            msg = "Invalid period parameters"
+            raise ValueError(msg)
 
         if not self.validate_data(data, log):
-            raise ValueError("Invalid data")
+            msg = "Invalid data"
+            raise ValueError(msg)
 
         # Get ATR parameters
         atr_length = config.get("ATR_LENGTH", 14)
@@ -422,7 +428,7 @@ class SMAAtrStrategy(BaseStrategy):
 
             # Generate SMA_ATR positions using combined logic
             data = self._generate_sma_atr_positions(
-                data, entries, atr_multiplier, direction, config, log
+                data, entries, atr_multiplier, direction, config, log,
             )
 
             # Convert to final strategy format
@@ -434,7 +440,7 @@ class SMAAtrStrategy(BaseStrategy):
                     "SLOW_PERIOD": slow_period,
                     "ATR_LENGTH": atr_length,
                     "ATR_MULTIPLIER": atr_multiplier,
-                }
+                },
             )
 
             return data

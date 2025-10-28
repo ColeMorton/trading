@@ -105,7 +105,8 @@ class ProfileManager:
                 break
 
         if not profile_path:
-            raise FileNotFoundError(f"Profile '{name}' not found")
+            msg = f"Profile '{name}' not found"
+            raise FileNotFoundError(msg)
 
         try:
             with open(profile_path) as f:
@@ -126,9 +127,11 @@ class ProfileManager:
             return profile
 
         except yaml.YAMLError as e:
-            raise ValueError(f"Invalid YAML in profile '{name}': {e}")
+            msg = f"Invalid YAML in profile '{name}': {e}"
+            raise ValueError(msg)
         except Exception as e:
-            raise ValueError(f"Error loading profile '{name}': {e}")
+            msg = f"Error loading profile '{name}': {e}"
+            raise ValueError(msg)
 
     def save_profile(self, profile: Profile, name: str | None = None) -> Path:
         """Save a profile to disk.
@@ -208,8 +211,9 @@ class ProfileManager:
 
             while current.inherits_from is not None:
                 if current.metadata.name in visited:
+                    msg = f"Circular inheritance detected: {' -> '.join(inheritance_chain)}"
                     raise ValidationError(
-                        f"Circular inheritance detected: {' -> '.join(inheritance_chain)}",
+                        msg,
                         Profile,
                     )
 
@@ -219,8 +223,9 @@ class ProfileManager:
                 try:
                     current = self.load_profile(current.inherits_from)
                 except FileNotFoundError:
+                    msg = f"Parent profile '{current.inherits_from}' not found"
                     raise ValidationError(
-                        f"Parent profile '{current.inherits_from}' not found", Profile
+                        msg, Profile,
                     )
 
             # Merge configurations from parent to child
@@ -269,7 +274,7 @@ class ProfileManager:
             Created profile
         """
         metadata = ProfileMetadata(
-            name=name, description=description, tags=tags or [], author=author
+            name=name, description=description, tags=tags or [], author=author,
         )
 
         profile = Profile(
@@ -331,8 +336,9 @@ class ProfileManager:
         portfolio_path = project_root / portfolio_reference
 
         if not portfolio_path.exists():
+            msg = f"Portfolio reference file not found: {portfolio_path}"
             raise ValidationError(
-                f"Portfolio reference file not found: {portfolio_path}",
+                msg,
                 Profile,
             )
 
@@ -340,16 +346,18 @@ class ProfileManager:
             with open(portfolio_path) as f:
                 portfolio_data = yaml.safe_load(f)
         except yaml.YAMLError as e:
+            msg = f"Invalid YAML in portfolio reference {portfolio_path}: {e}"
             raise ValidationError(
-                f"Invalid YAML in portfolio reference {portfolio_path}: {e}",
+                msg,
                 Profile,
             )
 
         # Extract strategies from the referenced portfolio
         strategies = portfolio_data.get("strategies", [])
         if not strategies:
+            msg = f"No strategies found in portfolio reference: {portfolio_path}"
             raise ValidationError(
-                f"No strategies found in portfolio reference: {portfolio_path}",
+                msg,
                 Profile,
             )
 
@@ -363,7 +371,7 @@ class ProfileManager:
         return resolved_config
 
     def _merge_configs(
-        self, base: dict[str, Any], override: dict[str, Any]
+        self, base: dict[str, Any], override: dict[str, Any],
     ) -> dict[str, Any]:
         """Merge two configuration dictionaries."""
         result = base.copy()
@@ -413,7 +421,8 @@ class ConfigManager:
     def set_default_profile(self, name: str) -> None:
         """Set the default profile name."""
         if not self.profile_manager.profile_exists(name):
-            raise ValueError(f"Profile '{name}' does not exist")
+            msg = f"Profile '{name}' does not exist"
+            raise ValueError(msg)
 
         self._default_profile = name
 
@@ -442,7 +451,8 @@ class ConfigManager:
             profile_name = self.get_default_profile()
 
         if profile_name is None:
-            raise ValueError("No profile specified and no default profile set")
+            msg = "No profile specified and no default profile set"
+            raise ValueError(msg)
 
         # Load profile
         profile = self.profile_manager.load_profile(profile_name)
@@ -453,7 +463,7 @@ class ConfigManager:
         # Apply overrides
         if config_overrides:
             config_dict = self.profile_manager._merge_configs(
-                config_dict, config_overrides
+                config_dict, config_overrides,
             )
 
         # Get appropriate model and validate

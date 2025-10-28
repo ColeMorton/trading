@@ -120,7 +120,8 @@ def setup_session_middleware(app: FastAPI) -> None:
     if not secret_key or secret_key == "generate-a-secure-random-key-here":
         secret_key = generate_session_secret()
         if settings.ENVIRONMENT == "production":
-            raise ValueError("SESSION_SECRET_KEY must be set in production environment")
+            msg = "SESSION_SECRET_KEY must be set in production environment"
+            raise ValueError(msg)
 
     app.add_middleware(
         SessionMiddleware,

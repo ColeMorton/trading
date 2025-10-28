@@ -61,7 +61,7 @@ class TestMomentumMetricsCalculation:
         assert result["recent_avg_return"] > result["historical_avg_return"]
 
         # All values should be numeric
-        for _key, value in result.items():
+        for value in result.values():
             assert isinstance(value, int | float)
             assert not np.isnan(value)
 
@@ -137,7 +137,7 @@ class TestRollingMomentumCalculation:
     def test_rolling_momentum_sufficient_data(self, analyzer):
         """Test rolling momentum with sufficient data."""
         returns = np.array(
-            [0.01, 0.02, -0.005, 0.015, 0.008, 0.012, -0.003, 0.01, 0.005, 0.02]
+            [0.01, 0.02, -0.005, 0.015, 0.008, 0.012, -0.003, 0.01, 0.005, 0.02],
         )
 
         # Test 5-day momentum
@@ -210,7 +210,7 @@ class TestPriceAcceleration:
                 0.035,
                 0.040,
                 0.045,
-            ]
+            ],
         )
 
         result = analyzer._calculate_momentum_metrics(returns)
@@ -235,7 +235,7 @@ class TestPriceAcceleration:
                 0.006,
                 0.005,
                 0.004,
-            ]
+            ],
         )
 
         result = analyzer._calculate_momentum_metrics(returns)
@@ -280,7 +280,7 @@ class TestMomentumErrorHandling:
 
         # Should handle NaN values and return valid numbers
         assert isinstance(result, dict)
-        for _key, value in result.items():
+        for value in result.values():
             assert isinstance(value, int | float)
             # Results should either be valid numbers or default zeros
             assert not np.isnan(value) or value == 0.0
@@ -293,7 +293,7 @@ class TestMomentumErrorHandling:
 
         # Should handle infinite values gracefully
         assert isinstance(result, dict)
-        for _key, value in result.items():
+        for value in result.values():
             assert np.isfinite(value) or value == 0.0
 
     def test_momentum_calculation_exception(self, analyzer):
@@ -303,7 +303,7 @@ class TestMomentumErrorHandling:
 
         # This should trigger the exception handling
         with pytest.patch.object(
-            analyzer, "_rolling_momentum", side_effect=Exception("Test error")
+            analyzer, "_rolling_momentum", side_effect=Exception("Test error"),
         ):
             result = analyzer._calculate_momentum_metrics(np.array([0.01, 0.02, 0.03]))
 

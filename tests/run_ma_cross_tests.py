@@ -101,7 +101,8 @@ class MACrossTestRunner:
             Dictionary with test results
         """
         if suite_name not in self.test_suites:
-            raise ValueError(f"Unknown test suite: {suite_name}")
+            msg = f"Unknown test suite: {suite_name}"
+            raise ValueError(msg)
 
         suite_config = self.test_suites[suite_name]
         results = {
@@ -201,7 +202,7 @@ class MACrossTestRunner:
 
             if result.returncode != 0 and result.stderr:
                 file_result["errors"].append(
-                    f"Exit code {result.returncode}: {result.stderr}"
+                    f"Exit code {result.returncode}: {result.stderr}",
                 )
 
         except subprocess.TimeoutExpired:
@@ -219,7 +220,7 @@ class MACrossTestRunner:
         else:
             print(
                 f"  ❌ {file_result['failed_tests']} tests failed, "
-                f"{file_result['passed_tests']} passed"
+                f"{file_result['passed_tests']} passed",
             )
 
         return file_result
@@ -361,7 +362,7 @@ class MACrossTestRunner:
             print(
                 f"  {suite_name:12} {status:8} "
                 f"({suite_result['total_tests']:3} tests, "
-                f"{suite_result['duration']:6.2f}s)"
+                f"{suite_result['duration']:6.2f}s)",
             )
 
         if results["success"]:
@@ -372,7 +373,7 @@ class MACrossTestRunner:
         print(f"{'='*80}")
 
     def generate_report(
-        self, results: dict[str, Any], output_file: str | None = None
+        self, results: dict[str, Any], output_file: str | None = None,
     ) -> None:
         """
         Generate a detailed test report.
@@ -420,16 +421,16 @@ def main():
         help="Specific test suite(s) to run",
     )
     parser.add_argument(
-        "--verbose", "-v", action="store_true", help="Enable verbose output"
+        "--verbose", "-v", action="store_true", help="Enable verbose output",
     )
     parser.add_argument(
-        "--coverage", "-c", action="store_true", help="Enable coverage reporting"
+        "--coverage", "-c", action="store_true", help="Enable coverage reporting",
     )
     parser.add_argument(
-        "--report", "-r", type=str, help="Generate JSON report to specified file"
+        "--report", "-r", type=str, help="Generate JSON report to specified file",
     )
     parser.add_argument(
-        "--quick", action="store_true", help="Run only smoke tests for quick validation"
+        "--quick", action="store_true", help="Run only smoke tests for quick validation",
     )
 
     args = parser.parse_args()

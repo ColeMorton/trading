@@ -83,25 +83,25 @@ def process_strategy_portfolios(
         # Process based on strategy type
         if strategy_type == "SMA":
             log(
-                f"Processing SMA strategy for {current_ticker} with windows {fast_period}/{slow_period}"
+                f"Processing SMA strategy for {current_ticker} with windows {fast_period}/{slow_period}",
             )
             strategy_config["USE_SMA"] = True
             signal_data = calculate_ma_and_signals(
-                data.clone(), fast_period, slow_period, strategy_config, log
+                data.clone(), fast_period, slow_period, strategy_config, log,
             )
 
         elif strategy_type == "EMA":
             log(
-                f"Processing EMA strategy for {current_ticker} with windows {fast_period}/{slow_period}"
+                f"Processing EMA strategy for {current_ticker} with windows {fast_period}/{slow_period}",
             )
             strategy_config["USE_SMA"] = False
             signal_data = calculate_ma_and_signals(
-                data.clone(), fast_period, slow_period, strategy_config, log
+                data.clone(), fast_period, slow_period, strategy_config, log,
             )
 
         elif strategy_type == "MACD":
             log(
-                f"Processing MACD strategy for {current_ticker} with parameters {fast_period}/{slow_period}/{signal_period}"
+                f"Processing MACD strategy for {current_ticker} with parameters {fast_period}/{slow_period}/{signal_period}",
             )
             signal_data = calculate_macd_and_signals(
                 data.clone(),

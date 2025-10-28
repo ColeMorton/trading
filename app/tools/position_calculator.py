@@ -73,11 +73,11 @@ class PositionCalculator:
             return pnl, return_pct
 
         except Exception as e:
-            self.logger.error(f"Error calculating P&L and return: {e}")
+            self.logger.exception(f"Error calculating P&L and return: {e}")
             return 0.0, 0.0
 
     def calculate_days_since_entry(
-        self, entry_timestamp: str, current_date: datetime | None = None
+        self, entry_timestamp: str, current_date: datetime | None = None,
     ) -> int:
         """
         Calculate days since position entry.
@@ -99,11 +99,11 @@ class PositionCalculator:
             return int(round(days_since, STANDARD_DAYS_PRECISION))
 
         except Exception as e:
-            self.logger.error(f"Error calculating days since entry: {e}")
+            self.logger.exception(f"Error calculating days since entry: {e}")
             return 0
 
     def calculate_exit_efficiency(
-        self, final_return: float, mfe: float
+        self, final_return: float, mfe: float,
     ) -> float | None:
         """
         Calculate exit efficiency with standardized precision.
@@ -123,7 +123,7 @@ class PositionCalculator:
             return round(efficiency, STANDARD_EFFICIENCY_PRECISION)
 
         except Exception as e:
-            self.logger.error(f"Error calculating exit efficiency: {e}")
+            self.logger.exception(f"Error calculating exit efficiency: {e}")
             return None
 
     def calculate_excursion_status(self, current_excursion: float) -> str:
@@ -146,11 +146,11 @@ class PositionCalculator:
             return "Neutral"
 
         except Exception as e:
-            self.logger.error(f"Error determining excursion status: {e}")
+            self.logger.exception(f"Error determining excursion status: {e}")
             return "Unknown"
 
     def assess_trade_quality(
-        self, mfe: float, mae: float, final_return: float | None = None
+        self, mfe: float, mae: float, final_return: float | None = None,
     ) -> str:
         """
         Assess trade quality based on MFE/MAE metrics.
@@ -191,7 +191,7 @@ class PositionCalculator:
             return "Poor"
 
         except Exception as e:
-            self.logger.error(f"Error assessing trade quality: {e}")
+            self.logger.exception(f"Error assessing trade quality: {e}")
             return "Unknown"
 
     def calculate_mfe_mae_ratio(self, mfe: float, mae: float) -> float:
@@ -213,7 +213,7 @@ class PositionCalculator:
             return round(ratio, STANDARD_RATIO_PRECISION)
 
         except Exception as e:
-            self.logger.error(f"Error calculating MFE/MAE ratio: {e}")
+            self.logger.exception(f"Error calculating MFE/MAE ratio: {e}")
             return 0.0
 
     def validate_calculation_consistency(
@@ -261,7 +261,7 @@ class PositionCalculator:
 
             # Recalculate P&L and Return
             expected_pnl, expected_return = self.calculate_pnl_and_return(
-                entry_price, exit_price, position_size, direction
+                entry_price, exit_price, position_size, direction,
             )
 
             # Check P&L consistency
@@ -274,7 +274,7 @@ class PositionCalculator:
                         "expected": expected_pnl,
                         "actual": reported_pnl,
                         "difference": pnl_diff,
-                    }
+                    },
                 )
                 results["corrected_values"]["PnL"] = expected_pnl
 
@@ -288,7 +288,7 @@ class PositionCalculator:
                         "expected": expected_return,
                         "actual": reported_return,
                         "difference": return_diff,
-                    }
+                    },
                 )
                 results["corrected_values"]["Return"] = expected_return
 
@@ -306,14 +306,14 @@ class PositionCalculator:
                                 "expected": expected_ratio,
                                 "actual": reported_ratio,
                                 "difference": ratio_diff,
-                            }
+                            },
                         )
                         results["corrected_values"]["MFE_MAE_Ratio"] = expected_ratio
 
             # Validate Exit Efficiency if present
             if reported_return is not None and mfe is not None:
                 expected_efficiency = self.calculate_exit_efficiency(
-                    expected_return, mfe
+                    expected_return, mfe,
                 )
                 reported_efficiency = position_data.get("Exit_Efficiency_Fixed")
 
@@ -326,7 +326,7 @@ class PositionCalculator:
                                 "expected": expected_efficiency,
                                 "actual": reported_efficiency,
                                 "difference": eff_diff,
-                            }
+                            },
                         )
                         results["corrected_values"][
                             "Exit_Efficiency_Fixed"
@@ -335,7 +335,7 @@ class PositionCalculator:
             return results
 
         except Exception as e:
-            self.logger.error(f"Error in validation: {e}")
+            self.logger.exception(f"Error in validation: {e}")
             return {
                 "valid": False,
                 "errors": [f"Validation error: {e!s}"],
@@ -384,7 +384,7 @@ class PositionCalculator:
             return rounded_values
 
         except Exception as e:
-            self.logger.error(f"Error applying standard rounding: {e}")
+            self.logger.exception(f"Error applying standard rounding: {e}")
             return values_dict
 
     def comprehensive_position_refresh(
@@ -418,7 +418,7 @@ class PositionCalculator:
 
             if entry_price is not None and exit_price is not None:
                 new_pnl, new_return = self.calculate_pnl_and_return(
-                    entry_price, exit_price, position_size, direction
+                    entry_price, exit_price, position_size, direction,
                 )
 
                 if refreshed_data.get("PnL") != new_pnl:
@@ -427,7 +427,7 @@ class PositionCalculator:
 
                 if refreshed_data.get("Return") != new_return:
                     changes_made.append(
-                        f'Return: {refreshed_data.get("Return")} → {new_return}'
+                        f'Return: {refreshed_data.get("Return")} → {new_return}',
                     )
                     refreshed_data["Return"] = new_return
 
@@ -439,7 +439,7 @@ class PositionCalculator:
                 mfe_rounded = round(mfe, STANDARD_MFE_MAE_PRECISION)
                 if refreshed_data.get("Max_Favourable_Excursion") != mfe_rounded:
                     changes_made.append(
-                        f'MFE: {refreshed_data.get("Max_Favourable_Excursion")} → {mfe_rounded}'
+                        f'MFE: {refreshed_data.get("Max_Favourable_Excursion")} → {mfe_rounded}',
                     )
                     refreshed_data["Max_Favourable_Excursion"] = mfe_rounded
 
@@ -447,7 +447,7 @@ class PositionCalculator:
                 mae_rounded = round(mae, STANDARD_MFE_MAE_PRECISION)
                 if refreshed_data.get("Max_Adverse_Excursion") != mae_rounded:
                     changes_made.append(
-                        f'MAE: {refreshed_data.get("Max_Adverse_Excursion")} → {mae_rounded}'
+                        f'MAE: {refreshed_data.get("Max_Adverse_Excursion")} → {mae_rounded}',
                     )
                     refreshed_data["Max_Adverse_Excursion"] = mae_rounded
 
@@ -459,7 +459,7 @@ class PositionCalculator:
                 new_ratio = self.calculate_mfe_mae_ratio(current_mfe, current_mae)
                 if refreshed_data.get("MFE_MAE_Ratio") != new_ratio:
                     changes_made.append(
-                        f'MFE/MAE Ratio: {refreshed_data.get("MFE_MAE_Ratio")} → {new_ratio}'
+                        f'MFE/MAE Ratio: {refreshed_data.get("MFE_MAE_Ratio")} → {new_ratio}',
                     )
                     refreshed_data["MFE_MAE_Ratio"] = new_ratio
 
@@ -467,12 +467,12 @@ class PositionCalculator:
             current_return = refreshed_data.get("Return")
             if current_return is not None and current_mfe is not None:
                 new_efficiency = self.calculate_exit_efficiency(
-                    current_return, current_mfe
+                    current_return, current_mfe,
                 )
                 if new_efficiency is not None:
                     if refreshed_data.get("Exit_Efficiency_Fixed") != new_efficiency:
                         changes_made.append(
-                            f'Exit Efficiency: {refreshed_data.get("Exit_Efficiency_Fixed")} → {new_efficiency}'
+                            f'Exit Efficiency: {refreshed_data.get("Exit_Efficiency_Fixed")} → {new_efficiency}',
                         )
                         refreshed_data["Exit_Efficiency_Fixed"] = new_efficiency
 
@@ -482,7 +482,7 @@ class PositionCalculator:
                 new_days = self.calculate_days_since_entry(entry_timestamp)
                 if refreshed_data.get("Days_Since_Entry") != new_days:
                     changes_made.append(
-                        f'Days Since Entry: {refreshed_data.get("Days_Since_Entry")} → {new_days}'
+                        f'Days Since Entry: {refreshed_data.get("Days_Since_Entry")} → {new_days}',
                     )
                     refreshed_data["Days_Since_Entry"] = new_days
 
@@ -491,18 +491,18 @@ class PositionCalculator:
                 new_status = self.calculate_excursion_status(current_excursion)
                 if refreshed_data.get("Current_Excursion_Status") != new_status:
                     changes_made.append(
-                        f'Excursion Status: {refreshed_data.get("Current_Excursion_Status")} → {new_status}'
+                        f'Excursion Status: {refreshed_data.get("Current_Excursion_Status")} → {new_status}',
                     )
                     refreshed_data["Current_Excursion_Status"] = new_status
 
             # 7. Reassess Trade Quality
             if current_mfe is not None and current_mae is not None:
                 new_quality = self.assess_trade_quality(
-                    current_mfe, current_mae, current_return
+                    current_mfe, current_mae, current_return,
                 )
                 if refreshed_data.get("Trade_Quality") != new_quality:
                     changes_made.append(
-                        f'Trade Quality: {refreshed_data.get("Trade_Quality")} → {new_quality}'
+                        f'Trade Quality: {refreshed_data.get("Trade_Quality")} → {new_quality}',
                     )
                     refreshed_data["Trade_Quality"] = new_quality
 
@@ -516,7 +516,7 @@ class PositionCalculator:
             }
 
         except Exception as e:
-            self.logger.error(f"Error in comprehensive position refresh: {e}")
+            self.logger.exception(f"Error in comprehensive position refresh: {e}")
             return {
                 "data": position_data,
                 "changes": [],
@@ -556,7 +556,7 @@ def calculate_position_pnl_return(
     """Convenience function to calculate P&L and return."""
     calculator = get_position_calculator()
     return calculator.calculate_pnl_and_return(
-        entry_price, exit_price, position_size, direction
+        entry_price, exit_price, position_size, direction,
     )
 
 
@@ -575,5 +575,5 @@ def refresh_position_calculations(
     """Convenience function to refresh all position calculations."""
     calculator = get_position_calculator()
     return calculator.comprehensive_position_refresh(
-        position_data, mfe, mae, current_excursion
+        position_data, mfe, mae, current_excursion,
     )

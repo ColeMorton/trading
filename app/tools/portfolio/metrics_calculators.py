@@ -31,7 +31,7 @@ def update_breadth_metrics(df: pd.DataFrame, breadth_metrics: dict, file_info: d
                 "strategy_distribution": {},
                 "ticker_coverage": set(),
                 "average_metrics": {"score": [], "win_rate": [], "return": []},
-            }
+            },
         )
 
     for _, row in df.iterrows():
@@ -73,7 +73,7 @@ def update_breadth_metrics(df: pd.DataFrame, breadth_metrics: dict, file_info: d
 
 
 def calculate_summary_stats(
-    aggregation_results: dict[str, Any], processed_files: int, total_rows: int
+    aggregation_results: dict[str, Any], processed_files: int, total_rows: int,
 ):
     """Calculate final summary statistics for aggregation.
 
@@ -104,13 +104,13 @@ def calculate_summary_stats(
             # Calculate average metrics
             if breadth["average_metrics"]["score"]:
                 summary["overall_avg_score"] = sum(
-                    breadth["average_metrics"]["score"]
+                    breadth["average_metrics"]["score"],
                 ) / len(breadth["average_metrics"]["score"])
             if breadth["average_metrics"]["win_rate"]:
                 summary["overall_avg_win_rate"] = sum(
-                    breadth["average_metrics"]["win_rate"]
+                    breadth["average_metrics"]["win_rate"],
                 ) / len(breadth["average_metrics"]["win_rate"])
             if breadth["average_metrics"]["return"]:
                 summary["overall_avg_return"] = sum(
-                    breadth["average_metrics"]["return"]
+                    breadth["average_metrics"]["return"],
                 ) / len(breadth["average_metrics"]["return"])

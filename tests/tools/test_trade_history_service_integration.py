@@ -28,7 +28,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
 
         # Create data directory structure
         (self.base_dir / "data" / "raw" / "positions").mkdir(
-            parents=True, exist_ok=True
+            parents=True, exist_ok=True,
         )
 
         # Set up mock logger
@@ -36,7 +36,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
 
         # Initialize service
         self.service = TradeHistoryService(
-            logger=self.mock_logger, base_dir=self.base_dir
+            logger=self.mock_logger, base_dir=self.base_dir,
         )
 
         # Create test portfolio data with the original SMCI bug scenario
@@ -105,7 +105,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
                     "Current_Excursion_Status": "Neutral",
                     "Trade_Quality": "Unknown",
                 },
-            ]
+            ],
         )
 
         # Save test portfolio
@@ -125,7 +125,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
         with (
             patch.object(self.service, "_refresh_price_data"),
             patch.object(
-                self.service, "_calculate_position_metrics_comprehensive"
+                self.service, "_calculate_position_metrics_comprehensive",
             ) as mock_metrics,
         ):
             # Mock MFE/MAE calculation to return original values
@@ -143,7 +143,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
             # Verify success
             self.assertTrue(result["success"])
             self.assertEqual(
-                result["updated_count"], 3
+                result["updated_count"], 3,
             )  # All positions should be updated
 
             # Read updated portfolio
@@ -167,7 +167,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
         with (
             patch.object(self.service, "_refresh_price_data"),
             patch.object(
-                self.service, "_calculate_position_metrics_comprehensive"
+                self.service, "_calculate_position_metrics_comprehensive",
             ) as mock_metrics,
         ):
             # Mock MFE/MAE calculation
@@ -199,7 +199,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
         with (
             patch.object(self.service, "_refresh_price_data"),
             patch.object(
-                self.service, "_calculate_position_metrics_comprehensive"
+                self.service, "_calculate_position_metrics_comprehensive",
             ) as mock_metrics,
         ):
             mock_metrics.return_value = (0.434553, 0.062141, 0.0303, None)
@@ -231,7 +231,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
         with (
             patch.object(self.service, "_refresh_price_data"),
             patch.object(
-                self.service, "_calculate_position_metrics_comprehensive"
+                self.service, "_calculate_position_metrics_comprehensive",
             ) as mock_metrics,
         ):
             # Mock different returns for different tickers
@@ -250,7 +250,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
             mock_metrics.side_effect = mock_metrics_side_effect
 
             result = self.service.update_all_positions(
-                portfolio_name="test_portfolio.csv", verbose=True
+                portfolio_name="test_portfolio.csv", verbose=True,
             )
 
             # Verify success
@@ -272,20 +272,20 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
         calculator_instance = None
 
         def capture_calculator_call(
-            position_data, mfe=None, mae=None, current_excursion=None
+            position_data, mfe=None, mae=None, current_excursion=None,
         ):
             nonlocal calculator_instance
             calculator_instance = PositionCalculator()
             return calculator_instance.comprehensive_position_refresh(
-                position_data, mfe, mae, current_excursion
+                position_data, mfe, mae, current_excursion,
             )
 
         with patch.object(self.service, "_refresh_price_data"):
             with patch.object(
-                self.service, "_calculate_position_metrics_comprehensive"
+                self.service, "_calculate_position_metrics_comprehensive",
             ) as mock_metrics:
                 with patch(
-                    "app.contexts.portfolio.services.trade_history_service.get_position_calculator"
+                    "app.contexts.portfolio.services.trade_history_service.get_position_calculator",
                 ) as mock_get_calc:
                     # Setup mocks
                     mock_calculator = Mock()
@@ -297,14 +297,14 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
 
                     # Run comprehensive refresh
                     self.service.update_all_positions(
-                        portfolio_name="test_portfolio.csv"
+                        portfolio_name="test_portfolio.csv",
                     )
 
                     # Verify PositionCalculator was used (called twice - once for refresh, once for validation)
                     self.assertTrue(mock_get_calc.called)
                     self.assertGreaterEqual(mock_get_calc.call_count, 1)
                     self.assertTrue(
-                        mock_calculator.comprehensive_position_refresh.called
+                        mock_calculator.comprehensive_position_refresh.called,
                     )
 
                     # Verify calculator was called with proper parameters
@@ -318,7 +318,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
     def test_error_handling_missing_file(self):
         """Test error handling when portfolio file is missing."""
         result = self.service.update_all_positions(
-            portfolio_name="nonexistent_portfolio.csv"
+            portfolio_name="nonexistent_portfolio.csv",
         )
 
         self.assertFalse(result["success"])
@@ -342,7 +342,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
         with (
             patch.object(self.service, "_refresh_price_data"),
             patch.object(
-                self.service, "_calculate_position_metrics_comprehensive"
+                self.service, "_calculate_position_metrics_comprehensive",
             ) as mock_metrics,
         ):
             mock_metrics.return_value = (0.434553, 0.062141, 0.0303, None)
@@ -365,7 +365,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
         with (
             patch.object(self.service, "_refresh_price_data"),
             patch.object(
-                self.service, "_calculate_position_metrics_comprehensive"
+                self.service, "_calculate_position_metrics_comprehensive",
             ) as mock_metrics,
         ):
             mock_metrics.return_value = (
@@ -402,7 +402,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
         with (
             patch.object(self.service, "_refresh_price_data"),
             patch.object(
-                self.service, "_calculate_position_metrics_comprehensive"
+                self.service, "_calculate_position_metrics_comprehensive",
             ) as mock_metrics,
         ):
             # Mock MFE/MAE calculation failure for SMCI, success for others
@@ -414,13 +414,13 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
             mock_metrics.side_effect = mock_metrics_side_effect
 
             result = self.service.update_all_positions(
-                portfolio_name="test_portfolio.csv", verbose=True
+                portfolio_name="test_portfolio.csv", verbose=True,
             )
 
             # Should still succeed with partial updates
             self.assertTrue(result["success"])
             self.assertGreater(
-                result["updated_count"], 0
+                result["updated_count"], 0,
             )  # At least AMZN should update
 
             # When MFE/MAE calculation fails, service falls back to basic calculations
@@ -434,7 +434,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
             # SMCI should still have corrected P&L even without MFE/MAE
             smci_position = updated_df[updated_df["Ticker"] == "SMCI"].iloc[0]
             self.assertEqual(
-                smci_position["PnL"], 13.17
+                smci_position["PnL"], 13.17,
             )  # Basic calculations should work
 
     def test_comprehensive_refresh_performance(self):
@@ -463,7 +463,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
                     "Current_Unrealized_PnL": 0.04,
                     "Current_Excursion_Status": "Favorable",
                     "Trade_Quality": "Excellent",
-                }
+                },
             )
 
         large_df = pd.DataFrame(large_data)
@@ -475,7 +475,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
         with (
             patch.object(self.service, "_refresh_price_data"),
             patch.object(
-                self.service, "_calculate_position_metrics_comprehensive"
+                self.service, "_calculate_position_metrics_comprehensive",
             ) as mock_metrics,
         ):
             mock_metrics.return_value = (0.06, 0.02, 0.04, None)
@@ -485,7 +485,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
             start_time = time.time()
 
             result = self.service.update_all_positions(
-                portfolio_name="large_portfolio.csv"
+                portfolio_name="large_portfolio.csv",
             )
 
             end_time = time.time()
@@ -505,7 +505,7 @@ class TestTradeHistoryServiceRegression(unittest.TestCase):
         self.temp_dir = tempfile.mkdtemp()
         self.base_dir = Path(self.temp_dir)
         (self.base_dir / "data" / "raw" / "positions").mkdir(
-            parents=True, exist_ok=True
+            parents=True, exist_ok=True,
         )
 
         self.service = TradeHistoryService(base_dir=self.base_dir)
@@ -535,8 +535,8 @@ class TestTradeHistoryServiceRegression(unittest.TestCase):
                     "Return": 8.6618,  # The original incorrect value
                     "Max_Favourable_Excursion": 0.434553,
                     "Max_Adverse_Excursion": 0.062141,
-                }
-            ]
+                },
+            ],
         )
 
         portfolio_file = (
@@ -547,13 +547,13 @@ class TestTradeHistoryServiceRegression(unittest.TestCase):
         with (
             patch.object(self.service, "_refresh_price_data"),
             patch.object(
-                self.service, "_calculate_position_metrics_comprehensive"
+                self.service, "_calculate_position_metrics_comprehensive",
             ) as mock_metrics,
         ):
             mock_metrics.return_value = (0.434553, 0.062141, 0.0303, None)
 
             self.service.update_all_positions(
-                portfolio_name="smci_regression.csv", verbose=True
+                portfolio_name="smci_regression.csv", verbose=True,
             )
 
             # Verify the bug was fixed
@@ -565,7 +565,7 @@ class TestTradeHistoryServiceRegression(unittest.TestCase):
             self.assertNotEqual(position["PnL"], 376.53)  # Ensure bug doesn't reoccur
             self.assertEqual(position["Return"], 0.0303)
             self.assertNotEqual(
-                position["Return"], 8.6618
+                position["Return"], 8.6618,
             )  # Ensure bug doesn't reoccur
 
     def test_calculation_precision_drift_prevention(self):
@@ -587,8 +587,8 @@ class TestTradeHistoryServiceRegression(unittest.TestCase):
                     "Return": 0.054433,  # Will be corrected
                     "Max_Favourable_Excursion": 0.066666,
                     "Max_Adverse_Excursion": 0.022222,
-                }
-            ]
+                },
+            ],
         )
 
         portfolio_file = (
@@ -599,7 +599,7 @@ class TestTradeHistoryServiceRegression(unittest.TestCase):
         with (
             patch.object(self.service, "_refresh_price_data"),
             patch.object(
-                self.service, "_calculate_position_metrics_comprehensive"
+                self.service, "_calculate_position_metrics_comprehensive",
             ) as mock_metrics,
         ):
             mock_metrics.return_value = (0.066666, 0.022222, 0.054433, None)
@@ -607,7 +607,7 @@ class TestTradeHistoryServiceRegression(unittest.TestCase):
             # Run multiple refresh cycles
             for _cycle in range(3):
                 result = self.service.update_all_positions(
-                    portfolio_name="precision_test.csv"
+                    portfolio_name="precision_test.csv",
                 )
                 self.assertTrue(result["success"])
 
@@ -617,10 +617,10 @@ class TestTradeHistoryServiceRegression(unittest.TestCase):
 
             # Check that precision hasn't drifted
             self.assertEqual(
-                len(str(position["PnL"]).split(".")[-1]), 2
+                len(str(position["PnL"]).split(".")[-1]), 2,
             )  # 2 decimal places
             self.assertEqual(
-                len(str(position["Return"]).split(".")[-1]), 4
+                len(str(position["Return"]).split(".")[-1]), 4,
             )  # 4 decimal places
 
 
@@ -632,7 +632,7 @@ class TestTradeHistoryServiceCLIIntegration(unittest.TestCase):
         self.temp_dir = tempfile.mkdtemp()
         self.base_dir = Path(self.temp_dir)
         (self.base_dir / "data" / "raw" / "positions").mkdir(
-            parents=True, exist_ok=True
+            parents=True, exist_ok=True,
         )
 
         self.service = TradeHistoryService(base_dir=self.base_dir)
@@ -660,8 +660,8 @@ class TestTradeHistoryServiceCLIIntegration(unittest.TestCase):
                     "Status": "Closed",
                     "PnL": 9.0,  # Incorrect: should be 10.0
                     "Return": 0.09,  # Incorrect: should be 0.1
-                }
-            ]
+                },
+            ],
         )
 
         portfolio_file = self.base_dir / "data" / "raw" / "positions" / "cli_test.csv"
@@ -670,7 +670,7 @@ class TestTradeHistoryServiceCLIIntegration(unittest.TestCase):
         with (
             patch.object(self.service, "_refresh_price_data"),
             patch.object(
-                self.service, "_calculate_position_metrics_comprehensive"
+                self.service, "_calculate_position_metrics_comprehensive",
             ) as mock_metrics,
         ):
             mock_metrics.return_value = (0.12, 0.03, 0.1, None)

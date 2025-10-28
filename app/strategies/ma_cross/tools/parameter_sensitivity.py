@@ -38,12 +38,12 @@ def analyze_parameter_sensitivity(
             for slow_period in long_windows:
                 if fast_period < slow_period:  # Ensure short < long
                     parameter_sets.append(
-                        {"fast_period": fast_period, "slow_period": slow_period}
+                        {"fast_period": fast_period, "slow_period": slow_period},
                     )
 
         # Handle multiple strategy types
         strategy_types = config.get(
-            "strategy_types", [config.get("STRATEGY_TYPE", "SMA")]
+            "strategy_types", [config.get("STRATEGY_TYPE", "SMA")],
         )
         if isinstance(strategy_types, str):
             strategy_types = [strategy_types]
@@ -56,7 +56,7 @@ def analyze_parameter_sensitivity(
 
             # Enable parallel processing for large parameter sets
             use_parallel = len(parameter_sets) > 10 and config.get(
-                "ENABLE_PARALLEL", True
+                "ENABLE_PARALLEL", True,
             )
 
             # Analyze parameter combinations for this strategy type
@@ -72,7 +72,7 @@ def analyze_parameter_sensitivity(
 
             if strategy_portfolios:
                 log(
-                    f"Generated {len(strategy_portfolios)} portfolios for {strategy_type}"
+                    f"Generated {len(strategy_portfolios)} portfolios for {strategy_type}",
                 )
                 all_portfolios.extend(strategy_portfolios)
             else:
@@ -116,7 +116,7 @@ def export_results(df: pl.DataFrame, config: dict[str, Any], log: Callable) -> N
 
         # Export using centralized portfolio export functionality
         export_portfolios(
-            portfolios=df.to_dicts(), config=config, export_type="portfolios", log=log
+            portfolios=df.to_dicts(), config=config, export_type="portfolios", log=log,
         )
 
         log("Analysis results exported successfully")

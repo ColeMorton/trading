@@ -86,12 +86,12 @@ class UnifiedMetricsCalculator:
         # Initialize component calculators
         self.csv_loader = CSVLoader(strict_validation=self.config.strict_validation)
         self.csv_extractor = CSVMetricsExtractor(
-            aggregation_method=self.config.aggregation_method
+            aggregation_method=self.config.aggregation_method,
         )
         self.csv_validator = CSVValidator()
         self.data_reconciler = DataReconciler()
         self.risk_validator = RiskMetricsValidator(
-            strict_mode=self.config.strict_validation
+            strict_mode=self.config.strict_validation,
         )
         self.correlation_calculator = CorrelationCalculator()
 
@@ -158,27 +158,27 @@ class UnifiedMetricsCalculator:
 
             # Step 3: Calculate unified metrics
             unified_metrics = self._calculate_metrics(
-                csv_metrics, json_data, portfolio_data, log
+                csv_metrics, json_data, portfolio_data, log,
             )
             result.metrics = unified_metrics
 
             # Step 4: Perform reconciliation (if both sources available)
             if csv_metrics and json_data and self.config.enable_reconciliation:
                 reconciliation = self._perform_reconciliation(
-                    csv_metrics, json_data, log
+                    csv_metrics, json_data, log,
                 )
                 result.reconciliation_report = reconciliation
 
                 # Apply auto-corrections if enabled
                 if self.config.auto_correction:
                     result.metrics = self._apply_corrections(
-                        result.metrics, reconciliation, log
+                        result.metrics, reconciliation, log,
                     )
 
             # Step 5: Risk validation
             if self.config.enable_risk_validation and csv_path:
                 risk_validation = self._perform_risk_validation(
-                    result.metrics, csv_path, log
+                    result.metrics, csv_path, log,
                 )
                 result.validation_results["risk_metrics"] = risk_validation
 
@@ -224,7 +224,7 @@ class UnifiedMetricsCalculator:
 
             # Validate CSV data quality
             validation_result = self.csv_validator.validate_csv_data(
-                load_result.data, log
+                load_result.data, log,
             )
 
             # Extract metrics from CSV
@@ -276,12 +276,12 @@ class UnifiedMetricsCalculator:
                 for ticker, metrics in ticker_metrics.items():
                     if not isinstance(metrics, dict):
                         validation["errors"].append(
-                            f"Metrics for ticker {ticker} should be a dictionary"
+                            f"Metrics for ticker {ticker} should be a dictionary",
                         )
                         validation["valid"] = False
                     elif "signal_quality_metrics" not in metrics:
                         validation["warnings"].append(
-                            f"Ticker {ticker} missing signal_quality_metrics"
+                            f"Ticker {ticker} missing signal_quality_metrics",
                         )
 
         # Check portfolio_metrics structure
@@ -322,7 +322,7 @@ class UnifiedMetricsCalculator:
             unified_metrics["strategy_breakdown"] = csv_metrics.strategy_breakdown
             unified_metrics["data_quality"] = csv_metrics.data_quality
             unified_metrics["calculation_metadata"]["sources_used"].append(
-                "csv_primary"
+                "csv_primary",
             )
 
             # Enhance with additional calculations
@@ -332,7 +332,7 @@ class UnifiedMetricsCalculator:
         # Supplement with JSON data if available and needed
         if json_data:
             unified_metrics["calculation_metadata"]["sources_used"].append(
-                "json_supplement"
+                "json_supplement",
             )
 
             # If no CSV data, use JSON as primary
@@ -342,19 +342,18 @@ class UnifiedMetricsCalculator:
 
                 unified_metrics["ticker_metrics"] = json_data.get("ticker_metrics", {})
                 unified_metrics["portfolio_metrics"] = json_data.get(
-                    "portfolio_metrics", {}
+                    "portfolio_metrics", {},
                 )
                 unified_metrics["calculation_metadata"]["sources_used"] = [
-                    "json_primary"
+                    "json_primary",
                 ]
             else:
                 # CSV is primary, but supplement with JSON-only metrics
                 self._supplement_with_json_metrics(unified_metrics, json_data, log)
 
         # Add computational enhancements
-        unified_metrics = self._enhance_metrics(unified_metrics, log)
+        return self._enhance_metrics(unified_metrics, log)
 
-        return unified_metrics
 
     def _supplement_with_json_metrics(
         self,
@@ -388,7 +387,7 @@ class UnifiedMetricsCalculator:
             log("Supplemented CSV metrics with JSON-only advanced metrics", "info")
 
     def _enhance_metrics(
-        self, metrics: dict[str, Any], log: Callable[[str, str], None] | None = None
+        self, metrics: dict[str, Any], log: Callable[[str, str], None] | None = None,
     ) -> dict[str, Any]:
         """Enhance metrics with additional calculations."""
         enhanced_metrics = metrics.copy()
@@ -403,7 +402,7 @@ class UnifiedMetricsCalculator:
         # Calculate additional portfolio-level metrics if ticker data available
         if enhanced_metrics.get("ticker_metrics"):
             portfolio_enhancements = self._calculate_portfolio_enhancements(
-                enhanced_metrics["ticker_metrics"], log
+                enhanced_metrics["ticker_metrics"], log,
             )
             enhanced_metrics["portfolio_metrics"].update(portfolio_enhancements)
 
@@ -425,7 +424,7 @@ class UnifiedMetricsCalculator:
             win_rates = []
             trade_counts = []
 
-            for _ticker, metrics in ticker_metrics.items():
+            for metrics in ticker_metrics.values():
                 if "total_return_pct" in metrics:
                     returns.append(metrics["total_return_pct"])
                 if "sharpe_ratio" in metrics:
@@ -454,7 +453,7 @@ class UnifiedMetricsCalculator:
                     enhancements["portfolio_sharpe_ratio"] = weighted_sharpe
                 else:
                     enhancements["portfolio_sharpe_ratio"] = float(
-                        np.mean(sharpe_ratios)
+                        np.mean(sharpe_ratios),
                     )
 
             if max_drawdowns:
@@ -482,7 +481,7 @@ class UnifiedMetricsCalculator:
                         t
                         for t, m in ticker_metrics.items()
                         if m.get("total_trades", 0) > 0
-                    ]
+                    ],
                 ),
             }
 
@@ -573,7 +572,7 @@ class UnifiedMetricsCalculator:
 
             # Perform risk validation using Phase 4 validator
             validation_results = self.risk_validator.validate_all_risk_metrics(
-                csv_data, metrics, log
+                csv_data, metrics, log,
             )
 
             return {
@@ -621,16 +620,16 @@ class UnifiedMetricsCalculator:
             if result.reconciliation_report:
                 reconciliation_quality = (
                     result.reconciliation_report.overall_summary.get(
-                        "average_quality_score", 0
+                        "average_quality_score", 0,
                     )
                 )
                 if reconciliation_quality < 0.7:
                     validation["issues"].append(
-                        f"Poor reconciliation quality: {reconciliation_quality:.2f}"
+                        f"Poor reconciliation quality: {reconciliation_quality:.2f}",
                     )
                 else:
                     validation["validation_checks"].append(
-                        "reconciliation_quality_good"
+                        "reconciliation_quality_good",
                     )
 
             # Check for critical errors
@@ -721,14 +720,15 @@ def export_unified_metrics(
             # Export ticker metrics as CSV
             if "ticker_metrics" in calculation_result.metrics:
                 ticker_df = pd.DataFrame.from_dict(
-                    calculation_result.metrics["ticker_metrics"], orient="index"
+                    calculation_result.metrics["ticker_metrics"], orient="index",
                 )
                 ticker_df.to_csv(output_path)
             else:
                 return False
 
         else:
-            raise ValueError(f"Unsupported format type: {format_type}")
+            msg = f"Unsupported format type: {format_type}"
+            raise ValueError(msg)
 
         return True
 

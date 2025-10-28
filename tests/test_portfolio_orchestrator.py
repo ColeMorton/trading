@@ -12,6 +12,7 @@ from app.strategies.ma_cross.exceptions import MACrossExecutionError
 from app.tools.exceptions import ConfigurationError, TradingSystemError
 from app.tools.orchestration.portfolio_orchestrator import PortfolioOrchestrator
 from app.tools.orchestration.ticker_processor import TickerProcessor
+import pytest
 
 
 class TestPortfolioOrchestrator(unittest.TestCase):
@@ -61,7 +62,7 @@ class TestPortfolioOrchestrator(unittest.TestCase):
         """Test configuration initialization with error."""
         mock_config_service.process_config.side_effect = ValueError("Invalid config")
 
-        with self.assertRaises((ConfigurationError, TradingSystemError)):
+        with pytest.raises((ConfigurationError, TradingSystemError)):
             self.orchestrator._initialize_configuration(self.config)
 
     @patch("app.tools.orchestration.portfolio_orchestrator.process_synthetic_config")
@@ -96,7 +97,7 @@ class TestPortfolioOrchestrator(unittest.TestCase):
         result = self.orchestrator._get_strategies(self.config)
 
         mock_get_strategy_types.assert_called_once_with(
-            self.config, self.mock_log, "SMA"
+            self.config, self.mock_log, "SMA",
         )
         self.assertEqual(result, ["SMA", "EMA"])
 
@@ -104,24 +105,24 @@ class TestPortfolioOrchestrator(unittest.TestCase):
         """Test strategy execution."""
         strategies = ["SMA", "EMA"]
         self.orchestrator.ticker_processor.execute_strategy = Mock(
-            side_effect=[[self.sample_portfolio], [self.sample_portfolio]]
+            side_effect=[[self.sample_portfolio], [self.sample_portfolio]],
         )
 
         result = self.orchestrator._execute_strategies(self.config, strategies)
 
         self.assertEqual(len(result), 2)
         self.assertEqual(
-            self.orchestrator.ticker_processor.execute_strategy.call_count, 2
+            self.orchestrator.ticker_processor.execute_strategy.call_count, 2,
         )
 
     def test_execute_strategies_error(self):
         """Test strategy execution with error."""
         strategies = ["SMA"]
         self.orchestrator.ticker_processor.execute_strategy = Mock(
-            side_effect=Exception("Strategy failed")
+            side_effect=Exception("Strategy failed"),
         )
 
-        with self.assertRaises(MACrossExecutionError):
+        with pytest.raises(MACrossExecutionError):
             self.orchestrator._execute_strategies(self.config, strategies)
 
     @patch("app.tools.orchestration.portfolio_orchestrator.detect_schema_version")
@@ -138,7 +139,7 @@ class TestPortfolioOrchestrator(unittest.TestCase):
         mock_filter.return_value = mock_df
 
         result = self.orchestrator._filter_and_process_portfolios(
-            [self.sample_portfolio], self.config
+            [self.sample_portfolio], self.config,
         )
 
         mock_detect_schema.assert_called_once()
@@ -153,7 +154,7 @@ class TestPortfolioOrchestrator(unittest.TestCase):
         self.orchestrator._export_results([self.sample_portfolio], self.config)
 
         mock_export.assert_called_once_with(
-            [self.sample_portfolio], self.config, self.mock_log
+            [self.sample_portfolio], self.config, self.mock_log,
         )
 
     @patch("app.tools.orchestration.portfolio_orchestrator.export_best_portfolios")
@@ -167,7 +168,7 @@ class TestPortfolioOrchestrator(unittest.TestCase):
 
         # Verify the export function was called
         mock_export.assert_called_once_with(
-            [self.sample_portfolio], self.config, self.mock_log
+            [self.sample_portfolio], self.config, self.mock_log,
         )
 
     @patch.object(PortfolioOrchestrator, "_initialize_configuration")
@@ -209,7 +210,7 @@ class TestPortfolioOrchestrator(unittest.TestCase):
         """Test orchestration with no portfolios returned."""
         self.orchestrator._initialize_configuration = Mock(return_value=self.config)
         self.orchestrator._process_synthetic_configuration = Mock(
-            return_value=self.config
+            return_value=self.config,
         )
         self.orchestrator._get_strategies = Mock(return_value=["SMA"])
         self.orchestrator._execute_strategies = Mock(return_value=[])
@@ -218,7 +219,7 @@ class TestPortfolioOrchestrator(unittest.TestCase):
 
         self.assertTrue(result)
         self.mock_log.assert_any_call(
-            "No portfolios returned from strategies", "warning"
+            "No portfolios returned from strategies", "warning",
         )
 
 
@@ -292,7 +293,7 @@ class TestTickerProcessor(unittest.TestCase):
         mock_execute.return_value = [self.sample_portfolio]
 
         result = self.processor.execute_strategy(
-            self.config, "SMA", progress_tracker=mock_progress
+            self.config, "SMA", progress_tracker=mock_progress,
         )
 
         # Check that the underlying execute_strategy was called with progress_tracker

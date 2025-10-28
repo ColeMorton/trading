@@ -55,7 +55,7 @@ def _validate_portfolio_schema(
             log(error_msg, "error")
         # In Phase 3, we implement fail-fast validation
         raise PortfolioSchemaValidationError(
-            error_msg, {"errors": errors, "schema": expected_schema.name}
+            error_msg, {"errors": errors, "schema": expected_schema.name},
         )
 
     if log:
@@ -65,7 +65,7 @@ def _validate_portfolio_schema(
 
 
 def _validate_canonical_ordering(
-    df: pl.DataFrame, expected_schema: SchemaType, log: Callable | None = None
+    df: pl.DataFrame, expected_schema: SchemaType, log: Callable | None = None,
 ) -> tuple[bool, list[str]]:
     """
     Perform strict canonical ordering validation on DataFrame.
@@ -95,16 +95,16 @@ def _validate_canonical_ordering(
     # Check if columns match expected ordering exactly
     if len(columns) != len(expected_columns):
         errors.append(
-            f"Column count mismatch: expected {len(expected_columns)}, got {len(columns)}"
+            f"Column count mismatch: expected {len(expected_columns)}, got {len(columns)}",
         )
 
     # Check column ordering
     for i, (actual, expected) in enumerate(
-        zip(columns, expected_columns, strict=False)
+        zip(columns, expected_columns, strict=False),
     ):
         if actual != expected:
             errors.append(
-                f"Column ordering error at position {i}: expected '{expected}', got '{actual}'"
+                f"Column ordering error at position {i}: expected '{expected}', got '{actual}'",
             )
             break  # Only report first ordering error to avoid spam
 
@@ -119,7 +119,7 @@ def _validate_canonical_ordering(
             actual_pos = columns.index(col_name) + 1  # 1-based indexing
             if actual_pos != expected_pos and expected_schema == SchemaType.EXTENDED:
                 errors.append(
-                    f"Critical column '{col_name}' at wrong position: expected {expected_pos}, got {actual_pos}"
+                    f"Critical column '{col_name}' at wrong position: expected {expected_pos}, got {actual_pos}",
                 )
 
     is_valid = len(errors) == 0
@@ -321,10 +321,10 @@ def export_portfolios(
 
         if log:
             log(
-                "No portfolios to export - creating empty CSV with headers only", "info"
+                "No portfolios to export - creating empty CSV with headers only", "info",
             )
             log(
-                f"Using {target_schema_type.name} schema for empty file headers", "info"
+                f"Using {target_schema_type.name} schema for empty file headers", "info",
             )
 
         # Get schema-specific column names instead of generic CANONICAL_COLUMN_NAMES
@@ -497,7 +497,7 @@ def export_portfolios(
                 log(f"Aggregating {len(pre_agg_portfolios)} portfolios", "debug")
 
             aggregated_portfolios = deduplicate_and_aggregate_portfolios(
-                pre_agg_portfolios, log
+                pre_agg_portfolios, log,
             )
             df = pl.DataFrame(aggregated_portfolios)
 
@@ -540,7 +540,7 @@ def export_portfolios(
         # Check if we need to rename SMA/EMA columns to Fast/Slow Period
         # Only process if Fast Period doesn't exist or is all null
         if "Fast Period" not in df.columns or df.get_column(
-            "Fast Period"
+            "Fast Period",
         ).null_count() == len(df):
             # Create Fast Period and Slow Period columns based on available data
             expressions = []
@@ -562,7 +562,7 @@ def export_portfolios(
                         pl.when(pl.col("Strategy Type").eq("SMA"))
                         .then(pl.col("SMA_FAST"))
                         .otherwise(pl.col("EMA_FAST"))
-                        .alias("Fast Period")
+                        .alias("Fast Period"),
                     )
                 else:
                     # Default to EMA if no strategy type information
@@ -591,7 +591,7 @@ def export_portfolios(
                         pl.when(pl.col("Strategy Type").eq("SMA"))
                         .then(pl.col("SMA_SLOW"))
                         .otherwise(pl.col("EMA_SLOW"))
-                        .alias("Slow Period")
+                        .alias("Slow Period"),
                     )
                 else:
                     # Default to EMA if no strategy type information
@@ -633,8 +633,9 @@ def export_portfolios(
                 # For multiple tickers, each portfolio should already have its
                 # ticker
                 elif "Ticker" not in df.columns:
+                    msg = "Missing Ticker column for multiple ticker export"
                     raise PortfolioExportError(
-                        "Missing Ticker column for multiple ticker export"
+                        msg,
                     )
 
             # Add or update Ticker column if it's a single ticker
@@ -662,7 +663,7 @@ def export_portfolios(
 
                     # Preserve existing metric type if present (critical for aggregated portfolios)
                     existing_metric_type = portfolio_dict.get(
-                        "Metric Type", "Most Total Return [%]"
+                        "Metric Type", "Most Total Return [%]",
                     )
 
                     normalized_portfolio = transformer.normalize_to_schema(
@@ -674,7 +675,7 @@ def export_portfolios(
 
                     # Step 2: Mandatory schema validation (Phase 3 enhancement)
                     _validate_portfolio_schema(
-                        normalized_portfolio, target_schema_type, transformer, log
+                        normalized_portfolio, target_schema_type, transformer, log,
                     )
 
                     portfolios_normalized.append(normalized_portfolio)
@@ -700,7 +701,7 @@ def export_portfolios(
 
             # Phase 3: Strict canonical ordering validation
             ordering_valid, ordering_errors = _validate_canonical_ordering(
-                df, target_schema_type, log
+                df, target_schema_type, log,
             )
             if not ordering_valid:
                 error_msg = f"Canonical ordering validation failed: {'; '.join(ordering_errors)}"
@@ -815,7 +816,7 @@ def export_portfolios(
                         .then(pl.lit(None))
                         .otherwise(pl.col(col))
                         .cast(pl.Float64)
-                        .alias(col)
+                        .alias(col),
                     )
                     if log:
                         log(

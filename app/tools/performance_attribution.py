@@ -66,7 +66,7 @@ class PerformanceAttributor:
         self.performance_cache: dict[str, dict[str, float]] = {}
 
     def analyze_attribution(
-        self, component_scores: dict[str, Any], analysis_result: dict[str, Any]
+        self, component_scores: dict[str, Any], analysis_result: dict[str, Any],
     ) -> AttributionResult:
         """
         Perform comprehensive attribution analysis.
@@ -89,11 +89,11 @@ class PerformanceAttributor:
             # Extract regime information
             regime_info = {
                 "volatility_regime": component_scores.get(
-                    "volatility_regime", "normal"
+                    "volatility_regime", "normal",
                 ),
                 "current_vix": component_scores.get("current_vix", 20.0),
                 "threshold_adjustments": component_scores.get(
-                    "threshold_adjustments", {}
+                    "threshold_adjustments", {},
                 ),
                 "weight_adjustments": component_scores.get("weight_adjustments", {}),
             }
@@ -110,17 +110,17 @@ class PerformanceAttributor:
 
             # Store attribution for historical analysis
             self._store_attribution(
-                attribution, analysis_result.get("ticker", "UNKNOWN")
+                attribution, analysis_result.get("ticker", "UNKNOWN"),
             )
 
             return attribution
 
         except Exception as e:
-            self.logger.error(f"Attribution analysis failed: {e}")
+            self.logger.exception(f"Attribution analysis failed: {e}")
             return self._default_attribution_result()
 
     def _extract_factor_attributions(
-        self, component_scores: dict[str, Any]
+        self, component_scores: dict[str, Any],
     ) -> list[FactorAttribution]:
         """Extract factor attribution information from component scores."""
         factors = []
@@ -180,7 +180,7 @@ class PerformanceAttributor:
         return factors
 
     def _calculate_factor_performance(
-        self, factor: FactorAttribution
+        self, factor: FactorAttribution,
     ) -> dict[str, float]:
         """Calculate performance metrics for a single factor."""
         try:
@@ -197,30 +197,29 @@ class PerformanceAttributor:
             ]
 
             # Calculate performance metrics
-            performance = {
+            return {
                 "avg_score": float(np.mean(recent_scores)),
                 "score_volatility": float(np.std(recent_scores)),
                 "avg_contribution": float(np.mean(recent_contributions)),
                 "contribution_consistency": float(
                     1
                     - np.std(recent_contributions)
-                    / (abs(np.mean(recent_contributions)) + 0.001)
+                    / (abs(np.mean(recent_contributions)) + 0.001),
                 ),
                 "score_trend": self._calculate_trend(recent_scores),
                 "contribution_trend": self._calculate_trend(recent_contributions),
                 "factor_efficiency": self._calculate_factor_efficiency(
-                    factor, historical_data
+                    factor, historical_data,
                 ),
                 "signal_accuracy": self._calculate_signal_accuracy(
-                    factor, historical_data
+                    factor, historical_data,
                 ),
             }
 
-            return performance
 
         except Exception as e:
             self.logger.warning(
-                f"Factor performance calculation failed for {factor.factor_name}: {e}"
+                f"Factor performance calculation failed for {factor.factor_name}: {e}",
             )
             return self._default_factor_performance()
 
@@ -237,7 +236,7 @@ class PerformanceAttributor:
             return 0.0
 
     def _calculate_factor_efficiency(
-        self, factor: FactorAttribution, historical_data: list[dict[str, Any]]
+        self, factor: FactorAttribution, historical_data: list[dict[str, Any]],
     ) -> float:
         """Calculate how efficiently the factor contributes to signals."""
         if len(historical_data) < 5:
@@ -260,7 +259,7 @@ class PerformanceAttributor:
             return 0.5
 
     def _calculate_signal_accuracy(
-        self, factor: FactorAttribution, historical_data: list[dict[str, Any]]
+        self, factor: FactorAttribution, historical_data: list[dict[str, Any]],
     ) -> float:
         """Calculate signal accuracy contribution for this factor."""
         if len(historical_data) < 3:
@@ -276,7 +275,7 @@ class PerformanceAttributor:
                 [
                     1 if s * c >= 0 else 0
                     for s, c in zip(scores, contributions, strict=False)
-                ]
+                ],
             )
 
             return float(sign_consistency)
@@ -285,7 +284,7 @@ class PerformanceAttributor:
             return 0.5
 
     def _calculate_performance_summary(
-        self, factors: list[FactorAttribution]
+        self, factors: list[FactorAttribution],
     ) -> dict[str, float]:
         """Calculate overall performance summary across all factors."""
         try:
@@ -309,7 +308,7 @@ class PerformanceAttributor:
             weight_efficiency = 0.5
             if len(factors) > 0:
                 weight_contrib_corr = np.corrcoef(
-                    [f.weight for f in factors], [abs(f.contribution) for f in factors]
+                    [f.weight for f in factors], [abs(f.contribution) for f in factors],
                 )[0, 1]
                 weight_efficiency = (
                     abs(weight_contrib_corr)
@@ -322,7 +321,7 @@ class PerformanceAttributor:
                 "positive_contribution": float(positive_contribution),
                 "negative_contribution": float(negative_contribution),
                 "contribution_balance": float(
-                    positive_contribution / (total_contribution + 0.001)
+                    positive_contribution / (total_contribution + 0.001),
                 ),
                 "factor_diversification": float(diversification),
                 "weight_efficiency": float(weight_efficiency),
@@ -430,7 +429,7 @@ class PerformanceAttributor:
                     ],
                     "consistency": float(
                         1
-                        - np.std(contributions) / (abs(np.mean(contributions)) + 0.001)
+                        - np.std(contributions) / (abs(np.mean(contributions)) + 0.001),
                     ),
                     "trend_strength": self._calculate_trend(scores),
                     "recent_performance": (
@@ -443,7 +442,7 @@ class PerformanceAttributor:
             return report
 
         except Exception as e:
-            self.logger.error(f"Factor performance report generation failed: {e}")
+            self.logger.exception(f"Factor performance report generation failed: {e}")
             return {"error": str(e)}
 
     def _default_attribution_result(self) -> AttributionResult:

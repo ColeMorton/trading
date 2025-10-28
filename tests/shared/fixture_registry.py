@@ -53,7 +53,7 @@ class FixtureRegistry:
         signature = inspect.signature(factory)
         dependencies = []
 
-        for param_name, _param in signature.parameters.items():
+        for param_name in signature.parameters:
             # Skip self parameter
             if param_name == "self":
                 continue
@@ -74,7 +74,8 @@ class FixtureRegistry:
             Dictionary of resolved dependency fixtures
         """
         if fixture_name not in self.fixtures:
-            raise ValueError(f"Fixture '{fixture_name}' not registered")
+            msg = f"Fixture '{fixture_name}' not registered"
+            raise ValueError(msg)
 
         resolved_deps = {}
         dependencies = self.dependencies[fixture_name]
@@ -96,7 +97,7 @@ class FixtureRegistry:
         return resolved_deps
 
     def create_fixture(
-        self, fixture_name: str, dependencies: dict[str, Any] | None = None
+        self, fixture_name: str, dependencies: dict[str, Any] | None = None,
     ):
         """
         Create fixture instance with resolved dependencies.
@@ -109,7 +110,8 @@ class FixtureRegistry:
             Created fixture instance
         """
         if fixture_name not in self.fixtures:
-            raise ValueError(f"Fixture '{fixture_name}' not registered")
+            msg = f"Fixture '{fixture_name}' not registered"
+            raise ValueError(msg)
 
         fixture_config = self.fixtures[fixture_name]
         factory = fixture_config["factory"]
@@ -121,8 +123,9 @@ class FixtureRegistry:
         try:
             return factory(**dependencies)
         except Exception as e:
+            msg = f"Failed to create fixture '{fixture_name}': {e!s}"
             raise RuntimeError(
-                f"Failed to create fixture '{fixture_name}': {e!s}"
+                msg,
             ) from e
 
     def get_resolution_order(self) -> list[str]:
@@ -142,8 +145,9 @@ class FixtureRegistry:
 
         def visit(fixture_name: str):
             if fixture_name in temp_visited:
+                msg = f"Circular dependency detected involving '{fixture_name}'"
                 raise ValueError(
-                    f"Circular dependency detected involving '{fixture_name}'"
+                    msg,
                 )
             if fixture_name not in visited:
                 temp_visited.add(fixture_name)

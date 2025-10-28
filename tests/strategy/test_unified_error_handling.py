@@ -156,7 +156,7 @@ class TestSpecificErrorTypes:
     def test_portfolio_error(self):
         """Test PortfolioError class."""
         error = PortfolioError(
-            "Portfolio error", StrategyErrorCode.PORTFOLIO_CREATION_FAILED
+            "Portfolio error", StrategyErrorCode.PORTFOLIO_CREATION_FAILED,
         )
 
         assert isinstance(error, StrategyError)
@@ -174,7 +174,7 @@ class TestSpecificErrorTypes:
     def test_configuration_error(self):
         """Test ConfigurationError class."""
         error = ConfigurationError(
-            "Config error", StrategyErrorCode.INVALID_CONFIGURATION
+            "Config error", StrategyErrorCode.INVALID_CONFIGURATION,
         )
 
         assert isinstance(error, StrategyError)
@@ -219,7 +219,7 @@ class TestStandardErrorHandler:
         handler = StandardErrorHandler("SMA", fail_fast=False)
 
         error = StrategyError(
-            "Test error", StrategyErrorCode.INVALID_PARAMETERS, ErrorSeverity.WARNING
+            "Test error", StrategyErrorCode.INVALID_PARAMETERS, ErrorSeverity.WARNING,
         )
 
         result = handler.handle_error(error)
@@ -247,7 +247,7 @@ class TestStandardErrorHandler:
         handler = StandardErrorHandler("SMA", fail_fast=True)
 
         error = StrategyError(
-            "Critical error", StrategyErrorCode.OPERATION_FAILED, ErrorSeverity.ERROR
+            "Critical error", StrategyErrorCode.OPERATION_FAILED, ErrorSeverity.ERROR,
         )
 
         result = handler.handle_error(error)
@@ -259,7 +259,7 @@ class TestStandardErrorHandler:
         handler = StandardErrorHandler("SMA", fail_fast=True)
 
         error = StrategyError(
-            "Critical error", StrategyErrorCode.OPERATION_FAILED, ErrorSeverity.ERROR
+            "Critical error", StrategyErrorCode.OPERATION_FAILED, ErrorSeverity.ERROR,
         )
 
         with pytest.raises(StrategyError):
@@ -270,7 +270,7 @@ class TestStandardErrorHandler:
         handler = StandardErrorHandler("SMA", fail_fast=False, max_warnings=2)
 
         warning_error = StrategyError(
-            "Warning", StrategyErrorCode.INVALID_PARAMETERS, ErrorSeverity.WARNING
+            "Warning", StrategyErrorCode.INVALID_PARAMETERS, ErrorSeverity.WARNING,
         )
 
         # First two warnings should be handled normally
@@ -369,7 +369,7 @@ class TestPermissiveErrorHandler:
         handler = PermissiveErrorHandler("MACD")
 
         error = StrategyError(
-            "Critical error", StrategyErrorCode.OPERATION_FAILED, ErrorSeverity.CRITICAL
+            "Critical error", StrategyErrorCode.OPERATION_FAILED, ErrorSeverity.CRITICAL,
         )
 
         with pytest.raises(StrategyError):
@@ -420,7 +420,7 @@ class TestErrorHandlerFactory:
     def test_create_handler_with_kwargs(self):
         """Test creating handler with additional arguments."""
         handler = ErrorHandlerFactory.create_handler(
-            "standard", "SMA", fail_fast=False, max_warnings=200
+            "standard", "SMA", fail_fast=False, max_warnings=200,
         )
 
         assert isinstance(handler, StandardErrorHandler)
@@ -457,7 +457,7 @@ class TestConvenienceFunctions:
         mock_log = Mock()
 
         error = StrategyError(
-            "Test error", StrategyErrorCode.INVALID_PARAMETERS, ErrorSeverity.WARNING
+            "Test error", StrategyErrorCode.INVALID_PARAMETERS, ErrorSeverity.WARNING,
         )
 
         result = handle_strategy_error(error, "SMA", mock_log)
@@ -494,11 +494,11 @@ class TestValidationFunctions:
                 "Date": ["2023-01-01", "2023-01-02", "2023-01-03"],
                 "Close": [100.0, 101.0, 102.0],
                 "Volume": [1000, 1100, 1200],
-            }
+            },
         )
 
         result = validate_data_sufficiency(
-            data, min_rows=2, strategy_type="SMA", required_columns=["Date", "Close"]
+            data, min_rows=2, strategy_type="SMA", required_columns=["Date", "Close"],
         )
 
         assert result is True
@@ -514,7 +514,7 @@ class TestValidationFunctions:
     def test_validate_data_sufficiency_missing_columns(self):
         """Test data validation with missing columns."""
         data = pl.DataFrame(
-            {"Date": ["2023-01-01", "2023-01-02"], "Close": [100.0, 101.0]}
+            {"Date": ["2023-01-01", "2023-01-02"], "Close": [100.0, 101.0]},
         )
 
         result = validate_data_sufficiency(
@@ -532,7 +532,7 @@ class TestValidationFunctions:
         handler = StandardErrorHandler("SMA", fail_fast=False)
 
         result = validate_data_sufficiency(
-            data, min_rows=5, strategy_type="SMA", error_handler=handler
+            data, min_rows=5, strategy_type="SMA", error_handler=handler,
         )
 
         assert result is False
@@ -568,7 +568,7 @@ class TestValidationFunctions:
         handler = StandardErrorHandler("MACD", fail_fast=False)
 
         result = validate_parameters(
-            parameters, ["fast_period", "slow_period"], "MACD", handler
+            parameters, ["fast_period", "slow_period"], "MACD", handler,
         )
 
         assert result is False

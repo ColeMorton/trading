@@ -72,7 +72,7 @@ class TestMarketDataFetching:
                 "Low": prices * 0.98,
                 "Close": prices,
                 "Volume": np.random.randint(1000000, 10000000, len(dates)),
-            }
+            },
         )
 
     @patch("app.tools.market_data_analyzer.download_data")
@@ -133,7 +133,7 @@ class TestReturnsCalculation:
         """Create sample price data for testing."""
         prices = [100, 102, 101, 105, 103, 108, 107]
         return pl.DataFrame(
-            {"Date": pd.date_range("2023-01-01", periods=len(prices)), "Close": prices}
+            {"Date": pd.date_range("2023-01-01", periods=len(prices)), "Close": prices},
         )
 
     def test_calculate_returns_success(self, sample_price_data):
@@ -178,7 +178,7 @@ class TestReturnsCalculation:
             {
                 "Date": pd.date_range("2023-01-01", periods=5),
                 "Close": [100, np.nan, 102, 103, np.nan],
-            }
+            },
         )
 
         analyzer = MarketDataAnalyzer("TEST")
@@ -275,7 +275,7 @@ class TestFullAnalysisWorkflow:
                 "Low": [p * 0.995 for p in prices],
                 "Close": prices,
                 "Volume": np.random.randint(1000000, 10000000, len(dates)),
-            }
+            },
         )
 
         mock_download.return_value = mock_data
@@ -350,7 +350,7 @@ class TestErrorHandling:
         """Test handling of malformed data."""
         # Create malformed data (missing required columns)
         malformed_data = pl.DataFrame(
-            {"Date": ["2023-01-01"], "Price": [100]}  # Missing 'Close' column
+            {"Date": ["2023-01-01"], "Price": [100]},  # Missing 'Close' column
         )
 
         mock_download.return_value = malformed_data

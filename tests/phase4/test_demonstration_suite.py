@@ -36,11 +36,11 @@ class TestIntegrationDemonstration:
 
         # Step 2: Test data flow between services
         test_profile = {
-            "config": {"ticker": ["AAPL", "MSFT"], "minimums": {"win_rate": 0.6}}
+            "config": {"ticker": ["AAPL", "MSFT"], "minimums": {"win_rate": 0.6}},
         }
 
         with patch.object(
-            config_manager.profile_manager, "load_profile", return_value=test_profile
+            config_manager.profile_manager, "load_profile", return_value=test_profile,
         ):
             # Load through editor service
             profile_data = editor_service.load_profile("integration_test")
@@ -50,12 +50,12 @@ class TestIntegrationDemonstration:
 
             # Use in portfolio service
             with patch.object(
-                portfolio_service, "aggregate_portfolios_best"
+                portfolio_service, "aggregate_portfolios_best",
             ) as mock_agg:
                 import pandas as pd
 
                 mock_agg.return_value = pd.DataFrame(
-                    {"Ticker": tickers, "Score": [0.8, 0.75]}
+                    {"Ticker": tickers, "Score": [0.8, 0.75]},
                 )
 
                 result = portfolio_service.aggregate_portfolios_best(tickers)
@@ -179,7 +179,7 @@ class TestPerformanceDemonstration:
             [
                 (pl.col("Close") / pl.col("Close").shift(1) - 1).alias("returns"),
                 pl.col("Close").rolling_mean(20).alias("ma20"),
-            ]
+            ],
         )
 
         processing_time = time.time() - start_time
@@ -227,7 +227,7 @@ class TestErrorHandlingDemonstration:
         # Test numeric validation
         with pytest.raises(ValueError, match="win_rate must be between 0 and 1"):
             editor_service.set_field_value(
-                test_profile, "config.minimums.win_rate", "1.5"
+                test_profile, "config.minimums.win_rate", "1.5",
             )
 
         with pytest.raises(ValueError, match="trades must be non-negative"):
@@ -259,7 +259,8 @@ class TestErrorHandlingDemonstration:
         def worker_with_failures(worker_id):
             try:
                 if worker_id % 2 == 0:  # Even workers fail
-                    raise ValueError(f"Worker {worker_id} failure")
+                    msg = f"Worker {worker_id} failure"
+                    raise ValueError(msg)
 
                 with patch.object(service, "execute_strategy", return_value=True):
                     service.execute_strategy(config)
@@ -392,11 +393,11 @@ class TestAdvancedTestingPatterns:
                 "Ticker": ["AAPL"] * 1000,
                 "Score": [0.8] * 1000,
                 "Strategy Type": ["SMA"] * 1000,
-            }
+            },
         )
 
         with patch.object(
-            service, "aggregate_portfolios_best", return_value=large_data
+            service, "aggregate_portfolios_best", return_value=large_data,
         ):
             start_time = time.time()
 

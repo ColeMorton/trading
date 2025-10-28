@@ -31,10 +31,10 @@ def upgrade() -> None:
             server_default=sa.text("gen_random_uuid()"),
         ),
         sa.Column(
-            "sweep_run_id", postgresql.UUID(as_uuid=True), nullable=False, index=True
+            "sweep_run_id", postgresql.UUID(as_uuid=True), nullable=False, index=True,
         ),
         sa.Column(
-            "created_at", sa.DateTime, nullable=False, server_default=sa.text("now()")
+            "created_at", sa.DateTime, nullable=False, server_default=sa.text("now()"),
         ),
         sa.Column("sweep_config", postgresql.JSONB, nullable=False),
         # Core Strategy Parameters (5 columns)
@@ -59,7 +59,7 @@ def upgrade() -> None:
         sa.Column("beats_bnh_pct", sa.Numeric(10, 4), nullable=True),
         # Timing Metrics (5 columns)
         sa.Column(
-            "avg_trade_duration", sa.String(50), nullable=True
+            "avg_trade_duration", sa.String(50), nullable=True,
         ),  # Stored as string (e.g., "5 days 3:30:00")
         sa.Column("trades_per_day", sa.Numeric(20, 8), nullable=True),
         sa.Column("trades_per_month", sa.Numeric(20, 8), nullable=True),
@@ -69,7 +69,7 @@ def upgrade() -> None:
         sa.Column("start", sa.Integer, nullable=True),
         sa.Column("end", sa.Integer, nullable=True),
         sa.Column(
-            "period", sa.String(50), nullable=True
+            "period", sa.String(50), nullable=True,
         ),  # Stored as string (e.g., "365 days")
         # Portfolio Values (5 columns)
         sa.Column("start_value", sa.Numeric(20, 2), nullable=True),
@@ -81,7 +81,7 @@ def upgrade() -> None:
         sa.Column("total_fees_paid", sa.Numeric(20, 2), nullable=True),
         sa.Column("max_drawdown_pct", sa.Numeric(10, 4), nullable=True),
         sa.Column(
-            "max_drawdown_duration", sa.String(50), nullable=True
+            "max_drawdown_duration", sa.String(50), nullable=True,
         ),  # Stored as string
         sa.Column("total_closed_trades", sa.Integer, nullable=True),
         # Trade Analysis (7 columns)
@@ -125,11 +125,11 @@ def upgrade() -> None:
 
     # Create indexes for common query patterns
     op.create_index(
-        "ix_strategy_sweep_sweep_run_id", "strategy_sweep_results", ["sweep_run_id"]
+        "ix_strategy_sweep_sweep_run_id", "strategy_sweep_results", ["sweep_run_id"],
     )
     op.create_index("ix_strategy_sweep_ticker", "strategy_sweep_results", ["ticker"])
     op.create_index(
-        "ix_strategy_sweep_created_at", "strategy_sweep_results", ["created_at"]
+        "ix_strategy_sweep_created_at", "strategy_sweep_results", ["created_at"],
     )
     op.create_index(
         "ix_strategy_sweep_ticker_strategy",
@@ -141,7 +141,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade database schema - drop strategy_sweep_results table."""
     op.drop_index(
-        "ix_strategy_sweep_ticker_strategy", table_name="strategy_sweep_results"
+        "ix_strategy_sweep_ticker_strategy", table_name="strategy_sweep_results",
     )
     op.drop_index("ix_strategy_sweep_created_at", table_name="strategy_sweep_results")
     op.drop_index("ix_strategy_sweep_ticker", table_name="strategy_sweep_results")

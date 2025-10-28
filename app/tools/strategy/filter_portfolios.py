@@ -77,19 +77,19 @@ class PortfolioFilterConfig:
         if period_params:
             return period_params
         return self.window_params.get(
-            self.strategy_type, ["Fast Period", "Slow Period"]
+            self.strategy_type, ["Fast Period", "Slow Period"],
         )
 
     def get_relevant_metrics(self) -> list[str]:
         """Get relevant metrics for the strategy."""
         return self.relevant_metrics.get(
-            self.strategy_type, NUMERIC_METRICS + DURATION_METRICS
+            self.strategy_type, NUMERIC_METRICS + DURATION_METRICS,
         )
 
     def get_display_preferences(self) -> dict[str, Any]:
         """Get display preferences for the strategy."""
         return self.display_preferences.get(
-            self.strategy_type, {"sort_by": "Total Return [%]", "sort_asc": False}
+            self.strategy_type, {"sort_by": "Total Return [%]", "sort_asc": False},
         )
 
 
@@ -215,7 +215,7 @@ def create_metric_result_from_rows(
 
 
 def _process_metrics(
-    df: pl.DataFrame, metrics: list[str], window_params: list[str] | None = None
+    df: pl.DataFrame, metrics: list[str], window_params: list[str] | None = None,
 ) -> list[dict]:
     """Process a list of metrics and create result rows.
 
@@ -236,7 +236,7 @@ def _process_metrics(
 
             # Create result dictionaries for each extreme value
             metric_results = create_metric_result_from_rows(
-                metric, rows, df, window_params
+                metric, rows, df, window_params,
             )
             result_rows.extend(metric_results)
 
@@ -244,7 +244,7 @@ def _process_metrics(
 
 
 def _prepare_result_df(
-    result_rows: list[dict], config: ExportConfig, filter_config: PortfolioFilterConfig
+    result_rows: list[dict], config: ExportConfig, filter_config: PortfolioFilterConfig,
 ) -> pl.DataFrame:
     """Prepare result DataFrame with proper sorting and schema compliance.
 
@@ -319,7 +319,7 @@ def filter_portfolios(
     try:
         if log:
             log(
-                f"Filtering {len(portfolios_df)} portfolios for {strategy_type} strategy"
+                f"Filtering {len(portfolios_df)} portfolios for {strategy_type} strategy",
             )
 
         # Get strategy-specific metrics and parameters
@@ -333,7 +333,7 @@ def filter_portfolios(
 
         if log:
             log(
-                f"Processing {len(available_metrics)} metrics: {', '.join(available_metrics[:5])}{'...' if len(available_metrics) > 5 else ''}"
+                f"Processing {len(available_metrics)} metrics: {', '.join(available_metrics[:5])}{'...' if len(available_metrics) > 5 else ''}",
             )
 
         # Apply MINIMUMS filtering first if configured
@@ -342,7 +342,7 @@ def filter_portfolios(
 
             filter_service = PortfolioFilterService()
             filtered_portfolios_df = filter_service.filter_portfolios_dataframe(
-                portfolios_df, config, log
+                portfolios_df, config, log,
             )
 
             if filtered_portfolios_df is None or len(filtered_portfolios_df) == 0:
@@ -355,7 +355,7 @@ def filter_portfolios(
 
             if log:
                 log(
-                    f"Applied MINIMUMS filtering: {len(portfolios_df)} portfolios remain"
+                    f"Applied MINIMUMS filtering: {len(portfolios_df)} portfolios remain",
                 )
 
         # Process metrics to get extreme values from filtered portfolios
@@ -424,7 +424,7 @@ def filter_and_export_portfolios(
         if success and log:
             strategy_type = strategy_type or config.get("STRATEGY_TYPE", "SMA")
             log(
-                f"Successfully exported {len(portfolio_dicts)} filtered {strategy_type} portfolios"
+                f"Successfully exported {len(portfolio_dicts)} filtered {strategy_type} portfolios",
             )
 
         return success
@@ -437,7 +437,7 @@ def filter_and_export_portfolios(
 
 # Convenience functions for backward compatibility
 def create_metric_summary(
-    df: pl.DataFrame, metric: str, strategy_type: str = "SMA"
+    df: pl.DataFrame, metric: str, strategy_type: str = "SMA",
 ) -> list[dict[str, Any]]:
     """Create metric summary for a specific metric (convenience function).
 
@@ -457,7 +457,7 @@ def create_metric_summary(
 
 
 def get_extreme_values(
-    df: pl.DataFrame, metrics: list[str] | None = None, strategy_type: str = "SMA"
+    df: pl.DataFrame, metrics: list[str] | None = None, strategy_type: str = "SMA",
 ) -> pl.DataFrame:
     """Get extreme values for specified metrics (convenience function).
 

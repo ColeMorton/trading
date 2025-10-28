@@ -82,7 +82,8 @@ class TestSimpleValidation:
 
         def operation_with_failures(should_fail):
             if should_fail:
-                raise ValueError("Simulated failure")
+                msg = "Simulated failure"
+                raise ValueError(msg)
             return "success"
 
         # Test successful operation
@@ -118,7 +119,7 @@ class TestSimpleValidation:
         test_data = []
         for i in range(100):
             test_data.append(
-                {"id": i, "value": i * 1.5, "category": "A" if i % 2 == 0 else "B"}
+                {"id": i, "value": i * 1.5, "category": "A" if i % 2 == 0 else "B"},
             )
 
         # Validate generated data

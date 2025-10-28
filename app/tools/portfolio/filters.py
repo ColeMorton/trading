@@ -11,7 +11,7 @@ import polars as pl
 
 
 def filter_invalid_metrics(
-    portfolios: list[dict[str, Any]] | pl.DataFrame, log=None
+    portfolios: list[dict[str, Any]] | pl.DataFrame, log=None,
 ) -> list[dict[str, Any]] | pl.DataFrame:
     """Filter out portfolios with invalid metric values.
 

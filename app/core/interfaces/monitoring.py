@@ -40,19 +40,19 @@ class MonitoringInterface(ABC):
 
     @abstractmethod
     def increment_counter(
-        self, name: str, value: float = 1, labels: dict[str, str] | None = None
+        self, name: str, value: float = 1, labels: dict[str, str] | None = None,
     ) -> None:
         """Increment a counter metric."""
 
     @abstractmethod
     def set_gauge(
-        self, name: str, value: float, labels: dict[str, str] | None = None
+        self, name: str, value: float, labels: dict[str, str] | None = None,
     ) -> None:
         """Set a gauge metric."""
 
     @abstractmethod
     def observe_histogram(
-        self, name: str, value: float, labels: dict[str, str] | None = None
+        self, name: str, value: float, labels: dict[str, str] | None = None,
     ) -> None:
         """Observe a histogram metric."""
 

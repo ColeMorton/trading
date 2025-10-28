@@ -78,7 +78,7 @@ def analyze_rsi_parameters(
         )
         baseline_portfolio = backtest_strategy(baseline_data, baseline_config, log)
         baseline_stats = convert_stats(
-            baseline_portfolio.stats(), log, baseline_config, None
+            baseline_portfolio.stats(), log, baseline_config, None,
         )
 
         # Store baseline metrics
@@ -94,7 +94,7 @@ def analyze_rsi_parameters(
                 f"Baseline metrics - Returns: {baseline_metrics['returns']:.2f}%, "
                 f"Win Rate: {baseline_metrics['win_rate']:.2f}%, "
                 f"Sharpe: {baseline_metrics['sharpe_ratio']:.2f}, "
-                f"Trades: {baseline_metrics['trades']}"
+                f"Trades: {baseline_metrics['trades']}",
             )
 
     # Analyze each combination
@@ -105,7 +105,7 @@ def analyze_rsi_parameters(
         for j, window in enumerate(rsi_windows):
             config["RSI_WINDOW"] = window
             data_with_signals = calculate_ma_and_signals(
-                data, config["FAST_PERIOD"], config["SLOW_PERIOD"], config, log
+                data, config["FAST_PERIOD"], config["SLOW_PERIOD"], config, log,
             )
 
             portfolio = backtest_strategy(data_with_signals, config, log)
@@ -126,7 +126,7 @@ def analyze_rsi_parameters(
                             "trades": "Total Closed Trades",
                         }[metric],
                         0,
-                    )
+                    ),
                 )
 
                 if config.get("RELATIVE", True):
@@ -137,7 +137,7 @@ def analyze_rsi_parameters(
                         matrices[metric][j, i] = current - baseline
                 else:
                     matrices[metric][
-                        j, i
+                        j, i,
                     ] = current  # Use absolute value when RELATIVE is False
 
             if log:

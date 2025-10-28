@@ -95,7 +95,7 @@ class TemplateConfig:
                     "FAST_PERIOD": 20,
                     "SLOW_PERIOD": 50,
                     "STRATEGY_TYPES": ["SMA", "EMA"],
-                }
+                },
             )
         elif self.strategy_type == StrategyType.RSI:
             base_config.update(
@@ -103,14 +103,14 @@ class TemplateConfig:
                     "RSI_PERIOD": 14,
                     "RSI_OVERBOUGHT": 70,
                     "RSI_OVERSOLD": 30,
-                }
+                },
             )
         elif self.strategy_type == StrategyType.BOLLINGER_BANDS:
             base_config.update(
                 {
                     "BB_PERIOD": 20,
                     "BB_STD_DEV": 2.0,
-                }
+                },
             )
         elif self.strategy_type == StrategyType.STOCHASTIC:
             base_config.update(
@@ -119,7 +119,7 @@ class TemplateConfig:
                     "STOCH_D_PERIOD": 3,
                     "STOCH_OVERBOUGHT": 80,
                     "STOCH_OVERSOLD": 20,
-                }
+                },
             )
         elif self.strategy_type == StrategyType.MACD:
             base_config.update(
@@ -127,14 +127,14 @@ class TemplateConfig:
                     "MACD_FAST": 12,
                     "MACD_SLOW": 26,
                     "MACD_SIGNAL": 9,
-                }
+                },
             )
         elif self.strategy_type == StrategyType.MOMENTUM:
             base_config.update(
                 {
                     "MOMENTUM_PERIOD": 10,
                     "MOMENTUM_THRESHOLD": 0.02,
-                }
+                },
             )
 
         # Add risk management parameters
@@ -160,7 +160,7 @@ class TemplateConfig:
         class_name = f"{self.strategy_name.replace('_', '').title()}Config"
         config_lines.append(f"class {class_name}(TypedDict):")
         config_lines.append(
-            '    """Configuration for {self.strategy_name} strategy."""'
+            '    """Configuration for {self.strategy_name} strategy."""',
         )
         config_lines.append("")
 
@@ -190,7 +190,7 @@ class TemplateConfig:
     def get_default_config_instance(self) -> str:
         """Generate default configuration instance."""
         lines = [
-            f"DEFAULT_CONFIG: {self.strategy_name.replace('_', '').title()}Config = {{"
+            f"DEFAULT_CONFIG: {self.strategy_name.replace('_', '').title()}Config = {{",
         ]
 
         for key, value in self.config_fields.items():

@@ -69,7 +69,7 @@ class StrategyExecutor:
 
             # Execute the strategy
             signals = self._execute_strategy_logic(
-                strategy_type, market_data, validated_params
+                strategy_type, market_data, validated_params,
             )
 
             # Calculate performance metrics
@@ -84,7 +84,7 @@ class StrategyExecutor:
             }
 
         except Exception as e:
-            self.logger.error(f"Strategy execution failed: {e!s}")
+            self.logger.exception(f"Strategy execution failed: {e!s}")
             return {
                 "strategy_type": strategy_type.value,
                 "parameters": parameters,
@@ -95,18 +95,18 @@ class StrategyExecutor:
             }
 
     def validate_strategy_config(
-        self, strategy_type: StrategyType, parameters: dict[str, Any]
+        self, strategy_type: StrategyType, parameters: dict[str, Any],
     ) -> bool:
         """Validate strategy configuration."""
         try:
             self._validate_parameters(strategy_type, parameters)
             return True
         except Exception as e:
-            self.logger.error(f"Strategy validation failed: {e!s}")
+            self.logger.exception(f"Strategy validation failed: {e!s}")
             return False
 
     def _validate_parameters(
-        self, strategy_type: StrategyType, parameters: dict[str, Any]
+        self, strategy_type: StrategyType, parameters: dict[str, Any],
     ) -> dict[str, Any]:
         """Validate and normalize strategy parameters."""
         if strategy_type == StrategyType.SMA:
@@ -119,23 +119,27 @@ class StrategyExecutor:
             return self._validate_rsi_parameters(parameters)
         if strategy_type == StrategyType.BOLLINGER_BANDS:
             return self._validate_bollinger_parameters(parameters)
-        raise ValueError(f"Unsupported strategy type: {strategy_type}")
+        msg = f"Unsupported strategy type: {strategy_type}"
+        raise ValueError(msg)
 
     def _validate_sma_parameters(self, parameters: dict[str, Any]) -> dict[str, Any]:
         """Validate SMA strategy parameters."""
         required_params = ["fast_period", "slow_period"]
         for param in required_params:
             if param not in parameters:
-                raise ValueError(f"Missing required parameter: {param}")
+                msg = f"Missing required parameter: {param}"
+                raise ValueError(msg)
 
         fast_period = int(parameters["fast_period"])
         slow_period = int(parameters["slow_period"])
 
         if fast_period <= 0 or slow_period <= 0:
-            raise ValueError("Periods must be positive integers")
+            msg = "Periods must be positive integers"
+            raise ValueError(msg)
 
         if fast_period >= slow_period:
-            raise ValueError("Fast period must be less than slow period")
+            msg = "Fast period must be less than slow period"
+            raise ValueError(msg)
 
         return {"fast_period": fast_period, "slow_period": slow_period}
 
@@ -151,11 +155,13 @@ class StrategyExecutor:
         for param, default_value in default_params.items():
             value = parameters.get(param, default_value)
             if not isinstance(value, int | float) or value <= 0:
-                raise ValueError(f"Invalid {param}: must be positive number")
+                msg = f"Invalid {param}: must be positive number"
+                raise ValueError(msg)
             validated[param] = int(value)
 
         if validated["fast_period"] >= validated["slow_period"]:
-            raise ValueError("Fast period must be less than slow period")
+            msg = "Fast period must be less than slow period"
+            raise ValueError(msg)
 
         return validated
 
@@ -167,16 +173,18 @@ class StrategyExecutor:
         for param, default_value in default_params.items():
             value = parameters.get(param, default_value)
             if not isinstance(value, int | float) or value <= 0:
-                raise ValueError(f"Invalid {param}: must be positive number")
+                msg = f"Invalid {param}: must be positive number"
+                raise ValueError(msg)
             validated[param] = value
 
         if validated["oversold"] >= validated["overbought"]:
-            raise ValueError("Oversold level must be less than overbought level")
+            msg = "Oversold level must be less than overbought level"
+            raise ValueError(msg)
 
         return validated
 
     def _validate_bollinger_parameters(
-        self, parameters: dict[str, Any]
+        self, parameters: dict[str, Any],
     ) -> dict[str, Any]:
         """Validate Bollinger Bands strategy parameters."""
         default_params = {"period": 20, "std_dev": 2.0}
@@ -185,7 +193,8 @@ class StrategyExecutor:
         for param, default_value in default_params.items():
             value = parameters.get(param, default_value)
             if not isinstance(value, int | float) or value <= 0:
-                raise ValueError(f"Invalid {param}: must be positive number")
+                msg = f"Invalid {param}: must be positive number"
+                raise ValueError(msg)
             validated[param] = value
 
         return validated
@@ -216,7 +225,7 @@ class StrategyExecutor:
         return signals
 
     def _execute_sma_strategy(
-        self, market_data: pd.DataFrame, parameters: dict[str, Any]
+        self, market_data: pd.DataFrame, parameters: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Execute SMA crossover strategy."""
         # Simplified SMA strategy implementation
@@ -226,11 +235,11 @@ class StrategyExecutor:
                 "signal": "BUY",
                 "price": 100.0,
                 "confidence": 0.7,
-            }
+            },
         ]
 
     def _execute_ema_strategy(
-        self, market_data: pd.DataFrame, parameters: dict[str, Any]
+        self, market_data: pd.DataFrame, parameters: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Execute EMA crossover strategy."""
         # Simplified EMA strategy implementation
@@ -240,11 +249,11 @@ class StrategyExecutor:
                 "signal": "BUY",
                 "price": 100.0,
                 "confidence": 0.7,
-            }
+            },
         ]
 
     def _execute_macd_strategy(
-        self, market_data: pd.DataFrame, parameters: dict[str, Any]
+        self, market_data: pd.DataFrame, parameters: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Execute MACD strategy."""
         # Simplified MACD strategy implementation
@@ -254,11 +263,11 @@ class StrategyExecutor:
                 "signal": "BUY",
                 "price": 100.0,
                 "confidence": 0.8,
-            }
+            },
         ]
 
     def _execute_rsi_strategy(
-        self, market_data: pd.DataFrame, parameters: dict[str, Any]
+        self, market_data: pd.DataFrame, parameters: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Execute RSI strategy."""
         # Simplified RSI strategy implementation
@@ -268,11 +277,11 @@ class StrategyExecutor:
                 "signal": "SELL",
                 "price": 100.0,
                 "confidence": 0.6,
-            }
+            },
         ]
 
     def _execute_bollinger_strategy(
-        self, market_data: pd.DataFrame, parameters: dict[str, Any]
+        self, market_data: pd.DataFrame, parameters: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Execute Bollinger Bands strategy."""
         # Simplified Bollinger Bands strategy implementation
@@ -282,11 +291,11 @@ class StrategyExecutor:
                 "signal": "BUY",
                 "price": 100.0,
                 "confidence": 0.7,
-            }
+            },
         ]
 
     def _calculate_performance(
-        self, market_data: pd.DataFrame, signals: list[dict[str, Any]]
+        self, market_data: pd.DataFrame, signals: list[dict[str, Any]],
     ) -> dict[str, Any]:
         """Calculate strategy performance metrics."""
         # Simplified performance calculation

@@ -59,7 +59,7 @@ class PerformanceValidator:
         normalized["sharpe_ratio"] = min(metrics.get("sharpe_ratio", 0) / 2.0, 1.0)
         normalized["win_rate"] = metrics.get("win_rate", 0)
         normalized["avg_return"] = min(
-            metrics.get("avg_return", 0) / 0.2, 1.0
+            metrics.get("avg_return", 0) / 0.2, 1.0,
         )  # 20% max
         normalized["max_drawdown"] = 1 - min(metrics.get("max_drawdown", 0), 1.0)
         normalized["diversification"] = (
@@ -67,12 +67,11 @@ class PerformanceValidator:
         )
 
         # Calculate weighted score
-        score = sum(normalized[key] * weights[key] for key in weights)
+        return sum(normalized[key] * weights[key] for key in weights)
 
-        return score
 
     def validate_performance_targets(
-        self, current_metrics: dict[str, float]
+        self, current_metrics: dict[str, float],
     ) -> dict[str, Any]:
         """Validate performance against all targets."""
         results = {
@@ -139,7 +138,7 @@ def high_performance_config():
         MULTI_TIMEFRAME_AGREEMENT=3,
         SAMPLE_SIZE_MINIMUM=15,
         CONFIDENCE_LEVELS=ConfidenceLevel(
-            high_confidence=30, medium_confidence=15, low_confidence=5
+            high_confidence=30, medium_confidence=15, low_confidence=5,
         ),
     )
 
@@ -184,7 +183,7 @@ def excellent_trade_data():
             "strategy_percentile": np.random.uniform(85, 99, n_trades),
             "dual_layer_score": np.random.uniform(0.75, 0.95, n_trades),
             "statistical_rarity": np.random.uniform(0.01, 0.15, n_trades),
-        }
+        },
     )
 
 
@@ -223,21 +222,21 @@ class TestExitEfficiencyTargets:
     """Test exit efficiency improvement from 57% to 85%."""
 
     def test_baseline_exit_efficiency_measurement(
-        self, performance_validator, excellent_trade_data
+        self, performance_validator, excellent_trade_data,
     ):
         """Test baseline exit efficiency measurement."""
 
         # Simulate baseline performance (traditional exit methods)
         baseline_data = excellent_trade_data.copy()
         baseline_data["exit_efficiency"] = np.random.normal(
-            0.57, 0.15, len(baseline_data)
+            0.57, 0.15, len(baseline_data),
         )
         baseline_data["exit_efficiency"] = np.clip(
-            baseline_data["exit_efficiency"], 0.2, 0.8
+            baseline_data["exit_efficiency"], 0.2, 0.8,
         )
 
         baseline_efficiency = performance_validator.calculate_exit_efficiency(
-            baseline_data
+            baseline_data,
         )
 
         # Should be close to baseline target
@@ -246,13 +245,13 @@ class TestExitEfficiencyTargets:
         ), f"Baseline efficiency {baseline_efficiency:.1%}"
 
     def test_target_exit_efficiency_achievement(
-        self, performance_validator, excellent_trade_data
+        self, performance_validator, excellent_trade_data,
     ):
         """Test achievement of 85% exit efficiency target."""
 
         # Excellent trade data should achieve target
         target_efficiency = performance_validator.calculate_exit_efficiency(
-            excellent_trade_data
+            excellent_trade_data,
         )
 
         # Should meet or exceed target
@@ -282,7 +281,7 @@ class TestExitEfficiencyTargets:
         }
 
         with patch(
-            "app.tools.services.statistical_analysis_service.load_return_distribution_data"
+            "app.tools.services.statistical_analysis_service.load_return_distribution_data",
         ) as mock_load:
             mock_load.return_value = mock_return_data
 
@@ -295,7 +294,7 @@ class TestExitEfficiencyTargets:
                 results = []
                 for position in sample_positions_high_performance:
                     result = await service.analyze_position_statistical_performance(
-                        position, include_exit_signals=True
+                        position, include_exit_signals=True,
                     )
                     results.append(result)
 
@@ -337,7 +336,7 @@ class TestPortfolioHealthScore:
         }
 
         health_score = performance_validator.calculate_portfolio_health_score(
-            excellent_metrics
+            excellent_metrics,
         )
 
         # Should exceed target
@@ -367,10 +366,10 @@ class TestPortfolioHealthScore:
         }
 
         baseline_health = performance_validator.calculate_portfolio_health_score(
-            baseline_metrics
+            baseline_metrics,
         )
         target_health = performance_validator.calculate_portfolio_health_score(
-            target_metrics
+            target_metrics,
         )
 
         # Verify baseline and improvement
@@ -448,14 +447,14 @@ class TestSystemIntegrationPerformance:
     """Test integrated system performance validation."""
 
     def test_end_to_end_performance_validation(
-        self, performance_validator, excellent_trade_data
+        self, performance_validator, excellent_trade_data,
     ):
         """Test complete system performance validation."""
 
         # Simulate complete system metrics
         system_metrics = {
             "exit_efficiency": performance_validator.calculate_exit_efficiency(
-                excellent_trade_data
+                excellent_trade_data,
             ),
             "sharpe_ratio": 1.95,
             "win_rate": 0.71,
@@ -467,7 +466,7 @@ class TestSystemIntegrationPerformance:
 
         # Validate against all targets
         validation_results = performance_validator.validate_performance_targets(
-            system_metrics
+            system_metrics,
         )
 
         # Check each target
@@ -505,7 +504,7 @@ class TestSystemIntegrationPerformance:
 
             # Generate returns for condition
             returns = np.random.normal(
-                base_return / 252, volatility / np.sqrt(252), 252
+                base_return / 252, volatility / np.sqrt(252), 252,
             )
 
             # Apply statistical exit optimization

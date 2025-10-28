@@ -14,7 +14,7 @@ def run_command(cmd: str, description: str) -> bool:
     print(f"🧪 {description}")
     try:
         result = subprocess.run(
-            cmd, shell=True, capture_output=True, text=True, timeout=30, check=False
+            cmd, shell=True, capture_output=True, text=True, timeout=30, check=False,
         )
         if result.returncode == 0:
             print(f"✅ {description} - PASSED")
@@ -114,6 +114,6 @@ if __name__ == "__main__":
     demonstrate_improvements()
 
     print(
-        f"\n🎉 Test Infrastructure Consolidation Status: {'✅ COMPLETE' if success else '⚠️ NEEDS ATTENTION'}"
+        f"\n🎉 Test Infrastructure Consolidation Status: {'✅ COMPLETE' if success else '⚠️ NEEDS ATTENTION'}",
     )
     sys.exit(0 if success else 1)

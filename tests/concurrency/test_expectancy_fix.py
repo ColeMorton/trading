@@ -42,12 +42,12 @@ class TestExpectancyFix:
 
         # Legacy calculation (R-ratio)
         legacy = calc.calculate_from_components(
-            win_rate, avg_win, avg_loss, legacy_mode=True
+            win_rate, avg_win, avg_loss, legacy_mode=True,
         )
 
         # Fixed calculation
         fixed = calc.calculate_from_components(
-            win_rate, avg_win, avg_loss, legacy_mode=False
+            win_rate, avg_win, avg_loss, legacy_mode=False,
         )
 
         # Legacy should produce unreasonable value
@@ -115,7 +115,7 @@ class TestExpectancyFix:
         stop_loss = 0.03
 
         expectancy, components = calc.calculate_with_stop_loss(
-            returns, stop_loss, "Long"
+            returns, stop_loss, "Long",
         )
 
         # Losses should be capped at -0.03
@@ -165,10 +165,10 @@ class TestExpectancyFix:
 
         # Calculate both ways
         legacy = calc.calculate_from_components(
-            win_rate, avg_win, avg_loss, legacy_mode=True
+            win_rate, avg_win, avg_loss, legacy_mode=True,
         )
         fixed = calc.calculate_from_components(
-            win_rate, avg_win, avg_loss, legacy_mode=False
+            win_rate, avg_win, avg_loss, legacy_mode=False,
         )
 
         # Print for demonstration

@@ -66,7 +66,7 @@ MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:
         try:
             # Mock the get_project_root function
             with patch(
-                "app.strategies.tools.summary_processing.get_project_root"
+                "app.strategies.tools.summary_processing.get_project_root",
             ) as mock_root:
                 mock_root.return_value = Path(positions_file).parent
 
@@ -109,7 +109,7 @@ MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:
 
                         # Test the function
                         result = _generate_spds_compatible_entries(
-                            aggregated_portfolios, "test_portfolio.csv", mock_log
+                            aggregated_portfolios, "test_portfolio.csv", mock_log,
                         )
 
                         # Verify results
@@ -238,7 +238,7 @@ MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:
         with (
             patch("app.tools.portfolio_results.filter_open_trades") as mock_filter_open,
             patch(
-                "app.tools.portfolio_results.filter_signal_entries"
+                "app.tools.portfolio_results.filter_signal_entries",
             ) as mock_filter_entries,
         ):
             mock_filter_open.return_value = []  # No open trades
@@ -278,7 +278,7 @@ MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:
         with (
             patch("app.tools.portfolio_results.filter_open_trades") as mock_filter_open,
             patch(
-                "app.tools.portfolio_results.filter_signal_entries"
+                "app.tools.portfolio_results.filter_signal_entries",
             ) as mock_filter_entries,
         ):
             mock_filter_open.return_value = [{"Ticker": "AAPL"}]  # 1 open trade
@@ -300,7 +300,7 @@ MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:
             ]
 
             calculate_breadth_metrics(
-                portfolios, [{"Ticker": "AAPL"}], [{"Ticker": "MSFT"}], mock_log
+                portfolios, [{"Ticker": "AAPL"}], [{"Ticker": "MSFT"}], mock_log,
             )
 
             breadth_messages = [
@@ -417,12 +417,12 @@ MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:
             log_messages.append((message, level))
 
         with patch(
-            "app.strategies.tools.summary_processing.get_project_root"
+            "app.strategies.tools.summary_processing.get_project_root",
         ) as mock_root:
             mock_root.return_value = Path("/nonexistent/path")
 
             result = _generate_spds_compatible_entries(
-                aggregated_portfolios, "nonexistent.csv", mock_log
+                aggregated_portfolios, "nonexistent.csv", mock_log,
             )
 
             # Should fall back to original data

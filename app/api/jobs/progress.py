@@ -29,7 +29,7 @@ class ProgressTracker:
         self.ttl = 3600  # 1 hour TTL
 
     async def update(
-        self, percent: int, message: str, metadata: dict[str, Any] | None = None
+        self, percent: int, message: str, metadata: dict[str, Any] | None = None,
     ) -> None:
         """
         Update progress status.
@@ -40,7 +40,8 @@ class ProgressTracker:
             metadata: Optional additional metadata
         """
         if not 0 <= percent <= 100:
-            raise ValueError(f"Progress must be between 0 and 100, got {percent}")
+            msg = f"Progress must be between 0 and 100, got {percent}"
+            raise ValueError(msg)
 
         data = {
             "percent": percent,

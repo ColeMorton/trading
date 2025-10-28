@@ -78,7 +78,7 @@ def test_comprehensive_macd_functionality():
 
     # Set up logging
     log, log_close, _, _ = setup_logging(
-        module_name="macd_test", log_file="test_comprehensive.log"
+        module_name="macd_test", log_file="test_comprehensive.log",
     )
 
     results = TestResults()
@@ -102,7 +102,7 @@ def test_comprehensive_macd_functionality():
                 "SIGNAL_WINDOW_START": 9,
                 "SIGNAL_WINDOW_END": 9,
                 "STEP": 1,
-            }
+            },
         )
 
         result = process_ticker_portfolios("MSFT", config, log)
@@ -137,7 +137,7 @@ def test_comprehensive_macd_functionality():
             )
         else:
             results.record_test(
-                "Single ticker processing", False, "No portfolios generated"
+                "Single ticker processing", False, "No portfolios generated",
             )
 
         # Test 2: Multi-ticker with USE_CURRENT=False
@@ -195,7 +195,7 @@ def test_comprehensive_macd_functionality():
                     filtered_paths = [
                         Path(f"data/raw/strategies/filtered/{ticker}_D_MACD.csv"),
                         Path(
-                            f"data/raw/strategies/filtered/{date_str}/{ticker}_D_MACD.csv"
+                            f"data/raw/strategies/filtered/{date_str}/{ticker}_D_MACD.csv",
                         ),
                     ]
                     filtered_found = any(p.exists() for p in filtered_paths)
@@ -207,7 +207,7 @@ def test_comprehensive_macd_functionality():
                     )
                 except Exception as e:
                     results.record_test(
-                        "Filtered portfolio export", False, f"Export failed: {e!s}"
+                        "Filtered portfolio export", False, f"Export failed: {e!s}",
                     )
             else:
                 results.record_test(
@@ -264,7 +264,7 @@ def test_comprehensive_macd_functionality():
                     )
                 except Exception as e:
                     results.record_test(
-                        "Best portfolio export", False, f"Export failed: {e!s}"
+                        "Best portfolio export", False, f"Export failed: {e!s}",
                     )
             else:
                 results.record_test(
@@ -289,7 +289,7 @@ def test_comprehensive_macd_functionality():
                 "SIGNAL_WINDOW_START": 9,
                 "SIGNAL_WINDOW_END": 10,
                 "STEP": 1,
-            }
+            },
         )
 
         result = process_ticker_portfolios("SPY", config, log)

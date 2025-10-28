@@ -93,7 +93,7 @@ def list(
                             str(total_positions),
                             str(open_positions),
                             str(closed_positions),
-                        ]
+                        ],
                     )
                 except Exception:
                     row.extend(["?", "?", "?"])
@@ -111,21 +111,21 @@ def equity(
     ctx: typer.Context,
     portfolio: str
     | None = typer.Option(
-        None, "--portfolio", "-p", help="Portfolio name (e.g., live_signals, risk_on)"
+        None, "--portfolio", "-p", help="Portfolio name (e.g., live_signals, risk_on)",
     ),
     all_portfolios: bool = typer.Option(
-        False, "--all", help="Generate equity for all position files"
+        False, "--all", help="Generate equity for all position files",
     ),
     output_dir: str
     | None = typer.Option(None, "--output-dir", "-o", help="Custom output directory"),
     metric_type: str = typer.Option(
-        "mean", "--metric", help="Metric type: mean, median, best, worst"
+        "mean", "--metric", help="Metric type: mean, median, best, worst",
     ),
     init_cash: float = typer.Option(
-        10000.0, "--init-cash", help="Initial cash for portfolio reconstruction"
+        10000.0, "--init-cash", help="Initial cash for portfolio reconstruction",
     ),
     overwrite: bool = typer.Option(
-        True, "--overwrite/--no-overwrite", help="Overwrite existing equity files"
+        True, "--overwrite/--no-overwrite", help="Overwrite existing equity files",
     ),
 ) -> None:
     """Generate equity curves from position data."""
@@ -145,7 +145,7 @@ def equity(
             metric_enum = MetricType(metric_type.lower())
         except ValueError:
             rprint(
-                f"[red]Invalid metric type: {metric_type}. Valid options: mean, median, best, worst[/red]"
+                f"[red]Invalid metric type: {metric_type}. Valid options: mean, median, best, worst[/red]",
             )
             raise typer.Exit(1)
 
@@ -183,7 +183,7 @@ def equity(
 
                     if output_file.exists() and not overwrite:
                         rprint(
-                            f"[yellow]Skipping {portfolio_name} - equity file already exists[/yellow]"
+                            f"[yellow]Skipping {portfolio_name} - equity file already exists[/yellow]",
                         )
                         continue
 
@@ -200,12 +200,12 @@ def equity(
                         success_count += 1
                         if global_verbose:
                             rprint(
-                                f"[green]✓ Generated equity for {portfolio_name}[/green]"
+                                f"[green]✓ Generated equity for {portfolio_name}[/green]",
                             )
                     else:
                         error_count += 1
                         rprint(
-                            f"[red]✗ Failed to generate equity for {portfolio_name}[/red]"
+                            f"[red]✗ Failed to generate equity for {portfolio_name}[/red]",
                         )
 
                 except Exception as e:
@@ -221,7 +221,7 @@ def equity(
         # Show output location
         if success_count > 0:
             output_location = output_dir or str(
-                Path(get_project_root()) / "csv" / "positions" / "equity"
+                Path(get_project_root()) / "csv" / "positions" / "equity",
             )
             rprint(f"\n[blue]Equity files saved to: {output_location}[/blue]")
 
@@ -235,7 +235,7 @@ def validate(
     portfolio: str
     | None = typer.Option(None, "--portfolio", "-p", help="Portfolio name to validate"),
     all_portfolios: bool = typer.Option(
-        False, "--all", help="Validate all position files"
+        False, "--all", help="Validate all position files",
     ),
 ) -> None:
     """Validate position files for equity generation requirements."""
@@ -287,7 +287,7 @@ def validate(
                         "closed_positions": closed_positions,
                         "unique_tickers": unique_tickers,
                         "missing_prices": missing_prices,
-                    }
+                    },
                 )
 
             except Exception as e:
@@ -296,7 +296,7 @@ def validate(
                         "portfolio": portfolio_name,
                         "valid": False,
                         "error": str(e),
-                    }
+                    },
                 )
 
         # Display results
@@ -346,11 +346,11 @@ def validate(
 
         if valid_count == total_count:
             rprint(
-                f"\n[green]✓ All {total_count} portfolio(s) are valid for equity generation[/green]"
+                f"\n[green]✓ All {total_count} portfolio(s) are valid for equity generation[/green]",
             )
         else:
             rprint(
-                f"\n[yellow]⚠ {valid_count}/{total_count} portfolio(s) are valid for equity generation[/yellow]"
+                f"\n[yellow]⚠ {valid_count}/{total_count} portfolio(s) are valid for equity generation[/yellow]",
             )
 
     except Exception as e:
@@ -363,23 +363,23 @@ def validate_equity(
     portfolio: str
     | None = typer.Option(None, "--portfolio", "-p", help="Portfolio name to validate"),
     all_portfolios: bool = typer.Option(
-        False, "--all", help="Validate all portfolio equity curves"
+        False, "--all", help="Validate all portfolio equity curves",
     ),
     output_format: str = typer.Option(
-        "console", "--format", help="Output format: console, json, csv"
+        "console", "--format", help="Output format: console, json, csv",
     ),
     output_file: str
     | None = typer.Option(
-        None, "--output", "-o", help="Output file path (for json/csv formats)"
+        None, "--output", "-o", help="Output file path (for json/csv formats)",
     ),
     excellent_threshold: float = typer.Option(
-        1.0, "--excellent", help="Error percentage threshold for EXCELLENT status"
+        1.0, "--excellent", help="Error percentage threshold for EXCELLENT status",
     ),
     good_threshold: float = typer.Option(
-        5.0, "--good", help="Error percentage threshold for GOOD status"
+        5.0, "--good", help="Error percentage threshold for GOOD status",
     ),
     warning_threshold: float = typer.Option(
-        10.0, "--warning", help="Error percentage threshold for WARNING status"
+        10.0, "--warning", help="Error percentage threshold for WARNING status",
     ),
     enable_size_adjustment: bool = typer.Option(
         True,
@@ -420,7 +420,7 @@ def validate_equity(
             validator.generate_validation_report(results, "console")
         else:
             report_content = validator.generate_validation_report(
-                results, output_format
+                results, output_format,
             )
 
             if output_file:
@@ -514,7 +514,7 @@ def info(
             rprint(f"[bold]Tickers:[/bold] {', '.join(sorted(unique_tickers))}")
         else:
             rprint(
-                f"[bold]Sample Tickers:[/bold] {', '.join(sorted(list(unique_tickers)[:10]))}... ({len(unique_tickers)} total)"
+                f"[bold]Sample Tickers:[/bold] {', '.join(sorted(list(unique_tickers)[:10]))}... ({len(unique_tickers)} total)",
             )
 
     except Exception as e:

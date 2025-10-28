@@ -98,7 +98,7 @@ class TickerProcessor:
                     ticker_portfolios = portfolios_df.to_dicts()
                     all_portfolios.extend(ticker_portfolios)
                     self.log(
-                        f"Processed {len(ticker_portfolios)} portfolios for {ticker}"
+                        f"Processed {len(ticker_portfolios)} portfolios for {ticker}",
                     )
                 else:
                     self.log(f"No portfolios generated for {ticker}", "warning")
@@ -159,7 +159,7 @@ class TickerProcessor:
         return ticker
 
     def _extract_synthetic_components(
-        self, ticker: str, config: dict[str, Any]
+        self, ticker: str, config: dict[str, Any],
     ) -> None:
         """
         Extract components from synthetic ticker and update config.
@@ -191,6 +191,8 @@ class TickerProcessor:
                         "info",
                     )
                 else:
-                    raise ValueError(f"Invalid synthetic ticker format: {ticker}")
+                    msg = f"Invalid synthetic ticker format: {ticker}"
+                    raise ValueError(msg)
             else:
-                raise ValueError(f"Not a synthetic ticker: {ticker}")
+                msg = f"Not a synthetic ticker: {ticker}"
+                raise ValueError(msg)

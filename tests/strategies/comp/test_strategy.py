@@ -194,11 +194,11 @@ class TestProcessTicker:
         with (
             patch("app.strategies.comp.strategy.get_data") as mock_data,
             patch(
-                "app.strategies.comp.strategy.calculate_compound_strategy"
+                "app.strategies.comp.strategy.calculate_compound_strategy",
             ) as mock_calc,
             patch("app.strategies.comp.strategy.backtest_strategy") as mock_backtest,
             patch(
-                "app.strategies.comp.strategy.export_compound_results"
+                "app.strategies.comp.strategy.export_compound_results",
             ) as mock_export,
         ):
             # Mock price data
@@ -206,7 +206,7 @@ class TestProcessTicker:
                 {
                     "Date": ["2024-01-01", "2024-01-02"],
                     "Close": [100.0, 101.0],
-                }
+                },
             )
 
             # Mock calculated signals
@@ -215,7 +215,7 @@ class TestProcessTicker:
                     "Date": ["2024-01-01", "2024-01-02"],
                     "Signal": [0, 1],
                     "Position": [0, 0],
-                }
+                },
             )
 
             # Mock backtest results
@@ -313,7 +313,7 @@ class TestProcessTicker:
                 "Date": ["2024-01-01", "2024-01-02"],
                 "Signal": [0, 0],
                 "Position": [0, 0],
-            }
+            },
         )
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:

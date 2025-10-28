@@ -111,7 +111,7 @@ class UnifiedAnalysisService:
                         .get("concurrent_ratio", {})
                         .get("value", 0),
                         "total_strategies": len(
-                            concurrency_results.get("strategies", [])
+                            concurrency_results.get("strategies", []),
                         ),
                     }
 
@@ -120,7 +120,7 @@ class UnifiedAnalysisService:
                 self.log("Running SPDS analysis", "info")
 
                 spds_results = self._run_spds_analysis(
-                    portfolio_path, config_overrides, progress_callback
+                    portfolio_path, config_overrides, progress_callback,
                 )
 
                 unified_results["spds_analysis"] = spds_results
@@ -140,7 +140,7 @@ class UnifiedAnalysisService:
 
             # Generate unified recommendations
             unified_results["recommendations"] = self._generate_unified_recommendations(
-                unified_results
+                unified_results,
             )
 
             self.log("Comprehensive analysis completed", "info")
@@ -183,13 +183,13 @@ class UnifiedAnalysisService:
 
                 interaction_results["system_specific_results"]["concurrency"] = {
                     "correlation_matrix": concurrency_analysis.get(
-                        "correlation_matrix", {}
+                        "correlation_matrix", {},
                     ),
                     "efficiency_metrics": concurrency_analysis.get(
-                        "portfolio_efficiency", {}
+                        "portfolio_efficiency", {},
                     ),
                     "activity_periods": concurrency_analysis.get(
-                        "activity_periods", {}
+                        "activity_periods", {},
                     ),
                 }
 
@@ -205,7 +205,7 @@ class UnifiedAnalysisService:
                 interaction_results[
                     "cross_system_analysis"
                 ] = self._analyze_cross_system_interactions(
-                    interaction_results["system_specific_results"]
+                    interaction_results["system_specific_results"],
                 )
 
             return interaction_results
@@ -248,21 +248,21 @@ class UnifiedAnalysisService:
             # Analyze concurrency results
             if "concurrency_analysis" in analysis_results:
                 concurrency_recs = self._generate_concurrency_recommendations(
-                    analysis_results["concurrency_analysis"], criteria
+                    analysis_results["concurrency_analysis"], criteria,
                 )
                 recommendations["recommendations"].extend(concurrency_recs)
 
             # Analyze SPDS results (placeholder)
             if "spds_analysis" in analysis_results:
                 spds_recs = self._generate_spds_recommendations(
-                    analysis_results["spds_analysis"], criteria
+                    analysis_results["spds_analysis"], criteria,
                 )
                 recommendations["recommendations"].extend(spds_recs)
 
             # Cross-system recommendations
             if "cross_system_insights" in analysis_results:
                 cross_recs = self._generate_cross_system_recommendations(
-                    analysis_results["cross_system_insights"], criteria
+                    analysis_results["cross_system_insights"], criteria,
                 )
                 recommendations["recommendations"].extend(cross_recs)
 
@@ -304,7 +304,7 @@ class UnifiedAnalysisService:
         }
 
     def _analyze_spds_interactions(
-        self, strategies: list[StrategyConfig]
+        self, strategies: list[StrategyConfig],
     ) -> dict[str, Any]:
         """Analyze SPDS-based strategy interactions (placeholder)."""
         return {
@@ -314,7 +314,7 @@ class UnifiedAnalysisService:
         }
 
     def _generate_cross_system_insights(
-        self, unified_results: dict[str, Any]
+        self, unified_results: dict[str, Any],
     ) -> dict[str, Any]:
         """Generate insights by combining results from multiple systems."""
         insights = {
@@ -347,20 +347,19 @@ class UnifiedAnalysisService:
         return insights
 
     def _analyze_cross_system_interactions(
-        self, system_results: dict[str, Any]
+        self, system_results: dict[str, Any],
     ) -> dict[str, Any]:
         """Analyze interactions across different analysis systems."""
-        cross_analysis = {
+        return {
             "systems_analyzed": list(system_results.keys()),
             "interaction_strength": {},
             "consensus_metrics": {},
         }
 
         # Placeholder for cross-system interaction analysis
-        return cross_analysis
 
     def _generate_unified_recommendations(
-        self, unified_results: dict[str, Any]
+        self, unified_results: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Generate recommendations based on unified analysis results."""
         recommendations = []
@@ -381,7 +380,7 @@ class UnifiedAnalysisService:
                         "priority": "high",
                         "message": "Portfolio efficiency is low. Consider strategy optimization.",
                         "suggested_action": "Run optimization analysis to find better strategy combinations",
-                    }
+                    },
                 )
 
             if concurrent_ratio > 0.8:
@@ -391,7 +390,7 @@ class UnifiedAnalysisService:
                         "priority": "medium",
                         "message": "High concurrent trading ratio detected. Consider diversification.",
                         "suggested_action": "Add strategies with different market timing",
-                    }
+                    },
                 )
 
         # SPDS-based recommendations (placeholder)
@@ -402,13 +401,13 @@ class UnifiedAnalysisService:
                     "priority": "low",
                     "message": "SPDS analysis available for enhanced insights",
                     "suggested_action": "Enable SPDS integration for divergence analysis",
-                }
+                },
             )
 
         return recommendations
 
     def _generate_concurrency_recommendations(
-        self, concurrency_results: dict[str, Any], criteria: dict[str, Any]
+        self, concurrency_results: dict[str, Any], criteria: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Generate recommendations based on concurrency analysis."""
         recommendations = []
@@ -426,13 +425,13 @@ class UnifiedAnalysisService:
                     "type": "efficiency",
                     "message": f"Portfolio efficiency ({efficiency:.3f}) below threshold",
                     "action": "Consider strategy optimization or rebalancing",
-                }
+                },
             )
 
         return recommendations
 
     def _generate_spds_recommendations(
-        self, spds_results: dict[str, Any], criteria: dict[str, Any]
+        self, spds_results: dict[str, Any], criteria: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Generate recommendations based on SPDS analysis (placeholder)."""
         return [
@@ -441,11 +440,11 @@ class UnifiedAnalysisService:
                 "type": "placeholder",
                 "message": "SPDS recommendations not yet implemented",
                 "action": "Enable SPDS integration for detailed recommendations",
-            }
+            },
         ]
 
     def _generate_cross_system_recommendations(
-        self, cross_insights: dict[str, Any], criteria: dict[str, Any]
+        self, cross_insights: dict[str, Any], criteria: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Generate recommendations based on cross-system insights."""
         recommendations = []
@@ -457,7 +456,7 @@ class UnifiedAnalysisService:
                     "type": "consensus",
                     "message": "Multiple analysis systems provide consistent insights",
                     "action": "High confidence in portfolio assessment",
-                }
+                },
             )
 
         return recommendations

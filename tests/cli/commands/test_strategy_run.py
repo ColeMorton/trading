@@ -180,14 +180,14 @@ config:
         """Test successful sweep command with SMA profile."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA],
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
         mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
-            ticker="AAPL", strategy_type="SMA"
+            ticker="AAPL", strategy_type="SMA",
         )
         mock_dispatcher_class.return_value = mock_dispatcher
 
@@ -220,14 +220,14 @@ config:
         """Test successful run command with MACD profile."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker=["BTC-USD"], strategy_types=[StrategyType.MACD]
+            ticker=["BTC-USD"], strategy_types=[StrategyType.MACD],
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
         mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
-            ticker="BTC-USD", strategy_type="MACD"
+            ticker="BTC-USD", strategy_type="MACD",
         )
         mock_dispatcher_class.return_value = mock_dispatcher
 
@@ -246,25 +246,25 @@ config:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_single_ticker_override(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test sweep command with single ticker override."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker=["TSLA"], strategy_types=[StrategyType.SMA]
+            ticker=["TSLA"], strategy_types=[StrategyType.SMA],
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
         mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
-            ticker="TSLA", strategy_type="SMA"
+            ticker="TSLA", strategy_type="SMA",
         )
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command with ticker override
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "TSLA", "--strategy", "SMA"]
+            strategy_app, ["sweep", "--ticker", "TSLA", "--strategy", "SMA"],
         )
 
         # Verify results
@@ -280,12 +280,12 @@ config:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_multiple_tickers(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test sweep command with multiple tickers."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker=["AAPL", "MSFT", "GOOGL"], strategy_types=[StrategyType.SMA]
+            ticker=["AAPL", "MSFT", "GOOGL"], strategy_types=[StrategyType.SMA],
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
@@ -300,7 +300,7 @@ config:
 
         # Run command with multiple tickers
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "AAPL,MSFT,GOOGL", "--strategy", "SMA"]
+            strategy_app, ["sweep", "--ticker", "AAPL,MSFT,GOOGL", "--strategy", "SMA"],
         )
 
         # Verify results
@@ -310,19 +310,19 @@ config:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_multiple_strategies(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test sweep command with multiple strategy types."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker=["AAPL"], strategy_types=[StrategyType.SMA, StrategyType.EMA]
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA, StrategyType.EMA],
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
         mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
-            ticker="AAPL", strategy_type="SMA", strategy_types=["SMA", "EMA"]
+            ticker="AAPL", strategy_type="SMA", strategy_types=["SMA", "EMA"],
         )
         mock_dispatcher_class.return_value = mock_dispatcher
 
@@ -339,19 +339,19 @@ config:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_with_minimums_override(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test sweep command with minimum criteria overrides."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA],
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
         mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
-            ticker="AAPL", strategy_type="SMA"
+            ticker="AAPL", strategy_type="SMA",
         )
         mock_dispatcher_class.return_value = mock_dispatcher
 
@@ -383,19 +383,19 @@ config:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_with_years_override(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test sweep command with years configuration override."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA],
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
         mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
-            ticker="AAPL", strategy_type="SMA"
+            ticker="AAPL", strategy_type="SMA",
         )
         mock_dispatcher_class.return_value = mock_dispatcher
 
@@ -425,7 +425,7 @@ config:
         """Test sweep command with dry-run flag."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA],
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
@@ -447,25 +447,25 @@ config:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_verbose_output(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test sweep command with verbose flag."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA],
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
         mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
-            ticker="AAPL", strategy_type="SMA"
+            ticker="AAPL", strategy_type="SMA",
         )
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command (note: --verbose is a global flag, not supported in strategy run subcommand)
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Verify results
@@ -479,12 +479,12 @@ config:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_execution_failure(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test sweep command when strategy execution fails."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA],
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
@@ -500,7 +500,7 @@ config:
 
         # Run command
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Verify results
@@ -512,12 +512,12 @@ config:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_incompatible_strategy(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test sweep command with incompatible strategy configuration."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker=["AAPL"], strategy_types=["INVALID_STRATEGY"]
+            ticker=["AAPL"], strategy_types=["INVALID_STRATEGY"],
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
@@ -554,25 +554,25 @@ config:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_default_profile(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test sweep command uses default profile when none specified."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA],
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
         mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
-            ticker="AAPL", strategy_type="SMA"
+            ticker="AAPL", strategy_type="SMA",
         )
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command without profile
         cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Verify default profile is used
@@ -584,7 +584,7 @@ config:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_string_ticker_input(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test sweep command handles string ticker input correctly."""
         # Setup mocks using helper function
@@ -597,13 +597,13 @@ config:
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
         mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
-            ticker="AAPL", strategy_type="SMA"
+            ticker="AAPL", strategy_type="SMA",
         )
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Verify string ticker is handled
@@ -614,25 +614,25 @@ config:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_multiple_ticker_formats(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test sweep command with different ticker input formats."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker=["AAPL", "MSFT"], strategy_types=[StrategyType.SMA]
+            ticker=["AAPL", "MSFT"], strategy_types=[StrategyType.SMA],
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
         mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
-            ticker="AAPL", strategy_type="SMA", tickers_processed=["AAPL", "MSFT"]
+            ticker="AAPL", strategy_type="SMA", tickers_processed=["AAPL", "MSFT"],
         )
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Test comma-separated format
         result1 = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "AAPL,MSFT", "--strategy", "SMA"]
+            strategy_app, ["sweep", "--ticker", "AAPL,MSFT", "--strategy", "SMA"],
         )
         assert result1.exit_code == 0
 
@@ -646,25 +646,25 @@ config:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_synthetic_tickers(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test sweep command with synthetic ticker format."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker=["STRK/MSTR"], strategy_types=[StrategyType.SMA]
+            ticker=["STRK/MSTR"], strategy_types=[StrategyType.SMA],
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
         mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
-            ticker="STRK/MSTR", strategy_type="SMA"
+            ticker="STRK/MSTR", strategy_type="SMA",
         )
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command with synthetic ticker
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "STRK/MSTR", "--strategy", "SMA"]
+            strategy_app, ["sweep", "--ticker", "STRK/MSTR", "--strategy", "SMA"],
         )
 
         # Verify synthetic ticker is handled
@@ -675,7 +675,7 @@ config:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_parameter_validation_error(
-        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner,
     ):
         """Test sweep command when parameter validation fails."""
         # Setup mocks
@@ -685,7 +685,7 @@ config:
 
         # Run command
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Verify error handling
@@ -694,17 +694,17 @@ config:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_exception_handling(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test sweep command handles unexpected exceptions gracefully."""
         # Setup mock to raise unexpected exception
         mock_config_loader.return_value.load_from_profile.side_effect = RuntimeError(
-            "Unexpected error"
+            "Unexpected error",
         )
 
         # Run command
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Verify error is handled gracefully
@@ -729,7 +729,7 @@ class TestStrategySweepCommandEdgeCases:
     def test_sweep_command_empty_ticker(self, cli_runner):
         """Test sweep command with empty ticker."""
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "", "--strategy", "SMA"]
+            strategy_app, ["sweep", "--ticker", "", "--strategy", "SMA"],
         )
 
         # Should handle empty ticker gracefully
@@ -738,7 +738,7 @@ class TestStrategySweepCommandEdgeCases:
     def test_sweep_command_empty_strategy(self, cli_runner):
         """Test sweep command with empty strategy."""
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", ""]
+            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", ""],
         )
 
         # Should handle empty strategy gracefully
@@ -747,7 +747,7 @@ class TestStrategySweepCommandEdgeCases:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_very_large_ticker_list(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test sweep command with very large ticker list."""
         # Create large ticker list
@@ -766,10 +766,10 @@ class TestStrategySweepCommandEdgeCases:
 
         # Run command
         ticker_string = ",".join(
-            large_ticker_list[:100]
+            large_ticker_list[:100],
         )  # Limit to first 100 for command line
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", ticker_string, "--strategy", "SMA"]
+            strategy_app, ["sweep", "--ticker", ticker_string, "--strategy", "SMA"],
         )
 
         # Should handle large list gracefully
@@ -781,7 +781,7 @@ class TestStrategySweepCommandEdgeCases:
 
         for ticker in special_tickers:
             result = cli_runner.invoke(
-                strategy_app, ["sweep", "--ticker", ticker, "--strategy", "SMA"]
+                strategy_app, ["sweep", "--ticker", ticker, "--strategy", "SMA"],
             )
             # Should either succeed or fail gracefully (not crash)
             assert result.exit_code is not None  # Command completed
@@ -789,12 +789,12 @@ class TestStrategySweepCommandEdgeCases:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_extreme_parameter_values(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test sweep command with extreme parameter values."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA],
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
@@ -840,7 +840,7 @@ class TestStrategySweepCommandEdgeCases:
 
         for strategy in strategy_variants:
             result = cli_runner.invoke(
-                strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", strategy]
+                strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", strategy],
             )
             # Should handle case variations gracefully
             assert result.exit_code is not None
@@ -848,12 +848,12 @@ class TestStrategySweepCommandEdgeCases:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sweep_command_unicode_tickers(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test sweep command with Unicode characters in tickers."""
         # Setup mocks using helper function
         mock_config = create_mock_strategy_config(
-            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA],
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
@@ -864,7 +864,7 @@ class TestStrategySweepCommandEdgeCases:
 
         # Test Unicode ticker (though unlikely in real use)
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "AAPL中文", "--strategy", "SMA"]
+            strategy_app, ["sweep", "--ticker", "AAPL中文", "--strategy", "SMA"],
         )
 
         # Should handle Unicode gracefully
@@ -876,7 +876,7 @@ class TestStrategySweepCommandEdgeCases:
         long_ticker = "A" * 1000
 
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", long_ticker, "--strategy", "SMA"]
+            strategy_app, ["sweep", "--ticker", long_ticker, "--strategy", "SMA"],
         )
 
         # Should handle long arguments gracefully
@@ -894,7 +894,7 @@ class TestDefaultStrategyTypesFeature:
     @patch("app.cli.commands.strategy.validate_parameter_relationships")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_no_strategy_specified_defaults_to_all_types_dry_run(
-        self, mock_config_loader, mock_validate, cli_runner
+        self, mock_config_loader, mock_validate, cli_runner,
     ):
         """Test that omitting --strategy flag defaults to all strategy types in dry-run."""
         # Setup mocks with more complete configuration
@@ -915,7 +915,7 @@ class TestDefaultStrategyTypesFeature:
 
         # Run command without --strategy flag
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "CCJ", "--dry-run"]
+            strategy_app, ["sweep", "--ticker", "CCJ", "--dry-run"],
         )
 
         # Verify dry-run shows all three strategy types
@@ -932,7 +932,7 @@ class TestDefaultStrategyTypesFeature:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_no_strategy_specified_defaults_to_all_types_execution(
-        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner,
     ):
         """Test that omitting --strategy flag includes all strategy types in execution."""
         # Setup mocks
@@ -969,7 +969,7 @@ class TestDefaultStrategyTypesFeature:
     @patch("app.cli.commands.strategy.validate_parameter_relationships")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_no_strategy_with_profile_preserves_profile_strategy_types(
-        self, mock_config_loader, mock_validate, cli_runner
+        self, mock_config_loader, mock_validate, cli_runner,
     ):
         """Test that using a profile with specific strategy types overrides the defaults."""
         # Setup mock for profile with only SMA
@@ -993,7 +993,7 @@ class TestDefaultStrategyTypesFeature:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_explicit_strategy_overrides_defaults(
-        self, mock_config_loader, mock_dispatcher_class, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, cli_runner,
     ):
         """Test that explicit --strategy flag overrides the defaults."""
         # Setup mocks
@@ -1009,7 +1009,7 @@ class TestDefaultStrategyTypesFeature:
 
         # Run command WITH explicit --strategy flag
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "CCJ", "--strategy", "MACD"]
+            strategy_app, ["sweep", "--ticker", "CCJ", "--strategy", "MACD"],
         )
 
         # Verify execution
@@ -1023,7 +1023,7 @@ class TestDefaultStrategyTypesFeature:
 
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_multiple_tickers_no_strategy_defaults_to_all_types(
-        self, mock_config_loader, cli_runner
+        self, mock_config_loader, cli_runner,
     ):
         """Test that multiple tickers without strategy flag defaults to all strategy types."""
         # Setup mocks
@@ -1038,7 +1038,7 @@ class TestDefaultStrategyTypesFeature:
 
         # Run command with multiple tickers but no --strategy flag
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "CCJ,AAPL,MSFT", "--dry-run"]
+            strategy_app, ["sweep", "--ticker", "CCJ,AAPL,MSFT", "--dry-run"],
         )
 
         # Verify all strategy types are included
@@ -1048,7 +1048,7 @@ class TestDefaultStrategyTypesFeature:
 
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_regression_old_two_strategy_behavior_changed(
-        self, mock_config_loader, cli_runner
+        self, mock_config_loader, cli_runner,
     ):
         """Regression test: Verify old behavior of only SMA+EMA is changed to include MACD."""
         # Setup mocks to return the NEW expected behavior (all three strategies)
@@ -1063,7 +1063,7 @@ class TestDefaultStrategyTypesFeature:
 
         # Run command without strategy (should now include MACD, not just SMA+EMA)
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "TEST", "--dry-run"]
+            strategy_app, ["sweep", "--ticker", "TEST", "--dry-run"],
         )
 
         # REGRESSION CHECK: Ensure MACD is now included (was missing before)
@@ -1076,7 +1076,7 @@ class TestDefaultStrategyTypesFeature:
 
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_edge_case_string_strategy_types_in_profile(
-        self, mock_config_loader, cli_runner
+        self, mock_config_loader, cli_runner,
     ):
         """Edge case: Test handling of string strategy types from profile."""
         # Setup mock config with string strategy types (as they come from YAML)
@@ -1087,7 +1087,7 @@ class TestDefaultStrategyTypesFeature:
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "TEST", "--dry-run"]
+            strategy_app, ["sweep", "--ticker", "TEST", "--dry-run"],
         )
 
         # Should handle string types gracefully and display them
@@ -1098,7 +1098,7 @@ class TestDefaultStrategyTypesFeature:
 
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_edge_case_mixed_enum_string_strategy_types(
-        self, mock_config_loader, cli_runner
+        self, mock_config_loader, cli_runner,
     ):
         """Edge case: Test handling of mixed enum/string strategy types."""
         # Setup mock config with mixed types
@@ -1109,7 +1109,7 @@ class TestDefaultStrategyTypesFeature:
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "TEST", "--dry-run"]
+            strategy_app, ["sweep", "--ticker", "TEST", "--dry-run"],
         )
 
         # Should handle mixed types gracefully
@@ -1130,7 +1130,7 @@ class TestYearsParameter:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_years_parameter_enables_year_based_analysis(
-        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner,
     ):
         """Test that providing --years enables year-based analysis."""
         # Setup mocks
@@ -1165,7 +1165,7 @@ class TestYearsParameter:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_years_shorthand_y_works(
-        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner,
     ):
         """Test that -y shorthand works correctly."""
         # Setup mocks
@@ -1183,7 +1183,7 @@ class TestYearsParameter:
 
         # Run command with -y shorthand
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "AAPL", "-y", "3", "--strategy", "SMA"]
+            strategy_app, ["sweep", "--ticker", "AAPL", "-y", "3", "--strategy", "SMA"],
         )
 
         # Verify results
@@ -1217,7 +1217,7 @@ class TestYearsParameter:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_years_omitted_uses_complete_history(
-        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner,
     ):
         """Test that omitting --years uses complete history."""
         # Setup mocks
@@ -1235,7 +1235,7 @@ class TestYearsParameter:
 
         # Run command without years parameter
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA"]
+            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Verify results
@@ -1250,7 +1250,7 @@ class TestYearsParameter:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_years_parameter_limits_data_history(
-        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner,
     ):
         """Test that years parameter correctly limits data history."""
         # Setup mocks
@@ -1285,7 +1285,7 @@ class TestYearsParameter:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_years_without_use_years_flag(
-        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner
+        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner,
     ):
         """Test that years parameter works without separate use_years flag."""
         # Setup mocks

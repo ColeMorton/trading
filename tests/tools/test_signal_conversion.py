@@ -32,7 +32,7 @@ class TestSignalConversion(unittest.TestCase):
                 "Date": dates,
                 "Signal": [0, 1, 0, -1, 0, 1, 0, 0, -1, 0],
                 "RSI": [50, 75, 50, 25, 50, 65, 50, 50, 35, 50],
-            }
+            },
         )
 
         # Create config and logger
@@ -55,7 +55,7 @@ class TestSignalConversion(unittest.TestCase):
                 "Date": dates,
                 "Signal": [0, 1, 0, -1, 0, 1, 0, 0, -1, 0],
                 "RSI": [50, 75, 50, 25, 50, 65, 50, 50, 35, 50],
-            }
+            },
         )
         data = pl.from_pandas(data_pd)
 
@@ -79,7 +79,7 @@ class TestSignalConversion(unittest.TestCase):
                 "Date": dates,
                 "Signal": [0, 1, 0, -1, 0, 1, 0, 0, -1, 0],
                 "RSI": [50, 65, 50, 25, 50, 65, 50, 50, 35, 50],
-            }
+            },
         )
 
         # Create config with RSI filter

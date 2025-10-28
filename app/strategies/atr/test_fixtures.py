@@ -60,7 +60,7 @@ class ATRTestDataGenerator:
                 "Close": prices,
                 "Volume": volumes,
                 "Ticker": ticker,
-            }
+            },
         ).set_index("Date")
 
     @staticmethod
@@ -87,7 +87,7 @@ class ATRTestDataGenerator:
 
         # Create OHLC
         daily_ranges = np.abs(
-            np.random.normal(0, volatility * base_price * 0.5, periods)
+            np.random.normal(0, volatility * base_price * 0.5, periods),
         )
         highs = prices + daily_ranges
         lows = prices - daily_ranges * 0.8
@@ -103,7 +103,7 @@ class ATRTestDataGenerator:
                 "Close": prices,
                 "Volume": volumes,
                 "Ticker": ticker,
-            }
+            },
         ).set_index("Date")
 
     @staticmethod
@@ -156,7 +156,7 @@ class ATRTestDataGenerator:
                 "Close": prices,
                 "Volume": volumes,
                 "Ticker": ticker,
-            }
+            },
         ).set_index("Date")
 
     @staticmethod
@@ -213,7 +213,7 @@ class ATRTestDataGenerator:
                 "Close": prices,
                 "Volume": volumes,
                 "Ticker": ticker,
-            }
+            },
         ).set_index("Date")
 
 
@@ -254,7 +254,7 @@ class ATRTestConfigBuilder:
 
     @staticmethod
     def create_performance_config(
-        ticker: str = "PERF_TEST", large_parameter_space: bool = False
+        ticker: str = "PERF_TEST", large_parameter_space: bool = False,
     ) -> dict[str, Any]:
         """Create configuration optimized for performance testing."""
         if large_parameter_space:
@@ -289,7 +289,7 @@ class ATRTestConfigBuilder:
                 "ATR_MULTIPLIER_MIN": 1.5,
                 "ATR_MULTIPLIER_MAX": 2.5,
                 "ATR_MULTIPLIER_STEP": 0.5,
-            }
+            },
         )
         return config
 
@@ -299,7 +299,7 @@ class ATRTestAssertions:
 
     @staticmethod
     def assert_valid_atr_portfolio(
-        portfolio: dict[str, Any], ticker: str | None = None
+        portfolio: dict[str, Any], ticker: str | None = None,
     ):
         """Assert that portfolio dictionary has valid ATR structure."""
         # Required fields
@@ -333,16 +333,16 @@ class ATRTestAssertions:
 
         # Numeric validations
         assert isinstance(
-            portfolio["Fast Period"], int | float
+            portfolio["Fast Period"], int | float,
         ), "Fast Period should be numeric"
         assert isinstance(
-            portfolio["Slow Period"], int | float
+            portfolio["Slow Period"], int | float,
         ), "Slow Period should be numeric"
         assert isinstance(
-            portfolio["Total Trades"], int | float
+            portfolio["Total Trades"], int | float,
         ), "Total Trades should be numeric"
         assert isinstance(
-            portfolio["Win Rate [%]"], int | float
+            portfolio["Win Rate [%]"], int | float,
         ), "Win Rate should be numeric"
         assert isinstance(portfolio["Score"], int | float), "Score should be numeric"
 
@@ -366,7 +366,7 @@ class ATRTestAssertions:
         signal_values = signals_df["Signal"].dropna().unique()
         valid_signals = {0, 1}  # Only 0 and 1 are valid for ATR
         assert set(signal_values).issubset(
-            valid_signals
+            valid_signals,
         ), f"Invalid signal values: {signal_values}"
 
         # ATR values should be positive
@@ -410,7 +410,7 @@ class ATRTestAssertions:
         if "Signal Entry" in portfolio:
             # Can't test specific value without context, but should be string representation
             assert isinstance(
-                portfolio["Signal Entry"], str
+                portfolio["Signal Entry"], str,
             ), "Signal Entry should be string representation"
 
     @staticmethod
@@ -555,14 +555,14 @@ class ATRTestUtilities:
 
     @staticmethod
     def create_temporary_config_file(
-        config: dict[str, Any], filename: str | None = None
+        config: dict[str, Any], filename: str | None = None,
     ) -> str:
         """Create temporary configuration file for testing."""
         import yaml
 
         if filename is None:
             temp_file = tempfile.NamedTemporaryFile(
-                mode="w", suffix=".yaml", delete=False
+                mode="w", suffix=".yaml", delete=False,
             )
             filename = temp_file.name
         else:

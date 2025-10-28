@@ -145,7 +145,7 @@ class DataReconciler:
             # Reconcile ticker-level metrics
             if "ticker_metrics" in csv_metrics and "ticker_metrics" in json_metrics:
                 ticker_results = self._reconcile_ticker_metrics(
-                    csv_metrics["ticker_metrics"], json_metrics["ticker_metrics"], log
+                    csv_metrics["ticker_metrics"], json_metrics["ticker_metrics"], log,
                 )
                 report.ticker_results = ticker_results
 
@@ -257,7 +257,7 @@ class DataReconciler:
                             json_value *= 100  # Convert decimal to percentage
 
                     discrepancy = self._compare_metric_values(
-                        csv_key, csv_value, json_value, ticker
+                        csv_key, csv_value, json_value, ticker,
                     )
 
                     if discrepancy:
@@ -276,7 +276,7 @@ class DataReconciler:
 
             # Determine reconciliation status
             result.reconciliation_status = self._determine_reconciliation_status(
-                result.overall_quality_score
+                result.overall_quality_score,
             )
 
             results.append(result)
@@ -369,7 +369,7 @@ class DataReconciler:
                         json_value *= 100
 
                     discrepancy = self._compare_metric_values(
-                        csv_key, csv_value, json_value, "portfolio"
+                        csv_key, csv_value, json_value, "portfolio",
                     )
 
                     if discrepancy:
@@ -394,13 +394,13 @@ class DataReconciler:
             )
 
         result.reconciliation_status = self._determine_reconciliation_status(
-            result.overall_quality_score
+            result.overall_quality_score,
         )
 
         return result
 
     def _compare_metric_values(
-        self, metric_name: str, csv_value: float, json_value: float, entity_id: str
+        self, metric_name: str, csv_value: float, json_value: float, entity_id: str,
     ) -> MetricDiscrepancy | None:
         """
         Compare two metric values and return discrepancy if significant.
@@ -444,7 +444,7 @@ class DataReconciler:
         else:
             relative_diff = absolute_diff / abs(csv_value)
             tolerance = self.tolerance_config.get(
-                metric_name, 0.1
+                metric_name, 0.1,
             )  # Default 10% tolerance
 
         # Check if tolerance is exceeded
@@ -530,16 +530,16 @@ class DataReconciler:
 
         summary["discrepancies_by_severity"] = {
             "minor": len(
-                [d for d in all_discrepancies if d.discrepancy_type == "minor"]
+                [d for d in all_discrepancies if d.discrepancy_type == "minor"],
             ),
             "moderate": len(
-                [d for d in all_discrepancies if d.discrepancy_type == "moderate"]
+                [d for d in all_discrepancies if d.discrepancy_type == "moderate"],
             ),
             "severe": len(
-                [d for d in all_discrepancies if d.discrepancy_type == "severe"]
+                [d for d in all_discrepancies if d.discrepancy_type == "severe"],
             ),
             "critical": len(
-                [d for d in all_discrepancies if d.discrepancy_type == "critical"]
+                [d for d in all_discrepancies if d.discrepancy_type == "critical"],
             ),
         }
 
@@ -584,7 +584,7 @@ class DataReconciler:
         ]
         if len(poor_results) > len(all_results) * 0.3:  # More than 30% poor results
             critical_issues.append(
-                f"Poor reconciliation quality: {len(poor_results)}/{len(all_results)} entities failed reconciliation"
+                f"Poor reconciliation quality: {len(poor_results)}/{len(all_results)} entities failed reconciliation",
             )
 
         # Check for specific known issues (e.g., MSTR drawdown)
@@ -598,7 +598,7 @@ class DataReconciler:
                 ]
                 if mstr_dd_discrepancies:
                     critical_issues.append(
-                        "MSTR max drawdown understatement issue detected (known bug)"
+                        "MSTR max drawdown understatement issue detected (known bug)",
                     )
 
         return critical_issues
@@ -631,23 +631,23 @@ class DataReconciler:
             if count >= 2:  # Multiple entities affected
                 if "drawdown" in metric:
                     recommendations.append(
-                        f"Fix max drawdown calculation methodology (affects {count} entities) - implement proper equity curve combination"
+                        f"Fix max drawdown calculation methodology (affects {count} entities) - implement proper equity curve combination",
                     )
                 elif "sharpe" in metric:
                     recommendations.append(
-                        f"Review Sharpe ratio aggregation (affects {count} entities) - ensure sign preservation in weighted averaging"
+                        f"Review Sharpe ratio aggregation (affects {count} entities) - ensure sign preservation in weighted averaging",
                     )
                 elif "expectancy" in metric:
                     recommendations.append(
-                        f"Review expectancy calculation units (affects {count} entities) - check for sum vs average confusion"
+                        f"Review expectancy calculation units (affects {count} entities) - check for sum vs average confusion",
                     )
                 elif "win_rate" in metric:
                     recommendations.append(
-                        f"Standardize win rate calculation (affects {count} entities) - ensure consistent signal vs trade counting"
+                        f"Standardize win rate calculation (affects {count} entities) - ensure consistent signal vs trade counting",
                     )
                 elif "trades" in metric or "signal" in metric:
                     recommendations.append(
-                        f"Fix signal counting methodology (affects {count} entities) - address signal inflation issues"
+                        f"Fix signal counting methodology (affects {count} entities) - address signal inflation issues",
                     )
 
         # Specific recommendations based on severity
@@ -656,28 +656,28 @@ class DataReconciler:
                 d
                 for d in all_discrepancies
                 if d.discrepancy_type in ["severe", "critical"]
-            ]
+            ],
         )
         if severe_critical_count > 0:
             recommendations.append(
-                f"Urgent: Address {severe_critical_count} severe/critical discrepancies before production use"
+                f"Urgent: Address {severe_critical_count} severe/critical discrepancies before production use",
             )
 
         # Data source recommendations
         if report.overall_summary.get("average_quality_score", 0) < 0.8:
             recommendations.append(
-                "Consider implementing CSV-as-source-of-truth pipeline to ensure JSON consistency"
+                "Consider implementing CSV-as-source-of-truth pipeline to ensure JSON consistency",
             )
             recommendations.append(
-                "Implement automated reconciliation checks in CI/CD pipeline"
+                "Implement automated reconciliation checks in CI/CD pipeline",
             )
 
         # Monitoring recommendations
         recommendations.append(
-            "Set up automated reconciliation monitoring to detect future calculation drift"
+            "Set up automated reconciliation monitoring to detect future calculation drift",
         )
         recommendations.append(
-            "Create alerts for reconciliation quality scores below 0.8"
+            "Create alerts for reconciliation quality scores below 0.8",
         )
 
         return recommendations
@@ -718,18 +718,18 @@ class DataReconciler:
         total_metrics = report.overall_summary.get("total_metrics_compared", 1)
         total_discrepancies = report.overall_summary.get("total_discrepancies", 0)
         severe_critical_discrepancies = report.overall_summary.get(
-            "discrepancies_by_severity", {}
+            "discrepancies_by_severity", {},
         ).get("severe", 0) + report.overall_summary.get(
-            "discrepancies_by_severity", {}
+            "discrepancies_by_severity", {},
         ).get(
-            "critical", 0
+            "critical", 0,
         )
 
         # Trustworthiness decreases with severity of discrepancies
         base_trustworthiness = 1.0 - (total_discrepancies / total_metrics)
         severity_penalty = (severe_critical_discrepancies / total_metrics) * 0.5
         assessment["trustworthiness_score"] = max(
-            0.0, base_trustworthiness - severity_penalty
+            0.0, base_trustworthiness - severity_penalty,
         )
 
         # Readiness for production
@@ -809,7 +809,8 @@ def export_reconciliation_report(
                 json.dump(report_dict, f, indent=2, default=str)
 
         else:
-            raise ValueError(f"Unsupported format type: {format_type}")
+            msg = f"Unsupported format type: {format_type}"
+            raise ValueError(msg)
 
         return True
 

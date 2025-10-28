@@ -46,7 +46,7 @@ config:
   minimums:
     win_rate: 0.5
     trades: 20
-"""
+""",
             )
 
             yield profiles_dir
@@ -87,7 +87,7 @@ config:
             assert "Current configuration:" in result.stdout
 
     def test_edit_command_handles_nonexistent_profile(
-        self, cli_runner, temp_profiles_dir
+        self, cli_runner, temp_profiles_dir,
     ):
         """
         RED: Test that edit command handles non-existent profile gracefully.
@@ -100,7 +100,7 @@ config:
 
             # Mock profile not found
             mock_manager.profile_manager.load_profile.side_effect = FileNotFoundError(
-                "Profile not found"
+                "Profile not found",
             )
 
             result = cli_runner.invoke(config_app, ["edit", "nonexistent_profile"])
@@ -110,7 +110,7 @@ config:
             assert "Profile 'nonexistent_profile' not found" in result.stdout
 
     def test_edit_command_allows_field_modification(
-        self, cli_runner, temp_profiles_dir
+        self, cli_runner, temp_profiles_dir,
     ):
         """
         RED: Test that edit command allows modifying profile fields.
@@ -191,7 +191,7 @@ config:
             assert "win_rate must be between 0 and 1" in result.stdout
 
     @pytest.mark.skip(
-        reason="Interactive mode not yet implemented - TDD RED phase test"
+        reason="Interactive mode not yet implemented - TDD RED phase test",
     )
     def test_edit_command_shows_interactive_menu(self, cli_runner, temp_profiles_dir):
         """
@@ -212,10 +212,10 @@ config:
 
             # Mock interactive input
             with patch(
-                "builtins.input", side_effect=["1", "MSFT,GOOGL", "5"]
+                "builtins.input", side_effect=["1", "MSFT,GOOGL", "5"],
             ):  # Select ticker, change value, exit
                 result = cli_runner.invoke(
-                    config_app, ["edit", "test_profile", "--interactive"]
+                    config_app, ["edit", "test_profile", "--interactive"],
                 )
 
                 # These assertions will FAIL initially (RED phase)
@@ -226,7 +226,7 @@ config:
                 assert "[5] Save and exit" in result.stdout
 
     def test_edit_command_creates_backup_before_changes(
-        self, cli_runner, temp_profiles_dir
+        self, cli_runner, temp_profiles_dir,
     ):
         """
         RED: Test that edit command creates backup before making changes.

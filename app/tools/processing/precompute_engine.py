@@ -62,7 +62,7 @@ class UsageAnalyzer:
         self.request_history: list[dict[str, Any]] = []
         self.combination_counter: Counter = Counter()
         self.parameter_patterns: dict[str, dict[str, Counter]] = defaultdict(
-            lambda: defaultdict(Counter)
+            lambda: defaultdict(Counter),
         )
         self._lock = threading.Lock()
 
@@ -94,7 +94,7 @@ class UsageAnalyzer:
 
             # Create combination key
             combo_key = self._create_combination_key(
-                strategy_type, ticker, timeframe, parameters
+                strategy_type, ticker, timeframe, parameters,
             )
             self.combination_counter[combo_key] += 1
 
@@ -112,7 +112,7 @@ class UsageAnalyzer:
                 self.request_history = self.request_history[-10000:]
 
     def get_top_combinations(
-        self, limit: int = 20, min_requests: int = 3
+        self, limit: int = 20, min_requests: int = 3,
     ) -> list[ParameterCombination]:
         """Get the most frequently requested parameter combinations."""
         with self._lock:
@@ -125,7 +125,7 @@ class UsageAnalyzer:
 
             # Sort by frequency
             sorted_combinations = sorted(
-                filtered_combinations.items(), key=lambda x: x[1], reverse=True
+                filtered_combinations.items(), key=lambda x: x[1], reverse=True,
             )[:limit]
 
             # Convert to ParameterCombination objects
@@ -152,7 +152,7 @@ class UsageAnalyzer:
             return combinations
 
     def get_parameter_insights(
-        self, strategy_type: str | None = None
+        self, strategy_type: str | None = None,
     ) -> dict[str, Any]:
         """Get insights about parameter usage patterns."""
         with self._lock:
@@ -303,7 +303,7 @@ class UsageAnalyzer:
                 json.dump(data, f, indent=2)
 
         except Exception as e:
-            logger.error(f"Failed to save usage data: {e}")
+            logger.exception(f"Failed to save usage data: {e}")
 
 
 class PrecomputeEngine:
@@ -379,7 +379,7 @@ class PrecomputeEngine:
 
         self.active_precomputing = True
         self._precompute_thread = threading.Thread(
-            target=self._precompute_loop, daemon=daemon, name="PrecomputeEngine"
+            target=self._precompute_loop, daemon=daemon, name="PrecomputeEngine",
         )
         self._precompute_thread.start()
         logger.info("Pre-computation started")
@@ -397,7 +397,7 @@ class PrecomputeEngine:
             try:
                 self._execute_precompute_cycle()
             except Exception as e:
-                logger.error(f"Error in pre-compute cycle: {e}")
+                logger.exception(f"Error in pre-compute cycle: {e}")
 
             # Wait for next cycle
             time.sleep(self.precompute_interval)
@@ -409,7 +409,7 @@ class PrecomputeEngine:
 
         # Get top combinations to pre-compute
         top_combinations = self.usage_analyzer.get_top_combinations(
-            limit=20, min_requests=3
+            limit=20, min_requests=3,
         )
 
         if not top_combinations:
@@ -431,14 +431,14 @@ class PrecomputeEngine:
 
         logger.info(
             f"Pre-compute cycle completed in {cycle_time:.2f}s: "
-            f"{completed} jobs completed, {failed} jobs failed"
+            f"{completed} jobs completed, {failed} jobs failed",
         )
 
         # Save usage data
         self.usage_analyzer.save_usage_data()
 
     def _create_precompute_jobs(
-        self, combinations: list[ParameterCombination]
+        self, combinations: list[ParameterCombination],
     ) -> list[PrecomputeJob]:
         """Create pre-compute jobs from parameter combinations."""
         jobs = []
@@ -486,7 +486,7 @@ class PrecomputeEngine:
         for job in jobs:
             if total_time >= self.max_precompute_time:
                 logger.info(
-                    f"Pre-compute time limit reached ({self.max_precompute_time}s)"
+                    f"Pre-compute time limit reached ({self.max_precompute_time}s)",
                 )
                 break
 
@@ -546,11 +546,10 @@ class PrecomputeEngine:
 
         # Execute with performance monitoring
         with self.performance_monitor.monitor_operation(
-            f"precompute_{combination.strategy_type}"
+            f"precompute_{combination.strategy_type}",
         ):
-            result = executor(execution_params)
+            return executor(execution_params)
 
-        return result
 
     def _create_cache_key(self, combination: ParameterCombination) -> str:
         """Create cache key for a parameter combination."""
@@ -653,7 +652,7 @@ class PrecomputeEngine:
         top_combinations = self.usage_analyzer.get_top_combinations(limit=10)
         usage_insights = self.usage_analyzer.get_parameter_insights()
 
-        status = {
+        return {
             "active": self.active_precomputing,
             "registered_executors": list(self.strategy_executors.keys()),
             "stats": self.precompute_stats.copy(),
@@ -677,11 +676,10 @@ class PrecomputeEngine:
                     for j in self.precompute_jobs.values()
                     if j.completed_at
                     and j.completed_at > datetime.now() - timedelta(hours=24)
-                ]
+                ],
             ),
         }
 
-        return status
 
 
 # Global pre-compute engine instance
@@ -689,7 +687,7 @@ _global_precompute_engine: PrecomputeEngine | None = None
 
 
 def get_precompute_engine(
-    cache_manager: IntelligentCacheManager | None = None, auto_start: bool = False
+    cache_manager: IntelligentCacheManager | None = None, auto_start: bool = False,
 ) -> PrecomputeEngine:
     """Get or create global pre-compute engine instance."""
     global _global_precompute_engine

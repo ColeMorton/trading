@@ -29,7 +29,7 @@ class MetricsCalculator:
         if log is None:
             # Create a default logger if none provided
             self.log, _, _, _ = setup_logging(
-                "metrics_calculator", Path("./logs"), "metrics_calculator.log"
+                "metrics_calculator", Path("./logs"), "metrics_calculator.log",
             )
         else:
             self.log = log
@@ -74,7 +74,7 @@ class MetricsCalculator:
 
             win_calc = WinRateCalculator()
             win_components = win_calc.calculate_trade_win_rate(
-                active_returns, include_zeros=False
+                active_returns, include_zeros=False,
             )
             win_rate = win_components.win_rate
 
@@ -99,12 +99,12 @@ class MetricsCalculator:
             profit_factor = 1.0
             if len(negative_returns) > 0 and np.sum(np.abs(negative_returns)) > 0:
                 profit_factor = float(
-                    np.sum(positive_returns) / np.sum(np.abs(negative_returns))
+                    np.sum(positive_returns) / np.sum(np.abs(negative_returns)),
                 )
 
             # Expectancy per trade using standardized calculation
             expectancy_per_trade = calculate_expectancy(
-                win_rate, avg_win, abs(avg_loss)
+                win_rate, avg_win, abs(avg_loss),
             )
 
             # Annualized metrics
@@ -134,7 +134,7 @@ class MetricsCalculator:
             sortino_ratio = (
                 float(
                     annualized_return
-                    / (downside_deviation * np.sqrt(annualization_factor))
+                    / (downside_deviation * np.sqrt(annualization_factor)),
                 )
                 if downside_deviation > 0
                 else 0.0
@@ -226,7 +226,7 @@ class MetricsCalculator:
                     # Calculate signal consistency
                     if mean_signals > 0:
                         signal_consistency = float(
-                            1.0 - min(1.0, signal_volatility / mean_signals)
+                            1.0 - min(1.0, signal_volatility / mean_signals),
                         )
                     else:
                         signal_consistency = 0.0
@@ -355,7 +355,7 @@ class MetricsCalculator:
             return {}
 
     def find_best_horizon(
-        self, horizon_metrics: dict[str, dict[str, float]], min_sample_size: int = 20
+        self, horizon_metrics: dict[str, dict[str, float]], min_sample_size: int = 20,
     ) -> int | None:
         """Find the best performing time horizon.
 
@@ -399,7 +399,7 @@ class MetricsCalculator:
             return None
 
     def calculate_quality_score(
-        self, win_rate: float, profit_factor: float, avg_return: float, avg_loss: float
+        self, win_rate: float, profit_factor: float, avg_return: float, avg_loss: float,
     ) -> float:
         """Calculate an overall signal quality score.
 
@@ -471,7 +471,7 @@ class MetricsCalculator:
                 or signal_column not in signals_pl.columns
             ):
                 self.log(
-                    f"Missing required columns in signals_df for {strategy_id}", "error"
+                    f"Missing required columns in signals_df for {strategy_id}", "error",
                 )
                 return {"signal_count": 0, "signal_quality_score": 0.0}
 
@@ -480,7 +480,7 @@ class MetricsCalculator:
                 or return_column not in returns_pl.columns
             ):
                 self.log(
-                    f"Missing required columns in returns_df for {strategy_id}", "error"
+                    f"Missing required columns in returns_df for {strategy_id}", "error",
                 )
                 return {"signal_count": 0, "signal_quality_score": 0.0}
 
@@ -574,10 +574,10 @@ class MetricsCalculator:
 
             # Calculate strategy-specific metrics
             for _i, (df, strategy_id) in enumerate(
-                zip(data_list, strategy_ids, strict=False), 1
+                zip(data_list, strategy_ids, strict=False), 1,
             ):
                 strategy_metrics = self.calculate_frequency_metrics(
-                    df, signal_column, date_column
+                    df, signal_column, date_column,
                 )
 
                 # Store strategy-specific metrics with strategy ID prefix
@@ -619,7 +619,7 @@ class MetricsCalculator:
                                 break
 
                     combined_signals.loc[:, "month"] = combined_signals.index.to_period(
-                        "M"
+                        "M",
                     )
 
                     # Calculate monthly counts
@@ -650,7 +650,7 @@ class MetricsCalculator:
 
         except Exception as e:
             self.log(
-                f"Error calculating portfolio-level signal metrics: {e!s}", "error"
+                f"Error calculating portfolio-level signal metrics: {e!s}", "error",
             )
             return {
                 "portfolio_mean_signals_per_month": 0.0,
@@ -761,7 +761,7 @@ def calculate_metrics_for_strategy(
 
 
 def calculate_signal_metrics(
-    aligned_data: list[pl.DataFrame], log: Callable | None | None = None
+    aligned_data: list[pl.DataFrame], log: Callable | None | None = None,
 ) -> dict[str, Any]:
     """Calculate signal metrics for all strategies (legacy function).
 
@@ -779,7 +779,7 @@ def calculate_signal_metrics(
 
     # Calculate portfolio metrics
     return calculator.calculate_portfolio_metrics(
-        aligned_data, strategy_ids, "Position", "Date"
+        aligned_data, strategy_ids, "Position", "Date",
     )
 
 
@@ -802,5 +802,5 @@ def calculate_signal_quality_metrics(
     """
     calculator = MetricsCalculator(log)
     return calculator.calculate_signal_quality_metrics(
-        signals_df, returns_df, strategy_id
+        signals_df, returns_df, strategy_id,
     )

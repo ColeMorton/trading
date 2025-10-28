@@ -81,7 +81,7 @@ class TransactionCostAnalyzer:
 
             # Estimate market impact based on volume characteristics
             market_impact = self._estimate_market_impact(
-                avg_volume, relative_volume, current_price, liquidity_score
+                avg_volume, relative_volume, current_price, liquidity_score,
             )
 
             # Commission costs
@@ -121,7 +121,7 @@ class TransactionCostAnalyzer:
             )
 
         except Exception as e:
-            self.logger.error(f"Transaction cost estimation failed for {ticker}: {e}")
+            self.logger.exception(f"Transaction cost estimation failed for {ticker}: {e}")
             return self._default_cost_estimate(ticker, signal)
 
     def _estimate_spread(self, liquidity_score: float, price: float) -> float:
@@ -288,17 +288,17 @@ class TransactionCostAnalyzer:
                 if original_signal == "STRONG_BUY":
                     adjusted_signal = "BUY"
                     reasoning_parts.append(
-                        "Downgraded STRONG_BUY due to high transaction costs"
+                        "Downgraded STRONG_BUY due to high transaction costs",
                     )
                 elif original_signal == "STRONG_SELL":
                     adjusted_signal = "SELL"
                     reasoning_parts.append(
-                        "Downgraded STRONG_SELL due to high transaction costs"
+                        "Downgraded STRONG_SELL due to high transaction costs",
                     )
                 elif original_signal in ["BUY", "SELL"]:
                     adjusted_signal = "HOLD"
                     reasoning_parts.append(
-                        f"Downgraded {original_signal} to HOLD due to prohibitive costs"
+                        f"Downgraded {original_signal} to HOLD due to prohibitive costs",
                     )
 
                 adjusted_confidence *= 0.8  # Additional confidence reduction
@@ -314,7 +314,7 @@ class TransactionCostAnalyzer:
                 if adjusted_signal in ["BUY", "SELL"]:
                     adjusted_signal = "HOLD"
                     reasoning_parts.append(
-                        "Signal changed to HOLD due to excessive turnover"
+                        "Signal changed to HOLD due to excessive turnover",
                     )
 
             # Low liquidity penalty
@@ -332,11 +332,11 @@ class TransactionCostAnalyzer:
             return adjusted_signal, adjusted_confidence, cost_reasoning
 
         except Exception as e:
-            self.logger.error(f"Signal adjustment failed: {e}")
+            self.logger.exception(f"Signal adjustment failed: {e}")
             return original_signal, original_confidence, "Cost adjustment failed"
 
     def _default_cost_estimate(
-        self, ticker: str, signal: str
+        self, ticker: str, signal: str,
     ) -> TransactionCostEstimate:
         """Return default cost estimate when calculation fails."""
         return TransactionCostEstimate(
@@ -384,13 +384,13 @@ class TransactionCostAnalyzer:
                     }
 
             summary["overall_turnover_rate"] = total_changes / max(
-                1, total_signals - len(self.signal_history)
+                1, total_signals - len(self.signal_history),
             )
 
             return summary
 
         except Exception as e:
-            self.logger.error(f"Cost analysis summary failed: {e}")
+            self.logger.exception(f"Cost analysis summary failed: {e}")
             return {"error": str(e)}
 
 

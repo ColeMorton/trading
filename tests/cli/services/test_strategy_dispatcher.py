@@ -104,7 +104,7 @@ class TestStrategyDispatcher:
 
     @patch("app.cli.services.strategy_dispatcher.rprint")
     def test_determine_service_macd_with_other_strategies_warning(
-        self, mock_rprint, dispatcher
+        self, mock_rprint, dispatcher,
     ):
         """Test service determination with MACD and other strategies shows warning."""
         strategy_types = [StrategyType.MACD, StrategyType.SMA]
@@ -114,7 +114,7 @@ class TestStrategyDispatcher:
         assert isinstance(service, MACDStrategyService)
         mock_rprint.assert_called_once()
         assert "Multiple strategy types specified with MACD" in str(
-            mock_rprint.call_args
+            mock_rprint.call_args,
         )
 
     def test_determine_service_string_strategy_types(self, dispatcher):
@@ -241,7 +241,7 @@ class TestStrategyDispatcher:
 
     @patch.object(MAStrategyService, "execute_strategy")
     def test_execute_strategy_mixed_ma_strategies(
-        self, mock_execute, dispatcher, base_config
+        self, mock_execute, dispatcher, base_config,
     ):
         """Test strategy execution with mixed MA strategies."""
         mock_execute.return_value = True
@@ -256,7 +256,7 @@ class TestStrategyDispatcher:
     @patch.object(MACDStrategyService, "execute_strategy")
     @patch("app.cli.services.strategy_dispatcher.rprint")
     def test_execute_strategy_macd_with_mixed_strategies(
-        self, mock_rprint, mock_execute, dispatcher, base_config
+        self, mock_rprint, mock_execute, dispatcher, base_config,
     ):
         """Test strategy execution with MACD mixed with other strategies."""
         mock_execute.return_value = True
@@ -330,7 +330,7 @@ class TestStrategyDispatcherEdgeCases:
             service = dispatcher._determine_service(strategy_types)
             # Should either return a service or None, but not crash
             assert service is None or isinstance(
-                service, MAStrategyService | MACDStrategyService
+                service, MAStrategyService | MACDStrategyService,
             )
         except (AttributeError, TypeError):
             # This is acceptable - the function may not handle None gracefully

@@ -39,7 +39,7 @@ class TestEquityIntegration:
 
         # Mock value() method
         timestamp_index = pd.date_range(
-            "2023-01-01", periods=len(equity_values), freq="D"
+            "2023-01-01", periods=len(equity_values), freq="D",
         )
         value_series = pd.Series(equity_values, index=timestamp_index)
         portfolio.value.return_value = value_series
@@ -79,7 +79,7 @@ class TestEquityIntegration:
     @patch("app.strategies.tools.summary_processing.is_exit_signal_current")
     @patch("app.strategies.tools.summary_processing.convert_stats")
     def test_macd_strategy_with_equity_extraction(
-        self, mock_convert_stats, mock_exit_signal, mock_signal, mock_process_macd
+        self, mock_convert_stats, mock_exit_signal, mock_signal, mock_process_macd,
     ):
         """Test MACD strategy processing with equity data extraction."""
         # Setup mocks
@@ -131,7 +131,7 @@ class TestEquityIntegration:
     @patch("app.strategies.tools.summary_processing.is_exit_signal_current")
     @patch("app.strategies.tools.summary_processing.convert_stats")
     def test_sma_strategy_with_equity_extraction(
-        self, mock_convert_stats, mock_exit_signal, mock_signal, mock_process_ma
+        self, mock_convert_stats, mock_exit_signal, mock_signal, mock_process_ma,
     ):
         """Test SMA strategy processing with equity data extraction."""
         # Setup mocks
@@ -186,7 +186,7 @@ class TestEquityIntegration:
     @patch("app.strategies.tools.summary_processing.is_exit_signal_current")
     @patch("app.strategies.tools.summary_processing.convert_stats")
     def test_ema_strategy_with_equity_extraction(
-        self, mock_convert_stats, mock_exit_signal, mock_signal, mock_process_ma
+        self, mock_convert_stats, mock_exit_signal, mock_signal, mock_process_ma,
     ):
         """Test EMA strategy processing with equity data extraction."""
         # Setup mocks
@@ -388,23 +388,23 @@ class TestEquityIntegration:
 
         # Mock the convert_stats function to verify it's called correctly
         with patch(
-            "app.strategies.tools.summary_processing.convert_stats"
+            "app.strategies.tools.summary_processing.convert_stats",
         ) as mock_convert:
             mock_convert.return_value = {"processed": True}
 
             # Mock other dependencies
             with patch(
-                "app.strategies.tools.summary_processing.process_macd_strategy"
+                "app.strategies.tools.summary_processing.process_macd_strategy",
             ) as mock_macd:
                 mock_portfolio = self.create_mock_portfolio([1000, 1050, 1100])
                 mock_macd.return_value = (mock_portfolio, {}, Mock())
 
                 # Mock signal functions
                 with patch(
-                    "app.strategies.tools.summary_processing.is_signal_current"
+                    "app.strategies.tools.summary_processing.is_signal_current",
                 ) as mock_signal:
                     with patch(
-                        "app.strategies.tools.summary_processing.is_exit_signal_current"
+                        "app.strategies.tools.summary_processing.is_exit_signal_current",
                     ) as mock_exit:
                         mock_signal.return_value = True
                         mock_exit.return_value = False
@@ -418,7 +418,7 @@ class TestEquityIntegration:
                         }
 
                         result = process_ticker_portfolios(
-                            "TEST", row, config, self.mock_log
+                            "TEST", row, config, self.mock_log,
                         )
 
                         # Verify processing succeeded

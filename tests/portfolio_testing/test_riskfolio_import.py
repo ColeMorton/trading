@@ -9,7 +9,7 @@ try:
 
     print("Successfully imported riskfolio")
     print(
-        f"Riskfolio version: {rp.__version__ if hasattr(rp, '__version__') else 'Unknown'}"
+        f"Riskfolio version: {rp.__version__ if hasattr(rp, '__version__') else 'Unknown'}",
     )
     print("Riskfolio contents:")
     print(dir(rp))
@@ -20,7 +20,7 @@ except ImportError as e:
 
     installed_packages = pkg_resources.working_set
     installed_packages_list = sorted(
-        [f"{i.key}=={i.version}" for i in installed_packages]
+        [f"{i.key}=={i.version}" for i in installed_packages],
     )
     for package in installed_packages_list:
         print(package)

@@ -75,13 +75,13 @@ class StatisticalAnalysisReportGenerator:
             report_file = self.reports_path / f"{report_name}_{timestamp}.md"
 
             self.logger.info(
-                f"Generating {report_style} report for {len(analysis_results)} analyses"
+                f"Generating {report_style} report for {len(analysis_results)} analyses",
             )
 
             # Generate report content based on style
             if report_style == "executive":
                 content = await self._generate_executive_summary_report(
-                    analysis_results
+                    analysis_results,
                 )
             elif report_style == "technical":
                 content = await self._generate_technical_report(analysis_results)
@@ -97,7 +97,7 @@ class StatisticalAnalysisReportGenerator:
             return str(report_file)
 
         except Exception as e:
-            self.logger.error(f"Report generation failed: {e}")
+            self.logger.exception(f"Report generation failed: {e}")
             raise
 
     async def generate_performance_report(
@@ -127,7 +127,7 @@ class StatisticalAnalysisReportGenerator:
             return str(report_file)
 
         except Exception as e:
-            self.logger.error(f"Performance report generation failed: {e}")
+            self.logger.exception(f"Performance report generation failed: {e}")
             raise
 
     async def generate_exit_efficiency_report(
@@ -157,7 +157,7 @@ class StatisticalAnalysisReportGenerator:
             return str(report_file)
 
         except Exception as e:
-            self.logger.error(f"Exit efficiency report generation failed: {e}")
+            self.logger.exception(f"Exit efficiency report generation failed: {e}")
             raise
 
     async def generate_correlation_report(
@@ -180,7 +180,7 @@ class StatisticalAnalysisReportGenerator:
             report_file = self.reports_path / f"{report_name}_{timestamp}.md"
 
             content = await self._generate_correlation_report_content(
-                correlation_results
+                correlation_results,
             )
 
             with open(report_file, "w", encoding="utf-8") as f:
@@ -189,7 +189,7 @@ class StatisticalAnalysisReportGenerator:
             return str(report_file)
 
         except Exception as e:
-            self.logger.error(f"Correlation report generation failed: {e}")
+            self.logger.exception(f"Correlation report generation failed: {e}")
             raise
 
     async def generate_pattern_analysis_report(
@@ -219,13 +219,13 @@ class StatisticalAnalysisReportGenerator:
             return str(report_file)
 
         except Exception as e:
-            self.logger.error(f"Pattern analysis report generation failed: {e}")
+            self.logger.exception(f"Pattern analysis report generation failed: {e}")
             raise
 
     # Report content generation methods
 
     async def _generate_executive_summary_report(
-        self, analysis_results: list[StatisticalAnalysisResult]
+        self, analysis_results: list[StatisticalAnalysisResult],
     ) -> str:
         """Generate executive summary report"""
 
@@ -237,7 +237,7 @@ class StatisticalAnalysisReportGenerator:
 
         avg_confidence = np.mean([r.signal_confidence for r in analysis_results])
         avg_convergence = np.mean(
-            [r.dual_layer_convergence_score for r in analysis_results]
+            [r.dual_layer_convergence_score for r in analysis_results],
         )
 
         # High-priority positions
@@ -345,7 +345,7 @@ class StatisticalAnalysisReportGenerator:
         return content
 
     async def _generate_detailed_report(
-        self, analysis_results: list[StatisticalAnalysisResult]
+        self, analysis_results: list[StatisticalAnalysisResult],
     ) -> str:
         """Generate detailed analysis report"""
 
@@ -390,7 +390,7 @@ class StatisticalAnalysisReportGenerator:
         for signal_type, positions in signal_groups.items():
             if positions:
                 content += await self._generate_signal_group_section(
-                    signal_type, positions
+                    signal_type, positions,
                 )
 
         content += """
@@ -437,7 +437,7 @@ class StatisticalAnalysisReportGenerator:
         return content
 
     async def _generate_technical_report(
-        self, analysis_results: list[StatisticalAnalysisResult]
+        self, analysis_results: list[StatisticalAnalysisResult],
     ) -> str:
         """Generate technical deep-dive report"""
 
@@ -559,7 +559,7 @@ class StatisticalAnalysisReportGenerator:
         return content
 
     async def _generate_summary_section(
-        self, analysis_results: list[StatisticalAnalysisResult]
+        self, analysis_results: list[StatisticalAnalysisResult],
     ) -> str:
         """Generate summary section"""
         immediate_exits = sum(
@@ -581,7 +581,7 @@ class StatisticalAnalysisReportGenerator:
 """
 
     async def _generate_signal_group_section(
-        self, signal_type: str, positions: list[StatisticalAnalysisResult]
+        self, signal_type: str, positions: list[StatisticalAnalysisResult],
     ) -> str:
         """Generate section for signal group"""
 
@@ -614,7 +614,7 @@ class StatisticalAnalysisReportGenerator:
         return content
 
     async def _generate_performance_report_content(
-        self, performance_data: dict[str, Any]
+        self, performance_data: dict[str, Any],
     ) -> str:
         """Generate performance report content"""
 
@@ -655,7 +655,7 @@ class StatisticalAnalysisReportGenerator:
 """
 
     async def _generate_exit_efficiency_content(
-        self, efficiency_data: dict[str, Any]
+        self, efficiency_data: dict[str, Any],
     ) -> str:
         """Generate exit efficiency report content"""
 
@@ -696,7 +696,7 @@ class StatisticalAnalysisReportGenerator:
 """
 
     async def _generate_correlation_report_content(
-        self, correlation_results: list[CorrelationResult]
+        self, correlation_results: list[CorrelationResult],
     ) -> str:
         """Generate correlation analysis report content"""
 
@@ -750,7 +750,7 @@ class StatisticalAnalysisReportGenerator:
         return content
 
     async def _generate_pattern_report_content(
-        self, pattern_results: list[PatternResult]
+        self, pattern_results: list[PatternResult],
     ) -> str:
         """Generate pattern analysis report content"""
 

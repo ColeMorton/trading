@@ -87,7 +87,6 @@ class DataCoordinationConfig:
 class StrategyDataCoordinatorError(Exception):
     """Exception raised by StrategyDataCoordinator."""
 
-    pass
 
 
 class StrategyDataCoordinator:
@@ -165,7 +164,7 @@ class StrategyDataCoordinator:
 
         (
             logger.info(
-                "StrategyDataCoordinator initialized with central coordination enabled"
+                "StrategyDataCoordinator initialized with central coordination enabled",
             )
             if logger
             else None
@@ -177,7 +176,7 @@ class StrategyDataCoordinator:
             from app.tools.processing import configure_memory_optimizer
 
             self.memory_optimizer = configure_memory_optimizer(
-                enable_pooling=True, enable_monitoring=True, memory_threshold_mb=1000.0
+                enable_pooling=True, enable_monitoring=True, memory_threshold_mb=1000.0,
             )
             (
                 logger.info("Memory optimization enabled in StrategyDataCoordinator")
@@ -252,7 +251,7 @@ class StrategyDataCoordinator:
             # Load fresh data with coordination
             with self._refresh_lock:
                 strategy_data = self._load_coordinated_strategy_data(
-                    strategy_identifier
+                    strategy_identifier,
                 )
 
                 if strategy_data:
@@ -262,7 +261,7 @@ class StrategyDataCoordinator:
 
                     (
                         logger.info(
-                            f"Successfully loaded coordinated data for {strategy_identifier}"
+                            f"Successfully loaded coordinated data for {strategy_identifier}",
                         )
                         if self.logger
                         else None
@@ -274,16 +273,17 @@ class StrategyDataCoordinator:
 
         except Exception as e:
             (
-                logger.error(
-                    f"Error loading strategy data for {strategy_identifier}: {e}"
+                logger.exception(
+                    f"Error loading strategy data for {strategy_identifier}: {e}",
                 )
                 if self.logger
                 else None
             )
-            raise StrategyDataCoordinatorError(f"Failed to load strategy data: {e}")
+            msg = f"Failed to load strategy data: {e}"
+            raise StrategyDataCoordinatorError(msg)
 
     def _load_coordinated_strategy_data(
-        self, strategy_identifier: str
+        self, strategy_identifier: str,
     ) -> StrategyData | None:
         """
         Load strategy data with full coordination across all sources.
@@ -336,7 +336,7 @@ class StrategyDataCoordinator:
             if self.config.concurrent_loading:
                 # Load from multiple sources concurrently
                 with ThreadPoolExecutor(
-                    max_workers=self.config.max_workers
+                    max_workers=self.config.max_workers,
                 ) as executor:
                     # Submit all loading tasks
                     tasks = {
@@ -374,7 +374,7 @@ class StrategyDataCoordinator:
                             future.result(timeout=10)  # 10 second timeout per source
                             (
                                 logger.debug(
-                                    f"Successfully loaded data from {source_name} for {strategy_name}"
+                                    f"Successfully loaded data from {source_name} for {strategy_name}",
                                 )
                                 if self.logger
                                 else None
@@ -382,7 +382,7 @@ class StrategyDataCoordinator:
                         except Exception as e:
                             (
                                 logger.warning(
-                                    f"Failed to load data from {source_name} for {strategy_name}: {e}"
+                                    f"Failed to load data from {source_name} for {strategy_name}: {e}",
                                 )
                                 if self.logger
                                 else None
@@ -394,18 +394,18 @@ class StrategyDataCoordinator:
                 self._populate_from_backtesting_data(strategy_data, strategy_name)
                 self._populate_from_positions_data(strategy_data, strategy_name)
                 self._populate_from_asset_distribution(
-                    strategy_data, strategy_data.ticker
+                    strategy_data, strategy_data.ticker,
                 )
 
             # Step 4: Perform central validation
             if self.config.enable_validation:
                 validation_result = self._validate_strategy_data(
-                    strategy_data, strategy_name
+                    strategy_data, strategy_name,
                 )
                 if validation_result["critical_violations"]:
                     (
                         logger.error(
-                            f"Critical validation failures for {strategy_name}: {validation_result['critical_violations']}"
+                            f"Critical validation failures for {strategy_name}: {validation_result['critical_violations']}",
                         )
                         if self.logger
                         else None
@@ -417,7 +417,7 @@ class StrategyDataCoordinator:
                 try:
                     # Optimize any dataframes in raw_analysis_data
                     if strategy_data.raw_analysis_data and isinstance(
-                        strategy_data.raw_analysis_data, dict
+                        strategy_data.raw_analysis_data, dict,
                     ):
                         for key, value in strategy_data.raw_analysis_data.items():
                             if hasattr(value, "memory_usage"):  # Likely a DataFrame
@@ -427,7 +427,7 @@ class StrategyDataCoordinator:
                 except Exception as e:
                     (
                         logger.warning(
-                            f"Memory optimization failed for {strategy_name}: {e}"
+                            f"Memory optimization failed for {strategy_name}: {e}",
                         )
                         if self.logger
                         else None
@@ -437,8 +437,8 @@ class StrategyDataCoordinator:
 
         except Exception as e:
             (
-                logger.error(
-                    f"Error in coordinated data loading for {strategy_identifier}: {e}"
+                logger.exception(
+                    f"Error in coordinated data loading for {strategy_identifier}: {e}",
                 )
                 if self.logger
                 else None
@@ -446,66 +446,66 @@ class StrategyDataCoordinator:
             return None
 
     def _populate_from_statistical_csv(
-        self, strategy_data: UnifiedStrategyData, strategy_row: dict[str, Any]
+        self, strategy_data: UnifiedStrategyData, strategy_row: dict[str, Any],
     ):
         """Populate strategy data from statistical CSV using structured format"""
         try:
             # Update statistical metrics
             strategy_data.statistics.sample_size = int(
-                strategy_row.get("sample_size", 0)
+                strategy_row.get("sample_size", 0),
             )
             strategy_data.statistics.sample_size_confidence = float(
-                strategy_row.get("sample_size_confidence", 0.0)
+                strategy_row.get("sample_size_confidence", 0.0),
             )
             strategy_data.statistics.dual_layer_convergence_score = float(
-                strategy_row.get("dual_layer_convergence_score", 0.0)
+                strategy_row.get("dual_layer_convergence_score", 0.0),
             )
             strategy_data.statistics.asset_layer_percentile = float(
-                strategy_row.get("asset_layer_percentile", 0.0)
+                strategy_row.get("asset_layer_percentile", 0.0),
             )
             strategy_data.statistics.strategy_layer_percentile = float(
-                strategy_row.get("strategy_layer_percentile", 0.0)
+                strategy_row.get("strategy_layer_percentile", 0.0),
             )
             strategy_data.statistics.statistical_significance = strategy_row.get(
-                "statistical_significance", "LOW"
+                "statistical_significance", "LOW",
             )
             strategy_data.statistics.p_value = float(strategy_row.get("p_value", 0.1))
             strategy_data.statistics.z_score_divergence = float(
-                strategy_row.get("z_score_divergence", 0.0)
+                strategy_row.get("z_score_divergence", 0.0),
             )
             strategy_data.statistics.iqr_divergence = float(
-                strategy_row.get("iqr_divergence", 0.0)
+                strategy_row.get("iqr_divergence", 0.0),
             )
             strategy_data.statistics.rarity_score = float(
-                strategy_row.get("rarity_score", 0.0)
+                strategy_row.get("rarity_score", 0.0),
             )
 
             # Update signal information
             strategy_data.signal.exit_signal = strategy_row.get(
-                "exit_signal", "UNKNOWN"
+                "exit_signal", "UNKNOWN",
             )
             strategy_data.signal.signal_confidence = float(
-                strategy_row.get("signal_confidence", 0.0)
+                strategy_row.get("signal_confidence", 0.0),
             )
             strategy_data.signal.exit_recommendation = strategy_row.get(
-                "exit_recommendation", ""
+                "exit_recommendation", "",
             )
             strategy_data.signal.target_exit_timeframe = strategy_row.get(
-                "target_exit_timeframe", ""
+                "target_exit_timeframe", "",
             )
 
             # Update performance metrics with NaN handling
             strategy_data.performance.current_return = self._safe_float_conversion(
-                strategy_row.get("current_return", 0.0), default=0.0
+                strategy_row.get("current_return", 0.0), default=0.0,
             )
             strategy_data.performance.mfe = self._safe_float_conversion(
-                strategy_row.get("mfe", 0.0), default=0.0
+                strategy_row.get("mfe", 0.0), default=0.0,
             )
             strategy_data.performance.mae = self._safe_float_conversion(
-                strategy_row.get("mae", 0.0), default=0.0
+                strategy_row.get("mae", 0.0), default=0.0,
             )
             strategy_data.performance.unrealized_pnl = self._safe_float_conversion(
-                strategy_row.get("unrealized_pnl", 0.0), default=0.0
+                strategy_row.get("unrealized_pnl", 0.0), default=0.0,
             )
 
             # Add data lineage
@@ -523,7 +523,7 @@ class StrategyDataCoordinator:
             )
 
     def _populate_from_statistical_json(
-        self, strategy_data: UnifiedStrategyData, strategy_name: str
+        self, strategy_data: UnifiedStrategyData, strategy_name: str,
     ):
         """Populate strategy data from statistical JSON using structured format"""
         try:
@@ -553,7 +553,7 @@ class StrategyDataCoordinator:
                 ):
                     strategy_data.performance.current_return = (
                         self._safe_float_conversion(
-                            performance_metrics["current_return"], default=0.0
+                            performance_metrics["current_return"], default=0.0,
                         )
                     )
 
@@ -563,7 +563,7 @@ class StrategyDataCoordinator:
                     0.0,
                 ):
                     strategy_data.performance.mfe = self._safe_float_conversion(
-                        performance_metrics["mfe"], default=0.0
+                        performance_metrics["mfe"], default=0.0,
                     )
 
                 if "mae" in performance_metrics and performance_metrics["mae"] not in (
@@ -571,7 +571,7 @@ class StrategyDataCoordinator:
                     0.0,
                 ):
                     strategy_data.performance.mae = self._safe_float_conversion(
-                        performance_metrics["mae"], default=0.0
+                        performance_metrics["mae"], default=0.0,
                     )
 
                 if (
@@ -579,7 +579,7 @@ class StrategyDataCoordinator:
                     and performance_metrics["unrealized_pnl"] is not None
                 ):
                     strategy_data.performance.unrealized_pnl = float(
-                        performance_metrics["unrealized_pnl"]
+                        performance_metrics["unrealized_pnl"],
                     )
 
             # Store raw JSON data for advanced analysis
@@ -598,14 +598,14 @@ class StrategyDataCoordinator:
         except (json.JSONDecodeError, FileNotFoundError, KeyError) as e:
             (
                 logger.warning(
-                    f"Error loading statistical JSON for {strategy_name}: {e}"
+                    f"Error loading statistical JSON for {strategy_name}: {e}",
                 )
                 if self.logger
                 else None
             )
 
     def _populate_from_backtesting_data(
-        self, strategy_data: UnifiedStrategyData, strategy_name: str
+        self, strategy_data: UnifiedStrategyData, strategy_name: str,
     ):
         """Populate backtesting parameters using structured format"""
         try:
@@ -616,11 +616,11 @@ class StrategyDataCoordinator:
 
                 if file_path.suffix == ".json":
                     self._load_backtesting_from_json(
-                        strategy_data, strategy_name, file_path
+                        strategy_data, strategy_name, file_path,
                     )
                 else:
                     self._load_backtesting_from_csv(
-                        strategy_data, strategy_name, file_path
+                        strategy_data, strategy_name, file_path,
                     )
 
                 # Break if we successfully loaded parameters
@@ -640,7 +640,7 @@ class StrategyDataCoordinator:
                 file_path=str(
                     self.backtesting_json
                     if self.backtesting_json.exists()
-                    else self.backtesting_csv
+                    else self.backtesting_csv,
                 ),
                 metadata={"backtesting_params_loaded": True},
             )
@@ -648,14 +648,14 @@ class StrategyDataCoordinator:
         except Exception as e:
             (
                 logger.warning(
-                    f"Error loading backtesting parameters for {strategy_name}: {e}"
+                    f"Error loading backtesting parameters for {strategy_name}: {e}",
                 )
                 if self.logger
                 else None
             )
 
     def _load_backtesting_from_json(
-        self, strategy_data: UnifiedStrategyData, strategy_name: str, file_path: Path
+        self, strategy_data: UnifiedStrategyData, strategy_name: str, file_path: Path,
     ):
         """Load backtesting parameters from JSON file using structured format"""
         try:
@@ -668,28 +668,28 @@ class StrategyDataCoordinator:
                     params = result.get("parameters", {})
 
                     strategy_data.backtesting.take_profit_pct = float(
-                        params.get("take_profit_pct", 0.0)
+                        params.get("take_profit_pct", 0.0),
                     )
                     strategy_data.backtesting.stop_loss_pct = float(
-                        params.get("stop_loss_pct", 0.0)
+                        params.get("stop_loss_pct", 0.0),
                     )
                     strategy_data.backtesting.trailing_stop_pct = float(
-                        params.get("trailing_stop_pct", 0.0)
+                        params.get("trailing_stop_pct", 0.0),
                     )
                     strategy_data.backtesting.max_holding_days = int(
-                        params.get("max_holding_days", 0)
+                        params.get("max_holding_days", 0),
                     )
                     strategy_data.backtesting.min_holding_days = int(
-                        params.get("min_holding_days", 0)
+                        params.get("min_holding_days", 0),
                     )
                     strategy_data.backtesting.momentum_exit_threshold = float(
-                        params.get("momentum_exit_threshold", 0.0)
+                        params.get("momentum_exit_threshold", 0.0),
                     )
                     strategy_data.backtesting.trend_exit_threshold = float(
-                        params.get("trend_exit_threshold", 0.0)
+                        params.get("trend_exit_threshold", 0.0),
                     )
                     strategy_data.backtesting.confidence_level = float(
-                        params.get("confidence_level", 0.0)
+                        params.get("confidence_level", 0.0),
                     )
                     break
 
@@ -701,7 +701,7 @@ class StrategyDataCoordinator:
             )
 
     def _load_backtesting_from_csv(
-        self, strategy_data: UnifiedStrategyData, strategy_name: str, file_path: Path
+        self, strategy_data: UnifiedStrategyData, strategy_name: str, file_path: Path,
     ):
         """Load backtesting parameters from CSV file using structured format"""
         try:
@@ -722,7 +722,7 @@ class StrategyDataCoordinator:
                 if warning_key not in self._warning_cache:
                     (
                         logger.info(
-                            f"CSV file {file_path} missing 'strategy_name' column, constructing from components"
+                            f"CSV file {file_path} missing 'strategy_name' column, constructing from components",
                         )
                         if self.logger
                         else None
@@ -758,7 +758,7 @@ class StrategyDataCoordinator:
                 if warning_key not in self._warning_cache:
                     (
                         logger.warning(
-                            f"CSV file {file_path} has unrecognized format for backtesting parameters"
+                            f"CSV file {file_path} has unrecognized format for backtesting parameters",
                         )
                         if self.logger
                         else None
@@ -771,28 +771,28 @@ class StrategyDataCoordinator:
                 row = matches.iloc[0]
 
                 strategy_data.backtesting.take_profit_pct = float(
-                    row.get("take_profit_pct", 0.0)
+                    row.get("take_profit_pct", 0.0),
                 )
                 strategy_data.backtesting.stop_loss_pct = float(
-                    row.get("stop_loss_pct", 0.0)
+                    row.get("stop_loss_pct", 0.0),
                 )
                 strategy_data.backtesting.trailing_stop_pct = float(
-                    row.get("trailing_stop_pct", 0.0)
+                    row.get("trailing_stop_pct", 0.0),
                 )
                 strategy_data.backtesting.max_holding_days = int(
-                    row.get("max_holding_days", 0)
+                    row.get("max_holding_days", 0),
                 )
                 strategy_data.backtesting.min_holding_days = int(
-                    row.get("min_holding_days", 0)
+                    row.get("min_holding_days", 0),
                 )
                 strategy_data.backtesting.momentum_exit_threshold = float(
-                    row.get("momentum_exit_threshold", 0.0)
+                    row.get("momentum_exit_threshold", 0.0),
                 )
                 strategy_data.backtesting.trend_exit_threshold = float(
-                    row.get("trend_exit_threshold", 0.0)
+                    row.get("trend_exit_threshold", 0.0),
                 )
                 strategy_data.backtesting.confidence_level = float(
-                    row.get("confidence_level", 0.0)
+                    row.get("confidence_level", 0.0),
                 )
 
         except (pd.errors.EmptyDataError, ValueError, KeyError) as e:
@@ -804,14 +804,14 @@ class StrategyDataCoordinator:
         except Exception as e:
             (
                 logger.warning(
-                    f"Unexpected error reading backtesting CSV {file_path}: {e}"
+                    f"Unexpected error reading backtesting CSV {file_path}: {e}",
                 )
                 if self.logger
                 else None
             )
 
     def _populate_from_positions_data(
-        self, strategy_data: UnifiedStrategyData, strategy_name: str
+        self, strategy_data: UnifiedStrategyData, strategy_name: str,
     ):
         """Populate data from positions file with enhanced validation using structured format"""
         try:
@@ -840,7 +840,7 @@ class StrategyDataCoordinator:
                         if position_age > 90:  # Position older than 90 days
                             (
                                 logger.warning(
-                                    f"Position {strategy_name} is {position_age} days old - data may be stale"
+                                    f"Position {strategy_name} is {position_age} days old - data may be stale",
                                 )
                                 if self.logger
                                 else None
@@ -848,7 +848,7 @@ class StrategyDataCoordinator:
                         elif position_age < 0:  # Future date (error)
                             (
                                 logger.error(
-                                    f"Position {strategy_name} has invalid entry date: {entry_date}"
+                                    f"Position {strategy_name} has invalid entry date: {entry_date}",
                                 )
                                 if self.logger
                                 else None
@@ -857,7 +857,7 @@ class StrategyDataCoordinator:
                     except (ValueError, TypeError):
                         (
                             logger.warning(
-                                f"Invalid entry date for {strategy_name}: {entry_date}"
+                                f"Invalid entry date for {strategy_name}: {entry_date}",
                             )
                             if self.logger
                             else None
@@ -871,7 +871,7 @@ class StrategyDataCoordinator:
             )
 
     def _find_matching_position(
-        self, df: pd.DataFrame, strategy_name: str
+        self, df: pd.DataFrame, strategy_name: str,
     ) -> pd.Series | None:
         """Find matching position using multiple patterns"""
         patterns = [
@@ -914,7 +914,7 @@ class StrategyDataCoordinator:
                     if strategy_data.performance.current_return > 0 and new_mfe < 0:
                         (
                             logger.info(
-                                f"Using historical negative MFE ({new_mfe:.4f}) for currently profitable position {strategy_name}"
+                                f"Using historical negative MFE ({new_mfe:.4f}) for currently profitable position {strategy_name}",
                             )
                             if self.logger
                             else None
@@ -922,13 +922,13 @@ class StrategyDataCoordinator:
 
                     # Use positions MFE if JSON had zero or if positions value seems more reasonable
                     if strategy_data.performance.mfe == 0.0 or abs(new_mfe) > abs(
-                        strategy_data.performance.mfe
+                        strategy_data.performance.mfe,
                     ):
                         old_mfe = strategy_data.performance.mfe
                         strategy_data.performance.mfe = new_mfe
                         (
                             logger.info(
-                                f"Using MFE from positions file: {new_mfe:.4f} (was {old_mfe:.4f})"
+                                f"Using MFE from positions file: {new_mfe:.4f} (was {old_mfe:.4f})",
                             )
                             if self.logger
                             else None
@@ -941,13 +941,13 @@ class StrategyDataCoordinator:
 
                     # Use positions MAE if JSON had zero or if positions value seems more reasonable
                     if strategy_data.performance.mae == 0.0 or abs(new_mae) > abs(
-                        strategy_data.performance.mae
+                        strategy_data.performance.mae,
                     ):
                         old_mae = strategy_data.performance.mae
                         strategy_data.performance.mae = new_mae
                         (
                             logger.info(
-                                f"Using MAE from positions file: {new_mae:.4f} (was {old_mae:.4f})"
+                                f"Using MAE from positions file: {new_mae:.4f} (was {old_mae:.4f})",
                             )
                             if self.logger
                             else None
@@ -964,14 +964,14 @@ class StrategyDataCoordinator:
         except (ValueError, TypeError) as e:
             (
                 logger.warning(
-                    f"Error parsing MFE/MAE from positions for {strategy_name}: {e}"
+                    f"Error parsing MFE/MAE from positions for {strategy_name}: {e}",
                 )
                 if self.logger
                 else None
             )
 
     def _populate_from_asset_distribution(
-        self, strategy_data: UnifiedStrategyData, ticker: str
+        self, strategy_data: UnifiedStrategyData, ticker: str,
     ):
         """Populate asset distribution analysis data from return distribution files"""
         try:
@@ -983,7 +983,7 @@ class StrategyDataCoordinator:
             if not distribution_file.exists():
                 (
                     logger.warning(
-                        f"Asset distribution file not found for {ticker}: {distribution_file}"
+                        f"Asset distribution file not found for {ticker}: {distribution_file}",
                     )
                     if self.logger
                     else None
@@ -1057,7 +1057,7 @@ class StrategyDataCoordinator:
             )
 
     def _validate_strategy_data(
-        self, strategy_data: UnifiedStrategyData, strategy_name: str
+        self, strategy_data: UnifiedStrategyData, strategy_name: str,
     ) -> dict[str, Any]:
         """
         Central validation logic for mathematical constraints and data quality using unified data models.
@@ -1106,7 +1106,7 @@ class StrategyDataCoordinator:
                 legacy_passed += 1
             else:
                 validation_result["critical_violations"].append(
-                    "Invalid or missing performance metrics"
+                    "Invalid or missing performance metrics",
                 )
 
             # Constraint 2: MFE cannot be negative if current return is positive
@@ -1115,7 +1115,7 @@ class StrategyDataCoordinator:
                     legacy_passed += 1
                 else:
                     validation_result["critical_violations"].append(
-                        f"Negative MFE ({strategy_data.performance.mfe:.4f}) with positive return ({strategy_data.performance.current_return:.4f})"
+                        f"Negative MFE ({strategy_data.performance.mfe:.4f}) with positive return ({strategy_data.performance.current_return:.4f})",
                     )
             else:
                 legacy_passed += 1
@@ -1136,7 +1136,7 @@ class StrategyDataCoordinator:
                         / strategy_data.performance.mfe
                     ) * 100
                     validation_result["critical_violations"].append(
-                        f"Current return ({strategy_data.performance.current_return:.4f}) exceeds MFE ({strategy_data.performance.mfe:.4f}) by {excess_pct:.1f}%"
+                        f"Current return ({strategy_data.performance.current_return:.4f}) exceeds MFE ({strategy_data.performance.mfe:.4f}) by {excess_pct:.1f}%",
                     )
             else:
                 legacy_passed += 1
@@ -1148,7 +1148,7 @@ class StrategyDataCoordinator:
                 < strategy_data.performance.mae
             ):
                 validation_result["critical_violations"].append(
-                    f"Current return ({strategy_data.performance.current_return:.4f}) worse than MAE ({strategy_data.performance.mae:.4f})"
+                    f"Current return ({strategy_data.performance.current_return:.4f}) worse than MAE ({strategy_data.performance.mae:.4f})",
                 )
             else:
                 legacy_passed += 1
@@ -1177,7 +1177,7 @@ class StrategyDataCoordinator:
                 legacy_passed += 1
             else:
                 validation_result["warnings"].append(
-                    f"Statistical significance ({strategy_data.statistics.statistical_significance}) inconsistent with p-value ({strategy_data.statistics.p_value})"
+                    f"Statistical significance ({strategy_data.statistics.statistical_significance}) inconsistent with p-value ({strategy_data.statistics.p_value})",
                 )
 
             # Combine results (use unified validation score if available, otherwise legacy)
@@ -1246,7 +1246,7 @@ class StrategyDataCoordinator:
                         if not matches.empty:
                             (
                                 logger.info(
-                                    f"Found strategy using component matching: {expected_strategy_name} for ticker {ticker}"
+                                    f"Found strategy using component matching: {expected_strategy_name} for ticker {ticker}",
                                 )
                                 if self.logger
                                 else None
@@ -1263,7 +1263,7 @@ class StrategyDataCoordinator:
                             matches = df[
                                 (
                                     df["strategy_name"].str.contains(
-                                        pattern, case=False, na=False
+                                        pattern, case=False, na=False,
                                     )
                                 )
                                 & (df["ticker"] == ticker)
@@ -1271,7 +1271,7 @@ class StrategyDataCoordinator:
                             if not matches.empty:
                                 (
                                     logger.info(
-                                        f"Found strategy using pattern matching: {pattern} for ticker {ticker}"
+                                        f"Found strategy using pattern matching: {pattern} for ticker {ticker}",
                                     )
                                     if self.logger
                                     else None
@@ -1283,7 +1283,7 @@ class StrategyDataCoordinator:
                         if not matches.empty:
                             (
                                 logger.info(
-                                    f"Found strategy using ticker-only matching: {ticker}"
+                                    f"Found strategy using ticker-only matching: {ticker}",
                                 )
                                 if self.logger
                                 else None
@@ -1307,7 +1307,7 @@ class StrategyDataCoordinator:
             return None
 
         except Exception as e:
-            logger.error(f"Error finding strategy in CSV: {e}") if self.logger else None
+            logger.exception(f"Error finding strategy in CSV: {e}") if self.logger else None
             return None
 
     def _parse_strategy_identifier(self, identifier: str) -> dict[str, Any] | None:
@@ -1396,7 +1396,7 @@ class StrategyDataCoordinator:
             return None
 
     def _find_strategy_by_constructed_name(
-        self, df: pd.DataFrame, identifier: str
+        self, df: pd.DataFrame, identifier: str,
     ) -> dict[str, Any] | None:
         """Find strategy in CSV by constructing strategy names from ticker, strategy_type, and window parameters"""
         try:
@@ -1408,7 +1408,7 @@ class StrategyDataCoordinator:
             if missing_cols:
                 (
                     logger.warning(
-                        f"Cannot construct strategy names, missing columns: {missing_cols}"
+                        f"Cannot construct strategy names, missing columns: {missing_cols}",
                     )
                     if self.logger
                     else None
@@ -1431,7 +1431,7 @@ class StrategyDataCoordinator:
                 result = matches.iloc[0].to_dict()
                 (
                     logger.info(
-                        f"Found strategy using constructed name: {result['strategy_name']}"
+                        f"Found strategy using constructed name: {result['strategy_name']}",
                     )
                     if self.logger
                     else None
@@ -1441,14 +1441,14 @@ class StrategyDataCoordinator:
             # Partial match (case insensitive)
             matches = df_with_strategy_name[
                 df_with_strategy_name["strategy_name"].str.contains(
-                    identifier, case=False, na=False
+                    identifier, case=False, na=False,
                 )
             ]
             if not matches.empty:
                 result = matches.iloc[0].to_dict()
                 (
                     logger.info(
-                        f"Found strategy using partial constructed name match: {result['strategy_name']}"
+                        f"Found strategy using partial constructed name match: {result['strategy_name']}",
                     )
                     if self.logger
                     else None
@@ -1458,14 +1458,14 @@ class StrategyDataCoordinator:
             # Try matching by ticker only as fallback
             matches = df_with_strategy_name[
                 df_with_strategy_name["ticker"].str.contains(
-                    identifier, case=False, na=False
+                    identifier, case=False, na=False,
                 )
             ]
             if not matches.empty:
                 result = matches.iloc[0].to_dict()
                 (
                     logger.info(
-                        f"Found strategy using ticker fallback: {result['strategy_name']}"
+                        f"Found strategy using ticker fallback: {result['strategy_name']}",
                     )
                     if self.logger
                     else None
@@ -1476,7 +1476,7 @@ class StrategyDataCoordinator:
 
         except Exception as e:
             (
-                logger.error(f"Error constructing strategy name for search: {e}")
+                logger.exception(f"Error constructing strategy name for search: {e}")
                 if self.logger
                 else None
             )
@@ -1525,7 +1525,7 @@ class StrategyDataCoordinator:
                 # Load all requested strategies into snapshot
                 for identifier in strategy_identifiers:
                     strategy_data = self.get_strategy_data(
-                        identifier, force_refresh=False
+                        identifier, force_refresh=False,
                     )
                     if strategy_data:
                         snapshot_data[identifier] = strategy_data
@@ -1552,7 +1552,7 @@ class StrategyDataCoordinator:
 
                 (
                     logger.info(
-                        f"Created data snapshot {snapshot_id} with {len(snapshot_data)} strategies"
+                        f"Created data snapshot {snapshot_id} with {len(snapshot_data)} strategies",
                     )
                     if self.logger
                     else None
@@ -1560,8 +1560,9 @@ class StrategyDataCoordinator:
                 return snapshot_id
 
         except Exception as e:
-            logger.error(f"Error creating data snapshot: {e}") if self.logger else None
-            raise StrategyDataCoordinatorError(f"Failed to create data snapshot: {e}")
+            logger.exception(f"Error creating data snapshot: {e}") if self.logger else None
+            msg = f"Failed to create data snapshot: {e}"
+            raise StrategyDataCoordinatorError(msg)
 
     def release_data_snapshot(self, snapshot_id: str):
         """Release a data snapshot to free memory"""
@@ -1611,7 +1612,7 @@ class StrategyDataCoordinator:
                 for strategy_name in strategy_names:
                     try:
                         strategy_data = self.get_strategy_data(
-                            strategy_name, force_refresh=True
+                            strategy_name, force_refresh=True,
                         )
                         if strategy_data:
                             refreshed += 1
@@ -1632,7 +1633,7 @@ class StrategyDataCoordinator:
 
                 (
                     logger.info(
-                        f"Refreshed {refreshed}/{len(strategy_names)} strategies in {refresh_time:.2f}s"
+                        f"Refreshed {refreshed}/{len(strategy_names)} strategies in {refresh_time:.2f}s",
                     )
                     if self.logger
                     else None
@@ -1640,7 +1641,7 @@ class StrategyDataCoordinator:
                 return report
 
         except Exception as e:
-            logger.error(f"Error in refresh_all_data: {e}") if self.logger else None
+            logger.exception(f"Error in refresh_all_data: {e}") if self.logger else None
             return {"error": str(e)}
 
     def get_coordination_status(self) -> dict[str, Any]:
@@ -1669,7 +1670,7 @@ class StrategyDataCoordinator:
             return {"error": str(e)}
 
     def _log_strategy_not_found_with_suggestions(
-        self, strategy_identifier: str
+        self, strategy_identifier: str,
     ) -> None:
         """
         Log detailed error message with suggestions when strategy is not found.
@@ -1678,7 +1679,7 @@ class StrategyDataCoordinator:
             # Use INFO level instead of WARNING since system has robust fallback mechanisms
             (
                 logger.info(
-                    f"Primary strategy data not found for {strategy_identifier} - checking fallback sources"
+                    f"Primary strategy data not found for {strategy_identifier} - checking fallback sources",
                 )
                 if self.logger
                 else None
@@ -1698,7 +1699,7 @@ class StrategyDataCoordinator:
                     (
                         logger.info(
                             f"Parsed Position_UUID format: ticker={ticker}, strategy_type={strategy_type}, "
-                            f"fast_period={fast_period}, slow_period={slow_period}"
+                            f"fast_period={fast_period}, slow_period={slow_period}",
                         )
                         if self.logger
                         else None
@@ -1713,7 +1714,7 @@ class StrategyDataCoordinator:
                                 if ticker_strategies.empty:
                                     (
                                         logger.info(
-                                            f"No strategies found for ticker {ticker} in statistical analysis data - using fallback analysis"
+                                            f"No strategies found for ticker {ticker} in statistical analysis data - using fallback analysis",
                                         )
                                         if self.logger
                                         else None
@@ -1725,7 +1726,7 @@ class StrategyDataCoordinator:
                                     ].tolist()
                                     (
                                         logger.info(
-                                            f"Available strategies for {ticker}: {', '.join(available_strategies)}"
+                                            f"Available strategies for {ticker}: {', '.join(available_strategies)}",
                                         )
                                         if self.logger
                                         else None
@@ -1736,12 +1737,12 @@ class StrategyDataCoordinator:
                                         f"{strategy_type}_{fast_period}_{slow_period}"
                                     )
                                     closest_match = self._find_closest_strategy_match(
-                                        expected_strategy, available_strategies
+                                        expected_strategy, available_strategies,
                                     )
                                     if closest_match:
                                         (
                                             logger.info(
-                                                f"Closest match for {ticker}: {closest_match}"
+                                                f"Closest match for {ticker}: {closest_match}",
                                             )
                                             if self.logger
                                             else None
@@ -1749,7 +1750,7 @@ class StrategyDataCoordinator:
                         except Exception as e:
                             (
                                 logger.warning(
-                                    f"Error checking ticker availability: {e}"
+                                    f"Error checking ticker availability: {e}",
                                 )
                                 if self.logger
                                 else None
@@ -1764,7 +1765,7 @@ class StrategyDataCoordinator:
                     (
                         logger.info(
                             f"Parsed strategy_name format: strategy_type={strategy_type}, "
-                            f"fast_period={fast_period}, slow_period={slow_period}"
+                            f"fast_period={fast_period}, slow_period={slow_period}",
                         )
                         if self.logger
                         else None
@@ -1776,7 +1777,7 @@ class StrategyDataCoordinator:
             else:
                 (
                     logger.info(
-                        f"Could not parse strategy identifier: {strategy_identifier}"
+                        f"Could not parse strategy identifier: {strategy_identifier}",
                     )
                     if self.logger
                     else None
@@ -1785,13 +1786,13 @@ class StrategyDataCoordinator:
 
         except Exception as e:
             (
-                logger.error(f"Error in strategy not found reporting: {e}")
+                logger.exception(f"Error in strategy not found reporting: {e}")
                 if self.logger
                 else None
             )
 
     def _find_closest_strategy_match(
-        self, target_strategy: str, available_strategies: list[str]
+        self, target_strategy: str, available_strategies: list[str],
     ) -> str | None:
         """
         Find the closest matching strategy name using simple similarity.
@@ -1848,7 +1849,7 @@ class StrategyDataCoordinator:
                 available_strategies = df["strategy_name"].unique()[:limit]
                 (
                     logger.info(
-                        f"Available strategies: {', '.join(available_strategies)}"
+                        f"Available strategies: {', '.join(available_strategies)}",
                     )
                     if self.logger
                     else None
@@ -1900,23 +1901,23 @@ class StrategyDataCoordinator:
             else:
                 diagnosis["status"] = "parsing_failed"
                 diagnosis["suggestions"].append(
-                    "Strategy identifier format not recognized"
+                    "Strategy identifier format not recognized",
                 )
                 return diagnosis
 
             # Step 2: Check availability in different data sources
             diagnosis["found_in_sources"] = self._check_strategy_in_all_sources(
-                strategy_identifier, parsed_components
+                strategy_identifier, parsed_components,
             )
 
             # Step 3: Generate specific suggestions based on findings
             diagnosis["suggestions"] = self._generate_diagnostic_suggestions(
-                parsed_components, diagnosis["found_in_sources"]
+                parsed_components, diagnosis["found_in_sources"],
             )
 
             # Step 4: Find alternative strategies
             diagnosis["available_alternatives"] = self._find_alternative_strategies(
-                parsed_components
+                parsed_components,
             )
 
             # Step 5: Check data integrity
@@ -1939,7 +1940,7 @@ class StrategyDataCoordinator:
             }
 
     def _check_strategy_in_all_sources(
-        self, strategy_identifier: str, parsed_components: dict[str, Any]
+        self, strategy_identifier: str, parsed_components: dict[str, Any],
     ) -> dict[str, bool]:
         """
         Check if strategy exists in all data sources.
@@ -2000,7 +2001,7 @@ class StrategyDataCoordinator:
         return sources
 
     def _generate_diagnostic_suggestions(
-        self, parsed_components: dict[str, Any], sources: dict[str, bool]
+        self, parsed_components: dict[str, Any], sources: dict[str, bool],
     ) -> list[str]:
         """
         Generate specific suggestions based on diagnostic results.
@@ -2010,7 +2011,7 @@ class StrategyDataCoordinator:
         # Check if position exists but strategy data doesn't
         if sources.get("positions_csv") and not sources.get("statistical_csv"):
             suggestions.append(
-                "Position exists but no statistical analysis data found - run SPDS analysis for this strategy"
+                "Position exists but no statistical analysis data found - run SPDS analysis for this strategy",
             )
 
         # Check if it's a ticker issue
@@ -2018,19 +2019,19 @@ class StrategyDataCoordinator:
             ticker = parsed_components.get("ticker")
             if ticker and not sources.get("statistical_csv"):
                 suggestions.append(
-                    f"No statistical data found for ticker {ticker} - check if ticker is included in analysis"
+                    f"No statistical data found for ticker {ticker} - check if ticker is included in analysis",
                 )
 
         # Check for partial data
         if sources.get("statistical_csv") and not sources.get("statistical_json"):
             suggestions.append(
-                "Strategy found in CSV but not JSON - check statistical analysis export process"
+                "Strategy found in CSV but not JSON - check statistical analysis export process",
             )
 
         # Check if no data found anywhere
         if not any(sources.values()):
             suggestions.append(
-                "Strategy not found in any data source - check strategy name format and availability"
+                "Strategy not found in any data source - check strategy name format and availability",
             )
 
             if parsed_components.get("format") == "position_uuid":
@@ -2040,13 +2041,13 @@ class StrategyDataCoordinator:
                 slow_period = parsed_components.get("slow_period")
 
                 suggestions.append(
-                    f"Try searching for: {strategy_type}_{fast_period}_{slow_period} with ticker {ticker}"
+                    f"Try searching for: {strategy_type}_{fast_period}_{slow_period} with ticker {ticker}",
                 )
 
         return suggestions
 
     def _find_alternative_strategies(
-        self, parsed_components: dict[str, Any]
+        self, parsed_components: dict[str, Any],
     ) -> list[str]:
         """
         Find alternative strategies that might be what the user is looking for.
@@ -2068,19 +2069,19 @@ class StrategyDataCoordinator:
                     ticker_strategies = df[df["ticker"] == ticker]
                     if not ticker_strategies.empty:
                         alternatives.extend(
-                            ticker_strategies["strategy_name"].tolist()[:5]
+                            ticker_strategies["strategy_name"].tolist()[:5],
                         )
 
                 # Find strategies of same type
                 if strategy_type and "strategy_name" in df.columns:
                     type_strategies = df[
                         df["strategy_name"].str.contains(
-                            strategy_type, case=False, na=False
+                            strategy_type, case=False, na=False,
                         )
                     ]
                     if not type_strategies.empty:
                         alternatives.extend(
-                            type_strategies["strategy_name"].tolist()[:5]
+                            type_strategies["strategy_name"].tolist()[:5],
                         )
 
         except Exception as e:
@@ -2142,7 +2143,7 @@ class StrategyDataCoordinator:
                 ]
                 if missing_columns:
                     issues.append(
-                        f"Missing columns in statistical CSV: {missing_columns}"
+                        f"Missing columns in statistical CSV: {missing_columns}",
                     )
 
         except Exception as e:

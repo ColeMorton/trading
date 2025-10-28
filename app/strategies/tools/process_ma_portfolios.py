@@ -95,7 +95,7 @@ def process_ma_portfolios(
                 sma_portfolio = backtest_strategy(sma_data, strategy_config, log)
                 if sma_portfolio is None:
                     log(
-                        f"Failed to backtest SMA strategy for {current_ticker}", "error"
+                        f"Failed to backtest SMA strategy for {current_ticker}", "error",
                     )
             else:
                 log(f"Failed to calculate SMA signals for {current_ticker}", "error")
@@ -115,7 +115,7 @@ def process_ma_portfolios(
                 ema_portfolio = backtest_strategy(ema_data, strategy_config, log)
                 if ema_portfolio is None:
                     log(
-                        f"Failed to backtest EMA strategy for {current_ticker}", "error"
+                        f"Failed to backtest EMA strategy for {current_ticker}", "error",
                     )
             else:
                 log(f"Failed to calculate EMA signals for {current_ticker}", "error")

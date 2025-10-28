@@ -19,7 +19,7 @@ from app.tools.get_data import get_data
 
 
 def process_single_ticker(
-    ticker: str, config: dict, log: Callable, progress_update_fn=None
+    ticker: str, config: dict, log: Callable, progress_update_fn=None,
 ) -> pl.DataFrame | None:
     """
     Process portfolio analysis for a single ticker using the MACD cross strategy.

@@ -124,7 +124,7 @@ class SignalDataAggregator:
                 concurrent_loading=True,
             )
             self.coordinator = StrategyDataCoordinator(
-                base_path=self.base_path, logger=logger, config=config
+                base_path=self.base_path, logger=logger, config=config,
             )
 
         # Legacy file paths (kept for backward compatibility)
@@ -196,7 +196,7 @@ class SignalDataAggregator:
 
             if not strategy_data:
                 logger.error(
-                    f"Strategy '{strategy_identifier}' not found via central coordinator"
+                    f"Strategy '{strategy_identifier}' not found via central coordinator",
                 )
                 return None
 
@@ -204,28 +204,28 @@ class SignalDataAggregator:
             if self.enable_legacy_validation:
                 try:
                     validation_warnings = self._validate_performance_metrics(
-                        strategy_data, strategy_data.strategy_name
+                        strategy_data, strategy_data.strategy_name,
                     )
                     if validation_warnings:
                         logger.warning(
-                            f"Legacy validation issues for {strategy_data.strategy_name}: {validation_warnings}"
+                            f"Legacy validation issues for {strategy_data.strategy_name}: {validation_warnings}",
                         )
                 except Exception as legacy_error:
                     logger.warning(
-                        f"Legacy validation failed for {strategy_data.strategy_name}: {legacy_error}"
+                        f"Legacy validation failed for {strategy_data.strategy_name}: {legacy_error}",
                     )
 
             logger.info(
-                f"Successfully retrieved coordinated data for {strategy_data.strategy_name}"
+                f"Successfully retrieved coordinated data for {strategy_data.strategy_name}",
             )
             return strategy_data
 
         except StrategyDataCoordinatorError as coord_error:
-            logger.error(f"Coordinator error for {strategy_identifier}: {coord_error}")
+            logger.exception(f"Coordinator error for {strategy_identifier}: {coord_error}")
             return None
         except Exception as e:
-            logger.error(
-                f"Error retrieving strategy data for {strategy_identifier}: {e}"
+            logger.exception(
+                f"Error retrieving strategy data for {strategy_identifier}: {e}",
             )
             return None
 
@@ -256,10 +256,10 @@ class SignalDataAggregator:
             if use_snapshot:
                 # Create coordinated snapshot for consistency
                 snapshot_id = self.coordinator.create_data_snapshot(
-                    strategy_identifiers
+                    strategy_identifiers,
                 )
                 logger.info(
-                    f"Created data snapshot {snapshot_id} for {len(strategy_identifiers)} strategies"
+                    f"Created data snapshot {snapshot_id} for {len(strategy_identifiers)} strategies",
                 )
 
             try:
@@ -280,7 +280,7 @@ class SignalDataAggregator:
                     self.coordinator.release_data_snapshot(snapshot_id)
 
         except Exception as e:
-            logger.error(f"Error loading multiple strategies: {e}")
+            logger.exception(f"Error loading multiple strategies: {e}")
             return {identifier: None for identifier in strategy_identifiers}
 
     def refresh_strategy_data(self, strategy_identifier: str) -> StrategyData | None:
@@ -296,8 +296,8 @@ class SignalDataAggregator:
         try:
             return self.get_strategy_data(strategy_identifier, force_refresh=True)
         except Exception as e:
-            logger.error(
-                f"Error refreshing strategy data for {strategy_identifier}: {e}"
+            logger.exception(
+                f"Error refreshing strategy data for {strategy_identifier}: {e}",
             )
             return None
 
@@ -330,7 +330,7 @@ class SignalDataAggregator:
             }
 
         except Exception as e:
-            logger.error(f"Error getting coordination status: {e}")
+            logger.exception(f"Error getting coordination status: {e}")
             return {
                 "aggregator_status": {"error": str(e)},
                 "coordinator_status": {"error": str(e)},
@@ -383,7 +383,7 @@ class SignalDataAggregator:
             return None
 
         except Exception as e:
-            logger.error(f"Error finding strategy in CSV: {e}")
+            logger.exception(f"Error finding strategy in CSV: {e}")
             return None
 
     def _generate_position_uuid(self, strategy_row: dict[str, Any]) -> str:
@@ -413,28 +413,28 @@ class SignalDataAggregator:
             return f"UNKNOWN_{strategy_row.get('ticker', 'UNK')}_20250706"
 
     def _populate_from_statistical_csv(
-        self, strategy_data: StrategyData, row: dict[str, Any]
+        self, strategy_data: StrategyData, row: dict[str, Any],
     ) -> None:
         """Populate strategy data from statistical analysis CSV"""
         try:
             strategy_data.sample_size = int(row.get("sample_size", 0))
             strategy_data.sample_size_confidence = float(
-                row.get("sample_size_confidence", 0.0)
+                row.get("sample_size_confidence", 0.0),
             )
             strategy_data.dual_layer_convergence_score = float(
-                row.get("dual_layer_convergence_score", 0.0)
+                row.get("dual_layer_convergence_score", 0.0),
             )
             strategy_data.asset_layer_percentile = float(
-                row.get("asset_layer_percentile", 0.0)
+                row.get("asset_layer_percentile", 0.0),
             )
             strategy_data.strategy_layer_percentile = float(
-                row.get("strategy_layer_percentile", 0.0)
+                row.get("strategy_layer_percentile", 0.0),
             )
             strategy_data.exit_signal = str(row.get("exit_signal", "UNKNOWN"))
             strategy_data.signal_confidence = float(row.get("signal_confidence", 0.0))
             strategy_data.exit_recommendation = str(row.get("exit_recommendation", ""))
             strategy_data.statistical_significance = str(
-                row.get("statistical_significance", "LOW")
+                row.get("statistical_significance", "LOW"),
             )
             strategy_data.p_value = float(row.get("p_value", 0.1))
 
@@ -453,7 +453,7 @@ class SignalDataAggregator:
             logger.warning(f"Error populating from statistical CSV: {e}")
 
     def _populate_from_statistical_json(
-        self, strategy_data: StrategyData, strategy_name: str
+        self, strategy_data: StrategyData, strategy_name: str,
     ) -> None:
         """Populate strategy data from statistical analysis JSON"""
         try:
@@ -477,7 +477,7 @@ class SignalDataAggregator:
                             and performance_metrics["current_return"] is not None
                         ):
                             strategy_data.current_return = float(
-                                performance_metrics["current_return"]
+                                performance_metrics["current_return"],
                             )
 
                         # Load MFE/MAE from JSON if they have valid values (not zero)
@@ -504,13 +504,13 @@ class SignalDataAggregator:
                             and performance_metrics["unrealized_pnl"] is not None
                         ):
                             strategy_data.unrealized_pnl = float(
-                                performance_metrics["unrealized_pnl"]
+                                performance_metrics["unrealized_pnl"],
                             )
 
                         logger.info(
                             f"Loaded performance metrics from JSON for {strategy_name}: "
                             f"current_return={strategy_data.current_return:.4f}, "
-                            f"mfe={strategy_data.mfe:.4f}, mae={strategy_data.mae:.4f}"
+                            f"mfe={strategy_data.mfe:.4f}, mae={strategy_data.mae:.4f}",
                         )
 
                     # Extract raw returns data if available
@@ -525,7 +525,7 @@ class SignalDataAggregator:
             logger.warning(f"Error populating from statistical JSON: {e}")
 
     def _populate_from_backtesting_data(
-        self, strategy_data: StrategyData, strategy_name: str
+        self, strategy_data: StrategyData, strategy_name: str,
     ) -> None:
         """Populate strategy data from backtesting parameters"""
         try:
@@ -547,34 +547,34 @@ class SignalDataAggregator:
                 if strategy_key:
                     params = strategies[strategy_key]
                     strategy_data.take_profit_pct = float(
-                        params.get("take_profit_pct", 0.0)
+                        params.get("take_profit_pct", 0.0),
                     )
                     strategy_data.stop_loss_pct = float(
-                        params.get("stop_loss_pct", 0.0)
+                        params.get("stop_loss_pct", 0.0),
                     )
                     strategy_data.max_holding_days = int(
-                        params.get("max_holding_days", 0)
+                        params.get("max_holding_days", 0),
                     )
                     strategy_data.min_holding_days = int(
-                        params.get("min_holding_days", 0)
+                        params.get("min_holding_days", 0),
                     )
                     strategy_data.trailing_stop_pct = float(
-                        params.get("trailing_stop_pct", 0.0)
+                        params.get("trailing_stop_pct", 0.0),
                     )
                     strategy_data.momentum_exit_threshold = float(
-                        params.get("momentum_exit_threshold", 0.0)
+                        params.get("momentum_exit_threshold", 0.0),
                     )
                     strategy_data.trend_exit_threshold = float(
-                        params.get("trend_exit_threshold", 0.0)
+                        params.get("trend_exit_threshold", 0.0),
                     )
                     strategy_data.confidence_level = float(
-                        params.get("confidence_level", 0.0)
+                        params.get("confidence_level", 0.0),
                     )
                     strategy_data.statistical_validity = str(
-                        params.get("statistical_validity", "LOW")
+                        params.get("statistical_validity", "LOW"),
                     )
                     strategy_data.generation_timestamp = str(
-                        params.get("generation_timestamp", "")
+                        params.get("generation_timestamp", ""),
                     )
 
             # Load backtesting CSV for additional validation
@@ -597,18 +597,18 @@ class SignalDataAggregator:
                     # Cross-validate key parameters
                     if strategy_data.take_profit_pct == 0.0:
                         strategy_data.take_profit_pct = float(
-                            row.get("TakeProfit_Pct", 0.0)
+                            row.get("TakeProfit_Pct", 0.0),
                         )
                     if strategy_data.stop_loss_pct == 0.0:
                         strategy_data.stop_loss_pct = float(
-                            row.get("StopLoss_Pct", 0.0)
+                            row.get("StopLoss_Pct", 0.0),
                         )
 
         except Exception as e:
             logger.warning(f"Error populating from backtesting data: {e}")
 
     def _populate_from_trade_history(
-        self, strategy_data: StrategyData, strategy_name: str
+        self, strategy_data: StrategyData, strategy_name: str,
     ) -> None:
         """Load trade history data including MFE and MAE from consolidated positions file"""
         try:
@@ -645,7 +645,7 @@ class SignalDataAggregator:
                             )
                             match = df[
                                 df["Position_UUID"].str.contains(
-                                    pattern, case=False, na=False
+                                    pattern, case=False, na=False,
                                 )
                             ]
 
@@ -669,7 +669,7 @@ class SignalDataAggregator:
                                     break
                             if match.empty:
                                 match = ticker_matches.head(
-                                    1
+                                    1,
                                 )  # Take first match as fallback
 
                 if not match.empty:
@@ -683,7 +683,7 @@ class SignalDataAggregator:
                     use_positions_data = True
                     if position_age_days > 90:  # More than 90 days old
                         logger.warning(
-                            f"Position data for {strategy_name} is {position_age_days} days old - may be stale"
+                            f"Position data for {strategy_name} is {position_age_days} days old - may be stale",
                         )
                         use_positions_data = False
 
@@ -700,52 +700,52 @@ class SignalDataAggregator:
                             if strategy_data.current_return > 0 and new_mfe < 0:
                                 logger.warning(
                                     f"Rejecting negative MFE ({new_mfe:.4f}) for profitable position {strategy_name} "
-                                    f"(current_return: {strategy_data.current_return:.4f})"
+                                    f"(current_return: {strategy_data.current_return:.4f})",
                                 )
                             # Use positions MFE if JSON had zero or if positions value seems more reasonable
                             elif strategy_data.mfe == 0.0 or abs(new_mfe) > abs(
-                                strategy_data.mfe
+                                strategy_data.mfe,
                             ):
                                 old_mfe = strategy_data.mfe
                                 strategy_data.mfe = new_mfe
                                 logger.info(
-                                    f"Using MFE from positions file: {new_mfe:.4f} (was {old_mfe:.4f} from JSON)"
+                                    f"Using MFE from positions file: {new_mfe:.4f} (was {old_mfe:.4f} from JSON)",
                                 )
                         elif "MFE" in row:
                             new_mfe = float(row["MFE"])
                             if strategy_data.current_return > 0 and new_mfe < 0:
                                 logger.warning(
-                                    f"Rejecting negative MFE ({new_mfe:.4f}) for profitable position {strategy_name}"
+                                    f"Rejecting negative MFE ({new_mfe:.4f}) for profitable position {strategy_name}",
                                 )
                             elif strategy_data.mfe == 0.0 or abs(new_mfe) > abs(
-                                strategy_data.mfe
+                                strategy_data.mfe,
                             ):
                                 old_mfe = strategy_data.mfe
                                 strategy_data.mfe = new_mfe
                                 logger.info(
-                                    f"Using MFE from positions file: {new_mfe:.4f} (was {old_mfe:.4f} from JSON)"
+                                    f"Using MFE from positions file: {new_mfe:.4f} (was {old_mfe:.4f} from JSON)",
                                 )
 
                         if "Max_Adverse_Excursion" in row:
                             new_mae = float(row["Max_Adverse_Excursion"])
                             # Use positions MAE if JSON had zero or if positions value seems more reasonable
                             if strategy_data.mae == 0.0 or abs(new_mae) > abs(
-                                strategy_data.mae
+                                strategy_data.mae,
                             ):
                                 old_mae = strategy_data.mae
                                 strategy_data.mae = new_mae
                                 logger.info(
-                                    f"Using MAE from positions file: {new_mae:.4f} (was {old_mae:.4f} from JSON)"
+                                    f"Using MAE from positions file: {new_mae:.4f} (was {old_mae:.4f} from JSON)",
                                 )
                         elif "MAE" in row:
                             new_mae = float(row["MAE"])
                             if strategy_data.mae == 0.0 or abs(new_mae) > abs(
-                                strategy_data.mae
+                                strategy_data.mae,
                             ):
                                 old_mae = strategy_data.mae
                                 strategy_data.mae = new_mae
                                 logger.info(
-                                    f"Using MAE from positions file: {new_mae:.4f} (was {old_mae:.4f} from JSON)"
+                                    f"Using MAE from positions file: {new_mae:.4f} (was {old_mae:.4f} from JSON)",
                                 )
 
                         # Load current return from positions file if available and convert from absolute to percentage
@@ -754,7 +754,7 @@ class SignalDataAggregator:
                             and row["Current_Unrealized_PnL"] is not None
                         ):
                             current_unrealized_pnl = float(
-                                row["Current_Unrealized_PnL"]
+                                row["Current_Unrealized_PnL"],
                             )
                             avg_entry_price = float(row.get("Avg_Entry_Price", 0))
                             if avg_entry_price > 0:
@@ -767,14 +767,14 @@ class SignalDataAggregator:
                                 if (
                                     abs(
                                         positions_current_return
-                                        - strategy_data.current_return
+                                        - strategy_data.current_return,
                                     )
                                     > 0.05
                                 ):  # 5% difference
                                     logger.warning(
                                         f"Current return mismatch for {strategy_name}: "
                                         f"Statistical={strategy_data.current_return:.4f}, "
-                                        f"Positions={positions_current_return:.4f}"
+                                        f"Positions={positions_current_return:.4f}",
                                     )
                                 # Keep statistical analysis value as authoritative for current_return
 
@@ -783,15 +783,15 @@ class SignalDataAggregator:
                             f"Loaded trade history for {strategy_name}: "
                             f"MFE={strategy_data.mfe:.4f} (was {original_mfe:.4f}), "
                             f"MAE={strategy_data.mae:.4f} (was {original_mae:.4f}), "
-                            f"Position age: {position_age_days} days, Status: {position_status}"
+                            f"Position age: {position_age_days} days, Status: {position_status}",
                         )
                     else:
                         logger.warning(
-                            f"Skipping stale position data for {strategy_name}"
+                            f"Skipping stale position data for {strategy_name}",
                         )
                 else:
                     logger.warning(
-                        f"No trade history found for strategy: {strategy_name}"
+                        f"No trade history found for strategy: {strategy_name}",
                     )
             else:
                 logger.warning(f"Positions file not found: {positions_file}")
@@ -800,7 +800,7 @@ class SignalDataAggregator:
             logger.warning(f"Error loading trade history for {strategy_name}: {e}")
 
     def _validate_performance_metrics(
-        self, strategy_data: StrategyData, strategy_name: str
+        self, strategy_data: StrategyData, strategy_name: str,
     ) -> list[str]:
         """
         Validate performance metrics for mathematical consistency and logical constraints
@@ -818,7 +818,7 @@ class SignalDataAggregator:
             # Constraint 1: MFE cannot be negative if current return is positive
             if current_return > 0 and mfe < 0:
                 warnings.append(
-                    f"Invalid negative MFE ({mfe:.4f}) with positive current return ({current_return:.4f})"
+                    f"Invalid negative MFE ({mfe:.4f}) with positive current return ({current_return:.4f})",
                 )
 
             # Constraint 2: MAE represents maximum adverse excursion (loss magnitude)
@@ -836,18 +836,18 @@ class SignalDataAggregator:
                 ):  # Less than 20% excess - likely data timing issue
                     warnings.append(
                         f"Current return ({current_return:.4f}) exceeds MFE ({mfe:.4f}) by {excess_percentage:.1f}% - "
-                        "likely data freshness issue (current return uses live data, MFE uses historical data)"
+                        "likely data freshness issue (current return uses live data, MFE uses historical data)",
                     )
                 else:  # Large excess - likely calculation error
                     warnings.append(
                         f"Current return ({current_return:.4f}) significantly exceeds MFE ({mfe:.4f}) by {excess_percentage:.1f}% - "
-                        "possible calculation error"
+                        "possible calculation error",
                     )
 
             # Constraint 4: Current return should not be worse than MAE (if MAE < 0)
             if mae < 0 and current_return < mae:
                 warnings.append(
-                    f"Current return ({current_return:.4f}) is worse than MAE ({mae:.4f}) - mathematically impossible"
+                    f"Current return ({current_return:.4f}) is worse than MAE ({mae:.4f}) - mathematically impossible",
                 )
 
             # Constraint 5: Warn about extreme values that might indicate data errors
@@ -859,30 +859,30 @@ class SignalDataAggregator:
 
             if abs(current_return) > 2.0:  # Current return > 200%
                 warnings.append(
-                    f"Extreme current return ({current_return:.4f}) - possible data error"
+                    f"Extreme current return ({current_return:.4f}) - possible data error",
                 )
 
             # Constraint 6: Check for impossible zero values in active positions
             signal_confidence = getattr(strategy_data, "signal_confidence", 0.0)
             if signal_confidence > 0 and mfe == 0.0 and mae == 0.0:
                 warnings.append(
-                    "Both MFE and MAE are zero despite active signal - possible missing trade data"
+                    "Both MFE and MAE are zero despite active signal - possible missing trade data",
                 )
 
             # Constraint 7: Check statistical validity consistency
             statistical_validity = getattr(
-                strategy_data, "statistical_validity", "UNKNOWN"
+                strategy_data, "statistical_validity", "UNKNOWN",
             )
             sample_size = getattr(strategy_data, "sample_size", 0)
 
             if statistical_validity == "HIGH" and sample_size < 100:
                 warnings.append(
-                    f"HIGH statistical validity claimed with small sample size ({sample_size})"
+                    f"HIGH statistical validity claimed with small sample size ({sample_size})",
                 )
 
             if statistical_validity == "LOW" and sample_size > 10000:
                 warnings.append(
-                    f"LOW statistical validity with large sample size ({sample_size}) - possible calculation error"
+                    f"LOW statistical validity with large sample size ({sample_size}) - possible calculation error",
                 )
 
         except Exception as e:
@@ -891,7 +891,7 @@ class SignalDataAggregator:
         return warnings
 
     def validate_mathematical_constraints(
-        self, strategy_data: StrategyData, strategy_name: str, auto_fix: bool = True
+        self, strategy_data: StrategyData, strategy_name: str, auto_fix: bool = True,
     ) -> dict[str, Any]:
         """
         Real-time mathematical constraint validation with automatic fixing capability
@@ -937,7 +937,7 @@ class SignalDataAggregator:
             else:
                 validation_result["constraints_failed"] += 1
                 validation_result["critical_violations"].append(
-                    "Invalid or missing performance metric values"
+                    "Invalid or missing performance metric values",
                 )
 
             # Constraint 2: MFE cannot be negative if current return is positive
@@ -947,20 +947,20 @@ class SignalDataAggregator:
                 else:
                     validation_result["constraints_failed"] += 1
                     validation_result["critical_violations"].append(
-                        f"Negative MFE ({mfe:.4f}) with positive return ({current_return:.4f})"
+                        f"Negative MFE ({mfe:.4f}) with positive return ({current_return:.4f})",
                     )
 
                     if auto_fix:
                         # Attempt to recalculate MFE/MAE
                         fix_attempted = self._check_and_update_stale_mfe_mae(
-                            strategy_data, strategy_name
+                            strategy_data, strategy_name,
                         )
                         validation_result["auto_fixes_attempted"].append(
-                            "Negative MFE recalculation"
+                            "Negative MFE recalculation",
                         )
                         if fix_attempted:
                             validation_result["auto_fixes_successful"].append(
-                                "Negative MFE recalculation"
+                                "Negative MFE recalculation",
                             )
                             # Re-check after fix
                             updated_mfe = getattr(strategy_data, "mfe", 0.0)
@@ -980,26 +980,26 @@ class SignalDataAggregator:
 
                     if excess_pct > 50:
                         validation_result["critical_violations"].append(
-                            f"Current return ({current_return:.4f}) exceeds MFE ({mfe:.4f}) by {excess_pct:.1f}% - Critical mathematical violation"
+                            f"Current return ({current_return:.4f}) exceeds MFE ({mfe:.4f}) by {excess_pct:.1f}% - Critical mathematical violation",
                         )
                         validation_result["requires_manual_review"] = True
                     else:
                         validation_result["warnings"].append(
-                            f"Current return ({current_return:.4f}) exceeds MFE ({mfe:.4f}) by {excess_pct:.1f}% - Likely data freshness issue"
+                            f"Current return ({current_return:.4f}) exceeds MFE ({mfe:.4f}) by {excess_pct:.1f}% - Likely data freshness issue",
                         )
 
                     if (
                         auto_fix and excess_pct <= 100
                     ):  # Only auto-fix if not too extreme
                         fix_attempted = self._check_and_update_stale_mfe_mae(
-                            strategy_data, strategy_name
+                            strategy_data, strategy_name,
                         )
                         validation_result["auto_fixes_attempted"].append(
-                            "MFE data refresh"
+                            "MFE data refresh",
                         )
                         if fix_attempted:
                             validation_result["auto_fixes_successful"].append(
-                                "MFE data refresh"
+                                "MFE data refresh",
                             )
                             # Re-check after fix
                             updated_mfe = getattr(strategy_data, "mfe", 0.0)
@@ -1016,7 +1016,7 @@ class SignalDataAggregator:
                 else:
                     validation_result["constraints_failed"] += 1
                     validation_result["critical_violations"].append(
-                        f"Current return ({current_return:.4f}) worse than MAE ({mae:.4f}) - Mathematically impossible"
+                        f"Current return ({current_return:.4f}) worse than MAE ({mae:.4f}) - Mathematically impossible",
                     )
                     validation_result["requires_manual_review"] = True
             else:
@@ -1038,7 +1038,7 @@ class SignalDataAggregator:
             else:
                 validation_result["constraints_failed"] += 1
                 validation_result["warnings"].append(
-                    f"Extreme values detected: {', '.join(extreme_values)}"
+                    f"Extreme values detected: {', '.join(extreme_values)}",
                 )
 
             # Constraint 6: Sample size consistency
@@ -1056,19 +1056,19 @@ class SignalDataAggregator:
                 else:
                     validation_result["constraints_failed"] += 1
                     validation_result["warnings"].append(
-                        "All performance metrics are zero despite active signal"
+                        "All performance metrics are zero despite active signal",
                     )
 
                     if auto_fix:
                         fix_attempted = self._check_and_update_stale_mfe_mae(
-                            strategy_data, strategy_name
+                            strategy_data, strategy_name,
                         )
                         validation_result["auto_fixes_attempted"].append(
-                            "Zero values refresh"
+                            "Zero values refresh",
                         )
                         if fix_attempted:
                             validation_result["auto_fixes_successful"].append(
-                                "Zero values refresh"
+                                "Zero values refresh",
                             )
             else:
                 validation_result["constraints_passed"] += 1
@@ -1082,29 +1082,29 @@ class SignalDataAggregator:
             # Final assessment
             if validation_result["constraints_failed"] == 0:
                 logger.info(
-                    f"✅ All mathematical constraints passed for {strategy_name}"
+                    f"✅ All mathematical constraints passed for {strategy_name}",
                 )
             else:
                 logger.warning(
-                    f"⚠️ {validation_result['constraints_failed']} constraint violations for {strategy_name}"
+                    f"⚠️ {validation_result['constraints_failed']} constraint violations for {strategy_name}",
                 )
                 if validation_result["critical_violations"]:
                     logger.error(
-                        f"🚨 Critical violations detected for {strategy_name}: {validation_result['critical_violations']}"
+                        f"🚨 Critical violations detected for {strategy_name}: {validation_result['critical_violations']}",
                     )
 
             return validation_result
 
         except Exception as e:
-            logger.error(
-                f"Error in mathematical constraint validation for {strategy_name}: {e}"
+            logger.exception(
+                f"Error in mathematical constraint validation for {strategy_name}: {e}",
             )
             validation_result["critical_violations"].append(f"Validation error: {e!s}")
             validation_result["requires_manual_review"] = True
             return validation_result
 
     def _check_and_update_stale_mfe_mae(
-        self, strategy_data: StrategyData, strategy_name: str
+        self, strategy_data: StrategyData, strategy_name: str,
     ) -> bool:
         """
         Check if MFE/MAE data appears stale and attempt to update with fresh calculations
@@ -1150,7 +1150,7 @@ class SignalDataAggregator:
                 return False
 
             logger.info(
-                f"Attempting fresh MFE/MAE calculation for {strategy_name}: {update_reason}"
+                f"Attempting fresh MFE/MAE calculation for {strategy_name}: {update_reason}",
             )
 
             # Attempt to get fresh MFE/MAE calculation
@@ -1199,20 +1199,20 @@ class SignalDataAggregator:
 
                 if position is None:
                     logger.warning(
-                        f"No matching position found for {strategy_name} in positions file"
+                        f"No matching position found for {strategy_name} in positions file",
                     )
                     return False
 
                 # Get entry details with fallback column names
                 entry_date = position.get("Entry_Date", position.get("entry_date", ""))
                 entry_price = float(
-                    position.get("Avg_Entry_Price", position.get("avg_entry_price", 0))
+                    position.get("Avg_Entry_Price", position.get("avg_entry_price", 0)),
                 )
                 direction = position.get("Direction", position.get("direction", "Long"))
 
                 if not entry_date or entry_price <= 0:
                     logger.warning(
-                        f"Invalid entry data for {strategy_name}: date={entry_date}, price={entry_price}"
+                        f"Invalid entry data for {strategy_name}: date={entry_date}, price={entry_price}",
                     )
                     return False
 
@@ -1238,19 +1238,19 @@ class SignalDataAggregator:
                         old_mfe = strategy_data.mfe
                         strategy_data.mfe = fresh_mfe
                         logger.info(
-                            f"✅ Updated MFE for {strategy_name}: {old_mfe:.4f} -> {fresh_mfe:.4f}"
+                            f"✅ Updated MFE for {strategy_name}: {old_mfe:.4f} -> {fresh_mfe:.4f}",
                         )
                         updated = True
 
                 if fresh_mae is not None:
                     # Update MAE if it's an improvement or if original was missing/invalid
                     if strategy_data.mae == 0.0 or abs(fresh_mae) > abs(
-                        strategy_data.mae
+                        strategy_data.mae,
                     ):
                         old_mae = strategy_data.mae
                         strategy_data.mae = fresh_mae
                         logger.info(
-                            f"✅ Updated MAE for {strategy_name}: {old_mae:.4f} -> {fresh_mae:.4f}"
+                            f"✅ Updated MAE for {strategy_name}: {old_mae:.4f} -> {fresh_mae:.4f}",
                         )
                         updated = True
 
@@ -1258,27 +1258,27 @@ class SignalDataAggregator:
                     logger.info(
                         f"✅ Successfully refreshed stale data for {strategy_name}: "
                         f"MFE={strategy_data.mfe:.4f}, MAE={strategy_data.mae:.4f}, "
-                        f"Current Return={strategy_data.current_return:.4f}"
+                        f"Current Return={strategy_data.current_return:.4f}",
                     )
                 return updated
 
             except ImportError:
                 logger.warning(
-                    "Cannot import MFE calculation module - PositionService not available"
+                    "Cannot import MFE calculation module - PositionService not available",
                 )
             except Exception as calc_error:
                 logger.warning(
-                    f"Error calculating fresh MFE/MAE for {strategy_name}: {calc_error}"
+                    f"Error calculating fresh MFE/MAE for {strategy_name}: {calc_error}",
                 )
 
             return False
 
         except Exception as e:
-            logger.error(f"Error checking stale MFE/MAE for {strategy_name}: {e}")
+            logger.exception(f"Error checking stale MFE/MAE for {strategy_name}: {e}")
             return False
 
     def detect_statistical_uniformity_coordinated(
-        self, strategy_identifiers: list[str], use_fresh_data: bool = False
+        self, strategy_identifiers: list[str], use_fresh_data: bool = False,
     ) -> dict[str, Any]:
         """
         Detect statistical uniformity using coordinated data loading.
@@ -1328,7 +1328,7 @@ class SignalDataAggregator:
             return uniformity_report
 
         except Exception as e:
-            logger.error(f"Error in coordinated uniformity detection: {e}")
+            logger.exception(f"Error in coordinated uniformity detection: {e}")
             return {
                 "error": str(e),
                 "coordination_metadata": {
@@ -1339,7 +1339,7 @@ class SignalDataAggregator:
             }
 
     def detect_statistical_uniformity(
-        self, strategies_data: list[StrategyData]
+        self, strategies_data: list[StrategyData],
     ) -> dict[str, Any]:
         """
         Detect suspicious statistical uniformity across multiple strategies
@@ -1365,7 +1365,7 @@ class SignalDataAggregator:
 
         if len(strategies_data) < 2:
             uniformity_report["recommendations"].append(
-                "Need at least 2 strategies for uniformity analysis"
+                "Need at least 2 strategies for uniformity analysis",
             )
             return uniformity_report
 
@@ -1384,7 +1384,7 @@ class SignalDataAggregator:
                 strategy_names.append(strategy_data.strategy_name)
                 p_values.append(getattr(strategy_data, "p_value", 0.0))
                 strategy_percentiles.append(
-                    getattr(strategy_data, "strategy_layer_percentile", 0.0)
+                    getattr(strategy_data, "strategy_layer_percentile", 0.0),
                 )
 
                 # Extract confidence from signal_confidence (handle percentage vs decimal)
@@ -1394,14 +1394,14 @@ class SignalDataAggregator:
                 confidence_levels.append(confidence)
 
                 convergence_scores.append(
-                    getattr(strategy_data, "dual_layer_convergence_score", 0.0)
+                    getattr(strategy_data, "dual_layer_convergence_score", 0.0),
                 )
                 z_scores.append(getattr(strategy_data, "z_score_divergence", 0.0))
                 sample_sizes.append(getattr(strategy_data, "sample_size", 0))
 
             # Check for exact matches (highly suspicious)
             self._check_exact_uniformity(
-                uniformity_report, "p_value", p_values, strategy_names
+                uniformity_report, "p_value", p_values, strategy_names,
             )
             self._check_exact_uniformity(
                 uniformity_report,
@@ -1431,7 +1431,7 @@ class SignalDataAggregator:
                 tolerance=0.02,
             )  # 2% tolerance
             self._check_statistical_clustering(
-                uniformity_report, "p_value", p_values, strategy_names, tolerance=0.001
+                uniformity_report, "p_value", p_values, strategy_names, tolerance=0.001,
             )  # 0.1% tolerance
 
             # Check for suspicious patterns
@@ -1462,17 +1462,17 @@ class SignalDataAggregator:
             if critical_alerts:
                 uniformity_report["severity_level"] = "CRITICAL"
                 uniformity_report["recommendations"].append(
-                    "Immediate investigation required - identical statistical values detected"
+                    "Immediate investigation required - identical statistical values detected",
                 )
             elif high_alerts:
                 uniformity_report["severity_level"] = "HIGH"
                 uniformity_report["recommendations"].append(
-                    "Statistical analysis pipeline audit recommended - suspicious clustering detected"
+                    "Statistical analysis pipeline audit recommended - suspicious clustering detected",
                 )
             elif uniformity_report["uniformity_alerts"]:
                 uniformity_report["severity_level"] = "MEDIUM"
                 uniformity_report["recommendations"].append(
-                    "Monitor for potential hard-coded values or calculation biases"
+                    "Monitor for potential hard-coded values or calculation biases",
                 )
 
             # Add general recommendations
@@ -1483,18 +1483,18 @@ class SignalDataAggregator:
                         "Check for hard-coded fallback values",
                         "Audit data source consistency",
                         "Review random number generation and seeding",
-                    ]
+                    ],
                 )
 
             logger.info(
                 f"Statistical uniformity analysis completed: {uniformity_report['severity_level']} severity, "
-                f"{len(uniformity_report['uniformity_alerts'])} alerts"
+                f"{len(uniformity_report['uniformity_alerts'])} alerts",
             )
 
             return uniformity_report
 
         except Exception as e:
-            logger.error(f"Error in statistical uniformity detection: {e}")
+            logger.exception(f"Error in statistical uniformity detection: {e}")
             uniformity_report["uniformity_alerts"].append(f"Analysis error: {e!s}")
             uniformity_report["severity_level"] = "UNKNOWN"
             return uniformity_report
@@ -1540,7 +1540,7 @@ class SignalDataAggregator:
                         "count": count,
                         "strategies": matching_strategies,
                         "type": "exact_match",
-                    }
+                    },
                 )
 
     def _check_statistical_clustering(
@@ -1584,11 +1584,11 @@ class SignalDataAggregator:
                     "count": len(meaningful_data),
                     "type": "tight_clustering",
                     "tolerance": tolerance,
-                }
+                },
             )
 
     def _check_suspicious_patterns(
-        self, report: dict, metrics: dict[str, list[float]], strategy_names: list[str]
+        self, report: dict, metrics: dict[str, list[float]], strategy_names: list[str],
     ):
         """Check for suspicious patterns across metrics"""
         import numpy as np
@@ -1598,7 +1598,7 @@ class SignalDataAggregator:
         exact_50_count = sum(1 for val in strategy_percentiles if val == 50.0)
         if exact_50_count >= 3:
             report["suspicious_patterns"].append(
-                f"🔍 PATTERN: {exact_50_count} strategies have strategy_layer_percentile = 50.0 (likely fallback value)"
+                f"🔍 PATTERN: {exact_50_count} strategies have strategy_layer_percentile = 50.0 (likely fallback value)",
             )
 
         # Pattern 2: P-values clustered around common significance levels
@@ -1608,7 +1608,7 @@ class SignalDataAggregator:
             exact_matches = sum(1 for val in p_values if abs(val - common_p) < 0.001)
             if exact_matches >= 3:
                 report["suspicious_patterns"].append(
-                    f"🔍 PATTERN: {exact_matches} strategies have p-value ≈ {common_p} (possibly hard-coded)"
+                    f"🔍 PATTERN: {exact_matches} strategies have p-value ≈ {common_p} (possibly hard-coded)",
                 )
 
         # Pattern 3: Confidence levels in narrow band
@@ -1618,7 +1618,7 @@ class SignalDataAggregator:
             conf_mean = np.mean(confidence_levels)
             if conf_std < 0.03 and conf_mean > 0.5:  # Less than 3% std deviation
                 report["suspicious_patterns"].append(
-                    f"🔍 PATTERN: Confidence levels clustered in narrow band ({conf_mean:.3f} ± {conf_std:.3f}) - unlikely natural variation"
+                    f"🔍 PATTERN: Confidence levels clustered in narrow band ({conf_mean:.3f} ± {conf_std:.3f}) - unlikely natural variation",
                 )
 
         # Pattern 4: Zero values indicating missing calculations
@@ -1626,7 +1626,7 @@ class SignalDataAggregator:
             zero_count = sum(1 for val in values if val == 0.0)
             if zero_count >= len(values) * 0.5:  # More than 50% are zero
                 report["suspicious_patterns"].append(
-                    f"🔍 PATTERN: {zero_count}/{len(values)} strategies have {metric_name} = 0.0 (possible missing calculations)"
+                    f"🔍 PATTERN: {zero_count}/{len(values)} strategies have {metric_name} = 0.0 (possible missing calculations)",
                 )
 
     def generate_coordinated_data_quality_report(
@@ -1653,7 +1653,7 @@ class SignalDataAggregator:
                 # Load list of all available strategies from coordinator
                 coordinator_status = self.coordinator.get_coordination_status()
                 if not coordinator_status.get("data_sources", {}).get(
-                    "statistical_csv"
+                    "statistical_csv",
                 ):
                     return {"error": "Statistical CSV not available via coordinator"}
 
@@ -1691,7 +1691,7 @@ class SignalDataAggregator:
 
             # Analyze each strategy
             valid_strategies = []
-            for _identifier, strategy_data in strategies_data_dict.items():
+            for strategy_data in strategies_data_dict.values():
                 if strategy_data is None:
                     report["strategies_with_issues"] += 1
                     report["critical_issues"] += 1
@@ -1714,7 +1714,7 @@ class SignalDataAggregator:
                     and strategy_data.current_return > strategy_data.mfe
                 ):
                     strategy_analysis["issues"].append(
-                        "Current return exceeds MFE (mathematical impossibility)"
+                        "Current return exceeds MFE (mathematical impossibility)",
                     )
                     strategy_analysis["validation_passed"] = False
                     report["critical_issues"] += 1
@@ -1733,7 +1733,7 @@ class SignalDataAggregator:
             if include_uniformity_analysis and len(valid_strategies) >= 2:
                 try:
                     uniformity_analysis = self.detect_statistical_uniformity(
-                        valid_strategies
+                        valid_strategies,
                     )
                     report["uniformity_analysis"] = uniformity_analysis
 
@@ -1743,7 +1743,7 @@ class SignalDataAggregator:
                         "CRITICAL",
                     ]:
                         report["critical_issues"] += len(
-                            uniformity_analysis.get("uniformity_alerts", [])
+                            uniformity_analysis.get("uniformity_alerts", []),
                         )
                 except Exception as e:
                     report["uniformity_analysis"] = {"error": str(e)}
@@ -1759,21 +1759,21 @@ class SignalDataAggregator:
             # Add recommendations
             if report["critical_issues"] > 0:
                 report["recommendations"].append(
-                    "Immediate investigation required for critical data quality issues"
+                    "Immediate investigation required for critical data quality issues",
                 )
             if report["warning_issues"] > 0:
                 report["recommendations"].append(
-                    "Review and resolve warning-level data quality issues"
+                    "Review and resolve warning-level data quality issues",
                 )
             if report["data_pipeline_health"] == "HEALTHY":
                 report["recommendations"].append(
-                    "Data pipeline operating within normal parameters"
+                    "Data pipeline operating within normal parameters",
                 )
 
             return report
 
         except Exception as e:
-            logger.error(f"Error generating coordinated data quality report: {e}")
+            logger.exception(f"Error generating coordinated data quality report: {e}")
             return {
                 "error": str(e),
                 "coordination_metadata": {
@@ -1830,14 +1830,14 @@ class SignalDataAggregator:
 
                     # Validate and categorize issues
                     validation_warnings = self._validate_performance_metrics(
-                        strategy_data, strategy_name
+                        strategy_data, strategy_name,
                     )
 
                     strategy_report = {
                         "strategy_name": strategy_name,
                         "ticker": strategy_data.ticker,
                         "data_quality_score": self._calculate_data_quality_score(
-                            strategy_data, validation_warnings
+                            strategy_data, validation_warnings,
                         ),
                         "issues": validation_warnings,
                         "issue_severity": (
@@ -1850,7 +1850,7 @@ class SignalDataAggregator:
                             )
                         ),
                         "data_sources_used": self._identify_data_sources_used(
-                            strategy_data
+                            strategy_data,
                         ),
                         "performance_metrics": {
                             "current_return": strategy_data.current_return,
@@ -1881,7 +1881,7 @@ class SignalDataAggregator:
                     report["strategy_details"].append(strategy_report)
 
                 except Exception as e:
-                    logger.error(f"Error analyzing strategy {strategy_name}: {e}")
+                    logger.exception(f"Error analyzing strategy {strategy_name}: {e}")
 
             report["issue_categories"] = issue_counts
 
@@ -1902,17 +1902,17 @@ class SignalDataAggregator:
 
             # Generate recommendations
             report["recommendations"] = self._generate_recommendations(
-                issue_counts, report
+                issue_counts, report,
             )
 
         except Exception as e:
-            logger.error(f"Error generating data quality report: {e}")
+            logger.exception(f"Error generating data quality report: {e}")
             report["error"] = str(e)
 
         return report
 
     def _calculate_data_quality_score(
-        self, strategy_data: StrategyData, validation_warnings: list[str]
+        self, strategy_data: StrategyData, validation_warnings: list[str],
     ) -> float:
         """Calculate data quality score (0-100) for a strategy"""
         score = 100.0
@@ -1941,7 +1941,7 @@ class SignalDataAggregator:
         return max(0.0, min(100.0, score))
 
     def _identify_data_sources_used(
-        self, strategy_data: StrategyData
+        self, strategy_data: StrategyData,
     ) -> dict[str, bool]:
         """Identify which data sources were used for this strategy"""
         return {
@@ -1952,7 +1952,7 @@ class SignalDataAggregator:
         }
 
     def _generate_recommendations(
-        self, issue_counts: dict[str, int], report: dict[str, Any]
+        self, issue_counts: dict[str, int], report: dict[str, Any],
     ) -> list[str]:
         """Generate actionable recommendations based on issue analysis"""
         recommendations = []
@@ -1960,22 +1960,22 @@ class SignalDataAggregator:
         if issue_counts["mathematical_impossibility"] > 0:
             recommendations.append(
                 f"CRITICAL: Fix MFE/MAE calculation logic - {issue_counts['mathematical_impossibility']} "
-                "strategies have current returns exceeding maximum favorable excursion"
+                "strategies have current returns exceeding maximum favorable excursion",
             )
 
         if issue_counts["missing_trade_data"] > 0:
             recommendations.append(
-                f"HIGH: Investigate missing trade history data for {issue_counts['missing_trade_data']} strategies"
+                f"HIGH: Investigate missing trade history data for {issue_counts['missing_trade_data']} strategies",
             )
 
         if report["data_pipeline_health"] == "CRITICAL":
             recommendations.append(
-                "URGENT: Data pipeline requires immediate attention - majority of strategies have data quality issues"
+                "URGENT: Data pipeline requires immediate attention - majority of strategies have data quality issues",
             )
 
         if issue_counts["extreme_values"] > 0:
             recommendations.append(
-                f"MEDIUM: Review {issue_counts['extreme_values']} strategies with extreme values for data errors"
+                f"MEDIUM: Review {issue_counts['extreme_values']} strategies with extreme values for data errors",
             )
 
         # Statistical analysis pipeline recommendations
@@ -1986,7 +1986,7 @@ class SignalDataAggregator:
         )
         if strategies_with_zero_mfe > report["total_strategies"] * 0.5:
             recommendations.append(
-                "HIGH: Statistical analysis pipeline is not calculating MFE values - requires immediate fix"
+                "HIGH: Statistical analysis pipeline is not calculating MFE values - requires immediate fix",
             )
 
         return recommendations
@@ -2001,7 +2001,7 @@ class SignalDataAggregator:
             return df["strategy_name"].tolist()
 
         except Exception as e:
-            logger.error(f"Error getting all strategies: {e}")
+            logger.exception(f"Error getting all strategies: {e}")
             return []
 
     def get_strategy_summary(self, strategy_identifier: str) -> dict[str, Any]:
@@ -2056,7 +2056,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     aggregator = get_signal_data_aggregator(
-        Path(args.base_path) if args.base_path else None
+        Path(args.base_path) if args.base_path else None,
     )
 
     if args.data_quality_report:
@@ -2127,7 +2127,7 @@ RECOMMENDATIONS:
 
                 # Show data quality assessment
                 validation_warnings = aggregator._validate_performance_metrics(
-                    strategy_data, strategy_data.strategy_name
+                    strategy_data, strategy_data.strategy_name,
                 )
                 if validation_warnings:
                     print("\nData Quality Issues:")

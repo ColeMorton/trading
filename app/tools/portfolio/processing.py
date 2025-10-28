@@ -19,7 +19,7 @@ from app.tools.get_data import get_data
 
 
 def process_single_ticker(
-    ticker: str, config: dict, log: Callable, progress_update_fn=None
+    ticker: str, config: dict, log: Callable, progress_update_fn=None,
 ) -> pl.DataFrame | None:
     """
     Process portfolio analysis for a single ticker.
@@ -59,7 +59,7 @@ def process_single_ticker(
         from app.tools.strategy.signal_processing import process_current_signals
 
         return process_current_signals(
-            ticker, config_copy, log, progress_update_fn=progress_update_fn
+            ticker, config_copy, log, progress_update_fn=progress_update_fn,
         )
 
     # Generate parameter ranges using explicit range configuration
@@ -94,10 +94,10 @@ def process_single_ticker(
         long_windows = list(np.arange(slow_range[0], slow_range[1] + 1))
 
     log(
-        f"Generated window ranges - Fast: {short_windows[0]}-{short_windows[-1]}, Slow: {long_windows[0]}-{long_windows[-1]}"
+        f"Generated window ranges - Fast: {short_windows[0]}-{short_windows[-1]}, Slow: {long_windows[0]}-{long_windows[-1]}",
     )
     log(
-        f"Number of window combinations to analyze: {len(short_windows) * len(long_windows)}"
+        f"Number of window combinations to analyze: {len(short_windows) * len(long_windows)}",
     )
 
     log("Getting data...")
@@ -117,13 +117,13 @@ def process_single_ticker(
         return None
 
     log(
-        f"Retrieved {len(data)} data points from {data['Date'].min()} to {data['Date'].max()}"
+        f"Retrieved {len(data)} data points from {data['Date'].min()} to {data['Date'].max()}",
     )
     log(
-        f"Minimum required data points for shortest windows ({short_windows[0]}, {long_windows[0]}): {max(short_windows[0], long_windows[0])}"
+        f"Minimum required data points for shortest windows ({short_windows[0]}, {long_windows[0]}): {max(short_windows[0], long_windows[0])}",
     )
     log(
-        f"Minimum required data points for longest windows ({short_windows[-1]}, {long_windows[-1]}): {max(short_windows[-1], long_windows[-1])}"
+        f"Minimum required data points for longest windows ({short_windows[-1]}, {long_windows[-1]}): {max(short_windows[-1], long_windows[-1])}",
     )
 
     if len(data) < max(short_windows[0], long_windows[0]):
@@ -132,7 +132,7 @@ def process_single_ticker(
 
     log("Beginning analysis...")
     return analyze_parameter_sensitivity(
-        data, short_windows, long_windows, config_copy, log, progress_update_fn
+        data, short_windows, long_windows, config_copy, log, progress_update_fn,
     )
 
 

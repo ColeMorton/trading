@@ -159,7 +159,7 @@ class PositionEquityValidator:
 
             # Calculate discrepancy and error
             difference = abs(
-                position_metrics["total_pnl"] - equity_metrics["total_change"]
+                position_metrics["total_pnl"] - equity_metrics["total_change"],
             )
             error_percentage = (
                 (difference / abs(position_metrics["total_pnl"]) * 100)
@@ -169,12 +169,12 @@ class PositionEquityValidator:
 
             # Determine validation status
             status = self._determine_status(
-                error_percentage, position_metrics["num_positions"]
+                error_percentage, position_metrics["num_positions"],
             )
 
             # Generate recommendations
             recommendations = self._generate_recommendations(
-                error_percentage, position_metrics, equity_metrics, difference
+                error_percentage, position_metrics, equity_metrics, difference,
             )
 
             # Create validation result
@@ -234,7 +234,7 @@ class PositionEquityValidator:
         return results
 
     def generate_validation_report(
-        self, results: dict[str, ValidationResult], output_format: str = "console"
+        self, results: dict[str, ValidationResult], output_format: str = "console",
     ) -> str | None:
         """
         Generate comprehensive validation report.
@@ -253,18 +253,21 @@ class PositionEquityValidator:
             return self._generate_json_report(results)
         if output_format == "csv":
             return self._generate_csv_report(results)
-        raise ValueError(f"Unsupported output format: {output_format}")
+        msg = f"Unsupported output format: {output_format}"
+        raise ValueError(msg)
 
     def _load_position_data(self, portfolio_name: str) -> pd.DataFrame:
         """Load position data from CSV file."""
         file_path = self.positions_dir / f"{portfolio_name}.csv"
 
         if not file_path.exists():
-            raise TradingSystemError(f"Position file not found: {file_path}")
+            msg = f"Position file not found: {file_path}"
+            raise TradingSystemError(msg)
 
         df = pd.read_csv(file_path)
         if df.empty:
-            raise TradingSystemError(f"Position file is empty: {file_path}")
+            msg = f"Position file is empty: {file_path}"
+            raise TradingSystemError(msg)
 
         return df
 
@@ -273,11 +276,13 @@ class PositionEquityValidator:
         file_path = self.equity_dir / f"{portfolio_name}_equity.csv"
 
         if not file_path.exists():
-            raise TradingSystemError(f"Equity file not found: {file_path}")
+            msg = f"Equity file not found: {file_path}"
+            raise TradingSystemError(msg)
 
         df = pd.read_csv(file_path)
         if df.empty:
-            raise TradingSystemError(f"Equity file is empty: {file_path}")
+            msg = f"Equity file is empty: {file_path}"
+            raise TradingSystemError(msg)
 
         return df
 
@@ -327,7 +332,7 @@ class PositionEquityValidator:
         }
 
     def _determine_status(
-        self, error_percentage: float, num_positions: int
+        self, error_percentage: float, num_positions: int,
     ) -> ValidationStatus:
         """Determine validation status based on error percentage and portfolio size."""
         thresholds = self._get_adjusted_thresholds(num_positions)
@@ -397,65 +402,65 @@ class PositionEquityValidator:
         if error_percentage > thresholds["warning"]:
             recommendations.append(
                 f"CRITICAL: Error exceeds {thresholds['warning']:.1f}% (size-adjusted) - "
-                "investigate data quality and calculation logic"
+                "investigate data quality and calculation logic",
             )
         elif error_percentage > thresholds["good"]:
             recommendations.append(
                 f"WARNING: Error exceeds {thresholds['good']:.1f}% (size-adjusted) - "
-                "review position timing and fee calculations"
+                "review position timing and fee calculations",
             )
 
         # Portfolio size effects
         if position_metrics["num_positions"] < 10:
             recommendations.append(
                 f"Small portfolio ({position_metrics['num_positions']} positions) uses "
-                f"relaxed thresholds (GOOD: {thresholds['good']:.1f}%) to account for statistical effects"
+                f"relaxed thresholds (GOOD: {thresholds['good']:.1f}%) to account for statistical effects",
             )
 
         # Absolute difference check
         if abs(difference) > self.config.absolute_difference_threshold:
             recommendations.append(
                 f"Large absolute difference (${difference:.2f}) exceeds ${self.config.absolute_difference_threshold:.0f} threshold - "
-                "verify transaction fee calculations and starting value methodology"
+                "verify transaction fee calculations and starting value methodology",
             )
         elif abs(difference) > 50.0:
             recommendations.append(
-                f"Moderate absolute difference (${difference:.2f}) - review fee calculations"
+                f"Moderate absolute difference (${difference:.2f}) - review fee calculations",
             )
 
         # Fee analysis
         fee_ratio = position_metrics["estimated_fees"] / abs(
-            position_metrics["total_pnl"]
+            position_metrics["total_pnl"],
         )
         if fee_ratio > 0.15:  # 15% of P&L
             recommendations.append(
-                f"High estimated fees ({fee_ratio:.1%} of P&L) - verify fee rate configuration"
+                f"High estimated fees ({fee_ratio:.1%} of P&L) - verify fee rate configuration",
             )
         elif fee_ratio > 0.1:  # 10% of P&L
             recommendations.append(
-                f"Moderate fee impact ({fee_ratio:.1%} of P&L) - consider fee optimization"
+                f"Moderate fee impact ({fee_ratio:.1%} of P&L) - consider fee optimization",
             )
 
         # Position concentration analysis
         if position_metrics["num_positions"] < 10 and abs(difference) > 25.0:
             recommendations.append(
                 "Position concentration in small portfolio may amplify calculation differences - "
-                "consider position-level validation"
+                "consider position-level validation",
             )
 
         # Success case
         if error_percentage <= thresholds["excellent"]:
             recommendations.append(
-                f"EXCELLENT: Mathematical consistency achieved (error {error_percentage:.2f}% ≤ {thresholds['excellent']:.1f}%)"
+                f"EXCELLENT: Mathematical consistency achieved (error {error_percentage:.2f}% ≤ {thresholds['excellent']:.1f}%)",
             )
         elif error_percentage <= thresholds["good"]:
             recommendations.append(
-                f"GOOD: Mathematical consistency within acceptable range (error {error_percentage:.2f}% ≤ {thresholds['good']:.1f}%)"
+                f"GOOD: Mathematical consistency within acceptable range (error {error_percentage:.2f}% ≤ {thresholds['good']:.1f}%)",
             )
 
         if not recommendations:
             recommendations.append(
-                "No specific issues detected - mathematical consistency is acceptable"
+                "No specific issues detected - mathematical consistency is acceptable",
             )
 
         return recommendations
@@ -491,7 +496,7 @@ class PositionEquityValidator:
         print("\n📋 DETAILED RESULTS:")
         print("-" * 80)
         print(
-            f"{'Portfolio':<15} {'Status':<10} {'Error %':<8} {'P&L ($)':<12} {'Equity Δ ($)':<12} {'Diff ($)':<10}"
+            f"{'Portfolio':<15} {'Status':<10} {'Error %':<8} {'P&L ($)':<12} {'Equity Δ ($)':<12} {'Diff ($)':<10}",
         )
         print("-" * 80)
 
@@ -509,7 +514,7 @@ class PositionEquityValidator:
                 f"{result.error_percentage:<8.2f} "
                 f"{result.total_position_pnl:<12.2f} "
                 f"{result.equity_change:<12.2f} "
-                f"{result.difference:<10.2f}"
+                f"{result.difference:<10.2f}",
             )
 
         # Recommendations for problematic portfolios
@@ -579,7 +584,7 @@ class PositionEquityValidator:
                     "Unrealized_PnL": result.unrealized_pnl,
                     "Estimated_Fees": result.estimated_fees,
                     "Validation_Timestamp": result.validation_timestamp,
-                }
+                },
             )
 
         df = pd.DataFrame(data)

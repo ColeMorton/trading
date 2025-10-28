@@ -35,11 +35,13 @@ def generate_strategy_permutations(
         ValueError: If min_strategies is less than 2 or greater than the number of strategies
     """
     if min_strategies < 2:
-        raise ValueError("min_strategies must be at least 2")
+        msg = "min_strategies must be at least 2"
+        raise ValueError(msg)
 
     if min_strategies > len(strategies):
+        msg = f"min_strategies ({min_strategies}) cannot be greater than the number of strategies ({len(strategies)})"
         raise ValueError(
-            f"min_strategies ({min_strategies}) cannot be greater than the number of strategies ({len(strategies)})"
+            msg,
         )
 
     # Default to exact size if max_strategies not specified
@@ -47,8 +49,9 @@ def generate_strategy_permutations(
         max_strategies = min_strategies
 
     if max_strategies < min_strategies:
+        msg = f"max_strategies ({max_strategies}) cannot be less than min_strategies ({min_strategies})"
         raise ValueError(
-            f"max_strategies ({max_strategies}) cannot be less than min_strategies ({min_strategies})"
+            msg,
         )
 
     permutations = []
@@ -103,7 +106,7 @@ def analyze_permutation(
 
     # Analyze concurrency
     stats, aligned_data = analyze_concurrency_func(
-        strategy_data, updated_strategies, log
+        strategy_data, updated_strategies, log,
     )
 
     return stats, aligned_data
@@ -160,7 +163,7 @@ def find_optimal_permutation(
 
     # Track progress
     progress_interval = max(
-        1, total_permutations // 10
+        1, total_permutations // 10,
     )  # Report progress at 10% intervals
     start_time = time.time()
 
@@ -197,7 +200,7 @@ def find_optimal_permutation(
         try:
             # Analyze this permutation
             stats, aligned_data = analyze_permutation(
-                permutation, process_strategies_func, analyze_concurrency_func, log
+                permutation, process_strategies_func, analyze_concurrency_func, log,
             )
 
             # Extract risk-adjusted efficiency score
@@ -229,4 +232,5 @@ def find_optimal_permutation(
         )
         return best_permutation, best_stats, best_aligned_data
     log("No valid permutations found", "error")
-    raise ValueError("No valid permutations found")
+    msg = "No valid permutations found"
+    raise ValueError(msg)

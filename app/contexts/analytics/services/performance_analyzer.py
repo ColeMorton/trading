@@ -40,7 +40,7 @@ class PerformanceAnalyzer:
         self.logger = logger or logging.getLogger(__name__)
 
     def analyze_trade_history(
-        self, trades_data: pd.DataFrame | pl.DataFrame
+        self, trades_data: pd.DataFrame | pl.DataFrame,
     ) -> TradeHistoryMetrics:
         """Analyze trade history and calculate performance metrics."""
         if isinstance(trades_data, pl.DataFrame):
@@ -71,7 +71,8 @@ class PerformanceAnalyzer:
                     break
 
             if pnl_col is None:
-                raise ValueError("No P&L column found in trade data")
+                msg = "No P&L column found in trade data"
+                raise ValueError(msg)
         else:
             pnl_col = "pnl"
 
@@ -117,7 +118,7 @@ class PerformanceAnalyzer:
         )
 
     def analyze_equity_curve(
-        self, equity_data: pd.DataFrame | pl.DataFrame
+        self, equity_data: pd.DataFrame | pl.DataFrame,
     ) -> EquityAnalysis:
         """Analyze equity curve and calculate performance metrics."""
         if isinstance(equity_data, pl.DataFrame):
@@ -142,7 +143,8 @@ class PerformanceAnalyzer:
                 break
 
         if equity_col is None:
-            raise ValueError("No equity column found in equity data")
+            msg = "No equity column found in equity data"
+            raise ValueError(msg)
 
         equity_series = equity_data[equity_col]
 
@@ -195,7 +197,7 @@ class PerformanceAnalyzer:
         )
 
     def analyze_strategy_distribution(
-        self, strategy_data: pd.DataFrame | pl.DataFrame
+        self, strategy_data: pd.DataFrame | pl.DataFrame,
     ) -> StrategyDistributionAnalysis:
         """Analyze strategy performance distribution."""
         if isinstance(strategy_data, pl.DataFrame):
@@ -212,7 +214,8 @@ class PerformanceAnalyzer:
 
         # Assume 'strategy' and 'performance' columns exist
         if "strategy" not in strategy_data.columns:
-            raise ValueError("No strategy column found in strategy data")
+            msg = "No strategy column found in strategy data"
+            raise ValueError(msg)
 
         performance_col = None
         for col in ["performance", "return", "pnl", "profit_loss"]:
@@ -221,7 +224,8 @@ class PerformanceAnalyzer:
                 break
 
         if performance_col is None:
-            raise ValueError("No performance column found in strategy data")
+            msg = "No performance column found in strategy data"
+            raise ValueError(msg)
 
         strategy_count = strategy_data["strategy"].nunique()
 
@@ -254,7 +258,7 @@ class PerformanceAnalyzer:
         )
 
     def calculate_risk_metrics(
-        self, returns: pd.Series | pl.Series
+        self, returns: pd.Series | pl.Series,
     ) -> dict[str, float]:
         """Calculate comprehensive risk metrics."""
         if isinstance(returns, pl.Series):

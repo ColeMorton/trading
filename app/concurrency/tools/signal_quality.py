@@ -65,7 +65,7 @@ def calculate_signal_quality_metrics(
                 position_column="signal",  # Using signal column as position for this case
             )
             signal_counts = signal_processor.get_comprehensive_counts(
-                joined_df, signal_def
+                joined_df, signal_def,
             )
             signal_count = signal_counts.raw_signals
         else:
@@ -87,7 +87,7 @@ def calculate_signal_quality_metrics(
 
         win_calc = WinRateCalculator()
         win_components = win_calc.calculate_signal_win_rate(
-            returns_np, signals_np, include_zeros=False
+            returns_np, signals_np, include_zeros=False,
         )
         win_rate = win_components.win_rate
 
@@ -98,7 +98,7 @@ def calculate_signal_quality_metrics(
         profit_factor = 1.0
         if len(negative_returns) > 0 and np.sum(np.abs(negative_returns)) > 0:
             profit_factor = float(
-                np.sum(positive_returns) / np.sum(np.abs(negative_returns))
+                np.sum(positive_returns) / np.sum(np.abs(negative_returns)),
             )
 
         # Average win and loss
@@ -118,7 +118,7 @@ def calculate_signal_quality_metrics(
             expectancy_per_signal = -abs(avg_loss)
         else:
             expectancy_per_signal = calculate_expectancy(
-                win_rate, avg_win, abs(avg_loss)
+                win_rate, avg_win, abs(avg_loss),
             )
 
         # Handle NaN values in expectancy
@@ -186,7 +186,7 @@ def calculate_signal_quality_metrics(
 
         # Signal Value Ratio (SVR)
         signal_value_ratio = _calculate_signal_value_ratio(
-            avg_return, max_drawdown, signal_consistency
+            avg_return, max_drawdown, signal_consistency,
         )
 
         # Signal Conviction
@@ -194,7 +194,7 @@ def calculate_signal_quality_metrics(
 
         # Signal Timing Efficiency
         signal_timing_efficiency = _calculate_signal_timing_efficiency(
-            signals_np, returns_np
+            signals_np, returns_np,
         )
 
         # Signal Opportunity Cost (using 0.0 as risk-free rate)
@@ -271,7 +271,7 @@ def calculate_signal_quality_metrics(
 
             # Apply stop loss adjustment
             adjusted_metrics = apply_stop_loss_to_signal_quality_metrics(
-                metrics, returns_np, signals_np, stop_loss, log
+                metrics, returns_np, signals_np, stop_loss, log,
             )
 
             log(
@@ -320,7 +320,7 @@ def calculate_signal_quality_metrics(
 
 
 def _calculate_metrics_for_strategy(
-    signals: pl.Series, returns: pl.Series, strategy_id: str
+    signals: pl.Series, returns: pl.Series, strategy_id: str,
 ) -> dict[str, Any]:
     """Calculate signal quality metrics for a single strategy.
 
@@ -356,7 +356,7 @@ def _calculate_metrics_for_strategy(
     profit_factor = 1.0
     if len(negative_returns) > 0 and np.sum(np.abs(negative_returns)) > 0:
         profit_factor = float(
-            np.sum(positive_returns) / np.sum(np.abs(negative_returns))
+            np.sum(positive_returns) / np.sum(np.abs(negative_returns)),
         )
 
     # Average win and loss
@@ -423,7 +423,7 @@ def _calculate_metrics_for_strategy(
 
     # Signal Value Ratio (SVR)
     signal_value_ratio = _calculate_signal_value_ratio(
-        avg_return, max_drawdown, signal_consistency
+        avg_return, max_drawdown, signal_consistency,
     )
 
     # Signal Conviction
@@ -431,7 +431,7 @@ def _calculate_metrics_for_strategy(
 
     # Signal Timing Efficiency
     signal_timing_efficiency = _calculate_signal_timing_efficiency(
-        signals_np, returns_np
+        signals_np, returns_np,
     )
 
     # Signal Opportunity Cost (using 0.0 as risk-free rate)
@@ -490,7 +490,7 @@ def _calculate_metrics_for_strategy(
 
 
 def _calculate_horizon_metrics(
-    signals: np.ndarray, returns: np.ndarray
+    signals: np.ndarray, returns: np.ndarray,
 ) -> dict[str, dict[str, float]]:
     """Calculate performance metrics for different time horizons using proper out-of-sample methodology.
 
@@ -617,7 +617,7 @@ def _find_best_horizon(
 
 
 def _calculate_signal_value_ratio(
-    avg_return: float, max_drawdown: float, signal_consistency: float
+    avg_return: float, max_drawdown: float, signal_consistency: float,
 ) -> float:
     """Calculate Signal Value Ratio (SVR).
 
@@ -645,7 +645,7 @@ def _calculate_signal_value_ratio(
 
 
 def _calculate_signal_conviction(
-    signal_returns: np.ndarray, market_returns: np.ndarray | None = None
+    signal_returns: np.ndarray, market_returns: np.ndarray | None = None,
 ) -> float:
     """Calculate Signal Conviction.
 
@@ -683,7 +683,7 @@ def _calculate_signal_conviction(
 
 
 def _calculate_signal_timing_efficiency(
-    signals: np.ndarray, returns: np.ndarray, lookback: int = 3, lookahead: int = 3
+    signals: np.ndarray, returns: np.ndarray, lookback: int = 3, lookahead: int = 3,
 ) -> float:
     """Calculate Signal Timing Efficiency.
 
@@ -743,7 +743,7 @@ def _calculate_signal_timing_efficiency(
 
 
 def _calculate_signal_opportunity_cost(
-    signal_returns: np.ndarray, risk_free_rate: float = 0.0
+    signal_returns: np.ndarray, risk_free_rate: float = 0.0,
 ) -> float:
     """Calculate Signal Opportunity Cost.
 
@@ -773,7 +773,7 @@ def _calculate_signal_opportunity_cost(
 
 
 def _calculate_signal_reliability_index(
-    signal_returns: np.ndarray, window_size: int = 10
+    signal_returns: np.ndarray, window_size: int = 10,
 ) -> float:
     """Calculate Signal Reliability Index.
 
@@ -917,7 +917,7 @@ def _calculate_aggregate_metrics(
     }
 
     # Sum up total signals
-    for _strategy_id, metrics in strategy_metrics.items():
+    for metrics in strategy_metrics.values():
         total_signals += metrics.get("signal_count", 0)
 
     # If no signals, return empty metrics
@@ -925,7 +925,7 @@ def _calculate_aggregate_metrics(
         return {"signal_count": 0, "signal_quality_score": 0.0}
 
     # Calculate weighted averages based on signal count
-    for _strategy_id, metrics in strategy_metrics.items():
+    for metrics in strategy_metrics.values():
         signal_count = metrics.get("signal_count", 0)
         if signal_count == 0:
             continue
@@ -1111,7 +1111,7 @@ def _validate_performance_aggregation(
     try:
         # Check Sharpe ratio sign preservation
         individual_sharpes = []
-        for _strategy_id, metrics in strategy_metrics.items():
+        for metrics in strategy_metrics.values():
             sharpe = metrics.get("sharpe_ratio")
             if sharpe is not None and not np.isnan(sharpe):
                 individual_sharpes.append(sharpe)
@@ -1140,7 +1140,7 @@ def _validate_performance_aggregation(
 
         # Check win rate reasonableness
         individual_win_rates = []
-        for _strategy_id, metrics in strategy_metrics.items():
+        for metrics in strategy_metrics.values():
             win_rate = metrics.get("win_rate")
             if win_rate is not None and not np.isnan(win_rate):
                 individual_win_rates.append(win_rate)
@@ -1168,7 +1168,7 @@ def _validate_performance_aggregation(
 
         # Check profit factor reasonableness
         individual_pfs = []
-        for _strategy_id, metrics in strategy_metrics.items():
+        for metrics in strategy_metrics.values():
             pf = metrics.get("profit_factor")
             if pf is not None and not np.isnan(pf):
                 individual_pfs.append(pf)

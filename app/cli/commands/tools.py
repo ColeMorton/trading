@@ -24,7 +24,7 @@ from ..models.tools import (
 
 # Create tools sub-app
 app = typer.Typer(
-    name="tools", help="Utility tools and system management", no_args_is_help=True
+    name="tools", help="Utility tools and system management", no_args_is_help=True,
 )
 
 console = Console()
@@ -37,23 +37,23 @@ def schema(
     | None = typer.Option(None, "--profile", "-p", help="Configuration profile name"),
     file_path: str
     | None = typer.Option(
-        None, "--file", "-f", help="Path to CSV file for schema operations"
+        None, "--file", "-f", help="Path to CSV file for schema operations",
     ),
     detect: bool = typer.Option(
-        False, "--detect", help="Detect schema version of file"
+        False, "--detect", help="Detect schema version of file",
     ),
     convert: bool = typer.Option(
-        False, "--convert", help="Convert file to target schema"
+        False, "--convert", help="Convert file to target schema",
     ),
     target_schema: str = typer.Option(
-        "extended", "--target", help="Target schema: base, extended, filtered"
+        "extended", "--target", help="Target schema: base, extended, filtered",
     ),
     validate_only: bool = typer.Option(
-        False, "--validate-only", help="Only validate schema, don't convert"
+        False, "--validate-only", help="Only validate schema, don't convert",
     ),
     output_file: str
     | None = typer.Option(
-        None, "--output", "-o", help="Output file path for conversions"
+        None, "--output", "-o", help="Output file path for conversions",
     ),
 ):
     """
@@ -70,7 +70,7 @@ def schema(
     try:
         if not file_path and not detect and not convert:
             rprint(
-                "[yellow]Please specify a file and operation (--detect, --convert, or --validate-only)[/yellow]"
+                "[yellow]Please specify a file and operation (--detect, --convert, or --validate-only)[/yellow]",
             )
             raise typer.Exit(1)
 
@@ -97,7 +97,7 @@ def schema(
             config = loader.load_from_profile(profile, SchemaConfig, overrides)
         else:
             rprint(
-                "[red]Error: No profile specified. Schema tools require a configuration profile.[/red]"
+                "[red]Error: No profile specified. Schema tools require a configuration profile.[/red]",
             )
             rprint("Please specify a profile using --profile or -p option")
             raise typer.Exit(1)
@@ -130,14 +130,14 @@ def schema(
 
                 # Also run validation
                 validation_result = validate_csv_schema(
-                    config.file_path, strict=config.strict_mode
+                    config.file_path, strict=config.strict_mode,
                 )
 
                 if validation_result["is_valid"]:
                     rprint("[green]✅ Schema validation passed[/green]")
                 else:
                     rprint(
-                        f"[red]❌ Schema validation failed with {len(validation_result['violations'])} violations[/red]"
+                        f"[red]❌ Schema validation failed with {len(validation_result['violations'])} violations[/red]",
                     )
 
                     # Show first few violations
@@ -146,12 +146,12 @@ def schema(
 
                     if len(validation_result["violations"]) > 3:
                         rprint(
-                            f"  • ... and {len(validation_result['violations']) - 3} more"
+                            f"  • ... and {len(validation_result['violations']) - 3} more",
                         )
 
                 # Show summary
                 rprint(
-                    f"📊 File contains {validation_result['total_rows']:,} rows with {validation_result['total_columns']} columns"
+                    f"📊 File contains {validation_result['total_rows']:,} rows with {validation_result['total_columns']} columns",
                 )
 
                 if global_verbose:
@@ -194,20 +194,20 @@ def schema(
                 rprint("[green]✅ Schema conversion completed![/green]")
                 rprint(f"📁 Output saved to: {output_path}")
                 rprint(
-                    f"📊 Converted {len(normalized_data):,} rows to {len(converted_df.columns)} columns"
+                    f"📊 Converted {len(normalized_data):,} rows to {len(converted_df.columns)} columns",
                 )
 
                 # Validate converted file
                 if global_verbose:
                     rprint("🔍 Validating converted file...")
                     validation_result = validate_csv_schema(
-                        str(output_path), strict=False
+                        str(output_path), strict=False,
                     )
                     if validation_result["is_valid"]:
                         rprint("[green]✅ Converted file validation passed[/green]")
                     else:
                         rprint(
-                            f"[yellow]⚠️ Converted file has {len(validation_result['violations'])} validation issues[/yellow]"
+                            f"[yellow]⚠️ Converted file has {len(validation_result['violations'])} validation issues[/yellow]",
                         )
 
             except Exception as e:
@@ -229,21 +229,21 @@ def validate(
     profile: str
     | None = typer.Option(None, "--profile", "-p", help="Configuration profile name"),
     files: list[str] = typer.Option(
-        [], "--file", "-f", help="File paths to validate (can be used multiple times)"
+        [], "--file", "-f", help="File paths to validate (can be used multiple times)",
     ),
     directory: str
     | None = typer.Option(
-        None, "--directory", "-d", help="Directory to validate all CSV files"
+        None, "--directory", "-d", help="Directory to validate all CSV files",
     ),
     schema_validation: bool = typer.Option(
-        True, "--schema/--no-schema", help="Enable/disable schema validation"
+        True, "--schema/--no-schema", help="Enable/disable schema validation",
     ),
     data_validation: bool = typer.Option(
-        True, "--data/--no-data", help="Enable/disable data content validation"
+        True, "--data/--no-data", help="Enable/disable data content validation",
     ),
     strict_mode: bool = typer.Option(False, "--strict", help="Strict validation mode"),
     output_format: str = typer.Option(
-        "table", "--output", help="Output format: table, json, summary"
+        "table", "--output", help="Output format: table, json, summary",
     ),
     save_report: str
     | None = typer.Option(None, "--save-report", help="Save validation report to file"),
@@ -262,7 +262,7 @@ def validate(
     try:
         if not files and not directory:
             rprint(
-                "[yellow]Please specify files (--file) or directory (--directory) to validate[/yellow]"
+                "[yellow]Please specify files (--file) or directory (--directory) to validate[/yellow]",
             )
             raise typer.Exit(1)
 
@@ -288,7 +288,7 @@ def validate(
             config = loader.load_from_profile(profile, ValidationConfig, overrides)
         else:
             rprint(
-                "[red]Error: No profile specified. Validation tools require a configuration profile.[/red]"
+                "[red]Error: No profile specified. Validation tools require a configuration profile.[/red]",
             )
             rprint("Please specify a profile using --profile or -p option")
             raise typer.Exit(1)
@@ -312,7 +312,7 @@ def validate(
                 files_to_validate.extend([str(f) for f in csv_files])
                 if global_verbose:
                     rprint(
-                        f"Found {len(csv_files)} CSV files in directory: {config.directory}"
+                        f"Found {len(csv_files)} CSV files in directory: {config.directory}",
                     )
             else:
                 rprint(f"[red]Directory not found: {config.directory}[/red]")
@@ -327,7 +327,7 @@ def validate(
         # Run validation
         if config.schema_validation:
             validation_results = batch_validate_csv_files(
-                files_to_validate, strict=config.strict_mode
+                files_to_validate, strict=config.strict_mode,
             )
         else:
             # Simple data validation without schema checks
@@ -395,22 +395,22 @@ def health(
     profile: str
     | None = typer.Option(None, "--profile", "-p", help="Configuration profile name"),
     check_files: bool = typer.Option(
-        True, "--files/--no-files", help="Check file system health"
+        True, "--files/--no-files", help="Check file system health",
     ),
     check_dependencies: bool = typer.Option(
-        True, "--deps/--no-deps", help="Check Python dependencies"
+        True, "--deps/--no-deps", help="Check Python dependencies",
     ),
     check_data: bool = typer.Option(
-        True, "--data/--no-data", help="Check data integrity"
+        True, "--data/--no-data", help="Check data integrity",
     ),
     check_config: bool = typer.Option(
-        True, "--config/--no-config", help="Check configuration validity"
+        True, "--config/--no-config", help="Check configuration validity",
     ),
     check_performance: bool = typer.Option(
-        False, "--performance", help="Run performance checks"
+        False, "--performance", help="Run performance checks",
     ),
     output_format: str = typer.Option(
-        "table", "--output", help="Output format: table, json, summary"
+        "table", "--output", help="Output format: table, json, summary",
     ),
     save_report: str
     | None = typer.Option(None, "--save-report", help="Save health report to file"),
@@ -449,7 +449,7 @@ def health(
             config = loader.load_from_profile(profile, HealthConfig, overrides)
         else:
             rprint(
-                "[red]Error: No profile specified. Health tools require a configuration profile.[/red]"
+                "[red]Error: No profile specified. Health tools require a configuration profile.[/red]",
             )
             rprint("Please specify a profile using --profile or -p option")
             raise typer.Exit(1)
@@ -468,7 +468,7 @@ def health(
             if global_verbose:
                 rprint("[dim]Checking file system health...[/dim]")
             health_results["checks"]["files"] = _check_file_system_health(
-                global_verbose
+                global_verbose,
             )
 
         # Dependencies check
@@ -476,7 +476,7 @@ def health(
             if global_verbose:
                 rprint("[dim]Checking Python dependencies...[/dim]")
             health_results["checks"]["dependencies"] = _check_dependencies_health(
-                global_verbose
+                global_verbose,
             )
 
         # Data integrity check
@@ -490,7 +490,7 @@ def health(
             if global_verbose:
                 rprint("[dim]Checking configuration validity...[/dim]")
             health_results["checks"]["config"] = _check_configuration_health(
-                global_verbose
+                global_verbose,
             )
 
         # Performance check
@@ -498,7 +498,7 @@ def health(
             if global_verbose:
                 rprint("[dim]Running performance checks...[/dim]")
             health_results["checks"]["performance"] = _check_performance_health(
-                global_verbose
+                global_verbose,
             )
 
         # Calculate overall status
@@ -533,7 +533,7 @@ def health(
         ]
 
         rprint(
-            f"\n🏥 System Health: [{status_color}]{health_results['overall_status'].upper()}[/{status_color}]"
+            f"\n🏥 System Health: [{status_color}]{health_results['overall_status'].upper()}[/{status_color}]",
         )
         if total_issues > 0:
             rprint(f"⚠️ Found {total_issues} issues that may need attention")
@@ -843,7 +843,7 @@ def export_ma_data(
     ticker: str = typer.Argument(..., help="Ticker symbol (e.g., AAPL, BTC-USD)"),
     period: int = typer.Argument(..., help="Moving average period"),
     ma_type: str = typer.Option(
-        "SMA", "--ma-type", help="Moving average type: SMA or EMA"
+        "SMA", "--ma-type", help="Moving average type: SMA or EMA",
     ),
     output_dir: str
     | None = typer.Option(None, "--output-dir", help="Custom output directory"),
@@ -853,7 +853,7 @@ def export_ma_data(
         help="Display financial statistics and analytics",
     ),
     stats_format: str = typer.Option(
-        "table", "--stats-format", help="Statistics format: table, summary, json"
+        "table", "--stats-format", help="Statistics format: table, summary, json",
     ),
     period_detail: str = typer.Option(
         "none",
@@ -907,21 +907,21 @@ def export_ma_data(
         # Validate MA type
         if ma_type.upper() not in ["SMA", "EMA"]:
             rprint(
-                f"[red]Error: Invalid MA type '{ma_type}'. Must be SMA or EMA.[/red]"
+                f"[red]Error: Invalid MA type '{ma_type}'. Must be SMA or EMA.[/red]",
             )
             raise typer.Exit(1)
 
         # Validate stats format
         if stats_format not in ["table", "summary", "json"]:
             rprint(
-                f"[red]Error: Invalid stats format '{stats_format}'. Must be table, summary, or json.[/red]"
+                f"[red]Error: Invalid stats format '{stats_format}'. Must be table, summary, or json.[/red]",
             )
             raise typer.Exit(1)
 
         # Validate period detail level
         if period_detail not in ["none", "compact", "summary", "full"]:
             rprint(
-                f"[red]Error: Invalid period detail '{period_detail}'. Must be none, compact, summary, or full.[/red]"
+                f"[red]Error: Invalid period detail '{period_detail}'. Must be none, compact, summary, or full.[/red]",
             )
             raise typer.Exit(1)
 
@@ -950,7 +950,7 @@ def export_ma_data(
         filename = f"{config.ticker}_{config.period}.csv"
         csv_path = os.path.join(output_path, filename)
         json_path = os.path.join(
-            "data/outputs/ma_cross/analysis", f"{config.ticker}_{config.period}.json"
+            "data/outputs/ma_cross/analysis", f"{config.ticker}_{config.period}.json",
         )
 
         # Check cache status
@@ -963,7 +963,7 @@ def export_ma_data(
         if use_cache:
             # Load existing data from cache
             rprint(
-                f"[yellow]📋 Using cached data for {config.ticker} (period={config.period})[/yellow]"
+                f"[yellow]📋 Using cached data for {config.ticker} (period={config.period})[/yellow]",
             )
             rprint(f"[cyan]📁 CSV: {csv_path}[/cyan]")
             rprint(f"[cyan]📊 Analysis: {json_path}[/cyan]")
@@ -976,7 +976,7 @@ def export_ma_data(
             except Exception as e:
                 if global_verbose:
                     rprint(
-                        f"[yellow]Warning: Failed to load cached data, forcing refresh: {e}[/yellow]"
+                        f"[yellow]Warning: Failed to load cached data, forcing refresh: {e}[/yellow]",
                     )
                 # Fall through to refresh logic
                 use_cache = False
@@ -985,11 +985,11 @@ def export_ma_data(
             # Proceed with export and analysis
             if refresh and (_is_cache_valid(csv_path, json_path)):
                 rprint(
-                    f"[cyan]🔄 Refreshing data for {config.ticker} (period={config.period})[/cyan]"
+                    f"[cyan]🔄 Refreshing data for {config.ticker} (period={config.period})[/cyan]",
                 )
             elif global_verbose:
                 rprint(
-                    f"[dim]Exporting {config.ma_type} data for {config.ticker} with period {config.period}[/dim]"
+                    f"[dim]Exporting {config.ma_type} data for {config.ticker} with period {config.period}[/dim]",
                 )
 
             # Import and call the export function
@@ -1018,7 +1018,7 @@ def export_ma_data(
 
                     # Calculate all metrics
                     metrics = analyze_ma_data(
-                        ma_data, config.ticker, config.period, config.ma_type
+                        ma_data, config.ticker, config.period, config.ma_type,
                     )
 
                     # Calculate period metrics if needed
@@ -1026,7 +1026,7 @@ def export_ma_data(
                         from app.tools.ma_period_analytics import analyze_ma_periods
 
                         period_metrics = analyze_ma_periods(
-                            ma_data, config.ticker, config.period, config.ma_type
+                            ma_data, config.ticker, config.period, config.ma_type,
                         )
 
                     # Prepare analysis data for export
@@ -1063,7 +1063,8 @@ def export_ma_data(
                     rprint(f"[cyan]📊 Analysis: {analysis_export_path}[/cyan]")
 
                 else:
-                    raise Exception(f"CSV export failed - file not found: {csv_path}")
+                    msg = f"CSV export failed - file not found: {csv_path}"
+                    raise Exception(msg)
 
             except Exception as e:
                 if global_verbose:
@@ -1096,10 +1097,10 @@ def export_ma_data(
 
                     rprint("\n[bold cyan]📊 Analytics Summary:[/bold cyan]")
                     rprint(
-                        f"[cyan]Sharpe:[/cyan] {risk['sharpe_ratio']:.3f} | [cyan]Return:[/cyan] {perf['total_return']:+.2f}% | [cyan]Trend:[/cyan] {trend['trend_direction']}"
+                        f"[cyan]Sharpe:[/cyan] {risk['sharpe_ratio']:.3f} | [cyan]Return:[/cyan] {perf['total_return']:+.2f}% | [cyan]Trend:[/cyan] {trend['trend_direction']}",
                     )
                     rprint(
-                        f"[cyan]Max DD:[/cyan] {risk['max_drawdown']:.2f}% | [cyan]Volatility:[/cyan] {risk['volatility']:.2f}% | [cyan]R²:[/cyan] {trend['r_squared']:.3f}"
+                        f"[cyan]Max DD:[/cyan] {risk['max_drawdown']:.2f}% | [cyan]Volatility:[/cyan] {risk['volatility']:.2f}% | [cyan]R²:[/cyan] {trend['r_squared']:.3f}",
                     )
                 else:
                     # Default table format - display complete analysis
@@ -1132,19 +1133,19 @@ def export_ma_data(
                     if "weekly" in rolling:
                         weekly = rolling["weekly"]
                         rprint(
-                            f"[cyan]Weekly Avg Return:[/cyan] {weekly['avg_return']:+.2f}% | [cyan]Win Rate:[/cyan] {weekly['win_rate']:.1f}%"
+                            f"[cyan]Weekly Avg Return:[/cyan] {weekly['avg_return']:+.2f}% | [cyan]Win Rate:[/cyan] {weekly['win_rate']:.1f}%",
                         )
 
                     if "monthly" in rolling:
                         monthly = rolling["monthly"]
                         rprint(
-                            f"[cyan]Monthly Avg Return:[/cyan] {monthly['avg_return']:+.2f}% | [cyan]Win Rate:[/cyan] {monthly['win_rate']:.1f}%"
+                            f"[cyan]Monthly Avg Return:[/cyan] {monthly['avg_return']:+.2f}% | [cyan]Win Rate:[/cyan] {monthly['win_rate']:.1f}%",
                         )
 
                     if seasonality.get("strongest_pattern"):
                         pattern = seasonality["strongest_pattern"]
                         rprint(
-                            f"[cyan]Strongest Pattern:[/cyan] {pattern['period']} ({pattern['avg_return']:+.2f}%)"
+                            f"[cyan]Strongest Pattern:[/cyan] {pattern['period']} ({pattern['avg_return']:+.2f}%)",
                         )
 
                 elif period_detail == "summary":
@@ -1162,7 +1163,7 @@ def export_ma_data(
                     rprint(f"[red]Error calculating period analytics: {e}[/red]")
                     raise
                 rprint(
-                    f"[yellow]Warning: Period analytics calculation failed: {e}[/yellow]"
+                    f"[yellow]Warning: Period analytics calculation failed: {e}[/yellow]",
                 )
 
     except Exception as e:
@@ -1182,16 +1183,16 @@ def export_ma_data_sweep(
         help="Comma-separated ticker symbols (e.g., 'AAPL,BTC-USD,ETH-USD')",
     ),
     period_min: int = typer.Option(
-        ..., "--period-min", help="Minimum MA period for sweep"
+        ..., "--period-min", help="Minimum MA period for sweep",
     ),
     period_max: int = typer.Option(
-        ..., "--period-max", help="Maximum MA period for sweep"
+        ..., "--period-max", help="Maximum MA period for sweep",
     ),
     period_step: int = typer.Option(
-        1, "--period-step", help="Step size for period sweep"
+        1, "--period-step", help="Step size for period sweep",
     ),
     ma_type: str = typer.Option(
-        "SMA", "--ma-type", help="Moving average type: SMA or EMA"
+        "SMA", "--ma-type", help="Moving average type: SMA or EMA",
     ),
     output_dir: str
     | None = typer.Option(None, "--output-dir", help="Custom output directory"),
@@ -1201,7 +1202,7 @@ def export_ma_data_sweep(
         help="Display financial statistics for each export",
     ),
     stats_format: str = typer.Option(
-        "summary", "--stats-format", help="Statistics format: table, summary, json"
+        "summary", "--stats-format", help="Statistics format: table, summary, json",
     ),
     period_detail: str = typer.Option(
         "none",
@@ -1264,12 +1265,12 @@ def export_ma_data_sweep(
         rprint("\n[bold cyan]📊 MA Export Sweep Analysis[/bold cyan]")
         rprint(f"[cyan]Tickers:[/cyan] {', '.join(config.tickers)}")
         rprint(
-            f"[cyan]Period Range:[/cyan] {config.period_min} to {config.period_max} (step: {config.period_step})"
+            f"[cyan]Period Range:[/cyan] {config.period_min} to {config.period_max} (step: {config.period_step})",
         )
         rprint(f"[cyan]MA Type:[/cyan] {config.ma_type}")
         rprint(f"[cyan]Total Combinations:[/cyan] {total_combinations}")
         rprint(
-            f"[cyan]Expected Files:[/cyan] {total_combinations * 2} (CSV + JSON per combination)"
+            f"[cyan]Expected Files:[/cyan] {total_combinations * 2} (CSV + JSON per combination)",
         )
         rprint("")
 
@@ -1311,7 +1312,7 @@ def export_ma_data_sweep(
             console=console,
         ) as progress:
             task = progress.add_task(
-                "Exporting MA data sweep...", total=total_combinations
+                "Exporting MA data sweep...", total=total_combinations,
             )
 
             for ticker in config.tickers:
@@ -1319,7 +1320,7 @@ def export_ma_data_sweep(
                     try:
                         # Update progress description
                         progress.update(
-                            task, description=f"Processing {ticker} (period={period})"
+                            task, description=f"Processing {ticker} (period={period})",
                         )
 
                         # Call the existing export_ma_data logic
@@ -1357,7 +1358,7 @@ def export_ma_data_sweep(
 
                                 # Calculate all metrics
                                 metrics = analyze_ma_data(
-                                    ma_data, ticker, period, config.ma_type
+                                    ma_data, ticker, period, config.ma_type,
                                 )
 
                                 # Calculate period metrics if needed
@@ -1368,7 +1369,7 @@ def export_ma_data_sweep(
                                     )
 
                                     period_metrics = analyze_ma_periods(
-                                        ma_data, ticker, period, config.ma_type
+                                        ma_data, ticker, period, config.ma_type,
                                     )
 
                                 # Prepare analysis data for export
@@ -1394,7 +1395,7 @@ def export_ma_data_sweep(
                                 # Save to JSON
                                 analysis_filename = f"{ticker}_{period}.json"
                                 analysis_export_path = os.path.join(
-                                    analysis_output_dir, analysis_filename
+                                    analysis_output_dir, analysis_filename,
                                 )
 
                                 with open(analysis_export_path, "w") as f:
@@ -1409,7 +1410,7 @@ def export_ma_data_sweep(
                                         "status": "success",
                                         "csv_path": output_path,
                                         "json_path": analysis_export_path,
-                                    }
+                                    },
                                 )
 
                                 # Display stats if requested
@@ -1418,22 +1419,23 @@ def export_ma_data_sweep(
                                         rprint(
                                             f"[green]✅ {ticker} (period={period}):[/green] "
                                             f"Return: {metrics['performance_metrics']['total_return']:.1f}%, "
-                                            f"Sharpe: {metrics['risk_metrics']['sharpe_ratio']:.2f}"
+                                            f"Sharpe: {metrics['risk_metrics']['sharpe_ratio']:.2f}",
                                         )
                                     elif config.stats_format == "json":
                                         rprint(
-                                            f"[green]✅ {ticker} (period={period}):[/green] JSON: {analysis_export_path}"
+                                            f"[green]✅ {ticker} (period={period}):[/green] JSON: {analysis_export_path}",
                                         )
 
                             else:
+                                msg = f"CSV export failed - file not found: {output_path}"
                                 raise Exception(
-                                    f"CSV export failed - file not found: {output_path}"
+                                    msg,
                                 )
 
                         except Exception as analytics_error:
                             if global_verbose:
                                 rprint(
-                                    f"[yellow]Warning: Analytics failed for {ticker} (period={period}): {analytics_error}[/yellow]"
+                                    f"[yellow]Warning: Analytics failed for {ticker} (period={period}): {analytics_error}[/yellow]",
                                 )
                             # Still count as successful if CSV was exported
                             successful_exports += 1
@@ -1445,7 +1447,7 @@ def export_ma_data_sweep(
                                     "csv_path": output_path,
                                     "json_path": None,
                                     "error": str(analytics_error),
-                                }
+                                },
                             )
 
                     except Exception as e:
@@ -1458,12 +1460,12 @@ def export_ma_data_sweep(
                                 "csv_path": None,
                                 "json_path": None,
                                 "error": str(e),
-                            }
+                            },
                         )
 
                         if global_verbose:
                             rprint(
-                                f"[red]❌ Failed {ticker} (period={period}): {e}[/red]"
+                                f"[red]❌ Failed {ticker} (period={period}): {e}[/red]",
                             )
                         else:
                             rprint(f"[red]❌ Failed {ticker} (period={period})[/red]")
@@ -1520,7 +1522,7 @@ def export_ma_data_sweep(
 
         if failed_exports > 0:
             rprint(
-                f"\n[yellow]Warning: {failed_exports} exports failed. Check summary report for details.[/yellow]"
+                f"\n[yellow]Warning: {failed_exports} exports failed. Check summary report for details.[/yellow]",
             )
 
         # Enhanced Financial Analytics
@@ -1545,7 +1547,7 @@ def export_ma_data_sweep(
 
                 if loaded_count > 0:
                     rprint(
-                        f"[green]✅ Loaded analytics for {loaded_count} successful exports[/green]"
+                        f"[green]✅ Loaded analytics for {loaded_count} successful exports[/green]",
                     )
                     rprint("")  # Add spacing before analytics
 
@@ -1561,10 +1563,10 @@ def export_ma_data_sweep(
                                 "best_risk_adjusted": (
                                     {
                                         "period": analytics_engine.get_top_performers(
-                                            "risk_adjusted_score", 1
+                                            "risk_adjusted_score", 1,
                                         )[0].period,
                                         "score": analytics_engine.get_top_performers(
-                                            "risk_adjusted_score", 1
+                                            "risk_adjusted_score", 1,
                                         )[0].risk_adjusted_score,
                                     }
                                     if analytics_engine.performance_data
@@ -1573,10 +1575,10 @@ def export_ma_data_sweep(
                                 "highest_sharpe": (
                                     {
                                         "period": analytics_engine.get_top_performers(
-                                            "sharpe_ratio", 1
+                                            "sharpe_ratio", 1,
                                         )[0].period,
                                         "sharpe": analytics_engine.get_top_performers(
-                                            "sharpe_ratio", 1
+                                            "sharpe_ratio", 1,
                                         )[0].sharpe_ratio,
                                     }
                                     if analytics_engine.performance_data
@@ -1585,10 +1587,10 @@ def export_ma_data_sweep(
                                 "highest_return": (
                                     {
                                         "period": analytics_engine.get_top_performers(
-                                            "total_return", 1
+                                            "total_return", 1,
                                         )[0].period,
                                         "return": analytics_engine.get_top_performers(
-                                            "total_return", 1
+                                            "total_return", 1,
                                         )[0].total_return,
                                     }
                                     if analytics_engine.performance_data
@@ -1619,18 +1621,18 @@ def export_ma_data_sweep(
                         # Re-save enhanced summary
                         enhanced_summary_filename = f"sweep_summary_enhanced_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
                         enhanced_summary_path = os.path.join(
-                            analysis_output_dir, enhanced_summary_filename
+                            analysis_output_dir, enhanced_summary_filename,
                         )
                         with open(enhanced_summary_path, "w") as f:
                             json.dump(enhanced_summary, f, indent=2, default=str)
 
                         rprint(
-                            f"[cyan]📊 Enhanced Summary:[/cyan] {enhanced_summary_path}"
+                            f"[cyan]📊 Enhanced Summary:[/cyan] {enhanced_summary_path}",
                         )
 
                 else:
                     rprint(
-                        "[yellow]⚠️ No analytics data available for enhanced analysis[/yellow]"
+                        "[yellow]⚠️ No analytics data available for enhanced analysis[/yellow]",
                     )
 
             except Exception as analytics_error:
@@ -1638,7 +1640,7 @@ def export_ma_data_sweep(
                     rprint(f"[red]Error in enhanced analytics: {analytics_error}[/red]")
                     raise
                 rprint(
-                    f"[yellow]Warning: Enhanced analytics failed: {analytics_error}[/yellow]"
+                    f"[yellow]Warning: Enhanced analytics failed: {analytics_error}[/yellow]",
                 )
 
     except Exception as e:
@@ -1664,10 +1666,10 @@ def pinescript(
         help="Filter to specific ticker(s), comma-separated (e.g., 'BTC-USD' or 'HIMS,MP,NVDA')",
     ),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Preview generation without writing files"
+        False, "--dry-run", help="Preview generation without writing files",
     ),
     verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Show detailed generation information"
+        False, "--verbose", "-v", help="Show detailed generation information",
     ),
     quiet: bool = typer.Option(
         False,
@@ -1778,7 +1780,7 @@ def pinescript(
             from rich.panel import Panel
 
             table = Table(
-                title="Strategy Breakdown", show_header=True, header_style="bold cyan"
+                title="Strategy Breakdown", show_header=True, header_style="bold cyan",
             )
             table.add_column("Ticker", style="cyan", no_wrap=True)
             table.add_column("Strategies", justify="right", style="green")
@@ -1839,7 +1841,7 @@ def pinescript(
                 count = stats["strategies_per_ticker"][ticker_name]
                 types = stats["strategy_types_per_ticker"][ticker_name]
                 rprint(
-                    f"  [cyan]{ticker_name}:[/cyan] {count} strategies ({', '.join(types)})"
+                    f"  [cyan]{ticker_name}:[/cyan] {count} strategies ({', '.join(types)})",
                 )
 
     except ValueError as e:

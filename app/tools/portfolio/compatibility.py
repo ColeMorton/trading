@@ -13,7 +13,7 @@ from app.tools.portfolio.types import StrategyConfig
 
 
 def load_portfolio_from_path(
-    file_path: str, log: Callable[[str, str], None], config: dict[str, Any]
+    file_path: str, log: Callable[[str, str], None], config: dict[str, Any],
 ) -> list[StrategyConfig]:
     """
     Compatibility function that mimics the behavior of the legacy load_portfolio function.
@@ -29,7 +29,8 @@ def load_portfolio_from_path(
     path = Path(file_path)
     if not path.exists():
         log(f"Portfolio file not found: {path}", "error")
-        raise FileNotFoundError(f"Portfolio file not found: {path}")
+        msg = f"Portfolio file not found: {path}"
+        raise FileNotFoundError(msg)
 
     extension = path.suffix.lower()
     if extension == ".json":

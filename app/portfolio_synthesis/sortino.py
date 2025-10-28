@@ -42,7 +42,7 @@ def plot_rolling_sortino(rolling_sortino_dict, assets):
     """Plot the rolling annualized Sortino Ratios for different time periods in a single window."""
     fig, axs = plt.subplots(2, 2, figsize=(14, 10))
     fig.suptitle(
-        "Rolling Annualized Sortino Ratios for Different Look-back Periods", fontsize=16
+        "Rolling Annualized Sortino Ratios for Different Look-back Periods", fontsize=16,
     )
 
     periods = ["120 Days", "90 Days", "60 Days", "30 Days"]

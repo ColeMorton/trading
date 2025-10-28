@@ -96,7 +96,7 @@ class TestEquityExportEndToEnd:
 
         # Execute end-to-end export
         success = export_summary_results(
-            portfolios, "test_portfolio.csv", self.mock_log, config
+            portfolios, "test_portfolio.csv", self.mock_log, config,
         )
 
         # Verify main export succeeded
@@ -126,7 +126,7 @@ class TestEquityExportEndToEnd:
 
         # Execute end-to-end export
         success = export_summary_results(
-            portfolios, "test_portfolio.csv", self.mock_log, config
+            portfolios, "test_portfolio.csv", self.mock_log, config,
         )
 
         # Verify main export succeeded
@@ -175,7 +175,7 @@ class TestEquityExportEndToEnd:
 
         # Execute end-to-end export
         success = export_summary_results(
-            portfolios, "test_portfolio.csv", self.mock_log, config
+            portfolios, "test_portfolio.csv", self.mock_log, config,
         )
 
         # Verify main export succeeded
@@ -191,7 +191,7 @@ class TestEquityExportEndToEnd:
     @patch("app.tools.strategy.export_portfolios.export_portfolios")
     @patch("app.tools.equity_export.export_equity_data_batch")
     def test_end_to_end_equity_export_error_handling(
-        self, mock_batch_export, mock_export_portfolios
+        self, mock_batch_export, mock_export_portfolios,
     ):
         """Test error handling in equity export doesn't break main export."""
         # Setup mocks
@@ -209,7 +209,7 @@ class TestEquityExportEndToEnd:
 
         # Execute end-to-end export
         success = export_summary_results(
-            portfolios, "test_portfolio.csv", self.mock_log, config
+            portfolios, "test_portfolio.csv", self.mock_log, config,
         )
 
         # Verify main export still succeeded despite equity export error
@@ -240,7 +240,7 @@ class TestEquityExportEndToEnd:
 
         # Execute export
         success = export_summary_results(
-            portfolios, "test_portfolio.csv", self.mock_log, config
+            portfolios, "test_portfolio.csv", self.mock_log, config,
         )
         assert success is True
 
@@ -266,7 +266,7 @@ class TestEquityExportEndToEnd:
 
         # Execute export
         success = export_summary_results(
-            portfolios, "test_portfolio.csv", self.mock_log, config
+            portfolios, "test_portfolio.csv", self.mock_log, config,
         )
         assert success is True
 

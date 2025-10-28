@@ -38,14 +38,13 @@ def get_median(config: dict) -> pl.DataFrame:
     df = pl.read_csv(fullpath)
 
     # Select and rename columns, using Date column directly
-    df = df.select(
+    return df.select(
         [
             pl.col("Date").str.to_datetime().alias("Date"),
             pl.col("median").alias("Close"),
-        ]
+        ],
     )
 
-    return df
 
 
 if __name__ == "__main__":

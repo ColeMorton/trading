@@ -111,7 +111,7 @@ class AccessTracker:
                         avg_time_between_access=avg_time_between,
                         cache_category=category,
                         priority_score=priority_score,
-                    )
+                    ),
                 )
 
         # Sort by priority score descending
@@ -157,7 +157,7 @@ class AccessTracker:
                 json.dump(data, f, indent=2)
 
         except Exception as e:
-            logger.error(f"Failed to save access history: {e}")
+            logger.exception(f"Failed to save access history: {e}")
 
 
 class CacheWarmer:
@@ -191,7 +191,7 @@ class CacheWarmer:
         self._warming_thread = None
 
     def register_data_generator(
-        self, pattern: str, generator: Callable[[], Any], category: str = "default"
+        self, pattern: str, generator: Callable[[], Any], category: str = "default",
     ):
         """Register a data generator for cache warming.
 
@@ -215,7 +215,7 @@ class CacheWarmer:
 
         self._warming_active = True
         self._warming_thread = threading.Thread(
-            target=self._warming_loop, daemon=daemon, name="CacheWarmer"
+            target=self._warming_loop, daemon=daemon, name="CacheWarmer",
         )
         self._warming_thread.start()
         logger.info("Cache warming cycle started")
@@ -233,7 +233,7 @@ class CacheWarmer:
             try:
                 self._execute_warming_cycle()
             except Exception as e:
-                logger.error(f"Error in warming cycle: {e}")
+                logger.exception(f"Error in warming cycle: {e}")
 
             # Wait for next cycle
             time.sleep(self.warming_interval)
@@ -265,7 +265,7 @@ class CacheWarmer:
 
         logger.info(
             f"Warming cycle completed in {cycle_time:.2f}s: "
-            f"{completed} jobs completed, {failed} jobs failed"
+            f"{completed} jobs completed, {failed} jobs failed",
         )
 
         # Save access history
@@ -366,13 +366,13 @@ class CacheWarmer:
         patterns = self.access_tracker.get_access_patterns(min_accesses=1)
         stats["total_tracked_keys"] = len(patterns)
         stats["warmable_keys"] = len(
-            [p for p in patterns if self._find_data_generator(p.key)]
+            [p for p in patterns if self._find_data_generator(p.key)],
         )
 
         return stats
 
     def trigger_immediate_warming(
-        self, cache_keys: list[str] | None = None
+        self, cache_keys: list[str] | None = None,
     ) -> dict[str, bool]:
         """Trigger immediate warming for specific keys or top patterns.
 
@@ -405,7 +405,7 @@ class CacheWarmer:
                     results[key] = False
 
             except Exception as e:
-                logger.error(f"Failed to warm {key}: {e}")
+                logger.exception(f"Failed to warm {key}: {e}")
                 results[key] = False
 
         return results
@@ -471,7 +471,7 @@ _global_cache_warmer: CacheWarmer | None = None
 
 
 def get_cache_warmer(
-    cache_manager: IntelligentCacheManager | None = None, auto_start: bool = True
+    cache_manager: IntelligentCacheManager | None = None, auto_start: bool = True,
 ) -> CacheWarmer:
     """Get or create global cache warmer instance."""
     global _global_cache_warmer

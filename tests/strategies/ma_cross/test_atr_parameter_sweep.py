@@ -49,7 +49,7 @@ def sample_price_data():
             "Close": prices,
             "Volume": np.random.randint(1000000, 5000000, len(dates)),
             "Ticker": "TEST",
-        }
+        },
     ).set_index("Date")
 
     return pl.from_pandas(df.reset_index())
@@ -185,11 +185,11 @@ class TestATRSignalProcessing:
     """Test ATR signal processing functionality."""
 
     @patch(
-        "app.strategies.ma_cross.tools.atr_signal_processing.calculate_ma_and_signals"
+        "app.strategies.ma_cross.tools.atr_signal_processing.calculate_ma_and_signals",
     )
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_atr")
     def test_generate_hybrid_ma_atr_signals(
-        self, mock_atr, mock_sma, sample_price_data, sample_ma_config, mock_logger
+        self, mock_atr, mock_sma, sample_price_data, sample_ma_config, mock_logger,
     ):
         """Test hybrid MA+ATR signal generation."""
         # Mock SMA signals - return Polars DataFrame as expected by the function
@@ -227,11 +227,11 @@ class TestATRSignalProcessing:
         mock_atr.assert_called_once()
 
     @patch(
-        "app.strategies.ma_cross.tools.atr_signal_processing.calculate_ma_and_signals"
+        "app.strategies.ma_cross.tools.atr_signal_processing.calculate_ma_and_signals",
     )
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_atr")
     def test_generate_signals_with_atr_exits(
-        self, mock_atr, mock_sma, sample_price_data, sample_ma_config, mock_logger
+        self, mock_atr, mock_sma, sample_price_data, sample_ma_config, mock_logger,
     ):
         """Test that ATR exits are properly generated."""
         pandas_data = sample_price_data.to_pandas()
@@ -328,7 +328,7 @@ class TestATRParameterSweepEngine:
     @patch("app.strategies.ma_cross.tools.atr_parameter_sweep.convert_stats")
     @patch("app.strategies.ma_cross.tools.atr_parameter_sweep.backtest_strategy")
     @patch(
-        "app.strategies.ma_cross.tools.atr_parameter_sweep.generate_hybrid_ma_atr_signals"
+        "app.strategies.ma_cross.tools.atr_parameter_sweep.generate_hybrid_ma_atr_signals",
     )
     def test_process_single_atr_combination_success(
         self,
@@ -400,7 +400,7 @@ class TestATRParameterSweepEngine:
         mock_portfolio.stats.assert_called_once()
 
     @patch(
-        "app.strategies.ma_cross.tools.atr_parameter_sweep.generate_hybrid_ma_atr_signals"
+        "app.strategies.ma_cross.tools.atr_parameter_sweep.generate_hybrid_ma_atr_signals",
     )
     def test_process_single_atr_combination_signal_failure(
         self,
@@ -432,7 +432,7 @@ class TestATRParameterSweepEngine:
 
     @patch("app.strategies.ma_cross.tools.atr_parameter_sweep.backtest_strategy")
     @patch(
-        "app.strategies.ma_cross.tools.atr_parameter_sweep.generate_hybrid_ma_atr_signals"
+        "app.strategies.ma_cross.tools.atr_parameter_sweep.generate_hybrid_ma_atr_signals",
     )
     def test_process_single_atr_combination_backtest_failure(
         self,
@@ -468,7 +468,7 @@ class TestATRParameterSweepEngine:
         assert engine.sweep_stats["failed_combinations"] == 1
 
     def test_process_single_atr_combination_invalid_parameters(
-        self, sample_atr_config, sample_price_data, sample_ma_config, mock_logger
+        self, sample_atr_config, sample_price_data, sample_ma_config, mock_logger,
     ):
         """Test handling of invalid ATR parameters."""
         engine = create_atr_sweep_engine(sample_atr_config)
@@ -538,7 +538,7 @@ class TestATRParameterSweepEngine:
 
     @patch("app.strategies.ma_cross.tools.atr_parameter_sweep.get_data")
     def test_execute_atr_parameter_sweep_data_failure(
-        self, mock_get_data, sample_atr_config, sample_ma_config, mock_logger
+        self, mock_get_data, sample_atr_config, sample_ma_config, mock_logger,
     ):
         """Test handling of data retrieval failure."""
         engine = create_atr_sweep_engine(sample_atr_config)
@@ -661,7 +661,7 @@ class TestATRParameterSweepEngine:
         assert "No results generated" in errors[0]
 
     def test_validate_sweep_results_missing_atr_fields(
-        self, sample_atr_config, mock_logger
+        self, sample_atr_config, mock_logger,
     ):
         """Test validation with missing ATR fields."""
         engine = create_atr_sweep_engine(sample_atr_config)
@@ -671,7 +671,7 @@ class TestATRParameterSweepEngine:
             {
                 "Ticker": "TEST",
                 "Total Return": 25.0,  # Missing Exit Fast Period and Exit Slow Period
-            }
+            },
         ]
 
         is_valid, errors = engine.validate_sweep_results(invalid_results, mock_logger)
@@ -689,7 +689,6 @@ class TestATRPortfolioExport:
         # This test was problematic due to numbered module import
         # The functionality is already tested in integration tests
         # Skip this test as it's redundant with other export tests
-        pass
 
     def test_atr_portfolio_schema_compliance(self):
         """Test that ATR portfolios comply with extended schema."""
@@ -722,7 +721,7 @@ class TestATRPortfolioExport:
 
         # Validate schema compliance
         is_valid, errors = schema_transformer.validate_schema(
-            extended_portfolio, SchemaType.EXTENDED
+            extended_portfolio, SchemaType.EXTENDED,
         )
 
         assert is_valid is True
@@ -822,7 +821,7 @@ class TestATRAnalysisIntegration:
                 # Not an import error, so importlib fix worked
                 pass
             else:
-                raise e
+                raise
 
     def test_atr_analysis_memory_efficiency(self, mock_logger):
         """Test that ATR analysis handles memory efficiently."""
@@ -883,7 +882,7 @@ class TestATRAnalysisIntegration:
                 "EXPECTANCY_PER_TRADE": 0.03,
                 "PROFIT_FACTOR": 1.8,
                 "SORTINO_RATIO": 1.2,
-            }
+            },
         ]
 
         config = {

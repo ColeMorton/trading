@@ -226,7 +226,7 @@ def auto_cleanup(resource_type: str = "generic"):
                 cleanup_manager = get_cleanup_manager()
                 resource_id = f"{func.__name__}_{id(resource)}"
                 cleanup_manager.register_resource(
-                    resource_id, resource, lambda r: r.close(), resource_type
+                    resource_id, resource, lambda r: r.close(), resource_type,
                 )
 
             return resource

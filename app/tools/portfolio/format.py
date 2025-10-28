@@ -18,7 +18,7 @@ from app.tools.portfolio.strategy_utils import (
 
 
 def standardize_portfolio_columns(
-    df: pl.DataFrame, log: Callable[[str, str], None]
+    df: pl.DataFrame, log: Callable[[str, str], None],
 ) -> pl.DataFrame:
     """
     Standardize portfolio column names to a consistent format.
@@ -103,7 +103,7 @@ def standardize_portfolio_columns(
 
 
 def convert_csv_to_strategy_config(
-    df: pl.DataFrame, log: Callable[[str, str], None], config: dict[str, Any]
+    df: pl.DataFrame, log: Callable[[str, str], None], config: dict[str, Any],
 ) -> list[dict[str, Any]]:
     """
     Convert a CSV DataFrame to a list of strategy configurations.

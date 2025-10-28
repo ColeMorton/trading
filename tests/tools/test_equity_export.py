@@ -493,7 +493,7 @@ class TestEquityExportUtilities:
             os.utime(old_file, (old_time, old_time))
 
             deleted_count = cleanup_old_equity_files(
-                "SMA", 7, mock_log
+                "SMA", 7, mock_log,
             )  # 7 day threshold
 
             assert deleted_count == 1

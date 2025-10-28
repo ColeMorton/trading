@@ -85,7 +85,7 @@ class PatternRecognitionML:
         self.scaler = StandardScaler()
         self.pca = PCA(n_components=0.95)  # Keep 95% variance
         self.anomaly_detector = IsolationForest(
-            contamination=anomaly_contamination, random_state=42
+            contamination=anomaly_contamination, random_state=42,
         )
         self.clusterer = DBSCAN(min_samples=min_cluster_size, eps=0.3)
         self.knn = NearestNeighbors(n_neighbors=n_neighbors)
@@ -115,7 +115,7 @@ class PatternRecognitionML:
             historical_data: DataFrame with historical trade features
         """
         logger.info(
-            f"Fitting pattern recognition models on {len(historical_data)} samples"
+            f"Fitting pattern recognition models on {len(historical_data)} samples",
         )
 
         # Extract features
@@ -175,7 +175,7 @@ class PatternRecognitionML:
                 break
 
             similarity_score = 1.0 - min(
-                dist / 2.0, 1.0
+                dist / 2.0, 1.0,
             )  # Convert distance to similarity
 
             if similarity_score >= self.min_similarity_threshold:
@@ -188,10 +188,10 @@ class PatternRecognitionML:
                     historical_outcome=pattern["outcome"],
                     confidence=similarity_score * pattern["confidence"],
                     matched_features=self._get_matched_features(
-                        features, pattern["features"]
+                        features, pattern["features"],
                     ),
                     recommendation=self._generate_recommendation(
-                        pattern, similarity_score
+                        pattern, similarity_score,
                     ),
                     expected_outcome=self._predict_outcome(pattern, similarity_score),
                 )
@@ -200,7 +200,7 @@ class PatternRecognitionML:
         return matches
 
     def detect_anomalies(
-        self, position: PositionData, analysis: StatisticalAnalysisResult
+        self, position: PositionData, analysis: StatisticalAnalysisResult,
     ) -> AnomalyDetectionResult:
         """Detect if position represents an anomaly.
 
@@ -250,7 +250,7 @@ class PatternRecognitionML:
             confidence=confidence,
             contributing_features=contributing_features,
             recommendation=self._generate_anomaly_recommendation(
-                is_anomaly, anomaly_type, contributing_features
+                is_anomaly, anomaly_type, contributing_features,
             ),
         )
 
@@ -275,7 +275,7 @@ class PatternRecognitionML:
         return clusters
 
     def calculate_pattern_confidence(
-        self, pattern_matches: list[PatternMatch]
+        self, pattern_matches: list[PatternMatch],
     ) -> float:
         """Calculate overall confidence from pattern matches.
 
@@ -293,12 +293,11 @@ class PatternRecognitionML:
         if total_weight == 0:
             return 0.0
 
-        weighted_confidence = (
+        return (
             sum(match.confidence * match.similarity_score for match in pattern_matches)
             / total_weight
         )
 
-        return weighted_confidence
 
     def _extract_features(self, data: pd.DataFrame) -> np.ndarray:
         """Extract ML features from historical data."""
@@ -322,7 +321,7 @@ class PatternRecognitionML:
         return np.array(features)
 
     def _extract_position_features(
-        self, position: PositionData, analysis: StatisticalAnalysisResult
+        self, position: PositionData, analysis: StatisticalAnalysisResult,
     ) -> np.ndarray:
         """Extract features from current position."""
         divergence = analysis.divergence_analysis
@@ -347,7 +346,7 @@ class PatternRecognitionML:
         return np.array(feature_vector)
 
     def _build_pattern_database(
-        self, historical_data: pd.DataFrame, reduced_features: np.ndarray
+        self, historical_data: pd.DataFrame, reduced_features: np.ndarray,
     ) -> None:
         """Build pattern database from historical data."""
         self.pattern_database = []
@@ -394,7 +393,7 @@ class PatternRecognitionML:
         return (exit_score + ratio_score) / 2.0
 
     def _get_matched_features(
-        self, current_features: np.ndarray, pattern_features: np.ndarray
+        self, current_features: np.ndarray, pattern_features: np.ndarray,
     ) -> list[str]:
         """Identify which features matched most closely."""
         if len(current_features) != len(self.feature_names):
@@ -402,17 +401,16 @@ class PatternRecognitionML:
 
         # Calculate feature-wise differences
         differences = np.abs(
-            current_features - pattern_features[: len(current_features)]
+            current_features - pattern_features[: len(current_features)],
         )
 
         # Find features with smallest differences
         sorted_indices = np.argsort(differences)
-        top_features = [self.feature_names[i] for i in sorted_indices[:3]]
+        return [self.feature_names[i] for i in sorted_indices[:3]]
 
-        return top_features
 
     def _generate_recommendation(
-        self, pattern: dict[str, Any], similarity_score: float
+        self, pattern: dict[str, Any], similarity_score: float,
     ) -> str:
         """Generate recommendation based on pattern match."""
         pattern_type = pattern["pattern_type"]
@@ -460,7 +458,7 @@ class PatternRecognitionML:
         ]
 
     def _classify_anomaly_type(
-        self, features: np.ndarray, contributing_features: list[str]
+        self, features: np.ndarray, contributing_features: list[str],
     ) -> str:
         """Classify type of anomaly based on features."""
         if not contributing_features:
@@ -475,7 +473,7 @@ class PatternRecognitionML:
         return "multi_factor_anomaly"
 
     def _generate_anomaly_recommendation(
-        self, is_anomaly: bool, anomaly_type: str, contributing_features: list[str]
+        self, is_anomaly: bool, anomaly_type: str, contributing_features: list[str],
     ) -> str:
         """Generate recommendation for anomaly detection."""
         if not is_anomaly:

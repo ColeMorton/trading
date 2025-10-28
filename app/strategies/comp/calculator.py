@@ -30,7 +30,8 @@ def load_component_strategies(csv_path: str | Path) -> list[dict[str, Any]]:
     csv_path = Path(csv_path)
 
     if not csv_path.exists():
-        raise FileNotFoundError(f"Strategy CSV file not found: {csv_path}")
+        msg = f"Strategy CSV file not found: {csv_path}"
+        raise FileNotFoundError(msg)
 
     # Read CSV using pandas
     df = pd.read_csv(csv_path)
@@ -120,9 +121,8 @@ def calculate_component_position(
 
         # Ensure position is binary (0 or 1)
         # Handle any potential non-zero values as "in position"
-        position = (position != 0).cast(pl.Int32)
+        return (position != 0).cast(pl.Int32)
 
-        return position
 
     except Exception as e:
         log(f"Error calculating position for strategy {strategy}: {e}", "error")
@@ -146,11 +146,12 @@ def aggregate_positions(
         DataFrame with Date and percentage_in_position columns
     """
     if not component_positions:
-        raise ValueError("No component positions to aggregate")
+        msg = "No component positions to aggregate"
+        raise ValueError(msg)
 
     # Stack all position series into a DataFrame
     positions_df = pl.DataFrame(
-        {f"strategy_{i}": pos for i, pos in enumerate(component_positions)}
+        {f"strategy_{i}": pos for i, pos in enumerate(component_positions)},
     )
 
     # Calculate sum of positions (number of strategies in position)
@@ -170,12 +171,12 @@ def aggregate_positions(
             "percentage_in_position": percentage,
             "num_in_position": total_in_position,
             "total_strategies": [total_strategies] * len(data),  # Repeat for each row
-        }
+        },
     )
 
     log(
         f"Aggregated {total_strategies} component strategies. "
-        f"Percentage range: {percentage.min():.1f}% to {percentage.max():.1f}%"
+        f"Percentage range: {percentage.min():.1f}% to {percentage.max():.1f}%",
     )
 
     return result
@@ -238,13 +239,13 @@ def generate_compound_signals(
         [
             pl.Series("Signal", signals),
             pl.Series("Position", signals).shift(1).fill_null(0).cast(pl.Int32),
-        ]
+        ],
     )
 
     if log:
         log(f"Generated {entry_count} entry signals and {exit_count} exit signals")
         log(
-            f"Final position status: {'in position' if in_position else 'not in position'}"
+            f"Final position status: {'in position' if in_position else 'not in position'}",
         )
 
     return data
@@ -307,7 +308,7 @@ def calculate_compound_strategy(
             return None
 
         log(
-            f"Successfully calculated positions for {len(component_positions)}/{len(component_strategies)} strategies"
+            f"Successfully calculated positions for {len(component_positions)}/{len(component_strategies)} strategies",
         )
 
         # Aggregate positions
@@ -319,17 +320,16 @@ def calculate_compound_strategy(
         result = generate_compound_signals(aggregated, threshold=50.0, log=log)
 
         # Add price data columns needed for backtesting
-        result = result.with_columns(
+        return result.with_columns(
             [
                 data["Open"],
                 data["High"],
                 data["Low"],
                 data["Close"],
                 data["Volume"],
-            ]
+            ],
         )
 
-        return result
 
     except Exception as e:
         log(f"Error calculating compound strategy: {e}", "error")

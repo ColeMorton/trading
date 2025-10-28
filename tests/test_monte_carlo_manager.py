@@ -45,7 +45,7 @@ class TestPortfolioMonteCarloManager:
     def manager(self, test_config, mock_log):
         """Create portfolio Monte Carlo manager."""
         return PortfolioMonteCarloManager(
-            config=test_config, max_workers=2, log=mock_log
+            config=test_config, max_workers=2, log=mock_log,
         )
 
     @pytest.fixture
@@ -107,7 +107,7 @@ class TestPortfolioMonteCarloManager:
                 # Missing Strategy Type
                 "Window Short": 10,
                 "Window Long": 20,
-            }
+            },
         ]
 
         with pytest.raises(ValueError) as exc_info:
@@ -146,7 +146,7 @@ class TestPortfolioMonteCarloManager:
             {
                 "Date": [pl.date(2023, 1, 1), pl.date(2023, 1, 2), pl.date(2023, 1, 3)],
                 "Close": [100.0, 101.0, 102.0],
-            }
+            },
         )
         mock_download.return_value = mock_data
 
@@ -158,7 +158,7 @@ class TestPortfolioMonteCarloManager:
         }
 
         result = manager._analyze_strategy_with_error_handling(
-            "BTC-USD_SMA_2_3_0", strategy
+            "BTC-USD_SMA_2_3_0", strategy,
         )
 
         assert isinstance(result, MonteCarloPortfolioResult)
@@ -167,7 +167,7 @@ class TestPortfolioMonteCarloManager:
 
     @patch("app.concurrency.tools.monte_carlo.manager.download_price_data")
     def test_analyze_single_strategy_download_failure(
-        self, mock_download, manager, mock_log
+        self, mock_download, manager, mock_log,
     ):
         """Test handling of data download failure."""
         # Mock download failure
@@ -181,7 +181,7 @@ class TestPortfolioMonteCarloManager:
         }
 
         result = manager._analyze_strategy_with_error_handling(
-            "INVALID-TICKER_SMA_10_20_0", strategy
+            "INVALID-TICKER_SMA_10_20_0", strategy,
         )
 
         assert result is None
@@ -232,7 +232,7 @@ class TestPortfolioMonteCarloManager:
             {
                 "Date": [pl.date(2023, 1, 1) + pl.duration(days=i) for i in range(10)],
                 "Close": [100.0 + i for i in range(10)],
-            }
+            },
         )
         mock_download.return_value = mock_data
 
@@ -260,9 +260,10 @@ class TestPortfolioMonteCarloManager:
                     {
                         "Date": [pl.date(2023, 1, 1), pl.date(2023, 1, 2)],
                         "Close": [100.0, 101.0],
-                    }
+                    },
                 )
-            raise Exception("Download failed")
+            msg = "Download failed"
+            raise Exception(msg)
 
         mock_download.side_effect = side_effect
 
@@ -424,7 +425,7 @@ class TestPortfolioMonteCarloIntegration:
             {
                 "Date": [pl.date(2023, 1, 1) + pl.duration(days=i) for i in range(50)],
                 "Close": [1000.0 + i * 10 + np.sin(i * 0.1) * 50 for i in range(50)],
-            }
+            },
         )
         mock_download.return_value = mock_data
 
@@ -466,7 +467,7 @@ class TestPortfolioMonteCarloIntegration:
                         pl.date(2023, 1, 1) + pl.duration(days=i) for i in range(20)
                     ],
                     "Close": [1000.0 + i for i in range(20)],
-                }
+                },
             )
 
         mock_download.side_effect = slow_download
@@ -507,7 +508,7 @@ class TestPortfolioMonteCarloIntegration:
                 "Fast Period": 12,  # CSV format
                 "Slow Period": 26,  # CSV format
                 "Signal Period": 9,  # CSV format
-            }
+            },
         ]
 
         strategies_with_ids = manager._assign_strategy_ids(portfolio)
@@ -556,7 +557,7 @@ class TestMonteCarloManagerEdgeCases:
 
         # Should handle gracefully
         manager = PortfolioMonteCarloManager(
-            config=config, max_workers=1000, log=Mock()
+            config=config, max_workers=1000, log=Mock(),
         )
         assert manager.max_workers == 1000  # Should accept but may be limited by system
 
@@ -570,7 +571,7 @@ class TestMonteCarloManagerEdgeCases:
                 "ticker": "BTC-USD",
                 "Strategy Type": "SMA",
                 # Missing Window Short and Window Long
-            }
+            },
         ]
 
         # Should handle gracefully or raise appropriate error

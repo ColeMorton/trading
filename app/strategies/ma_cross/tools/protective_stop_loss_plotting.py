@@ -50,7 +50,7 @@ def plot_results(
         else ""
     )
     plt.title(
-        f"{ticker} Parameter Sensitivity: Holding Period vs Expectancy ({strategy_type} Strategy{rsi_info})"
+        f"{ticker} Parameter Sensitivity: Holding Period vs Expectancy ({strategy_type} Strategy{rsi_info})",
     )
     plt.grid(True)
 
@@ -122,7 +122,7 @@ def create_protective_stop_loss_heatmap(
                     )
                     + "<extra></extra>"
                 ),
-            )
+            ),
         )
 
         # Update layout

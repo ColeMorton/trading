@@ -96,37 +96,31 @@ class StrategyError(Exception):
 class DataError(StrategyError):
     """Exception for data-related errors."""
 
-    pass
 
 
 class ParameterError(StrategyError):
     """Exception for parameter-related errors."""
 
-    pass
 
 
 class SignalError(StrategyError):
     """Exception for signal-related errors."""
 
-    pass
 
 
 class PortfolioError(StrategyError):
     """Exception for portfolio-related errors."""
 
-    pass
 
 
 class ExportError(StrategyError):
     """Exception for export-related errors."""
 
-    pass
 
 
 class ConfigurationError(StrategyError):
     """Exception for configuration-related errors."""
 
-    pass
 
 
 class ErrorHandlerBase(ABC):
@@ -145,7 +139,6 @@ class ErrorHandlerBase(ABC):
         reraise: bool = False,
     ) -> dict[str, Any] | None:
         """Handle an error according to the strategy's requirements."""
-        pass
 
     def log_error(
         self,
@@ -246,8 +239,9 @@ class StandardErrorHandler(ErrorHandlerBase):
                 StrategyErrorCode.OPERATION_FAILED,
             )
             if reraise:
+                msg = "Maximum warnings exceeded"
                 raise StrategyError(
-                    "Maximum warnings exceeded",
+                    msg,
                     StrategyErrorCode.OPERATION_FAILED,
                     ErrorSeverity.CRITICAL,
                 )
@@ -257,7 +251,7 @@ class StandardErrorHandler(ErrorHandlerBase):
         return strategy_error.to_dict()
 
     def _convert_to_strategy_error(
-        self, error: Exception, context: dict[str, Any] | None = None
+        self, error: Exception, context: dict[str, Any] | None = None,
     ) -> StrategyError:
         """Convert generic exception to StrategyError."""
         error_type = type(error).__name__
@@ -360,14 +354,15 @@ class ErrorHandlerFactory:
 
     @classmethod
     def create_handler(
-        cls, handler_type: str, strategy_type: str, **kwargs
+        cls, handler_type: str, strategy_type: str, **kwargs,
     ) -> ErrorHandlerBase:
         """Create an error handler of the specified type."""
         handler_type = handler_type.lower()
         if handler_type not in cls._handlers:
             available = ", ".join(cls._handlers.keys())
+            msg = f"Unknown handler type: {handler_type}. Available: {available}"
             raise ValueError(
-                f"Unknown handler type: {handler_type}. Available: {available}"
+                msg,
             )
 
         return cls._handlers[handler_type](strategy_type, **kwargs)
@@ -380,7 +375,7 @@ class ErrorHandlerFactory:
 
 # Convenience functions for backward compatibility
 def create_error_handler(
-    strategy_type: str, handler_type: str = "standard", **kwargs
+    strategy_type: str, handler_type: str = "standard", **kwargs,
 ) -> ErrorHandlerBase:
     """Create an error handler for a strategy."""
     return ErrorHandlerFactory.create_handler(handler_type, strategy_type, **kwargs)
@@ -398,7 +393,7 @@ def handle_strategy_error(
         # Use legacy log function approach
         if isinstance(error, StrategyError):
             log_function(
-                f"[{error.error_code.value}] {error.message}", error.severity.value
+                f"[{error.error_code.value}] {error.message}", error.severity.value,
             )
         else:
             log_function(f"Error in {strategy_type}: {error!s}", "error")

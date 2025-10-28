@@ -54,20 +54,25 @@ def validate_config(config: dict) -> bool:
     """
     # Validate window ranges
     if config.get("SHORT_WINDOW_END", 18) <= config.get("SHORT_WINDOW_START", 2):
-        raise ValueError("SHORT_WINDOW_END must be greater than SHORT_WINDOW_START")
+        msg = "SHORT_WINDOW_END must be greater than SHORT_WINDOW_START"
+        raise ValueError(msg)
 
     if config.get("LONG_WINDOW_END", 36) <= config.get("LONG_WINDOW_START", 4):
-        raise ValueError("LONG_WINDOW_END must be greater than LONG_WINDOW_START")
+        msg = "LONG_WINDOW_END must be greater than LONG_WINDOW_START"
+        raise ValueError(msg)
 
     if config.get("SIGNAL_WINDOW_END", 18) <= config.get("SIGNAL_WINDOW_START", 2):
-        raise ValueError("SIGNAL_WINDOW_END must be greater than SIGNAL_WINDOW_START")
+        msg = "SIGNAL_WINDOW_END must be greater than SIGNAL_WINDOW_START"
+        raise ValueError(msg)
 
     # Validate window relationships
     if config.get("LONG_WINDOW_START", 4) <= config.get("SHORT_WINDOW_END", 18):
-        raise ValueError("LONG_WINDOW_START must be greater than SHORT_WINDOW_END")
+        msg = "LONG_WINDOW_START must be greater than SHORT_WINDOW_END"
+        raise ValueError(msg)
 
     # Validate STEP parameter
     if config.get("STEP", 2) <= 0:
-        raise ValueError("STEP must be greater than 0")
+        msg = "STEP must be greater than 0"
+        raise ValueError(msg)
 
     return True

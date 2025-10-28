@@ -36,9 +36,8 @@ class ConfigService:
         ConfigService._apply_defaults(processed)
 
         # Apply normalize_config() logic - ensure absolute paths
-        processed = ConfigService._normalize_paths(processed)
+        return ConfigService._normalize_paths(processed)
 
-        return processed
 
     @staticmethod
     def _apply_defaults(config: dict[str, Any]) -> None:
@@ -82,7 +81,7 @@ class ConfigService:
 
     @staticmethod
     def merge_configs(
-        base_config: dict[str, Any], overrides: dict[str, Any] | None = None
+        base_config: dict[str, Any], overrides: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Merge a base configuration with overrides.
 

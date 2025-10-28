@@ -145,7 +145,7 @@ def create_heatmap_figures(
             zmin=profit_factor_zmin,
             zmax=profit_factor_zmax,
             colorscale="thermal",
-        )
+        ),
     )
 
     profit_factor_fig.update_layout(
@@ -171,7 +171,7 @@ def create_heatmap_figures(
             zmin=trades_zmin,
             zmax=trades_zmax,  # Use fixed maximum of 200
             colorscale="thermal",
-        )
+        ),
     )
 
     trades_fig.update_layout(
@@ -197,7 +197,7 @@ def create_heatmap_figures(
             zmin=sortino_zmin,
             zmax=sortino_zmax,
             colorscale="thermal",
-        )
+        ),
     )
 
     sortino_fig.update_layout(
@@ -223,7 +223,7 @@ def create_heatmap_figures(
             zmin=win_rate_zmin,
             zmax=win_rate_zmax,
             colorscale="thermal",
-        )
+        ),
     )
 
     win_rate_fig.update_layout(
@@ -249,7 +249,7 @@ def create_heatmap_figures(
             zmin=expectancy_zmin,
             zmax=expectancy_zmax,
             colorscale="thermal",
-        )
+        ),
     )
 
     expectancy_fig.update_layout(
@@ -275,7 +275,7 @@ def create_heatmap_figures(
             zmin=score_zmin,
             zmax=score_zmax,
             colorscale="thermal",
-        )
+        ),
     )
 
     score_fig.update_layout(

@@ -121,13 +121,13 @@ class TestManualAccountBalanceService:
 
         # Test within tolerance
         is_valid, message = self.service.validate_net_worth_calculation(
-            85100.0, tolerance=0.002
+            85100.0, tolerance=0.002,
         )
         assert is_valid
 
         # Test outside tolerance
         is_valid, message = self.service.validate_net_worth_calculation(
-            90000.0, tolerance=0.01
+            90000.0, tolerance=0.01,
         )
         assert not is_valid
         assert "validation failed" in message.lower()

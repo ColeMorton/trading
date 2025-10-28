@@ -83,7 +83,7 @@ class AdaptiveLearningEngine:
         # Gaussian Process for Bayesian optimization
         kernel = ConstantKernel(1.0) * RBF(length_scale=1.0)
         self.gp = GaussianProcessRegressor(
-            kernel=kernel, alpha=1e-6, normalize_y=True, n_restarts_optimizer=10
+            kernel=kernel, alpha=1e-6, normalize_y=True, n_restarts_optimizer=10,
         )
 
         # Current best thresholds
@@ -113,7 +113,7 @@ class AdaptiveLearningEngine:
 
         if len(recent_trades) < self.min_samples_for_update:
             logger.warning(
-                f"Insufficient samples for optimization: {len(recent_trades)}"
+                f"Insufficient samples for optimization: {len(recent_trades)}",
             )
             return OptimizationResult(
                 optimal_thresholds=current_thresholds,
@@ -128,29 +128,29 @@ class AdaptiveLearningEngine:
         if len(self.performance_history) < 20:
             # Use grid search for initial exploration
             result = self._grid_search_optimization(
-                recent_trades, current_thresholds, target_metric
+                recent_trades, current_thresholds, target_metric,
             )
             optimization_method = "grid_search"
         else:
             # Use Bayesian optimization with GP
             result = self._bayesian_optimization(
-                recent_trades, current_thresholds, target_metric
+                recent_trades, current_thresholds, target_metric,
             )
             optimization_method = "bayesian"
 
         # Apply learning rate to smooth updates
         optimal_thresholds = self._apply_learning_rate(
-            current_thresholds, result["thresholds"]
+            current_thresholds, result["thresholds"],
         )
 
         # Calculate expected improvement
         expected_improvement = self._calculate_expected_improvement(
-            recent_trades, current_thresholds, optimal_thresholds, target_metric
+            recent_trades, current_thresholds, optimal_thresholds, target_metric,
         )
 
         # Update performance history
         self._update_performance_history(
-            optimal_thresholds, recent_trades, target_metric
+            optimal_thresholds, recent_trades, target_metric,
         )
 
         return OptimizationResult(
@@ -163,7 +163,7 @@ class AdaptiveLearningEngine:
         )
 
     def analyze_threshold_performance(
-        self, trades: pd.DataFrame, threshold_ranges: dict[str, tuple[float, float]]
+        self, trades: pd.DataFrame, threshold_ranges: dict[str, tuple[float, float]],
     ) -> pd.DataFrame:
         """Analyze performance across threshold ranges.
 
@@ -190,13 +190,13 @@ class AdaptiveLearningEngine:
                     "sharpe_ratio": performance["sharpe_ratio"],
                     "win_rate": performance["win_rate"],
                     "avg_return": performance["avg_return"],
-                }
+                },
             )
 
         return pd.DataFrame(results)
 
     def predict_performance_improvement(
-        self, new_thresholds: StatisticalThresholds, confidence_level: float = 0.95
+        self, new_thresholds: StatisticalThresholds, confidence_level: float = 0.95,
     ) -> tuple[float, tuple[float, float]]:
         """Predict performance improvement with confidence interval.
 
@@ -227,7 +227,7 @@ class AdaptiveLearningEngine:
         return improvement, (lower, upper)
 
     def get_adaptive_recommendations(
-        self, current_performance: dict[str, float]
+        self, current_performance: dict[str, float],
     ) -> dict[str, Any]:
         """Get adaptive recommendations based on current performance.
 
@@ -275,7 +275,7 @@ class AdaptiveLearningEngine:
         # Calculate confidence
         if len(self.performance_history) > 0:
             recent_variance = np.var(
-                [p.exit_efficiency for p in self.performance_history[-10:]]
+                [p.exit_efficiency for p in self.performance_history[-10:]],
             )
             recommendations["confidence"] = 1.0 - min(recent_variance * 10, 1.0)
 
@@ -287,12 +287,11 @@ class AdaptiveLearningEngine:
             return trades
 
         cutoff_date = datetime.utcnow() - timedelta(days=self.optimization_window_days)
-        recent_trades = trades[pd.to_datetime(trades["exit_date"]) >= cutoff_date]
+        return trades[pd.to_datetime(trades["exit_date"]) >= cutoff_date]
 
-        return recent_trades
 
     def _grid_search_optimization(
-        self, trades: pd.DataFrame, current: StatisticalThresholds, target_metric: str
+        self, trades: pd.DataFrame, current: StatisticalThresholds, target_metric: str,
     ) -> dict[str, Any]:
         """Perform grid search optimization."""
         best_score = -np.inf
@@ -319,7 +318,7 @@ class AdaptiveLearningEngine:
                     )
 
                     performance = self._evaluate_threshold_performance(
-                        trades, thresholds
+                        trades, thresholds,
                     )
                     score = performance[target_metric]
 
@@ -335,7 +334,7 @@ class AdaptiveLearningEngine:
         }
 
     def _bayesian_optimization(
-        self, trades: pd.DataFrame, current: StatisticalThresholds, target_metric: str
+        self, trades: pd.DataFrame, current: StatisticalThresholds, target_metric: str,
     ) -> dict[str, Any]:
         """Perform Bayesian optimization using Gaussian Process."""
         # Prepare training data from history
@@ -344,7 +343,7 @@ class AdaptiveLearningEngine:
                 [
                     self._thresholds_to_features(p.thresholds)
                     for p in self.performance_history
-                ]
+                ],
             )
             y = np.array([getattr(p, target_metric) for p in self.performance_history])
 
@@ -375,7 +374,7 @@ class AdaptiveLearningEngine:
 
         # Optimize
         result = differential_evolution(
-            objective, bounds, maxiter=50, popsize=15, seed=42
+            objective, bounds, maxiter=50, popsize=15, seed=42,
         )
 
         # Extract optimal thresholds
@@ -394,12 +393,12 @@ class AdaptiveLearningEngine:
             "iterations": result.nit,
             "converged": result.success,
             "confidence_interval": self._calculate_confidence_interval(
-                optimal_thresholds, trades
+                optimal_thresholds, trades,
             ),
         }
 
     def _evaluate_threshold_performance(
-        self, trades: pd.DataFrame, thresholds: StatisticalThresholds
+        self, trades: pd.DataFrame, thresholds: StatisticalThresholds,
     ) -> dict[str, float]:
         """Evaluate performance of threshold configuration."""
         if len(trades) == 0:
@@ -455,7 +454,7 @@ class AdaptiveLearningEngine:
         }
 
     def _simulate_exits(
-        self, trades: pd.DataFrame, thresholds: StatisticalThresholds
+        self, trades: pd.DataFrame, thresholds: StatisticalThresholds,
     ) -> np.ndarray:
         """Simulate exit signals based on thresholds."""
         exit_signals = np.zeros(len(trades), dtype=bool)
@@ -478,13 +477,13 @@ class AdaptiveLearningEngine:
         return exit_signals
 
     def _apply_learning_rate(
-        self, current: StatisticalThresholds, optimal: StatisticalThresholds
+        self, current: StatisticalThresholds, optimal: StatisticalThresholds,
     ) -> StatisticalThresholds:
         """Apply learning rate to smooth threshold updates."""
         # Smooth update for continuous parameters
         new_percentile = int(
             current.percentile_threshold * (1 - self.learning_rate)
-            + optimal.percentile_threshold * self.learning_rate
+            + optimal.percentile_threshold * self.learning_rate,
         )
 
         new_dual_layer = (
@@ -520,9 +519,8 @@ class AdaptiveLearningEngine:
         current_score = current_performance[target_metric]
         optimal_score = optimal_performance[target_metric]
 
-        improvement = (optimal_score - current_score) / max(abs(current_score), 1e-6)
+        return (optimal_score - current_score) / max(abs(current_score), 1e-6)
 
-        return improvement
 
     def _update_performance_history(
         self,
@@ -563,11 +561,11 @@ class AdaptiveLearningEngine:
                 thresholds.dual_layer_threshold,
                 thresholds.rarity_threshold,
                 thresholds.multi_timeframe_agreement,
-            ]
+            ],
         )
 
     def _generate_threshold_configurations(
-        self, ranges: dict[str, tuple[float, float]]
+        self, ranges: dict[str, tuple[float, float]],
     ) -> list[dict[str, Any]]:
         """Generate threshold configurations from ranges."""
         configs = []
@@ -593,13 +591,13 @@ class AdaptiveLearningEngine:
                         "dual_layer_threshold": d,
                         "rarity_threshold": 0.05,  # Default
                         "multi_timeframe_agreement": 2,  # Default
-                    }
+                    },
                 )
 
         return configs
 
     def _calculate_confidence_interval(
-        self, thresholds: StatisticalThresholds, trades: pd.DataFrame
+        self, thresholds: StatisticalThresholds, trades: pd.DataFrame,
     ) -> tuple[float, float]:
         """Calculate confidence interval for threshold performance."""
         # Bootstrap confidence interval

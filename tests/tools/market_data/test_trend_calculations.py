@@ -140,7 +140,7 @@ class TestTrendMetricsCalculation:
             {
                 "Date": pd.date_range("2023-01-01", periods=10),
                 "Close": [100, 101, 102, 103, 104, 105, 106, 107, 108, 109],
-            }
+            },
         )
 
         analyzer.price_data = short_data
@@ -175,7 +175,7 @@ class TestMovingAverageCalculations:
         # Create data where we can verify MA calculations
         prices = list(range(100, 300))  # 200 data points: 100, 101, 102, ..., 299
         data = pl.DataFrame(
-            {"Date": pd.date_range("2023-01-01", periods=len(prices)), "Close": prices}
+            {"Date": pd.date_range("2023-01-01", periods=len(prices)), "Close": prices},
         )
 
         analyzer.price_data = data
@@ -202,7 +202,7 @@ class TestMovingAverageCalculations:
         # Only 30 data points
         prices = list(range(100, 130))
         data = pl.DataFrame(
-            {"Date": pd.date_range("2023-01-01", periods=len(prices)), "Close": prices}
+            {"Date": pd.date_range("2023-01-01", periods=len(prices)), "Close": prices},
         )
 
         analyzer.price_data = data
@@ -233,7 +233,7 @@ class TestTrendDirectionCalculations:
         # Create data where current price is 10% above the average
         base_prices = [100] * 49 + [110]  # 49 prices at 100, last at 110
         data = pl.DataFrame(
-            {"Date": pd.date_range("2023-01-01", periods=50), "Close": base_prices}
+            {"Date": pd.date_range("2023-01-01", periods=50), "Close": base_prices},
         )
 
         analyzer.price_data = data
@@ -252,7 +252,7 @@ class TestTrendDirectionCalculations:
         # Create data where current price is 10% below the average
         base_prices = [100] * 49 + [90]  # 49 prices at 100, last at 90
         data = pl.DataFrame(
-            {"Date": pd.date_range("2023-01-01", periods=50), "Close": base_prices}
+            {"Date": pd.date_range("2023-01-01", periods=50), "Close": base_prices},
         )
 
         analyzer.price_data = data
@@ -267,7 +267,7 @@ class TestTrendDirectionCalculations:
         # Create data where current price equals the average
         base_prices = [100] * 50
         data = pl.DataFrame(
-            {"Date": pd.date_range("2023-01-01", periods=50), "Close": base_prices}
+            {"Date": pd.date_range("2023-01-01", periods=50), "Close": base_prices},
         )
 
         analyzer.price_data = data
@@ -293,7 +293,7 @@ class TestTrendConsistencyCalculations:
         prices = [ma_20 + 1] * 20  # All prices above MA
 
         data = pl.DataFrame(
-            {"Date": pd.date_range("2023-01-01", periods=20), "Close": prices}
+            {"Date": pd.date_range("2023-01-01", periods=20), "Close": prices},
         )
 
         analyzer.price_data = data
@@ -309,7 +309,7 @@ class TestTrendConsistencyCalculations:
         base_prices = [105] * 19 + [95]  # MA will be ~105, last price is 95
 
         data = pl.DataFrame(
-            {"Date": pd.date_range("2023-01-01", periods=20), "Close": base_prices}
+            {"Date": pd.date_range("2023-01-01", periods=20), "Close": base_prices},
         )
 
         analyzer.price_data = data
@@ -346,7 +346,7 @@ class TestTrendConsistencyCalculations:
         ]
 
         data = pl.DataFrame(
-            {"Date": pd.date_range("2023-01-01", periods=20), "Close": prices}
+            {"Date": pd.date_range("2023-01-01", periods=20), "Close": prices},
         )
 
         analyzer.price_data = data
@@ -371,7 +371,7 @@ class TestTrendSlopeCalculations:
         prices = [100 + i for i in range(20)]  # 100, 101, 102, ..., 119
 
         data = pl.DataFrame(
-            {"Date": pd.date_range("2023-01-01", periods=20), "Close": prices}
+            {"Date": pd.date_range("2023-01-01", periods=20), "Close": prices},
         )
 
         analyzer.price_data = data
@@ -387,7 +387,7 @@ class TestTrendSlopeCalculations:
         prices = [120 - i for i in range(20)]  # 120, 119, 118, ..., 101
 
         data = pl.DataFrame(
-            {"Date": pd.date_range("2023-01-01", periods=20), "Close": prices}
+            {"Date": pd.date_range("2023-01-01", periods=20), "Close": prices},
         )
 
         analyzer.price_data = data
@@ -403,7 +403,7 @@ class TestTrendSlopeCalculations:
         prices = [100] * 20
 
         data = pl.DataFrame(
-            {"Date": pd.date_range("2023-01-01", periods=20), "Close": prices}
+            {"Date": pd.date_range("2023-01-01", periods=20), "Close": prices},
         )
 
         analyzer.price_data = data
@@ -426,7 +426,7 @@ class TestTrendErrorHandling:
         """Test trend calculation with NaN prices."""
         prices = [100, np.nan, 102, 103, np.nan, 105]
         data = pl.DataFrame(
-            {"Date": pd.date_range("2023-01-01", periods=len(prices)), "Close": prices}
+            {"Date": pd.date_range("2023-01-01", periods=len(prices)), "Close": prices},
         )
 
         analyzer.price_data = data
@@ -440,7 +440,7 @@ class TestTrendErrorHandling:
             assert True  # Expected behavior
         else:
             # If calculation succeeds, verify no NaN values
-            for _key, value in result.items():
+            for value in result.values():
                 assert not np.isnan(value)
 
     def test_trend_calculation_exception(self, analyzer):
@@ -453,7 +453,7 @@ class TestTrendErrorHandling:
             {
                 "Date": pd.date_range("2023-01-01", periods=20),
                 "Close": [0] * 20,  # Zero prices might cause division by zero
-            }
+            },
         )
 
         analyzer.price_data = problematic_data
@@ -462,7 +462,7 @@ class TestTrendErrorHandling:
 
         # Should return default values or handle gracefully
         assert isinstance(result, dict)
-        for _key, value in result.items():
+        for value in result.values():
             assert isinstance(value, int | float)
 
     def test_default_trend_metrics(self, analyzer):
@@ -499,7 +499,7 @@ class TestTrendIntegration:
         # Create sample data
         prices = [100 + i + np.random.normal(0, 0.5) for i in range(252)]
         data = pl.DataFrame(
-            {"Date": pd.date_range("2023-01-01", periods=252), "Close": prices}
+            {"Date": pd.date_range("2023-01-01", periods=252), "Close": prices},
         )
 
         analyzer.price_data = data

@@ -114,7 +114,7 @@ def execute_single_strategy(ticker: str, config: Config, log: Callable) -> dict 
         # Convert stats using app/tools/stats_converter.py
         # Pass both the current entry and exit signals to convert_stats
         converted_stats = convert_stats(
-            valid_stats, log, config, current_signal, exit_signal
+            valid_stats, log, config, current_signal, exit_signal,
         )
 
         # Add strategy identification fields
@@ -127,7 +127,7 @@ def execute_single_strategy(ticker: str, config: Config, log: Callable) -> dict 
                 # Add Allocation [%] and Stop Loss [%] fields if they exist in config
                 "Allocation [%]": config.get("ALLOCATION", None),
                 "Stop Loss [%]": config.get("STOP_LOSS", None),
-            }
+            },
         )
 
         return converted_stats
@@ -176,7 +176,7 @@ def process_single_ticker(
     # Progress tracking handled by external progress_update_fn
 
     portfolios_df = process_ticker_portfolios(
-        actual_ticker, ticker_config, log, progress_update_fn=progress_update_fn
+        actual_ticker, ticker_config, log, progress_update_fn=progress_update_fn,
     )
     if portfolios_df is None:
         return None
@@ -201,13 +201,13 @@ def process_single_ticker(
 
         # Normalize portfolio data to handle Allocation [%] and Stop Loss [%] columns
         normalized_portfolios = normalize_portfolio_data(
-            portfolio_dicts, schema_version, log
+            portfolio_dicts, schema_version, log,
         )
 
         # Ensure allocation values sum to 100% if they exist
         if schema_version == SchemaVersion.EXTENDED:
             normalized_portfolios = ensure_allocation_sum_100_percent(
-                normalized_portfolios, log
+                normalized_portfolios, log,
             )
 
         export_portfolios(
@@ -243,13 +243,13 @@ def process_single_ticker(
 
         # Normalize portfolio data to handle Allocation [%] and Stop Loss [%] columns
         normalized_filtered = normalize_portfolio_data(
-            filtered_dicts, schema_version, log
+            filtered_dicts, schema_version, log,
         )
 
         # Ensure allocation values sum to 100% if they exist
         if schema_version == SchemaVersion.EXTENDED:
             normalized_filtered = ensure_allocation_sum_100_percent(
-                normalized_filtered, log
+                normalized_filtered, log,
             )
 
         export_portfolios(
@@ -266,7 +266,7 @@ def process_single_ticker(
 
     # Get best portfolios (one per strategy type if multiple exist)
     best_portfolios = get_best_portfolios_per_strategy_type(
-        filtered_portfolios, ticker_config, log
+        filtered_portfolios, ticker_config, log,
     )
 
     if best_portfolios:
@@ -284,7 +284,7 @@ def process_single_ticker(
 
 
 def process_ticker_batch(
-    ticker_batch: list[str], config: Config, strategy_type: str, log: Callable
+    ticker_batch: list[str], config: Config, strategy_type: str, log: Callable,
 ) -> list[dict[str, Any]]:
     """Process a batch of tickers sequentially within a single thread.
 
@@ -318,7 +318,7 @@ def process_ticker_batch(
                     if "TICKER_2" not in ticker_config:
                         ticker_config["TICKER_2"] = ticker_parts[1]
                     log(
-                        f"Extracted ticker components: {ticker_config['TICKER_1']} and {ticker_config['TICKER_2']}"
+                        f"Extracted ticker components: {ticker_config['TICKER_1']} and {ticker_config['TICKER_2']}",
                     )
 
             # Ensure synthetic tickers use underscore format
@@ -349,7 +349,7 @@ def process_ticker_batch(
 
 
 def create_ticker_batches(
-    tickers: list[str], batch_size: int | None = None
+    tickers: list[str], batch_size: int | None = None,
 ) -> list[list[str]]:
     """Create batches of tickers for concurrent processing.
 
@@ -368,7 +368,7 @@ def create_ticker_batches(
             batch_size = 2  # Two tickers per thread for medium lists
         else:
             batch_size = max(
-                1, len(tickers) // 8
+                1, len(tickers) // 8,
             )  # Distribute across 8 threads for large lists
 
     batches = []
@@ -463,7 +463,7 @@ def execute_strategy_concurrent(
         # Submit all batch processing tasks
         future_to_batch = {
             executor.submit(
-                process_ticker_batch, batch, config, strategy_type, log
+                process_ticker_batch, batch, config, strategy_type, log,
             ): batch
             for batch in ticker_batches
         }
@@ -485,7 +485,7 @@ def execute_strategy_concurrent(
 
                 # Update performance tracking progress
                 tracker.update_execution_progress(
-                    execution_id=execution_id, portfolios_generated=len(all_portfolios)
+                    execution_id=execution_id, portfolios_generated=len(all_portfolios),
                 )
 
                 log(
@@ -497,7 +497,7 @@ def execute_strategy_concurrent(
                 log(f"Batch processing failed for {batch}: {e!s}", "error")
                 # Update error count in performance tracking
                 tracker.update_execution_progress(
-                    execution_id=execution_id, error_count=1
+                    execution_id=execution_id, error_count=1,
                 )
                 # Continue processing other batches
                 continue
@@ -505,7 +505,7 @@ def execute_strategy_concurrent(
     # Mark analysis complete
     if progress_tracker:
         progress_tracker.complete(
-            f"Completed concurrent {strategy_type} analysis for {len(tickers)} tickers"
+            f"Completed concurrent {strategy_type} analysis for {len(tickers)} tickers",
         )
 
     # Finalize performance tracking
@@ -513,14 +513,14 @@ def execute_strategy_concurrent(
         execution_id=execution_id,
         portfolios_generated=len(all_portfolios),
         portfolios_filtered=len(
-            all_portfolios
+            all_portfolios,
         ),  # For best portfolios, filtered equals generated
     )
 
     final_metrics = tracker.end_strategy_execution(execution_id)
     if final_metrics:
         log(
-            f"Concurrent strategy execution completed with efficiency score: {final_metrics.calculate_efficiency_score():.2f}"
+            f"Concurrent strategy execution completed with efficiency score: {final_metrics.calculate_efficiency_score():.2f}",
         )
 
     log(
@@ -602,7 +602,7 @@ def execute_strategy(
                 if "TICKER_2" not in ticker_config:
                     ticker_config["TICKER_2"] = ticker_parts[1]
                 log(
-                    f"Extracted ticker components: {ticker_config['TICKER_1']} and {ticker_config['TICKER_2']}"
+                    f"Extracted ticker components: {ticker_config['TICKER_1']} and {ticker_config['TICKER_2']}",
                 )
 
         # Ensure synthetic tickers use underscore format
@@ -620,7 +620,7 @@ def execute_strategy(
         # preserved
         formatted_ticker_to_process = ticker_config.get("TICKER", ticker)
         best_portfolio = process_single_ticker(
-            formatted_ticker_to_process, ticker_config, log, progress_update_fn
+            formatted_ticker_to_process, ticker_config, log, progress_update_fn,
         )
         if best_portfolio is not None:
             best_portfolios.append(best_portfolio)
@@ -629,7 +629,7 @@ def execute_strategy(
 
         # Update performance tracking progress
         tracker.update_execution_progress(
-            execution_id=execution_id, portfolios_generated=len(best_portfolios)
+            execution_id=execution_id, portfolios_generated=len(best_portfolios),
         )
 
     # Progress tracking handled by external progress_update_fn
@@ -639,14 +639,14 @@ def execute_strategy(
         execution_id=execution_id,
         portfolios_generated=len(best_portfolios),
         portfolios_filtered=len(
-            best_portfolios
+            best_portfolios,
         ),  # Filtered count equals generated for best portfolios
     )
 
     final_metrics = tracker.end_strategy_execution(execution_id)
     if final_metrics:
         log(
-            f"Strategy execution completed with efficiency score: {final_metrics.calculate_efficiency_score():.2f}"
+            f"Strategy execution completed with efficiency score: {final_metrics.calculate_efficiency_score():.2f}",
         )
 
     return best_portfolios

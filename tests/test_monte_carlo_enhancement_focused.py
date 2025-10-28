@@ -86,14 +86,14 @@ class TestMonteCarloEnhancementFocused(unittest.TestCase):
                 "parameter_robustness": 0.6505276554661957,
                 "regime_consistency": 0.99,
                 "is_stable": True,
-            }
+            },
         ]
 
         mock_log = Mock()
 
         # Apply enhancement
         result = enhance_recommended_parameters(
-            strategy_data, parameter_variations, mock_log
+            strategy_data, parameter_variations, mock_log,
         )
 
         # Verify enhanced structure
@@ -111,7 +111,7 @@ class TestMonteCarloEnhancementFocused(unittest.TestCase):
             0.7313931686091366 * 0.4 + 0.6505276554661957 * 0.4 + 0.99 * 0.2
         )
         self.assertAlmostEqual(
-            recommended["composite_score"], expected_composite, places=5
+            recommended["composite_score"], expected_composite, places=5,
         )
 
         # Verify logging
@@ -137,14 +137,14 @@ class TestMonteCarloEnhancementFocused(unittest.TestCase):
                 "parameter_robustness": 0.6505276554661957,
                 "regime_consistency": 0.99,
                 "is_stable": True,
-            }
+            },
         ]
 
         mock_log = Mock()
 
         # Apply enhancement
         result = enhance_recommended_parameters(
-            strategy_data, parameter_variations, mock_log
+            strategy_data, parameter_variations, mock_log,
         )
 
         # Verify structure with null values
@@ -166,7 +166,7 @@ class TestMonteCarloEnhancementFocused(unittest.TestCase):
             if len(call[0]) > 1 and call[0][1] == "warning"
         ]
         self.assertTrue(
-            len(warning_calls) > 0, "Should log warning for missing metrics"
+            len(warning_calls) > 0, "Should log warning for missing metrics",
         )
 
     def test_recommended_parameters_none(self):
@@ -181,7 +181,7 @@ class TestMonteCarloEnhancementFocused(unittest.TestCase):
 
         # Apply enhancement
         result = enhance_recommended_parameters(
-            strategy_data, parameter_variations, mock_log
+            strategy_data, parameter_variations, mock_log,
         )
 
         # Should remain None and not be modified
@@ -201,14 +201,14 @@ class TestMonteCarloEnhancementFocused(unittest.TestCase):
                 "parameter_robustness": 0.6,
                 "regime_consistency": 0.9,
                 "is_stable": True,
-            }
+            },
         ]
 
         mock_log = Mock()
 
         # Apply enhancement
         result = enhance_recommended_parameters(
-            strategy_data, parameter_variations, mock_log
+            strategy_data, parameter_variations, mock_log,
         )
 
         # Verify composite score: 0.8*0.4 + 0.6*0.4 + 0.9*0.2 = 0.32 + 0.24 + 0.18 = 0.74
@@ -233,14 +233,14 @@ class TestMonteCarloEnhancementFocused(unittest.TestCase):
                 "parameter_robustness": 0.65,
                 "regime_consistency": 0.85,
                 "is_stable": True,
-            }
+            },
         ]
 
         mock_log = Mock()
 
         # Apply enhancement
         result = enhance_recommended_parameters(
-            strategy_data, parameter_variations, mock_log
+            strategy_data, parameter_variations, mock_log,
         )
 
         recommended = result["recommended_parameters"]

@@ -27,7 +27,7 @@ class PortfolioCompositionLoader:
         self.business_loader = get_business_config_loader()
 
     def load_portfolio_composition(
-        self, portfolio_name: str, execution_profile: str | None = None
+        self, portfolio_name: str, execution_profile: str | None = None,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         """Load portfolio composition separating business and technical configurations.
 
@@ -52,19 +52,20 @@ class PortfolioCompositionLoader:
 
             # Validate composition
             self._validate_composition(
-                business_config, technical_config, portfolio_name
+                business_config, technical_config, portfolio_name,
             )
 
             self.logger.info(
-                f"Successfully loaded portfolio composition for {portfolio_name}"
+                f"Successfully loaded portfolio composition for {portfolio_name}",
             )
             return business_config, technical_config
 
         except Exception as e:
             if isinstance(e, PortfolioCompositionError):
                 raise
+            msg = f"Error loading portfolio composition for {portfolio_name}: {e!s}"
             raise PortfolioCompositionError(
-                f"Error loading portfolio composition for {portfolio_name}: {e!s}"
+                msg,
             )
 
     def _load_execution_profile(self, execution_profile: str) -> dict[str, Any]:
@@ -86,13 +87,14 @@ class PortfolioCompositionLoader:
         for profile_path in profile_paths:
             try:
                 return self.business_loader.load_config(
-                    f"../app/cli/profiles/{profile_path}"
+                    f"../app/cli/profiles/{profile_path}",
                 )
             except BusinessConfigurationError:
                 continue
 
+        msg = f"Execution profile not found: {execution_profile}"
         raise PortfolioCompositionError(
-            f"Execution profile not found: {execution_profile}"
+            msg,
         )
 
     def _validate_composition(
@@ -110,8 +112,9 @@ class PortfolioCompositionLoader:
         """
         # Validate business config structure
         if "assets" not in business_config:
+            msg = f"Business portfolio {portfolio_name} missing 'assets' section"
             raise PortfolioCompositionError(
-                f"Business portfolio {portfolio_name} missing 'assets' section"
+                msg,
             )
 
         # Validate technical config references business config if present
@@ -122,11 +125,11 @@ class PortfolioCompositionLoader:
                 if config["portfolio_reference"] != expected_ref:
                     self.logger.warning(
                         f"Technical config portfolio_reference mismatch: "
-                        f"expected {expected_ref}, got {config['portfolio_reference']}"
+                        f"expected {expected_ref}, got {config['portfolio_reference']}",
                     )
 
     def get_asset_execution_strategy(
-        self, portfolio_name: str, ticker: str, execution_profile: str | None = None
+        self, portfolio_name: str, ticker: str, execution_profile: str | None = None,
     ) -> dict[str, Any]:
         """Get execution strategy for a specific asset in a portfolio.
 
@@ -143,45 +146,46 @@ class PortfolioCompositionLoader:
         """
         try:
             business_config, technical_config = self.load_portfolio_composition(
-                portfolio_name, execution_profile
+                portfolio_name, execution_profile,
             )
 
             # Find asset in business config
             asset_config = self._find_asset_config(business_config, ticker)
             if not asset_config:
+                msg = f"Asset {ticker} not found in portfolio {portfolio_name}"
                 raise PortfolioCompositionError(
-                    f"Asset {ticker} not found in portfolio {portfolio_name}"
+                    msg,
                 )
 
             # Get execution strategy from technical config
             execution_strategy = {}
             if technical_config and "config" in technical_config:
                 execution_strategy = self._find_execution_strategy(
-                    technical_config, ticker
+                    technical_config, ticker,
                 )
 
             # Combine with asset-specific defaults from business configuration
             asset_defaults = self.business_loader.get_asset_specific_defaults(ticker)
 
             # Compose final execution strategy
-            composed_strategy = {
+            return {
                 "ticker": ticker,
                 "business_config": asset_config,
                 "asset_defaults": asset_defaults,
                 "execution_config": execution_strategy,
             }
 
-            return composed_strategy
 
         except Exception as e:
             if isinstance(e, PortfolioCompositionError):
                 raise
+            msg = f"Error getting execution strategy for {ticker} in {portfolio_name}: {e!s}"
             raise PortfolioCompositionError(
-                f"Error getting execution strategy for {ticker} in {portfolio_name}: {e!s}"
+                msg,
             )
 
     def _find_asset_config(
-        self, business_config: dict[str, Any], ticker: str
+        self, business_config: dict[str, Any], ticker: str,
     ) -> dict[str, Any] | None:
         """Find asset configuration in business portfolio config.
 
@@ -199,7 +203,7 @@ class PortfolioCompositionLoader:
         return None
 
     def _find_execution_strategy(
-        self, technical_config: dict[str, Any], ticker: str
+        self, technical_config: dict[str, Any], ticker: str,
     ) -> dict[str, Any]:
         """Find execution strategy in technical configuration.
 
@@ -247,8 +251,9 @@ class PortfolioCompositionLoader:
             return [asset.get("ticker") for asset in assets if asset.get("ticker")]
 
         except Exception as e:
+            msg = f"Error listing assets for portfolio {portfolio_name}: {e!s}"
             raise PortfolioCompositionError(
-                f"Error listing assets for portfolio {portfolio_name}: {e!s}"
+                msg,
             )
 
     def get_portfolio_allocation(self, portfolio_name: str) -> dict[str, Any]:
@@ -268,8 +273,9 @@ class PortfolioCompositionLoader:
             return business_config.get("allocation", {})
 
         except Exception as e:
+            msg = f"Error getting allocation for portfolio {portfolio_name}: {e!s}"
             raise PortfolioCompositionError(
-                f"Error getting allocation for portfolio {portfolio_name}: {e!s}"
+                msg,
             )
 
     def get_portfolio_risk_management(self, portfolio_name: str) -> dict[str, Any]:
@@ -286,8 +292,9 @@ class PortfolioCompositionLoader:
             return business_config.get("risk_management", {})
 
         except Exception as e:
+            msg = f"Error getting risk management for portfolio {portfolio_name}: {e!s}"
             raise PortfolioCompositionError(
-                f"Error getting risk management for portfolio {portfolio_name}: {e!s}"
+                msg,
             )
 
 
@@ -311,7 +318,7 @@ def get_portfolio_composition_loader() -> PortfolioCompositionLoader:
 
 
 def load_portfolio_with_execution(
-    portfolio_name: str, execution_profile: str | None = None
+    portfolio_name: str, execution_profile: str | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Load portfolio with business and technical configurations.
 
@@ -340,7 +347,7 @@ def get_portfolio_assets(portfolio_name: str) -> list[str]:
 
 
 def get_asset_strategy(
-    portfolio_name: str, ticker: str, execution_profile: str | None = None
+    portfolio_name: str, ticker: str, execution_profile: str | None = None,
 ) -> dict[str, Any]:
     """Get execution strategy for an asset in a portfolio.
 
@@ -354,5 +361,5 @@ def get_asset_strategy(
     """
     loader = get_portfolio_composition_loader()
     return loader.get_asset_execution_strategy(
-        portfolio_name, ticker, execution_profile
+        portfolio_name, ticker, execution_profile,
     )

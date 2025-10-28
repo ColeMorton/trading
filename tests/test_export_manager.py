@@ -40,7 +40,7 @@ class TestExportManager:
                 "Slow Period": [20, 50],
                 "Total Trades": [100, 50],
                 "Win Rate [%]": [55.5, 48.2],
-            }
+            },
         )
 
     @pytest.fixture
@@ -333,7 +333,7 @@ class TestCSVExporter:
 
         # DataFrame missing some risk metrics
         df = pl.DataFrame(
-            {"Ticker": ["BTC-USD"], "Total Trades": [100], "Win Rate [%]": [55.5]}
+            {"Ticker": ["BTC-USD"], "Total Trades": [100], "Win Rate [%]": [55.5]},
         )
 
         with (

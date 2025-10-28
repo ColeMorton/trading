@@ -20,6 +20,7 @@ from ..models.schemas import (
 )
 from ..services.job_service import JobService
 from ..services.queue_service import enqueue_job
+from typing import Annotated
 
 
 router = APIRouter()
@@ -28,8 +29,8 @@ router = APIRouter()
 @router.post("/list", response_model=JobResponse)
 async def config_list(
     request: ConfigListRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("config")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("config"))],
 ):
     """
     List all available configuration profiles.
@@ -63,8 +64,8 @@ async def config_list(
 @router.post("/show", response_model=JobResponse)
 async def config_show(
     request: ConfigShowRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("config")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("config"))],
 ):
     """
     Show configuration details for a specific profile.
@@ -100,8 +101,8 @@ async def config_show(
 @router.post("/verify-defaults", response_model=JobResponse)
 async def config_verify_defaults(
     request: ConfigVerifyDefaultsRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("config")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("config"))],
 ):
     """
     Verify that required default configuration profiles exist.
@@ -133,8 +134,8 @@ async def config_verify_defaults(
 @router.post("/set-default", response_model=JobResponse)
 async def config_set_default(
     request: ConfigSetDefaultRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("config")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("config"))],
 ):
     """
     Set the default configuration profile.
@@ -168,8 +169,8 @@ async def config_set_default(
 @router.post("/edit", response_model=JobResponse)
 async def config_edit(
     request: ConfigEditRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("config")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("config"))],
 ):
     """
     Edit a configuration profile.
@@ -204,8 +205,8 @@ async def config_edit(
 @router.post("/validate", response_model=JobResponse)
 async def config_validate(
     request: ConfigValidateRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("config")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("config"))],
 ):
     """
     Validate configuration profiles.

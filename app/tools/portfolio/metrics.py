@@ -52,7 +52,7 @@ def get_metric_rows(df: pl.DataFrame, column: str) -> list[Any]:
                     pl.col(column)
                     .str.extract(r"(\d+) days")
                     .cast(pl.Float64)
-                    .alias(column)
+                    .alias(column),
                 )
             except Exception:
                 # If duration parsing fails, keep as string
@@ -97,7 +97,7 @@ def get_metric_rows(df: pl.DataFrame, column: str) -> list[Any]:
 
 
 def create_metric_result(
-    metric: str, rows: list[Any], df_columns: list[str]
+    metric: str, rows: list[Any], df_columns: list[str],
 ) -> list[dict[str, Any]]:
     """
     Create result dictionaries for a metric's rows.
@@ -122,7 +122,7 @@ def create_metric_result(
             {
                 "Metric Type": f"{label} {metric}",
                 **dict(zip(df_columns, row, strict=False)),
-            }
+            },
         )
 
     return result_rows

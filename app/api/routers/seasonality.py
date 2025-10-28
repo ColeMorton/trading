@@ -20,6 +20,7 @@ from ..models.schemas import (
 )
 from ..services.job_service import JobService
 from ..services.queue_service import enqueue_job
+from typing import Annotated
 
 
 router = APIRouter()
@@ -28,8 +29,8 @@ router = APIRouter()
 @router.post("/run", response_model=JobResponse)
 async def seasonality_run(
     request: SeasonalityRunRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("seasonality")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("seasonality"))],
 ):
     """
     Run seasonality analysis on stock price data.
@@ -63,8 +64,8 @@ async def seasonality_run(
 @router.post("/list", response_model=JobResponse)
 async def seasonality_list(
     request: SeasonalityListRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("seasonality")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("seasonality"))],
 ):
     """
     List available tickers for seasonality analysis.
@@ -96,8 +97,8 @@ async def seasonality_list(
 @router.post("/results", response_model=JobResponse)
 async def seasonality_results(
     request: SeasonalityResultsRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("seasonality")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("seasonality"))],
 ):
     """
     View seasonality analysis results for specific ticker.
@@ -129,8 +130,8 @@ async def seasonality_results(
 @router.post("/clean", response_model=JobResponse)
 async def seasonality_clean(
     request: SeasonalityCleanRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("seasonality")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("seasonality"))],
 ):
     """
     Clean up seasonality results directory.
@@ -162,8 +163,8 @@ async def seasonality_clean(
 @router.post("/current", response_model=JobResponse)
 async def seasonality_current(
     request: SeasonalityCurrentRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("seasonality")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("seasonality"))],
 ):
     """
     Generate current seasonality expectancy analysis.
@@ -197,8 +198,8 @@ async def seasonality_current(
 @router.post("/portfolio", response_model=JobResponse)
 async def seasonality_portfolio(
     request: SeasonalityPortfolioRequest,
-    db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(require_scope("seasonality")),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    api_key: Annotated[APIKey, Depends(require_scope("seasonality"))],
 ):
     """
     Run seasonality analysis on all tickers in a portfolio.

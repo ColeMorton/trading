@@ -91,7 +91,7 @@ class TestWebhookParameters:
         )
 
         assert request_with_headers.webhook_headers == {
-            "Authorization": "Bearer token123"
+            "Authorization": "Bearer token123",
         }
 
         # Test without headers

@@ -92,7 +92,7 @@ class SPDSAnalysisEngine:
         if not logger.handlers:
             handler = logging.StreamHandler()
             formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             )
             handler.setFormatter(formatter)
             logger.addHandler(handler)
@@ -113,7 +113,7 @@ class SPDSAnalysisEngine:
 
         try:
             self.logger.info(
-                f"Starting {request.analysis_type} analysis: {request.parameter}"
+                f"Starting {request.analysis_type} analysis: {request.parameter}",
             )
 
             # Create analysis context
@@ -127,7 +127,8 @@ class SPDSAnalysisEngine:
             elif request.analysis_type == "position":
                 results = await self._analyze_position(context)
             else:
-                raise ValueError(f"Unsupported analysis type: {request.analysis_type}")
+                msg = f"Unsupported analysis type: {request.analysis_type}"
+                raise ValueError(msg)
 
             # Record performance metrics
             execution_time = (datetime.now() - start_time).total_seconds()
@@ -144,7 +145,7 @@ class SPDSAnalysisEngine:
             return results
 
         except Exception as e:
-            self.logger.error(f"Analysis failed: {e}")
+            self.logger.exception(f"Analysis failed: {e}")
             raise
 
     def _create_analysis_context(self, request: AnalysisRequest) -> AnalysisContext:
@@ -160,7 +161,7 @@ class SPDSAnalysisEngine:
 
         # Detect available data sources
         data_sources = self._detect_data_sources(
-            request.parameter, request.analysis_type
+            request.parameter, request.analysis_type,
         )
 
         # Create execution metadata
@@ -180,7 +181,7 @@ class SPDSAnalysisEngine:
         )
 
     def _detect_data_sources(
-        self, parameter: str, analysis_type: str
+        self, parameter: str, analysis_type: str,
     ) -> dict[str, bool]:
         """Detect available data sources for the analysis."""
         data_sources = {
@@ -209,7 +210,7 @@ class SPDSAnalysisEngine:
 
                     # Check for trade history file
                     trade_history_file = Path(
-                        f"data/raw/reports/trade_history/{ticker}_D_{strategy_type}.json"
+                        f"data/raw/reports/trade_history/{ticker}_D_{strategy_type}.json",
                     )
                     data_sources["trade_history"] = trade_history_file.exists()
 
@@ -230,7 +231,7 @@ class SPDSAnalysisEngine:
         return data_sources
 
     async def _analyze_portfolio(
-        self, context: AnalysisContext
+        self, context: AnalysisContext,
     ) -> dict[str, AnalysisResult]:
         """Analyze entire portfolio for exit signals."""
         portfolio_file = context.request.parameter
@@ -238,7 +239,8 @@ class SPDSAnalysisEngine:
         # Load portfolio data
         portfolio_path = Path(f"data/raw/positions/{portfolio_file}")
         if not portfolio_path.exists():
-            raise FileNotFoundError(f"Portfolio file not found: {portfolio_path}")
+            msg = f"Portfolio file not found: {portfolio_path}"
+            raise FileNotFoundError(msg)
 
         portfolio_df = pd.read_csv(portfolio_path)
 
@@ -254,7 +256,8 @@ class SPDSAnalysisEngine:
             col for col in required_columns if col not in portfolio_df.columns
         ]
         if missing_columns:
-            raise ValueError(f"Portfolio missing required columns: {missing_columns}")
+            msg = f"Portfolio missing required columns: {missing_columns}"
+            raise ValueError(msg)
 
         self.logger.info(f"Analyzing portfolio with {len(portfolio_df)} positions")
 
@@ -268,17 +271,17 @@ class SPDSAnalysisEngine:
 
             except Exception as e:
                 self.logger.warning(
-                    f"Failed to analyze position {position.get('Position_UUID', 'unknown')}: {e}"
+                    f"Failed to analyze position {position.get('Position_UUID', 'unknown')}: {e}",
                 )
                 # Continue with other positions
 
         self.logger.info(
-            f"Portfolio analysis completed: {len(results)} positions analyzed"
+            f"Portfolio analysis completed: {len(results)} positions analyzed",
         )
         return results
 
     async def _analyze_strategy(
-        self, context: AnalysisContext
+        self, context: AnalysisContext,
     ) -> dict[str, AnalysisResult]:
         """Analyze specific strategy performance."""
         strategy_spec = context.request.parameter
@@ -286,7 +289,8 @@ class SPDSAnalysisEngine:
         # Parse strategy specification
         parts = strategy_spec.split("_")
         if len(parts) < 4:
-            raise ValueError(f"Invalid strategy specification: {strategy_spec}")
+            msg = f"Invalid strategy specification: {strategy_spec}"
+            raise ValueError(msg)
 
         ticker = parts[0]
         strategy_type = parts[1]
@@ -294,7 +298,7 @@ class SPDSAnalysisEngine:
         slow_period = int(parts[3])
 
         self.logger.info(
-            f"Analyzing strategy: {ticker} {strategy_type} {fast_period}/{slow_period}"
+            f"Analyzing strategy: {ticker} {strategy_type} {fast_period}/{slow_period}",
         )
 
         # Create synthetic position data for analysis
@@ -311,18 +315,18 @@ class SPDSAnalysisEngine:
                 "Current_Price": 0.0,  # Will be fetched if needed
                 "Position_Size": 0,
                 "Unrealized_PnL": 0.0,
-            }
+            },
         )
 
         # Analyze the strategy
         analysis_result = await self._analyze_single_position(
-            synthetic_position, context
+            synthetic_position, context,
         )
 
         return {strategy_spec: analysis_result}
 
     async def _analyze_position(
-        self, context: AnalysisContext
+        self, context: AnalysisContext,
     ) -> dict[str, AnalysisResult]:
         """Analyze specific position by UUID."""
         position_uuid = context.request.parameter
@@ -330,7 +334,8 @@ class SPDSAnalysisEngine:
         # Find position in portfolio files
         position_data = await self._find_position_by_uuid(position_uuid)
         if position_data is None:
-            raise ValueError(f"Position not found: {position_uuid}")
+            msg = f"Position not found: {position_uuid}"
+            raise ValueError(msg)
 
         self.logger.info(f"Analyzing position: {position_uuid}")
 
@@ -340,7 +345,7 @@ class SPDSAnalysisEngine:
         return {position_uuid: analysis_result}
 
     async def _analyze_single_position(
-        self, position: pd.Series, context: AnalysisContext
+        self, position: pd.Series, context: AnalysisContext,
     ) -> AnalysisResult:
         """
         Analyze a single position and generate exit signal.
@@ -361,21 +366,21 @@ class SPDSAnalysisEngine:
 
         # Calculate component scores
         component_scores = self._calculate_component_scores(
-            position, statistical_metrics, divergence_metrics
+            position, statistical_metrics, divergence_metrics,
         )
 
         # Generate exit signal
         exit_signal = self._generate_exit_signal(
-            component_scores, statistical_metrics, divergence_metrics
+            component_scores, statistical_metrics, divergence_metrics,
         )
 
         # Calculate overall confidence
         confidence_level = self._calculate_confidence_level(
-            component_scores, statistical_metrics
+            component_scores, statistical_metrics,
         )
 
         # Create result object
-        result = AnalysisResult(
+        return AnalysisResult(
             strategy_name=f"{ticker}_{strategy_type}",
             ticker=ticker,
             position_uuid=position_uuid,
@@ -389,7 +394,6 @@ class SPDSAnalysisEngine:
             config_version="simplified_engine_v1",
         )
 
-        return result
 
     def _calculate_statistical_metrics(self, position: pd.Series) -> dict[str, float]:
         """Calculate basic statistical metrics for a position."""
@@ -424,7 +428,7 @@ class SPDSAnalysisEngine:
         return metrics
 
     async def _calculate_divergence_metrics(
-        self, position: pd.Series, context: AnalysisContext
+        self, position: pd.Series, context: AnalysisContext,
     ) -> dict[str, float]:
         """Calculate divergence metrics using simplified statistical analysis."""
 
@@ -437,7 +441,7 @@ class SPDSAnalysisEngine:
         # Create synthetic distribution for analysis
         # In a real implementation, this would use historical data
         returns = np.random.normal(
-            total_return / max(total_trades, 1), 0.1, max(total_trades, 10)
+            total_return / max(total_trades, 1), 0.1, max(total_trades, 10),
         )
 
         # Calculate z-scores
@@ -460,7 +464,7 @@ class SPDSAnalysisEngine:
         var_99 = np.percentile(returns, 1) if len(returns) > 0 else 0.0
 
         # Divergence metrics
-        divergence_metrics = {
+        return {
             "z_score_return": z_score_return,
             "z_score_win_rate": z_score_win_rate,
             "z_score_sharpe": z_score_sharpe,
@@ -474,7 +478,6 @@ class SPDSAnalysisEngine:
             "convergence_score": min(percentile_return / 100, 1.0),  # Normalize to 0-1
         }
 
-        return divergence_metrics
 
     def _calculate_component_scores(
         self,
@@ -580,19 +583,18 @@ class SPDSAnalysisEngine:
             confidence = min(90.0, max(50.0, 100 - abs(overall_score)))
 
         # Create exit signal
-        exit_signal = ExitSignal(
+        return ExitSignal(
             signal_type=signal_type,
             confidence=confidence,
             reasoning=self._generate_signal_reasoning(
-                signal_type, component_scores, statistical_metrics
+                signal_type, component_scores, statistical_metrics,
             ),
             recommended_action=self._get_recommended_action(signal_type),
             risk_level=self._calculate_risk_level(
-                component_scores, statistical_metrics
+                component_scores, statistical_metrics,
             ),
         )
 
-        return exit_signal
 
     def _generate_signal_reasoning(
         self,
@@ -634,7 +636,7 @@ class SPDSAnalysisEngine:
         return action_map.get(signal_type, "Hold position and monitor")
 
     def _calculate_risk_level(
-        self, component_scores: dict[str, float], statistical_metrics: dict[str, float]
+        self, component_scores: dict[str, float], statistical_metrics: dict[str, float],
     ) -> str:
         """Calculate risk level based on component scores and metrics."""
 
@@ -649,7 +651,7 @@ class SPDSAnalysisEngine:
         return "LOW"
 
     def _calculate_confidence_level(
-        self, component_scores: dict[str, float], statistical_metrics: dict[str, float]
+        self, component_scores: dict[str, float], statistical_metrics: dict[str, float],
     ) -> float:
         """Calculate overall confidence level in the analysis."""
 
@@ -790,7 +792,7 @@ async def analyze_portfolio(
 
 
 async def analyze_strategy(
-    strategy_spec: str, config_overrides: dict[str, Any] | None = None
+    strategy_spec: str, config_overrides: dict[str, Any] | None = None,
 ) -> dict[str, AnalysisResult]:
     """
     Convenience function to analyze a strategy.
@@ -812,7 +814,7 @@ async def analyze_strategy(
 
 
 async def analyze_position(
-    position_uuid: str, config_overrides: dict[str, Any] | None = None
+    position_uuid: str, config_overrides: dict[str, Any] | None = None,
 ) -> dict[str, AnalysisResult]:
     """
     Convenience function to analyze a position.

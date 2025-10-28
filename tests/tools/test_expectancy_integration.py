@@ -65,7 +65,7 @@ class TestExpectancyIntegration(unittest.TestCase):
                 "Close": close_prices,
                 "Signal": signals,
                 "Position": positions,
-            }
+            },
         )
 
         # Convert to polars DataFrame

@@ -30,54 +30,54 @@ class UnifiedStrategyConfig(BaseModel):
 
     # Core Strategy Parameters
     strategy_type: str = Field(
-        ..., description="Strategy type (MA_CROSS, MACD, RSI, etc.)"
+        ..., description="Strategy type (MA_CROSS, MACD, RSI, etc.)",
     )
     ticker: str | list[str] = Field(..., description="Ticker symbol(s) to analyze")
     timeframe: str = Field(default="D", description="Timeframe (D, H, etc.)")
 
     # Strategy-Specific Parameters
     parameters: dict[str, Any] = Field(
-        default_factory=dict, description="Strategy-specific parameters"
+        default_factory=dict, description="Strategy-specific parameters",
     )
 
     # Data Parameters
     data_years: float | None = Field(
-        default=None, description="Years of historical data"
+        default=None, description="Years of historical data",
     )
     use_synthetic: bool = Field(default=False, description="Use synthetic ticker pairs")
 
     # Risk Management
     risk_management: dict[str, Any] = Field(
-        default_factory=dict, description="Risk management settings"
+        default_factory=dict, description="Risk management settings",
     )
     stop_loss: float | None = Field(default=None, description="Stop loss percentage")
     allocation: float | None = Field(
-        default=None, description="Position allocation percentage"
+        default=None, description="Position allocation percentage",
     )
 
     # Filtering and Selection
     filtering_criteria: dict[str, Any] = Field(
-        default_factory=dict, description="Portfolio filtering criteria"
+        default_factory=dict, description="Portfolio filtering criteria",
     )
     sort_by: str = Field(
-        default="Total Return [%]", description="Metric to sort results by"
+        default="Total Return [%]", description="Metric to sort results by",
     )
 
     # Execution Options
     use_current: bool = Field(
-        default=False, description="Emphasize current window combinations"
+        default=False, description="Emphasize current window combinations",
     )
     refresh_data: bool = Field(default=True, description="Refresh existing data")
     parallel_execution: bool = Field(
-        default=True, description="Enable parallel processing"
+        default=True, description="Enable parallel processing",
     )
 
     # Output Options
     output_dir: Path | None = Field(
-        default=None, description="Output directory for results"
+        default=None, description="Output directory for results",
     )
     export_formats: list[str] = Field(
-        default_factory=lambda: ["csv"], description="Export formats"
+        default_factory=lambda: ["csv"], description="Export formats",
     )
 
     def validate_for_strategy(self, strategy_type: str) -> bool:
@@ -110,7 +110,7 @@ class UnifiedStrategyResult(BaseModel):
     # Core Results
     metrics: dict[str, float] = Field(..., description="Performance metrics")
     signals: pd.DataFrame | pl.DataFrame | dict[str, Any] = Field(
-        ..., description="Trading signals"
+        ..., description="Trading signals",
     )
 
     # Backtest Results
@@ -163,24 +163,20 @@ class AbstractStrategy(ABC):
     @abstractmethod
     def strategy_type(self) -> str:
         """Return the strategy type identifier."""
-        pass
 
     @property
     @abstractmethod
     def required_parameters(self) -> list[str]:
         """Return list of required parameters for this strategy."""
-        pass
 
     @property
     @abstractmethod
     def default_parameters(self) -> dict[str, Any]:
         """Return default parameters for this strategy."""
-        pass
 
     @abstractmethod
     def validate_config(self, config: UnifiedStrategyConfig) -> bool:
         """Validate configuration for this strategy."""
-        pass
 
     @abstractmethod
     async def execute_single(
@@ -190,7 +186,6 @@ class AbstractStrategy(ABC):
         data: pd.DataFrame | pl.DataFrame | None = None,
     ) -> UnifiedStrategyResult:
         """Execute strategy for a single ticker with specific parameters."""
-        pass
 
     @abstractmethod
     async def execute_optimization(
@@ -200,7 +195,6 @@ class AbstractStrategy(ABC):
         parameter_ranges: dict[str, list[Any]],
     ) -> UnifiedStrategyResult:
         """Execute parameter optimization for a single ticker."""
-        pass
 
     async def execute_portfolio(
         self,
@@ -257,7 +251,8 @@ class StrategyFactory:
     def create_strategy(cls, strategy_type: str) -> AbstractStrategy:
         """Create a strategy instance."""
         if strategy_type not in cls._strategies:
-            raise ValueError(f"Unknown strategy type: {strategy_type}")
+            msg = f"Unknown strategy type: {strategy_type}"
+            raise ValueError(msg)
 
         strategy_class = cls._strategies[strategy_type]
         return strategy_class()
@@ -319,7 +314,8 @@ class UnifiedStrategyExecutor:
 
         # Validate configuration
         if not strategy.validate_config(config):
-            raise ValueError(f"Invalid configuration for strategy {strategy_type}")
+            msg = f"Invalid configuration for strategy {strategy_type}"
+            raise ValueError(msg)
 
         # Determine execution mode
         if isinstance(config.ticker, str):
@@ -327,7 +323,7 @@ class UnifiedStrategyExecutor:
             return await strategy.execute_single(config.ticker, config)
         # Portfolio execution
         return await strategy.execute_portfolio(
-            config.ticker, config, progress_callback
+            config.ticker, config, progress_callback,
         )
 
     async def optimize(
@@ -345,7 +341,8 @@ class UnifiedStrategyExecutor:
         """Get information about a specific strategy."""
         strategies = self.factory.list_strategies()
         if strategy_type not in strategies:
-            raise ValueError(f"Unknown strategy type: {strategy_type}")
+            msg = f"Unknown strategy type: {strategy_type}"
+            raise ValueError(msg)
         return strategies[strategy_type]
 
     def list_supported_strategies(self) -> dict[str, dict[str, Any]]:

@@ -65,14 +65,14 @@ class MFEMAECalculator:
             # Calculate MFE/MAE based on direction and return
             df["mfe"] = df.apply(
                 lambda row: self._calculate_mfe_single_trade(
-                    row[return_col], row[direction_col]
+                    row[return_col], row[direction_col],
                 ),
                 axis=1,
             )
 
             df["mae"] = df.apply(
                 lambda row: self._calculate_mae_single_trade(
-                    row[return_col], row[direction_col]
+                    row[return_col], row[direction_col],
                 ),
                 axis=1,
             )
@@ -81,7 +81,7 @@ class MFEMAECalculator:
             return df
 
         except Exception as e:
-            self.logger.error(f"Error calculating MFE/MAE from trades: {e}")
+            self.logger.exception(f"Error calculating MFE/MAE from trades: {e}")
             return self._add_default_mfe_mae(df)
 
     def calculate_from_price_series(
@@ -125,7 +125,7 @@ class MFEMAECalculator:
             return round(float(mfe), 6), round(float(mae), 6)
 
         except Exception as e:
-            self.logger.error(f"Error calculating MFE/MAE from price series: {e}")
+            self.logger.exception(f"Error calculating MFE/MAE from price series: {e}")
             return 0.0, 0.0
 
     def calculate_from_ohlc(
@@ -169,11 +169,11 @@ class MFEMAECalculator:
             return round(float(mfe), 6), round(float(mae), 6)
 
         except Exception as e:
-            self.logger.error(f"Error calculating MFE/MAE from OHLC: {e}")
+            self.logger.exception(f"Error calculating MFE/MAE from OHLC: {e}")
             return 0.0, 0.0
 
     def calculate_from_returns_only(
-        self, returns: list[float] | pd.Series | float, direction: str = "Long"
+        self, returns: list[float] | pd.Series | float, direction: str = "Long",
     ) -> tuple[float, float]:
         """
         Calculate MFE/MAE from return data only (simplified calculation)
@@ -189,7 +189,7 @@ class MFEMAECalculator:
             # Handle single return value
             if isinstance(returns, int | float):
                 return self._calculate_mfe_mae_from_single_return(
-                    float(returns), direction
+                    float(returns), direction,
                 )
 
             # Handle series of returns
@@ -212,7 +212,7 @@ class MFEMAECalculator:
             return round(float(mfe), 6), round(float(mae), 6)
 
         except Exception as e:
-            self.logger.error(f"Error calculating MFE/MAE from returns: {e}")
+            self.logger.exception(f"Error calculating MFE/MAE from returns: {e}")
             return 0.0, 0.0
 
     def validate_mfe_mae(
@@ -258,36 +258,36 @@ class MFEMAECalculator:
                 # For long positions
                 if current_return > 0 and mfe == 0:
                     errors.append(
-                        f"Positive return ({current_return:.4f}) should have MFE > 0"
+                        f"Positive return ({current_return:.4f}) should have MFE > 0",
                     )
 
                 if current_return < 0 and mae == 0:
                     errors.append(
-                        f"Negative return ({current_return:.4f}) should have MAE > 0"
+                        f"Negative return ({current_return:.4f}) should have MAE > 0",
                     )
 
                 # Current return should not exceed MFE significantly
                 if current_return > mfe + tolerance:
                     errors.append(
-                        f"Current return ({current_return:.4f}) exceeds MFE ({mfe:.4f}) by {((current_return - mfe) / abs(mfe) * 100 if mfe != 0 else 100):.1f}%"
+                        f"Current return ({current_return:.4f}) exceeds MFE ({mfe:.4f}) by {((current_return - mfe) / abs(mfe) * 100 if mfe != 0 else 100):.1f}%",
                     )
 
             else:
                 # For short positions (reverse logic)
                 if current_return < 0 and mfe == 0:
                     errors.append(
-                        f"Negative return ({current_return:.4f}) for short should have MFE > 0"
+                        f"Negative return ({current_return:.4f}) for short should have MFE > 0",
                     )
 
                 if current_return > 0 and mae == 0:
                     errors.append(
-                        f"Positive return ({current_return:.4f}) for short should have MAE > 0"
+                        f"Positive return ({current_return:.4f}) for short should have MAE > 0",
                     )
 
             return errors
 
         except Exception as e:
-            self.logger.error(f"Error validating MFE/MAE: {e}")
+            self.logger.exception(f"Error validating MFE/MAE: {e}")
             return [f"Validation error: {e}"]
 
     def standardize_column_names(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -358,7 +358,7 @@ class MFEMAECalculator:
             return 0.0
 
     def _calculate_mfe_mae_from_single_return(
-        self, return_pct: float, direction: str
+        self, return_pct: float, direction: str,
     ) -> tuple[float, float]:
         """Calculate MFE/MAE from a single return value"""
         try:
@@ -413,12 +413,12 @@ def calculate_mfe_mae_from_trades(
     """Convenience function to calculate MFE/MAE from trades"""
     calculator = get_mfe_mae_calculator()
     return calculator.calculate_from_trades(
-        trades_df, entry_price_col, exit_price_col, direction_col, return_col
+        trades_df, entry_price_col, exit_price_col, direction_col, return_col,
     )
 
 
 def validate_mfe_mae_data(
-    current_return: float, mfe: float, mae: float, direction: str = "Long"
+    current_return: float, mfe: float, mae: float, direction: str = "Long",
 ) -> list[str]:
     """Convenience function to validate MFE/MAE data"""
     calculator = get_mfe_mae_calculator()

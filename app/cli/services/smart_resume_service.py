@@ -79,7 +79,6 @@ class SmartResumeService:
 
     def _default_log(self, message: str, level: str = "info"):
         """Default logging function."""
-        pass
 
     def analyze_resume_status(self, config: dict[str, Any]) -> ResumeAnalysis:
         """
@@ -110,7 +109,7 @@ class SmartResumeService:
 
             for strategy in strategies:
                 if self._is_combination_complete_and_fresh(
-                    ticker, strategy, config, market_type
+                    ticker, strategy, config, market_type,
                 ):
                     analysis.add_completed(ticker, strategy)
                     self.log(f"✓ {ticker} {strategy} - complete and fresh", "debug")
@@ -127,7 +126,7 @@ class SmartResumeService:
         return analysis
 
     def filter_config_for_resume(
-        self, config: dict[str, Any], analysis: ResumeAnalysis
+        self, config: dict[str, Any], analysis: ResumeAnalysis,
     ) -> dict[str, Any]:
         """
         Filter configuration to only include combinations that need processing.
@@ -252,7 +251,7 @@ class SmartResumeService:
         return not self._are_files_fresh(ticker, strategy, config, market_type)
 
     def _all_files_exist_and_non_empty(
-        self, ticker: str, strategy: str, config: dict[str, Any]
+        self, ticker: str, strategy: str, config: dict[str, Any],
     ) -> bool:
         """Check if all required output files exist and are non-empty."""
         expected_files = self._get_expected_file_paths(ticker, strategy, config)
@@ -271,7 +270,7 @@ class SmartResumeService:
         return True
 
     def _any_files_exist(
-        self, ticker: str, strategy: str, config: dict[str, Any]
+        self, ticker: str, strategy: str, config: dict[str, Any],
     ) -> bool:
         """Check if any output files exist for this combination."""
         expected_files = self._get_expected_file_paths(ticker, strategy, config)
@@ -323,7 +322,7 @@ class SmartResumeService:
         return self._is_after_last_market_close(file_datetime, current_time)
 
     def _is_after_last_market_close(
-        self, file_datetime: datetime, current_time: datetime
+        self, file_datetime: datetime, current_time: datetime,
     ) -> bool:
         """Check if file was created after the last market close."""
         trading_hours = get_trading_hours(MarketType.US_STOCK)
@@ -349,18 +348,18 @@ class SmartResumeService:
             else:
                 # Market hasn't closed yet - use previous trading day close
                 last_close = self._get_previous_trading_day_close(
-                    todays_close, trading_hours
+                    todays_close, trading_hours,
                 )
         else:
             # Today is not a trading day - find previous trading day close
             last_close = self._get_previous_trading_day_close(
-                current_market_time, trading_hours
+                current_market_time, trading_hours,
             )
 
         return file_market_time >= last_close
 
     def _get_previous_trading_day_close(
-        self, current_time: datetime, trading_hours: TradingHours
+        self, current_time: datetime, trading_hours: TradingHours,
     ) -> datetime:
         """Get the close time of the previous trading day."""
         # Go back day by day until we find a trading day
@@ -369,7 +368,7 @@ class SmartResumeService:
         for days_back in range(1, 8):  # Check up to a week back
             check_date = current_time.date() - timedelta(days=days_back)
             check_datetime = datetime.combine(check_date, time.min).replace(
-                tzinfo=trading_hours.timezone
+                tzinfo=trading_hours.timezone,
             )
 
             if check_datetime.weekday() in trading_hours.trading_days:
@@ -390,7 +389,7 @@ class SmartResumeService:
         )
 
     def _get_expected_file_paths(
-        self, ticker: str, strategy: str, config: dict[str, Any]
+        self, ticker: str, strategy: str, config: dict[str, Any],
     ) -> list[str]:
         """
         Generate expected file paths for a ticker+strategy combination.
@@ -448,9 +447,8 @@ class SmartResumeService:
         filename = filename.replace(".csv", "")
 
         # Extract ticker - everything before the first underscore
-        ticker = filename.split("_")[0]
+        return filename.split("_")[0]
 
-        return ticker
 
     def get_resume_summary(self, analysis: ResumeAnalysis) -> str:
         """Generate human-readable resume summary."""
@@ -465,12 +463,12 @@ class SmartResumeService:
 
         if stale_count > 0:
             summary_parts.append(
-                f"⚠ {stale_count} combinations stale (will regenerate)"
+                f"⚠ {stale_count} combinations stale (will regenerate)",
             )
 
         if missing_count > 0:
             summary_parts.append(
-                f"✗ {missing_count} combinations missing (will generate)"
+                f"✗ {missing_count} combinations missing (will generate)",
             )
 
         total_to_process = stale_count + missing_count

@@ -54,7 +54,7 @@ def sample_price_data():
             "Close": prices,
             "Volume": np.random.randint(1000000, 5000000, len(dates)),
             "Ticker": "AAPL",
-        }
+        },
     ).set_index("Date")
 
 
@@ -117,7 +117,7 @@ class TestMACrossAnalyzer:
 
     @patch("app.strategies.ma_cross.core.analyzer.execute_single_strategy")
     def test_analyze_single_ticker(
-        self, mock_execute, sample_config, sample_price_data
+        self, mock_execute, sample_config, sample_price_data,
     ):
         """Test single ticker analysis."""
         # Mock the strategy execution to return portfolio stats
@@ -164,7 +164,7 @@ class TestMACrossAnalyzer:
             pass
 
         config = AnalysisConfig(
-            ticker="AAPL", strategy_type="SMA", fast_period=20, slow_period=50
+            ticker="AAPL", strategy_type="SMA", fast_period=20, slow_period=50,
         )
 
         analyzer = MACrossAnalyzer(log=mock_log)
@@ -263,7 +263,7 @@ class TestMACrossAnalyzer:
             pass
 
         config = AnalysisConfig(
-            ticker="AAPL", strategy_type="SMA", fast_period=10, slow_period=20
+            ticker="AAPL", strategy_type="SMA", fast_period=10, slow_period=20,
         )
 
         analyzer = MACrossAnalyzer(log=mock_log)

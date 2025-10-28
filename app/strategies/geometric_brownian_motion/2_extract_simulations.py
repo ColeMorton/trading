@@ -91,26 +91,26 @@ def extract_simulations(csv_content: str) -> tuple[dict, pl.DataFrame]:
         lowest_sim = simulations[performances.index(min(performances))]
         mean_sim = simulations[
             performances.index(
-                min(performances, key=lambda x: abs(x - np.mean(performances)))
+                min(performances, key=lambda x: abs(x - np.mean(performances))),
             )
         ]
         median_sim = simulations[
             performances.index(
-                min(performances, key=lambda x: abs(x - np.median(performances)))
+                min(performances, key=lambda x: abs(x - np.median(performances))),
             )
         ]
         percentile_25_sim = simulations[
             performances.index(
                 min(
-                    performances, key=lambda x: abs(x - np.percentile(performances, 25))
-                )
+                    performances, key=lambda x: abs(x - np.percentile(performances, 25)),
+                ),
             )
         ]
         percentile_75_sim = simulations[
             performances.index(
                 min(
-                    performances, key=lambda x: abs(x - np.percentile(performances, 75))
-                )
+                    performances, key=lambda x: abs(x - np.percentile(performances, 75)),
+                ),
             )
         ]
 
@@ -123,12 +123,12 @@ def extract_simulations(csv_content: str) -> tuple[dict, pl.DataFrame]:
                 "median": median_sim,
                 "25th_percentile": percentile_25_sim,
                 "75th_percentile": percentile_75_sim,
-            }
+            },
         )
 
     # Set timestamp as index by making it the first column
     df = df.with_columns(pl.col("timestamp").alias("Date")).select(
-        ["Date"] + [col for col in df.columns if col != "timestamp"]
+        ["Date"] + [col for col in df.columns if col != "timestamp"],
     )
 
     return results, df
@@ -156,9 +156,9 @@ print(simulations_df)
 
 # Save the simulations to a CSV file
 simulations_df.to_csv(
-    f"data/outputs/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv"
+    f"data/outputs/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv",
 )
 print(
-    f"Simulations saved to data/outputs/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv"
+    f"Simulations saved to data/outputs/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv",
 )
 print(f"Number of rows in extracted simulations: {len(simulations_df)}")

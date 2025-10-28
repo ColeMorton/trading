@@ -23,7 +23,7 @@ def test_multi_ticker_execution():
 
     # Set up logging
     log, log_close, _, _ = setup_logging(
-        module_name="macd_test", log_file="test_multi_ticker.log"
+        module_name="macd_test", log_file="test_multi_ticker.log",
     )
 
     try:
@@ -157,7 +157,7 @@ def test_multi_ticker_execution():
                         print(
                             f"  Top result: Return={top_row['Total Return [%]'][0]:.2f}%, "
                             f"Win Rate={top_row['Win Rate [%]'][0]:.2f}%, "
-                            f"Trades={top_row['Total Trades'][0]}"
+                            f"Trades={top_row['Total Trades'][0]}",
                         )
                 else:
                     print(f"✗ Failed to generate portfolios for {ticker}")

@@ -50,12 +50,12 @@ class TestEnhancedParameterIntegration:
                 "Volume": [
                     int(v) for v in np.random.randint(1000000, 10000000, len(dates))
                 ],
-            }
+            },
         )
 
     @patch("app.tools.market_data_analyzer.download_data")
     async def test_ticker_only_analysis_integration(
-        self, mock_download, mock_market_data
+        self, mock_download, mock_market_data,
     ):
         """Test ticker-only analysis integration with MarketDataAnalyzer."""
         mock_download.return_value = mock_market_data
@@ -93,7 +93,7 @@ class TestEnhancedParameterIntegration:
 
     @patch("app.tools.market_data_analyzer.download_data")
     async def test_strategy_spec_analysis_integration(
-        self, mock_download, mock_market_data
+        self, mock_download, mock_market_data,
     ):
         """Test strategy specification analysis integration."""
         mock_download.return_value = mock_market_data
@@ -128,7 +128,7 @@ class TestEnhancedParameterIntegration:
 
     @patch("app.tools.market_data_analyzer.download_data")
     async def test_position_uuid_analysis_integration(
-        self, mock_download, mock_market_data
+        self, mock_download, mock_market_data,
     ):
         """Test position UUID analysis integration."""
         mock_download.return_value = mock_market_data
@@ -261,12 +261,12 @@ class TestMarketDataAnalyzerFactoryIntegration:
             {
                 "Date": pd.date_range("2023-01-01", periods=100),
                 "Close": [100 + i for i in range(100)],
-            }
+            },
         )
 
         # Create parsed parameter
         parsed_param = ParsedParameter(
-            parameter_type=ParameterType.TICKER_ONLY, original_input="AMD", ticker="AMD"
+            parameter_type=ParameterType.TICKER_ONLY, original_input="AMD", ticker="AMD",
         )
 
         # Test factory function
@@ -286,7 +286,7 @@ class TestMarketDataAnalyzerFactoryIntegration:
             {
                 "Date": pd.date_range("2023-01-01", periods=100),
                 "Close": [100 + i * 0.5 for i in range(100)],
-            }
+            },
         )
 
         # Create parsed parameter
@@ -316,7 +316,7 @@ class TestMarketDataAnalyzerFactoryIntegration:
             {
                 "Date": pd.date_range("2023-01-01", periods=100),
                 "Close": [100 - i * 0.2 for i in range(100)],
-            }
+            },
         )
 
         # Create parsed parameter
@@ -366,7 +366,7 @@ class TestBuySignalGeneration:
                 "Volume": [
                     int(v) for v in np.random.randint(1000000, 10000000, len(dates))
                 ],
-            }
+            },
         )
 
         mock_download.return_value = strong_uptrend_data
@@ -410,7 +410,7 @@ class TestBuySignalGeneration:
                 "Volume": [
                     int(v) for v in np.random.randint(1000000, 10000000, len(dates))
                 ],
-            }
+            },
         )
 
         mock_download.return_value = strong_downtrend_data
@@ -443,7 +443,7 @@ class TestExportCompatibility:
             {
                 "Date": pd.date_range("2023-01-01", periods=100),
                 "Close": np.random.normal(100, 5, 100),
-            }
+            },
         )
 
         # Create parsed parameter
@@ -496,7 +496,7 @@ class TestExportCompatibility:
             {
                 "Date": pd.date_range("2023-01-01", periods=100),
                 "Close": np.random.normal(100, 2, 100),
-            }
+            },
         )
 
         # Create parsed parameter
@@ -563,7 +563,7 @@ class TestErrorHandlingIntegration:
                     999999.0,
                     104.0,
                 ],  # Problematic values (avoid inf)
-            }
+            },
         )
 
         mock_download.return_value = problematic_data

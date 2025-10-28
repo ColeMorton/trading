@@ -51,7 +51,7 @@ class SeasonalityResult(BaseModel):
     total_periods: int
     patterns: list[SeasonalityPattern]
     overall_seasonal_strength: float = Field(
-        description="Overall strength of seasonal patterns (0-1)"
+        description="Overall strength of seasonal patterns (0-1)",
     )
     strongest_pattern: SeasonalityPattern | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -62,21 +62,21 @@ class SeasonalityConfig(BaseConfig):
 
     config_type: str = "seasonality"
     tickers: list[str] | None = Field(
-        default=None, description="Specific tickers to analyze"
+        default=None, description="Specific tickers to analyze",
     )
     min_years: float = Field(default=3.0, description="Minimum years of data required")
     confidence_level: float = Field(
-        default=0.95, description="Confidence level for statistical tests"
+        default=0.95, description="Confidence level for statistical tests",
     )
     output_format: str = Field(default="csv", description="Output format (csv or json)")
     include_holidays: bool = Field(
-        default=False, description="Include holiday effect analysis"
+        default=False, description="Include holiday effect analysis",
     )
     detrend_data: bool = Field(
-        default=True, description="Remove trend before analyzing seasonality"
+        default=True, description="Remove trend before analyzing seasonality",
     )
     min_sample_size: int = Field(
-        default=10, description="Minimum sample size for pattern"
+        default=10, description="Minimum sample size for pattern",
     )
     time_period_days: int = Field(
         default=1,
@@ -88,7 +88,8 @@ class SeasonalityConfig(BaseConfig):
     def validate_confidence_level(cls, v: float) -> float:
         """Validate confidence level is between 0 and 1."""
         if not 0 < v < 1:
-            raise ValueError("Confidence level must be between 0 and 1")
+            msg = "Confidence level must be between 0 and 1"
+            raise ValueError(msg)
         return v
 
     @field_validator("min_years")
@@ -96,7 +97,8 @@ class SeasonalityConfig(BaseConfig):
     def validate_min_years(cls, v: float) -> float:
         """Validate minimum years is positive."""
         if v <= 0:
-            raise ValueError("Minimum years must be positive")
+            msg = "Minimum years must be positive"
+            raise ValueError(msg)
         return v
 
     @field_validator("output_format")
@@ -105,7 +107,8 @@ class SeasonalityConfig(BaseConfig):
         """Validate output format."""
         valid_formats = ["csv", "json", "both"]
         if v.lower() not in valid_formats:
-            raise ValueError(f"Output format must be one of {valid_formats}")
+            msg = f"Output format must be one of {valid_formats}"
+            raise ValueError(msg)
         return v.lower()
 
     @field_validator("time_period_days")
@@ -113,9 +116,11 @@ class SeasonalityConfig(BaseConfig):
     def validate_time_period_days(cls, v: int) -> int:
         """Validate time period days is positive."""
         if v <= 0:
-            raise ValueError("Time period days must be positive")
+            msg = "Time period days must be positive"
+            raise ValueError(msg)
         if v > 365:
-            raise ValueError("Time period days cannot exceed 365")
+            msg = "Time period days cannot exceed 365"
+            raise ValueError(msg)
         return v
 
 
@@ -124,7 +129,7 @@ class PortfolioSeasonalityConfig(BaseConfig):
 
     config_type: str = "portfolio_seasonality"
     portfolio: str = Field(
-        description="Portfolio filename (CSV) from data/raw/strategies/ directory"
+        description="Portfolio filename (CSV) from data/raw/strategies/ directory",
     )
     default_time_period_days: int = Field(
         default=21,
@@ -135,17 +140,17 @@ class PortfolioSeasonalityConfig(BaseConfig):
         description="Override time period for ALL tickers (ignores signal entry and default)",
     )
     confidence_level: float = Field(
-        default=0.95, description="Confidence level for statistical tests"
+        default=0.95, description="Confidence level for statistical tests",
     )
     output_format: str = Field(default="csv", description="Output format (csv or json)")
     include_holidays: bool = Field(
-        default=False, description="Include holiday effect analysis"
+        default=False, description="Include holiday effect analysis",
     )
     detrend_data: bool = Field(
-        default=True, description="Remove trend before analyzing seasonality"
+        default=True, description="Remove trend before analyzing seasonality",
     )
     min_sample_size: int = Field(
-        default=10, description="Minimum sample size for pattern"
+        default=10, description="Minimum sample size for pattern",
     )
 
     @field_validator("portfolio")
@@ -153,7 +158,8 @@ class PortfolioSeasonalityConfig(BaseConfig):
     def validate_portfolio(cls, v: str) -> str:
         """Validate portfolio filename is provided."""
         if not v or not v.strip():
-            raise ValueError("Portfolio filename must be provided")
+            msg = "Portfolio filename must be provided"
+            raise ValueError(msg)
         return v.strip()
 
     @field_validator("default_time_period_days")
@@ -161,9 +167,11 @@ class PortfolioSeasonalityConfig(BaseConfig):
     def validate_default_time_period(cls, v: int) -> int:
         """Validate default time period is positive."""
         if v <= 0:
-            raise ValueError("Default time period must be positive")
+            msg = "Default time period must be positive"
+            raise ValueError(msg)
         if v > 365:
-            raise ValueError("Default time period cannot exceed 365 days")
+            msg = "Default time period cannot exceed 365 days"
+            raise ValueError(msg)
         return v
 
     @field_validator("time_period_days")
@@ -172,9 +180,11 @@ class PortfolioSeasonalityConfig(BaseConfig):
         """Validate time period is positive."""
         if v is not None:
             if v <= 0:
-                raise ValueError("Time period must be positive")
+                msg = "Time period must be positive"
+                raise ValueError(msg)
             if v > 365:
-                raise ValueError("Time period cannot exceed 365 days")
+                msg = "Time period cannot exceed 365 days"
+                raise ValueError(msg)
         return v
 
     @field_validator("confidence_level")
@@ -182,7 +192,8 @@ class PortfolioSeasonalityConfig(BaseConfig):
     def validate_confidence_level_portfolio(cls, v: float) -> float:
         """Validate confidence level is between 0 and 1."""
         if not 0 < v < 1:
-            raise ValueError("Confidence level must be between 0 and 1")
+            msg = "Confidence level must be between 0 and 1"
+            raise ValueError(msg)
         return v
 
     @field_validator("output_format")
@@ -191,7 +202,8 @@ class PortfolioSeasonalityConfig(BaseConfig):
         """Validate output format."""
         valid_formats = ["csv", "json"]
         if v.lower() not in valid_formats:
-            raise ValueError(f"Output format must be one of {valid_formats}")
+            msg = f"Output format must be one of {valid_formats}"
+            raise ValueError(msg)
         return v.lower()
 
 
@@ -200,17 +212,17 @@ class SeasonalityExpectancyConfig(BaseConfig):
 
     config_type: str = "seasonality_expectancy"
     tickers: list[str] | None = Field(
-        default=None, description="Specific tickers to analyze"
+        default=None, description="Specific tickers to analyze",
     )
     days: int = Field(default=30, description="Number of days for hold period")
     min_sample_size: int = Field(
-        default=50, description="Minimum sample size for reliable patterns"
+        default=50, description="Minimum sample size for reliable patterns",
     )
     min_significance: float = Field(
-        default=0.5, description="Minimum statistical significance threshold"
+        default=0.5, description="Minimum statistical significance threshold",
     )
     top_n_results: int = Field(
-        default=20, description="Number of top results to display"
+        default=20, description="Number of top results to display",
     )
     save_csv: bool = Field(default=True, description="Save detailed CSV results")
     save_markdown: bool = Field(default=True, description="Save markdown report")
@@ -220,9 +232,11 @@ class SeasonalityExpectancyConfig(BaseConfig):
     def validate_days(cls, v: int) -> int:
         """Validate days is positive."""
         if v <= 0:
-            raise ValueError("Days must be positive")
+            msg = "Days must be positive"
+            raise ValueError(msg)
         if v > 365:
-            raise ValueError("Days cannot exceed 365")
+            msg = "Days cannot exceed 365"
+            raise ValueError(msg)
         return v
 
     @field_validator("min_significance")
@@ -230,7 +244,8 @@ class SeasonalityExpectancyConfig(BaseConfig):
     def validate_min_significance(cls, v: float) -> float:
         """Validate minimum significance is between 0 and 1."""
         if not 0 <= v <= 1:
-            raise ValueError("Minimum significance must be between 0 and 1")
+            msg = "Minimum significance must be between 0 and 1"
+            raise ValueError(msg)
         return v
 
     @field_validator("top_n_results")
@@ -238,5 +253,6 @@ class SeasonalityExpectancyConfig(BaseConfig):
     def validate_top_n_results(cls, v: int) -> int:
         """Validate top N results is positive."""
         if v <= 0:
-            raise ValueError("Top N results must be positive")
+            msg = "Top N results must be positive"
+            raise ValueError(msg)
         return v

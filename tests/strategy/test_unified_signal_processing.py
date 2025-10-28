@@ -82,11 +82,11 @@ class TestMASignalProcessor:
 
         assert len(result) == 0
         mock_log.assert_called_with(
-            "Failed to import MA signal generation for SMA", "error"
+            "Failed to import MA signal generation for SMA", "error",
         )
 
     @patch(
-        "app.strategies.ma_cross.tools.sensitivity_analysis.analyze_window_combination"
+        "app.strategies.ma_cross.tools.sensitivity_analysis.analyze_window_combination",
     )
     def test_analyze_parameter_combination_success(self, mock_analyze):
         """Test successful parameter combination analysis."""
@@ -99,12 +99,12 @@ class TestMASignalProcessor:
         mock_analyze.return_value = expected_result
 
         result = processor.analyze_parameter_combination(
-            data, config, mock_log, fast_period=10, slow_period=50
+            data, config, mock_log, fast_period=10, slow_period=50,
         )
 
         assert result == expected_result
         mock_analyze.assert_called_once_with(
-            data=data, fast_period=10, slow_period=50, config=config, log=mock_log
+            data=data, fast_period=10, slow_period=50, config=config, log=mock_log,
         )
 
 
@@ -135,7 +135,7 @@ class TestMACDSignalProcessor:
         config = {"TICKER": "AAPL", "STRATEGY_TYPE": "MACD"}
 
         mock_df = pl.DataFrame(
-            {"Fast Period": [12], "Slow Period": [26], "Signal Period": [9]}
+            {"Fast Period": [12], "Slow Period": [26], "Signal Period": [9]},
         )
         mock_generate.return_value = mock_df
 
@@ -213,13 +213,13 @@ class TestUnifiedSignalProcessing:
     """Test cases for unified signal processing functionality."""
 
     @patch(
-        "app.tools.strategy.signal_processing.SignalProcessorFactory.create_processor"
+        "app.tools.strategy.signal_processing.SignalProcessorFactory.create_processor",
     )
     def test_process_current_signals_with_strategy_type(self, mock_create):
         """Test process_current_signals with explicit strategy type."""
         mock_processor = Mock()
         mock_processor.process_current_signals.return_value = pl.DataFrame(
-            {"result": [1]}
+            {"result": [1]},
         )
         mock_create.return_value = mock_processor
 
@@ -230,18 +230,18 @@ class TestUnifiedSignalProcessing:
 
         mock_create.assert_called_once_with("SMA")
         mock_processor.process_current_signals.assert_called_once_with(
-            "AAPL", config, mock_log
+            "AAPL", config, mock_log,
         )
         assert len(result) == 1
 
     @patch(
-        "app.tools.strategy.signal_processing.SignalProcessorFactory.create_processor"
+        "app.tools.strategy.signal_processing.SignalProcessorFactory.create_processor",
     )
     def test_process_current_signals_auto_detect_strategy(self, mock_create):
         """Test process_current_signals with auto-detected strategy type."""
         mock_processor = Mock()
         mock_processor.process_current_signals.return_value = pl.DataFrame(
-            {"result": [1]}
+            {"result": [1]},
         )
         mock_create.return_value = mock_processor
 
@@ -252,17 +252,17 @@ class TestUnifiedSignalProcessing:
 
         mock_create.assert_called_once_with("MACD")
         mock_processor.process_current_signals.assert_called_once_with(
-            "AAPL", config, mock_log
+            "AAPL", config, mock_log,
         )
 
     @patch(
-        "app.tools.strategy.signal_processing.SignalProcessorFactory.create_processor"
+        "app.tools.strategy.signal_processing.SignalProcessorFactory.create_processor",
     )
     def test_process_ticker_portfolios_with_strategy_type(self, mock_create):
         """Test process_ticker_portfolios with explicit strategy type."""
         mock_processor = Mock()
         mock_processor.process_ticker_portfolios.return_value = pl.DataFrame(
-            {"result": [1]}
+            {"result": [1]},
         )
         mock_create.return_value = mock_processor
 
@@ -273,7 +273,7 @@ class TestUnifiedSignalProcessing:
 
         mock_create.assert_called_once_with("EMA")
         mock_processor.process_ticker_portfolios.assert_called_once_with(
-            "AAPL", config, mock_log
+            "AAPL", config, mock_log,
         )
         assert len(result) == 1
 
@@ -284,7 +284,7 @@ class TestProcessCurrentSignalsIntegration:
     @patch("app.tools.get_data.get_data")
     @patch("app.tools.strategy.unified_config.ConfigValidator.validate_base_config")
     def test_process_current_signals_validation_failure(
-        self, mock_validate, mock_get_data
+        self, mock_validate, mock_get_data,
     ):
         """Test process_current_signals with validation failure."""
         processor = MASignalProcessor("SMA")
@@ -301,7 +301,7 @@ class TestProcessCurrentSignalsIntegration:
 
         assert result is None
         mock_log.assert_called_with(
-            "Invalid configuration for AAPL: ['Missing required field']", "error"
+            "Invalid configuration for AAPL: ['Missing required field']", "error",
         )
         mock_get_data.assert_not_called()
 
@@ -309,7 +309,7 @@ class TestProcessCurrentSignalsIntegration:
     @patch("app.tools.get_data.get_data")
     @patch("app.tools.strategy.unified_config.ConfigValidator.validate_base_config")
     def test_process_current_signals_no_signals(
-        self, mock_validate, mock_get_data, mock_generate
+        self, mock_validate, mock_get_data, mock_generate,
     ):
         """Test process_current_signals with no signals found."""
         processor = MASignalProcessor("SMA")
@@ -324,7 +324,7 @@ class TestProcessCurrentSignalsIntegration:
 
         assert result is None
         mock_log.assert_called_with(
-            "No current signals found for AAPL Long SMA", "warning"
+            "No current signals found for AAPL Long SMA", "warning",
         )
         mock_get_data.assert_not_called()
 
@@ -332,7 +332,7 @@ class TestProcessCurrentSignalsIntegration:
     @patch("app.tools.get_data.get_data")
     @patch("app.tools.strategy.unified_config.ConfigValidator.validate_base_config")
     def test_process_current_signals_data_fetch_failure(
-        self, mock_validate, mock_get_data, mock_generate
+        self, mock_validate, mock_get_data, mock_generate,
     ):
         """Test process_current_signals with data fetch failure."""
         processor = MASignalProcessor("SMA")
@@ -342,7 +342,7 @@ class TestProcessCurrentSignalsIntegration:
         # Mock successful validation and signals but data fetch failure
         mock_validate.return_value = {"is_valid": True, "errors": []}
         mock_generate.return_value = pl.DataFrame(
-            {"Fast Period": [10], "Slow Period": [50]}
+            {"Fast Period": [10], "Slow Period": [50]},
         )
         mock_get_data.return_value = None
 
@@ -363,7 +363,7 @@ class TestProcessTickerPortfoliosIntegration:
     """Integration tests for process_ticker_portfolios method."""
 
     @patch(
-        "app.tools.strategy.signal_processing.MASignalProcessor.process_current_signals"
+        "app.tools.strategy.signal_processing.MASignalProcessor.process_current_signals",
     )
     def test_process_ticker_portfolios_use_current(self, mock_process_current):
         """Test process_ticker_portfolios with USE_CURRENT=True."""

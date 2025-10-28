@@ -93,7 +93,7 @@ class TestSaveAggregationCsv:
                     "best_strategy": {"strategy": "SMA"},
                     "strategy_types": {"SMA", "EMA"},
                     "timeframes": {"D"},
-                }
+                },
             },
             "by_strategy": {},
         }
@@ -120,7 +120,7 @@ class TestSaveAggregationCsv:
                     "best_performer": {"ticker": "AAPL"},
                     "tickers": {"AAPL", "MSFT", "GOOGL"},
                     "timeframes": {"D", "W"},
-                }
+                },
             },
         }
 
@@ -155,7 +155,7 @@ class TestSaveAggregationCsv:
                     "best_strategy": {"strategy": "EMA"},
                     "strategy_types": {"EMA"},
                     "timeframes": {"D"},
-                }
+                },
             },
             "by_strategy": {
                 "EMA": {
@@ -168,7 +168,7 @@ class TestSaveAggregationCsv:
                     "best_performer": {"ticker": "TSLA"},
                     "tickers": {"TSLA"},
                     "timeframes": {"D"},
-                }
+                },
             },
         }
 
@@ -192,7 +192,7 @@ class TestSaveAggregationCsv:
                     "best_strategy": None,  # No best strategy
                     "strategy_types": {"SMA"},
                     "timeframes": {"D"},
-                }
+                },
             },
             "by_strategy": {},
         }

@@ -37,7 +37,7 @@ class TestSignalQualityMetrics(unittest.TestCase):
         # Calculate metrics
         log = MockLogger()
         metrics = calculate_signal_quality_metrics(
-            signals_df, returns_df, "test_strategy", log
+            signals_df, returns_df, "test_strategy", log,
         )
 
         # Verify basic metrics
@@ -79,7 +79,7 @@ class TestSignalQualityMetrics(unittest.TestCase):
         # Calculate metrics
         log = MockLogger()
         metrics = calculate_signal_quality_metrics(
-            signals_df, returns_df, "test_strategy", log
+            signals_df, returns_df, "test_strategy", log,
         )
 
         # Verify horizon metrics
@@ -104,7 +104,7 @@ class TestSignalQualityMetrics(unittest.TestCase):
         # Calculate metrics
         log = MockLogger()
         metrics = calculate_signal_quality_metrics(
-            signals_df, returns_df, "test_strategy", log
+            signals_df, returns_df, "test_strategy", log,
         )
 
         # Should return minimal metrics
@@ -128,7 +128,7 @@ class TestSignalQualityMetrics(unittest.TestCase):
         # Calculate metrics
         log = MockLogger()
         metrics = calculate_signal_quality_metrics(
-            signals_df, returns_df, "test_strategy", log
+            signals_df, returns_df, "test_strategy", log,
         )
 
         # Should return basic metrics with signal_count = 0

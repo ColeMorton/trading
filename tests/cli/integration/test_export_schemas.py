@@ -141,7 +141,7 @@ class TestExportedCSVSchemaValidation:
         return df_pandas, df_polars
 
     def test_portfolios_csv_schema_validation(
-        self, sample_portfolio_data, base_config, temp_export_dir
+        self, sample_portfolio_data, base_config, temp_export_dir,
     ):
         """Test that portfolios CSV export matches extended schema."""
         config = base_config.copy()
@@ -196,7 +196,7 @@ class TestExportedCSVSchemaValidation:
         assert "GOOGL" in df_pandas["Ticker"].values
 
     def test_portfolios_filtered_csv_schema_validation(
-        self, sample_portfolio_data, base_config, temp_export_dir
+        self, sample_portfolio_data, base_config, temp_export_dir,
     ):
         """Test that portfolios_filtered CSV export matches filtered schema."""
         config = base_config.copy()
@@ -252,7 +252,7 @@ class TestExportedCSVSchemaValidation:
         assert len(df_pandas.columns) > 50  # Filtered schema should have 63 columns
 
     def test_portfolios_best_csv_schema_validation(
-        self, sample_portfolio_data, base_config, temp_export_dir
+        self, sample_portfolio_data, base_config, temp_export_dir,
     ):
         """Test that portfolios_best CSV export matches best schema with timestamp."""
         config = base_config.copy()
@@ -313,7 +313,7 @@ class TestExportedCSVSchemaValidation:
             assert col in df_pandas.columns
 
     def test_csv_column_ordering_consistency(
-        self, sample_portfolio_data, base_config, temp_export_dir
+        self, sample_portfolio_data, base_config, temp_export_dir,
     ):
         """Test that CSV column ordering is consistent and follows canonical order."""
         config = base_config.copy()
@@ -366,7 +366,7 @@ class TestExportedCSVSchemaValidation:
                     ), f"Column order violated in {export_type}: {col} -> {next_col}"
 
     def test_csv_data_type_preservation(
-        self, sample_portfolio_data, base_config, temp_export_dir
+        self, sample_portfolio_data, base_config, temp_export_dir,
     ):
         """Test that data types are preserved correctly in CSV export."""
         config = base_config.copy()
@@ -429,7 +429,7 @@ class TestExportedCSVSchemaValidation:
                 "Allocation [%]": None,  # None value
                 "Stop Loss [%]": None,  # None value
                 "Skew": float("nan"),  # NaN value
-            }
+            },
         ]
 
         config = base_config.copy()
@@ -467,7 +467,7 @@ class TestExportedCSVSchemaValidation:
             assert len(rows) >= 2  # Header + at least one data row
 
     def test_csv_metric_type_aggregation_preservation(
-        self, base_config, temp_export_dir
+        self, base_config, temp_export_dir,
     ):
         """Test that aggregated metric types are preserved correctly in CSV."""
         # Create portfolio data that would trigger aggregation
@@ -588,7 +588,7 @@ class TestExportedCSVSchemaValidation:
         assert all(isinstance(score, int | float) for score in df_pandas["Score"])
 
     def test_csv_encoding_and_formatting(
-        self, sample_portfolio_data, base_config, temp_export_dir
+        self, sample_portfolio_data, base_config, temp_export_dir,
     ):
         """Test that CSV files are properly encoded and formatted."""
         config = base_config.copy()
@@ -631,7 +631,7 @@ class TestExportedCSVSchemaValidation:
             # Data rows should have same number of columns as header
             for i, row in enumerate(rows[1:], 1):
                 assert len(row) == len(
-                    header
+                    header,
                 ), f"Row {i} has {len(row)} columns, expected {len(header)}"
 
         # Test that file can be read by both pandas and polars without errors

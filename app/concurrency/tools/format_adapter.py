@@ -147,7 +147,8 @@ def load_portfolio(file_path: str) -> list[UnifiedStrategy]:
                 convert_ma_strategy(cast(JsonMaStrategy, strategy)) for strategy in data
             ]
 
-    raise FileFormatError(f"Unsupported format: {format_info.content_type}")
+    msg = f"Unsupported format: {format_info.content_type}"
+    raise FileFormatError(msg)
 
 
 def save_portfolio(strategies: list[UnifiedStrategy], file_path: str) -> None:
@@ -199,4 +200,5 @@ def save_portfolio(strategies: list[UnifiedStrategy], file_path: str) -> None:
                 writer.writerow(row)
 
     else:
-        raise FileFormatError(f"Unsupported file extension: {extension}")
+        msg = f"Unsupported file extension: {extension}"
+        raise FileFormatError(msg)

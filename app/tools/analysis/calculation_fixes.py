@@ -70,7 +70,7 @@ class CalculationValidator:
         ]
         if missing_columns:
             validation_results["errors"].append(
-                f"Missing required columns: {missing_columns}"
+                f"Missing required columns: {missing_columns}",
             )
             validation_results["is_valid"] = False
 
@@ -85,7 +85,7 @@ class CalculationValidator:
             ]
             if len(extreme_returns) > 0:
                 validation_results["warnings"].append(
-                    f"Found {len(extreme_returns)} positions with extreme returns"
+                    f"Found {len(extreme_returns)} positions with extreme returns",
                 )
 
         # Validate MFE/MAE relationships
@@ -103,7 +103,7 @@ class CalculationValidator:
             ]
             if len(invalid_mfe_mae) > 0:
                 validation_results["errors"].append(
-                    f"Found {len(invalid_mfe_mae)} positions with invalid MFE/MAE relationships"
+                    f"Found {len(invalid_mfe_mae)} positions with invalid MFE/MAE relationships",
                 )
                 validation_results["is_valid"] = False
 
@@ -134,7 +134,7 @@ class PortfolioAggregationFixes:
 
     @staticmethod
     def calculate_portfolio_return_correct(
-        positions: pd.DataFrame, method: str = "equal_weighted"
+        positions: pd.DataFrame, method: str = "equal_weighted",
     ) -> float:
         """
         Calculate portfolio return using proper methodologies
@@ -147,7 +147,8 @@ class PortfolioAggregationFixes:
             Correctly calculated portfolio return
         """
         if "Current_Unrealized_PnL" not in positions.columns:
-            raise ValueError("Missing Current_Unrealized_PnL column")
+            msg = "Missing Current_Unrealized_PnL column"
+            raise ValueError(msg)
 
         # Filter to valid positions
         valid_positions = positions.dropna(subset=["Current_Unrealized_PnL"])
@@ -163,7 +164,7 @@ class PortfolioAggregationFixes:
             # Value weighted by position size
             if "Position_Size" not in valid_positions.columns:
                 logger.warning(
-                    "Position_Size not available, falling back to equal weighted"
+                    "Position_Size not available, falling back to equal weighted",
                 )
                 return valid_positions["Current_Unrealized_PnL"].mean()
 
@@ -175,7 +176,7 @@ class PortfolioAggregationFixes:
             # Weight by entry price (approximating position value)
             if "Avg_Entry_Price" not in valid_positions.columns:
                 logger.warning(
-                    "Avg_Entry_Price not available, falling back to equal weighted"
+                    "Avg_Entry_Price not available, falling back to equal weighted",
                 )
                 return valid_positions["Current_Unrealized_PnL"].mean()
 
@@ -185,7 +186,8 @@ class PortfolioAggregationFixes:
             weighted_returns = valid_positions["Current_Unrealized_PnL"] * weights
             return weighted_returns.sum() / weights.sum()
 
-        raise ValueError(f"Unknown method: {method}")
+        msg = f"Unknown method: {method}"
+        raise ValueError(msg)
 
     @staticmethod
     def calculate_portfolio_metrics_correct(
@@ -206,7 +208,7 @@ class PortfolioAggregationFixes:
         metrics[
             "total_return_equal_weighted"
         ] = PortfolioAggregationFixes.calculate_portfolio_return_correct(
-            positions, "equal_weighted"
+            positions, "equal_weighted",
         )
 
         # Success rate calculation
@@ -304,7 +306,7 @@ class PercentileCalculationFixes:
 
     @staticmethod
     def calculate_correct_percentile_rank(
-        current_return: float, historical_returns: pd.Series, holding_period_days: int
+        current_return: float, historical_returns: pd.Series, holding_period_days: int,
     ) -> float:
         """
         Calculate correct percentile rank for a position return
@@ -386,13 +388,13 @@ class MAECalculationFixes:
         # For long positions, MFE should be >= current return >= -MAE
         if mfe < current_return and current_return > 0:
             validation_result["warnings"].append(
-                f"MFE ({mfe}) should be >= current return ({current_return}) for profitable positions"
+                f"MFE ({mfe}) should be >= current return ({current_return}) for profitable positions",
             )
 
         # MAE should represent the maximum adverse movement
         if current_return < 0 and abs(current_return) > mae:
             validation_result["warnings"].append(
-                f"Current loss ({current_return}) exceeds MAE ({mae})"
+                f"Current loss ({current_return}) exceeds MAE ({mae})",
             )
 
         # Calculate corrected MFE/MAE ratio
@@ -419,7 +421,7 @@ class SharpeRatioFixes:
 
     @staticmethod
     def calculate_correct_sharpe_ratio(
-        returns: pd.Series, risk_free_rate: float = 0.05, period: str = "daily"
+        returns: pd.Series, risk_free_rate: float = 0.05, period: str = "daily",
     ) -> float:
         """
         Calculate correct Sharpe ratio
@@ -439,7 +441,8 @@ class SharpeRatioFixes:
         period_factors = {"daily": 252, "weekly": 52, "monthly": 12, "annual": 1}
 
         if period not in period_factors:
-            raise ValueError(f"Unknown period: {period}")
+            msg = f"Unknown period: {period}"
+            raise ValueError(msg)
 
         period_factor = period_factors[period]
         period_risk_free = risk_free_rate / period_factor
@@ -477,7 +480,7 @@ class SharpeRatioFixes:
         # Sharpe ratio classification
         if sharpe_ratio > 3.0:
             validation_result["warnings"].append(
-                f"Extremely high Sharpe ratio: {sharpe_ratio:.2f} - verify calculation"
+                f"Extremely high Sharpe ratio: {sharpe_ratio:.2f} - verify calculation",
             )
             validation_result["classification"] = "exceptional"
         elif sharpe_ratio > 2.0:
@@ -526,7 +529,7 @@ class DataValidationFixes:
 
     @staticmethod
     def safe_divide(
-        numerator: float, denominator: float, default: float = 0.0
+        numerator: float, denominator: float, default: float = 0.0,
     ) -> float:
         """
         Safe division with handling for edge cases
@@ -581,7 +584,7 @@ class EdgeCaseHandling:
 
     @staticmethod
     def validate_extreme_values(
-        values: dict[str, float], bounds: dict[str, tuple[float, float]]
+        values: dict[str, float], bounds: dict[str, tuple[float, float]],
     ) -> dict[str, Any]:
         """
         Validate values against expected bounds
@@ -604,7 +607,7 @@ class EdgeCaseHandling:
                         "bounds": (min_val, max_val),
                     }
                     validation_result["warnings"].append(
-                        f"{key} ({value}) outside bounds ({min_val}, {max_val})"
+                        f"{key} ({value}) outside bounds ({min_val}, {max_val})",
                     )
                     validation_result["is_valid"] = False
 
@@ -627,7 +630,7 @@ class SPDSCalculationCorrector:
         self.edge_case_handler = EdgeCaseHandling()
 
     def correct_portfolio_analysis(
-        self, positions: pd.DataFrame, historical_returns: pd.Series | None = None
+        self, positions: pd.DataFrame, historical_returns: pd.Series | None = None,
     ) -> dict[str, Any]:
         """
         Apply comprehensive corrections to portfolio analysis
@@ -670,7 +673,7 @@ class SPDSCalculationCorrector:
 
         # Apply corrections
         corrected_metrics = self.portfolio_fixes.calculate_portfolio_metrics_correct(
-            positions
+            positions,
         )
         results["corrected_metrics"] = corrected_metrics
         results["corrections_applied"].append("portfolio_aggregation")
@@ -707,7 +710,7 @@ class SPDSCalculationCorrector:
             returns = positions["Current_Unrealized_PnL"]
             corrected_sharpe = self.sharpe_fixes.calculate_correct_sharpe_ratio(returns)
             sharpe_validation = self.sharpe_fixes.validate_sharpe_ratio(
-                corrected_sharpe
+                corrected_sharpe,
             )
 
             results["corrected_metrics"]["sharpe_ratio_corrected"] = corrected_sharpe
@@ -731,16 +734,16 @@ if __name__ == "__main__":
             "Max_Adverse_Excursion": [0.014, 0.004],
             "Position_Size": [1.0, 1.0],
             "Status": ["Open", "Open"],
-        }
+        },
     )
 
     results = corrector.correct_portfolio_analysis(sample_positions)
 
     print("SPDS Calculation Corrections Applied:")
     print(
-        f"Original total return (incorrect): {results['original_metrics']['total_return_incorrect']:.4f}"
+        f"Original total return (incorrect): {results['original_metrics']['total_return_incorrect']:.4f}",
     )
     print(
-        f"Corrected total return: {results['corrected_metrics']['total_return_equal_weighted']:.4f}"
+        f"Corrected total return: {results['corrected_metrics']['total_return_equal_weighted']:.4f}",
     )
     print(f"Corrections applied: {results['corrections_applied']}")

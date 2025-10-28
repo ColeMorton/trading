@@ -14,7 +14,7 @@ HEADERS = {
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/120.0.0.0 Safari/537.36"
-    )
+    ),
 }
 
 
@@ -25,8 +25,7 @@ def normalize_to_yahoo(ticker: str) -> str:
     """
     t = ticker.strip().upper()
     t = re.sub(r"[^A-Z0-9.\-]", "", t)
-    t = t.replace(".", "-")  # Yahoo uses dash instead of dot
-    return t
+    return t.replace(".", "-")  # Yahoo uses dash instead of dot
 
 
 def get_sp500_from_wikipedia():
@@ -41,7 +40,8 @@ def get_sp500_from_wikipedia():
             df = candidate
             break
     if df is None:
-        raise RuntimeError("Could not parse S&P 500 table from Wikipedia.")
+        msg = "Could not parse S&P 500 table from Wikipedia."
+        raise RuntimeError(msg)
     symbol_col = next(c for c in df.columns if "symbol" in str(c).lower())
     symbols = df[symbol_col].astype(str).tolist()
     return [normalize_to_yahoo(s) for s in symbols]
@@ -55,8 +55,9 @@ def get_qqq_holdings_invesco():
     try:
         dfs = pd.read_html(resp.text, flavor="lxml")
     except ValueError:
+        msg = "Invesco holdings table not found in HTML (likely JS-rendered)."
         raise RuntimeError(
-            "Invesco holdings table not found in HTML (likely JS-rendered)."
+            msg,
         )
     df = None
     for candidate in dfs:
@@ -65,14 +66,16 @@ def get_qqq_holdings_invesco():
             df = candidate
             break
     if df is None:
-        raise RuntimeError("Could not parse tickers from Invesco QQQ holdings page.")
+        msg = "Could not parse tickers from Invesco QQQ holdings page."
+        raise RuntimeError(msg)
     col_candidates = [
         c
         for c in df.columns
         if "symbol" in str(c).lower() or "ticker" in str(c).lower()
     ]
     if not col_candidates:
-        raise RuntimeError("Ticker column not found in Invesco QQQ holdings table.")
+        msg = "Ticker column not found in Invesco QQQ holdings table."
+        raise RuntimeError(msg)
     symbol_col = col_candidates[0]
     symbols = df[symbol_col].astype(str).tolist()
     return [normalize_to_yahoo(s) for s in symbols]
@@ -97,7 +100,8 @@ def get_qqq_holdings_fallback():
             tickers = [normalize_to_yahoo(v) for v in ticker_like]
             break
     if not tickers:
-        raise RuntimeError("Could not parse tickers from Slickcharts fallback.")
+        msg = "Could not parse tickers from Slickcharts fallback."
+        raise RuntimeError(msg)
     return tickers
 
 

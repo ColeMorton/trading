@@ -83,7 +83,7 @@ class ObjectPool(Generic[T]):
     def _clear_dataframe(self, df: Any) -> None:
         """Clear DataFrame contents while preserving structure."""
         if isinstance(df, pd.DataFrame):
-            df.drop(df.index, inplace=True)
+            df = df.drop(df.index)
         elif isinstance(df, pl.DataFrame):
             # Polars DataFrames are immutable, so we can't clear them
             pass
@@ -112,10 +112,10 @@ class DataFramePool:
     def __init__(self, max_pandas_size: int = 5, max_polars_size: int = 5):
         """Initialize DataFrame pools."""
         self.pandas_pool = ObjectPool(
-            factory=lambda: pd.DataFrame(), max_size=max_pandas_size
+            factory=lambda: pd.DataFrame(), max_size=max_pandas_size,
         )
         self.polars_pool = ObjectPool(
-            factory=lambda: pl.DataFrame(), max_size=max_polars_size
+            factory=lambda: pl.DataFrame(), max_size=max_polars_size,
         )
 
     @contextmanager
@@ -175,7 +175,7 @@ class MemoryMonitor:
 
         if memory_mb > self.threshold_mb:
             logger.info(
-                f"Memory usage {memory_mb:.1f}MB exceeds threshold {self.threshold_mb}MB. Triggering GC."
+                f"Memory usage {memory_mb:.1f}MB exceeds threshold {self.threshold_mb}MB. Triggering GC.",
             )
             gc.collect()
             self._gc_count += 1
@@ -186,7 +186,7 @@ class MemoryMonitor:
             freed_mb = memory_mb - new_memory_mb
 
             logger.info(
-                f"GC completed. Freed {freed_mb:.1f}MB. Current usage: {new_memory_mb:.1f}MB"
+                f"GC completed. Freed {freed_mb:.1f}MB. Current usage: {new_memory_mb:.1f}MB",
             )
             return True
 
@@ -219,7 +219,7 @@ class MemoryMonitor:
             logger.info(
                 f"Operation '{operation_name}' completed in {duration:.2f}s. "
                 f"Memory delta: {memory_delta:+.1f}MB "
-                f"(Start: {start_memory:.1f}MB, End: {end_memory:.1f}MB)"
+                f"(Start: {start_memory:.1f}MB, End: {end_memory:.1f}MB)",
             )
 
             # Check if we should trigger GC
@@ -256,7 +256,7 @@ class MemoryOptimizer:
         logger.info(
             f"MemoryOptimizer initialized. "
             f"Pooling: {enable_pooling}, Monitoring: {enable_monitoring}, "
-            f"Threshold: {memory_threshold_mb}MB"
+            f"Threshold: {memory_threshold_mb}MB",
         )
 
     def _configure_pandas(self):
@@ -282,7 +282,7 @@ class MemoryOptimizer:
         # Handle inf values explicitly (replaces deprecated use_inf_as_na option)
         numeric_cols = df.select_dtypes(include=["int", "float"]).columns
         df[numeric_cols] = df[numeric_cols].replace(
-            [float("inf"), float("-inf")], float("nan")
+            [float("inf"), float("-inf")], float("nan"),
         )
 
         # Downcast numeric columns
@@ -303,7 +303,7 @@ class MemoryOptimizer:
 
         logger.info(
             f"DataFrame memory optimized: {start_mem:.2f}MB -> {end_mem:.2f}MB "
-            f"({(1 - end_mem/start_mem)*100:.1f}% reduction)"
+            f"({(1 - end_mem/start_mem)*100:.1f}% reduction)",
         )
 
         return df

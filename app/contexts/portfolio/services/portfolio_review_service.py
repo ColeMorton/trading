@@ -135,7 +135,7 @@ class PortfolioSynthesisService:
             self._log("Raw data export enabled")
 
     def _setup_directory_structure_and_metadata(
-        self, execution_time: float | None = None
+        self, execution_time: float | None = None,
     ):
         """
         Create unified 3-layer directory structure and save metadata.
@@ -177,7 +177,7 @@ class PortfolioSynthesisService:
             return None
 
     def run_single_strategy_synthesis(
-        self, strategy_config: StrategyConfig
+        self, strategy_config: StrategyConfig,
     ) -> PortfolioResults:
         """
         Run portfolio synthesis for a single strategy.
@@ -192,7 +192,7 @@ class PortfolioSynthesisService:
 
         try:
             self._log(
-                f"Starting single strategy synthesis for {strategy_config.ticker}"
+                f"Starting single strategy synthesis for {strategy_config.ticker}",
             )
 
             # Setup unified directory structure and metadata
@@ -254,7 +254,7 @@ class PortfolioSynthesisService:
                     returns = portfolio.returns()
                     portfolio_value = portfolio.value()
                     risk_metrics = risk_calculator.calculate_comprehensive_risk_metrics(
-                        returns, portfolio_value
+                        returns, portfolio_value,
                     )
                 except Exception as e:
                     self._log(
@@ -278,7 +278,7 @@ class PortfolioSynthesisService:
                     {
                         "Date": value_series.index,
                         strategy_config.ticker: value_series.values,
-                    }
+                    },
                 )
                 .to_pandas()
                 .set_index("Date")
@@ -290,12 +290,12 @@ class PortfolioSynthesisService:
             equity_curve_path = None
             if self.config.export_equity_curve:
                 equity_curve_path = self._export_equity_curve(
-                    portfolio, strategy_config
+                    portfolio, strategy_config,
                 )
 
             # Create benchmark portfolio (always enabled for buy-and-hold comparison)
             benchmark_portfolio = self._create_benchmark_portfolio(
-                strategy_config, data
+                strategy_config, data,
             )
 
             # Export raw data if enabled
@@ -303,11 +303,11 @@ class PortfolioSynthesisService:
             if self.data_export_service:
                 portfolio_name = f"{strategy_config.ticker}_{strategy_config.strategy_type}_{strategy_config.fast_period}_{strategy_config.slow_period}"
                 export_results = self.data_export_service.export_portfolio_data(
-                    portfolio, portfolio_name, benchmark_portfolio
+                    portfolio, portfolio_name, benchmark_portfolio,
                 )
                 if export_results.success:
                     self._log(
-                        f"Exported raw data for {portfolio_name}: {export_results.total_files} files"
+                        f"Exported raw data for {portfolio_name}: {export_results.total_files} files",
                     )
                 else:
                     self._log(
@@ -319,7 +319,7 @@ class PortfolioSynthesisService:
             execution_time = time.time() - start_time
             self._setup_directory_structure_and_metadata(execution_time=execution_time)
             self._log(
-                f"Single strategy synthesis completed in {execution_time:.2f} seconds"
+                f"Single strategy synthesis completed in {execution_time:.2f} seconds",
             )
 
             return PortfolioResults(
@@ -354,7 +354,8 @@ class PortfolioSynthesisService:
 
             # Validate configuration
             if not self.config.strategies:
-                raise ValueError("No strategies defined in config")
+                msg = "No strategies defined in config"
+                raise ValueError(msg)
 
             # Get unique symbols from strategies
             symbols = list({strategy.ticker for strategy in self.config.strategies})
@@ -369,18 +370,19 @@ class PortfolioSynthesisService:
             # Find common date range
             common_dates = find_common_dates(data_dict, self._log)
             if not common_dates:
-                raise ValueError("No common dates found across symbols")
+                msg = "No common dates found across symbols"
+                raise ValueError(msg)
 
             # Apply Benchmark-Aligned Start Date: start when strategies are ready to signal
             aligned_start_date = self._calculate_strategy_ready_date(
-                common_dates, self.config.strategies
+                common_dates, self.config.strategies,
             )
             if aligned_start_date:
                 common_dates = [
                     date for date in common_dates if date >= aligned_start_date
                 ]
                 self._log(
-                    f"Benchmark-Aligned Start Date: {aligned_start_date}, reduced to {len(common_dates)} periods"
+                    f"Benchmark-Aligned Start Date: {aligned_start_date}, reduced to {len(common_dates)} periods",
                 )
 
                 # Filter pandas_data_dict to match aligned date range
@@ -390,16 +392,17 @@ class PortfolioSynthesisService:
                     aligned_df = df[df.index >= aligned_start_date].copy()
                     aligned_pandas_data_dict[symbol] = aligned_df
                     self._log(
-                        f"Filtered {symbol} data: {len(df)} -> {len(aligned_df)} periods"
+                        f"Filtered {symbol} data: {len(df)} -> {len(aligned_df)} periods",
                     )
                 pandas_data_dict = aligned_pandas_data_dict
 
             # Create price DataFrame
             price_df_pd = create_pricesframe(
-                common_dates, data_dict, config_dict, self._log
+                common_dates, data_dict, config_dict, self._log,
             )
             if price_df_pd.empty:
-                raise ValueError("Failed to create price DataFrame")
+                msg = "Failed to create price DataFrame"
+                raise ValueError(msg)
 
             # Generate trading signals
             self._log("Generating trading signals")
@@ -407,7 +410,7 @@ class PortfolioSynthesisService:
             for i, strategy in enumerate(self.config.strategies, 1):
                 strategy_name = f"{strategy.ticker}_{strategy.fast_period}_{strategy.slow_period}_Strategy"
                 self._log(
-                    f"  {i}. {strategy_name} - Windows: {strategy.fast_period}/{strategy.slow_period}"
+                    f"  {i}. {strategy_name} - Windows: {strategy.fast_period}/{strategy.slow_period}",
                 )
 
             signal_config = {
@@ -420,7 +423,7 @@ class PortfolioSynthesisService:
                         "use_sma": derive_use_sma(
                             strategy.strategy_type.value
                             if hasattr(strategy.strategy_type, "value")
-                            else strategy.strategy_type
+                            else strategy.strategy_type,
                         ),
                         "strategy_type": strategy.strategy_type,
                         "signal_period": strategy.signal_period,
@@ -437,7 +440,7 @@ class PortfolioSynthesisService:
                     derive_use_sma(
                         strategy.strategy_type.value
                         if hasattr(strategy.strategy_type, "value")
-                        else strategy.strategy_type
+                        else strategy.strategy_type,
                     )
                     for strategy in self.config.strategies
                 ),
@@ -452,10 +455,11 @@ class PortfolioSynthesisService:
             }
 
             entries_pd, exits_pd = generate_signals(
-                pandas_data_dict, signal_config, self._log
+                pandas_data_dict, signal_config, self._log,
             )
             if entries_pd.empty or exits_pd.empty:
-                raise ValueError("Failed to generate trading signals")
+                msg = "Failed to generate trading signals"
+                raise ValueError(msg)
 
             # Log which strategies have signals
             self._log(f"Generated signals for strategies: {list(entries_pd.columns)}")
@@ -466,7 +470,7 @@ class PortfolioSynthesisService:
 
             # Create dynamic size DataFrame using Strategy-First Allocation Method
             sizes_pd = self._create_dynamic_allocation(
-                price_df_pd, entries_pd, exits_pd, self.config.strategies
+                price_df_pd, entries_pd, exits_pd, self.config.strategies,
             )
 
             # Run the portfolio simulation
@@ -531,7 +535,7 @@ class PortfolioSynthesisService:
                     returns = portfolio.returns()
                     portfolio_value = portfolio.value()
                     risk_metrics = risk_calculator.calculate_comprehensive_risk_metrics(
-                        returns, portfolio_value
+                        returns, portfolio_value,
                     )
                 except Exception as e:
                     self._log(
@@ -555,11 +559,11 @@ class PortfolioSynthesisService:
             if self.data_export_service:
                 portfolio_name = "multi_strategy_portfolio"
                 export_results = self.data_export_service.export_portfolio_data(
-                    portfolio, portfolio_name, benchmark_portfolio
+                    portfolio, portfolio_name, benchmark_portfolio,
                 )
                 if export_results.success:
                     self._log(
-                        f"Exported raw data for {portfolio_name}: {export_results.total_files} files"
+                        f"Exported raw data for {portfolio_name}: {export_results.total_files} files",
                     )
                 else:
                     self._log(
@@ -571,7 +575,7 @@ class PortfolioSynthesisService:
             execution_time = time.time() - start_time
             self._setup_directory_structure_and_metadata(execution_time=execution_time)
             self._log(
-                f"Multi-strategy synthesis completed in {execution_time:.2f} seconds"
+                f"Multi-strategy synthesis completed in {execution_time:.2f} seconds",
             )
 
             return PortfolioResults(
@@ -589,7 +593,7 @@ class PortfolioSynthesisService:
             raise
 
     def _create_portfolio_config(
-        self, strategy_config: StrategyConfig
+        self, strategy_config: StrategyConfig,
     ) -> dict[str, Any]:
         """Create portfolio configuration for backtesting."""
         return {
@@ -600,7 +604,7 @@ class PortfolioSynthesisService:
             "USE_SMA": derive_use_sma(
                 strategy_config.strategy_type.value
                 if hasattr(strategy_config.strategy_type, "value")
-                else strategy_config.strategy_type
+                else strategy_config.strategy_type,
             ),
             "USE_HOURLY": strategy_config.use_hourly,
             "STOP_LOSS": strategy_config.stop_loss,
@@ -611,7 +615,7 @@ class PortfolioSynthesisService:
         }
 
     def _create_benchmark_portfolio(
-        self, strategy_config: StrategyConfig, data: pl.DataFrame
+        self, strategy_config: StrategyConfig, data: pl.DataFrame,
     ) -> Optional["vbt.Portfolio"]:
         """Create benchmark portfolio for comparison."""
         try:
@@ -637,7 +641,7 @@ class PortfolioSynthesisService:
                 [
                     pl.lit(True).alias("Position"),  # Always in position
                     pl.lit(1.0).alias("Size"),  # Full position
-                ]
+                ],
             )
 
             # Run benchmark backtest
@@ -650,7 +654,7 @@ class PortfolioSynthesisService:
             }
 
             benchmark_portfolio = backtest_strategy(
-                benchmark_data, benchmark_portfolio_config, self._log
+                benchmark_data, benchmark_portfolio_config, self._log,
             )
 
             self._log(f"Created benchmark portfolio for {benchmark_symbol}")
@@ -673,7 +677,7 @@ class PortfolioSynthesisService:
                     "use_sma": derive_use_sma(
                         strategy.strategy_type.value
                         if hasattr(strategy.strategy_type, "value")
-                        else strategy.strategy_type
+                        else strategy.strategy_type,
                     ),
                 }
                 for strategy in self.config.strategies
@@ -686,7 +690,7 @@ class PortfolioSynthesisService:
         }
 
     def _export_equity_curve(
-        self, portfolio: "vbt.Portfolio", strategy_config: StrategyConfig
+        self, portfolio: "vbt.Portfolio", strategy_config: StrategyConfig,
     ) -> str | None:
         """Export equity curve to CSV."""
         try:
@@ -697,7 +701,7 @@ class PortfolioSynthesisService:
                 {
                     "Date": value_series.index,
                     "Close": value_series.values / initial_value,
-                }
+                },
             )
 
             # Determine output path
@@ -729,7 +733,7 @@ class PortfolioSynthesisService:
         return df
 
     def _process_strategy_parallel(
-        self, strategy_config: StrategyConfig
+        self, strategy_config: StrategyConfig,
     ) -> dict[str, Any]:
         """Process a single strategy for parallel execution."""
         try:
@@ -782,7 +786,7 @@ class PortfolioSynthesisService:
 
         except Exception as e:
             self._log(
-                f"Error processing strategy {strategy_config.ticker}: {e!s}", "error"
+                f"Error processing strategy {strategy_config.ticker}: {e!s}", "error",
             )
             return {
                 "strategy_config": strategy_config,
@@ -812,14 +816,15 @@ class PortfolioSynthesisService:
 
             # Validate configuration
             if not self.config.strategies:
-                raise ValueError("No strategies defined in config")
+                msg = "No strategies defined in config"
+                raise ValueError(msg)
 
             # Process strategies in parallel
             strategy_results = []
             max_workers = self.config.max_workers or min(len(self.config.strategies), 4)
 
             self._log(
-                f"Processing {len(self.config.strategies)} strategies with {max_workers} workers"
+                f"Processing {len(self.config.strategies)} strategies with {max_workers} workers",
             )
 
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -840,7 +845,7 @@ class PortfolioSynthesisService:
                             self._log(f"✓ Completed {strategy.ticker}")
                         else:
                             self._log(
-                                f"✗ Failed {strategy.ticker}: {result.get('error', 'Unknown error')}"
+                                f"✗ Failed {strategy.ticker}: {result.get('error', 'Unknown error')}",
                             )
 
                     except Exception as e:
@@ -855,16 +860,17 @@ class PortfolioSynthesisService:
                                 "data": None,
                                 "success": False,
                                 "error": str(e),
-                            }
+                            },
                         )
 
             # Filter successful results
             successful_results = [r for r in strategy_results if r["success"]]
             if not successful_results:
-                raise ValueError("No strategies processed successfully")
+                msg = "No strategies processed successfully"
+                raise ValueError(msg)
 
             self._log(
-                f"Successfully processed {len(successful_results)}/{len(strategy_results)} strategies"
+                f"Successfully processed {len(successful_results)}/{len(strategy_results)} strategies",
             )
 
             # Combine portfolios (simplified approach - using first successful portfolio as base)
@@ -896,14 +902,14 @@ class PortfolioSynthesisService:
             value_series = combined_portfolio.value()
             price_df = (
                 pl.DataFrame(
-                    {"Date": value_series.index, "Portfolio": value_series.values}
+                    {"Date": value_series.index, "Portfolio": value_series.values},
                 )
                 .to_pandas()
                 .set_index("Date")
             )
 
             open_positions = check_open_positions(
-                combined_portfolio, price_df, self._log
+                combined_portfolio, price_df, self._log,
             )
 
             # Export raw data if enabled
@@ -911,11 +917,11 @@ class PortfolioSynthesisService:
             if self.data_export_service:
                 portfolio_name = "parallel_portfolio"
                 export_results = self.data_export_service.export_portfolio_data(
-                    combined_portfolio, portfolio_name, None
+                    combined_portfolio, portfolio_name, None,
                 )
                 if export_results.success:
                     self._log(
-                        f"Exported raw data for {portfolio_name}: {export_results.total_files} files"
+                        f"Exported raw data for {portfolio_name}: {export_results.total_files} files",
                     )
                 else:
                     self._log(
@@ -927,7 +933,7 @@ class PortfolioSynthesisService:
             execution_time = time.time() - start_time
             self._setup_directory_structure_and_metadata(execution_time=execution_time)
             self._log(
-                f"Parallel multi-strategy synthesis completed in {execution_time:.2f} seconds"
+                f"Parallel multi-strategy synthesis completed in {execution_time:.2f} seconds",
             )
 
             return PortfolioResults(
@@ -990,7 +996,7 @@ class PortfolioSynthesisService:
             positions[strategy_name] = False
 
         self._log(
-            f"Implementing Strategy-First Allocation for strategies: {strategy_names}"
+            f"Implementing Strategy-First Allocation for strategies: {strategy_names}",
         )
 
         # Process each date to determine dynamic allocation
@@ -1040,7 +1046,7 @@ class PortfolioSynthesisService:
                         sizes_pd.loc[date, strategy_name] = 0.0
 
         self._log(
-            f"Strategy-First Allocation complete. {allocation_changes} periods with 100% single-strategy allocation"
+            f"Strategy-First Allocation complete. {allocation_changes} periods with 100% single-strategy allocation",
         )
 
         # Log allocation summary
@@ -1050,13 +1056,13 @@ class PortfolioSynthesisService:
             nonzero_periods = (sizes_pd[strategy_name] > 0).sum()
             total_periods = len(sizes_pd)
             self._log(
-                f"  {strategy_name}: max={max_alloc:.1%}, mean={mean_alloc:.1%}, active={nonzero_periods}/{total_periods} periods"
+                f"  {strategy_name}: max={max_alloc:.1%}, mean={mean_alloc:.1%}, active={nonzero_periods}/{total_periods} periods",
             )
 
         return sizes_pd
 
     def _calculate_strategy_ready_date(
-        self, common_dates: list, strategies: list[StrategyConfig]
+        self, common_dates: list, strategies: list[StrategyConfig],
     ) -> Any | None:
         """
         Calculate the date when strategies are ready to start signaling.
@@ -1082,7 +1088,7 @@ class PortfolioSynthesisService:
             elif strategy.strategy_type.upper() == "MACD":
                 # For MACD, we typically need the slow period + signal line
                 max_window = max(
-                    max_window, strategy.slow_period + (strategy.signal_period or 9)
+                    max_window, strategy.slow_period + (strategy.signal_period or 9),
                 )
 
         if max_window <= 1:
@@ -1094,11 +1100,11 @@ class PortfolioSynthesisService:
                 max_window - 1
             ]  # -1 because we start counting from 0
             self._log(
-                f"Strategy ready calculation: max_window={max_window}, ready_date={ready_date}"
+                f"Strategy ready calculation: max_window={max_window}, ready_date={ready_date}",
             )
             return ready_date
         self._log(
-            f"Warning: Not enough data periods ({len(common_dates)}) for max_window={max_window}"
+            f"Warning: Not enough data periods ({len(common_dates)}) for max_window={max_window}",
         )
         return None
 

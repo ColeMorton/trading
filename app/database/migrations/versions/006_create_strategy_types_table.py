@@ -25,11 +25,11 @@ def upgrade() -> None:
         "strategy_types",
         sa.Column("id", sa.Integer, primary_key=True, autoincrement=True),
         sa.Column(
-            "strategy_type", sa.String(50), nullable=False, unique=True, index=True
+            "strategy_type", sa.String(50), nullable=False, unique=True, index=True,
         ),
         sa.Column("description", sa.Text, nullable=True),
         sa.Column(
-            "created_at", sa.DateTime, nullable=False, server_default=sa.text("now()")
+            "created_at", sa.DateTime, nullable=False, server_default=sa.text("now()"),
         ),
     )
 
@@ -45,7 +45,7 @@ def upgrade() -> None:
         FROM sweep_best_selections
         WHERE strategy_type IS NOT NULL
         ORDER BY 1
-    """
+    """,
     )
 
     # 3. Update strategy_sweep_results table
@@ -62,7 +62,7 @@ def upgrade() -> None:
         SET strategy_type_id = st.id
         FROM strategy_types st
         WHERE sr.strategy_type = st.strategy_type
-    """
+    """,
     )
 
     # 3c. Make strategy_type_id NOT NULL
@@ -80,7 +80,7 @@ def upgrade() -> None:
 
     # 3e. Drop old composite index that uses strategy_type
     op.drop_index(
-        "ix_strategy_sweep_ticker_id_strategy", table_name="strategy_sweep_results"
+        "ix_strategy_sweep_ticker_id_strategy", table_name="strategy_sweep_results",
     )
 
     # 3f. Drop the old strategy_type string column
@@ -107,7 +107,7 @@ def upgrade() -> None:
         SET strategy_type_id = st.id
         FROM strategy_types st
         WHERE sbs.strategy_type = st.strategy_type
-    """
+    """,
     )
 
     # 4c. Make strategy_type_id NOT NULL
@@ -174,7 +174,7 @@ def downgrade() -> None:
         SET strategy_type = st.strategy_type
         FROM strategy_types st
         WHERE sbs.strategy_type_id = st.id
-    """
+    """,
     )
 
     # 1d. Make strategy_type NOT NULL
@@ -220,7 +220,7 @@ def downgrade() -> None:
         SET strategy_type = st.strategy_type
         FROM strategy_types st
         WHERE sr.strategy_type_id = st.id
-    """
+    """,
     )
 
     # 2d. Recreate original composite index

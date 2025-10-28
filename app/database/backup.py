@@ -71,7 +71,7 @@ class BackupManager:
             return str(compressed_backup)
 
         except Exception as e:
-            logger.error(f"Backup failed: {e}")
+            logger.exception(f"Backup failed: {e}")
             # Cleanup failed backup
             if backup_path.exists():
                 shutil.rmtree(backup_path)
@@ -115,8 +115,9 @@ class BackupManager:
             return str(dump_file)
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"pg_dump failed: {e.stderr}")
-            raise RuntimeError(f"PostgreSQL backup failed: {e.stderr}")
+            logger.exception(f"pg_dump failed: {e.stderr}")
+            msg = f"PostgreSQL backup failed: {e.stderr}"
+            raise RuntimeError(msg)
 
     async def _backup_redis(self, backup_path: Path) -> str:
         """Backup Redis data."""
@@ -182,8 +183,9 @@ class BackupManager:
             return str(redis_file)
 
         except Exception as e:
-            logger.error(f"Redis backup failed: {e}")
-            raise RuntimeError(f"Redis backup failed: {e}")
+            logger.exception(f"Redis backup failed: {e}")
+            msg = f"Redis backup failed: {e}"
+            raise RuntimeError(msg)
 
     async def _compress_backup(self, backup_path: Path) -> Path:
         """Compress backup directory."""
@@ -209,15 +211,17 @@ class BackupManager:
             return compressed_file
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Backup compression failed: {e.stderr}")
-            raise RuntimeError(f"Backup compression failed: {e.stderr}")
+            logger.exception(f"Backup compression failed: {e.stderr}")
+            msg = f"Backup compression failed: {e.stderr}"
+            raise RuntimeError(msg)
 
     async def restore_backup(self, backup_file: str, force: bool = False) -> bool:
         """Restore from a backup file."""
         backup_path = Path(backup_file)
 
         if not backup_path.exists():
-            raise FileNotFoundError(f"Backup file not found: {backup_file}")
+            msg = f"Backup file not found: {backup_file}"
+            raise FileNotFoundError(msg)
 
         logger.info(f"Restoring from backup: {backup_file}")
 
@@ -255,7 +259,7 @@ class BackupManager:
             return True
 
         except Exception as e:
-            logger.error(f"Backup restore failed: {e}")
+            logger.exception(f"Backup restore failed: {e}")
             raise
 
     async def _extract_backup(self, backup_file: Path) -> Path:
@@ -270,16 +274,18 @@ class BackupManager:
             return extract_dir
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Backup extraction failed: {e.stderr}")
-            raise RuntimeError(f"Backup extraction failed: {e.stderr}")
+            logger.exception(f"Backup extraction failed: {e.stderr}")
+            msg = f"Backup extraction failed: {e.stderr}"
+            raise RuntimeError(msg)
 
     async def _restore_postgresql(self, dump_file: Path, force: bool = False):
         """Restore PostgreSQL database from dump file."""
         if not force:
             logger.warning(
-                "PostgreSQL restore requires force=True to prevent accidental data loss"
+                "PostgreSQL restore requires force=True to prevent accidental data loss",
             )
-            raise RuntimeError("PostgreSQL restore requires force=True")
+            msg = "PostgreSQL restore requires force=True"
+            raise RuntimeError(msg)
 
         cmd = [
             "psql",
@@ -307,16 +313,18 @@ class BackupManager:
             logger.info("PostgreSQL restore completed successfully")
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"PostgreSQL restore failed: {e.stderr}")
-            raise RuntimeError(f"PostgreSQL restore failed: {e.stderr}")
+            logger.exception(f"PostgreSQL restore failed: {e.stderr}")
+            msg = f"PostgreSQL restore failed: {e.stderr}"
+            raise RuntimeError(msg)
 
     async def _restore_redis(self, redis_file: Path, force: bool = False):
         """Restore Redis data from backup file."""
         if not force:
             logger.warning(
-                "Redis restore requires force=True to prevent accidental data loss"
+                "Redis restore requires force=True to prevent accidental data loss",
             )
-            raise RuntimeError("Redis restore requires force=True")
+            msg = "Redis restore requires force=True"
+            raise RuntimeError(msg)
 
         try:
             # Connect to Redis
@@ -363,8 +371,9 @@ class BackupManager:
             logger.info(f"Redis restore completed: {len(redis_data)} keys restored")
 
         except Exception as e:
-            logger.error(f"Redis restore failed: {e}")
-            raise RuntimeError(f"Redis restore failed: {e}")
+            logger.exception(f"Redis restore failed: {e}")
+            msg = f"Redis restore failed: {e}"
+            raise RuntimeError(msg)
 
     async def list_backups(self) -> list[dict[str, Any]]:
         """List available backups."""
@@ -396,7 +405,7 @@ class BackupManager:
                             "timestamp": metadata.get("timestamp"),
                             "type": metadata.get("type"),
                             "size": backup_file.stat().st_size,
-                        }
+                        },
                     )
                     # Cleanup handled automatically by TemporaryDirectory context
                     # manager
@@ -421,7 +430,7 @@ class BackupManager:
                     logger.info(f"Removed old backup: {backup['name']}")
                     removed_count += 1
                 except Exception as e:
-                    logger.error(f"Failed to remove backup {backup['file']}: {e}")
+                    logger.exception(f"Failed to remove backup {backup['file']}: {e}")
 
         logger.info(f"Cleanup completed: removed {removed_count} old backups")
         return removed_count
@@ -458,7 +467,7 @@ if __name__ == "__main__":
             print("  restore <file>    - Restore from backup (requires --force)")
             print("  list              - List available backups")
             print(
-                "  cleanup [days]    - Remove backups older than X days (default: 30)"
+                "  cleanup [days]    - Remove backups older than X days (default: 30)",
             )
             return None
 
@@ -481,7 +490,7 @@ if __name__ == "__main__":
 
                 if not force:
                     print(
-                        "Warning: This will overwrite existing data. Use --force to confirm."
+                        "Warning: This will overwrite existing data. Use --force to confirm.",
                     )
                     return None
 
@@ -494,7 +503,7 @@ if __name__ == "__main__":
                 for backup in backups:
                     size_mb = backup["size"] / (1024 * 1024)
                     print(
-                        f"  {backup['name']} - {backup['timestamp']} ({size_mb:.1f}MB)"
+                        f"  {backup['name']} - {backup['timestamp']} ({size_mb:.1f}MB)",
                     )
 
             elif command == "cleanup":

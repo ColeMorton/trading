@@ -88,7 +88,7 @@ class AdaptiveThreadPoolExecutor:
         self.logger.debug(
             f"Calculated optimal workers: {optimal} "
             f"(CPU: {cpu_count}, Memory: {available_memory_gb:.1f}GB, "
-            f"Type: {self.workload_type})"
+            f"Type: {self.workload_type})",
         )
 
         return optimal
@@ -99,12 +99,12 @@ class AdaptiveThreadPoolExecutor:
             self._executor.shutdown(wait=True)
 
         self._executor = ThreadPoolExecutor(
-            max_workers=self._current_workers, thread_name_prefix="trading_worker"
+            max_workers=self._current_workers, thread_name_prefix="trading_worker",
         )
         self._metrics.worker_count = self._current_workers
 
         self.logger.info(
-            f"Created ThreadPoolExecutor with {self._current_workers} workers"
+            f"Created ThreadPoolExecutor with {self._current_workers} workers",
         )
 
     def _should_resize(self) -> bool:
@@ -130,7 +130,7 @@ class AdaptiveThreadPoolExecutor:
             return True
         if cpu_usage < 30 and self._current_workers > self.min_workers:
             self.logger.info(
-                f"Low CPU usage ({cpu_usage:.1f}%), considering scale down"
+                f"Low CPU usage ({cpu_usage:.1f}%), considering scale down",
             )
             return True
 
@@ -146,7 +146,7 @@ class AdaptiveThreadPoolExecutor:
 
             if new_optimal != self._current_workers:
                 self.logger.info(
-                    f"Resizing executor: {self._current_workers} -> {new_optimal} workers"
+                    f"Resizing executor: {self._current_workers} -> {new_optimal} workers",
                 )
                 self._current_workers = new_optimal
                 self._create_executor()
@@ -172,7 +172,7 @@ class AdaptiveThreadPoolExecutor:
             # Update peak memory
             current_memory = psutil.Process().memory_info().rss / (1024**2)
             self._metrics.peak_memory_mb = max(
-                self._metrics.peak_memory_mb, current_memory
+                self._metrics.peak_memory_mb, current_memory,
             )
 
             # Update CPU usage
@@ -181,7 +181,8 @@ class AdaptiveThreadPoolExecutor:
     def submit(self, fn: Callable[..., T], *args, **kwargs) -> Future[T]:
         """Submit a single task for execution."""
         if not self._executor:
-            raise RuntimeError("Executor not initialized")
+            msg = "Executor not initialized"
+            raise RuntimeError(msg)
 
         # Wrap function to collect metrics
         @functools.wraps(fn)
@@ -209,7 +210,8 @@ class AdaptiveThreadPoolExecutor:
     ) -> Iterable[T]:
         """Execute function over iterables in parallel."""
         if not self._executor:
-            raise RuntimeError("Executor not initialized")
+            msg = "Executor not initialized"
+            raise RuntimeError(msg)
 
         return self._executor.map(fn, *iterables, timeout=timeout, chunksize=chunksize)
 
@@ -244,7 +246,7 @@ class AdaptiveThreadPoolExecutor:
 
         self.logger.debug(
             f"Processing {len(items)} items in batches of {batch_size}"
-            f"{' with progress tracking' if progress_callback else ''}"
+            f"{' with progress tracking' if progress_callback else ''}",
         )
 
         # Create batches with their original indices to maintain order
@@ -266,7 +268,7 @@ class AdaptiveThreadPoolExecutor:
 
             if progress_callback:
                 self.logger.debug(
-                    f"Batch {batch_index} completed: {items_in_batch} items processed"
+                    f"Batch {batch_index} completed: {items_in_batch} items processed",
                 )
 
             return (batch_index, batch_results)
@@ -300,7 +302,7 @@ class AdaptiveThreadPoolExecutor:
         """Get current performance metrics."""
         with self._lock:
             # Update current metrics
-            metrics = ExecutorMetrics(
+            return ExecutorMetrics(
                 tasks_completed=self._metrics.tasks_completed,
                 tasks_failed=self._metrics.tasks_failed,
                 total_execution_time=self._metrics.total_execution_time,
@@ -309,7 +311,6 @@ class AdaptiveThreadPoolExecutor:
                 worker_count=self._current_workers,
                 cpu_usage_percent=psutil.cpu_percent(interval=0),
             )
-            return metrics
 
     def __enter__(self):
         return self
@@ -361,7 +362,7 @@ def shutdown_all_executors():
 
 
 def parallel_ticker_analysis(
-    tickers: list[str], analysis_fn: Callable[[str], T], timeout: float | None = None
+    tickers: list[str], analysis_fn: Callable[[str], T], timeout: float | None = None,
 ) -> dict[str, T]:
     """
     Analyze multiple tickers in parallel.
@@ -384,7 +385,7 @@ def parallel_ticker_analysis(
         try:
             results[ticker] = future.result()
         except Exception as e:
-            logging.getLogger(__name__).error(f"Failed to analyze {ticker}: {e}")
+            logging.getLogger(__name__).exception(f"Failed to analyze {ticker}: {e}")
             # Type ignore needed for Optional[T] assignment
             results[ticker] = None
 

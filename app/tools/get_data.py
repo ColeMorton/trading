@@ -68,7 +68,7 @@ def valid_data(ticker: str, config: DataConfig, log: Callable):
                 log(f"Loading existing data from {file_path}.")
                 return pl.read_csv(file_path)
             log(
-                f"File exists but wasn't created this {timeframe}. Downloading new data."
+                f"File exists but wasn't created this {timeframe}. Downloading new data.",
             )
         else:
             log("File doesn't exist. Downloading new data.")
@@ -80,7 +80,7 @@ def valid_data(ticker: str, config: DataConfig, log: Callable):
 
 
 def get_data(
-    ticker: str, config: DataConfig, log: Callable
+    ticker: str, config: DataConfig, log: Callable,
 ) -> pl.DataFrame | tuple[pl.DataFrame, str]:
     """Get data based on configuration settings.
 
@@ -124,8 +124,9 @@ def get_data(
             if not ticker1 or not ticker2:
                 ticker_parts = ticker.split("_")
                 if len(ticker_parts) != 2:
+                    msg = f"Invalid ticker format for synthetic pair: {ticker}. Expected format: TICKER1_TICKER2"
                     raise ValueError(
-                        f"Invalid ticker format for synthetic pair: {ticker}. Expected format: TICKER1_TICKER2"
+                        msg,
                     )
                 ticker1, ticker2 = ticker_parts
 
@@ -142,7 +143,8 @@ def get_data(
             log(f"Retrieving market data for {ticker}")
             data = valid_data(ticker, config, log)
             if data is None:
-                raise ValueError(f"Failed to retrieve data for {ticker}")
+                msg = f"Failed to retrieve data for {ticker}"
+                raise ValueError(msg)
             log("Market data download completed successfully")
 
         log(f"Data retrieval completed with {len(data)} records")

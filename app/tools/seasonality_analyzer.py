@@ -35,7 +35,7 @@ class SeasonalityAnalyzer:
         )
 
     def analyze_all_patterns(
-        self, data: pd.DataFrame, detrend: bool = True
+        self, data: pd.DataFrame, detrend: bool = True,
     ) -> list[SeasonalityPattern]:
         """Analyze all seasonal patterns in the data.
 
@@ -161,7 +161,7 @@ class SeasonalityAnalyzer:
         return patterns
 
     def analyze_quarterly_patterns(
-        self, returns: pd.Series
+        self, returns: pd.Series,
     ) -> list[SeasonalityPattern]:
         """Analyze quarterly seasonal patterns.
 
@@ -198,7 +198,7 @@ class SeasonalityAnalyzer:
         return patterns
 
     def analyze_day_of_month_patterns(
-        self, returns: pd.Series
+        self, returns: pd.Series,
     ) -> list[SeasonalityPattern]:
         """Analyze day of month seasonal patterns.
 
@@ -243,7 +243,7 @@ class SeasonalityAnalyzer:
         return patterns
 
     def analyze_week_of_year_patterns(
-        self, returns: pd.Series
+        self, returns: pd.Series,
     ) -> list[SeasonalityPattern]:
         """Analyze week-of-year seasonal patterns (weeks 1-52).
 
@@ -312,7 +312,8 @@ class SeasonalityAnalyzer:
         This tells you what you would earn if you bought today and held for N days.
         """
         if "Close" not in data.columns:
-            raise ValueError("Data must have 'Close' column")
+            msg = "Data must have 'Close' column"
+            raise ValueError(msg)
 
         if self.time_period_days == 1:
             # Forward-looking daily returns (what you'd earn buying today, selling tomorrow)
@@ -406,7 +407,7 @@ class SeasonalityAnalyzer:
         )
 
     def _add_current_date_context(
-        self, pattern: SeasonalityPattern
+        self, pattern: SeasonalityPattern,
     ) -> SeasonalityPattern:
         """Add current date context to seasonal pattern.
 
@@ -420,7 +421,7 @@ class SeasonalityAnalyzer:
         self._calculate_days_to_pattern(pattern)
 
         # Create new pattern with same data (no direct metadata field modification needed)
-        enhanced_pattern = SeasonalityPattern(
+        return SeasonalityPattern(
             pattern_type=pattern.pattern_type,
             period=pattern.period,
             average_return=pattern.average_return,
@@ -433,7 +434,6 @@ class SeasonalityAnalyzer:
             confidence_interval_upper=pattern.confidence_interval_upper,
         )
 
-        return enhanced_pattern
 
     def _calculate_days_to_pattern(self, pattern: SeasonalityPattern) -> int:
         """Calculate days from current date to when this pattern typically occurs.
@@ -472,7 +472,7 @@ class SeasonalityAnalyzer:
                 else:
                     # Next year
                     target_date = current_date.replace(
-                        year=current_date.year + 1, month=target_month, day=1
+                        year=current_date.year + 1, month=target_month, day=1,
                     )
 
                 return (target_date - current_date).days
@@ -515,7 +515,7 @@ class SeasonalityAnalyzer:
                 else:
                     # Next year
                     target_date = current_date.replace(
-                        year=current_date.year + 1, month=target_month, day=1
+                        year=current_date.year + 1, month=target_month, day=1,
                     )
 
                 return (target_date - current_date).days
@@ -525,7 +525,7 @@ class SeasonalityAnalyzer:
         return 0
 
     def _create_current_date_pattern(
-        self, pattern: SeasonalityPattern, returns: pd.Series
+        self, pattern: SeasonalityPattern, returns: pd.Series,
     ) -> SeasonalityPattern | None:
         """Create a current date specific version of a seasonal pattern.
 
@@ -580,7 +580,7 @@ class SeasonalityAnalyzer:
         from scipy.stats import t
 
         margin = se * t.ppf(
-            (1 + self.confidence_level) / 2, len(current_date_returns) - 1
+            (1 + self.confidence_level) / 2, len(current_date_returns) - 1,
         )
         ci_lower = avg_return - margin
         ci_upper = avg_return + margin

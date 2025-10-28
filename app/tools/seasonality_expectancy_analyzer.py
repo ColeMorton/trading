@@ -79,7 +79,7 @@ class SeasonalityExpectancyAnalyzer:
 
         df = pd.DataFrame(self.results)
         df = df.sort_values("risk_adjusted_score", ascending=False).reset_index(
-            drop=True
+            drop=True,
         )
         df["rank"] = df.index + 1
 
@@ -170,7 +170,7 @@ class SeasonalityExpectancyAnalyzer:
 
         # Calculate risk-adjusted score
         risk_adjusted_score = self._calculate_risk_adjusted_score(
-            combined_return, avg_significance, avg_win_rate, avg_volatility
+            combined_return, avg_significance, avg_win_rate, avg_volatility,
         )
 
         # Determine asset class
@@ -274,7 +274,7 @@ class SeasonalityExpectancyAnalyzer:
 
         # Add table header
         report_lines.append(
-            f"{'Rank':<4} {'Ticker':<12} {'Exp Return':<11} {'Risk Score':<11} {'Win Rate':<9} {'Confidence':<11} {'Asset Class':<12}"
+            f"{'Rank':<4} {'Ticker':<12} {'Exp Return':<11} {'Risk Score':<11} {'Win Rate':<9} {'Confidence':<11} {'Asset Class':<12}",
         )
         report_lines.append("-" * 80)
 
@@ -287,7 +287,7 @@ class SeasonalityExpectancyAnalyzer:
                 f"{row['risk_adjusted_score']:7.3f}     "
                 f"{row['win_rate']:6.1%}   "
                 f"{row['confidence']:<11} "
-                f"{row['asset_class']:<12}"
+                f"{row['asset_class']:<12}",
             )
 
         # Add summary statistics
@@ -303,7 +303,7 @@ class SeasonalityExpectancyAnalyzer:
                 "",
                 "🏭 SECTOR DISTRIBUTION",
                 "-" * 25,
-            ]
+            ],
         )
 
         # Add sector distribution
@@ -323,13 +323,13 @@ class SeasonalityExpectancyAnalyzer:
                 "• Seasonality patterns can change over time",
                 "",
                 f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-            ]
+            ],
         )
 
         return "\n".join(report_lines)
 
     def save_detailed_results(
-        self, results_df: pd.DataFrame, filename: str | None = None
+        self, results_df: pd.DataFrame, filename: str | None = None,
     ) -> str:
         """Save detailed results to CSV file."""
         if filename is None:

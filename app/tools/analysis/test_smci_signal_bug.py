@@ -50,7 +50,7 @@ async def test_smci_signal_generation():
     current_return = smci_row["Current_Unrealized_PnL"]
 
     logger.info(
-        f"SMCI Current Return: {current_return:.6f} ({current_return*100:.2f}%)"
+        f"SMCI Current Return: {current_return:.6f} ({current_return*100:.2f}%)",
     )
 
     # Create SPDS config
@@ -87,7 +87,7 @@ async def test_smci_signal_generation():
     # Check signal generation thresholds
     logger.info("Signal thresholds from config:")
     logger.info(
-        f"  Exit immediately: {config.PERCENTILE_THRESHOLDS['exit_immediately']}"
+        f"  Exit immediately: {config.PERCENTILE_THRESHOLDS['exit_immediately']}",
     )
     logger.info(f"  Strong sell: {config.PERCENTILE_THRESHOLDS['strong_sell']}")
     logger.info(f"  Sell: {config.PERCENTILE_THRESHOLDS['sell']}")
@@ -128,13 +128,13 @@ async def test_smci_signal_generation():
     estimated_rank = detector._estimate_percentile_rank(current_value, mock_percentiles)
 
     logger.info(
-        f"Estimated percentile rank from divergence detector: {estimated_rank:.2f}"
+        f"Estimated percentile rank from divergence detector: {estimated_rank:.2f}",
     )
 
     # The bug analysis
     logger.info("\n=== BUG ANALYSIS ===")
     logger.info(
-        f"SMCI current return: {current_return:.6f} ({current_return*100:.2f}%)"
+        f"SMCI current return: {current_return:.6f} ({current_return*100:.2f}%)",
     )
     logger.info("P70 threshold: 0.1274 (12.74%)")
     logger.info(f"Condition: {current_return:.6f} > 0.1274 = {current_return > 0.1274}")
@@ -143,7 +143,7 @@ async def test_smci_signal_generation():
 
     if current_return > 0.1274 and estimated_rank <= 80.0:
         logger.error(
-            "BUG DETECTED: Current return exceeds P70 but percentile rank is too low!"
+            "BUG DETECTED: Current return exceeds P70 but percentile rank is too low!",
         )
         logger.error("This indicates a problem in the percentile rank calculation.")
 

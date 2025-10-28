@@ -61,12 +61,11 @@ def get_returns(ticker: str) -> np.ndarray:
         np.ndarray: Array of historical returns
     """
     data = yf.Ticker(ticker).history(period="max")
-    returns = data["Close"].pct_change().dropna().to_numpy()
-    return returns
+    return data["Close"].pct_change().dropna().to_numpy()
 
 
 def calculate_var_cvar(
-    returns: np.ndarray, confidence_levels: list[float]
+    returns: np.ndarray, confidence_levels: list[float],
 ) -> dict[float, tuple[float, float]]:
     """Calculate VaR and CVaR for given returns at multiple confidence levels.
 
@@ -86,7 +85,7 @@ def calculate_var_cvar(
 
 
 def calculate_position_sizes(
-    assets: list[Asset], config: PositionSizingConfig, log: Callable[[str, str], None]
+    assets: list[Asset], config: PositionSizingConfig, log: Callable[[str, str], None],
 ) -> list[AssetMetrics]:
     """Calculate optimal position sizes for multiple assets.
 
@@ -107,7 +106,7 @@ def calculate_position_sizes(
             ticker = asset["ticker"]
             log(f"Fetching price data for {ticker}", "info")
             prices[ticker] = get_price_or_ema(
-                ticker, config["use_ema"], config["ema_period"]
+                ticker, config["use_ema"], config["ema_period"],
             )
 
         # Calculate initial and leveraged values

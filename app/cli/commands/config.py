@@ -17,7 +17,7 @@ from ..config import ConfigManager
 
 # Create config sub-app
 app = typer.Typer(
-    name="config", help="Configuration and profile management", no_args_is_help=True
+    name="config", help="Configuration and profile management", no_args_is_help=True,
 )
 
 console = Console()
@@ -32,7 +32,7 @@ def list():
 
         if not profiles:
             rprint(
-                "[yellow]No profiles found. Use 'trading-cli init' to verify default profiles.[/yellow]"
+                "[yellow]No profiles found. Use 'trading-cli init' to verify default profiles.[/yellow]",
             )
             return
 
@@ -70,7 +70,7 @@ def list():
 def show(
     profile_name: str = typer.Argument(help="Profile name to display"),
     resolved: bool = typer.Option(
-        False, "--resolved", help="Show resolved configuration with inheritance"
+        False, "--resolved", help="Show resolved configuration with inheritance",
     ),
 ):
     """Show configuration details for a specific profile."""
@@ -131,7 +131,7 @@ def verify_defaults():
                     verified_profiles.append(profile_name)
                 except Exception:
                     rprint(
-                        f"⚠ Profile not found or invalid: [yellow]{profile_name}[/yellow]"
+                        f"⚠ Profile not found or invalid: [yellow]{profile_name}[/yellow]",
                     )
 
         for profile_name in verified_profiles:
@@ -145,7 +145,7 @@ def verify_defaults():
             rprint("[yellow]Warning: No valid default profiles found[/yellow]")
 
         rprint(
-            f"\n[bold green]Verified {len(verified_profiles)} default profiles![/bold green]"
+            f"\n[bold green]Verified {len(verified_profiles)} default profiles![/bold green]",
         )
         rprint("Use [cyan]trading-cli config list[/cyan] to see all available profiles")
 
@@ -178,10 +178,10 @@ def set_default(
 def edit(
     profile_name: str = typer.Argument(help="Profile name to edit"),
     set_field: builtins.list[str] = typer.Option(
-        [], "--set-field", help="Set field value (format: field.path value)"
+        [], "--set-field", help="Set field value (format: field.path value)",
     ),
     interactive: bool = typer.Option(
-        False, "--interactive", help="Use interactive editor"
+        False, "--interactive", help="Use interactive editor",
     ),
 ):
     """Edit a configuration profile."""
@@ -225,7 +225,7 @@ def edit(
                 # Apply field modification with validation
                 try:
                     editor_service.set_field_value(
-                        modified_profile, field_path, field_value
+                        modified_profile, field_path, field_value,
                     )
                 except ValueError as e:
                     rprint(f"[red]Invalid value for {field_path}: {e}[/red]")
@@ -243,7 +243,7 @@ def edit(
         else:
             # Just display current profile for viewing
             rprint(
-                f"[yellow]Use --set-field or --interactive to edit {profile_name}[/yellow]"
+                f"[yellow]Use --set-field or --interactive to edit {profile_name}[/yellow]",
             )
 
     except typer.Exit:
@@ -261,7 +261,7 @@ def _display_profile_summary(profile_data: dict) -> None:
 
 
 def _run_interactive_editor(
-    profile_data: dict, editor_service, profile_name: str
+    profile_data: dict, editor_service, profile_name: str,
 ) -> None:
     """Run interactive profile editor."""
     rprint("\n[bold cyan]Interactive Profile Editor[/bold cyan]")
@@ -287,13 +287,13 @@ def _run_interactive_editor(
                 # Edit selected field
                 field_name, current_value = editable_fields[choice_num - 1]
                 new_value = input(
-                    f"Enter new value for {field_name} (current: {current_value}): "
+                    f"Enter new value for {field_name} (current: {current_value}): ",
                 ).strip()
 
                 if new_value:
                     try:
                         editor_service.set_field_value(
-                            profile_data, f"config.{field_name}", new_value
+                            profile_data, f"config.{field_name}", new_value,
                         )
                         # Update the display list
                         editable_fields[choice_num - 1] = (field_name, new_value)
@@ -312,7 +312,7 @@ def _run_interactive_editor(
 def validate(
     profile_name: str
     | None = typer.Argument(
-        None, help="Profile name to validate (validates all if not specified)"
+        None, help="Profile name to validate (validates all if not specified)",
     ),
 ):
     """Validate configuration profiles."""
@@ -352,7 +352,7 @@ def validate(
                             try:
                                 resolved_config = (
                                     config_manager.profile_manager.resolve_inheritance(
-                                        profile
+                                        profile,
                                     )
                                 )
                                 strategies = resolved_config.get("strategies", [])
@@ -392,13 +392,13 @@ def validate(
                             status_color = "yellow"
 
                     rprint(
-                        f"✓ [{status_color}]{name}[/{status_color}] - {validation_status}"
+                        f"✓ [{status_color}]{name}[/{status_color}] - {validation_status}",
                     )
                     valid_count += 1
 
                 except Exception as validation_error:
                     rprint(
-                        f"✗ [red]{name}[/red] - Configuration invalid: {validation_error}"
+                        f"✗ [red]{name}[/red] - Configuration invalid: {validation_error}",
                     )
                     invalid_count += 1
 
@@ -407,7 +407,7 @@ def validate(
                 invalid_count += 1
 
         rprint(
-            f"\n[bold]Validation complete:[/bold] {valid_count} valid, {invalid_count} invalid"
+            f"\n[bold]Validation complete:[/bold] {valid_count} valid, {invalid_count} invalid",
         )
 
         if invalid_count > 0:

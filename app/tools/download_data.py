@@ -63,13 +63,13 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
                 # For stocks, account for weekends and holidays - need more data
                 days_to_fetch = 730 + 150  # Extra buffer for non-trading days
                 log(
-                    f"Stock market detected - using {days_to_fetch} day range to account for non-trading days"
+                    f"Stock market detected - using {days_to_fetch} day range to account for non-trading days",
                 )
             else:
                 # Crypto trades 24/7, standard range is sufficient
                 days_to_fetch = 730
                 log(
-                    f"Crypto market detected - using {days_to_fetch} day range for 24/7 trading"
+                    f"Crypto market detected - using {days_to_fetch} day range for 24/7 trading",
                 )
 
             start_date = end_date - timedelta(days=days_to_fetch)
@@ -77,7 +77,7 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
             # Use lock to ensure thread-safe yfinance download
             with _yfinance_lock:
                 data = yf.download(
-                    ticker, start=start_date, end=end_date, interval=interval
+                    ticker, start=start_date, end=end_date, interval=interval,
                 )
         elif config.get("USE_YEARS", False) and config.get("YEARS", False):
             # Convert years to days for timedelta
@@ -87,7 +87,7 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
             # Use lock to ensure thread-safe yfinance download
             with _yfinance_lock:
                 data = yf.download(
-                    ticker, start=start_date, end=end_date, interval=interval
+                    ticker, start=start_date, end=end_date, interval=interval,
                 )
         else:
             period = config.get("PERIOD", "max")
@@ -95,7 +95,7 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
             # Use lock to ensure thread-safe yfinance download
             with _yfinance_lock:
                 data = yf.download(
-                    ticker, period=period, interval=interval, auto_adjust=False
+                    ticker, period=period, interval=interval, auto_adjust=False,
                 )
 
         # Flatten MultiIndex columns - do this for all data retrieval methods
@@ -124,22 +124,23 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
             if col_name in data.columns:
                 return data[col_name]
             available_cols = list(data.columns)
+            msg = f"Column '{col_name}' not found for {ticker}. Available columns: {available_cols}"
             raise KeyError(
-                f"Column '{col_name}' not found for {ticker}. Available columns: {available_cols}"
+                msg,
             )
 
         # Convert to Polars DataFrame with explicit schema
         df = pl.DataFrame(
             {
                 "Date": pl.Series(
-                    data["Datetime"] if (use_hourly or use_4hour) else data["Date"]
+                    data["Datetime"] if (use_hourly or use_4hour) else data["Date"],
                 ),
                 "Open": pl.Series(get_column_data("Open"), dtype=pl.Float64),
                 "High": pl.Series(get_column_data("High"), dtype=pl.Float64),
                 "Low": pl.Series(get_column_data("Low"), dtype=pl.Float64),
                 "Close": pl.Series(get_column_data("Close"), dtype=pl.Float64),
                 "Volume": pl.Series(get_column_data("Volume"), dtype=pl.Float64),
-            }
+            },
         )
 
         # Convert 1-hour data to 4-hour data if requested with market-aware logic

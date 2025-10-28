@@ -42,10 +42,10 @@ def calculate_signals(data: pl.DataFrame, config: dict) -> pl.DataFrame | None:
                     * 100
                 )
                 .round(
-                    2
+                    2,
                 )  # Round to 2 decimal places to match CHANGE_PCT_STEP precision
-                .alias("price_change")
-            ]
+                .alias("price_change"),
+            ],
         )
 
         # Initialize Signal column with zeros
@@ -55,17 +55,17 @@ def calculate_signals(data: pl.DataFrame, config: dict) -> pl.DataFrame | None:
         if direction == "long":
             # Long: Enter when price drops by threshold
             data = data.with_columns(
-                [(pl.col("price_change") <= -change_pct).cast(pl.Int32).alias("Entry")]
+                [(pl.col("price_change") <= -change_pct).cast(pl.Int32).alias("Entry")],
             )
         else:
             # Short: Enter when price rises by threshold
             data = data.with_columns(
-                [(pl.col("price_change") >= change_pct).cast(pl.Int32).alias("Entry")]
+                [(pl.col("price_change") >= change_pct).cast(pl.Int32).alias("Entry")],
             )
 
         # Generate exit signals at the next candle after entry
         data = data.with_columns(
-            [pl.col("Entry").shift(1).fill_null(False).cast(pl.Int32).alias("Exit")]
+            [pl.col("Entry").shift(1).fill_null(False).cast(pl.Int32).alias("Exit")],
         )
 
         # Update Signal column for vectorbt (-1 for short, 1 for long, 0 for exit)
@@ -77,8 +77,8 @@ def calculate_signals(data: pl.DataFrame, config: dict) -> pl.DataFrame | None:
                     .when(pl.col("Exit") == 1)
                     .then(0)
                     .otherwise(pl.col("Signal"))
-                    .alias("Signal")
-                ]
+                    .alias("Signal"),
+                ],
             )
         else:
             data = data.with_columns(
@@ -88,8 +88,8 @@ def calculate_signals(data: pl.DataFrame, config: dict) -> pl.DataFrame | None:
                     .when(pl.col("Exit") == 1)
                     .then(0)
                     .otherwise(pl.col("Signal"))
-                    .alias("Signal")
-                ]
+                    .alias("Signal"),
+                ],
             )
 
         return data
@@ -100,7 +100,7 @@ def calculate_signals(data: pl.DataFrame, config: dict) -> pl.DataFrame | None:
 
 
 def get_current_signals(
-    data: pl.DataFrame, change_pcts: list[float], config: dict, log: Callable
+    data: pl.DataFrame, change_pcts: list[float], config: dict, log: Callable,
 ) -> pl.DataFrame:
     """
     Get current signals for all parameter combinations.
@@ -187,7 +187,7 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
 
 
 def process_mean_reversion_signals(
-    ticker: str, config: Config, change_pct: float, log: Callable
+    ticker: str, config: Config, change_pct: float, log: Callable,
 ) -> bool:
     """
     Process mean reversion signals for a given ticker and configuration.
@@ -206,8 +206,7 @@ def process_mean_reversion_signals(
 
     signals = generate_current_signals(mr_config, log)
 
-    is_current = check_signal_match(
-        signals.to_dicts() if len(signals) > 0 else [], change_pct
+    return check_signal_match(
+        signals.to_dicts() if len(signals) > 0 else [], change_pct,
     )
 
-    return is_current

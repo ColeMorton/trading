@@ -51,7 +51,7 @@ class SweepPerformanceData:
 
             # Apply statistical confidence adjustment based on data quality
             confidence_multiplier = self._calculate_confidence_multiplier(
-                self.data_points
+                self.data_points,
             )
 
             # Final bounded score
@@ -154,7 +154,7 @@ class SweepAnalyticsEngine:
         self.statistics: dict[str, SweepStatistics] = {}
 
     def load_sweep_data(
-        self, tickers: list[str], periods: list[int], ma_type: str
+        self, tickers: list[str], periods: list[int], ma_type: str,
     ) -> int:
         """Load analytics data from JSON files for given sweep parameters."""
         loaded_count = 0
@@ -163,7 +163,7 @@ class SweepAnalyticsEngine:
             for period in periods:
                 try:
                     json_path = os.path.join(
-                        self.analysis_dir, f"{ticker}_{period}.json"
+                        self.analysis_dir, f"{ticker}_{period}.json",
                     )
 
                     if os.path.exists(json_path):
@@ -195,10 +195,10 @@ class SweepAnalyticsEngine:
                                 "max_drawdown": raw_max_dd,
                                 "total_return": perf_metrics.get("total_return", 0.0),
                                 "annualized_return": perf_metrics.get(
-                                    "annualized_return", 0.0
+                                    "annualized_return", 0.0,
                                 ),
                                 "information_ratio": perf_metrics.get(
-                                    "information_ratio", 0.0
+                                    "information_ratio", 0.0,
                                 ),
                                 "r_squared": trend_metrics.get("r_squared", 0.0),
                             },
@@ -220,10 +220,10 @@ class SweepAnalyticsEngine:
                             calmar_ratio=validated_metrics["calmar_ratio"],
                             information_ratio=validated_metrics["information_ratio"],
                             trend_direction=trend_metrics.get(
-                                "trend_direction", "Unknown"
+                                "trend_direction", "Unknown",
                             ),
                             trend_strength=trend_metrics.get(
-                                "trend_strength", "Unknown"
+                                "trend_strength", "Unknown",
                             ),
                             r_squared=validated_metrics["r_squared"],
                             data_points=raw_data_points,
@@ -243,7 +243,7 @@ class SweepAnalyticsEngine:
         return loaded_count
 
     def _validate_and_sanitize_metrics(
-        self, metrics: dict[str, float], ticker: str, period: int
+        self, metrics: dict[str, float], ticker: str, period: int,
     ) -> dict[str, float]:
         """Enhanced validation and sanitization of financial metrics."""
         validated = {}
@@ -272,7 +272,7 @@ class SweepAnalyticsEngine:
                 # Outlier detection using context-aware thresholds
                 if self._is_metric_outlier(metric_name, float_value):
                     warnings.append(
-                        f"{metric_name} is extreme outlier ({float_value:.2f})"
+                        f"{metric_name} is extreme outlier ({float_value:.2f})",
                     )
                     validated[metric_name] = self._get_reasonable_cap(metric_name)
                     continue
@@ -449,21 +449,21 @@ class SweepAnalyticsEngine:
             return 0.0
 
     def get_top_performers(
-        self, metric: str, count: int = 3
+        self, metric: str, count: int = 3,
     ) -> list[SweepPerformanceData]:
         """Get top performers by specified metric."""
         if metric == "risk_adjusted_score":
             sorted_data = sorted(
-                self.performance_data, key=lambda x: x.risk_adjusted_score, reverse=True
+                self.performance_data, key=lambda x: x.risk_adjusted_score, reverse=True,
             )
         elif metric == "max_drawdown":
             # For drawdown, lower is better
             sorted_data = sorted(
-                self.performance_data, key=lambda x: getattr(x, metric)
+                self.performance_data, key=lambda x: getattr(x, metric),
             )
         else:
             sorted_data = sorted(
-                self.performance_data, key=lambda x: getattr(x, metric), reverse=True
+                self.performance_data, key=lambda x: getattr(x, metric), reverse=True,
             )
 
         return sorted_data[:count]
@@ -471,7 +471,7 @@ class SweepAnalyticsEngine:
     def get_ranked_performance(self) -> list[SweepPerformanceData]:
         """Get all periods ranked by risk-adjusted score."""
         return sorted(
-            self.performance_data, key=lambda x: x.risk_adjusted_score, reverse=True
+            self.performance_data, key=lambda x: x.risk_adjusted_score, reverse=True,
         )
 
     def get_risk_categories(self) -> dict[str, list[SweepPerformanceData]]:
@@ -508,7 +508,7 @@ class SweepAnalyticsEngine:
 
         # Best all-around performer (highest risk-adjusted score)
         recommendations["balanced"] = max(
-            self.performance_data, key=lambda x: x.risk_adjusted_score
+            self.performance_data, key=lambda x: x.risk_adjusted_score,
         )
 
         # Best for aggressive strategies (highest return above median volatility)
@@ -517,12 +517,12 @@ class SweepAnalyticsEngine:
             for d in self.performance_data
             if d.volatility
             > self.statistics.get(
-                "volatility", SweepStatistics("", 0, 0, 0, 0, 0, 0, 0, 0, 0)
+                "volatility", SweepStatistics("", 0, 0, 0, 0, 0, 0, 0, 0, 0),
             ).median_value
         ]
         if high_vol_data:
             recommendations["aggressive"] = max(
-                high_vol_data, key=lambda x: x.total_return
+                high_vol_data, key=lambda x: x.total_return,
             )
 
         # Best for conservative strategies (highest sharpe with low drawdown)
@@ -531,17 +531,17 @@ class SweepAnalyticsEngine:
             for d in self.performance_data
             if d.max_drawdown
             < self.statistics.get(
-                "max_drawdown", SweepStatistics("", 0, 0, 0, 0, 0, 0, 0, 0, 0)
+                "max_drawdown", SweepStatistics("", 0, 0, 0, 0, 0, 0, 0, 0, 0),
             ).median_value
         ]
         if low_dd_data:
             recommendations["conservative"] = max(
-                low_dd_data, key=lambda x: x.sharpe_ratio
+                low_dd_data, key=lambda x: x.sharpe_ratio,
             )
 
         # Most consistent performer (highest sharpe with low volatility)
         recommendations["consistent"] = max(
-            self.performance_data, key=lambda x: x.sharpe_ratio / (x.volatility + 1)
+            self.performance_data, key=lambda x: x.sharpe_ratio / (x.volatility + 1),
         )
 
         return recommendations

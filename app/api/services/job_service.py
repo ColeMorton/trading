@@ -80,7 +80,7 @@ class JobService:
 
     @staticmethod
     async def update_job(
-        db: AsyncSession, job_id: str, update: JobUpdate
+        db: AsyncSession, job_id: str, update: JobUpdate,
     ) -> Job | None:
         """
         Update job with new data.
@@ -137,7 +137,7 @@ class JobService:
                     api_key_id
                     if isinstance(api_key_id, uuid.UUID)
                     else uuid.UUID(api_key_id)
-                )
+                ),
             )
 
         if status:
@@ -184,9 +184,9 @@ class JobService:
                         JobStatus.COMPLETED.value,
                         JobStatus.FAILED.value,
                         JobStatus.CANCELLED.value,
-                    ]
+                    ],
                 ),
-            )
+            ),
         )
 
         jobs_to_delete = list(result.scalars().all())

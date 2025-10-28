@@ -68,7 +68,7 @@ class SeasonalityService:
             console=self.console,
         ) as progress:
             task = progress.add_task(
-                "[cyan]Analyzing seasonality patterns...", total=len(tickers)
+                "[cyan]Analyzing seasonality patterns...", total=len(tickers),
             )
 
             for ticker in tickers:
@@ -113,7 +113,7 @@ class SeasonalityService:
         return sorted(tickers)
 
     def _analyze_ticker(
-        self, ticker: str, _retry: bool = False
+        self, ticker: str, _retry: bool = False,
     ) -> SeasonalityResult | None:
         """Analyze seasonality for a single ticker.
 
@@ -142,14 +142,14 @@ class SeasonalityService:
             if years_of_data < self.config.min_years:
                 self.console.print(
                     f"[yellow]Insufficient data for {ticker}: "
-                    f"{years_of_data:.1f} years < {self.config.min_years} years required[/yellow]"
+                    f"{years_of_data:.1f} years < {self.config.min_years} years required[/yellow]",
                 )
                 should_download = True
 
         # Download data if needed and not already retried
         if should_download and not _retry:
             self.console.print(
-                f"[cyan]Downloading full price history for {ticker}...[/cyan]"
+                f"[cyan]Downloading full price history for {ticker}...[/cyan]",
             )
             try:
                 # Use existing download_data utility
@@ -172,7 +172,7 @@ class SeasonalityService:
 
                 if df is not None and not df.is_empty():
                     self.console.print(
-                        f"[green]✓ Successfully downloaded data for {ticker}[/green]"
+                        f"[green]✓ Successfully downloaded data for {ticker}[/green]",
                     )
                     # Retry analysis with newly downloaded data
                     return self._analyze_ticker(ticker, _retry=True)
@@ -181,7 +181,7 @@ class SeasonalityService:
 
             except Exception as e:
                 self.console.print(
-                    f"[red]Failed to download data for {ticker}: {e!s}[/red]"
+                    f"[red]Failed to download data for {ticker}: {e!s}[/red]",
                 )
                 return None
 
@@ -197,13 +197,13 @@ class SeasonalityService:
         if years_of_data < self.config.min_years:
             self.console.print(
                 f"[yellow]Still insufficient data after download: "
-                f"{years_of_data:.1f} years < {self.config.min_years} years required[/yellow]"
+                f"{years_of_data:.1f} years < {self.config.min_years} years required[/yellow]",
             )
             return None
 
         # Analyze patterns
         patterns = self.analyzer.analyze_all_patterns(
-            data, detrend=self.config.detrend_data
+            data, detrend=self.config.detrend_data,
         )
 
         # Calculate overall seasonal strength
@@ -214,11 +214,11 @@ class SeasonalityService:
         strongest_pattern = None
         if patterns:
             strongest_pattern = max(
-                patterns, key=lambda p: p.average_return * p.win_rate
+                patterns, key=lambda p: p.average_return * p.win_rate,
             )
 
         # Create result
-        result = SeasonalityResult(
+        return SeasonalityResult(
             ticker=ticker,
             data_start_date=data.index[0],
             data_end_date=data.index[-1],
@@ -233,7 +233,6 @@ class SeasonalityService:
             },
         )
 
-        return result
 
     def _save_result(self, result: SeasonalityResult) -> None:
         """Save analysis result to file.
@@ -417,7 +416,7 @@ class SeasonalityService:
             "week_of_year_patterns": [
                 pattern_to_dict(p)
                 for p in sorted(
-                    week_of_year_patterns, key=lambda p: p.period_number or 0
+                    week_of_year_patterns, key=lambda p: p.period_number or 0,
                 )
             ],
             "day_of_month_patterns": [
@@ -461,7 +460,7 @@ class SeasonalityService:
                     "CI_Upper": pattern.confidence_interval_upper,
                     "Skewness": pattern.skewness,
                     "Kurtosis": pattern.kurtosis,
-                }
+                },
             )
 
         if rows:
@@ -516,7 +515,7 @@ class SeasonalityService:
 
         for month_name in month_order:
             pattern = next(
-                (p for p in monthly_patterns if p.period == month_name), None
+                (p for p in monthly_patterns if p.period == month_name), None,
             )
             if not pattern:
                 continue
@@ -669,7 +668,7 @@ class SeasonalityService:
 
         # Sort by average return
         sorted_patterns = sorted(
-            week_patterns, key=lambda p: p.average_return, reverse=True
+            week_patterns, key=lambda p: p.average_return, reverse=True,
         )
         best_weeks = sorted_patterns[:3]
         worst_weeks = sorted_patterns[-3:][::-1]  # Reverse to show worst first
@@ -813,7 +812,7 @@ class SeasonalityService:
         current_week = now.isocalendar()[1]
 
         self.console.print(
-            f"[bold white]Current Position:[/bold white] {current_month} (Week {current_week}, {current_day})"
+            f"[bold white]Current Position:[/bold white] {current_month} (Week {current_week}, {current_day})",
         )
         self.console.print()
 
@@ -839,7 +838,7 @@ class SeasonalityService:
             "green" if strength > 0.6 else "yellow" if strength > 0.4 else "red"
         )
         self.console.print(
-            f"Seasonal Strength: [{strength_color}]{strength:.3f} ({strength_label}) {stars}[/{strength_color}]"
+            f"Seasonal Strength: [{strength_color}]{strength:.3f} ({strength_label}) {stars}[/{strength_color}]",
         )
 
         # Best and worst months
@@ -850,10 +849,10 @@ class SeasonalityService:
             best_month = max(monthly_patterns, key=lambda p: p.average_return)
             worst_month = min(monthly_patterns, key=lambda p: p.average_return)
             self.console.print(
-                f"Best Month: [green]{best_month.period} (+{best_month.average_return:.2f}%, {best_month.win_rate*100:.0f}% win rate)[/green]"
+                f"Best Month: [green]{best_month.period} (+{best_month.average_return:.2f}%, {best_month.win_rate*100:.0f}% win rate)[/green]",
             )
             self.console.print(
-                f"Worst Month: [red]{worst_month.period} ({worst_month.average_return:.2f}%, {worst_month.win_rate*100:.0f}% win rate)[/red]"
+                f"Worst Month: [red]{worst_month.period} ({worst_month.average_return:.2f}%, {worst_month.win_rate*100:.0f}% win rate)[/red]",
             )
 
         # Best and worst days
@@ -864,10 +863,10 @@ class SeasonalityService:
             best_day = max(weekly_patterns, key=lambda p: p.average_return)
             worst_day = min(weekly_patterns, key=lambda p: p.average_return)
             self.console.print(
-                f"Best Day: [green]{best_day.period} (+{best_day.average_return:.2f}%, {best_day.win_rate*100:.0f}% win rate)[/green]"
+                f"Best Day: [green]{best_day.period} (+{best_day.average_return:.2f}%, {best_day.win_rate*100:.0f}% win rate)[/green]",
             )
             self.console.print(
-                f"Worst Day: [red]{worst_day.period} ({worst_day.average_return:.2f}%, {worst_day.win_rate*100:.0f}% win rate)[/red]"
+                f"Worst Day: [red]{worst_day.period} ({worst_day.average_return:.2f}%, {worst_day.win_rate*100:.0f}% win rate)[/red]",
             )
 
         # Consistency score (avg of all monthly consistency scores)
@@ -884,7 +883,7 @@ class SeasonalityService:
                 else "red"
             )
             self.console.print(
-                f"Overall Consistency: [{cons_color}]{consistency_pct:.0f}% (months with positive returns)[/{cons_color}]"
+                f"Overall Consistency: [{cons_color}]{consistency_pct:.0f}% (months with positive returns)[/{cons_color}]",
             )
 
         self.console.print()
@@ -938,7 +937,7 @@ class SeasonalityService:
 
         self.console.print(table)
         self.console.print(
-            f"\n[green]✓ Analysis complete. Results saved to {self.output_dir}[/green]"
+            f"\n[green]✓ Analysis complete. Results saved to {self.output_dir}[/green]",
         )
 
     def _export_summary(self, results: dict[str, SeasonalityResult]) -> None:
@@ -965,7 +964,7 @@ class SeasonalityService:
                         "Strongest_Pattern": pattern.pattern_type.value,
                         "Period": pattern.period,
                         "Avg_Return_Percent": f"{pattern.average_return:.2f}",
-                    }
+                    },
                 )
             else:
                 summary_rows.append(
@@ -976,7 +975,7 @@ class SeasonalityService:
                         "Strongest_Pattern": "None",
                         "Period": "-",
                         "Avg_Return_Percent": "-",
-                    }
+                    },
                 )
 
         if summary_rows:

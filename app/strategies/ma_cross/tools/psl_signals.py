@@ -10,7 +10,7 @@ import numpy as np
 
 
 def create_signal_column(
-    entries: np.ndarray, exits: np.ndarray, size: int
+    entries: np.ndarray, exits: np.ndarray, size: int,
 ) -> np.ndarray:
     """
     Create signal column with proper position tracking.

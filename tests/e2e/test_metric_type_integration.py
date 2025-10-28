@@ -135,7 +135,7 @@ class TestMetricTypeE2EIntegration:
                 break
             if status == "failed":
                 pytest.fail(
-                    f"Analysis failed: {status_data.get('error', 'Unknown error')}"
+                    f"Analysis failed: {status_data.get('error', 'Unknown error')}",
                 )
 
             time.sleep(poll_interval)
@@ -202,7 +202,7 @@ class TestMetricTypeE2EIntegration:
                 assert metric_type.strip() != ""
 
     @pytest.mark.parametrize(
-        "ticker,strategy_types",
+        ("ticker", "strategy_types"),
         [
             ("BTC-USD", ["EMA"]),
             ("ETH-USD", ["SMA"]),
@@ -210,7 +210,7 @@ class TestMetricTypeE2EIntegration:
         ],
     )
     def test_metric_type_with_different_configurations(
-        self, client, ticker, strategy_types
+        self, client, ticker, strategy_types,
     ):
         """Test metric_type handling with different ticker and strategy configurations."""
         request_payload = {
@@ -242,7 +242,7 @@ class TestMetricTypeE2EIntegration:
                     break
                 if status_data["status"] == "failed":
                     pytest.skip(
-                        f"Analysis failed for {ticker}: {status_data.get('error')}"
+                        f"Analysis failed for {ticker}: {status_data.get('error')}",
                     )
 
                 time.sleep(1)
@@ -341,7 +341,7 @@ class TestMetricTypeE2EIntegration:
                     assert parsed_back["metric_type"] == metric_type
                 except (TypeError, ValueError) as e:
                     pytest.fail(
-                        f"JSON serialization failed for result with metric_type: {e}"
+                        f"JSON serialization failed for result with metric_type: {e}",
                     )
 
     def test_metric_type_error_scenarios(self, client):
@@ -368,7 +368,7 @@ class TestMetricTypeE2EIntegration:
                 if "metric_type" in portfolio:
                     # Even with invalid ticker, metric_type should be properly typed
                     assert portfolio["metric_type"] is None or isinstance(
-                        portfolio["metric_type"], str
+                        portfolio["metric_type"], str,
                     )
 
         elif response.status_code in [400, 422]:
@@ -451,7 +451,7 @@ if __name__ == "__main__":
     # Run the tests
     print("🚀 Running metric_type integration tests...")
     result = subprocess.run(
-        ["python", "-m", "pytest", __file__, "-v", "--tb=short"], check=False
+        ["python", "-m", "pytest", __file__, "-v", "--tb=short"], check=False,
     )
 
     sys.exit(result.returncode)

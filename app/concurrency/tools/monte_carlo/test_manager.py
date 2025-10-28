@@ -71,7 +71,7 @@ class TestPortfolioMonteCarloManager(unittest.TestCase):
         )
 
         self.manager = PortfolioMonteCarloManager(
-            config=self.config, max_workers=2, log=Mock()  # Mock logging
+            config=self.config, max_workers=2, log=Mock(),  # Mock logging
         )
 
     def test_disabled_analysis(self):
@@ -133,7 +133,7 @@ class TestPortfolioMonteCarloManager(unittest.TestCase):
                 "High": [102.0, 103.0],
                 "Low": [99.0, 100.0],
                 "Close": [101.0, 102.0],
-            }
+            },
         )
         mock_download.return_value = mock_data
 
@@ -166,7 +166,7 @@ class TestPortfolioMonteCarloManager(unittest.TestCase):
                 "Date": ["2023-01-01", "2023-01-02"],
                 "Close": [101.0, 102.0],
                 # Missing Open, High, Low
-            }
+            },
         )
         mock_download.return_value = mock_data
 

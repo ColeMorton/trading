@@ -46,7 +46,7 @@ class PositionSizingOrchestrator:
         self.config = config
 
     async def calculate_position_sizing(
-        self, request: PositionSizingRequest
+        self, request: PositionSizingRequest,
     ) -> PositionSizingResponse:
         """Calculate position sizing."""
         # Basic position sizing logic
@@ -169,7 +169,7 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
             dashboard_data = self.position_sizing.get_dashboard_data()
 
             log(
-                f"Position sizing calculated for {len(position_sizing_results)} portfolios"
+                f"Position sizing calculated for {len(position_sizing_results)} portfolios",
             )
 
             return {
@@ -192,7 +192,7 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
             }
 
     async def _process_position_sizing_for_portfolios(
-        self, portfolio_dicts: list[dict[str, Any]], portfolio_type: PortfolioType, log
+        self, portfolio_dicts: list[dict[str, Any]], portfolio_type: PortfolioType, log,
     ) -> list[dict[str, Any]]:
         """
         Process position sizing for multiple portfolio results.
@@ -234,7 +234,7 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
                                     "signal_source": "portfolio_data",
                                     "position_sizing": ps_response.__dict__,
                                     "portfolio_metrics": portfolio.get("metrics", {}),
-                                }
+                                },
                             )
                 else:
                     # Process each signal for position sizing
@@ -254,7 +254,7 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
                                     "signal_source": "strategy_signal",
                                     "position_sizing": ps_response.__dict__,
                                     "portfolio_metrics": portfolio.get("metrics", {}),
-                                }
+                                },
                             )
 
             except Exception as e:
@@ -264,7 +264,7 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
         return position_sizing_results
 
     async def _calculate_position_sizing_for_signal(
-        self, ticker: str, signal: dict[str, Any], portfolio_type: PortfolioType, log
+        self, ticker: str, signal: dict[str, Any], portfolio_type: PortfolioType, log,
     ) -> Any | None:
         """
         Calculate position sizing for a specific signal.
@@ -304,7 +304,7 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
             ps_response = self.position_sizing.calculate_position_size(ps_request)
 
             log(
-                f"Position sizing calculated for {ticker}: ${ps_response.position_value:.2f}"
+                f"Position sizing calculated for {ticker}: ${ps_response.position_value:.2f}",
             )
             return ps_response
 
@@ -313,7 +313,7 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
             return None
 
     async def _calculate_position_sizing_for_data(
-        self, ticker: str, data: dict[str, Any], portfolio_type: PortfolioType, log
+        self, ticker: str, data: dict[str, Any], portfolio_type: PortfolioType, log,
     ) -> Any | None:
         """
         Calculate position sizing for portfolio data (when no signals available).
@@ -342,7 +342,7 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
             ps_response = self.position_sizing.calculate_position_size(ps_request)
 
             log(
-                f"Position sizing calculated for {ticker} (from data): ${ps_response.position_value:.2f}"
+                f"Position sizing calculated for {ticker} (from data): ${ps_response.position_value:.2f}",
             )
             return ps_response
 
@@ -351,7 +351,7 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
             return None
 
     def _extract_latest_portfolio_data(
-        self, portfolio: dict[str, Any]
+        self, portfolio: dict[str, Any],
     ) -> dict[str, Any] | None:
         """
         Extract latest data from portfolio for position sizing.
@@ -459,7 +459,7 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
                                         "symbol": ticker,
                                         "signal": signal,
                                         "position_sizing": ps_response.__dict__,
-                                    }
+                                    },
                                 )
 
                                 # Auto-update position if enabled
@@ -468,7 +468,7 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
                                         symbol=ticker,
                                         position_value=ps_response.position_value,
                                         stop_loss_distance=signal.get(
-                                            "stop_loss_distance"
+                                            "stop_loss_distance",
                                         ),
                                         entry_price=ps_response.entry_price,
                                         portfolio_type=PortfolioType.RISK_ON,
@@ -479,7 +479,7 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
                                             "symbol": ticker,
                                             "action": "new_position",
                                             "result": result,
-                                        }
+                                        },
                                     )
 
                         elif (
@@ -493,19 +493,19 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
                                     "symbol": ticker,
                                     "action": "exit_signal",
                                     "signal": signal,
-                                }
+                                },
                             )
 
                     except Exception as e:
                         sync_results["errors"].append(
-                            {"symbol": ticker, "error": str(e), "signal": signal}
+                            {"symbol": ticker, "error": str(e), "signal": signal},
                         )
                         log(f"Error processing signal for {ticker}: {e!s}", "error")
 
             log(
                 f"Sync completed: {sync_results['processed_portfolios']} portfolios, "
                 f"{len(sync_results['new_signals'])} new signals, "
-                f"{len(sync_results['updated_positions'])} position updates"
+                f"{len(sync_results['updated_positions'])} position updates",
             )
 
             return sync_results
@@ -538,14 +538,13 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
             }
 
             # Combine data
-            integrated_data = {
+            return {
                 "position_sizing": dashboard.__dict__,
                 "strategy_execution": strategy_metrics,
                 "integration_status": "active",
                 "last_updated": dashboard.last_updated.isoformat(),
             }
 
-            return integrated_data
 
         except Exception as e:
             return {
@@ -566,7 +565,7 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
             self.position_sizing = PositionSizingOrchestrator()
 
         self.logger.log(
-            f"Position sizing integration {'enabled' if enabled else 'disabled'}"
+            f"Position sizing integration {'enabled' if enabled else 'disabled'}",
         )
 
     async def validate_position_sizing_integration(self) -> dict[str, Any]:
@@ -585,13 +584,13 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
 
         if not self.enable_position_sizing:
             validation_results["validation_errors"].append(
-                "Position sizing is disabled"
+                "Position sizing is disabled",
             )
             return validation_results
 
         if not self.position_sizing:
             validation_results["validation_errors"].append(
-                "Position sizing orchestrator not available"
+                "Position sizing orchestrator not available",
             )
             return validation_results
 
@@ -618,7 +617,7 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
 
         except Exception as e:
             validation_results["validation_errors"].append(
-                f"Component validation failed: {e!s}"
+                f"Component validation failed: {e!s}",
             )
 
         return validation_results

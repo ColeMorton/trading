@@ -44,7 +44,7 @@ def _detect_available_data_sources(portfolio: str) -> dict:
 
         # Create a temporary config to check file paths
         temp_config = SPDSConfig(
-            PORTFOLIO=resolve_portfolio_path(portfolio), USE_TRADE_HISTORY=True
+            PORTFOLIO=resolve_portfolio_path(portfolio), USE_TRADE_HISTORY=True,
         )
         trade_history_path = temp_config.get_trade_history_file_path()
 
@@ -95,7 +95,7 @@ def analyze(
         help="Data source mode: 'trade-history', 'equity-curves', 'both', or 'auto' (default: auto)",
     ),
     output_format: str = typer.Option(
-        "table", "--output-format", help="Output format: json, table, summary"
+        "table", "--output-format", help="Output format: json, table, summary",
     ),
     detailed: bool = typer.Option(
         True,
@@ -110,7 +110,7 @@ def analyze(
     ),
     save_results: str
     | None = typer.Option(
-        None, "--save-results", help="Save results to file (JSON format)"
+        None, "--save-results", help="Save results to file (JSON format)",
     ),
     export_backtesting: bool = typer.Option(
         False,
@@ -118,16 +118,16 @@ def analyze(
         help="Export deterministic backtesting parameters",
     ),
     percentile_threshold: int = typer.Option(
-        95, "--percentile-threshold", help="Percentile threshold for exit signals"
+        95, "--percentile-threshold", help="Percentile threshold for exit signals",
     ),
     dual_layer_threshold: float = typer.Option(
-        0.85, "--dual-layer-threshold", help="Dual layer convergence threshold"
+        0.85, "--dual-layer-threshold", help="Dual layer convergence threshold",
     ),
     sample_size_min: int = typer.Option(
-        15, "--sample-size-min", help="Minimum sample size for analysis"
+        15, "--sample-size-min", help="Minimum sample size for analysis",
     ),
     confidence_level: str = typer.Option(
-        "medium", "--confidence-level", help="Confidence level: low, medium, high"
+        "medium", "--confidence-level", help="Confidence level: low, medium, high",
     ),
 ):
     """
@@ -166,10 +166,10 @@ def analyze(
         # Parameter resolution: handle --portfolio flag or positional parameter
         if portfolio and parameter:
             rprint(
-                "[red]❌ Cannot specify both positional parameter and --portfolio flag[/red]"
+                "[red]❌ Cannot specify both positional parameter and --portfolio flag[/red]",
             )
             rprint(
-                "[yellow]💡 Use either: 'trading-cli spds analyze risk_on.csv' OR 'trading-cli spds analyze --portfolio risk_on.csv'[/yellow]"
+                "[yellow]💡 Use either: 'trading-cli spds analyze risk_on.csv' OR 'trading-cli spds analyze --portfolio risk_on.csv'[/yellow]",
             )
             raise typer.Exit(1)
         if portfolio:
@@ -178,12 +178,12 @@ def analyze(
                 rprint(f"[dim]Using portfolio flag: {portfolio}[/dim]")
         elif not parameter:
             rprint(
-                "[red]❌ Must specify either positional parameter or --portfolio flag[/red]"
+                "[red]❌ Must specify either positional parameter or --portfolio flag[/red]",
             )
             rprint("[yellow]💡 Examples:[/yellow]")
             rprint("[yellow]  trading-cli spds analyze risk_on.csv[/yellow]")
             rprint(
-                "[yellow]  trading-cli spds analyze --portfolio risk_on.csv[/yellow]"
+                "[yellow]  trading-cli spds analyze --portfolio risk_on.csv[/yellow]",
             )
             rprint("[yellow]  trading-cli spds analyze --portfolio protected[/yellow]")
             raise typer.Exit(1)
@@ -226,7 +226,7 @@ def analyze(
                     confidence_level,
                     global_verbose,
                     global_quiet,
-                )
+                ),
             )
         # Use enhanced parameter analysis
         return asyncio.run(
@@ -245,7 +245,7 @@ def analyze(
                 confidence_level,
                 global_verbose,
                 global_quiet,
-            )
+            ),
         )
 
     except FileNotFoundError as e:
@@ -264,7 +264,7 @@ def analyze(
 def export(
     ctx: typer.Context,
     portfolio: str = typer.Argument(
-        ..., help='Portfolio filename (e.g., "risk_on.csv")'
+        ..., help='Portfolio filename (e.g., "risk_on.csv")',
     ),
     profile: str
     | None = typer.Option(None, "--profile", "-p", help="Configuration profile name"),
@@ -275,7 +275,7 @@ def export(
         help="Data source mode: 'trade-history', 'equity-curves', 'both', or 'auto' (default: auto)",
     ),
     format: str = typer.Option(
-        "all", "--format", help="Export format: all, json, csv, markdown"
+        "all", "--format", help="Export format: all, json, csv, markdown",
     ),
     output_dir: str
     | None = typer.Option(None, "--output-dir", help="Output directory for exports"),
@@ -335,13 +335,14 @@ def export(
             use_trade_history = False
             data_source_status = "Equity Curves Only (Requested)"
         else:
+            msg = f"Invalid data source: {data_source}. Must be 'auto', 'both', 'trade-history', or 'equity-curves'"
             raise ValueError(
-                f"Invalid data source: {data_source}. Must be 'auto', 'both', 'trade-history', or 'equity-curves'"
+                msg,
             )
 
         if global_verbose:
             rprint(
-                f"[dim]Available sources: TH={available_sources['trade_history']}, EQ={available_sources['equity_data']}[/dim]"
+                f"[dim]Available sources: TH={available_sources['trade_history']}, EQ={available_sources['equity_data']}[/dim]",
             )
             rprint(f"[dim]Selected: {data_source_status}[/dim]")
 
@@ -466,7 +467,7 @@ def health():
         status_color = status_colors[health_results["overall_status"]]
 
         rprint(
-            f"\n🏥 SPDS System Health: [{status_color}]{health_results['overall_status'].upper()}[/{status_color}]"
+            f"\n🏥 SPDS System Health: [{status_color}]{health_results['overall_status'].upper()}[/{status_color}]",
         )
 
         if total_issues > 0:
@@ -525,13 +526,13 @@ def configure():
             "Number of bootstrap iterations",
         )
         table.add_row(
-            "Confidence Level", config.CONFIDENCE_LEVEL, "Analysis confidence level"
+            "Confidence Level", config.CONFIDENCE_LEVEL, "Analysis confidence level",
         )
 
         console.print(table)
 
         rprint(
-            "\n[dim]Configuration can be modified through profiles or CLI arguments[/dim]"
+            "\n[dim]Configuration can be modified through profiles or CLI arguments[/dim]",
         )
         rprint("[dim]Use --help with any SPDS command to see available options[/dim]")
 
@@ -645,13 +646,14 @@ async def _analyze_portfolio_mode(
         use_trade_history = False
         data_source_status = "Equity Curves Only (Requested)"
     else:
+        msg = f"Invalid data source: {data_source}. Must be 'auto', 'both', 'trade-history', or 'equity-curves'"
         raise ValueError(
-            f"Invalid data source: {data_source}. Must be 'auto', 'both', 'trade-history', or 'equity-curves'"
+            msg,
         )
 
     if global_verbose:
         rprint(
-            f"[dim]Available sources: TH={available_sources['trade_history']}, EQ={available_sources['equity_data']}[/dim]"
+            f"[dim]Available sources: TH={available_sources['trade_history']}, EQ={available_sources['equity_data']}[/dim]",
         )
         rprint(f"[dim]Selected: {data_source_status}[/dim]")
 
@@ -694,7 +696,7 @@ async def _analyze_portfolio_mode(
     # Apply overrides
     if percentile_threshold != 95:
         spds_config.PERCENTILE_THRESHOLDS["exit_immediately"] = float(
-            percentile_threshold
+            percentile_threshold,
         )
     if dual_layer_threshold != 0.85:
         spds_config.CONVERGENCE_THRESHOLD = dual_layer_threshold
@@ -707,22 +709,22 @@ async def _analyze_portfolio_mode(
     # Add helpful information about what to expect
     if "Both" in data_source_status:
         rprint(
-            "[dim]ℹ️  Using comprehensive analysis with trade-level data and equity curves[/dim]"
+            "[dim]ℹ️  Using comprehensive analysis with trade-level data and equity curves[/dim]",
         )
     elif "Trade History Only" in data_source_status:
         rprint("[dim]ℹ️  Using detailed trade-level analysis[/dim]")
     elif "Equity Curves Only" in data_source_status:
         rprint(
-            "[dim]ℹ️  Using equity curve analysis (individual trade data not available)[/dim]"
+            "[dim]ℹ️  Using equity curve analysis (individual trade data not available)[/dim]",
         )
     elif "fallback" in data_source_status:
         rprint(
-            "[dim]ℹ️  Using fallback analysis - this is normal for position-based portfolios[/dim]"
+            "[dim]ℹ️  Using fallback analysis - this is normal for position-based portfolios[/dim]",
         )
 
     if not global_quiet:
         rprint(
-            "[dim]📝 Strategy matching messages below are informational - SPDS uses robust fallback analysis[/dim]"
+            "[dim]📝 Strategy matching messages below are informational - SPDS uses robust fallback analysis[/dim]",
         )
 
     # Pre-analysis validation for data source mapping
@@ -807,17 +809,17 @@ async def _analyze_enhanced_parameter_mode(
         rprint("[dim]ℹ️  Analyzing underlying asset distribution characteristics[/dim]")
     elif parameter_type == ParameterType.MULTI_TICKER:
         rprint(
-            f"   Tickers: [yellow]{', '.join(parsed_param.tickers)}[/yellow] ({len(parsed_param.tickers)} total)"
+            f"   Tickers: [yellow]{', '.join(parsed_param.tickers)}[/yellow] ({len(parsed_param.tickers)} total)",
         )
         rprint(
-            "[dim]ℹ️  Analyzing multiple assets in parallel for comparative distribution analysis[/dim]"
+            "[dim]ℹ️  Analyzing multiple assets in parallel for comparative distribution analysis[/dim]",
         )
     elif parameter_type == ParameterType.STRATEGY_SPEC:
         rprint(
-            f"   Strategy: [yellow]{parsed_param.ticker} {parsed_param.strategy_type} {parsed_param.fast_period}/{parsed_param.slow_period}[/yellow]"
+            f"   Strategy: [yellow]{parsed_param.ticker} {parsed_param.strategy_type} {parsed_param.fast_period}/{parsed_param.slow_period}[/yellow]",
         )
         rprint(
-            "[dim]ℹ️  Analyzing strategy-specific performance and equity curves[/dim]"
+            "[dim]ℹ️  Analyzing strategy-specific performance and equity curves[/dim]",
         )
     elif parameter_type == ParameterType.MULTI_STRATEGY_SPEC:
         strategy_count = len(parsed_param.strategies)
@@ -832,17 +834,17 @@ async def _analyze_enhanced_parameter_mode(
         else:
             strategy_display = ", ".join(strategy_list)
         rprint(
-            f"   Strategies: [yellow]{strategy_display}[/yellow] ({strategy_count} total)"
+            f"   Strategies: [yellow]{strategy_display}[/yellow] ({strategy_count} total)",
         )
         rprint(
-            "[dim]ℹ️  Analyzing multiple strategies in parallel for comparative performance analysis[/dim]"
+            "[dim]ℹ️  Analyzing multiple strategies in parallel for comparative performance analysis[/dim]",
         )
     elif parameter_type == ParameterType.POSITION_UUID:
         rprint(
-            f"   Position: [yellow]{parsed_param.ticker} {parsed_param.strategy_type} {parsed_param.fast_period}/{parsed_param.slow_period} ({parsed_param.entry_date})[/yellow]"
+            f"   Position: [yellow]{parsed_param.ticker} {parsed_param.strategy_type} {parsed_param.fast_period}/{parsed_param.slow_period} ({parsed_param.entry_date})[/yellow]",
         )
         rprint(
-            "[dim]ℹ️  Analyzing individual position with trade history and metrics[/dim]"
+            "[dim]ℹ️  Analyzing individual position with trade history and metrics[/dim]",
         )
     elif parameter_type == ParameterType.MULTI_POSITION_UUID:
         position_count = len(parsed_param.positions)
@@ -857,22 +859,22 @@ async def _analyze_enhanced_parameter_mode(
         else:
             position_display = ", ".join(position_list)
         rprint(
-            f"   Positions: [yellow]{position_display}[/yellow] ({position_count} total)"
+            f"   Positions: [yellow]{position_display}[/yellow] ({position_count} total)",
         )
         rprint(
-            "[dim]ℹ️  Analyzing multiple positions in parallel for comparative trade analysis[/dim]"
+            "[dim]ℹ️  Analyzing multiple positions in parallel for comparative trade analysis[/dim]",
         )
     elif parameter_type == ParameterType.MULTI_PORTFOLIO_FILE:
         rprint(
-            f"   Portfolios: [yellow]{', '.join(parsed_param.portfolio_files)}[/yellow] ({len(parsed_param.portfolio_files)} total)"
+            f"   Portfolios: [yellow]{', '.join(parsed_param.portfolio_files)}[/yellow] ({len(parsed_param.portfolio_files)} total)",
         )
         rprint(
-            "[dim]ℹ️  Analyzing multiple portfolios in parallel for comparative portfolio analysis[/dim]"
+            "[dim]ℹ️  Analyzing multiple portfolios in parallel for comparative portfolio analysis[/dim]",
         )
 
     if not global_quiet:
         rprint(
-            "[dim]📝 Enhanced parameter analysis provides specialized insights for each input type[/dim]"
+            "[dim]📝 Enhanced parameter analysis provides specialized insights for each input type[/dim]",
         )
 
     rprint("-" * 60)
@@ -933,7 +935,7 @@ async def _analyze_enhanced_parameter_mode(
         # Apply parameter overrides
         if percentile_threshold != 95:
             spds_config.PERCENTILE_THRESHOLDS["exit_immediately"] = float(
-                percentile_threshold
+                percentile_threshold,
             )
         if dual_layer_threshold != 0.85:
             spds_config.CONVERGENCE_THRESHOLD = dual_layer_threshold
@@ -1014,7 +1016,7 @@ async def _run_export_operations(results, summary, portfolio, format, config):
 
 # Helper functions
 async def _export_all_formats(
-    results, summary, analyzer, portfolio, config, export_backtesting
+    results, summary, analyzer, portfolio, config, export_backtesting,
 ):
     """Export results in all formats with validation and fallback"""
     try:
@@ -1044,7 +1046,7 @@ async def _export_all_formats(
 
         if not is_valid:
             rprint(
-                f"[yellow]⚠️ Export validation failed: {len(issues)} issues found[/yellow]"
+                f"[yellow]⚠️ Export validation failed: {len(issues)} issues found[/yellow]",
             )
             rprint("[yellow]🔧 Generating fallback exports...[/yellow]")
 
@@ -1101,7 +1103,7 @@ def _output_summary_results(summary):
 
 
 def _output_table_results(
-    results, summary, analyzer, detailed: bool = False, components: str | None = None
+    results, summary, analyzer, detailed: bool = False, components: str | None = None,
 ):
     """Output results in table format"""
     # Create results table
@@ -1157,7 +1159,7 @@ def _output_table_results(
         elif hasattr(result, "confidence"):
             confidence = f"{result.confidence:.1f}%"
         elif hasattr(result, "exit_signal") and hasattr(
-            result.exit_signal, "confidence"
+            result.exit_signal, "confidence",
         ):
             confidence = f"{result.exit_signal.confidence:.1f}%"
 
@@ -1166,7 +1168,7 @@ def _output_table_results(
         if hasattr(result, "p_value"):
             p_value = f"{result.p_value:.3f}"
         elif hasattr(result, "exit_signal") and hasattr(
-            result.exit_signal, "confidence"
+            result.exit_signal, "confidence",
         ):
             # Convert confidence to approximate p-value
             conf_val = result.exit_signal.confidence
@@ -1198,7 +1200,7 @@ def _output_table_results(
                 # Check if component scores are in raw_analysis_data
                 component_scores = result.raw_analysis_data["component_scores"]
             elif hasattr(result, "divergence_metrics") and isinstance(
-                result.divergence_metrics, dict
+                result.divergence_metrics, dict,
             ):
                 # Check if component scores are in divergence_metrics
                 metrics = result.divergence_metrics
@@ -1400,7 +1402,7 @@ def _validate_data_source_mapping(portfolio: str, global_verbose: bool = False):
         trade_history_dir = Path("./data/raw/reports/trade_history/")
         if not trade_history_dir.exists():
             rprint(
-                f"[yellow]⚠️  Trade history directory not found: {trade_history_dir}[/yellow]"
+                f"[yellow]⚠️  Trade history directory not found: {trade_history_dir}[/yellow]",
             )
             return
 
@@ -1438,7 +1440,7 @@ def _validate_data_source_mapping(portfolio: str, global_verbose: bool = False):
                         "ticker": ticker,
                         "parsed_strategy": parsed_strategy,
                         "status": "✅ Trade History",
-                    }
+                    },
                 )
             else:
                 validation_results["fallback_strategies"].append(
@@ -1447,7 +1449,7 @@ def _validate_data_source_mapping(portfolio: str, global_verbose: bool = False):
                         "ticker": ticker,
                         "parsed_strategy": parsed_strategy,
                         "status": "📈 Equity Fallback",
-                    }
+                    },
                 )
 
         # Display results
@@ -1457,17 +1459,17 @@ def _validate_data_source_mapping(portfolio: str, global_verbose: bool = False):
 
         rprint("[dim]Data Source Mapping Results:[/dim]")
         rprint(
-            f"[dim]  • Trade History Available: {matched_count}/{total_count} strategies[/dim]"
+            f"[dim]  • Trade History Available: {matched_count}/{total_count} strategies[/dim]",
         )
         rprint(
-            f"[dim]  • Equity Fallback: {fallback_count}/{total_count} strategies[/dim]"
+            f"[dim]  • Equity Fallback: {fallback_count}/{total_count} strategies[/dim]",
         )
 
         if global_verbose and fallback_count > 0:
             rprint("[dim]📈 Strategies using equity fallback (first 5):[/dim]")
             for strategy in validation_results["fallback_strategies"][:5]:
                 rprint(
-                    f"[dim]  • {strategy['ticker']} ({strategy['parsed_strategy']}) - {strategy['status']}[/dim]"
+                    f"[dim]  • {strategy['ticker']} ({strategy['parsed_strategy']}) - {strategy['status']}[/dim]",
                 )
             if fallback_count > 5:
                 rprint(f"[dim]  • ... and {fallback_count - 5} more[/dim]")
@@ -1476,7 +1478,7 @@ def _validate_data_source_mapping(portfolio: str, global_verbose: bool = False):
             rprint("[dim]✅ Strategies with trade history (first 3):[/dim]")
             for strategy in validation_results["matched_strategies"][:3]:
                 rprint(
-                    f"[dim]  • {strategy['ticker']} ({strategy['parsed_strategy']}) - {strategy['status']}[/dim]"
+                    f"[dim]  • {strategy['ticker']} ({strategy['parsed_strategy']}) - {strategy['status']}[/dim]",
                 )
 
     except Exception as e:

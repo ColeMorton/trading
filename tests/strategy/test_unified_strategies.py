@@ -99,14 +99,14 @@ class TestUnifiedMAStrategy:
                     "2023-01-04",
                     "2023-01-05",
                 ],
-            }
+            },
         )
 
         # Mock return values
         mock_mas.return_value = test_data
         mock_signals.return_value = (pl.lit(True), pl.lit(False))
         mock_convert.return_value = test_data.with_columns(
-            [pl.lit(1).alias("Position")]
+            [pl.lit(1).alias("Position")],
         )
 
         # Mock logger
@@ -134,7 +134,7 @@ class TestUnifiedMAStrategy:
             {
                 "Close": [100.0, 101.0, 102.0],
                 "Date": ["2023-01-01", "2023-01-02", "2023-01-03"],
-            }
+            },
         )
 
         config = {"DIRECTION": "Long"}
@@ -195,7 +195,7 @@ class TestUnifiedMACDStrategy:
         config = {"DIRECTION": "Long"}  # Missing SIGNAL_PERIOD
 
         with pytest.raises(
-            ValueError, match="MACD strategy requires valid SIGNAL_PERIOD"
+            ValueError, match="MACD strategy requires valid SIGNAL_PERIOD",
         ):
             strategy.calculate(test_data, 12, 26, config, mock_log)
 
@@ -356,7 +356,7 @@ def sample_price_data():
                 "2023-01-06",
                 "2023-01-07",
             ],
-        }
+        },
     )
 
 

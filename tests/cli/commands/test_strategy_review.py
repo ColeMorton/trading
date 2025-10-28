@@ -93,13 +93,13 @@ config:
                     "Trades": 42,
                     "Win Rate [%]": 63.8,
                 },
-            ]
+            ],
         )
 
     def test_review_command_requires_best_flag(self, cli_runner):
         """Test that review command requires --best flag."""
         result = cli_runner.invoke(
-            strategy_app, ["review", "--profile", "test_profile"]
+            strategy_app, ["review", "--profile", "test_profile"],
         )
 
         assert result.exit_code != 0
@@ -136,19 +136,19 @@ config:
 
         # Run command
         result = cli_runner.invoke(
-            strategy_app, ["review", "--profile", "test_review", "--best"]
+            strategy_app, ["review", "--profile", "test_review", "--best"],
         )
 
         # Verify results
         assert result.exit_code == 0
         mock_config_loader.return_value.load_from_profile.assert_called_once()
         mock_service_instance.aggregate_portfolios_best.assert_called_once_with(
-            ["AAPL", "MSFT", "GOOGL"]
+            ["AAPL", "MSFT", "GOOGL"],
         )
 
     @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_auto_discovery_mode(
-        self, mock_analysis_service, cli_runner, mock_portfolio_data
+        self, mock_analysis_service, cli_runner, mock_portfolio_data,
     ):
         """Test review command in auto-discovery mode."""
         # Setup mocks
@@ -167,7 +167,7 @@ config:
 
     @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_with_ticker_filtering(
-        self, mock_analysis_service, cli_runner, mock_portfolio_data
+        self, mock_analysis_service, cli_runner, mock_portfolio_data,
     ):
         """Test review command with ticker filtering."""
         # Setup mocks
@@ -179,19 +179,19 @@ config:
 
         # Run command
         result = cli_runner.invoke(
-            strategy_app, ["review", "--best", "--current", "--ticker", "AAPL,MSFT"]
+            strategy_app, ["review", "--best", "--current", "--ticker", "AAPL,MSFT"],
         )
 
         # Verify results
         assert result.exit_code == 0
         mock_service_instance.aggregate_portfolios_best.assert_called_once_with(
-            ["AAPL", "MSFT"]
+            ["AAPL", "MSFT"],
         )
 
     def test_review_command_date_validation_invalid_format(self, cli_runner):
         """Test review command with invalid date format."""
         result = cli_runner.invoke(
-            strategy_app, ["review", "--best", "--current", "--date", "2025-01-01"]
+            strategy_app, ["review", "--best", "--current", "--date", "2025-01-01"],
         )
 
         assert result.exit_code != 0
@@ -199,13 +199,13 @@ config:
 
     @patch("pathlib.Path.exists")
     def test_review_command_date_validation_directory_not_found(
-        self, mock_exists, cli_runner
+        self, mock_exists, cli_runner,
     ):
         """Test review command with non-existent date directory."""
         mock_exists.return_value = False
 
         result = cli_runner.invoke(
-            strategy_app, ["review", "--best", "--current", "--date", "20250101"]
+            strategy_app, ["review", "--best", "--current", "--date", "20250101"],
         )
 
         assert result.exit_code != 0
@@ -214,7 +214,7 @@ config:
     @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     @patch("pathlib.Path.exists")
     def test_review_command_with_valid_date(
-        self, mock_exists, mock_analysis_service, cli_runner, mock_portfolio_data
+        self, mock_exists, mock_analysis_service, cli_runner, mock_portfolio_data,
     ):
         """Test review command with valid date parameter."""
         mock_exists.return_value = True
@@ -228,19 +228,19 @@ config:
 
         # Run command
         result = cli_runner.invoke(
-            strategy_app, ["review", "--best", "--current", "--date", "20250816"]
+            strategy_app, ["review", "--best", "--current", "--date", "20250816"],
         )
 
         # Verify results
         assert result.exit_code == 0
         # Should create PortfolioAnalysisService with custom date
         mock_analysis_service.assert_called_once_with(
-            use_current=True, custom_date="20250816"
+            use_current=True, custom_date="20250816",
         )
 
     @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_output_format_options(
-        self, mock_analysis_service, cli_runner, mock_portfolio_data
+        self, mock_analysis_service, cli_runner, mock_portfolio_data,
     ):
         """Test review command with different output formats."""
         # Setup mocks
@@ -252,19 +252,19 @@ config:
 
         # Test table format (default)
         result_table = cli_runner.invoke(
-            strategy_app, ["review", "--best", "--current", "--output-format", "table"]
+            strategy_app, ["review", "--best", "--current", "--output-format", "table"],
         )
         assert result_table.exit_code == 0
 
         # Test raw format
         result_raw = cli_runner.invoke(
-            strategy_app, ["review", "--best", "--current", "--output-format", "raw"]
+            strategy_app, ["review", "--best", "--current", "--output-format", "raw"],
         )
         assert result_raw.exit_code == 0
 
     @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_sorting_options(
-        self, mock_analysis_service, cli_runner, mock_portfolio_data
+        self, mock_analysis_service, cli_runner, mock_portfolio_data,
     ):
         """Test review command with different sorting options."""
         # Setup mocks
@@ -276,7 +276,7 @@ config:
 
         # Test default sorting (Score)
         result_default = cli_runner.invoke(
-            strategy_app, ["review", "--best", "--current"]
+            strategy_app, ["review", "--best", "--current"],
         )
         assert result_default.exit_code == 0
 
@@ -289,7 +289,7 @@ config:
 
     @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_top_n_parameter(
-        self, mock_analysis_service, cli_runner, mock_portfolio_data
+        self, mock_analysis_service, cli_runner, mock_portfolio_data,
     ):
         """Test review command with top-n parameter."""
         # Setup mocks
@@ -301,7 +301,7 @@ config:
 
         # Test custom top-n
         result = cli_runner.invoke(
-            strategy_app, ["review", "--best", "--current", "--top-n", "25"]
+            strategy_app, ["review", "--best", "--current", "--top-n", "25"],
         )
 
         assert result.exit_code == 0
@@ -333,7 +333,7 @@ config:
 
         # Run command
         result = cli_runner.invoke(
-            strategy_app, ["review", "--profile", "nonexistent", "--best"]
+            strategy_app, ["review", "--profile", "nonexistent", "--best"],
         )
 
         # Should handle error gracefully
@@ -342,7 +342,7 @@ config:
 
     @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_multiple_tickers_comma_separated(
-        self, mock_analysis_service, cli_runner, mock_portfolio_data
+        self, mock_analysis_service, cli_runner, mock_portfolio_data,
     ):
         """Test review command with comma-separated tickers."""
         # Setup mocks
@@ -361,12 +361,12 @@ config:
         # Verify results
         assert result.exit_code == 0
         mock_service_instance.aggregate_portfolios_best.assert_called_once_with(
-            ["AAPL", "MSFT", "GOOGL"]
+            ["AAPL", "MSFT", "GOOGL"],
         )
 
     @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_multiple_ticker_arguments(
-        self, mock_analysis_service, cli_runner, mock_portfolio_data
+        self, mock_analysis_service, cli_runner, mock_portfolio_data,
     ):
         """Test review command with multiple --ticker arguments."""
         # Setup mocks
@@ -425,7 +425,7 @@ class TestStrategyReviewBatchMode:
                     "Score": 78.3,
                     "Total Return [%]": 10.8,
                 },
-            ]
+            ],
         )
 
     @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
@@ -460,12 +460,12 @@ class TestStrategyReviewBatchMode:
         mock_batch_service.validate_batch_file.assert_called_once()
         mock_batch_service.get_batch_tickers.assert_called_once()
         mock_service_instance.aggregate_portfolios_best.assert_called_once_with(
-            ["AAPL", "MSFT", "GOOGL"]
+            ["AAPL", "MSFT", "GOOGL"],
         )
 
     @patch("app.cli.commands.strategy.BatchProcessingService")
     def test_review_batch_mode_invalid_batch_file(
-        self, mock_batch_service_class, cli_runner
+        self, mock_batch_service_class, cli_runner,
     ):
         """Test review command with invalid batch file."""
         # Setup batch service mock
@@ -482,7 +482,7 @@ class TestStrategyReviewBatchMode:
 
     @patch("app.cli.commands.strategy.BatchProcessingService")
     def test_review_batch_mode_empty_batch_file(
-        self, mock_batch_service_class, cli_runner
+        self, mock_batch_service_class, cli_runner,
     ):
         """Test review command with empty batch file."""
         # Setup batch service mock
@@ -523,7 +523,7 @@ class TestStrategyReviewBatchMode:
 
         # Run command with --current flag (should be ignored)
         result = cli_runner.invoke(
-            strategy_app, ["review", "--best", "--batch", "--current"]
+            strategy_app, ["review", "--best", "--batch", "--current"],
         )
 
         # Verify results
@@ -532,7 +532,7 @@ class TestStrategyReviewBatchMode:
 
         # Should create analysis service with non-current mode
         mock_analysis_service.assert_called_once_with(
-            use_current=False, custom_date=None
+            use_current=False, custom_date=None,
         )
 
     @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
@@ -562,7 +562,7 @@ class TestStrategyReviewBatchMode:
         with patch("pathlib.Path.exists", return_value=True):
             # Run command with --date flag (should be ignored)
             result = cli_runner.invoke(
-                strategy_app, ["review", "--best", "--batch", "--date", "20250816"]
+                strategy_app, ["review", "--best", "--batch", "--date", "20250816"],
             )
 
         # Verify results
@@ -571,7 +571,7 @@ class TestStrategyReviewBatchMode:
 
         # Should create analysis service with non-date mode
         mock_analysis_service.assert_called_once_with(
-            use_current=False, custom_date=None
+            use_current=False, custom_date=None,
         )
 
     @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
@@ -616,7 +616,7 @@ class TestStrategyReviewBatchMode:
 
     @patch("app.cli.commands.strategy.BatchProcessingService")
     def test_review_batch_mode_service_exception(
-        self, mock_batch_service_class, cli_runner
+        self, mock_batch_service_class, cli_runner,
     ):
         """Test review command handling of batch service exceptions."""
         # Setup batch service mock to raise exception
@@ -653,14 +653,14 @@ class TestStrategyReviewEdgeCases:
 
         # Test conflicting modes
         result2 = cli_runner.invoke(
-            strategy_app, ["review", "--best", "--batch", "--profile", "test"]
+            strategy_app, ["review", "--best", "--batch", "--profile", "test"],
         )
         # Should work - profile is ignored in batch mode
         assert result2.exit_code != 0  # Will fail due to batch file validation
 
     @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_analysis_service_exception(
-        self, mock_analysis_service, cli_runner
+        self, mock_analysis_service, cli_runner,
     ):
         """Test review command handling of analysis service exceptions."""
         # Setup mock to raise exception
@@ -676,7 +676,7 @@ class TestStrategyReviewEdgeCases:
         """Test review command with invalid top-n values."""
         # Test negative top-n
         result = cli_runner.invoke(
-            strategy_app, ["review", "--best", "--current", "--top-n", "-1"]
+            strategy_app, ["review", "--best", "--current", "--top-n", "-1"],
         )
         # Should handle validation (depends on typer implementation)
         assert result.exit_code is not None
@@ -702,7 +702,7 @@ class TestStrategyReviewEdgeCases:
 
         # Run command with large top-n
         result = cli_runner.invoke(
-            strategy_app, ["review", "--best", "--current", "--top-n", "999999"]
+            strategy_app, ["review", "--best", "--current", "--top-n", "999999"],
         )
 
         # Should handle gracefully
@@ -711,7 +711,7 @@ class TestStrategyReviewEdgeCases:
     def test_review_command_empty_ticker_list(self, cli_runner):
         """Test review command with empty ticker list."""
         result = cli_runner.invoke(
-            strategy_app, ["review", "--best", "--current", "--ticker", ""]
+            strategy_app, ["review", "--best", "--current", "--ticker", ""],
         )
 
         # Should handle empty ticker gracefully
@@ -729,7 +729,7 @@ class TestStrategyReviewEdgeCases:
 
     @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_unicode_in_parameters(
-        self, mock_analysis_service, cli_runner
+        self, mock_analysis_service, cli_runner,
     ):
         """Test review command with Unicode characters in parameters."""
         # Setup mocks
@@ -739,7 +739,7 @@ class TestStrategyReviewEdgeCases:
 
         # Run command with Unicode ticker
         result = cli_runner.invoke(
-            strategy_app, ["review", "--best", "--current", "--ticker", "AAPL中文"]
+            strategy_app, ["review", "--best", "--current", "--ticker", "AAPL中文"],
         )
 
         # Should handle Unicode gracefully

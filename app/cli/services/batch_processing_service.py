@@ -62,7 +62,7 @@ class BatchProcessingService:
         try:
             if not self.batch_file_path.exists():
                 self.console.warning(
-                    f"Batch file does not exist: {self.batch_file_path}"
+                    f"Batch file does not exist: {self.batch_file_path}",
                 )
                 return False
 
@@ -72,7 +72,7 @@ class BatchProcessingService:
 
             if not required_columns.issubset(set(df.columns)):
                 self.console.error(
-                    f"Batch file missing required columns: {required_columns}"
+                    f"Batch file missing required columns: {required_columns}",
                 )
                 return False
 
@@ -92,7 +92,7 @@ class BatchProcessingService:
         try:
             if not self.batch_file_path.exists():
                 self.console.warning(
-                    f"Batch file does not exist: {self.batch_file_path}"
+                    f"Batch file does not exist: {self.batch_file_path}",
                 )
                 return pd.DataFrame(columns=["Ticker", "Last Modified"])
 
@@ -105,7 +105,7 @@ class BatchProcessingService:
             # Ensure required columns exist
             if "Ticker" not in df.columns or "Last Modified" not in df.columns:
                 self.console.error(
-                    "Batch file missing required columns: Ticker, Last Modified"
+                    "Batch file missing required columns: Ticker, Last Modified",
                 )
                 return pd.DataFrame(columns=["Ticker", "Last Modified"])
 
@@ -151,7 +151,7 @@ class BatchProcessingService:
                 # Write back the cleaned data
                 df_cleaned.to_csv(self.batch_file_path, index=False)
                 self.console.info(
-                    f"Cleaned {removed_count} old entries from batch file"
+                    f"Cleaned {removed_count} old entries from batch file",
                 )
 
             return removed_count
@@ -211,12 +211,12 @@ class BatchProcessingService:
             result = pending_tickers[:batch_size]
 
             self.console.info(
-                f"Found {len(pending_tickers)} pending tickers, selecting {len(result)} for processing"
+                f"Found {len(pending_tickers)} pending tickers, selecting {len(result)} for processing",
             )
 
             if len(result) < len(pending_tickers):
                 self.console.info(
-                    f"Remaining {len(pending_tickers) - len(result)} tickers will be processed in next batch"
+                    f"Remaining {len(pending_tickers) - len(result)} tickers will be processed in next batch",
                 )
 
             return result
@@ -226,7 +226,7 @@ class BatchProcessingService:
             return []
 
     def get_tickers_needing_processing(
-        self, all_tickers: list[str], batch_size: int, resume_check_fn: Callable
+        self, all_tickers: list[str], batch_size: int, resume_check_fn: Callable,
     ) -> list[str]:
         """
         Get exactly batch_size tickers that need processing, considering both batch file
@@ -268,20 +268,20 @@ class BatchProcessingService:
                         break
                 else:
                     self.console.debug(
-                        f"Skipping {ticker} - already complete and fresh"
+                        f"Skipping {ticker} - already complete and fresh",
                     )
 
             self.console.info(
                 f"Found {len(pending_tickers)} pending tickers, checked {checked_count}, "
-                f"selected {len(tickers_needing_work)} that need processing"
+                f"selected {len(tickers_needing_work)} that need processing",
             )
 
             if len(tickers_needing_work) < batch_size and checked_count < len(
-                pending_tickers
+                pending_tickers,
             ):
                 remaining = len(pending_tickers) - checked_count
                 self.console.info(
-                    f"Remaining {remaining} tickers will be checked in next batch"
+                    f"Remaining {remaining} tickers will be checked in next batch",
                 )
 
             return tickers_needing_work
@@ -408,11 +408,10 @@ class BatchProcessingService:
             tickers = df["Ticker"].dropna().unique().tolist()
 
             # Clean and uppercase ticker symbols
-            cleaned_tickers = [
+            return [
                 ticker.strip().upper() for ticker in tickers if ticker.strip()
             ]
 
-            return cleaned_tickers
 
         except Exception as e:
             self.console.error(f"Error reading tickers from batch file: {e}")

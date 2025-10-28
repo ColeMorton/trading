@@ -22,7 +22,7 @@ from app.tools.setup_logging import setup_logging
 
 
 log, log_close, _, _ = setup_logging(
-    module_name="macd_stop", log_file="3_macd_cross_stop.log"
+    module_name="macd_stop", log_file="3_macd_cross_stop.log",
 )
 
 
@@ -36,7 +36,7 @@ def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
     try:
         data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
         log(f"Data download for {ticker} completed successfully")
-        data.reset_index(inplace=True)  # Reset index to make 'Date' a column
+        data = data.reset_index()  # Reset index to make 'Date' a column
         return pl.DataFrame(data)
     except Exception as e:
         log(f"Failed to download data for {ticker}: {e}")
@@ -92,7 +92,7 @@ def backtest(
 
 
 def calculate_metrics(
-    trades: list[tuple[float, float]], config: PortfolioConfig
+    trades: list[tuple[float, float]], config: PortfolioConfig,
 ) -> tuple[float, float, float]:
     if not trades:
         return 0, 0, 0
@@ -121,7 +121,7 @@ def calculate_metrics(
 
 
 def run_sensitivity_analysis(
-    data: pl.DataFrame, stop_loss_range: np.ndarray, config: PortfolioConfig
+    data: pl.DataFrame, stop_loss_range: np.ndarray, config: PortfolioConfig,
 ) -> pl.DataFrame:
     results = []
     for stop_loss_percentage in stop_loss_range:
@@ -134,21 +134,21 @@ def run_sensitivity_analysis(
                 "Total Return": total_return,
                 "Win Rate": win_rate,
                 "Expectancy": expectancy,
-            }
+            },
         )
 
     return pl.DataFrame(results)
 
 
 def find_prominent_peaks(
-    x: np.ndarray, y: np.ndarray, prominence: float = 1, distance: int = 10
+    x: np.ndarray, y: np.ndarray, prominence: float = 1, distance: int = 10,
 ) -> np.ndarray:
     peaks, _ = find_peaks(y, prominence=prominence, distance=distance)
     return peaks
 
 
 def add_peak_labels(
-    ax: plt.Axes, x: np.ndarray, y: np.ndarray, peaks: np.ndarray, fmt: str = ".2f"
+    ax: plt.Axes, x: np.ndarray, y: np.ndarray, peaks: np.ndarray, fmt: str = ".2f",
 ):
     for peak in peaks:
         ax.annotate(
@@ -212,7 +212,7 @@ def plot_results(ticker: str, results_df: pl.DataFrame):
     ax2.grid(True)
 
     fig.suptitle(
-        f"{ticker} Total Return, Win Rate, and Expectancy vs Stop Loss Percentage"
+        f"{ticker} Total Return, Win Rate, and Expectancy vs Stop Loss Percentage",
     )
     plt.tight_layout()
     plt.show()

@@ -12,7 +12,7 @@ class BestSelectionService:
     """Service for determining best portfolio selections from strategy sweep results."""
 
     def find_best_for_ticker_strategy(
-        self, results: list[dict[str, Any]], ticker: str, strategy_type: str
+        self, results: list[dict[str, Any]], ticker: str, strategy_type: str,
     ) -> dict[str, Any] | None:
         """
         Apply parameter consistency algorithm to find best result.
@@ -44,7 +44,7 @@ class BestSelectionService:
 
         # Sort by score descending
         sorted_results = sorted(
-            filtered, key=lambda x: float(x.get("score", 0)), reverse=True
+            filtered, key=lambda x: float(x.get("score", 0)), reverse=True,
         )
 
         total_alternatives = len(sorted_results)
@@ -139,7 +139,7 @@ class BestSelectionService:
         )
 
     def _check_top_n_all_match(
-        self, sorted_results: list[dict[str, Any]], n: int
+        self, sorted_results: list[dict[str, Any]], n: int,
     ) -> dict[str, Any] | None:
         """
         Check if all top N results have the same parameter combination.
@@ -167,7 +167,7 @@ class BestSelectionService:
         return None
 
     def _check_top_n_k_match(
-        self, sorted_results: list[dict[str, Any]], n: int, k: int
+        self, sorted_results: list[dict[str, Any]], n: int, k: int,
     ) -> dict[str, Any] | None:
         """
         Check if K out of top N results have the same parameter combination.

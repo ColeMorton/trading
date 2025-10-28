@@ -37,7 +37,7 @@ def sample_config():
         MULTI_TIMEFRAME_AGREEMENT=3,
         SAMPLE_SIZE_MINIMUM=15,
         CONFIDENCE_LEVELS=ConfidenceLevel(
-            high_confidence=30, medium_confidence=15, low_confidence=5
+            high_confidence=30, medium_confidence=15, low_confidence=5,
         ),
     )
 
@@ -102,7 +102,7 @@ def sample_historical_data():
             + np.random.normal(0, 0.008, len(dates)),
             "BTC_SMA_7_21": base_returns * 0.8 + np.random.normal(0, 0.015, len(dates)),
             "return": base_returns,
-        }
+        },
     )
 
 
@@ -116,7 +116,7 @@ def mock_return_distribution_data():
                 "var_95": -0.028,
                 "current_percentile": 87.3,
                 "statistical_rarity": 0.127,
-            }
+            },
         },
         "TSLA": {
             "D": {
@@ -124,7 +124,7 @@ def mock_return_distribution_data():
                 "var_95": -0.035,
                 "current_percentile": 82.1,
                 "statistical_rarity": 0.179,
-            }
+            },
         },
         "BTC-USD": {
             "D": {
@@ -132,7 +132,7 @@ def mock_return_distribution_data():
                 "var_95": -0.032,
                 "current_percentile": 76.8,
                 "statistical_rarity": 0.232,
-            }
+            },
         },
     }
 
@@ -142,12 +142,12 @@ class TestStatisticalAnalysisIntegration:
 
     @pytest.mark.asyncio
     async def test_end_to_end_statistical_analysis(
-        self, sample_config, sample_positions, mock_return_distribution_data
+        self, sample_config, sample_positions, mock_return_distribution_data,
     ):
         """Test complete end-to-end statistical analysis workflow."""
 
         with patch(
-            "app.tools.services.statistical_analysis_service.load_return_distribution_data"
+            "app.tools.services.statistical_analysis_service.load_return_distribution_data",
         ) as mock_load:
             mock_load.return_value = mock_return_distribution_data
 
@@ -162,14 +162,14 @@ class TestStatisticalAnalysisIntegration:
                         "mfe": [0.18, 0.12, 0.03, 0.28, 0.15],
                         "mae": [0.02, 0.04, 0.08, 0.01, 0.03],
                         "duration_days": [20, 15, 30, 25, 18],
-                    }
+                    },
                 )
 
                 # Perform analysis
                 results = []
                 for position in sample_positions:
                     result = await service.analyze_position_statistical_performance(
-                        position, include_exit_signals=True
+                        position, include_exit_signals=True,
                     )
                     results.append(result)
 
@@ -183,7 +183,7 @@ class TestStatisticalAnalysisIntegration:
 
     @pytest.mark.asyncio
     async def test_ml_pattern_recognition_integration(
-        self, sample_positions, sample_historical_data
+        self, sample_positions, sample_historical_data,
     ):
         """Test ML pattern recognition integration."""
 
@@ -205,7 +205,7 @@ class TestStatisticalAnalysisIntegration:
 
         # Test pattern matching
         pattern_matches = ml_engine.find_similar_patterns(
-            sample_positions[0], mock_analysis, top_k=3
+            sample_positions[0], mock_analysis, top_k=3,
         )
 
         # Verify pattern matches
@@ -230,7 +230,7 @@ class TestStatisticalAnalysisIntegration:
             multi_timeframe_agreement=3,
             sample_size_minimum=15,
             confidence_levels=ConfidenceLevel(
-                high_confidence=30, medium_confidence=15, low_confidence=5
+                high_confidence=30, medium_confidence=15, low_confidence=5,
             ),
         )
 
@@ -242,12 +242,12 @@ class TestStatisticalAnalysisIntegration:
                 "dual_layer_score": np.random.uniform(0.5, 0.95, 100),
                 "statistical_rarity": np.random.uniform(0.01, 0.2, 100),
                 "exit_date": pd.date_range(start="2024-01-01", periods=100, freq="D"),
-            }
+            },
         )
 
         # Test optimization
         optimization_result = learning_engine.optimize_thresholds(
-            historical_trades, current_thresholds, target_metric="exit_efficiency"
+            historical_trades, current_thresholds, target_metric="exit_efficiency",
         )
 
         # Verify optimization result
@@ -256,7 +256,7 @@ class TestStatisticalAnalysisIntegration:
         assert hasattr(optimization_result, "optimization_method")
 
     def test_portfolio_optimization_integration(
-        self, sample_positions, sample_historical_data
+        self, sample_positions, sample_historical_data,
     ):
         """Test portfolio optimization integration."""
 
@@ -273,7 +273,7 @@ class TestStatisticalAnalysisIntegration:
 
         # Test portfolio optimization
         optimization_result = optimizer.optimize_portfolio(
-            sample_positions, analysis_results, sample_historical_data
+            sample_positions, analysis_results, sample_historical_data,
         )
 
         # Verify optimization result
@@ -287,7 +287,7 @@ class TestStatisticalAnalysisIntegration:
         assert abs(total_weight - 1.0) < 0.01  # Weights should sum to ~1
 
     def test_dynamic_position_sizing_integration(
-        self, sample_positions, sample_historical_data
+        self, sample_positions, sample_historical_data,
     ):
         """Test dynamic position sizing integration."""
 
@@ -315,7 +315,7 @@ class TestStatisticalAnalysisIntegration:
 
         # Test portfolio sizing
         sizing_result = sizer.calculate_portfolio_sizing(
-            sample_positions, analysis_results, total_capital=100000
+            sample_positions, analysis_results, total_capital=100000,
         )
 
         # Verify sizing result
@@ -331,7 +331,7 @@ class TestStatisticalAnalysisIntegration:
 
     @pytest.mark.asyncio
     async def test_performance_validation_workflow(
-        self, sample_config, sample_positions, sample_historical_data
+        self, sample_config, sample_positions, sample_historical_data,
     ):
         """Test performance validation against exit efficiency targets."""
 
@@ -343,7 +343,7 @@ class TestStatisticalAnalysisIntegration:
         }
 
         with patch(
-            "app.tools.services.statistical_analysis_service.load_return_distribution_data"
+            "app.tools.services.statistical_analysis_service.load_return_distribution_data",
         ) as mock_load:
             mock_load.return_value = mock_return_data
 
@@ -365,22 +365,22 @@ class TestStatisticalAnalysisIntegration:
                             0.83,
                             0.84,
                         ],  # High exit efficiency
-                    }
+                    },
                 )
 
                 # Analyze positions
                 exit_efficiencies = []
                 for position in sample_positions:
                     result = await service.analyze_position_statistical_performance(
-                        position, include_exit_signals=True
+                        position, include_exit_signals=True,
                     )
 
                     # Calculate exit efficiency from analysis
                     if result.exit_signals and hasattr(
-                        result.exit_signals, "exit_efficiency_score"
+                        result.exit_signals, "exit_efficiency_score",
                     ):
                         exit_efficiencies.append(
-                            result.exit_signals.exit_efficiency_score
+                            result.exit_signals.exit_efficiency_score,
                         )
                     else:
                         # Mock exit efficiency calculation
@@ -436,7 +436,7 @@ class TestStatisticalAnalysisIntegration:
 
         # Should handle gracefully without throwing
         with patch(
-            "app.tools.services.statistical_analysis_service.load_return_distribution_data"
+            "app.tools.services.statistical_analysis_service.load_return_distribution_data",
         ) as mock_load:
             mock_load.return_value = {}
 
@@ -445,7 +445,7 @@ class TestStatisticalAnalysisIntegration:
                 import asyncio
 
                 result = asyncio.run(
-                    service.analyze_position_statistical_performance(invalid_position)
+                    service.analyze_position_statistical_performance(invalid_position),
                 )
                 # Should return a result even with invalid data
                 assert result is not None
@@ -453,7 +453,7 @@ class TestStatisticalAnalysisIntegration:
                 pytest.fail(f"Error handling failed: {e}")
 
     def test_memory_optimization_integration(
-        self, sample_config, sample_positions, sample_historical_data
+        self, sample_config, sample_positions, sample_historical_data,
     ):
         """Test memory optimization integration."""
 
@@ -461,7 +461,7 @@ class TestStatisticalAnalysisIntegration:
 
         # Test large dataset processing
         large_historical_data = pd.concat(
-            [sample_historical_data] * 100, ignore_index=True
+            [sample_historical_data] * 100, ignore_index=True,
         )
 
         # Initialize components with memory optimization
@@ -479,7 +479,7 @@ class TestStatisticalAnalysisIntegration:
 
     @pytest.mark.parametrize("use_trade_history", [True, False])
     def test_data_source_flexibility(
-        self, sample_config, sample_positions, use_trade_history
+        self, sample_config, sample_positions, use_trade_history,
     ):
         """Test flexibility between trade history and equity data sources."""
 
@@ -498,7 +498,7 @@ class TestStatisticalAnalysisIntegration:
                         "mfe": [0.18, 0.12, 0.15],
                         "mae": [0.02, 0.04, 0.03],
                         "duration_days": [20, 15, 18],
-                    }
+                    },
                 )
 
                 # Should work with trade history
@@ -521,7 +521,7 @@ class TestPerformanceValidation:
                 "mfe": [0.25, 0.18, 0.13, 0.02, 0.30],
                 "mae": [0.02, 0.03, 0.01, 0.08, 0.01],
                 "exit_efficiency": [0.80, 0.83, 0.77, 0.25, 0.83],
-            }
+            },
         )
 
         # Calculate average exit efficiency

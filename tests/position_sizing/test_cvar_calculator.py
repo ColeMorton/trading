@@ -27,9 +27,9 @@ class TestCVaRCalculator:
                         "var_95": {"value": -0.050966740390329085},
                         "cvar_99": {"value": -0.23884351702880238},
                         "var_99": {"value": -0.12526210517785705},
-                    }
-                }
-            }
+                    },
+                },
+            },
         }
 
         self.mock_portfolio_data = {
@@ -40,9 +40,9 @@ class TestCVaRCalculator:
                         "var_95": {"value": -0.04062868394886115},
                         "cvar_99": {"value": -0.12570809534840688},
                         "var_99": {"value": -0.08846974801496799},
-                    }
-                }
-            }
+                    },
+                },
+            },
         }
 
     @patch("builtins.open", new_callable=mock_open)
@@ -113,7 +113,7 @@ class TestCVaRCalculator:
             return self.mock_portfolio_data
 
         with patch.object(
-            self.calculator, "_load_json_file", side_effect=mock_load_json
+            self.calculator, "_load_json_file", side_effect=mock_load_json,
         ):
             result = self.calculator.get_portfolio_risk_metrics()
 
@@ -185,7 +185,7 @@ class TestCVaRCalculator:
                 return_value=case["trading_cvar"],
             ):
                 result = self.calculator.calculate_excel_b12_equivalent(
-                    case["net_worth"]
+                    case["net_worth"],
                 )
                 assert (
                     abs(result - case["expected_b12"]) < 1e-10

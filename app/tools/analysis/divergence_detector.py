@@ -74,7 +74,7 @@ class DivergenceDetector:
                 # Use median as fallback
                 current_return = asset_analysis.statistics.median
                 self.logger.warning(
-                    f"No current return available for {asset_analysis.ticker}, using median"
+                    f"No current return available for {asset_analysis.ticker}, using median",
                 )
 
             # Calculate z-score
@@ -93,7 +93,7 @@ class DivergenceDetector:
 
             # Calculate percentile rank
             percentile_rank = self._estimate_percentile_rank(
-                current_return, asset_analysis.percentiles
+                current_return, asset_analysis.percentiles,
             )
 
             # Assess rarity
@@ -101,7 +101,7 @@ class DivergenceDetector:
 
             # Outlier detection
             is_outlier, outlier_method = self._detect_outlier(
-                current_return, asset_analysis.statistics, asset_analysis.percentiles
+                current_return, asset_analysis.statistics, asset_analysis.percentiles,
             )
 
             # Temporal context (simplified - would need historical data for full implementation)
@@ -120,8 +120,8 @@ class DivergenceDetector:
             )
 
         except Exception as e:
-            self.logger.error(
-                f"Failed to detect asset divergence for {asset_analysis.ticker}: {e}"
+            self.logger.exception(
+                f"Failed to detect asset divergence for {asset_analysis.ticker}: {e}",
             )
             raise
 
@@ -143,7 +143,7 @@ class DivergenceDetector:
         try:
             # Determine current strategy performance metric
             current_performance = self._extract_current_strategy_performance(
-                strategy_analysis, current_position_data
+                strategy_analysis, current_position_data,
             )
 
             # Calculate z-score
@@ -162,12 +162,12 @@ class DivergenceDetector:
 
             # Calculate percentile rank
             percentile_rank = self._estimate_percentile_rank(
-                current_performance, strategy_analysis.percentiles
+                current_performance, strategy_analysis.percentiles,
             )
 
             # Assess rarity with strategy-specific adjustments
             rarity_score = self._calculate_strategy_rarity_score(
-                z_score, percentile_rank, strategy_analysis
+                z_score, percentile_rank, strategy_analysis,
             )
 
             # Outlier detection
@@ -180,7 +180,7 @@ class DivergenceDetector:
             # Temporal context
             consecutive_periods = self._estimate_consecutive_periods(percentile_rank)
             trend_direction = self._determine_trend_direction(
-                strategy_analysis.statistics
+                strategy_analysis.statistics,
             )
 
             return DivergenceMetrics(
@@ -195,9 +195,9 @@ class DivergenceDetector:
             )
 
         except Exception as e:
-            self.logger.error(
+            self.logger.exception(
                 f"Failed to detect strategy divergence for {strategy_analysis.strategy_name} "
-                f"on {strategy_analysis.ticker}: {e}"
+                f"on {strategy_analysis.ticker}: {e}",
             )
             raise
 
@@ -227,17 +227,17 @@ class DivergenceDetector:
 
             # Calculate convergence score based on percentile alignment
             convergence_score = self._calculate_convergence_score(
-                asset_percentile, strategy_percentile
+                asset_percentile, strategy_percentile,
             )
 
             # Classify convergence strength
             convergence_strength = self._classify_convergence_strength(
-                convergence_score
+                convergence_score,
             )
 
             # Multi-timeframe validation (simplified - would use actual timeframe data)
             timeframe_agreement, total_timeframes = self._analyze_timeframe_agreement(
-                asset_analysis, strategy_analysis
+                asset_analysis, strategy_analysis,
             )
 
             # Cross-timeframe score
@@ -261,10 +261,10 @@ class DivergenceDetector:
             ):
                 # Calculate source-specific divergence
                 trade_divergence = await self.detect_trade_history_divergence(
-                    strategy_analysis.trade_history_analysis, strategy_analysis
+                    strategy_analysis.trade_history_analysis, strategy_analysis,
                 )
                 equity_divergence = await self.detect_equity_curve_divergence(
-                    strategy_analysis.equity_analysis, strategy_analysis
+                    strategy_analysis.equity_analysis, strategy_analysis,
                 )
 
                 trade_history_percentile = trade_divergence.percentile_rank
@@ -272,10 +272,10 @@ class DivergenceDetector:
 
                 # Calculate pairwise convergences
                 asset_trade_convergence = self._calculate_convergence_score(
-                    asset_percentile, trade_history_percentile
+                    asset_percentile, trade_history_percentile,
                 )
                 asset_equity_convergence = self._calculate_convergence_score(
-                    asset_percentile, equity_curve_percentile
+                    asset_percentile, equity_curve_percentile,
                 )
                 trade_equity_convergence = (
                     strategy_analysis.dual_source_convergence.convergence_score
@@ -283,7 +283,7 @@ class DivergenceDetector:
 
                 # Calculate triple-layer convergence
                 triple_layer_convergence = self._calculate_triple_layer_convergence(
-                    asset_percentile, trade_history_percentile, equity_curve_percentile
+                    asset_percentile, trade_history_percentile, equity_curve_percentile,
                 )
 
                 # Calculate source weights based on confidence and data quality
@@ -321,7 +321,7 @@ class DivergenceDetector:
             )
 
         except Exception as e:
-            self.logger.error(f"Failed to analyze dual-layer convergence: {e}")
+            self.logger.exception(f"Failed to analyze dual-layer convergence: {e}")
             raise
 
     async def detect_trade_history_divergence(
@@ -344,7 +344,7 @@ class DivergenceDetector:
         try:
             # Extract current performance metric from trade history
             current_performance = self._extract_current_trade_performance(
-                trade_history_analysis, current_position_data
+                trade_history_analysis, current_position_data,
             )
 
             # Calculate z-score
@@ -363,12 +363,12 @@ class DivergenceDetector:
 
             # Calculate percentile rank
             percentile_rank = self._estimate_percentile_rank(
-                current_performance, trade_history_analysis.percentiles
+                current_performance, trade_history_analysis.percentiles,
             )
 
             # Assess rarity with trade-specific adjustments
             rarity_score = self._calculate_trade_history_rarity_score(
-                z_score, percentile_rank, trade_history_analysis
+                z_score, percentile_rank, trade_history_analysis,
             )
 
             # Outlier detection
@@ -381,7 +381,7 @@ class DivergenceDetector:
             # Temporal context
             consecutive_periods = self._estimate_consecutive_periods(percentile_rank)
             trend_direction = self._determine_trend_direction(
-                trade_history_analysis.statistics
+                trade_history_analysis.statistics,
             )
 
             return DivergenceMetrics(
@@ -396,7 +396,7 @@ class DivergenceDetector:
             )
 
         except Exception as e:
-            self.logger.error(f"Failed to detect trade history divergence: {e}")
+            self.logger.exception(f"Failed to detect trade history divergence: {e}")
             raise
 
     async def detect_equity_curve_divergence(
@@ -419,7 +419,7 @@ class DivergenceDetector:
         try:
             # Extract current performance metric from equity analysis
             current_performance = self._extract_current_equity_performance(
-                equity_analysis, current_position_data
+                equity_analysis, current_position_data,
             )
 
             # Calculate z-score
@@ -438,12 +438,12 @@ class DivergenceDetector:
 
             # Calculate percentile rank
             percentile_rank = self._estimate_percentile_rank(
-                current_performance, equity_analysis.percentiles
+                current_performance, equity_analysis.percentiles,
             )
 
             # Assess rarity with equity-specific adjustments
             rarity_score = self._calculate_equity_rarity_score(
-                z_score, percentile_rank, equity_analysis
+                z_score, percentile_rank, equity_analysis,
             )
 
             # Outlier detection
@@ -456,7 +456,7 @@ class DivergenceDetector:
             # Temporal context
             consecutive_periods = self._estimate_consecutive_periods(percentile_rank)
             trend_direction = self._determine_trend_direction(
-                equity_analysis.statistics
+                equity_analysis.statistics,
             )
 
             return DivergenceMetrics(
@@ -471,7 +471,7 @@ class DivergenceDetector:
             )
 
         except Exception as e:
-            self.logger.error(f"Failed to detect equity curve divergence: {e}")
+            self.logger.exception(f"Failed to detect equity curve divergence: {e}")
             raise
 
     # Helper methods
@@ -558,7 +558,7 @@ class DivergenceDetector:
         return base_rarity * confidence_multiplier
 
     def _detect_outlier(
-        self, value: float, statistics: Any, percentiles: Any
+        self, value: float, statistics: Any, percentiles: Any,
     ) -> tuple[bool, str]:
         """Detect if value is a statistical outlier"""
         # Method 1: Z-score test
@@ -620,7 +620,7 @@ class DivergenceDetector:
         return strategy_analysis.statistics.median
 
     def _calculate_convergence_score(
-        self, asset_percentile: float, strategy_percentile: float
+        self, asset_percentile: float, strategy_percentile: float,
     ) -> float:
         """Calculate convergence score between two percentiles"""
         # Calculate absolute difference
@@ -770,19 +770,18 @@ class DivergenceDetector:
         """Calculate convergence score across all three layers"""
         # Calculate pairwise convergences
         asset_trade = self._calculate_convergence_score(
-            asset_percentile, trade_history_percentile
+            asset_percentile, trade_history_percentile,
         )
         asset_equity = self._calculate_convergence_score(
-            asset_percentile, equity_curve_percentile
+            asset_percentile, equity_curve_percentile,
         )
         trade_equity = self._calculate_convergence_score(
-            trade_history_percentile, equity_curve_percentile
+            trade_history_percentile, equity_curve_percentile,
         )
 
         # Calculate overall triple convergence as weighted average
-        triple_convergence = asset_trade * 0.4 + asset_equity * 0.3 + trade_equity * 0.3
+        return asset_trade * 0.4 + asset_equity * 0.3 + trade_equity * 0.3
 
-        return triple_convergence
 
     def _calculate_source_weights(
         self,
@@ -795,7 +794,7 @@ class DivergenceDetector:
 
         # Asset layer weight (baseline)
         asset_confidence = min(
-            1.0, asset_analysis.statistics.count / self.config.PREFERRED_SAMPLE_SIZE
+            1.0, asset_analysis.statistics.count / self.config.PREFERRED_SAMPLE_SIZE,
         )
         weights["asset"] = asset_confidence * 0.3
 

@@ -151,7 +151,7 @@ def test_sweep_results_response_structure():
                 "strategy_type": "SMA",
                 "fast_period": 20,
                 "slow_period": 50,
-            }
+            },
         ],
     }
 
@@ -218,7 +218,7 @@ def test_best_results_response_structure():
                 "fast_period": 20,
                 "slow_period": 50,
                 "score": 1.45,
-            }
+            },
         ],
     }
 

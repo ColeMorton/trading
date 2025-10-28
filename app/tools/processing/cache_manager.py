@@ -57,7 +57,7 @@ class IntelligentCacheManager:
         self._metadata = self._load_metadata()
 
     def _generate_cache_key(
-        self, category: str, identifier: str, params: dict[str, Any] | None = None
+        self, category: str, identifier: str, params: dict[str, Any] | None = None,
     ) -> str:
         """Generate a unique cache key from category, identifier, and parameters."""
         key_data = {
@@ -71,7 +71,7 @@ class IntelligentCacheManager:
         return hashlib.sha256(key_string.encode()).hexdigest()[:16]
 
     def _get_cache_path(
-        self, category: str, cache_key: str, extension: str = ".pkl"
+        self, category: str, cache_key: str, extension: str = ".pkl",
     ) -> Path:
         """Get the file path for a cache entry."""
         return self.cache_dir / category / f"{cache_key}{extension}"
@@ -121,7 +121,7 @@ class IntelligentCacheManager:
                 json.dump(data, f, indent=2)
 
         except Exception as e:
-            self.logger.error(f"Failed to save cache metadata: {e}")
+            self.logger.exception(f"Failed to save cache metadata: {e}")
 
     def _is_expired(self, entry: CacheEntry) -> bool:
         """Check if a cache entry has expired."""
@@ -138,7 +138,7 @@ class IntelligentCacheManager:
 
         if total_size > self.max_size_bytes * self.cleanup_threshold:
             self.logger.info(
-                f"Cache cleanup triggered. Current size: {total_size / (1024*1024):.1f}MB"
+                f"Cache cleanup triggered. Current size: {total_size / (1024*1024):.1f}MB",
             )
             self._cleanup_lru()
 
@@ -165,7 +165,7 @@ class IntelligentCacheManager:
 
         self._save_metadata()
         self.logger.info(
-            f"Cache cleanup complete. New size: {current_size / (1024*1024):.1f}MB"
+            f"Cache cleanup complete. New size: {current_size / (1024*1024):.1f}MB",
         )
 
     def get(
@@ -207,7 +207,7 @@ class IntelligentCacheManager:
                     source_mtime = os.path.getmtime(source_file)
                     if source_mtime > entry.created_at:
                         self.logger.debug(
-                            f"Source file newer than cache: {source_file}"
+                            f"Source file newer than cache: {source_file}",
                         )
                         self.invalidate(cache_key)
                         return None
@@ -227,7 +227,7 @@ class IntelligentCacheManager:
             return data
 
         except Exception as e:
-            self.logger.error(f"Failed to load cache entry {cache_key}: {e}")
+            self.logger.exception(f"Failed to load cache entry {cache_key}: {e}")
             self.invalidate(cache_key)
             return None
 
@@ -289,7 +289,7 @@ class IntelligentCacheManager:
             return cache_key
 
         except Exception as e:
-            self.logger.error(f"Failed to cache data {cache_key}: {e}")
+            self.logger.exception(f"Failed to cache data {cache_key}: {e}")
             if filepath.exists():
                 filepath.unlink()
             raise
@@ -303,7 +303,7 @@ class IntelligentCacheManager:
                     entry.filepath.unlink()
             except Exception as e:
                 self.logger.warning(
-                    f"Failed to remove cache file {entry.filepath}: {e}"
+                    f"Failed to remove cache file {entry.filepath}: {e}",
                 )
 
             del self._metadata[cache_key]
@@ -322,7 +322,7 @@ class IntelligentCacheManager:
             self.invalidate(key)
 
         self.logger.info(
-            f"Invalidated {len(keys_to_remove)} entries in category: {category}"
+            f"Invalidated {len(keys_to_remove)} entries in category: {category}",
         )
 
     def clear_expired(self):
@@ -449,7 +449,7 @@ def get_cached_portfolio_results(
 
 
 def cache_computation(
-    computation_name: str, params: dict[str, Any], result_data: Any, ttl_hours: int = 6
+    computation_name: str, params: dict[str, Any], result_data: Any, ttl_hours: int = 6,
 ) -> str:
     """Cache expensive computation results."""
     cache = get_cache_manager()

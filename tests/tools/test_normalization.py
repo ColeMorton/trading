@@ -117,13 +117,13 @@ class TestNormalization(unittest.TestCase):
         result = self.normalizer.robust_scale(data_with_outliers)
         # The median is 3.5, and the IQR is 3.0
         expected = np.array(
-            [-0.83333333, -0.5, -0.16666667, 0.16666667, 0.5, 32.16666667]
+            [-0.83333333, -0.5, -0.16666667, 0.16666667, 0.5, 32.16666667],
         )
         np.testing.assert_array_almost_equal(result, expected)
 
         # Test with clipping
         result = self.normalizer.robust_scale(
-            data_with_outliers, clip=True, clip_range=(-3, 3)
+            data_with_outliers, clip=True, clip_range=(-3, 3),
         )
         expected = np.array([-0.83333333, -0.5, -0.16666667, 0.16666667, 0.5, 3.0])
         np.testing.assert_array_almost_equal(result, expected)
@@ -152,7 +152,7 @@ class TestNormalization(unittest.TestCase):
                 "A": [1.0, 2.0, 3.0, 4.0, 5.0],
                 "B": [10.0, 20.0, 30.0, 40.0, 50.0],
                 "C": ["a", "b", "c", "d", "e"],  # Non-numeric column
-            }
+            },
         )
 
         # Test with pandas DataFrame

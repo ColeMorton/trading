@@ -34,9 +34,11 @@ class ProfileEditorService:
         try:
             return self.config_manager.profile_manager.load_profile(profile_name)
         except FileNotFoundError:
-            raise FileNotFoundError(f"Profile '{profile_name}' not found")
+            msg = f"Profile '{profile_name}' not found"
+            raise FileNotFoundError(msg)
         except Exception as e:
-            raise ValueError(f"Error loading profile: {e}")
+            msg = f"Error loading profile: {e}"
+            raise ValueError(msg)
 
     def create_backup(self, profile_name: str) -> Path:
         """
@@ -56,7 +58,7 @@ class ProfileEditorService:
         return backup_path
 
     def set_field_value(
-        self, profile_data: dict[str, Any], field_path: str, value: str
+        self, profile_data: dict[str, Any], field_path: str, value: str,
     ) -> None:
         """
         Set field value with proper validation and type conversion.
@@ -101,12 +103,14 @@ class ProfileEditorService:
         if field_name == "win_rate":
             float_value = float(value)
             if not 0 <= float_value <= 1:
-                raise ValueError("win_rate must be between 0 and 1")
+                msg = "win_rate must be between 0 and 1"
+                raise ValueError(msg)
             return float_value
         if field_name == "trades":
             int_value = int(value)
             if int_value < 0:
-                raise ValueError("trades must be non-negative")
+                msg = "trades must be non-negative"
+                raise ValueError(msg)
             return int_value
         if field_name in ["strategy_types"]:
             return [t.strip() for t in value.split(",")]
@@ -123,7 +127,7 @@ class ProfileEditorService:
         self.config_manager.profile_manager.save_profile(profile_name, profile_data)
 
     def get_editable_fields(
-        self, profile_data: dict[str, Any]
+        self, profile_data: dict[str, Any],
     ) -> list[tuple[str, Any]]:
         """
         Extract editable fields from profile data.

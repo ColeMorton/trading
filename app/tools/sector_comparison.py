@@ -115,7 +115,7 @@ class SectorComparisonEngine:
                     if sector_files:
                         return dated_dir
                     self.logger.debug(
-                        f"Dated directory {target_date} exists but contains no sector ETF files"
+                        f"Dated directory {target_date} exists but contains no sector ETF files",
                     )
 
         # Fallback to regular portfolios directory
@@ -152,7 +152,7 @@ class SectorComparisonEngine:
                         "sharpe_ratio": float(best_row["Sharpe Ratio"]),
                         "max_drawdown": float(best_row["Max Drawdown [%]"]),
                         "annualized_volatility": float(
-                            best_row["Annualized Volatility"]
+                            best_row["Annualized Volatility"],
                         ),
                         "total_trades": int(best_row["Total Trades"]),
                         "expectancy_per_trade": float(best_row["Expectancy per Trade"]),
@@ -160,13 +160,13 @@ class SectorComparisonEngine:
                     }
 
                     self.logger.info(
-                        f"Loaded benchmark data for {self.benchmark_ticker} (Score: {benchmark_info['score']:.4f})"
+                        f"Loaded benchmark data for {self.benchmark_ticker} (Score: {benchmark_info['score']:.4f})",
                     )
                     return benchmark_info
 
             except Exception as e:
-                self.logger.error(
-                    f"Error loading benchmark {self.benchmark_ticker}: {e!s}"
+                self.logger.exception(
+                    f"Error loading benchmark {self.benchmark_ticker}: {e!s}",
                 )
 
         self.logger.warning(f"Benchmark file not found: {benchmark_file}")
@@ -196,7 +196,7 @@ class SectorComparisonEngine:
 
         if missing_sectors:
             self.logger.debug(
-                f"Missing sector files for current date: {', '.join(missing_sectors)}"
+                f"Missing sector files for current date: {', '.join(missing_sectors)}",
             )
             return False
 
@@ -219,7 +219,7 @@ class SectorComparisonEngine:
 
         if not self.check_current_data_freshness():
             self.logger.info(
-                "Current sector data incomplete - will generate missing data"
+                "Current sector data incomplete - will generate missing data",
             )
             return True
 
@@ -248,7 +248,7 @@ class SectorComparisonEngine:
                 available_dates = self.get_available_dates()
                 if available_dates:
                     self.logger.warning(
-                        f"No current date data found. Available dates: {', '.join(available_dates[:3])}"
+                        f"No current date data found. Available dates: {', '.join(available_dates[:3])}",
                     )
                 else:
                     self.logger.warning("No dated directories found in portfolios_best")
@@ -266,24 +266,24 @@ class SectorComparisonEngine:
                         self.logger.warning(f"Empty or invalid data for {ticker}")
                         missing_tickers.append(ticker)
                 except Exception as e:
-                    self.logger.error(f"Error loading {ticker}: {e!s}")
+                    self.logger.exception(f"Error loading {ticker}: {e!s}")
                     missing_tickers.append(ticker)
             else:
                 self.logger.warning(
-                    f"Portfolio file not found for {ticker}: {portfolio_file}"
+                    f"Portfolio file not found for {ticker}: {portfolio_file}",
                 )
                 missing_tickers.append(ticker)
 
         if missing_tickers:
             self.logger.warning(
-                f"Missing data for tickers: {', '.join(missing_tickers)}"
+                f"Missing data for tickers: {', '.join(missing_tickers)}",
             )
 
         self.logger.info(f"Successfully loaded data for {len(sector_data)} sectors")
         return sector_data
 
     def extract_best_strategies(
-        self, sector_data: dict[str, pd.DataFrame]
+        self, sector_data: dict[str, pd.DataFrame],
     ) -> list[dict]:
         """
         Extract the best performing strategy for each sector based on Score.
@@ -322,7 +322,7 @@ class SectorComparisonEngine:
 
             results.append(strategy_info)
             self.logger.debug(
-                f"{ticker} best score: {strategy_info['score']:.4f} (SMA {strategy_info['short_window']}/{strategy_info['long_window']})"
+                f"{ticker} best score: {strategy_info['score']:.4f} (SMA {strategy_info['short_window']}/{strategy_info['long_window']})",
             )
 
         return results
@@ -367,7 +367,7 @@ class SectorComparisonEngine:
                 1 for s in sorted_strategies if s.get("outperforms_benchmark", False)
             )
             self.logger.info(
-                f"{outperforming}/{len(sorted_strategies)} sectors outperform {self.benchmark_ticker}"
+                f"{outperforming}/{len(sorted_strategies)} sectors outperform {self.benchmark_ticker}",
             )
         return sorted_strategies
 
@@ -389,31 +389,31 @@ class SectorComparisonEngine:
             available_dates = self.get_available_dates()
             if available_dates:
                 self.logger.error(
-                    "No sector data loaded. Try running: trading-cli strategy run -p sectors_current"
+                    "No sector data loaded. Try running: trading-cli strategy run -p sectors_current",
                 )
                 self.logger.error(f"Available dates: {', '.join(available_dates[:5])}")
             else:
                 self.logger.error(
-                    "No sector data found. Run: trading-cli strategy run -p sectors_current"
+                    "No sector data found. Run: trading-cli strategy run -p sectors_current",
                 )
             return []
 
         best_strategies = self.extract_best_strategies(sector_data)
         if not best_strategies:
             self.logger.error(
-                "No valid strategies found - cannot generate comparison matrix"
+                "No valid strategies found - cannot generate comparison matrix",
             )
             return []
 
         ranked_results = self.rank_sectors(best_strategies)
 
         self.logger.info(
-            f"Generated comparison matrix with {len(ranked_results)} sectors"
+            f"Generated comparison matrix with {len(ranked_results)} sectors",
         )
         return ranked_results
 
     def export_to_json(
-        self, comparison_data: list[dict], output_file: str | Path
+        self, comparison_data: list[dict], output_file: str | Path,
     ) -> bool:
         """
         Export comparison data to JSON file.
@@ -436,11 +436,11 @@ class SectorComparisonEngine:
             return True
 
         except Exception as e:
-            self.logger.error(f"Error exporting to JSON: {e!s}")
+            self.logger.exception(f"Error exporting to JSON: {e!s}")
             return False
 
     def export_to_csv(
-        self, comparison_data: list[dict], output_file: str | Path
+        self, comparison_data: list[dict], output_file: str | Path,
     ) -> bool:
         """
         Export comparison data to CSV file.
@@ -467,5 +467,5 @@ class SectorComparisonEngine:
             return True
 
         except Exception as e:
-            self.logger.error(f"Error exporting to CSV: {e!s}")
+            self.logger.exception(f"Error exporting to CSV: {e!s}")
             return False

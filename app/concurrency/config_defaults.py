@@ -84,7 +84,7 @@ class ConcurrencyDefaults:
                 "bootstrap": 30,
                 "bayesian": 25,
             },
-        }
+        },
     )
 
     # Data Quality Thresholds
@@ -114,7 +114,7 @@ class ConcurrencyDefaults:
                 "min_quality_score": 0.4,
                 "max_missing_ratio": 0.1,
             },
-        }
+        },
     )
 
     # General Configuration
@@ -132,7 +132,7 @@ class ConcurrencyDefaults:
             "TICKER_METRICS": True,
             "STRATEGIES": True,
             "STRATEGY_RELATIONSHIPS": True,
-        }
+        },
     )
     ENSURE_COUNTERPART: bool = True
     INITIAL_VALUE: float = 10000.0
@@ -154,13 +154,12 @@ def get_default_config() -> dict[str, Any]:
         config[key] = value
 
     # Add Monte Carlo defaults
-    config = add_monte_carlo_to_defaults(config)
+    return add_monte_carlo_to_defaults(config)
 
-    return config
 
 
 def validate_config(
-    config: dict[str, Any], log: Callable[[str, str], None] | None = None
+    config: dict[str, Any], log: Callable[[str, str], None] | None = None,
 ) -> dict[str, Any]:
     """Validate and normalize configuration.
 
@@ -269,10 +268,10 @@ def validate_config(
 
     # Ensure reasonable limits
     validated["MC_NUM_SIMULATIONS"] = min(
-        1000, validated["MC_NUM_SIMULATIONS"]
+        1000, validated["MC_NUM_SIMULATIONS"],
     )  # Cap at 1000 for beginners
     validated["MC_MAX_PARAMETERS_TO_TEST"] = min(
-        50, validated.get("MC_MAX_PARAMETERS_TO_TEST", 10)
+        50, validated.get("MC_MAX_PARAMETERS_TO_TEST", 10),
     )  # Cap at 50
 
     # Validate confidence level
@@ -321,7 +320,7 @@ def save_config_to_file(
 
 
 def load_config_from_file(
-    file_path: str, log: Callable[[str, str], None] | None = None
+    file_path: str, log: Callable[[str, str], None] | None = None,
 ) -> dict[str, Any]:
     """Load configuration from a JSON file.
 

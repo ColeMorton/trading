@@ -80,7 +80,7 @@ class TestStrategySweepResultMetricModel:
         sweep_id = uuid4()
 
         junction = StrategySweepResultMetric(
-            id=1, sweep_result_id=sweep_id, metric_type_id=5
+            id=1, sweep_result_id=sweep_id, metric_type_id=5,
         )
 
         repr_str = repr(junction)
@@ -162,7 +162,7 @@ class TestMetricTypeRepository:
         repo = StrategySweepRepository(db_manager)
 
         result = repo._parse_metric_type_string(
-            "Most Sharpe Ratio, Most Total Return [%]"
+            "Most Sharpe Ratio, Most Total Return [%]",
         )
 
         assert result == ["Most Sharpe Ratio", "Most Total Return [%]"]
@@ -176,7 +176,7 @@ class TestMetricTypeRepository:
         repo = StrategySweepRepository(db_manager)
 
         result = repo._parse_metric_type_string(
-            "  Most Sharpe Ratio  ,  Most Total Return [%]  "
+            "  Most Sharpe Ratio  ,  Most Total Return [%]  ",
         )
 
         assert result == ["Most Sharpe Ratio", "Most Total Return [%]"]
@@ -207,7 +207,7 @@ class TestMetricTypeRepository:
         repo = StrategySweepRepository(db_manager)
 
         result = repo._parse_metric_type_string(
-            "Most Omega Ratio, Most Sharpe Ratio, Most Total Return [%], Median Win Rate [%]"
+            "Most Omega Ratio, Most Sharpe Ratio, Most Total Return [%], Median Win Rate [%]",
         )
 
         assert result == [
@@ -226,7 +226,7 @@ class TestMetricTypeRepository:
         repo = StrategySweepRepository(db_manager)
 
         result = repo._parse_metric_type_string(
-            "Most Sharpe Ratio,,, Most Total Return [%]"
+            "Most Sharpe Ratio,,, Most Total Return [%]",
         )
 
         # Should filter out empty strings

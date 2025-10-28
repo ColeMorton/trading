@@ -63,7 +63,7 @@ class TestMarketAware4HourConversion:
                 "Low": [95.0 + i * 0.5 for i in range(24)],
                 "Close": [102.0 + i * 0.5 for i in range(24)],
                 "Volume": [1000 + i * 100 for i in range(24)],
-            }
+            },
         )
 
     @pytest.fixture
@@ -79,7 +79,7 @@ class TestMarketAware4HourConversion:
                 "Low": [95.0 + i * 0.5 for i in range(24)],
                 "Close": [102.0 + i * 0.5 for i in range(24)],
                 "Volume": [1000 + i * 100 for i in range(24)],
-            }
+            },
         )
 
     def test_crypto_4hour_conversion_pandas(self, sample_hourly_data_pandas):
@@ -90,7 +90,7 @@ class TestMarketAware4HourConversion:
 
         # Test crypto conversion (should use standard UTC-aligned 4-hour bars)
         result = processor.convert_hourly_to_4hour(
-            sample_hourly_data_pandas, ticker="ETH-USD"
+            sample_hourly_data_pandas, ticker="ETH-USD",
         )
 
         # Should have 6 bars from 24 hours of data (24/4 = 6)
@@ -110,14 +110,14 @@ class TestMarketAware4HourConversion:
         # Check first bar aggregation
         assert result.iloc[0]["Open"] == 100.0  # First open
         assert result.iloc[0]["High"] == max(
-            [105.0 + i * 0.5 for i in range(4)]
+            [105.0 + i * 0.5 for i in range(4)],
         )  # Max high
         assert result.iloc[0]["Low"] == min(
-            [95.0 + i * 0.5 for i in range(4)]
+            [95.0 + i * 0.5 for i in range(4)],
         )  # Min low
         assert result.iloc[0]["Close"] == 102.0 + 3 * 0.5  # Last close of 4-hour period
         assert result.iloc[0]["Volume"] == sum(
-            [1000 + i * 100 for i in range(4)]
+            [1000 + i * 100 for i in range(4)],
         )  # Sum volume
 
     def test_crypto_4hour_conversion_polars(self, sample_hourly_data_polars):
@@ -127,7 +127,7 @@ class TestMarketAware4HourConversion:
 
         # Test crypto conversion
         result = processor.convert_hourly_to_4hour(
-            sample_hourly_data_polars, ticker="BTC-USD"
+            sample_hourly_data_polars, ticker="BTC-USD",
         )
 
         # Should have 6 bars from 24 hours of data
@@ -151,7 +151,7 @@ class TestMarketAware4HourConversion:
 
         # Test stock conversion (should use market-aware filtering)
         result = processor.convert_hourly_to_4hour(
-            sample_hourly_data_pandas, ticker="AAPL"
+            sample_hourly_data_pandas, ticker="AAPL",
         )
 
         # Result should be smaller due to trading hours filtering
@@ -175,7 +175,7 @@ class TestMarketAware4HourConversion:
 
         # Test stock conversion
         result = processor.convert_hourly_to_4hour(
-            sample_hourly_data_polars, ticker="MSFT"
+            sample_hourly_data_polars, ticker="MSFT",
         )
 
         # Result should be processed through market hours filtering
@@ -210,7 +210,7 @@ class TestDataValidation:
                 "Low": [95.0 + i for i in range(6)],
                 "Close": [102.0 + i for i in range(6)],
                 "Volume": [1000 + i * 100 for i in range(6)],
-            }
+            },
         )
 
     def test_crypto_data_validation(self, sample_4hour_data):
@@ -281,7 +281,7 @@ class TestTradingHoursFiltering:
                 "Low": [95.0 + i * 0.1 for i in range(len(dates))],
                 "Close": [102.0 + i * 0.1 for i in range(len(dates))],
                 "Volume": [1000 + i * 10 for i in range(len(dates))],
-            }
+            },
         )
 
     @pytest.fixture
@@ -301,7 +301,7 @@ class TestTradingHoursFiltering:
                 "Low": [95.0 + i * 0.1 for i in range(len(dates))],
                 "Close": [102.0 + i * 0.1 for i in range(len(dates))],
                 "Volume": [1000 + i * 10 for i in range(len(dates))],
-            }
+            },
         )
 
     def test_crypto_no_filtering(self, mixed_hours_data_pandas):
@@ -371,7 +371,7 @@ class TestIntegration:
                 "Low": [95.0 + i * 0.5 for i in range(48)],
                 "Close": [102.0 + i * 0.5 for i in range(48)],
                 "Volume": [1000 + i * 100 for i in range(48)],
-            }
+            },
         )
 
         # Process through complete pipeline
@@ -384,7 +384,7 @@ class TestIntegration:
 
         # 2. Market-aware 4-hour conversion
         four_hour_data = processor.convert_hourly_to_4hour(
-            hourly_data, ticker="ETH-USD"
+            hourly_data, ticker="ETH-USD",
         )
 
         # 3. Validation
@@ -409,7 +409,7 @@ class TestIntegration:
                 "Low": [95.0 + i * 0.5 for i in range(24)],
                 "Close": [102.0 + i * 0.5 for i in range(24)],
                 "Volume": [1000 + i * 100 for i in range(24)],
-            }
+            },
         )
 
         # Process through complete pipeline

@@ -48,9 +48,8 @@ class StrategySweepRepository:
 
         # Handle special cases
         name = name.replace("bnh", "bnh")  # Keep as is
-        name = name.replace("p&l", "pnl")
+        return name.replace("p&l", "pnl")
 
-        return name
 
     def _convert_value(self, value: Any) -> Any:
         """
@@ -70,7 +69,7 @@ class StrategySweepRepository:
             return str(value)
 
         # Convert to Decimal for numeric types to preserve precision
-        if isinstance(value, (int, float)):
+        if isinstance(value, int | float):
             return Decimal(str(value))
 
         # Keep strings as is
@@ -108,11 +107,10 @@ class StrategySweepRepository:
             ON CONFLICT (ticker) DO UPDATE SET ticker = EXCLUDED.ticker
             RETURNING id
         """
-        ticker_id = await connection.fetchval(insert_query, ticker_symbol)
-        return ticker_id
+        return await connection.fetchval(insert_query, ticker_symbol)
 
     async def _get_or_create_strategy_type(
-        self, strategy_type_name: str, connection
+        self, strategy_type_name: str, connection,
     ) -> int:
         """
         Get or create a strategy type and return its ID.
@@ -141,11 +139,10 @@ class StrategySweepRepository:
             ON CONFLICT (strategy_type) DO UPDATE SET strategy_type = EXCLUDED.strategy_type
             RETURNING id
         """
-        strategy_type_id = await connection.fetchval(insert_query, strategy_type_name)
-        return strategy_type_id
+        return await connection.fetchval(insert_query, strategy_type_name)
 
     def _prepare_record(
-        self, result: dict[str, Any], sweep_run_id: UUID, sweep_config: dict[str, Any]
+        self, result: dict[str, Any], sweep_run_id: UUID, sweep_config: dict[str, Any],
     ) -> dict[str, Any]:
         """
         Prepare a single result record for database insertion.
@@ -206,7 +203,7 @@ class StrategySweepRepository:
 
         # Get column names from first record (excluding None metadata columns)
         sample_record = records[0]
-        columns = [col for col in sample_record.keys()]
+        columns = [col for col in sample_record]
 
         # Build column list for SQL with proper quoting for reserved keywords
         column_list = ", ".join(f'"{col}"' for col in columns)
@@ -227,7 +224,8 @@ class StrategySweepRepository:
         try:
             # Get connection from pool
             if not self.db_manager._connection_pool:
-                raise RuntimeError("Database connection pool not initialized")
+                msg = "Database connection pool not initialized"
+                raise RuntimeError(msg)
 
             async with self.db_manager._connection_pool.acquire() as connection:
                 # Start transaction
@@ -241,7 +239,7 @@ class StrategySweepRepository:
                             if "ticker" in record:
                                 ticker_symbol = record["ticker"]
                                 ticker_id = await self._get_or_create_ticker(
-                                    ticker_symbol, connection
+                                    ticker_symbol, connection,
                                 )
                                 record["ticker_id"] = ticker_id
                                 del record["ticker"]
@@ -266,7 +264,7 @@ class StrategySweepRepository:
                                 if strategy_type_name:
                                     strategy_type_id = (
                                         await self._get_or_create_strategy_type(
-                                            strategy_type_name, connection
+                                            strategy_type_name, connection,
                                         )
                                     )
                                     record["strategy_type_id"] = strategy_type_id
@@ -297,17 +295,17 @@ class StrategySweepRepository:
 
                         logger.info(
                             f"Inserted batch {i // batch_size + 1}: "
-                            f"{len(batch)} records (total: {total_inserted})"
+                            f"{len(batch)} records (total: {total_inserted})",
                         )
 
             logger.info(
                 f"Successfully saved {total_inserted} strategy sweep results "
-                f"for sweep_run_id={sweep_run_id}"
+                f"for sweep_run_id={sweep_run_id}",
             )
             return total_inserted
 
         except Exception as e:
-            logger.error(f"Failed to save strategy sweep results: {e}")
+            logger.exception(f"Failed to save strategy sweep results: {e}")
             raise
 
     async def get_sweep_results(self, sweep_run_id: UUID) -> list[dict[str, Any]]:
@@ -334,14 +332,15 @@ class StrategySweepRepository:
 
         try:
             if not self.db_manager._connection_pool:
-                raise RuntimeError("Database connection pool not initialized")
+                msg = "Database connection pool not initialized"
+                raise RuntimeError(msg)
 
             async with self.db_manager._connection_pool.acquire() as connection:
                 rows = await connection.fetch(query, str(sweep_run_id))
                 return [dict(row) for row in rows]
 
         except Exception as e:
-            logger.error(f"Failed to retrieve sweep results: {e}")
+            logger.exception(f"Failed to retrieve sweep results: {e}")
             raise
 
     async def get_recent_sweeps(self, limit: int = 10) -> list[dict[str, Any]]:
@@ -373,14 +372,15 @@ class StrategySweepRepository:
 
         try:
             if not self.db_manager._connection_pool:
-                raise RuntimeError("Database connection pool not initialized")
+                msg = "Database connection pool not initialized"
+                raise RuntimeError(msg)
 
             async with self.db_manager._connection_pool.acquire() as connection:
                 rows = await connection.fetch(query, limit)
                 return [dict(row) for row in rows]
 
         except Exception as e:
-            logger.error(f"Failed to retrieve recent sweeps: {e}")
+            logger.exception(f"Failed to retrieve recent sweeps: {e}")
             raise
 
     def _parse_metric_type_string(self, metric_type_str: str | None) -> list[str]:
@@ -403,7 +403,7 @@ class StrategySweepRepository:
         return [name for name in metric_names if name]
 
     async def _get_metric_type_ids(
-        self, metric_names: list[str], connection
+        self, metric_names: list[str], connection,
     ) -> dict[str, int]:
         """
         Get metric type IDs for given metric names.
@@ -493,7 +493,7 @@ class StrategySweepRepository:
 
         # Build INSERT query dynamically based on first record
         sample_record = records[0]
-        columns = [col for col in sample_record.keys()]
+        columns = [col for col in sample_record]
 
         # Build column list for SQL with proper quoting
         column_list = ", ".join(f'"{col}"' for col in columns)
@@ -514,7 +514,8 @@ class StrategySweepRepository:
 
         try:
             if not self.db_manager._connection_pool:
-                raise RuntimeError("Database connection pool not initialized")
+                msg = "Database connection pool not initialized"
+                raise RuntimeError(msg)
 
             async with self.db_manager._connection_pool.acquire() as connection:
                 async with connection.transaction():
@@ -527,7 +528,7 @@ class StrategySweepRepository:
                             if "ticker" in record:
                                 ticker_symbol = record["ticker"]
                                 ticker_id = await self._get_or_create_ticker(
-                                    ticker_symbol, connection
+                                    ticker_symbol, connection,
                                 )
                                 record["ticker_id"] = ticker_id
                                 del record["ticker"]
@@ -553,7 +554,7 @@ class StrategySweepRepository:
                                 if strategy_type_name:
                                     strategy_type_id = (
                                         await self._get_or_create_strategy_type(
-                                            strategy_type_name, connection
+                                            strategy_type_name, connection,
                                         )
                                     )
                                     record["strategy_type_id"] = strategy_type_id
@@ -588,39 +589,39 @@ class StrategySweepRepository:
                             metric_type_str = record.get("metric_type")
                             if metric_type_str:
                                 metric_names = self._parse_metric_type_string(
-                                    metric_type_str
+                                    metric_type_str,
                                 )
                                 if metric_names:
                                     # Get metric type IDs
                                     metric_type_map = await self._get_metric_type_ids(
-                                        metric_names, connection
+                                        metric_names, connection,
                                     )
                                     metric_type_ids = list(metric_type_map.values())
 
                                     # Save associations
                                     await self._save_metric_type_associations(
-                                        str(result_id), metric_type_ids, connection
+                                        str(result_id), metric_type_ids, connection,
                                     )
 
                             total_inserted += 1
 
                         logger.info(
                             f"Inserted batch {i // batch_size + 1}: "
-                            f"{len(batch)} records (total: {total_inserted})"
+                            f"{len(batch)} records (total: {total_inserted})",
                         )
 
             logger.info(
                 f"Successfully saved {total_inserted} strategy sweep results "
-                f"with metric type associations for sweep_run_id={sweep_run_id}"
+                f"with metric type associations for sweep_run_id={sweep_run_id}",
             )
             return total_inserted
 
         except Exception as e:
-            logger.error(f"Failed to save strategy sweep results: {e}")
+            logger.exception(f"Failed to save strategy sweep results: {e}")
             raise
 
     async def get_sweep_results_with_metrics(
-        self, sweep_run_id: UUID
+        self, sweep_run_id: UUID,
     ) -> list[dict[str, Any]]:
         """
         Retrieve all results for a specific sweep run with metric types.
@@ -662,14 +663,15 @@ class StrategySweepRepository:
 
         try:
             if not self.db_manager._connection_pool:
-                raise RuntimeError("Database connection pool not initialized")
+                msg = "Database connection pool not initialized"
+                raise RuntimeError(msg)
 
             async with self.db_manager._connection_pool.acquire() as connection:
                 rows = await connection.fetch(query, str(sweep_run_id))
                 return [dict(row) for row in rows]
 
         except Exception as e:
-            logger.error(f"Failed to retrieve sweep results with metrics: {e}")
+            logger.exception(f"Failed to retrieve sweep results with metrics: {e}")
             raise
 
     async def get_all_metric_types(self) -> list[dict[str, Any]]:
@@ -690,14 +692,15 @@ class StrategySweepRepository:
 
         try:
             if not self.db_manager._connection_pool:
-                raise RuntimeError("Database connection pool not initialized")
+                msg = "Database connection pool not initialized"
+                raise RuntimeError(msg)
 
             async with self.db_manager._connection_pool.acquire() as connection:
                 rows = await connection.fetch(query)
                 return [dict(row) for row in rows]
 
         except Exception as e:
-            logger.error(f"Failed to retrieve metric types: {e}")
+            logger.exception(f"Failed to retrieve metric types: {e}")
             raise
 
     async def find_results_by_metric_type(
@@ -739,18 +742,19 @@ class StrategySweepRepository:
 
         try:
             if not self.db_manager._connection_pool:
-                raise RuntimeError("Database connection pool not initialized")
+                msg = "Database connection pool not initialized"
+                raise RuntimeError(msg)
 
             async with self.db_manager._connection_pool.acquire() as connection:
                 rows = await connection.fetch(query, *params)
                 return [dict(row) for row in rows]
 
         except Exception as e:
-            logger.error(f"Failed to find results by metric type: {e}")
+            logger.exception(f"Failed to find results by metric type: {e}")
             raise
 
     async def compute_and_save_best_selections(
-        self, sweep_run_id: UUID, algorithm: str = "parameter_consistency"
+        self, sweep_run_id: UUID, algorithm: str = "parameter_consistency",
     ) -> int:
         """
         Compute best portfolio for each ticker+strategy in sweep and save to database.
@@ -778,7 +782,8 @@ class StrategySweepRepository:
 
         try:
             if not self.db_manager._connection_pool:
-                raise RuntimeError("Database connection pool not initialized")
+                msg = "Database connection pool not initialized"
+                raise RuntimeError(msg)
 
             # Get all results for this sweep
             results = await self.get_sweep_results_with_metrics(sweep_run_id)
@@ -804,7 +809,7 @@ class StrategySweepRepository:
             best_selections = []
             for ticker, strategy_type in combinations:
                 selection = selection_service.find_best_for_ticker_strategy(
-                    results, ticker, strategy_type
+                    results, ticker, strategy_type,
                 )
 
                 if selection:
@@ -816,10 +821,10 @@ class StrategySweepRepository:
                     for ticker_symbol, strategy_type_name, selection in best_selections:
                         # Get ticker_id and strategy_type_id
                         ticker_id = await self._get_or_create_ticker(
-                            ticker_symbol, connection
+                            ticker_symbol, connection,
                         )
                         strategy_type_id = await self._get_or_create_strategy_type(
-                            strategy_type_name, connection
+                            strategy_type_name, connection,
                         )
 
                         best_result = selection["best_result"]
@@ -873,12 +878,12 @@ class StrategySweepRepository:
                         )
 
             logger.info(
-                f"Saved {len(best_selections)} best selections for sweep_run_id={sweep_run_id}"
+                f"Saved {len(best_selections)} best selections for sweep_run_id={sweep_run_id}",
             )
             return len(best_selections)
 
         except Exception as e:
-            logger.error(f"Failed to compute and save best selections: {e}")
+            logger.exception(f"Failed to compute and save best selections: {e}")
             raise
 
     async def get_best_selections(self, sweep_run_id: UUID) -> list[dict[str, Any]]:
@@ -927,18 +932,19 @@ class StrategySweepRepository:
 
         try:
             if not self.db_manager._connection_pool:
-                raise RuntimeError("Database connection pool not initialized")
+                msg = "Database connection pool not initialized"
+                raise RuntimeError(msg)
 
             async with self.db_manager._connection_pool.acquire() as connection:
                 rows = await connection.fetch(query, str(sweep_run_id))
                 return [dict(row) for row in rows]
 
         except Exception as e:
-            logger.error(f"Failed to get best selections: {e}")
+            logger.exception(f"Failed to get best selections: {e}")
             raise
 
     async def get_best_result_for_ticker(
-        self, sweep_run_id: UUID, ticker: str, strategy_type: str
+        self, sweep_run_id: UUID, ticker: str, strategy_type: str,
     ) -> dict[str, Any] | None:
         """
         Get the best result for specific ticker and strategy.
@@ -972,20 +978,21 @@ class StrategySweepRepository:
 
         try:
             if not self.db_manager._connection_pool:
-                raise RuntimeError("Database connection pool not initialized")
+                msg = "Database connection pool not initialized"
+                raise RuntimeError(msg)
 
             async with self.db_manager._connection_pool.acquire() as connection:
                 row = await connection.fetchrow(
-                    query, str(sweep_run_id), ticker, strategy_type
+                    query, str(sweep_run_id), ticker, strategy_type,
                 )
                 return dict(row) if row else None
 
         except Exception as e:
-            logger.error(f"Failed to get best result for ticker: {e}")
+            logger.exception(f"Failed to get best result for ticker: {e}")
             raise
 
     async def get_sweep_results_with_best_flag(
-        self, sweep_run_id: UUID
+        self, sweep_run_id: UUID,
     ) -> list[dict[str, Any]]:
         """
         Get all sweep results with is_best boolean flag.
@@ -1022,12 +1029,13 @@ class StrategySweepRepository:
 
         try:
             if not self.db_manager._connection_pool:
-                raise RuntimeError("Database connection pool not initialized")
+                msg = "Database connection pool not initialized"
+                raise RuntimeError(msg)
 
             async with self.db_manager._connection_pool.acquire() as connection:
                 rows = await connection.fetch(query, str(sweep_run_id))
                 return [dict(row) for row in rows]
 
         except Exception as e:
-            logger.error(f"Failed to get results with best flag: {e}")
+            logger.exception(f"Failed to get results with best flag: {e}")
             raise

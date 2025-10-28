@@ -89,7 +89,7 @@ class TestEquityDataOptimizer:
 
         # Values should be approximately equal even if type changed
         np.testing.assert_array_almost_equal(
-            optimized_data.equity, equity_data.equity, decimal=5
+            optimized_data.equity, equity_data.equity, decimal=5,
         )
 
     def test_optimize_equity_data_large_values(self):
@@ -268,7 +268,7 @@ class TestStreamingEquityExporter:
             log_messages.append((msg, level))
 
         results = exporter.stream_export_equity_data(
-            portfolios, mock_log, export_config
+            portfolios, mock_log, export_config,
         )
 
         assert results["total_portfolios"] == 5
@@ -300,7 +300,7 @@ class TestStreamingEquityExporter:
             log_messages.append((msg, level))
 
         results = exporter.stream_export_equity_data(
-            portfolios, mock_log, export_config
+            portfolios, mock_log, export_config,
         )
 
         assert results["total_portfolios"] == 7
@@ -324,7 +324,7 @@ class TestStreamingEquityExporter:
         mock_export.return_value = True
 
         config = MemoryOptimizationConfig(
-            chunk_size=2, optimize_data_types=False, enable_streaming=False
+            chunk_size=2, optimize_data_types=False, enable_streaming=False,
         )
         exporter = StreamingEquityExporter(config)
 
@@ -361,7 +361,7 @@ class TestStreamingEquityExporter:
             pass
 
         results = exporter.stream_export_equity_data(
-            portfolios, mock_log, export_config
+            portfolios, mock_log, export_config,
         )
 
         assert results["total_portfolios"] == 3
@@ -407,7 +407,7 @@ class TestMemoryEfficientExportFunction:
         # Should create exporter and call stream_export_equity_data
         mock_exporter_class.assert_called_once()
         mock_exporter.stream_export_equity_data.assert_called_once_with(
-            portfolios, mock_log, config
+            portfolios, mock_log, config,
         )
         assert result == {"exported_count": 5}
 
@@ -422,7 +422,7 @@ class TestMemoryAnalysis:
         # Mix of portfolios with and without equity data
         for i in range(5):
             timestamp = pd.date_range(
-                "2023-01-01", periods=100 * (i + 1), freq="D"
+                "2023-01-01", periods=100 * (i + 1), freq="D",
             )  # Varying sizes
             equity_data = EquityData(
                 timestamp=timestamp,
@@ -517,7 +517,7 @@ class TestMemoryAnalysis:
                     mfe=np.ones(10, dtype=np.float32),
                     mae=np.ones(10, dtype=np.float32),
                 ),
-            }
+            },
         ]
 
         analysis = analyze_memory_requirements(small_portfolios)

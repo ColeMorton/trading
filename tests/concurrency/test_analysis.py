@@ -37,7 +37,7 @@ class TestConcurrencyAnalysis(ConcurrencyTestCase, MockDataMixin):
                 "Close": prices1,
                 "Volume": np.random.randint(1000, 10000, size=100),
                 "Position": np.random.choice([0, 1], size=100),
-            }
+            },
         )
 
         # Create data for second strategy with all required columns
@@ -50,7 +50,7 @@ class TestConcurrencyAnalysis(ConcurrencyTestCase, MockDataMixin):
                 "Close": prices2,
                 "Volume": np.random.randint(1000, 10000, size=100),
                 "Position": np.random.choice([0, 1], size=100),
-            }
+            },
         )
 
         data_list = [data1, data2]

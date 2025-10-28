@@ -31,11 +31,11 @@ class ScannerAdapter:
 
         if self._log is None:
             self._log, self._log_close, _, _ = setup_logging(
-                "ma_cross_scanner_adapter", "scanner_adapter.log"
+                "ma_cross_scanner_adapter", "scanner_adapter.log",
             )
 
     def process_portfolio_file(
-        self, portfolio_path: str, config: dict[str, Any]
+        self, portfolio_path: str, config: dict[str, Any],
     ) -> AnalysisResult:
         """
         Process a portfolio CSV file using the existing scanner logic.
@@ -93,7 +93,7 @@ class ScannerAdapter:
             raise
 
     def _process_ticker_row(
-        self, ticker: str, row: dict[str, Any], config: dict[str, Any]
+        self, ticker: str, row: dict[str, Any], config: dict[str, Any],
     ) -> list[TickerResult]:
         """
         Process a single row from the portfolio using existing scanner logic.
@@ -121,7 +121,7 @@ class ScannerAdapter:
                             signal_date=datetime.now(),
                             signal_type="BUY",  # Would need to determine from actual data
                             current=True,
-                        )
+                        ),
                     )
                     results.append(sma_result)
 
@@ -136,7 +136,7 @@ class ScannerAdapter:
                             signal_date=datetime.now(),
                             signal_type="BUY",  # Would need to determine from actual data
                             current=True,
-                        )
+                        ),
                     )
                     results.append(ema_result)
 
@@ -251,7 +251,8 @@ class ScannerAdapter:
 
         upper_tf = timeframe.upper()
         if upper_tf not in mapping:
-            raise ValueError(f"Invalid timeframe: {timeframe}")
+            msg = f"Invalid timeframe: {timeframe}"
+            raise ValueError(msg)
 
         return mapping[upper_tf]
 
@@ -279,7 +280,7 @@ class ScannerAdapter:
             "slow_period": getattr(portfolio_result, "slow_period", 0),
             "beats_bnh_pct": getattr(portfolio_result, "beats_bnh_pct", 0.0),
             "expectancy_per_trade": getattr(
-                portfolio_result, "expectancy_per_trade", 0.0
+                portfolio_result, "expectancy_per_trade", 0.0,
             ),
         }
 
@@ -315,7 +316,7 @@ def run_scanner_with_config(config: dict[str, Any]) -> list[dict[str, Any]]:
                             "signal_date": signal.signal_date.isoformat(),
                             "signal_type": signal.signal_type,
                             "current": signal.current,
-                        }
+                        },
                     )
 
         return signals

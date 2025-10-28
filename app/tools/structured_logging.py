@@ -119,7 +119,7 @@ class StructuredLogger:
         from logging.handlers import RotatingFileHandler
 
         file_handler = RotatingFileHandler(
-            self.log_path, maxBytes=max_file_size, backupCount=backup_count
+            self.log_path, maxBytes=max_file_size, backupCount=backup_count,
         )
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
@@ -168,7 +168,7 @@ class StructuredLogger:
         }
 
     def _format_json_log(
-        self, level: str, message: str, context: dict[str, Any] | None = None
+        self, level: str, message: str, context: dict[str, Any] | None = None,
     ) -> str:
         """Format a log entry as JSON.
 
@@ -294,7 +294,7 @@ class StructuredLogger:
             self.logger.critical(message, exc_info=exc_info)
 
     def log(
-        self, message: str, level: str = "info", context: dict[str, Any] | None = None
+        self, message: str, level: str = "info", context: dict[str, Any] | None = None,
     ) -> None:
         """Generic logging function with level as string.
 
@@ -405,7 +405,7 @@ def log_method(logger: StructuredLogger | None = None):
 
                 # Log success and result
                 logger.debug(
-                    f"Method completed: {func.__name__} in {execution_time:.4f} seconds"
+                    f"Method completed: {func.__name__} in {execution_time:.4f} seconds",
                 )
                 logger.log_method_result(func.__name__, result)
 
@@ -514,7 +514,7 @@ def create_logger(
 
     # Create convenience functions
     def log(
-        message: str, level: str = "info", context: dict[str, Any] | None = None
+        message: str, level: str = "info", context: dict[str, Any] | None = None,
     ) -> None:
         logger.log(message, level, context)
 

@@ -316,7 +316,7 @@ class TestJobManagement:
 
         print(f"✓ Status retrieved: {status_data['status']}")
         print(
-            f"  Command: {status_data['command_group']}.{status_data['command_name']}"
+            f"  Command: {status_data['command_group']}.{status_data['command_name']}",
         )
 
         # Step 3: Verify in list

@@ -77,30 +77,39 @@ def validate_config(config: dict) -> bool:
         ValueError: If configuration parameters are invalid
     """
     if not 0.1 <= config.get("CHANGE_PCT_START", 2.00) <= 15.00:
-        raise ValueError("CHANGE_PCT_START must be between 0.10 and 15.00")
+        msg = "CHANGE_PCT_START must be between 0.10 and 15.00"
+        raise ValueError(msg)
 
     if not 0.1 <= config.get("CHANGE_PCT_END", 15.00) <= 21.01:
-        raise ValueError("CHANGE_PCT_END must be between 0.10 and 21.01")
+        msg = "CHANGE_PCT_END must be between 0.10 and 21.01"
+        raise ValueError(msg)
 
     if config.get("CHANGE_PCT_END", 15.00) <= config.get("CHANGE_PCT_START", 2.00):
-        raise ValueError("CHANGE_PCT_END must be greater than CHANGE_PCT_START")
+        msg = "CHANGE_PCT_END must be greater than CHANGE_PCT_START"
+        raise ValueError(msg)
 
     if not 0.01 <= config.get("CHANGE_PCT_STEP", 0.01) <= 5.00:
-        raise ValueError("CHANGE_PCT_STEP must be between 0.01 and 5.00")
+        msg = "CHANGE_PCT_STEP must be between 0.01 and 5.00"
+        raise ValueError(msg)
 
     if not 2 <= config.get("RSI_WINDOW", 14) <= 50:
-        raise ValueError("RSI_WINDOW must be between 2 and 50")
+        msg = "RSI_WINDOW must be between 2 and 50"
+        raise ValueError(msg)
 
     if not 1 <= config.get("RSI_START", 30) <= 100:
-        raise ValueError("RSI_START must be between 1 and 100")
+        msg = "RSI_START must be between 1 and 100"
+        raise ValueError(msg)
 
     if not 1 <= config.get("RSI_END", 81) <= 100:
-        raise ValueError("RSI_END must be between 1 and 100")
+        msg = "RSI_END must be between 1 and 100"
+        raise ValueError(msg)
 
     if config.get("RSI_END", 81) <= config.get("RSI_START", 30):
-        raise ValueError("RSI_END must be greater than RSI_START")
+        msg = "RSI_END must be greater than RSI_START"
+        raise ValueError(msg)
 
     if not 1 <= config.get("RSI_STEP", 1) <= 10:
-        raise ValueError("RSI_STEP must be between 1 and 10")
+        msg = "RSI_STEP must be between 1 and 10"
+        raise ValueError(msg)
 
     return True

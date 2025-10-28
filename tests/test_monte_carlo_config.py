@@ -86,7 +86,7 @@ class TestMonteCarloConfig:
     def test_configuration_to_dict(self):
         """Test configuration to dictionary conversion."""
         config = MonteCarloConfig(
-            num_simulations=25, confidence_level=0.90, max_parameters_to_test=3
+            num_simulations=25, confidence_level=0.90, max_parameters_to_test=3,
         )
 
         config_dict = config.to_dict()
@@ -180,7 +180,7 @@ class TestMonteCarloErrorHandling:
             {
                 "Date": [pl.date(2023, 1, 1), pl.date(2023, 1, 2)],
                 "Close": [100.0, 101.0],
-            }
+            },
         )
 
     @pytest.fixture
@@ -231,7 +231,7 @@ class TestMonteCarloErrorHandling:
             {
                 "Date": [pl.date(2023, 1, 1), pl.date(2023, 1, 2), pl.date(2023, 1, 3)],
                 "Close": [100.0, 101.0, 102.0],
-            }
+            },
         )
 
         # Test windows larger than data
@@ -253,7 +253,7 @@ class TestMonteCarloErrorHandling:
             {
                 "Date": [pl.date(2023, 1, 1), pl.date(2023, 1, 2)],
                 "Price": [100.0, 101.0],  # Wrong column name
-            }
+            },
         )
 
         # Should handle gracefully and return zero performance
@@ -275,12 +275,12 @@ class TestMonteCarloErrorHandling:
             {
                 "Date": [pl.date(2023, 1, 1), pl.date(2023, 1, 2), pl.date(2023, 1, 3)],
                 "Close": [100.0, 101.0, 102.0],
-            }
+            },
         )
 
         # Test MACD without signal period
         invalid_macd_config = {
-            "STRATEGY_TYPE": "MACD"
+            "STRATEGY_TYPE": "MACD",
             # Missing SIGNAL_PERIOD
         }
 
@@ -337,7 +337,7 @@ class TestMonteCarloErrorHandling:
             {
                 "Date": [pl.date(2023, 1, 1), pl.date(2023, 1, 2), pl.date(2023, 1, 3)],
                 "Close": [100.0, 101.0, 102.0],
-            }
+            },
         )
 
         analyzer.analyze_parameter_stability(
@@ -368,7 +368,7 @@ class TestMonteCarloEdgeCases:
             {
                 "Date": [pl.date(2023, 1, 1), pl.date(2023, 1, 2), pl.date(2023, 1, 3)],
                 "Close": [100.0, 101.0, 102.0],
-            }
+            },
         )
 
         # Test with duplicate parameters
@@ -392,7 +392,7 @@ class TestMonteCarloEdgeCases:
             {
                 "Date": [pl.date(2023, 1, 1), pl.date(2023, 1, 2), pl.date(2023, 1, 3)],
                 "Close": [100.0, 101.0, 102.0],
-            }
+            },
         )
 
         result = analyzer.analyze_parameter_stability(
@@ -416,7 +416,7 @@ class TestMonteCarloEdgeCases:
             {
                 "Date": [pl.date(2023, 1, 1) + pl.duration(days=i) for i in range(20)],
                 "Close": [100.0] * 20,  # Constant price
-            }
+            },
         )
 
         result = analyzer.analyze_parameter_stability(
@@ -452,7 +452,7 @@ class TestMonteCarloEdgeCases:
                     pl.date(2023, 1, 1) + pl.duration(days=i) for i in range(n_days)
                 ],
                 "Close": prices,
-            }
+            },
         )
 
         result = analyzer.analyze_parameter_stability(

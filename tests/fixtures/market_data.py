@@ -79,13 +79,13 @@ def create_realistic_price_data(
             "Close": closes,
             "Volume": volumes,
             "Ticker": ticker,
-        }
+        },
     )
     return pl.from_pandas(df)
 
 
 def create_crossover_scenario_data(
-    ticker: str = "TEST", crossover_day: int = 50
+    ticker: str = "TEST", crossover_day: int = 50,
 ) -> pl.DataFrame:
     """
     Create data with a clear MA crossover at specified day.
@@ -126,7 +126,7 @@ def create_crossover_scenario_data(
             "Close": prices,
             "Volume": np.random.randint(100000, 1000000, days),
             "Ticker": ticker,
-        }
+        },
     )
     return pl.from_pandas(df)
 
@@ -203,6 +203,6 @@ def create_invalid_test_data() -> pl.DataFrame:
             "Date": ["invalid_date", "2023-01-02"],
             "Close": [None, "not_a_number"],
             "Volume": [-100, "negative_volume"],
-        }
+        },
     )
     return pl.from_pandas(df)

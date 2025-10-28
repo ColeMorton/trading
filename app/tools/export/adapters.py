@@ -164,7 +164,8 @@ def save_json_report_adapter(
 
     if result.success:
         return result.path
-    raise OSError(f"Failed to save report: {result.error_message}")
+    msg = f"Failed to save report: {result.error_message}"
+    raise OSError(msg)
 
 
 def migrate_to_export_manager(

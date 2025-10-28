@@ -28,7 +28,7 @@ class TestAutoDownloadTriggers:
     """Test that auto-download is triggered in correct scenarios."""
 
     def test_download_triggered_when_file_missing(
-        self, tmp_path, mock_yfinance_success_data
+        self, tmp_path, mock_yfinance_success_data,
     ):
         """CRITICAL: Download must trigger when price file doesn't exist."""
         # Setup
@@ -128,7 +128,8 @@ class TestRetryMechanism:
             call_count += 1
             # Prevent actual infinite loop in test
             if call_count > 3:
-                raise Exception("Too many retries!")
+                msg = "Too many retries!"
+                raise Exception(msg)
             return original_analyze(ticker, _retry)
 
         # Mock download that succeeds but data still insufficient
@@ -213,7 +214,7 @@ class TestDownloadSuccess:
                 {
                     "Date": dates,
                     "Close": np.random.uniform(90, 110, 1260),
-                }
+                },
             )
 
             def save_file(ticker, config, log):
@@ -232,7 +233,7 @@ class TestDownloadSuccess:
 
             # Verify file can be read back
             loaded_data = pd.read_csv(
-                price_file, parse_dates=["Date"], index_col="Date"
+                price_file, parse_dates=["Date"], index_col="Date",
             )
             assert "Close" in loaded_data.columns
             assert len(loaded_data) == 1260
@@ -315,7 +316,7 @@ class TestMultiIndexHandling:
     """Test handling of MultiIndex columns from yfinance."""
 
     def test_multiindex_columns_handled_correctly(
-        self, tmp_path, mock_yfinance_multiindex_data
+        self, tmp_path, mock_yfinance_multiindex_data,
     ):
         """CRITICAL: yfinance sometimes returns MultiIndex columns that must be flattened."""
         # This test verifies the download_data utility handles MultiIndex correctly
@@ -343,7 +344,7 @@ class TestMultiIndexHandling:
                     {
                         "Date": dates,
                         "Close": np.random.uniform(90, 110, 1260),
-                    }
+                    },
                 )
                 data.to_csv(price_file, index=False)
                 return MagicMock(is_empty=lambda: False)
@@ -383,7 +384,7 @@ class TestDateFormatPreservation:
                     {
                         "Date": dates.strftime("%Y-%m-%d"),  # String format
                         "Close": np.random.uniform(90, 110, 1260),
-                    }
+                    },
                 )
                 data.to_csv(price_file, index=False)
                 return MagicMock(is_empty=lambda: False)
@@ -421,7 +422,7 @@ class TestDateFormatPreservation:
                     {
                         "Date": dates,  # Pandas will save as ISO format
                         "Close": np.random.uniform(90, 110, 1260),
-                    }
+                    },
                 )
                 data.to_csv(price_file, index=False)
                 return MagicMock(is_empty=lambda: False)

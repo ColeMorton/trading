@@ -16,9 +16,8 @@ def get_project_root() -> str:
     current_file = os.path.abspath(__file__)
     tools_dir = os.path.dirname(current_file)
     app_dir = os.path.dirname(tools_dir)
-    project_root = os.path.dirname(app_dir)
+    return os.path.dirname(app_dir)
 
-    return project_root
 
 
 def resolve_path(path: str, base_dir: str | None | None = None) -> str:

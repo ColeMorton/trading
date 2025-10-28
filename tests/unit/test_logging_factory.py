@@ -99,7 +99,8 @@ def test_logger_with_exception():
     logger = get_logger(__name__)
 
     try:
-        raise ValueError("Test error")
+        msg = "Test error"
+        raise ValueError(msg)
     except ValueError as e:
         # Should not raise
         logger.error("test_exception", error=str(e), exc_info=True)

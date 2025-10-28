@@ -43,7 +43,7 @@ def load_existing_results(config: dict, log: Callable) -> tuple[set, list[dict]]
                 existing_tickers = set(existing_results["TICKER"].to_list())
                 results_data = existing_results.to_dicts()
                 log(
-                    f"Found existing results from today with {len(existing_tickers)} tickers"
+                    f"Found existing results from today with {len(existing_tickers)} tickers",
                 )
             except Exception as e:
                 log(f"Error reading existing results: {e}", "error")
@@ -102,7 +102,7 @@ def process_ticker(ticker: str, row: dict, config: dict, log: Callable) -> dict:
 
 
 def export_results(
-    results_data: list[dict], original_df: pl.DataFrame, config: dict, log: Callable
+    results_data: list[dict], original_df: pl.DataFrame, config: dict, log: Callable,
 ) -> None:
     """
     Export scanner results to CSV in a date-specific subdirectory.
@@ -125,7 +125,7 @@ def export_results(
         # Track SMA signals
         if result["SMA"]:
             log(
-                f"SMA Signal - {ticker}: Fast={result['SMA_FAST']}, Slow={result['SMA_SLOW']}"
+                f"SMA Signal - {ticker}: Fast={result['SMA_FAST']}, Slow={result['SMA_SLOW']}",
             )
             signal_configs.append(
                 {
@@ -133,13 +133,13 @@ def export_results(
                     "use_sma": True,
                     "fast_period": result["SMA_FAST"],
                     "slow_period": result["SMA_SLOW"],
-                }
+                },
             )
 
         # Track EMA signals
         if result["EMA"]:
             log(
-                f"EMA Signal - {ticker}: Fast={result['EMA_FAST']}, Slow={result['EMA_SLOW']}"
+                f"EMA Signal - {ticker}: Fast={result['EMA_FAST']}, Slow={result['EMA_SLOW']}",
             )
             signal_configs.append(
                 {
@@ -147,7 +147,7 @@ def export_results(
                     "use_sma": False,
                     "fast_period": result["EMA_FAST"],
                     "slow_period": result["EMA_SLOW"],
-                }
+                },
             )
 
     if not signal_configs:
@@ -285,10 +285,10 @@ def export_results(
                     and "SMA_SLOW" in portfolio_df.columns
                 ):
                     filter_conditions.append(
-                        pl.col("SMA_FAST") == signal_config["fast_period"]
+                        pl.col("SMA_FAST") == signal_config["fast_period"],
                     )
                     filter_conditions.append(
-                        pl.col("SMA_SLOW") == signal_config["slow_period"]
+                        pl.col("SMA_SLOW") == signal_config["slow_period"],
                     )
             # For EMA, check EMA_FAST and EMA_SLOW
             elif (
@@ -296,10 +296,10 @@ def export_results(
                 and "EMA_SLOW" in portfolio_df.columns
             ):
                 filter_conditions.append(
-                    pl.col("EMA_FAST") == signal_config["fast_period"]
+                    pl.col("EMA_FAST") == signal_config["fast_period"],
                 )
                 filter_conditions.append(
-                    pl.col("EMA_SLOW") == signal_config["slow_period"]
+                    pl.col("EMA_SLOW") == signal_config["slow_period"],
                 )
 
         # Combine all filter conditions
@@ -316,7 +316,7 @@ def export_results(
             log(
                 f"Warning: No matching row found for {signal_config['ticker']} with "
                 f"{'SMA' if signal_config['use_sma'] else 'EMA'} "
-                f"{signal_config['fast_period']}/{signal_config['slow_period']}"
+                f"{signal_config['fast_period']}/{signal_config['slow_period']}",
             )
 
     # Combine all matching rows

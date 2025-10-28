@@ -54,13 +54,13 @@ class ConfigManager:
         # Initialize configuration storage
         self.configs: dict[str, ConfigDict] = {}
         self.config_schemas: dict[
-            str, type[Any]
+            str, type[Any],
         ] = {}  # Changed from Type[TypedDict] to Type[Any]
         self.config_docs: dict[str, dict[str, str]] = {}
         self.config_presets: dict[str, dict[str, ConfigDict]] = {}
 
         self.logger.info(
-            f"Configuration manager initialized with config directory: {self.config_dir}"
+            f"Configuration manager initialized with config directory: {self.config_dir}",
         )
 
     def _get_project_root(self) -> str:
@@ -144,7 +144,8 @@ class ConfigManager:
             description: Description of the preset
         """
         if config_name not in self.config_schemas:
-            raise ValueError(f"Configuration schema {config_name} not registered")
+            msg = f"Configuration schema {config_name} not registered"
+            raise ValueError(msg)
 
         # Initialize preset storage for this config if needed
         if config_name not in self.config_presets:
@@ -170,10 +171,12 @@ class ConfigManager:
             ValueError: If the preset or config name doesn't exist
         """
         if config_name not in self.config_presets:
-            raise ValueError(f"No presets registered for {config_name}")
+            msg = f"No presets registered for {config_name}"
+            raise ValueError(msg)
 
         if preset_name not in self.config_presets[config_name]:
-            raise ValueError(f"Preset '{preset_name}' not found for {config_name}")
+            msg = f"Preset '{preset_name}' not found for {config_name}"
+            raise ValueError(msg)
 
         # Get preset config
         preset_config = self.config_presets[config_name][preset_name]["config"]
@@ -235,7 +238,8 @@ class ConfigManager:
             ConfigValidationError: If validation fails
         """
         if config_name not in self.configs:
-            raise ValueError(f"Configuration section {config_name} not found")
+            msg = f"Configuration section {config_name} not found"
+            raise ValueError(msg)
 
         # Create updated config
         updated_config = copy.deepcopy(self.configs[config_name])
@@ -257,7 +261,8 @@ class ConfigManager:
             ValueError: If the config section doesn't exist
         """
         if config_name not in self.configs:
-            raise ValueError(f"Configuration section {config_name} not found")
+            msg = f"Configuration section {config_name} not found"
+            raise ValueError(msg)
 
         return copy.deepcopy(self.configs[config_name])
 
@@ -285,7 +290,7 @@ class ConfigManager:
             Dict[str, Any]: Combined configuration
         """
         combined = {}
-        for _name, config in self.configs.items():
+        for config in self.configs.values():
             combined.update(config)
 
         return combined
@@ -315,8 +320,9 @@ class ConfigManager:
                 continue
 
             if field not in config:
+                msg = f"Missing required field '{field}' in {config_name} configuration"
                 raise ConfigValidationError(
-                    f"Missing required field '{field}' in {config_name} configuration"
+                    msg,
                 )
 
         # Check for type mismatches (basic validation)
@@ -342,25 +348,34 @@ class ConfigManager:
                             for arg in field_type.__args__
                             if arg is not type(None)
                         ):
-                            raise ConfigValidationError(
+                            msg = (
                                 f"Field '{field}' in {config_name} configuration has invalid type. "
                                 f"Expected one of {field_type.__args__}, got {type(value)}"
                             )
+                            raise ConfigValidationError(
+                                msg,
+                            )
                     elif origin is list:
                         if not isinstance(value, list):
-                            raise ConfigValidationError(
+                            msg = (
                                 f"Field '{field}' in {config_name} configuration has invalid type. "
                                 f"Expected list, got {type(value)}"
                             )
+                            raise ConfigValidationError(
+                                msg,
+                            )
                 # Simple type check
                 elif not isinstance(value, field_type) and field_type is not Any:
-                    raise ConfigValidationError(
+                    msg = (
                         f"Field '{field}' in {config_name} configuration has invalid type. "
                         f"Expected {field_type}, got {type(value)}"
                     )
+                    raise ConfigValidationError(
+                        msg,
+                    )
 
     def load_from_file(
-        self, config_name: str, filepath: str | Path | None = None
+        self, config_name: str, filepath: str | Path | None = None,
     ) -> bool:
         """Load configuration from a JSON file.
 
@@ -389,7 +404,7 @@ class ConfigManager:
             return False
 
     def save_to_file(
-        self, config_name: str, filepath: str | Path | None = None
+        self, config_name: str, filepath: str | Path | None = None,
     ) -> bool:
         """Save configuration to a JSON file.
 
@@ -415,7 +430,7 @@ class ConfigManager:
             return True
         except Exception as e:
             self.logger.error(
-                f"Error saving configuration for {config_name}: {e!s}", exc_info=True
+                f"Error saving configuration for {config_name}: {e!s}", exc_info=True,
             )
             return False
 
@@ -458,7 +473,8 @@ class ConfigManager:
             ValueError: If the config section doesn't exist
         """
         if config_name not in self.config_docs:
-            raise ValueError(f"Configuration section {config_name} not found")
+            msg = f"Configuration section {config_name} not found"
+            raise ValueError(msg)
 
         return copy.deepcopy(self.config_docs[config_name])
 
@@ -475,7 +491,8 @@ class ConfigManager:
             ValueError: If the config section doesn't exist
         """
         if config_name not in self.config_schemas:
-            raise ValueError(f"Configuration section {config_name} not found")
+            msg = f"Configuration section {config_name} not found"
+            raise ValueError(msg)
 
         schema_class = self.config_schemas[config_name]
         type_hints = get_type_hints(schema_class)
@@ -493,7 +510,7 @@ _config_manager = None
 
 
 def get_config_manager(
-    name: str = "global", config_dir: str | Path | None = None
+    name: str = "global", config_dir: str | Path | None = None,
 ) -> ConfigManager:
     """Get or create the singleton ConfigManager instance.
 
@@ -526,7 +543,7 @@ def register_config_schema(
     """
     manager = get_config_manager()
     manager.register_config_schema(
-        config_name, schema_class, documentation, default_config
+        config_name, schema_class, documentation, default_config,
     )
 
 
@@ -686,7 +703,7 @@ def normalize_config(config: dict[str, Any]) -> dict[str, Any]:
 
 
 def merge_configs(
-    base_config: dict[str, Any], overrides: dict[str, Any] | None = None
+    base_config: dict[str, Any], overrides: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Merge a base configuration with overrides.
 

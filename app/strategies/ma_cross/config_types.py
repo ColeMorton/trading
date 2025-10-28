@@ -186,7 +186,8 @@ def migrate_to_new_config(legacy_config: Config) -> "ParameterTestingConfig":
         ImportError: If new config system is not available
     """
     if not _HAS_NEW_CONFIG:
-        raise ImportError("New configuration system not available")
+        msg = "New configuration system not available"
+        raise ImportError(msg)
 
     return ParameterTestingConfig.from_dict(dict(legacy_config))
 
@@ -202,7 +203,8 @@ def migrate_from_new_config(new_config: "ParameterTestingConfig") -> Config:
         Legacy configuration dictionary
     """
     if not _HAS_NEW_CONFIG:
-        raise ImportError("New configuration system not available")
+        msg = "New configuration system not available"
+        raise ImportError(msg)
 
     return new_config.to_dict()
 
@@ -241,7 +243,7 @@ def validate_config_compatibility(config: dict) -> list[str]:
                     [
                         f"{msg['severity']}: {msg['message']}"
                         for msg in validation_result.messages
-                    ]
+                    ],
                 )
         except Exception as e:
             warnings.append(f"New config validation failed: {e!s}")

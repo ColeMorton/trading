@@ -11,7 +11,7 @@ from .validation import PortfolioMetricsValidator, ValidationSummary
 
 
 def resample_hourly_to_daily(
-    data: pl.DataFrame, log: Callable[[str, str], None]
+    data: pl.DataFrame, log: Callable[[str, str], None],
 ) -> pl.DataFrame:
     """Resample hourly data to daily timeframe.
 
@@ -32,7 +32,7 @@ def resample_hourly_to_daily(
                 pl.col("Close").last().alias("Close"),
                 pl.col("Volume").sum().alias("Volume"),
                 pl.col("Position").last().alias("Position"),
-            ]
+            ],
         )
         log("Hourly data successfully resampled to daily", "info")
         return resampled
@@ -42,7 +42,7 @@ def resample_hourly_to_daily(
 
 
 def prepare_dataframe(
-    df: pl.DataFrame, is_hourly: bool, log: Callable[[str, str], None]
+    df: pl.DataFrame, is_hourly: bool, log: Callable[[str, str], None],
 ) -> pl.DataFrame:
     """Prepare dataframe by resampling if needed and standardizing dates.
 
@@ -62,7 +62,8 @@ def prepare_dataframe(
 
         if "Date" not in df.columns:
             log("DataFrame missing Date column", "error")
-            raise ValueError("DataFrame missing Date column")
+            msg = "DataFrame missing Date column"
+            raise ValueError(msg)
 
         # Handle different Date column types
         date_dtype = df.schema["Date"]
@@ -70,7 +71,7 @@ def prepare_dataframe(
         if date_dtype == pl.String:
             log("Converting Date column from string to datetime", "info")
             df = df.with_columns(
-                [pl.col("Date").str.to_datetime().cast(pl.Datetime("ns")).alias("Date")]
+                [pl.col("Date").str.to_datetime().cast(pl.Datetime("ns")).alias("Date")],
             )
         elif date_dtype == pl.Date:
             log("Converting Date column from date to datetime", "info")
@@ -83,8 +84,8 @@ def prepare_dataframe(
                     pl.col("Date")
                     .dt.replace_time_zone(None)
                     .dt.truncate("1d")
-                    .cast(pl.Datetime("ns"))
-                ]
+                    .cast(pl.Datetime("ns")),
+                ],
             )
         else:
             log("Converting Date column to datetime", "info")
@@ -103,7 +104,7 @@ def prepare_dataframe(
 
 
 def find_common_dates(
-    dfs: list[pl.DataFrame], log: Callable[[str, str], None]
+    dfs: list[pl.DataFrame], log: Callable[[str, str], None],
 ) -> pl.DataFrame:
     """Find dates common to all dataframes.
 
@@ -131,7 +132,7 @@ def find_common_dates(
             common_dates.intersection_update(df["Date"].to_list())
 
         result = pl.DataFrame(
-            {"Date": pl.Series(sorted(common_dates), dtype=pl.Datetime("ns"))}
+            {"Date": pl.Series(sorted(common_dates), dtype=pl.Datetime("ns"))},
         )
 
         log(f"Found {len(result)} common dates", "info")
@@ -184,8 +185,9 @@ def align_data(
                 f"Alignment failed: shapes differ {aligned_1.shape} vs {aligned_2.shape}",
                 "error",
             )
+            msg = f"Aligned dataframes have different shapes: {aligned_1.shape} vs {aligned_2.shape}"
             raise ValueError(
-                f"Aligned dataframes have different shapes: {aligned_1.shape} vs {aligned_2.shape}"
+                msg,
             )
 
         log(f"Successfully aligned dataframes with shape {aligned_1.shape}", "info")
@@ -222,11 +224,13 @@ def align_multiple_data(
                 "Mismatched inputs: different number of dataframes and hourly flags",
                 "error",
             )
-            raise ValueError("Number of dataframes must match number of hourly flags")
+            msg = "Number of dataframes must match number of hourly flags"
+            raise ValueError(msg)
 
         if len(data_list) < 2:
             log("Insufficient input: need at least two dataframes", "error")
-            raise ValueError("At least two dataframes are required for alignment")
+            msg = "At least two dataframes are required for alignment"
+            raise ValueError(msg)
 
         # Prepare all dataframes
         log("Preparing dataframes", "info")
@@ -243,14 +247,14 @@ def align_multiple_data(
         aligned_dfs = []
         for i, df in enumerate(prepared_dfs, 1):
             aligned = df.join(common_dates, on="Date", how="inner").select(
-                required_cols
+                required_cols,
             )
             aligned = aligned.with_columns(
                 [
                     pl.col("Position").fill_null(0),
                     pl.col("Volume").fill_null(0),
                     pl.col(["Open", "High", "Low", "Close"]).forward_fill(),
-                ]
+                ],
             )
             aligned_dfs.append(aligned)
             log(f"Dataframe {i}/{len(prepared_dfs)} aligned", "info")
@@ -259,7 +263,8 @@ def align_multiple_data(
         shapes = [df.shape for df in aligned_dfs]
         if len(set(shapes)) > 1:
             log(f"Alignment verification failed: inconsistent shapes {shapes}", "error")
-            raise ValueError(f"Aligned dataframes have different shapes: {shapes}")
+            msg = f"Aligned dataframes have different shapes: {shapes}"
+            raise ValueError(msg)
 
         log(
             f"Successfully aligned {len(aligned_dfs)} dataframes with shape {shapes[0]}",
@@ -297,7 +302,7 @@ def validate_aligned_data_quality(
         from app.tools.setup_logging import setup_logging
 
         log, _, _, _ = setup_logging(
-            "data_alignment_validator", Path("./logs"), "alignment_validation.log"
+            "data_alignment_validator", Path("./logs"), "alignment_validation.log",
         )
 
     log("Validating aligned data quality", "info")
@@ -390,7 +395,7 @@ def validate_aligned_data_quality(
                 all_positions_complete,
                 len(signal_counts) > 0,  # At least some signals found
                 cross_validation_passed,
-            ]
+            ],
         )
 
         log(
@@ -439,7 +444,7 @@ def align_with_validation(
         from app.tools.setup_logging import setup_logging
 
         log, _, _, _ = setup_logging(
-            "align_with_validation", Path("./logs"), "alignment.log"
+            "align_with_validation", Path("./logs"), "alignment.log",
         )
 
     log("Starting data alignment with validation", "info")
@@ -450,7 +455,7 @@ def align_with_validation(
 
         # Validate the aligned data
         validation_summary = validate_aligned_data_quality(
-            aligned_data, csv_path, json_metrics, log
+            aligned_data, csv_path, json_metrics, log,
         )
 
         if validation_summary.critical_failures > 0:

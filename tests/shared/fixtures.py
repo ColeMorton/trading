@@ -29,7 +29,7 @@ def mock_yfinance_data(ticker: str = "TEST", days: int = 100) -> pd.DataFrame:
 
     # Generate dates
     dates = pd.date_range(
-        start=datetime.now() - timedelta(days=days), periods=days, freq="D"
+        start=datetime.now() - timedelta(days=days), periods=days, freq="D",
     )
 
     # Generate realistic OHLCV data
@@ -70,7 +70,7 @@ def mock_yfinance_data(ticker: str = "TEST", days: int = 100) -> pd.DataFrame:
 
 
 def temp_csv_file(
-    data: pl.DataFrame, filename: str = "test_data.csv"
+    data: pl.DataFrame, filename: str = "test_data.csv",
 ) -> Generator[Path, None, None]:
     """
     Create temporary CSV file for testing.
@@ -123,7 +123,6 @@ def test_database_session():
 
         def close(self):
             """Close session."""
-            pass
 
     class MockQuery:
         def __init__(self, data, model):
@@ -208,7 +207,7 @@ def mock_data_provider():
             self.cache = {}
 
         def get_price_data(
-            self, ticker: str, period: str = "1y", interval: str = "1d"
+            self, ticker: str, period: str = "1y", interval: str = "1d",
         ) -> pl.DataFrame:
             """Get mock price data."""
             cache_key = f"{ticker}_{period}_{interval}"
@@ -221,7 +220,7 @@ def mock_data_provider():
                 days = days_map.get(period, 252)
 
                 self.cache[cache_key] = create_test_market_data(
-                    ticker=ticker, days=days
+                    ticker=ticker, days=days,
                 )
 
             return self.cache[cache_key]
@@ -254,7 +253,7 @@ def mock_risk_calculator():
 
     class MockRiskCalculator:
         def calculate_var(
-            self, returns: pl.Series, confidence_level: float = 0.95
+            self, returns: pl.Series, confidence_level: float = 0.95,
         ) -> float:
             """Calculate Value at Risk."""
             import numpy as np
@@ -262,14 +261,14 @@ def mock_risk_calculator():
             return np.percentile(returns.to_numpy(), (1 - confidence_level) * 100)
 
         def calculate_cvar(
-            self, returns: pl.Series, confidence_level: float = 0.95
+            self, returns: pl.Series, confidence_level: float = 0.95,
         ) -> float:
             """Calculate Conditional Value at Risk."""
             var = self.calculate_var(returns, confidence_level)
             return returns.filter(returns <= var).mean()
 
         def calculate_sharpe_ratio(
-            self, returns: pl.Series, risk_free_rate: float = 0.02
+            self, returns: pl.Series, risk_free_rate: float = 0.02,
         ) -> float:
             """Calculate Sharpe ratio."""
             excess_returns = returns.mean() - risk_free_rate / 252
@@ -304,8 +303,7 @@ def mock_portfolio_optimizer():
             """Optimize portfolio weights."""
             # Simple equal weight allocation for testing
             n_assets = len(expected_returns)
-            weights = pl.Series([1.0 / n_assets] * n_assets)
-            return weights
+            return pl.Series([1.0 / n_assets] * n_assets)
 
         def calculate_efficient_frontier(
             self,
@@ -342,11 +340,11 @@ class MockAPIClient:
         return {"status": "success", "data": {}}
 
     def post(
-        self, url: str, data: dict[str, Any] | None = None, **kwargs
+        self, url: str, data: dict[str, Any] | None = None, **kwargs,
     ) -> dict[str, Any]:
         """Mock POST request."""
         self.requests.append(
-            {"method": "POST", "url": url, "data": data, "kwargs": kwargs}
+            {"method": "POST", "url": url, "data": data, "kwargs": kwargs},
         )
 
         return {"status": "success", "data": {"id": "test_execution_123"}}

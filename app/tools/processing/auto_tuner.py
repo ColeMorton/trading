@@ -224,7 +224,7 @@ class ResourceMonitor:
         throughput_values = [s.throughput_ops_per_sec for s in recent_snapshots]
         error_values = [s.error_rate for s in recent_snapshots]
 
-        trends = {
+        return {
             "duration_avg": statistics.mean(duration_values),
             "duration_trend": self._calculate_trend(duration_values),
             "throughput_avg": statistics.mean(throughput_values),
@@ -234,7 +234,6 @@ class ResourceMonitor:
             "sample_count": len(recent_snapshots),
         }
 
-        return trends
 
     def _calculate_trend(self, values: list[float]) -> float:
         """Calculate trend direction (-1 to 1, where 1 is increasing)."""
@@ -258,8 +257,7 @@ class ResourceMonitor:
         if x_var == 0 or y_var == 0:
             return 0.0
 
-        correlation = numerator / (x_var * y_var) ** 0.5
-        return correlation
+        return numerator / (x_var * y_var) ** 0.5
 
 
 class AutoTuner:
@@ -306,7 +304,7 @@ class AutoTuner:
 
         self.active_tuning = True
         self._tuning_thread = threading.Thread(
-            target=self._tuning_loop, daemon=daemon, name="AutoTuner"
+            target=self._tuning_loop, daemon=daemon, name="AutoTuner",
         )
         self._tuning_thread.start()
         logger.info("Auto-tuning started")
@@ -336,7 +334,7 @@ class AutoTuner:
                     logger.info(f"Applied {applied_count} tuning recommendations")
 
             except Exception as e:
-                logger.error(f"Error in auto-tuning cycle: {e}")
+                logger.exception(f"Error in auto-tuning cycle: {e}")
 
             # Wait for next cycle
             time.sleep(self.tuning_interval)
@@ -359,23 +357,23 @@ class AutoTuner:
 
         # CPU-based recommendations
         recommendations.extend(
-            self._cpu_recommendations(resource_trend, performance_trend)
+            self._cpu_recommendations(resource_trend, performance_trend),
         )
 
         # Memory-based recommendations
         recommendations.extend(
-            self._memory_recommendations(resource_trend, performance_trend)
+            self._memory_recommendations(resource_trend, performance_trend),
         )
 
         # Performance-based recommendations
         recommendations.extend(
-            self._performance_recommendations(resource_trend, performance_trend)
+            self._performance_recommendations(resource_trend, performance_trend),
         )
 
         return recommendations
 
     def _cpu_recommendations(
-        self, resource_trend: dict, performance_trend: dict
+        self, resource_trend: dict, performance_trend: dict,
     ) -> list[TuningRecommendation]:
         """Generate CPU-related recommendations."""
         recommendations = []
@@ -399,7 +397,7 @@ class AutoTuner:
                         reason=f"High CPU usage ({cpu_avg:.1f}%) with increasing trend",
                         confidence=0.8,
                         expected_improvement="Reduced CPU contention",
-                    )
+                    ),
                 )
 
         # Low CPU utilization with poor performance
@@ -416,13 +414,13 @@ class AutoTuner:
                         reason=f"Low CPU usage ({cpu_avg:.1f}%) with slow operations",
                         confidence=0.7,
                         expected_improvement="Increased parallelism",
-                    )
+                    ),
                 )
 
         return recommendations
 
     def _memory_recommendations(
-        self, resource_trend: dict, performance_trend: dict
+        self, resource_trend: dict, performance_trend: dict,
     ) -> list[TuningRecommendation]:
         """Generate memory-related recommendations."""
         recommendations = []
@@ -447,7 +445,7 @@ class AutoTuner:
                         reason=f"High memory usage ({memory_avg:.1f}%) with increasing trend",
                         confidence=0.8,
                         expected_improvement="Reduced memory pressure",
-                    )
+                    ),
                 )
 
             # Reduce cache size
@@ -462,7 +460,7 @@ class AutoTuner:
                         reason=f"High memory usage ({memory_avg:.1f}%), reducing cache size",
                         confidence=0.7,
                         expected_improvement="Lower memory footprint",
-                    )
+                    ),
                 )
 
         # Low memory usage with good performance
@@ -484,13 +482,13 @@ class AutoTuner:
                         reason=f"Low memory usage ({memory_avg:.1f}%), can increase cache",
                         confidence=0.6,
                         expected_improvement="Better cache hit rates",
-                    )
+                    ),
                 )
 
         return recommendations
 
     def _performance_recommendations(
-        self, resource_trend: dict, performance_trend: dict
+        self, resource_trend: dict, performance_trend: dict,
     ) -> list[TuningRecommendation]:
         """Generate performance-related recommendations."""
         recommendations = []
@@ -515,7 +513,7 @@ class AutoTuner:
                         reason=f"High error rate ({error_rate:.1%}), increase streaming threshold",
                         confidence=0.6,
                         expected_improvement="Better handling of large files",
-                    )
+                    ),
                 )
 
         # Poor performance with low resource utilization
@@ -536,13 +534,13 @@ class AutoTuner:
                         reason="Poor performance with available resources, enable more streaming",
                         confidence=0.7,
                         expected_improvement="More efficient large file processing",
-                    )
+                    ),
                 )
 
         return recommendations
 
     def _apply_recommendations(
-        self, recommendations: list[TuningRecommendation]
+        self, recommendations: list[TuningRecommendation],
     ) -> int:
         """Apply high-confidence recommendations."""
         applied_count = 0
@@ -556,7 +554,7 @@ class AutoTuner:
                     logger.info(
                         f"Applied tuning: {rec.component}.{rec.parameter} "
                         f"{rec.current_value} -> {rec.recommended_value} "
-                        f"({rec.reason})"
+                        f"({rec.reason})",
                     )
 
         return applied_count
@@ -588,7 +586,7 @@ class AutoTuner:
             return False
 
         except Exception as e:
-            logger.error(f"Failed to apply recommendation: {e}")
+            logger.exception(f"Failed to apply recommendation: {e}")
             return False
 
     def get_tuning_status(self) -> dict[str, Any]:
@@ -596,7 +594,7 @@ class AutoTuner:
         resource_trend = self.resource_monitor.get_resource_trend()
         performance_trend = self.resource_monitor.get_performance_trend()
 
-        status = {
+        return {
             "active": self.active_tuning,
             "current_config": self.current_config.copy(),
             "baselines": self.baselines.copy(),
@@ -610,7 +608,6 @@ class AutoTuner:
             ),
         }
 
-        return status
 
     def manual_recommendation(self) -> list[TuningRecommendation]:
         """Get manual tuning recommendations without applying them."""

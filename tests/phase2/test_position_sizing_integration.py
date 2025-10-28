@@ -32,7 +32,7 @@ class TestPositionSizingPortfolioIntegration:
     @patch("app.tools.risk.CVaRCalculator.calculate_trading_cvar")
     @patch("app.tools.risk.CVaRCalculator.calculate_investment_cvar")
     def test_create_position_sizing_row(
-        self, mock_investment_cvar, mock_trading_cvar, mock_price
+        self, mock_investment_cvar, mock_trading_cvar, mock_price,
     ):
         """Test creating a position sizing row."""
         # Setup mocks
@@ -55,7 +55,7 @@ class TestPositionSizingPortfolioIntegration:
 
         # Setup account balances
         self.integration.balance_service.update_multiple_balances(
-            {"IBKR": 50000.0, "Bybit": 25000.0, "Cash": 10000.0}
+            {"IBKR": 50000.0, "Bybit": 25000.0, "Cash": 10000.0},
         )
 
         row = self.integration.create_position_sizing_row(
@@ -100,7 +100,7 @@ class TestPositionSizingPortfolioIntegration:
         """Test creating a position sizing portfolio DataFrame."""
         # Setup account balances
         self.integration.balance_service.update_multiple_balances(
-            {"IBKR": 60000.0, "Bybit": 30000.0, "Cash": 15000.0}
+            {"IBKR": 60000.0, "Bybit": 30000.0, "Cash": 15000.0},
         )
 
         tickers = ["AAPL", "TSLA", "BTC-USD"]
@@ -124,7 +124,7 @@ class TestPositionSizingPortfolioIntegration:
             ),
         ):
             df = self.integration.create_position_sizing_portfolio(
-                tickers, manual_data_by_ticker
+                tickers, manual_data_by_ticker,
             )
 
         # Verify DataFrame structure
@@ -217,12 +217,12 @@ class TestPositionSizingPortfolioIntegration:
         """Test comprehensive portfolio summary generation."""
         # Setup some data
         self.integration.balance_service.update_multiple_balances(
-            {"IBKR": 40000.0, "Bybit": 20000.0, "Cash": 5000.0}
+            {"IBKR": 40000.0, "Bybit": 20000.0, "Cash": 5000.0},
         )
 
         self.integration.position_tracker.add_position_entry("AAPL", 3000.0, 0.04)
         self.integration.dual_portfolio.add_portfolio_holding(
-            "AAPL", "Risk_On", 3000.0, 15.0, risk_amount=120.0
+            "AAPL", "Risk_On", 3000.0, 15.0, risk_amount=120.0,
         )
 
         # Mock strategies integration to avoid file dependencies

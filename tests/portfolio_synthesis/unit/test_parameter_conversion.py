@@ -46,7 +46,7 @@ class TestParameterConversionLogic:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+                "app.portfolio_synthesis.review.calculate_ma_and_signals",
             ) as mock_calc_ma,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs"),
@@ -94,7 +94,7 @@ class TestParameterConversionLogic:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+                "app.portfolio_synthesis.review.calculate_ma_and_signals",
             ) as mock_calc_ma,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs"),
@@ -142,7 +142,7 @@ class TestParameterConversionLogic:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+                "app.portfolio_synthesis.review.calculate_ma_and_signals",
             ) as mock_calc_ma,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs"),
@@ -190,7 +190,7 @@ class TestParameterConversionLogic:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+                "app.portfolio_synthesis.review.calculate_ma_and_signals",
             ) as mock_calc_ma,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs"),
@@ -238,7 +238,7 @@ class TestParameterConversionLogic:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+                "app.portfolio_synthesis.review.calculate_ma_and_signals",
             ) as mock_calc_ma,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs"),
@@ -284,20 +284,20 @@ class TestParameterConversionLogic:
 
                 with (
                     patch(
-                        "app.portfolio_synthesis.review.setup_logging"
+                        "app.portfolio_synthesis.review.setup_logging",
                     ) as mock_logging,
                     patch(
-                        "app.portfolio_synthesis.review.get_config"
+                        "app.portfolio_synthesis.review.get_config",
                     ) as mock_get_config,
                     patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
                     patch(
-                        "app.portfolio_synthesis.review.calculate_ma_and_signals"
+                        "app.portfolio_synthesis.review.calculate_ma_and_signals",
                     ) as mock_calc_ma,
                     patch(
-                        "app.portfolio_synthesis.review.calculate_macd_and_signals"
+                        "app.portfolio_synthesis.review.calculate_macd_and_signals",
                     ) as mock_calc_macd,
                     patch(
-                        "app.portfolio_synthesis.review.backtest_strategy"
+                        "app.portfolio_synthesis.review.backtest_strategy",
                     ) as mock_backtest,
                     patch("app.portfolio_synthesis.review.os.makedirs"),
                     patch("app.portfolio_synthesis.review.pl.DataFrame") as mock_df,
@@ -314,7 +314,7 @@ class TestParameterConversionLogic:
                     mock_portfolio.stats.return_value = {}
                     mock_portfolio.value.return_value = MagicMock()
                     mock_portfolio.value.return_value.__getitem__ = MagicMock(
-                        return_value=1000
+                        return_value=1000,
                     )
                     mock_portfolio.value.return_value.index = []
                     mock_portfolio.value.return_value.values = []
@@ -348,7 +348,7 @@ class TestParameterConversionLogic:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_ma_and_signals"
+                "app.portfolio_synthesis.review.calculate_ma_and_signals",
             ) as mock_calc_ma,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs"),
@@ -394,7 +394,7 @@ class TestParameterConversionLogic:
             patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
             patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
             patch(
-                "app.portfolio_synthesis.review.calculate_macd_and_signals"
+                "app.portfolio_synthesis.review.calculate_macd_and_signals",
             ) as mock_calc_macd,
             patch("app.portfolio_synthesis.review.backtest_strategy") as mock_backtest,
             patch("app.portfolio_synthesis.review.os.makedirs"),

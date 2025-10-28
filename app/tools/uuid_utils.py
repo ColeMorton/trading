@@ -40,15 +40,20 @@ def generate_strategy_uuid(
     """
     # Validate inputs
     if not ticker or not isinstance(ticker, str):
-        raise ValueError("Ticker must be a non-empty string")
+        msg = "Ticker must be a non-empty string"
+        raise ValueError(msg)
     if not strategy_type or not isinstance(strategy_type, str):
-        raise ValueError("Strategy type must be a non-empty string")
+        msg = "Strategy type must be a non-empty string"
+        raise ValueError(msg)
     if not isinstance(fast_period, int) or fast_period <= 0:
-        raise ValueError("Fast period must be a positive integer")
+        msg = "Fast period must be a positive integer"
+        raise ValueError(msg)
     if not isinstance(slow_period, int) or slow_period <= 0:
-        raise ValueError("Slow period must be a positive integer")
+        msg = "Slow period must be a positive integer"
+        raise ValueError(msg)
     if fast_period >= slow_period:
-        raise ValueError("Fast period must be less than slow period")
+        msg = "Fast period must be less than slow period"
+        raise ValueError(msg)
 
     # Clean entry date to YYYYMMDD format if provided
     if entry_date and isinstance(entry_date, str):
@@ -105,7 +110,8 @@ def generate_position_uuid(
         ValueError: If required parameters are invalid
     """
     if not entry_date:
-        raise ValueError("Entry date is required for position UUIDs")
+        msg = "Entry date is required for position UUIDs"
+        raise ValueError(msg)
 
     return generate_strategy_uuid(
         ticker=ticker,
@@ -174,12 +180,14 @@ def parse_strategy_uuid(strategy_uuid: str) -> dict[str, Any]:
         ValueError: If the UUID format is invalid
     """
     if not strategy_uuid or not isinstance(strategy_uuid, str):
-        raise ValueError("Strategy UUID must be a non-empty string")
+        msg = "Strategy UUID must be a non-empty string"
+        raise ValueError(msg)
 
     parts = strategy_uuid.split("_")
 
     if len(parts) < 4:
-        raise ValueError(f"Invalid strategy UUID format: {strategy_uuid}")
+        msg = f"Invalid strategy UUID format: {strategy_uuid}"
+        raise ValueError(msg)
 
     # Handle case where ticker might contain underscores
     # We'll try different positions for strategy_type to find a valid one
@@ -198,14 +206,16 @@ def parse_strategy_uuid(strategy_uuid: str) -> dict[str, Any]:
             break
 
     if strategy_type is None:
-        raise ValueError(f"No valid strategy type found in: {strategy_uuid}")
+        msg = f"No valid strategy type found in: {strategy_uuid}"
+        raise ValueError(msg)
 
     # Parse remaining parts based on strategy type and length
     if strategy_type in ["SMA", "EMA"]:
         # Handle both new and old formats for SMA/EMA
         if len(remaining_parts) < 2:
+            msg = f"Invalid {strategy_type} strategy UUID format: {strategy_uuid}"
             raise ValueError(
-                f"Invalid {strategy_type} strategy UUID format: {strategy_uuid}"
+                msg,
             )
 
         fast_period = remaining_parts[0]
@@ -255,8 +265,9 @@ def parse_strategy_uuid(strategy_uuid: str) -> dict[str, Any]:
 
     # MACD, ATR, or other strategies that may use signal_period
     elif len(remaining_parts) < 2:
+        msg = f"Invalid {strategy_type} strategy UUID format: {strategy_uuid}"
         raise ValueError(
-            f"Invalid {strategy_type} strategy UUID format: {strategy_uuid}"
+            msg,
         )
     elif len(remaining_parts) == 2:
         # Might be old format SMA/EMA with signal_period, or new format for non-SMA/EMA
@@ -308,7 +319,8 @@ def parse_strategy_uuid(strategy_uuid: str) -> dict[str, Any]:
 
         signal_window_val = int(signal_period)
     except ValueError:
-        raise ValueError(f"Invalid numeric values in strategy UUID: {strategy_uuid}")
+        msg = f"Invalid numeric values in strategy UUID: {strategy_uuid}"
+        raise ValueError(msg)
 
     return {
         "ticker": ticker,
@@ -366,10 +378,10 @@ def extract_strategy_components(
     else:
         # MA and MACD strategies use short and long windows
         fast_period = _get_config_value(
-            strategy_config, ["FAST_PERIOD", "Fast Period", "fast_period"]
+            strategy_config, ["FAST_PERIOD", "Fast Period", "fast_period"],
         )
         slow_period = _get_config_value(
-            strategy_config, ["SLOW_PERIOD", "Slow Period", "slow_period"]
+            strategy_config, ["SLOW_PERIOD", "Slow Period", "slow_period"],
         )
         # Get signal period (default to 0 for MA strategies)
         signal_period = _get_config_value(
@@ -402,12 +414,12 @@ def generate_strategy_id_from_config(strategy_config: dict[str, Any]) -> str:
     ) = extract_strategy_components(strategy_config)
 
     return generate_strategy_id(
-        ticker, strategy_type, fast_period, slow_period, signal_period
+        ticker, strategy_type, fast_period, slow_period, signal_period,
     )
 
 
 def _get_config_value(
-    config: dict[str, Any], possible_keys: list, default: Any = None
+    config: dict[str, Any], possible_keys: list, default: Any = None,
 ) -> Any:
     """Get a value from a config dictionary, checking multiple possible keys.
 
@@ -429,8 +441,9 @@ def _get_config_value(
     if default is not None:
         return default
 
+    msg = f"Required field not found in config. Checked keys: {possible_keys}"
     raise ValueError(
-        f"Required field not found in config. Checked keys: {possible_keys}"
+        msg,
     )
 
 
@@ -467,6 +480,7 @@ def _get_strategy_type(config: dict[str, Any]) -> str:
         use_sma = _get_config_value(config, ["USE_SMA", "Use_SMA"])
         return "SMA" if use_sma else "EMA"
     # Fail fast - no default strategy type allowed
+    msg = "Strategy type cannot be determined. Must be explicitly specified (STRATEGY_TYPE, Strategy Type, or MA Type field required)."
     raise ValueError(
-        "Strategy type cannot be determined. Must be explicitly specified (STRATEGY_TYPE, Strategy Type, or MA Type field required)."
+        msg,
     )

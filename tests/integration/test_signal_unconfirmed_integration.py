@@ -133,7 +133,7 @@ class TestSignalUnconfirmedIntegration:
 
         # Test CSV export (using temporary file)
         with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".csv", delete=False
+            mode="w", suffix=".csv", delete=False,
         ) as tmp_file:
             try:
                 df.write_csv(tmp_file.name)
@@ -169,7 +169,7 @@ class TestSignalUnconfirmedIntegration:
                 ],  # Rising slow MA, fast > slow
                 "Signal": [0, 1, 1, 1, 1],  # Buy signal triggered
                 "Position": [0, 1, 1, 1, 1],  # In position
-            }
+            },
         )
 
         # Test Entry scenario (no position, fast > slow)
@@ -191,7 +191,7 @@ class TestSignalUnconfirmedIntegration:
                 ],  # Declining slow MA, fast < slow at end
                 "Signal": [1, 1, 0],
                 "Position": [1, 1, 1],  # In position
-            }
+            },
         )
 
         result = calculate_signal_unconfirmed(exit_data)
@@ -215,7 +215,7 @@ class TestSignalUnconfirmedIntegration:
                 "Position": [0],
                 "Signal": [0],
                 "timestamp": ["2023-01-01"],
-            }
+            },
         )
 
         signal_result = calculate_signal_unconfirmed(test_signal_data)
@@ -229,7 +229,7 @@ class TestSignalUnconfirmedIntegration:
 
         # 3. Test that CSV export works with the field
         test_data = pl.DataFrame(
-            {"Ticker": ["TEST"], "Signal Unconfirmed": [signal_result], "Score": [1.5]}
+            {"Ticker": ["TEST"], "Signal Unconfirmed": [signal_result], "Score": [1.5]},
         )
 
         # Verify the field is properly handled in DataFrames
@@ -259,7 +259,7 @@ class TestSignalUnconfirmedIntegration:
         for value in valid_values:
             # Test CSV compatibility
             test_data = pl.DataFrame(
-                {"Ticker": ["TEST"], "Signal Unconfirmed": [value], "Score": [1.5]}
+                {"Ticker": ["TEST"], "Signal Unconfirmed": [value], "Score": [1.5]},
             )
 
             # Should not raise any errors
@@ -276,7 +276,7 @@ class TestSignalUnconfirmedIntegration:
                             "Position": [0],
                             "Signal": [0],
                             "timestamp": ["2023-01-01"],
-                        }
+                        },
                     )
                 else:  # Exit
                     signal_data = pl.DataFrame(
@@ -286,7 +286,7 @@ class TestSignalUnconfirmedIntegration:
                             "Position": [1],
                             "Signal": [1],
                             "timestamp": ["2023-01-01"],
-                        }
+                        },
                     )
 
                 result = calculate_signal_unconfirmed(signal_data)

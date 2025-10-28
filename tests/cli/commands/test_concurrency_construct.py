@@ -74,7 +74,7 @@ class TestConcurrencyConstructCommand:
                     "start_date": "2020-01-01",
                     "end_date": "2024-01-01",
                     "signal_period": 9 if i >= 7 else None,
-                }
+                },
             )
 
         return strategies
@@ -128,7 +128,7 @@ class TestConcurrencyConstructCommand:
     @patch("app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader")
     @patch("app.concurrency.review.run_concurrency_review")
     def test_construct_basic_success(
-        self, mock_review, mock_loader_class, runner, mock_strategies
+        self, mock_review, mock_loader_class, runner, mock_strategies,
     ):
         """Test basic successful portfolio construction."""
         # Setup mocks
@@ -164,11 +164,11 @@ class TestConcurrencyConstructCommand:
                                 },
                                 "risk": {
                                     "portfolio_metrics": {
-                                        "risk_concentration_index": {"value": 0.675}
-                                    }
+                                        "risk_concentration_index": {"value": 0.675},
+                                    },
                                 },
-                            }
-                        }
+                            },
+                        },
                     )
                 )
 
@@ -218,7 +218,7 @@ class TestConcurrencyConstructCommand:
     @patch("app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader")
     @patch("app.concurrency.review.run_concurrency_review")
     def test_construct_min_score_filter(
-        self, mock_review, mock_loader_class, runner, mock_strategies
+        self, mock_review, mock_loader_class, runner, mock_strategies,
     ):
         """Test --min-score flag filters strategies."""
         mock_loader = mock_loader_class.return_value
@@ -242,7 +242,7 @@ class TestConcurrencyConstructCommand:
     @patch("app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader")
     @patch("app.concurrency.review.run_concurrency_review")
     def test_construct_verbose_output(
-        self, mock_review, mock_loader_class, runner, mock_strategies
+        self, mock_review, mock_loader_class, runner, mock_strategies,
     ):
         """Test --verbose flag shows detailed output."""
         mock_loader = mock_loader_class.return_value
@@ -262,7 +262,7 @@ class TestConcurrencyConstructCommand:
     @patch("app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader")
     @patch("app.concurrency.review.run_concurrency_review")
     def test_construct_creates_temp_files_for_each_size(
-        self, mock_review, mock_loader_class, runner, mock_strategies, tmp_path
+        self, mock_review, mock_loader_class, runner, mock_strategies, tmp_path,
     ):
         """Test that separate temp files are created for portfolio sizes 5, 7, 9."""
         mock_loader = mock_loader_class.return_value
@@ -296,7 +296,7 @@ class TestConcurrencyConstructCommand:
     def test_construct_synthetic_pair_with_t1_t2(self, runner):
         """Test constructing portfolio for synthetic ticker pair using -t1 and -t2."""
         with patch(
-            "app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader"
+            "app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader",
         ) as mock_loader_class:
             mock_loader = mock_loader_class.return_value
             mock_loader.validate_asset_data.return_value = {
@@ -305,7 +305,7 @@ class TestConcurrencyConstructCommand:
             }
 
             result = runner.invoke(
-                concurrency_app, ["construct", "-t1", "NVDA", "-t2", "QQQ"]
+                concurrency_app, ["construct", "-t1", "NVDA", "-t2", "QQQ"],
             )
 
             # Should process as synthetic pair NVDA_QQQ
@@ -324,7 +324,7 @@ class TestConcurrencyConstructCommand:
     def test_construct_single_ticker_via_t1_flag(self, runner):
         """Test using -t1 flag for single ticker (without -t2)."""
         with patch(
-            "app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader"
+            "app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader",
         ) as mock_loader_class:
             mock_loader = mock_loader_class.return_value
             mock_loader.validate_asset_data.return_value = {
@@ -341,7 +341,7 @@ class TestConcurrencyConstructCommand:
     @patch("app.concurrency.review.run_concurrency_review")
     @patch("app.cli.commands.concurrency._export_strategies_to_file")
     def test_construct_export_flag_creates_csv(
-        self, mock_export, mock_review, mock_loader_class, runner, mock_strategies
+        self, mock_export, mock_review, mock_loader_class, runner, mock_strategies,
     ):
         """Test --export flag exports strategies to CSV."""
         mock_loader = mock_loader_class.return_value
@@ -360,7 +360,7 @@ class TestConcurrencyConstructCommand:
     def test_construct_output_format_table(self, runner):
         """Test --format table output."""
         with patch(
-            "app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader"
+            "app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader",
         ) as mock_loader_class:
             with patch("app.concurrency.review.run_concurrency_review") as mock_review:
                 mock_loader_class.return_value.validate_asset_data.return_value = {
@@ -370,7 +370,7 @@ class TestConcurrencyConstructCommand:
                 mock_review.return_value = True
 
                 runner.invoke(
-                    concurrency_app, ["construct", "TEST", "--format", "table"]
+                    concurrency_app, ["construct", "TEST", "--format", "table"],
                 )
 
                 # Should produce table output (default)
@@ -378,7 +378,7 @@ class TestConcurrencyConstructCommand:
     def test_construct_output_format_json(self, runner):
         """Test --format json output."""
         with patch(
-            "app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader"
+            "app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader",
         ) as mock_loader_class:
             with patch("app.concurrency.review.run_concurrency_review") as mock_review:
                 mock_loader_class.return_value.validate_asset_data.return_value = {
@@ -388,7 +388,7 @@ class TestConcurrencyConstructCommand:
                 mock_review.return_value = True
 
                 result = runner.invoke(
-                    concurrency_app, ["construct", "TEST", "--format", "json"]
+                    concurrency_app, ["construct", "TEST", "--format", "json"],
                 )
 
                 # Output should be JSON formatted
@@ -407,7 +407,7 @@ class TestConstructPortfolioSizeComparison:
     @patch("app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader")
     @patch("app.concurrency.review.run_concurrency_review")
     def test_construct_compares_multiple_sizes(
-        self, mock_review, mock_loader_class, runner
+        self, mock_review, mock_loader_class, runner,
     ):
         """Test that construct compares portfolios of sizes 5, 7, and 9."""
         mock_loader = mock_loader_class.return_value
@@ -444,7 +444,7 @@ class TestConstructPortfolioSizeComparison:
                     "start_date": "2020-01-01",
                     "end_date": "2024-01-01",
                     "signal_period": 9 if i >= 7 else None,
-                }
+                },
             )
         mock_loader.load_strategies_for_asset.return_value = mock_strategies
 
@@ -464,7 +464,7 @@ class TestConstructPortfolioSizeComparison:
     def test_construct_exact_match_only_tests_one_size(self, runner):
         """Test that if strategies count is exactly 5, 7, or 9, only that size is tested."""
         with patch(
-            "app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader"
+            "app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader",
         ) as mock_loader_class:
             with patch("app.concurrency.review.run_concurrency_review") as mock_review:
                 mock_loader = mock_loader_class.return_value
@@ -502,7 +502,7 @@ class TestConstructPortfolioSizeComparison:
                             "start_date": "2020-01-01",
                             "end_date": "2024-01-01",
                             "signal_period": 9 if i >= 4 else None,
-                        }
+                        },
                     )
                 mock_loader.load_strategies_for_asset.return_value = mock_strategies
 
@@ -528,7 +528,7 @@ class TestConstructDiversificationSorting:
     @patch("app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader")
     @patch("app.concurrency.review.run_concurrency_review")
     def test_construct_applies_diversification_weighting(
-        self, mock_review, mock_loader_class, runner
+        self, mock_review, mock_loader_class, runner,
     ):
         """Test that strategies are sorted by score * diversification."""
         mock_loader = mock_loader_class.return_value
@@ -593,7 +593,7 @@ class TestConstructErrorScenarios:
     def test_construct_handles_analysis_failure(self, runner):
         """Test error handling when concurrency analysis fails."""
         with patch(
-            "app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader"
+            "app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader",
         ) as mock_loader_class:
             with patch("app.concurrency.review.run_concurrency_review") as mock_review:
                 mock_loader = mock_loader_class.return_value
@@ -613,7 +613,7 @@ class TestConstructErrorScenarios:
     def test_construct_handles_missing_report_file(self, runner):
         """Test handling when analysis succeeds but report file is missing."""
         with patch(
-            "app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader"
+            "app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader",
         ) as mock_loader_class:
             with patch("app.concurrency.review.run_concurrency_review") as mock_review:
                 mock_loader = mock_loader_class.return_value

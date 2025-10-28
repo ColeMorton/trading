@@ -60,8 +60,7 @@ class RedisManager:
         """
         try:
             client = await self.get_client()
-            result = await client.ping()
-            return result
+            return await client.ping()
         except Exception:
             return False
 

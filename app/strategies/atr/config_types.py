@@ -58,27 +58,33 @@ def validate_config(config: dict) -> bool:
     """
     # Validate ATR length ranges
     if config.get("ATR_LENGTH_END", 15) <= config.get("ATR_LENGTH_START", 2):
-        raise ValueError("ATR_LENGTH_END must be greater than ATR_LENGTH_START")
+        msg = "ATR_LENGTH_END must be greater than ATR_LENGTH_START"
+        raise ValueError(msg)
 
     # Validate ATR multiplier ranges
     if config.get("ATR_MULTIPLIER_END", 8.0) <= config.get("ATR_MULTIPLIER_START", 1.5):
-        raise ValueError("ATR_MULTIPLIER_END must be greater than ATR_MULTIPLIER_START")
+        msg = "ATR_MULTIPLIER_END must be greater than ATR_MULTIPLIER_START"
+        raise ValueError(msg)
 
     # Validate step parameters
     if config.get("STEP", 1) <= 0:
-        raise ValueError("ATR length STEP must be greater than 0")
+        msg = "ATR length STEP must be greater than 0"
+        raise ValueError(msg)
 
     if config.get("ATR_MULTIPLIER_STEP", 0.5) <= 0:
-        raise ValueError("ATR_MULTIPLIER_STEP must be greater than 0")
+        msg = "ATR_MULTIPLIER_STEP must be greater than 0"
+        raise ValueError(msg)
 
     # Validate ATR length bounds
     atr_length_start = config.get("ATR_LENGTH_START", 2)
     if atr_length_start < 2:
-        raise ValueError("ATR_LENGTH_START must be at least 2")
+        msg = "ATR_LENGTH_START must be at least 2"
+        raise ValueError(msg)
 
     # Validate ATR multiplier bounds
     atr_multiplier_start = config.get("ATR_MULTIPLIER_START", 1.5)
     if atr_multiplier_start <= 0:
-        raise ValueError("ATR_MULTIPLIER_START must be greater than 0")
+        msg = "ATR_MULTIPLIER_START must be greater than 0"
+        raise ValueError(msg)
 
     return True

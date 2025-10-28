@@ -56,7 +56,7 @@ class VarianceEstimator:
         self.confidence_level = 0.95
 
     def validate_data_sufficiency(
-        self, returns: np.ndarray, method: str
+        self, returns: np.ndarray, method: str,
     ) -> tuple[bool, str]:
         """
         Validate minimum data requirements for variance estimation method.
@@ -72,7 +72,8 @@ class VarianceEstimator:
             RiskCalculationError: If method is unknown
         """
         if method not in self.min_requirements:
-            raise RiskCalculationError(f"Unknown variance estimation method: {method}")
+            msg = f"Unknown variance estimation method: {method}"
+            raise RiskCalculationError(msg)
 
         min_obs = self.min_requirements[method]
         actual_obs = len(returns)
@@ -109,7 +110,7 @@ class VarianceEstimator:
 
         # Factor 1: Sample size adequacy (0-1)
         sample_size_score = min(
-            1.0, len(returns) / 252
+            1.0, len(returns) / 252,
         )  # 252 trading days = full score
         quality_factors.append(sample_size_score)
 
@@ -127,7 +128,7 @@ class VarianceEstimator:
         try:
             kurtosis = stats.kurtosis(returns)
             normality_score = max(
-                0.0, 1.0 - abs(kurtosis) / 10.0
+                0.0, 1.0 - abs(kurtosis) / 10.0,
             )  # Penalize extreme kurtosis
         except (ValueError, FloatingPointError):
             # Handle cases where kurtosis calculation fails
@@ -180,7 +181,8 @@ class VarianceEstimator:
         """
         is_sufficient, message = self.validate_data_sufficiency(returns, "sample")
         if not is_sufficient:
-            raise RiskCalculationError(f"Sample variance estimation failed: {message}")
+            msg = f"Sample variance estimation failed: {message}"
+            raise RiskCalculationError(msg)
 
         n = len(returns)
         sample_var = np.var(returns, ddof=1)  # Unbiased estimator
@@ -208,7 +210,7 @@ class VarianceEstimator:
         )
 
     def rolling_variance(
-        self, returns: np.ndarray, window: int | None | None = None
+        self, returns: np.ndarray, window: int | None | None = None,
     ) -> VarianceEstimate:
         """
         Rolling window variance for time-varying volatility.
@@ -225,7 +227,8 @@ class VarianceEstimator:
         """
         is_sufficient, message = self.validate_data_sufficiency(returns, "rolling")
         if not is_sufficient:
-            raise RiskCalculationError(f"Rolling variance estimation failed: {message}")
+            msg = f"Rolling variance estimation failed: {message}"
+            raise RiskCalculationError(msg)
 
         n = len(returns)
 
@@ -234,8 +237,9 @@ class VarianceEstimator:
             window = max(10, min(60, n // 4))  # Between 10 and 60, or 1/4 of data
 
         if window >= n:
+            msg = f"Rolling window ({window}) must be smaller than data length ({n})"
             raise RiskCalculationError(
-                f"Rolling window ({window}) must be smaller than data length ({n})"
+                msg,
             )
 
         # Calculate rolling variances
@@ -276,7 +280,7 @@ class VarianceEstimator:
         )
 
     def ewma_variance(
-        self, returns: np.ndarray, lambda_param: float | None | None = None
+        self, returns: np.ndarray, lambda_param: float | None | None = None,
     ) -> VarianceEstimate:
         """
         Exponentially Weighted Moving Average variance estimation.
@@ -293,7 +297,8 @@ class VarianceEstimator:
         """
         is_sufficient, message = self.validate_data_sufficiency(returns, "ewma")
         if not is_sufficient:
-            raise RiskCalculationError(f"EWMA variance estimation failed: {message}")
+            msg = f"EWMA variance estimation failed: {message}"
+            raise RiskCalculationError(msg)
 
         n = len(returns)
 
@@ -303,8 +308,9 @@ class VarianceEstimator:
 
         # Validate lambda parameter
         if not (0 < lambda_param < 1):
+            msg = f"EWMA lambda parameter must be between 0 and 1, got {lambda_param}"
             raise RiskCalculationError(
-                f"EWMA lambda parameter must be between 0 and 1, got {lambda_param}"
+                msg,
             )
 
         # Calculate EWMA variance
@@ -326,11 +332,11 @@ class VarianceEstimator:
         warnings_list = []
         if lambda_param > 0.95:
             warnings_list.append(
-                "Very high lambda parameter - estimate may be unstable"
+                "Very high lambda parameter - estimate may be unstable",
             )
         elif lambda_param < 0.05:
             warnings_list.append(
-                "Very low lambda parameter - estimate heavily weighted to recent data"
+                "Very low lambda parameter - estimate heavily weighted to recent data",
             )
 
         self.log(
@@ -349,7 +355,7 @@ class VarianceEstimator:
         )
 
     def bootstrap_variance(
-        self, returns: np.ndarray, n_bootstrap: int = 1000
+        self, returns: np.ndarray, n_bootstrap: int = 1000,
     ) -> VarianceEstimate:
         """
         Bootstrap variance estimation for small samples.
@@ -366,8 +372,9 @@ class VarianceEstimator:
         """
         is_sufficient, message = self.validate_data_sufficiency(returns, "bootstrap")
         if not is_sufficient:
+            msg = f"Bootstrap variance estimation failed: {message}"
             raise RiskCalculationError(
-                f"Bootstrap variance estimation failed: {message}"
+                msg,
             )
 
         n = len(returns)
@@ -433,8 +440,9 @@ class VarianceEstimator:
         """
         is_sufficient, message = self.validate_data_sufficiency(returns, "bayesian")
         if not is_sufficient:
+            msg = f"Bayesian variance estimation failed: {message}"
             raise RiskCalculationError(
-                f"Bayesian variance estimation failed: {message}"
+                msg,
             )
 
         n = len(returns)
@@ -449,7 +457,7 @@ class VarianceEstimator:
         if prior_confidence is None:
             # Prior confidence decreases as we have more data
             prior_confidence = max(
-                1, 252 // max(1, n)
+                1, 252 // max(1, n),
             )  # Equivalent to prior_confidence days of data
 
         # Bayesian update using normal-inverse-gamma conjugate prior
@@ -525,7 +533,7 @@ class VarianceEstimator:
 
                 # Simplified likelihood assuming normal returns
                 log_likelihood = -0.5 * np.sum(
-                    np.log(2 * np.pi * ewma_var) + returns**2 / ewma_var
+                    np.log(2 * np.pi * ewma_var) + returns**2 / ewma_var,
                 )
                 return -log_likelihood
             except (ValueError, ZeroDivisionError, FloatingPointError):
@@ -534,7 +542,7 @@ class VarianceEstimator:
 
         # Optimize lambda between 0.01 and 0.99
         result = minimize_scalar(
-            negative_log_likelihood, bounds=(0.01, 0.99), method="bounded"
+            negative_log_likelihood, bounds=(0.01, 0.99), method="bounded",
         )
 
         optimal_lambda = (
@@ -545,7 +553,7 @@ class VarianceEstimator:
         return optimal_lambda
 
     def _calculate_ewma_variance(
-        self, returns: np.ndarray, lambda_param: float
+        self, returns: np.ndarray, lambda_param: float,
     ) -> float:
         """Calculate EWMA variance given lambda parameter."""
         n = len(returns)
@@ -560,7 +568,7 @@ class VarianceEstimator:
         return ewma_var
 
     def select_best_estimator(
-        self, returns: np.ndarray, methods: list[str] | None | None = None
+        self, returns: np.ndarray, methods: list[str] | None | None = None,
     ) -> VarianceEstimate:
         """
         Automatically select the best variance estimator based on data characteristics.
@@ -590,8 +598,9 @@ class VarianceEstimator:
                 applicable_methods.append(method)
 
         if not applicable_methods:
+            msg = "No variance estimation methods are applicable to this data"
             raise RiskCalculationError(
-                "No variance estimation methods are applicable to this data"
+                msg,
             )
 
         # Selection rules based on data size and quality
@@ -639,7 +648,8 @@ class VarianceEstimator:
             return self.bootstrap_variance(returns)
         if selected_method == "bayesian":
             return self.bayesian_variance(returns)
-        raise RiskCalculationError(f"Unknown method selected: {selected_method}")
+        msg = f"Unknown method selected: {selected_method}"
+        raise RiskCalculationError(msg)
 
 
 def estimate_portfolio_variance(
@@ -669,8 +679,9 @@ def estimate_portfolio_variance(
             return print(f"[{level.upper()}] {msg}")
 
     if len(strategy_returns_list) != len(strategy_names):
+        msg = "Number of return arrays must match number of strategy names"
         raise RiskCalculationError(
-            "Number of return arrays must match number of strategy names"
+            msg,
         )
 
     estimator = VarianceEstimator(log)
@@ -691,8 +702,9 @@ def estimate_portfolio_variance(
             elif method == "bayesian":
                 estimate = estimator.bayesian_variance(returns)
             else:
+                msg = f"Unknown variance estimation method: {method}"
                 raise RiskCalculationError(
-                    f"Unknown variance estimation method: {method}"
+                    msg,
                 )
 
             variance_estimates[name] = estimate
@@ -705,6 +717,7 @@ def estimate_portfolio_variance(
 
         except Exception as e:
             log(f"Error estimating variance for {name}: {e!s}", "error")
-            raise RiskCalculationError(f"Variance estimation failed for {name}: {e!s}")
+            msg = f"Variance estimation failed for {name}: {e!s}"
+            raise RiskCalculationError(msg)
 
     return variance_estimates

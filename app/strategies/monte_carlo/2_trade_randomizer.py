@@ -11,7 +11,7 @@ NUM_PERMUTATIONS = 1000
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
 
@@ -23,7 +23,7 @@ def load_trade_data(file_path: str) -> pl.DataFrame:
         logging.info(f"Loading trade data from {file_path}")
         return pl.read_csv(file_path)
     except Exception as e:
-        logging.error(f"Error loading trade data: {e!s}")
+        logging.exception(f"Error loading trade data: {e!s}")
         raise
 
 
@@ -35,7 +35,7 @@ def shuffle_trades(trades: pl.DataFrame) -> pl.DataFrame:
 
 
 def get_random_permutations(
-    trades: pl.DataFrame, num_permutations: int
+    trades: pl.DataFrame, num_permutations: int,
 ) -> list[pl.DataFrame]:
     """
     Generate a list of randomly shuffled trade permutations.
@@ -92,7 +92,7 @@ def main():
     try:
         # Load the trade data
         data = pl.read_csv(
-            f"data/outputs/monte_carlo/{TICKER}_trade_data_ema_cross.csv"
+            f"data/outputs/monte_carlo/{TICKER}_trade_data_ema_cross.csv",
         )
 
         # Generate random permutations
@@ -115,7 +115,7 @@ def main():
 
         # Export the data to a JSON file in the 'json/' directory
         json_filename = os.path.join(
-            json_dir, f"monte_carlo/{TICKER}_ema_cross_permutations.json"
+            json_dir, f"monte_carlo/{TICKER}_ema_cross_permutations.json",
         )
         with open(json_filename, "w") as json_file:
             json.dump(json_data, json_file)
@@ -127,7 +127,7 @@ def main():
 
         logging.info("Trade randomization and plotting completed successfully")
     except Exception as e:
-        logging.error(f"An error occurred: {e!s}")
+        logging.exception(f"An error occurred: {e!s}")
 
 
 if __name__ == "__main__":

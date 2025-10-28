@@ -44,7 +44,7 @@ class TestSeasonalityAnalyzerInitialization:
         get_pattern_type()
 
         analyzer = SeasonalityAnalyzer(
-            confidence_level=0.99, min_sample_size=20, time_period_days=5
+            confidence_level=0.99, min_sample_size=20, time_period_days=5,
         )
 
         assert analyzer.confidence_level == 0.99
@@ -67,7 +67,7 @@ class TestSharpeRatioCalculation:
 
         # Known returns: mean=0.01 (1%), std=0.02 (2%)
         returns = np.array(
-            [0.01, 0.015, 0.005, 0.012, 0.008, 0.011, 0.013, 0.009, 0.007, 0.014]
+            [0.01, 0.015, 0.005, 0.012, 0.008, 0.011, 0.013, 0.009, 0.007, 0.014],
         )
         all_returns = returns  # Doesn't matter for this test
 
@@ -103,7 +103,7 @@ class TestSharpeRatioCalculation:
                 -0.009,
                 -0.007,
                 -0.014,
-            ]
+            ],
         )
 
         pattern = analyzer._create_pattern(
@@ -149,7 +149,7 @@ class TestSortinoRatioCalculation:
 
         # Mix of positive and negative returns
         returns = np.array(
-            [0.02, 0.015, -0.01, 0.01, -0.005, 0.012, -0.008, 0.009, -0.003, 0.011]
+            [0.02, 0.015, -0.01, 0.01, -0.005, 0.012, -0.008, 0.009, -0.003, 0.011],
         )
 
         pattern = analyzer._create_pattern(
@@ -177,7 +177,7 @@ class TestSortinoRatioCalculation:
 
         # All positive - no downside deviation
         returns = np.array(
-            [0.01, 0.015, 0.005, 0.012, 0.008, 0.011, 0.013, 0.009, 0.007, 0.014]
+            [0.01, 0.015, 0.005, 0.012, 0.008, 0.011, 0.013, 0.009, 0.007, 0.014],
         )
 
         pattern = analyzer._create_pattern(
@@ -200,7 +200,7 @@ class TestSortinoRatioCalculation:
 
         # Highly asymmetric: many small gains, few large losses
         returns = np.array(
-            [0.01, 0.01, 0.01, 0.01, 0.01, -0.05, -0.04, 0.01, 0.01, 0.01]
+            [0.01, 0.01, 0.01, 0.01, 0.01, -0.05, -0.04, 0.01, 0.01, 0.01],
         )
 
         pattern = analyzer._create_pattern(
@@ -470,7 +470,7 @@ class TestConfidenceIntervals:
         analyzer = SeasonalityAnalyzer(confidence_level=0.95)
 
         returns = np.array(
-            [0.01, 0.015, 0.005, 0.012, 0.008, 0.011, 0.013, 0.009, 0.007, 0.014]
+            [0.01, 0.015, 0.005, 0.012, 0.008, 0.011, 0.013, 0.009, 0.007, 0.014],
         )
 
         pattern = analyzer._create_pattern(
@@ -492,7 +492,7 @@ class TestConfidenceIntervals:
         analyzer = SeasonalityAnalyzer(confidence_level=0.95)
 
         returns = np.array(
-            [0.01, 0.015, 0.005, 0.012, 0.008, 0.011, 0.013, 0.009, 0.007, 0.014]
+            [0.01, 0.015, 0.005, 0.012, 0.008, 0.011, 0.013, 0.009, 0.007, 0.014],
         )
 
         pattern = analyzer._create_pattern(
@@ -528,7 +528,7 @@ class TestConfidenceIntervals:
 
         # High variance
         returns_high_var = np.array(
-            [0.0, 0.02, 0.0, 0.02, 0.0, 0.02, 0.0, 0.02, 0.0, 0.02]
+            [0.0, 0.02, 0.0, 0.02, 0.0, 0.02, 0.0, 0.02, 0.0, 0.02],
         )
         pattern_high = analyzer._create_pattern(
             pattern_type=PatternType.MONTHLY,
@@ -561,7 +561,7 @@ class TestConsistencyScore:
         analyzer = SeasonalityAnalyzer()
 
         returns = np.array(
-            [0.01, -0.02, 0.015, 0.005, -0.01, 0.012, 0.008, 0.011, -0.005, 0.009]
+            [0.01, -0.02, 0.015, 0.005, -0.01, 0.012, 0.008, 0.011, -0.005, 0.009],
         )
 
         pattern = analyzer._create_pattern(

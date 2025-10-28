@@ -138,7 +138,7 @@ class QuantitativeAnalyzer:
             if trades_path.exists():
                 self.trades_data = pd.read_csv(trades_path)
                 print(
-                    f"Loaded {len(self.trades_data)} existing strategies from trades.csv"
+                    f"Loaded {len(self.trades_data)} existing strategies from trades.csv",
                 )
             else:
                 print("Warning: trades.csv not found")
@@ -149,7 +149,7 @@ class QuantitativeAnalyzer:
             if incoming_path.exists():
                 self.incoming_data = pd.read_csv(incoming_path)
                 print(
-                    f"Loaded {len(self.incoming_data)} incoming strategies from incoming.csv"
+                    f"Loaded {len(self.incoming_data)} incoming strategies from incoming.csv",
                 )
             else:
                 print("Warning: incoming.csv not found")
@@ -200,10 +200,10 @@ class QuantitativeAnalyzer:
 
                 # Calculate VaR (approximate from available data)
                 var_95 = self._calculate_var(
-                    annualized_return, annualized_volatility, 0.95
+                    annualized_return, annualized_volatility, 0.95,
                 )
                 var_99 = self._calculate_var(
-                    annualized_return, annualized_volatility, 0.99
+                    annualized_return, annualized_volatility, 0.99,
                 )
 
                 metric = StrategyMetrics(
@@ -235,13 +235,12 @@ class QuantitativeAnalyzer:
         return metrics
 
     def _calculate_var(
-        self, return_rate: float, volatility: float, confidence: float
+        self, return_rate: float, volatility: float, confidence: float,
     ) -> float:
         """Calculate Value at Risk using parametric method"""
         try:
             z_score = stats.norm.ppf(1 - confidence)
-            var = return_rate + z_score * volatility
-            return var
+            return return_rate + z_score * volatility
         except:
             return 0.0
 
@@ -264,8 +263,7 @@ class QuantitativeAnalyzer:
             ]
 
             if len(available_columns) >= 2:
-                correlation_matrix = data[available_columns].corr()
-                return correlation_matrix
+                return data[available_columns].corr()
             print("Insufficient data for correlation analysis")
             return pd.DataFrame()
 
@@ -274,7 +272,7 @@ class QuantitativeAnalyzer:
             return pd.DataFrame()
 
     def calculate_portfolio_metrics(
-        self, strategies: list[StrategyMetrics]
+        self, strategies: list[StrategyMetrics],
     ) -> PortfolioAnalysis:
         """Calculate portfolio-level metrics and analysis"""
         if not strategies:
@@ -296,12 +294,12 @@ class QuantitativeAnalyzer:
             # Diversification ratio (simplified)
             strategy_volatilities = [s.annualized_volatility for s in strategies]
             diversification_ratio = np.mean(strategy_volatilities) / np.sqrt(
-                np.mean(np.square(strategy_volatilities))
+                np.mean(np.square(strategy_volatilities)),
             )
 
             # Top performers
             sorted_strategies = sorted(
-                strategies, key=lambda x: x.sharpe_ratio, reverse=True
+                strategies, key=lambda x: x.sharpe_ratio, reverse=True,
             )
             top_performers = [s.ticker for s in sorted_strategies[:5]]
 
@@ -342,7 +340,7 @@ class QuantitativeAnalyzer:
             if high_sharpe_strategies:
                 recommendations.append(
                     f"Consider increasing allocation to high Sharpe ratio strategies: "
-                    f"{', '.join([s.ticker for s in high_sharpe_strategies[:3]])}"
+                    f"{', '.join([s.ticker for s in high_sharpe_strategies[:3]])}",
                 )
 
             # Risk management recommendations
@@ -350,7 +348,7 @@ class QuantitativeAnalyzer:
             if high_drawdown_strategies:
                 recommendations.append(
                     f"Review risk management for high drawdown strategies: "
-                    f"{', '.join([s.ticker for s in high_drawdown_strategies[:3]])}"
+                    f"{', '.join([s.ticker for s in high_drawdown_strategies[:3]])}",
                 )
 
             # Diversification recommendations
@@ -364,7 +362,7 @@ class QuantitativeAnalyzer:
             if strategy_types[dominant_strategy] / len(strategies) > 0.7:
                 recommendations.append(
                     f"Portfolio is concentrated in {dominant_strategy} strategies. "
-                    f"Consider diversifying with other strategy types."
+                    f"Consider diversifying with other strategy types.",
                 )
 
             # Win rate recommendations
@@ -372,7 +370,7 @@ class QuantitativeAnalyzer:
             if low_win_rate_strategies:
                 recommendations.append(
                     f"Monitor low win rate strategies for potential optimization: "
-                    f"{', '.join([s.ticker for s in low_win_rate_strategies[:3]])}"
+                    f"{', '.join([s.ticker for s in low_win_rate_strategies[:3]])}",
                 )
 
             # Volatility recommendations
@@ -383,13 +381,13 @@ class QuantitativeAnalyzer:
             if high_vol_strategies:
                 recommendations.append(
                     f"Consider position sizing adjustments for high volatility strategies: "
-                    f"{', '.join([s.ticker for s in high_vol_strategies[:3]])}"
+                    f"{', '.join([s.ticker for s in high_vol_strategies[:3]])}",
                 )
 
         except Exception as e:
             print(f"Error generating recommendations: {e!s}")
             recommendations.append(
-                "Unable to generate specific recommendations due to data limitations."
+                "Unable to generate specific recommendations due to data limitations.",
             )
 
         return recommendations
@@ -412,7 +410,7 @@ class QuantitativeAnalyzer:
             # Combined analysis
             if self.trades_data is not None and self.incoming_data is not None:
                 combined_data = pd.concat(
-                    [self.trades_data, self.incoming_data], ignore_index=True
+                    [self.trades_data, self.incoming_data], ignore_index=True,
                 )
                 combined_metrics = self.calculate_strategy_metrics(combined_data)
                 combined_analysis = self.calculate_portfolio_metrics(combined_metrics)
@@ -451,7 +449,7 @@ class QuantitativeAnalyzer:
             # Portfolio statistics
             portfolio_return = np.mean([s.annualized_return for s in strategies])
             portfolio_volatility = np.mean(
-                [s.annualized_volatility for s in strategies]
+                [s.annualized_volatility for s in strategies],
             )
 
             # Run simulations
@@ -468,7 +466,7 @@ class QuantitativeAnalyzer:
             simulations = np.array(simulations)
 
             # Calculate statistics
-            monte_carlo_results = {
+            return {
                 "mean_final_value": np.mean(simulations),
                 "median_final_value": np.median(simulations),
                 "std_final_value": np.std(simulations),
@@ -478,7 +476,6 @@ class QuantitativeAnalyzer:
                 "probability_of_doubling": np.sum(simulations > 2.0) / num_simulations,
             }
 
-            return monte_carlo_results
 
         except Exception as e:
             print(f"Error in Monte Carlo analysis: {e!s}")
@@ -492,7 +489,7 @@ class QuantitativeAnalyzer:
         report_lines.append("COMPREHENSIVE QUANTITATIVE ANALYSIS REPORT")
         report_lines.append("=" * 80)
         report_lines.append(
-            f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
         )
         report_lines.append("")
 
@@ -507,35 +504,35 @@ class QuantitativeAnalyzer:
             if comparison.get("existing"):
                 existing = comparison["existing"]
                 report_lines.append(
-                    f"• Existing Portfolio: {existing.total_strategies} strategies"
+                    f"• Existing Portfolio: {existing.total_strategies} strategies",
                 )
                 report_lines.append(
-                    f"• Portfolio Sharpe Ratio: {existing.sharpe_ratio:.3f}"
+                    f"• Portfolio Sharpe Ratio: {existing.sharpe_ratio:.3f}",
                 )
                 report_lines.append(
-                    f"• Annualized Return: {existing.annualized_return*100:.2f}%"
+                    f"• Annualized Return: {existing.annualized_return*100:.2f}%",
                 )
                 report_lines.append(f"• Maximum Drawdown: {existing.max_drawdown:.2f}%")
 
             if comparison.get("incoming"):
                 incoming = comparison["incoming"]
                 report_lines.append(
-                    f"• Incoming Strategies: {incoming.total_strategies} strategies"
+                    f"• Incoming Strategies: {incoming.total_strategies} strategies",
                 )
                 report_lines.append(
-                    f"• Incoming Sharpe Ratio: {incoming.sharpe_ratio:.3f}"
+                    f"• Incoming Sharpe Ratio: {incoming.sharpe_ratio:.3f}",
                 )
                 report_lines.append(
-                    f"• Incoming Annualized Return: {incoming.annualized_return*100:.2f}%"
+                    f"• Incoming Annualized Return: {incoming.annualized_return*100:.2f}%",
                 )
 
             if "enhancement_impact" in comparison:
                 impact = comparison["enhancement_impact"]
                 report_lines.append(
-                    f"• Expected Return Enhancement: {impact['return_improvement']*100:.2f}%"
+                    f"• Expected Return Enhancement: {impact['return_improvement']*100:.2f}%",
                 )
                 report_lines.append(
-                    f"• Expected Sharpe Improvement: {impact['sharpe_improvement']:.3f}"
+                    f"• Expected Sharpe Improvement: {impact['sharpe_improvement']:.3f}",
                 )
 
             report_lines.append("")
@@ -547,17 +544,17 @@ class QuantitativeAnalyzer:
                 report_lines.append("-" * 40)
                 report_lines.append(f"Total Strategies: {existing.total_strategies}")
                 report_lines.append(
-                    f"Annualized Return: {existing.annualized_return*100:.2f}%"
+                    f"Annualized Return: {existing.annualized_return*100:.2f}%",
                 )
                 report_lines.append(
-                    f"Annualized Volatility: {existing.annualized_volatility*100:.2f}%"
+                    f"Annualized Volatility: {existing.annualized_volatility*100:.2f}%",
                 )
                 report_lines.append(f"Sharpe Ratio: {existing.sharpe_ratio:.3f}")
                 report_lines.append(f"Maximum Drawdown: {existing.max_drawdown:.2f}%")
                 report_lines.append(f"95% VaR: {existing.var_95*100:.2f}%")
                 report_lines.append(f"99% VaR: {existing.var_99*100:.2f}%")
                 report_lines.append(
-                    f"Diversification Ratio: {existing.diversification_ratio:.3f}"
+                    f"Diversification Ratio: {existing.diversification_ratio:.3f}",
                 )
                 report_lines.append("")
 
@@ -580,10 +577,10 @@ class QuantitativeAnalyzer:
                 report_lines.append("-" * 40)
                 report_lines.append(f"Total Strategies: {incoming.total_strategies}")
                 report_lines.append(
-                    f"Annualized Return: {incoming.annualized_return*100:.2f}%"
+                    f"Annualized Return: {incoming.annualized_return*100:.2f}%",
                 )
                 report_lines.append(
-                    f"Annualized Volatility: {incoming.annualized_volatility*100:.2f}%"
+                    f"Annualized Volatility: {incoming.annualized_volatility*100:.2f}%",
                 )
                 report_lines.append(f"Sharpe Ratio: {incoming.sharpe_ratio:.3f}")
                 report_lines.append(f"Maximum Drawdown: {incoming.max_drawdown:.2f}%")
@@ -601,36 +598,36 @@ class QuantitativeAnalyzer:
                 report_lines.append("PORTFOLIO ENHANCEMENT ANALYSIS")
                 report_lines.append("-" * 40)
                 report_lines.append(
-                    f"Expected Return Enhancement: {impact['return_improvement']*100:.2f}%"
+                    f"Expected Return Enhancement: {impact['return_improvement']*100:.2f}%",
                 )
                 report_lines.append(
-                    f"Expected Sharpe Improvement: {impact['sharpe_improvement']:.3f}"
+                    f"Expected Sharpe Improvement: {impact['sharpe_improvement']:.3f}",
                 )
                 report_lines.append(
-                    f"Risk Change (Max Drawdown): {impact['risk_change']:.2f}%"
+                    f"Risk Change (Max Drawdown): {impact['risk_change']:.2f}%",
                 )
                 report_lines.append(
-                    f"Diversification Change: {impact['diversification_change']:.3f}"
+                    f"Diversification Change: {impact['diversification_change']:.3f}",
                 )
                 report_lines.append("")
 
                 # Enhancement recommendations
                 if impact["return_improvement"] > 0:
                     report_lines.append(
-                        "✓ Adding incoming strategies is expected to improve returns"
+                        "✓ Adding incoming strategies is expected to improve returns",
                     )
                 else:
                     report_lines.append(
-                        "⚠ Adding incoming strategies may reduce overall returns"
+                        "⚠ Adding incoming strategies may reduce overall returns",
                     )
 
                 if impact["sharpe_improvement"] > 0:
                     report_lines.append(
-                        "✓ Adding incoming strategies should improve risk-adjusted returns"
+                        "✓ Adding incoming strategies should improve risk-adjusted returns",
                     )
                 else:
                     report_lines.append(
-                        "⚠ Adding incoming strategies may worsen risk-adjusted returns"
+                        "⚠ Adding incoming strategies may worsen risk-adjusted returns",
                     )
 
                 report_lines.append("")
@@ -644,22 +641,22 @@ class QuantitativeAnalyzer:
                     report_lines.append("MONTE CARLO SIMULATION (1 Year Projection)")
                     report_lines.append("-" * 40)
                     report_lines.append(
-                        f"Expected Portfolio Value: {mc_results['mean_final_value']:.3f}"
+                        f"Expected Portfolio Value: {mc_results['mean_final_value']:.3f}",
                     )
                     report_lines.append(
-                        f"Median Portfolio Value: {mc_results['median_final_value']:.3f}"
+                        f"Median Portfolio Value: {mc_results['median_final_value']:.3f}",
                     )
                     report_lines.append(
-                        f"95% Confidence Interval: {mc_results['var_95']:.3f}"
+                        f"95% Confidence Interval: {mc_results['var_95']:.3f}",
                     )
                     report_lines.append(
-                        f"99% Confidence Interval: {mc_results['var_99']:.3f}"
+                        f"99% Confidence Interval: {mc_results['var_99']:.3f}",
                     )
                     report_lines.append(
-                        f"Probability of Loss: {mc_results['probability_of_loss']*100:.1f}%"
+                        f"Probability of Loss: {mc_results['probability_of_loss']*100:.1f}%",
                     )
                     report_lines.append(
-                        f"Probability of Doubling: {mc_results['probability_of_doubling']*100:.1f}%"
+                        f"Probability of Doubling: {mc_results['probability_of_doubling']*100:.1f}%",
                     )
                     report_lines.append("")
 
@@ -682,18 +679,18 @@ class QuantitativeAnalyzer:
                 if impact["return_improvement"] > 0.05:  # 5% improvement
                     all_recommendations.append(
                         "STRONG RECOMMENDATION: Add incoming strategies to portfolio - "
-                        "significant return enhancement expected"
+                        "significant return enhancement expected",
                     )
                 elif impact["sharpe_improvement"] > 0.2:
                     all_recommendations.append(
                         "RECOMMENDATION: Add incoming strategies - "
-                        "meaningful risk-adjusted return improvement expected"
+                        "meaningful risk-adjusted return improvement expected",
                     )
 
                 if impact["risk_change"] > 10:  # 10% increase in max drawdown
                     all_recommendations.append(
                         "CAUTION: Adding incoming strategies may increase portfolio risk. "
-                        "Consider position sizing adjustments."
+                        "Consider position sizing adjustments.",
                     )
 
             # Display recommendations
@@ -702,7 +699,7 @@ class QuantitativeAnalyzer:
                     report_lines.append(f"{i}. {rec}")
             else:
                 report_lines.append(
-                    "No specific recommendations available based on current data."
+                    "No specific recommendations available based on current data.",
                 )
 
             report_lines.append("")

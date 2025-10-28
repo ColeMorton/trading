@@ -23,7 +23,7 @@ import polars as pl
 
 # Add the project root to the Python path
 sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
 )
 
 from app.tools.calculate_mas import calculate_mas
@@ -61,7 +61,8 @@ def create_synthetic_ohlc(data: pl.DataFrame, ma_column: str) -> pl.DataFrame:
     filtered_data = data.filter(pl.col(ma_column).is_not_null())
 
     if len(filtered_data) == 0:
-        raise ValueError(f"No valid data found for {ma_column}")
+        msg = f"No valid data found for {ma_column}"
+        raise ValueError(msg)
 
     # Create synthetic OHLC where:
     # - Close = Moving Average value
@@ -70,7 +71,7 @@ def create_synthetic_ohlc(data: pl.DataFrame, ma_column: str) -> pl.DataFrame:
     # - Low = Min(Open, Close)
     # - Volume = 0 (synthetic data marker)
 
-    result = (
+    return (
         filtered_data.with_columns(
             [
                 # Close = Moving Average
@@ -82,7 +83,7 @@ def create_synthetic_ohlc(data: pl.DataFrame, ma_column: str) -> pl.DataFrame:
                 .alias("Open"),
                 # Volume = 0 for synthetic data
                 pl.lit(0.0).alias("Volume"),
-            ]
+            ],
         )
         .with_columns(
             [
@@ -90,12 +91,11 @@ def create_synthetic_ohlc(data: pl.DataFrame, ma_column: str) -> pl.DataFrame:
                 pl.max_horizontal(["Open", "Close"]).alias("High"),
                 # Low = Min(Open, Close)
                 pl.min_horizontal(["Open", "Close"]).alias("Low"),
-            ]
+            ],
         )
         .select(["Date", "Open", "High", "Low", "Close", "Volume"])
     )
 
-    return result
 
 
 def export_ma_price_data(ticker: str, period: int, ma_type: str = "SMA") -> None:
@@ -114,7 +114,7 @@ def export_ma_price_data(ticker: str, period: int, ma_type: str = "SMA") -> None
     # Create configuration for data loading
     config: DataConfig = {
         "BASE_DIR": os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         ),
         "REFRESH": False,  # Use existing data if available
         "STRATEGY_TYPE": ma_type,
@@ -126,7 +126,8 @@ def export_ma_price_data(ticker: str, period: int, ma_type: str = "SMA") -> None
         price_data = get_data(ticker, config, log)
 
         if price_data is None or len(price_data) == 0:
-            raise ValueError(f"No price data found for {ticker}")
+            msg = f"No price data found for {ticker}"
+            raise ValueError(msg)
 
         log(f"Loaded {len(price_data)} price data points")
 
@@ -146,7 +147,7 @@ def export_ma_price_data(ticker: str, period: int, ma_type: str = "SMA") -> None
 
         # Create output directory
         output_dir = os.path.join(
-            config["BASE_DIR"], "data", "raw", "ma_cross", "prices"
+            config["BASE_DIR"], "data", "raw", "ma_cross", "prices",
         )
         os.makedirs(output_dir, exist_ok=True)
 
@@ -160,7 +161,7 @@ def export_ma_price_data(ticker: str, period: int, ma_type: str = "SMA") -> None
 
         log(f"Successfully exported {ma_type} price data to {output_path}")
         log(
-            f"Data range: {synthetic_data['Date'].min()} to {synthetic_data['Date'].max()}"
+            f"Data range: {synthetic_data['Date'].min()} to {synthetic_data['Date'].max()}",
         )
 
     except Exception as e:

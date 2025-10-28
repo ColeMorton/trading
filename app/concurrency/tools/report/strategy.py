@@ -23,7 +23,7 @@ class StrategyParameter(TypedDict):
 
 
 def create_strategy_object(
-    config: dict[str, Any], index: int, stats: dict[str, Any]
+    config: dict[str, Any], index: int, stats: dict[str, Any],
 ) -> Strategy:
     """Create a strategy object with the optimized structure.
 
@@ -45,8 +45,9 @@ def create_strategy_object(
     )
 
     if not strategy_type:
+        msg = "Strategy type must be explicitly specified in CSV. No default strategy type is allowed."
         raise ValueError(
-            "Strategy type must be explicitly specified in CSV. No default strategy type is allowed."
+            msg,
         )
 
     # Only override with MACD detection if STRATEGY_TYPE wasn't explicitly set
@@ -267,7 +268,7 @@ def create_strategy_object(
     # Get strategy-specific signal quality metrics if available
     # We still need to use "strategy_" prefix for internal lookups in stats
     signal_quality_metrics_data = stats.get("signal_quality_metrics", {}).get(
-        f"strategy_{index}", {}
+        f"strategy_{index}", {},
     )
 
     # Only include signal quality metrics if they exist
@@ -284,7 +285,7 @@ def create_strategy_object(
     if include_allocation:
         # We still need to use "strategy_" prefix for internal lookups in stats
         strategy_obj["allocation_score"] = stats.get(
-            f"strategy_{index}_allocation_score", 0.0
+            f"strategy_{index}_allocation_score", 0.0,
         )
         strategy_obj["allocation"] = stats.get(f"strategy_{index}_allocation", 0.0)
 
@@ -308,7 +309,7 @@ def create_strategy_object(
         # Minimal list of metrics to exclude (only those that are truly redundant)
         # These are already represented elsewhere in the JSON structure
         exclude_metrics = [
-            "PORTFOLIO_STATS"  # This is the container, not a metric itself
+            "PORTFOLIO_STATS",  # This is the container, not a metric itself
         ]
 
         # Add all metrics from the config

@@ -28,7 +28,7 @@ class PriceDataIntegration:
         self.cache_enabled = cache_enabled
 
     def _create_config(
-        self, refresh: bool = False, use_hourly: bool = False, period: str = "max"
+        self, refresh: bool = False, use_hourly: bool = False, period: str = "max",
     ) -> DataConfig:
         """Create standardized data configuration.
 
@@ -51,7 +51,6 @@ class PriceDataIntegration:
 
     def _silent_log(self, message: str, level: str = "info"):
         """Silent logging function for internal data fetching."""
-        pass
 
     def get_current_price(self, symbol: str, use_cache: bool = True) -> float:
         """Get current/latest price for a single symbol.
@@ -78,13 +77,15 @@ class PriceDataIntegration:
             # Get latest close price
             if len(data) > 0:
                 return float(data["Close"].tail(1).item())
-            raise ValueError(f"No price data available for {symbol}")
+            msg = f"No price data available for {symbol}"
+            raise ValueError(msg)
 
         except Exception as e:
-            raise ValueError(f"Failed to fetch price for {symbol}: {e!s}")
+            msg = f"Failed to fetch price for {symbol}: {e!s}"
+            raise ValueError(msg)
 
     def get_multiple_prices(
-        self, symbols: list[str], use_cache: bool = True
+        self, symbols: list[str], use_cache: bool = True,
     ) -> dict[str, float]:
         """Get current prices for multiple symbols.
 
@@ -107,13 +108,13 @@ class PriceDataIntegration:
 
         if errors:
             print(
-                f"Warning: Failed to fetch prices for some symbols: {'; '.join(errors)}"
+                f"Warning: Failed to fetch prices for some symbols: {'; '.join(errors)}",
             )
 
         return prices
 
     def get_historical_data(
-        self, symbol: str, period: str = "1y", use_hourly: bool = False
+        self, symbol: str, period: str = "1y", use_hourly: bool = False,
     ) -> pl.DataFrame:
         """Get historical price data for analysis.
 
@@ -126,7 +127,7 @@ class PriceDataIntegration:
             Polars DataFrame with historical OHLCV data
         """
         config = self._create_config(
-            refresh=False, use_hourly=use_hourly, period=period
+            refresh=False, use_hourly=use_hourly, period=period,
         )
 
         data = get_data(symbol, config, self._silent_log)
@@ -151,7 +152,8 @@ class PriceDataIntegration:
             data = self.get_historical_data(symbol, period=f"{days*2}d")
 
             if len(data) < days:
-                raise ValueError(f"Insufficient data for {symbol}")
+                msg = f"Insufficient data for {symbol}"
+                raise ValueError(msg)
 
             # Get recent and historical prices
             current_price = float(data["Close"].tail(1).item())
@@ -175,7 +177,8 @@ class PriceDataIntegration:
             }
 
         except Exception as e:
-            raise ValueError(f"Failed to calculate price changes for {symbol}: {e!s}")
+            msg = f"Failed to calculate price changes for {symbol}: {e!s}"
+            raise ValueError(msg)
 
     def validate_symbol(self, symbol: str) -> tuple[bool, str]:
         """Validate that a symbol has available price data.

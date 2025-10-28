@@ -41,8 +41,9 @@ def resolve_portfolio_file_path(
     # If file_type is specified, force that extension
     if file_type:
         if file_type.lower() not in ["csv", "json"]:
+            msg = f"Unsupported file type: {file_type}. Must be 'csv' or 'json'"
             raise ValueError(
-                f"Unsupported file type: {file_type}. Must be 'csv' or 'json'"
+                msg,
             )
 
         # Ensure portfolio_name has the correct extension
@@ -65,7 +66,8 @@ def resolve_portfolio_file_path(
             if portfolio_path.exists():
                 return portfolio_path
 
-        raise FileNotFoundError(f"Portfolio file not found: {portfolio_path}")
+        msg = f"Portfolio file not found: {portfolio_path}"
+        raise FileNotFoundError(msg)
 
     # Try to find the file with any supported extension
     # First check if the name already has an extension
@@ -125,7 +127,8 @@ def resolve_portfolio_file_path(
             return portfolio_def_path
 
     # If we get here, the file wasn't found
-    raise FileNotFoundError(f"Portfolio file not found: {portfolio_name}")
+    msg = f"Portfolio file not found: {portfolio_name}"
+    raise FileNotFoundError(msg)
 
 
 def get_project_root() -> Path:

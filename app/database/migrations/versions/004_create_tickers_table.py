@@ -26,7 +26,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer, primary_key=True, autoincrement=True),
         sa.Column("ticker", sa.String(50), nullable=False, unique=True, index=True),
         sa.Column(
-            "created_at", sa.DateTime, nullable=False, server_default=sa.text("now()")
+            "created_at", sa.DateTime, nullable=False, server_default=sa.text("now()"),
         ),
     )
 
@@ -38,7 +38,7 @@ def upgrade() -> None:
         FROM strategy_sweep_results
         WHERE ticker IS NOT NULL
         ORDER BY ticker
-    """
+    """,
     )
 
     # 3. Add ticker_id column to strategy_sweep_results (nullable initially)
@@ -54,7 +54,7 @@ def upgrade() -> None:
         SET ticker_id = t.id
         FROM tickers t
         WHERE sr.ticker = t.ticker
-    """
+    """,
     )
 
     # 5. Make ticker_id NOT NULL
@@ -73,7 +73,7 @@ def upgrade() -> None:
     # 7. Drop the old ticker string column
     op.drop_index("ix_strategy_sweep_ticker", table_name="strategy_sweep_results")
     op.drop_index(
-        "ix_strategy_sweep_ticker_strategy", table_name="strategy_sweep_results"
+        "ix_strategy_sweep_ticker_strategy", table_name="strategy_sweep_results",
     )
     op.drop_column("strategy_sweep_results", "ticker")
 
@@ -90,7 +90,7 @@ def downgrade() -> None:
 
     # 1. Drop composite index
     op.drop_index(
-        "ix_strategy_sweep_ticker_id_strategy", table_name="strategy_sweep_results"
+        "ix_strategy_sweep_ticker_id_strategy", table_name="strategy_sweep_results",
     )
 
     # 2. Add back ticker string column
@@ -106,7 +106,7 @@ def downgrade() -> None:
         SET ticker = t.ticker
         FROM tickers t
         WHERE sr.ticker_id = t.id
-    """
+    """,
     )
 
     # 4. Make ticker NOT NULL

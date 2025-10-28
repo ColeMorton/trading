@@ -55,7 +55,7 @@ class PortfolioStatisticalAnalyzer:
 
         # Initialize service
         self.service = StatisticalAnalysisService(
-            config=self.config, logger=self.logger
+            config=self.config, logger=self.logger,
         )
 
         # Cache loaded data
@@ -64,7 +64,7 @@ class PortfolioStatisticalAnalyzer:
 
         self.logger.info(
             f"Portfolio analyzer initialized for '{portfolio}' with "
-            f"trade_history={use_trade_history}"
+            f"trade_history={use_trade_history}",
         )
 
     def load_portfolio(self) -> pd.DataFrame:
@@ -75,13 +75,14 @@ class PortfolioStatisticalAnalyzer:
         portfolio_path = self.config.get_portfolio_file_path()
 
         if not portfolio_path.exists():
-            raise FileNotFoundError(f"Portfolio file not found: {portfolio_path}")
+            msg = f"Portfolio file not found: {portfolio_path}"
+            raise FileNotFoundError(msg)
 
         self.logger.info(f"Loading portfolio from: {portfolio_path}")
         self._portfolio_data = pd.read_csv(portfolio_path)
 
         self.logger.info(
-            f"Loaded {len(self._portfolio_data)} strategies from portfolio"
+            f"Loaded {len(self._portfolio_data)} strategies from portfolio",
         )
         return self._portfolio_data
 
@@ -100,11 +101,12 @@ class PortfolioStatisticalAnalyzer:
                 self.logger.info(
                     f"Trade history file not found: {trade_history_path}. "
                     f"Using equity curve analysis (fallback mode enabled). "
-                    f"This is normal when analyzing strategies without individual trade data."
+                    f"This is normal when analyzing strategies without individual trade data.",
                 )
                 return None
+            msg = f"Trade history file not found: {trade_history_path}"
             raise FileNotFoundError(
-                f"Trade history file not found: {trade_history_path}"
+                msg,
             )
 
         self.logger.info(f"Loading trade history from: {trade_history_path}")
@@ -114,7 +116,7 @@ class PortfolioStatisticalAnalyzer:
         return self._trade_history_data
 
     async def analyze(
-        self, detailed: bool = False
+        self, detailed: bool = False,
     ) -> dict[str, StatisticalAnalysisResult]:
         """
         Analyze entire portfolio and return results for all strategies.
@@ -135,11 +137,11 @@ class PortfolioStatisticalAnalyzer:
 
         if position_context:
             self.logger.info(
-                f"Loaded position context with {len(position_context)} positions for portfolio {portfolio_name}"
+                f"Loaded position context with {len(position_context)} positions for portfolio {portfolio_name}",
             )
         else:
             self.logger.info(
-                f"No position context found for portfolio {portfolio_name}"
+                f"No position context found for portfolio {portfolio_name}",
             )
 
         results = {}
@@ -152,13 +154,13 @@ class PortfolioStatisticalAnalyzer:
         for strategy_info in strategies:
             try:
                 result = await self._analyze_strategy(
-                    strategy_info, trade_history_data, detailed, position_context
+                    strategy_info, trade_history_data, detailed, position_context,
                 )
                 results[strategy_info["strategy_name"]] = result
 
             except Exception as e:
-                self.logger.error(
-                    f"Failed to analyze strategy {strategy_info['strategy_name']}: {e}"
+                self.logger.exception(
+                    f"Failed to analyze strategy {strategy_info['strategy_name']}: {e}",
                 )
                 # Continue with other strategies
 
@@ -166,7 +168,7 @@ class PortfolioStatisticalAnalyzer:
         return results
 
     def get_exit_signals(
-        self, results: dict[str, StatisticalAnalysisResult]
+        self, results: dict[str, StatisticalAnalysisResult],
     ) -> dict[str, str]:
         """
         Extract exit signals from analysis results.
@@ -198,7 +200,7 @@ class PortfolioStatisticalAnalyzer:
         return signals
 
     def get_summary_report(
-        self, results: dict[str, StatisticalAnalysisResult]
+        self, results: dict[str, StatisticalAnalysisResult],
     ) -> dict[str, Any]:
         """
         Generate summary report of portfolio analysis.
@@ -268,7 +270,7 @@ class PortfolioStatisticalAnalyzer:
         }
 
     def _extract_strategies_from_portfolio(
-        self, portfolio_data: pd.DataFrame
+        self, portfolio_data: pd.DataFrame,
     ) -> list[dict[str, Any]]:
         """Extract strategy information from portfolio CSV."""
         strategies = []
@@ -293,14 +295,14 @@ class PortfolioStatisticalAnalyzer:
 
                 except Exception as e:
                     self.logger.warning(
-                        f"Failed to parse Position_UUID '{position_uuid}': {e}"
+                        f"Failed to parse Position_UUID '{position_uuid}': {e}",
                     )
                     # Fall back to manual extraction
                     ticker = row.get(
-                        "Ticker", row.get("ticker", row.get("Symbol", "UNKNOWN"))
+                        "Ticker", row.get("ticker", row.get("Symbol", "UNKNOWN")),
                     )
                     strategy_type = row.get(
-                        "Strategy Type", row.get("strategy_type", "SMA")
+                        "Strategy Type", row.get("strategy_type", "SMA"),
                     )
                     fast_period = row.get("Fast Period", row.get("fast_period", ""))
                     slow_period = row.get("Slow Period", row.get("slow_period", ""))
@@ -312,10 +314,10 @@ class PortfolioStatisticalAnalyzer:
             else:
                 # Handle other CSV formats with separate columns
                 ticker = row.get(
-                    "Ticker", row.get("ticker", row.get("Symbol", "UNKNOWN"))
+                    "Ticker", row.get("ticker", row.get("Symbol", "UNKNOWN")),
                 )
                 strategy_type = row.get(
-                    "Strategy Type", row.get("strategy_type", "SMA")
+                    "Strategy Type", row.get("strategy_type", "SMA"),
                 )
                 fast_period = row.get("Fast Period", row.get("fast_period", ""))
                 slow_period = row.get("Slow Period", row.get("slow_period", ""))
@@ -326,7 +328,7 @@ class PortfolioStatisticalAnalyzer:
                 else:
                     # Fallback to existing logic for other formats
                     strategy_name = row.get(
-                        "strategy_name", row.get("Strategy", "UNKNOWN")
+                        "strategy_name", row.get("Strategy", "UNKNOWN"),
                     )
 
             strategy_info = {
@@ -387,12 +389,12 @@ class PortfolioStatisticalAnalyzer:
                     strategy_pattern = f"{strategy_name}_"  # e.g., "MA_SMA_78_82_"
                     strategy_trades = trade_history_data[
                         trade_history_data["Position_UUID"].str.startswith(
-                            strategy_pattern
+                            strategy_pattern,
                         )
                     ]
                     if not strategy_trades.empty:
                         self.logger.info(
-                            f"Found {len(strategy_trades)} trades using Position_UUID pattern matching"
+                            f"Found {len(strategy_trades)} trades using Position_UUID pattern matching",
                         )
 
                 # Approach 2: Exact component matching (fallback if Position_UUID matching failed)
@@ -418,28 +420,28 @@ class PortfolioStatisticalAnalyzer:
                 # Approach 3: Fuzzy UUID matching if exact matching fails
                 if strategy_trades is None or len(strategy_trades) == 0:
                     strategy_trades = self._fuzzy_match_trade_history(
-                        trade_history_data, strategy_name, ticker, strategy_info
+                        trade_history_data, strategy_name, ticker, strategy_info,
                     )
 
             if strategy_trades is not None and len(strategy_trades) > 0:
                 strategy_trade_data = strategy_trades.to_dict("records")
                 self.logger.info(
-                    f"Found {len(strategy_trades)} trade history records for {strategy_name}"
+                    f"Found {len(strategy_trades)} trade history records for {strategy_name}",
                 )
             else:
                 self.logger.info(
-                    f"No trade history found for {strategy_name} (ticker: {ticker}) - using equity curve analysis"
+                    f"No trade history found for {strategy_name} (ticker: {ticker}) - using equity curve analysis",
                 )
 
         # CRITICAL FIX: Check for open position in position context
         position_data = None
         if position_context:
             position_data = self.service._find_matching_position(
-                strategy_name, position_context
+                strategy_name, position_context,
             )
             if position_data:
                 self.logger.info(
-                    f"Found open position for {strategy_name}: {position_data.get('current_unrealized_pnl', 0):.1%} P&L, {position_data.get('days_since_entry', 0)} days held"
+                    f"Found open position for {strategy_name}: {position_data.get('current_unrealized_pnl', 0):.1%} P&L, {position_data.get('days_since_entry', 0)} days held",
                 )
 
         # Use the existing service method with position context
@@ -452,7 +454,7 @@ class PortfolioStatisticalAnalyzer:
         # CRITICAL FIX: If there's an open position, override the signal generation
         if position_data and self.service._is_position_open(position_data):
             self.logger.info(
-                f"Overriding signal generation for open position {strategy_name}"
+                f"Overriding signal generation for open position {strategy_name}",
             )
 
             # Use position-aware signal generation instead of generic signal generation
@@ -478,14 +480,14 @@ class PortfolioStatisticalAnalyzer:
             confidence = position_aware_signal.confidence
 
             if signal_type.name.startswith("STRONG_BUY") or signal_type.name.startswith(
-                "BUY"
+                "BUY",
             ):
                 result.recommendation_summary = f"Position already held ({position_data.get('current_unrealized_pnl', 0):.1%} P&L, {position_data.get('days_since_entry', 0)} days). Signal: {signal_type.name} - Continue holding."
             else:
                 result.recommendation_summary = f"Position held ({position_data.get('current_unrealized_pnl', 0):.1%} P&L, {position_data.get('days_since_entry', 0)} days). Exit signal: {signal_type.name} (confidence: {confidence:.1f}%)"
 
             self.logger.info(
-                f"Updated signal for open position {strategy_name}: {signal_type.name} with {confidence:.1f}% confidence"
+                f"Updated signal for open position {strategy_name}: {signal_type.name} with {confidence:.1f}% confidence",
             )
 
         # Extract MFE/MAE directly from trade data and attach to result for export
@@ -512,12 +514,12 @@ class PortfolioStatisticalAnalyzer:
                 result._temp_trade_data = strategy_trade_data
 
                 self.logger.info(
-                    f"Extracted MFE/MAE for {strategy_name}: MFE={avg_mfe:.4f}, MAE={avg_mae:.4f}"
+                    f"Extracted MFE/MAE for {strategy_name}: MFE={avg_mfe:.4f}, MAE={avg_mae:.4f}",
                 )
 
             except Exception as e:
-                self.logger.error(
-                    f"Failed to extract MFE/MAE from trade data for {strategy_name}: {e}"
+                self.logger.exception(
+                    f"Failed to extract MFE/MAE from trade data for {strategy_name}: {e}",
                 )
 
         # Add component score calculation if detailed analysis is requested
@@ -531,7 +533,7 @@ class PortfolioStatisticalAnalyzer:
                 # Fetch data and calculate component scores
                 if market_analyzer.fetch_data():
                     analysis_result = await market_analyzer.analyze(
-                        include_components=True
+                        include_components=True,
                     )
                     component_scores = analysis_result.get("component_scores", {})
 
@@ -541,31 +543,31 @@ class PortfolioStatisticalAnalyzer:
                             result.raw_analysis_data = {}
                         result.raw_analysis_data["component_scores"] = component_scores
                         self.logger.info(
-                            f"Added component scores for {ticker}: {len(component_scores)} components"
+                            f"Added component scores for {ticker}: {len(component_scores)} components",
                         )
 
                         # Apply component score override to exit signal
                         result = self.service.update_exit_signal_with_component_scores(
-                            result, component_scores
+                            result, component_scores,
                         )
                     else:
                         self.logger.warning(
-                            f"No component scores returned for {ticker}"
+                            f"No component scores returned for {ticker}",
                         )
                 else:
                     self.logger.warning(
-                        f"Failed to fetch market data for component scores: {ticker}"
+                        f"Failed to fetch market data for component scores: {ticker}",
                     )
 
             except Exception as e:
-                self.logger.error(
-                    f"Failed to calculate component scores for {strategy_name}: {e}"
+                self.logger.exception(
+                    f"Failed to calculate component scores for {strategy_name}: {e}",
                 )
 
         return result
 
     def _fuzzy_match_trade_history(
-        self, trade_history_data, strategy_name, ticker, strategy_info
+        self, trade_history_data, strategy_name, ticker, strategy_info,
     ):
         """
         Fuzzy match trade history using Position_UUID pattern matching.
@@ -587,7 +589,7 @@ class PortfolioStatisticalAnalyzer:
         expected_prefix = f"{ticker}_{strategy_type}_{fast_period}_{slow_period}"
 
         self.logger.info(
-            f"Fuzzy matching for {strategy_name}: expected_prefix={expected_prefix}"
+            f"Fuzzy matching for {strategy_name}: expected_prefix={expected_prefix}",
         )
 
         # Pattern to match UUID with date suffix: {strategy_prefix}_{YYYYMMDD}
@@ -605,7 +607,7 @@ class PortfolioStatisticalAnalyzer:
             if uuid_without_date == expected_prefix:
                 matched_rows.append(row)
                 self.logger.info(
-                    f"Fuzzy matched trade history: {position_uuid} -> {strategy_name}"
+                    f"Fuzzy matched trade history: {position_uuid} -> {strategy_name}",
                 )
 
         if matched_rows:
@@ -619,7 +621,7 @@ class PortfolioStatisticalAnalyzer:
             if uuid_without_date.startswith(broader_pattern):
                 matched_rows.append(row)
                 self.logger.info(
-                    f"Broad fuzzy matched trade history: {position_uuid} -> {strategy_name}"
+                    f"Broad fuzzy matched trade history: {position_uuid} -> {strategy_name}",
                 )
 
         if matched_rows:
@@ -630,7 +632,7 @@ class PortfolioStatisticalAnalyzer:
 
 # Convenience function for quick analysis
 async def analyze_portfolio(
-    portfolio: str, use_trade_history: bool = True
+    portfolio: str, use_trade_history: bool = True,
 ) -> tuple[dict[str, StatisticalAnalysisResult], dict[str, Any]]:
     """
     Quick portfolio analysis function.
@@ -673,7 +675,7 @@ if __name__ == "__main__":
         # Example 2: Analyze conservative portfolio with equity curves
         print("\n=== Conservative Portfolio with Equity Curves ===")
         analyzer2 = PortfolioStatisticalAnalyzer(
-            "conservative.csv", use_trade_history=False
+            "conservative.csv", use_trade_history=False,
         )
         results2 = await analyzer2.analyze()
         summary2 = analyzer2.get_summary_report(results2)
@@ -684,7 +686,7 @@ if __name__ == "__main__":
         # Example 3: Quick analysis function
         print("\n=== Quick Analysis ===")
         results3, summary3 = await analyze_portfolio(
-            "momentum.csv", use_trade_history=True
+            "momentum.csv", use_trade_history=True,
         )
         print(f"Quick analysis complete for {summary3['total_strategies']} strategies")
 

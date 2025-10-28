@@ -144,7 +144,7 @@ def generate_optimization_report(
 
 
 def save_optimization_report(
-    report: dict[str, Any], config: ConcurrencyConfig, log: Callable[[str, str], None]
+    report: dict[str, Any], config: ConcurrencyConfig, log: Callable[[str, str], None],
 ) -> Path:
     """Save optimization report to file.
 
@@ -179,4 +179,5 @@ def save_optimization_report(
 
     except Exception as e:
         log(f"Error saving optimization report: {e!s}", "error")
-        raise OSError(f"Failed to save optimization report: {e!s}")
+        msg = f"Failed to save optimization report: {e!s}"
+        raise OSError(msg)

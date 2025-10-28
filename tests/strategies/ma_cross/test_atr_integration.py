@@ -21,7 +21,7 @@ import pytest
 
 
 atr_module = importlib.import_module(
-    "app.strategies.ma_cross.3_get_atr_stop_portfolios"
+    "app.strategies.ma_cross.3_get_atr_stop_portfolios",
 )
 execute_atr_analysis_for_ticker = atr_module.execute_atr_analysis_for_ticker
 export_atr_portfolios = atr_module.export_atr_portfolios
@@ -65,7 +65,7 @@ def sample_price_data():
             "Close": prices,
             "Volume": np.random.randint(1000000, 10000000, len(dates)),
             "Ticker": "AAPL",
-        }
+        },
     ).set_index("Date")
 
     return pl.from_pandas(df.reset_index())
@@ -121,7 +121,7 @@ def sample_atr_portfolios():
     atr_multipliers = [1.5, 2.0, 2.5]
 
     for i, (length, multiplier) in enumerate(
-        [(l, m) for l in atr_lengths for m in atr_multipliers]
+        [(l, m) for l in atr_lengths for m in atr_multipliers],
     ):
         portfolio = {
             "Ticker": "AAPL",
@@ -205,12 +205,12 @@ class TestCompleteATRWorkflow:
                         "Exit Slow Period": atr_multiplier,
                         "Exit Signal Period": None,
                         "Ticker": "AAPL",
-                    }
+                    },
                 )
 
         # Mock the function directly and use the mock results
         with patch.object(
-            atr_module, "execute_atr_analysis_for_ticker", return_value=mock_results
+            atr_module, "execute_atr_analysis_for_ticker", return_value=mock_results,
         ) as mock_execute:
             results = mock_execute("AAPL", comprehensive_config, mock_logger)
 
@@ -240,14 +240,14 @@ class TestCompleteATRWorkflow:
 
     @patch("app.tools.get_data.get_data")
     def test_workflow_data_loading_failure(
-        self, mock_get_data, comprehensive_config, mock_logger
+        self, mock_get_data, comprehensive_config, mock_logger,
     ):
         """Test workflow handling of data loading failure."""
         # Mock data loading failure
         mock_get_data.return_value = None
 
         results = execute_atr_analysis_for_ticker(
-            "AAPL", comprehensive_config, mock_logger
+            "AAPL", comprehensive_config, mock_logger,
         )
 
         assert results == []
@@ -285,7 +285,7 @@ class TestCompleteATRWorkflow:
         mock_sma.side_effect = mock_sma_with_failures
 
         results = execute_atr_analysis_for_ticker(
-            "AAPL", comprehensive_config, mock_logger
+            "AAPL", comprehensive_config, mock_logger,
         )
 
         # Should have some results but not all (due to failures)
@@ -305,7 +305,7 @@ class TestATRPortfolioExportIntegration:
     """Test ATR portfolio export functionality integration."""
 
     def test_export_atr_portfolios_full_workflow(
-        self, sample_atr_portfolios, comprehensive_config, mock_logger
+        self, sample_atr_portfolios, comprehensive_config, mock_logger,
     ):
         """Test complete portfolio export workflow."""
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -316,7 +316,7 @@ class TestATRPortfolioExportIntegration:
             # Mock file operations
             with patch("polars.DataFrame.write_csv") as mock_write_csv:
                 with patch.object(
-                    atr_module, "PortfolioFilterService"
+                    atr_module, "PortfolioFilterService",
                 ) as mock_filter_service:
                     # Mock filtering service
                     mock_filter_instance = Mock()
@@ -327,14 +327,14 @@ class TestATRPortfolioExportIntegration:
 
                     # Execute export
                     success = export_atr_portfolios(
-                        sample_atr_portfolios, "AAPL", config, mock_logger
+                        sample_atr_portfolios, "AAPL", config, mock_logger,
                     )
 
                     assert success is True
 
                     # Verify filtering was applied
                     mock_filter_instance.filter_portfolios_list.assert_called_once_with(
-                        sample_atr_portfolios, config, mock_logger
+                        sample_atr_portfolios, config, mock_logger,
                     )
 
                     # Verify CSV export was attempted
@@ -347,7 +347,7 @@ class TestATRPortfolioExportIntegration:
                     assert expected_filename in call_args
 
     def test_export_filtering_integration(
-        self, sample_atr_portfolios, comprehensive_config, mock_logger
+        self, sample_atr_portfolios, comprehensive_config, mock_logger,
     ):
         """Test integration of portfolio filtering with export."""
         # Create portfolios with varying quality
@@ -366,7 +366,7 @@ class TestATRPortfolioExportIntegration:
             with patch("polars.DataFrame.write_csv") as mock_write_csv:
                 # Use real filtering service to test actual filtering logic
                 success = export_atr_portfolios(
-                    varied_portfolios, "AAPL", config, mock_logger
+                    varied_portfolios, "AAPL", config, mock_logger,
                 )
 
                 # Should still succeed but with fewer portfolios
@@ -382,7 +382,7 @@ class TestATRPortfolioExportIntegration:
                 assert len(filter_calls) > 0
 
     def test_export_sorting_integration(
-        self, sample_atr_portfolios, comprehensive_config, mock_logger
+        self, sample_atr_portfolios, comprehensive_config, mock_logger,
     ):
         """Test integration of portfolio sorting with export."""
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -400,7 +400,7 @@ class TestATRPortfolioExportIntegration:
 
             with patch("polars.DataFrame.write_csv", side_effect=capture_write_csv):
                 with patch.object(
-                    atr_module, "PortfolioFilterService"
+                    atr_module, "PortfolioFilterService",
                 ) as mock_filter_service:
                     # Mock filtering to pass all portfolios
                     mock_filter_instance = Mock()
@@ -410,7 +410,7 @@ class TestATRPortfolioExportIntegration:
                     mock_filter_service.return_value = mock_filter_instance
 
                     success = export_atr_portfolios(
-                        sample_atr_portfolios, "AAPL", config, mock_logger
+                        sample_atr_portfolios, "AAPL", config, mock_logger,
                     )
 
                     assert success is True
@@ -419,11 +419,11 @@ class TestATRPortfolioExportIntegration:
                     # Verify sorting was applied (ascending order by Total Return)
                     total_returns = written_data["Total Return"].tolist()
                     assert total_returns == sorted(
-                        total_returns
+                        total_returns,
                     )  # Should be sorted ascending
 
     def test_export_schema_compliance(
-        self, sample_atr_portfolios, comprehensive_config, mock_logger
+        self, sample_atr_portfolios, comprehensive_config, mock_logger,
     ):
         """Test that exported portfolios comply with ATR extended schema."""
         # Transform portfolios to ATR extended schema
@@ -441,7 +441,7 @@ class TestATRPortfolioExportIntegration:
         # Validate each portfolio
         for portfolio in extended_portfolios:
             is_valid, errors = schema_transformer.validate_schema(
-                portfolio, SchemaType.EXTENDED
+                portfolio, SchemaType.EXTENDED,
             )
             assert is_valid is True, f"Schema validation failed: {errors}"
 
@@ -471,7 +471,7 @@ class TestATRAnalysisMemoryIntegration:
 
         # Create engine with memory optimization enabled
         engine = create_atr_sweep_engine(
-            comprehensive_config, enable_memory_optimization=True
+            comprehensive_config, enable_memory_optimization=True,
         )
 
         # Verify memory optimization settings
@@ -521,14 +521,14 @@ class TestATRErrorHandlingIntegration:
 
     @patch("app.tools.get_data.get_data")
     def test_graceful_degradation_on_errors(
-        self, mock_get_data, comprehensive_config, mock_logger
+        self, mock_get_data, comprehensive_config, mock_logger,
     ):
         """Test that system degrades gracefully when errors occur."""
         # Simulate various types of failures
         mock_get_data.side_effect = Exception("Data loading failed")
 
         results = execute_atr_analysis_for_ticker(
-            "AAPL", comprehensive_config, mock_logger
+            "AAPL", comprehensive_config, mock_logger,
         )
 
         # Should return empty list instead of crashing
@@ -553,7 +553,7 @@ class TestATRErrorHandlingIntegration:
         # Should handle gracefully without crashing
         try:
             results = execute_atr_analysis_for_ticker(
-                "TEST", invalid_config, mock_logger
+                "TEST", invalid_config, mock_logger,
             )
             # If it doesn't crash, should return empty results
             assert results == []
@@ -576,7 +576,7 @@ class TestATRErrorHandlingIntegration:
         # Mock to simulate permission error
         with patch("os.makedirs", side_effect=PermissionError("Permission denied")):
             success = export_atr_portfolios(
-                sample_atr_portfolios, "TEST", config, mock_logger
+                sample_atr_portfolios, "TEST", config, mock_logger,
             )
 
             assert success is False
@@ -672,7 +672,7 @@ class TestATREndToEndScenarios:
                     "Exit Fast Period": 10 + i,
                     "Exit Slow Period": 1.5 + i * 0.1,
                     "Exit Signal Period": None,
-                }
+                },
             )
 
         # Mediocre portfolios (some should pass, some should fail)
@@ -688,7 +688,7 @@ class TestATREndToEndScenarios:
                     "Exit Fast Period": 15 + i,
                     "Exit Slow Period": 2.0 + i * 0.05,
                     "Exit Signal Period": None,
-                }
+                },
             )
 
         # Poor portfolios (should mostly fail filtering)
@@ -704,7 +704,7 @@ class TestATREndToEndScenarios:
                     "Exit Fast Period": 20 + i,
                     "Exit Slow Period": 2.5 + i * 0.02,
                     "Exit Signal Period": None,
-                }
+                },
             )
 
         # Apply realistic filtering criteria
@@ -715,12 +715,12 @@ class TestATREndToEndScenarios:
                 "EXPECTANCY_PER_TRADE": 0.03,
                 "PROFIT_FACTOR": 1.5,
                 "SORTINO_RATIO": 1.0,
-            }
+            },
         }
 
         filter_service = PortfolioFilterService()
         filtered = filter_service.filter_portfolios_list(
-            portfolios, config, mock_logger
+            portfolios, config, mock_logger,
         )
 
         # Should have significantly fewer portfolios after filtering

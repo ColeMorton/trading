@@ -65,14 +65,14 @@ def run_comprehensive_tests():
         print(f"\n🚨 FAILURES ({len(result.failures)}):")
         for test, traceback in result.failures:
             print(
-                f"  - {test}: {traceback.split(chr(10))[-2] if chr(10) in traceback else traceback}"
+                f"  - {test}: {traceback.split(chr(10))[-2] if chr(10) in traceback else traceback}",
             )
 
     if result.errors:
         print(f"\n💥 ERRORS ({len(result.errors)}):")
         for test, traceback in result.errors:
             print(
-                f"  - {test}: {traceback.split(chr(10))[-2] if chr(10) in traceback else traceback}"
+                f"  - {test}: {traceback.split(chr(10))[-2] if chr(10) in traceback else traceback}",
             )
 
     # Test coverage breakdown
@@ -197,7 +197,7 @@ def run_quick_smoke_test():
                     "Return": [0.05],
                     "Direction": ["Long"],
                     "Status": ["Closed"],
-                }
+                },
             )
             mock_portfolio.trades = mock_trades
 
@@ -235,10 +235,10 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Run trade history export tests")
     parser.add_argument(
-        "--smoke", action="store_true", help="Run quick smoke test only"
+        "--smoke", action="store_true", help="Run quick smoke test only",
     )
     parser.add_argument(
-        "--performance", action="store_true", help="Run performance tests only"
+        "--performance", action="store_true", help="Run performance tests only",
     )
     args = parser.parse_args()
 
@@ -248,7 +248,7 @@ if __name__ == "__main__":
     elif args.performance:
         # Run only performance tests
         suite = unittest.TestLoader().loadTestsFromModule(
-            __import__("tests.tools.test_trade_history_performance", fromlist=[""])
+            __import__("tests.tools.test_trade_history_performance", fromlist=[""]),
         )
         runner = unittest.TextTestRunner(verbosity=2)
         result = runner.run(suite)

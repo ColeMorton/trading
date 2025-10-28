@@ -22,7 +22,7 @@ class TestCalculateSignalUnconfirmed:
                 "MA_SLOW": [98.0, 102.0, 108.0],  # Slow MA, fast > slow
                 "Signal": [0, 1, 1],  # Current signal is buy
                 "Position": [0, 0, 0],  # No current position for Entry signal
-            }
+            },
         )
 
         # When fast > slow and no current position, expect Entry
@@ -38,7 +38,7 @@ class TestCalculateSignalUnconfirmed:
                 "MA_SLOW": [108.0, 107.0, 102.0],  # Slow MA, fast < slow at end
                 "Signal": [1, 1, 0],  # Signal changing to sell
                 "Position": [1, 1, 1],  # Currently in position
-            }
+            },
         )
 
         # When fast < slow and has current position, expect Exit
@@ -54,7 +54,7 @@ class TestCalculateSignalUnconfirmed:
                 "MA_SLOW": [100.0, 105.0, 110.0],  # Slow MA, fast > slow
                 "Signal": [1, 1, 1],  # Buy signal
                 "Position": [1, 1, 1],  # Already in position
-            }
+            },
         )
 
         # Already in position and fast > slow, no new signal
@@ -70,7 +70,7 @@ class TestCalculateSignalUnconfirmed:
                 "MA_SLOW": [100.0, 95.0, 90.0],  # Slow MA, fast < slow
                 "Signal": [0, 0, 0],  # No buy signal
                 "Position": [0, 0, 0],  # No position
-            }
+            },
         )
 
         # No position and fast < slow, no signal
@@ -86,7 +86,7 @@ class TestCalculateSignalUnconfirmed:
                 "MA_SLOW": [100.0, 100.0, 100.0],  # Slow MA, equal
                 "Signal": [0, 0, 0],
                 "Position": [0, 0, 0],
-            }
+            },
         )
 
         # When MAs are equal, no clear signal
@@ -102,7 +102,7 @@ class TestCalculateSignalUnconfirmed:
                 "MA_SLOW": [],
                 "Signal": [],
                 "Position": [],
-            }
+            },
         )
 
         result = calculate_signal_unconfirmed(signal_data)
@@ -117,7 +117,7 @@ class TestCalculateSignalUnconfirmed:
                 "MA_SLOW": [100.0],
                 "Signal": [0],
                 "Position": [0],
-            }
+            },
         )
 
         # Single row with fast > slow and no position
@@ -131,7 +131,7 @@ class TestCalculateSignalUnconfirmed:
                 "timestamp": ["2023-01-01", "2023-01-02"],
                 "MA_FAST": [105.0, 110.0],
                 # Missing long_mavg, signal, position columns
-            }
+            },
         )
 
         result = calculate_signal_unconfirmed(signal_data)
@@ -146,7 +146,7 @@ class TestCalculateSignalUnconfirmed:
                 "MA_SLOW": [100.0, float("nan"), 108.0],
                 "Signal": [0, 1, 1],
                 "Position": [0, 1, 1],
-            }
+            },
         )
 
         # With NaN values, should return None for safety
@@ -162,7 +162,7 @@ class TestCalculateSignalUnconfirmed:
                 "MA_SLOW": [float("nan")],
                 "Signal": [0],
                 "Position": [0],
-            }
+            },
         )
 
         result = calculate_signal_unconfirmed(signal_data)
@@ -177,7 +177,7 @@ class TestCalculateSignalUnconfirmed:
                 "MA_SLOW": [98.0, 102.0, 108.0],
                 "Signal": [0, 1, 1],
                 "Position": [0, 0, 0],  # No position for Entry signal
-            }
+            },
         )
 
         config = {"STRATEGY_TYPE": "SMA", "DIRECTION": "Long"}
@@ -193,7 +193,7 @@ class TestCalculateSignalUnconfirmed:
                 "MA_SLOW": [108.0, 107.0, 102.0],
                 "Signal": [1, 1, 0],
                 "Position": [1, 1, 1],  # In position for Exit signal
-            }
+            },
         )
 
         result = calculate_signal_unconfirmed(signal_data, None)
@@ -209,7 +209,7 @@ class TestCalculateSignalUnconfirmed:
                 "MA_SLOW": [100.0, 100.0, 100.0],  # Flat slow MA
                 "Signal": [0, 0, 1],
                 "Position": [0, 0, 0],  # No position for Entry signal
-            }
+            },
         )
 
         result = calculate_signal_unconfirmed(bullish_data)
@@ -223,7 +223,7 @@ class TestCalculateSignalUnconfirmed:
                 "MA_SLOW": [100.0, 100.0, 100.0],  # Flat slow MA
                 "Signal": [1, 1, 0],
                 "Position": [1, 1, 1],  # In position for Exit signal
-            }
+            },
         )
 
         result = calculate_signal_unconfirmed(bearish_data)
@@ -239,7 +239,7 @@ class TestCalculateSignalUnconfirmed:
                 "slow_ma": [100.0, 105.0],
                 "Signal": [0, 1],
                 "Position": [0, 1],
-            }
+            },
         )
 
         # Should still work if we modify the function to handle alternative names
@@ -258,7 +258,7 @@ class TestCalculateSignalUnconfirmed:
                 "Position": [0],
                 "Signal Entry": [True],  # Already confirmed
                 "Signal Exit": [False],
-            }
+            },
         )
 
         result = calculate_signal_unconfirmed(signal_data)
@@ -275,7 +275,7 @@ class TestCalculateSignalUnconfirmed:
                 "Position": [1],
                 "Signal Entry": [False],
                 "Signal Exit": [True],  # Already confirmed
-            }
+            },
         )
 
         result = calculate_signal_unconfirmed(signal_data)
@@ -292,7 +292,7 @@ class TestCalculateSignalUnconfirmed:
                 "Position": [1],
                 "Signal Entry": [True],
                 "Signal Exit": [True],
-            }
+            },
         )
 
         result = calculate_signal_unconfirmed(signal_data)
@@ -308,7 +308,7 @@ class TestCalculateSignalUnconfirmed:
                 "Signal": [1],
                 "Position": [0],
                 # No Signal Entry/Exit columns
-            }
+            },
         )
 
         result = calculate_signal_unconfirmed(signal_data)
@@ -327,7 +327,7 @@ class TestCalculateSignalUnconfirmed:
                     "timestamp": ["2023-01-01"],
                     "Signal Entry": [False],
                     "Signal Exit": [False],
-                }
+                },
             ),
             # Exit scenario (no confirmed signals)
             pl.DataFrame(
@@ -339,7 +339,7 @@ class TestCalculateSignalUnconfirmed:
                     "timestamp": ["2023-01-01"],
                     "Signal Entry": [False],
                     "Signal Exit": [False],
-                }
+                },
             ),
             # None scenario (confirmed signal)
             pl.DataFrame(
@@ -351,7 +351,7 @@ class TestCalculateSignalUnconfirmed:
                     "timestamp": ["2023-01-01"],
                     "Signal Entry": [True],
                     "Signal Exit": [False],
-                }
+                },
             ),
         ]
 
@@ -360,7 +360,7 @@ class TestCalculateSignalUnconfirmed:
         for test_data in test_cases:
             result = calculate_signal_unconfirmed(test_data)
             assert isinstance(
-                result, str
+                result, str,
             ), f"Result should be string, got {type(result)}"
             assert (
                 result in valid_returns

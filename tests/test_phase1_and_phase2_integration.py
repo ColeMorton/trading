@@ -54,7 +54,7 @@ class TestPhase1And2Integration:
         )
 
     def test_phase2_config_creation_from_phase1_request(
-        self, orchestrator, multi_ticker_request
+        self, orchestrator, multi_ticker_request,
     ):
         """Test that Phase 2 orchestrator creates proper config from Phase 1 optimized request."""
         config = orchestrator._create_config_from_request(multi_ticker_request)
@@ -66,7 +66,7 @@ class TestPhase1And2Integration:
         assert config["WINDOWS"] == 20
 
     def test_phase2_filter_criteria_from_phase1_request(
-        self, orchestrator, multi_ticker_request
+        self, orchestrator, multi_ticker_request,
     ):
         """Test that Phase 2 filter service uses criteria from optimized Phase 1 request."""
         criteria = orchestrator._create_filter_criteria(multi_ticker_request)
@@ -287,7 +287,7 @@ class TestPhase1And2PerformanceRegression:
                     "Win Rate [%]": 50.0 + (i % 50),
                     "Total Trades": 20 + (i % 30),
                     "Score": 60.0 + (i % 40),
-                }
+                },
             )
 
         from app.api.services.portfolio_filter_service import PortfolioFilterService
@@ -301,12 +301,12 @@ class TestPhase1And2PerformanceRegression:
 
         # Filter large dataset
         filtered = filter_service.filter_portfolios(
-            large_portfolio_set, {"minimums": {"win_rate": 0.7}}
+            large_portfolio_set, {"minimums": {"win_rate": 0.7}},
         )
 
         # Convert results
         metrics = export_service.convert_to_portfolio_metrics(
-            filtered[:100]
+            filtered[:100],
         )  # Limit for test
 
         processing_time = time.time() - start_time

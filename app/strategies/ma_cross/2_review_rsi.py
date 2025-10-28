@@ -53,7 +53,7 @@ def run(config: CacheConfig) -> bool:
         Exception: If data preparation or analysis fails
     """
     log, log_close, _, _ = setup_logging(
-        module_name="ma_cross", log_file="2_review_rsi.log"
+        module_name="ma_cross", log_file="2_review_rsi.log",
     )
 
     try:
@@ -97,7 +97,8 @@ def run(config: CacheConfig) -> bool:
             )
 
         if metric_matrices is None:
-            raise Exception("Failed to generate or load metric matrices")
+            msg = "Failed to generate or load metric matrices"
+            raise Exception(msg)
 
         # Create heatmap figures
         figures = create_rsi_heatmap(
@@ -109,7 +110,8 @@ def run(config: CacheConfig) -> bool:
         )
 
         if not figures:
-            raise Exception("Failed to create heatmap figures")
+            msg = "Failed to create heatmap figures"
+            raise Exception(msg)
 
         # Display all heatmaps in specific order
         metrics_to_display = ["trades", "returns", "sharpe_ratio", "win_rate"]
@@ -118,8 +120,9 @@ def run(config: CacheConfig) -> bool:
                 figures[metric_name].show()
                 log(f"Displayed {metric_name} heatmap")
             else:
+                msg = f"Required {metric_name} heatmap not found in figures dictionary"
                 raise Exception(
-                    f"Required {metric_name} heatmap not found in figures dictionary"
+                    msg,
                 )
 
         log_close()

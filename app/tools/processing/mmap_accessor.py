@@ -89,7 +89,8 @@ class MemoryMappedFile:
             Line content or None if out of bounds
         """
         if self.mmap is None:
-            raise RuntimeError("File not opened")
+            msg = "File not opened"
+            raise RuntimeError(msg)
 
         # Build line offset index if not exists
         if self._line_offsets is None:
@@ -151,7 +152,8 @@ class MemoryMappedFile:
             List of byte offsets where pattern found
         """
         if self.mmap is None:
-            raise RuntimeError("File not opened")
+            msg = "File not opened"
+            raise RuntimeError(msg)
 
         results = []
         self.mmap.seek(0)
@@ -212,7 +214,8 @@ class MMapCSVReader:
             Row data as dictionary
         """
         if self._header is None:
-            raise RuntimeError("File not opened")
+            msg = "File not opened"
+            raise RuntimeError(msg)
 
         # Add 1 to skip header
         line = self.mmap_file.read_line(row_number + 1)
@@ -222,7 +225,7 @@ class MMapCSVReader:
         values = line.split(",")
         if len(values) != len(self._header):
             logger.warning(
-                f"Row {row_number} has {len(values)} values, expected {len(self._header)}"
+                f"Row {row_number} has {len(values)} values, expected {len(self._header)}",
             )
 
         return dict(zip(self._header, values, strict=False))
@@ -277,7 +280,7 @@ class MMapCSVReader:
 
         # Sample row indices
         sample_indices = np.random.choice(
-            total_rows, size=min(n, total_rows), replace=False
+            total_rows, size=min(n, total_rows), replace=False,
         )
         sample_indices.sort()
 
@@ -398,7 +401,7 @@ class MMapAccessor:
         return df
 
     def get_latest_prices(
-        self, file_paths: list[str | Path], n_rows: int = 100
+        self, file_paths: list[str | Path], n_rows: int = 100,
     ) -> dict[str, pd.DataFrame]:
         """
         Get latest N rows from multiple price files.
@@ -428,7 +431,7 @@ class MMapAccessor:
                     results[str(file_path)] = df
 
             except Exception as e:
-                logger.error(f"Error reading {file_path}: {e}")
+                logger.exception(f"Error reading {file_path}: {e}")
                 results[str(file_path)] = pd.DataFrame()
 
         return results
@@ -479,7 +482,7 @@ class MMapAccessor:
                 results[str(file_path)] = matches
 
             except Exception as e:
-                logger.error(f"Error searching {file_path}: {e}")
+                logger.exception(f"Error searching {file_path}: {e}")
                 results[str(file_path)] = []
 
         return results

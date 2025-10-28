@@ -15,7 +15,7 @@ from app.range.tools.export_portfolios import export_portfolios
 
 
 def sort_portfolios(
-    portfolios: list[dict[str, Any]] | pl.DataFrame, config: PortfolioConfig
+    portfolios: list[dict[str, Any]] | pl.DataFrame, config: PortfolioConfig,
 ) -> list[dict[str, Any]] | pl.DataFrame:
     """Sort portfolios using consistent logic across the application.
 
@@ -42,7 +42,7 @@ def sort_portfolios(
 
 
 def export_best_portfolios(
-    portfolios: list[dict[str, Any]], config: PortfolioConfig, log: callable
+    portfolios: list[dict[str, Any]], config: PortfolioConfig, log: callable,
 ) -> bool:
     """Export the best portfolios to a CSV file.
 

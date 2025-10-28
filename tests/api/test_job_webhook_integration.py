@@ -118,7 +118,7 @@ class TestJobWebhookIntegration:
 
         # Mock webhook service
         with patch(
-            "app.api.services.webhook_service.WebhookService.notify_job_completion"
+            "app.api.services.webhook_service.WebhookService.notify_job_completion",
         ) as mock_notify:
             mock_notify.return_value = AsyncMock()
 
@@ -146,7 +146,7 @@ class TestJobWebhookIntegration:
 
         # Mock webhook send
         with patch(
-            "app.api.services.webhook_service.WebhookService.send_webhook"
+            "app.api.services.webhook_service.WebhookService.send_webhook",
         ) as mock_send:
             mock_send.return_value = AsyncMock()
 
@@ -186,7 +186,7 @@ class TestJobWebhookIntegration:
 
         # Mock webhook send to return specific status
         with patch(
-            "app.api.services.webhook_service.WebhookService.send_webhook"
+            "app.api.services.webhook_service.WebhookService.send_webhook",
         ) as mock_send:
             mock_send.return_value = (200, "OK")
 
@@ -232,7 +232,7 @@ class TestJobWebhookErrorHandling:
 
         # Mock webhook failure
         with patch(
-            "app.api.services.webhook_service.WebhookService.send_webhook"
+            "app.api.services.webhook_service.WebhookService.send_webhook",
         ) as mock_send:
             mock_send.return_value = (0, "Connection refused")
 

@@ -91,7 +91,7 @@ class TestExpectancy(unittest.TestCase):
         stop_loss = 0.05
 
         expectancy, components = calculate_expectancy_with_stop_loss(
-            returns, stop_loss, "Long"
+            returns, stop_loss, "Long",
         )
 
         # Verify stop loss is applied to large losses
@@ -105,7 +105,7 @@ class TestExpectancy(unittest.TestCase):
         stop_loss = 0.05
 
         expectancy, components = calculate_expectancy_with_stop_loss(
-            returns, stop_loss, "Short"
+            returns, stop_loss, "Short",
         )
 
         # Verify stop loss is applied to large losses (positive returns for shorts)
@@ -147,7 +147,7 @@ class TestExpectancy(unittest.TestCase):
         # Verify monthly expectancy
         expected_monthly = metrics["Expectancy per Trade"] * 20
         self.assertAlmostEqual(
-            metrics["Expectancy per Month"], expected_monthly, places=6
+            metrics["Expectancy per Month"], expected_monthly, places=6,
         )
 
         # Test case 2: With stop loss
@@ -162,7 +162,7 @@ class TestExpectancy(unittest.TestCase):
 
         # Verify expectancy per trade uses stop loss adjusted value
         self.assertEqual(
-            metrics["Expectancy per Trade"], metrics["Expectancy with Stop Loss"]
+            metrics["Expectancy per Trade"], metrics["Expectancy with Stop Loss"],
         )
 
 

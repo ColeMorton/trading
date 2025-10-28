@@ -121,7 +121,7 @@ class DatabaseManager:
         except Exception as e:
             logger.warning(f"Failed to create connection pool: {e}")
             logger.info(
-                "Continuing without connection pool - direct queries will be limited"
+                "Continuing without connection pool - direct queries will be limited",
             )
             self._connection_pool = None
 
@@ -152,7 +152,7 @@ class DatabaseManager:
                     await conn.fetchval("SELECT 1")
                 health_status["postgresql"] = True
         except Exception as e:
-            logger.error(f"PostgreSQL health check failed: {e}")
+            logger.exception(f"PostgreSQL health check failed: {e}")
 
         # Check Redis
         try:
@@ -160,11 +160,11 @@ class DatabaseManager:
                 await self.redis_client.ping()
                 health_status["redis"] = True
         except Exception as e:
-            logger.error(f"Redis health check failed: {e}")
+            logger.exception(f"Redis health check failed: {e}")
 
         # Overall health
         health_status["overall"] = all(
-            [health_status["postgresql"], health_status["redis"]]
+            [health_status["postgresql"], health_status["redis"]],
         )
 
         return health_status
@@ -172,7 +172,8 @@ class DatabaseManager:
     async def get_connection(self):
         """Get a database connection from the pool."""
         if not self._connection_pool:
-            raise RuntimeError("Connection pool not initialized")
+            msg = "Connection pool not initialized"
+            raise RuntimeError(msg)
         return await self._connection_pool.acquire()
 
     async def execute_query(self, query: str, *args):

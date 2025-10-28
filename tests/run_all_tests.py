@@ -22,7 +22,7 @@ class TestRunner:
         self.start_time = time.time()
 
     def run_command(
-        self, cmd: list[str], description: str, timeout: int = 300
+        self, cmd: list[str], description: str, timeout: int = 300,
     ) -> tuple[bool, str]:
         """Run a command and return success status and output."""
         print(f"\n{'='*60}")
@@ -55,7 +55,7 @@ class TestRunner:
                     "command": " ".join(cmd),
                     "success": success,
                     "output": output if not success else "",
-                }
+                },
             )
 
             return success, output
@@ -68,7 +68,7 @@ class TestRunner:
                     "command": " ".join(cmd),
                     "success": False,
                     "output": f"Timeout after {timeout} seconds",
-                }
+                },
             )
             return False, f"Timeout after {timeout} seconds"
         except Exception as e:
@@ -79,7 +79,7 @@ class TestRunner:
                     "command": " ".join(cmd),
                     "success": False,
                     "output": str(e),
-                }
+                },
             )
             return False, str(e)
 

@@ -37,15 +37,16 @@ class BusinessConfigLoader:
 
         self.config_dir = Path(config_dir)
         if not self.config_dir.exists():
+            msg = f"Configuration directory not found: {self.config_dir}"
             raise BusinessConfigurationError(
-                f"Configuration directory not found: {self.config_dir}"
+                msg,
             )
 
         # Cache for loaded configurations to avoid reloading
         self._config_cache: dict[str, dict[str, Any]] = {}
 
         self.logger.info(
-            f"Business configuration loader initialized with directory: {self.config_dir}"
+            f"Business configuration loader initialized with directory: {self.config_dir}",
         )
 
     def _get_project_root(self) -> str:
@@ -70,8 +71,9 @@ class BusinessConfigLoader:
             # Resolve full path
             full_path = self.config_dir / config_path
             if not full_path.exists():
+                msg = f"Configuration file not found: {full_path}"
                 raise BusinessConfigurationError(
-                    f"Configuration file not found: {full_path}"
+                    msg,
                 )
 
             # Load base configuration
@@ -79,8 +81,9 @@ class BusinessConfigLoader:
                 config = yaml.safe_load(f)
 
             if not isinstance(config, dict):
+                msg = f"Configuration must be a dictionary: {config_path}"
                 raise BusinessConfigurationError(
-                    f"Configuration must be a dictionary: {config_path}"
+                    msg,
                 )
 
             # Process inheritance if specified
@@ -96,12 +99,13 @@ class BusinessConfigLoader:
         except Exception as e:
             if isinstance(e, BusinessConfigurationError):
                 raise
+            msg = f"Error loading configuration {config_path}: {e!s}"
             raise BusinessConfigurationError(
-                f"Error loading configuration {config_path}: {e!s}"
+                msg,
             )
 
     def _process_inheritance(
-        self, config: dict[str, Any], current_path: str
+        self, config: dict[str, Any], current_path: str,
     ) -> dict[str, Any]:
         """Process inheritance directives in configuration.
 
@@ -122,8 +126,9 @@ class BusinessConfigLoader:
         elif isinstance(inherits_from, list):
             parent_configs = inherits_from
         else:
+            msg = f"inherits_from must be string or list, got: {type(inherits_from)}"
             raise BusinessConfigurationError(
-                f"inherits_from must be string or list, got: {type(inherits_from)}"
+                msg,
             )
 
         # Load and merge parent configurations
@@ -142,7 +147,7 @@ class BusinessConfigLoader:
         return final_config
 
     def _load_parent_config(
-        self, parent_path: str, current_path: str
+        self, parent_path: str, current_path: str,
     ) -> dict[str, Any]:
         """Load a parent configuration with support for section references.
 
@@ -171,8 +176,9 @@ class BusinessConfigLoader:
         # Extract section if specified
         if section:
             if section not in parent_config:
+                msg = f"Section '{section}' not found in parent config: {file_path}"
                 raise BusinessConfigurationError(
-                    f"Section '{section}' not found in parent config: {file_path}"
+                    msg,
                 )
             return parent_config[section]
 
@@ -217,8 +223,9 @@ class BusinessConfigLoader:
         if "#" in ref_path:
             file_path, json_path = ref_path.split("#", 1)
         else:
+            msg = f"Reference must include section path: {ref_path}"
             raise BusinessConfigurationError(
-                f"Reference must include section path: {ref_path}"
+                msg,
             )
 
         # Load referenced configuration
@@ -228,15 +235,16 @@ class BusinessConfigLoader:
         current = ref_config
         for path_part in json_path.split("."):
             if not isinstance(current, dict) or path_part not in current:
+                msg = f"Reference path not found: {ref_path} (failed at '{path_part}')"
                 raise BusinessConfigurationError(
-                    f"Reference path not found: {ref_path} (failed at '{path_part}')"
+                    msg,
                 )
             current = current[path_part]
 
         return current
 
     def _merge_configs(
-        self, base: dict[str, Any], override: dict[str, Any]
+        self, base: dict[str, Any], override: dict[str, Any],
     ) -> dict[str, Any]:
         """Merge two configuration dictionaries.
 
@@ -326,8 +334,9 @@ class BusinessConfigLoader:
         # Find asset class for this symbol
         asset_class = self._find_asset_class(asset_symbol, mappings)
         if not asset_class:
+            msg = f"Asset class not found for symbol: {asset_symbol}"
             raise BusinessConfigurationError(
-                f"Asset class not found for symbol: {asset_symbol}"
+                msg,
             )
 
         # Load asset class configuration

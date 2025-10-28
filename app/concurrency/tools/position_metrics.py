@@ -6,7 +6,7 @@ import numpy as np
 
 
 def calculate_position_metrics(
-    position_arrays: list[np.ndarray], log: Callable[[str, str], None]
+    position_arrays: list[np.ndarray], log: Callable[[str, str], None],
 ) -> tuple[dict[str, float], float, int, int, int, int, float, list[dict[str, float]]]:
     """Calculate metrics from position arrays.
 
@@ -32,7 +32,8 @@ def calculate_position_metrics(
     try:
         if not position_arrays:
             log("No position arrays provided", "error")
-            raise ValueError("Position arrays list cannot be empty")
+            msg = "Position arrays list cannot be empty"
+            raise ValueError(msg)
 
         log(
             f"Calculating position metrics for {len(position_arrays)} strategies",
@@ -82,7 +83,7 @@ def calculate_position_metrics(
             for j in range(len(position_arrays)):
                 if i != j:
                     correlation = float(
-                        np.corrcoef(position_arrays[i], position_arrays[j])[0, 1]
+                        np.corrcoef(position_arrays[i], position_arrays[j])[0, 1],
                     )
                     strategy_correlations.append(abs(correlation))
 

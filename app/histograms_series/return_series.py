@@ -92,7 +92,7 @@ def plot_daily_returns(data_dict, ticker):
         kurtosis = returns.kurtosis()
 
         axs[i].axhline(
-            y=0, color=PRIMARY_TEXT, linestyle="-", linewidth=1, label="Zero Line"
+            y=0, color=PRIMARY_TEXT, linestyle="-", linewidth=1, label="Zero Line",
         )
         axs[i].axhline(
             y=mean,
@@ -149,12 +149,12 @@ def plot_daily_returns(data_dict, ticker):
         if current_return < 0:
             negative_returns = returns[returns < 0]
             percentile = percentileofscore(
-                negative_returns, current_return, kind="rank"
+                negative_returns, current_return, kind="rank",
             )
         else:
             positive_returns = returns[returns > 0]
             percentile = percentileofscore(
-                positive_returns, current_return, kind="rank"
+                positive_returns, current_return, kind="rank",
             )
 
         axs[i].text(

@@ -107,7 +107,7 @@ class MACDStrategy(StrategyInterface):
             portfolios = run(macd_config)
 
             log(
-                f"MACD strategy returned {len(portfolios) if portfolios else 0} portfolios"
+                f"MACD strategy returned {len(portfolios) if portfolios else 0} portfolios",
             )
 
             if portfolios:
@@ -130,7 +130,7 @@ class MACDStrategy(StrategyInterface):
             ticker = ticker[0]  # MACD Next handles single ticker
 
         # Convert to MACD Next format - all parameters required from config
-        macd_config = {
+        return {
             "TICKER": ticker,
             "TIMEFRAME": "D" if not config["USE_HOURLY"] else "H",
             "TYPE": "MACD",
@@ -150,4 +150,3 @@ class MACDStrategy(StrategyInterface):
             "SELECT_BEST": True,
         }
 
-        return macd_config

@@ -98,7 +98,7 @@ class MonteCarloManager:
 
             # Run simulations
             simulated_returns = self._run_return_simulations(
-                portfolio_returns, progress_callback
+                portfolio_returns, progress_callback,
             )
 
             # Calculate risk metrics
@@ -123,10 +123,11 @@ class MonteCarloManager:
             }
 
         except Exception as e:
-            raise RuntimeError(f"Monte Carlo simulation failed: {e!s}")
+            msg = f"Monte Carlo simulation failed: {e!s}"
+            raise RuntimeError(msg)
 
     def _calculate_portfolio_returns(
-        self, portfolio_data: list[dict[str, Any]]
+        self, portfolio_data: list[dict[str, Any]],
     ) -> np.ndarray:
         """Calculate historical portfolio returns.
 
@@ -136,8 +137,7 @@ class MonteCarloManager:
         # For demo purposes, generate synthetic returns
         # In production, this would calculate actual portfolio returns
         np.random.seed(42)
-        daily_returns = np.random.normal(0.0005, 0.02, 252 * 3)  # 3 years of data
-        return daily_returns
+        return np.random.normal(0.0005, 0.02, 252 * 3)  # 3 years of data
 
     def _run_return_simulations(
         self,
@@ -159,7 +159,7 @@ class MonteCarloManager:
             if self.use_bootstrap:
                 # Bootstrap from historical returns
                 daily_returns = np.random.choice(
-                    historical_returns, size=n_days, replace=True
+                    historical_returns, size=n_days, replace=True,
                 )
             else:
                 # Generate from normal distribution
@@ -178,7 +178,7 @@ class MonteCarloManager:
         return simulated_returns
 
     def _calculate_risk_metrics(
-        self, simulated_returns: np.ndarray
+        self, simulated_returns: np.ndarray,
     ) -> dict[str, float]:
         """Calculate VaR and CVaR from simulated returns."""
         final_returns = simulated_returns[:, -1]  # Terminal values
@@ -247,9 +247,8 @@ class MonteCarloManager:
         output_path.mkdir(parents=True, exist_ok=True)
 
         # Placeholder for actual visualization
-        viz_path = output_path / "monte_carlo_results.html"
+        return output_path / "monte_carlo_results.html"
 
-        return viz_path
 
 
 __all__ = [

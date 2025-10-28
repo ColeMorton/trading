@@ -59,7 +59,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
             # Log response
             logger.info(
-                "api_request_completed", status_code=response.status_code, success=True
+                "api_request_completed", status_code=response.status_code, success=True,
             )
 
             # Add request ID to response headers

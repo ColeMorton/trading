@@ -30,7 +30,7 @@ class TestMemoryOptimizer:
     def test_memory_optimizer_initialization(self):
         """Test memory optimizer initialization."""
         optimizer = MemoryOptimizer(
-            enable_pooling=True, enable_monitoring=True, memory_threshold_mb=500.0
+            enable_pooling=True, enable_monitoring=True, memory_threshold_mb=500.0,
         )
 
         assert optimizer.enable_pooling is True
@@ -50,7 +50,7 @@ class TestMemoryOptimizer:
                 "float_col": [1.0, 2.0, 3.0, 4.0, 5.0],
                 "category_col": ["A", "B", "A", "B", "A"],
                 "string_col": ["test1", "test2", "test3", "test4", "test5"],
-            }
+            },
         )
 
         # Force inefficient types
@@ -146,7 +146,7 @@ class TestDataConverter:
 
         # Create test DataFrame
         pd_df = pd.DataFrame(
-            {"a": [1, 2, 3], "b": [4.0, 5.0, 6.0], "c": ["x", "y", "z"]}
+            {"a": [1, 2, 3], "b": [4.0, 5.0, 6.0], "c": ["x", "y", "z"]},
         )
 
         # Convert to Polars
@@ -162,7 +162,7 @@ class TestDataConverter:
 
         # Create test DataFrame
         pl_df = pl.DataFrame(
-            {"a": [1, 2, 3], "b": [4.0, 5.0, 6.0], "c": ["x", "y", "z"]}
+            {"a": [1, 2, 3], "b": [4.0, 5.0, 6.0], "c": ["x", "y", "z"]},
         )
 
         # Convert to Pandas
@@ -269,7 +269,7 @@ class TestStreamingProcessor:
                 return sum(r["sum"] for r in chunk_results)
 
             total = processor.aggregate_chunks(
-                temp_path, agg_func, combine_func, columns=["value"]
+                temp_path, agg_func, combine_func, columns=["value"],
             )
 
             assert total == 100  # 10 + 20 + 30 + 40
@@ -286,7 +286,7 @@ class TestMMapAccessor:
         # Create test CSV file
         with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
             f.write(
-                "date,price,volume\n2023-01-01,100.0,1000\n2023-01-02,101.0,1100\n2023-01-03,99.0,900\n"
+                "date,price,volume\n2023-01-01,100.0,1000\n2023-01-02,101.0,1100\n2023-01-03,99.0,900\n",
             )
             temp_path = f.name
 
@@ -350,7 +350,7 @@ class TestMemoryEfficientParameterSweep:
     def test_parameter_sweep_initialization(self):
         """Test parameter sweep initialization."""
         sweep = MemoryEfficientParameterSweep(
-            max_memory_mb=1000.0, chunk_size=10, stream_to_disk=True
+            max_memory_mb=1000.0, chunk_size=10, stream_to_disk=True,
         )
 
         assert sweep.max_memory_mb == 1000.0
@@ -372,7 +372,7 @@ class TestMemoryEfficientParameterSweep:
                     "result": [params["x"] * params["y"]],
                     "x": [params["x"]],
                     "y": [params["y"]],
-                }
+                },
             )
 
         # Define parameter grid
@@ -400,7 +400,7 @@ class TestMemoryEfficientParameterSweep:
             mock_mkdtemp.return_value = temp_dir
 
             sweep = MemoryEfficientParameterSweep(
-                chunk_size=1, stream_to_disk=True, output_format="parquet"
+                chunk_size=1, stream_to_disk=True, output_format="parquet",
             )
 
             def test_strategy(params):
@@ -471,7 +471,7 @@ class TestIntegration:
                 "value": [float(i) for i in range(1000)],
                 "category": ["A", "B", "C"] * 333 + ["A"],  # Ensure same length
                 "flag": [True, False] * 500,
-            }
+            },
         )
 
         optimizer = MemoryOptimizer()

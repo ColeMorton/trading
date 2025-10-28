@@ -42,7 +42,7 @@ class TestMonteCarloConfig:
     def test_custom_config(self):
         """Test custom configuration values."""
         config = MonteCarloConfig(
-            num_simulations=50, confidence_level=0.99, max_parameters_to_test=5
+            num_simulations=50, confidence_level=0.99, max_parameters_to_test=5,
         )
 
         assert config.num_simulations == 50
@@ -78,13 +78,13 @@ class TestParameterStabilityResult:
         """Test stability evaluation."""
         # Create unstable result
         unstable_result = ParameterStabilityResult(
-            parameter_combination=(12, 26), base_performance={}, monte_carlo_results=[]
+            parameter_combination=(12, 26), base_performance={}, monte_carlo_results=[],
         )
         assert not unstable_result.is_stable
 
         # Create stable result
         stable_result = ParameterStabilityResult(
-            parameter_combination=(12, 26), base_performance={}, monte_carlo_results=[]
+            parameter_combination=(12, 26), base_performance={}, monte_carlo_results=[],
         )
         stable_result.stability_score = 0.6
         stable_result.parameter_robustness = 0.5
@@ -124,7 +124,7 @@ class TestMonteCarloAnalyzer:
                     float(p * (1 - abs(np.random.uniform(0, 0.01)))) for p in prices
                 ],
                 "Close": prices,
-            }
+            },
         )
 
     @pytest.fixture
@@ -229,7 +229,7 @@ class TestMonteCarloAnalyzer:
         invalid_data = pl.DataFrame({"Close": []})
 
         performance = analyzer._calculate_strategy_performance(
-            invalid_data, fast_period=10, slow_period=20, strategy_type="SMA"
+            invalid_data, fast_period=10, slow_period=20, strategy_type="SMA",
         )
 
         # Should return default values on error
@@ -411,7 +411,7 @@ class TestMonteCarloIntegration:
             {
                 "Date": [datetime(2023, 1, 1) + timedelta(days=i) for i in range(30)],
                 "Close": [100.0 + i for i in range(30)],  # Linear trend
-            }
+            },
         )
 
         # Run analysis twice with same seed

@@ -86,7 +86,7 @@ class PortfolioBaselineCalculator:
                     "cash_flow": event.cash_flow,
                     "running_cash": running_cash,
                     "max_requirement": max_cash_requirement,
-                }
+                },
             )
 
         # The starting cash needed is the absolute value of the maximum deficit
@@ -113,7 +113,7 @@ class PortfolioBaselineCalculator:
         for position in positions:
             # Entry event (cash outflow)
             entry_cash_flow = self.precision_calculator.calculate_cash_flow(
-                "entry", position.avg_entry_price, position.position_size
+                "entry", position.avg_entry_price, position.position_size,
             )
 
             events.append(
@@ -126,7 +126,7 @@ class PortfolioBaselineCalculator:
                     size=position.position_size,
                     cash_flow=entry_cash_flow["net_cash_flow"],
                     cumulative_requirement=Decimal("0"),  # Will be calculated later
-                )
+                ),
             )
 
             # Exit event (cash inflow) - only for closed positions
@@ -136,7 +136,7 @@ class PortfolioBaselineCalculator:
                 and position.avg_exit_price
             ):
                 exit_cash_flow = self.precision_calculator.calculate_cash_flow(
-                    "exit", position.avg_exit_price, position.position_size
+                    "exit", position.avg_exit_price, position.position_size,
                 )
 
                 events.append(
@@ -149,7 +149,7 @@ class PortfolioBaselineCalculator:
                         size=position.position_size,
                         cash_flow=exit_cash_flow["net_cash_flow"],
                         cumulative_requirement=Decimal("0"),  # Will be calculated later
-                    )
+                    ),
                 )
 
         # Sort events chronologically
@@ -163,7 +163,7 @@ class PortfolioBaselineCalculator:
 
         for position in positions:
             cash_flow = self.precision_calculator.calculate_cash_flow(
-                "entry", position.avg_entry_price, position.position_size
+                "entry", position.avg_entry_price, position.position_size,
             )
             total_cost += abs(cash_flow["net_cash_flow"])
 
@@ -175,7 +175,7 @@ class PortfolioBaselineCalculator:
 
         for position in positions:
             position_value = Decimal(str(position.avg_entry_price)) * Decimal(
-                str(position.position_size)
+                str(position.position_size),
             )
             total_value += position_value
 
@@ -226,10 +226,10 @@ class PortfolioBaselineCalculator:
                         "timestamp": event_info["timestamp"],
                         "ticker": event_info["ticker"],
                         "shortfall": abs(event_info["running_cash"]),
-                    }
+                    },
                 )
 
-        adequacy_analysis = {
+        return {
             "is_adequate": len(failed_transactions) == 0,
             "required_starting_cash": baseline_calc["required_starting_cash"],
             "failed_transactions": failed_transactions,
@@ -237,4 +237,3 @@ class PortfolioBaselineCalculator:
             "final_cash_position": baseline_calc["final_cash_position"],
         }
 
-        return adequacy_analysis

@@ -36,7 +36,7 @@ def download_data(ticker: str, use_hourly: bool) -> pd.DataFrame:
         logging.info(f"Data download for {ticker} completed successfully")
         return data
     except Exception as e:
-        logging.error(f"Failed to download data for {ticker}: {e}")
+        logging.exception(f"Failed to download data for {ticker}: {e}")
         raise
 
 
@@ -54,7 +54,7 @@ def calculate_signals(data: pd.DataFrame, distance: float) -> pd.DataFrame:
         # Ensure only one entry per signal
         data["Position"] = data["Entry"].cumsum()  # Track cumulative positions
         data["Entry"] = np.where(
-            data["Position"] > 0, 1, np.nan
+            data["Position"] > 0, 1, np.nan,
         )  # Only allow one entry at a time
 
         # Exit signal: exit 1 candle after an entry
@@ -63,12 +63,12 @@ def calculate_signals(data: pd.DataFrame, distance: float) -> pd.DataFrame:
         # Ensure exit for every entry
         data["Position"] = data["Entry"].fillna(0).cumsum()  # Track cumulative position
         data["Exit"] = np.where(
-            data["Exit"] == 1, 1, np.nan
+            data["Exit"] == 1, 1, np.nan,
         )  # Mark exit exactly after entry
         logging.info("Signals calculated successfully")
         return data
     except Exception as e:
-        logging.error(f"Failed to calculate signals: {e}")
+        logging.exception(f"Failed to calculate signals: {e}")
         raise
 
 
@@ -90,7 +90,7 @@ def backtest_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
         logging.info("Backtest completed successfully")
         return portfolio
     except Exception as e:
-        logging.error(f"Backtest failed: {e}")
+        logging.exception(f"Backtest failed: {e}")
         raise
 
 
@@ -128,8 +128,7 @@ def calculate_expectancy(trades: vbt.portfolio.trades.Trades) -> float:
             return 0
 
         r_ratio = avg_win / avg_loss if avg_loss != 0 else 0
-        expectancy = (win_rate * r_ratio) - (1 - win_rate)
-        return expectancy
+        return (win_rate * r_ratio) - (1 - win_rate)
 
     # Use standardized expectancy calculation
     expectancy, _ = calculate_expectancy_from_returns(returns)
@@ -137,13 +136,13 @@ def calculate_expectancy(trades: vbt.portfolio.trades.Trades) -> float:
 
 
 def parameter_sensitivity_analysis(
-    data: pd.DataFrame, distances: list[float]
+    data: pd.DataFrame, distances: list[float],
 ) -> pd.DataFrame:
     """Perform parameter sensitivity analysis."""
     logging.info("Starting parameter sensitivity analysis")
     try:
         results = pd.DataFrame(
-            index=distances, columns=["Net Performance %", "Expectancy", "Distance %"]
+            index=distances, columns=["Net Performance %", "Expectancy", "Distance %"],
         )
 
         for distance in distances:
@@ -156,7 +155,7 @@ def parameter_sensitivity_analysis(
         logging.info("Parameter sensitivity analysis completed successfully")
         return results
     except Exception as e:
-        logging.error(f"Parameter sensitivity analysis failed: {e}")
+        logging.exception(f"Parameter sensitivity analysis failed: {e}")
         raise
 
 
@@ -188,16 +187,16 @@ def plot_results(results: pd.DataFrame, ticker: str) -> None:
 
         timeframe = "Hourly" if USE_HOURLY else "Daily"
         plt.title(
-            f"Mean Reversion Strategy Performance ({timeframe}) for {ticker}\nExit: 1 Candle"
+            f"Mean Reversion Strategy Performance ({timeframe}) for {ticker}\nExit: 1 Candle",
         )
         fig.legend(
-            loc="upper right", bbox_to_anchor=(1, 1), bbox_transform=ax1.transAxes
+            loc="upper right", bbox_to_anchor=(1, 1), bbox_transform=ax1.transAxes,
         )
         plt.grid(True)
         plt.show()
         logging.info("Results plotted successfully")
     except Exception as e:
-        logging.error(f"Failed to plot results: {e}")
+        logging.exception(f"Failed to plot results: {e}")
         raise
 
 
@@ -235,7 +234,7 @@ def run() -> None:
 
         logging.info("Execution finished successfully")
     except Exception as e:
-        logging.error(f"Execution failed: {e}")
+        logging.exception(f"Execution failed: {e}")
         raise
 
 

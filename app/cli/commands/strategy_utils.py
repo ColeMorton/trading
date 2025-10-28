@@ -43,7 +43,7 @@ def process_ticker_input(ticker: list[str] | None) -> list[str]:
         if "," in t:
             # Split comma-separated values and add to list
             flattened_tickers.extend(
-                [tick.strip().upper() for tick in t.split(",") if tick.strip()]
+                [tick.strip().upper() for tick in t.split(",") if tick.strip()],
             )
         else:
             # Single ticker value
@@ -79,7 +79,7 @@ def process_strategy_type_input(strategy_type: list[str] | None) -> list[str]:
                     strategy.strip().upper()
                     for strategy in st.split(",")
                     if strategy.strip()
-                ]
+                ],
             )
         else:
             # Single strategy type value
@@ -255,7 +255,8 @@ def build_configuration_overrides(
     # Time configuration
     if years is not None:
         if years <= 0:
-            raise ValueError("Years parameter must be a positive integer")
+            msg = "Years parameter must be a positive integer"
+            raise ValueError(msg)
         # When years is provided, enable year-based analysis
         overrides["use_years"] = True
         overrides["years"] = years
@@ -321,7 +322,7 @@ def build_configuration_overrides(
 
 
 def convert_to_legacy_config(
-    config: StrategyConfig, **additional_params
+    config: StrategyConfig, **additional_params,
 ) -> dict[str, Any]:
     """
     Convert Pydantic StrategyConfig to legacy config format.
@@ -481,7 +482,7 @@ def convert_to_legacy_config(
             "SORT_ASC": config.sort_ascending,
             "USE_CURRENT": config.filter.use_current,
             "USE_DATE": config.filter.date_filter,
-        }
+        },
     )
 
     # Add minimums if they exist - only add non-empty MINIMUMS dict to avoid unwanted filtering
@@ -517,7 +518,7 @@ def convert_to_legacy_config(
 
 
 def handle_command_error(
-    error: Exception, command_name: str, verbose: bool = False, console=None
+    error: Exception, command_name: str, verbose: bool = False, console=None,
 ) -> None:
     """
     Handle command errors consistently across all strategy sub-commands.
@@ -545,7 +546,7 @@ def handle_command_error(
 
 
 def show_config_preview(
-    config: StrategyConfig, title: str = "Configuration Preview"
+    config: StrategyConfig, title: str = "Configuration Preview",
 ) -> None:
     """
     Display configuration preview for dry run mode.
@@ -662,7 +663,7 @@ def show_config_preview(
                     f"{strategy_params.signal_period_min}-{strategy_params.signal_period_max}",
                 )
         elif hasattr(config, "signal_period_range") and getattr(
-            config, "signal_period_range", None
+            config, "signal_period_range", None,
         ):
             table.add_row("Signal Period Range", str(config.signal_period_range))
 
@@ -706,7 +707,7 @@ def show_config_preview(
         if hasattr(config, "slow_period_range") and config.slow_period_range:
             table.add_row("Slow Period Range", str(config.slow_period_range))
         if hasattr(config, "signal_period_range") and getattr(
-            config, "signal_period_range", None
+            config, "signal_period_range", None,
         ):
             table.add_row("Signal Period Range", str(config.signal_period_range))
 
@@ -795,7 +796,7 @@ def display_results_table(
 
     if len(sorted_results) > max_results:
         rprint(
-            f"\n[dim]Showing top {max_results} results of {len(sorted_results)} total[/dim]"
+            f"\n[dim]Showing top {max_results} results of {len(sorted_results)} total[/dim]",
         )
 
 
@@ -884,7 +885,7 @@ def display_sweep_results_table(
 
 
 def show_execution_progress(
-    message: str, ticker_count: int | None = None, combination_count: int | None = None
+    message: str, ticker_count: int | None = None, combination_count: int | None = None,
 ) -> None:
     """
     Display consistent execution progress messages.
@@ -942,26 +943,29 @@ def validate_parameter_relationships(config: StrategyConfig) -> None:
         if config.fast_period_range and config.slow_period_range:
             if config.fast_period_range[1] >= config.slow_period_range[0]:
                 rprint(
-                    "[yellow]Warning: Fast period range overlaps with slow period range[/yellow]"
+                    "[yellow]Warning: Fast period range overlaps with slow period range[/yellow]",
                 )
 
     # Validate single periods
     if hasattr(config, "fast_period") and hasattr(config, "slow_period"):
         if config.fast_period and config.slow_period:
             if config.fast_period >= config.slow_period:
-                raise ValueError("Fast period must be less than slow period")
+                msg = "Fast period must be less than slow period"
+                raise ValueError(msg)
 
     # Validate minimums
     if config.minimums.win_rate is not None:
         if not 0 <= config.minimums.win_rate <= 1:
-            raise ValueError("Win rate must be between 0 and 1")
+            msg = "Win rate must be between 0 and 1"
+            raise ValueError(msg)
 
     if config.minimums.trades is not None and config.minimums.trades < 0:
-        raise ValueError("Minimum trades must be non-negative")
+        msg = "Minimum trades must be non-negative"
+        raise ValueError(msg)
 
 
 def _display_risk_comparison_matrix(
-    comparison_data: list[dict[str, Any]], console: Console
+    comparison_data: list[dict[str, Any]], console: Console,
 ) -> None:
     """
     Display additional risk comparison matrix with categorized analysis.
@@ -1064,7 +1068,7 @@ def _display_risk_comparison_matrix(
     ][:3]
     if conservative_picks:
         conservative_sectors = ", ".join(
-            [f"{s['ticker']} ({s['score']:.2f})" for s in conservative_picks]
+            [f"{s['ticker']} ({s['score']:.2f})" for s in conservative_picks],
         )
         alloc_table.add_row(
             "[green]Conservative[/green]",
@@ -1075,7 +1079,7 @@ def _display_risk_comparison_matrix(
     # Aggressive allocation (top performers)
     aggressive_picks = comparison_data[:3]
     aggressive_sectors = ", ".join(
-        [f"{s['ticker']} ({s['score']:.2f})" for s in aggressive_picks]
+        [f"{s['ticker']} ({s['score']:.2f})" for s in aggressive_picks],
     )
     alloc_table.add_row(
         "[red]Aggressive[/red]",
@@ -1093,10 +1097,10 @@ def _display_risk_comparison_matrix(
 
     if balanced_picks:
         balanced_sectors = ", ".join(
-            [f"{s['ticker']} ({s['score']:.2f})" for s in balanced_picks]
+            [f"{s['ticker']} ({s['score']:.2f})" for s in balanced_picks],
         )
         alloc_table.add_row(
-            "[blue]Balanced[/blue]", balanced_sectors, "One from each risk category"
+            "[blue]Balanced[/blue]", balanced_sectors, "One from each risk category",
         )
 
     console.print()
@@ -1147,7 +1151,7 @@ def display_sector_comparison_table(
     benchmark_ticker = benchmark_data["ticker"] if benchmark_data else None
     if has_benchmark:
         table.add_column(
-            f"vs {benchmark_ticker}", style="yellow", width=10, justify="right"
+            f"vs {benchmark_ticker}", style="yellow", width=10, justify="right",
         )
 
     # Add rows with color coding
@@ -1228,7 +1232,7 @@ def display_sector_comparison_table(
                 vs_benchmark_display = f"{vs_benchmark_pct:.1f}%"
 
             row_data.append(
-                f"[{vs_benchmark_style}]{vs_benchmark_display}[/{vs_benchmark_style}]"
+                f"[{vs_benchmark_style}]{vs_benchmark_display}[/{vs_benchmark_style}]",
             )
 
         table.add_row(*row_data)
@@ -1247,10 +1251,10 @@ def display_sector_comparison_table(
 
     console.print("📊 [bold]Summary:[/bold]")
     console.print(
-        f"   • Best Sector: [green]{comparison_data[0]['sector_name']} ({comparison_data[0]['ticker']})[/green] - Score: [bold]{top_score:.4f}[/bold]"
+        f"   • Best Sector: [green]{comparison_data[0]['sector_name']} ({comparison_data[0]['ticker']})[/green] - Score: [bold]{top_score:.4f}[/bold]",
     )
     console.print(
-        f"   • Score Range: [yellow]{score_range:.4f}[/yellow] ({bottom_score:.4f} to {top_score:.4f})"
+        f"   • Score Range: [yellow]{score_range:.4f}[/yellow] ({bottom_score:.4f} to {top_score:.4f})",
     )
     console.print(f"   • Total Sectors: [cyan]{len(comparison_data)}[/cyan]")
 
@@ -1261,10 +1265,10 @@ def display_sector_comparison_table(
             1 for s in comparison_data if s.get("outperforms_benchmark", False)
         )
         console.print(
-            f"   • Benchmark ({benchmark_data['ticker']}): [yellow]{benchmark_score:.4f}[/yellow] score"
+            f"   • Benchmark ({benchmark_data['ticker']}): [yellow]{benchmark_score:.4f}[/yellow] score",
         )
         console.print(
-            f"   • Outperforming Sectors: [green]{outperforming_count}/{len(comparison_data)}[/green] sectors beat {benchmark_data['ticker']}"
+            f"   • Outperforming Sectors: [green]{outperforming_count}/{len(comparison_data)}[/green] sectors beat {benchmark_data['ticker']}",
         )
 
     console.print()

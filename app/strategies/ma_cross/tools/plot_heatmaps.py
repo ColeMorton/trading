@@ -140,13 +140,14 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: dict, log: Callable) -> N
             or len(sortino) == 0
             or len(win_rate) == 0
         ):
+            msg = "Portfolio data missing required metrics (profit_factor, trades, sortino, and/or win_rate)"
             raise ValueError(
-                "Portfolio data missing required metrics (profit_factor, trades, sortino, and/or win_rate)"
+                msg,
             )
 
         # Log the number of entries for each metric
         log(
-            f"Metric counts - Profit Factor: {len(profit_factor)}, Trades: {len(trades)}, Sortino: {len(sortino)}, Win Rate: {len(win_rate)}, Expectancy: {len(expectancy)}, Score: {len(score)}"
+            f"Metric counts - Profit Factor: {len(profit_factor)}, Trades: {len(trades)}, Sortino: {len(sortino)}, Win Rate: {len(win_rate)}, Expectancy: {len(expectancy)}, Score: {len(score)}",
         )
 
         # Create heatmap figures

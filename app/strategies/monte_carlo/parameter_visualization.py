@@ -96,7 +96,7 @@ class ParameterStabilityVisualizer:
 
         # Pivot for heatmap
         heatmap_data = df.pivot(
-            index="Slow_Period", columns="Fast_Period", values=metric
+            index="Slow_Period", columns="Fast_Period", values=metric,
         )
 
         # Create figure
@@ -137,7 +137,7 @@ class ParameterStabilityVisualizer:
                         ax.text(j, i, f"{value:.3f}", ha="center", va="center")
 
         plt.title(
-            f'{ticker} - Parameter {metric.replace("_", " ").title()}\nMonte Carlo Stability Analysis'
+            f'{ticker} - Parameter {metric.replace("_", " ").title()}\nMonte Carlo Stability Analysis',
         )
         plt.xlabel("Fast Period (Fast MA)")
         plt.ylabel("Slow Period (Slow MA)")
@@ -232,7 +232,7 @@ class ParameterStabilityVisualizer:
         ax1.set_xlabel("Parameter Combination (Short/Slow Periods)")
         ax1.set_ylabel(performance_metric)
         ax1.set_title(
-            f"{ticker} - {performance_metric} Confidence Intervals\nMonte Carlo Analysis"
+            f"{ticker} - {performance_metric} Confidence Intervals\nMonte Carlo Analysis",
         )
         ax1.set_xticks(x_pos)
         ax1.set_xticklabels(param_labels, rotation=45)
@@ -368,7 +368,7 @@ class ParameterStabilityVisualizer:
         ax1.set_xlabel(performance_metric)
         ax1.set_ylabel("Density")
         ax1.set_title(
-            f"{ticker} - {performance_metric} Distribution\nParameter: {short}/{long} Windows, {len(values)} Simulations"
+            f"{ticker} - {performance_metric} Distribution\nParameter: {short}/{long} Windows, {len(values)} Simulations",
         )
         ax1.legend()
         ax1.grid(True, alpha=0.3)
@@ -385,7 +385,7 @@ class ParameterStabilityVisualizer:
         bp = ax3.boxplot(box_data, patch_artist=True)
         bp["boxes"][0].set_facecolor(TERTIARY_DATA)
         ax3.axhline(
-            base_value, color=PRIMARY_DATA, linestyle="--", label="Base Performance"
+            base_value, color=PRIMARY_DATA, linestyle="--", label="Base Performance",
         )
         ax3.set_ylabel(performance_metric)
         ax3.set_title("Distribution Summary")
@@ -423,7 +423,7 @@ class ParameterStabilityVisualizer:
         plt.close()
 
     def create_parameter_landscape_3d(
-        self, results: list[ParameterStabilityResult], ticker: str
+        self, results: list[ParameterStabilityResult], ticker: str,
     ) -> None:
         """
         Create 3D landscape plot of parameter stability.
@@ -455,7 +455,7 @@ class ParameterStabilityVisualizer:
         # Create scatter plot
         colors = plt.cm.RdYlGn(np.array(stability_scores))
         scatter = ax.scatter(
-            short_windows, long_windows, stability_scores, c=colors, s=60, alpha=0.8
+            short_windows, long_windows, stability_scores, c=colors, s=60, alpha=0.8,
         )
 
         # Add surface if we have enough points
@@ -471,12 +471,12 @@ class ParameterStabilityVisualizer:
                 # Interpolate stability scores
                 points = list(zip(short_windows, long_windows, strict=False))
                 stability_mesh = griddata(
-                    points, stability_scores, (short_mesh, long_mesh), method="cubic"
+                    points, stability_scores, (short_mesh, long_mesh), method="cubic",
                 )
 
                 # Plot surface
                 ax.plot_surface(
-                    short_mesh, long_mesh, stability_mesh, alpha=0.3, cmap="RdYlGn"
+                    short_mesh, long_mesh, stability_mesh, alpha=0.3, cmap="RdYlGn",
                 )
 
             except Exception:
@@ -499,7 +499,7 @@ class ParameterStabilityVisualizer:
         plt.close()
 
     def create_regime_consistency_plot(
-        self, results: list[ParameterStabilityResult], ticker: str
+        self, results: list[ParameterStabilityResult], ticker: str,
     ) -> None:
         """
         Create plot showing regime consistency across parameters.
@@ -538,7 +538,7 @@ class ParameterStabilityVisualizer:
 
         # Add parameter labels for top performers
         top_indices = np.argsort(
-            [s + r for s, r in zip(stability_scores, regime_scores, strict=False)]
+            [s + r for s, r in zip(stability_scores, regime_scores, strict=False)],
         )[-5:]
         for i in top_indices:
             ax1.annotate(
@@ -581,7 +581,7 @@ class ParameterStabilityVisualizer:
 
         # Add score values on bars
         for i, (bar, score) in enumerate(
-            zip(bars, sorted_scores[:top_10], strict=False)
+            zip(bars, sorted_scores[:top_10], strict=False),
         ):
             ax2.text(
                 score + 0.01,
@@ -600,7 +600,7 @@ class ParameterStabilityVisualizer:
         plt.close()
 
     def create_comprehensive_report(
-        self, all_results: dict[str, list[ParameterStabilityResult]]
+        self, all_results: dict[str, list[ParameterStabilityResult]],
     ) -> None:
         """
         Create comprehensive visualization report for all tickers.
@@ -624,18 +624,18 @@ class ParameterStabilityVisualizer:
 
             # Create distribution plots for top 3 parameter combinations
             sorted_results = sorted(
-                results, key=lambda x: x.stability_score, reverse=True
+                results, key=lambda x: x.stability_score, reverse=True,
             )
             for i, result in enumerate(sorted_results[:3]):
                 self.create_performance_distribution_plot(
-                    result, f"{ticker}_top_{i+1}", "Sharpe Ratio"
+                    result, f"{ticker}_top_{i+1}", "Sharpe Ratio",
                 )
 
         print(f"All visualizations saved to {self.output_dir}")
 
 
 def visualize_monte_carlo_results(
-    results_file: str, output_dir: str | None = None
+    results_file: str, output_dir: str | None = None,
 ) -> None:
     """
     Convenience function to create visualizations from saved results.
@@ -686,7 +686,7 @@ def visualize_monte_carlo_results(
                             "Fast_Period": short_windows[: len(stability_scores)],
                             "Slow_Period": long_windows[: len(stability_scores)],
                             "Stability_Score": stability_scores,
-                        }
+                        },
                     )
 
                     # Pivot for heatmap
@@ -708,13 +708,13 @@ def visualize_monte_carlo_results(
                     else:
                         # Matplotlib-only heatmap
                         im = plt.imshow(
-                            heatmap_data.values, cmap="RdYlGn", aspect="auto"
+                            heatmap_data.values, cmap="RdYlGn", aspect="auto",
                         )
                         plt.colorbar(im)
 
                         # Set ticks and labels
                         plt.xticks(
-                            range(len(heatmap_data.columns)), heatmap_data.columns
+                            range(len(heatmap_data.columns)), heatmap_data.columns,
                         )
                         plt.yticks(range(len(heatmap_data.index)), heatmap_data.index)
 
@@ -724,7 +724,7 @@ def visualize_monte_carlo_results(
                                 value = heatmap_data.iloc[i, j]
                                 if not pd.isna(value):
                                     plt.text(
-                                        j, i, f"{value:.3f}", ha="center", va="center"
+                                        j, i, f"{value:.3f}", ha="center", va="center",
                                     )
                     plt.title(f"{ticker} - Parameter Stability Scores")
                     plt.xlabel("Fast Period")

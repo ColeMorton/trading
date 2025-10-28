@@ -21,7 +21,7 @@ class TestMACalculationsBehavior(unittest.TestCase):
     def setUp(self):
         """Set up realistic test data that passes validation."""
         self.price_data = create_realistic_price_data(
-            ticker="AAPL", days=100, start_price=150.0, volatility=0.02
+            ticker="AAPL", days=100, start_price=150.0, volatility=0.02,
         )
 
         self.config = {
@@ -40,12 +40,12 @@ class TestMACalculationsBehavior(unittest.TestCase):
         fast_period, slow_period = 10, 20
 
         result = calculate_ma_and_signals(
-            self.price_data, fast_period, slow_period, self.config, self.log
+            self.price_data, fast_period, slow_period, self.config, self.log,
         )
 
         # Verify SMA calculations are mathematically correct
         assert_ma_calculations_accurate(
-            result, self.price_data, fast_period, slow_period, "SMA"
+            result, self.price_data, fast_period, slow_period, "SMA",
         )
 
         # Verify required columns exist
@@ -66,12 +66,12 @@ class TestMACalculationsBehavior(unittest.TestCase):
         fast_period, slow_period = 12, 26
 
         result = calculate_ma_and_signals(
-            self.price_data, fast_period, slow_period, self.config, self.log
+            self.price_data, fast_period, slow_period, self.config, self.log,
         )
 
         # Verify EMA calculations use correct smoothing
         assert_ma_calculations_accurate(
-            result, self.price_data, fast_period, slow_period, "EMA"
+            result, self.price_data, fast_period, slow_period, "EMA",
         )
 
     def test_signal_generation_logic(self):
@@ -79,7 +79,7 @@ class TestMACalculationsBehavior(unittest.TestCase):
         fast_period, slow_period = 5, 15
 
         result = calculate_ma_and_signals(
-            self.price_data, fast_period, slow_period, self.config, self.log
+            self.price_data, fast_period, slow_period, self.config, self.log,
         )
 
         # Verify signal logic is correct
@@ -98,7 +98,7 @@ class TestMACalculationsBehavior(unittest.TestCase):
 
         # Verify signals exist (basic functionality test)
         self.assertGreaterEqual(
-            buy_signals + sell_signals, 0, "Strategy should generate some signals"
+            buy_signals + sell_signals, 0, "Strategy should generate some signals",
         )
 
         # Test that when buy signals occur, fast MA is generally above slow MA
@@ -134,7 +134,7 @@ class TestMACalculationsBehavior(unittest.TestCase):
         # Test with invalid windows - implementation may handle this gracefully
         try:
             result = calculate_ma_and_signals(
-                self.price_data, 20, 10, self.config, self.log
+                self.price_data, 20, 10, self.config, self.log,
             )  # short > long
             # If no exception, verify result structure
             self.assertIn("Signal", result.columns)
@@ -146,7 +146,7 @@ class TestMACalculationsBehavior(unittest.TestCase):
         self.config["USE_CURRENT"] = True
 
         result = calculate_ma_and_signals(
-            self.price_data, 10, 20, self.config, self.log
+            self.price_data, 10, 20, self.config, self.log,
         )
 
         # Verify signal columns exist (using actual column names from implementation)

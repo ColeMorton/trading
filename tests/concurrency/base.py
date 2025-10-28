@@ -58,7 +58,7 @@ class ConcurrencyTestCase(unittest.TestCase):
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
     def create_portfolio_file(
-        self, strategies: list[dict[str, Any]], filename: str = "test_portfolio.json"
+        self, strategies: list[dict[str, Any]], filename: str = "test_portfolio.json",
     ) -> str:
         """Create a portfolio file in the test directory.
 
@@ -130,14 +130,14 @@ class ConcurrencyTestCase(unittest.TestCase):
             / f"{Path(portfolio_name).stem}_optimization.json"
         )
         self.assertTrue(
-            report_path.exists(), f"Optimization report not found: {report_path}"
+            report_path.exists(), f"Optimization report not found: {report_path}",
         )
 
         with open(report_path) as f:
             return json.load(f)
 
     def create_mock_price_data(
-        self, tickers: list[str], periods: int = 100
+        self, tickers: list[str], periods: int = 100,
     ) -> dict[str, dict[str, list[float]]]:
         """Create mock price data for testing.
 

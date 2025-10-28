@@ -121,8 +121,7 @@ def calculate_var(returns: np.ndarray, confidence_level: float = 0.95) -> float:
 
     sorted_returns = np.sort(returns_pct)
     cutoff_index = int((1 - confidence_level) * len(sorted_returns))
-    var = -sorted_returns[cutoff_index]  # Convert to positive value
-    return var
+    return -sorted_returns[cutoff_index]  # Convert to positive value
 
 
 def calculate_cvar(returns: np.ndarray, confidence_level: float = 0.95) -> float:
@@ -144,13 +143,12 @@ def calculate_cvar(returns: np.ndarray, confidence_level: float = 0.95) -> float
     var = sorted_returns[cutoff_index]
 
     # Calculate CVaR as the mean of returns below VaR
-    cvar = -sorted_returns[sorted_returns <= var].mean()  # Convert to positive value
+    return -sorted_returns[sorted_returns <= var].mean()  # Convert to positive value
 
-    return cvar
 
 
 def calculate_asset_metrics(
-    returns: pl.DataFrame, weights: dict[str, float], log: Callable[[str, str], None]
+    returns: pl.DataFrame, weights: dict[str, float], log: Callable[[str, str], None],
 ) -> list[dict[str, float]]:
     """
     Calculate performance metrics for individual assets.
@@ -193,7 +191,7 @@ def calculate_asset_metrics(
                 "sortino_ratio": sortino_ratio,
                 "var": var,
                 "cvar": cvar,
-            }
+            },
         )
 
     return metrics
@@ -264,7 +262,7 @@ def main() -> None:
         # Calculate metrics using skfolio's Portfolio object
         annualized_return = portfolio.mean * 252  # annualize the mean return
         downside_volatility = portfolio.semi_deviation * np.sqrt(
-            252
+            252,
         )  # annualize the downside volatility
         sortino_ratio = portfolio.sortino_ratio
 
@@ -305,7 +303,7 @@ def main() -> None:
                 metrics["cvar"] / 100
             ) * usd_allocation  # e.g. 3.5% of $1000 = $35
             log(
-                f"{asset}: {metrics['weight']:.2%} (${usd_allocation:,.2f}, VaR: ${var_usd:,.2f}, CVaR: ${cvar_usd:,.2f})"
+                f"{asset}: {metrics['weight']:.2%} (${usd_allocation:,.2f}, VaR: ${var_usd:,.2f}, CVaR: ${cvar_usd:,.2f})",
             )
 
         # Print portfolio metrics
@@ -314,16 +312,16 @@ def main() -> None:
         log(f"Downside Volatility: {downside_volatility:.2%}")
         log(f"Sortino Ratio: {sortino_ratio:.2f}")
         log(
-            f"Value at Risk (VaR 95%): ${portfolio_var_95_usd:,.2f} ({portfolio_var_95_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})"
+            f"Value at Risk (VaR 95%): ${portfolio_var_95_usd:,.2f} ({portfolio_var_95_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})",
         )
         log(
-            f"Conditional Value at Risk (CVaR 95%): ${portfolio_cvar_95_usd:,.2f} ({portfolio_cvar_95_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})"
+            f"Conditional Value at Risk (CVaR 95%): ${portfolio_cvar_95_usd:,.2f} ({portfolio_cvar_95_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})",
         )
         log(
-            f"Value at Risk (VaR 99%): ${portfolio_var_99_usd:,.2f} ({portfolio_var_99_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})"
+            f"Value at Risk (VaR 99%): ${portfolio_var_99_usd:,.2f} ({portfolio_var_99_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})",
         )
         log(
-            f"Conditional Value at Risk (CVaR 99%): ${portfolio_cvar_99_usd:,.2f} ({portfolio_cvar_99_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})"
+            f"Conditional Value at Risk (CVaR 99%): ${portfolio_cvar_99_usd:,.2f} ({portfolio_cvar_99_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})",
         )
 
         # Print detailed asset metrics
@@ -349,7 +347,7 @@ def main() -> None:
         # Calculate position sizes and metrics
         log("Calculating position sizes and metrics", "info")
         results = calculate_position_sizes(
-            portfolio_config["portfolio"], merged_config, log
+            portfolio_config["portfolio"], merged_config, log,
         )
 
         # Calculate total leveraged value to check against target if needed
@@ -366,7 +364,7 @@ def main() -> None:
 
             # Scale down initial values while keeping leverage and allocation same
             for asset, metrics in zip(
-                portfolio_config["portfolio"], results, strict=False
+                portfolio_config["portfolio"], results, strict=False,
             ):
                 metrics["initial_value"] *= scale_factor
                 metrics["leveraged_value"] = (
@@ -420,7 +418,7 @@ def main() -> None:
                     "allocation": metrics["allocation"],
                 }
                 for asset, metrics in zip(
-                    portfolio_config["portfolio"], results, strict=False
+                    portfolio_config["portfolio"], results, strict=False,
                 )
             ],
             "position_sizing_config": {

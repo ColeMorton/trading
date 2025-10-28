@@ -35,7 +35,7 @@ class ConcurrencyAnalysis:
         return log_func
 
     def analyze(
-        self, data_list: list[pl.DataFrame], config_list: list[StrategyConfig]
+        self, data_list: list[pl.DataFrame], config_list: list[StrategyConfig],
     ) -> dict[str, Any]:
         """Run concurrency analysis on provided data.
 
@@ -57,14 +57,15 @@ class ConcurrencyAnalysis:
             Dictionary with analysis statistics
         """
         if "PORTFOLIO" not in self.config:
-            raise ValueError("PORTFOLIO must be specified in config")
+            msg = "PORTFOLIO must be specified in config"
+            raise ValueError(msg)
 
         # Load portfolio
         from app.tools.portfolio import load_portfolio
         from app.tools.portfolio.paths import resolve_portfolio_file_path
 
         portfolio_path = resolve_portfolio_file_path(
-            self.config["PORTFOLIO"], self.config.get("BASE_DIR", "")
+            self.config["PORTFOLIO"], self.config.get("BASE_DIR", ""),
         )
 
         strategies = load_portfolio(str(portfolio_path))
