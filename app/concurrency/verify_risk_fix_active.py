@@ -36,7 +36,6 @@ def main():
 
     # Check if fixed implementation is available
     try:
-
         print("\n✅ Fixed risk calculation module is available")
     except ImportError:
         print("\n❌ Fixed risk calculation module NOT available")
