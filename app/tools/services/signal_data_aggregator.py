@@ -907,7 +907,7 @@ class SignalDataAggregator:
         Returns:
             Dictionary with validation results and actions taken
         """
-        validation_result = {
+        validation_result: dict[str, Any] = {
             "strategy_name": strategy_name,
             "timestamp": pd.Timestamp.now().isoformat(),
             "constraints_passed": 0,

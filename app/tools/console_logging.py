@@ -439,8 +439,8 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
         # Performance tracking
         self._execution_phases = {}
         self._phase_timings = {}
-        self._resource_snapshots = []
-        self._performance_alerts = []
+        self._resource_snapshots: list[dict[str, Any]] = []
+        self._performance_alerts: list[dict[str, Any]] = []
         self._execution_start_time = None
         self._current_phase = None
         self._lock = threading.Lock()
@@ -460,8 +460,8 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
         }
 
         # Bottleneck pattern tracking
-        self._bottleneck_patterns = []
-        self._phase_trend_history = {}
+        self._bottleneck_patterns: list[dict[str, Any]] = []
+        self._phase_trend_history: dict[str, list[float]] = {}
 
         # Import performance monitoring systems
         try:
@@ -1450,7 +1450,7 @@ class PerformancePhaseContext:
         self.description = description
         self.estimated_duration = estimated_duration
         self.success = True
-        self.details = {}
+        self.details: dict[str, Any] = {}
 
     def __enter__(self):
         self.logger.start_phase(
