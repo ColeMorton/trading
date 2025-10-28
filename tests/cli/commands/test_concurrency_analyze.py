@@ -258,7 +258,7 @@ class TestConcurrencyReviewCommand:
         assert result.exit_code == 0
         assert "review" in result.stdout.lower()
 
-    @patch("app.tools.portfolio.enhanced_loader.load_portfolio_with_context")
+    @patch("app.tools.portfolio.enhanced_loader.load_portfolio_with_logging")
     def test_review_basic_success(self, mock_load, runner):
         """Test basic successful portfolio review."""
         # Mock portfolio data
@@ -295,7 +295,7 @@ class TestConcurrencyReviewCommand:
         assert result.exit_code == 1
         assert "not found" in result.stdout.lower()
 
-    @patch("app.tools.portfolio.enhanced_loader.load_portfolio_with_context")
+    @patch("app.tools.portfolio.enhanced_loader.load_portfolio_with_logging")
     def test_review_output_formats(self, mock_load, runner):
         """Test different output formats for review."""
         mock_load.return_value = [{"Ticker": "BTC-USD"}]

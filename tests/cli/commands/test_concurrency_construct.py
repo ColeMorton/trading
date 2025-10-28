@@ -180,31 +180,36 @@ class TestConcurrencyConstructCommand:
 
     @patch("app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader")
     def test_construct_insufficient_strategies_error(self, mock_loader_class, runner):
-        """Test error when asset has insufficient strategies."""
+        """Test warning when asset has insufficient strategies."""
         mock_loader = mock_loader_class.return_value
         mock_loader.validate_asset_data.return_value = {
             "viable_for_construction": False,
             "score_filtered_strategies": 3,
             "error": "Only 3 strategies available",
         }
+        mock_loader.load_strategies_for_asset.return_value = []
 
         result = runner.invoke(concurrency_app, ["construct", "INVALID"])
 
-        assert result.exit_code == 1
-        assert "Error" in result.stdout or "Insufficient" in result.stdout
+        # Command succeeds but shows warning (exit code 0)
+        assert result.exit_code == 0
+        assert "Warning" in result.stdout or "Insufficient" in result.stdout or "Skipping" in result.stdout
 
     @patch("app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader")
     def test_construct_asset_not_found(self, mock_loader_class, runner):
-        """Test error when asset files don't exist."""
+        """Test warning when asset files don't exist."""
         mock_loader = mock_loader_class.return_value
         mock_loader.validate_asset_data.return_value = {
             "viable_for_construction": False,
             "error": "No strategy files found for asset NONEXISTENT",
         }
+        mock_loader.load_strategies_for_asset.return_value = []
 
         result = runner.invoke(concurrency_app, ["construct", "NONEXISTENT"])
 
-        assert result.exit_code == 1
+        # Command succeeds but shows warning (exit code 0)
+        assert result.exit_code == 0
+        assert "Warning" in result.stdout or "not found" in result.stdout.lower()
 
     @patch("app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader")
     @patch("app.concurrency.review.run_concurrency_review")

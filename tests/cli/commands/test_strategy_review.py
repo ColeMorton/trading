@@ -112,7 +112,7 @@ config:
         assert result.exit_code != 0
         assert "profile" in result.stdout.lower() or "required" in result.stdout.lower()
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_review_command_with_profile_success(
         self,
@@ -146,7 +146,7 @@ config:
             ["AAPL", "MSFT", "GOOGL"]
         )
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_auto_discovery_mode(
         self, mock_analysis_service, cli_runner, mock_portfolio_data
     ):
@@ -165,7 +165,7 @@ config:
         assert result.exit_code == 0
         mock_service_instance.aggregate_all_current_portfolios.assert_called_once()
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_with_ticker_filtering(
         self, mock_analysis_service, cli_runner, mock_portfolio_data
     ):
@@ -211,7 +211,7 @@ config:
         assert result.exit_code != 0
         assert "directory not found" in result.stdout.lower()
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     @patch("pathlib.Path.exists")
     def test_review_command_with_valid_date(
         self, mock_exists, mock_analysis_service, cli_runner, mock_portfolio_data
@@ -238,7 +238,7 @@ config:
             use_current=True, custom_date="20250816"
         )
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_output_format_options(
         self, mock_analysis_service, cli_runner, mock_portfolio_data
     ):
@@ -262,7 +262,7 @@ config:
         )
         assert result_raw.exit_code == 0
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_sorting_options(
         self, mock_analysis_service, cli_runner, mock_portfolio_data
     ):
@@ -287,7 +287,7 @@ config:
         )
         assert result_custom.exit_code == 0
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_top_n_parameter(
         self, mock_analysis_service, cli_runner, mock_portfolio_data
     ):
@@ -306,7 +306,7 @@ config:
 
         assert result.exit_code == 0
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_empty_results(self, mock_analysis_service, cli_runner):
         """Test review command handling of empty results."""
         # Setup mocks with empty DataFrame
@@ -340,7 +340,7 @@ config:
         assert result.exit_code != 0
         assert "error" in result.stdout.lower()
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_multiple_tickers_comma_separated(
         self, mock_analysis_service, cli_runner, mock_portfolio_data
     ):
@@ -364,7 +364,7 @@ config:
             ["AAPL", "MSFT", "GOOGL"]
         )
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_multiple_ticker_arguments(
         self, mock_analysis_service, cli_runner, mock_portfolio_data
     ):
@@ -428,7 +428,7 @@ class TestStrategyReviewBatchMode:
             ]
         )
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     @patch("app.cli.commands.strategy.BatchProcessingService")
     def test_review_batch_mode_success(
         self,
@@ -498,7 +498,7 @@ class TestStrategyReviewBatchMode:
         assert result.exit_code != 0
         assert "no tickers found" in result.stdout.lower()
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     @patch("app.cli.commands.strategy.BatchProcessingService")
     def test_review_batch_mode_forces_non_current(
         self,
@@ -535,7 +535,7 @@ class TestStrategyReviewBatchMode:
             use_current=False, custom_date=None
         )
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     @patch("app.cli.commands.strategy.BatchProcessingService")
     def test_review_batch_mode_forces_non_date(
         self,
@@ -574,7 +574,7 @@ class TestStrategyReviewBatchMode:
             use_current=False, custom_date=None
         )
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     @patch("app.cli.commands.strategy.BatchProcessingService")
     def test_review_batch_mode_with_output_options(
         self,
@@ -658,7 +658,7 @@ class TestStrategyReviewEdgeCases:
         # Should work - profile is ignored in batch mode
         assert result2.exit_code != 0  # Will fail due to batch file validation
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_analysis_service_exception(
         self, mock_analysis_service, cli_runner
     ):
@@ -690,7 +690,7 @@ class TestStrategyReviewEdgeCases:
         # Should complete (no strict validation on output format)
         assert result.exit_code is not None
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_very_large_top_n(self, mock_analysis_service, cli_runner):
         """Test review command with very large top-n value."""
         # Setup mocks
@@ -727,7 +727,7 @@ class TestStrategyReviewEdgeCases:
         # Should complete (sorting validation happens at analysis level)
         assert result.exit_code is not None
 
-    @patch("app.cli.commands.strategy.PortfolioAnalysisService")
+    @patch("app.cli.services.portfolio_analysis_service.PortfolioAnalysisService")
     def test_review_command_unicode_in_parameters(
         self, mock_analysis_service, cli_runner
     ):
