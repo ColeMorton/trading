@@ -35,8 +35,8 @@ class SeasonalityExpectancyService:
         self.console = Console()
         self.seasonality_dir = Path("data/raw/seasonality")
         self.current_dir = self.seasonality_dir / "current"
-        self.results = []
-        self.skipped_tickers = []  # Track filtered tickers
+        self.results: list[dict[str, Any]] = []
+        self.skipped_tickers: list[str] = []  # Track filtered tickers
 
         # Ensure directories exist
         self.current_dir.mkdir(parents=True, exist_ok=True)
@@ -156,7 +156,7 @@ class SeasonalityExpectancyService:
         Returns:
             Dictionary with period weights
         """
-        weights = {}
+        weights: dict[str, float] = {}
         total_days = (end_date - start_date).days
 
         # Calculate monthly weights

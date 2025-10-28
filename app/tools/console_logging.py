@@ -62,8 +62,8 @@ class ConsoleLogger:
         self.show_time = show_time
         self.verbose = verbose
         self.quiet = quiet
-        self._progress_stack = []
-        self._status_stack = []
+        self._progress_stack: list[Progress] = []
+        self._status_stack: list[Any] = []
 
     def success(self, message: str, **kwargs) -> None:
         """Display success message with green checkmark."""
@@ -437,8 +437,8 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
         self.profile_execution = profile_execution
 
         # Performance tracking
-        self._execution_phases = {}
-        self._phase_timings = {}
+        self._execution_phases: dict[str, dict[str, Any]] = {}
+        self._phase_timings: dict[str, dict[str, float]] = {}
         self._resource_snapshots: list[dict[str, Any]] = []
         self._performance_alerts: list[dict[str, Any]] = []
         self._execution_start_time = None

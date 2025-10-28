@@ -273,7 +273,7 @@ class PortfolioAnalysisService:
             f"{ticker}_H.csv",  # {TICKER}_H.csv
         ]
 
-        found_files = []
+        found_files: list[Path] = []
         for pattern in patterns:
             found_files.extend(search_dir.glob(pattern))
 

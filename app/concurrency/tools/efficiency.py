@@ -368,7 +368,7 @@ def _validate_expectancy_calculation(
     """
     try:
         total_weighted_expectancy = metrics.get("total_weighted_expectancy", 0)
-        debug_info_raw = metrics.get("expectancy_calculation_debug", [])
+        debug_info_raw: Any = metrics.get("expectancy_calculation_debug", [])
         debug_info: list[Any] = debug_info_raw if isinstance(debug_info_raw, list) else []
 
         if strategy_expectancies:

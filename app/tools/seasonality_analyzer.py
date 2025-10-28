@@ -83,7 +83,7 @@ class SeasonalityAnalyzer:
             List of monthly patterns
         """
         patterns = []
-        monthly_data = {}
+        monthly_data: dict[str, list[float]] = {}
 
         # Group returns by month
         for date, ret in returns.items():
@@ -133,7 +133,7 @@ class SeasonalityAnalyzer:
             List of weekly patterns
         """
         patterns = []
-        weekly_data = {}
+        weekly_data: dict[str, list[float]] = {}
 
         # Group returns by day of week
         for date, ret in returns.items():
@@ -172,7 +172,7 @@ class SeasonalityAnalyzer:
             List of quarterly patterns
         """
         patterns = []
-        quarterly_data = {}
+        quarterly_data: dict[str, list[float]] = {}
 
         # Group returns by quarter
         for date, ret in returns.items():
@@ -209,7 +209,7 @@ class SeasonalityAnalyzer:
             List of day of month patterns
         """
         patterns = []
-        day_of_month_data = {}
+        day_of_month_data: dict[int, list[float]] = {}
 
         # Group returns by day of month
         for date, ret in returns.items():
@@ -254,7 +254,7 @@ class SeasonalityAnalyzer:
             List of week-of-year patterns
         """
         patterns = []
-        week_data = {}
+        week_data: dict[int, list[float]] = {}
 
         # Group returns by week of year
         for date, ret in returns.items():

@@ -305,7 +305,7 @@ class AssetStrategyLoader:
             score_filtered = len([s for s in strategies if s["score"] >= 1.0])
 
             # Strategy type distribution
-            strategy_types = {}
+            strategy_types: dict[str, int] = {}
             for strategy in strategies:
                 strategy_types[strategy["strategy_type"]] = (
                     strategy_types.get(strategy["strategy_type"], 0) + 1
