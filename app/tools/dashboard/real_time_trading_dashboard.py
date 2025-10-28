@@ -630,8 +630,7 @@ class RealTimeTradingDashboard:
             )
             + "║",
             f"║ ├─ Dual-Layer Score: {signal.dual_layer_score:.2f} | "
-            f"Confidence: {signal.confidence:.1%}".ljust(self.console_width - 5)
-            + "║",
+            f"Confidence: {signal.confidence:.1%}".ljust(self.console_width - 5) + "║",
             f"║ ├─ PnL: {position.unrealized_pnl_pct:.1%} | "
             f"MFE: {position.mfe:.1%} | Days: {position.days_held}".ljust(
                 self.console_width - 5

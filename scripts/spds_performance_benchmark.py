@@ -13,28 +13,28 @@ Usage:
 """
 
 import asyncio
+from dataclasses import dataclass
 import json
 import logging
+from pathlib import Path
 import statistics
 
 # Import SPDS components
 import sys
 import time
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
 from rich.console import Console
-from rich.progress import Progress, TaskID
+from rich.progress import Progress
 from rich.table import Table
+
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.tools.config.statistical_analysis_config import StatisticalAnalysisConfig
-from app.tools.models.statistical_analysis_models import StatisticalAnalysisResult
 from app.tools.portfolio_analyzer import PortfolioStatisticalAnalyzer
+
 
 console = Console()
 
@@ -48,25 +48,25 @@ class BenchmarkResult:
     execution_time: float
     memory_usage_mb: float
     success: bool
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
 
 @dataclass
 class BenchmarkSuite:
     """Complete benchmark suite results."""
 
-    results: List[BenchmarkResult]
+    results: list[BenchmarkResult]
     total_time: float
-    system_info: Dict[str, Any]
+    system_info: dict[str, Any]
     timestamp: str
 
 
 class SPDSPerformanceBenchmark:
     """Performance benchmarking for SPDS operations."""
 
-    def __init__(self, save_results: Optional[str] = None):
+    def __init__(self, save_results: str | None = None):
         self.save_results = save_results
-        self.results: List[BenchmarkResult] = []
+        self.results: list[BenchmarkResult] = []
         self.logger = logging.getLogger(__name__)
 
         # Create benchmark portfolios directory
@@ -206,7 +206,7 @@ class SPDSPerformanceBenchmark:
 
     async def benchmark_memory_optimization(
         self, portfolio_path: str, size: int
-    ) -> Tuple[BenchmarkResult, BenchmarkResult]:
+    ) -> tuple[BenchmarkResult, BenchmarkResult]:
         """Benchmark with and without memory optimization."""
 
         # Copy the portfolio file to the correct location
@@ -378,7 +378,7 @@ class SPDSPerformanceBenchmark:
 
     def display_results(self, suite: BenchmarkSuite):
         """Display benchmark results in formatted table."""
-        console.print(f"\n[bold]📈 SPDS Performance Benchmark Results[/bold]")
+        console.print("\n[bold]📈 SPDS Performance Benchmark Results[/bold]")
         console.print(
             f"[dim]Completed: {suite.timestamp} | Total Time: {suite.total_time:.1f}s[/dim]"
         )
@@ -446,7 +446,9 @@ class SPDSPerformanceBenchmark:
                 avg_savings = statistics.mean(
                     [
                         wo.memory_usage_mb - w.memory_usage_mb
-                        for wo, w in zip(without_opt_results, with_opt_results)
+                        for wo, w in zip(
+                            without_opt_results, with_opt_results, strict=False
+                        )
                     ]
                 )
 
@@ -454,7 +456,9 @@ class SPDSPerformanceBenchmark:
                     [
                         ((wo.memory_usage_mb - w.memory_usage_mb) / wo.memory_usage_mb)
                         * 100
-                        for wo, w in zip(without_opt_results, with_opt_results)
+                        for wo, w in zip(
+                            without_opt_results, with_opt_results, strict=False
+                        )
                         if wo.memory_usage_mb > 0
                     ]
                 )

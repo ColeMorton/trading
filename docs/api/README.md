@@ -19,6 +19,7 @@ docker-compose up api
 ### 2. Get an API Key
 
 Default development key:
+
 ```
 dev-key-000000000000000000000000
 ```
@@ -40,73 +41,73 @@ Visit: `http://localhost:8000/api/docs`
 
 ### Strategy Execution
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/v1/strategy/run` | POST | Execute single strategy backtest |
-| `/api/v1/strategy/sweep` | POST | Run parameter sweep analysis |
-| `/api/v1/strategy/review` | POST | Detailed strategy review |
-| `/api/v1/strategy/sector-compare` | POST | Cross-sector comparison |
+| Endpoint                          | Method | Purpose                          |
+| --------------------------------- | ------ | -------------------------------- |
+| `/api/v1/strategy/run`            | POST   | Execute single strategy backtest |
+| `/api/v1/strategy/sweep`          | POST   | Run parameter sweep analysis     |
+| `/api/v1/strategy/review`         | POST   | Detailed strategy review         |
+| `/api/v1/strategy/sector-compare` | POST   | Cross-sector comparison          |
 
 ### Sweep Results ⭐ NEW
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/v1/sweeps/` | GET | List all sweep runs |
-| `/api/v1/sweeps/latest` | GET | Latest sweep results |
-| `/api/v1/sweeps/{id}` | GET | All results for sweep |
-| `/api/v1/sweeps/{id}/best` | GET | Best result for sweep |
-| `/api/v1/sweeps/{id}/best-per-ticker` | GET | Best per ticker |
+| Endpoint                              | Method | Purpose               |
+| ------------------------------------- | ------ | --------------------- |
+| `/api/v1/sweeps/`                     | GET    | List all sweep runs   |
+| `/api/v1/sweeps/latest`               | GET    | Latest sweep results  |
+| `/api/v1/sweeps/{id}`                 | GET    | All results for sweep |
+| `/api/v1/sweeps/{id}/best`            | GET    | Best result for sweep |
+| `/api/v1/sweeps/{id}/best-per-ticker` | GET    | Best per ticker       |
 
 ### Job Management
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/v1/jobs/{id}` | GET | Get job status |
-| `/api/v1/jobs/{id}/stream` | GET | Stream job progress (SSE) |
-| `/api/v1/jobs/{id}` | DELETE | Cancel job |
-| `/api/v1/jobs/` | GET | List jobs |
+| Endpoint                   | Method | Purpose                   |
+| -------------------------- | ------ | ------------------------- |
+| `/api/v1/jobs/{id}`        | GET    | Get job status            |
+| `/api/v1/jobs/{id}/stream` | GET    | Stream job progress (SSE) |
+| `/api/v1/jobs/{id}`        | DELETE | Cancel job                |
+| `/api/v1/jobs/`            | GET    | List jobs                 |
 
 ### Configuration
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/v1/config/list` | POST | List configurations |
-| `/api/v1/config/show` | POST | Show configuration |
-| `/api/v1/config/verify-defaults` | POST | Verify defaults |
-| `/api/v1/config/set-default` | POST | Set default config |
-| `/api/v1/config/edit` | POST | Edit configuration |
-| `/api/v1/config/validate` | POST | Validate configuration |
+| Endpoint                         | Method | Purpose                |
+| -------------------------------- | ------ | ---------------------- |
+| `/api/v1/config/list`            | POST   | List configurations    |
+| `/api/v1/config/show`            | POST   | Show configuration     |
+| `/api/v1/config/verify-defaults` | POST   | Verify defaults        |
+| `/api/v1/config/set-default`     | POST   | Set default config     |
+| `/api/v1/config/edit`            | POST   | Edit configuration     |
+| `/api/v1/config/validate`        | POST   | Validate configuration |
 
 ### Concurrency Analysis
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/v1/concurrency/analyze` | POST | Analyze concurrency |
-| `/api/v1/concurrency/export` | POST | Export concurrency data |
-| `/api/v1/concurrency/review` | POST | Review concurrency |
-| `/api/v1/concurrency/construct` | POST | Construct portfolio |
-| `/api/v1/concurrency/optimize` | POST | Optimize portfolio |
-| `/api/v1/concurrency/monte-carlo` | POST | Monte Carlo analysis |
+| Endpoint                          | Method | Purpose                 |
+| --------------------------------- | ------ | ----------------------- |
+| `/api/v1/concurrency/analyze`     | POST   | Analyze concurrency     |
+| `/api/v1/concurrency/export`      | POST   | Export concurrency data |
+| `/api/v1/concurrency/review`      | POST   | Review concurrency      |
+| `/api/v1/concurrency/construct`   | POST   | Construct portfolio     |
+| `/api/v1/concurrency/optimize`    | POST   | Optimize portfolio      |
+| `/api/v1/concurrency/monte-carlo` | POST   | Monte Carlo analysis    |
 
 ### Seasonality Analysis
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/v1/seasonality/run` | POST | Run seasonality analysis |
-| `/api/v1/seasonality/list` | POST | List seasonality data |
-| `/api/v1/seasonality/results` | POST | Get seasonality results |
-| `/api/v1/seasonality/clean` | POST | Clean seasonality data |
-| `/api/v1/seasonality/current` | POST | Get current seasonality |
-| `/api/v1/seasonality/portfolio` | POST | Seasonality portfolio |
+| Endpoint                        | Method | Purpose                  |
+| ------------------------------- | ------ | ------------------------ |
+| `/api/v1/seasonality/run`       | POST   | Run seasonality analysis |
+| `/api/v1/seasonality/list`      | POST   | List seasonality data    |
+| `/api/v1/seasonality/results`   | POST   | Get seasonality results  |
+| `/api/v1/seasonality/clean`     | POST   | Clean seasonality data   |
+| `/api/v1/seasonality/current`   | POST   | Get current seasonality  |
+| `/api/v1/seasonality/portfolio` | POST   | Seasonality portfolio    |
 
 ### Health & Monitoring
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/health/` | GET | Basic health check |
-| `/health/detailed` | GET | Detailed component health |
-| `/health/ready` | GET | Readiness probe |
-| `/health/live` | GET | Liveness probe |
+| Endpoint           | Method | Purpose                   |
+| ------------------ | ------ | ------------------------- |
+| `/health/`         | GET    | Basic health check        |
+| `/health/detailed` | GET    | Detailed component health |
+| `/health/ready`    | GET    | Readiness probe           |
+| `/health/live`     | GET    | Liveness probe            |
 
 ---
 
@@ -121,6 +122,7 @@ X-API-Key: your-api-key-here
 ### Development Key
 
 For development and testing:
+
 ```
 dev-key-000000000000000000000000
 ```
@@ -162,12 +164,12 @@ while True:
         f"http://localhost:8000/api/v1/jobs/{job['job_id']}",
         headers=headers
     ).json()
-    
+
     if status["status"] == "completed":
         break
     elif status["status"] == "failed":
         raise Exception(f"Job failed: {status['error_message']}")
-    
+
     print(f"Progress: {status['progress']}%")
     time.sleep(5)
 
@@ -235,6 +237,7 @@ for result in best_per_ticker["results"]:
 All endpoints return JSON with consistent error handling:
 
 ### Success Response
+
 ```json
 {
   "data": {...},
@@ -243,6 +246,7 @@ All endpoints return JSON with consistent error handling:
 ```
 
 ### Error Response
+
 ```json
 {
   "error": "Error Type",
@@ -256,9 +260,10 @@ All endpoints return JSON with consistent error handling:
 
 ## Rate Limiting
 
-Currently no rate limiting is enforced. 
+Currently no rate limiting is enforced.
 
-**Recommended:** 
+**Recommended:**
+
 - Maximum 100 requests per minute per API key
 - Sweep operations: Maximum 5 concurrent sweeps
 - Job polling: Maximum 1 request per second
@@ -270,12 +275,14 @@ Currently no rate limiting is enforced.
 ### 1. Use Sweep Results Endpoints
 
 ✅ **Do:**
+
 ```python
 # Get results via API
 best = api.get(f"/sweeps/{sweep_id}/best?ticker=AAPL")
 ```
 
 ❌ **Don't:**
+
 ```python
 # Parse CSV files manually
 df = pd.read_csv("data/raw/portfolios/...")
@@ -284,6 +291,7 @@ df = pd.read_csv("data/raw/portfolios/...")
 ### 2. Poll Efficiently
 
 ✅ **Do:**
+
 ```python
 # Exponential backoff
 wait_time = 5
@@ -296,6 +304,7 @@ while True:
 ```
 
 ❌ **Don't:**
+
 ```python
 # Poll too frequently
 while True:
@@ -306,6 +315,7 @@ while True:
 ### 3. Use Pagination
 
 ✅ **Do:**
+
 ```python
 # Paginate large result sets
 offset = 0
@@ -320,6 +330,7 @@ while True:
 ### 4. Handle Errors Gracefully
 
 ✅ **Do:**
+
 ```python
 try:
     results = api.get(f"/sweeps/{sweep_id}/best")

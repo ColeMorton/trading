@@ -721,7 +721,9 @@ class DataReconciler:
             "discrepancies_by_severity", {}
         ).get("severe", 0) + report.overall_summary.get(
             "discrepancies_by_severity", {}
-        ).get("critical", 0)
+        ).get(
+            "critical", 0
+        )
 
         # Trustworthiness decreases with severity of discrepancies
         base_trustworthiness = 1.0 - (total_discrepancies / total_metrics)

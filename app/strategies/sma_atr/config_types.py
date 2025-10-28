@@ -4,7 +4,6 @@ SMA_ATR Strategy Configuration Types
 This module defines configuration types and structures for the SMA_ATR strategy.
 """
 
-from typing import Any, TypedDict
 
 from typing_extensions import NotRequired
 
@@ -14,10 +13,10 @@ from app.core.types.config import BaseStrategyConfig
 class Config(BaseStrategyConfig, total=False):
     """
     Configuration for SMA_ATR strategy analysis.
-    
+
     Extends BaseStrategyConfig with SMA_ATR-specific parameter fields,
     combining SMA crossover parameters with ATR trailing stop parameters.
-    
+
     SMA_ATR-Specific Fields:
         FAST_PERIOD_RANGE (tuple): Fast SMA period range
         SLOW_PERIOD_RANGE (tuple): Slow SMA period range

@@ -25,14 +25,14 @@ repos:
       - id: mixed-line-ending
         args: ['--fix=lf']
 
-  # isort - Import sorting (before black)
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
+  # Ruff - Modern, fast Python linter (replaces flake8, isort checks, and more)
+  # Run before Black to fix linting issues first
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
     hooks:
-      - id: isort
-        name: isort (python)
-        args: ['--profile', 'black', '--line-length', '88']
-        additional_dependencies: ['toml']
+      # Run the linter with auto-fix
+      - id: ruff
+        args: ['--fix', '--exit-non-zero-on-fix']
 
   # black - Code formatting (re-enabled after syntax fixes)
   - repo: https://github.com/psf/black
@@ -41,16 +41,6 @@ repos:
       - id: black
         language_version: python3.11
         args: ['--line-length', '88']
-
-  # Ruff - Modern, fast Python linter (replaces flake8, isort checks, and more)
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.4
-    hooks:
-      # Run the linter
-      - id: ruff
-        args: ['--fix', '--exit-non-zero-on-fix']
-      # Run the formatter (optional - black is primary formatter)
-      - id: ruff-format
 
   # flake8 - Style guide enforcement (temporarily disabled - replaced by Ruff)
   # - repo: https://github.com/pycqa/flake8
@@ -69,6 +59,7 @@ repos:
   #         ]
 
   # mypy - Static type checking (enabled with gradual adoption)
+  # Configuration is fully managed in pyproject.toml
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.8.0
     hooks:
@@ -80,14 +71,7 @@ repos:
           - types-pytz
           - pandas-stubs
           - types-Pillow
-        args:
-          [
-            '--ignore-missing-imports',
-            '--no-strict-optional',
-            '--warn-redundant-casts',
-            '--warn-unused-ignores',
-            '--config-file=pyproject.toml',
-          ]
+        args: ['--config-file=pyproject.toml']
         files: ^app/
         exclude: ^(tests/|scripts/|experimental/)
 

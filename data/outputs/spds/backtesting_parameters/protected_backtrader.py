@@ -7,7 +7,6 @@ Confidence Level: 0.9
 Total Strategies: 3
 """
 
-import datetime
 
 import backtrader as bt
 
@@ -41,7 +40,7 @@ class RJF_SMA_68_77_RJF_DExitStrategy(bt.Strategy):
 
         # Validate parameters
         if self.params.statistical_validity == "LOW":
-            print(f"Warning: Low reliability parameters for RJF_SMA_68_77_RJF_D")
+            print("Warning: Low reliability parameters for RJF_SMA_68_77_RJF_D")
 
     def next(self):
         if self.position:
@@ -127,7 +126,7 @@ class HWM_SMA_7_9_HWM_DExitStrategy(bt.Strategy):
 
         # Validate parameters
         if self.params.statistical_validity == "LOW":
-            print(f"Warning: Low reliability parameters for HWM_SMA_7_9_HWM_D")
+            print("Warning: Low reliability parameters for HWM_SMA_7_9_HWM_D")
 
     def next(self):
         if self.position:
@@ -213,7 +212,7 @@ class DOV_SMA_45_86_DOV_DExitStrategy(bt.Strategy):
 
         # Validate parameters
         if self.params.statistical_validity == "LOW":
-            print(f"Warning: Low reliability parameters for DOV_SMA_45_86_DOV_D")
+            print("Warning: Low reliability parameters for DOV_SMA_45_86_DOV_D")
 
     def next(self):
         if self.position:

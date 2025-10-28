@@ -1,7 +1,7 @@
 # Trading Application Makefile
 # Provides convenient commands for development and deployment
 
-.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs setup-db migrate backup restore frontend-install frontend-dev frontend-build frontend-codegen frontend-test test-fullstack dev-fullstack lint-help lint-black lint-isort lint-flake8 lint-mypy lint-pylint lint-bandit lint-vulture format-black format-isort lint-python format-python security-scan find-dead-code lint-all pre-commit-install pre-commit-run
+.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs setup-db migrate backup restore frontend-install frontend-dev frontend-build frontend-codegen frontend-test test-fullstack dev-fullstack lint-help lint-black lint-imports lint-flake8 lint-mypy lint-pylint lint-bandit lint-vulture format-black format-imports lint-python format-python security-scan find-dead-code lint-all pre-commit-install pre-commit-run
 
 # Default target
 help:
@@ -343,18 +343,18 @@ lint-help:
 	@echo ""
 	@echo "Individual Linters (check only):"
 	@echo "  lint-black   - Check code formatting with Black"
-	@echo "  lint-isort   - Check import sorting with isort"
+	@echo "  lint-imports - Check import sorting with Ruff"
 	@echo "  lint-ruff    - Check code with Ruff (fast, modern linter)"
-	@echo "  lint-flake8  - Check code style with Flake8"
+	@echo "  lint-flake8  - Check code style with Flake8 (deprecated)"
 	@echo "  lint-mypy    - Check type hints with mypy"
 	@echo "  lint-pylint  - Check code quality with pylint"
 	@echo "  lint-bandit  - Security vulnerability scanning"
 	@echo "  lint-vulture - Find dead code"
 	@echo ""
 	@echo "Code Formatters (auto-fix):"
-	@echo "  format-black - Auto-format code with Black"
-	@echo "  format-isort - Auto-sort imports with isort"
-	@echo "  format-ruff  - Auto-fix issues with Ruff"
+	@echo "  format-black   - Auto-format code with Black"
+	@echo "  format-imports - Auto-sort imports with Ruff"
+	@echo "  format-ruff    - Auto-fix issues with Ruff"
 	@echo ""
 	@echo "Aggregate Commands:"
 	@echo "  lint-python    - Run all Python linters (check only)"
@@ -379,10 +379,10 @@ lint-black:
 	poetry run black --check --diff app tests
 	@echo "✅ Black check complete"
 
-lint-isort:
-	@echo "Checking import sorting with isort..."
-	poetry run isort --check-only --diff app tests
-	@echo "✅ isort check complete"
+lint-imports:
+	@echo "Checking import sorting with Ruff..."
+	poetry run ruff check --select I app tests
+	@echo "✅ Import check complete"
 
 lint-ruff:
 	@echo "Checking code with Ruff..."
@@ -420,10 +420,10 @@ format-black:
 	poetry run black app tests
 	@echo "✅ Black formatting complete"
 
-format-isort:
-	@echo "Auto-sorting imports with isort..."
-	poetry run isort app tests
-	@echo "✅ isort formatting complete"
+format-imports:
+	@echo "Auto-sorting imports with Ruff..."
+	poetry run ruff check --select I --fix app tests
+	@echo "✅ Import formatting complete"
 
 format-ruff:
 	@echo "Auto-fixing issues with Ruff..."
@@ -431,10 +431,10 @@ format-ruff:
 	@echo "✅ Ruff auto-fix complete"
 
 # Aggregate Python commands
-lint-python: lint-black lint-isort lint-ruff lint-mypy
+lint-python: lint-black lint-ruff lint-mypy
 	@echo "✅ All Python linting checks complete"
 
-format-python: format-isort format-black format-ruff
+format-python: format-imports format-black format-ruff
 	@echo "✅ All Python formatting complete"
 
 # Security and code quality scanning

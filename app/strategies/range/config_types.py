@@ -5,7 +5,6 @@ This module provides centralized TypedDict definitions for configuration
 across the Range High Break strategy modules.
 """
 
-from typing import TypedDict
 
 from typing_extensions import NotRequired
 
@@ -15,9 +14,9 @@ from app.core.types.config import BaseStrategyConfig
 class PortfolioConfig(BaseStrategyConfig, total=False):
     """
     Configuration for range breakout strategy analysis.
-    
+
     Extends BaseStrategyConfig with range-specific parameter fields.
-    
+
     Range-Specific Fields:
         WINDOWS (int): Maximum window size for parameter analysis
         RANGE_THRESHOLD (float): Threshold for range detection

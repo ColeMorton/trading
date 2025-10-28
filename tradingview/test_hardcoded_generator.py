@@ -36,7 +36,7 @@ def run_generator(csv_path, pine_script_path=None, ticker_filter=None):
     print(f"{'='*80}\n")
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
         if result.returncode == 0:
             print("Generator executed successfully!")
             print(result.stdout)
@@ -62,7 +62,7 @@ def main():
     # Test 2: Update an existing Pine script (create a temporary copy first)
     if os.path.exists("tradingview/strategy_breadth_refactored.pine"):
         temp_pine_path = "tradingview/strategy_breadth_refactored_test.pine"
-        with open("tradingview/strategy_breadth_refactored.pine", "r") as f_in, open(
+        with open("tradingview/strategy_breadth_refactored.pine") as f_in, open(
             temp_pine_path, "w"
         ) as f_out:
             f_out.write(f_in.read())

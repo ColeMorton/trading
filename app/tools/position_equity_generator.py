@@ -925,9 +925,9 @@ class DirectEquityCalculator:
 
                 # For dates before this ticker's first date, use initial cash allocation
                 first_date = ticker_equity.index.min()
-                ticker_aligned.loc[ticker_aligned.index < first_date] = (
-                    ticker_initial_value
-                )
+                ticker_aligned.loc[
+                    ticker_aligned.index < first_date
+                ] = ticker_initial_value
 
                 # Forward fill remaining NaN values
                 ticker_aligned = ticker_aligned.ffill()

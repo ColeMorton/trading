@@ -7,10 +7,8 @@ Confidence Level: 0.9
 Total Strategies: 10
 """
 
-import numpy as np
-import pandas as pd
-import zipline
-from zipline.api import cancel_order, get_open_orders, order_target, record, symbol
+from zipline.api import order_target, record, symbol
+
 
 # Statistical parameters
 exit_parameters = {
@@ -199,10 +197,9 @@ def handle_data(context, data):
     if context.portfolio.positions[asset].amount != 0:
         context.days_held += 1
         check_exit_conditions(context, data, asset, current_price)
-    else:
-        # Entry logic (implement your entry signals here)
-        if should_enter_position(context, data, asset):
-            enter_position(context, data, asset, current_price)
+    # Entry logic (implement your entry signals here)
+    elif should_enter_position(context, data, asset):
+        enter_position(context, data, asset, current_price)
 
 
 def should_enter_position(context, data, asset):
@@ -229,8 +226,7 @@ def check_exit_conditions(context, data, asset, current_price):
     current_return = (current_price - context.entry_price) / context.entry_price * 100
 
     # Update highest price for trailing stop
-    if current_price > context.highest_price:
-        context.highest_price = current_price
+    context.highest_price = max(current_price, context.highest_price)
 
     # Take profit condition
     if current_return >= context.params["take_profit_pct"]:

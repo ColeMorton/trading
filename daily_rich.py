@@ -5,18 +5,16 @@ Provides beautiful terminal output by default, with --quiet mode for automation.
 """
 
 import argparse
+from datetime import datetime
 import logging
 import os
+from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
 import time
-from datetime import datetime
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
-import yaml
 from rich.console import Console
 from rich.logging import RichHandler
 from rich.panel import Panel
@@ -31,7 +29,7 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 from rich.table import Table
-from rich.text import Text
+import yaml
 
 
 class DailyTradingExecutor:
@@ -150,7 +148,7 @@ class DailyTradingExecutor:
         """Create lock file, return True if successful."""
         if self.lock_file.exists():
             try:
-                with open(self.lock_file, "r") as f:
+                with open(self.lock_file) as f:
                     lock_pid = int(f.read().strip())
 
                 # Check if process is still running
@@ -201,6 +199,7 @@ class DailyTradingExecutor:
                 capture_output=True,
                 timeout=30,
                 cwd=self.script_dir,
+                check=False,
             )
             if result.returncode != 0:
                 self._log_and_print(
@@ -214,14 +213,14 @@ class DailyTradingExecutor:
         self._log_and_print("INFO", "All dependencies validated successfully")
         return True
 
-    def _validate_config(self, config_file: Path) -> Tuple[bool, Optional[dict]]:
+    def _validate_config(self, config_file: Path) -> tuple[bool, dict | None]:
         """Validate configuration file and return config data."""
         if not config_file.exists():
             self._log_and_print("ERROR", f"Configuration file not found: {config_file}")
             return False, None
 
         try:
-            with open(config_file, "r") as f:
+            with open(config_file) as f:
                 config = yaml.safe_load(f)
         except yaml.YAMLError as e:
             self._log_and_print(
@@ -246,7 +245,6 @@ class DailyTradingExecutor:
 
     def _validate_command(self, command: str) -> bool:
         """Validate command against security whitelist."""
-        import re
 
         # Extract main command from poetry run trading-cli pattern
         # Handle both forms: with and without poetry run prefix
@@ -275,8 +273,8 @@ class DailyTradingExecutor:
         name: str,
         command: str,
         timeout: int,
-        progress: Optional[Progress] = None,
-        task_id: Optional[TaskID] = None,
+        progress: Progress | None = None,
+        task_id: TaskID | None = None,
     ) -> bool:
         """Execute a single command with progress tracking."""
         self._log_and_print("INFO", f"STARTING: {name}")
@@ -302,6 +300,7 @@ class DailyTradingExecutor:
                     stderr=stderr_file,
                     timeout=timeout,
                     text=True,
+                    check=False,
                 )
 
                 # Read output files
@@ -321,7 +320,7 @@ class DailyTradingExecutor:
 
         except Exception as e:
             duration = int(time.time() - start_time)
-            self._log_and_print("ERROR", f"FAILED: {name} ({duration}s) - {str(e)}")
+            self._log_and_print("ERROR", f"FAILED: {name} ({duration}s) - {e!s}")
             return False
 
         duration = int(time.time() - start_time)
@@ -342,21 +341,18 @@ class DailyTradingExecutor:
                 )
 
             return True
-        else:
-            self._log_and_print(
-                "ERROR", f"FAILED: {name} ({duration}s, exit code: {result.returncode})"
-            )
+        self._log_and_print(
+            "ERROR", f"FAILED: {name} ({duration}s, exit code: {result.returncode})"
+        )
 
-            if stderr_content.strip():
-                self._log_and_print("ERROR", f"Error output: {stderr_content.strip()}")
+        if stderr_content.strip():
+            self._log_and_print("ERROR", f"Error output: {stderr_content.strip()}")
 
-            # Update progress to show failure
-            if progress and task_id is not None:
-                progress.update(
-                    task_id, completed=100, description=f"[red]✗ {name}[/red]"
-                )
+        # Update progress to show failure
+        if progress and task_id is not None:
+            progress.update(task_id, completed=100, description=f"[red]✗ {name}[/red]")
 
-            return False
+        return False
 
     def run(self, config_file: Path, dry_run: bool = False) -> int:
         """Execute daily trading automation with Rich progress bars."""
@@ -667,7 +663,7 @@ Examples:
         executor._log_and_print("ERROR", "Script interrupted by user")
         return 130
     except Exception as e:
-        executor._log_and_print("ERROR", f"Unexpected error: {str(e)}")
+        executor._log_and_print("ERROR", f"Unexpected error: {e!s}")
         return 1
 
 

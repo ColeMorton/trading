@@ -7,7 +7,6 @@ Confidence Level: 0.9
 Total Strategies: 4
 """
 
-import datetime
 
 import backtrader as bt
 
@@ -42,7 +41,7 @@ class FANG_ASSET_DISTRIBUTION_FANG_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for FANG_ASSET_DISTRIBUTION_FANG_D"
+                "Warning: Low reliability parameters for FANG_ASSET_DISTRIBUTION_FANG_D"
             )
 
     def next(self):
@@ -130,7 +129,7 @@ class PANW_ASSET_DISTRIBUTION_PANW_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for PANW_ASSET_DISTRIBUTION_PANW_D"
+                "Warning: Low reliability parameters for PANW_ASSET_DISTRIBUTION_PANW_D"
             )
 
     def next(self):
@@ -217,7 +216,7 @@ class IR_ASSET_DISTRIBUTION_IR_DExitStrategy(bt.Strategy):
 
         # Validate parameters
         if self.params.statistical_validity == "LOW":
-            print(f"Warning: Low reliability parameters for IR_ASSET_DISTRIBUTION_IR_D")
+            print("Warning: Low reliability parameters for IR_ASSET_DISTRIBUTION_IR_D")
 
     def next(self):
         if self.position:
@@ -304,7 +303,7 @@ class CDW_ASSET_DISTRIBUTION_CDW_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for CDW_ASSET_DISTRIBUTION_CDW_D"
+                "Warning: Low reliability parameters for CDW_ASSET_DISTRIBUTION_CDW_D"
             )
 
     def next(self):

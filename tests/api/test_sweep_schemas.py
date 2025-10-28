@@ -5,15 +5,16 @@ Tests Pydantic model validation, serialization, and type checking
 for all sweep-related response schemas.
 """
 
-import pytest
 from datetime import datetime
 from decimal import Decimal
+
 from pydantic import ValidationError
+import pytest
 
 from app.api.models.schemas import (
+    BestResultsResponse,
     SweepResultDetail,
     SweepResultsResponse,
-    BestResultsResponse,
     SweepSummaryResponse,
 )
 
@@ -49,9 +50,9 @@ def test_sweep_result_detail_with_all_fields():
         "avg_trade_duration": "8 days",
         "rank_for_ticker": 1,
     }
-    
+
     result = SweepResultDetail(**data)
-    
+
     assert result.result_id == "abc123-def456"
     assert result.ticker == "AAPL"
     assert result.score == 1.45
@@ -68,9 +69,9 @@ def test_sweep_result_detail_with_minimal_fields():
         "fast_period": 20,
         "slow_period": 50,
     }
-    
+
     result = SweepResultDetail(**data)
-    
+
     assert result.result_id == "abc123"
     assert result.ticker == "AAPL"
     assert result.score is None
@@ -89,9 +90,9 @@ def test_sweep_result_detail_allows_none_for_optional():
         "sharpe_ratio": None,
         "total_trades": None,
     }
-    
+
     result = SweepResultDetail(**data)
-    
+
     assert result.score is None
     assert result.sharpe_ratio is None
     assert result.total_trades is None
@@ -106,10 +107,10 @@ def test_sweep_result_detail_rejects_invalid_types():
         "fast_period": "not_an_int",  # Invalid
         "slow_period": 50,
     }
-    
+
     with pytest.raises(ValidationError) as exc_info:
         SweepResultDetail(**data)
-    
+
     assert "fast_period" in str(exc_info.value)
 
 
@@ -119,10 +120,10 @@ def test_sweep_result_detail_requires_mandatory_fields():
         "result_id": "abc123",
         # Missing ticker, strategy_type, periods
     }
-    
+
     with pytest.raises(ValidationError) as exc_info:
         SweepResultDetail(**data)
-    
+
     errors = str(exc_info.value)
     assert "ticker" in errors
     assert "strategy_type" in errors
@@ -151,11 +152,11 @@ def test_sweep_results_response_structure():
                 "fast_period": 20,
                 "slow_period": 50,
             }
-        ]
+        ],
     }
-    
+
     response = SweepResultsResponse(**data)
-    
+
     assert response.sweep_run_id == "sweep-001"
     assert response.total_count == 100
     assert response.returned_count == 10
@@ -170,11 +171,11 @@ def test_sweep_results_response_pagination_fields():
         "returned_count": 50,
         "offset": 50,
         "limit": 50,
-        "results": []
+        "results": [],
     }
-    
+
     response = SweepResultsResponse(**data)
-    
+
     assert response.offset == 50
     assert response.limit == 50
     assert response.total_count == 150
@@ -189,11 +190,11 @@ def test_sweep_results_response_empty_results():
         "returned_count": 0,
         "offset": 0,
         "limit": 10,
-        "results": []
+        "results": [],
     }
-    
+
     response = SweepResultsResponse(**data)
-    
+
     assert len(response.results) == 0
     assert response.total_count == 0
 
@@ -218,11 +219,11 @@ def test_best_results_response_structure():
                 "slow_period": 50,
                 "score": 1.45,
             }
-        ]
+        ],
     }
-    
+
     response = BestResultsResponse(**data)
-    
+
     assert response.sweep_run_id == "sweep-001"
     assert response.total_results == 1
     assert len(response.results) == 1
@@ -255,12 +256,12 @@ def test_best_results_response_multiple_results():
                 "strategy_type": "SMA",
                 "fast_period": 15,
                 "slow_period": 45,
-            }
-        ]
+            },
+        ],
     }
-    
+
     response = BestResultsResponse(**data)
-    
+
     assert response.total_results == 3
     assert len(response.results) == 3
 
@@ -289,9 +290,9 @@ def test_sweep_summary_response_structure():
         "best_sharpe_ratio": 1.19,
         "best_total_return_pct": 14408.20,
     }
-    
+
     response = SweepSummaryResponse(**data)
-    
+
     assert response.sweep_run_id == "sweep-001"
     assert response.result_count == 150
     assert response.best_ticker == "TSLA"
@@ -310,9 +311,9 @@ def test_sweep_summary_allows_none_for_optional():
         "max_score": None,
         "best_ticker": None,
     }
-    
+
     response = SweepSummaryResponse(**data)
-    
+
     assert response.avg_score is None
     assert response.max_score is None
     assert response.best_ticker is None
@@ -337,13 +338,13 @@ def test_models_serialize_to_json():
     json_data = detail.model_dump()
     assert json_data["ticker"] == "AAPL"
     assert json_data["score"] == 1.45
-    
+
     # BestResultsResponse
     best = BestResultsResponse(
         sweep_run_id="sweep-001",
         run_date=datetime.now(),
         total_results=1,
-        results=[detail]
+        results=[detail],
     )
     json_data = best.model_dump()
     assert json_data["sweep_run_id"] == "sweep-001"
@@ -361,7 +362,7 @@ def test_models_handle_decimal_types():
         score=float(Decimal("1.45678912")),
         sharpe_ratio=float(Decimal("0.92345678")),
     )
-    
+
     assert isinstance(detail.score, float)
     assert isinstance(detail.sharpe_ratio, float)
 
@@ -377,7 +378,7 @@ def test_models_handle_none_serialization():
         score=None,
         sharpe_ratio=None,
     )
-    
+
     json_data = detail.model_dump()
     assert json_data["score"] is None
     assert json_data["sharpe_ratio"] is None
@@ -385,4 +386,3 @@ def test_models_handle_none_serialization():
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-

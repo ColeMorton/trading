@@ -2,11 +2,11 @@
 -- Risk/Reward Scatter Plot Data
 -- ============================================================================
 -- Description: Generate data for risk vs reward scatter plots
--- 
+--
 -- Output: Data points for plotting risk (max drawdown) vs reward (return)
 -- ============================================================================
 
-SELECT 
+SELECT
     sr.id,
     t.ticker,
     st.strategy_type,
@@ -31,4 +31,3 @@ ORDER BY sr.score DESC;
 -- - Point size: sharpe_ratio
 -- - Point color: ticker or score
 -- - Identify efficient frontier (high return, low drawdown)
-

@@ -13,7 +13,7 @@ metadata:
 config_type: spds
 config:
   # Required portfolio field (will be overridden by CLI)
-  portfolio: "risk_on.csv"
+  portfolio: 'risk_on.csv'
 
   # Core SPDS parameters from business defaults
   percentile_threshold: 95.0

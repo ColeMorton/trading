@@ -20,10 +20,10 @@ UNION ALL
 SELECT '', 'Strategy Types', COUNT(DISTINCT strategy_type_id)::text
 FROM strategy_sweep_results
 UNION ALL
-SELECT '', 'Date Range', 
+SELECT '', 'Date Range',
     CONCAT(
-        TO_CHAR(MIN(created_at), 'YYYY-MM-DD'), 
-        ' to ', 
+        TO_CHAR(MIN(created_at), 'YYYY-MM-DD'),
+        ' to ',
         TO_CHAR(MAX(created_at), 'YYYY-MM-DD')
     )
 FROM strategy_sweep_results
@@ -77,7 +77,7 @@ SELECT '', 'Avg Max Drawdown %', ROUND(AVG(max_drawdown_pct)::numeric, 2)::text
 FROM strategy_sweep_results WHERE max_drawdown_pct IS NOT NULL;
 
 -- Top 5 Performers by Ticker
-SELECT 
+SELECT
     'Top Performers' as category,
     t.ticker,
     sr.score,
@@ -89,4 +89,3 @@ FROM strategy_sweep_results sr
 JOIN tickers t ON sr.ticker_id = t.id
 ORDER BY sr.score DESC
 LIMIT 5;
-

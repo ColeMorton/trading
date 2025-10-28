@@ -6,7 +6,7 @@
 -- ============================================================================
 
 WITH ticker_param_stats AS (
-    SELECT 
+    SELECT
         sr.ticker_id,
         t.ticker,
         sr.fast_period,
@@ -19,8 +19,8 @@ WITH ticker_param_stats AS (
         AVG(sr.win_rate_pct) as avg_win_rate,
         AVG(sr.max_drawdown_pct) as avg_drawdown,
         -- Consistency metric (lower is better)
-        CASE 
-            WHEN AVG(sr.score) > 0 
+        CASE
+            WHEN AVG(sr.score) > 0
             THEN STDDEV(sr.score) / AVG(sr.score)
             ELSE NULL
         END as coefficient_of_variation
@@ -30,23 +30,23 @@ WITH ticker_param_stats AS (
     HAVING COUNT(*) >= 2  -- At least 2 tests
 ),
 ranked_params AS (
-    SELECT 
+    SELECT
         *,
         ROW_NUMBER() OVER (
-            PARTITION BY ticker_id 
+            PARTITION BY ticker_id
             ORDER BY avg_score DESC
         ) as rank_by_score,
         ROW_NUMBER() OVER (
-            PARTITION BY ticker_id 
+            PARTITION BY ticker_id
             ORDER BY avg_sharpe DESC NULLS LAST
         ) as rank_by_sharpe,
         ROW_NUMBER() OVER (
-            PARTITION BY ticker_id 
+            PARTITION BY ticker_id
             ORDER BY coefficient_of_variation ASC NULLS LAST
         ) as rank_by_consistency
     FROM ticker_param_stats
 )
-SELECT 
+SELECT
     ticker,
     fast_period,
     slow_period,
@@ -65,4 +65,3 @@ SELECT
 FROM ranked_params
 WHERE rank_by_score <= 5  -- Top 5 by score
 ORDER BY ticker, composite_rank;
-

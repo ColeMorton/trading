@@ -9,12 +9,12 @@
 -- v_best_by_sweep_and_ticker
 -- ============================================================================
 -- Purpose: Find the best result for each ticker within each sweep run
--- This is the PRIMARY view for answering: "What's the best strategy for 
+-- This is the PRIMARY view for answering: "What's the best strategy for
 -- ticker X in sweep run Y?"
 -- ============================================================================
 CREATE OR REPLACE VIEW v_best_by_sweep_and_ticker AS
 WITH ranked_results AS (
-    SELECT 
+    SELECT
         sr.id,
         sr.sweep_run_id,
         sr.created_at as run_date,
@@ -36,14 +36,14 @@ WITH ranked_results AS (
         sr.expectancy_per_trade,
         sr.trades_per_month,
         ROW_NUMBER() OVER (
-            PARTITION BY sr.sweep_run_id, sr.ticker_id 
+            PARTITION BY sr.sweep_run_id, sr.ticker_id
             ORDER BY sr.score DESC
         ) as rank_in_ticker
     FROM strategy_sweep_results sr
     JOIN tickers t ON sr.ticker_id = t.id
     JOIN strategy_types st ON sr.strategy_type_id = st.id
 )
-SELECT 
+SELECT
     sweep_run_id,
     run_date,
     ticker,
@@ -68,7 +68,7 @@ FROM ranked_results
 WHERE rank_in_ticker = 1
 ORDER BY sweep_run_id DESC, score DESC;
 
-COMMENT ON VIEW v_best_by_sweep_and_ticker IS 
+COMMENT ON VIEW v_best_by_sweep_and_ticker IS
 'Best performing strategy result for each ticker within each sweep run. Use this to quickly find optimal parameters for a specific ticker in a specific sweep.';
 
 -- ============================================================================
@@ -79,7 +79,7 @@ COMMENT ON VIEW v_best_by_sweep_and_ticker IS
 -- ============================================================================
 CREATE OR REPLACE VIEW v_best_results_per_sweep AS
 WITH sweep_stats AS (
-    SELECT 
+    SELECT
         sr.sweep_run_id,
         MIN(sr.created_at) as run_date,
         COUNT(*) as result_count,
@@ -107,7 +107,7 @@ best_overall AS (
     JOIN strategy_types st ON sr.strategy_type_id = st.id
     ORDER BY sr.sweep_run_id, sr.score DESC
 )
-SELECT 
+SELECT
     ss.sweep_run_id,
     ss.run_date,
     ss.result_count,
@@ -128,7 +128,7 @@ FROM sweep_stats ss
 JOIN best_overall bo ON ss.sweep_run_id = bo.sweep_run_id
 ORDER BY ss.run_date DESC;
 
-COMMENT ON VIEW v_best_results_per_sweep IS 
+COMMENT ON VIEW v_best_results_per_sweep IS
 'Summary of each sweep run with the single best overall result and aggregate statistics. Use this for quick sweep run overview.';
 
 -- ============================================================================
@@ -148,7 +148,7 @@ latest_sweep_id AS (
     CROSS JOIN latest_sweep ls
     WHERE sr.created_at = ls.latest_date
 )
-SELECT 
+SELECT
     sr.id,
     sr.sweep_run_id,
     sr.created_at as run_date,
@@ -178,7 +178,7 @@ SELECT
     sr.avg_winning_trade_pct,
     sr.avg_losing_trade_pct,
     ROW_NUMBER() OVER (
-        PARTITION BY sr.ticker_id 
+        PARTITION BY sr.ticker_id
         ORDER BY sr.score DESC
     ) as rank_for_ticker
 FROM strategy_sweep_results sr
@@ -187,7 +187,7 @@ JOIN strategy_types st ON sr.strategy_type_id = st.id
 WHERE sr.sweep_run_id IN (SELECT sweep_run_id FROM latest_sweep_id)
 ORDER BY sr.score DESC;
 
-COMMENT ON VIEW v_latest_best_results IS 
+COMMENT ON VIEW v_latest_best_results IS
 'All results from the most recent sweep run with ranking. Use rank_for_ticker=1 to get best per ticker.';
 
 -- ============================================================================
@@ -197,7 +197,7 @@ COMMENT ON VIEW v_latest_best_results IS
 -- Quick reference for absolute best performers
 -- ============================================================================
 CREATE OR REPLACE VIEW v_top_10_overall AS
-SELECT 
+SELECT
     sr.id,
     sr.sweep_run_id,
     sr.created_at as run_date,
@@ -221,6 +221,5 @@ JOIN strategy_types st ON sr.strategy_type_id = st.id
 ORDER BY sr.score DESC
 LIMIT 10;
 
-COMMENT ON VIEW v_top_10_overall IS 
+COMMENT ON VIEW v_top_10_overall IS
 'Top 10 best performing strategy results across all sweep runs and tickers.';
-

@@ -387,7 +387,9 @@ class RiskMetricsValidator:
         try:
             # Validate max drawdown for each ticker
             unique_tickers: set[str] = (
-                set(csv_data["Ticker"].unique()) if "Ticker" in csv_data.columns else set()
+                set(csv_data["Ticker"].unique())
+                if "Ticker" in csv_data.columns
+                else set()
             )
 
             for ticker in unique_tickers:

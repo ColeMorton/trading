@@ -72,9 +72,7 @@ class BTC1093DayHoldAnalyzer:
         latest_entry_idx = len(df) - self.hold_period - 1
 
         if latest_entry_idx < 0:
-            print(
-                f"❌ Error: Insufficient data. Need at least {self.hold_period} days."
-            )
+            print(f"❌ Error: Insufficient data. Need at least {self.hold_period} days.")
             return pd.DataFrame()
 
         print(
@@ -502,9 +500,7 @@ class BTC1093DayHoldAnalyzer:
 def main():
     """Main execution function."""
     print("🚀 BTC-USD 1093-Day Buy-and-Hold Profitability Analysis")
-    print(
-        "📊 Analyzing what percentage of days would be profitable after 1093-day hold"
-    )
+    print("📊 Analyzing what percentage of days would be profitable after 1093-day hold")
     print()
 
     # Initialize analyzer

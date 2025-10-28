@@ -80,8 +80,11 @@ extend-exclude = '''
 '''
 
 [tool.isort]
+# Note: Ruff's isort implementation (I rules) is preferred for pre-commit hooks
+# This config is kept for standalone isort usage and alignment with Ruff
 profile = "black"
 line_length = 88
+lines_after_imports = 2
 multi_line_output = 3
 include_trailing_comma = true
 force_grid_wrap = 0
@@ -89,6 +92,8 @@ use_parentheses = true
 ensure_newline_before_comments = true
 
 [tool.mypy]
+# This is the canonical mypy configuration - all settings are managed here
+# Pre-commit hooks use: --config-file=pyproject.toml
 python_version = "3.10"
 warn_return_any = false
 warn_unused_configs = true

@@ -115,7 +115,9 @@ class MinimumsFilter(PortfolioFilter):
             1,
             "Filtered portfolios with profit factor",
         ),
-        FilterConfig("SCORE", "Score", pl.Float64(), 1, "Filtered portfolios with score"),
+        FilterConfig(
+            "SCORE", "Score", pl.Float64(), 1, "Filtered portfolios with score"
+        ),
         FilterConfig(
             "SORTINO_RATIO",
             "Sortino Ratio",

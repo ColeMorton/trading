@@ -328,9 +328,9 @@ class PositionCalculator:
                                 "difference": eff_diff,
                             }
                         )
-                        results["corrected_values"]["Exit_Efficiency_Fixed"] = (
-                            expected_efficiency
-                        )
+                        results["corrected_values"][
+                            "Exit_Efficiency_Fixed"
+                        ] = expected_efficiency
 
             return results
 

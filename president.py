@@ -1,8 +1,7 @@
-import random
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Set
+import random
 
 
 class Rank(Enum):
@@ -42,7 +41,7 @@ class Card:
 
 class Deck:
     def __init__(self):
-        self.cards: List[Card] = []
+        self.cards: list[Card] = []
         self.reset()
 
     def reset(self):
@@ -53,7 +52,7 @@ class Deck:
         """Shuffle the deck."""
         random.shuffle(self.cards)
 
-    def deal(self, num_players: int) -> List[List[Card]]:
+    def deal(self, num_players: int) -> list[list[Card]]:
         """Deal cards evenly to all players."""
         hands = [[] for _ in range(num_players)]
         for i, card in enumerate(self.cards):
@@ -117,20 +116,20 @@ class RoyalTaxRule(CustomRule):
 class Player:
     def __init__(self, name: str, is_ai: bool = False):
         self.name = name
-        self.hand: List[Card] = []
+        self.hand: list[Card] = []
         self.is_ai = is_ai
-        self.rank: Optional[str] = None
+        self.rank: str | None = None
 
-    def add_cards(self, cards: List[Card]):
+    def add_cards(self, cards: list[Card]):
         """Add cards to player's hand."""
         self.hand.extend(cards)
 
-    def remove_cards(self, cards: List[Card]):
+    def remove_cards(self, cards: list[Card]):
         """Remove cards from player's hand."""
         for card in cards:
             self.hand.remove(card)
 
-    def can_play(self, cards: List[Card], current_play: Optional[List[Card]]) -> bool:
+    def can_play(self, cards: list[Card], current_play: list[Card] | None) -> bool:
         """Check if the player can play the selected cards."""
         if not cards:
             return False
@@ -154,12 +153,12 @@ class Player:
 
         return cards[0].rank.value >= current_play[0].rank.value
 
-    def get_valid_plays(self, current_play: Optional[List[Card]]) -> List[List[Card]]:
+    def get_valid_plays(self, current_play: list[Card] | None) -> list[list[Card]]:
         """Get all valid plays available to the player."""
         valid_plays = []
 
         # Group cards by rank using a defaultdict-like approach
-        rank_groups: Dict[Rank, List[Card]] = {}
+        rank_groups: dict[Rank, list[Card]] = {}
         for card in self.hand:
             rank_groups.setdefault(card.rank, []).append(card)
 
@@ -182,14 +181,14 @@ class Player:
 
 class Game:
     def __init__(self):
-        self.players: List[Player] = []
+        self.players: list[Player] = []
         self.deck = Deck()
         self.current_player_idx = 0
-        self.current_play: Optional[List[Card]] = None
-        self.passed_players: Set[int] = set()
-        self.finished_players: List[Player] = []
-        self.custom_rules: List[CustomRule] = []
-        self.rankings: Dict[str, str] = {}  # Player name to rank mapping
+        self.current_play: list[Card] | None = None
+        self.passed_players: set[int] = set()
+        self.finished_players: list[Player] = []
+        self.custom_rules: list[CustomRule] = []
+        self.rankings: dict[str, str] = {}  # Player name to rank mapping
 
     def add_player(self, player: Player):
         """Add a player to the game."""
@@ -200,21 +199,21 @@ class Game:
         self.deck.reset()
         self.deck.shuffle()
         hands = self.deck.deal(len(self.players))
-        for player, hand in zip(self.players, hands):
+        for player, hand in zip(self.players, hands, strict=False):
             player.hand = hand
         self.current_player_idx = 0
         self.current_play = None
         self.passed_players.clear()
         self.finished_players.clear()
 
-    def get_player_by_rank(self, rank: str) -> Optional[Player]:
+    def get_player_by_rank(self, rank: str) -> Player | None:
         """Get a player by their rank."""
         for player in self.players:
             if player.rank == rank:
                 return player
         return None
 
-    def play_cards(self, player: Player, cards: List[Card]) -> bool:
+    def play_cards(self, player: Player, cards: list[Card]) -> bool:
         """Attempt to play cards. Return True if successful."""
         if not player.can_play(cards, self.current_play):
             return False
@@ -312,38 +311,36 @@ class Game:
                 else:
                     self.pass_turn(current_player)
                     print(f"{current_player.name} passes")
-            else:
-                # Human player interaction
-                if valid_plays:
-                    print("\nValid plays:")
-                    for i, play in enumerate(valid_plays):
-                        print(f"{i+1}: {', '.join(str(card) for card in play)}")
-                    print("0: Pass")
+            # Human player interaction
+            elif valid_plays:
+                print("\nValid plays:")
+                for i, play in enumerate(valid_plays):
+                    print(f"{i+1}: {', '.join(str(card) for card in play)}")
+                print("0: Pass")
 
-                    while True:
-                        try:
-                            choice = input(
-                                "Enter your choice (0 to pass, or number to play): "
+                while True:
+                    try:
+                        choice = input(
+                            "Enter your choice (0 to pass, or number to play): "
+                        )
+                        if choice == "0":
+                            self.pass_turn(current_player)
+                            print(f"{current_player.name} passes")
+                            break
+                        choice_idx = int(choice) - 1
+                        if 0 <= choice_idx < len(valid_plays):
+                            chosen_play = valid_plays[choice_idx]
+                            self.play_cards(current_player, chosen_play)
+                            print(
+                                f"{current_player.name} plays: {', '.join(str(card) for card in chosen_play)}"
                             )
-                            if choice == "0":
-                                self.pass_turn(current_player)
-                                print(f"{current_player.name} passes")
-                                break
-                            choice_idx = int(choice) - 1
-                            if 0 <= choice_idx < len(valid_plays):
-                                chosen_play = valid_plays[choice_idx]
-                                self.play_cards(current_player, chosen_play)
-                                print(
-                                    f"{current_player.name} plays: {', '.join(str(card) for card in chosen_play)}"
-                                )
-                                break
-                            else:
-                                print("Invalid choice. Please try again.")
-                        except ValueError:
-                            print("Invalid input. Please enter a number.")
-                else:
-                    print("No valid plays available - passing")
-                    self.pass_turn(current_player)
+                            break
+                        print("Invalid choice. Please try again.")
+                    except ValueError:
+                        print("Invalid input. Please enter a number.")
+            else:
+                print("No valid plays available - passing")
+                self.pass_turn(current_player)
 
             # Check if this was the last play
             if len(self.finished_players) >= len(self.players) - 1:

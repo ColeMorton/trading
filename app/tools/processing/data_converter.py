@@ -38,7 +38,9 @@ class ConversionCache:
         else:
             key_data = f"polars_{df.shape}_{sorted(df.columns)}_{target_type}"
 
-        return hashlib.md5(key_data.encode(), usedforsecurity=False).hexdigest()  # nosec B324
+        return hashlib.md5(
+            key_data.encode(), usedforsecurity=False
+        ).hexdigest()  # nosec B324
 
     def get(
         self, df: pd.DataFrame | pl.DataFrame, target_type: str

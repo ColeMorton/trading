@@ -9,13 +9,16 @@ All notable changes to the Trading Strategy Platform are documented in this file
 ### Added - Database Normalization & Sweep Results API
 
 #### Database Schema Enhancements
+
 - **Tickers Table** (Migration 004): Normalized ticker symbols with unique constraint
+
   - Migrated 6 unique tickers (AAPL, AMD, BKNG, MSFT, NVDA, TSLA)
   - Foreign key relationship with `strategy_sweep_results` (CASCADE delete)
   - 4,855 records successfully migrated from string to foreign key reference
 
 - **Strategy Types Table** (Migration 006): Normalized strategy type identifiers
-  - Migrated 1 strategy type (SMA) 
+
+  - Migrated 1 strategy type (SMA)
   - Foreign key relationships with `strategy_sweep_results` and `sweep_best_selections`
   - CASCADE delete behavior for referential integrity
 
@@ -27,7 +30,9 @@ All notable changes to the Trading Strategy Platform are documented in this file
   - 3 Metric analysis views (classifications, leaders)
 
 #### Sweep Results API
+
 - **New Router**: `/api/v1/sweeps/*` with 5 endpoints
+
   - `GET /sweeps/` - List all sweep runs with summaries
   - `GET /sweeps/latest` - Get latest sweep results
   - `GET /sweeps/{id}` - Get all results for specific sweep (paginated)
@@ -35,6 +40,7 @@ All notable changes to the Trading Strategy Platform are documented in this file
   - `GET /sweeps/{id}/best-per-ticker` - Get best result per ticker
 
 - **Response Models**: 4 new Pydantic schemas
+
   - `SweepResultDetail` - Individual result with 23+ metrics
   - `SweepResultsResponse` - Paginated results response
   - `BestResultsResponse` - Best results query response
@@ -43,6 +49,7 @@ All notable changes to the Trading Strategy Platform are documented in this file
 - **Auto-persistence**: API sweeps now automatically save to database
 
 #### Test Coverage
+
 - **42+ Tests**: Comprehensive test suite for new API
   - 23 unit tests for router endpoints
   - 18 schema validation tests
@@ -50,7 +57,9 @@ All notable changes to the Trading Strategy Platform are documented in this file
   - ~90% estimated coverage for new code
 
 #### Documentation
+
 - **7 Comprehensive Guides** (~2,000 lines total):
+
   - API README - Main API documentation
   - SWEEP_RESULTS_API - Complete endpoint reference
   - API_DATA_FLOW - Data flow explanation
@@ -64,12 +73,14 @@ All notable changes to the Trading Strategy Platform are documented in this file
   - Shell script with 10 cURL examples
 
 ### Changed
+
 - `app/database/strategy_sweep_repository.py` - Updated to handle normalized foreign keys
 - `app/database/models.py` - Added Ticker and StrategyType ORM models
 - `app/api/models/schemas.py` - Added sweep result response models
 - `app/api/main.py` - Registered new sweeps router
 
 ### Fixed
+
 - Data normalization eliminates string duplication
 - Query performance improved with indexed foreign keys
 - Complete API data flow (previously results were inaccessible via API)
@@ -81,7 +92,9 @@ All notable changes to the Trading Strategy Platform are documented in this file
 ### Added - Best Portfolio Selection Tracking
 
 #### Database Tables (Migration 005)
+
 - **selection_algorithms Table**: Reference table for selection algorithms
+
   - 5 pre-populated algorithms with confidence score ranges
   - Tracks algorithm metadata and selection criteria
 
@@ -93,6 +106,7 @@ All notable changes to the Trading Strategy Platform are documented in this file
   - Unique constraint ensures one best per combination
 
 #### Features
+
 - Parameter consistency algorithm implementation
 - Confidence scoring system (0-100%)
 - Alternative consideration tracking
@@ -100,6 +114,7 @@ All notable changes to the Trading Strategy Platform are documented in this file
 - Query methods for retrieving best selections
 
 ### Changed
+
 - `app/database/models.py` - Added SweepBestSelection ORM model
 - `app/database/strategy_sweep_repository.py` - Added best selection methods
 
@@ -110,7 +125,9 @@ All notable changes to the Trading Strategy Platform are documented in this file
 ### Added - Metric Types Classification System
 
 #### Database Tables (Migration 003)
+
 - **metric_types Table**: Reference table for metric classifications
+
   - 86 pre-populated metric types across 5 categories
   - Categories: return (11), risk (33), trade (20), timing (19), composite (3)
   - Unique constraint on metric names
@@ -121,12 +138,14 @@ All notable changes to the Trading Strategy Platform are documented in this file
   - CASCADE delete maintains referential integrity
 
 #### Features
+
 - Automatic metric type parsing from comma-separated strings
 - Backward compatibility with legacy string column
 - Many-to-many relationship support
 - Query methods for finding results by metric type
 
 ### Changed
+
 - `app/database/models.py` - Added MetricType and StrategySweepResultMetric models
 - `app/database/strategy_sweep_repository.py` - Added metric type association methods
 
@@ -137,18 +156,21 @@ All notable changes to the Trading Strategy Platform are documented in this file
 ### Added - Strategy Sweep Database Persistence
 
 #### Database Tables (Migration 002)
+
 - **strategy_sweep_results Table**: Comprehensive backtest results storage
   - 67 total columns capturing all performance metrics
   - 4 optimized indexes for common query patterns
   - Supports all strategy types (SMA, EMA, MACD)
 
 #### Repository Layer
+
 - `StrategySweepRepository` class for async database operations
 - Batch insert capabilities (100 records per batch)
 - Automatic column mapping from CSV to database schema
 - Connection pooling for performance
 
 ### Features
+
 - CLI `--database` flag to persist sweep results
 - Sweep run tracking with UUID grouping
 - Comprehensive metric storage (returns, risk, trade stats)
@@ -159,6 +181,7 @@ All notable changes to the Trading Strategy Platform are documented in this file
 ## [0.0.1] - Initial Database Setup
 
 ### Added
+
 - **api_keys Table** (Migration 001): API authentication
 - **jobs Table** (Migration 001): Async job tracking
 - Initial Alembic migration infrastructure
@@ -168,15 +191,15 @@ All notable changes to the Trading Strategy Platform are documented in this file
 
 ## Migration History
 
-| Migration | Revision | Description | Records Migrated |
-|-----------|----------|-------------|------------------|
-| 001 | Initial | API keys and jobs tables | N/A |
-| 002 | 002 | Strategy sweep results table | 0 (new) |
-| 003 | 003 | Metric types and junction table | 4,855 |
-| 004 | 004 | Tickers normalization | 4,855 |
-| 005 | 005 | Best selections tracking | 0 (new) |
-| 006 | 006 | Strategy types normalization | 4,855 |
-| 007 | 007 | Database views | N/A (views) |
+| Migration | Revision | Description                     | Records Migrated |
+| --------- | -------- | ------------------------------- | ---------------- |
+| 001       | Initial  | API keys and jobs tables        | N/A              |
+| 002       | 002      | Strategy sweep results table    | 0 (new)          |
+| 003       | 003      | Metric types and junction table | 4,855            |
+| 004       | 004      | Tickers normalization           | 4,855            |
+| 005       | 005      | Best selections tracking        | 0 (new)          |
+| 006       | 006      | Strategy types normalization    | 4,855            |
+| 007       | 007      | Database views                  | N/A (views)      |
 
 **Current Revision**: 007 (head)
 
@@ -197,7 +220,7 @@ All notable changes to the Trading Strategy Platform are documented in this file
 ## Documentation
 
 For detailed information see:
+
 - `/docs/api/` - API documentation
 - `/docs/database/` - Database schema and migration docs
 - `/sql/` - SQL views and queries documentation
-

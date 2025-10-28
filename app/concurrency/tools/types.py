@@ -172,7 +172,9 @@ class RiskMetrics(TypedDict):
 
     portfolio_metrics: dict[str, dict[str, float | str]]
     combined_risk: dict[str, dict[str, float | str]]
-    strategy_relationships: NotRequired[dict[str, dict[str, float | str]]]  # Optional field
+    strategy_relationships: NotRequired[
+        dict[str, dict[str, float | str]]
+    ]  # Optional field
 
 
 class SignalMetrics(TypedDict):
@@ -213,7 +215,7 @@ class PortfolioMetrics(TypedDict):
 # Legacy type definitions kept for backward compatibility
 class StrategyConfig(TypedDict):
     """Configuration type definition for strategy parameters.
-    
+
     This is a flexible config used in concurrency analysis where different
     strategies may have different required fields. Most fields are NotRequired
     to accommodate various strategy types.
@@ -252,37 +254,37 @@ class StrategyConfig(TypedDict):
     BASE_DIR: NotRequired[str]
     STRATEGY_TYPE: NotRequired[Literal["SMA", "EMA", "MACD", "ATR"]]
     DIRECTION: NotRequired[Literal["Long", "Short"]]
-    
+
     # MA/MACD fields
     FAST_PERIOD: NotRequired[int]
     SLOW_PERIOD: NotRequired[int]
     SIGNAL_PERIOD: NotRequired[int]
     USE_SMA: NotRequired[bool]
-    
+
     # ATR fields
     LENGTH: NotRequired[int]
     MULTIPLIER: NotRequired[float]
-    
+
     # Risk management
     USE_RSI: NotRequired[bool]
     RSI_WINDOW: NotRequired[int]
     RSI_THRESHOLD: NotRequired[int]
     STOP_LOSS: NotRequired[float]
     ALLOCATION: NotRequired[float]
-    
+
     # Data options
     USE_HOURLY: NotRequired[bool]
     USE_CURRENT: NotRequired[bool]
     REFRESH: NotRequired[bool]
     USE_YEARS: NotRequired[bool]
     YEARS: NotRequired[int | float]
-    
+
     # Metrics (added during analysis)
     EXPECTANCY_PER_MONTH: NotRequired[float]
     EXPECTANCY_PER_TRADE: NotRequired[float]
     PORTFOLIO_STATS: NotRequired[dict[str, Any]]
     strategy_id: NotRequired[str]
-    
+
     # Alternative naming (for compatibility)
     ticker: NotRequired[str]  # snake_case alternative
     timeframe: NotRequired[str]
@@ -291,7 +293,7 @@ class StrategyConfig(TypedDict):
     ma_slow: NotRequired[int]
     allocation: NotRequired[float]
     stop_loss: NotRequired[float]
-    
+
     # Entry/Position Management
     ACCOUNT_VALUE: NotRequired[int | float]
     ENTRY_PRICES: NotRequired[dict[str, float]]
@@ -356,7 +358,7 @@ class ConcurrencyStats(TypedDict):
         signal_quality_metrics: NotRequired[Dict[str, Any]]  # Signal quality metrics
         start_date (NotRequired[str]): Start date of analysis period
         end_date (NotRequired[str]): End date of analysis period
-        
+
     Additional Optional Fields (added during analysis):
         total_expectancy: Total expectancy across all strategies
         diversification_multiplier: Benefit from diversification

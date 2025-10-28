@@ -471,21 +471,15 @@ class TestSystemIntegrationPerformance:
         )
 
         # Check each target
-        assert validation_results[
-            "exit_efficiency"
-        ][
+        assert validation_results["exit_efficiency"][
             "meets_target"
         ], f"Exit efficiency target not met: {validation_results['exit_efficiency']['current']:.1%}"
 
-        assert validation_results[
-            "portfolio_health"
-        ][
+        assert validation_results["portfolio_health"][
             "meets_target"
         ], f"Portfolio health target not met: {validation_results['portfolio_health']['current']:.0f}"
 
-        assert validation_results[
-            "sharpe_improvement"
-        ][
+        assert validation_results["sharpe_improvement"][
             "meets_target"
         ], f"Sharpe improvement target not met: {validation_results['sharpe_improvement']['improvement_pct']:.1%}"
 

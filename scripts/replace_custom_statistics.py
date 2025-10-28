@@ -6,9 +6,9 @@ Replaces custom statistical implementations in divergence_detector.py with
 standard scipy/numpy functions for better maintainability and performance.
 """
 
-import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
+import sys
+
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+
 
 console = Console()
 
@@ -35,7 +36,7 @@ class StatisticalLibraryConsolidator:
         console.print("-" * 60)
 
         # Read the file
-        with open(self.divergence_detector_path, "r") as f:
+        with open(self.divergence_detector_path) as f:
             content = f.read()
 
         # Identify custom implementations
@@ -109,9 +110,9 @@ class StatisticalLibraryConsolidator:
 
         console.print(f"Total custom statistical code: {total_lines} lines")
         console.print(
-            f"Primary consolidation opportunity: _estimate_percentile_rank (230 lines)"
+            "Primary consolidation opportunity: _estimate_percentile_rank (230 lines)"
         )
-        console.print(f"Potential reduction: 85% (230 → ~30 lines)")
+        console.print("Potential reduction: 85% (230 → ~30 lines)")
 
         return custom_implementations
 
@@ -277,7 +278,7 @@ if __name__ == "__main__":
             f.write(script_content)
 
         console.print(
-            f"[green]✅ Implementation script created: apply_statistical_consolidation.py[/green]"
+            "[green]✅ Implementation script created: apply_statistical_consolidation.py[/green]"
         )
 
         return script_content

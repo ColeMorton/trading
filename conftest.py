@@ -4,26 +4,26 @@ Phase 3: Testing Infrastructure Consolidation
 """
 
 import asyncio
+from collections.abc import Generator
+from datetime import datetime, timedelta
 import os
+from pathlib import Path
 import sys
 import tempfile
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, Generator, List, Optional
-from unittest.mock import MagicMock, patch
+from typing import Any
+from unittest.mock import patch
 
 import pandas as pd
 import polars as pl
 import pytest
+
 
 # Add project root to Python path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
 from tests.shared.cleanup import (
-    get_cleanup_manager,
     managed_temp_directory,
-    managed_temp_file,
 )
 
 # Import test utilities
@@ -37,9 +37,9 @@ from tests.shared.factories import (
 )
 from tests.shared.fixtures import (
     mock_yfinance_data,
-    temp_csv_file,
     test_database_session,
 )
+
 
 # =============================================================================
 # Session-level fixtures (expensive setup)
@@ -91,7 +91,7 @@ def sample_market_data() -> pl.DataFrame:
 
 
 @pytest.fixture(scope="module")
-def sample_portfolio_config() -> Dict[str, Any]:
+def sample_portfolio_config() -> dict[str, Any]:
     """Sample portfolio configuration for testing."""
     return {
         "tickers": ["AAPL", "GOOGL", "MSFT"],
@@ -106,7 +106,7 @@ def sample_portfolio_config() -> Dict[str, Any]:
 
 
 @pytest.fixture(scope="module")
-def sample_strategy_config() -> Dict[str, Any]:
+def sample_strategy_config() -> dict[str, Any]:
     """Sample strategy configuration for testing."""
     return create_test_strategy_config()
 
@@ -138,19 +138,19 @@ def test_signals() -> pl.DataFrame:
 
 
 @pytest.fixture
-def test_portfolio() -> Dict[str, Any]:
+def test_portfolio() -> dict[str, Any]:
     """Test portfolio data."""
     return create_test_portfolio()
 
 
 @pytest.fixture
-def sample_portfolio_data() -> Dict[str, Any]:
+def sample_portfolio_data() -> dict[str, Any]:
     """Sample portfolio data for API testing (moved from API conftest.py)."""
     return create_api_portfolio_data()
 
 
 @pytest.fixture
-def performance_metrics() -> Dict[str, Any]:
+def performance_metrics() -> dict[str, Any]:
     """Sample performance metrics for testing (moved from API conftest.py)."""
     return create_api_performance_metrics()
 
@@ -308,9 +308,9 @@ def network_error_simulation():
     def simulate_error(error_type="timeout"):
         if error_type == "timeout":
             raise requests.exceptions.Timeout("Simulated timeout")
-        elif error_type == "connection":
+        if error_type == "connection":
             raise requests.exceptions.ConnectionError("Simulated connection error")
-        elif error_type == "http":
+        if error_type == "http":
             raise requests.exceptions.HTTPError("Simulated HTTP error")
 
     return simulate_error
@@ -324,7 +324,7 @@ def data_corruption_simulation():
         if isinstance(data, pd.DataFrame):
             if corruption_type == "missing_columns":
                 return data.drop(columns=data.columns[0])
-            elif corruption_type == "invalid_values":
+            if corruption_type == "invalid_values":
                 corrupted = data.copy()
                 corrupted.iloc[0, 0] = "INVALID"
                 return corrupted

@@ -7,7 +7,6 @@ Confidence Level: 0.9
 Total Strategies: 1
 """
 
-import datetime
 
 import backtrader as bt
 
@@ -42,7 +41,7 @@ class AMD_ASSET_DISTRIBUTION_AMD_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for AMD_ASSET_DISTRIBUTION_AMD_D"
+                "Warning: Low reliability parameters for AMD_ASSET_DISTRIBUTION_AMD_D"
             )
 
     def next(self):

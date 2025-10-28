@@ -7,7 +7,6 @@ Confidence Level: 0.9
 Total Strategies: 4
 """
 
-import datetime
 
 import backtrader as bt
 
@@ -42,7 +41,7 @@ class SPG_ASSET_DISTRIBUTION_SPG_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for SPG_ASSET_DISTRIBUTION_SPG_D"
+                "Warning: Low reliability parameters for SPG_ASSET_DISTRIBUTION_SPG_D"
             )
 
     def next(self):
@@ -130,7 +129,7 @@ class ADBE_ASSET_DISTRIBUTION_ADBE_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for ADBE_ASSET_DISTRIBUTION_ADBE_D"
+                "Warning: Low reliability parameters for ADBE_ASSET_DISTRIBUTION_ADBE_D"
             )
 
     def next(self):
@@ -218,7 +217,7 @@ class CMA_ASSET_DISTRIBUTION_CMA_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for CMA_ASSET_DISTRIBUTION_CMA_D"
+                "Warning: Low reliability parameters for CMA_ASSET_DISTRIBUTION_CMA_D"
             )
 
     def next(self):
@@ -306,7 +305,7 @@ class TEAM_ASSET_DISTRIBUTION_TEAM_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for TEAM_ASSET_DISTRIBUTION_TEAM_D"
+                "Warning: Low reliability parameters for TEAM_ASSET_DISTRIBUTION_TEAM_D"
             )
 
     def next(self):

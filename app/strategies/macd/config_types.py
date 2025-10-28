@@ -5,7 +5,6 @@ This module provides centralized TypedDict definitions for configuration
 across the MACD cross strategy modules.
 """
 
-from typing import TypedDict
 
 from typing_extensions import NotRequired
 
@@ -15,9 +14,9 @@ from app.core.types.config import BaseStrategyConfig
 class PortfolioConfig(BaseStrategyConfig, total=False):
     """
     Configuration for MACD cross strategy portfolio analysis.
-    
+
     Extends BaseStrategyConfig with MACD-specific parameter fields.
-    
+
     MACD-Specific Fields:
         SHORT_WINDOW_START (int): Start of short-term EMA window range
         SHORT_WINDOW_END (int): End of short-term EMA window range

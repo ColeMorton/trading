@@ -14,7 +14,7 @@ from typing_extensions import NotRequired
 class BaseDataConfig(TypedDict, total=False):
     """
     Base configuration for data fetching across all strategies.
-    
+
     These fields control how historical data is loaded and processed.
     """
 
@@ -30,7 +30,7 @@ class BaseDataConfig(TypedDict, total=False):
 class BaseFilterConfig(TypedDict, total=False):
     """
     Base configuration for filtering and sorting results.
-    
+
     These fields control how strategies are filtered and ranked.
     """
 
@@ -43,7 +43,7 @@ class BaseFilterConfig(TypedDict, total=False):
 class BaseStrategyConfig(BaseDataConfig, BaseFilterConfig, total=False):
     """
     Base configuration inherited by all strategy types.
-    
+
     Combines data fetching and filtering capabilities with
     strategy-specific execution options.
     """
@@ -58,7 +58,7 @@ class BaseStrategyConfig(BaseDataConfig, BaseFilterConfig, total=False):
 class DataConfig(TypedDict, total=False):
     """
     Configuration for data operations (get_data, download_data).
-    
+
     Used by data fetching utilities that don't need full strategy config.
     """
 
@@ -76,7 +76,7 @@ class DataConfig(TypedDict, total=False):
 class ExportConfig(TypedDict, total=False):
     """
     Configuration for export operations (CSV, JSON, plots).
-    
+
     Used by export utilities that need formatting and output options.
     """
 
@@ -90,7 +90,7 @@ class ExportConfig(TypedDict, total=False):
 class StatsConfig(TypedDict, total=False):
     """
     Configuration for statistics calculation and conversion.
-    
+
     Used by stats_converter and performance metric calculators.
     """
 
@@ -100,4 +100,3 @@ class StatsConfig(TypedDict, total=False):
 
 # Type aliases for backward compatibility
 StrategyConfigBase = BaseStrategyConfig
-

@@ -5,8 +5,8 @@ This module provides a centralized configuration system for signal processing,
 with named constants, parameter validation, and documentation.
 """
 
-import json
 from collections.abc import Callable
+import json
 from pathlib import Path
 from typing import Any, TypedDict
 

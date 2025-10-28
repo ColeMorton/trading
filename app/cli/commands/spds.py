@@ -8,7 +8,6 @@ import asyncio
 import json
 import logging
 from pathlib import Path
-from typing import Optional
 
 from rich import print as rprint
 from rich.console import Console
@@ -76,19 +75,21 @@ def _detect_available_data_sources(portfolio: str) -> dict:
 @app.command()
 def analyze(
     ctx: typer.Context,
-    parameter: Optional[str] = typer.Argument(
+    parameter: str
+    | None = typer.Argument(
         None,
         help='Analysis parameter: portfolio file (e.g., "risk_on.csv"), ticker (e.g., "AMD"), strategy (e.g., "TSLA_SMA_15_25"), or position UUID (e.g., "TSLA_SMA_15_25_20250710")',
     ),
-    portfolio: Optional[str] = typer.Option(
+    portfolio: str
+    | None = typer.Option(
         None,
         "--portfolio",
         help="Portfolio file name (e.g., 'protected', 'risk_on.csv')",
     ),
-    profile: Optional[str] = typer.Option(
-        None, "--profile", "-p", help="Configuration profile name"
-    ),
-    data_source: Optional[str] = typer.Option(
+    profile: str
+    | None = typer.Option(None, "--profile", "-p", help="Configuration profile name"),
+    data_source: str
+    | None = typer.Option(
         None,
         "--data-source",
         help="Data source mode: 'trade-history', 'equity-curves', 'both', or 'auto' (default: auto)",
@@ -101,12 +102,14 @@ def analyze(
         "--detailed/--no-detailed",
         help="Show detailed component scores breakdown",
     ),
-    components: Optional[str] = typer.Option(
+    components: str
+    | None = typer.Option(
         None,
         "--components",
         help="Show specific components: 'risk,momentum,trend,risk-adj,mean-rev,volume' (comma-separated)",
     ),
-    save_results: Optional[str] = typer.Option(
+    save_results: str
+    | None = typer.Option(
         None, "--save-results", help="Save results to file (JSON format)"
     ),
     export_backtesting: bool = typer.Option(
@@ -263,10 +266,10 @@ def export(
     portfolio: str = typer.Argument(
         ..., help='Portfolio filename (e.g., "risk_on.csv")'
     ),
-    profile: Optional[str] = typer.Option(
-        None, "--profile", "-p", help="Configuration profile name"
-    ),
-    data_source: Optional[str] = typer.Option(
+    profile: str
+    | None = typer.Option(None, "--profile", "-p", help="Configuration profile name"),
+    data_source: str
+    | None = typer.Option(
         None,
         "--data-source",
         help="Data source mode: 'trade-history', 'equity-curves', 'both', or 'auto' (default: auto)",
@@ -274,9 +277,8 @@ def export(
     format: str = typer.Option(
         "all", "--format", help="Export format: all, json, csv, markdown"
     ),
-    output_dir: Optional[str] = typer.Option(
-        None, "--output-dir", help="Output directory for exports"
-    ),
+    output_dir: str
+    | None = typer.Option(None, "--output-dir", help="Output directory for exports"),
 ):
     """
     Export backtesting parameters and analysis results.

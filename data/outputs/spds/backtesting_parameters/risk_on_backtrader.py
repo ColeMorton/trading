@@ -7,7 +7,6 @@ Confidence Level: 0.9
 Total Strategies: 1
 """
 
-import datetime
 
 import backtrader as bt
 
@@ -41,7 +40,7 @@ class AMZN_SMA_77_81_AMZN_DExitStrategy(bt.Strategy):
 
         # Validate parameters
         if self.params.statistical_validity == "LOW":
-            print(f"Warning: Low reliability parameters for AMZN_SMA_77_81_AMZN_D")
+            print("Warning: Low reliability parameters for AMZN_SMA_77_81_AMZN_D")
 
     def next(self):
         if self.position:

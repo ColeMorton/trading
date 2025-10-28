@@ -1030,7 +1030,9 @@ class TestUnusualMarketConditions:
     ):
         """Test handling of strongly trending markets."""
         # Create strongly trending data (consistent upward movement)
-        trending_prices = [100.0 * (1.001**i) for i in range(252)]  # ~0.1% daily growth
+        trending_prices = [
+            100.0 * (1.001**i) for i in range(252)
+        ]  # ~0.1% daily growth
 
         trending_data = pl.DataFrame(
             {

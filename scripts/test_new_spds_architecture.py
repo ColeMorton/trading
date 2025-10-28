@@ -8,24 +8,23 @@ and functionality compared to the existing system.
 
 import asyncio
 import json
-import logging
+from pathlib import Path
 
 # Add project root to path
 import sys
 import time
-from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 import pandas as pd
 from rich.console import Console
 from rich.table import Table
 
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.tools.models.spds_models import SPDSConfig
 from app.tools.spds_analysis_engine import AnalysisRequest, SPDSAnalysisEngine
-from app.tools.spds_config import get_default_config
+
 
 console = Console()
 
@@ -82,7 +81,7 @@ class NewArchitectureTest:
 
         return portfolio_filename
 
-    async def test_portfolio_analysis(self, portfolio_size: int) -> Dict[str, Any]:
+    async def test_portfolio_analysis(self, portfolio_size: int) -> dict[str, Any]:
         """Test portfolio analysis with new architecture."""
         console.print(
             f"[cyan]Testing portfolio analysis ({portfolio_size} positions)[/cyan]"
@@ -128,7 +127,7 @@ class NewArchitectureTest:
                 "sample_result": None,
             }
 
-    async def test_strategy_analysis(self) -> Dict[str, Any]:
+    async def test_strategy_analysis(self) -> dict[str, Any]:
         """Test strategy analysis with new architecture."""
         console.print("[cyan]Testing strategy analysis[/cyan]")
 
@@ -164,7 +163,7 @@ class NewArchitectureTest:
                 "sample_result": None,
             }
 
-    async def test_position_analysis(self) -> Dict[str, Any]:
+    async def test_position_analysis(self) -> dict[str, Any]:
         """Test position analysis with new architecture."""
         console.print("[cyan]Testing position analysis[/cyan]")
 

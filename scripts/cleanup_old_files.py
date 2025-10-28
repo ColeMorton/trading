@@ -26,12 +26,12 @@ Safe to clean (when explicitly whitelisted):
 """
 
 import argparse
+from datetime import datetime
 import fnmatch
 import os
+from pathlib import Path
 import sys
 import time
-from datetime import datetime, timedelta
-from pathlib import Path
 
 
 def is_interactive_environment() -> bool:
@@ -64,7 +64,7 @@ def load_whitelist_patterns(base_path: Path) -> list:
 
     if whitelist_file.exists():
         try:
-            with open(whitelist_file, "r") as f:
+            with open(whitelist_file) as f:
                 for line in f:
                     line = line.strip()
                     # Skip empty lines and comments
@@ -74,7 +74,7 @@ def load_whitelist_patterns(base_path: Path) -> list:
             print(f"Warning: Could not read .cleanupwhitelist file: {e}")
     else:
         print(
-            f"Warning: .cleanupwhitelist file not found. No files will be cleaned for safety."
+            "Warning: .cleanupwhitelist file not found. No files will be cleaned for safety."
         )
 
     return patterns
@@ -254,7 +254,7 @@ def main():
         )
 
         if args.dry_run:
-            print(f"\nTo actually perform cleanup, run without --dry-run flag")
+            print("\nTo actually perform cleanup, run without --dry-run flag")
 
     except KeyboardInterrupt:
         print("\nCleanup interrupted by user")

@@ -52,18 +52,21 @@ pytest tests/api/ -m "not slow" -v
 ### Unit Tests
 
 **`test_api_simple.py`**
+
 - Basic endpoint registration tests
-- Authentication tests  
+- Authentication tests
 - OpenAPI schema validation
 - CORS and health checks
 
 **`test_sweeps_router.py`**
+
 - Sweep endpoints registration
 - Parameter validation
 - Response schema validation
 - Security configuration
 
 **`test_sweep_schemas.py`**
+
 - Pydantic model validation
 - Type checking
 - Serialization tests
@@ -72,12 +75,14 @@ pytest tests/api/ -m "not slow" -v
 ### Integration Tests (Require Database)
 
 **`test_sweeps_integration.py`** (future)
+
 - Database query tests
 - View integration tests
 - Pagination tests
 - Filter tests
 
 **`test_sweep_workflow.py`** (future)
+
 - End-to-end workflows
 - Job → Results flow
 - Error handling
@@ -87,6 +92,7 @@ pytest tests/api/ -m "not slow" -v
 ### Current Coverage
 
 Run to see current coverage:
+
 ```bash
 pytest tests/api/ --cov=app/api/routers/sweeps --cov-report=term-missing
 ```
@@ -147,6 +153,7 @@ See `conftest.py` for available fixtures.
 ### ModuleNotFoundError: No module named 'sqlmodel'
 
 **Solution:** Install API dependencies:
+
 ```bash
 poetry install
 # or
@@ -156,6 +163,7 @@ pip install sqlmodel fastapi
 ### Tests Pass Locally But Fail in CI
 
 **Check:**
+
 1. All dependencies in `pyproject.toml`
 2. Database is available in CI
 3. Environment variables are set
@@ -164,6 +172,7 @@ pip install sqlmodel fastapi
 ### Tests Are Slow
 
 **Optimize:**
+
 1. Use fixtures to share test data
 2. Skip integration tests: `pytest -m "not integration"`
 3. Run in parallel: `pytest -n auto`
@@ -178,10 +187,10 @@ def test_new_feature():
     # Arrange
     client = TestClient(app)
     headers = {"X-API-Key": "dev-key-..."}
-    
+
     # Act
     response = client.get("/api/v1/endpoint", headers=headers)
-    
+
     # Assert
     assert response.status_code == 200
     assert "expected_field" in response.json()
@@ -210,6 +219,7 @@ open htmlcov/index.html
 ## Continuous Integration
 
 Tests run automatically on:
+
 - Every commit
 - Pull requests
 - Before deployment
@@ -219,6 +229,6 @@ Minimum coverage required: 90%
 ## Contact
 
 For questions about API tests, see:
+
 - `/docs/api/README.md` - API documentation
 - `/docs/api/SWEEP_RESULTS_API.md` - Sweep endpoints reference
-

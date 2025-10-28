@@ -904,9 +904,7 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
                     f"   [yellow]⚠️ {alert['phase'].replace('_', ' ').title()}: {alert['duration']:.1f}s[/yellow]"
                 )
                 if alert.get("recommendations") and self.performance_mode == "detailed":
-                    self.console.print(
-                        f"   [dim]💡 {alert['recommendations'][0]}[/dim]"
-                    )
+                    self.console.print(f"   [dim]💡 {alert['recommendations'][0]}[/dim]")
 
     def _display_bottleneck_patterns(self):
         """Display detected bottleneck patterns for system optimization."""
@@ -923,9 +921,7 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
                 self.console.print(
                     f"   [dim]   • Average duration: {pattern['avg_duration']:.1f}s[/dim]"
                 )
-                self.console.print(
-                    f"   [yellow]💡 {pattern['recommendation']}[/yellow]"
-                )
+                self.console.print(f"   [yellow]💡 {pattern['recommendation']}[/yellow]")
                 self.console.print()
 
     def _display_optimization_recommendations(self):

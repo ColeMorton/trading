@@ -161,6 +161,10 @@ def custom_openapi():
         }
     }
 
+    # Auto-populate API key ONLY in development
+    if settings.is_local_development:
+        openapi_schema["components"]["securitySchemes"]["APIKeyHeader"]["x-default-value"] = "dev-key-" + "0" * 24
+
     # Apply security to all endpoints except health and root
     # Health endpoints are public, others require API key
     for path, path_item in openapi_schema["paths"].items():

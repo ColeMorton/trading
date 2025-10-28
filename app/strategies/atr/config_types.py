@@ -5,7 +5,6 @@ This module provides centralized TypedDict definitions for configuration
 across the ATR trailing stop strategy modules.
 """
 
-from typing import TypedDict
 
 from typing_extensions import NotRequired
 
@@ -15,9 +14,9 @@ from app.core.types.config import BaseStrategyConfig
 class ATRConfig(BaseStrategyConfig, total=False):
     """
     Configuration for ATR trailing stop strategy analysis.
-    
+
     Extends BaseStrategyConfig with ATR-specific parameter fields.
-    
+
     ATR-Specific Fields:
         ATR_LENGTH_START (int): Start of ATR length window range
         ATR_LENGTH_END (int): End of ATR length window range

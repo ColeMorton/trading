@@ -9,26 +9,31 @@ X-API-Key: dev-key-000000000000000000000000
 ## Endpoints
 
 ### List Sweeps
+
 ```bash
 GET /api/v1/sweeps/?limit=10
 ```
 
 ### Latest Results
+
 ```bash
 GET /api/v1/sweeps/latest?limit=10
 ```
 
 ### All Results for Sweep
+
 ```bash
 GET /api/v1/sweeps/{sweep_run_id}?ticker=AAPL&limit=50&offset=0
 ```
 
 ### Best Result ⭐ MOST COMMON
+
 ```bash
 GET /api/v1/sweeps/{sweep_run_id}/best?ticker=AAPL
 ```
 
 ### Best Per Ticker
+
 ```bash
 GET /api/v1/sweeps/{sweep_run_id}/best-per-ticker
 ```
@@ -64,8 +69,8 @@ const response = await fetch(
   `http://localhost:8000/api/v1/sweeps/${sweepId}/best?ticker=AAPL`,
   {
     headers: {
-      'X-API-Key': 'dev-key-000000000000000000000000'
-    }
+      'X-API-Key': 'dev-key-000000000000000000000000',
+    },
   }
 );
 const data = await response.json();
@@ -79,19 +84,21 @@ console.log('Best score:', data.results[0].score);
   "sweep_run_id": "uuid",
   "run_date": "2025-10-19T10:00:00Z",
   "total_results": 1,
-  "results": [{
-    "result_id": "uuid",
-    "ticker": "AAPL",
-    "strategy_type": "SMA",
-    "fast_period": 20,
-    "slow_period": 50,
-    "score": 1.45,
-    "sharpe_ratio": 0.92,
-    "total_return_pct": 234.56,
-    "win_rate_pct": 62.5,
-    "max_drawdown_pct": 18.3,
-    "total_trades": 45
-  }]
+  "results": [
+    {
+      "result_id": "uuid",
+      "ticker": "AAPL",
+      "strategy_type": "SMA",
+      "fast_period": 20,
+      "slow_period": 50,
+      "score": 1.45,
+      "sharpe_ratio": 0.92,
+      "total_return_pct": 234.56,
+      "win_rate_pct": 62.5,
+      "max_drawdown_pct": 18.3,
+      "total_trades": 45
+    }
+  ]
 }
 ```
 
@@ -124,4 +131,3 @@ console.log('Best score:', data.results[0].score);
 - [Endpoint Reference](./SWEEP_RESULTS_API.md)
 - [Integration Guide](./INTEGRATION_GUIDE.md)
 - [Examples](./examples/)
-

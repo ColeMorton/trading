@@ -12,16 +12,15 @@ Usage:
 """
 
 import ast
-import json
-import sys
-from collections import defaultdict, deque
+from collections import defaultdict
 from dataclasses import dataclass
+import json
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
 
 from rich.console import Console
 from rich.table import Table
 from rich.tree import Tree
+
 
 console = Console()
 
@@ -33,7 +32,7 @@ class DependencyInfo:
     from_file: str
     to_file: str
     import_type: str  # "direct", "from", "relative"
-    imported_names: List[str]
+    imported_names: list[str]
     line_number: int
 
 
@@ -42,8 +41,8 @@ class FileInfo:
     """Information about a file and its dependencies."""
 
     file_path: str
-    imports: List[DependencyInfo]
-    imported_by: List[str]
+    imports: list[DependencyInfo]
+    imported_by: list[str]
     lines_of_code: int
     complexity_score: float
 
@@ -53,11 +52,11 @@ class SPDSDependencyAnalyzer:
 
     def __init__(self):
         self.project_root = Path.cwd()
-        self.spds_files: Dict[str, FileInfo] = {}
-        self.dependency_graph: Dict[str, List[str]] = defaultdict(list)
-        self.reverse_dependency_graph: Dict[str, List[str]] = defaultdict(list)
+        self.spds_files: dict[str, FileInfo] = {}
+        self.dependency_graph: dict[str, list[str]] = defaultdict(list)
+        self.reverse_dependency_graph: dict[str, list[str]] = defaultdict(list)
 
-    def find_spds_files(self) -> List[Path]:
+    def find_spds_files(self) -> list[Path]:
         """Find all SPDS-related Python files."""
         patterns = [
             "**/*spds*",
@@ -85,9 +84,7 @@ class SPDSDependencyAnalyzer:
                             "analyzer",
                             "parameter",
                         ]
-                    ):
-                        files.add(path)
-                    elif any(
+                    ) or any(
                         keyword in str(path).lower()
                         for keyword in ["services", "analysis", "models", "config"]
                     ):
@@ -95,10 +92,10 @@ class SPDSDependencyAnalyzer:
 
         return sorted(files)
 
-    def parse_imports(self, file_path: Path) -> List[DependencyInfo]:
+    def parse_imports(self, file_path: Path) -> list[DependencyInfo]:
         """Parse imports from a Python file."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             tree = ast.parse(content)
@@ -137,10 +134,10 @@ class SPDSDependencyAnalyzer:
             console.print(f"[red]Error parsing {file_path}: {e}[/red]")
             return []
 
-    def calculate_complexity_score(self, file_path: Path) -> Tuple[int, float]:
+    def calculate_complexity_score(self, file_path: Path) -> tuple[int, float]:
         """Calculate complexity score for a file."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 lines = f.readlines()
 
             lines_of_code = len(
@@ -235,10 +232,10 @@ class SPDSDependencyAnalyzer:
 
         return any(keyword in module_name.lower() for keyword in spds_keywords)
 
-    def find_circular_dependencies(self) -> List[List[str]]:
+    def find_circular_dependencies(self) -> list[list[str]]:
         """Find circular dependencies in the dependency graph."""
 
-        def dfs(node: str, visited: Set[str], path: List[str]) -> List[List[str]]:
+        def dfs(node: str, visited: set[str], path: list[str]) -> list[list[str]]:
             if node in visited:
                 # Found a cycle
                 cycle_start = path.index(node)
@@ -268,7 +265,7 @@ class SPDSDependencyAnalyzer:
 
         return unique_cycles
 
-    def calculate_coupling_metrics(self) -> Dict[str, Dict[str, float]]:
+    def calculate_coupling_metrics(self) -> dict[str, dict[str, float]]:
         """Calculate coupling metrics for each file."""
         metrics = {}
 
@@ -307,7 +304,7 @@ class SPDSDependencyAnalyzer:
 
         return metrics
 
-    def identify_core_components(self) -> List[str]:
+    def identify_core_components(self) -> list[str]:
         """Identify core components based on coupling metrics."""
         metrics = self.calculate_coupling_metrics()
 
@@ -346,7 +343,7 @@ class SPDSDependencyAnalyzer:
         console.print("=" * 60)
 
         # 1. Overall Statistics
-        console.print(f"\n[cyan]📈 Overall Statistics[/cyan]")
+        console.print("\n[cyan]📈 Overall Statistics[/cyan]")
         total_files = len(self.spds_files)
         total_dependencies = sum(len(info.imports) for info in self.spds_files.values())
         avg_dependencies = total_dependencies / total_files if total_files > 0 else 0
@@ -356,7 +353,7 @@ class SPDSDependencyAnalyzer:
         console.print(f"Average dependencies per file: {avg_dependencies:.1f}")
 
         # 2. Coupling Metrics
-        console.print(f"\n[cyan]🔗 Coupling Metrics[/cyan]")
+        console.print("\n[cyan]🔗 Coupling Metrics[/cyan]")
         metrics = self.calculate_coupling_metrics()
 
         table = Table(title="Component Coupling Analysis", show_header=True)
@@ -382,7 +379,7 @@ class SPDSDependencyAnalyzer:
         console.print(table)
 
         # 3. Core Components Identification
-        console.print(f"\n[cyan]🎯 Core Components (Top 10)[/cyan]")
+        console.print("\n[cyan]🎯 Core Components (Top 10)[/cyan]")
         core_components = self.identify_core_components()
 
         core_table = Table(title="Core Components by Importance", show_header=True)
@@ -404,7 +401,7 @@ class SPDSDependencyAnalyzer:
         console.print(core_table)
 
         # 4. Circular Dependencies
-        console.print(f"\n[cyan]🔄 Circular Dependencies[/cyan]")
+        console.print("\n[cyan]🔄 Circular Dependencies[/cyan]")
         circular_deps = self.find_circular_dependencies()
 
         if circular_deps:
@@ -418,7 +415,7 @@ class SPDSDependencyAnalyzer:
             console.print("[green]✅ No circular dependencies found[/green]")
 
         # 5. Dependency Tree for Core Components
-        console.print(f"\n[cyan]🌳 Dependency Tree (Top 5 Core Components)[/cyan]")
+        console.print("\n[cyan]🌳 Dependency Tree (Top 5 Core Components)[/cyan]")
 
         for i, (file_name, score, metric) in enumerate(core_components[:5], 1):
             tree = Tree(f"[bold]{file_name}[/bold] (Score: {score:.1f})")
@@ -450,7 +447,7 @@ class SPDSDependencyAnalyzer:
             console.print()
 
         # 6. Recommendations
-        console.print(f"[cyan]💡 Consolidation Recommendations[/cyan]")
+        console.print("[cyan]💡 Consolidation Recommendations[/cyan]")
 
         # High coupling files that could be consolidated
         high_coupling_files = [
@@ -461,7 +458,7 @@ class SPDSDependencyAnalyzer:
 
         if high_coupling_files:
             console.print(
-                f"[yellow]📦 Files with high coupling that could be consolidated:[/yellow]"
+                "[yellow]📦 Files with high coupling that could be consolidated:[/yellow]"
             )
             for name, metric in high_coupling_files[:5]:
                 console.print(
@@ -477,14 +474,14 @@ class SPDSDependencyAnalyzer:
 
         if low_coupling_files:
             console.print(
-                f"[red]🗑️  Files with low coupling that might be removed:[/red]"
+                "[red]🗑️  Files with low coupling that might be removed:[/red]"
             )
             for name, metric in low_coupling_files[:5]:
                 console.print(
                     f"[red]  • {name} (afferent: {metric['afferent_coupling']}, efferent: {metric['efferent_coupling']})[/red]"
                 )
 
-        console.print(f"\n[green]✅ Dependency analysis complete![/green]")
+        console.print("\n[green]✅ Dependency analysis complete![/green]")
 
     def save_results(
         self, output_format: str = "json", filename: str = "spds_dependencies.json"

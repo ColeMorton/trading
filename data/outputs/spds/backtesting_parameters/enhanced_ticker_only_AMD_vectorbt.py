@@ -7,9 +7,6 @@ Confidence Level: 0.9
 Total Strategies: 1
 """
 
-import numpy as np
-import pandas as pd
-import vectorbt as vbt
 
 # Statistical analysis-derived parameters
 exit_parameters = {
@@ -40,10 +37,9 @@ def validate_parameters(strategy_key):
 
     if validity == "HIGH":
         return True, "High reliability parameters"
-    elif validity == "MEDIUM":
+    if validity == "MEDIUM":
         return True, "Medium reliability parameters - use with caution"
-    else:
-        return False, "Low reliability parameters - not recommended"
+    return False, "Low reliability parameters - not recommended"
 
 
 # Example usage

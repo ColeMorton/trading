@@ -246,9 +246,9 @@ class VolumeParameterSweepEngine:
 
                 # Maintain position state from previous bar if no signal
                 elif i > 0:
-                    signal_data.iloc[i, signal_data.columns.get_loc("position")] = (
-                        signal_data.iloc[i - 1]["position"]
-                    )
+                    signal_data.iloc[
+                        i, signal_data.columns.get_loc("position")
+                    ] = signal_data.iloc[i - 1]["position"]
 
             # For compatibility, also keep separate entry/exit columns
             signal_data["entry"] = signal_data["ma_cross_entry"]

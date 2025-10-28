@@ -30,9 +30,9 @@ Get a summary list of all sweep runs with key statistics.
 
 #### Query Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `limit` | integer | 10 | Maximum number of sweeps to return (1-100) |
+| Parameter | Type    | Default | Description                                |
+| --------- | ------- | ------- | ------------------------------------------ |
+| `limit`   | integer | 10      | Maximum number of sweeps to return (1-100) |
 
 #### Response: `200 OK`
 
@@ -53,7 +53,7 @@ Get a summary list of all sweep runs with key statistics.
     "best_fast_period": 25,
     "best_slow_period": 28,
     "best_sharpe_ratio": 1.19,
-    "best_total_return_pct": 14408.20
+    "best_total_return_pct": 14408.2
   }
 ]
 ```
@@ -75,9 +75,9 @@ Get the best results from the most recent sweep run. Perfect for quickly seeing 
 
 #### Query Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `limit` | integer | 10 | Number of top results to return (1-100) |
+| Parameter | Type    | Default | Description                             |
+| --------- | ------- | ------- | --------------------------------------- |
+| `limit`   | integer | 10      | Number of top results to return (1-100) |
 
 #### Response: `200 OK`
 
@@ -97,7 +97,7 @@ Get the best results from the most recent sweep run. Perfect for quickly seeing 
       "score": 1.65,
       "sharpe_ratio": 1.19,
       "sortino_ratio": 1.45,
-      "total_return_pct": 14408.20,
+      "total_return_pct": 14408.2,
       "win_rate_pct": 59.29,
       "profit_factor": 2.34,
       "max_drawdown_pct": 35.67,
@@ -126,17 +126,17 @@ Get detailed results for a specific sweep run with full metrics. Supports filter
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `sweep_run_id` | string (UUID) | Yes | The unique identifier for the sweep run |
+| Parameter      | Type          | Required | Description                             |
+| -------------- | ------------- | -------- | --------------------------------------- |
+| `sweep_run_id` | string (UUID) | Yes      | The unique identifier for the sweep run |
 
 #### Query Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `ticker` | string | None | Filter by specific ticker symbol |
-| `limit` | integer | 50 | Maximum results to return (1-500) |
-| `offset` | integer | 0 | Pagination offset |
+| Parameter | Type    | Default | Description                       |
+| --------- | ------- | ------- | --------------------------------- |
+| `ticker`  | string  | None    | Filter by specific ticker symbol  |
+| `limit`   | integer | 50      | Maximum results to return (1-500) |
+| `offset`  | integer | 0       | Pagination offset                 |
 
 #### Response: `200 OK`
 
@@ -159,7 +159,7 @@ Get detailed results for a specific sweep run with full metrics. Supports filter
       "sharpe_ratio": 1.19,
       "sortino_ratio": 1.45,
       "calmar_ratio": 0.82,
-      "total_return_pct": 14408.20,
+      "total_return_pct": 14408.2,
       "annualized_return": 42.5,
       "win_rate_pct": 59.29,
       "profit_factor": 2.34,
@@ -212,15 +212,15 @@ Get the best result(s) for a specific sweep run. This is the most commonly used 
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `sweep_run_id` | string (UUID) | Yes | The unique identifier for the sweep run |
+| Parameter      | Type          | Required | Description                             |
+| -------------- | ------------- | -------- | --------------------------------------- |
+| `sweep_run_id` | string (UUID) | Yes      | The unique identifier for the sweep run |
 
 #### Query Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `ticker` | string | None | Filter by specific ticker. If omitted, returns overall best. |
+| Parameter | Type   | Default | Description                                                  |
+| --------- | ------ | ------- | ------------------------------------------------------------ |
+| `ticker`  | string | None    | Filter by specific ticker. If omitted, returns overall best. |
 
 #### Behavior
 
@@ -245,7 +245,7 @@ Get the best result(s) for a specific sweep run. This is the most commonly used 
       "score": 1.65,
       "sharpe_ratio": 1.19,
       "sortino_ratio": 1.45,
-      "total_return_pct": 14408.20,
+      "total_return_pct": 14408.2,
       "win_rate_pct": 59.29,
       "profit_factor": 2.34,
       "max_drawdown_pct": 35.67,
@@ -278,9 +278,9 @@ Get the best result for each ticker in a sweep run. Useful for comparing optimal
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `sweep_run_id` | string (UUID) | Yes | The unique identifier for the sweep run |
+| Parameter      | Type          | Required | Description                             |
+| -------------- | ------------- | -------- | --------------------------------------- |
+| `sweep_run_id` | string (UUID) | Yes      | The unique identifier for the sweep run |
 
 #### Response: `200 OK`
 
@@ -344,6 +344,7 @@ curl -X POST "http://localhost:8000/api/v1/strategy/sweep" \
 ```
 
 **Response:**
+
 ```json
 {
   "job_id": "123e4567-e89b-12d3-a456-426614174000",
@@ -362,6 +363,7 @@ curl -X GET "http://localhost:8000/api/v1/jobs/123e4567-e89b-12d3-a456-426614174
 ```
 
 **Response (completed):**
+
 ```json
 {
   "job_id": "123e4567-e89b-12d3-a456-426614174000",
@@ -389,6 +391,7 @@ curl -X GET "http://localhost:8000/api/v1/sweeps/fbecc235-07c9-4ae3-b5df-9df1017
 ```
 
 **Response:**
+
 ```json
 {
   "sweep_run_id": "fbecc235-07c9-4ae3-b5df-9df1017b2b1d",
@@ -424,7 +427,7 @@ class TradingAPIClient:
     def __init__(self, base_url: str, api_key: str):
         self.base_url = base_url
         self.headers = {"X-API-Key": api_key}
-    
+
     def start_sweep(self, ticker: str, **kwargs):
         """Start a parameter sweep."""
         payload = {
@@ -436,7 +439,7 @@ class TradingAPIClient:
             "min_trades": kwargs.get("min_trades", 50),
             "strategy_type": kwargs.get("strategy", "SMA")
         }
-        
+
         response = requests.post(
             f"{self.base_url}/api/v1/strategy/sweep",
             json=payload,
@@ -444,7 +447,7 @@ class TradingAPIClient:
         )
         response.raise_for_status()
         return response.json()
-    
+
     def get_job_status(self, job_id: str):
         """Get job status."""
         response = requests.get(
@@ -453,33 +456,33 @@ class TradingAPIClient:
         )
         response.raise_for_status()
         return response.json()
-    
+
     def wait_for_completion(self, job_id: str, timeout: int = 1800):
         """Wait for job to complete."""
         elapsed = 0
         while elapsed < timeout:
             status = self.get_job_status(job_id)
-            
+
             if status["status"] == "completed":
                 return status
             elif status["status"] == "failed":
                 raise Exception(f"Job failed: {status.get('error_message')}")
-            
+
             sleep(5)
             elapsed += 5
-        
+
         raise TimeoutError(f"Job did not complete within {timeout} seconds")
-    
+
     def get_sweep_best_result(self, sweep_run_id: str, ticker: str = None):
         """Get best result for a sweep."""
         url = f"{self.base_url}/api/v1/sweeps/{sweep_run_id}/best"
         if ticker:
             url += f"?ticker={ticker}"
-        
+
         response = requests.get(url, headers=self.headers)
         response.raise_for_status()
         return response.json()
-    
+
     def get_latest_sweep_results(self, limit: int = 10):
         """Get latest sweep results."""
         response = requests.get(
@@ -495,18 +498,18 @@ if __name__ == "__main__":
         base_url="http://localhost:8000",
         api_key="your-api-key"
     )
-    
+
     # Start sweep
     job = client.start_sweep("AAPL", fast_min=5, fast_max=50)
     print(f"Started sweep job: {job['job_id']}")
-    
+
     # Wait for completion
     result = client.wait_for_completion(job["job_id"])
     print(f"Sweep completed: {result['status']}")
-    
+
     # Extract sweep_run_id from output
     sweep_run_id = "fbecc235-07c9-4ae3-b5df-9df1017b2b1d"  # Parse from result_data
-    
+
     # Get best result
     best = client.get_sweep_best_result(sweep_run_id, ticker="AAPL")
     print(f"Best result: {best['results'][0]}")
@@ -535,6 +538,7 @@ if __name__ == "__main__":
 All endpoints may return these error responses:
 
 ### 404 Not Found
+
 ```json
 {
   "error": "Not Found",
@@ -545,6 +549,7 @@ All endpoints may return these error responses:
 ```
 
 ### 422 Validation Error
+
 ```json
 {
   "error": "Validation Error",
@@ -555,6 +560,7 @@ All endpoints may return these error responses:
 ```
 
 ### 500 Internal Server Error
+
 ```json
 {
   "error": "Internal Server Error",
@@ -563,4 +569,3 @@ All endpoints may return these error responses:
   "timestamp": "2025-10-19T10:00:00Z"
 }
 ```
-

@@ -5,7 +5,7 @@
 -- Output: Summary statistics for each ticker
 -- ============================================================================
 
-SELECT 
+SELECT
     t.ticker,
     COUNT(*) as total_tests,
     COUNT(DISTINCT sr.sweep_run_id) as sweep_runs,
@@ -28,4 +28,3 @@ FROM strategy_sweep_results sr
 JOIN tickers t ON sr.ticker_id = t.id
 GROUP BY t.ticker, sr.ticker_id
 ORDER BY avg_score DESC;
-

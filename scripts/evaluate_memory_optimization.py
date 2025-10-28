@@ -8,14 +8,13 @@ is justified by the benefits.
 
 import ast
 import json
-import os
-import time
 from pathlib import Path
-from typing import Any, Dict, List
+import time
 
 from rich.console import Console
 from rich.table import Table
 from rich.tree import Tree
+
 
 console = Console()
 
@@ -65,7 +64,7 @@ class MemoryOptimizationEvaluator:
     def analyze_file(self, file_path: Path):
         """Analyze a single memory optimization file."""
         try:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 content = f.read()
 
             # Parse the file
@@ -117,7 +116,7 @@ class MemoryOptimizationEvaluator:
         except Exception as e:
             console.print(f"[red]Error analyzing {file_path}: {e}[/red]")
 
-    def analyze_usage_patterns(self, content: str) -> List[str]:
+    def analyze_usage_patterns(self, content: str) -> list[str]:
         """Analyze usage patterns in the code."""
         patterns = []
 
@@ -195,7 +194,7 @@ class MemoryOptimizationEvaluator:
             a["complexity_score"] for a in self.analysis_results.values()
         )
 
-        console.print(f"\n[bold]📈 Total Statistics[/bold]")
+        console.print("\n[bold]📈 Total Statistics[/bold]")
         console.print(f"Total files: {len(self.analysis_results)}")
         console.print(f"Total lines of code: {total_loc:,}")
         console.print(f"Total classes: {total_classes}")
@@ -205,45 +204,43 @@ class MemoryOptimizationEvaluator:
         # Show dependency analysis
         self.show_dependency_analysis()
 
-    def infer_main_purpose(self, file_name: str, analysis: Dict) -> str:
+    def infer_main_purpose(self, file_name: str, analysis: dict) -> str:
         """Infer the main purpose of a memory optimization file."""
         if "memory_optimizer" in file_name:
             return "Object pooling & GC management"
-        elif "cache" in file_name:
+        if "cache" in file_name:
             return "Caching mechanism"
-        elif "stream" in file_name:
+        if "stream" in file_name:
             return "Streaming data processing"
-        elif "batch" in file_name:
+        if "batch" in file_name:
             return "Batch processing"
-        elif "parallel" in file_name:
+        if "parallel" in file_name:
             return "Parallel execution"
-        elif "performance" in file_name:
+        if "performance" in file_name:
             return "Performance monitoring"
-        elif "mmap" in file_name:
+        if "mmap" in file_name:
             return "Memory-mapped file access"
-        elif "data_converter" in file_name:
+        if "data_converter" in file_name:
             return "Data format conversion"
-        elif "auto_tuner" in file_name:
+        if "auto_tuner" in file_name:
             return "Automatic performance tuning"
-        else:
-            # Try to infer from classes and functions
-            classes = analysis.get("classes", [])
-            functions = analysis.get("functions", [])
+        # Try to infer from classes and functions
+        classes = analysis.get("classes", [])
+        functions = analysis.get("functions", [])
 
-            if any("Cache" in c for c in classes):
-                return "Caching"
-            elif any("Pool" in c for c in classes):
-                return "Object pooling"
-            elif any("Stream" in c for c in classes):
-                return "Streaming"
-            elif any("Batch" in c for c in classes):
-                return "Batch processing"
-            else:
-                return "General optimization"
+        if any("Cache" in c for c in classes):
+            return "Caching"
+        if any("Pool" in c for c in classes):
+            return "Object pooling"
+        if any("Stream" in c for c in classes):
+            return "Streaming"
+        if any("Batch" in c for c in classes):
+            return "Batch processing"
+        return "General optimization"
 
     def show_dependency_analysis(self):
         """Show dependency analysis."""
-        console.print(f"\n[bold]🔗 Dependency Analysis[/bold]")
+        console.print("\n[bold]🔗 Dependency Analysis[/bold]")
 
         # Create dependency tree
         tree = Tree("Memory Optimization Dependencies")
@@ -295,7 +292,7 @@ class MemoryOptimizationEvaluator:
 
     def generate_recommendations(self):
         """Generate recommendations based on analysis."""
-        console.print(f"\n[bold]💡 Recommendations[/bold]")
+        console.print("\n[bold]💡 Recommendations[/bold]")
 
         total_loc = sum(a["lines_of_code"] for a in self.analysis_results.values())
         total_complexity = sum(
@@ -315,7 +312,7 @@ class MemoryOptimizationEvaluator:
             f for f, a in self.analysis_results.items() if a["complexity_score"] < 20
         ]
 
-        console.print(f"📊 **Complexity Analysis**:")
+        console.print("📊 **Complexity Analysis**:")
         console.print(
             f"  • High complexity ({len(high_complexity)} files): {', '.join(high_complexity)}"
         )
@@ -360,7 +357,7 @@ class MemoryOptimizationEvaluator:
             )
 
         # Consolidation recommendations
-        console.print(f"\n📋 **Consolidation Recommendations**:")
+        console.print("\n📋 **Consolidation Recommendations**:")
 
         if len(self.analysis_results) > 6:
             console.print(
@@ -385,7 +382,7 @@ class MemoryOptimizationEvaluator:
             console.print("   • Use `pandas` chunking instead of custom streaming")
 
         # ROI analysis
-        console.print(f"\n💰 **Return on Investment Analysis**:")
+        console.print("\n💰 **Return on Investment Analysis**:")
         console.print("Current investment:")
         console.print(f"  • {len(self.analysis_results)} files to maintain")
         console.print(f"  • {total_loc:,} lines of code")
@@ -398,7 +395,7 @@ class MemoryOptimizationEvaluator:
 
         # Final recommendation
         if total_complexity > 300 or len(self.analysis_results) > 10:
-            console.print(f"\n🎯 **Final Recommendation**: **CONSOLIDATE**")
+            console.print("\n🎯 **Final Recommendation**: **CONSOLIDATE**")
             console.print(
                 "The memory optimization system is over-engineered for statistical analysis."
             )
@@ -406,11 +403,11 @@ class MemoryOptimizationEvaluator:
                 "Recommend reducing to 2-3 core files with established libraries."
             )
         elif total_complexity > 150 or len(self.analysis_results) > 6:
-            console.print(f"\n🎯 **Final Recommendation**: **SIMPLIFY**")
+            console.print("\n🎯 **Final Recommendation**: **SIMPLIFY**")
             console.print("The memory optimization system needs simplification.")
             console.print("Consider consolidating peripheral components.")
         else:
-            console.print(f"\n🎯 **Final Recommendation**: **ACCEPTABLE**")
+            console.print("\n🎯 **Final Recommendation**: **ACCEPTABLE**")
             console.print("The memory optimization system is at reasonable complexity.")
 
         # Save analysis results
@@ -452,7 +449,7 @@ class MemoryOptimizationEvaluator:
             json.dump(results_data, f, indent=2)
 
         console.print(
-            f"\n[green]💾 Analysis saved to: memory_optimization_analysis.json[/green]"
+            "\n[green]💾 Analysis saved to: memory_optimization_analysis.json[/green]"
         )
 
 

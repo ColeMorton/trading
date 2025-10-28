@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: trading_password
       POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --locale=C'
     ports:
-      - '5432:5432'
+      - '127.0.0.1:5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/init:/docker-entrypoint-initdb.d
@@ -29,7 +29,7 @@ services:
     image: redis:7-alpine
     container_name: trading_redis
     ports:
-      - '6379:6379'
+      - '127.0.0.1:6379:6379'
     volumes:
       - redis_data:/data
     networks:
@@ -56,7 +56,7 @@ services:
       - DEBUG=true
       - API_KEY_SECRET=dev-secret-key-change-in-production
     ports:
-      - '8000:8000'
+      - '127.0.0.1:8000:8000'
     volumes:
       - .:/app
       - /app/node_modules
@@ -114,7 +114,7 @@ services:
       - VITE_API_URL=http://localhost:8000
       - VITE_GRAPHQL_URL=http://localhost:8000/graphql
     ports:
-      - '3000:3000'
+      - '127.0.0.1:3000:3000'
     volumes:
       - ./app/frontend/sensylate:/app
       - /app/node_modules
@@ -133,7 +133,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     ports:
-      - '5050:80'
+      - '127.0.0.1:5050:80'
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     networks:

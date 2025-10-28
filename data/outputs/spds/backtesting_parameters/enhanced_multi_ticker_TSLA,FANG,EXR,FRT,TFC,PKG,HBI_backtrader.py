@@ -7,7 +7,6 @@ Confidence Level: 0.9
 Total Strategies: 7
 """
 
-import datetime
 
 import backtrader as bt
 
@@ -42,7 +41,7 @@ class TSLA_ASSET_DISTRIBUTION_TSLA_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for TSLA_ASSET_DISTRIBUTION_TSLA_D"
+                "Warning: Low reliability parameters for TSLA_ASSET_DISTRIBUTION_TSLA_D"
             )
 
     def next(self):
@@ -130,7 +129,7 @@ class FANG_ASSET_DISTRIBUTION_FANG_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for FANG_ASSET_DISTRIBUTION_FANG_D"
+                "Warning: Low reliability parameters for FANG_ASSET_DISTRIBUTION_FANG_D"
             )
 
     def next(self):
@@ -218,7 +217,7 @@ class EXR_ASSET_DISTRIBUTION_EXR_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for EXR_ASSET_DISTRIBUTION_EXR_D"
+                "Warning: Low reliability parameters for EXR_ASSET_DISTRIBUTION_EXR_D"
             )
 
     def next(self):
@@ -306,7 +305,7 @@ class FRT_ASSET_DISTRIBUTION_FRT_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for FRT_ASSET_DISTRIBUTION_FRT_D"
+                "Warning: Low reliability parameters for FRT_ASSET_DISTRIBUTION_FRT_D"
             )
 
     def next(self):
@@ -394,7 +393,7 @@ class TFC_ASSET_DISTRIBUTION_TFC_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for TFC_ASSET_DISTRIBUTION_TFC_D"
+                "Warning: Low reliability parameters for TFC_ASSET_DISTRIBUTION_TFC_D"
             )
 
     def next(self):
@@ -482,7 +481,7 @@ class PKG_ASSET_DISTRIBUTION_PKG_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for PKG_ASSET_DISTRIBUTION_PKG_D"
+                "Warning: Low reliability parameters for PKG_ASSET_DISTRIBUTION_PKG_D"
             )
 
     def next(self):
@@ -570,7 +569,7 @@ class HBI_ASSET_DISTRIBUTION_HBI_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for HBI_ASSET_DISTRIBUTION_HBI_D"
+                "Warning: Low reliability parameters for HBI_ASSET_DISTRIBUTION_HBI_D"
             )
 
     def next(self):

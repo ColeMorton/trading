@@ -4,10 +4,10 @@ Strategy Sweep Repository
 Repository for persisting strategy sweep results to PostgreSQL database.
 """
 
+from decimal import Decimal
 import json
 import logging
-from decimal import Decimal
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from app.database.config import DatabaseManager
@@ -42,14 +42,14 @@ class StrategySweepRepository:
         name = name.replace(" [%]", "_pct")
         name = name.replace(" [$]", "")
         name = name.replace("[", "").replace("]", "")
-        
+
         # Convert to lowercase and replace spaces with underscores
         name = name.lower().replace(" ", "_")
-        
+
         # Handle special cases
         name = name.replace("bnh", "bnh")  # Keep as is
         name = name.replace("p&l", "pnl")
-        
+
         return name
 
     def _convert_value(self, value: Any) -> Any:
@@ -64,19 +64,19 @@ class StrategySweepRepository:
         """
         if value is None or value == "" or value == "N/A":
             return None
-        
+
         # Convert boolean to string
         if isinstance(value, bool):
             return str(value)
-        
+
         # Convert to Decimal for numeric types to preserve precision
         if isinstance(value, (int, float)):
             return Decimal(str(value))
-        
+
         # Keep strings as is
         if isinstance(value, str):
             return value
-        
+
         # Convert other types to string
         return str(value)
 
@@ -97,10 +97,10 @@ class StrategySweepRepository:
         # Try to get existing ticker
         query = "SELECT id FROM tickers WHERE ticker = $1"
         ticker_id = await connection.fetchval(query, ticker_symbol)
-        
+
         if ticker_id:
             return ticker_id
-        
+
         # Create new ticker if it doesn't exist
         insert_query = """
             INSERT INTO tickers (ticker)
@@ -111,7 +111,9 @@ class StrategySweepRepository:
         ticker_id = await connection.fetchval(insert_query, ticker_symbol)
         return ticker_id
 
-    async def _get_or_create_strategy_type(self, strategy_type_name: str, connection) -> int:
+    async def _get_or_create_strategy_type(
+        self, strategy_type_name: str, connection
+    ) -> int:
         """
         Get or create a strategy type and return its ID.
 
@@ -128,10 +130,10 @@ class StrategySweepRepository:
         # Try to get existing strategy type
         query = "SELECT id FROM strategy_types WHERE strategy_type = $1"
         strategy_type_id = await connection.fetchval(query, strategy_type_name)
-        
+
         if strategy_type_id:
             return strategy_type_id
-        
+
         # Create new strategy type if it doesn't exist
         insert_query = """
             INSERT INTO strategy_types (strategy_type)
@@ -208,10 +210,10 @@ class StrategySweepRepository:
 
         # Build column list for SQL with proper quoting for reserved keywords
         column_list = ", ".join(f'"{col}"' for col in columns)
-        
+
         # Build placeholders for SQL (indexed placeholders for asyncpg)
         num_columns = len(columns)
-        
+
         # Build the INSERT query
         query = f"""
             INSERT INTO strategy_sweep_results ({column_list})
@@ -232,42 +234,60 @@ class StrategySweepRepository:
                 async with connection.transaction():
                     for i in range(0, len(records), batch_size):
                         batch = records[i : i + batch_size]
-                        
+
                         # Execute batch insert
                         for record in batch:
                             # Convert ticker to ticker_id
                             if "ticker" in record:
                                 ticker_symbol = record["ticker"]
-                                ticker_id = await self._get_or_create_ticker(ticker_symbol, connection)
+                                ticker_id = await self._get_or_create_ticker(
+                                    ticker_symbol, connection
+                                )
                                 record["ticker_id"] = ticker_id
                                 del record["ticker"]
-                                
+
                                 # Update columns list if this is the first record with ticker
                                 if "ticker" in columns:
-                                    columns = [col if col != "ticker" else "ticker_id" for col in columns]
-                                    column_list = ", ".join(f'"{col}"' for col in columns)
+                                    columns = [
+                                        col if col != "ticker" else "ticker_id"
+                                        for col in columns
+                                    ]
+                                    column_list = ", ".join(
+                                        f'"{col}"' for col in columns
+                                    )
                                     query = f"""
                                         INSERT INTO strategy_sweep_results ({column_list})
                                         VALUES ({', '.join(f'${i+1}' for i in range(len(columns)))})
                                     """
-                            
+
                             # Convert strategy_type to strategy_type_id
                             if "strategy_type" in record:
                                 strategy_type_name = record["strategy_type"]
                                 if strategy_type_name:
-                                    strategy_type_id = await self._get_or_create_strategy_type(strategy_type_name, connection)
+                                    strategy_type_id = (
+                                        await self._get_or_create_strategy_type(
+                                            strategy_type_name, connection
+                                        )
+                                    )
                                     record["strategy_type_id"] = strategy_type_id
                                     del record["strategy_type"]
-                                    
+
                                     # Update columns list if this is the first record with strategy_type
                                     if "strategy_type" in columns:
-                                        columns = [col if col != "strategy_type" else "strategy_type_id" for col in columns]
-                                        column_list = ", ".join(f'"{col}"' for col in columns)
+                                        columns = [
+                                            col
+                                            if col != "strategy_type"
+                                            else "strategy_type_id"
+                                            for col in columns
+                                        ]
+                                        column_list = ", ".join(
+                                            f'"{col}"' for col in columns
+                                        )
                                         query = f"""
                                             INSERT INTO strategy_sweep_results ({column_list})
                                             VALUES ({', '.join(f'${i+1}' for i in range(len(columns)))})
                                         """
-                            
+
                             # Extract values in the same order as columns
                             values = [record.get(col) for col in columns]
                             await connection.execute(query, *values)
@@ -288,9 +308,7 @@ class StrategySweepRepository:
             logger.error(f"Failed to save strategy sweep results: {e}")
             raise
 
-    async def get_sweep_results(
-        self, sweep_run_id: UUID
-    ) -> list[dict[str, Any]]:
+    async def get_sweep_results(self, sweep_run_id: UUID) -> list[dict[str, Any]]:
         """
         Retrieve all results for a specific sweep run.
 
@@ -338,7 +356,7 @@ class StrategySweepRepository:
             Exception: If database operation fails
         """
         query = """
-            SELECT 
+            SELECT
                 sweep_run_id,
                 MIN(created_at) as sweep_start,
                 COUNT(*) as result_count,
@@ -363,7 +381,7 @@ class StrategySweepRepository:
             logger.error(f"Failed to retrieve recent sweeps: {e}")
             raise
 
-    def _parse_metric_type_string(self, metric_type_str: Optional[str]) -> list[str]:
+    def _parse_metric_type_string(self, metric_type_str: str | None) -> list[str]:
         """
         Parse comma-separated metric type string into list of metric names.
 
@@ -375,10 +393,10 @@ class StrategySweepRepository:
         """
         if not metric_type_str or metric_type_str.strip() == "":
             return []
-        
+
         # Split by comma and trim whitespace
         metric_names = [name.strip() for name in metric_type_str.split(",")]
-        
+
         # Filter out empty strings
         return [name for name in metric_names if name]
 
@@ -397,14 +415,14 @@ class StrategySweepRepository:
         """
         if not metric_names:
             return {}
-        
+
         # Query metric_types table to get IDs
         query = """
             SELECT id, name
             FROM metric_types
             WHERE name = ANY($1::text[])
         """
-        
+
         rows = await connection.fetch(query, metric_names)
         return {row["name"]: row["id"] for row in rows}
 
@@ -424,14 +442,14 @@ class StrategySweepRepository:
         """
         if not metric_type_ids:
             return
-        
+
         # Insert associations using ON CONFLICT to handle duplicates
         query = """
             INSERT INTO strategy_sweep_result_metrics (sweep_result_id, metric_type_id)
             VALUES ($1, $2)
             ON CONFLICT (sweep_result_id, metric_type_id) DO NOTHING
         """
-        
+
         for metric_type_id in metric_type_ids:
             await connection.execute(query, sweep_result_id, metric_type_id)
 
@@ -477,10 +495,10 @@ class StrategySweepRepository:
 
         # Build column list for SQL with proper quoting
         column_list = ", ".join(f'"{col}"' for col in columns)
-        
+
         # Build placeholders for SQL
         num_columns = len(columns)
-        
+
         # Build the INSERT query
         insert_query = f"""
             INSERT INTO strategy_sweep_results ({column_list})
@@ -500,66 +518,86 @@ class StrategySweepRepository:
                 async with connection.transaction():
                     for i in range(0, len(records), batch_size):
                         batch = records[i : i + batch_size]
-                        
+
                         # Process each record in the batch
                         for record_idx, record in enumerate(batch):
                             # Convert ticker to ticker_id
                             if "ticker" in record:
                                 ticker_symbol = record["ticker"]
-                                ticker_id = await self._get_or_create_ticker(ticker_symbol, connection)
+                                ticker_id = await self._get_or_create_ticker(
+                                    ticker_symbol, connection
+                                )
                                 record["ticker_id"] = ticker_id
                                 del record["ticker"]
-                                
+
                                 # Update columns list if this is the first record with ticker
                                 if "ticker" in columns:
-                                    columns = [col if col != "ticker" else "ticker_id" for col in columns]
-                                    column_list = ", ".join(f'"{col}"' for col in columns)
+                                    columns = [
+                                        col if col != "ticker" else "ticker_id"
+                                        for col in columns
+                                    ]
+                                    column_list = ", ".join(
+                                        f'"{col}"' for col in columns
+                                    )
                                     insert_query = f"""
                                         INSERT INTO strategy_sweep_results ({column_list})
                                         VALUES ({', '.join(f'${i+1}' for i in range(len(columns)))})
                                         RETURNING id
                                     """
-                            
+
                             # Convert strategy_type to strategy_type_id
                             if "strategy_type" in record:
                                 strategy_type_name = record["strategy_type"]
                                 if strategy_type_name:
-                                    strategy_type_id = await self._get_or_create_strategy_type(strategy_type_name, connection)
+                                    strategy_type_id = (
+                                        await self._get_or_create_strategy_type(
+                                            strategy_type_name, connection
+                                        )
+                                    )
                                     record["strategy_type_id"] = strategy_type_id
                                     del record["strategy_type"]
-                                    
+
                                     # Update columns list if this is the first record with strategy_type
                                     if "strategy_type" in columns:
-                                        columns = [col if col != "strategy_type" else "strategy_type_id" for col in columns]
-                                        column_list = ", ".join(f'"{col}"' for col in columns)
+                                        columns = [
+                                            col
+                                            if col != "strategy_type"
+                                            else "strategy_type_id"
+                                            for col in columns
+                                        ]
+                                        column_list = ", ".join(
+                                            f'"{col}"' for col in columns
+                                        )
                                         insert_query = f"""
                                             INSERT INTO strategy_sweep_results ({column_list})
                                             VALUES ({', '.join(f'${i+1}' for i in range(len(columns)))})
                                             RETURNING id
                                         """
-                            
+
                             # Extract values in the same order as columns
                             values = [record.get(col) for col in columns]
-                            
+
                             # Insert record and get its ID
                             result_id = await connection.fetchval(insert_query, *values)
-                            
+
                             # Parse and save metric type associations
                             metric_type_str = record.get("metric_type")
                             if metric_type_str:
-                                metric_names = self._parse_metric_type_string(metric_type_str)
+                                metric_names = self._parse_metric_type_string(
+                                    metric_type_str
+                                )
                                 if metric_names:
                                     # Get metric type IDs
                                     metric_type_map = await self._get_metric_type_ids(
                                         metric_names, connection
                                     )
                                     metric_type_ids = list(metric_type_map.values())
-                                    
+
                                     # Save associations
                                     await self._save_metric_type_associations(
                                         str(result_id), metric_type_ids, connection
                                     )
-                            
+
                             total_inserted += 1
 
                         logger.info(
@@ -593,7 +631,7 @@ class StrategySweepRepository:
             Exception: If database operation fails
         """
         query = """
-            SELECT 
+            SELECT
                 sr.*,
                 t.ticker,
                 st.strategy_type,
@@ -661,7 +699,7 @@ class StrategySweepRepository:
     async def find_results_by_metric_type(
         self,
         metric_type_name: str,
-        sweep_run_id: Optional[UUID] = None,
+        sweep_run_id: UUID | None = None,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
         """
@@ -685,9 +723,11 @@ class StrategySweepRepository:
             JOIN metric_types mt ON srm.metric_type_id = mt.id
             WHERE mt.name = $1
         """
-        
+
         if sweep_run_id:
-            query = base_query + " AND sr.sweep_run_id = $2 ORDER BY sr.score DESC LIMIT $3"
+            query = (
+                base_query + " AND sr.sweep_run_id = $2 ORDER BY sr.score DESC LIMIT $3"
+            )
             params = [metric_type_name, str(sweep_run_id), limit]
         else:
             query = base_query + " ORDER BY sr.created_at DESC, sr.score DESC LIMIT $2"
@@ -706,45 +746,43 @@ class StrategySweepRepository:
             raise
 
     async def compute_and_save_best_selections(
-        self,
-        sweep_run_id: UUID,
-        algorithm: str = "parameter_consistency"
+        self, sweep_run_id: UUID, algorithm: str = "parameter_consistency"
     ) -> int:
         """
         Compute best portfolio for each ticker+strategy in sweep and save to database.
-        
+
         Implements the parameter consistency algorithm:
         1. Top 3 all match (100% confidence)
         2. 3 of top 5 match (60-80% confidence)
         3. 5 of top 8 match (62.5% confidence)
         4. Top 2 both match (100% confidence)
         5. Fallback to highest score (0-50% confidence)
-        
+
         Args:
             sweep_run_id: UUID of the sweep run
             algorithm: Algorithm to use (default: "parameter_consistency")
-        
+
         Returns:
             Number of best selections created
-        
+
         Raises:
             Exception: If database operation fails
         """
         from app.cli.services.best_selection_service import BestSelectionService
-        
+
         logger.info(f"Computing best selections for sweep_run_id={sweep_run_id}")
-        
+
         try:
             if not self.db_manager._connection_pool:
                 raise RuntimeError("Database connection pool not initialized")
-            
+
             # Get all results for this sweep
             results = await self.get_sweep_results_with_metrics(sweep_run_id)
-            
+
             if not results:
                 logger.warning(f"No results found for sweep_run_id={sweep_run_id}")
                 return 0
-            
+
             # Get unique ticker+strategy combinations
             combinations = set()
             for result in results:
@@ -752,48 +790,50 @@ class StrategySweepRepository:
                 strategy_type = result.get("strategy_type")
                 if ticker and strategy_type:
                     combinations.add((ticker, strategy_type))
-            
+
             logger.info(f"Found {len(combinations)} ticker+strategy combinations")
-            
+
             # Initialize selection service
             selection_service = BestSelectionService()
-            
+
             # Compute best for each combination
             best_selections = []
             for ticker, strategy_type in combinations:
                 selection = selection_service.find_best_for_ticker_strategy(
-                    results,
-                    ticker,
-                    strategy_type
+                    results, ticker, strategy_type
                 )
-                
+
                 if selection:
                     best_selections.append((ticker, strategy_type, selection))
-            
+
             # Save all best selections to database
             async with self.db_manager._connection_pool.acquire() as connection:
                 async with connection.transaction():
                     for ticker_symbol, strategy_type_name, selection in best_selections:
                         # Get ticker_id and strategy_type_id
-                        ticker_id = await self._get_or_create_ticker(ticker_symbol, connection)
-                        strategy_type_id = await self._get_or_create_strategy_type(strategy_type_name, connection)
-                        
+                        ticker_id = await self._get_or_create_ticker(
+                            ticker_symbol, connection
+                        )
+                        strategy_type_id = await self._get_or_create_strategy_type(
+                            strategy_type_name, connection
+                        )
+
                         best_result = selection["best_result"]
                         winning_combo = selection["winning_combination"]
-                        
+
                         # Insert best selection
                         insert_query = """
                             INSERT INTO sweep_best_selections (
                                 sweep_run_id, ticker_id, strategy_type_id, best_result_id,
                                 selection_algorithm, selection_criteria, confidence_score,
-                                alternatives_considered, winning_fast_period, 
+                                alternatives_considered, winning_fast_period,
                                 winning_slow_period, winning_signal_period,
-                                result_score, result_sharpe_ratio, 
+                                result_score, result_sharpe_ratio,
                                 result_total_return_pct, result_win_rate_pct
                             ) VALUES (
                                 $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
                             )
-                            ON CONFLICT (sweep_run_id, ticker_id, strategy_type_id) 
+                            ON CONFLICT (sweep_run_id, ticker_id, strategy_type_id)
                             DO UPDATE SET
                                 best_result_id = EXCLUDED.best_result_id,
                                 selection_algorithm = EXCLUDED.selection_algorithm,
@@ -808,7 +848,7 @@ class StrategySweepRepository:
                                 result_total_return_pct = EXCLUDED.result_total_return_pct,
                                 result_win_rate_pct = EXCLUDED.result_win_rate_pct
                         """
-                        
+
                         await connection.execute(
                             insert_query,
                             str(sweep_run_id),
@@ -827,32 +867,31 @@ class StrategySweepRepository:
                             best_result.get("total_return_pct"),
                             best_result.get("win_rate_pct"),
                         )
-            
-            logger.info(f"Saved {len(best_selections)} best selections for sweep_run_id={sweep_run_id}")
+
+            logger.info(
+                f"Saved {len(best_selections)} best selections for sweep_run_id={sweep_run_id}"
+            )
             return len(best_selections)
-        
+
         except Exception as e:
             logger.error(f"Failed to compute and save best selections: {e}")
             raise
 
-    async def get_best_selections(
-        self,
-        sweep_run_id: UUID
-    ) -> list[dict[str, Any]]:
+    async def get_best_selections(self, sweep_run_id: UUID) -> list[dict[str, Any]]:
         """
         Get all best selections for a sweep run with joined result data.
-        
+
         Args:
             sweep_run_id: UUID of the sweep run
-        
+
         Returns:
             List of best selection dictionaries with full result data
-        
+
         Raises:
             Exception: If database operation fails
         """
         query = """
-            SELECT 
+            SELECT
                 bs.id,
                 bs.sweep_run_id,
                 t.ticker,
@@ -881,41 +920,38 @@ class StrategySweepRepository:
             WHERE bs.sweep_run_id = $1
             ORDER BY bs.confidence_score DESC, bs.result_score DESC
         """
-        
+
         try:
             if not self.db_manager._connection_pool:
                 raise RuntimeError("Database connection pool not initialized")
-            
+
             async with self.db_manager._connection_pool.acquire() as connection:
                 rows = await connection.fetch(query, str(sweep_run_id))
                 return [dict(row) for row in rows]
-        
+
         except Exception as e:
             logger.error(f"Failed to get best selections: {e}")
             raise
 
     async def get_best_result_for_ticker(
-        self,
-        sweep_run_id: UUID,
-        ticker: str,
-        strategy_type: str
+        self, sweep_run_id: UUID, ticker: str, strategy_type: str
     ) -> dict[str, Any] | None:
         """
         Get the best result for specific ticker and strategy.
-        
+
         Args:
             sweep_run_id: UUID of the sweep run
             ticker: Ticker symbol
             strategy_type: Strategy type
-        
+
         Returns:
             Best result dictionary or None if not found
-        
+
         Raises:
             Exception: If database operation fails
         """
         query = """
-            SELECT 
+            SELECT
                 sr.*,
                 t.ticker,
                 st.strategy_type,
@@ -929,46 +965,42 @@ class StrategySweepRepository:
               AND t.ticker = $2
               AND st.strategy_type = $3
         """
-        
+
         try:
             if not self.db_manager._connection_pool:
                 raise RuntimeError("Database connection pool not initialized")
-            
+
             async with self.db_manager._connection_pool.acquire() as connection:
                 row = await connection.fetchrow(
-                    query,
-                    str(sweep_run_id),
-                    ticker,
-                    strategy_type
+                    query, str(sweep_run_id), ticker, strategy_type
                 )
                 return dict(row) if row else None
-        
+
         except Exception as e:
             logger.error(f"Failed to get best result for ticker: {e}")
             raise
 
     async def get_sweep_results_with_best_flag(
-        self,
-        sweep_run_id: UUID
+        self, sweep_run_id: UUID
     ) -> list[dict[str, Any]]:
         """
         Get all sweep results with is_best boolean flag.
-        
+
         Args:
             sweep_run_id: UUID of the sweep run
-        
+
         Returns:
             List of result dictionaries with is_best flag
-        
+
         Raises:
             Exception: If database operation fails
         """
         query = """
-            SELECT 
+            SELECT
                 sr.*,
                 t.ticker,
                 st.strategy_type,
-                CASE 
+                CASE
                     WHEN bs.best_result_id IS NOT NULL THEN TRUE
                     ELSE FALSE
                 END as is_best,
@@ -977,22 +1009,21 @@ class StrategySweepRepository:
             FROM strategy_sweep_results sr
             JOIN tickers t ON sr.ticker_id = t.id
             JOIN strategy_types st ON sr.strategy_type_id = st.id
-            LEFT JOIN sweep_best_selections bs 
+            LEFT JOIN sweep_best_selections bs
                 ON sr.id = bs.best_result_id
                 AND sr.sweep_run_id = bs.sweep_run_id
             WHERE sr.sweep_run_id = $1
             ORDER BY t.ticker, st.strategy_type, sr.score DESC
         """
-        
+
         try:
             if not self.db_manager._connection_pool:
                 raise RuntimeError("Database connection pool not initialized")
-            
+
             async with self.db_manager._connection_pool.acquire() as connection:
                 rows = await connection.fetch(query, str(sweep_run_id))
                 return [dict(row) for row in rows]
-        
+
         except Exception as e:
             logger.error(f"Failed to get results with best flag: {e}")
             raise
-

@@ -5,7 +5,6 @@ This module provides centralized TypedDict definitions for configuration
 across the mean reversion hammer strategy modules.
 """
 
-from typing import TypedDict
 
 from typing_extensions import NotRequired
 
@@ -15,9 +14,9 @@ from app.core.types.config import BaseStrategyConfig
 class PortfolioConfig(BaseStrategyConfig, total=False):
     """
     Configuration for mean reversion hammer strategy analysis.
-    
+
     Extends BaseStrategyConfig with hammer-specific parameter fields.
-    
+
     Hammer-Specific Fields:
         CHANGE_PCT_START (float): Starting percentage for Low-Close difference range
         CHANGE_PCT_END (float): Ending percentage for Low-Close difference range

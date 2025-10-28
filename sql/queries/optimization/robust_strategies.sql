@@ -6,7 +6,7 @@
 -- ============================================================================
 
 WITH param_performance AS (
-    SELECT 
+    SELECT
         sr.fast_period,
         sr.slow_period,
         st.strategy_type,
@@ -18,8 +18,8 @@ WITH param_performance AS (
         AVG(sr.sharpe_ratio) as avg_sharpe,
         AVG(sr.win_rate_pct) as avg_win_rate,
         -- Coefficient of variation (consistency across tickers)
-        CASE 
-            WHEN AVG(sr.score) > 0 
+        CASE
+            WHEN AVG(sr.score) > 0
             THEN STDDEV(sr.score) / AVG(sr.score)
             ELSE NULL
         END as cv,
@@ -34,7 +34,7 @@ WITH param_performance AS (
     GROUP BY sr.fast_period, sr.slow_period, st.strategy_type
     HAVING COUNT(DISTINCT sr.ticker_id) >= 3  -- Tested on at least 3 tickers
 )
-SELECT 
+SELECT
     fast_period,
     slow_period,
     strategy_type,
@@ -53,4 +53,3 @@ FROM param_performance
 WHERE cv IS NOT NULL
 ORDER BY robustness_score DESC
 LIMIT 20;
-

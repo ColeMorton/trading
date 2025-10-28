@@ -173,7 +173,12 @@ class ConfigValidator:
         Returns:
             Dictionary with validation results and suggestions
         """
-        result: dict[str, Any] = {"is_valid": True, "errors": [], "warnings": [], "suggestions": {}}
+        result: dict[str, Any] = {
+            "is_valid": True,
+            "errors": [],
+            "warnings": [],
+            "suggestions": {},
+        }
 
         # Validate required fields
         if not config.get("TICKER"):
@@ -448,17 +453,23 @@ def create_ma_config(**kwargs) -> MAConfig:
     return ConfigFactory.create_config("SMA", **kwargs)
 
 
-def create_macd_config(**kwargs) -> MAConfig | MACDConfig | MeanReversionConfig | RangeConfig:
+def create_macd_config(
+    **kwargs,
+) -> MAConfig | MACDConfig | MeanReversionConfig | RangeConfig:
     """Create MACD strategy configuration."""
     return ConfigFactory.create_config("MACD", **kwargs)
 
 
-def create_mean_reversion_config(**kwargs) -> MAConfig | MACDConfig | MeanReversionConfig | RangeConfig:
+def create_mean_reversion_config(
+    **kwargs,
+) -> MAConfig | MACDConfig | MeanReversionConfig | RangeConfig:
     """Create Mean Reversion strategy configuration."""
     return ConfigFactory.create_config("MEAN_REVERSION", **kwargs)
 
 
-def create_range_config(**kwargs) -> MAConfig | MACDConfig | MeanReversionConfig | RangeConfig:
+def create_range_config(
+    **kwargs,
+) -> MAConfig | MACDConfig | MeanReversionConfig | RangeConfig:
     """Create Range strategy configuration."""
     return ConfigFactory.create_config("RANGE", **kwargs)
 

@@ -211,7 +211,9 @@ print(f"GBM VaR: {gbm_var:.4f}")
 results_df = pl.DataFrame(
     {
         "Metric": ["Final Price Mean", "Final Price Std Dev", "VaR (95%)"],
-        "Merton Jump-Diffusion" if USE_MERTON else "GBM": [
+        "Merton Jump-Diffusion"
+        if USE_MERTON
+        else "GBM": [
             jd_final_prices.mean(),
             jd_final_prices.std(),
             jd_var,

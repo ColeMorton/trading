@@ -112,9 +112,9 @@ class TestMACrossStrategyPipeline(unittest.TestCase):
         # Manually set last price to create strong signal
         # Convert to pandas temporarily for easier manipulation, then back to Polars
         price_data_pandas = price_data.to_pandas()
-        price_data_pandas.iloc[-1, price_data_pandas.columns.get_loc("Close")] *= (
-            1.1  # 10% jump
-        )
+        price_data_pandas.iloc[
+            -1, price_data_pandas.columns.get_loc("Close")
+        ] *= 1.1  # 10% jump
         price_data = pl.from_pandas(price_data_pandas)
 
         mock_fetch.return_value = price_data

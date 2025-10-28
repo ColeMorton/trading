@@ -51,7 +51,7 @@ Complete navigation guide for the trading strategy analysis platform.
 ### Database
 
 - [Database Overview](docs/database/README.md) - Database documentation hub
-- [Database Schema](docs/database/SCHEMA.md) - Complete schema reference  
+- [Database Schema](docs/database/SCHEMA.md) - Complete schema reference
 - [Migration Changelog](docs/database/CHANGELOG.md) - Migration history
 - [SQL Views & Queries](sql/README.md) - 19 database views + queries
 

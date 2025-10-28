@@ -7,7 +7,6 @@ Confidence Level: 0.9
 Total Strategies: 2
 """
 
-import datetime
 
 import backtrader as bt
 
@@ -42,7 +41,7 @@ class NVDA_ASSET_DISTRIBUTION_NVDA_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for NVDA_ASSET_DISTRIBUTION_NVDA_D"
+                "Warning: Low reliability parameters for NVDA_ASSET_DISTRIBUTION_NVDA_D"
             )
 
     def next(self):
@@ -130,7 +129,7 @@ class MSFT_ASSET_DISTRIBUTION_MSFT_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for MSFT_ASSET_DISTRIBUTION_MSFT_D"
+                "Warning: Low reliability parameters for MSFT_ASSET_DISTRIBUTION_MSFT_D"
             )
 
     def next(self):

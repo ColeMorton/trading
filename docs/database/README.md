@@ -6,11 +6,11 @@ This directory contains comprehensive documentation for the PostgreSQL database 
 
 ## Current Database State
 
-**Database**: `trading_db`  
-**Current Migration**: 007 (head)  
-**Total Tables**: 10  
-**Total Views**: 19  
-**Total Records**: 4,855 strategy sweep results  
+**Database**: `trading_db`
+**Current Migration**: 007 (head)
+**Total Tables**: 10
+**Total Views**: 19
+**Total Records**: 4,855 strategy sweep results
 
 ## Quick Links
 
@@ -24,22 +24,26 @@ This directory contains comprehensive documentation for the PostgreSQL database 
 ### Core Tables
 
 #### Strategy Sweep Results
-**Table**: `strategy_sweep_results`  
-**Purpose**: Store comprehensive backtest results from parameter sweeps  
-**Columns**: 60+ performance metrics  
-**Records**: 4,855  
+
+**Table**: `strategy_sweep_results`
+**Purpose**: Store comprehensive backtest results from parameter sweeps
+**Columns**: 60+ performance metrics
+**Records**: 4,855
 **Key Relationships**:
+
 - `ticker_id` → `tickers.id` (normalized ticker reference)
 - `strategy_type_id` → `strategy_types.id` (normalized strategy type)
 - Many-to-many with `metric_types` via junction table
 
 #### Reference Tables (Normalization)
+
 - `tickers` - Unique ticker symbols (6 tickers)
 - `strategy_types` - Unique strategy types (1 type)
 - `metric_types` - Metric classifications (86 types)
 - `selection_algorithms` - Selection algorithms (5 algorithms)
 
 #### Tracking Tables
+
 - `sweep_best_selections` - Best portfolio per sweep+ticker+strategy
 - `strategy_sweep_result_metrics` - Junction table for metric classifications
 - `jobs` - API job tracking
@@ -50,6 +54,7 @@ This directory contains comprehensive documentation for the PostgreSQL database 
 Optimized views for common queries - see [SQL Views Documentation](../../sql/README.md)
 
 **Most Important Views:**
+
 - `v_best_by_sweep_and_ticker` - Best result per ticker per sweep
 - `v_best_results_per_sweep` - Best result + summary per sweep
 - `v_latest_best_results` - Latest sweep results
@@ -95,23 +100,27 @@ ORDER BY ticker;
 ## Schema Design Principles
 
 ### Normalization
+
 - ✅ Tickers normalized (foreign key reference)
 - ✅ Strategy types normalized (foreign key reference)
 - ✅ Metric types normalized (many-to-many)
 - ✅ No data duplication
 
 ### Referential Integrity
+
 - ✅ Foreign keys with CASCADE deletes
 - ✅ Unique constraints prevent duplicates
 - ✅ NOT NULL constraints on critical fields
 
 ### Performance
+
 - ✅ Indexes on all foreign keys
 - ✅ Composite indexes for common queries
 - ✅ Database views for complex aggregations
 - ✅ Query times < 100ms
 
 ### Extensibility
+
 - ✅ Easy to add new tickers
 - ✅ Easy to add new strategy types
 - ✅ Easy to add new metric classifications
@@ -156,7 +165,7 @@ alembic upgrade head
 ### Current Data (as of 2025-10-19)
 
 ```sql
-SELECT 
+SELECT
     COUNT(*) as total_results,
     COUNT(DISTINCT sweep_run_id) as sweep_runs,
     COUNT(DISTINCT ticker_id) as unique_tickers,
@@ -165,6 +174,7 @@ FROM strategy_sweep_results;
 ```
 
 **Results:**
+
 - Total Results: 4,855
 - Sweep Runs: 8
 - Unique Tickers: 6
@@ -181,6 +191,7 @@ LIMIT 5;
 ```
 
 **Top 5:**
+
 1. BKNG: 1.81 (72/76)
 2. BKNG: 1.79 (73/77)
 3. BKNG: 1.79 (73/76)
@@ -274,6 +285,7 @@ LIMIT 1;
 ## Support
 
 For detailed information:
+
 - Schema reference: [SCHEMA.md](./SCHEMA.md)
 - Migration history: [CHANGELOG.md](./CHANGELOG.md)
 - SQL queries: [../../sql/](../../sql/)
@@ -282,9 +294,9 @@ For detailed information:
 ## Summary
 
 The Trading Strategy Platform database provides:
+
 - ✅ Normalized, efficient schema
 - ✅ Comprehensive backtest data storage
 - ✅ 19 analytical views
 - ✅ Full migration history
 - ✅ Production-ready performance
-

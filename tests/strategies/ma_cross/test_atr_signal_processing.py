@@ -250,9 +250,9 @@ class TestHybridSignalGeneration:
         # Simulate a price spike and then decline for ATR exit testing
         mid_point = len(price_data) // 2
         price_data.loc[price_data.index[mid_point:], "Close"] *= 1.2  # 20% spike
-        price_data.loc[price_data.index[mid_point + 10 :], "Close"] *= (
-            0.85  # Then decline
-        )
+        price_data.loc[
+            price_data.index[mid_point + 10 :], "Close"
+        ] *= 0.85  # Then decline
 
         # Mock SMA signals with entry at the spike
         sma_result = price_data.copy()

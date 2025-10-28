@@ -1,7 +1,6 @@
 """Seasonality analysis command implementations."""
 
 from pathlib import Path
-from typing import Optional
 
 from rich import print as rprint
 from rich.console import Console
@@ -33,7 +32,8 @@ console = Console()
 
 @app.command()
 def run(
-    tickers: Optional[list[str]] = typer.Option(
+    tickers: list[str]
+    | None = typer.Option(
         None,
         "--ticker",
         "-t",
@@ -297,7 +297,8 @@ def clean():
 
 @app.command()
 def current(
-    tickers: Optional[list[str]] = typer.Option(
+    tickers: list[str]
+    | None = typer.Option(
         None,
         "--ticker",
         "-t",
@@ -434,7 +435,8 @@ def portfolio(
         "-d",
         help="Default time period in days when no signal entry exists",
     ),
-    time_period: Optional[int] = typer.Option(
+    time_period: int
+    | None = typer.Option(
         None,
         "--time-period",
         "-tp",

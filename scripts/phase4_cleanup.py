@@ -7,7 +7,6 @@ as identified in the SPDS consolidation analysis.
 """
 
 import os
-import sys
 from pathlib import Path
 
 
@@ -50,7 +49,7 @@ def remove_deprecated_files():
         if os.path.exists(file_path):
             # Count lines before removal
             try:
-                with open(file_path, "r") as f:
+                with open(file_path) as f:
                     lines = len(f.readlines())
                 total_lines_removed += lines
 
@@ -63,7 +62,7 @@ def remove_deprecated_files():
         else:
             print(f"⚠️  Not found: {file_path}")
 
-    print(f"\n📊 Cleanup Summary:")
+    print("\n📊 Cleanup Summary:")
     print(f"   Files removed: {removed_count}")
     print(f"   Lines of code removed: {total_lines_removed:,}")
     print(f"   Target files: {len(all_files_to_remove)}")
@@ -83,14 +82,14 @@ def update_imports():
         "app/tools/demo_simplified_interface.py",
     ]
 
-    print(f"\n🔧 Checking Import Dependencies:")
+    print("\n🔧 Checking Import Dependencies:")
     print("-" * 30)
 
     for file_path in files_to_check:
         if os.path.exists(file_path):
             print(f"📄 Checking: {file_path}")
             try:
-                with open(file_path, "r") as f:
+                with open(file_path) as f:
                     content = f.read()
 
                 # Check for references to removed modules
@@ -112,7 +111,7 @@ def update_imports():
                         needs_update = True
 
                 if not needs_update:
-                    print(f"   ✅ No deprecated imports found")
+                    print("   ✅ No deprecated imports found")
 
             except Exception as e:
                 print(f"   ❌ Error checking {file_path}: {e}")
@@ -137,11 +136,11 @@ def main():
     # Check for import dependencies
     update_imports()
 
-    print(f"\n🎯 Phase 4C Cleanup Results:")
+    print("\n🎯 Phase 4C Cleanup Results:")
     print(f"   ✅ Files removed: {removed_count}")
     print(f"   ✅ Lines removed: {total_lines:,}")
-    print(f"   ✅ Complexity reduction achieved")
-    print(f"   📋 Next: Update documentation references (Phase 4D)")
+    print("   ✅ Complexity reduction achieved")
+    print("   📋 Next: Update documentation references (Phase 4D)")
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 -- ============================================================================
 -- Description: Generate data for creating heatmaps of fast/slow period
 --              combinations showing average performance
--- 
+--
 -- Parameters:
 --   :ticker - (Optional) Filter by ticker
 --   :strategy_type - (Optional) Filter by strategy type
@@ -11,7 +11,7 @@
 -- Output: Grid data showing average score for each parameter combination
 -- ============================================================================
 
-SELECT 
+SELECT
     sr.fast_period,
     sr.slow_period,
     COUNT(*) as test_count,
@@ -35,4 +35,3 @@ ORDER BY sr.fast_period, sr.slow_period;
 -- Use this data to create visualizations like:
 -- - Heatmap with fast_period on X-axis, slow_period on Y-axis, color by avg_score
 -- - Contour plot showing optimal parameter regions
-

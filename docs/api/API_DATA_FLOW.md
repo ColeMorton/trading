@@ -9,7 +9,7 @@ This document explains how data flows through the Strategy Sweep API from reques
 Previously, when you initiated a strategy sweep via API:
 
 1. ✅ You could **start** a sweep analysis
-2. ✅ You could **monitor** job status  
+2. ✅ You could **monitor** job status
 3. ❌ You **couldn't get** the detailed backtest results via API
 4. ❌ Results were only accessible via CSV files or direct database queries
 
@@ -36,7 +36,7 @@ We've added **5 new endpoints** under `/api/v1/sweeps/` that provide complete ac
     }
                           │
                           ▼
-    Returns: { 
+    Returns: {
       "job_id": "123...",
       "status": "pending",
       "status_url": "/api/v1/jobs/123..."
@@ -58,7 +58,7 @@ We've added **5 new endpoints** under `/api/v1/sweeps/` that provide complete ac
                           ▼
     Job completes
     └─> Updates status: "completed"
-    └─> Sets result_data: { 
+    └─> Sets result_data: {
           "success": true,
           "sweep_run_id": "fbecc235-..."
         }
@@ -111,22 +111,27 @@ We've added **5 new endpoints** under `/api/v1/sweeps/` that provide complete ac
 ## Data Storage Layers
 
 ### 1. Jobs Table (API Metadata)
-**Purpose:** Track job execution and status  
-**Contains:** 
+
+**Purpose:** Track job execution and status
+**Contains:**
+
 - Job status (pending/running/completed/failed)
 - Progress percentage
 - Summary output
 - ❌ **NOT** detailed backtest metrics
 
 ### 2. Strategy Sweep Results Table (Detailed Data) ⭐ **NEW ACCESS**
-**Purpose:** Store all backtest results with full metrics  
+
+**Purpose:** Store all backtest results with full metrics
 **Contains:**
+
 - Every parameter combination tested
 - All performance metrics (60+ fields)
 - Normalized references (ticker_id, strategy_type_id)
 - Query-optimized structure
 
 **Now Accessible Via:**
+
 - `GET /api/v1/sweeps/{sweep_run_id}` - All results
 - `GET /api/v1/sweeps/{sweep_run_id}/best` - Best result
 - `GET /api/v1/sweeps/latest` - Latest sweep results
@@ -138,21 +143,21 @@ We've added **5 new endpoints** under `/api/v1/sweeps/` that provide complete ac
 
 ### Core Endpoints
 
-| Endpoint | Purpose | Use When |
-|----------|---------|----------|
-| `GET /sweeps/` | List all sweeps | Browse available sweeps |
-| `GET /sweeps/latest` | Latest results | Quick access to recent data |
-| `GET /sweeps/{id}` | All results | Need complete dataset |
-| `GET /sweeps/{id}/best` ⭐ | Best result | **Most common use case** |
-| `GET /sweeps/{id}/best-per-ticker` | Best per ticker | Multi-ticker analysis |
+| Endpoint                           | Purpose         | Use When                    |
+| ---------------------------------- | --------------- | --------------------------- |
+| `GET /sweeps/`                     | List all sweeps | Browse available sweeps     |
+| `GET /sweeps/latest`               | Latest results  | Quick access to recent data |
+| `GET /sweeps/{id}`                 | All results     | Need complete dataset       |
+| `GET /sweeps/{id}/best` ⭐         | Best result     | **Most common use case**    |
+| `GET /sweeps/{id}/best-per-ticker` | Best per ticker | Multi-ticker analysis       |
 
 ### Features
 
-✅ **Filtering**: By ticker symbol  
-✅ **Pagination**: limit/offset for large datasets  
-✅ **Full Metrics**: All 60+ backtest fields  
-✅ **Optimized**: Uses database views for performance  
-✅ **Typed**: Pydantic schemas for validation  
+✅ **Filtering**: By ticker symbol
+✅ **Pagination**: limit/offset for large datasets
+✅ **Full Metrics**: All 60+ backtest fields
+✅ **Optimized**: Uses database views for performance
+✅ **Typed**: Pydantic schemas for validation
 
 ---
 
@@ -197,17 +202,21 @@ print(f"Optimal params: {best_result['results'][0]['fast_period']}/{best_result[
 ## Key Improvements
 
 ### 1. Complete API Workflow
+
 - Start sweep → Monitor job → **Get results** (previously missing)
 
 ### 2. Automatic Database Persistence
+
 - API sweeps now automatically use `--database` flag
 - Results always saved to database for API access
 
 ### 3. Optimized Queries
+
 - Uses pre-built database views
 - Sub-100ms query times for best results
 
 ### 4. Developer-Friendly
+
 - RESTful design
 - Comprehensive documentation
 - Python client example included
@@ -222,7 +231,7 @@ print(f"Optimal params: {best_result['results'][0]['fast_period']}/{best_result[
 We leverage 19 database views created earlier:
 
 - `v_best_by_sweep_and_ticker` - Best result per ticker per sweep
-- `v_best_results_per_sweep` - Overall best per sweep  
+- `v_best_results_per_sweep` - Overall best per sweep
 - `v_latest_best_results` - Latest sweep results
 - `v_sweep_run_summary` - Sweep statistics
 - Plus 15 more analytical views
@@ -239,6 +248,7 @@ Added 4 new Pydantic models:
 ### Router Architecture
 
 New router: `/app/api/routers/sweeps.py`
+
 - 5 endpoints
 - Full CRUD operations for sweep results
 - Integrated with existing auth/security
@@ -249,22 +259,25 @@ New router: `/app/api/routers/sweeps.py`
 ## Benefits
 
 ### For API Users
-✅ Complete programmatic access to results  
-✅ No need to parse CSV files  
-✅ Structured, validated JSON responses  
-✅ Efficient pagination and filtering  
+
+✅ Complete programmatic access to results
+✅ No need to parse CSV files
+✅ Structured, validated JSON responses
+✅ Efficient pagination and filtering
 
 ### For Developers
-✅ Type-safe with Pydantic schemas  
-✅ Auto-generated API documentation  
-✅ Leverages existing database views  
-✅ Consistent error handling  
+
+✅ Type-safe with Pydantic schemas
+✅ Auto-generated API documentation
+✅ Leverages existing database views
+✅ Consistent error handling
 
 ### For Operations
-✅ Database-backed (reliable, queryable)  
-✅ Normalized schema (consistent, efficient)  
-✅ Indexed for performance  
-✅ Supports analytics at scale  
+
+✅ Database-backed (reliable, queryable)
+✅ Normalized schema (consistent, efficient)
+✅ Indexed for performance
+✅ Supports analytics at scale
 
 ---
 
@@ -293,6 +306,7 @@ New router: `/app/api/routers/sweeps.py`
 ## Examples
 
 See [SWEEP_RESULTS_API.md](./SWEEP_RESULTS_API.md) for:
+
 - Detailed endpoint documentation
 - Request/response examples
 - Python client implementation
@@ -309,4 +323,3 @@ The Sweep Results API completes the missing piece in the data flow. You can now:
 3. ✅ **Get detailed results via API** (NEW!)
 
 All through a consistent, well-documented REST API.
-

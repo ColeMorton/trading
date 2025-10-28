@@ -1412,9 +1412,9 @@ class StrategyDispatcher:
 
                     # Add global progress allocation for accurate multi-ticker progress
                     if hasattr(single_config, "__dict__"):
-                        single_config.__dict__["_GLOBAL_PROGRESS_PER_TICKER"] = (
-                            global_progress_per_ticker
-                        )
+                        single_config.__dict__[
+                            "_GLOBAL_PROGRESS_PER_TICKER"
+                        ] = global_progress_per_ticker
                     else:
                         # Fallback for dict-like configs
                         single_config._GLOBAL_PROGRESS_PER_TICKER = (
@@ -1777,9 +1777,9 @@ class StrategyDispatcher:
         if config.minimums.trades is not None:
             legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
         if config.minimums.expectancy_per_trade is not None:
-            legacy_config["MINIMUMS"]["EXPECTANCY_PER_TRADE"] = (
-                config.minimums.expectancy_per_trade
-            )
+            legacy_config["MINIMUMS"][
+                "EXPECTANCY_PER_TRADE"
+            ] = config.minimums.expectancy_per_trade
         if config.minimums.profit_factor is not None:
             legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
         if config.minimums.sortino_ratio is not None:

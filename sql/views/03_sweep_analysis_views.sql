@@ -11,7 +11,7 @@
 -- ============================================================================
 CREATE OR REPLACE VIEW v_sweep_run_summary AS
 WITH sweep_basics AS (
-    SELECT 
+    SELECT
         sr.sweep_run_id,
         MIN(sr.created_at) as run_date,
         COUNT(*) as result_count,
@@ -22,7 +22,7 @@ WITH sweep_basics AS (
     GROUP BY sr.sweep_run_id
 ),
 sweep_performance AS (
-    SELECT 
+    SELECT
         sr.sweep_run_id,
         AVG(sr.score) as avg_score,
         STDDEV(sr.score) as stddev_score,
@@ -51,7 +51,7 @@ best_in_sweep AS (
     JOIN strategy_types st ON sr.strategy_type_id = st.id
     ORDER BY sr.sweep_run_id, sr.score DESC
 )
-SELECT 
+SELECT
     sb.sweep_run_id,
     sb.run_date,
     sb.result_count,
@@ -78,7 +78,7 @@ JOIN sweep_performance sp ON sb.sweep_run_id = sp.sweep_run_id
 JOIN best_in_sweep bis ON sb.sweep_run_id = bis.sweep_run_id
 ORDER BY sb.run_date DESC;
 
-COMMENT ON VIEW v_sweep_run_summary IS 
+COMMENT ON VIEW v_sweep_run_summary IS
 'Comprehensive summary statistics for each sweep run including best performer and distribution metrics.';
 
 -- ============================================================================
@@ -88,7 +88,7 @@ COMMENT ON VIEW v_sweep_run_summary IS
 -- ============================================================================
 CREATE OR REPLACE VIEW v_sweep_comparison AS
 WITH sweep_metrics AS (
-    SELECT 
+    SELECT
         sr.sweep_run_id,
         sr.ticker_id,
         t.ticker,
@@ -106,23 +106,23 @@ WITH sweep_metrics AS (
     GROUP BY sr.sweep_run_id, sr.ticker_id, t.ticker, sr.strategy_type_id, st.strategy_type
 ),
 sweep_with_prev AS (
-    SELECT 
+    SELECT
         *,
         LAG(best_score) OVER (
-            PARTITION BY ticker_id, strategy_type_id 
+            PARTITION BY ticker_id, strategy_type_id
             ORDER BY run_date
         ) as prev_best_score,
         LAG(run_date) OVER (
-            PARTITION BY ticker_id, strategy_type_id 
+            PARTITION BY ticker_id, strategy_type_id
             ORDER BY run_date
         ) as prev_run_date,
         ROW_NUMBER() OVER (
-            PARTITION BY ticker_id, strategy_type_id 
+            PARTITION BY ticker_id, strategy_type_id
             ORDER BY run_date DESC
         ) as recency_rank
     FROM sweep_metrics
 )
-SELECT 
+SELECT
     sweep_run_id,
     run_date,
     ticker,
@@ -134,17 +134,17 @@ SELECT
     result_count,
     prev_best_score,
     prev_run_date,
-    CASE 
-        WHEN prev_best_score IS NOT NULL 
+    CASE
+        WHEN prev_best_score IS NOT NULL
         THEN best_score - prev_best_score
         ELSE NULL
     END as score_change,
-    CASE 
+    CASE
         WHEN prev_best_score IS NOT NULL AND prev_best_score > 0
         THEN ((best_score - prev_best_score) / prev_best_score) * 100
         ELSE NULL
     END as score_change_pct,
-    CASE 
+    CASE
         WHEN prev_run_date IS NOT NULL
         THEN run_date - prev_run_date
         ELSE NULL
@@ -153,7 +153,7 @@ SELECT
 FROM sweep_with_prev
 ORDER BY run_date DESC, best_score DESC;
 
-COMMENT ON VIEW v_sweep_comparison IS 
+COMMENT ON VIEW v_sweep_comparison IS
 'Compare sweep runs over time showing score changes and trends per ticker/strategy combination.';
 
 -- ============================================================================
@@ -178,7 +178,7 @@ WITH best_params_per_sweep AS (
     JOIN strategy_types st ON sr.strategy_type_id = st.id
     ORDER BY sr.sweep_run_id, sr.ticker_id, sr.strategy_type_id, sr.score DESC
 )
-SELECT 
+SELECT
     sweep_run_id,
     run_date,
     ticker,
@@ -189,25 +189,25 @@ SELECT
     score,
     sharpe_ratio,
     LAG(fast_period) OVER (
-        PARTITION BY ticker, strategy_type 
+        PARTITION BY ticker, strategy_type
         ORDER BY run_date
     ) as prev_fast_period,
     LAG(slow_period) OVER (
-        PARTITION BY ticker, strategy_type 
+        PARTITION BY ticker, strategy_type
         ORDER BY run_date
     ) as prev_slow_period,
     LAG(score) OVER (
-        PARTITION BY ticker, strategy_type 
+        PARTITION BY ticker, strategy_type
         ORDER BY run_date
     ) as prev_score,
     ROW_NUMBER() OVER (
-        PARTITION BY ticker, strategy_type 
+        PARTITION BY ticker, strategy_type
         ORDER BY run_date
     ) as sweep_number
 FROM best_params_per_sweep
 ORDER BY ticker, strategy_type, run_date DESC;
 
-COMMENT ON VIEW v_parameter_evolution IS 
+COMMENT ON VIEW v_parameter_evolution IS
 'Track how optimal parameter values change across successive sweep runs for each ticker/strategy.';
 
 -- ============================================================================
@@ -216,7 +216,7 @@ COMMENT ON VIEW v_parameter_evolution IS
 -- Purpose: Analyze parameter space coverage in each sweep
 -- ============================================================================
 CREATE OR REPLACE VIEW v_sweep_coverage AS
-SELECT 
+SELECT
     sr.sweep_run_id,
     MIN(sr.created_at) as run_date,
     COUNT(DISTINCT sr.ticker_id) as tickers_tested,
@@ -228,7 +228,7 @@ SELECT
     COUNT(DISTINCT (sr.fast_period, sr.slow_period)) as unique_param_combinations,
     COUNT(*) as total_tests,
     ROUND(
-        COUNT(*) / NULLIF(COUNT(DISTINCT (sr.fast_period, sr.slow_period)), 0)::numeric, 
+        COUNT(*) / NULLIF(COUNT(DISTINCT (sr.fast_period, sr.slow_period)), 0)::numeric,
         2
     ) as avg_tests_per_combination
 FROM strategy_sweep_results sr
@@ -236,6 +236,5 @@ JOIN strategy_types st ON sr.strategy_type_id = st.id
 GROUP BY sr.sweep_run_id
 ORDER BY run_date DESC;
 
-COMMENT ON VIEW v_sweep_coverage IS 
+COMMENT ON VIEW v_sweep_coverage IS
 'Analyze parameter space coverage and test distribution for each sweep run.';
-

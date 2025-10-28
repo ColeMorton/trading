@@ -6,8 +6,9 @@ Verifies that the updated CLI works with the new SPDSAnalysisEngine.
 """
 
 import asyncio
-import sys
 from pathlib import Path
+import sys
+
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -59,10 +60,10 @@ async def test_cli_integration():
         result = await cli.run(test_args)
         print(f"   List portfolios result: {result}")
 
-        print(f"\n🎉 CLI Integration Tests Completed!")
-        print(f"   ✅ All major CLI functions working")
-        print(f"   🏗️ New architecture integrated successfully")
-        print(f"   📊 Ready for production use")
+        print("\n🎉 CLI Integration Tests Completed!")
+        print("   ✅ All major CLI functions working")
+        print("   🏗️ New architecture integrated successfully")
+        print("   📊 Ready for production use")
 
         return True
 
@@ -76,7 +77,7 @@ async def test_cli_integration():
 
 async def test_analysis_commands():
     """Test analysis commands specifically."""
-    print(f"\n🎯 Testing Analysis Commands")
+    print("\n🎯 Testing Analysis Commands")
     print("-" * 40)
 
     try:
@@ -110,7 +111,7 @@ async def test_analysis_commands():
         else:
             print("   Skipping - demo file not found")
 
-        print(f"\n✅ Analysis command tests completed")
+        print("\n✅ Analysis command tests completed")
         return True
 
     except Exception as e:
@@ -130,17 +131,17 @@ async def main():
     analysis_success = await test_analysis_commands() if basic_success else False
 
     # Summary
-    print(f"\n📊 Test Summary")
+    print("\n📊 Test Summary")
     print(f"   Basic Integration: {'✅' if basic_success else '❌'}")
     print(f"   Analysis Commands: {'✅' if analysis_success else '❌'}")
 
     if basic_success and analysis_success:
-        print(f"\n🎯 CLI Integration Successful!")
-        print(f"   Ready to update CLI commands to use new architecture")
-        print(f"   Architecture simplified: 5-layer → 3-layer")
-        print(f"   Performance: Maintained while reducing complexity")
+        print("\n🎯 CLI Integration Successful!")
+        print("   Ready to update CLI commands to use new architecture")
+        print("   Architecture simplified: 5-layer → 3-layer")
+        print("   Performance: Maintained while reducing complexity")
     else:
-        print(f"\n⚠️ Some tests failed - review before deployment")
+        print("\n⚠️ Some tests failed - review before deployment")
 
 
 if __name__ == "__main__":

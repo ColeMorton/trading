@@ -56,9 +56,7 @@ def run_comprehensive_tests():
     print("=" * 70)
     print(f"⏱️  Total execution time: {end_time - start_time:.2f} seconds")
     print(f"🧪 Tests run: {result.testsRun}")
-    print(
-        f"✅ Successes: {result.testsRun - len(result.failures) - len(result.errors)}"
-    )
+    print(f"✅ Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
     print(f"❌ Failures: {len(result.failures)}")
     print(f"💥 Errors: {len(result.errors)}")
     print(f"⏭️  Skipped: {len(result.skipped) if hasattr(result, 'skipped') else 0}")

@@ -7,17 +7,17 @@ to validate performance improvements.
 """
 
 import asyncio
+from dataclasses import dataclass
 import json
+from pathlib import Path
 
 # Add project root to path
 import sys
 import time
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Dict, List
 
 import numpy as np
 import pandas as pd
+
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -25,6 +25,7 @@ from rich.console import Console
 from rich.table import Table
 
 from app.tools.spds_analysis_engine import AnalysisRequest, SPDSAnalysisEngine
+
 
 console = Console()
 
@@ -47,7 +48,7 @@ class ArchitectureComparison:
     """Compare old vs new SPDS architectures."""
 
     def __init__(self):
-        self.results: List[BenchmarkComparison] = []
+        self.results: list[BenchmarkComparison] = []
         self.portfolio_dir = Path("data/raw/positions")
         self.portfolio_dir.mkdir(parents=True, exist_ok=True)
 
@@ -140,7 +141,7 @@ class ArchitectureComparison:
             console.print(f"[red]Old architecture failed: {e}[/red]")
             return time.time() - start_time, False
 
-    async def run_comparison(self, sizes: List[int] = [100, 500, 1000]):
+    async def run_comparison(self, sizes: list[int] = [100, 500, 1000]):
         """Run comprehensive comparison."""
         console.print("[bold]⚡ Comparing SPDS Architectures[/bold]")
         console.print("-" * 50)
@@ -198,7 +199,7 @@ class ArchitectureComparison:
                     f"  [green]✅ New architecture succeeded in {new_time:.2f}s[/green]"
                 )
             else:
-                console.print(f"  [red]❌ Both architectures failed[/red]")
+                console.print("  [red]❌ Both architectures failed[/red]")
 
         # Display comprehensive results
         self.display_results()
@@ -249,7 +250,7 @@ class ArchitectureComparison:
                 successful_comparisons
             )
 
-            console.print(f"\n[bold]📈 Summary Statistics[/bold]")
+            console.print("\n[bold]📈 Summary Statistics[/bold]")
             console.print(f"Average old architecture time: {avg_old_time:.2f}s")
             console.print(f"Average new architecture time: {avg_new_time:.2f}s")
             console.print(f"Average speedup: {avg_speedup:.1f}x")
@@ -264,12 +265,12 @@ class ArchitectureComparison:
                 )
 
         # Architecture complexity comparison
-        console.print(f"\n[bold]🏗️ Architecture Complexity[/bold]")
+        console.print("\n[bold]🏗️ Architecture Complexity[/bold]")
         console.print(
-            f"Old architecture: 5 layers (CLI → Config → Service → Analysis → Export)"
+            "Old architecture: 5 layers (CLI → Config → Service → Analysis → Export)"
         )
-        console.print(f"New architecture: 3 layers (CLI → AnalysisEngine → Results)")
-        console.print(f"Complexity reduction: 40% (5 → 3 layers)")
+        console.print("New architecture: 3 layers (CLI → AnalysisEngine → Results)")
+        console.print("Complexity reduction: 40% (5 → 3 layers)")
 
     def save_results(self):
         """Save comparison results."""
@@ -312,7 +313,7 @@ class ArchitectureComparison:
             json.dump(results_data, f, indent=2)
 
         console.print(
-            f"\n[green]💾 Results saved to: architecture_comparison.json[/green]"
+            "\n[green]💾 Results saved to: architecture_comparison.json[/green]"
         )
 
 

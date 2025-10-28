@@ -3,7 +3,7 @@
 -- ============================================================================
 -- Description: Get the best performing strategy for a specific ticker in a
 --              specific sweep run. This is the most common operational query.
--- 
+--
 -- Parameters:
 --   :sweep_run_id - UUID of the sweep run
 --   :ticker - Ticker symbol (e.g., 'AAPL')
@@ -12,7 +12,7 @@
 --   Replace :sweep_run_id and :ticker with actual values
 -- ============================================================================
 
-SELECT 
+SELECT
     sr.id,
     sr.sweep_run_id,
     sr.created_at as run_date,
@@ -47,4 +47,3 @@ LIMIT 1;
 -- Example usage:
 -- WHERE sr.sweep_run_id = 'fbecc235-07c9-4ae3-b5df-9df1017b2b1d'
 --   AND t.ticker = 'AAPL'
-

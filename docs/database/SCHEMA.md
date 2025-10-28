@@ -38,20 +38,22 @@ tickers ←──┐
 
 Reference table for metric type classifications.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | SERIAL | Primary key, auto-incremented |
-| `name` | VARCHAR(100) | Unique metric type name (e.g., "Most Sharpe Ratio") |
-| `category` | VARCHAR(50) | Category grouping (risk, return, trade, timing, composite) |
-| `description` | TEXT | Human-readable description of the metric type |
-| `created_at` | TIMESTAMP | When the record was created |
+| Column        | Type         | Description                                                |
+| ------------- | ------------ | ---------------------------------------------------------- |
+| `id`          | SERIAL       | Primary key, auto-incremented                              |
+| `name`        | VARCHAR(100) | Unique metric type name (e.g., "Most Sharpe Ratio")        |
+| `category`    | VARCHAR(50)  | Category grouping (risk, return, trade, timing, composite) |
+| `description` | TEXT         | Human-readable description of the metric type              |
+| `created_at`  | TIMESTAMP    | When the record was created                                |
 
 **Indexes:**
+
 - `ix_metric_types_name` - Fast lookups by name
 - `ix_metric_types_category` - Filter by category
 
 **Pre-populated Data:**
 The table is seeded with ~90 standard metric classifications including:
+
 - Return Metrics: Most/Median/Mean Total Return [%], Annualized Return
 - Risk Metrics: Most/Median/Mean Sharpe Ratio, Sortino Ratio, Calmar Ratio, Omega Ratio
 - Trade Statistics: Most/Median/Mean Total Trades, Win Rate [%], Profit Factor
@@ -62,17 +64,19 @@ The table is seeded with ~90 standard metric classifications including:
 
 Junction table linking sweep results to their metric type classifications.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | SERIAL | Primary key, auto-incremented |
-| `sweep_result_id` | UUID | Foreign key to strategy_sweep_results.id (CASCADE delete) |
-| `metric_type_id` | INTEGER | Foreign key to metric_types.id |
-| `created_at` | TIMESTAMP | When the association was created |
+| Column            | Type      | Description                                               |
+| ----------------- | --------- | --------------------------------------------------------- |
+| `id`              | SERIAL    | Primary key, auto-incremented                             |
+| `sweep_result_id` | UUID      | Foreign key to strategy_sweep_results.id (CASCADE delete) |
+| `metric_type_id`  | INTEGER   | Foreign key to metric_types.id                            |
+| `created_at`      | TIMESTAMP | When the association was created                          |
 
 **Constraints:**
+
 - `uq_sweep_result_metric` - UNIQUE(sweep_result_id, metric_type_id) prevents duplicates
 
 **Indexes:**
+
 - `ix_sweep_result_metrics_result` - Fast lookups by result
 - `ix_sweep_result_metrics_type` - Fast lookups by metric type
 
@@ -80,20 +84,22 @@ Junction table linking sweep results to their metric type classifications.
 
 Reference table for selection algorithm definitions.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | SERIAL | Primary key, auto-incremented |
-| `algorithm_code` | VARCHAR(50) | Unique algorithm code (e.g., "top_3_all_match") |
-| `algorithm_name` | VARCHAR(100) | Human-readable algorithm name |
-| `description` | TEXT | Description of the algorithm |
-| `min_confidence` | NUMERIC(5,2) | Minimum confidence score (0-100) |
-| `max_confidence` | NUMERIC(5,2) | Maximum confidence score (0-100) |
+| Column           | Type         | Description                                     |
+| ---------------- | ------------ | ----------------------------------------------- |
+| `id`             | SERIAL       | Primary key, auto-incremented                   |
+| `algorithm_code` | VARCHAR(50)  | Unique algorithm code (e.g., "top_3_all_match") |
+| `algorithm_name` | VARCHAR(100) | Human-readable algorithm name                   |
+| `description`    | TEXT         | Description of the algorithm                    |
+| `min_confidence` | NUMERIC(5,2) | Minimum confidence score (0-100)                |
+| `max_confidence` | NUMERIC(5,2) | Maximum confidence score (0-100)                |
 
 **Indexes:**
+
 - `ix_selection_algorithms_code` - Fast lookups by code
 
 **Pre-populated Data:**
 The table is seeded with 5 standard selection algorithms:
+
 - `top_3_all_match`: All top 3 results have same parameters (100% confidence)
 - `top_5_3_of_5`: 3 out of top 5 match (60-80% confidence)
 - `top_8_5_of_8`: 5 out of top 8 match (62.5-75% confidence)
@@ -104,30 +110,32 @@ The table is seeded with 5 standard selection algorithms:
 
 Tracks the "best" portfolio selection for each sweep_run + ticker + strategy combination.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | SERIAL | Primary key, auto-incremented |
-| `sweep_run_id` | UUID | Foreign key to sweep run |
-| `ticker_id` | INTEGER | Foreign key to tickers.id |
-| `strategy_type` | VARCHAR(50) | Strategy type (SMA, EMA, MACD, ATR) |
-| `best_result_id` | UUID | Foreign key to strategy_sweep_results.id (CASCADE delete) |
-| `selection_algorithm` | VARCHAR(50) | Algorithm used for selection |
-| `selection_criteria` | VARCHAR(100) | Specific criteria matched (e.g., "top_3_all_match") |
-| `confidence_score` | NUMERIC(5,2) | Confidence in selection (0-100) |
-| `alternatives_considered` | INTEGER | Number of alternatives analyzed |
-| `winning_fast_period` | INTEGER | Fast period of selected result |
-| `winning_slow_period` | INTEGER | Slow period of selected result |
-| `winning_signal_period` | INTEGER | Signal period (for MACD) |
-| `result_score` | NUMERIC(20,8) | Snapshot of result score |
-| `result_sharpe_ratio` | NUMERIC(20,8) | Snapshot of Sharpe ratio |
-| `result_total_return_pct` | NUMERIC(10,4) | Snapshot of total return % |
-| `result_win_rate_pct` | NUMERIC(10,4) | Snapshot of win rate % |
-| `created_at` | TIMESTAMP | When selection was computed |
+| Column                    | Type          | Description                                               |
+| ------------------------- | ------------- | --------------------------------------------------------- |
+| `id`                      | SERIAL        | Primary key, auto-incremented                             |
+| `sweep_run_id`            | UUID          | Foreign key to sweep run                                  |
+| `ticker_id`               | INTEGER       | Foreign key to tickers.id                                 |
+| `strategy_type`           | VARCHAR(50)   | Strategy type (SMA, EMA, MACD, ATR)                       |
+| `best_result_id`          | UUID          | Foreign key to strategy_sweep_results.id (CASCADE delete) |
+| `selection_algorithm`     | VARCHAR(50)   | Algorithm used for selection                              |
+| `selection_criteria`      | VARCHAR(100)  | Specific criteria matched (e.g., "top_3_all_match")       |
+| `confidence_score`        | NUMERIC(5,2)  | Confidence in selection (0-100)                           |
+| `alternatives_considered` | INTEGER       | Number of alternatives analyzed                           |
+| `winning_fast_period`     | INTEGER       | Fast period of selected result                            |
+| `winning_slow_period`     | INTEGER       | Slow period of selected result                            |
+| `winning_signal_period`   | INTEGER       | Signal period (for MACD)                                  |
+| `result_score`            | NUMERIC(20,8) | Snapshot of result score                                  |
+| `result_sharpe_ratio`     | NUMERIC(20,8) | Snapshot of Sharpe ratio                                  |
+| `result_total_return_pct` | NUMERIC(10,4) | Snapshot of total return %                                |
+| `result_win_rate_pct`     | NUMERIC(10,4) | Snapshot of win rate %                                    |
+| `created_at`              | TIMESTAMP     | When selection was computed                               |
 
 **Constraints:**
+
 - `uq_best_selection_per_sweep_ticker_strategy` - UNIQUE(sweep_run_id, ticker_id, strategy_type)
 
 **Indexes:**
+
 - `ix_sweep_best_selections_sweep_run_id` - Filter by sweep run
 - `ix_sweep_best_selections_best_result_id` - Link to result
 - `ix_sweep_best_selections_ticker_id` - Filter by ticker
@@ -137,98 +145,98 @@ Tracks the "best" portfolio selection for each sweep_run + ticker + strategy com
 
 ### Primary Key and Metadata
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | UUID | Primary key, auto-generated |
-| `sweep_run_id` | UUID | Groups all results from the same sweep execution |
-| `created_at` | TIMESTAMP | When the record was created |
-| `sweep_config` | JSONB | Full sweep configuration (tickers, parameters, filters) |
+| Column         | Type      | Description                                             |
+| -------------- | --------- | ------------------------------------------------------- |
+| `id`           | UUID      | Primary key, auto-generated                             |
+| `sweep_run_id` | UUID      | Groups all results from the same sweep execution        |
+| `created_at`   | TIMESTAMP | When the record was created                             |
+| `sweep_config` | JSONB     | Full sweep configuration (tickers, parameters, filters) |
 
 ### Core Strategy Parameters
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `ticker` | VARCHAR(50) | Asset symbol (e.g., "AAPL", "BTC-USD") |
-| `strategy_type` | VARCHAR(50) | Strategy type (SMA, EMA, MACD, ATR) |
-| `fast_period` | INTEGER | Fast moving average period |
-| `slow_period` | INTEGER | Slow moving average period |
-| `signal_period` | INTEGER | Signal period (MACD only) |
+| Column          | Type        | Description                            |
+| --------------- | ----------- | -------------------------------------- |
+| `ticker`        | VARCHAR(50) | Asset symbol (e.g., "AAPL", "BTC-USD") |
+| `strategy_type` | VARCHAR(50) | Strategy type (SMA, EMA, MACD, ATR)    |
+| `fast_period`   | INTEGER     | Fast moving average period             |
+| `slow_period`   | INTEGER     | Slow moving average period             |
+| `signal_period` | INTEGER     | Signal period (MACD only)              |
 
 ### Signal Information
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `signal_entry` | VARCHAR(50) | Entry signal type |
-| `signal_exit` | VARCHAR(50) | Exit signal type |
+| Column               | Type        | Description        |
+| -------------------- | ----------- | ------------------ |
+| `signal_entry`       | VARCHAR(50) | Entry signal type  |
+| `signal_exit`        | VARCHAR(50) | Exit signal type   |
 | `signal_unconfirmed` | VARCHAR(50) | Unconfirmed signal |
 
 ### Trade Statistics
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `total_open_trades` | INTEGER | Currently open positions |
-| `total_trades` | INTEGER | Total trades executed |
-| `score` | NUMERIC(20,8) | Composite performance score |
+| Column              | Type          | Description                 |
+| ------------------- | ------------- | --------------------------- |
+| `total_open_trades` | INTEGER       | Currently open positions    |
+| `total_trades`      | INTEGER       | Total trades executed       |
+| `score`             | NUMERIC(20,8) | Composite performance score |
 
 ### Performance Metrics
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `win_rate_pct` | NUMERIC(10,4) | Percentage of profitable trades |
-| `profit_factor` | NUMERIC(20,8) | Ratio of gross profit to gross loss |
-| `expectancy_per_trade` | NUMERIC(20,8) | Expected profit per trade |
-| `sortino_ratio` | NUMERIC(20,8) | Risk-adjusted return using downside deviation |
-| `beats_bnh_pct` | NUMERIC(10,4) | Performance vs buy-and-hold |
+| Column                 | Type          | Description                                   |
+| ---------------------- | ------------- | --------------------------------------------- |
+| `win_rate_pct`         | NUMERIC(10,4) | Percentage of profitable trades               |
+| `profit_factor`        | NUMERIC(20,8) | Ratio of gross profit to gross loss           |
+| `expectancy_per_trade` | NUMERIC(20,8) | Expected profit per trade                     |
+| `sortino_ratio`        | NUMERIC(20,8) | Risk-adjusted return using downside deviation |
+| `beats_bnh_pct`        | NUMERIC(10,4) | Performance vs buy-and-hold                   |
 
 ### Timing Metrics
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `avg_trade_duration` | VARCHAR(50) | Average holding period (e.g., "5 days 3:30:00") |
-| `trades_per_day` | NUMERIC(20,8) | Average trades per trading day |
-| `trades_per_month` | NUMERIC(20,8) | Average trades per month |
-| `signals_per_month` | NUMERIC(20,8) | Average signals per month |
-| `expectancy_per_month` | NUMERIC(20,8) | Expected profit per month |
+| Column                 | Type          | Description                                     |
+| ---------------------- | ------------- | ----------------------------------------------- |
+| `avg_trade_duration`   | VARCHAR(50)   | Average holding period (e.g., "5 days 3:30:00") |
+| `trades_per_day`       | NUMERIC(20,8) | Average trades per trading day                  |
+| `trades_per_month`     | NUMERIC(20,8) | Average trades per month                        |
+| `signals_per_month`    | NUMERIC(20,8) | Average signals per month                       |
+| `expectancy_per_month` | NUMERIC(20,8) | Expected profit per month                       |
 
 ### Portfolio Values
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `start_value` | NUMERIC(20,2) | Initial portfolio value |
-| `end_value` | NUMERIC(20,2) | Final portfolio value |
-| `total_return_pct` | NUMERIC(10,4) | Total return percentage |
-| `benchmark_return_pct` | NUMERIC(10,4) | Benchmark comparison return |
-| `max_gross_exposure_pct` | NUMERIC(10,4) | Maximum gross exposure |
+| Column                   | Type          | Description                 |
+| ------------------------ | ------------- | --------------------------- |
+| `start_value`            | NUMERIC(20,2) | Initial portfolio value     |
+| `end_value`              | NUMERIC(20,2) | Final portfolio value       |
+| `total_return_pct`       | NUMERIC(10,4) | Total return percentage     |
+| `benchmark_return_pct`   | NUMERIC(10,4) | Benchmark comparison return |
+| `max_gross_exposure_pct` | NUMERIC(10,4) | Maximum gross exposure      |
 
 ### Risk Metrics
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `max_drawdown_pct` | NUMERIC(10,4) | Maximum drawdown percentage |
-| `sharpe_ratio` | NUMERIC(20,8) | Risk-adjusted return ratio |
-| `calmar_ratio` | NUMERIC(20,8) | Return to maximum drawdown ratio |
-| `skew` | NUMERIC(20,8) | Distribution skewness of returns |
-| `kurtosis` | NUMERIC(20,8) | Distribution kurtosis of returns |
-| `value_at_risk` | NUMERIC(20,8) | Value at Risk (VaR) measure |
-| `annualized_volatility` | NUMERIC(20,8) | Annualized volatility measure |
+| Column                  | Type          | Description                      |
+| ----------------------- | ------------- | -------------------------------- |
+| `max_drawdown_pct`      | NUMERIC(10,4) | Maximum drawdown percentage      |
+| `sharpe_ratio`          | NUMERIC(20,8) | Risk-adjusted return ratio       |
+| `calmar_ratio`          | NUMERIC(20,8) | Return to maximum drawdown ratio |
+| `skew`                  | NUMERIC(20,8) | Distribution skewness of returns |
+| `kurtosis`              | NUMERIC(20,8) | Distribution kurtosis of returns |
+| `value_at_risk`         | NUMERIC(20,8) | Value at Risk (VaR) measure      |
+| `annualized_volatility` | NUMERIC(20,8) | Annualized volatility measure    |
 
 ### Trade Analysis
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `best_trade_pct` | NUMERIC(10,4) | Largest winning trade percentage |
-| `worst_trade_pct` | NUMERIC(10,4) | Largest losing trade percentage |
+| Column                  | Type          | Description                      |
+| ----------------------- | ------------- | -------------------------------- |
+| `best_trade_pct`        | NUMERIC(10,4) | Largest winning trade percentage |
+| `worst_trade_pct`       | NUMERIC(10,4) | Largest losing trade percentage  |
 | `avg_winning_trade_pct` | NUMERIC(10,4) | Average winning trade percentage |
-| `avg_losing_trade_pct` | NUMERIC(10,4) | Average losing trade percentage |
+| `avg_losing_trade_pct`  | NUMERIC(10,4) | Average losing trade percentage  |
 
 ### Extended Schema Fields
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `allocation_pct` | NUMERIC(10,4) | Portfolio allocation percentage |
-| `stop_loss_pct` | NUMERIC(10,4) | Stop loss threshold percentage |
-| `last_position_open_date` | VARCHAR(50) | Last position open date |
-| `last_position_close_date` | VARCHAR(50) | Last position close date |
+| Column                     | Type          | Description                     |
+| -------------------------- | ------------- | ------------------------------- |
+| `allocation_pct`           | NUMERIC(10,4) | Portfolio allocation percentage |
+| `stop_loss_pct`            | NUMERIC(10,4) | Stop loss threshold percentage  |
+| `last_position_open_date`  | VARCHAR(50)   | Last position open date         |
+| `last_position_close_date` | VARCHAR(50)   | Last position close date        |
 
 ## Indexes
 
@@ -259,7 +267,7 @@ trading-cli strategy sweep --ticker BTC-USD --db
 #### Get all results from a specific sweep run
 
 ```sql
-SELECT 
+SELECT
     ticker,
     strategy_type,
     fast_period,
@@ -278,7 +286,7 @@ ORDER BY score DESC;
 
 ```sql
 WITH ranked_strategies AS (
-    SELECT 
+    SELECT
         ticker,
         strategy_type,
         fast_period,
@@ -299,7 +307,7 @@ WHERE rank = 1;
 #### Compare strategy performance across tickers
 
 ```sql
-SELECT 
+SELECT
     ticker,
     strategy_type,
     COUNT(*) as configurations_tested,
@@ -316,7 +324,7 @@ ORDER BY best_score DESC;
 #### Find recent sweep runs
 
 ```sql
-SELECT 
+SELECT
     sweep_run_id,
     MIN(created_at) as sweep_start,
     COUNT(*) as result_count,
@@ -332,7 +340,7 @@ LIMIT 10;
 #### Analyze parameter sensitivity
 
 ```sql
-SELECT 
+SELECT
     ticker,
     fast_period,
     slow_period,
@@ -340,7 +348,7 @@ SELECT
     AVG(sharpe_ratio) as avg_sharpe,
     COUNT(*) as sample_size
 FROM strategy_sweep_results
-WHERE 
+WHERE
     sweep_run_id = 'your-sweep-run-id-here'
     AND strategy_type = 'SMA'
     AND total_trades >= 20
@@ -352,6 +360,7 @@ ORDER BY avg_sharpe DESC;
 ### Query Examples with Metric Types (NEW)
 
 #### Get all available metric types
+
 ```sql
 SELECT id, name, category, description
 FROM metric_types
@@ -359,8 +368,9 @@ ORDER BY category, name;
 ```
 
 #### Find all results classified as "Most Sharpe Ratio"
+
 ```sql
-SELECT 
+SELECT
     sr.ticker,
     sr.strategy_type,
     sr.fast_period,
@@ -378,8 +388,9 @@ ORDER BY sr.score DESC;
 ```
 
 #### Get sweep results with all their metric types (aggregated)
+
 ```sql
-SELECT 
+SELECT
     sr.id,
     sr.ticker,
     sr.strategy_type,
@@ -399,9 +410,10 @@ ORDER BY sr.score DESC;
 ```
 
 #### Find results with multiple metric classifications
+
 ```sql
-SELECT 
-    sr.ticker, 
+SELECT
+    sr.ticker,
     sr.strategy_type,
     sr.score,
     STRING_AGG(mt.name, ', ' ORDER BY mt.name) as classifications,
@@ -416,8 +428,9 @@ ORDER BY classification_count DESC, sr.score DESC;
 ```
 
 #### Find most common metric type classifications
+
 ```sql
-SELECT 
+SELECT
     mt.name,
     mt.category,
     COUNT(srm.id) as usage_count,
@@ -432,9 +445,10 @@ LIMIT 20;
 ```
 
 #### Find top performers across multiple metrics
+
 ```sql
 -- Results classified with 3+ metric types indicate multi-metric excellence
-SELECT 
+SELECT
     sr.ticker,
     sr.strategy_type,
     sr.fast_period,
@@ -455,8 +469,9 @@ ORDER BY metric_count DESC, sr.score DESC;
 ```
 
 #### Analyze metric type distribution by category
+
 ```sql
-SELECT 
+SELECT
     mt.category,
     COUNT(DISTINCT mt.id) as unique_metrics,
     COUNT(srm.id) as total_assignments,
@@ -472,7 +487,7 @@ ORDER BY total_assignments DESC;
 #### Get all best selections for a sweep
 
 ```sql
-SELECT 
+SELECT
     t.ticker,
     bs.strategy_type,
     bs.selection_criteria,
@@ -498,7 +513,7 @@ ORDER BY bs.confidence_score DESC, sr.score DESC;
 #### Compare best vs all results with indicator
 
 ```sql
-SELECT 
+SELECT
     t.ticker,
     sr.strategy_type,
     sr.fast_period,
@@ -506,7 +521,7 @@ SELECT
     sr.score,
     sr.sharpe_ratio,
     sr.total_return_pct,
-    CASE 
+    CASE
         WHEN bs.best_result_id IS NOT NULL THEN '⭐ BEST'
         ELSE ''
     END as best_indicator,
@@ -514,7 +529,7 @@ SELECT
     bs.confidence_score
 FROM strategy_sweep_results sr
 JOIN tickers t ON sr.ticker_id = t.id
-LEFT JOIN sweep_best_selections bs 
+LEFT JOIN sweep_best_selections bs
     ON sr.id = bs.best_result_id
     AND sr.sweep_run_id = bs.sweep_run_id
 WHERE sr.sweep_run_id = 'your-sweep-run-id'
@@ -524,7 +539,7 @@ ORDER BY t.ticker, sr.strategy_type, sr.score DESC;
 #### Get best result for specific ticker and strategy
 
 ```sql
-SELECT 
+SELECT
     t.ticker,
     bs.strategy_type,
     bs.winning_fast_period,
@@ -544,7 +559,7 @@ WHERE bs.sweep_run_id = 'your-sweep-run-id'
 
 ```sql
 -- See which algorithms are most commonly used
-SELECT 
+SELECT
     bs.selection_criteria,
     COUNT(*) as usage_count,
     AVG(bs.confidence_score) as avg_confidence,
@@ -559,7 +574,7 @@ ORDER BY usage_count DESC;
 
 ```sql
 -- Get best selections with 100% confidence (perfect parameter match)
-SELECT 
+SELECT
     t.ticker,
     bs.strategy_type,
     bs.selection_criteria,
@@ -579,7 +594,7 @@ ORDER BY bs.result_score DESC;
 
 ```sql
 -- See how "best" selections evolved across multiple sweeps
-SELECT 
+SELECT
     bs.sweep_run_id,
     bs.created_at,
     bs.winning_fast_period,
@@ -608,6 +623,7 @@ The composite index on `(ticker, strategy_type)` enables efficient filtering for
 ### JSONB Configuration Storage
 
 The `sweep_config` column uses PostgreSQL's JSONB type for flexible storage of sweep parameters. This enables:
+
 - Efficient storage without schema changes
 - Query capabilities using JSONB operators
 - Full reproducibility of sweep runs
@@ -660,4 +676,3 @@ Database persistence is **complementary** to CSV exports:
 - **Database**: Structured querying, analysis, historical comparison
 
 Both are created when using the `--database` flag. CSV files remain the primary source of truth for detailed analysis.
-

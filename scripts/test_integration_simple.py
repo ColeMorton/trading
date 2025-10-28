@@ -6,8 +6,9 @@ Tests basic functionality without pytest dependency.
 """
 
 import asyncio
-import sys
 from pathlib import Path
+import sys
+
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -89,11 +90,11 @@ async def test_basic_functionality():
             print(f"   Risk Level: {sample_result.exit_signal.risk_level}")
             print("   ✅ Result structure validated")
 
-        print(f"\n🎉 All integration tests passed!")
-        print(f"   - Engine creation: ✅")
-        print(f"   - Strategy analysis: ✅")
-        print(f"   - Portfolio analysis: ✅")
-        print(f"   - Result validation: ✅")
+        print("\n🎉 All integration tests passed!")
+        print("   - Engine creation: ✅")
+        print("   - Strategy analysis: ✅")
+        print("   - Portfolio analysis: ✅")
+        print("   - Result validation: ✅")
 
         return True
 
@@ -169,15 +170,15 @@ async def main():
     perf_success = await test_performance() if basic_success else False
 
     # Summary
-    print(f"\n📊 Test Summary")
+    print("\n📊 Test Summary")
     print(f"   Basic functionality: {'✅' if basic_success else '❌'}")
     print(f"   Performance: {'✅' if perf_success else '❌'}")
 
     if basic_success and perf_success:
-        print(f"\n🎯 Integration tests completed successfully!")
-        print(f"   New SPDSAnalysisEngine is ready for CLI integration")
+        print("\n🎯 Integration tests completed successfully!")
+        print("   New SPDSAnalysisEngine is ready for CLI integration")
     else:
-        print(f"\n⚠️ Some tests failed - review before CLI integration")
+        print("\n⚠️ Some tests failed - review before CLI integration")
 
 
 if __name__ == "__main__":

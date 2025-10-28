@@ -10,7 +10,7 @@
 -- Purpose: Show strategies grouped by their metric type classifications
 -- ============================================================================
 CREATE OR REPLACE VIEW v_strategies_by_metric_type AS
-SELECT 
+SELECT
     mt.id as metric_type_id,
     mt.name as metric_type_name,
     mt.category as metric_category,
@@ -32,7 +32,7 @@ JOIN tickers t ON sr.ticker_id = t.id
 JOIN strategy_types st ON sr.strategy_type_id = st.id
 ORDER BY mt.category, mt.name, sr.score DESC;
 
-COMMENT ON VIEW v_strategies_by_metric_type IS 
+COMMENT ON VIEW v_strategies_by_metric_type IS
 'Strategies grouped by their assigned metric type classifications (e.g., "Most Sharpe Ratio").';
 
 -- ============================================================================
@@ -41,7 +41,7 @@ COMMENT ON VIEW v_strategies_by_metric_type IS
 -- Purpose: Summary statistics for each metric type
 -- ============================================================================
 CREATE OR REPLACE VIEW v_metric_type_summary AS
-SELECT 
+SELECT
     mt.id,
     mt.name,
     mt.category,
@@ -59,7 +59,7 @@ LEFT JOIN strategy_sweep_results sr ON srm.sweep_result_id = sr.id
 GROUP BY mt.id, mt.name, mt.category, mt.description
 ORDER BY assigned_strategy_count DESC NULLS LAST, mt.category, mt.name;
 
-COMMENT ON VIEW v_metric_type_summary IS 
+COMMENT ON VIEW v_metric_type_summary IS
 'Summary statistics showing how many strategies have been assigned each metric type classification.';
 
 -- ============================================================================
@@ -69,7 +69,7 @@ COMMENT ON VIEW v_metric_type_summary IS
 -- ============================================================================
 CREATE OR REPLACE VIEW v_metric_leaders_by_category AS
 WITH ranked_by_metric AS (
-    SELECT 
+    SELECT
         mt.id as metric_type_id,
         mt.name as metric_type_name,
         mt.category,
@@ -82,7 +82,7 @@ WITH ranked_by_metric AS (
         sr.total_return_pct,
         sr.sweep_run_id,
         ROW_NUMBER() OVER (
-            PARTITION BY mt.id 
+            PARTITION BY mt.id
             ORDER BY sr.score DESC
         ) as rank_in_metric
     FROM metric_types mt
@@ -91,7 +91,7 @@ WITH ranked_by_metric AS (
     JOIN tickers t ON sr.ticker_id = t.id
     JOIN strategy_types st ON sr.strategy_type_id = st.id
 )
-SELECT 
+SELECT
     metric_type_id,
     metric_type_name,
     category,
@@ -107,6 +107,5 @@ FROM ranked_by_metric
 WHERE rank_in_metric = 1
 ORDER BY category, score DESC;
 
-COMMENT ON VIEW v_metric_leaders_by_category IS 
+COMMENT ON VIEW v_metric_leaders_by_category IS
 'The single best performing strategy for each metric type classification.';
-

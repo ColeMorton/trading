@@ -7,7 +7,6 @@ Confidence Level: 0.9
 Total Strategies: 1
 """
 
-import datetime
 
 import backtrader as bt
 
@@ -42,7 +41,7 @@ class CDW_ASSET_DISTRIBUTION_CDW_DExitStrategy(bt.Strategy):
         # Validate parameters
         if self.params.statistical_validity == "LOW":
             print(
-                f"Warning: Low reliability parameters for CDW_ASSET_DISTRIBUTION_CDW_D"
+                "Warning: Low reliability parameters for CDW_ASSET_DISTRIBUTION_CDW_D"
             )
 
     def next(self):

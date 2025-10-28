@@ -7,12 +7,47 @@ Confidence Level: 0.9
 Total Strategies: 3
 """
 
-import vectorbt as vbt
-import pandas as pd
-import numpy as np
 
 # Statistical analysis-derived parameters
-exit_parameters = {'SMCI_ASSET_DISTRIBUTION_SMCI_D': {'take_profit': 0.15, 'stop_loss': 0.08, 'max_holding_days': 30, 'trailing_stop': 0.0794, 'min_holding_days': 5, 'momentum_exit_threshold': 0.03571180555555555, 'trend_exit_threshold': 0.015, 'confidence_level': 0.9, 'sample_size': 344, 'statistical_validity': 'HIGH'}, 'NVDA_ASSET_DISTRIBUTION_NVDA_D': {'take_profit': 0.15, 'stop_loss': 0.08, 'max_holding_days': 30, 'trailing_stop': 0.037200000000000004, 'min_holding_days': 5, 'momentum_exit_threshold': 0.03571180555555555, 'trend_exit_threshold': 0.015, 'confidence_level': 0.9, 'sample_size': 344, 'statistical_validity': 'HIGH'}, 'MA_ASSET_DISTRIBUTION_MA_D': {'take_profit': 0.15, 'stop_loss': 0.08, 'max_holding_days': 30, 'trailing_stop': 0.0327, 'min_holding_days': 5, 'momentum_exit_threshold': 0.03571180555555555, 'trend_exit_threshold': 0.015, 'confidence_level': 0.9, 'sample_size': 344, 'statistical_validity': 'HIGH'}}
+exit_parameters = {
+    "SMCI_ASSET_DISTRIBUTION_SMCI_D": {
+        "take_profit": 0.15,
+        "stop_loss": 0.08,
+        "max_holding_days": 30,
+        "trailing_stop": 0.0794,
+        "min_holding_days": 5,
+        "momentum_exit_threshold": 0.03571180555555555,
+        "trend_exit_threshold": 0.015,
+        "confidence_level": 0.9,
+        "sample_size": 344,
+        "statistical_validity": "HIGH",
+    },
+    "NVDA_ASSET_DISTRIBUTION_NVDA_D": {
+        "take_profit": 0.15,
+        "stop_loss": 0.08,
+        "max_holding_days": 30,
+        "trailing_stop": 0.037200000000000004,
+        "min_holding_days": 5,
+        "momentum_exit_threshold": 0.03571180555555555,
+        "trend_exit_threshold": 0.015,
+        "confidence_level": 0.9,
+        "sample_size": 344,
+        "statistical_validity": "HIGH",
+    },
+    "MA_ASSET_DISTRIBUTION_MA_D": {
+        "take_profit": 0.15,
+        "stop_loss": 0.08,
+        "max_holding_days": 30,
+        "trailing_stop": 0.0327,
+        "min_holding_days": 5,
+        "momentum_exit_threshold": 0.03571180555555555,
+        "trend_exit_threshold": 0.015,
+        "confidence_level": 0.9,
+        "sample_size": 344,
+        "statistical_validity": "HIGH",
+    },
+}
+
 
 # Parameter validation function
 def validate_parameters(strategy_key):
@@ -21,15 +56,15 @@ def validate_parameters(strategy_key):
         return False, "Strategy not found"
 
     params = exit_parameters[strategy_key]
-    sample_size = params.get('sample_size', 0)
-    validity = params.get('statistical_validity', 'LOW')
+    sample_size = params.get("sample_size", 0)
+    validity = params.get("statistical_validity", "LOW")
 
-    if validity == 'HIGH':
+    if validity == "HIGH":
         return True, "High reliability parameters"
-    elif validity == 'MEDIUM':
+    if validity == "MEDIUM":
         return True, "Medium reliability parameters - use with caution"
-    else:
-        return False, "Low reliability parameters - not recommended"
+    return False, "Low reliability parameters - not recommended"
+
 
 # Example usage
 def apply_exit_rules(strategy_key, data):
@@ -45,20 +80,23 @@ def apply_exit_rules(strategy_key, data):
         print(f"Warning: {message}")
 
     # Apply exit rules
-    entries = data['entries']  # Your entry signals
+    entries = data["entries"]  # Your entry signals
 
     # Create exit conditions
-    take_profit_exits = data['close'] >= data['entry_price'] * (1 + params['take_profit'])
-    stop_loss_exits = data['close'] <= data['entry_price'] * (1 - params['stop_loss'])
+    take_profit_exits = data["close"] >= data["entry_price"] * (
+        1 + params["take_profit"]
+    )
+    stop_loss_exits = data["close"] <= data["entry_price"] * (1 - params["stop_loss"])
 
     # Combine exit conditions
     exits = take_profit_exits | stop_loss_exits
 
     return entries, exits
 
+
 # Framework compatibility validation
 framework_compatibility = {
-    'vectorbt_version': '>=0.25.0',
-    'parameter_format': 'dictionary',
-    'validation_status': 'PASSED'
+    "vectorbt_version": ">=0.25.0",
+    "parameter_format": "dictionary",
+    "validation_status": "PASSED",
 }

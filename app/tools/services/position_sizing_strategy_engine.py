@@ -603,9 +603,9 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
             strategies_count = (
                 self.position_sizing.strategies_integration.get_total_strategies_count()
             )
-            validation_results["components_status"]["strategies_integration"] = (
-                "operational"
-            )
+            validation_results["components_status"][
+                "strategies_integration"
+            ] = "operational"
 
             dashboard = self.position_sizing.get_dashboard_data()
             validation_results["components_status"]["orchestrator"] = "operational"

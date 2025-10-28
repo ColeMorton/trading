@@ -10,7 +10,7 @@
 -- Purpose: Analyze trade frequency vs performance
 -- ============================================================================
 CREATE OR REPLACE VIEW v_trade_efficiency_analysis AS
-SELECT 
+SELECT
     sr.id,
     t.ticker,
     st.strategy_type,
@@ -29,25 +29,25 @@ SELECT
     sr.score,
     sr.sharpe_ratio,
     -- Efficiency score: performance per trade
-    CASE 
-        WHEN sr.total_trades > 0 
+    CASE
+        WHEN sr.total_trades > 0
         THEN sr.score / sr.total_trades
         ELSE NULL
     END as score_per_trade,
     -- Monthly efficiency: performance per trading month
-    CASE 
-        WHEN sr.trades_per_month > 0 
+    CASE
+        WHEN sr.trades_per_month > 0
         THEN sr.score / sr.trades_per_month
         ELSE NULL
     END as score_per_trading_month,
     -- Risk-adjusted efficiency
-    CASE 
+    CASE
         WHEN sr.total_trades > 0 AND sr.sharpe_ratio IS NOT NULL
         THEN sr.sharpe_ratio / sr.total_trades
         ELSE NULL
     END as sharpe_per_trade,
     -- Trade frequency category
-    CASE 
+    CASE
         WHEN sr.trades_per_month >= 20 THEN 'Very High Frequency'
         WHEN sr.trades_per_month >= 10 THEN 'High Frequency'
         WHEN sr.trades_per_month >= 5 THEN 'Medium Frequency'
@@ -60,7 +60,7 @@ JOIN strategy_types st ON sr.strategy_type_id = st.id
 WHERE sr.total_trades IS NOT NULL
 ORDER BY sr.score DESC;
 
-COMMENT ON VIEW v_trade_efficiency_analysis IS 
+COMMENT ON VIEW v_trade_efficiency_analysis IS
 'Analyze trading efficiency metrics including trades per month, score per trade, and frequency categorization.';
 
 -- ============================================================================
@@ -69,7 +69,7 @@ COMMENT ON VIEW v_trade_efficiency_analysis IS
 -- Purpose: Detailed win rate analysis with categorization
 -- ============================================================================
 CREATE OR REPLACE VIEW v_win_rate_analysis AS
-SELECT 
+SELECT
     sr.id,
     t.ticker,
     st.strategy_type,
@@ -89,13 +89,13 @@ SELECT
     sr.avg_losing_trade_duration,
     sr.score,
     -- Win/Loss ratio
-    CASE 
+    CASE
         WHEN sr.avg_losing_trade_pct IS NOT NULL AND sr.avg_losing_trade_pct != 0
         THEN sr.avg_winning_trade_pct / ABS(sr.avg_losing_trade_pct)
         ELSE NULL
     END as win_loss_ratio,
     -- Win rate category
-    CASE 
+    CASE
         WHEN sr.win_rate_pct >= 70 THEN 'Excellent (>=70%)'
         WHEN sr.win_rate_pct >= 60 THEN 'Very Good (60-70%)'
         WHEN sr.win_rate_pct >= 50 THEN 'Good (50-60%)'
@@ -103,7 +103,7 @@ SELECT
         ELSE 'Needs Improvement (<40%)'
     END as win_rate_category,
     -- Trade quality score (combines win rate and profit factor)
-    CASE 
+    CASE
         WHEN sr.profit_factor IS NOT NULL
         THEN (sr.win_rate_pct / 100.0) * sr.profit_factor
         ELSE NULL
@@ -114,7 +114,7 @@ JOIN strategy_types st ON sr.strategy_type_id = st.id
 WHERE sr.win_rate_pct IS NOT NULL
 ORDER BY sr.score DESC;
 
-COMMENT ON VIEW v_win_rate_analysis IS 
+COMMENT ON VIEW v_win_rate_analysis IS
 'Detailed win rate analysis with categorization, win/loss ratios, and trade quality metrics.';
 
 -- ============================================================================
@@ -123,7 +123,7 @@ COMMENT ON VIEW v_win_rate_analysis IS
 -- Purpose: Analyze holding periods and their relationship to performance
 -- ============================================================================
 CREATE OR REPLACE VIEW v_trade_duration_analysis AS
-SELECT 
+SELECT
     sr.id,
     t.ticker,
     st.strategy_type,
@@ -141,13 +141,13 @@ SELECT
     sr.sharpe_ratio,
     -- Extract numeric values from duration strings if possible
     -- Note: This assumes duration format like "5 days" or "2 days 3:30:00"
-    CASE 
+    CASE
         WHEN sr.avg_trade_duration ~ '^\d+ day'
         THEN CAST(SPLIT_PART(sr.avg_trade_duration, ' ', 1) AS INTEGER)
         ELSE NULL
     END as avg_trade_days,
     -- Duration efficiency: score per day held
-    CASE 
+    CASE
         WHEN sr.avg_trade_duration ~ '^\d+ day'
         THEN sr.score / NULLIF(CAST(SPLIT_PART(sr.avg_trade_duration, ' ', 1) AS INTEGER), 0)
         ELSE NULL
@@ -158,7 +158,7 @@ JOIN strategy_types st ON sr.strategy_type_id = st.id
 WHERE sr.avg_trade_duration IS NOT NULL
 ORDER BY sr.score DESC;
 
-COMMENT ON VIEW v_trade_duration_analysis IS 
+COMMENT ON VIEW v_trade_duration_analysis IS
 'Analyze trade holding periods and their relationship to performance metrics.';
 
 -- ============================================================================
@@ -167,7 +167,7 @@ COMMENT ON VIEW v_trade_duration_analysis IS
 -- Purpose: Deep dive into expectancy metrics
 -- ============================================================================
 CREATE OR REPLACE VIEW v_expectancy_analysis AS
-SELECT 
+SELECT
     sr.id,
     t.ticker,
     st.strategy_type,
@@ -184,19 +184,19 @@ SELECT
     sr.score,
     sr.total_return_pct,
     -- Annualized expectancy estimate
-    CASE 
+    CASE
         WHEN sr.expectancy_per_month IS NOT NULL
         THEN sr.expectancy_per_month * 12
         ELSE NULL
     END as annualized_expectancy,
     -- Expectancy quality (expectancy relative to volatility)
-    CASE 
+    CASE
         WHEN sr.expectancy_per_trade IS NOT NULL AND sr.profit_factor IS NOT NULL
         THEN sr.expectancy_per_trade * sr.profit_factor
         ELSE NULL
     END as expectancy_quality,
     -- Categorize expectancy
-    CASE 
+    CASE
         WHEN sr.expectancy_per_trade >= 5 THEN 'Excellent (>=5)'
         WHEN sr.expectancy_per_trade >= 2 THEN 'Very Good (2-5)'
         WHEN sr.expectancy_per_trade >= 1 THEN 'Good (1-2)'
@@ -210,6 +210,5 @@ JOIN strategy_types st ON sr.strategy_type_id = st.id
 WHERE sr.expectancy_per_trade IS NOT NULL
 ORDER BY sr.expectancy_per_trade DESC;
 
-COMMENT ON VIEW v_expectancy_analysis IS 
+COMMENT ON VIEW v_expectancy_analysis IS
 'Deep analysis of expectancy metrics including per-trade, per-month, and annualized expectations.';
-

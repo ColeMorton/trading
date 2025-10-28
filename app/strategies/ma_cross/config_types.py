@@ -90,7 +90,7 @@ class HeatmapConfig(TypedDict, total=False):
 class Config(BaseStrategyConfig, total=False):
     """
     Configuration type definition for MA cross strategy analysis.
-    
+
     Extends BaseStrategyConfig with MA-specific parameter fields.
 
     MA-Specific Fields:

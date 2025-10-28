@@ -7,11 +7,11 @@ hardcoded strategy blocks for the Strategy Breadth Oscillator indicator,
 following the best practices identified in the error resolution process.
 """
 
+from collections import defaultdict
 import csv
+from datetime import datetime
 import os
 import sys
-from collections import defaultdict
-from datetime import datetime
 
 
 def generate_hardcoded_strategies(csv_path, ticker_filter=None):
@@ -33,7 +33,7 @@ def generate_hardcoded_strategies(csv_path, ticker_filter=None):
     ticker_strategy_counts = defaultdict(int)
 
     # Read strategies from CSV
-    with open(csv_path, "r") as file:
+    with open(csv_path) as file:
         reader = csv.DictReader(file)
         for i, row in enumerate(reader):
             ticker = row.get("Ticker", "ALL")
@@ -272,7 +272,7 @@ if barstate.islast
     table.cell(infoTable, 1, 1, str.tostring(math.round(strategyPercentage)) + "%", bgcolor=color.new(#121212, 90), text_color=oscillatorColor)
 """
     else:
-        with open(template_path, "r") as f:
+        with open(template_path) as f:
             template = f.read()
 
     # Generate ticker counts string
@@ -327,12 +327,12 @@ def interactive_update(csv_path, pine_script_path, ticker_filter=None):
         backup_path = (
             f"{pine_script_path}.bak.{datetime.now().strftime('%Y%m%d%H%M%S')}"
         )
-        with open(pine_script_path, "r") as f_in, open(backup_path, "w") as f_out:
+        with open(pine_script_path) as f_in, open(backup_path, "w") as f_out:
             f_out.write(f_in.read())
         print(f"Created backup: {backup_path}")
 
         # Read Pine script
-        with open(pine_script_path, "r") as f:
+        with open(pine_script_path) as f:
             pine_script = f.read()
 
         # Find and replace strategy blocks

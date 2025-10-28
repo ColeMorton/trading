@@ -543,9 +543,9 @@ class UnifiedMetricsCalculator:
                     # Use CSV value as the correction
                     if ticker in corrected_metrics.get("ticker_metrics", {}):
                         metric_key = discrepancy.metric_name
-                        corrected_metrics["ticker_metrics"][ticker][metric_key] = (
-                            discrepancy.csv_value
-                        )
+                        corrected_metrics["ticker_metrics"][ticker][
+                            metric_key
+                        ] = discrepancy.csv_value
                         corrections_applied += 1
 
         if corrections_applied > 0 and log:
@@ -702,9 +702,9 @@ def export_unified_metrics(
             }
 
             if include_validation:
-                export_data["validation_results"] = (
-                    calculation_result.validation_results
-                )
+                export_data[
+                    "validation_results"
+                ] = calculation_result.validation_results
                 if calculation_result.reconciliation_report:
                     # Convert reconciliation report to dict
                     export_data["reconciliation_summary"] = {

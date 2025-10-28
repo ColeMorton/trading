@@ -1,9 +1,9 @@
 -- ============================================================================
 -- Find Best Overall Result for Sweep Run
 -- ============================================================================
--- Description: Get the single best performing strategy across all tickers 
+-- Description: Get the single best performing strategy across all tickers
 --              in a specific sweep run.
--- 
+--
 -- Parameters:
 --   :sweep_run_id - UUID of the sweep run
 --
@@ -11,7 +11,7 @@
 --   Replace :sweep_run_id with actual value
 -- ============================================================================
 
-SELECT 
+SELECT
     sr.id,
     sr.sweep_run_id,
     sr.created_at as run_date,
@@ -41,4 +41,3 @@ LIMIT 1;
 
 -- Example usage:
 -- WHERE sr.sweep_run_id = 'fbecc235-07c9-4ae3-b5df-9df1017b2b1d'
-

@@ -5,7 +5,6 @@ This module provides centralized TypedDict definitions for configuration
 across the mean reversion RSI strategy modules.
 """
 
-from typing import TypedDict
 
 from typing_extensions import NotRequired
 
@@ -15,9 +14,9 @@ from app.core.types.config import BaseStrategyConfig
 class PortfolioConfig(BaseStrategyConfig, total=False):
     """
     Configuration for mean reversion RSI strategy analysis.
-    
+
     Extends BaseStrategyConfig with mean reversion RSI-specific parameter fields.
-    
+
     Mean Reversion RSI-Specific Fields:
         CHANGE_PCT_START (float): Starting percentage for price change range
         CHANGE_PCT_END (float): Ending percentage for price change range

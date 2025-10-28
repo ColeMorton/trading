@@ -5,10 +5,10 @@ Provides fixtures for testing API endpoints including authentication,
 database seeding, and mock data.
 """
 
+from datetime import datetime
+from uuid import UUID, uuid4
+
 import pytest
-from uuid import uuid4, UUID
-from datetime import datetime, timedelta
-from typing import AsyncGenerator
 
 
 # Test API key
@@ -19,7 +19,9 @@ TEST_API_KEY = "dev-key-000000000000000000000000"
 def api_client():
     """FastAPI test client."""
     from fastapi.testclient import TestClient
+
     from app.api.main import app
+
     return TestClient(app)
 
 
@@ -72,7 +74,7 @@ def sample_sweep_data():
                 "trades_per_month": 3.2,
                 "avg_trade_duration": "8 days 12:30:00",
             }
-        ]
+        ],
     }
 
 
@@ -104,7 +106,7 @@ def multiple_ticker_sweep_data():
                 "score": 1.28,
                 "sharpe_ratio": 0.81,
             },
-        ]
+        ],
     }
 
 
@@ -137,20 +139,34 @@ def expected_response_fields():
     """Expected fields in various response types."""
     return {
         "sweep_summary": [
-            "sweep_run_id", "run_date", "result_count", "ticker_count",
-            "avg_score", "max_score", "best_ticker", "best_score"
+            "sweep_run_id",
+            "run_date",
+            "result_count",
+            "ticker_count",
+            "avg_score",
+            "max_score",
+            "best_ticker",
+            "best_score",
         ],
         "sweep_result_detail": [
-            "result_id", "ticker", "strategy_type", "fast_period",
-            "slow_period", "score", "sharpe_ratio", "total_return_pct"
+            "result_id",
+            "ticker",
+            "strategy_type",
+            "fast_period",
+            "slow_period",
+            "score",
+            "sharpe_ratio",
+            "total_return_pct",
         ],
         "sweep_results": [
-            "sweep_run_id", "total_count", "returned_count",
-            "offset", "limit", "results"
+            "sweep_run_id",
+            "total_count",
+            "returned_count",
+            "offset",
+            "limit",
+            "results",
         ],
-        "best_results": [
-            "sweep_run_id", "run_date", "total_results", "results"
-        ]
+        "best_results": ["sweep_run_id", "run_date", "total_results", "results"],
     }
 
 
@@ -175,4 +191,3 @@ def invalid_uuids():
         "abc-def-ghi",
         "00000000-0000-0000-0000",  # Too short
     ]
-

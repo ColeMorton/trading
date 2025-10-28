@@ -7,7 +7,6 @@ Confidence Level: 0.9
 Total Strategies: 6
 """
 
-import datetime
 
 import backtrader as bt
 
@@ -41,7 +40,7 @@ class MA_SMA_78_82_MA_DExitStrategy(bt.Strategy):
 
         # Validate parameters
         if self.params.statistical_validity == "LOW":
-            print(f"Warning: Low reliability parameters for MA_SMA_78_82_MA_D")
+            print("Warning: Low reliability parameters for MA_SMA_78_82_MA_D")
 
     def next(self):
         if self.position:
@@ -127,7 +126,7 @@ class WELL_SMA_67_88_WELL_DExitStrategy(bt.Strategy):
 
         # Validate parameters
         if self.params.statistical_validity == "LOW":
-            print(f"Warning: Low reliability parameters for WELL_SMA_67_88_WELL_D")
+            print("Warning: Low reliability parameters for WELL_SMA_67_88_WELL_D")
 
     def next(self):
         if self.position:
@@ -213,7 +212,7 @@ class SMCI_SMA_58_60_SMCI_DExitStrategy(bt.Strategy):
 
         # Validate parameters
         if self.params.statistical_validity == "LOW":
-            print(f"Warning: Low reliability parameters for SMCI_SMA_58_60_SMCI_D")
+            print("Warning: Low reliability parameters for SMCI_SMA_58_60_SMCI_D")
 
     def next(self):
         if self.position:
@@ -299,7 +298,7 @@ class GOOGL_EMA_9_46_GOOGL_DExitStrategy(bt.Strategy):
 
         # Validate parameters
         if self.params.statistical_validity == "LOW":
-            print(f"Warning: Low reliability parameters for GOOGL_EMA_9_46_GOOGL_D")
+            print("Warning: Low reliability parameters for GOOGL_EMA_9_46_GOOGL_D")
 
     def next(self):
         if self.position:
@@ -385,7 +384,7 @@ class DOV_SMA_45_86_DOV_DExitStrategy(bt.Strategy):
 
         # Validate parameters
         if self.params.statistical_validity == "LOW":
-            print(f"Warning: Low reliability parameters for DOV_SMA_45_86_DOV_D")
+            print("Warning: Low reliability parameters for DOV_SMA_45_86_DOV_D")
 
     def next(self):
         if self.position:
@@ -471,7 +470,7 @@ class AMZN_SMA_10_27_AMZN_DExitStrategy(bt.Strategy):
 
         # Validate parameters
         if self.params.statistical_validity == "LOW":
-            print(f"Warning: Low reliability parameters for AMZN_SMA_10_27_AMZN_D")
+            print("Warning: Low reliability parameters for AMZN_SMA_10_27_AMZN_D")
 
     def next(self):
         if self.position:

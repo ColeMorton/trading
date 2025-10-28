@@ -1337,9 +1337,7 @@ def display_portfolio_summary(
             f"   ⚖️ [yellow]Moderate performance - average score {avg_score:.3f}[/yellow]"
         )
     else:
-        rprint(
-            "   📉 [red]Below-average performance - review strategy parameters[/red]"
-        )
+        rprint("   📉 [red]Below-average performance - review strategy parameters[/red]")
 
     if profit_rate >= 70:
         rprint(

@@ -226,9 +226,9 @@ def _enrich_trade_data(
             enriched_df.loc[closed_mask, "Duration"] = duration_timedelta
 
             # Convert to days as float (includes fractional days)
-            enriched_df.loc[closed_mask, "Duration_Days"] = (
-                duration_timedelta.dt.total_seconds() / (24 * 60 * 60)
-            )
+            enriched_df.loc[
+                closed_mask, "Duration_Days"
+            ] = duration_timedelta.dt.total_seconds() / (24 * 60 * 60)
 
         # For open trades, set Exit Timestamp and Duration_Days to None for JSON compatibility
         open_mask = enriched_df["Status"] == "Open"
@@ -316,9 +316,9 @@ def _enrich_position_data(position_df: pd.DataFrame) -> pd.DataFrame:
             enriched_df.loc[closed_mask, "Duration"] = duration_timedelta
 
             # Convert to days as float (includes fractional days)
-            enriched_df.loc[closed_mask, "Duration_Days"] = (
-                duration_timedelta.dt.total_seconds() / (24 * 60 * 60)
-            )
+            enriched_df.loc[
+                closed_mask, "Duration_Days"
+            ] = duration_timedelta.dt.total_seconds() / (24 * 60 * 60)
 
         # For open positions, set Exit Timestamp and Duration_Days to None for JSON compatibility
         open_mask = enriched_df["Status"] == "Open"

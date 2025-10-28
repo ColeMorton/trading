@@ -2,7 +2,7 @@
 -- Top N Strategies by Any Metric
 -- ============================================================================
 -- Description: Get top N strategies ordered by any performance metric
--- 
+--
 -- Parameters:
 --   :metric_column - The column to order by (e.g., 'score', 'sharpe_ratio', 'total_return_pct')
 --   :ticker - (Optional) Filter by ticker, use NULL or remove WHERE clause for all tickers
@@ -12,7 +12,7 @@
 --   Uncomment and modify the ORDER BY clause based on desired metric
 -- ============================================================================
 
-SELECT 
+SELECT
     sr.id,
     t.ticker,
     st.strategy_type,
@@ -44,4 +44,3 @@ LIMIT 10;  -- Change limit as needed
 -- ORDER BY sr.win_rate_pct DESC        -- Highest win rate
 -- ORDER BY sr.profit_factor DESC       -- Best profit factor
 -- ORDER BY sr.max_drawdown_pct ASC     -- Smallest drawdown
-

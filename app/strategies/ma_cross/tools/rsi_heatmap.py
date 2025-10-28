@@ -136,9 +136,9 @@ def analyze_rsi_parameters(
                     else:
                         matrices[metric][j, i] = current - baseline
                 else:
-                    matrices[metric][j, i] = (
-                        current  # Use absolute value when RELATIVE is False
-                    )
+                    matrices[metric][
+                        j, i
+                    ] = current  # Use absolute value when RELATIVE is False
 
             if log:
                 log(f"Analyzed RSI window {window}, threshold {threshold}")

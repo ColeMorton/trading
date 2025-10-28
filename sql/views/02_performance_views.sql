@@ -11,7 +11,7 @@
 -- ============================================================================
 CREATE OR REPLACE VIEW v_top_performers_by_ticker AS
 WITH ranked_by_ticker AS (
-    SELECT 
+    SELECT
         sr.id,
         t.ticker,
         st.strategy_type,
@@ -29,11 +29,11 @@ WITH ranked_by_ticker AS (
         sr.max_drawdown_pct,
         sr.total_trades,
         ROW_NUMBER() OVER (
-            PARTITION BY sr.ticker_id 
+            PARTITION BY sr.ticker_id
             ORDER BY sr.score DESC
         ) as rank_for_ticker,
         PERCENT_RANK() OVER (
-            PARTITION BY sr.ticker_id 
+            PARTITION BY sr.ticker_id
             ORDER BY sr.score
         ) as percentile
     FROM strategy_sweep_results sr
@@ -45,7 +45,7 @@ FROM ranked_by_ticker
 WHERE rank_for_ticker <= 20  -- Top 20 per ticker
 ORDER BY ticker, rank_for_ticker;
 
-COMMENT ON VIEW v_top_performers_by_ticker IS 
+COMMENT ON VIEW v_top_performers_by_ticker IS
 'Top 20 performing strategies for each ticker across all sweep runs.';
 
 -- ============================================================================
@@ -55,7 +55,7 @@ COMMENT ON VIEW v_top_performers_by_ticker IS
 -- ============================================================================
 CREATE OR REPLACE VIEW v_risk_adjusted_rankings AS
 WITH normalized_metrics AS (
-    SELECT 
+    SELECT
         sr.id,
         t.ticker,
         st.strategy_type,
@@ -82,7 +82,7 @@ WITH normalized_metrics AS (
     WHERE sr.sharpe_ratio IS NOT NULL
       AND sr.sortino_ratio IS NOT NULL
 )
-SELECT 
+SELECT
     id,
     ticker,
     strategy_type,
@@ -97,20 +97,20 @@ SELECT
     total_return_pct,
     win_rate_pct,
     -- Composite rank (weighted average of all risk metrics)
-    (sharpe_rank * 0.3 + 
-     sortino_rank * 0.25 + 
-     calmar_rank * 0.2 + 
-     drawdown_rank * 0.15 + 
+    (sharpe_rank * 0.3 +
+     sortino_rank * 0.25 +
+     calmar_rank * 0.2 +
+     drawdown_rank * 0.15 +
      score_rank * 0.1) as composite_risk_score,
     ROW_NUMBER() OVER (
-        ORDER BY (sharpe_rank * 0.3 + sortino_rank * 0.25 + 
-                  calmar_rank * 0.2 + drawdown_rank * 0.15 + 
+        ORDER BY (sharpe_rank * 0.3 + sortino_rank * 0.25 +
+                  calmar_rank * 0.2 + drawdown_rank * 0.15 +
                   score_rank * 0.1) DESC
     ) as composite_rank
 FROM normalized_metrics
 ORDER BY composite_risk_score DESC;
 
-COMMENT ON VIEW v_risk_adjusted_rankings IS 
+COMMENT ON VIEW v_risk_adjusted_rankings IS
 'Strategies ranked by composite risk-adjusted performance (Sharpe, Sortino, Calmar, Drawdown, Score).';
 
 -- ============================================================================
@@ -119,7 +119,7 @@ COMMENT ON VIEW v_risk_adjusted_rankings IS
 -- Purpose: Aggregate performance statistics by parameter combinations
 -- ============================================================================
 CREATE OR REPLACE VIEW v_parameter_performance_summary AS
-SELECT 
+SELECT
     sr.fast_period,
     sr.slow_period,
     st.strategy_type,
@@ -143,7 +143,7 @@ GROUP BY sr.fast_period, sr.slow_period, st.strategy_type
 HAVING COUNT(*) >= 3  -- At least 3 results for statistical relevance
 ORDER BY avg_score DESC;
 
-COMMENT ON VIEW v_parameter_performance_summary IS 
+COMMENT ON VIEW v_parameter_performance_summary IS
 'Aggregated performance statistics for each parameter combination across all tickers and sweeps.';
 
 -- ============================================================================
@@ -153,7 +153,7 @@ COMMENT ON VIEW v_parameter_performance_summary IS
 -- ============================================================================
 CREATE OR REPLACE VIEW v_consistency_analysis AS
 WITH param_stats AS (
-    SELECT 
+    SELECT
         sr.fast_period,
         sr.slow_period,
         st.strategy_type,
@@ -163,16 +163,16 @@ WITH param_stats AS (
         MIN(sr.score) as min_score,
         MAX(sr.score) as max_score,
         -- Coefficient of variation (lower = more consistent)
-        CASE 
+        CASE
             WHEN AVG(sr.score) > 0 THEN STDDEV(sr.score) / AVG(sr.score)
-            ELSE NULL 
+            ELSE NULL
         END as coefficient_of_variation
     FROM strategy_sweep_results sr
     JOIN strategy_types st ON sr.strategy_type_id = st.id
     GROUP BY sr.fast_period, sr.slow_period, st.strategy_type
     HAVING COUNT(DISTINCT sr.ticker_id) >= 3
 )
-SELECT 
+SELECT
     fast_period,
     slow_period,
     strategy_type,
@@ -183,15 +183,15 @@ SELECT
     max_score,
     coefficient_of_variation,
     -- Consistency score (high avg, low variation)
-    CASE 
-        WHEN coefficient_of_variation IS NOT NULL 
+    CASE
+        WHEN coefficient_of_variation IS NOT NULL
         THEN avg_score / (1 + coefficient_of_variation)
         ELSE avg_score
     END as consistency_score,
     ROW_NUMBER() OVER (
-        ORDER BY 
-            CASE 
-                WHEN coefficient_of_variation IS NOT NULL 
+        ORDER BY
+            CASE
+                WHEN coefficient_of_variation IS NOT NULL
                 THEN avg_score / (1 + coefficient_of_variation)
                 ELSE avg_score
             END DESC
@@ -199,6 +199,5 @@ SELECT
 FROM param_stats
 ORDER BY consistency_score DESC;
 
-COMMENT ON VIEW v_consistency_analysis IS 
+COMMENT ON VIEW v_consistency_analysis IS
 'Strategies ranked by performance consistency across multiple tickers. Low coefficient of variation indicates consistent performance.';
-
