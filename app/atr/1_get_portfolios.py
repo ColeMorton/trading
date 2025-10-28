@@ -71,7 +71,8 @@ def calculate_atr(data: pd.DataFrame, length: int) -> pd.Series:
     # Create a DataFrame with the three components, ensuring it has the same
     # index as the input data
     ranges = pd.DataFrame(
-        {"HL": high_low, "HC": high_close, "LC": low_close}, index=data.index,
+        {"HL": high_low, "HC": high_close, "LC": low_close},
+        index=data.index,
     )
 
     # Calculate the true range as the maximum of the three components
@@ -112,7 +113,9 @@ def calculate_atr_trailing_stop(
 
 
 def generate_signals(
-    data: pd.DataFrame, atr_length: int, atr_multiplier: float,
+    data: pd.DataFrame,
+    atr_length: int,
+    atr_multiplier: float,
 ) -> pd.DataFrame:
     """
     Generate trading signals based on ATR Trailing Stop using optimized operations.
@@ -158,7 +161,11 @@ def generate_signals(
     # Ensure all input columns are 1D arrays
     for col in ["Open", "High", "Low", "Close", "Volume"]:
         # Check if column exists and values are 2D, then flatten if needed
-        if col in data.columns and hasattr(data[col].values, "shape") and len(data[col].values.shape) > 1:
+        if (
+            col in data.columns
+            and hasattr(data[col].values, "shape")
+            and len(data[col].values.shape) > 1
+        ):
             log(
                 f"DEBUG: Flattening {col} values from shape {data[col].values.shape}",
             )
@@ -171,7 +178,8 @@ def generate_signals(
     data["Signal"] = pd.Series(np.zeros(len(data)), index=data.index)
     data["ATR_Trailing_Stop"] = pd.Series(np.full(len(data), np.nan), index=data.index)
     data["Highest_Since_Entry"] = pd.Series(
-        np.full(len(data), np.nan), index=data.index,
+        np.full(len(data), np.nan),
+        index=data.index,
     )
 
     log(
@@ -226,7 +234,11 @@ def generate_signals(
     # Ensure all columns have the same index and are 1D arrays
     for col in data.columns:
         # Check if column is Series and values are 2D, then flatten if needed
-        if isinstance(data[col], pd.Series) and hasattr(data[col].values, "shape") and len(data[col].values.shape) > 1:
+        if (
+            isinstance(data[col], pd.Series)
+            and hasattr(data[col].values, "shape")
+            and len(data[col].values.shape) > 1
+        ):
             log(
                 f"DEBUG: Final flattening of {col} values from shape {data[col].values.shape}",
             )
@@ -372,7 +384,9 @@ def backtest_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
 
 
 def analyze_params(
-    data: pd.DataFrame, atr_length: int, atr_multiplier: float,
+    data: pd.DataFrame,
+    atr_length: int,
+    atr_multiplier: float,
 ) -> tuple[int, float, float]:
     """
     Analyze parameters for ATR trailing stop strategy.
@@ -390,7 +404,9 @@ def analyze_params(
     try:
         # Generate signals with optimized function
         data_with_signals: pd.DataFrame = generate_signals(
-            data.copy(), atr_length, atr_multiplier,
+            data.copy(),
+            atr_length,
+            atr_multiplier,
         )
 
         # Debug information
@@ -462,7 +478,9 @@ def analyze_params(
 
 
 def parameter_sensitivity_analysis(
-    data: pd.DataFrame, atr_lengths: list[int], atr_multipliers: list[float],
+    data: pd.DataFrame,
+    atr_lengths: list[int],
+    atr_multipliers: list[float],
 ) -> pd.DataFrame:
     """
     Perform parameter sensitivity analysis with sequential processing for reliability.
@@ -500,7 +518,9 @@ def parameter_sensitivity_analysis(
                 try:
                     # Analyze parameters
                     length_val, multiplier_val, total_return = analyze_params(
-                        data.copy(), length, multiplier,
+                        data.copy(),
+                        length,
+                        multiplier,
                     )
                     log(
                         f"Result for length={length}, multiplier={multiplier}: total_return={total_return:.4f}",
@@ -649,10 +669,16 @@ def main(config: ATRConfig | None = None) -> None:
             log("DEBUG: Downloading data using centralized download_data function")
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 future1 = executor.submit(
-                    download_data, config["TICKER_1"], data_config_1, log,
+                    download_data,
+                    config["TICKER_1"],
+                    data_config_1,
+                    log,
                 )
                 future2 = executor.submit(
-                    download_data, config["TICKER_2"], data_config_2, log,
+                    download_data,
+                    config["TICKER_2"],
+                    data_config_2,
+                    log,
                 )
                 polars_data_1 = future1.result()
                 polars_data_2 = future2.result()

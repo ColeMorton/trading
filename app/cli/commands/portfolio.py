@@ -51,7 +51,9 @@ from ..utils import resolve_portfolio_path
 
 # Create portfolio sub-app
 app = typer.Typer(
-    name="portfolio", help="Portfolio processing and aggregation", no_args_is_help=True,
+    name="portfolio",
+    help="Portfolio processing and aggregation",
+    no_args_is_help=True,
 )
 
 console = Console()
@@ -64,16 +66,25 @@ def update(
     | None = typer.Option(None, "--config", "-c", help="Configuration profile name"),
     portfolio_file: str
     | None = typer.Option(
-        None, "--portfolio", "-p", help="Portfolio filename to process",
+        None,
+        "--portfolio",
+        "-p",
+        help="Portfolio filename to process",
     ),
     refresh: bool = typer.Option(
-        True, "--refresh/--no-refresh", help="Whether to refresh cached data",
+        True,
+        "--refresh/--no-refresh",
+        help="Whether to refresh cached data",
     ),
     export_equity: bool = typer.Option(
-        False, "--export-equity", help="Export equity data",
+        False,
+        "--export-equity",
+        help="Export equity data",
     ),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Preview configuration without executing",
+        False,
+        "--dry-run",
+        help="Preview configuration without executing",
     ),
 ):
     """
@@ -116,7 +127,9 @@ def update(
             config = loader.load_from_profile(profile, PortfolioConfig, overrides)
         else:
             config = loader.load_from_profile(
-                "default_portfolio", PortfolioConfig, overrides,
+                "default_portfolio",
+                PortfolioConfig,
+                overrides,
             )
 
         if dry_run:
@@ -158,7 +171,8 @@ def update(
 
         # Execute portfolio update
         success = update_portfolios_run(
-            resolve_portfolio_path(config.portfolio), console,
+            resolve_portfolio_path(config.portfolio),
+            console,
         )
 
         if success:
@@ -172,7 +186,7 @@ def update(
         console.error(f"Error updating portfolio: {e}")
         if global_verbose:
             raise
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 @app.command()
@@ -182,18 +196,26 @@ def process(
     | None = typer.Option(None, "--config", "-c", help="Configuration profile name"),
     input_dir: Path
     | None = typer.Option(
-        None, "--input-dir", help="Input directory containing portfolio files",
+        None,
+        "--input-dir",
+        help="Input directory containing portfolio files",
     ),
     output_dir: Path
     | None = typer.Option(
-        None, "--output-dir", help="Output directory for processed results",
+        None,
+        "--output-dir",
+        help="Output directory for processed results",
     ),
     format: str = typer.Option("csv", "--format", help="Output format: csv, json"),
     validate_schemas: bool = typer.Option(
-        True, "--validate/--no-validate", help="Validate portfolio schemas",
+        True,
+        "--validate/--no-validate",
+        help="Validate portfolio schemas",
     ),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Preview processing without executing",
+        False,
+        "--dry-run",
+        help="Preview processing without executing",
     ),
 ):
     """
@@ -230,11 +252,15 @@ def process(
 
         if profile:
             config = loader.load_from_profile(
-                profile, PortfolioProcessingConfig, overrides,
+                profile,
+                PortfolioProcessingConfig,
+                overrides,
             )
         else:
             config = loader.load_from_profile(
-                "default_portfolio", PortfolioProcessingConfig, overrides,
+                "default_portfolio",
+                PortfolioProcessingConfig,
+                overrides,
             )
 
         if dry_run:
@@ -422,7 +448,7 @@ def process(
 
     except Exception as e:
         console.error(f"Error processing portfolios: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 @app.command()
@@ -431,7 +457,9 @@ def aggregate(
     profile: str
     | None = typer.Option(None, "--config", "-c", help="Configuration profile name"),
     by_ticker: bool = typer.Option(
-        True, "--by-ticker/--no-by-ticker", help="Aggregate results by ticker",
+        True,
+        "--by-ticker/--no-by-ticker",
+        help="Aggregate results by ticker",
     ),
     by_strategy: bool = typer.Option(
         True,
@@ -439,11 +467,16 @@ def aggregate(
         help="Aggregate results by strategy type",
     ),
     calculate_breadth: bool = typer.Option(
-        True, "--breadth/--no-breadth", help="Calculate breadth metrics",
+        True,
+        "--breadth/--no-breadth",
+        help="Calculate breadth metrics",
     ),
     output_file: str
     | None = typer.Option(
-        None, "--output", "-o", help="Output filename for aggregated results",
+        None,
+        "--output",
+        "-o",
+        help="Output filename for aggregated results",
     ),
 ):
     """
@@ -473,11 +506,15 @@ def aggregate(
 
         if profile:
             config = loader.load_from_profile(
-                profile, PortfolioProcessingConfig, overrides,
+                profile,
+                PortfolioProcessingConfig,
+                overrides,
             )
         else:
             config = loader.load_from_profile(
-                "default_portfolio", PortfolioProcessingConfig, overrides,
+                "default_portfolio",
+                PortfolioProcessingConfig,
+                overrides,
             )
 
         console.heading("Aggregating Portfolio Results", level=1)
@@ -489,16 +526,20 @@ def aggregate(
 
         settings_table.add_row("By Ticker", "✓" if config.aggregate_by_ticker else "✗")
         settings_table.add_row(
-            "By Strategy", "✓" if config.aggregate_by_strategy else "✗",
+            "By Strategy",
+            "✓" if config.aggregate_by_strategy else "✗",
         )
         settings_table.add_row(
-            "Breadth Metrics", "✓" if config.calculate_breadth_metrics else "✗",
+            "Breadth Metrics",
+            "✓" if config.calculate_breadth_metrics else "✗",
         )
         settings_table.add_row(
-            "Filter Open Trades", "✓" if config.filter_open_trades else "✗",
+            "Filter Open Trades",
+            "✓" if config.filter_open_trades else "✗",
         )
         settings_table.add_row(
-            "Filter Signal Entries", "✓" if config.filter_signal_entries else "✗",
+            "Filter Signal Entries",
+            "✓" if config.filter_signal_entries else "✗",
         )
 
         console.table(settings_table)
@@ -558,13 +599,17 @@ def aggregate(
                 # Aggregate by strategy if enabled
                 if config.aggregate_by_strategy:
                     aggregate_by_strategy(
-                        df, aggregation_results["by_strategy"], file_info,
+                        df,
+                        aggregation_results["by_strategy"],
+                        file_info,
                     )
 
                 # Update breadth metrics if enabled
                 if config.calculate_breadth_metrics:
                     update_breadth_metrics(
-                        df, aggregation_results["breadth_metrics"], file_info,
+                        df,
+                        aggregation_results["breadth_metrics"],
+                        file_info,
                     )
 
             except Exception as e:
@@ -613,7 +658,7 @@ def aggregate(
 
     except Exception as e:
         console.error(f"Error aggregating portfolios: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 @app.command()
@@ -623,25 +668,37 @@ def synthesize(
     | None = typer.Option(None, "--config", "-c", help="Configuration profile name"),
     strategy_name: str
     | None = typer.Option(
-        None, "--strategy", help="Single strategy name (e.g., AAPL_SMA_20_50)",
+        None,
+        "--strategy",
+        help="Single strategy name (e.g., AAPL_SMA_20_50)",
     ),
     ticker: str | None = typer.Option(None, "--ticker", help="Single ticker symbol"),
     benchmark: str
     | None = typer.Option(None, "--benchmark", help="Benchmark symbol for comparison"),
     output_format: str = typer.Option(
-        "standard", "--output-format", help="Output format: standard, detailed, json",
+        "standard",
+        "--output-format",
+        help="Output format: standard, detailed, json",
     ),
     save_plots: bool = typer.Option(
-        True, "--save-plots/--no-plots", help="Generate and save plots",
+        True,
+        "--save-plots/--no-plots",
+        help="Generate and save plots",
     ),
     export_stats: bool = typer.Option(
-        True, "--export-stats/--no-export", help="Export statistics and risk metrics",
+        True,
+        "--export-stats/--no-export",
+        help="Export statistics and risk metrics",
     ),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Preview configuration without executing",
+        False,
+        "--dry-run",
+        help="Preview configuration without executing",
     ),
     export_raw_data: bool = typer.Option(
-        False, "--export-raw-data", help="Export raw data from VectorBT portfolios",
+        False,
+        "--export-raw-data",
+        help="Export raw data from VectorBT portfolios",
     ),
     raw_data_formats: str
     | None = typer.Option(
@@ -762,7 +819,9 @@ def synthesize(
         # Load configuration
         if profile:
             config = loader.load_from_profile(
-                profile, PortfolioSynthesisConfig, overrides,
+                profile,
+                PortfolioSynthesisConfig,
+                overrides,
             )
         else:
             if not ticker:
@@ -783,7 +842,9 @@ def synthesize(
                 "enable_plotting": True,
             }
             config = loader.load_from_dict(
-                template, PortfolioSynthesisConfig, overrides,
+                template,
+                PortfolioSynthesisConfig,
+                overrides,
             )
 
         # Handle raw_strategies CSV loading
@@ -793,7 +854,8 @@ def synthesize(
             try:
                 # Load strategies from CSV using the utility function
                 csv_strategies = load_strategies_from_raw_csv(
-                    config.raw_strategies, console,
+                    config.raw_strategies,
+                    console,
                 )
 
                 # Override the strategies in config
@@ -819,7 +881,7 @@ def synthesize(
 
             except Exception as e:
                 console.error(f"Failed to load strategies from CSV: {e}")
-                raise typer.Exit(1)
+                raise typer.Exit(1) from e
 
         # Validate that we have strategies after potential CSV loading
         if not config.strategies and not config.raw_strategies:
@@ -1006,7 +1068,7 @@ def synthesize(
         console.error(f"Error in portfolio synthesis: {e}")
         if global_verbose:
             raise
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 @app.command()
@@ -1014,7 +1076,10 @@ def review(
     ctx: typer.Context,
     portfolio: str
     | None = typer.Option(
-        None, "--portfolio", "-p", help="Portfolio filename to review",
+        None,
+        "--portfolio",
+        "-p",
+        help="Portfolio filename to review",
     ),
     ticker: list[str]
     | None = typer.Option(
@@ -1025,10 +1090,15 @@ def review(
     ),
     sort_by: str = typer.Option("Score", "--sort-by", help="Column to sort by"),
     limit: int = typer.Option(
-        None, "--limit", "-n", help="Number of rows to display (optional)",
+        None,
+        "--limit",
+        "-n",
+        help="Number of rows to display (optional)",
     ),
     descending: bool = typer.Option(
-        True, "--desc/--asc", help="Sort in descending order",
+        True,
+        "--desc/--asc",
+        help="Sort in descending order",
     ),
 ):
     """
@@ -1147,7 +1217,7 @@ def review(
                 console.info(f"Loaded {len(df)} strategies from {portfolio_path}")
             except Exception as e:
                 console.error(f"Error loading portfolio file: {e}")
-                raise typer.Exit(1)
+                raise typer.Exit(1) from e
 
             # Apply ticker filtering if specified (only when loading from portfolio file)
             if ticker:
@@ -1184,7 +1254,9 @@ def review(
         # Apply sorting if requested
         if sort_by and sort_by in df.columns:
             portfolios = sorted(
-                portfolios, key=lambda x: x.get(sort_by, 0), reverse=descending,
+                portfolios,
+                key=lambda x: x.get(sort_by, 0),
+                reverse=descending,
             )
 
         # Apply limit if specified
@@ -1227,7 +1299,7 @@ def review(
         console.error(f"Error reviewing portfolio: {e}")
         if global_verbose:
             raise
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 def _display_processing_summary(summary: dict, console: ConsoleLogger):
@@ -1240,7 +1312,8 @@ def _display_processing_summary(summary: dict, console: ConsoleLogger):
 
     summary_table.add_row("Total Files", str(summary["total_files"]))
     summary_table.add_row(
-        "Successfully Processed", str(summary["processed_successfully"]),
+        "Successfully Processed",
+        str(summary["processed_successfully"]),
     )
     summary_table.add_row("Schema Valid Files", str(summary["schema_valid_files"]))
     summary_table.add_row("Processing Date", summary["processing_date"])
@@ -1285,7 +1358,9 @@ def _display_processing_summary(summary: dict, console: ConsoleLogger):
 
 
 def _display_aggregation_results(
-    aggregation_results: dict, config, console: ConsoleLogger,
+    aggregation_results: dict,
+    config,
+    console: ConsoleLogger,
 ):
     """Display comprehensive aggregation results."""
 
@@ -1302,17 +1377,21 @@ def _display_aggregation_results(
 
     if "profitability_rate" in summary:
         summary_table.add_row(
-            "Profitability Rate", f"{summary['profitability_rate']:.1f}%",
+            "Profitability Rate",
+            f"{summary['profitability_rate']:.1f}%",
         )
         summary_table.add_row("High Score Rate", f"{summary['high_score_rate']:.1f}%")
         summary_table.add_row(
-            "Overall Avg Score", f"{summary.get('overall_avg_score', 0):.2f}",
+            "Overall Avg Score",
+            f"{summary.get('overall_avg_score', 0):.2f}",
         )
         summary_table.add_row(
-            "Overall Avg Win Rate", f"{summary.get('overall_avg_win_rate', 0):.1f}%",
+            "Overall Avg Win Rate",
+            f"{summary.get('overall_avg_win_rate', 0):.1f}%",
         )
         summary_table.add_row(
-            "Overall Avg Return", f"{summary.get('overall_avg_return', 0):.1f}%",
+            "Overall Avg Return",
+            f"{summary.get('overall_avg_return', 0):.1f}%",
         )
 
     console.table(summary_table)
@@ -1429,7 +1508,8 @@ def _display_portfolio_synthesis_results(
         if isinstance(value, int | float):
             if "%" in key or "rate" in key.lower():
                 stats_table.add_row(
-                    key, f"{value:.2%}" if abs(value) < 10 else f"{value:.2f}%",
+                    key,
+                    f"{value:.2%}" if abs(value) < 10 else f"{value:.2f}%",
                 )
             elif "ratio" in key.lower():
                 stats_table.add_row(key, f"{value:.3f}")
@@ -1492,7 +1572,8 @@ def _display_portfolio_synthesis_results(
 
         if config.export_equity_curve and results.equity_curve_path:
             summary_table.add_row(
-                "Equity Curve Export", f"✓ {results.equity_curve_path}",
+                "Equity Curve Export",
+                f"✓ {results.equity_curve_path}",
             )
 
         if results.benchmark_portfolio:
