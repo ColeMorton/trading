@@ -7,6 +7,7 @@ import unittest
 import numpy as np
 import pandas as pd
 import polars as pl
+import pytest
 
 from app.tools.error_handling import (
     CalculationError,
@@ -18,7 +19,6 @@ from app.tools.error_handling import (
     validate_dataframe,
     with_fallback,
 )
-import pytest
 
 
 class TestErrorHandling(unittest.TestCase):
@@ -46,7 +46,9 @@ class TestErrorHandling(unittest.TestCase):
         # Test with pandas DataFrame
         try:
             self.error_handler.validate_dataframe(
-                self.test_df_pd, ["A", "B"], "Test pandas DataFrame",
+                self.test_df_pd,
+                ["A", "B"],
+                "Test pandas DataFrame",
             )
             # If no exception is raised, the test passes
             self.assertTrue(True)
@@ -56,7 +58,9 @@ class TestErrorHandling(unittest.TestCase):
         # Test with polars DataFrame
         try:
             self.error_handler.validate_dataframe(
-                self.test_df_pl, ["A", "B"], "Test polars DataFrame",
+                self.test_df_pl,
+                ["A", "B"],
+                "Test polars DataFrame",
             )
             # If no exception is raised, the test passes
             self.assertTrue(True)
@@ -80,7 +84,9 @@ class TestErrorHandling(unittest.TestCase):
         # Test with empty DataFrame
         with pytest.raises(DataValidationError):
             self.error_handler.validate_dataframe(
-                pd.DataFrame(), ["A", "B"], "Empty DataFrame",
+                pd.DataFrame(),
+                ["A", "B"],
+                "Empty DataFrame",
             )
 
     def test_validate_config_success(self):
@@ -131,25 +137,32 @@ class TestErrorHandling(unittest.TestCase):
         # Test with non-numeric array
         with pytest.raises(DataValidationError):
             self.error_handler.validate_numeric_array(
-                np.array(["a", "b", "c"]), "Non-numeric array",
+                np.array(["a", "b", "c"]),
+                "Non-numeric array",
             )
 
         # Test with array containing NaN
         with pytest.raises(DataValidationError):
             self.error_handler.validate_numeric_array(
-                np.array([1.0, np.nan, 3.0]), "Array with NaN", allow_nan=False,
+                np.array([1.0, np.nan, 3.0]),
+                "Array with NaN",
+                allow_nan=False,
             )
 
         # Test with array containing infinity
         with pytest.raises(DataValidationError):
             self.error_handler.validate_numeric_array(
-                np.array([1.0, np.inf, 3.0]), "Array with infinity", allow_inf=False,
+                np.array([1.0, np.inf, 3.0]),
+                "Array with infinity",
+                allow_inf=False,
             )
 
         # Test with array that's too short
         with pytest.raises(DataValidationError):
             self.error_handler.validate_numeric_array(
-                np.array([1.0]), "Short array", min_length=2,
+                np.array([1.0]),
+                "Short array",
+                min_length=2,
             )
 
     def test_handle_calculation_error(self):
@@ -160,7 +173,9 @@ class TestErrorHandling(unittest.TestCase):
         fallback_value = 42
 
         result = self.error_handler.handle_calculation_error(
-            error, context, fallback_value,
+            error,
+            context,
+            fallback_value,
         )
 
         self.assertEqual(result, fallback_value)

@@ -18,6 +18,12 @@ INVALID_API_KEY = "invalid-key-123456789012345678901234"
 client = TestClient(app)
 
 
+@pytest.fixture
+def clean_client():
+    """Provide a fresh TestClient with no session state."""
+    return TestClient(app)
+
+
 class TestAuthEndpoints:
     """Test cases for authentication endpoints."""
 
@@ -108,9 +114,10 @@ class TestAuthEndpoints:
         assert data["is_active"] is True
         assert "*" in data["scopes"]
 
-    def test_get_user_info_without_auth(self):
+    def test_get_user_info_without_auth(self, clean_client):
         """Test /me endpoint requires authentication."""
-        response = client.get("/api/v1/auth/me")
+        # Use clean_client to ensure no session state from previous tests
+        response = clean_client.get("/api/v1/auth/me")
 
         assert response.status_code == 401
         data = response.json()

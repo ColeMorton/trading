@@ -5,13 +5,14 @@ This router provides login, logout, and user info endpoints for the SSE proxy
 authentication system.
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.database import get_db
 from ..core.security import validate_api_key
 from ..models.schemas import LoginRequest, LoginResponse, LogoutResponse, UserInfo
-from typing import Annotated
 
 
 router = APIRouter()
@@ -66,6 +67,9 @@ async def login(
     request.session["api_key_id"] = api_key_obj.id
     request.session["user_name"] = api_key_obj.name
 
+    # Remove logged_out flag if it exists from a previous session
+    request.session.pop("logged_out", None)
+
     # Create user info response
     user_info = UserInfo(
         id=api_key_obj.id,
@@ -100,7 +104,13 @@ async def logout(request: Request):
         ```
     """
     # Clear session data
-    request.session.clear()
+    # Store all keys to remove them one by one (more reliable with TestClient)
+    keys_to_remove = list(request.session.keys())
+    for key in keys_to_remove:
+        del request.session[key]
+
+    # Mark session as logged out
+    request.session["logged_out"] = True
 
     return LogoutResponse()
 
@@ -136,7 +146,12 @@ async def get_current_user(
         ```
     """
     # Check if user is authenticated
-    if "api_key" not in request.session:
+    # Also check if session was logged out or is empty
+    if (
+        "logged_out" in request.session
+        or "api_key" not in request.session
+        or not request.session
+    ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated. Please login first.",

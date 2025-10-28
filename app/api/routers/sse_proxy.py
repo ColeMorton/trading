@@ -35,6 +35,7 @@ Example usage:
 
 from collections.abc import AsyncGenerator
 import json
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
@@ -45,7 +46,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..core.database import get_db
 from ..core.redis import get_redis
 from ..services.job_service import JobService
-from typing import Annotated
 
 
 router = APIRouter()
@@ -142,7 +142,14 @@ async def proxy_job_stream(
 
     # 2. Verify job exists and belongs to this API key
     # This prevents users from accessing other users' job streams
-    job = await JobService.get_job(db, job_id)
+    try:
+        job = await JobService.get_job(db, job_id)
+    except ValueError:
+        # Invalid UUID format
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Job {job_id} not found",
+        )
 
     if not job:
         raise HTTPException(

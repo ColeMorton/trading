@@ -12,7 +12,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from app.tools.portfolio.canonical_schema import (
+from app.tools.portfolio.base_extended_schemas import (
     CANONICAL_COLUMN_COUNT,
     CANONICAL_COLUMN_NAMES,
 )
@@ -137,7 +137,10 @@ class TestPhase5ComprehensiveValidation:
             ), f"Critical column '{col}' missing from canonical schema"
 
     def test_core_export_infrastructure_compliance(
-        self, sample_canonical_data, mock_log, tmp_path,
+        self,
+        sample_canonical_data,
+        mock_log,
+        tmp_path,
     ):
         """Test that core export infrastructure maintains schema compliance."""
         from app.tools.export_csv import export_csv
@@ -204,7 +207,9 @@ class TestPhase5ComprehensiveValidation:
 
                 # Create and execute request
                 request = MACrossRequest(
-                    ticker="BTC-USD", strategy_types=["EMA"], windows=50,
+                    ticker="BTC-USD",
+                    strategy_types=["EMA"],
+                    windows=50,
                 )
 
                 # Test async version
@@ -234,7 +239,10 @@ class TestPhase5ComprehensiveValidation:
                             assert headers == CANONICAL_COLUMN_NAMES
 
     def test_strategy_export_compliance(
-        self, sample_canonical_data, mock_log, tmp_path,
+        self,
+        sample_canonical_data,
+        mock_log,
+        tmp_path,
     ):
         """Test that all strategy export functions maintain compliance."""
         strategy_modules = [
@@ -261,7 +269,8 @@ class TestPhase5ComprehensiveValidation:
 
                 # Test that the module has the required functions
                 assert hasattr(
-                    module, "export_portfolios",
+                    module,
+                    "export_portfolios",
                 ), f"Missing export_portfolios in {module_name}"
 
                 # Test enrichment function if it exists
@@ -273,7 +282,9 @@ class TestPhase5ComprehensiveValidation:
                 if hasattr(module, enrichment_func_name):
                     enrichment_func = getattr(module, enrichment_func_name)
                     enriched_data = enrichment_func(
-                        sample_canonical_data, config, mock_log,
+                        sample_canonical_data,
+                        config,
+                        mock_log,
                     )
 
                     # Verify enriched data maintains canonical structure
@@ -296,7 +307,8 @@ class TestPhase5ComprehensiveValidation:
             except ImportError as e:
                 # Module might have dependencies not available in test environment
                 mock_log(
-                    f"Could not test {module_name} due to import error: {e}", "warning",
+                    f"Could not test {module_name} due to import error: {e}",
+                    "warning",
                 )
 
     def test_schema_validation_module_integrity(self):
@@ -475,7 +487,10 @@ class TestPhase5ComprehensiveValidation:
         # Step 2: Export processing
         config = {"BASE_DIR": str(tmp_path), "TICKER": "BTC-USD"}
         df, success = export_csv(
-            data=normalized_data, feature1="strategies", config=config, log=mock_log,
+            data=normalized_data,
+            feature1="strategies",
+            config=config,
+            log=mock_log,
         )
 
         assert success, "Complete pipeline should succeed"
@@ -501,7 +516,10 @@ class TestPhase5ComprehensiveValidation:
             assert float(first_row["Total Return [%]"]) == 82.35
 
     def test_performance_regression_check(
-        self, sample_canonical_data, mock_log, tmp_path,
+        self,
+        sample_canonical_data,
+        mock_log,
+        tmp_path,
     ):
         """Basic performance regression test for export operations."""
         import time
@@ -515,7 +533,10 @@ class TestPhase5ComprehensiveValidation:
 
         start_time = time.time()
         df, success = export_csv(
-            data=large_dataset, feature1="portfolios_best", config=config, log=mock_log,
+            data=large_dataset,
+            feature1="portfolios_best",
+            config=config,
+            log=mock_log,
         )
         end_time = time.time()
 

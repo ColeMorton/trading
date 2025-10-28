@@ -53,7 +53,7 @@ Complete navigation guide for the trading strategy analysis platform.
 - [Database Overview](docs/database/README.md) - Database documentation hub
 - [Database Schema](docs/database/SCHEMA.md) - Complete schema reference
 - [Migration Changelog](docs/database/CHANGELOG.md) - Migration history
-- [SQL Views & Queries](sql/README.md) - 19 database views + queries
+- [SQL Views Guide](docs/database/SQL_VIEWS_GUIDE.md) - 19 database views + queries
 
 ### Architecture
 
@@ -72,12 +72,21 @@ Complete navigation guide for the trading strategy analysis platform.
 - [TDD Guidelines](docs/testing/TDD_GUIDELINES.md)
 - [TDD Workflow](docs/testing/DEVELOPER_TDD_WORKFLOW.md)
 - [Test Organization](docs/testing/TEST_ORGANIZATION.md)
+- [Test Suite Overview](docs/testing/TEST_SUITE_OVERVIEW.md)
+- [Test Architecture Details](docs/testing/TEST_ARCHITECTURE_DETAILS.md)
+- [API Test Guide](docs/testing/API_TEST_GUIDE.md)
+- [Integration Test Guide](docs/testing/INTEGRATION_TEST_GUIDE.md)
 
 ### Reference
 
 - [Command Reference](docs/reference/COMMAND_REFERENCE.md) - All CLI commands
 - [Configuration Guide](docs/CONFIGURATION_GUIDE.md) - Configuration options
 - [CSV Schemas](docs/csv_schemas.md) - Data format reference
+- [Tools Reference](docs/reference/tools/README.md) - Trading tools and utilities
+- [Concurrency Reference](docs/reference/concurrency/README.md) - Concurrency analysis
+- [Strategies Reference](docs/reference/strategies/README.md) - Strategy implementations
+- [Data Organization](docs/reference/DATA_ORGANIZATION.md) - Data directory structure
+- [TradingView Integration](docs/reference/TRADINGVIEW_INTEGRATION.md) - TradingView setup
 
 ### Performance
 
@@ -92,6 +101,7 @@ Complete navigation guide for the trading strategy analysis platform.
 
 - [SBC Research](docs/research/sbc/) - DeFi protocol research papers
 - [AI Prompts](docs/ai/prompts/) - AI assistant prompt templates
+- [Implementation Logs Archive](docs/archive/implementation-logs/README.md) - Historical session summaries
 
 ---
 
@@ -169,6 +179,6 @@ See [CHANGELOG.md](./CHANGELOG.md) for complete history.
 
 ---
 
-**Last Updated**: October 19, 2025
+**Last Updated**: October 28, 2025
 **Version**: 1.0.0
 **Status**: Operational (CLI + API)

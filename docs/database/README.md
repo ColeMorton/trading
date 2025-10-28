@@ -16,7 +16,7 @@ This directory contains comprehensive documentation for the PostgreSQL database 
 
 - **[Schema Documentation](./SCHEMA.md)** - Complete table and column reference
 - **[Migration Changelog](./CHANGELOG.md)** - Detailed migration history
-- **[SQL Views](../../sql/README.md)** - Database views and queries
+- **[SQL Views Guide](./SQL_VIEWS_GUIDE.md)** - Database views and queries
 - **[Integration Tests](./INTEGRATION_TEST_RESULTS.md)** - Test results
 
 ## Database Structure
@@ -51,7 +51,7 @@ This directory contains comprehensive documentation for the PostgreSQL database 
 
 ### Database Views (19 total)
 
-Optimized views for common queries - see [SQL Views Documentation](../../sql/README.md)
+Optimized views for common queries - see [SQL Views Guide](./SQL_VIEWS_GUIDE.md)
 
 **Most Important Views:**
 
@@ -233,6 +233,7 @@ VACUUM ANALYZE strategy_types;
 - **README.md** (this file) - Overview and quick reference
 - **CHANGELOG.md** - Detailed migration history
 - **SCHEMA.md** - Complete schema documentation (renamed from STRATEGY_SWEEP_SCHEMA.md)
+- **SQL_VIEWS_GUIDE.md** - SQL views and queries reference
 - **METRIC_TYPES_IMPLEMENTATION.md** - Metric types feature details
 - **INTEGRATION_TEST_RESULTS.md** - Database integration test results
 - **BEFORE_AFTER_COMPARISON.md** - Before/after schema comparison
@@ -240,7 +241,7 @@ VACUUM ANALYZE strategy_types;
 
 ### Related Documentation
 
-- **SQL Views**: `../../sql/README.md`
+- **SQL Views**: `./SQL_VIEWS_GUIDE.md`
 - **API Integration**: `../api/README.md`
 - **Migration Scripts**: `../../app/database/migrations/versions/`
 
@@ -288,7 +289,7 @@ For detailed information:
 
 - Schema reference: [SCHEMA.md](./SCHEMA.md)
 - Migration history: [CHANGELOG.md](./CHANGELOG.md)
-- SQL queries: [../../sql/](../../sql/)
+- SQL Views: [SQL_VIEWS_GUIDE.md](./SQL_VIEWS_GUIDE.md)
 - API access: [../api/](../api/)
 
 ## Summary

@@ -136,8 +136,11 @@ class TestSSEProxy:
         logout_response = client.post("/api/v1/auth/logout", cookies=cookies)
         assert logout_response.status_code == 200
 
-        # Try to use session after logout
-        me_response_after = client.get("/api/v1/auth/me", cookies=cookies)
+        # Try to use session after logout (use logout response cookies)
+        # In production, browsers automatically use the latest cookie
+        me_response_after = client.get(
+            "/api/v1/auth/me", cookies=logout_response.cookies
+        )
         assert me_response_after.status_code == 401
 
     def test_proxy_validates_job_ownership(self):

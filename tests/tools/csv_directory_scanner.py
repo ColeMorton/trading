@@ -8,7 +8,7 @@ exported CSV files conform to the canonical 59-column schema.
 import csv
 from pathlib import Path
 
-from app.tools.portfolio.canonical_schema import (
+from app.tools.portfolio.base_extended_schemas import (
     CANONICAL_COLUMN_COUNT,
     CANONICAL_COLUMN_NAMES,
 )

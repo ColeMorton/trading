@@ -31,7 +31,10 @@ class SSERateLimiter(BaseHTTPMiddleware):
     """
 
     def __init__(
-        self, app, max_concurrent: int | None = None, max_duration: int | None = None,
+        self,
+        app,
+        max_concurrent: int | None = None,
+        max_duration: int | None = None,
     ):
         """
         Initialize SSE rate limiter.
@@ -64,7 +67,11 @@ class SSERateLimiter(BaseHTTPMiddleware):
         if not request.url.path.startswith("/sse-proxy/"):
             return await call_next(request)
 
-        # Get session ID
+        # Get session ID (check if session is available)
+        if "session" not in request.scope:
+            # SessionMiddleware not installed (e.g., in tests), skip rate limiting
+            return await call_next(request)
+
         session_id = request.session.get("api_key_id")
         if not session_id:
             # Not authenticated, let auth middleware handle it

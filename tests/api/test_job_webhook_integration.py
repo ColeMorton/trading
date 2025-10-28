@@ -7,6 +7,7 @@ and that webhooks are called on job completion.
 
 from datetime import datetime
 from unittest.mock import AsyncMock, Mock, patch
+from uuid import uuid4
 
 import pytest
 
@@ -20,20 +21,13 @@ class TestJobWebhookIntegration:
     @pytest.mark.asyncio
     async def test_job_stores_webhook_url(self):
         """Test that webhook URL is stored in job record."""
-        # Mock database manager
-        mock_db_manager = Mock()
+        # Mock database session
         mock_session = AsyncMock()
-        mock_session.__aenter__.return_value = mock_session
-        mock_session.__aexit__.return_value = None
-        mock_db_manager.get_async_session.return_value = mock_session
+        mock_session.add = Mock()
+        mock_session.commit = AsyncMock()
+        mock_session.refresh = AsyncMock()
 
-        # Mock Redis manager
-        mock_redis_manager = Mock()
-        mock_redis_manager.enqueue_job = AsyncMock(return_value="task-id-123")
-
-        job_service = JobService(mock_db_manager, mock_redis_manager)
-
-        # Create job with webhook URL
+        # Create job with webhook URL using static method
         with patch("app.api.services.job_service.Job") as MockJob:
             mock_job = Mock(spec=Job)
             mock_job.id = "test-job-123"
@@ -41,7 +35,10 @@ class TestJobWebhookIntegration:
             mock_job.webhook_url = "https://example.com/webhook"
             MockJob.return_value = mock_job
 
-            job = await job_service.create_job(
+            # Call static method directly
+            job = await JobService.create_job(
+                db=mock_session,
+                api_key_id=str(uuid4()),
                 command_group="strategy",
                 command_name="run",
                 parameters={"ticker": "AAPL"},
@@ -54,25 +51,18 @@ class TestJobWebhookIntegration:
     @pytest.mark.asyncio
     async def test_job_stores_webhook_headers(self):
         """Test that webhook headers are stored as JSON in job record."""
-        # Mock database manager
-        mock_db_manager = Mock()
+        # Mock database session
         mock_session = AsyncMock()
-        mock_session.__aenter__.return_value = mock_session
-        mock_session.__aexit__.return_value = None
-        mock_db_manager.get_async_session.return_value = mock_session
-
-        # Mock Redis manager
-        mock_redis_manager = Mock()
-        mock_redis_manager.enqueue_job = AsyncMock(return_value="task-id-123")
-
-        job_service = JobService(mock_db_manager, mock_redis_manager)
+        mock_session.add = Mock()
+        mock_session.commit = AsyncMock()
+        mock_session.refresh = AsyncMock()
 
         webhook_headers = {
             "Authorization": "Bearer token123",
             "X-Custom-Header": "value",
         }
 
-        # Create job with webhook headers
+        # Create job with webhook headers using static method
         with patch("app.api.services.job_service.Job") as MockJob:
             mock_job = Mock(spec=Job)
             mock_job.id = "test-job-456"
@@ -81,7 +71,10 @@ class TestJobWebhookIntegration:
             mock_job.webhook_headers = webhook_headers
             MockJob.return_value = mock_job
 
-            job = await job_service.create_job(
+            # Call static method directly
+            job = await JobService.create_job(
+                db=mock_session,
+                api_key_id=str(uuid4()),
                 command_group="strategy",
                 command_name="sweep",
                 parameters={"ticker": "BTC-USD"},

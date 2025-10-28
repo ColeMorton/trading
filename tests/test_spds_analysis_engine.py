@@ -18,8 +18,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.tools.models.spds_models import (
     AnalysisResult,
+    ConfidenceLevel,
     ExitSignal,
-    RiskLevel,
     SignalType,
 )
 from app.tools.spds_analysis_engine import AnalysisRequest, SPDSAnalysisEngine
@@ -124,7 +124,8 @@ class TestSPDSAnalysisEngine:
         """Test Critical Path 3: Position Analysis Workflow."""
         # Arrange
         request = AnalysisRequest(
-            analysis_type="position", parameter="AAPL_SMA_20_50_20250101",
+            analysis_type="position",
+            parameter="AAPL_SMA_20_50_20250101",
         )
 
         # Act
@@ -154,7 +155,8 @@ class TestSPDSAnalysisEngine:
         """Test error handling for missing portfolio file."""
         # Arrange
         request = AnalysisRequest(
-            analysis_type="portfolio", parameter="nonexistent_portfolio.csv",
+            analysis_type="portfolio",
+            parameter="nonexistent_portfolio.csv",
         )
 
         # Act
@@ -208,7 +210,7 @@ class TestSPDSAnalysisEngine:
         for result in results.values():
             # Check exit signal structure
             assert isinstance(result.exit_signal.signal_type, SignalType)
-            assert isinstance(result.exit_signal.risk_level, RiskLevel)
+            assert isinstance(result.exit_signal.confidence_level, ConfidenceLevel)
             assert isinstance(result.exit_signal.reasoning, str)
             assert len(result.exit_signal.reasoning) > 0
 

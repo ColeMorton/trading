@@ -61,12 +61,23 @@ Comprehensive documentation for the trading strategy analysis platform.
 - [TDD Guidelines](testing/TDD_GUIDELINES.md) - Test-driven development
 - [TDD Workflow](testing/DEVELOPER_TDD_WORKFLOW.md) - Developer workflow
 - [Test Organization](testing/TEST_ORGANIZATION.md) - Test structure
+- [Test Suite Overview](testing/TEST_SUITE_OVERVIEW.md) - Complete test suite overview
+- [Test Architecture](testing/TEST_ARCHITECTURE_DETAILS.md) - Test architecture details
+- [API Test Guide](testing/API_TEST_GUIDE.md) - API testing guide
+- [Integration Test Guide](testing/INTEGRATION_TEST_GUIDE.md) - Integration testing guide
+- [Portfolio Integration Tests](testing/PORTFOLIO_INTEGRATION_TESTS.md) - Portfolio tests
+- [Portfolio Synthesis Tests](testing/PORTFOLIO_SYNTHESIS_TESTS.md) - Portfolio synthesis tests
 
 ### Reference
 
 - [Command Reference](reference/COMMAND_REFERENCE.md) - Complete CLI reference
 - [Configuration Guide](CONFIGURATION_GUIDE.md) - Configuration options
 - [CSV Schemas](csv_schemas.md) - Data format specifications
+- [Tools Reference](reference/tools/README.md) - Trading tools and utilities
+- [Concurrency Reference](reference/concurrency/README.md) - Concurrency analysis
+- [Strategies Reference](reference/strategies/README.md) - Strategy implementations
+- [Data Organization](reference/DATA_ORGANIZATION.md) - Data directory structure
+- [TradingView Integration](reference/TRADINGVIEW_INTEGRATION.md) - TradingView setup
 
 ### Performance
 
@@ -88,6 +99,7 @@ Comprehensive documentation for the trading strategy analysis platform.
 - [Architecture Plans](architect/) - Historical implementation plans
 - [Product Owner Analysis](product_owner/) - Requirements documentation
 - [Business Analyst](business_analyst/) - User stories
+- [Implementation Logs](archive/implementation-logs/README.md) - Archived session summaries
 
 ---
 
@@ -143,4 +155,4 @@ This documentation follows these principles:
 ---
 
 **Navigation**: [Master Index](../INDEX.md) | [Main README](../README.md)
-**Status**: Documentation reorganized October 19, 2025
+**Status**: Documentation reorganized and consolidated October 28, 2025

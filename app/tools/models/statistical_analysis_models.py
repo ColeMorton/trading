@@ -41,6 +41,27 @@ class DataSource(str, Enum):
     RETURN_DISTRIBUTION = "return_distribution"
 
 
+@dataclass
+class StatisticalThresholds:
+    """Configuration for statistical threshold values."""
+
+    percentile_threshold: float = 90.0
+    dual_layer_threshold: float = 0.7
+    sample_size_minimum: int = 15
+    confidence_levels: dict[str, float] = None
+    rarity_threshold: float = 95.0
+    multi_timeframe_agreement: int = 2
+
+    def __post_init__(self):
+        """Initialize default confidence levels if not provided."""
+        if self.confidence_levels is None:
+            self.confidence_levels = {
+                "HIGH": 0.95,
+                "MEDIUM": 0.90,
+                "LOW": 0.80,
+            }
+
+
 class StatisticalMetrics(BaseModel):
     """Basic statistical metrics for any distribution"""
 
@@ -104,10 +125,12 @@ class AssetDistributionAnalysis(BaseModel):
 
     # Current performance context
     current_return: float | None = Field(
-        description="Current period return", default=None,
+        description="Current period return",
+        default=None,
     )
     current_percentile: float | None = Field(
-        description="Current return percentile rank", default=None,
+        description="Current return percentile rank",
+        default=None,
     )
 
     # Market regime indicators
@@ -141,7 +164,9 @@ class TradeHistoryAnalysis(BaseModel):
     win_rate: float = Field(description="Win rate", ge=0, le=1)
     profit_factor: float = Field(description="Profit factor", ge=0)
     average_exit_efficiency: float = Field(
-        description="Average exit efficiency", ge=0, le=1,
+        description="Average exit efficiency",
+        ge=0,
+        le=1,
     )
     mfe_capture_ratio: float = Field(description="MFE capture ratio", ge=0, le=1)
 
@@ -155,7 +180,9 @@ class TradeHistoryAnalysis(BaseModel):
         description="Statistical confidence level",
     )
     confidence_score: float = Field(
-        description="Numerical confidence score", ge=0, le=1,
+        description="Numerical confidence score",
+        ge=0,
+        le=1,
     )
 
 
@@ -182,7 +209,9 @@ class EquityAnalysis(BaseModel):
         description="Statistical confidence level",
     )
     confidence_score: float = Field(
-        description="Numerical confidence score", ge=0, le=1,
+        description="Numerical confidence score",
+        ge=0,
+        le=1,
     )
 
 
@@ -197,15 +226,23 @@ class DualSourceConvergence(BaseModel):
         default=None,
     )
     performance_agreement: float | None = Field(
-        description="Agreement in performance ranking", ge=0, le=1, default=None,
+        description="Agreement in performance ranking",
+        ge=0,
+        le=1,
+        default=None,
     )
     risk_agreement: float | None = Field(
-        description="Agreement in risk assessment", ge=0, le=1, default=None,
+        description="Agreement in risk assessment",
+        ge=0,
+        le=1,
+        default=None,
     )
 
     # Overall convergence score
     convergence_score: float = Field(
-        description="Overall convergence between sources", ge=0, le=1,
+        description="Overall convergence between sources",
+        ge=0,
+        le=1,
     )
     convergence_strength: Literal["weak", "moderate", "strong"] = Field(
         description="Convergence strength classification",
@@ -216,7 +253,8 @@ class DualSourceConvergence(BaseModel):
         description="Flag for significant divergence between sources",
     )
     divergence_explanation: str | None = Field(
-        description="Explanation of divergence if present", default=None,
+        description="Explanation of divergence if present",
+        default=None,
     )
 
 
@@ -232,10 +270,12 @@ class StrategyDistributionAnalysis(BaseModel):
 
     # Dual-source analysis results
     trade_history_analysis: TradeHistoryAnalysis | None = Field(
-        description="Trade history analysis results", default=None,
+        description="Trade history analysis results",
+        default=None,
     )
     equity_analysis: EquityAnalysis | None = Field(
-        description="Equity curve analysis results", default=None,
+        description="Equity curve analysis results",
+        default=None,
     )
 
     # Source convergence (when both sources available)
@@ -254,23 +294,29 @@ class StrategyDistributionAnalysis(BaseModel):
     profit_factor: float | None = Field(description="Profit factor", ge=0, default=None)
     sharpe_ratio: float | None = Field(description="Sharpe ratio", default=None)
     max_drawdown: float | None = Field(
-        description="Maximum drawdown", le=0, default=None,
+        description="Maximum drawdown",
+        le=0,
+        default=None,
     )
 
     # Legacy fields for backward compatibility
     mfe_statistics: StatisticalMetrics | None = Field(
-        description="MFE statistics (legacy)", default=None,
+        description="MFE statistics (legacy)",
+        default=None,
     )
     mae_statistics: StatisticalMetrics | None = Field(
-        description="MAE statistics (legacy)", default=None,
+        description="MAE statistics (legacy)",
+        default=None,
     )
     duration_statistics: StatisticalMetrics | None = Field(
-        description="Trade duration statistics (legacy)", default=None,
+        description="Trade duration statistics (legacy)",
+        default=None,
     )
 
     # Bootstrap validation for small samples
     bootstrap_results: BootstrapResults | None = Field(
-        description="Bootstrap validation results", default=None,
+        description="Bootstrap validation results",
+        default=None,
     )
 
     # Combined confidence assessment
@@ -278,15 +324,22 @@ class StrategyDistributionAnalysis(BaseModel):
         description="Overall statistical confidence level",
     )
     confidence_score: float = Field(
-        description="Overall numerical confidence score", ge=0, le=1,
+        description="Overall numerical confidence score",
+        ge=0,
+        le=1,
     )
 
     # Multi-source confidence (new)
     analysis_agreement_score: float | None = Field(
-        description="Agreement score between multiple sources", ge=0, le=1, default=None,
+        description="Agreement score between multiple sources",
+        ge=0,
+        le=1,
+        default=None,
     )
     combined_confidence: float = Field(
-        description="Combined confidence from all sources", ge=0, le=1,
+        description="Combined confidence from all sources",
+        ge=0,
+        le=1,
     )
 
 
@@ -304,7 +357,8 @@ class DivergenceMetrics(BaseModel):
 
     # Temporal context
     consecutive_periods_above_threshold: int = Field(
-        description="Consecutive periods above threshold", ge=0,
+        description="Consecutive periods above threshold",
+        ge=0,
     )
     trend_direction: Literal["up", "down", "neutral"] = Field(
         description="Recent trend direction",
@@ -316,23 +370,35 @@ class DualLayerConvergence(BaseModel):
 
     # Layer percentiles
     asset_layer_percentile: float = Field(
-        description="Asset layer percentile", ge=0, le=100,
+        description="Asset layer percentile",
+        ge=0,
+        le=100,
     )
     strategy_layer_percentile: float = Field(
-        description="Combined strategy layer percentile", ge=0, le=100,
+        description="Combined strategy layer percentile",
+        ge=0,
+        le=100,
     )
 
     # Individual strategy source percentiles (when available)
     trade_history_percentile: float | None = Field(
-        description="Trade history layer percentile", ge=0, le=100, default=None,
+        description="Trade history layer percentile",
+        ge=0,
+        le=100,
+        default=None,
     )
     equity_curve_percentile: float | None = Field(
-        description="Equity curve layer percentile", ge=0, le=100, default=None,
+        description="Equity curve layer percentile",
+        ge=0,
+        le=100,
+        default=None,
     )
 
     # Convergence scoring
     convergence_score: float = Field(
-        description="Overall convergence alignment score", ge=0, le=1,
+        description="Overall convergence alignment score",
+        ge=0,
+        le=1,
     )
     convergence_strength: Literal["weak", "moderate", "strong"] = Field(
         description="Overall convergence strength classification",
@@ -340,35 +406,53 @@ class DualLayerConvergence(BaseModel):
 
     # Multi-source convergence (new for dual-source analysis)
     asset_trade_convergence: float | None = Field(
-        description="Asset-Trade History convergence", ge=0, le=1, default=None,
+        description="Asset-Trade History convergence",
+        ge=0,
+        le=1,
+        default=None,
     )
     asset_equity_convergence: float | None = Field(
-        description="Asset-Equity convergence", ge=0, le=1, default=None,
+        description="Asset-Equity convergence",
+        ge=0,
+        le=1,
+        default=None,
     )
     trade_equity_convergence: float | None = Field(
-        description="Trade History-Equity convergence", ge=0, le=1, default=None,
+        description="Trade History-Equity convergence",
+        ge=0,
+        le=1,
+        default=None,
     )
 
     # Triple-layer convergence (when all sources available)
     triple_layer_convergence: float | None = Field(
-        description="Asset-Trade History-Equity convergence", ge=0, le=1, default=None,
+        description="Asset-Trade History-Equity convergence",
+        ge=0,
+        le=1,
+        default=None,
     )
 
     # Multi-timeframe validation
     timeframe_agreement: int = Field(
-        description="Number of timeframes in agreement", ge=0,
+        description="Number of timeframes in agreement",
+        ge=0,
     )
     total_timeframes: int = Field(description="Total timeframes analyzed", gt=0)
     cross_timeframe_score: float = Field(
-        description="Cross-timeframe agreement score", ge=0, le=1,
+        description="Cross-timeframe agreement score",
+        ge=0,
+        le=1,
     )
 
     # Source reliability weighting
     source_weights: dict[str, float] = Field(
-        description="Weights assigned to each data source", default_factory=dict,
+        description="Weights assigned to each data source",
+        default_factory=dict,
     )
     weighted_convergence_score: float = Field(
-        description="Source-weighted convergence score", ge=0, le=1,
+        description="Source-weighted convergence score",
+        ge=0,
+        le=1,
     )
 
 
@@ -380,38 +464,61 @@ class ProbabilisticExitSignal(BaseModel):
 
     # Signal layer breakdown
     primary_signal_strength: float = Field(
-        description="Primary signal strength", ge=0, le=1,
+        description="Primary signal strength",
+        ge=0,
+        le=1,
     )
     secondary_signal_strength: float = Field(
-        description="Secondary signal strength", ge=0, le=1,
+        description="Secondary signal strength",
+        ge=0,
+        le=1,
     )
     tertiary_signal_strength: float = Field(
-        description="Tertiary signal strength", ge=0, le=1,
+        description="Tertiary signal strength",
+        ge=0,
+        le=1,
     )
 
     # Multi-source signal contributions (new for dual-source analysis)
     asset_layer_contribution: float = Field(
-        description="Asset layer signal contribution", ge=0, le=1,
+        description="Asset layer signal contribution",
+        ge=0,
+        le=1,
     )
     trade_history_contribution: float | None = Field(
-        description="Trade history signal contribution", ge=0, le=1, default=None,
+        description="Trade history signal contribution",
+        ge=0,
+        le=1,
+        default=None,
     )
     equity_curve_contribution: float | None = Field(
-        description="Equity curve signal contribution", ge=0, le=1, default=None,
+        description="Equity curve signal contribution",
+        ge=0,
+        le=1,
+        default=None,
     )
 
     # Multi-factor scoring
     dual_layer_score: float = Field(
-        description="Dual-layer convergence contribution", ge=0, le=1,
+        description="Dual-layer convergence contribution",
+        ge=0,
+        le=1,
     )
     triple_layer_score: float | None = Field(
-        description="Triple-layer convergence contribution", ge=0, le=1, default=None,
+        description="Triple-layer convergence contribution",
+        ge=0,
+        le=1,
+        default=None,
     )
     timeframe_score: float = Field(
-        description="Multi-timeframe contribution", ge=0, le=1,
+        description="Multi-timeframe contribution",
+        ge=0,
+        le=1,
     )
     risk_adjusted_score: float = Field(
-        description="Risk-adjusted contribution", ge=0, le=1,
+        description="Risk-adjusted contribution",
+        ge=0,
+        le=1,
     )
 
     # Source agreement scoring (new)
@@ -422,12 +529,16 @@ class ProbabilisticExitSignal(BaseModel):
         default=None,
     )
     source_reliability_score: float = Field(
-        description="Overall source reliability assessment", ge=0, le=1,
+        description="Overall source reliability assessment",
+        ge=0,
+        le=1,
     )
 
     # Sample size adjustment
     sample_size_confidence: float = Field(
-        description="Sample size confidence multiplier", ge=0, le=1,
+        description="Sample size confidence multiplier",
+        ge=0,
+        le=1,
     )
     statistical_validity: ConfidenceLevel = Field(
         description="Statistical validity level",
@@ -435,24 +546,30 @@ class ProbabilisticExitSignal(BaseModel):
 
     # Multi-source confidence (new)
     data_source_confidence: dict[str, float] = Field(
-        description="Confidence by data source", default_factory=dict,
+        description="Confidence by data source",
+        default_factory=dict,
     )
     combined_source_confidence: float = Field(
-        description="Combined confidence from all sources", ge=0, le=1,
+        description="Combined confidence from all sources",
+        ge=0,
+        le=1,
     )
 
     # Expected outcomes
     expected_upside: float | None = Field(
-        description="Expected additional upside %", default=None,
+        description="Expected additional upside %",
+        default=None,
     )
     expected_timeline: str | None = Field(
-        description="Expected timeline for signal", default=None,
+        description="Expected timeline for signal",
+        default=None,
     )
     risk_warning: str | None = Field(description="Risk warning message", default=None)
 
     # Source divergence warnings (new)
     source_divergence_warning: str | None = Field(
-        description="Warning about divergence between data sources", default=None,
+        description="Warning about divergence between data sources",
+        default=None,
     )
 
 
@@ -480,10 +597,14 @@ class TradeHistoryMetrics(BaseModel):
 
     # Exit efficiency
     average_exit_efficiency: float = Field(
-        description="Average exit efficiency", ge=0, le=1,
+        description="Average exit efficiency",
+        ge=0,
+        le=1,
     )
     mfe_capture_ratio: float = Field(
-        description="Average MFE capture ratio", ge=0, le=1,
+        description="Average MFE capture ratio",
+        ge=0,
+        le=1,
     )
 
     @field_validator("closed_trades")
@@ -519,10 +640,12 @@ class StatisticalAnalysisResult(BaseModel):
 
     # Source-specific divergence (new)
     trade_history_divergence: DivergenceMetrics | None = Field(
-        description="Trade history specific divergence", default=None,
+        description="Trade history specific divergence",
+        default=None,
     )
     equity_curve_divergence: DivergenceMetrics | None = Field(
-        description="Equity curve specific divergence", default=None,
+        description="Equity curve specific divergence",
+        default=None,
     )
 
     # Enhanced convergence analysis
@@ -537,12 +660,15 @@ class StatisticalAnalysisResult(BaseModel):
 
     # Legacy trade history context (maintained for compatibility)
     trade_history_metrics: TradeHistoryMetrics | None = Field(
-        description="Trade history metrics (legacy)", default=None,
+        description="Trade history metrics (legacy)",
+        default=None,
     )
 
     # Overall assessment
     overall_confidence: float = Field(
-        description="Overall analysis confidence", ge=0, le=100,
+        description="Overall analysis confidence",
+        ge=0,
+        le=100,
     )
     recommendation_summary: str = Field(
         description="Human-readable recommendation summary",
@@ -553,7 +679,8 @@ class StatisticalAnalysisResult(BaseModel):
         description="Summary of agreement/divergence between data sources",
     )
     data_quality_assessment: dict[str, str] = Field(
-        description="Quality assessment for each data source", default_factory=dict,
+        description="Quality assessment for each data source",
+        default_factory=dict,
     )
 
     # Metadata
@@ -691,22 +818,26 @@ class BacktestingExportResult(BaseModel):
     export_timestamp: datetime = Field(description="Export timestamp")
     export_format: str = Field(description="Export format used")
     target_framework: str | None = Field(
-        description="Target backtesting framework", default=None,
+        description="Target backtesting framework",
+        default=None,
     )
 
     # Export files
     csv_file_path: str | None = Field(description="CSV export file path", default=None)
     json_file_path: str | None = Field(
-        description="JSON export file path", default=None,
+        description="JSON export file path",
+        default=None,
     )
     python_file_path: str | None = Field(
-        description="Python export file path", default=None,
+        description="Python export file path",
+        default=None,
     )
 
     # Quality metrics
     total_strategies: int = Field(description="Total strategies exported", ge=0)
     high_confidence_strategies: int = Field(
-        description="High confidence strategies", ge=0,
+        description="High confidence strategies",
+        ge=0,
     )
     validation_passed: bool = Field(description="Export validation status")
 

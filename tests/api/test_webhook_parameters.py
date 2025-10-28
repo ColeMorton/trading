@@ -60,24 +60,26 @@ class TestWebhookParameters:
     def test_seasonality_run_accepts_webhook_url(self):
         """Test that SeasonalityRunRequest accepts optional webhook_url."""
         request = SeasonalityRunRequest(
-            ticker="ETH-USD",
-            analysis_type="monthly",
+            tickers=["ETH-USD"],  # Use correct field name (plural list)
+            time_period=30,  # Use time_period instead of analysis_type (30 days ~= monthly)
             webhook_url="https://example.com/seasonality-webhook",
         )
 
         assert request.webhook_url == "https://example.com/seasonality-webhook"
-        assert request.analysis_type == "monthly"
+        assert request.tickers == ["ETH-USD"]
+        assert request.time_period == 30
 
     def test_concurrency_analyze_accepts_webhook_url(self):
         """Test that ConcurrencyAnalyzeRequest accepts optional webhook_url."""
         request = ConcurrencyAnalyzeRequest(
             portfolio="data/raw/strategies/portfolio.csv",
-            method="pearson",
+            # method field doesn't exist in schema - handled via profile or internally
             webhook_url="https://example.com/concurrency-webhook",
         )
 
         assert request.webhook_url == "https://example.com/concurrency-webhook"
-        assert request.method == "pearson"
+        assert request.portfolio == "data/raw/strategies/portfolio.csv"
+        assert request.refresh is True  # Test other valid fields
 
     def test_webhook_headers_optional(self):
         """Test that webhook_headers parameter is optional."""

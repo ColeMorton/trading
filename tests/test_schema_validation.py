@@ -11,7 +11,7 @@ import tempfile
 import pandas as pd
 import pytest
 
-from app.tools.portfolio.canonical_schema import (
+from app.tools.portfolio.base_extended_schemas import (
     CANONICAL_COLUMN_COUNT,
     CANONICAL_COLUMN_NAMES,
     CanonicalPortfolioSchema,

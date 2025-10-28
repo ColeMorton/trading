@@ -22,7 +22,9 @@ from app.tools.export.unified_export import (
     export_portfolio_batch,
     export_portfolio_csv,
 )
-from app.tools.export_csv import export_portfolio_to_csv  # Legacy function
+
+# Legacy function removed - export_portfolio_to_csv no longer exists
+# from app.tools.export_csv import export_portfolio_to_csv
 from app.tools.portfolio.base_extended_schemas import SchemaType
 
 
@@ -170,7 +172,8 @@ class TestUnifiedExportPerformance:
         # Perform multiple exports
         for i in range(5):
             processor.export_single(
-                data=sample_portfolio_polars, filename=f"perf_test_{i}.csv",
+                data=sample_portfolio_polars,
+                filename=f"perf_test_{i}.csv",
             )
 
         # Check performance summary
@@ -188,12 +191,14 @@ class TestUnifiedExportPerformance:
 
         # First export - should cache schema
         result1 = processor.export_single(
-            data=sample_portfolio_polars, filename="cache_test_1.csv",
+            data=sample_portfolio_polars,
+            filename="cache_test_1.csv",
         )
 
         # Second export with same data - should use cache
         result2 = processor.export_single(
-            data=sample_portfolio_polars, filename="cache_test_2.csv",
+            data=sample_portfolio_polars,
+            filename="cache_test_2.csv",
         )
 
         assert result1.success and result2.success
@@ -221,7 +226,8 @@ class TestUnifiedExportPerformance:
         ]
 
         results = export_portfolio_batch(
-            export_jobs=export_jobs, output_dir=temp_output_dir,
+            export_jobs=export_jobs,
+            output_dir=temp_output_dir,
         )
 
         assert len(results) == 3
@@ -243,7 +249,10 @@ class TestUnifiedExportPerformance:
 
     @pytest.mark.benchmark
     def test_performance_comparison_with_legacy(
-        self, temp_output_dir, sample_portfolio_polars, sample_portfolio_pandas,
+        self,
+        temp_output_dir,
+        sample_portfolio_polars,
+        sample_portfolio_pandas,
     ):
         """
         Compare performance of unified export vs legacy export system.
@@ -252,14 +261,16 @@ class TestUnifiedExportPerformance:
         """
         # Test unified system
         config = ExportConfig(
-            output_dir=temp_output_dir, enable_performance_monitoring=True,
+            output_dir=temp_output_dir,
+            enable_performance_monitoring=True,
         )
         processor = UnifiedExportProcessor(config)
 
         # Unified system timing
         start_time = time.time()
         unified_result = processor.export_single(
-            data=sample_portfolio_polars, filename="unified_benchmark.csv",
+            data=sample_portfolio_polars,
+            filename="unified_benchmark.csv",
         )
         unified_time = time.time() - start_time
 
@@ -268,7 +279,8 @@ class TestUnifiedExportPerformance:
             start_time = time.time()
             legacy_path = Path(temp_output_dir) / "legacy_benchmark.csv"
             export_portfolio_to_csv(
-                data=sample_portfolio_pandas, file_path=str(legacy_path),
+                data=sample_portfolio_pandas,
+                file_path=str(legacy_path),
             )
             legacy_time = time.time() - start_time
 
@@ -310,7 +322,8 @@ class TestUnifiedExportPerformance:
 
         start_time = time.time()
         result = processor.export_single(
-            data=large_data, filename="large_dataset_test.csv",
+            data=large_data,
+            filename="large_dataset_test.csv",
         )
         execution_time = time.time() - start_time
 
