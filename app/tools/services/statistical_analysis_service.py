@@ -123,8 +123,8 @@ class StatisticalAnalysisService:
             self.memory_optimizer = None
 
         # Position context cache
-        self._position_cache = {}
-        self._position_cache_timestamp = None
+        self._position_cache: dict[str, dict[str, dict[str, Any]]] = {}
+        self._position_cache_timestamp: float | None = None
 
         # Service metrics
         self.metrics = {
@@ -510,7 +510,7 @@ class StatisticalAnalysisService:
                 component_scores,
             )
 
-    def _generate_entry_signals_for_new_strategy(
+    async def _generate_entry_signals_for_new_strategy(
         self,
         strategy_analysis: "StrategyDistributionAnalysis",
         asset_analysis: "AssetDistributionAnalysis",
@@ -525,7 +525,7 @@ class StatisticalAnalysisService:
         This maintains the existing signal generation for strategies without open positions
         """
         try:
-            return self._generate_exit_signal(
+            return await self._generate_exit_signal(
                 asset_analysis,
                 strategy_analysis,
                 dual_layer_convergence,
@@ -3319,42 +3319,6 @@ class StatisticalAnalysisService:
                 convergence_strength="moderate",
                 has_significant_divergence=False,
             )
-
-    async def _check_trade_history_availability(
-        self, strategy_name: str, ticker: str
-    ) -> bool:
-        """Check if trade history data is available for the strategy"""
-        try:
-            # Check if trade history analyzer can find data
-            trade_data = await self.trade_history_analyzer.analyze_strategy_trades(
-                strategy_name, ticker
-            )
-            return trade_data.get("total_trades", 0) > 0
-        except Exception:
-            return False
-
-    async def _check_equity_data_availability(
-        self, strategy_name: str, ticker: str
-    ) -> bool:
-        """Check if equity curve data is available for the strategy"""
-        try:
-            # Search for equity data files
-            for equity_path in self.config.EQUITY_DATA_PATHS:
-                # Try the correct naming pattern: {strategy_name}.csv
-                potential_file = Path(equity_path) / f"{strategy_name}.csv"
-                if potential_file.exists():
-                    return True
-
-                # Fallback to old naming pattern for compatibility
-                potential_file_old = (
-                    Path(equity_path) / f"{strategy_name}_{ticker}_equity.csv"
-                )
-                if potential_file_old.exists():
-                    return True
-
-            return False
-        except Exception:
-            return False
 
     def _generate_source_agreement_summary(
         self, strategy_analysis: StrategyDistributionAnalysis

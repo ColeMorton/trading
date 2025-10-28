@@ -607,7 +607,7 @@ def _save_validation_report(validation_results: dict, filename: str):
 
 def _check_file_system_health(global_verbose: bool) -> dict:
     """Check file system health."""
-    result = {"status": "healthy", "issues": 0, "details": []}
+    result: dict[str, Any] = {"status": "healthy", "issues": 0, "details": []}
 
     # Check critical directories
     critical_dirs = ["data", "logs"]
@@ -642,7 +642,7 @@ def _check_file_system_health(global_verbose: bool) -> dict:
 
 def _check_dependencies_health(global_verbose: bool) -> dict:
     """Check Python dependencies health."""
-    result = {"status": "healthy", "issues": 0, "details": []}
+    result: dict[str, Any] = {"status": "healthy", "issues": 0, "details": []}
 
     # Check critical imports
     critical_imports = [
@@ -671,7 +671,7 @@ def _check_dependencies_health(global_verbose: bool) -> dict:
 
 def _check_data_integrity(global_verbose: bool) -> dict:
     """Check data integrity."""
-    result = {"status": "healthy", "issues": 0, "details": []}
+    result: dict[str, Any] = {"status": "healthy", "issues": 0, "details": []}
 
     project_root = Path.cwd()
 
@@ -710,7 +710,7 @@ def _check_data_integrity(global_verbose: bool) -> dict:
 
 def _check_configuration_health(global_verbose: bool) -> dict:
     """Check configuration health."""
-    result = {"status": "healthy", "issues": 0, "details": []}
+    result: dict[str, Any] = {"status": "healthy", "issues": 0, "details": []}
 
     project_root = Path.cwd()
 
@@ -739,7 +739,7 @@ def _check_configuration_health(global_verbose: bool) -> dict:
 
 def _check_performance_health(global_verbose: bool) -> dict:
     """Check performance health."""
-    result = {"status": "healthy", "issues": 0, "details": []}
+    result: dict[str, Any] = {"status": "healthy", "issues": 0, "details": []}
 
     # Simple performance check - import time
     import time

@@ -369,12 +369,12 @@ def analyze(
                 # Show expected output locations
                 from pathlib import Path
 
-                base_dir = (
+                base_dir_path: Path = (
                     Path(config.general.base_dir)
                     if config.general.base_dir
                     else Path.cwd()
                 )
-                results_dir = base_dir / "json"
+                results_dir = base_dir_path / "json"
                 if results_dir.exists():
                     rprint(f"📁 Results saved to: {results_dir}")
 
@@ -388,7 +388,7 @@ def analyze(
                             rprint(f"  • ... and {len(json_files) - 5} more files")
 
                 if config.trade_history.export_trade_history:
-                    trade_history_dir = base_dir / "json" / "trade_history"
+                    trade_history_dir = base_dir_path / "json" / "trade_history"
                     if trade_history_dir.exists():
                         rprint(f"📈 Trade history exported to: {trade_history_dir}")
 

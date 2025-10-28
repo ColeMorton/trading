@@ -113,10 +113,7 @@ class APISettings(BaseSettings):
     @property
     def is_local_development(self) -> bool:
         """Strict check for local development environment."""
-        return (
-            self.ENVIRONMENT == "development" 
-            and self.DEBUG is True
-        )
+        return self.ENVIRONMENT == "development" and self.DEBUG is True
 
     model_config = {
         "env_file": ".env",

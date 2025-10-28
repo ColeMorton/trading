@@ -152,14 +152,14 @@ async def validate_api_key(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Development API keys not valid in production",
             )
-        
+
         # Additional safety: check if DEBUG is disabled
         if not settings.DEBUG:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Development API keys require DEBUG mode",
             )
-        
+
         return APIKey(
             id="00000000-0000-0000-0000-000000000000",
             name="Development Key",
@@ -167,10 +167,10 @@ async def validate_api_key(
             rate_limit=settings.RATE_LIMIT_DEFAULT,
             is_active=True,
         )
-    
+
     # TODO: Replace with actual database lookup
     # This is where production keys will be validated
-    
+
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid or inactive API key",

@@ -17,7 +17,7 @@ from dataclasses import dataclass
 import json
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pandas as pd
 
@@ -1669,7 +1669,7 @@ class SignalDataAggregator:
             )
 
             # Generate enhanced report
-            report = {
+            report: dict[str, Any] = {
                 "report_timestamp": pd.Timestamp.now().isoformat(),
                 "coordination_enabled": True,
                 "total_strategies_requested": len(strategy_identifiers),
@@ -1791,7 +1791,7 @@ class SignalDataAggregator:
         Returns:
             Dictionary containing data quality assessment and recommendations
         """
-        report = {
+        report: dict[str, Any] = {
             "report_timestamp": pd.Timestamp.now().isoformat(),
             "total_strategies": 0,
             "strategies_with_issues": 0,

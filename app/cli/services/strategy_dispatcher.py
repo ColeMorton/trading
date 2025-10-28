@@ -89,7 +89,7 @@ class StrategyDispatcher:
             strategy_value = str(strategy_type).upper()
 
         # Initialize with defaults
-        params = {
+        params: dict[str, int | None] = {
             "fast_min": None,
             "fast_max": None,
             "slow_min": None,
@@ -202,7 +202,7 @@ class StrategyDispatcher:
         import polars as pl
 
         project_root = Path(get_project_root())
-        analysis = {
+        analysis: dict[str, Any] = {
             "export_summary": defaultdict(
                 lambda: {"files": 0, "portfolios": 0, "exists": False}
             ),
@@ -558,6 +558,10 @@ class StrategyDispatcher:
                 fast_min, fast_max = params["fast_min"], params["fast_max"]
                 slow_min, slow_max = params["slow_min"], params["slow_max"]
 
+                # Ensure all values are set
+                assert fast_min is not None and fast_max is not None
+                assert slow_min is not None and slow_max is not None
+
                 # Calculate valid combinations where fast < slow
                 total_combinations = 0
                 for fast in range(fast_min, fast_max + 1):
@@ -572,6 +576,11 @@ class StrategyDispatcher:
                 fast_min, fast_max = params["fast_min"], params["fast_max"]
                 slow_min, slow_max = params["slow_min"], params["slow_max"]
                 signal_min, signal_max = params["signal_min"], params["signal_max"]
+
+                # Ensure all values are set
+                assert fast_min is not None and fast_max is not None
+                assert slow_min is not None and slow_max is not None
+                assert signal_min is not None and signal_max is not None
 
                 # Calculate valid fast/slow combinations where slow > fast
                 valid_fast_slow_pairs = 0
@@ -615,6 +624,10 @@ class StrategyDispatcher:
                 fast_min, fast_max = params["fast_min"], params["fast_max"]
                 slow_min, slow_max = params["slow_min"], params["slow_max"]
 
+                # Ensure all values are set
+                assert fast_min is not None and fast_max is not None
+                assert slow_min is not None and slow_max is not None
+
                 # Get SMA step size for optimization (critical for performance)
                 sma_step = 1  # Default to 1 if not specified
                 if (
@@ -637,7 +650,12 @@ class StrategyDispatcher:
                 if hasattr(config, "atr_length_range") and config.atr_length_range:
                     # Use discrete ATR length values (optimized)
                     length_combinations = len(config.atr_length_range)
-                elif hasattr(config, "atr_length_min") and config.atr_length_max:
+                elif (
+                    hasattr(config, "atr_length_min")
+                    and hasattr(config, "atr_length_max")
+                    and config.atr_length_min is not None
+                    and config.atr_length_max is not None
+                ):
                     # Fallback to continuous range
                     length_combinations = (
                         config.atr_length_max - config.atr_length_min + 1
@@ -649,8 +667,11 @@ class StrategyDispatcher:
                 # Calculate ATR multiplier combinations
                 if (
                     hasattr(config, "atr_multiplier_min")
-                    and config.atr_multiplier_max
-                    and config.atr_multiplier_step
+                    and hasattr(config, "atr_multiplier_max")
+                    and hasattr(config, "atr_multiplier_step")
+                    and config.atr_multiplier_min is not None
+                    and config.atr_multiplier_max is not None
+                    and config.atr_multiplier_step is not None
                 ):
                     multiplier_step = config.atr_multiplier_step
                     multiplier_combinations = (
