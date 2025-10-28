@@ -3,6 +3,7 @@ Health check endpoints for API monitoring.
 """
 
 from datetime import datetime
+from typing import Any
 
 from fastapi import APIRouter, Depends, status
 from redis.asyncio import Redis
@@ -42,7 +43,7 @@ async def detailed_health_check(
     - Filesystem access
     - Configuration validity
     """
-    components: dict[str, dict[str, any]] = {}
+    components: dict[str, dict[str, Any]] = {}
 
     # Check database
     try:

@@ -13,6 +13,7 @@ For user operations, use the CLI interface:
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal, getcontext
+from typing import Any
 
 from app.tools.precision_fee_calculator import PrecisionEquityCalculator
 
@@ -206,7 +207,7 @@ class PortfolioBaselineCalculator:
             "total_pnl": total_pnl,
         }
 
-    def analyze_cash_flow_adequacy(self, positions: list) -> dict[str, any]:
+    def analyze_cash_flow_adequacy(self, positions: list) -> dict[str, Any]:
         """
         Analyze whether the calculated starting cash is adequate for all transactions.
 

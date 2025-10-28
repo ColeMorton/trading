@@ -8,6 +8,7 @@ with progress tracking and duplicate prevention.
 import csv
 from datetime import datetime
 from pathlib import Path
+from typing import Callable
 
 import pandas as pd
 
@@ -225,7 +226,7 @@ class BatchProcessingService:
             return []
 
     def get_tickers_needing_processing(
-        self, all_tickers: list[str], batch_size: int, resume_check_fn: callable
+        self, all_tickers: list[str], batch_size: int, resume_check_fn: Callable
     ) -> list[str]:
         """
         Get exactly batch_size tickers that need processing, considering both batch file

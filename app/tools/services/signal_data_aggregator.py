@@ -17,7 +17,7 @@ from dataclasses import dataclass
 import json
 import logging
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 import pandas as pd
 

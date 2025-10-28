@@ -10,7 +10,7 @@ Exit Criteria: RVOL(volume_Lookback) >= X AND Price Close < EMA(N)
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
-from typing import Any
+from typing import Any, Callable
 
 import pandas as pd
 import polars as pl
@@ -134,7 +134,7 @@ class VolumeParameterSweepEngine:
         ema_period: int,
         rvol_threshold: float,
         volume_lookback: int,
-        log: callable,
+        log: Callable,
     ) -> pd.DataFrame | None:
         """
         Generate hybrid MA entry + volume exit signals.
@@ -286,7 +286,7 @@ class VolumeParameterSweepEngine:
         rvol_threshold: float,
         volume_lookback: int,
         prices: pl.DataFrame,
-        log: callable,
+        log: Callable,
     ) -> dict[str, Any] | None:
         """
         Process a single volume parameter combination.
@@ -442,7 +442,7 @@ class VolumeParameterSweepEngine:
         ma_config: dict[str, Any],
         parameter_chunk: list[tuple[int, float, int]],
         prices: pl.DataFrame,
-        log: callable,
+        log: Callable,
         chunk_index: int,
     ) -> list[dict[str, Any]]:
         """
@@ -515,7 +515,7 @@ class VolumeParameterSweepEngine:
         self,
         ticker: str,
         ma_config: dict[str, Any],
-        log: callable,
+        log: Callable,
         use_concurrent: bool = True,
     ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         """
@@ -660,7 +660,7 @@ class VolumeParameterSweepEngine:
     def validate_sweep_results(
         self,
         results: list[dict[str, Any]],
-        log: callable,
+        log: Callable,
     ) -> tuple[bool, list[str]]:
         """
         Validate the results of the volume parameter sweep.
