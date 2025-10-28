@@ -27,17 +27,17 @@ class TestPatternTypeEnum:
 
     def test_all_pattern_types_defined(self):
         """Test that all expected pattern types are defined."""
-        PatternType, _, _, _ = get_models()
+        pattern_type_cls, _, _, _ = get_models()
 
         expected_types = {"Monthly", "Weekly", "Quarterly", "DayOfMonth", "WeekOfYear"}
 
-        actual_types = {pt.value for pt in PatternType}
+        actual_types = {pt.value for pt in pattern_type_cls}
 
         assert actual_types == expected_types
 
     def test_pattern_type_string_values(self):
         """Test pattern type string values are correct."""
-        PatternType, _, _, _ = get_models()
+        pattern_type_cls, _, _, _ = get_models()
 
         assert pattern_type_cls.MONTHLY.value == "Monthly"
         assert pattern_type_cls.WEEKLY.value == "Weekly"
@@ -51,7 +51,7 @@ class TestSeasonalityPatternModel:
 
     def test_pattern_creation_with_all_fields(self):
         """Test creating pattern with all fields."""
-        PatternType, SeasonalityPattern, _, _ = get_models()
+        pattern_type_cls, pattern_cls, _, _ = get_models()
 
         pattern = pattern_cls(
             pattern_type=pattern_type_cls.MONTHLY,
@@ -80,7 +80,7 @@ class TestSeasonalityPatternModel:
 
     def test_pattern_optional_fields_can_be_none(self):
         """Test that optional fields can be None."""
-        PatternType, SeasonalityPattern, _, _ = get_models()
+        pattern_type_cls, pattern_cls, _, _ = get_models()
 
         pattern = pattern_cls(
             pattern_type=pattern_type_cls.MONTHLY,
@@ -106,7 +106,7 @@ class TestSeasonalityPatternModel:
 
     def test_pattern_serialization_to_dict(self):
         """Test pattern serialization to dictionary."""
-        PatternType, SeasonalityPattern, _, _ = get_models()
+        pattern_type_cls, pattern_cls, _, _ = get_models()
 
         pattern = pattern_cls(
             pattern_type=pattern_type_cls.MONTHLY,
@@ -128,7 +128,7 @@ class TestSeasonalityPatternModel:
 
     def test_pattern_json_serialization(self):
         """Test pattern can be serialized to JSON."""
-        PatternType, SeasonalityPattern, _, _ = get_models()
+        pattern_type_cls, pattern_cls, _, _ = get_models()
 
         pattern = pattern_cls(
             pattern_type=pattern_type_cls.MONTHLY,
@@ -152,9 +152,9 @@ class TestSeasonalityConfigModel:
 
     def test_config_defaults(self):
         """Test that default values are applied correctly."""
-        _, _, _, SeasonalityConfig = get_models()
+        _, _, _, config_cls = get_models()
 
-        config = SeasonalityConfig()
+        config = config_cls()
 
         assert config.min_years == 3.0
         assert config.confidence_level == 0.95
@@ -165,9 +165,9 @@ class TestSeasonalityConfigModel:
 
     def test_config_custom_values(self):
         """Test configuration with custom values."""
-        _, _, _, SeasonalityConfig = get_models()
+        _, _, _, config_cls = get_models()
 
-        config = SeasonalityConfig(
+        config = config_cls(
             tickers=["AAPL", "MSFT"],
             min_years=5.0,
             confidence_level=0.99,
@@ -187,7 +187,7 @@ class TestSeasonalityConfigModel:
 
     def test_confidence_level_validation_rejects_invalid(self):
         """CRITICAL: Test that invalid confidence levels are rejected."""
-        _, _, _, SeasonalityConfig = get_models()
+        _, _, _, config_cls = get_models()
 
         # Test values outside (0, 1)
         with pytest.raises(ValidationError):
@@ -204,21 +204,21 @@ class TestSeasonalityConfigModel:
 
     def test_confidence_level_validation_accepts_valid(self):
         """Test that valid confidence levels are accepted."""
-        _, _, _, SeasonalityConfig = get_models()
+        _, _, _, config_cls = get_models()
 
         # Valid values
-        config_95 = SeasonalityConfig(confidence_level=0.95)
+        config_95 = config_cls(confidence_level=0.95)
         assert config_95.confidence_level == 0.95
 
-        config_99 = SeasonalityConfig(confidence_level=0.99)
+        config_99 = config_cls(confidence_level=0.99)
         assert config_99.confidence_level == 0.99
 
-        config_90 = SeasonalityConfig(confidence_level=0.90)
+        config_90 = config_cls(confidence_level=0.90)
         assert config_90.confidence_level == 0.90
 
     def test_min_years_validation_rejects_invalid(self):
         """CRITICAL: Test that invalid min_years are rejected."""
-        _, _, _, SeasonalityConfig = get_models()
+        _, _, _, config_cls = get_models()
 
         with pytest.raises(ValidationError):
                 config_cls(min_years=0)
@@ -228,14 +228,14 @@ class TestSeasonalityConfigModel:
 
     def test_min_years_validation_accepts_valid(self):
         """Test that valid min_years are accepted."""
-        _, _, _, SeasonalityConfig = get_models()
+        _, _, _, config_cls = get_models()
 
-        config = SeasonalityConfig(min_years=5.5)
+        config = config_cls(min_years=5.5)
         assert config.min_years == 5.5
 
     def test_output_format_validation_rejects_invalid(self):
         """Test that invalid output formats are rejected."""
-        _, _, _, SeasonalityConfig = get_models()
+        _, _, _, config_cls = get_models()
 
         with pytest.raises(ValidationError):
                 config_cls(output_format="xml")
@@ -245,21 +245,21 @@ class TestSeasonalityConfigModel:
 
     def test_output_format_validation_accepts_valid(self):
         """Test that valid output formats are accepted."""
-        _, _, _, SeasonalityConfig = get_models()
+        _, _, _, config_cls = get_models()
 
-        config_csv = SeasonalityConfig(output_format="csv")
+        config_csv = config_cls(output_format="csv")
         assert config_csv.output_format == "csv"
 
-        config_json = SeasonalityConfig(output_format="json")
+        config_json = config_cls(output_format="json")
         assert config_json.output_format == "json"
 
         # Should handle case-insensitive
-        config_upper = SeasonalityConfig(output_format="CSV")
+        config_upper = config_cls(output_format="CSV")
         assert config_upper.output_format == "csv"
 
     def test_time_period_days_validation_rejects_invalid(self):
         """Test that invalid time_period_days are rejected."""
-        _, _, _, SeasonalityConfig = get_models()
+        _, _, _, config_cls = get_models()
 
         with pytest.raises(ValidationError):
                 config_cls(time_period_days=0)
@@ -272,15 +272,15 @@ class TestSeasonalityConfigModel:
 
     def test_time_period_days_validation_accepts_valid(self):
         """Test that valid time_period_days are accepted."""
-        _, _, _, SeasonalityConfig = get_models()
+        _, _, _, config_cls = get_models()
 
-        config_1 = SeasonalityConfig(time_period_days=1)
+        config_1 = config_cls(time_period_days=1)
         assert config_1.time_period_days == 1
 
-        config_30 = SeasonalityConfig(time_period_days=30)
+        config_30 = config_cls(time_period_days=30)
         assert config_30.time_period_days == 30
 
-        config_365 = SeasonalityConfig(time_period_days=365)
+        config_365 = config_cls(time_period_days=365)
         assert config_365.time_period_days == 365
 
 
@@ -289,7 +289,7 @@ class TestSeasonalityResultModel:
 
     def test_result_creation_with_patterns(self):
         """Test creating result with patterns."""
-        PatternType, SeasonalityPattern, SeasonalityResult, _ = get_models()
+        pattern_type_cls, pattern_cls, result_cls, _ = get_models()
 
         patterns = [
             pattern_cls(
@@ -312,7 +312,7 @@ class TestSeasonalityResultModel:
             ),
         ]
 
-        result = SeasonalityResult(
+        result = result_cls(
             ticker="AAPL",
             data_start_date=datetime(2020, 1, 1),
             data_end_date=datetime(2025, 1, 1),
@@ -328,9 +328,9 @@ class TestSeasonalityResultModel:
 
     def test_result_strongest_pattern_can_be_none(self):
         """Test that strongest_pattern can be None."""
-        _, _, SeasonalityResult, _ = get_models()
+        _, _, result_cls, _ = get_models()
 
-        result = SeasonalityResult(
+        result = result_cls(
             ticker="AAPL",
             data_start_date=datetime(2020, 1, 1),
             data_end_date=datetime(2025, 1, 1),
@@ -344,9 +344,9 @@ class TestSeasonalityResultModel:
 
     def test_result_metadata_dictionary(self):
         """Test that metadata dictionary works."""
-        _, _, SeasonalityResult, _ = get_models()
+        _, _, result_cls, _ = get_models()
 
-        result = SeasonalityResult(
+        result = result_cls(
             ticker="AAPL",
             data_start_date=datetime(2020, 1, 1),
             data_end_date=datetime(2025, 1, 1),
@@ -362,9 +362,9 @@ class TestSeasonalityResultModel:
 
     def test_result_analysis_date_auto_populated(self):
         """Test that analysis_date is automatically populated."""
-        _, _, SeasonalityResult, _ = get_models()
+        _, _, result_cls, _ = get_models()
 
-        result = SeasonalityResult(
+        result = result_cls(
             ticker="AAPL",
             data_start_date=datetime(2020, 1, 1),
             data_end_date=datetime(2025, 1, 1),
