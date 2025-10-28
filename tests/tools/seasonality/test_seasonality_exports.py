@@ -50,12 +50,12 @@ class TestJSONExportStructure:
 
     def test_json_file_created(self, tmp_path, standard_5yr_data):
         """Test that JSON file is created."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], output_format="json")
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], output_format="json")
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.output_dir = tmp_path / "seasonality"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
@@ -76,12 +76,12 @@ class TestJSONExportStructure:
 
     def test_json_has_required_sections(self, tmp_path, standard_5yr_data):
         """CRITICAL: Test that JSON has all required top-level sections."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"])
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"])
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.output_dir = tmp_path / "seasonality"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
@@ -112,12 +112,12 @@ class TestJSONExportStructure:
 
     def test_json_meta_section_complete(self, tmp_path, standard_5yr_data):
         """Test that meta section contains all required fields."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"])
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"])
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.output_dir = tmp_path / "seasonality"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
@@ -157,12 +157,12 @@ class TestJSONExportStructure:
 
     def test_json_summary_statistics_complete(self, tmp_path, standard_5yr_data):
         """Test that summary statistics section is complete."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"])
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"])
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.output_dir = tmp_path / "seasonality"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
@@ -193,12 +193,12 @@ class TestJSONExportStructure:
 
     def test_json_pattern_arrays_populated(self, tmp_path, standard_5yr_data):
         """Test that pattern arrays contain data."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"])
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"])
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.output_dir = tmp_path / "seasonality"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
@@ -236,12 +236,12 @@ class TestJSONPatternFields:
 
     def test_pattern_has_all_fields(self, tmp_path, standard_5yr_data):
         """Test that each pattern in JSON has all required fields."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"])
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"])
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.output_dir = tmp_path / "seasonality"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
@@ -285,12 +285,12 @@ class TestJSONPatternFields:
 
     def test_numeric_precision_4_decimals(self, tmp_path, standard_5yr_data):
         """CRITICAL: Test that numeric values are rounded to 4 decimals."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"])
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"])
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.output_dir = tmp_path / "seasonality"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
@@ -321,12 +321,12 @@ class TestJSONPatternFields:
 
     def test_week_of_year_sorted_by_period_number(self, tmp_path, standard_5yr_data):
         """CRITICAL: Test that week_of_year patterns are sorted by period_number."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"])
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"])
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.output_dir = tmp_path / "seasonality"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
@@ -363,12 +363,12 @@ class TestCSVExportStructure:
 
     def test_csv_file_created(self, tmp_path, standard_5yr_data):
         """Test that CSV file is created."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], output_format="csv")
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], output_format="csv")
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.output_dir = tmp_path / "seasonality"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
@@ -389,12 +389,12 @@ class TestCSVExportStructure:
 
     def test_csv_has_all_columns(self, tmp_path, standard_5yr_data):
         """Test that CSV export includes all columns."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], output_format="csv")
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], output_format="csv")
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.output_dir = tmp_path / "seasonality"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
@@ -439,12 +439,12 @@ class TestCSVExportStructure:
 
     def test_csv_no_duplicate_rows(self, tmp_path, standard_5yr_data):
         """CRITICAL: Test that CSV doesn't have duplicate rows (bug we fixed)."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], output_format="csv")
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], output_format="csv")
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.output_dir = tmp_path / "seasonality"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
@@ -476,12 +476,12 @@ class TestCSVExportStructure:
 
     def test_csv_monthly_patterns_unique(self, tmp_path, standard_5yr_data):
         """Test that each month appears exactly once in CSV."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], output_format="csv")
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], output_format="csv")
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.output_dir = tmp_path / "seasonality"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
@@ -513,12 +513,12 @@ class TestJSONvsCSVConsistency:
 
     def test_json_and_csv_pattern_counts_match(self, tmp_path, standard_5yr_data):
         """Test that JSON and CSV have the same number of patterns."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], output_format="both")
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], output_format="both")
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.output_dir = tmp_path / "seasonality"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
@@ -559,12 +559,12 @@ class TestJSONvsCSVConsistency:
 
     def test_json_and_csv_values_match(self, tmp_path, standard_5yr_data):
         """Test that JSON and CSV contain the same values for patterns."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], output_format="both")
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], output_format="both")
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.output_dir = tmp_path / "seasonality"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
@@ -610,12 +610,12 @@ class TestExportEdgeCases:
 
     def test_export_with_no_patterns(self, tmp_path, few_samples_data):
         """Test export when no patterns meet min_sample_size."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup with very high min_sample_size
-        config = SeasonalityConfig(tickers=["TEST"], min_sample_size=1000)
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], min_sample_size=1000)
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.output_dir = tmp_path / "seasonality"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
@@ -642,16 +642,16 @@ class TestExportEdgeCases:
 
     def test_export_handles_none_values(self, tmp_path):
         """Test that None values in patterns are handled correctly in export."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
-        SeasonalityPattern = get_pattern_class()
-        PatternType = get_pattern_type()
-        SeasonalityResult = get_result_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
+        pattern_cls = get_pattern_class()
+        pattern_type_cls = get_pattern_type()
+        result_cls = get_result_class()
 
         # Create a result with patterns that have None values
         patterns = [
-            SeasonalityPattern(
-                pattern_type=PatternType.MONTHLY,
+            pattern_cls(
+                pattern_type=pattern_type_cls.MONTHLY,
                 period="January",
                 average_return=1.5,
                 std_dev=3.2,
@@ -665,9 +665,9 @@ class TestExportEdgeCases:
             ),
         ]
 
-        SeasonalityResult = get_result_class()
+        result_cls = get_result_class()
 
-        result = SeasonalityResult(
+        result = result_cls(
             ticker="TEST",
             data_start_date=datetime(2020, 1, 1),
             data_end_date=datetime(2025, 1, 1),
@@ -677,8 +677,8 @@ class TestExportEdgeCases:
         )
 
         # Setup service
-        config = SeasonalityConfig(tickers=["TEST"])
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"])
+        service = service_cls(config)
         service.output_dir = tmp_path / "seasonality"
         service.output_dir.mkdir(parents=True, exist_ok=True)
 

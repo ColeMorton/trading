@@ -32,11 +32,11 @@ class TestAutoDownloadTriggers:
     ):
         """CRITICAL: Download must trigger when price file doesn't exist."""
         # Setup
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
-        config = SeasonalityConfig(tickers=["TEST"], min_years=3.0)
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], min_years=3.0)
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
 
@@ -57,12 +57,12 @@ class TestAutoDownloadTriggers:
 
     def test_download_triggered_when_insufficient_years(self, tmp_path, short_1yr_data):
         """CRITICAL: Download must trigger when existing data has insufficient years."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], min_years=3.0)
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], min_years=3.0)
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
 
@@ -88,12 +88,12 @@ class TestRetryMechanism:
 
     def test_retry_flag_prevents_infinite_loop(self, tmp_path):
         """CRITICAL: Must NOT retry when _retry=True to prevent infinite loops."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], min_years=3.0)
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], min_years=3.0)
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
 
@@ -110,12 +110,12 @@ class TestRetryMechanism:
 
     def test_only_one_retry_attempt(self, tmp_path):
         """CRITICAL: System must only retry ONCE, not multiple times."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], min_years=3.0)
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], min_years=3.0)
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
 
@@ -140,12 +140,12 @@ class TestRetryMechanism:
 
     def test_no_download_when_retry_true_and_file_missing(self, tmp_path):
         """CRITICAL: If _retry=True and file still missing, return None without download."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], min_years=3.0)
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], min_years=3.0)
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
 
@@ -168,12 +168,12 @@ class TestDownloadSuccess:
 
     def test_successful_download_and_analysis(self, tmp_path, standard_5yr_data):
         """Test that successful download leads to successful analysis."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], min_years=3.0)
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], min_years=3.0)
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
 
@@ -197,12 +197,12 @@ class TestDownloadSuccess:
 
     def test_download_saves_correct_file_format(self, tmp_path):
         """Test that downloaded data is saved in correct format."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], min_years=3.0)
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], min_years=3.0)
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
 
@@ -244,12 +244,12 @@ class TestDownloadFailure:
 
     def test_download_failure_returns_none(self, tmp_path):
         """Test that download failure returns None gracefully."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], min_years=3.0)
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], min_years=3.0)
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
 
@@ -265,12 +265,12 @@ class TestDownloadFailure:
 
     def test_empty_download_returns_none(self, tmp_path):
         """Test that empty download result returns None."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], min_years=3.0)
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], min_years=3.0)
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
 
@@ -286,12 +286,12 @@ class TestDownloadFailure:
 
     def test_download_insufficient_data_after_retry(self, tmp_path, short_1yr_data):
         """Test that if download still has insufficient data, returns None."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], min_years=3.0)
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], min_years=3.0)
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
 
@@ -322,12 +322,12 @@ class TestMultiIndexHandling:
         # This test verifies the download_data utility handles MultiIndex correctly
         # The service relies on download_data to flatten columns
 
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], min_years=3.0)
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], min_years=3.0)
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
 
@@ -363,12 +363,12 @@ class TestDateFormatPreservation:
 
     def test_date_format_preserved_after_download(self, tmp_path):
         """Test that downloaded data maintains correct date format."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], min_years=3.0)
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], min_years=3.0)
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
 
@@ -401,12 +401,12 @@ class TestDateFormatPreservation:
 
     def test_iso_date_format_handled(self, tmp_path):
         """Test that ISO date format (from datetime objects) is handled."""
-        SeasonalityConfig = get_config_class()
-        SeasonalityService = get_service_class()
+        config_cls = get_config_class()
+        service_cls = get_service_class()
 
         # Setup
-        config = SeasonalityConfig(tickers=["TEST"], min_years=3.0)
-        service = SeasonalityService(config)
+        config = config_cls(tickers=["TEST"], min_years=3.0)
+        service = service_cls(config)
         service.prices_dir = tmp_path / "prices"
         service.prices_dir.mkdir(parents=True, exist_ok=True)
 

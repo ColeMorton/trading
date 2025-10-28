@@ -28,9 +28,9 @@ class TestSeasonalityAnalyzerInitialization:
 
     def test_default_initialization(self):
         """Test analyzer initializes with default parameters."""
-        SeasonalityAnalyzer = get_analyzer_class()
+        analyzer_cls = get_analyzer_class()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         assert analyzer.confidence_level == 0.95
         assert analyzer.min_sample_size == 10
@@ -38,12 +38,10 @@ class TestSeasonalityAnalyzerInitialization:
 
     def test_custom_initialization(self):
         """Test analyzer initializes with custom parameters."""
-        SeasonalityAnalyzer = get_analyzer_class()
-
-        SeasonalityAnalyzer = get_analyzer_class()
+        analyzer_cls = get_analyzer_class()
         get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(
+        analyzer = analyzer_cls(
             confidence_level=0.99, min_sample_size=20, time_period_days=5,
         )
 
@@ -57,13 +55,13 @@ class TestSharpeRatioCalculation:
 
     def test_sharpe_positive_returns(self):
         """Test Sharpe ratio calculation with positive returns."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         # Known returns: mean=0.01 (1%), std=0.02 (2%)
         returns = np.array(
@@ -86,10 +84,10 @@ class TestSharpeRatioCalculation:
 
     def test_sharpe_negative_returns(self):
         """Test Sharpe ratio is negative when returns are negative."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         returns = np.array(
             [
@@ -118,10 +116,10 @@ class TestSharpeRatioCalculation:
 
     def test_sharpe_zero_std_deviation(self):
         """CRITICAL: Test Sharpe ratio handles zero std deviation."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         # All same return = zero variance
         returns = np.array([0.01] * 10)
@@ -142,10 +140,10 @@ class TestSortinoRatioCalculation:
 
     def test_sortino_uses_downside_deviation_only(self):
         """CRITICAL: Sortino must use ONLY downside (negative) returns for std."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         # Mix of positive and negative returns
         returns = np.array(
@@ -170,10 +168,10 @@ class TestSortinoRatioCalculation:
 
     def test_sortino_all_positive_returns(self):
         """CRITICAL: Sortino with all positive returns (no downside)."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         # All positive - no downside deviation
         returns = np.array(
@@ -193,10 +191,10 @@ class TestSortinoRatioCalculation:
 
     def test_sortino_differs_from_sharpe_with_asymmetric_returns(self):
         """Test that Sortino differs from Sharpe when returns are asymmetric."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         # Highly asymmetric: many small gains, few large losses
         returns = np.array(
@@ -219,10 +217,10 @@ class TestMaximumDrawdown:
 
     def test_max_drawdown_identifies_worst_loss(self):
         """Test that max drawdown correctly identifies the worst single-period loss."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         returns = np.array([0.01, -0.02, 0.005, -0.08, 0.01, 0.02])  # -8% is worst
 
@@ -238,10 +236,10 @@ class TestMaximumDrawdown:
 
     def test_max_drawdown_all_positive(self):
         """Test max drawdown with all positive returns."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         returns = np.array([0.01, 0.02, 0.015, 0.008, 0.012])
 
@@ -257,10 +255,10 @@ class TestMaximumDrawdown:
 
     def test_max_drawdown_all_negative(self):
         """Test max drawdown with all negative returns."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         returns = np.array([-0.01, -0.02, -0.015, -0.008, -0.012])
 
@@ -280,10 +278,10 @@ class TestSkewnessCalculation:
 
     def test_skewness_requires_minimum_samples(self):
         """Test that skewness is 0 when fewer than 3 samples."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         # Only 2 samples
         returns = np.array([0.01, 0.02])
@@ -300,10 +298,10 @@ class TestSkewnessCalculation:
 
     def test_skewness_positive_for_right_tail(self, high_skew_data):
         """Test positive skewness for right-tailed distribution."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         # Calculate returns from price data
         returns = high_skew_data["Close"].pct_change().dropna()
@@ -323,10 +321,10 @@ class TestSkewnessCalculation:
 
     def test_skewness_matches_scipy(self):
         """Test that skewness matches scipy.stats.skew calculation."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         np.random.seed(42)
         returns = np.random.normal(0, 0.02, 50)
@@ -349,10 +347,10 @@ class TestKurtosisCalculation:
 
     def test_kurtosis_requires_minimum_samples(self):
         """Test that kurtosis is 0 when fewer than 4 samples."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         # Only 3 samples
         returns = np.array([0.01, 0.02, 0.015])
@@ -369,10 +367,10 @@ class TestKurtosisCalculation:
 
     def test_kurtosis_matches_scipy(self):
         """Test that kurtosis matches scipy.stats.kurtosis calculation."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         np.random.seed(42)
         returns = np.random.normal(0, 0.02, 50)
@@ -395,10 +393,10 @@ class TestStatisticalSignificance:
 
     def test_p_value_in_valid_range(self):
         """Test that p-value is always between 0 and 1."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         np.random.seed(42)
         returns = np.random.normal(0.001, 0.02, 50)
@@ -416,10 +414,10 @@ class TestStatisticalSignificance:
 
     def test_significance_equals_one_minus_pvalue_when_significant(self):
         """Test that statistical_significance = 1 - p_value when p < confidence_level."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(confidence_level=0.95)
+        analyzer = analyzer_cls(confidence_level=0.95)
 
         # Create data with clear difference (very low p-value)
         returns = np.array([0.05] * 20)  # High returns
@@ -437,10 +435,10 @@ class TestStatisticalSignificance:
 
     def test_significance_zero_when_not_significant(self):
         """Test that statistical_significance = 0 when p >= confidence_level."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(confidence_level=0.95)
+        analyzer = analyzer_cls(confidence_level=0.95)
 
         # Create data with no difference (high p-value)
         np.random.seed(42)
@@ -464,10 +462,10 @@ class TestConfidenceIntervals:
 
     def test_confidence_interval_calculated(self):
         """Test that confidence intervals are calculated."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(confidence_level=0.95)
+        analyzer = analyzer_cls(confidence_level=0.95)
 
         returns = np.array(
             [0.01, 0.015, 0.005, 0.012, 0.008, 0.011, 0.013, 0.009, 0.007, 0.014],
@@ -486,10 +484,10 @@ class TestConfidenceIntervals:
 
     def test_confidence_interval_contains_mean(self):
         """Test that confidence interval contains the mean."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(confidence_level=0.95)
+        analyzer = analyzer_cls(confidence_level=0.95)
 
         returns = np.array(
             [0.01, 0.015, 0.005, 0.012, 0.008, 0.011, 0.013, 0.009, 0.007, 0.014],
@@ -512,10 +510,10 @@ class TestConfidenceIntervals:
 
     def test_confidence_interval_width_increases_with_std(self):
         """Test that wider std deviation gives wider confidence interval."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(confidence_level=0.95)
+        analyzer = analyzer_cls(confidence_level=0.95)
 
         # Low variance
         returns_low_var = np.array([0.01] * 10)
@@ -555,10 +553,10 @@ class TestConsistencyScore:
 
     def test_consistency_equals_win_rate(self):
         """Test that consistency score equals win rate."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         returns = np.array(
             [0.01, -0.02, 0.015, 0.005, -0.01, 0.012, 0.008, 0.011, -0.005, 0.009],
@@ -576,10 +574,10 @@ class TestConsistencyScore:
 
     def test_consistency_100_percent_all_positive(self, all_positive_returns_data):
         """Test 100% consistency with all positive returns."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         returns = all_positive_returns_data["Close"].pct_change().dropna()
         returns_array = returns.values[:50]
@@ -597,10 +595,10 @@ class TestConsistencyScore:
 
     def test_consistency_0_percent_all_negative(self, all_negative_returns_data):
         """Test 0% consistency with all negative returns."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         returns = all_negative_returns_data["Close"].pct_change().dropna()
         returns_array = returns.values[:50]
@@ -622,10 +620,10 @@ class TestEdgeCases:
 
     def test_single_sample(self):
         """Test pattern creation with single sample."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         returns = np.array([0.01])
 
@@ -643,10 +641,10 @@ class TestEdgeCases:
 
     def test_two_samples(self):
         """Test pattern creation with two samples."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         returns = np.array([0.01, 0.02])
 
@@ -663,10 +661,10 @@ class TestEdgeCases:
 
     def test_zero_variance_returns(self, flat_returns_data):
         """Test with zero variance (all same return)."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         returns = flat_returns_data["Close"].pct_change().dropna()
         returns_array = returns.values[:50]

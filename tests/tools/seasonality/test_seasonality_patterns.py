@@ -30,14 +30,14 @@ class TestMonthlyPatterns:
 
     def test_all_12_months_generated(self, standard_5yr_data):
         """Test that all 12 months are generated with sufficient data."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(min_sample_size=10)
+        analyzer = analyzer_cls(min_sample_size=10)
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
         monthly_patterns = [
-            p for p in patterns if p.pattern_type == PatternType.MONTHLY
+            p for p in patterns if p.pattern_type == pattern_type_cls.MONTHLY
         ]
 
         # Should have 12 months
@@ -65,14 +65,14 @@ class TestMonthlyPatterns:
 
     def test_returns_grouped_by_month_correctly(self, standard_5yr_data):
         """Test that returns are correctly grouped by calendar month."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(min_sample_size=5)
+        analyzer = analyzer_cls(min_sample_size=5)
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
         monthly_patterns = [
-            p for p in patterns if p.pattern_type == PatternType.MONTHLY
+            p for p in patterns if p.pattern_type == pattern_type_cls.MONTHLY
         ]
 
         # Each month should have roughly 1/12 of the data (with some variance)
@@ -87,14 +87,14 @@ class TestMonthlyPatterns:
 
     def test_month_order_preserved(self, standard_5yr_data):
         """Test that months appear in correct order."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
         monthly_patterns = [
-            p for p in patterns if p.pattern_type == PatternType.MONTHLY
+            p for p in patterns if p.pattern_type == pattern_type_cls.MONTHLY
         ]
 
         # Get the order of months
@@ -120,14 +120,14 @@ class TestMonthlyPatterns:
 
     def test_no_duplicate_monthly_patterns(self, standard_5yr_data):
         """CRITICAL: Test that no duplicate monthly patterns are created."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
         monthly_patterns = [
-            p for p in patterns if p.pattern_type == PatternType.MONTHLY
+            p for p in patterns if p.pattern_type == pattern_type_cls.MONTHLY
         ]
 
         # Check for duplicates
@@ -136,14 +136,14 @@ class TestMonthlyPatterns:
 
     def test_insufficient_data_months_skipped(self, few_samples_data):
         """Test that months with < min_sample_size are skipped."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(min_sample_size=10)
+        analyzer = analyzer_cls(min_sample_size=10)
 
         patterns = analyzer.analyze_all_patterns(few_samples_data, detrend=False)
         monthly_patterns = [
-            p for p in patterns if p.pattern_type == PatternType.MONTHLY
+            p for p in patterns if p.pattern_type == pattern_type_cls.MONTHLY
         ]
 
         # With only 40 days, not all months will have 10 samples
@@ -159,13 +159,13 @@ class TestWeeklyPatterns:
 
     def test_all_5_weekdays_generated(self, standard_5yr_data):
         """Test that all 5 weekdays are generated."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(min_sample_size=10)
+        analyzer = analyzer_cls(min_sample_size=10)
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
-        weekly_patterns = [p for p in patterns if p.pattern_type == PatternType.WEEKLY]
+        weekly_patterns = [p for p in patterns if p.pattern_type == pattern_type_cls.WEEKLY]
 
         # Should have 5 weekdays (Mon-Fri)
         assert len(weekly_patterns) == 5
@@ -179,13 +179,13 @@ class TestWeeklyPatterns:
 
     def test_weekday_order_preserved(self, standard_5yr_data):
         """Test that weekdays appear in correct order (Mon-Fri)."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
-        weekly_patterns = [p for p in patterns if p.pattern_type == PatternType.WEEKLY]
+        weekly_patterns = [p for p in patterns if p.pattern_type == pattern_type_cls.WEEKLY]
 
         # Get the order of days
         day_names = [p.period for p in weekly_patterns]
@@ -196,13 +196,13 @@ class TestWeeklyPatterns:
 
     def test_no_weekend_data(self, standard_5yr_data):
         """Test that no weekend days (Saturday, Sunday) are included."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
-        weekly_patterns = [p for p in patterns if p.pattern_type == PatternType.WEEKLY]
+        weekly_patterns = [p for p in patterns if p.pattern_type == pattern_type_cls.WEEKLY]
 
         # Get day names
         day_names = [p.period for p in weekly_patterns]
@@ -213,13 +213,13 @@ class TestWeeklyPatterns:
 
     def test_no_duplicate_weekly_patterns(self, standard_5yr_data):
         """CRITICAL: Test that no duplicate weekly patterns are created."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
-        weekly_patterns = [p for p in patterns if p.pattern_type == PatternType.WEEKLY]
+        weekly_patterns = [p for p in patterns if p.pattern_type == pattern_type_cls.WEEKLY]
 
         # Check for duplicates
         day_names = [p.period for p in weekly_patterns]
@@ -231,14 +231,14 @@ class TestQuarterlyPatterns:
 
     def test_all_4_quarters_generated(self, standard_5yr_data):
         """Test that all 4 quarters are generated."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(min_sample_size=10)
+        analyzer = analyzer_cls(min_sample_size=10)
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
         quarterly_patterns = [
-            p for p in patterns if p.pattern_type == PatternType.QUARTERLY
+            p for p in patterns if p.pattern_type == pattern_type_cls.QUARTERLY
         ]
 
         # Should have 4 quarters
@@ -269,13 +269,13 @@ class TestQuarterlyPatterns:
 
         data = pd.DataFrame({"Date": dates, "Close": prices}).set_index("Date")
 
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(min_sample_size=10)
+        analyzer = analyzer_cls(min_sample_size=10)
         patterns = analyzer.analyze_all_patterns(data, detrend=False)
         quarterly_patterns = [
-            p for p in patterns if p.pattern_type == PatternType.QUARTERLY
+            p for p in patterns if p.pattern_type == pattern_type_cls.QUARTERLY
         ]
 
         # Each quarter should have roughly 3 months of data
@@ -289,14 +289,14 @@ class TestQuarterlyPatterns:
 
     def test_no_duplicate_quarterly_patterns(self, standard_5yr_data):
         """CRITICAL: Test that no duplicate quarterly patterns are created."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
         quarterly_patterns = [
-            p for p in patterns if p.pattern_type == PatternType.QUARTERLY
+            p for p in patterns if p.pattern_type == pattern_type_cls.QUARTERLY
         ]
 
         # Check for duplicates
@@ -309,14 +309,14 @@ class TestWeekOfYearPatterns:
 
     def test_weeks_1_to_52_generated(self, standard_5yr_data):
         """Test that weeks 1-52 are generated."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(min_sample_size=5)  # Lower threshold for weeks
+        analyzer = analyzer_cls(min_sample_size=5)  # Lower threshold for weeks
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
         week_patterns = [
-            p for p in patterns if p.pattern_type == PatternType.WEEK_OF_YEAR
+            p for p in patterns if p.pattern_type == pattern_type_cls.WEEK_OF_YEAR
         ]
 
         # Should have most weeks (may not have all 52 with min_sample_size)
@@ -329,14 +329,14 @@ class TestWeekOfYearPatterns:
 
     def test_period_number_set_for_sorting(self, standard_5yr_data):
         """CRITICAL: Test that period_number is set for week-of-year patterns."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(min_sample_size=5)
+        analyzer = analyzer_cls(min_sample_size=5)
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
         week_patterns = [
-            p for p in patterns if p.pattern_type == PatternType.WEEK_OF_YEAR
+            p for p in patterns if p.pattern_type == pattern_type_cls.WEEK_OF_YEAR
         ]
 
         # All week patterns should have period_number
@@ -348,14 +348,14 @@ class TestWeekOfYearPatterns:
 
     def test_weeks_can_be_sorted_by_period_number(self, standard_5yr_data):
         """Test that weeks can be sorted correctly by period_number."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(min_sample_size=5)
+        analyzer = analyzer_cls(min_sample_size=5)
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
         week_patterns = [
-            p for p in patterns if p.pattern_type == PatternType.WEEK_OF_YEAR
+            p for p in patterns if p.pattern_type == pattern_type_cls.WEEK_OF_YEAR
         ]
 
         # Sort by period_number
@@ -369,8 +369,8 @@ class TestWeekOfYearPatterns:
 
     def test_week_53_handled_when_present(self):
         """Test that week 53 (leap year) is handled if present in data."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
         # Create data that includes week 53
         # 2020 had week 53 (ISO week date)
@@ -382,10 +382,10 @@ class TestWeekOfYearPatterns:
 
         data = pd.DataFrame({"Date": dates, "Close": prices}).set_index("Date")
 
-        analyzer = SeasonalityAnalyzer(min_sample_size=2)
+        analyzer = analyzer_cls(min_sample_size=2)
         patterns = analyzer.analyze_all_patterns(data, detrend=False)
         week_patterns = [
-            p for p in patterns if p.pattern_type == PatternType.WEEK_OF_YEAR
+            p for p in patterns if p.pattern_type == pattern_type_cls.WEEK_OF_YEAR
         ]
 
         # Check if week 53 exists (depends on ISO week calendar for 2020)
@@ -395,14 +395,14 @@ class TestWeekOfYearPatterns:
 
     def test_no_duplicate_week_patterns(self, standard_5yr_data):
         """CRITICAL: Test that no duplicate week-of-year patterns are created."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(min_sample_size=5)
+        analyzer = analyzer_cls(min_sample_size=5)
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
         week_patterns = [
-            p for p in patterns if p.pattern_type == PatternType.WEEK_OF_YEAR
+            p for p in patterns if p.pattern_type == pattern_type_cls.WEEK_OF_YEAR
         ]
 
         # Check for duplicates by period_number
@@ -415,10 +415,10 @@ class TestPatternAnalysisIntegration:
 
     def test_all_pattern_types_generated(self, standard_5yr_data):
         """Test that all 5 pattern types are generated."""
-        SeasonalityAnalyzer = get_analyzer_class()
-        PatternType = get_pattern_type()
+        analyzer_cls = get_analyzer_class()
+        pattern_type_cls = get_pattern_type()
 
-        analyzer = SeasonalityAnalyzer(min_sample_size=5)
+        analyzer = analyzer_cls(min_sample_size=5)
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
 
@@ -427,20 +427,20 @@ class TestPatternAnalysisIntegration:
 
         # Should have all 5 types
         expected_types = {
-            PatternType.MONTHLY,
-            PatternType.WEEKLY,
-            PatternType.QUARTERLY,
-            PatternType.DAY_OF_MONTH,
-            PatternType.WEEK_OF_YEAR,
+            pattern_type_cls.MONTHLY,
+            pattern_type_cls.WEEKLY,
+            pattern_type_cls.QUARTERLY,
+            pattern_type_cls.DAY_OF_MONTH,
+            pattern_type_cls.WEEK_OF_YEAR,
         }
 
         assert pattern_types == expected_types
 
     def test_no_duplicate_patterns_across_types(self, standard_5yr_data):
         """CRITICAL: Test that there are no duplicate patterns across all types."""
-        SeasonalityAnalyzer = get_analyzer_class()
+        analyzer_cls = get_analyzer_class()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
 
@@ -452,9 +452,9 @@ class TestPatternAnalysisIntegration:
 
     def test_detrending_option_works(self, standard_5yr_data):
         """Test that detrending option affects results."""
-        SeasonalityAnalyzer = get_analyzer_class()
+        analyzer_cls = get_analyzer_class()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         # Run with detrending
         patterns_detrended = analyzer.analyze_all_patterns(
@@ -474,9 +474,9 @@ class TestPatternAnalysisIntegration:
 
     def test_empty_data_returns_empty_patterns(self):
         """Test that empty data returns empty pattern list."""
-        SeasonalityAnalyzer = get_analyzer_class()
+        analyzer_cls = get_analyzer_class()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         # Empty dataframe
         empty_data = pd.DataFrame(
@@ -490,7 +490,7 @@ class TestPatternAnalysisIntegration:
 
     def test_min_sample_size_filtering(self, standard_5yr_data):
         """Test that min_sample_size correctly filters patterns."""
-        SeasonalityAnalyzer = get_analyzer_class()
+        analyzer_cls = get_analyzer_class()
 
         # High min_sample_size should filter out more patterns
         analyzer_strict = SeasonalityAnalyzer(min_sample_size=100)
@@ -521,9 +521,9 @@ class TestSeasonalStrengthCalculation:
 
     def test_seasonal_strength_between_0_and_1(self, standard_5yr_data):
         """Test that seasonal strength is between 0 and 1."""
-        SeasonalityAnalyzer = get_analyzer_class()
+        analyzer_cls = get_analyzer_class()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
         strength = analyzer.calculate_seasonal_strength(patterns)
@@ -532,9 +532,9 @@ class TestSeasonalStrengthCalculation:
 
     def test_seasonal_strength_empty_patterns(self):
         """Test seasonal strength returns 0 for empty patterns."""
-        SeasonalityAnalyzer = get_analyzer_class()
+        analyzer_cls = get_analyzer_class()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         strength = analyzer.calculate_seasonal_strength([])
 
@@ -542,9 +542,9 @@ class TestSeasonalStrengthCalculation:
 
     def test_seasonal_strength_weighted_by_sample_size(self, standard_5yr_data):
         """Test that seasonal strength is weighted by sample sizes."""
-        SeasonalityAnalyzer = get_analyzer_class()
+        analyzer_cls = get_analyzer_class()
 
-        analyzer = SeasonalityAnalyzer()
+        analyzer = analyzer_cls()
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
 

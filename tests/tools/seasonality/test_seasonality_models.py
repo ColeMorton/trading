@@ -39,11 +39,11 @@ class TestPatternTypeEnum:
         """Test pattern type string values are correct."""
         PatternType, _, _, _ = get_models()
 
-        assert PatternType.MONTHLY.value == "Monthly"
-        assert PatternType.WEEKLY.value == "Weekly"
-        assert PatternType.QUARTERLY.value == "Quarterly"
-        assert PatternType.DAY_OF_MONTH.value == "DayOfMonth"
-        assert PatternType.WEEK_OF_YEAR.value == "WeekOfYear"
+        assert pattern_type_cls.MONTHLY.value == "Monthly"
+        assert pattern_type_cls.WEEKLY.value == "Weekly"
+        assert pattern_type_cls.QUARTERLY.value == "Quarterly"
+        assert pattern_type_cls.DAY_OF_MONTH.value == "DayOfMonth"
+        assert pattern_type_cls.WEEK_OF_YEAR.value == "WeekOfYear"
 
 
 class TestSeasonalityPatternModel:
@@ -53,8 +53,8 @@ class TestSeasonalityPatternModel:
         """Test creating pattern with all fields."""
         PatternType, SeasonalityPattern, _, _ = get_models()
 
-        pattern = SeasonalityPattern(
-            pattern_type=PatternType.MONTHLY,
+        pattern = pattern_cls(
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             average_return=1.5,
             std_dev=3.2,
@@ -73,7 +73,7 @@ class TestSeasonalityPatternModel:
             period_number=1,
         )
 
-        assert pattern.pattern_type == PatternType.MONTHLY
+        assert pattern.pattern_type == pattern_type_cls.MONTHLY
         assert pattern.period == "January"
         assert pattern.average_return == 1.5
         assert pattern.sharpe_ratio == 0.47
@@ -82,8 +82,8 @@ class TestSeasonalityPatternModel:
         """Test that optional fields can be None."""
         PatternType, SeasonalityPattern, _, _ = get_models()
 
-        pattern = SeasonalityPattern(
-            pattern_type=PatternType.MONTHLY,
+        pattern = pattern_cls(
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             average_return=1.5,
             std_dev=3.2,
@@ -108,8 +108,8 @@ class TestSeasonalityPatternModel:
         """Test pattern serialization to dictionary."""
         PatternType, SeasonalityPattern, _, _ = get_models()
 
-        pattern = SeasonalityPattern(
-            pattern_type=PatternType.MONTHLY,
+        pattern = pattern_cls(
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             average_return=1.5,
             std_dev=3.2,
@@ -130,8 +130,8 @@ class TestSeasonalityPatternModel:
         """Test pattern can be serialized to JSON."""
         PatternType, SeasonalityPattern, _, _ = get_models()
 
-        pattern = SeasonalityPattern(
-            pattern_type=PatternType.MONTHLY,
+        pattern = pattern_cls(
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             average_return=1.5,
             std_dev=3.2,
@@ -191,16 +191,16 @@ class TestSeasonalityConfigModel:
 
         # Test values outside (0, 1)
         with pytest.raises(ValidationError):
-            SeasonalityConfig(confidence_level=0.0)
+                config_cls(confidence_level=0.0)
 
         with pytest.raises(ValidationError):
-            SeasonalityConfig(confidence_level=1.0)
+                config_cls(confidence_level=1.0)
 
         with pytest.raises(ValidationError):
-            SeasonalityConfig(confidence_level=1.5)
+                config_cls(confidence_level=1.5)
 
         with pytest.raises(ValidationError):
-            SeasonalityConfig(confidence_level=-0.5)
+                config_cls(confidence_level=-0.5)
 
     def test_confidence_level_validation_accepts_valid(self):
         """Test that valid confidence levels are accepted."""
@@ -221,10 +221,10 @@ class TestSeasonalityConfigModel:
         _, _, _, SeasonalityConfig = get_models()
 
         with pytest.raises(ValidationError):
-            SeasonalityConfig(min_years=0)
+                config_cls(min_years=0)
 
         with pytest.raises(ValidationError):
-            SeasonalityConfig(min_years=-1)
+                config_cls(min_years=-1)
 
     def test_min_years_validation_accepts_valid(self):
         """Test that valid min_years are accepted."""
@@ -238,10 +238,10 @@ class TestSeasonalityConfigModel:
         _, _, _, SeasonalityConfig = get_models()
 
         with pytest.raises(ValidationError):
-            SeasonalityConfig(output_format="xml")
+                config_cls(output_format="xml")
 
         with pytest.raises(ValidationError):
-            SeasonalityConfig(output_format="txt")
+                config_cls(output_format="txt")
 
     def test_output_format_validation_accepts_valid(self):
         """Test that valid output formats are accepted."""
@@ -262,13 +262,13 @@ class TestSeasonalityConfigModel:
         _, _, _, SeasonalityConfig = get_models()
 
         with pytest.raises(ValidationError):
-            SeasonalityConfig(time_period_days=0)
+                config_cls(time_period_days=0)
 
         with pytest.raises(ValidationError):
-            SeasonalityConfig(time_period_days=-1)
+                config_cls(time_period_days=-1)
 
         with pytest.raises(ValidationError):
-            SeasonalityConfig(time_period_days=366)
+                config_cls(time_period_days=366)
 
     def test_time_period_days_validation_accepts_valid(self):
         """Test that valid time_period_days are accepted."""
@@ -292,8 +292,8 @@ class TestSeasonalityResultModel:
         PatternType, SeasonalityPattern, SeasonalityResult, _ = get_models()
 
         patterns = [
-            SeasonalityPattern(
-                pattern_type=PatternType.MONTHLY,
+            pattern_cls(
+                pattern_type=pattern_type_cls.MONTHLY,
                 period="January",
                 average_return=1.5,
                 std_dev=3.2,
@@ -301,8 +301,8 @@ class TestSeasonalityResultModel:
                 sample_size=120,
                 statistical_significance=0.95,
             ),
-            SeasonalityPattern(
-                pattern_type=PatternType.WEEKLY,
+            pattern_cls(
+                pattern_type=pattern_type_cls.WEEKLY,
                 period="Monday",
                 average_return=0.5,
                 std_dev=2.1,
