@@ -108,7 +108,7 @@ class PortfolioSynthesisService:
         """Initialize portfolio synthesis service."""
         self.config = config
         self.logger = logger
-        self.plot_paths = []
+        self.plot_paths: list[str] = []
 
         # Initialize memory optimization if enabled
         self.memory_optimizer = None
@@ -243,7 +243,7 @@ class PortfolioSynthesisService:
             )
 
             # Calculate risk metrics if enabled
-            risk_metrics = {}
+            risk_metrics: dict[str, Any] = {}
             if self.config.calculate_risk_metrics:
                 try:
                     from app.contexts.portfolio.services.risk_metrics_calculator import (
@@ -520,7 +520,7 @@ class PortfolioSynthesisService:
             )
 
             # Calculate risk metrics
-            risk_metrics = {}
+            risk_metrics: dict[str, Any] = {}
             if self.config.calculate_risk_metrics:
                 try:
                     from app.contexts.portfolio.services.risk_metrics_calculator import (
@@ -687,7 +687,7 @@ class PortfolioSynthesisService:
 
     def _export_equity_curve(
         self, portfolio: "vbt.Portfolio", strategy_config: StrategyConfig
-    ) -> str:
+    ) -> str | None:
         """Export equity curve to CSV."""
         try:
             # Extract value series and convert to DataFrame

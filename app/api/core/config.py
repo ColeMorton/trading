@@ -82,6 +82,24 @@ class APISettings(BaseSettings):
     SSE_POLL_INTERVAL: float = 0.5  # seconds
     SSE_MAX_DURATION: int = 3600  # 1 hour max connection
 
+    # Session Configuration
+    SESSION_SECRET_KEY: str = Field(
+        default="generate-a-secure-random-key-here",
+        description="Secret key for session encryption (must be set in production)",
+    )
+    SESSION_MAX_AGE: int = 86400  # 24 hours
+    SESSION_COOKIE_NAME: str = "trading_session"
+    SESSION_COOKIE_SECURE: bool = Field(
+        default=False,
+        description="Use secure cookies (HTTPS only, auto-enabled in production)",
+    )
+    SESSION_COOKIE_HTTPONLY: bool = True
+    SESSION_COOKIE_SAMESITE: str = "strict"
+
+    # SSE Proxy Rate Limiting
+    SSE_MAX_CONCURRENT_CONNECTIONS: int = 3
+    SSE_CONNECTION_TIMEOUT: int = 3600  # 1 hour
+
     @field_validator("ENVIRONMENT")
     @classmethod
     def validate_environment(cls, v: str) -> str:
@@ -114,6 +132,13 @@ class APISettings(BaseSettings):
     def is_local_development(self) -> bool:
         """Strict check for local development environment."""
         return self.ENVIRONMENT == "development" and self.DEBUG is True
+
+    def __init__(self, **kwargs):
+        """Initialize settings with automatic secure cookie configuration."""
+        super().__init__(**kwargs)
+        # Auto-enable secure cookies in production
+        if self.ENVIRONMENT == "production":
+            object.__setattr__(self, "SESSION_COOKIE_SECURE", True)
 
     model_config = {
         "env_file": ".env",

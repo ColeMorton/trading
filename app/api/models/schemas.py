@@ -1037,3 +1037,39 @@ class SweepSummaryResponse(SQLModel):
     best_slow_period: int | None = None
     best_sharpe_ratio: float | None = None
     best_total_return_pct: float | None = None
+
+
+# ============================================================================
+# Authentication Models (for SSE Proxy)
+# ============================================================================
+
+
+class LoginRequest(SQLModel):
+    """Request model for user authentication."""
+
+    api_key: str = Field(..., min_length=32, description="User API key")
+
+
+class UserInfo(SQLModel):
+    """User information model."""
+
+    id: str
+    name: str
+    scopes: list[str]
+    rate_limit: int
+    is_active: bool
+
+
+class LoginResponse(SQLModel):
+    """Response model for successful authentication."""
+
+    success: bool = True
+    message: str = "Authentication successful"
+    user: UserInfo
+
+
+class LogoutResponse(SQLModel):
+    """Response model for logout."""
+
+    success: bool = True
+    message: str = "Logged out successfully"
