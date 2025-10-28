@@ -929,18 +929,14 @@ def calculate_breadth_metrics(
     entry_ratio_color = (
         "green"
         if signal_entry_ratio > 0.1
-        else "yellow"
-        if signal_entry_ratio > 0
-        else "red"
+        else "yellow" if signal_entry_ratio > 0 else "red"
     )
     entry_ratio_text = Text(f"{signal_entry_ratio:.1%}", style=entry_ratio_color)
 
     exit_ratio_color = (
         "red"
         if signal_exit_ratio > 0.1
-        else "yellow"
-        if signal_exit_ratio > 0
-        else "green"
+        else "yellow" if signal_exit_ratio > 0 else "green"
     )
     exit_ratio_text = Text(f"{signal_exit_ratio:.1%}", style=exit_ratio_color)
 
@@ -1169,19 +1165,13 @@ def display_portfolio_summary(
         else (
             "📈 Good"
             if profit_rate >= 60
-            else "⚖️ Fair"
-            if profit_rate >= 40
-            else "📉 Poor"
+            else "⚖️ Fair" if profit_rate >= 40 else "📉 Poor"
         )
     )
     profit_color = (
         "bright_green"
         if profit_rate >= 80
-        else "green"
-        if profit_rate >= 60
-        else "yellow"
-        if profit_rate >= 40
-        else "red"
+        else "green" if profit_rate >= 60 else "yellow" if profit_rate >= 40 else "red"
     )
 
     # High score percentage
@@ -1192,19 +1182,13 @@ def display_portfolio_summary(
         else (
             "📈 Strong"
             if score_rate >= 50
-            else "⚖️ Moderate"
-            if score_rate >= 30
-            else "📉 Weak"
+            else "⚖️ Moderate" if score_rate >= 30 else "📉 Weak"
         )
     )
     score_color = (
         "bright_green"
         if score_rate >= 70
-        else "green"
-        if score_rate >= 50
-        else "yellow"
-        if score_rate >= 30
-        else "red"
+        else "green" if score_rate >= 50 else "yellow" if score_rate >= 30 else "red"
     )
 
     perf_table.add_row(
@@ -1337,7 +1321,9 @@ def display_portfolio_summary(
             f"   ⚖️ [yellow]Moderate performance - average score {avg_score:.3f}[/yellow]"
         )
     else:
-        rprint("   📉 [red]Below-average performance - review strategy parameters[/red]")
+        rprint(
+            "   📉 [red]Below-average performance - review strategy parameters[/red]"
+        )
 
     if profit_rate >= 70:
         rprint(

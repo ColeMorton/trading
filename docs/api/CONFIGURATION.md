@@ -54,6 +54,7 @@ REDIS_MAX_CONNECTIONS=50
 ```
 
 Redis is used for:
+
 - Session storage
 - Job progress tracking
 - Rate limiting
@@ -160,12 +161,14 @@ redis-cli KEYS "session:*" | xargs redis-cli DEL
 ### Sessions Not Working
 
 **Symptoms:**
+
 - Login successful but subsequent requests return 401
 - EventSource connections fail with authentication error
 
 **Possible causes:**
 
 1. **Redis not running**
+
    ```bash
    # Check Redis status
    redis-cli ping
@@ -173,12 +176,14 @@ redis-cli KEYS "session:*" | xargs redis-cli DEL
    ```
 
 2. **SESSION_SECRET_KEY not set**
+
    ```bash
    # Check if set (development auto-generates, but production requires explicit setting)
    echo $SESSION_SECRET_KEY
    ```
 
 3. **Cookies not sent/received**
+
    - Verify `credentials: 'include'` in fetch requests
    - Check browser developer tools → Network → Cookies
    - Verify CORS_ORIGINS includes your domain
@@ -190,12 +195,14 @@ redis-cli KEYS "session:*" | xargs redis-cli DEL
 ### Rate Limit Issues
 
 **Symptoms:**
+
 - 429 Too Many Requests errors
 - SSE connections rejected
 
 **Solutions:**
 
 1. **Check active connections**
+
    ```python
    # In Python console with access to rate limiter
    from app.api.middleware.rate_limit import SSERateLimiter
@@ -203,6 +210,7 @@ redis-cli KEYS "session:*" | xargs redis-cli DEL
    ```
 
 2. **Close unused connections**
+
    ```javascript
    // In browser
    eventSource.close();
@@ -216,17 +224,20 @@ redis-cli KEYS "session:*" | xargs redis-cli DEL
 ### CORS Errors
 
 **Symptoms:**
+
 - "Access-Control-Allow-Origin" errors in browser console
 - Credentials not sent
 
 **Solutions:**
 
 1. **Add your domain to CORS_ORIGINS**
+
    ```bash
    CORS_ORIGINS=["http://localhost:3000","https://yourdomain.com"]
    ```
 
 2. **Verify credentials setting**
+
    ```bash
    CORS_ALLOW_CREDENTIALS=true  # Should be true
    ```
@@ -262,7 +273,7 @@ redis-cli KEYS "session:*" | xargs redis-cli DEL
 1. **Rotate SESSION_SECRET_KEY** periodically (invalidates all sessions)
 2. **Monitor authentication failures** for potential attacks
 3. **Use HTTPS** in all non-development environments
-4. **Configure appropriate CORS_ORIGINS** (never use "*" in production)
+4. **Configure appropriate CORS_ORIGINS** (never use "\*" in production)
 5. **Set reasonable rate limits** based on your use case
 6. **Enable Redis persistence** for session recovery after restarts
 
@@ -334,7 +345,7 @@ DATABASE_URL=postgresql://test:test@localhost:5432/trading_test
 ---
 
 For more information:
+
 - [SSE Proxy Guide](./SSE_PROXY_GUIDE.md) - Browser client integration
 - [Integration Guide](./INTEGRATION_GUIDE.md) - General API usage
 - [README](./README.md) - API overview
-

@@ -251,9 +251,9 @@ def backtest_strategy(
                                     f"All trades are winning. Setting Expectancy per Trade to Avg Win: {avg_win:.4f}",
                                     "debug",
                                 )
-                                stats_dict[
-                                    "Expectancy per Trade"
-                                ] = expectancy_per_trade
+                                stats_dict["Expectancy per Trade"] = (
+                                    expectancy_per_trade
+                                )
 
                                 # Add debug logging
                                 log_func(

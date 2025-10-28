@@ -5,10 +5,10 @@ This module provides batch processing functionality for handling large ticker li
 with progress tracking and duplicate prevention.
 """
 
+from collections.abc import Callable
 import csv
 from datetime import datetime
 from pathlib import Path
-from typing import Callable
 
 import pandas as pd
 

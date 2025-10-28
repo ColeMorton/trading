@@ -243,9 +243,9 @@ def calculate_expectancy_metrics(
         results["Avg Loss with Stop Loss [%]"] = (
             sl_components["avg_loss"] * 100 if sl_components["avg_loss"] else 0
         )
-        results[
-            "Expectancy per Trade"
-        ] = sl_expectancy  # Use stop-loss adjusted expectancy
+        results["Expectancy per Trade"] = (
+            sl_expectancy  # Use stop-loss adjusted expectancy
+        )
 
     # Calculate monthly expectancy if trades per month is provided
     if "TRADES_PER_MONTH" in config and config["TRADES_PER_MONTH"] is not None:

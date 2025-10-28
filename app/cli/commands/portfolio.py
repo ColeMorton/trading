@@ -60,10 +60,10 @@ console = Console()
 @app.command()
 def update(
     ctx: typer.Context,
-    profile: str
-    | None = typer.Option(None, "--config", "-c", help="Configuration profile name"),
-    portfolio_file: str
-    | None = typer.Option(
+    profile: str | None = typer.Option(
+        None, "--config", "-c", help="Configuration profile name"
+    ),
+    portfolio_file: str | None = typer.Option(
         None, "--portfolio", "-p", help="Portfolio filename to process"
     ),
     refresh: bool = typer.Option(
@@ -178,14 +178,13 @@ def update(
 @app.command()
 def process(
     ctx: typer.Context,
-    profile: str
-    | None = typer.Option(None, "--config", "-c", help="Configuration profile name"),
-    input_dir: Path
-    | None = typer.Option(
+    profile: str | None = typer.Option(
+        None, "--config", "-c", help="Configuration profile name"
+    ),
+    input_dir: Path | None = typer.Option(
         None, "--input-dir", help="Input directory containing portfolio files"
     ),
-    output_dir: Path
-    | None = typer.Option(
+    output_dir: Path | None = typer.Option(
         None, "--output-dir", help="Output directory for processed results"
     ),
     format: str = typer.Option("csv", "--format", help="Output format: csv, json"),
@@ -428,8 +427,9 @@ def process(
 @app.command()
 def aggregate(
     ctx: typer.Context,
-    profile: str
-    | None = typer.Option(None, "--config", "-c", help="Configuration profile name"),
+    profile: str | None = typer.Option(
+        None, "--config", "-c", help="Configuration profile name"
+    ),
     by_ticker: bool = typer.Option(
         True, "--by-ticker/--no-by-ticker", help="Aggregate results by ticker"
     ),
@@ -441,8 +441,7 @@ def aggregate(
     calculate_breadth: bool = typer.Option(
         True, "--breadth/--no-breadth", help="Calculate breadth metrics"
     ),
-    output_file: str
-    | None = typer.Option(
+    output_file: str | None = typer.Option(
         None, "--output", "-o", help="Output filename for aggregated results"
     ),
 ):
@@ -619,15 +618,16 @@ def aggregate(
 @app.command()
 def synthesize(
     ctx: typer.Context,
-    profile: str
-    | None = typer.Option(None, "--config", "-c", help="Configuration profile name"),
-    strategy_name: str
-    | None = typer.Option(
+    profile: str | None = typer.Option(
+        None, "--config", "-c", help="Configuration profile name"
+    ),
+    strategy_name: str | None = typer.Option(
         None, "--strategy", help="Single strategy name (e.g., AAPL_SMA_20_50)"
     ),
     ticker: str | None = typer.Option(None, "--ticker", help="Single ticker symbol"),
-    benchmark: str
-    | None = typer.Option(None, "--benchmark", help="Benchmark symbol for comparison"),
+    benchmark: str | None = typer.Option(
+        None, "--benchmark", help="Benchmark symbol for comparison"
+    ),
     output_format: str = typer.Option(
         "standard", "--output-format", help="Output format: standard, detailed, json"
     ),
@@ -643,14 +643,12 @@ def synthesize(
     export_raw_data: bool = typer.Option(
         False, "--export-raw-data", help="Export raw data from VectorBT portfolios"
     ),
-    raw_data_formats: str
-    | None = typer.Option(
+    raw_data_formats: str | None = typer.Option(
         None,
         "--raw-data-formats",
         help="Comma-separated export formats: csv,json,parquet,pickle",
     ),
-    raw_data_types: str
-    | None = typer.Option(
+    raw_data_types: str | None = typer.Option(
         None,
         "--raw-data-types",
         help="Comma-separated data types: portfolio_value,returns,trades,orders,positions,statistics,prices,drawdowns,cumulative_returns,all",
@@ -660,8 +658,7 @@ def synthesize(
         "--include-vectorbt",
         help="Export VectorBT portfolio objects for full functionality",
     ),
-    raw_data_output_dir: str
-    | None = typer.Option(
+    raw_data_output_dir: str | None = typer.Option(
         None,
         "--raw-data-output-dir",
         help="Custom output directory for raw data exports",
@@ -1012,12 +1009,10 @@ def synthesize(
 @app.command()
 def review(
     ctx: typer.Context,
-    portfolio: str
-    | None = typer.Option(
+    portfolio: str | None = typer.Option(
         None, "--portfolio", "-p", help="Portfolio filename to review"
     ),
-    ticker: list[str]
-    | None = typer.Option(
+    ticker: list[str] | None = typer.Option(
         None,
         "--ticker",
         "-t",
@@ -1269,7 +1264,9 @@ def _display_processing_summary(summary: dict, console: ConsoleLogger):
 
                 validation = result.get("validation")
                 if validation:
-                    schema_valid = "✅ Valid" if validation["is_valid"] else "❌ Invalid"
+                    schema_valid = (
+                        "✅ Valid" if validation["is_valid"] else "❌ Invalid"
+                    )
                 else:
                     schema_valid = "⏭️ Skipped"
 

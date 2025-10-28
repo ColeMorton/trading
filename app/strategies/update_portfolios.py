@@ -458,9 +458,9 @@ def _execute_portfolio_processing(
                             "",
                             "None",
                         ):
-                            portfolio_result[
-                                "Last Position Close Date"
-                            ] = last_close_date
+                            portfolio_result["Last Position Close Date"] = (
+                                last_close_date
+                            )
                         else:
                             portfolio_result["Last Position Close Date"] = None
 

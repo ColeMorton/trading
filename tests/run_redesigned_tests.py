@@ -198,7 +198,9 @@ def run_comparison_with_old_tests():
     if new_success and old_success:
         print("✨ Both test suites pass - migration ready!")
     elif new_success and not old_success:
-        print("🔧 New tests pass but old tests fail - this is expected during migration")
+        print(
+            "🔧 New tests pass but old tests fail - this is expected during migration"
+        )
     elif not new_success and old_success:
         print("⚠️  Old tests pass but new tests fail - need to fix new implementation")
     else:

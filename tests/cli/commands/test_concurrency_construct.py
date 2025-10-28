@@ -193,7 +193,11 @@ class TestConcurrencyConstructCommand:
 
         # Command succeeds but shows warning (exit code 0)
         assert result.exit_code == 0
-        assert "Warning" in result.stdout or "Insufficient" in result.stdout or "Skipping" in result.stdout
+        assert (
+            "Warning" in result.stdout
+            or "Insufficient" in result.stdout
+            or "Skipping" in result.stdout
+        )
 
     @patch("app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader")
     def test_construct_asset_not_found(self, mock_loader_class, runner):

@@ -5,10 +5,11 @@ Tests the login, logout, and user info endpoints for the SSE proxy
 authentication system.
 """
 
-import pytest
 from fastapi.testclient import TestClient
+import pytest
 
 from app.api.main import app
+
 
 # Test API key
 TEST_API_KEY = "dev-key-000000000000000000000000"
@@ -150,4 +151,3 @@ class TestAuthEndpoints:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-

@@ -134,9 +134,9 @@ class UnifiedAnalysisService:
 
             # Generate cross-system insights
             if len(unified_results["analysis_components"]) > 1:
-                unified_results[
-                    "cross_system_insights"
-                ] = self._generate_cross_system_insights(unified_results)
+                unified_results["cross_system_insights"] = (
+                    self._generate_cross_system_insights(unified_results)
+                )
 
             # Generate unified recommendations
             unified_results["recommendations"] = self._generate_unified_recommendations(
@@ -202,10 +202,10 @@ class UnifiedAnalysisService:
 
             # Cross-system interaction analysis
             if len(interaction_results["system_specific_results"]) > 1:
-                interaction_results[
-                    "cross_system_analysis"
-                ] = self._analyze_cross_system_interactions(
-                    interaction_results["system_specific_results"]
+                interaction_results["cross_system_analysis"] = (
+                    self._analyze_cross_system_interactions(
+                        interaction_results["system_specific_results"]
+                    )
                 )
 
             return interaction_results

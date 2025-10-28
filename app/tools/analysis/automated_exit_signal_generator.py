@@ -523,9 +523,9 @@ class AutomatedExitSignalGenerator:
                     0.90, self.exit_immediately_threshold - 0.02
                 )
             else:
-                optimized_thresholds[
-                    "exit_immediately"
-                ] = self.exit_immediately_threshold
+                optimized_thresholds["exit_immediately"] = (
+                    self.exit_immediately_threshold
+                )
 
             # Similar logic for other signals
             strong_sell_returns = performance_by_signal.get(

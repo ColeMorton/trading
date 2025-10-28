@@ -601,9 +601,9 @@ def deduplicate_and_aggregate_portfolios(
             # Enhanced fallback with proper error handling
             try:
                 # Fallback: Clear Allocation [%] for portfolios_best exports since this represents aggregated data
-                final_portfolio[
-                    "Allocation [%]"
-                ] = None  # Use None instead of empty string for consistency
+                final_portfolio["Allocation [%]"] = (
+                    None  # Use None instead of empty string for consistency
+                )
                 final_portfolio["Stop Loss [%]"] = None
 
                 # Ensure Metric Type is preserved even in fallback

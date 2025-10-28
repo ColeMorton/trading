@@ -8,9 +8,10 @@ and providing progress tracking.
 Exit Criteria: RVOL(volume_Lookback) >= X AND Price Close < EMA(N)
 """
 
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
-from typing import Any, Callable
+from typing import Any
 
 import pandas as pd
 import polars as pl
@@ -246,9 +247,9 @@ class VolumeParameterSweepEngine:
 
                 # Maintain position state from previous bar if no signal
                 elif i > 0:
-                    signal_data.iloc[
-                        i, signal_data.columns.get_loc("position")
-                    ] = signal_data.iloc[i - 1]["position"]
+                    signal_data.iloc[i, signal_data.columns.get_loc("position")] = (
+                        signal_data.iloc[i - 1]["position"]
+                    )
 
             # For compatibility, also keep separate entry/exit columns
             signal_data["entry"] = signal_data["ma_cross_entry"]

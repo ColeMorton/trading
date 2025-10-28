@@ -131,9 +131,9 @@ class SPDSAnalysisEngine:
 
             # Record performance metrics
             execution_time = (datetime.now() - start_time).total_seconds()
-            self.performance_metrics[
-                f"{request.analysis_type}_execution_time"
-            ] = execution_time
+            self.performance_metrics[f"{request.analysis_type}_execution_time"] = (
+                execution_time
+            )
 
             self.logger.info(f"Analysis completed in {execution_time:.2f}s")
 

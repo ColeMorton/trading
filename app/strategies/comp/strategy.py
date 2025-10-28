@@ -212,12 +212,12 @@ def process_ticker(
         # Add Signal Entry and Signal Exit based on position status
         # Check if we're currently in a position
         total_open_trades = stats.get("Total Open Trades", 0)
-        stats[
-            "Signal Entry"
-        ] = False  # COMP doesn't generate new entry signals in this context
-        stats[
-            "Signal Exit"
-        ] = False  # COMP doesn't generate new exit signals in this context
+        stats["Signal Entry"] = (
+            False  # COMP doesn't generate new entry signals in this context
+        )
+        stats["Signal Exit"] = (
+            False  # COMP doesn't generate new exit signals in this context
+        )
 
         # Calculate Score using the same formula as other strategies
         stats["Score"] = calculate_comp_score(stats, log)

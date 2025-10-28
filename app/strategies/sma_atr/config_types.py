@@ -4,7 +4,6 @@ SMA_ATR Strategy Configuration Types
 This module defines configuration types and structures for the SMA_ATR strategy.
 """
 
-
 from typing_extensions import NotRequired
 
 from app.core.types.config import BaseStrategyConfig

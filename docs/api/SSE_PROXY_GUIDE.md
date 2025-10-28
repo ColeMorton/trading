@@ -13,6 +13,7 @@ The native browser `EventSource` API cannot send custom headers (like `X-API-Key
 ### The Solution
 
 The SSE Proxy uses session-based authentication with secure cookies:
+
 1. User logs in once with their API key
 2. Server stores API key in a secure session
 3. Browser receives a session cookie
@@ -36,13 +37,13 @@ The SSE Proxy uses session-based authentication with secure cookies:
 // Login with API key to get session cookie
 const loginResponse = await fetch('/api/v1/auth/login', {
   method: 'POST',
-  credentials: 'include',  // Important: send/receive cookies
+  credentials: 'include', // Important: send/receive cookies
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify({
-    api_key: 'your-api-key-here'
-  })
+    api_key: 'your-api-key-here',
+  }),
 });
 
 if (!loginResponse.ok) {
@@ -61,13 +62,13 @@ const jobResponse = await fetch('/api/v1/strategy/run', {
   method: 'POST',
   credentials: 'include',
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify({
     ticker: 'AAPL',
     fast_period: 10,
-    slow_period: 20
-  })
+    slow_period: 20,
+  }),
 });
 
 const jobData = await jobResponse.json();
@@ -82,19 +83,19 @@ const eventSource = new EventSource(`/sse-proxy/jobs/${jobId}/stream`);
 
 eventSource.onmessage = (event) => {
   const data = JSON.parse(event.data);
-  
+
   if (data.error) {
     console.error('Job error:', data.message);
     eventSource.close();
     return;
   }
-  
+
   if (data.done) {
     console.log('Job completed with status:', data.status);
     eventSource.close();
     return;
   }
-  
+
   // Progress update
   console.log(`Progress: ${data.percent}% - ${data.message}`);
   updateProgressBar(data.percent);
@@ -135,19 +136,19 @@ export function JobProgressTracker({ jobId }: { jobId: string }) {
 
     eventSource.onmessage = (event) => {
       const data: JobProgress = JSON.parse(event.data);
-      
+
       if (data.error) {
         setError(data.message);
         eventSource.close();
         return;
       }
-      
+
       if (data.done) {
         setIsComplete(true);
         eventSource.close();
         return;
       }
-      
+
       setProgress(data);
     };
 
@@ -174,8 +175,8 @@ export function JobProgressTracker({ jobId }: { jobId: string }) {
   return (
     <div className="progress-tracker">
       <div className="progress-bar">
-        <div 
-          className="progress-fill" 
+        <div
+          className="progress-fill"
           style={{ width: `${progress.percent}%` }}
         />
       </div>
@@ -195,6 +196,7 @@ export function JobProgressTracker({ jobId }: { jobId: string }) {
 Authenticate and create session.
 
 **Request:**
+
 ```json
 {
   "api_key": "your-api-key-here"
@@ -202,6 +204,7 @@ Authenticate and create session.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -223,6 +226,7 @@ Authenticate and create session.
 Clear session and logout.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -235,6 +239,7 @@ Clear session and logout.
 Get current user information.
 
 **Response:**
+
 ```json
 {
   "id": "uuid",
@@ -252,6 +257,7 @@ Get current user information.
 All events are JSON-encoded with the following structure:
 
 ### Progress Update
+
 ```json
 {
   "percent": 50,
@@ -262,6 +268,7 @@ All events are JSON-encoded with the following structure:
 ```
 
 ### Completion Event
+
 ```json
 {
   "done": true,
@@ -271,6 +278,7 @@ All events are JSON-encoded with the following structure:
 ```
 
 ### Error Event
+
 ```json
 {
   "error": true,
@@ -280,6 +288,7 @@ All events are JSON-encoded with the following structure:
 ```
 
 ### Timeout Event
+
 ```json
 {
   "timeout": true,
@@ -298,9 +307,10 @@ Session cookies with `Secure` flag require HTTPS:
 
 ```javascript
 // In production, always use HTTPS
-const API_BASE = process.env.NODE_ENV === 'production' 
-  ? 'https://api.yourdomain.com'
-  : 'http://localhost:8000';
+const API_BASE =
+  process.env.NODE_ENV === 'production'
+    ? 'https://api.yourdomain.com'
+    : 'http://localhost:8000';
 ```
 
 ### 2. Handle Session Expiration
@@ -311,9 +321,9 @@ Sessions expire after 24 hours (configurable). Handle 401 responses:
 eventSource.onerror = async (error) => {
   // Check if error is due to expired session
   const meResponse = await fetch('/api/v1/auth/me', {
-    credentials: 'include'
+    credentials: 'include',
   });
-  
+
   if (meResponse.status === 401) {
     // Session expired, redirect to login
     window.location.href = '/login';
@@ -342,7 +352,7 @@ Always provide logout functionality:
 async function logout() {
   await fetch('/api/v1/auth/logout', {
     method: 'POST',
-    credentials: 'include'
+    credentials: 'include',
   });
   // Clear local state
   window.location.href = '/login';
@@ -377,9 +387,10 @@ If you exceed the limit, you'll receive a `429 Too Many Requests` response:
 **Cause:** Not authenticated or session expired.
 
 **Solution:** Check authentication:
+
 ```javascript
 const meResponse = await fetch('/api/v1/auth/me', {
-  credentials: 'include'
+  credentials: 'include',
 });
 if (meResponse.status === 401) {
   // Re-authenticate
@@ -398,6 +409,7 @@ if (meResponse.status === 401) {
 **Cause:** Exceeded concurrent connection limit.
 
 **Solution:** Close existing connections before opening new ones:
+
 ```javascript
 // Store eventSource globally and close before creating new one
 if (window.currentEventSource) {
@@ -411,6 +423,7 @@ window.currentEventSource = new EventSource(url);
 **Cause:** Not sending cookies or incorrect CORS configuration.
 
 **Solution:** Always include `credentials: 'include'`:
+
 ```javascript
 fetch(url, { credentials: 'include' });
 ```
@@ -420,6 +433,7 @@ fetch(url, { credentials: 'include' });
 **Cause:** EventSource automatically reconnects on connection loss.
 
 **Solution:** This is normal behavior. EventSource will reconnect automatically. You can listen for reconnection:
+
 ```javascript
 eventSource.addEventListener('open', () => {
   console.log('Connection opened/reconnected');
@@ -437,25 +451,25 @@ function createJobStream(jobId) {
   return new Promise((resolve, reject) => {
     const eventSource = new EventSource(`/sse-proxy/jobs/${jobId}/stream`);
     const updates = [];
-    
+
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      
+
       if (data.error) {
         eventSource.close();
         reject(new Error(data.message));
         return;
       }
-      
+
       if (data.done) {
         eventSource.close();
         resolve({ status: data.status, updates });
         return;
       }
-      
+
       updates.push(data);
     };
-    
+
     eventSource.onerror = () => {
       eventSource.close();
       reject(new Error('Connection failed'));
@@ -481,20 +495,20 @@ function trackJob(jobId) {
   if (streams.has(jobId)) {
     return streams.get(jobId);
   }
-  
+
   const eventSource = new EventSource(`/sse-proxy/jobs/${jobId}/stream`);
   streams.set(jobId, eventSource);
-  
+
   eventSource.onmessage = (event) => {
     const data = JSON.parse(event.data);
     updateJobUI(jobId, data);
-    
+
     if (data.done || data.error) {
       eventSource.close();
       streams.delete(jobId);
     }
   };
-  
+
   return eventSource;
 }
 
@@ -518,7 +532,7 @@ If you were previously using the direct API endpoint with custom headers, here's
 ```javascript
 // ❌ This doesn't work - EventSource can't send custom headers
 const eventSource = new EventSource('/api/v1/jobs/123/stream', {
-  headers: { 'X-API-Key': apiKey }  // Not supported!
+  headers: { 'X-API-Key': apiKey }, // Not supported!
 });
 ```
 
@@ -529,7 +543,7 @@ const eventSource = new EventSource('/api/v1/jobs/123/stream', {
 await fetch('/api/v1/auth/login', {
   method: 'POST',
   credentials: 'include',
-  body: JSON.stringify({ api_key: apiKey })
+  body: JSON.stringify({ api_key: apiKey }),
 });
 
 // ✅ Now use native EventSource
@@ -567,7 +581,7 @@ SSE_CONNECTION_TIMEOUT=3600
 ## Support
 
 For issues or questions:
+
 - Check the troubleshooting section above
 - Review `/docs/api/INTEGRATION_GUIDE.md` for general API usage
 - Check API documentation at `/api/docs` (development only)
-

@@ -190,7 +190,9 @@ config:
             assert "Invalid value" in result.stdout
             assert "win_rate must be between 0 and 1" in result.stdout
 
-    @pytest.mark.skip(reason="Interactive mode not yet implemented - TDD RED phase test")
+    @pytest.mark.skip(
+        reason="Interactive mode not yet implemented - TDD RED phase test"
+    )
     def test_edit_command_shows_interactive_menu(self, cli_runner, temp_profiles_dir):
         """
         RED: Test that edit command shows interactive editing menu.

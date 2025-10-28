@@ -189,16 +189,12 @@ class SellReportGenerator:
         sample_quality = (
             "Excellent"
             if data.statistics.sample_size >= 5000
-            else "Good"
-            if data.statistics.sample_size >= 1000
-            else "Fair"
+            else "Good" if data.statistics.sample_size >= 1000 else "Fair"
         )
         significance_strength = (
             "Strong"
             if data.statistics.p_value <= 0.05
-            else "Moderate"
-            if data.statistics.p_value <= 0.1
-            else "Weak"
+            else "Moderate" if data.statistics.p_value <= 0.1 else "Weak"
         )
 
         return f"""## 📈 Statistical Foundation
@@ -234,9 +230,7 @@ class SellReportGenerator:
         iqr_strength = (
             "High"
             if abs(data.statistics.iqr_divergence) > 0.15
-            else "Moderate"
-            if abs(data.statistics.iqr_divergence) > 0.08
-            else "Low"
+            else "Moderate" if abs(data.statistics.iqr_divergence) > 0.08 else "Low"
         )
 
         return f"""## 🔍 Technical Analysis
@@ -551,9 +545,7 @@ Max Return: {max(data.raw_returns):.4f}
         signal_strength = (
             "strong"
             if data.signal.signal_confidence > 80
-            else "moderate"
-            if data.signal.signal_confidence > 60
-            else "weak"
+            else "moderate" if data.signal.signal_confidence > 60 else "weak"
         )
 
         if data.signal.exit_signal == "SELL":

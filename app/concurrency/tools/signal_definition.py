@@ -193,9 +193,9 @@ def align_signal_definitions(
 
             # If implementation had any signals during this period, consider it aligned
             if np.any(impl_signals_during_trade != 0):
-                aligned_implementation[
-                    trade_start_idx : i + 1
-                ] = implementation_signals[trade_start_idx : i + 1]
+                aligned_implementation[trade_start_idx : i + 1] = (
+                    implementation_signals[trade_start_idx : i + 1]
+                )
 
     if log:
         match_rate = np.mean(

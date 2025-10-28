@@ -5,7 +5,6 @@ This module provides ORM models for the trading strategy database,
 including metric types and strategy sweep results with relationships.
 """
 
-
 from sqlalchemy import (
     Column,
     DateTime,
@@ -374,12 +373,12 @@ class SelectionAlgorithm(Base):
             "algorithm_code": self.algorithm_code,
             "algorithm_name": self.algorithm_name,
             "description": self.description,
-            "min_confidence": float(self.min_confidence)
-            if self.min_confidence
-            else None,
-            "max_confidence": float(self.max_confidence)
-            if self.max_confidence
-            else None,
+            "min_confidence": (
+                float(self.min_confidence) if self.min_confidence else None
+            ),
+            "max_confidence": (
+                float(self.max_confidence) if self.max_confidence else None
+            ),
         }
 
 
@@ -472,22 +471,24 @@ class SweepBestSelection(Base):
             "best_result_id": str(self.best_result_id),
             "selection_algorithm": self.selection_algorithm,
             "selection_criteria": self.selection_criteria,
-            "confidence_score": float(self.confidence_score)
-            if self.confidence_score
-            else None,
+            "confidence_score": (
+                float(self.confidence_score) if self.confidence_score else None
+            ),
             "alternatives_considered": self.alternatives_considered,
             "winning_fast_period": self.winning_fast_period,
             "winning_slow_period": self.winning_slow_period,
             "winning_signal_period": self.winning_signal_period,
             "result_score": float(self.result_score) if self.result_score else None,
-            "result_sharpe_ratio": float(self.result_sharpe_ratio)
-            if self.result_sharpe_ratio
-            else None,
-            "result_total_return_pct": float(self.result_total_return_pct)
-            if self.result_total_return_pct
-            else None,
-            "result_win_rate_pct": float(self.result_win_rate_pct)
-            if self.result_win_rate_pct
-            else None,
+            "result_sharpe_ratio": (
+                float(self.result_sharpe_ratio) if self.result_sharpe_ratio else None
+            ),
+            "result_total_return_pct": (
+                float(self.result_total_return_pct)
+                if self.result_total_return_pct
+                else None
+            ),
+            "result_win_rate_pct": (
+                float(self.result_win_rate_pct) if self.result_win_rate_pct else None
+            ),
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }

@@ -128,9 +128,9 @@ class StrategyTemplateGenerator:
 
         # 3. Strategy execution tools
         files["tools/__init__.py"] = self._generate_tools_init()
-        files[
-            "tools/strategy_execution.py"
-        ] = execution_template.generate_strategy_execution_file()
+        files["tools/strategy_execution.py"] = (
+            execution_template.generate_strategy_execution_file()
+        )
 
         # 4. Exception definitions
         files["exceptions.py"] = execution_template.generate_exceptions_file()

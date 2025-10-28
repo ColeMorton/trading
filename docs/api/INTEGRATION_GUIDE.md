@@ -353,7 +353,7 @@ await fetch('/api/v1/auth/login', {
   method: 'POST',
   credentials: 'include',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ api_key: 'your-api-key' })
+  body: JSON.stringify({ api_key: 'your-api-key' }),
 });
 
 // 2. Use native EventSource with proxy endpoint (no headers needed!)
@@ -362,7 +362,7 @@ const eventSource = new EventSource(`/sse-proxy/jobs/${jobId}/stream`);
 eventSource.onmessage = (event) => {
   const data = JSON.parse(event.data);
   console.log(`Progress: ${data.percent}% - ${data.message}`);
-  
+
   if (data.done || data.error) {
     eventSource.close();
   }
@@ -384,15 +384,15 @@ const eventSource = new EventSource(
   `http://localhost:8000/api/v1/jobs/${jobId}/stream`,
   {
     headers: {
-      'X-API-Key': 'your-api-key'
-    }
+      'X-API-Key': 'your-api-key',
+    },
   }
 );
 
 eventSource.onmessage = (event) => {
   const data = JSON.parse(event.data);
   console.log(`Progress: ${data.percent}% - ${data.message}`);
-  
+
   if (data.percent === 100) {
     eventSource.close();
   }

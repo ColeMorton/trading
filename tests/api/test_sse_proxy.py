@@ -5,10 +5,11 @@ Tests the browser-friendly SSE proxy that allows EventSource to stream
 job progress without exposing API keys.
 """
 
-import pytest
 from fastapi.testclient import TestClient
+import pytest
 
 from app.api.main import app
+
 
 # Test API key
 TEST_API_KEY = "dev-key-000000000000000000000000"
@@ -203,4 +204,3 @@ class TestRateLimiting:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-

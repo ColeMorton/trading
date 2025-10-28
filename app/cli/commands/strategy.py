@@ -44,12 +44,13 @@ def run(
     ticker: str = typer.Argument(
         ..., help="Single ticker symbol to test (e.g., AAPL, BTC-USD)"
     ),
-    fast: int
-    | None = typer.Option(None, "--fast", "-f", help="Fast moving average period"),
-    slow: int
-    | None = typer.Option(None, "--slow", "-s", help="Slow moving average period"),
-    signal: int
-    | None = typer.Option(
+    fast: int | None = typer.Option(
+        None, "--fast", "-f", help="Fast moving average period"
+    ),
+    slow: int | None = typer.Option(
+        None, "--slow", "-s", help="Slow moving average period"
+    ),
+    signal: int | None = typer.Option(
         None, "--signal", help="Signal period (for MACD strategies only)"
     ),
     strategy: str = typer.Option(
@@ -61,14 +62,12 @@ def run(
         "-c",
         help="Use COMP (compound) strategy - aggregates all strategies from ticker CSV",
     ),
-    years: int
-    | None = typer.Option(
+    years: int | None = typer.Option(
         None, "--years", "-y", help="Number of years of historical data"
     ),
     use_4hour: bool = typer.Option(False, "--use-4hour", help="Use 4-hour timeframe"),
     use_2day: bool = typer.Option(False, "--use-2day", help="Use 2-day timeframe"),
-    market_type: str
-    | None = typer.Option(
+    market_type: str | None = typer.Option(
         None, "--market-type", help="Market type: crypto, us_stock, or auto"
     ),
     direction: str = typer.Option(
@@ -455,10 +454,10 @@ def run(
 @app.command()
 def sweep(
     ctx: typer.Context,
-    profile: str
-    | None = typer.Option(None, "--profile", "-p", help="Configuration profile name"),
-    ticker: list[str]
-    | None = typer.Option(
+    profile: str | None = typer.Option(
+        None, "--profile", "-p", help="Configuration profile name"
+    ),
+    ticker: list[str] | None = typer.Option(
         None,
         "--ticker",
         "--ticker-1",
@@ -466,28 +465,25 @@ def sweep(
         "-t1",
         help="Ticker symbols to analyze (multiple args or comma-separated: --ticker AAPL,MSFT or --ticker AAPL --ticker MSFT)",
     ),
-    ticker_2: str
-    | None = typer.Option(
+    ticker_2: str | None = typer.Option(
         None,
         "--ticker-2",
         "-t2",
         help="Second ticker for synthetic pair analysis (automatically enables synthetic mode)",
     ),
-    strategy_type: list[str]
-    | None = typer.Option(
+    strategy_type: list[str] | None = typer.Option(
         None,
         "--strategy",
         "-s",
         help="Strategy types: SMA, MACD (default strategies), EMA, ATR (specialized - explicit only, can be used multiple times)",
     ),
-    min_trades: int
-    | None = typer.Option(None, "--min-trades", help="Minimum number of trades filter"),
-    min_win_rate: float
-    | None = typer.Option(
+    min_trades: int | None = typer.Option(
+        None, "--min-trades", help="Minimum number of trades filter"
+    ),
+    min_win_rate: float | None = typer.Option(
         None, "--min-win-rate", help="Minimum win rate filter (0.0 to 1.0)"
     ),
-    years: int
-    | None = typer.Option(
+    years: int | None = typer.Option(
         None,
         "--years",
         "-y",
@@ -496,79 +492,75 @@ def sweep(
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Preview configuration without executing"
     ),
-    use_4hour: bool
-    | None = typer.Option(
+    use_4hour: bool | None = typer.Option(
         None,
         "--use-4hour",
         help="Use 4-hour timeframe data (converted from 1-hour data)",
     ),
-    use_2day: bool
-    | None = typer.Option(
+    use_2day: bool | None = typer.Option(
         None,
         "--use-2day",
         help="Use 2-day timeframe data (converted from daily data)",
     ),
-    market_type: str
-    | None = typer.Option(
+    market_type: str | None = typer.Option(
         None,
         "--market-type",
         help="Market type: crypto, us_stock, or auto (automatic detection)",
     ),
-    direction: str
-    | None = typer.Option(
+    direction: str | None = typer.Option(
         None,
         "--direction",
         "-d",
         help="Trading direction: Long or Short (default: Long)",
     ),
-    skip_analysis: bool
-    | None = typer.Option(
+    skip_analysis: bool | None = typer.Option(
         None,
         "--skip-analysis",
         help="Skip data download and analysis, assume portfolio files exist in data/raw/portfolios/",
     ),
-    fast_min: int
-    | None = typer.Option(None, "--fast-min", help="Minimum fast period for sweep"),
-    fast_max: int
-    | None = typer.Option(None, "--fast-max", help="Maximum fast period for sweep"),
-    slow_min: int
-    | None = typer.Option(None, "--slow-min", help="Minimum slow period for sweep"),
-    slow_max: int
-    | None = typer.Option(None, "--slow-max", help="Maximum slow period for sweep"),
-    signal_min: int
-    | None = typer.Option(None, "--signal-min", help="Minimum signal period for sweep"),
-    signal_max: int
-    | None = typer.Option(None, "--signal-max", help="Maximum signal period for sweep"),
-    entry_fast: int
-    | None = typer.Option(
+    fast_min: int | None = typer.Option(
+        None, "--fast-min", help="Minimum fast period for sweep"
+    ),
+    fast_max: int | None = typer.Option(
+        None, "--fast-max", help="Maximum fast period for sweep"
+    ),
+    slow_min: int | None = typer.Option(
+        None, "--slow-min", help="Minimum slow period for sweep"
+    ),
+    slow_max: int | None = typer.Option(
+        None, "--slow-max", help="Maximum slow period for sweep"
+    ),
+    signal_min: int | None = typer.Option(
+        None, "--signal-min", help="Minimum signal period for sweep"
+    ),
+    signal_max: int | None = typer.Option(
+        None, "--signal-max", help="Maximum signal period for sweep"
+    ),
+    entry_fast: int | None = typer.Option(
         None,
         "--entry-fast",
         "-ef",
         help="Lock entry strategy fast period to specific value (sets both min and max)",
     ),
-    entry_slow: int
-    | None = typer.Option(
+    entry_slow: int | None = typer.Option(
         None,
         "--entry-slow",
         "-esl",
         help="Lock entry strategy slow period to specific value (sets both min and max)",
     ),
-    entry_signal: int
-    | None = typer.Option(
+    entry_signal: int | None = typer.Option(
         None,
         "--entry-signal",
         "-esi",
         help="Lock entry strategy signal period to specific value (sets both min and max, MACD only)",
     ),
-    date: str
-    | None = typer.Option(
+    date: str | None = typer.Option(
         None,
         "--date",
         "-d",
         help="Filter by entry signals triggered on specific date (YYYYMMDD format, e.g., 20250811). Overrides --current if both specified.",
     ),
-    use_current: bool
-    | None = typer.Option(
+    use_current: bool | None = typer.Option(
         None,
         "--use-current",
         help="Filter to only current entry signals (active positions for today). Overridden by --date if both specified.",
@@ -603,8 +595,7 @@ def sweep(
         "--batch/--no-batch",
         help="Enable batch processing mode for large ticker lists",
     ),
-    batch_size: int
-    | None = typer.Option(
+    batch_size: int | None = typer.Option(
         None,
         "--batch-size",
         help="Maximum number of tickers to process per execution when batch mode is enabled",
@@ -818,10 +809,10 @@ def sweep(
 @app.command()
 def review(
     ctx: typer.Context,
-    profile: str
-    | None = typer.Option(None, "--profile", "-p", help="Configuration profile name"),
-    ticker: list[str]
-    | None = typer.Option(
+    profile: str | None = typer.Option(
+        None, "--profile", "-p", help="Configuration profile name"
+    ),
+    ticker: list[str] | None = typer.Option(
         None,
         "--ticker",
         "-t",
@@ -835,8 +826,7 @@ def review(
         "--current",
         help="Analyze current day signals from date-specific directory",
     ),
-    date: str
-    | None = typer.Option(
+    date: str | None = typer.Option(
         None,
         "--date",
         help="Analyze signals from specific date directory (YYYYMMDD format, e.g., 20250816). Overrides --current flag.",
@@ -1590,16 +1580,12 @@ async def _persist_sweep_results_to_database(
             "market_type": (
                 config.market_type.value
                 if hasattr(config.market_type, "value")
-                else str(config.market_type)
-                if config.market_type
-                else None
+                else str(config.market_type) if config.market_type else None
             ),
             "direction": (
                 config.direction.value
                 if hasattr(config.direction, "value")
-                else str(config.direction)
-                if config.direction
-                else None
+                else str(config.direction) if config.direction else None
             ),
             "minimums": {
                 "win_rate": config.minimums.win_rate,
@@ -1905,10 +1891,10 @@ def sector_compare(
     format: str = typer.Option(
         "table", "--format", "-f", help="Output format: table, json, csv"
     ),
-    export: str
-    | None = typer.Option(None, "--export", "-e", help="Export results to file"),
-    date: str
-    | None = typer.Option(
+    export: str | None = typer.Option(
+        None, "--export", "-e", help="Export results to file"
+    ),
+    date: str | None = typer.Option(
         None,
         "--date",
         "-d",
@@ -1920,8 +1906,7 @@ def sector_compare(
     explain_columns: bool = typer.Option(
         False, "--explain-columns", help="Explain all column meanings and exit"
     ),
-    vs_benchmark: str
-    | None = typer.Option(
+    vs_benchmark: str | None = typer.Option(
         None,
         "--vs-benchmark",
         help="Compare against benchmark (SPY, BTC-USD, or any ticker)",

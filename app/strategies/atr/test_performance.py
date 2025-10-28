@@ -380,9 +380,9 @@ class TestATRPerformanceMetrics(unittest.TestCase):
 
         # Force errors during processing
         problematic_data = self.large_test_data.copy()
-        problematic_data.loc[
-            problematic_data.index[100:110], "Close"
-        ] = np.nan  # Inject NaN values
+        problematic_data.loc[problematic_data.index[100:110], "Close"] = (
+            np.nan
+        )  # Inject NaN values
 
         try:
             # Attempt analysis with problematic data

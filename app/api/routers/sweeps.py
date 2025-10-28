@@ -286,9 +286,11 @@ async def get_sweep_results(
 
     count_result = await db.execute(
         count_query,
-        {"sweep_run_id": sweep_run_id, "ticker": ticker}
-        if ticker
-        else {"sweep_run_id": sweep_run_id},
+        (
+            {"sweep_run_id": sweep_run_id, "ticker": ticker}
+            if ticker
+            else {"sweep_run_id": sweep_run_id}
+        ),
     )
     total_count = count_result.scalar()
 

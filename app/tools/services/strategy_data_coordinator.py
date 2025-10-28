@@ -308,9 +308,9 @@ class StrategyDataCoordinator:
                 strategy_name = (
                     f"{ticker}_{strategy_type}_{int(fast_period)}_{int(slow_period)}"
                 )
-                strategy_row[
-                    "strategy_name"
-                ] = strategy_name  # Add to row for consistency
+                strategy_row["strategy_name"] = (
+                    strategy_name  # Add to row for consistency
+                )
 
             # Step 2: Create unified strategy data object with structured components
             strategy_data = UnifiedStrategyData(
@@ -421,9 +421,9 @@ class StrategyDataCoordinator:
                     ):
                         for key, value in strategy_data.raw_analysis_data.items():
                             if hasattr(value, "memory_usage"):  # Likely a DataFrame
-                                strategy_data.raw_analysis_data[
-                                    key
-                                ] = self.memory_optimizer.optimize_dataframe(value)
+                                strategy_data.raw_analysis_data[key] = (
+                                    self.memory_optimizer.optimize_dataframe(value)
+                                )
                 except Exception as e:
                     (
                         logger.warning(
@@ -1182,9 +1182,9 @@ class StrategyDataCoordinator:
 
             # Combine results (use unified validation score if available, otherwise legacy)
             if unified_validation_results:
-                validation_result[
-                    "data_quality_score"
-                ] = strategy_data.get_data_quality_score()
+                validation_result["data_quality_score"] = (
+                    strategy_data.get_data_quality_score()
+                )
                 validation_result["constraints_passed"] = sum(
                     1
                     for r in unified_validation_results

@@ -702,9 +702,7 @@ class TradeHistoryAnalyzer:
         profit_factor = (
             winning_trades.sum() / abs(losing_trades.sum())
             if len(losing_trades) > 0 and losing_trades.sum() < 0
-            else float("inf")
-            if len(winning_trades) > 0
-            else 0.0
+            else float("inf") if len(winning_trades) > 0 else 0.0
         )
 
         sharpe_ratio = returns.mean() / returns.std() if returns.std() > 0 else 0.0

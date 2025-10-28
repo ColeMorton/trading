@@ -1,5 +1,6 @@
 from typing import TypedDict
 
+
 try:
     from typing import NotRequired  # Python 3.11+
 except ImportError:

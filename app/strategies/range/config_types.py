@@ -5,7 +5,6 @@ This module provides centralized TypedDict definitions for configuration
 across the Range High Break strategy modules.
 """
 
-
 from typing_extensions import NotRequired
 
 from app.core.types.config import BaseStrategyConfig

@@ -169,10 +169,10 @@ class SPDSFixApplicator:
             or not correction_results["corrected_metrics"]
         ):
             logger.warning("Corrected metrics not populated, calculating manually...")
-            correction_results[
-                "corrected_metrics"
-            ] = self.corrector.portfolio_fixes.calculate_portfolio_metrics_correct(
-                positions
+            correction_results["corrected_metrics"] = (
+                self.corrector.portfolio_fixes.calculate_portfolio_metrics_correct(
+                    positions
+                )
             )
 
         return correction_results

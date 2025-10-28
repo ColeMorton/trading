@@ -85,10 +85,12 @@ app.add_middleware(
 # Add session middleware for SSE proxy authentication
 from .core.session import setup_session_middleware
 
+
 setup_session_middleware(app)
 
 # Add rate limiting middleware for SSE connections
 from .middleware.rate_limit import SSERateLimiter
+
 
 app.add_middleware(SSERateLimiter)
 
@@ -196,7 +198,16 @@ app.openapi = custom_openapi
 app.include_router(health.router, prefix="/health", tags=["Health"])
 
 # Import and include completed routers
-from .routers import auth, concurrency, config, jobs, seasonality, sse_proxy, strategy, sweeps
+from .routers import (
+    auth,
+    concurrency,
+    config,
+    jobs,
+    seasonality,
+    sse_proxy,
+    strategy,
+    sweeps,
+)
 
 
 app.include_router(

@@ -375,9 +375,9 @@ class TestQueryPerformance:
                     "Ticker": f"TICKER_{i}",
                     "Strategy": "SMA_20_50",
                     "Score": 7.0 + (i % 20) / 10,
-                    "Metric Type": "Most Sharpe Ratio"
-                    if i % 3 == 0
-                    else "Most Total Return [%]",
+                    "Metric Type": (
+                        "Most Sharpe Ratio" if i % 3 == 0 else "Most Total Return [%]"
+                    ),
                 }
             )
 

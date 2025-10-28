@@ -275,9 +275,11 @@ class StrategySweepRepository:
                                     # Update columns list if this is the first record with strategy_type
                                     if "strategy_type" in columns:
                                         columns = [
-                                            col
-                                            if col != "strategy_type"
-                                            else "strategy_type_id"
+                                            (
+                                                col
+                                                if col != "strategy_type"
+                                                else "strategy_type_id"
+                                            )
                                             for col in columns
                                         ]
                                         column_list = ", ".join(
@@ -560,9 +562,11 @@ class StrategySweepRepository:
                                     # Update columns list if this is the first record with strategy_type
                                     if "strategy_type" in columns:
                                         columns = [
-                                            col
-                                            if col != "strategy_type"
-                                            else "strategy_type_id"
+                                            (
+                                                col
+                                                if col != "strategy_type"
+                                                else "strategy_type_id"
+                                            )
                                             for col in columns
                                         ]
                                         column_list = ", ".join(

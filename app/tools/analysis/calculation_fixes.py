@@ -203,10 +203,10 @@ class PortfolioAggregationFixes:
         metrics = {}
 
         # Correct portfolio return calculation
-        metrics[
-            "total_return_equal_weighted"
-        ] = PortfolioAggregationFixes.calculate_portfolio_return_correct(
-            positions, "equal_weighted"
+        metrics["total_return_equal_weighted"] = (
+            PortfolioAggregationFixes.calculate_portfolio_return_correct(
+                positions, "equal_weighted"
+            )
         )
 
         # Success rate calculation

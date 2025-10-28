@@ -713,9 +713,9 @@ class TestTradeHistoryExporter(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             config = self.test_configs["sma_config"].copy()
             config["BASE_DIR"] = temp_dir
-            config[
-                "EXPORT_TRADE_HISTORY"
-            ] = False  # Should not affect the function directly
+            config["EXPORT_TRADE_HISTORY"] = (
+                False  # Should not affect the function directly
+            )
 
             # First export
             success1 = export_trade_history(

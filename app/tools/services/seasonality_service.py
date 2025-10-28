@@ -569,9 +569,7 @@ class SeasonalityService:
             risk = (
                 "Low"
                 if pattern.std_dev < 3
-                else "Moderate"
-                if pattern.std_dev < 5
-                else "High"
+                else "Moderate" if pattern.std_dev < 5 else "High"
             )
             risk_color = (
                 "green" if risk == "Low" else "yellow" if risk == "Moderate" else "red"
@@ -828,9 +826,7 @@ class SeasonalityService:
                 else (
                     "Moderate"
                     if strength > 0.4
-                    else "Weak"
-                    if strength > 0.2
-                    else "Very Weak"
+                    else "Weak" if strength > 0.2 else "Very Weak"
                 )
             )
         )
@@ -879,9 +875,7 @@ class SeasonalityService:
             cons_color = (
                 "green"
                 if consistency_pct >= 60
-                else "yellow"
-                if consistency_pct >= 50
-                else "red"
+                else "yellow" if consistency_pct >= 50 else "red"
             )
             self.console.print(
                 f"Overall Consistency: [{cons_color}]{consistency_pct:.0f}% (months with positive returns)[/{cons_color}]"

@@ -12,6 +12,7 @@ from ..core.database import get_db
 from ..core.security import validate_api_key
 from ..models.schemas import LoginRequest, LoginResponse, LogoutResponse, UserInfo
 
+
 router = APIRouter()
 
 
@@ -142,7 +143,7 @@ async def get_current_user(
 
     # Retrieve API key from session and validate it's still active
     api_key = request.session["api_key"]
-    
+
     try:
         api_key_obj = await validate_api_key(api_key)
     except HTTPException as e:
@@ -161,4 +162,3 @@ async def get_current_user(
         rate_limit=api_key_obj.rate_limit,
         is_active=api_key_obj.is_active,
     )
-
