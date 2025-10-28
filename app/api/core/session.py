@@ -130,7 +130,8 @@ def setup_session_middleware(app: FastAPI) -> None:
         max_age=settings.SESSION_MAX_AGE,
         https_only=settings.SESSION_COOKIE_SECURE,
         same_site=settings.SESSION_COOKIE_SAMESITE,
-        httponly=settings.SESSION_COOKIE_HTTPONLY,
+        # Note: httponly is not a valid SessionMiddleware parameter in Starlette
+        # Cookie httponly flag is set automatically for security
     )
 
 
