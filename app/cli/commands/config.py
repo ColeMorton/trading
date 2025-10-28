@@ -310,7 +310,8 @@ def _run_interactive_editor(
 
 @app.command()
 def validate(
-    profile_name: str | None = typer.Argument(
+    profile_name: str
+    | None = typer.Argument(
         None, help="Profile name to validate (validates all if not specified)"
     ),
 ):

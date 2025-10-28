@@ -373,7 +373,9 @@ class BootstrapValidator:
         precision_assessment = (
             "high"
             if relative_precision < 0.1
-            else "medium" if relative_precision < 0.2 else "low"
+            else "medium"
+            if relative_precision < 0.2
+            else "low"
         )
 
         return (

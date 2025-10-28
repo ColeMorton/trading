@@ -109,15 +109,15 @@ def list(
 @app.command()
 def equity(
     ctx: typer.Context,
-    portfolio: str | None = typer.Option(
+    portfolio: str
+    | None = typer.Option(
         None, "--portfolio", "-p", help="Portfolio name (e.g., live_signals, risk_on)"
     ),
     all_portfolios: bool = typer.Option(
         False, "--all", help="Generate equity for all position files"
     ),
-    output_dir: str | None = typer.Option(
-        None, "--output-dir", "-o", help="Custom output directory"
-    ),
+    output_dir: str
+    | None = typer.Option(None, "--output-dir", "-o", help="Custom output directory"),
     metric_type: str = typer.Option(
         "mean", "--metric", help="Metric type: mean, median, best, worst"
     ),
@@ -232,9 +232,8 @@ def equity(
 
 @app.command()
 def validate(
-    portfolio: str | None = typer.Option(
-        None, "--portfolio", "-p", help="Portfolio name to validate"
-    ),
+    portfolio: str
+    | None = typer.Option(None, "--portfolio", "-p", help="Portfolio name to validate"),
     all_portfolios: bool = typer.Option(
         False, "--all", help="Validate all position files"
     ),
@@ -361,16 +360,16 @@ def validate(
 
 @app.command()
 def validate_equity(
-    portfolio: str | None = typer.Option(
-        None, "--portfolio", "-p", help="Portfolio name to validate"
-    ),
+    portfolio: str
+    | None = typer.Option(None, "--portfolio", "-p", help="Portfolio name to validate"),
     all_portfolios: bool = typer.Option(
         False, "--all", help="Validate all portfolio equity curves"
     ),
     output_format: str = typer.Option(
         "console", "--format", help="Output format: console, json, csv"
     ),
-    output_file: str | None = typer.Option(
+    output_file: str
+    | None = typer.Option(
         None, "--output", "-o", help="Output file path (for json/csv formats)"
     ),
     excellent_threshold: float = typer.Option(

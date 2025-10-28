@@ -211,7 +211,8 @@ def pinescript(
         ...,
         help="CSV filename (with or without .csv extension). Searches in data/raw/strategies/",
     ),
-    ticker: str | None = typer.Option(
+    ticker: str
+    | None = typer.Option(
         None,
         "--ticker",
         "-t",
@@ -425,9 +426,8 @@ def main(
         "-q",
         help="Suppress all output except success/failure messages",
     ),
-    profiles_dir: Path | None = typer.Option(
-        None, "--profiles-dir", help="Custom profiles directory"
-    ),
+    profiles_dir: Path
+    | None = typer.Option(None, "--profiles-dir", help="Custom profiles directory"),
 ):
     """
     Unified Trading Strategy Analysis CLI.

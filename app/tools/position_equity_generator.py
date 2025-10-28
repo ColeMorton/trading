@@ -210,9 +210,9 @@ class DirectEquityCalculator:
         self.precision_fee_calculator = PrecisionFeeCalculator(self.fee_rate)
         self.precision_equity_calculator = PrecisionEquityCalculator(self.fee_rate)
         self.baseline_calculator = PortfolioBaselineCalculator(self.fee_rate)
-        self._positions_cache: list[dict[str, Any]] = (
-            []
-        )  # Cache for position data access
+        self._positions_cache: list[
+            dict[str, Any]
+        ] = []  # Cache for position data access
 
     def _default_log(self, message: str, level: str = "info") -> None:
         """Default logging function when none provided."""
@@ -927,9 +927,9 @@ class DirectEquityCalculator:
 
                 # For dates before this ticker's first date, use initial cash allocation
                 first_date = ticker_equity.index.min()
-                ticker_aligned.loc[ticker_aligned.index < first_date] = (
-                    ticker_initial_value
-                )
+                ticker_aligned.loc[
+                    ticker_aligned.index < first_date
+                ] = ticker_initial_value
 
                 # Forward fill remaining NaN values
                 ticker_aligned = ticker_aligned.ffill()

@@ -2439,7 +2439,7 @@ class StatisticalAnalysisService:
         import hashlib
 
         config_str = str(sorted(self.config.to_dict().items()))
-        return hashlib.md5(config_str.encode()).hexdigest()[:8]
+        return hashlib.md5(config_str.encode(), usedforsecurity=False).hexdigest()[:8]
 
     def _get_data_sources_used(self, use_trade_history: bool) -> list[DataSource]:
         """Get list of data sources used in analysis"""
@@ -2509,9 +2509,9 @@ class StatisticalAnalysisService:
                 data_sources = coordinator_status.get("data_sources", {})
                 if not any(data_sources.values()):
                     health_status["status"] = "degraded"
-                    health_status["coordinator_warning"] = (
-                        "No data sources available via coordinator"
-                    )
+                    health_status[
+                        "coordinator_warning"
+                    ] = "No data sources available via coordinator"
 
             except Exception as coord_error:
                 health_status["status"] = "degraded"
@@ -2674,7 +2674,8 @@ class StatisticalAnalysisService:
                         # Create realistic duration distribution with strategy variation
                         # Use different distribution shapes for different strategies
                         np.random.seed(
-                            hash(strategy_analysis.statistics.mean + asset_vol) % 2**32
+                            hash(strategy_analysis.statistics.mean + asset_vol)
+                            % 2**32
                         )  # Strategy-specific seed
 
                         # Generate mixed distribution: some short-term, some medium-term, few long-term
@@ -3349,16 +3350,16 @@ class StatisticalAnalysisService:
         if strategy_analysis.trade_history_analysis:
             total_trades = strategy_analysis.trade_history_analysis.total_trades
             confidence = strategy_analysis.trade_history_analysis.confidence_level.value
-            assessment["trade_history"] = (
-                f"{confidence} confidence with {total_trades} trades"
-            )
+            assessment[
+                "trade_history"
+            ] = f"{confidence} confidence with {total_trades} trades"
 
         if strategy_analysis.equity_analysis:
             confidence = strategy_analysis.equity_analysis.confidence_level.value
             sharpe = strategy_analysis.equity_analysis.sharpe_ratio
-            assessment["equity_curves"] = (
-                f"{confidence} confidence, Sharpe ratio: {sharpe:.2f}"
-            )
+            assessment[
+                "equity_curves"
+            ] = f"{confidence} confidence, Sharpe ratio: {sharpe:.2f}"
 
         if not assessment:
             assessment["unknown"] = "Data quality assessment unavailable"

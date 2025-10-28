@@ -901,9 +901,7 @@ class UnifiedTestRunner:
 
             print("\n📊 Performance Metrics:")
             print(f"🧪 Total Tests: {total_tests}")
-            print(
-                f"⚡ Tests/Second: {metrics.get('tests_per_second_aggregate', 0):.1f}"
-            )
+            print(f"⚡ Tests/Second: {metrics.get('tests_per_second_aggregate', 0):.1f}")
             print(f"⏰ Time Efficiency: {metrics.get('time_efficiency', 0):.1%}")
             print(
                 f"🚀 Parallel Efficiency: {metrics.get('average_parallel_efficiency', 1.0):.1%}"

@@ -322,7 +322,9 @@ class CSVDirectoryScanner:
         overall_status = (
             "✅ PASS"
             if overall_compliance == 100
-            else "⚠️ PARTIAL" if overall_compliance > 50 else "❌ FAIL"
+            else "⚠️ PARTIAL"
+            if overall_compliance > 50
+            else "❌ FAIL"
         )
 
         report_lines.extend(

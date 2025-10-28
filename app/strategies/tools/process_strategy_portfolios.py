@@ -79,9 +79,9 @@ def process_strategy_portfolios(
         if isinstance(data_result, tuple):
             data, synthetic_ticker = data_result  # Unpack tuple
             log(f"Received synthetic ticker data for {synthetic_ticker}")
-            strategy_config["TICKER"] = (
-                synthetic_ticker  # Update config with synthetic ticker
-            )
+            strategy_config[
+                "TICKER"
+            ] = synthetic_ticker  # Update config with synthetic ticker
         else:
             data = data_result
 

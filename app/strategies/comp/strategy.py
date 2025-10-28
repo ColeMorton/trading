@@ -87,7 +87,7 @@ def calculate_comp_score(stats: dict, log: Callable) -> float:
 
 
 def run(
-    config: dict, external_log: Callable = None, progress_update_fn: Callable = None
+    config: dict, external_log: Callable | None = None, progress_update_fn: Callable | None = None
 ) -> bool:
     """
     Execute the COMP strategy analysis.
@@ -143,7 +143,7 @@ def process_ticker(
     ticker: str,
     config: dict,
     log: Callable,
-    progress_update_fn: Callable = None,
+    progress_update_fn: Callable | None = None,
 ) -> bool:
     """
     Process a single ticker for COMP strategy.
@@ -211,13 +211,13 @@ def process_ticker(
 
         # Add Signal Entry and Signal Exit based on position status
         # Check if we're currently in a position
-        total_open_trades = stats.get("Total Open Trades", 0)
-        stats["Signal Entry"] = (
-            False  # COMP doesn't generate new entry signals in this context
-        )
-        stats["Signal Exit"] = (
-            False  # COMP doesn't generate new exit signals in this context
-        )
+        stats.get("Total Open Trades", 0)
+        stats[
+            "Signal Entry"
+        ] = False  # COMP doesn't generate new entry signals in this context
+        stats[
+            "Signal Exit"
+        ] = False  # COMP doesn't generate new exit signals in this context
 
         # Calculate Score using the same formula as other strategies
         stats["Score"] = calculate_comp_score(stats, log)

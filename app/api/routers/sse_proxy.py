@@ -174,7 +174,9 @@ async def proxy_job_stream(
             SSE-formatted event bytes
         """
         try:
-            async with httpx.AsyncClient(timeout=None) as client:
+            # Set reasonable timeouts: 30s connect, infinite read for SSE streaming
+            timeout = httpx.Timeout(30.0, read=None)
+            async with httpx.AsyncClient(timeout=timeout) as client:
                 async with client.stream(
                     "GET",
                     upstream_url,

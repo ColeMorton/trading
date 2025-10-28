@@ -223,13 +223,6 @@ class TestDataMigration:
 
         # Simulate old data that already exists in database
         # (In real test, this would query actual pre-migration data)
-        old_results = [
-            {
-                "Ticker": "BTC-USD",
-                "Metric Type": "Most Sharpe Ratio, Most Total Return [%]",
-                "Score": 8.5,
-            }
-        ]
 
         # After migration, verify junction table was populated
         results = await repository.get_sweep_results_with_metrics(sweep_run_id)

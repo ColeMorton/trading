@@ -985,9 +985,9 @@ class PortfolioOrchestrator:
                 group_config["TICKER"] = ticker
                 group_config["STRATEGY_TYPE"] = strategy
                 group_config["STRATEGY_TYPES"] = [strategy]
-                group_config["USE_MA"] = (
-                    True  # Explicitly ensure strategy suffix is included
-                )
+                group_config[
+                    "USE_MA"
+                ] = True  # Explicitly ensure strategy suffix is included
 
                 self.log(
                     f"Exporting {len(group_portfolios)} portfolios for {ticker} {strategy}",

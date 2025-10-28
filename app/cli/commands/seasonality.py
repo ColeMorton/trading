@@ -32,7 +32,8 @@ console = Console()
 
 @app.command()
 def run(
-    tickers: list[str] | None = typer.Option(
+    tickers: list[str]
+    | None = typer.Option(
         None,
         "--ticker",
         "-t",
@@ -296,7 +297,8 @@ def clean():
 
 @app.command()
 def current(
-    tickers: list[str] | None = typer.Option(
+    tickers: list[str]
+    | None = typer.Option(
         None,
         "--ticker",
         "-t",
@@ -433,7 +435,8 @@ def portfolio(
         "-d",
         help="Default time period in days when no signal entry exists",
     ),
-    time_period: int | None = typer.Option(
+    time_period: int
+    | None = typer.Option(
         None,
         "--time-period",
         "-tp",

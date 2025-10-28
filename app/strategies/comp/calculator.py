@@ -184,7 +184,7 @@ def aggregate_positions(
 def generate_compound_signals(
     aggregated_data: pl.DataFrame,
     threshold: float = 50.0,
-    log: Callable = None,
+    log: Callable | None = None,
 ) -> pl.DataFrame:
     """
     Generate compound entry/exit signals based on percentage threshold crossings.

@@ -1433,9 +1433,9 @@ class StrategyDispatcher:
 
                     # Add global progress allocation for accurate multi-ticker progress
                     if hasattr(single_config, "__dict__"):
-                        single_config.__dict__["_GLOBAL_PROGRESS_PER_TICKER"] = (
-                            global_progress_per_ticker
-                        )
+                        single_config.__dict__[
+                            "_GLOBAL_PROGRESS_PER_TICKER"
+                        ] = global_progress_per_ticker
                     else:
                         # Fallback for dict-like configs
                         single_config._GLOBAL_PROGRESS_PER_TICKER = (

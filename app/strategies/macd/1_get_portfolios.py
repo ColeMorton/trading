@@ -174,9 +174,9 @@ def run_strategies(config: dict[str, Any] | None = None) -> bool:
             return True
 
         # Prepare config
-        config_copy["USE_MA"] = (
-            False  # Ensure USE_MA is set correctly for MACD filename suffix
-        )
+        config_copy[
+            "USE_MA"
+        ] = False  # Ensure USE_MA is set correctly for MACD filename suffix
 
         # SAFEGUARD: Trade history export is not available for MACD strategy
         # to prevent generating thousands of JSON files due to parameter sweep combinations.

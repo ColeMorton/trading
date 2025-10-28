@@ -787,7 +787,9 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
             bottleneck_severity = (
                 "critical"
                 if duration > thresholds["critical"]
-                else "warning" if duration > thresholds["warning"] else "info"
+                else "warning"
+                if duration > thresholds["warning"]
+                else "info"
             )
             self.console.print(
                 f"   [dim]• Bottleneck Level: {bottleneck_severity.upper()}[/dim]"
@@ -902,9 +904,7 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
                     f"   [yellow]⚠️ {alert['phase'].replace('_', ' ').title()}: {alert['duration']:.1f}s[/yellow]"
                 )
                 if alert.get("recommendations") and self.performance_mode == "detailed":
-                    self.console.print(
-                        f"   [dim]💡 {alert['recommendations'][0]}[/dim]"
-                    )
+                    self.console.print(f"   [dim]💡 {alert['recommendations'][0]}[/dim]")
 
     def _display_bottleneck_patterns(self):
         """Display detected bottleneck patterns for system optimization."""
@@ -921,9 +921,7 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
                 self.console.print(
                     f"   [dim]   • Average duration: {pattern['avg_duration']:.1f}s[/dim]"
                 )
-                self.console.print(
-                    f"   [yellow]💡 {pattern['recommendation']}[/yellow]"
-                )
+                self.console.print(f"   [yellow]💡 {pattern['recommendation']}[/yellow]")
                 self.console.print()
 
     def _display_optimization_recommendations(self):
@@ -1387,7 +1385,9 @@ class LiveResourceDashboard:
                 cpu_color = (
                     "green"
                     if cpu_percent < 50
-                    else "yellow" if cpu_percent < 80 else "red"
+                    else "yellow"
+                    if cpu_percent < 80
+                    else "red"
                 )
                 cpu_meter = (
                     f"[{cpu_color}]{'█' * cpu_filled}[/{cpu_color}]{'░' * cpu_empty}"
@@ -1404,7 +1404,9 @@ class LiveResourceDashboard:
                 mem_color = (
                     "green"
                     if memory.percent < 50
-                    else "yellow" if memory.percent < 80 else "red"
+                    else "yellow"
+                    if memory.percent < 80
+                    else "red"
                 )
                 mem_meter = (
                     f"[{mem_color}]{'█' * mem_filled}[/{mem_color}]{'░' * mem_empty}"

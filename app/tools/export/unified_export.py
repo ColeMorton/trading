@@ -629,7 +629,7 @@ class UnifiedExportProcessor:
         params = f"{filename}_{ticker or ''}_{strategy_type or ''}_{metric_type or ''}"
 
         combined = f"{data_repr}_{params}"
-        return hashlib.md5(combined.encode()).hexdigest()
+        return hashlib.md5(combined.encode(), usedforsecurity=False).hexdigest()
 
     def _metrics_to_dict(self, metrics: PerformanceMetrics) -> dict[str, Any]:
         """Phase 4: Convert metrics to dictionary with enhanced cache information."""
