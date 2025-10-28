@@ -242,7 +242,7 @@ def export_equity_data_batch(
     Returns:
         Dictionary with export results including counts and errors
     """
-    results = {
+    results: dict[str, Any] = {
         "total_portfolios": len(portfolios),
         "exported_count": 0,
         "skipped_count": 0,
