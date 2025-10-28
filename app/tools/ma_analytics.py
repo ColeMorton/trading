@@ -54,13 +54,17 @@ class MAAnalytics:
         try:
             # Try to parse dates if they're strings
             parsed_dates = dates.str.strptime(
-                pl.Datetime, format="%Y-%m-%dT%H:%M:%S%.f", strict=False,
+                pl.Datetime,
+                format="%Y-%m-%dT%H:%M:%S%.f",
+                strict=False,
             )
         except:
             try:
                 # Fallback to simpler date format
                 parsed_dates = dates.str.strptime(
-                    pl.Datetime, format="%Y-%m-%d", strict=False,
+                    pl.Datetime,
+                    format="%Y-%m-%d",
+                    strict=False,
                 )
             except:
                 # If all parsing fails, treat as strings
@@ -183,7 +187,9 @@ class MAAnalytics:
 
     # Risk calculation methods
     def _calculate_sharpe_ratio(
-        self, returns: np.ndarray, risk_free_rate: float,
+        self,
+        returns: np.ndarray,
+        risk_free_rate: float,
     ) -> float:
         """Calculate Sharpe ratio."""
         if len(returns) == 0 or np.std(returns) == 0:
@@ -192,7 +198,9 @@ class MAAnalytics:
         return float(excess_returns / np.std(returns) * np.sqrt(252))
 
     def _calculate_sortino_ratio(
-        self, returns: np.ndarray, risk_free_rate: float,
+        self,
+        returns: np.ndarray,
+        risk_free_rate: float,
     ) -> float:
         """Calculate Sortino ratio (downside deviation only)."""
         if len(returns) == 0:
@@ -251,7 +259,9 @@ class MAAnalytics:
 
     # Trend calculation methods
     def _calculate_linear_regression(
-        self, x: np.ndarray, y: np.ndarray,
+        self,
+        x: np.ndarray,
+        y: np.ndarray,
     ) -> tuple[float, float]:
         """Calculate linear regression slope and R-squared."""
         if len(x) < 2:
@@ -362,7 +372,10 @@ class MAAnalytics:
 
 
 def analyze_ma_data(
-    ma_data: pl.DataFrame, ticker: str, period: int, ma_type: str,
+    ma_data: pl.DataFrame,
+    ticker: str,
+    period: int,
+    ma_type: str,
 ) -> dict[str, Any]:
     """
     Convenience function to analyze MA data and return all metrics.

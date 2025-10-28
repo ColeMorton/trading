@@ -30,7 +30,9 @@ class TestMemoryOptimizer:
     def test_memory_optimizer_initialization(self):
         """Test memory optimizer initialization."""
         optimizer = MemoryOptimizer(
-            enable_pooling=True, enable_monitoring=True, memory_threshold_mb=500.0,
+            enable_pooling=True,
+            enable_monitoring=True,
+            memory_threshold_mb=500.0,
         )
 
         assert optimizer.enable_pooling is True
@@ -269,7 +271,10 @@ class TestStreamingProcessor:
                 return sum(r["sum"] for r in chunk_results)
 
             total = processor.aggregate_chunks(
-                temp_path, agg_func, combine_func, columns=["value"],
+                temp_path,
+                agg_func,
+                combine_func,
+                columns=["value"],
             )
 
             assert total == 100  # 10 + 20 + 30 + 40
@@ -350,7 +355,9 @@ class TestMemoryEfficientParameterSweep:
     def test_parameter_sweep_initialization(self):
         """Test parameter sweep initialization."""
         sweep = MemoryEfficientParameterSweep(
-            max_memory_mb=1000.0, chunk_size=10, stream_to_disk=True,
+            max_memory_mb=1000.0,
+            chunk_size=10,
+            stream_to_disk=True,
         )
 
         assert sweep.max_memory_mb == 1000.0
@@ -400,7 +407,9 @@ class TestMemoryEfficientParameterSweep:
             mock_mkdtemp.return_value = temp_dir
 
             sweep = MemoryEfficientParameterSweep(
-                chunk_size=1, stream_to_disk=True, output_format="parquet",
+                chunk_size=1,
+                stream_to_disk=True,
+                output_format="parquet",
             )
 
             def test_strategy(params):

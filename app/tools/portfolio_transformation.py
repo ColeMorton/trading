@@ -99,7 +99,8 @@ def reorder_columns(portfolio: dict) -> dict:
             target_schema = SchemaType.EXTENDED
 
             normalized_portfolio = transformer.normalize_to_schema(
-                portfolio, target_schema,
+                portfolio,
+                target_schema,
             )
 
         # Restore non-canonical fields after normalization

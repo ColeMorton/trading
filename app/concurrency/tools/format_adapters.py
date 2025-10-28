@@ -108,7 +108,9 @@ class FormatAdapter(ABC):
         """
 
     def validate_adapted_data(
-        self, data: pd.DataFrame, log: Callable[[str, str], None] | None = None,
+        self,
+        data: pd.DataFrame,
+        log: Callable[[str, str], None] | None = None,
     ) -> dict[str, Any]:
         """
         Validate adapted data against standard format.
@@ -142,7 +144,8 @@ class FormatAdapter(ABC):
             if col in data.columns:
                 actual_type = str(data[col].dtype)
                 if expected_type not in actual_type and not self._is_compatible_type(
-                    actual_type, expected_type,
+                    actual_type,
+                    expected_type,
                 ):
                     validation["warnings"].append(
                         f"Column {col} has type {actual_type}, expected {expected_type}",
@@ -180,7 +183,10 @@ class FormatAdapter(ABC):
         return actual_type in compatibility_map.get(expected_type, [expected_type])
 
     def _apply_validation_rule(
-        self, data: pd.DataFrame, rule_name: str, rule_config: dict[str, Any],
+        self,
+        data: pd.DataFrame,
+        rule_name: str,
+        rule_config: dict[str, Any],
     ) -> dict[str, Any]:
         """Apply a specific validation rule."""
         result = {"passed": True, "warnings": [], "errors": []}

@@ -96,14 +96,18 @@ class DivergenceExportService:
             # CSV Export
             if "csv" in formats:
                 csv_path = await self._export_csv(
-                    analysis_results, file_base, include_raw_data,
+                    analysis_results,
+                    file_base,
+                    include_raw_data,
                 )
                 exported_files["csv"] = str(csv_path)
 
             # JSON Export
             if "json" in formats:
                 json_path = await self._export_json(
-                    analysis_results, file_base, include_raw_data,
+                    analysis_results,
+                    file_base,
+                    include_raw_data,
                 )
                 exported_files["json"] = str(json_path)
 
@@ -114,7 +118,9 @@ class DivergenceExportService:
 
             # Generate export summary
             summary_path = await self._generate_export_summary(
-                exported_files, file_base, analysis_results,
+                exported_files,
+                file_base,
+                analysis_results,
             )
             exported_files["summary"] = str(summary_path)
 
@@ -151,7 +157,8 @@ class DivergenceExportService:
 
             # Prepare divergence data for export
             export_data = await self._prepare_divergence_export_data(
-                divergence_results, include_recommendations,
+                divergence_results,
+                include_recommendations,
             )
 
             # CSV Export
@@ -173,7 +180,9 @@ class DivergenceExportService:
             raise
 
     async def export_correlation_analysis(
-        self, correlation_results: list[CorrelationResult], export_name: str,
+        self,
+        correlation_results: list[CorrelationResult],
+        export_name: str,
     ) -> dict[str, str]:
         """
         Export correlation analysis results
@@ -211,7 +220,9 @@ class DivergenceExportService:
             raise
 
     async def export_pattern_analysis(
-        self, pattern_results: list[PatternResult], export_name: str,
+        self,
+        pattern_results: list[PatternResult],
+        export_name: str,
     ) -> dict[str, str]:
         """
         Export pattern recognition analysis results
@@ -267,7 +278,9 @@ class DivergenceExportService:
                 "analysis_timestamp": result.analysis_timestamp.isoformat(),
                 "sample_size": getattr(result.dual_layer_convergence, "sample_size", 0),
                 "sample_size_confidence": getattr(
-                    result.dual_layer_convergence, "sample_size_confidence", 0.0,
+                    result.dual_layer_convergence,
+                    "sample_size_confidence",
+                    0.0,
                 ),
                 "dual_layer_convergence_score": result.dual_layer_convergence.convergence_score,
                 "asset_layer_percentile": result.dual_layer_convergence.asset_layer_percentile,
@@ -276,14 +289,20 @@ class DivergenceExportService:
                 "signal_confidence": getattr(result.exit_signal, "confidence", 0)
                 or getattr(result, "overall_confidence", 0),
                 "exit_recommendation": getattr(
-                    result.exit_signal, "expected_timeline", "",
+                    result.exit_signal,
+                    "expected_timeline",
+                    "",
                 ),
                 "target_exit_timeframe": getattr(
-                    result.exit_signal, "expected_timeline", "",
+                    result.exit_signal,
+                    "expected_timeline",
+                    "",
                 ),
                 "statistical_significance": result.exit_signal.statistical_validity.value,
                 "p_value": getattr(
-                    result.exit_signal, "combined_source_confidence", 0.0,
+                    result.exit_signal,
+                    "combined_source_confidence",
+                    0.0,
                 ),
             }
 
@@ -292,13 +311,19 @@ class DivergenceExportService:
                 base_row.update(
                     {
                         "z_score_divergence": getattr(
-                            result.asset_divergence, "z_score", "",
+                            result.asset_divergence,
+                            "z_score",
+                            "",
                         ),
                         "iqr_divergence": getattr(
-                            result.asset_divergence, "iqr_score", "",
+                            result.asset_divergence,
+                            "iqr_score",
+                            "",
                         ),
                         "rarity_score": getattr(
-                            result.asset_divergence, "rarity_score", "",
+                            result.asset_divergence,
+                            "rarity_score",
+                            "",
                         ),
                     },
                 )
@@ -328,7 +353,9 @@ class DivergenceExportService:
         return csv_file
 
     async def _export_divergence_csv(
-        self, export_data: dict[str, Any], file_base: str,
+        self,
+        export_data: dict[str, Any],
+        file_base: str,
     ) -> Path:
         """Export divergence analysis to CSV"""
         csv_file = self.export_base_path / f"{file_base}.csv"
@@ -363,7 +390,9 @@ class DivergenceExportService:
         return csv_file
 
     async def _export_correlation_csv(
-        self, correlation_data: dict[str, Any], file_base: str,
+        self,
+        correlation_data: dict[str, Any],
+        file_base: str,
     ) -> Path:
         """Export correlation matrix to CSV"""
         csv_file = self.export_base_path / f"{file_base}.csv"
@@ -376,7 +405,9 @@ class DivergenceExportService:
         return csv_file
 
     async def _export_pattern_csv(
-        self, pattern_data: dict[str, Any], file_base: str,
+        self,
+        pattern_data: dict[str, Any],
+        file_base: str,
     ) -> Path:
         """Export pattern analysis to CSV"""
         csv_file = self.export_base_path / f"{file_base}.csv"
@@ -436,7 +467,9 @@ class DivergenceExportService:
                 "analysis_timestamp": result.analysis_timestamp.isoformat(),
                 "sample_size": getattr(result.dual_layer_convergence, "sample_size", 0),
                 "sample_size_confidence": getattr(
-                    result.dual_layer_convergence, "sample_size_confidence", 0.0,
+                    result.dual_layer_convergence,
+                    "sample_size_confidence",
+                    0.0,
                 ),
                 "dual_layer_convergence_score": result.dual_layer_convergence.convergence_score,
                 "asset_layer_percentile": result.dual_layer_convergence.asset_layer_percentile,
@@ -445,14 +478,20 @@ class DivergenceExportService:
                 "signal_confidence": getattr(result.exit_signal, "confidence", 0)
                 or getattr(result, "overall_confidence", 0),
                 "exit_recommendation": getattr(
-                    result.exit_signal, "expected_timeline", "",
+                    result.exit_signal,
+                    "expected_timeline",
+                    "",
                 ),
                 "target_exit_timeframe": getattr(
-                    result.exit_signal, "expected_timeline", "",
+                    result.exit_signal,
+                    "expected_timeline",
+                    "",
                 ),
                 "statistical_significance": result.exit_signal.statistical_validity.value,
                 "p_value": getattr(
-                    result.exit_signal, "combined_source_confidence", 0.0,
+                    result.exit_signal,
+                    "combined_source_confidence",
+                    0.0,
                 ),
                 "divergence_metrics": {
                     "asset_divergence": (
@@ -483,7 +522,9 @@ class DivergenceExportService:
         return json_file
 
     async def _export_divergence_json(
-        self, export_data: dict[str, Any], file_base: str,
+        self,
+        export_data: dict[str, Any],
+        file_base: str,
     ) -> Path:
         """Export divergence analysis to JSON"""
         json_file = self.export_base_path / f"{file_base}.json"
@@ -501,7 +542,9 @@ class DivergenceExportService:
         return json_file
 
     async def _export_correlation_json(
-        self, correlation_data: dict[str, Any], file_base: str,
+        self,
+        correlation_data: dict[str, Any],
+        file_base: str,
     ) -> Path:
         """Export correlation analysis to JSON"""
         json_file = self.export_base_path / f"{file_base}.json"
@@ -512,7 +555,9 @@ class DivergenceExportService:
         return json_file
 
     async def _export_pattern_json(
-        self, pattern_data: dict[str, Any], file_base: str,
+        self,
+        pattern_data: dict[str, Any],
+        file_base: str,
     ) -> Path:
         """Export pattern analysis to JSON"""
         json_file = self.export_base_path / f"{file_base}.json"
@@ -525,7 +570,9 @@ class DivergenceExportService:
     # Helper methods for Markdown export
 
     async def _export_markdown(
-        self, analysis_results: list[StatisticalAnalysisResult], file_base: str,
+        self,
+        analysis_results: list[StatisticalAnalysisResult],
+        file_base: str,
     ) -> Path:
         """Export statistical analysis to comprehensive Markdown report"""
         md_file = self.export_base_path / f"{file_base}.md"
@@ -533,7 +580,9 @@ class DivergenceExportService:
         try:
             # Generate comprehensive SPDS analysis report as default
             content = self._generate_comprehensive_spds_report(
-                analysis_results, {}, file_base,
+                analysis_results,
+                {},
+                file_base,
             )
 
             with open(md_file, "w", encoding="utf-8") as f:
@@ -544,11 +593,14 @@ class DivergenceExportService:
             )
 
         except Exception as e:
-            self.logger.exception(f"❌ Error generating comprehensive markdown report: {e}")
+            self.logger.exception(
+                f"❌ Error generating comprehensive markdown report: {e}"
+            )
             self.logger.exception(f"Error type: {type(e)}")
             # Generate basic fallback report
             content = self._generate_fallback_markdown_report(
-                analysis_results, file_base,
+                analysis_results,
+                file_base,
             )
             with open(md_file, "w", encoding="utf-8") as f:
                 f.write(content)
@@ -557,7 +609,9 @@ class DivergenceExportService:
         return md_file
 
     async def _export_divergence_summary(
-        self, export_data: dict[str, Any], file_base: str,
+        self,
+        export_data: dict[str, Any],
+        file_base: str,
     ) -> Path:
         """Export divergence analysis executive summary"""
         md_file = self.export_base_path / f"{file_base}_export_summary.md"
@@ -601,7 +655,9 @@ class DivergenceExportService:
             if include_recommendations and hasattr(result, "recommendation"):
                 result_dict["recommendation"] = result.recommendation
                 result_dict["target_timeframe"] = getattr(
-                    result, "target_timeframe", "",
+                    result,
+                    "target_timeframe",
+                    "",
                 )
                 result_dict["risk_level"] = getattr(result, "risk_level", "")
 
@@ -610,7 +666,8 @@ class DivergenceExportService:
         return export_data
 
     async def _prepare_correlation_export_data(
-        self, correlation_results: list[CorrelationResult],
+        self,
+        correlation_results: list[CorrelationResult],
     ) -> dict[str, Any]:
         """Prepare correlation data for export"""
         # Build correlation matrix
@@ -662,7 +719,8 @@ class DivergenceExportService:
         }
 
     async def _prepare_pattern_export_data(
-        self, pattern_results: list[PatternResult],
+        self,
+        pattern_results: list[PatternResult],
     ) -> dict[str, Any]:
         """Prepare pattern data for export"""
         return {
@@ -692,7 +750,8 @@ class DivergenceExportService:
     # Report generation methods
 
     def _generate_markdown_report(
-        self, analysis_results: list[StatisticalAnalysisResult],
+        self,
+        analysis_results: list[StatisticalAnalysisResult],
     ) -> str:
         """Generate enhanced comprehensive markdown report with multi-source analysis details"""
         # Count dual-source analyses
@@ -952,7 +1011,9 @@ class DivergenceExportService:
 
         # Generate comprehensive SPDS analysis report
         summary_content = self._generate_comprehensive_spds_report(
-            analysis_results, exported_files, file_base,
+            analysis_results,
+            exported_files,
+            file_base,
         )
 
         with open(summary_file, "w", encoding="utf-8") as f:
@@ -995,7 +1056,9 @@ class DivergenceExportService:
         for result in analysis_results:
             # Consider high confidence if signal_confidence > 80% or dual_layer_convergence_score > 0.8
             confidence_score = getattr(result, "overall_confidence", 0) or getattr(
-                result.exit_signal, "confidence", 0,
+                result.exit_signal,
+                "confidence",
+                0,
             )
             if confidence_score > 1.0:  # If it's a percentage, convert to fraction
                 confidence_score = confidence_score / 100.0
@@ -1116,7 +1179,9 @@ class DivergenceExportService:
                 else str(result.exit_signal)
             )
             confidence = getattr(result, "overall_confidence", 0) or getattr(
-                result.exit_signal, "confidence", 0,
+                result.exit_signal,
+                "confidence",
+                0,
             )
             ticker = result.ticker
             strategy_name = result.strategy_name
@@ -1143,7 +1208,9 @@ class DivergenceExportService:
         return "\n".join(summary_lines)
 
     def _generate_fallback_markdown_report(
-        self, analysis_results: list[StatisticalAnalysisResult], file_base: str,
+        self,
+        analysis_results: list[StatisticalAnalysisResult],
+        file_base: str,
     ) -> str:
         """Generate simple fallback markdown report when comprehensive report fails"""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -1169,9 +1236,11 @@ class DivergenceExportService:
                 strategy_name = getattr(result, "strategy_name", "Unknown")
                 ticker = getattr(result, "ticker", "Unknown")
                 signal = str(
-                    result.exit_signal.signal_type.value
-                    if hasattr(result.exit_signal, "signal_type")
-                    else result.exit_signal,
+                    (
+                        result.exit_signal.signal_type.value
+                        if hasattr(result.exit_signal, "signal_type")
+                        else result.exit_signal
+                    ),
                 )
                 confidence = f"{getattr(result, 'overall_confidence', 0):.1f}%"
 
@@ -1254,7 +1323,9 @@ class DivergenceExportService:
 
             # Calculate high confidence based on signal confidence and convergence
             confidence_score = getattr(result, "overall_confidence", 0) or getattr(
-                result.exit_signal, "confidence", 0,
+                result.exit_signal,
+                "confidence",
+                0,
             )
             if confidence_score > 1.0:  # Convert percentage to fraction if needed
                 confidence_score = confidence_score / 100.0
@@ -1814,7 +1885,9 @@ class DivergenceExportService:
                 else str(result.exit_signal)
             )
             confidence_value = getattr(result, "overall_confidence", 0) or getattr(
-                result.exit_signal, "confidence", 0,
+                result.exit_signal,
+                "confidence",
+                0,
             )
             confidence = f"{confidence_value:.1f}%" if confidence_value else "N/A"
 
@@ -1949,7 +2022,9 @@ class DivergenceExportService:
         return str(csv_path)
 
     async def export_markdown(
-        self, results: list[StatisticalAnalysisResult], portfolio_name: str,
+        self,
+        results: list[StatisticalAnalysisResult],
+        portfolio_name: str,
     ) -> str:
         """Public method to export analysis results as Markdown"""
         clean_name = (

@@ -200,10 +200,14 @@ class QuantitativeAnalyzer:
 
                 # Calculate VaR (approximate from available data)
                 var_95 = self._calculate_var(
-                    annualized_return, annualized_volatility, 0.95,
+                    annualized_return,
+                    annualized_volatility,
+                    0.95,
                 )
                 var_99 = self._calculate_var(
-                    annualized_return, annualized_volatility, 0.99,
+                    annualized_return,
+                    annualized_volatility,
+                    0.99,
                 )
 
                 metric = StrategyMetrics(
@@ -235,7 +239,10 @@ class QuantitativeAnalyzer:
         return metrics
 
     def _calculate_var(
-        self, return_rate: float, volatility: float, confidence: float,
+        self,
+        return_rate: float,
+        volatility: float,
+        confidence: float,
     ) -> float:
         """Calculate Value at Risk using parametric method"""
         try:
@@ -272,7 +279,8 @@ class QuantitativeAnalyzer:
             return pd.DataFrame()
 
     def calculate_portfolio_metrics(
-        self, strategies: list[StrategyMetrics],
+        self,
+        strategies: list[StrategyMetrics],
     ) -> PortfolioAnalysis:
         """Calculate portfolio-level metrics and analysis"""
         if not strategies:
@@ -299,7 +307,9 @@ class QuantitativeAnalyzer:
 
             # Top performers
             sorted_strategies = sorted(
-                strategies, key=lambda x: x.sharpe_ratio, reverse=True,
+                strategies,
+                key=lambda x: x.sharpe_ratio,
+                reverse=True,
             )
             top_performers = [s.ticker for s in sorted_strategies[:5]]
 
@@ -410,7 +420,8 @@ class QuantitativeAnalyzer:
             # Combined analysis
             if self.trades_data is not None and self.incoming_data is not None:
                 combined_data = pd.concat(
-                    [self.trades_data, self.incoming_data], ignore_index=True,
+                    [self.trades_data, self.incoming_data],
+                    ignore_index=True,
                 )
                 combined_metrics = self.calculate_strategy_metrics(combined_data)
                 combined_analysis = self.calculate_portfolio_metrics(combined_metrics)
@@ -475,7 +486,6 @@ class QuantitativeAnalyzer:
                 "probability_of_loss": np.sum(simulations < 1.0) / num_simulations,
                 "probability_of_doubling": np.sum(simulations > 2.0) / num_simulations,
             }
-
 
         except Exception as e:
             print(f"Error in Monte Carlo analysis: {e!s}")

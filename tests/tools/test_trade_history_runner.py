@@ -56,7 +56,9 @@ def run_comprehensive_tests():
     print("=" * 70)
     print(f"⏱️  Total execution time: {end_time - start_time:.2f} seconds")
     print(f"🧪 Tests run: {result.testsRun}")
-    print(f"✅ Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
+    print(
+        f"✅ Successes: {result.testsRun - len(result.failures) - len(result.errors)}"
+    )
     print(f"❌ Failures: {len(result.failures)}")
     print(f"💥 Errors: {len(result.errors)}")
     print(f"⏭️  Skipped: {len(result.skipped) if hasattr(result, 'skipped') else 0}")
@@ -235,10 +237,14 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Run trade history export tests")
     parser.add_argument(
-        "--smoke", action="store_true", help="Run quick smoke test only",
+        "--smoke",
+        action="store_true",
+        help="Run quick smoke test only",
     )
     parser.add_argument(
-        "--performance", action="store_true", help="Run performance tests only",
+        "--performance",
+        action="store_true",
+        help="Run performance tests only",
     )
     args = parser.parse_args()
 

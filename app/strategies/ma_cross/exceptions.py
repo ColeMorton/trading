@@ -21,7 +21,10 @@ class MACrossConfigurationError(MACrossError, ConfigurationError):
     """Raised when MA Cross configuration is invalid."""
 
     def __init__(
-        self, message: str, config_field: str | None = None, config_value=None,
+        self,
+        message: str,
+        config_field: str | None = None,
+        config_value=None,
     ):
         details = {
             "config_field": config_field,
@@ -35,7 +38,10 @@ class MACrossDataError(MACrossError, DataError):
     """Raised when MA Cross data processing fails."""
 
     def __init__(
-        self, message: str, ticker: str | None = None, data_type: str | None = None,
+        self,
+        message: str,
+        ticker: str | None = None,
+        data_type: str | None = None,
     ):
         details = {
             "ticker": ticker,
@@ -66,7 +72,10 @@ class MACrossPortfolioError(MACrossError, PortfolioError):
     """Raised when MA Cross portfolio operations fail."""
 
     def __init__(
-        self, message: str, ticker: str | None = None, operation: str | None = None,
+        self,
+        message: str,
+        ticker: str | None = None,
+        operation: str | None = None,
     ):
         details = {
             "ticker": ticker,
@@ -88,7 +97,10 @@ class MACrossExecutionError(MACrossError):
     """Raised when MA Cross strategy execution fails."""
 
     def __init__(
-        self, message: str, ticker: str | None = None, stage: str | None = None,
+        self,
+        message: str,
+        ticker: str | None = None,
+        stage: str | None = None,
     ):
         details = {
             "ticker": ticker,

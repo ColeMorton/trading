@@ -99,7 +99,11 @@ class MinimumsFilter(PortfolioFilter):
             "Filtered portfolios with win rate",
         ),
         FilterConfig(
-            "TRADES", "Total Trades", pl.Int64(), 1, "Filtered portfolios with at least",
+            "TRADES",
+            "Total Trades",
+            pl.Int64(),
+            1,
+            "Filtered portfolios with at least",
         ),
         FilterConfig(
             "EXPECTANCY_PER_TRADE",
@@ -116,7 +120,11 @@ class MinimumsFilter(PortfolioFilter):
             "Filtered portfolios with profit factor",
         ),
         FilterConfig(
-            "SCORE", "Score", pl.Float64(), 1, "Filtered portfolios with score",
+            "SCORE",
+            "Score",
+            pl.Float64(),
+            1,
+            "Filtered portfolios with score",
         ),
         FilterConfig(
             "SORTINO_RATIO",
@@ -166,7 +174,10 @@ class MinimumsFilter(PortfolioFilter):
                 and filter_config.column_name in df.columns
             ):
                 df = self._apply_single_filter(
-                    df, filter_config, minimums[filter_config.config_key], log,
+                    df,
+                    filter_config,
+                    minimums[filter_config.config_key],
+                    log,
                 )
 
         # Log filtering results
@@ -235,7 +246,10 @@ class PortfolioFilterService:
         self.invalid_metrics_filter.set_next(self.minimums_filter)
 
     def filter_portfolios_dataframe(
-        self, df: pl.DataFrame, config: dict[str, Any], log: Callable,
+        self,
+        df: pl.DataFrame,
+        config: dict[str, Any],
+        log: Callable,
     ) -> pl.DataFrame | None:
         """
         Filter portfolios provided as a Polars DataFrame.
@@ -267,7 +281,10 @@ class PortfolioFilterService:
         return result
 
     def filter_portfolios_list(
-        self, portfolios: list[dict[str, Any]], config: dict[str, Any], log: Callable,
+        self,
+        portfolios: list[dict[str, Any]],
+        config: dict[str, Any],
+        log: Callable,
     ) -> list[dict[str, Any]] | None:
         """
         Filter portfolios provided as a list of dictionaries.
@@ -324,7 +341,9 @@ class PortfolioFilterService:
 
 # Legacy compatibility functions for easy migration
 def apply_minimums_filter_to_dataframe(
-    df: pl.DataFrame, config: dict[str, Any], log: Callable,
+    df: pl.DataFrame,
+    config: dict[str, Any],
+    log: Callable,
 ) -> pl.DataFrame:
     """
     Legacy compatibility function for DataFrame filtering.
@@ -338,7 +357,9 @@ def apply_minimums_filter_to_dataframe(
 
 
 def apply_minimums_filter_to_list(
-    portfolios: list[dict[str, Any]], config: dict[str, Any], log: Callable,
+    portfolios: list[dict[str, Any]],
+    config: dict[str, Any],
+    log: Callable,
 ) -> list[dict[str, Any]]:
     """
     Legacy compatibility function for list filtering.

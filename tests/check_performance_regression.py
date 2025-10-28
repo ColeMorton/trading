@@ -77,7 +77,9 @@ class PerformanceRegressionChecker:
         return metrics
 
     def compare_metrics(
-        self, current_metrics: dict[str, float], baseline_metrics: dict[str, float],
+        self,
+        current_metrics: dict[str, float],
+        baseline_metrics: dict[str, float],
     ) -> dict[str, dict]:
         """
         Compare current metrics against baseline.
@@ -150,7 +152,9 @@ class PerformanceRegressionChecker:
         return comparison
 
     def check_regression(
-        self, current_file: str, baseline_file: str,
+        self,
+        current_file: str,
+        baseline_file: str,
     ) -> tuple[bool, dict]:
         """
         Check for performance regressions.
@@ -294,7 +298,9 @@ Examples:
         help="Regression tolerance as decimal (default: 0.2 = 20%%)",
     )
     parser.add_argument(
-        "--save", metavar="FILE", help="Save comparison report to JSON file",
+        "--save",
+        metavar="FILE",
+        help="Save comparison report to JSON file",
     )
     parser.add_argument(
         "--fail-on-regression",
@@ -318,7 +324,8 @@ Examples:
 
     try:
         has_regressions, comparison = checker.check_regression(
-            args.current_file, args.baseline_file,
+            args.current_file,
+            args.baseline_file,
         )
 
         # Print report

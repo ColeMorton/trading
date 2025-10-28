@@ -104,16 +104,18 @@ def generate_gbm_simulations(
     simulations[:, 0] = initial_price
 
     for i in range(1, n_steps):
-        Z = np.random.standard_normal(n_sims)
+        z_rand = np.random.standard_normal(n_sims)
         simulations[:, i] = simulations[:, i - 1] * np.exp(
-            (drift - 0.5 * volatility**2) * dt + volatility * np.sqrt(dt) * Z,
+            (drift - 0.5 * volatility**2) * dt + volatility * np.sqrt(dt) * z_rand,
         )
 
     return simulations
 
 
 def plot_simulations(
-    simulations: np.ndarray, config: GBMConfig, data: pl.DataFrame,
+    simulations: np.ndarray,
+    config: GBMConfig,
+    data: pl.DataFrame,
 ) -> None:
     """
     Plot and save the GBM simulations.
@@ -175,12 +177,13 @@ def main() -> bool:
         bool: True if execution successful, False otherwise
     """
     log, log_close, _, _ = setup_logging(
-        "geometric_brownian_motion", "1_generate_gbm_simulations.log",
+        "geometric_brownian_motion",
+        "1_generate_gbm_simulations.log",
     )
 
     try:
         # Default configuration
-        DEFAULT_CONFIG: GBMConfig = {
+        default_config: GBMConfig = {
             "YEARS": 5,
             "USE_YEARS": False,
             "PERIOD": "max",
@@ -196,7 +199,7 @@ def main() -> bool:
             "SIMULATIONS": 1000,
         }
 
-        config = get_config(DEFAULT_CONFIG)
+        config = get_config(default_config)
         data = get_data(config["TICKER"], config, log)
 
         initial_price, drift, volatility, dt = calculate_gbm_parameters(data)
@@ -205,7 +208,12 @@ def main() -> bool:
         log(f"Generating {config['SIMULATIONS']} simulations over {n_steps} steps")
 
         simulations = generate_gbm_simulations(
-            initial_price, drift, volatility, dt, n_steps, config["SIMULATIONS"],
+            initial_price,
+            drift,
+            volatility,
+            dt,
+            n_steps,
+            config["SIMULATIONS"],
         )
 
         plot_simulations(simulations, config, data)

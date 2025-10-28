@@ -97,7 +97,8 @@ class TestHorizonAnalysis(unittest.TestCase):
 
         # Test with lower min_sample_size
         best_horizon_low_threshold = _find_best_horizon(
-            horizon_metrics, min_sample_size=10,
+            horizon_metrics,
+            min_sample_size=10,
         )
 
         # Now horizon 5 should be selected

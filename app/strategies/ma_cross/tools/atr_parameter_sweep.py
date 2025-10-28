@@ -163,7 +163,11 @@ class ATRParameterSweepEngine:
 
             # Generate hybrid MA+ATR signals
             signal_data = generate_hybrid_ma_atr_signals(
-                pandas_data, ma_config, atr_length, atr_multiplier, log,
+                pandas_data,
+                ma_config,
+                atr_length,
+                atr_multiplier,
+                log,
             )
 
             if signal_data is None or len(signal_data) == 0:
@@ -314,7 +318,12 @@ class ATRParameterSweepEngine:
 
             # Process single combination
             result = self.process_single_atr_combination(
-                ticker, ma_config, atr_length, atr_multiplier, prices, log,
+                ticker,
+                ma_config,
+                atr_length,
+                atr_multiplier,
+                prices,
+                log,
             )
 
             if result is not None:
@@ -341,7 +350,9 @@ class ATRParameterSweepEngine:
         # Update progress tracker if enabled
         if self.progress_tracker:
             self.progress_tracker.update_chunk_progress(
-                chunk_index, chunk_results, failed_in_chunk,
+                chunk_index,
+                chunk_results,
+                failed_in_chunk,
             )
             self.progress_tracker.log_progress_update(log)
 
@@ -404,7 +415,9 @@ class ATRParameterSweepEngine:
             if self.enable_progress_tracking:
                 self.progress_tracker = create_atr_progress_tracker(ma_config)
                 self.progress_tracker.start_tracking(
-                    ticker, len(atr_combinations), len(parameter_chunks),
+                    ticker,
+                    len(atr_combinations),
+                    len(parameter_chunks),
                 )
                 log("Progress tracking initialized", "info")
 
@@ -455,7 +468,12 @@ class ATRParameterSweepEngine:
                 log("Starting sequential processing", "info")
                 for i, chunk in enumerate(parameter_chunks):
                     chunk_results = self.process_atr_parameter_chunk(
-                        ticker, ma_config, chunk, price_data, log, i,
+                        ticker,
+                        ma_config,
+                        chunk,
+                        price_data,
+                        log,
+                        i,
                     )
                     all_results.extend(chunk_results)
 
@@ -467,7 +485,8 @@ class ATRParameterSweepEngine:
                 if hasattr(self.memory_optimizer, "get_memory_info"):
                     memory_info = self.memory_optimizer.get_memory_info()
                     self.sweep_stats["memory_usage_mb"] = memory_info.get(
-                        "current_mb", 0.0,
+                        "current_mb",
+                        0.0,
                     )
                 else:
                     # Fallback to basic memory tracking
@@ -523,7 +542,8 @@ class ATRParameterSweepEngine:
         # Check schema compliance (using EXTENDED schema with universal exit params)
         for i, result in enumerate(results[:10]):  # Check first 10 for performance
             is_valid, schema_errors = self.schema_transformer.validate_schema(
-                result, SchemaType.EXTENDED,
+                result,
+                SchemaType.EXTENDED,
             )
             if not is_valid:
                 validation_errors.extend(

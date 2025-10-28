@@ -95,7 +95,10 @@ class TestMonteCarloReportIntegration:
         }
 
     def test_monte_carlo_in_json_report(
-        self, mock_strategies, mock_stats, mock_monte_carlo_results,
+        self,
+        mock_strategies,
+        mock_stats,
+        mock_monte_carlo_results,
     ):
         """Test Monte Carlo results inclusion in JSON report."""
         config = {
@@ -251,7 +254,9 @@ class TestMonteCarloRunnerIntegration:
 
         # Run analysis
         result = run_analysis(
-            strategies=mock_strategies_for_runner, log=Mock(), config=test_config,
+            strategies=mock_strategies_for_runner,
+            log=Mock(),
+            config=test_config,
         )
 
         assert result is True
@@ -506,7 +511,9 @@ ETH-USD,EMA,15,30,"""
 
                 # Run the analysis
                 result = run_analysis(
-                    strategies=mock_strategies, log=Mock(), config=config,
+                    strategies=mock_strategies,
+                    log=Mock(),
+                    config=config,
                 )
 
                 assert result is True

@@ -52,7 +52,9 @@ def demonstrate_discrepancy_fix():
 
     # Calculate using different methods
     signal_result = calc.calculate_signal_win_rate(
-        returns, signals, include_zeros=False,
+        returns,
+        signals,
+        include_zeros=False,
     )
     trade_result = calc.calculate_trade_win_rate(returns, include_zeros=False)
     legacy_rate = calc.calculate_legacy_win_rate(returns)
@@ -82,13 +84,17 @@ def demonstrate_zero_handling():
 
     # Compare different zero handling approaches
     exclude_zeros = calc.calculate_trade_win_rate(
-        returns_with_zeros, include_zeros=False,
+        returns_with_zeros,
+        include_zeros=False,
     )
     include_zeros = calc.calculate_trade_win_rate(
-        returns_with_zeros, include_zeros=True,
+        returns_with_zeros,
+        include_zeros=True,
     )
     signal_based = calc.calculate_signal_win_rate(
-        returns_with_zeros, signals_with_zeros, include_zeros=False,
+        returns_with_zeros,
+        signals_with_zeros,
+        include_zeros=False,
     )
 
     print(f"Returns: {[f'{r:.3f}' for r in returns_with_zeros]}")

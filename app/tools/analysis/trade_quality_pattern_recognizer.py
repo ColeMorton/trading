@@ -126,7 +126,9 @@ class TradeQualityPatternRecognizer:
         self.logger.info("TradeQualityPatternRecognizer initialized")
 
     async def analyze_trade_quality(
-        self, trade_data: dict[str, Any], include_pattern_matching: bool = True,
+        self,
+        trade_data: dict[str, Any],
+        include_pattern_matching: bool = True,
     ) -> TradeQualityAnalysis:
         """
         Analyze trade quality with pattern matching
@@ -140,7 +142,8 @@ class TradeQualityPatternRecognizer:
         """
         try:
             trade_id = trade_data.get(
-                "trade_id", trade_data.get("position_id", "unknown"),
+                "trade_id",
+                trade_data.get("position_id", "unknown"),
             )
 
             # Check cache
@@ -155,7 +158,8 @@ class TradeQualityPatternRecognizer:
 
             # Calculate composite quality score
             quality_score = self._calculate_quality_score(
-                quality_metrics, quality_classification,
+                quality_metrics,
+                quality_classification,
             )
 
             # Pattern matching
@@ -163,7 +167,8 @@ class TradeQualityPatternRecognizer:
             pattern_confidence = 0.0
             if include_pattern_matching:
                 pattern_result = await self._find_quality_patterns(
-                    trade_data, quality_classification,
+                    trade_data,
+                    quality_classification,
                 )
                 if pattern_result:
                     pattern_match = pattern_result["pattern_name"]
@@ -171,22 +176,28 @@ class TradeQualityPatternRecognizer:
 
             # Risk assessment
             risk_assessment = self._assess_trade_risk(
-                quality_metrics, quality_classification,
+                quality_metrics,
+                quality_classification,
             )
 
             # Generate recommendation
             recommendation = self._generate_quality_recommendation(
-                quality_classification, quality_metrics, pattern_match,
+                quality_classification,
+                quality_metrics,
+                pattern_match,
             )
 
             # Find similar trades
             similar_trades_count = await self._count_similar_trades(
-                trade_data, quality_classification,
+                trade_data,
+                quality_classification,
             )
 
             # Predict outcome
             expected_outcome = self._predict_trade_outcome(
-                quality_classification, quality_metrics, pattern_confidence,
+                quality_classification,
+                quality_metrics,
+                pattern_confidence,
             )
 
             # Create analysis result
@@ -215,7 +226,8 @@ class TradeQualityPatternRecognizer:
             raise
 
     async def analyze_portfolio_quality(
-        self, trades_data: list[dict[str, Any]],
+        self,
+        trades_data: list[dict[str, Any]],
     ) -> dict[str, Any]:
         """
         Analyze quality distribution across portfolio
@@ -270,7 +282,8 @@ class TradeQualityPatternRecognizer:
             # Generate portfolio recommendations
             portfolio_recommendations = (
                 self._generate_portfolio_quality_recommendations(
-                    portfolio_stats, quality_patterns,
+                    portfolio_stats,
+                    quality_patterns,
                 )
             )
 
@@ -295,7 +308,8 @@ class TradeQualityPatternRecognizer:
             raise
 
     async def learn_quality_patterns(
-        self, historical_trades: list[dict[str, Any]],
+        self,
+        historical_trades: list[dict[str, Any]],
     ) -> dict[str, Any]:
         """
         Learn quality patterns from historical trades
@@ -316,7 +330,8 @@ class TradeQualityPatternRecognizer:
 
             for trade in historical_trades:
                 quality_analysis = await self.analyze_trade_quality(
-                    trade, include_pattern_matching=False,
+                    trade,
+                    include_pattern_matching=False,
                 )
                 trades_by_quality[quality_analysis.quality_classification].append(trade)
 
@@ -326,7 +341,8 @@ class TradeQualityPatternRecognizer:
             for quality, trades in trades_by_quality.items():
                 if len(trades) >= 5:  # Minimum sample size for pattern learning
                     quality_patterns = await self._learn_quality_specific_patterns(
-                        quality, trades,
+                        quality,
+                        trades,
                     )
                     learned_patterns[quality.value] = quality_patterns
 
@@ -363,7 +379,8 @@ class TradeQualityPatternRecognizer:
             raise
 
     async def get_real_time_quality_assessment(
-        self, current_position_data: dict[str, Any],
+        self,
+        current_position_data: dict[str, Any],
     ) -> dict[str, Any]:
         """
         Get real-time quality assessment for open position
@@ -408,7 +425,6 @@ class TradeQualityPatternRecognizer:
                 ),
             }
 
-
         except Exception as e:
             self.logger.exception(f"Real-time quality assessment failed: {e}")
             return {}
@@ -416,7 +432,8 @@ class TradeQualityPatternRecognizer:
     # Helper methods
 
     async def _calculate_quality_metrics(
-        self, trade_data: dict[str, Any],
+        self,
+        trade_data: dict[str, Any],
     ) -> dict[str, float]:
         """Calculate quality metrics from trade data"""
 
@@ -451,7 +468,8 @@ class TradeQualityPatternRecognizer:
         }
 
     def _classify_trade_quality(
-        self, quality_metrics: dict[str, float],
+        self,
+        quality_metrics: dict[str, float],
     ) -> TradeQuality:
         """Classify trade quality based on metrics"""
 
@@ -499,7 +517,9 @@ class TradeQualityPatternRecognizer:
         return TradeQuality.FAILED
 
     def _calculate_quality_score(
-        self, quality_metrics: dict[str, float], quality_classification: TradeQuality,
+        self,
+        quality_metrics: dict[str, float],
+        quality_classification: TradeQuality,
     ) -> float:
         """Calculate numerical quality score"""
 
@@ -529,7 +549,9 @@ class TradeQualityPatternRecognizer:
         return max(0.0, min(1.0, final_score))
 
     async def _find_quality_patterns(
-        self, trade_data: dict[str, Any], quality: TradeQuality,
+        self,
+        trade_data: dict[str, Any],
+        quality: TradeQuality,
     ) -> dict[str, Any] | None:
         """Find matching quality patterns"""
 
@@ -558,7 +580,9 @@ class TradeQualityPatternRecognizer:
         return None
 
     def _calculate_pattern_match_confidence(
-        self, trade_data: dict[str, Any], pattern: QualityPattern,
+        self,
+        trade_data: dict[str, Any],
+        pattern: QualityPattern,
     ) -> float:
         """Calculate confidence in pattern match"""
 
@@ -591,7 +615,9 @@ class TradeQualityPatternRecognizer:
         return matches / total_characteristics if total_characteristics > 0 else 0
 
     def _assess_trade_risk(
-        self, quality_metrics: dict[str, float], quality: TradeQuality,
+        self,
+        quality_metrics: dict[str, float],
+        quality: TradeQuality,
     ) -> str:
         """Assess trade risk level"""
 
@@ -625,7 +651,9 @@ class TradeQualityPatternRecognizer:
         return base_recommendation
 
     async def _count_similar_trades(
-        self, trade_data: dict[str, Any], quality: TradeQuality,
+        self,
+        trade_data: dict[str, Any],
+        quality: TradeQuality,
     ) -> int:
         """Count similar trades in history"""
         # Simplified implementation
@@ -650,7 +678,8 @@ class TradeQualityPatternRecognizer:
         return outcomes[quality]
 
     async def _identify_portfolio_quality_patterns(
-        self, quality_analyses: list[TradeQualityAnalysis],
+        self,
+        quality_analyses: list[TradeQualityAnalysis],
     ) -> dict[str, Any]:
         """Identify patterns in portfolio quality"""
 
@@ -673,7 +702,9 @@ class TradeQualityPatternRecognizer:
         }
 
     def _generate_portfolio_quality_recommendations(
-        self, portfolio_stats: dict[str, Any], quality_patterns: dict[str, Any],
+        self,
+        portfolio_stats: dict[str, Any],
+        quality_patterns: dict[str, Any],
     ) -> list[str]:
         """Generate portfolio-level quality recommendations"""
 
@@ -700,7 +731,9 @@ class TradeQualityPatternRecognizer:
         return recommendations
 
     async def _learn_quality_specific_patterns(
-        self, quality: TradeQuality, trades: list[dict[str, Any]],
+        self,
+        quality: TradeQuality,
+        trades: list[dict[str, Any]],
     ) -> list[QualityPattern]:
         """Learn patterns for specific quality level"""
 
@@ -747,7 +780,8 @@ class TradeQualityPatternRecognizer:
         return "stable"
 
     def _get_immediate_action_recommendation(
-        self, quality_analysis: TradeQualityAnalysis,
+        self,
+        quality_analysis: TradeQualityAnalysis,
     ) -> str:
         """Get immediate action recommendation"""
         if quality_analysis.quality_classification == TradeQuality.EXCELLENT:
@@ -771,7 +805,8 @@ class TradeQualityPatternRecognizer:
         return "maturing"
 
     async def _get_similar_trade_outcomes(
-        self, position_data: dict[str, Any],
+        self,
+        position_data: dict[str, Any],
     ) -> dict[str, Any]:
         """Get outcomes of similar trades"""
         # Simplified implementation

@@ -135,7 +135,8 @@ class EquityDataExtractor:
         """
         try:
             self.log(
-                f"Extracting equity data with metric type: {metric_type.value}", "info",
+                f"Extracting equity data with metric type: {metric_type.value}",
+                "info",
             )
 
             # Extract base equity curve from portfolio
@@ -184,7 +185,9 @@ class EquityDataExtractor:
             raise TradingSystemError(error_msg) from e
 
     def _extract_base_equity_curve(
-        self, portfolio: "vbt.Portfolio", metric_type: MetricType,
+        self,
+        portfolio: "vbt.Portfolio",
+        metric_type: MetricType,
     ) -> np.ndarray:
         """
         Extract the base equity curve from portfolio based on metric type.
@@ -206,7 +209,8 @@ class EquityDataExtractor:
                 if portfolio_value.ndim > 1:
                     # Multiple columns - apply metric selection
                     equity_curve = self._apply_metric_selection(
-                        portfolio_value.values, metric_type,
+                        portfolio_value.values,
+                        metric_type,
                     )
                 else:
                     # Single column
@@ -214,7 +218,8 @@ class EquityDataExtractor:
             # If it's already a numpy array
             elif portfolio_value.ndim > 1:
                 equity_curve = self._apply_metric_selection(
-                    portfolio_value, metric_type,
+                    portfolio_value,
+                    metric_type,
                 )
             else:
                 equity_curve = portfolio_value
@@ -227,7 +232,8 @@ class EquityDataExtractor:
             equity_curve = np.asarray(equity_curve, dtype=np.float64)
 
             self.log(
-                f"Extracted base equity curve with {len(equity_curve)} points", "debug",
+                f"Extracted base equity curve with {len(equity_curve)} points",
+                "debug",
             )
             return equity_curve
 
@@ -271,7 +277,9 @@ class EquityDataExtractor:
             raise TradingSystemError(msg) from e
 
     def _apply_metric_selection(
-        self, data: np.ndarray, metric_type: MetricType,
+        self,
+        data: np.ndarray,
+        metric_type: MetricType,
     ) -> np.ndarray:
         """
         Apply metric selection to multi-dimensional data.
@@ -305,7 +313,8 @@ class EquityDataExtractor:
         return np.mean(data, axis=1)
 
     def _calculate_equity_metrics(
-        self, equity_curve: np.ndarray,
+        self,
+        equity_curve: np.ndarray,
     ) -> dict[str, np.ndarray]:
         """
         Calculate basic equity metrics.
@@ -346,7 +355,8 @@ class EquityDataExtractor:
         }
 
     def _calculate_drawdown_metrics(
-        self, equity_curve: np.ndarray,
+        self,
+        equity_curve: np.ndarray,
     ) -> dict[str, np.ndarray]:
         """
         Calculate drawdown metrics including running peaks.
@@ -377,7 +387,9 @@ class EquityDataExtractor:
         }
 
     def _calculate_mfe_mae_metrics(
-        self, portfolio: "vbt.Portfolio", equity_curve: np.ndarray,
+        self,
+        portfolio: "vbt.Portfolio",
+        equity_curve: np.ndarray,
     ) -> dict[str, np.ndarray]:
         """
         Calculate Maximum Favorable Excursion (MFE) and Maximum Adverse Excursion (MAE).
@@ -456,7 +468,8 @@ class EquityDataExtractor:
             # If no trade data available, calculate cumulative excursions
             if np.all(mfe == 0) and np.all(mae == 0):
                 self.log(
-                    "No trade data available, calculating cumulative MFE/MAE", "warning",
+                    "No trade data available, calculating cumulative MFE/MAE",
+                    "warning",
                 )
                 initial_equity = equity_curve[0] if len(equity_curve) > 0 else 0.0
                 excursions = equity_curve - initial_equity
@@ -513,7 +526,8 @@ def extract_equity_data_from_portfolio(
 
 
 def validate_equity_data(
-    equity_data: EquityData, log: Callable[[str, str], None] | None = None,
+    equity_data: EquityData,
+    log: Callable[[str, str], None] | None = None,
 ) -> bool:
     """
     Validate EquityData object for consistency and correctness.

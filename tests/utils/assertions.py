@@ -125,7 +125,9 @@ def assert_ma_calculations_accurate(
             msg,
         )
     if not long_col:
-        msg = f"Missing long MA column. Expected one of: {expected_cols[ma_type]['long']}"
+        msg = (
+            f"Missing long MA column. Expected one of: {expected_cols[ma_type]['long']}"
+        )
         raise AssertionError(
             msg,
         )
@@ -224,14 +226,18 @@ def assert_portfolio_data_valid(portfolios: list[dict[str, Any]]) -> None:
             not isinstance(portfolio["Profit Factor"], int | float)
             or portfolio["Profit Factor"] < 0
         ):
-            msg = f"Portfolio {i} has invalid Profit Factor: {portfolio['Profit Factor']}"
+            msg = (
+                f"Portfolio {i} has invalid Profit Factor: {portfolio['Profit Factor']}"
+            )
             raise AssertionError(
                 msg,
             )
 
 
 def assert_export_paths_correct(
-    actual_path: str, expected_base: str, config: dict[str, Any],
+    actual_path: str,
+    expected_base: str,
+    config: dict[str, Any],
 ) -> None:
     """
     Assert that export paths are generated correctly based on configuration.

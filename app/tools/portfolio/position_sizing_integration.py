@@ -105,10 +105,13 @@ class PositionSizingPortfolioIntegration:
         kelly_value = manual_data.get("kelly_criterion_value", 0.25)
 
         confidence_metrics = self.kelly_sizer.calculate_confidence_metrics(
-            num_primary, num_outliers,
+            num_primary,
+            num_outliers,
         )
         kelly_position = self.kelly_sizer.calculate_kelly_position(
-            num_primary, num_outliers, kelly_value,
+            num_primary,
+            num_outliers,
+            kelly_value,
         )
 
         # Get risk allocation
@@ -226,7 +229,6 @@ class PositionSizingPortfolioIntegration:
             Sortino_Weight=sortino_weight,
         )
 
-
     def create_position_sizing_portfolio(
         self,
         tickers: list[str],
@@ -279,7 +281,8 @@ class PositionSizingPortfolioIntegration:
         return output_path
 
     def validate_position_sizing_data(
-        self, row_data: dict[str, Any],
+        self,
+        row_data: dict[str, Any],
     ) -> tuple[bool, dict[str, Any]]:
         """Validate position sizing data against schema and Excel formulas.
 
@@ -450,9 +453,10 @@ class PositionSizingPortfolioIntegration:
             },
         }
 
-
     def save_excel_compatible_export(
-        self, tickers: list[str], output_path: str | None = None,
+        self,
+        tickers: list[str],
+        output_path: str | None = None,
     ) -> str:
         """Save Excel-compatible export to JSON file.
 

@@ -27,7 +27,9 @@ class PortfolioCompositionLoader:
         self.business_loader = get_business_config_loader()
 
     def load_portfolio_composition(
-        self, portfolio_name: str, execution_profile: str | None = None,
+        self,
+        portfolio_name: str,
+        execution_profile: str | None = None,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         """Load portfolio composition separating business and technical configurations.
 
@@ -52,7 +54,9 @@ class PortfolioCompositionLoader:
 
             # Validate composition
             self._validate_composition(
-                business_config, technical_config, portfolio_name,
+                business_config,
+                technical_config,
+                portfolio_name,
             )
 
             self.logger.info(
@@ -129,7 +133,10 @@ class PortfolioCompositionLoader:
                     )
 
     def get_asset_execution_strategy(
-        self, portfolio_name: str, ticker: str, execution_profile: str | None = None,
+        self,
+        portfolio_name: str,
+        ticker: str,
+        execution_profile: str | None = None,
     ) -> dict[str, Any]:
         """Get execution strategy for a specific asset in a portfolio.
 
@@ -146,7 +153,8 @@ class PortfolioCompositionLoader:
         """
         try:
             business_config, technical_config = self.load_portfolio_composition(
-                portfolio_name, execution_profile,
+                portfolio_name,
+                execution_profile,
             )
 
             # Find asset in business config
@@ -161,7 +169,8 @@ class PortfolioCompositionLoader:
             execution_strategy = {}
             if technical_config and "config" in technical_config:
                 execution_strategy = self._find_execution_strategy(
-                    technical_config, ticker,
+                    technical_config,
+                    ticker,
                 )
 
             # Combine with asset-specific defaults from business configuration
@@ -175,7 +184,6 @@ class PortfolioCompositionLoader:
                 "execution_config": execution_strategy,
             }
 
-
         except Exception as e:
             if isinstance(e, PortfolioCompositionError):
                 raise
@@ -185,7 +193,9 @@ class PortfolioCompositionLoader:
             )
 
     def _find_asset_config(
-        self, business_config: dict[str, Any], ticker: str,
+        self,
+        business_config: dict[str, Any],
+        ticker: str,
     ) -> dict[str, Any] | None:
         """Find asset configuration in business portfolio config.
 
@@ -203,7 +213,9 @@ class PortfolioCompositionLoader:
         return None
 
     def _find_execution_strategy(
-        self, technical_config: dict[str, Any], ticker: str,
+        self,
+        technical_config: dict[str, Any],
+        ticker: str,
     ) -> dict[str, Any]:
         """Find execution strategy in technical configuration.
 
@@ -318,7 +330,8 @@ def get_portfolio_composition_loader() -> PortfolioCompositionLoader:
 
 
 def load_portfolio_with_execution(
-    portfolio_name: str, execution_profile: str | None = None,
+    portfolio_name: str,
+    execution_profile: str | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Load portfolio with business and technical configurations.
 
@@ -347,7 +360,9 @@ def get_portfolio_assets(portfolio_name: str) -> list[str]:
 
 
 def get_asset_strategy(
-    portfolio_name: str, ticker: str, execution_profile: str | None = None,
+    portfolio_name: str,
+    ticker: str,
+    execution_profile: str | None = None,
 ) -> dict[str, Any]:
     """Get execution strategy for an asset in a portfolio.
 
@@ -361,5 +376,7 @@ def get_asset_strategy(
     """
     loader = get_portfolio_composition_loader()
     return loader.get_asset_execution_strategy(
-        portfolio_name, ticker, execution_profile,
+        portfolio_name,
+        ticker,
+        execution_profile,
     )

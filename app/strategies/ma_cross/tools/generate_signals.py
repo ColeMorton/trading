@@ -9,7 +9,9 @@ from app.tools.calculate_macd_and_signals import calculate_macd_and_signals
 
 
 def generate_signals(
-    data_dict: dict[str, pd.DataFrame], config: dict, log: Callable,
+    data_dict: dict[str, pd.DataFrame],
+    config: dict,
+    log: Callable,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Generate entry and exit signals for multiple strategies.
@@ -57,7 +59,8 @@ def generate_signals(
                 "USE_SMA": strategy.get("use_sma", config.get("USE_SMA", False)),
                 "USE_RSI": strategy.get("use_rsi", config.get("USE_RSI", False)),
                 "RSI_THRESHOLD": strategy.get(
-                    "rsi_threshold", config.get("RSI_THRESHOLD", 70),
+                    "rsi_threshold",
+                    config.get("RSI_THRESHOLD", 70),
                 ),
                 "SHORT": strategy.get("short", config.get("SHORT", False)),
             }

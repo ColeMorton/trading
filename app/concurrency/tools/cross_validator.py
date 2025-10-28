@@ -81,7 +81,9 @@ class CSVJSONCrossValidator:
         """Initialize the cross-validator with logging."""
         if log is None:
             self.log, _, _, _ = setup_logging(
-                "cross_validator", Path("./logs"), "cross_validation.log",
+                "cross_validator",
+                Path("./logs"),
+                "cross_validation.log",
             )
         else:
             self.log = log
@@ -110,27 +112,35 @@ class CSVJSONCrossValidator:
 
         # Run basic validation checks
         validation_summary = self.validator.validate_all(
-            csv_data, config.json_metrics, config.tolerances,
+            csv_data,
+            config.json_metrics,
+            config.tolerances,
         )
 
         # Perform detailed ticker-level comparisons
         ticker_comparisons = self._compare_ticker_metrics(
-            csv_data, config.json_metrics, config.tolerances or {},
+            csv_data,
+            config.json_metrics,
+            config.tolerances or {},
         )
 
         # Identify portfolio-level issues
         portfolio_issues = self._identify_portfolio_issues(
-            csv_data, config.json_metrics,
+            csv_data,
+            config.json_metrics,
         )
 
         # Generate recommendations
         recommendations = self._generate_recommendations(
-            validation_summary, ticker_comparisons, portfolio_issues,
+            validation_summary,
+            ticker_comparisons,
+            portfolio_issues,
         )
 
         # Calculate overall data quality score
         data_quality_score = self._calculate_data_quality_score(
-            validation_summary, ticker_comparisons,
+            validation_summary,
+            ticker_comparisons,
         )
 
         # Create report
@@ -261,7 +271,9 @@ class CSVJSONCrossValidator:
 
             ticker_comparisons.append(
                 TickerComparison(
-                    ticker=ticker, metrics=metrics, overall_score=overall_score,
+                    ticker=ticker,
+                    metrics=metrics,
+                    overall_score=overall_score,
                 ),
             )
 
@@ -273,7 +285,9 @@ class CSVJSONCrossValidator:
         return ticker_comparisons
 
     def _identify_portfolio_issues(
-        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any],
+        self,
+        csv_data: pd.DataFrame,
+        json_metrics: dict[str, Any],
     ) -> list[str]:
         """Identify specific issues at the portfolio level."""
         issues = []
@@ -324,10 +338,12 @@ class CSVJSONCrossValidator:
                     positive_sharpe_count += 1
 
                     ticker_metrics = json_metrics.get("ticker_metrics", {}).get(
-                        ticker, {},
+                        ticker,
+                        {},
                     )
                     json_sharpe = ticker_metrics.get("signal_quality_metrics", {}).get(
-                        "sharpe_ratio", 0,
+                        "sharpe_ratio",
+                        0,
                     )
 
                     if json_sharpe < -0.01:  # Negative in JSON
@@ -472,7 +488,6 @@ class CSVJSONCrossValidator:
         # Apply penalties
         return max(0.0, combined_score - critical_penalty - warning_penalty)
 
-
     def _get_nested_value(self, data: dict[str, Any], path: str, default: Any) -> Any:
         """Get a nested value from a dictionary using dot notation."""
         try:
@@ -485,7 +500,9 @@ class CSVJSONCrossValidator:
             return default
 
     def _generate_report_file(
-        self, report: CrossValidationReport, output_path: str,
+        self,
+        report: CrossValidationReport,
+        output_path: str,
     ) -> None:
         """Generate a detailed report file."""
         try:
@@ -510,7 +527,9 @@ class CSVJSONCrossValidator:
             self.log(f"Error generating report file: {e!s}", "error")
 
     def _generate_markdown_report(
-        self, report: CrossValidationReport, output_file: Path,
+        self,
+        report: CrossValidationReport,
+        output_file: Path,
     ) -> None:
         """Generate a markdown format report."""
         with open(output_file, "w") as f:

@@ -210,7 +210,10 @@ class TestMetricTypeE2EIntegration:
         ],
     )
     def test_metric_type_with_different_configurations(
-        self, client, ticker, strategy_types,
+        self,
+        client,
+        ticker,
+        strategy_types,
     ):
         """Test metric_type handling with different ticker and strategy configurations."""
         request_payload = {
@@ -368,7 +371,8 @@ class TestMetricTypeE2EIntegration:
                 if "metric_type" in portfolio:
                     # Even with invalid ticker, metric_type should be properly typed
                     assert portfolio["metric_type"] is None or isinstance(
-                        portfolio["metric_type"], str,
+                        portfolio["metric_type"],
+                        str,
                     )
 
         elif response.status_code in [400, 422]:
@@ -451,7 +455,8 @@ if __name__ == "__main__":
     # Run the tests
     print("🚀 Running metric_type integration tests...")
     result = subprocess.run(
-        ["python", "-m", "pytest", __file__, "-v", "--tb=short"], check=False,
+        ["python", "-m", "pytest", __file__, "-v", "--tb=short"],
+        check=False,
     )
 
     sys.exit(result.returncode)

@@ -590,7 +590,8 @@ class TestJSONvsCSVConsistency:
 
         # Compare January data from both
         json_jan = next(
-            (p for p in json_data["monthly_patterns"] if p["period"] == "January"), None,
+            (p for p in json_data["monthly_patterns"] if p["period"] == "January"),
+            None,
         )
         csv_jan = csv_data[
             (csv_data["Pattern_Type"] == "Monthly") & (csv_data["Period"] == "January")

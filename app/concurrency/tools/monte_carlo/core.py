@@ -75,7 +75,9 @@ class MonteCarloAnalyzer:
     """
 
     def __init__(
-        self, config: MonteCarloConfig, log: Callable[[str, str], None] | None = None,
+        self,
+        config: MonteCarloConfig,
+        log: Callable[[str, str], None] | None = None,
     ):
         """Initialize the Monte Carlo analyzer.
 
@@ -139,7 +141,11 @@ class MonteCarloAnalyzer:
             self.log(f"Analyzing parameters: {fast_period}/{slow_period}", "debug")
 
             stability_result = self._analyze_single_parameter_combination(
-                data, fast_period, slow_period, strategy_type, strategy_config,
+                data,
+                fast_period,
+                slow_period,
+                strategy_type,
+                strategy_config,
             )
             parameter_results.append(stability_result)
 
@@ -177,7 +183,11 @@ class MonteCarloAnalyzer:
 
         # Calculate base performance on original data
         base_performance = self._calculate_strategy_performance(
-            data, fast_period, slow_period, strategy_type, strategy_config,
+            data,
+            fast_period,
+            slow_period,
+            strategy_type,
+            strategy_config,
         )
 
         # Run Monte Carlo simulations
@@ -186,17 +196,24 @@ class MonteCarloAnalyzer:
         for simulation in range(self.config.num_simulations):
             # Create bootstrap sample
             bootstrap_data = self.bootstrap_sampler.block_bootstrap_sample(
-                data, seed=simulation,
+                data,
+                seed=simulation,
             )
 
             # Add parameter noise
             noisy_short, noisy_long = self.bootstrap_sampler.parameter_noise_injection(
-                fast_period, slow_period, noise_std=0.1,
+                fast_period,
+                slow_period,
+                noise_std=0.1,
             )
 
             # Calculate performance on bootstrap sample with noisy parameters
             sim_performance = self._calculate_strategy_performance(
-                bootstrap_data, noisy_short, noisy_long, strategy_type, strategy_config,
+                bootstrap_data,
+                noisy_short,
+                noisy_long,
+                strategy_type,
+                strategy_config,
             )
 
             monte_carlo_results.append(
@@ -219,7 +236,8 @@ class MonteCarloAnalyzer:
         return stability_result
 
     def _standardize_field_names(
-        self, strategy_config: dict[str, Any],
+        self,
+        strategy_config: dict[str, Any],
     ) -> dict[str, Any]:
         """Standardize field names from CSV format to internal format."""
         field_mapping = {
@@ -366,7 +384,8 @@ class MonteCarloAnalyzer:
                 result.performance_mean["total_return"],
             )
             return_correlation = max(
-                0.0, 1.0 - min(cv, 2.0) / 2.0,
+                0.0,
+                1.0 - min(cv, 2.0) / 2.0,
             )  # Scale CV to 0-1 range
         else:
             return_correlation = 0.0
@@ -388,7 +407,9 @@ class MonteCarloAnalyzer:
         result.regime_consistency = positive_returns
 
     def _calculate_confidence_interval(
-        self, values: list[float], alpha: float,
+        self,
+        values: list[float],
+        alpha: float,
     ) -> tuple[float, float]:
         """Calculate confidence interval for a list of values."""
         if not values:
@@ -406,7 +427,8 @@ class MonteCarloAnalyzer:
         return (lower_bound, upper_bound)
 
     def _calculate_portfolio_stability_score(
-        self, parameter_results: list[ParameterStabilityResult],
+        self,
+        parameter_results: list[ParameterStabilityResult],
     ) -> float:
         """Calculate overall portfolio stability score."""
         if not parameter_results:
@@ -416,7 +438,8 @@ class MonteCarloAnalyzer:
         return np.mean(stability_scores)
 
     def _select_most_stable_parameters(
-        self, parameter_results: list[ParameterStabilityResult],
+        self,
+        parameter_results: list[ParameterStabilityResult],
     ) -> tuple[int, int] | None:
         """Select the most stable parameter combination."""
         if not parameter_results:

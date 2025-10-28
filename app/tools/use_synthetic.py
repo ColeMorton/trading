@@ -8,7 +8,10 @@ from app.tools.download_data import download_data
 
 
 def use_synthetic(
-    ticker1: str, ticker2: str, config: DataConfig, log: Callable,
+    ticker1: str,
+    ticker2: str,
+    config: DataConfig,
+    log: Callable,
 ) -> tuple[pl.DataFrame, str]:
     """Create a synthetic pair from two tickers.
 
@@ -53,7 +56,10 @@ def use_synthetic(
 
         # Join on DateHour instead of exact timestamp
         data_merged = data_ticker_1.join(
-            data_ticker_2, on="DateHour", how="inner", suffix="_2",
+            data_ticker_2,
+            on="DateHour",
+            how="inner",
+            suffix="_2",
         )
         log(f"Merged data contains {len(data_merged)} rows")
 
@@ -71,7 +77,10 @@ def use_synthetic(
 
             # Join on DateOnly
             data_merged = data_ticker_1.join(
-                data_ticker_2, on="DateOnly", how="inner", suffix="_2",
+                data_ticker_2,
+                on="DateOnly",
+                how="inner",
+                suffix="_2",
             )
             log(f"Date-only merge contains {len(data_merged)} rows")
 

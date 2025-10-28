@@ -9,7 +9,9 @@ from app.concurrency.tools.strategy_id import generate_strategy_id, is_valid_str
 
 
 def get_strategy_types(
-    config: dict[str, Any], log_func=None, default_type: str = "SMA",
+    config: dict[str, Any],
+    log_func=None,
+    default_type: str = "SMA",
 ) -> list[str]:
     """Get strategy types from config with defaults.
 
@@ -125,7 +127,9 @@ def get_required_fields_for_strategy(strategy_type: str) -> list[str]:
 
 
 def validate_strategy_config(
-    strategy_config: dict[str, Any], strategy_index: int = 0, log_func=None,
+    strategy_config: dict[str, Any],
+    strategy_index: int = 0,
+    log_func=None,
 ) -> bool:
     """Validate a strategy configuration.
 
@@ -198,7 +202,9 @@ def validate_strategy_config(
 
 
 def get_strategy_id(
-    strategy_config: dict[str, Any], strategy_index: int = 0, log_func=None,
+    strategy_config: dict[str, Any],
+    strategy_index: int = 0,
+    log_func=None,
 ) -> str:
     """Get or generate a strategy ID for a strategy configuration.
 
@@ -246,6 +252,7 @@ def get_strategy_id(
 
         # Fallback to a simple identifier
         ticker = strategy_config.get(
-            "TICKER", strategy_config.get("ticker", f"strategy_{strategy_index}"),
+            "TICKER",
+            strategy_config.get("ticker", f"strategy_{strategy_index}"),
         )
         return f"{ticker}_strategy_{strategy_index}"

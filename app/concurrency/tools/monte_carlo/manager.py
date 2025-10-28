@@ -36,7 +36,6 @@ class MonteCarloAnalysisError(ConcurrencyAnalysisError):
     """Error during Monte Carlo analysis."""
 
 
-
 @dataclass
 class MonteCarloProgressTracker:
     """Track progress of Monte Carlo analysis across portfolio."""
@@ -118,7 +117,8 @@ class PortfolioMonteCarloManager:
         print(f"[{level.upper()}] {message}")
 
     def analyze_portfolio(
-        self, portfolio_strategies: list[dict[str, Any]],
+        self,
+        portfolio_strategies: list[dict[str, Any]],
     ) -> dict[str, MonteCarloPortfolioResult]:
         """Analyze parameter robustness for individual strategies in portfolio.
 
@@ -154,7 +154,9 @@ class PortfolioMonteCarloManager:
             # Submit all tasks
             futures_to_strategy = {
                 executor.submit(
-                    self._analyze_strategy_with_error_handling, strategy_id, strategy,
+                    self._analyze_strategy_with_error_handling,
+                    strategy_id,
+                    strategy,
                 ): strategy_id
                 for strategy_id, strategy in strategies_with_ids.items()
             }
@@ -182,7 +184,8 @@ class PortfolioMonteCarloManager:
         return self.results
 
     def _assign_strategy_ids(
-        self, portfolio_strategies: list[dict[str, Any]],
+        self,
+        portfolio_strategies: list[dict[str, Any]],
     ) -> dict[str, dict[str, Any]]:
         """Assign unique IDs to each strategy for individual analysis.
 
@@ -248,7 +251,9 @@ class PortfolioMonteCarloManager:
         return strategies_with_ids
 
     def _analyze_strategy_with_error_handling(
-        self, strategy_id: str, strategy: dict[str, Any],
+        self,
+        strategy_id: str,
+        strategy: dict[str, Any],
     ) -> MonteCarloPortfolioResult | None:
         """Analyze a single strategy with error handling.
 
@@ -293,7 +298,8 @@ class PortfolioMonteCarloManager:
             if not ticker or not short or not long:
                 msg = f"Missing required fields for {strategy_id}"
                 raise MonteCarloAnalysisError(
-                    msg, ticker=ticker,
+                    msg,
+                    ticker=ticker,
                 )
 
             # Download price data
@@ -301,7 +307,8 @@ class PortfolioMonteCarloManager:
             if data is None or len(data) < 100:  # Minimum data requirement
                 msg = f"Insufficient data for {ticker}"
                 raise MonteCarloAnalysisError(
-                    msg, ticker=ticker,
+                    msg,
+                    ticker=ticker,
                 )
 
             # Create parameter combinations for this specific strategy
@@ -312,9 +319,12 @@ class PortfolioMonteCarloManager:
 
             # Analyze parameter stability for this strategy
             return self.analyzer.analyze_parameter_stability(
-                strategy_id, data, parameter_combinations, strategy_type, strategy,
+                strategy_id,
+                data,
+                parameter_combinations,
+                strategy_type,
+                strategy,
             )
-
 
         except MonteCarloAnalysisError:
             raise
@@ -327,7 +337,8 @@ class PortfolioMonteCarloManager:
             )
 
     def _generate_parameter_variations(
-        self, base_parameters: list[tuple[int, int]],
+        self,
+        base_parameters: list[tuple[int, int]],
     ) -> list[tuple[int, int]]:
         """Generate parameter variations around base parameters for a single strategy.
 
@@ -351,7 +362,8 @@ class PortfolioMonteCarloManager:
             for long_delta in [-3, -2, -1, 1, 2, 3]:
                 new_short = max(5, base_short + short_delta)  # Minimum window of 5
                 new_long = max(
-                    new_short + 1, base_long + long_delta,
+                    new_short + 1,
+                    base_long + long_delta,
                 )  # Long must be > short
 
                 if new_short < new_long and new_long < 100:  # Reasonable max window
@@ -364,7 +376,8 @@ class PortfolioMonteCarloManager:
         return variations_list[:max_variations]
 
     def _group_strategies_by_ticker(
-        self, portfolio_strategies: list[dict[str, Any]],
+        self,
+        portfolio_strategies: list[dict[str, Any]],
     ) -> dict[str, list[dict[str, Any]]]:
         """Group strategies by ticker symbol."""
         ticker_strategies: dict[str, list[dict[str, Any]]] = {}
@@ -391,7 +404,9 @@ class PortfolioMonteCarloManager:
         return ticker_strategies
 
     def _analyze_ticker_with_error_handling(
-        self, ticker: str, strategies: list[dict[str, Any]],
+        self,
+        ticker: str,
+        strategies: list[dict[str, Any]],
     ) -> MonteCarloPortfolioResult | None:
         """Analyze a single ticker with error handling.
 
@@ -410,7 +425,8 @@ class PortfolioMonteCarloManager:
             if data is None or len(data) < 100:  # Minimum data requirement
                 msg = f"Insufficient data for {ticker}"
                 raise MonteCarloAnalysisError(
-                    msg, ticker=ticker,
+                    msg,
+                    ticker=ticker,
                 )
 
             # Extract parameter combinations from strategies
@@ -422,9 +438,10 @@ class PortfolioMonteCarloManager:
 
             # Run Monte Carlo analysis
             return self.analyzer.analyze_parameter_stability(
-                ticker=ticker, data=data, parameter_combinations=parameter_combinations,
+                ticker=ticker,
+                data=data,
+                parameter_combinations=parameter_combinations,
             )
-
 
         except Exception as e:
             msg = f"Monte Carlo analysis failed for {ticker}: {e!s}"
@@ -477,7 +494,8 @@ class PortfolioMonteCarloManager:
             return None
 
     def _extract_parameter_combinations(
-        self, strategies: list[dict[str, Any]],
+        self,
+        strategies: list[dict[str, Any]],
     ) -> list[tuple[int, int]]:
         """Extract and expand parameter combinations for robustness testing.
 
@@ -529,7 +547,8 @@ class PortfolioMonteCarloManager:
                 for long_delta in [-3, -2, -1, 1, 2, 3]:
                     new_short = max(5, short + short_delta)  # Minimum window of 5
                     new_long = max(
-                        new_short + 1, long + long_delta,
+                        new_short + 1,
+                        long + long_delta,
                     )  # Long must be > short
 
                     if new_short < new_long and new_long < 100:  # Reasonable max window
@@ -538,7 +557,8 @@ class PortfolioMonteCarloManager:
         # Limit total combinations to respect configuration
         combinations_list = sorted(expanded_combinations)
         max_combinations = min(
-            self.config.max_parameters_to_test, len(combinations_list),
+            self.config.max_parameters_to_test,
+            len(combinations_list),
         )
 
         return combinations_list[:max_combinations]
@@ -562,7 +582,8 @@ class PortfolioMonteCarloManager:
 
             if len(self.progress_tracker.errors) > 5:
                 self.log(
-                    f"  ... and {len(self.progress_tracker.errors) - 5} more", "warning",
+                    f"  ... and {len(self.progress_tracker.errors) - 5} more",
+                    "warning",
                 )
 
     def get_portfolio_stability_metrics(self) -> dict[str, float]:

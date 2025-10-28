@@ -174,7 +174,9 @@ class TestWebhookService:
 
         # Mock webhook send
         with patch.object(
-            WebhookService, "send_webhook", new_callable=AsyncMock,
+            WebhookService,
+            "send_webhook",
+            new_callable=AsyncMock,
         ) as mock_send:
             mock_send.return_value = (200, "OK")
 
@@ -204,7 +206,9 @@ class TestWebhookService:
         mock_db_manager = Mock()
 
         with patch.object(
-            WebhookService, "send_webhook", new_callable=AsyncMock,
+            WebhookService,
+            "send_webhook",
+            new_callable=AsyncMock,
         ) as mock_send:
             await WebhookService.notify_job_completion(mock_db_manager, job)
 
@@ -240,7 +244,9 @@ class TestWebhookService:
 
         # Mock webhook send
         with patch.object(
-            WebhookService, "send_webhook", new_callable=AsyncMock,
+            WebhookService,
+            "send_webhook",
+            new_callable=AsyncMock,
         ) as mock_send:
             mock_send.return_value = (200, "Success")
 

@@ -43,7 +43,8 @@ def analyze_parameter_sensitivity(
 
         # Handle multiple strategy types
         strategy_types = config.get(
-            "strategy_types", [config.get("STRATEGY_TYPE", "SMA")],
+            "strategy_types",
+            [config.get("STRATEGY_TYPE", "SMA")],
         )
         if isinstance(strategy_types, str):
             strategy_types = [strategy_types]
@@ -56,7 +57,8 @@ def analyze_parameter_sensitivity(
 
             # Enable parallel processing for large parameter sets
             use_parallel = len(parameter_sets) > 10 and config.get(
-                "ENABLE_PARALLEL", True,
+                "ENABLE_PARALLEL",
+                True,
             )
 
             # Analyze parameter combinations for this strategy type
@@ -116,7 +118,10 @@ def export_results(df: pl.DataFrame, config: dict[str, Any], log: Callable) -> N
 
         # Export using centralized portfolio export functionality
         export_portfolios(
-            portfolios=df.to_dicts(), config=config, export_type="portfolios", log=log,
+            portfolios=df.to_dicts(),
+            config=config,
+            export_type="portfolios",
+            log=log,
         )
 
         log("Analysis results exported successfully")

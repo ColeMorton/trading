@@ -299,7 +299,10 @@ class PortfolioAnalysisService:
         return df
 
     def sort_portfolios(
-        self, df: pd.DataFrame, sort_by: str = "Score", ascending: bool = False,
+        self,
+        df: pd.DataFrame,
+        sort_by: str = "Score",
+        ascending: bool = False,
     ) -> pd.DataFrame:
         """
         Sort portfolios by specified column.
@@ -320,7 +323,9 @@ class PortfolioAnalysisService:
             df[sort_by] = pd.to_numeric(df[sort_by], errors="coerce")
 
         return df.sort_values(
-            by=sort_by, ascending=ascending, na_position="last",
+            by=sort_by,
+            ascending=ascending,
+            na_position="last",
         ).reset_index(drop=True)
 
     def format_for_display(self, df: pd.DataFrame, top_n: int = 50) -> dict:
@@ -437,7 +442,6 @@ class PortfolioAnalysisService:
         # Ensure each row is on a new line for better readability
         lines = csv_string.strip().split("\n")
         return "\n".join(lines)
-
 
     def _standardize_output_schema(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -580,7 +584,8 @@ class PortfolioAnalysisService:
             if col in standardized_df.columns:
                 # Convert to numeric first (handles string numbers), then to int
                 standardized_df[col] = pd.to_numeric(
-                    standardized_df[col], errors="coerce",
+                    standardized_df[col],
+                    errors="coerce",
                 )
                 # Convert to integer, handling NaN values
                 standardized_df[col] = standardized_df[col].fillna(0).astype("int64")
@@ -590,7 +595,6 @@ class PortfolioAnalysisService:
             col for col in target_columns if col in standardized_df.columns
         ]
         return standardized_df[output_columns]
-
 
     def get_display_columns(self) -> list[str]:
         """Get the key columns to display in the summary table."""

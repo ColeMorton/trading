@@ -62,7 +62,10 @@ class TestExportDirectoryRegression:
         }
 
     def test_portfolios_best_exports_to_correct_directory(
-        self, sample_portfolios, base_config, temp_export_dir,
+        self,
+        sample_portfolios,
+        base_config,
+        temp_export_dir,
     ):
         """
         REGRESSION TEST: portfolios_best files should export to data/raw/portfolios_best/
@@ -102,7 +105,10 @@ class TestExportDirectoryRegression:
         ), "No CSV files should be directly in data/raw/"
 
     def test_portfolios_filtered_exports_to_correct_directory(
-        self, sample_portfolios, base_config, temp_export_dir,
+        self,
+        sample_portfolios,
+        base_config,
+        temp_export_dir,
     ):
         """
         REGRESSION TEST: portfolios_filtered files should export to data/raw/portfolios_filtered/
@@ -128,7 +134,10 @@ class TestExportDirectoryRegression:
         assert len(csv_files) > 0
 
     def test_feature_dir_parameter_override(
-        self, sample_portfolios, base_config, temp_export_dir,
+        self,
+        sample_portfolios,
+        base_config,
+        temp_export_dir,
     ):
         """
         REGRESSION TEST: When feature_dir is provided, it should be used instead of export_type
@@ -221,7 +230,10 @@ class TestMetricTypeColumnRegression:
         }
 
     def test_portfolios_filtered_includes_metric_type_column(
-        self, diverse_portfolios, base_config, temp_export_dir,
+        self,
+        diverse_portfolios,
+        base_config,
+        temp_export_dir,
     ):
         """
         REGRESSION TEST: portfolios_filtered exports should include Metric Type column
@@ -256,7 +268,10 @@ class TestMetricTypeColumnRegression:
                 assert "Metric Type" in strategy_rows.columns
 
     def test_portfolios_best_includes_metric_type_column(
-        self, diverse_portfolios, base_config, temp_export_dir,
+        self,
+        diverse_portfolios,
+        base_config,
+        temp_export_dir,
     ):
         """
         REGRESSION TEST: portfolios_best exports should include Metric Type column
@@ -278,7 +293,10 @@ class TestMetricTypeColumnRegression:
         assert df.columns[0] == "Metric Type"
 
     def test_metric_type_values_are_preserved(
-        self, diverse_portfolios, base_config, temp_export_dir,
+        self,
+        diverse_portfolios,
+        base_config,
+        temp_export_dir,
     ):
         """
         REGRESSION TEST: Metric Type values should not be overwritten with defaults
@@ -323,7 +341,10 @@ class TestMetricTypeColumnRegression:
         ), f"Missing metric types: {expected_metrics - actual_metrics}"
 
     def test_no_dual_normalization_stripping(
-        self, diverse_portfolios, base_config, temp_export_dir,
+        self,
+        diverse_portfolios,
+        base_config,
+        temp_export_dir,
     ):
         """
         REGRESSION TEST: Dual normalization should not strip Metric Type column
@@ -385,7 +406,9 @@ class TestFilenameGenerationRegression:
         ]
 
     def test_single_sma_strategy_filename_generation(
-        self, single_strategy_portfolio, temp_export_dir,
+        self,
+        single_strategy_portfolio,
+        temp_export_dir,
     ):
         """
         REGRESSION TEST: Single SMA strategy should produce RJF_D_SMA.csv filename
@@ -426,7 +449,9 @@ class TestFilenameGenerationRegression:
         assert filename.startswith("RJF_")  # Should start with ticker
 
     def test_single_sma_strategy_filtered_filename(
-        self, single_strategy_portfolio, temp_export_dir,
+        self,
+        single_strategy_portfolio,
+        temp_export_dir,
     ):
         """
         REGRESSION TEST: Single SMA strategy filtered should have correct filename
@@ -528,7 +553,9 @@ class TestFilenameGenerationRegression:
         # (This test allows for some flexibility in multi-strategy naming)
 
     def test_strategy_type_config_key_usage(
-        self, single_strategy_portfolio, temp_export_dir,
+        self,
+        single_strategy_portfolio,
+        temp_export_dir,
     ):
         """
         REGRESSION TEST: Should use STRATEGY_TYPES (plural) for strategy detection
@@ -613,7 +640,9 @@ class TestSortingConsistencyRegression:
         ]
 
     def test_sma_portfolios_sorted_by_score_descending(
-        self, unsorted_portfolios, temp_export_dir,
+        self,
+        unsorted_portfolios,
+        temp_export_dir,
     ):
         """
         REGRESSION TEST: SMA portfolios should be sorted by Score descending
@@ -645,7 +674,8 @@ class TestSortingConsistencyRegression:
         # CRITICAL: Verify portfolios are sorted by Score descending
         scores = df["Score"].to_list()
         assert scores == sorted(
-            scores, reverse=True,
+            scores,
+            reverse=True,
         ), f"SMA portfolios should be sorted by Score descending: {scores}"
 
         # Verify the order is specifically: MSFT (9.0), GOOGL (7.8), AAPL (6.5)
@@ -656,7 +686,9 @@ class TestSortingConsistencyRegression:
         ), f"Expected ticker order {expected_order}, got {tickers}"
 
     def test_sorting_configuration_applied_to_ma_strategies(
-        self, unsorted_portfolios, temp_export_dir,
+        self,
+        unsorted_portfolios,
+        temp_export_dir,
     ):
         """
         REGRESSION TEST: All MA strategies (SMA/EMA) should have consistent sorting
@@ -692,7 +724,8 @@ class TestSortingConsistencyRegression:
         # Verify EMA portfolios are also sorted by Score descending
         scores = df["Score"].to_list()
         assert scores == sorted(
-            scores, reverse=True,
+            scores,
+            reverse=True,
         ), f"EMA portfolios should be sorted by Score descending: {scores}"
 
     def test_mixed_strategy_sorting_consistency(self, temp_export_dir):
@@ -810,7 +843,9 @@ class TestCBREAggregationRegression:
         ]
 
     def test_cbre_aggregation_preserves_metric_types(
-        self, cbre_aggregation_data, temp_export_dir,
+        self,
+        cbre_aggregation_data,
+        temp_export_dir,
     ):
         """
         REGRESSION TEST: CBRE aggregation should preserve compound metric types
@@ -854,7 +889,9 @@ class TestCBREAggregationRegression:
         ), f"CBRE metric types not properly handled: {cbre_metric_types}"
 
     def test_cbre_aggregation_numerical_consistency(
-        self, cbre_aggregation_data, temp_export_dir,
+        self,
+        cbre_aggregation_data,
+        temp_export_dir,
     ):
         """
         REGRESSION TEST: CBRE aggregation should maintain numerical consistency

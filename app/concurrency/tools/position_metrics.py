@@ -6,7 +6,8 @@ import numpy as np
 
 
 def calculate_position_metrics(
-    position_arrays: list[np.ndarray], log: Callable[[str, str], None],
+    position_arrays: list[np.ndarray],
+    log: Callable[[str, str], None],
 ) -> tuple[dict[str, float], float, int, int, int, int, float, list[dict[str, float]]]:
     """Calculate metrics from position arrays.
 

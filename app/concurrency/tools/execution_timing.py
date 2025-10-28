@@ -81,7 +81,8 @@ def apply_execution_timing(
         # Default to next period if mode is invalid
         if log:
             log(
-                f"Invalid execution mode: {mode}. Using next_period instead.", "warning",
+                f"Invalid execution mode: {mode}. Using next_period instead.",
+                "warning",
             )
         timed_signals[1:] = signals[:-1]
 

@@ -97,7 +97,6 @@ def create_synthetic_ohlc(data: pl.DataFrame, ma_column: str) -> pl.DataFrame:
     )
 
 
-
 def export_ma_price_data(ticker: str, period: int, ma_type: str = "SMA") -> None:
     """
     Export moving average data as synthetic price data.
@@ -147,7 +146,11 @@ def export_ma_price_data(ticker: str, period: int, ma_type: str = "SMA") -> None
 
         # Create output directory
         output_dir = os.path.join(
-            config["BASE_DIR"], "data", "raw", "ma_cross", "prices",
+            config["BASE_DIR"],
+            "data",
+            "raw",
+            "ma_cross",
+            "prices",
         )
         os.makedirs(output_dir, exist_ok=True)
 

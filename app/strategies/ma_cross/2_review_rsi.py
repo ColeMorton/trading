@@ -53,7 +53,8 @@ def run(config: CacheConfig) -> bool:
         Exception: If data preparation or analysis fails
     """
     log, log_close, _, _ = setup_logging(
-        module_name="ma_cross", log_file="2_review_rsi.log",
+        module_name="ma_cross",
+        log_file="2_review_rsi.log",
     )
 
     try:

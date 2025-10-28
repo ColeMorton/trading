@@ -158,7 +158,9 @@ class PortfolioDataExportService:
                         self._export_drawdowns(portfolio, base_filename, results)
                     elif data_type == DataType.CUMULATIVE_RETURNS:
                         self._export_cumulative_returns(
-                            portfolio, base_filename, results,
+                            portfolio,
+                            base_filename,
+                            results,
                         )
 
                 except Exception as e:
@@ -170,7 +172,9 @@ class PortfolioDataExportService:
                     f"{portfolio_name}_benchmark",
                 )
                 self._export_benchmark_data(
-                    benchmark_portfolio, benchmark_filename, results,
+                    benchmark_portfolio,
+                    benchmark_filename,
+                    results,
                 )
 
             # Export VectorBT object if requested
@@ -178,7 +182,9 @@ class PortfolioDataExportService:
                 self._export_vectorbt_object(portfolio, base_filename, results)
                 if benchmark_portfolio:
                     self._export_vectorbt_object(
-                        benchmark_portfolio, benchmark_filename, results,
+                        benchmark_portfolio,
+                        benchmark_filename,
+                        results,
                     )
 
             # Export metadata
@@ -194,7 +200,10 @@ class PortfolioDataExportService:
             return ExportResults(success=False, error_message=str(e))
 
     def _export_portfolio_value(
-        self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults,
+        self,
+        portfolio: "vbt.Portfolio",
+        base_filename: str,
+        results: ExportResults,
     ):
         """Export portfolio value series (equity curve)."""
         try:
@@ -218,7 +227,9 @@ class PortfolioDataExportService:
                     df.to_csv(file_path)
                 elif format_type == ExportFormat.JSON:
                     df.reset_index().to_json(
-                        file_path, orient="records", date_format="iso",
+                        file_path,
+                        orient="records",
+                        date_format="iso",
                     )
                 elif format_type == ExportFormat.PARQUET:
                     df.to_parquet(file_path)
@@ -229,7 +240,10 @@ class PortfolioDataExportService:
             self._log(f"Error exporting portfolio value: {e!s}", "warning")
 
     def _export_returns(
-        self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults,
+        self,
+        portfolio: "vbt.Portfolio",
+        base_filename: str,
+        results: ExportResults,
     ):
         """Export returns data."""
         try:
@@ -253,7 +267,9 @@ class PortfolioDataExportService:
                     df.to_csv(file_path)
                 elif format_type == ExportFormat.JSON:
                     df.reset_index().to_json(
-                        file_path, orient="records", date_format="iso",
+                        file_path,
+                        orient="records",
+                        date_format="iso",
                     )
                 elif format_type == ExportFormat.PARQUET:
                     df.to_parquet(file_path)
@@ -264,7 +280,10 @@ class PortfolioDataExportService:
             self._log(f"Error exporting returns: {e!s}", "warning")
 
     def _export_cumulative_returns(
-        self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults,
+        self,
+        portfolio: "vbt.Portfolio",
+        base_filename: str,
+        results: ExportResults,
     ):
         """Export cumulative returns data."""
         try:
@@ -289,7 +308,9 @@ class PortfolioDataExportService:
                     df.to_csv(file_path)
                 elif format_type == ExportFormat.JSON:
                     df.reset_index().to_json(
-                        file_path, orient="records", date_format="iso",
+                        file_path,
+                        orient="records",
+                        date_format="iso",
                     )
                 elif format_type == ExportFormat.PARQUET:
                     df.to_parquet(file_path)
@@ -300,7 +321,10 @@ class PortfolioDataExportService:
             self._log(f"Error exporting cumulative returns: {e!s}", "warning")
 
     def _export_drawdowns(
-        self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults,
+        self,
+        portfolio: "vbt.Portfolio",
+        base_filename: str,
+        results: ExportResults,
     ):
         """Export drawdown calculations."""
         try:
@@ -329,7 +353,9 @@ class PortfolioDataExportService:
                     df.to_csv(file_path)
                 elif format_type == ExportFormat.JSON:
                     df.reset_index().to_json(
-                        file_path, orient="records", date_format="iso",
+                        file_path,
+                        orient="records",
+                        date_format="iso",
                     )
                 elif format_type == ExportFormat.PARQUET:
                     df.to_parquet(file_path)
@@ -340,7 +366,10 @@ class PortfolioDataExportService:
             self._log(f"Error exporting drawdowns: {e!s}", "warning")
 
     def _export_trades(
-        self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults,
+        self,
+        portfolio: "vbt.Portfolio",
+        base_filename: str,
+        results: ExportResults,
     ):
         """Export trade records."""
         try:
@@ -360,7 +389,8 @@ class PortfolioDataExportService:
 
             if trades_df is None or trades_df.empty:
                 self._log(
-                    "No trade data available or trades dataframe is empty", "info",
+                    "No trade data available or trades dataframe is empty",
+                    "info",
                 )
                 return
 
@@ -382,7 +412,10 @@ class PortfolioDataExportService:
             self._log(f"Error exporting trades: {e!s}", "warning")
 
     def _export_orders(
-        self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults,
+        self,
+        portfolio: "vbt.Portfolio",
+        base_filename: str,
+        results: ExportResults,
     ):
         """Export order records."""
         try:
@@ -402,7 +435,8 @@ class PortfolioDataExportService:
 
             if orders_df is None or orders_df.empty:
                 self._log(
-                    "No order data available or orders dataframe is empty", "info",
+                    "No order data available or orders dataframe is empty",
+                    "info",
                 )
                 return
 
@@ -424,7 +458,10 @@ class PortfolioDataExportService:
             self._log(f"Error exporting orders: {e!s}", "warning")
 
     def _export_positions(
-        self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults,
+        self,
+        portfolio: "vbt.Portfolio",
+        base_filename: str,
+        results: ExportResults,
     ):
         """Export position records."""
         try:
@@ -444,7 +481,8 @@ class PortfolioDataExportService:
 
             if positions_df is None or positions_df.empty:
                 self._log(
-                    "No position data available or positions dataframe is empty", "info",
+                    "No position data available or positions dataframe is empty",
+                    "info",
                 )
                 return
 
@@ -466,7 +504,10 @@ class PortfolioDataExportService:
             self._log(f"Error exporting positions: {e!s}", "warning")
 
     def _export_statistics(
-        self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults,
+        self,
+        portfolio: "vbt.Portfolio",
+        base_filename: str,
+        results: ExportResults,
     ):
         """Export portfolio statistics."""
         try:
@@ -485,14 +526,16 @@ class PortfolioDataExportService:
 
                 if format_type == ExportFormat.CSV:
                     pd.DataFrame(
-                        list(stats_dict.items()), columns=["Metric", "Value"],
+                        list(stats_dict.items()),
+                        columns=["Metric", "Value"],
                     ).to_csv(file_path, index=False)
                 elif format_type == ExportFormat.JSON:
                     with open(file_path, "w") as f:
                         json.dump(stats_dict, f, indent=2, default=str)
                 elif format_type == ExportFormat.PARQUET:
                     pd.DataFrame(
-                        list(stats_dict.items()), columns=["Metric", "Value"],
+                        list(stats_dict.items()),
+                        columns=["Metric", "Value"],
                     ).to_parquet(file_path, index=False)
 
                 results.add_file(DataType.STATISTICS.value, file_path)
@@ -501,7 +544,10 @@ class PortfolioDataExportService:
             self._log(f"Error exporting statistics: {e!s}", "warning")
 
     def _export_prices(
-        self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults,
+        self,
+        portfolio: "vbt.Portfolio",
+        base_filename: str,
+        results: ExportResults,
     ):
         """Export underlying price data."""
         try:
@@ -567,7 +613,9 @@ class PortfolioDataExportService:
                     df.to_csv(file_path)
                 elif format_type == ExportFormat.JSON:
                     df.reset_index().to_json(
-                        file_path, orient="records", date_format="iso",
+                        file_path,
+                        orient="records",
+                        date_format="iso",
                     )
                 elif format_type == ExportFormat.PARQUET:
                     df.to_parquet(file_path)
@@ -578,7 +626,10 @@ class PortfolioDataExportService:
             self._log(f"Error exporting benchmark data: {e!s}", "warning")
 
     def _export_vectorbt_object(
-        self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults,
+        self,
+        portfolio: "vbt.Portfolio",
+        base_filename: str,
+        results: ExportResults,
     ):
         """Export VectorBT portfolio object for full functionality preservation."""
         try:

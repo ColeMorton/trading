@@ -28,7 +28,9 @@ class AllocationOptimizer:
         )
 
     def _run_efficient_frontier_analysis(
-        self, assets: list[str], half_rule: bool = True,
+        self,
+        assets: list[str],
+        half_rule: bool = True,
     ) -> dict[str, Any]:
         """Run efficient frontier analysis for given assets.
 
@@ -87,7 +89,10 @@ class AllocationOptimizer:
             sys.path.remove(str(efficient_frontier_dir))
 
     def calculate_max_allocation_percentage(
-        self, assets: list[str], use_sortino: bool = True, apply_half_rule: bool = True,
+        self,
+        assets: list[str],
+        use_sortino: bool = True,
+        apply_half_rule: bool = True,
     ) -> dict[str, float]:
         """Run efficient frontier analysis and return optimized allocation percentages.
 
@@ -179,7 +184,9 @@ class AllocationOptimizer:
         return prices
 
     def calculate_position_values(
-        self, allocations: dict[str, float], total_allocation_amount: float,
+        self,
+        allocations: dict[str, float],
+        total_allocation_amount: float,
     ) -> dict[str, float]:
         """Calculate position values based on allocations and total amount.
 
@@ -223,7 +230,9 @@ class AllocationOptimizer:
         }
 
     def validate_allocation_constraints(
-        self, allocations: dict[str, float], tolerance: float = 0.01,
+        self,
+        allocations: dict[str, float],
+        tolerance: float = 0.01,
     ) -> tuple[bool, str]:
         """Validate that allocations sum to approximately 100% and meet constraints.
 

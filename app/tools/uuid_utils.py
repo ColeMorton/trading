@@ -378,10 +378,12 @@ def extract_strategy_components(
     else:
         # MA and MACD strategies use short and long windows
         fast_period = _get_config_value(
-            strategy_config, ["FAST_PERIOD", "Fast Period", "fast_period"],
+            strategy_config,
+            ["FAST_PERIOD", "Fast Period", "fast_period"],
         )
         slow_period = _get_config_value(
-            strategy_config, ["SLOW_PERIOD", "Slow Period", "slow_period"],
+            strategy_config,
+            ["SLOW_PERIOD", "Slow Period", "slow_period"],
         )
         # Get signal period (default to 0 for MA strategies)
         signal_period = _get_config_value(
@@ -414,12 +416,18 @@ def generate_strategy_id_from_config(strategy_config: dict[str, Any]) -> str:
     ) = extract_strategy_components(strategy_config)
 
     return generate_strategy_id(
-        ticker, strategy_type, fast_period, slow_period, signal_period,
+        ticker,
+        strategy_type,
+        fast_period,
+        slow_period,
+        signal_period,
     )
 
 
 def _get_config_value(
-    config: dict[str, Any], possible_keys: list, default: Any = None,
+    config: dict[str, Any],
+    possible_keys: list,
+    default: Any = None,
 ) -> Any:
     """Get a value from a config dictionary, checking multiple possible keys.
 

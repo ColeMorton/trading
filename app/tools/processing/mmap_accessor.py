@@ -280,7 +280,9 @@ class MMapCSVReader:
 
         # Sample row indices
         sample_indices = np.random.choice(
-            total_rows, size=min(n, total_rows), replace=False,
+            total_rows,
+            size=min(n, total_rows),
+            replace=False,
         )
         sample_indices.sort()
 
@@ -401,7 +403,9 @@ class MMapAccessor:
         return df
 
     def get_latest_prices(
-        self, file_paths: list[str | Path], n_rows: int = 100,
+        self,
+        file_paths: list[str | Path],
+        n_rows: int = 100,
     ) -> dict[str, pd.DataFrame]:
         """
         Get latest N rows from multiple price files.

@@ -46,7 +46,10 @@ class TestStopLossSimulator(unittest.TestCase):
         """Test applying stop loss to returns."""
         # Apply a 3% stop loss (smaller value to ensure it gets triggered)
         adjusted_returns, triggers = apply_stop_loss_to_returns(
-            self.returns, self.signals, 0.03, self.log,
+            self.returns,
+            self.signals,
+            0.03,
+            self.log,
         )
 
         # Verify that returns are adjusted
@@ -64,7 +67,10 @@ class TestStopLossSimulator(unittest.TestCase):
         """Test calculating stop loss adjusted metrics."""
         # Calculate metrics with a 3% stop loss
         metrics = calculate_stop_loss_adjusted_metrics(
-            self.returns, self.signals, 0.03, self.log,
+            self.returns,
+            self.signals,
+            0.03,
+            self.log,
         )
 
         # Verify that metrics are calculated
@@ -84,7 +90,10 @@ class TestStopLossSimulator(unittest.TestCase):
         # Compare multiple stop loss levels
         stop_loss_levels = [0.02, 0.03, 0.05]
         results = compare_stop_loss_levels(
-            self.returns, self.signals, stop_loss_levels, self.log,
+            self.returns,
+            self.signals,
+            stop_loss_levels,
+            self.log,
         )
 
         # Verify that results are calculated for each level
@@ -139,7 +148,11 @@ class TestStopLossSimulator(unittest.TestCase):
 
         # Apply stop loss to metrics
         updated_metrics = apply_stop_loss_to_signal_quality_metrics(
-            metrics, self.returns, self.signals, 0.03, self.log,
+            metrics,
+            self.returns,
+            self.signals,
+            0.03,
+            self.log,
         )
 
         # Verify that metrics are updated
@@ -161,7 +174,10 @@ class TestStopLossSimulator(unittest.TestCase):
         """Test behavior with invalid stop loss values."""
         # Test with negative stop loss
         adjusted_returns, triggers = apply_stop_loss_to_returns(
-            self.returns, self.signals, -0.05, self.log,
+            self.returns,
+            self.signals,
+            -0.05,
+            self.log,
         )
 
         # Verify that returns are not adjusted
@@ -169,7 +185,10 @@ class TestStopLossSimulator(unittest.TestCase):
 
         # Test with stop loss > 1
         adjusted_returns, triggers = apply_stop_loss_to_returns(
-            self.returns, self.signals, 1.5, self.log,
+            self.returns,
+            self.signals,
+            1.5,
+            self.log,
         )
 
         # Verify that returns are not adjusted
@@ -183,7 +202,10 @@ class TestStopLossSimulator(unittest.TestCase):
 
         # Apply stop loss to empty data
         adjusted_returns, triggers = apply_stop_loss_to_returns(
-            empty_returns, empty_signals, 0.05, self.log,
+            empty_returns,
+            empty_signals,
+            0.05,
+            self.log,
         )
 
         # Verify that empty arrays are returned
@@ -192,7 +214,10 @@ class TestStopLossSimulator(unittest.TestCase):
 
         # Calculate metrics with empty data
         metrics = calculate_stop_loss_adjusted_metrics(
-            empty_returns, empty_signals, 0.05, self.log,
+            empty_returns,
+            empty_signals,
+            0.05,
+            self.log,
         )
 
         # Verify that metrics are calculated with default values

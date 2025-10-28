@@ -78,7 +78,8 @@ class CorrelationAnalyzer:
 
             # Load strategy performance data
             strategy_data = await self._load_strategy_performance_data(
-                strategies, timeframe,
+                strategies,
+                timeframe,
             )
 
             # Calculate correlation matrices for each correlation type
@@ -87,19 +88,22 @@ class CorrelationAnalyzer:
 
             for corr_type in correlation_types:
                 matrix, results = await self._calculate_correlation_matrix(
-                    strategy_data, corr_type,
+                    strategy_data,
+                    corr_type,
                 )
                 correlation_matrices[corr_type.value] = matrix
                 correlation_results[corr_type.value] = results
 
             # Identify strongest correlations
             strongest_correlations = self._identify_strongest_correlations(
-                correlation_results, strategies,
+                correlation_results,
+                strategies,
             )
 
             # Calculate correlation stability over time
             correlation_stability = await self._analyze_correlation_stability(
-                strategies, timeframe,
+                strategies,
+                timeframe,
             )
 
             return {
@@ -147,7 +151,9 @@ class CorrelationAnalyzer:
 
             # Load ticker performance data for the strategy
             ticker_data = await self._load_ticker_performance_data(
-                strategy_name, tickers, timeframe,
+                strategy_name,
+                tickers,
+                timeframe,
             )
 
             # Calculate correlations between tickers
@@ -155,17 +161,21 @@ class CorrelationAnalyzer:
                 correlation_matrix,
                 correlation_results,
             ) = await self._calculate_correlation_matrix(
-                ticker_data, CorrelationType.PEARSON,
+                ticker_data,
+                CorrelationType.PEARSON,
             )
 
             # Analyze sector/theme correlations
             sector_correlations = await self._analyze_sector_correlations(
-                ticker_data, tickers,
+                ticker_data,
+                tickers,
             )
 
             # Calculate correlation with underlying asset performance
             asset_correlations = await self._analyze_asset_correlations(
-                ticker_data, tickers, timeframe,
+                ticker_data,
+                tickers,
+                timeframe,
             )
 
             return {
@@ -186,7 +196,10 @@ class CorrelationAnalyzer:
             raise
 
     async def analyze_timeframe_correlations(
-        self, strategy_name: str, ticker: str, timeframes: list[str] | None = None,
+        self,
+        strategy_name: str,
+        ticker: str,
+        timeframes: list[str] | None = None,
     ) -> dict[str, Any]:
         """
         Analyze correlations across different timeframes
@@ -210,7 +223,9 @@ class CorrelationAnalyzer:
 
             # Load performance data across timeframes
             timeframe_data = await self._load_timeframe_performance_data(
-                strategy_name, ticker, timeframes,
+                strategy_name,
+                ticker,
+                timeframes,
             )
 
             # Calculate correlations between timeframes
@@ -218,17 +233,20 @@ class CorrelationAnalyzer:
                 correlation_matrix,
                 correlation_results,
             ) = await self._calculate_correlation_matrix(
-                timeframe_data, CorrelationType.PEARSON,
+                timeframe_data,
+                CorrelationType.PEARSON,
             )
 
             # Analyze timeframe hierarchy (shorter vs longer timeframes)
             hierarchy_analysis = self._analyze_timeframe_hierarchy(
-                correlation_results, timeframes,
+                correlation_results,
+                timeframes,
             )
 
             # Calculate lead-lag relationships
             lead_lag_analysis = await self._analyze_lead_lag_relationships(
-                timeframe_data, timeframes,
+                timeframe_data,
+                timeframes,
             )
 
             return {
@@ -249,7 +267,10 @@ class CorrelationAnalyzer:
             raise
 
     async def analyze_dynamic_correlations(
-        self, strategies: list[str], window_size: int = 50, step_size: int = 10,
+        self,
+        strategies: list[str],
+        window_size: int = 50,
+        step_size: int = 10,
     ) -> dict[str, Any]:
         """
         Analyze how correlations change over time using rolling windows
@@ -273,7 +294,9 @@ class CorrelationAnalyzer:
 
             # Calculate rolling correlations
             rolling_correlations = await self._calculate_rolling_correlations(
-                strategy_data, window_size, step_size,
+                strategy_data,
+                window_size,
+                step_size,
             )
 
             # Identify correlation regime changes
@@ -309,7 +332,9 @@ class CorrelationAnalyzer:
     # Helper methods
 
     async def _load_strategy_performance_data(
-        self, strategies: list[str], timeframe: str,
+        self,
+        strategies: list[str],
+        timeframe: str,
     ) -> dict[str, pd.Series]:
         """Load performance data for multiple strategies"""
         strategy_data = {}
@@ -335,7 +360,10 @@ class CorrelationAnalyzer:
         return strategy_data
 
     async def _load_ticker_performance_data(
-        self, strategy_name: str, tickers: list[str], timeframe: str,
+        self,
+        strategy_name: str,
+        tickers: list[str],
+        timeframe: str,
     ) -> dict[str, pd.Series]:
         """Load performance data for multiple tickers for a single strategy"""
         ticker_data = {}
@@ -344,11 +372,15 @@ class CorrelationAnalyzer:
             try:
                 if self.config.USE_TRADE_HISTORY:
                     data = await self._load_trade_history_returns_for_ticker(
-                        strategy_name, ticker, timeframe,
+                        strategy_name,
+                        ticker,
+                        timeframe,
                     )
                 else:
                     data = await self._load_equity_returns_for_ticker(
-                        strategy_name, ticker, timeframe,
+                        strategy_name,
+                        ticker,
+                        timeframe,
                     )
 
                 if data is not None and len(data) >= self.min_correlation_sample_size:
@@ -361,7 +393,10 @@ class CorrelationAnalyzer:
         return ticker_data
 
     async def _load_timeframe_performance_data(
-        self, strategy_name: str, ticker: str, timeframes: list[str],
+        self,
+        strategy_name: str,
+        ticker: str,
+        timeframes: list[str],
     ) -> dict[str, pd.Series]:
         """Load performance data across multiple timeframes"""
         timeframe_data = {}
@@ -370,11 +405,15 @@ class CorrelationAnalyzer:
             try:
                 if self.config.USE_TRADE_HISTORY:
                     data = await self._load_trade_history_returns_for_ticker(
-                        strategy_name, ticker, timeframe,
+                        strategy_name,
+                        ticker,
+                        timeframe,
                     )
                 else:
                     data = await self._load_equity_returns_for_ticker(
-                        strategy_name, ticker, timeframe,
+                        strategy_name,
+                        ticker,
+                        timeframe,
                     )
 
                 if data is not None and len(data) >= self.min_correlation_sample_size:
@@ -387,7 +426,9 @@ class CorrelationAnalyzer:
         return timeframe_data
 
     async def _load_trade_history_returns(
-        self, strategy_name: str, timeframe: str,
+        self,
+        strategy_name: str,
+        timeframe: str,
     ) -> pd.Series | None:
         """Load returns from trade history data"""
         # Simplified implementation - in production would search across multiple tickers
@@ -412,7 +453,9 @@ class CorrelationAnalyzer:
         return pd.Series(all_returns) if all_returns else None
 
     async def _load_equity_returns(
-        self, strategy_name: str, timeframe: str,
+        self,
+        strategy_name: str,
+        timeframe: str,
     ) -> pd.Series | None:
         """Load returns from equity curve data"""
         # Search for equity files across configured paths
@@ -436,7 +479,10 @@ class CorrelationAnalyzer:
         return None
 
     async def _load_trade_history_returns_for_ticker(
-        self, strategy_name: str, ticker: str, timeframe: str,
+        self,
+        strategy_name: str,
+        ticker: str,
+        timeframe: str,
     ) -> pd.Series | None:
         """Load trade returns for specific strategy and ticker"""
         trade_file = (
@@ -460,7 +506,10 @@ class CorrelationAnalyzer:
         return None
 
     async def _load_equity_returns_for_ticker(
-        self, strategy_name: str, ticker: str, timeframe: str,
+        self,
+        strategy_name: str,
+        ticker: str,
+        timeframe: str,
     ) -> pd.Series | None:
         """Load equity returns for specific strategy and ticker"""
         for equity_path in self.config.EQUITY_DATA_PATHS:
@@ -481,7 +530,9 @@ class CorrelationAnalyzer:
         return None
 
     async def _calculate_correlation_matrix(
-        self, data: dict[str, pd.Series], correlation_type: CorrelationType,
+        self,
+        data: dict[str, pd.Series],
+        correlation_type: CorrelationType,
     ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Calculate correlation matrix using specified method"""
         # Align data to common indices
@@ -544,7 +595,9 @@ class CorrelationAnalyzer:
         return "negligible"
 
     def _identify_strongest_correlations(
-        self, correlation_results: dict[str, dict], entities: list[str],
+        self,
+        correlation_results: dict[str, dict],
+        entities: list[str],
     ) -> list[dict[str, Any]]:
         """Identify the strongest correlations"""
         strongest = []
@@ -572,7 +625,9 @@ class CorrelationAnalyzer:
         return strongest[:10]  # Return top 10 strongest correlations
 
     async def _analyze_correlation_stability(
-        self, strategies: list[str], timeframe: str,
+        self,
+        strategies: list[str],
+        timeframe: str,
     ) -> dict[str, Any]:
         """Analyze how stable correlations are over time"""
         # Simplified implementation - in production would use rolling correlations
@@ -582,7 +637,10 @@ class CorrelationAnalyzer:
         }
 
     async def _calculate_rolling_correlations(
-        self, data: dict[str, pd.Series], window_size: int, step_size: int,
+        self,
+        data: dict[str, pd.Series],
+        window_size: int,
+        step_size: int,
     ) -> dict[str, list[float]]:
         """Calculate rolling correlations between strategies"""
         # Align data
@@ -605,7 +663,9 @@ class CorrelationAnalyzer:
                     correlations = []
 
                     for start_idx in range(
-                        0, len(aligned_data) - window_size + 1, step_size,
+                        0,
+                        len(aligned_data) - window_size + 1,
+                        step_size,
                     ):
                         end_idx = start_idx + window_size
                         window_data1 = aligned_data[col1].iloc[start_idx:end_idx]
@@ -623,7 +683,8 @@ class CorrelationAnalyzer:
         return rolling_correlations
 
     def _identify_correlation_regime_changes(
-        self, rolling_correlations: dict[str, list[float]],
+        self,
+        rolling_correlations: dict[str, list[float]],
     ) -> dict[str, list[int]]:
         """Identify significant changes in correlation regimes"""
         regime_changes = {}
@@ -645,7 +706,8 @@ class CorrelationAnalyzer:
         return regime_changes
 
     def _calculate_correlation_volatility(
-        self, rolling_correlations: dict[str, list[float]],
+        self,
+        rolling_correlations: dict[str, list[float]],
     ) -> dict[str, float]:
         """Calculate volatility of correlations"""
         volatility = {}
@@ -659,7 +721,8 @@ class CorrelationAnalyzer:
         return volatility
 
     def _analyze_correlation_trends(
-        self, rolling_correlations: dict[str, list[float]],
+        self,
+        rolling_correlations: dict[str, list[float]],
     ) -> dict[str, dict[str, Any]]:
         """Analyze trends in correlations"""
         trends = {}
@@ -669,7 +732,8 @@ class CorrelationAnalyzer:
                 # Calculate trend using linear regression
                 x = np.arange(len(correlations))
                 slope, intercept, r_value, p_value, std_err = stats.linregress(
-                    x, correlations,
+                    x,
+                    correlations,
                 )
 
                 trends[pair] = {
@@ -725,7 +789,9 @@ class CorrelationAnalyzer:
         return list(tickers)[:20]  # Limit to 20 tickers for performance
 
     async def _analyze_sector_correlations(
-        self, ticker_data: dict[str, pd.Series], tickers: list[str],
+        self,
+        ticker_data: dict[str, pd.Series],
+        tickers: list[str],
     ) -> dict[str, Any]:
         """Analyze correlations by sector/theme (simplified implementation)"""
         # Simplified sector analysis - in production would use external sector data
@@ -749,7 +815,10 @@ class CorrelationAnalyzer:
         }
 
     async def _analyze_asset_correlations(
-        self, ticker_data: dict[str, pd.Series], tickers: list[str], timeframe: str,
+        self,
+        ticker_data: dict[str, pd.Series],
+        tickers: list[str],
+        timeframe: str,
     ) -> dict[str, Any]:
         """Analyze correlation with underlying asset performance"""
         # Simplified implementation - would load actual asset price data
@@ -759,7 +828,9 @@ class CorrelationAnalyzer:
         }
 
     def _analyze_timeframe_hierarchy(
-        self, correlation_results: dict[str, Any], timeframes: list[str],
+        self,
+        correlation_results: dict[str, Any],
+        timeframes: list[str],
     ) -> dict[str, Any]:
         """Analyze correlation patterns across timeframe hierarchy"""
         # Simplified hierarchy analysis
@@ -770,7 +841,9 @@ class CorrelationAnalyzer:
         }
 
     async def _analyze_lead_lag_relationships(
-        self, timeframe_data: dict[str, pd.Series], timeframes: list[str],
+        self,
+        timeframe_data: dict[str, pd.Series],
+        timeframes: list[str],
     ) -> dict[str, Any]:
         """Analyze lead-lag relationships between timeframes"""
         # Simplified lead-lag analysis

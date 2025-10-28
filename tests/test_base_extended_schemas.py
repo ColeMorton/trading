@@ -239,7 +239,9 @@ class TestSchemaTransformer:
     def test_transform_base_to_extended(self):
         """Test transforming base schema to extended."""
         extended = self.transformer.transform_to_extended(
-            self.base_portfolio, allocation_pct=25.0, stop_loss_pct=5.0,
+            self.base_portfolio,
+            allocation_pct=25.0,
+            stop_loss_pct=5.0,
         )
 
         # Should have all base columns plus allocation and stop loss
@@ -271,7 +273,8 @@ class TestSchemaTransformer:
         extended_portfolio["Stop Loss [%]"] = 5.0
 
         filtered = self.transformer.transform_to_filtered(
-            extended_portfolio, metric_type="Most Total Return [%]",
+            extended_portfolio,
+            metric_type="Most Total Return [%]",
         )
 
         assert len(filtered) == 65
@@ -281,7 +284,8 @@ class TestSchemaTransformer:
     def test_normalize_to_schema_base(self):
         """Test normalizing portfolio to base schema."""
         normalized = self.transformer.normalize_to_schema(
-            self.base_portfolio, SchemaType.BASE,
+            self.base_portfolio,
+            SchemaType.BASE,
         )
 
         assert len(normalized) == 60
@@ -335,7 +339,9 @@ class TestSchemaTransformer:
         minimal_portfolio = {"Ticker": "AAPL", "Score": 1.5}
 
         extended = self.transformer.transform_to_extended(
-            minimal_portfolio, allocation_pct=25.0, stop_loss_pct=5.0,
+            minimal_portfolio,
+            allocation_pct=25.0,
+            stop_loss_pct=5.0,
         )
 
         # Should have all 60 base columns plus 4 allocation/stop loss columns with defaults for missing ones
@@ -348,7 +354,9 @@ class TestSchemaTransformer:
     def test_column_ordering_preservation(self):
         """Test that column ordering is preserved during transformation."""
         extended = self.transformer.transform_to_extended(
-            self.base_portfolio, allocation_pct=25.0, stop_loss_pct=5.0,
+            self.base_portfolio,
+            allocation_pct=25.0,
+            stop_loss_pct=5.0,
         )
 
         # Check that columns are in correct order
@@ -365,7 +373,9 @@ class TestSchemaTransformer:
 
         # Transformation should still work with defaults
         extended = self.transformer.transform_to_extended(
-            empty_portfolio, allocation_pct=25.0, stop_loss_pct=5.0,
+            empty_portfolio,
+            allocation_pct=25.0,
+            stop_loss_pct=5.0,
         )
         assert len(extended) == 64
         assert extended["Ticker"] == "UNKNOWN"
@@ -377,7 +387,9 @@ class TestSchemaTransformer:
         portfolio_with_nones["Win Rate [%]"] = None
 
         extended = self.transformer.transform_to_extended(
-            portfolio_with_nones, allocation_pct=25.0, stop_loss_pct=5.0,
+            portfolio_with_nones,
+            allocation_pct=25.0,
+            stop_loss_pct=5.0,
         )
 
         # None values should be preserved
@@ -408,7 +420,8 @@ class TestSchemaValidation:
         invalid_base = {"Ticker": "AAPL", "Score": 1.5}  # Missing columns
 
         is_valid, errors = self.transformer.validate_schema(
-            invalid_base, SchemaType.BASE,
+            invalid_base,
+            SchemaType.BASE,
         )
         assert not is_valid
         assert len(errors) > 0
@@ -421,7 +434,8 @@ class TestSchemaValidation:
         }
 
         is_valid, errors = self.transformer.validate_schema(
-            valid_extended, SchemaType.EXTENDED,
+            valid_extended,
+            SchemaType.EXTENDED,
         )
         assert is_valid
         assert len(errors) == 0
@@ -434,7 +448,8 @@ class TestSchemaValidation:
         }
 
         is_valid, errors = self.transformer.validate_schema(
-            valid_filtered, SchemaType.FILTERED,
+            valid_filtered,
+            SchemaType.FILTERED,
         )
         assert is_valid
         assert len(errors) == 0
@@ -447,7 +462,8 @@ class TestSchemaValidation:
         portfolio_with_extra["Extra Column"] = "extra_value"
 
         is_valid, errors = self.transformer.validate_schema(
-            portfolio_with_extra, SchemaType.BASE,
+            portfolio_with_extra,
+            SchemaType.BASE,
         )
         assert not is_valid
         assert any("Extra columns" in error for error in errors)
@@ -490,7 +506,9 @@ class TestPolarsIntegration:
         # Transform first row to extended schema
         first_row = df.row(0, named=True)
         extended = self.transformer.transform_to_extended(
-            first_row, allocation_pct=25.0, stop_loss_pct=5.0,
+            first_row,
+            allocation_pct=25.0,
+            stop_loss_pct=5.0,
         )
 
         assert len(extended) == 64
@@ -537,7 +555,9 @@ class TestPerformance:
         start_time = time.time()
         for _ in range(100):
             self.transformer.transform_to_extended(
-                base_portfolio, allocation_pct=25.0, stop_loss_pct=5.0,
+                base_portfolio,
+                allocation_pct=25.0,
+                stop_loss_pct=5.0,
             )
         end_time = time.time()
 

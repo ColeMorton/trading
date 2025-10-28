@@ -149,4 +149,3 @@ class MACDStrategy(StrategyInterface):
             "FILTER_PORTFOLIOS": True,
             "SELECT_BEST": True,
         }
-

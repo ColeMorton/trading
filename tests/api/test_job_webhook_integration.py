@@ -33,7 +33,7 @@ class TestJobWebhookIntegration:
             mock_job.id = "test-job-123"
             mock_job.status = JobStatus.PENDING
             mock_job.webhook_url = "https://example.com/webhook"
-            MockJob.return_value = mock_job
+            mock_job_cls.return_value = mock_job
 
             # Call static method directly
             job = await JobService.create_job(
@@ -63,13 +63,13 @@ class TestJobWebhookIntegration:
         }
 
         # Create job with webhook headers using static method
-        with patch("app.api.services.job_service.Job") as MockJob:
+        with patch("app.api.services.job_service.Job") as mock_job_cls:
             mock_job = Mock(spec=Job)
             mock_job.id = "test-job-456"
             mock_job.status = JobStatus.PENDING
             mock_job.webhook_url = "https://example.com/webhook"
             mock_job.webhook_headers = webhook_headers
-            MockJob.return_value = mock_job
+            mock_job_cls.return_value = mock_job
 
             # Call static method directly
             job = await JobService.create_job(

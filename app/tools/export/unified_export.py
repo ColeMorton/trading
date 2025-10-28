@@ -134,7 +134,10 @@ class AdvancedCache:
 
         now = datetime.now()
         self._cache[key] = CacheEntry(
-            value=value, created_at=now, accessed_at=now, content_hash=content_hash,
+            value=value,
+            created_at=now,
+            accessed_at=now,
+            content_hash=content_hash,
         )
 
     def invalidate_by_content(self, content_hash: str):
@@ -265,7 +268,8 @@ class UnifiedExportProcessor:
 
         # Phase 4: Advanced caching systems
         self._schema_cache = AdvancedCache(
-            ttl_minutes=config.cache_ttl_minutes, max_entries=config.cache_max_entries,
+            ttl_minutes=config.cache_ttl_minutes,
+            max_entries=config.cache_max_entries,
         )
         self._export_result_cache = AdvancedCache(
             ttl_minutes=config.cache_ttl_minutes,
@@ -340,7 +344,11 @@ class UnifiedExportProcessor:
         try:
             # Phase 4: Check export result cache first
             content_hash = self._generate_content_hash(
-                data, filename, ticker, strategy_type, metric_type,
+                data,
+                filename,
+                ticker,
+                strategy_type,
+                metric_type,
             )
             cache_key = f"export_{content_hash}"
 
@@ -366,7 +374,10 @@ class UnifiedExportProcessor:
                 validated_data,
                 schema_cache_hit,
             ) = self._validate_and_transform_schema_cached(
-                data, target_schema, metric_type, content_hash,
+                data,
+                target_schema,
+                metric_type,
+                content_hash,
             )
             metrics.schema_validation_time = time.time() - validation_start
 
@@ -376,7 +387,10 @@ class UnifiedExportProcessor:
 
             # Generate optimized filename
             final_filename = self._generate_filename(
-                filename, ticker, strategy_type, target_schema,
+                filename,
+                ticker,
+                strategy_type,
+                target_schema,
             )
 
             # Ensure output directory exists
@@ -476,7 +490,9 @@ class UnifiedExportProcessor:
         return results
 
     def _determine_target_schema(
-        self, filename: str, strategy_type: str | None,
+        self,
+        filename: str,
+        strategy_type: str | None,
     ) -> SchemaType:
         """Determine target schema based on filename and context."""
         filename_lower = filename.lower()
@@ -518,7 +534,9 @@ class UnifiedExportProcessor:
 
         # Perform schema transformation
         transformed_data = self._validate_and_transform_schema(
-            data, target_schema, metric_type,
+            data,
+            target_schema,
+            metric_type,
         )
 
         # Cache the result with content hash
@@ -552,15 +570,19 @@ class UnifiedExportProcessor:
         for row in data_dict_list:
             if target_schema == SchemaType.BASE:
                 transformed_row = self.schema_transformer.normalize_to_schema(
-                    row, SchemaType.BASE,
+                    row,
+                    SchemaType.BASE,
                 )
             elif target_schema == SchemaType.EXTENDED:
                 transformed_row = self.schema_transformer.normalize_to_schema(
-                    row, SchemaType.EXTENDED,
+                    row,
+                    SchemaType.EXTENDED,
                 )
             elif target_schema == SchemaType.FILTERED:
                 transformed_row = self.schema_transformer.normalize_to_schema(
-                    row, SchemaType.FILTERED, metric_type=metric_type or "UNKNOWN",
+                    row,
+                    SchemaType.FILTERED,
+                    metric_type=metric_type or "UNKNOWN",
                 )
             else:
                 transformed_row = row
@@ -605,7 +627,10 @@ class UnifiedExportProcessor:
         else:
             # Use optimized Pandas settings
             data.to_csv(
-                str(file_path), index=False, float_format="%.6f", date_format="%Y-%m-%d",
+                str(file_path),
+                index=False,
+                float_format="%.6f",
+                date_format="%Y-%m-%d",
             )
 
     def _generate_data_hash(self, data: pl.DataFrame | pd.DataFrame) -> str:
@@ -653,7 +678,8 @@ class UnifiedExportProcessor:
             self._export_result_cache.clear()
 
     def add_performance_alert_callback(
-        self, callback: Callable[[PerformanceMetrics], None],
+        self,
+        callback: Callable[[PerformanceMetrics], None],
     ):
         """Phase 4: Add custom performance alert callback."""
         self._performance_monitor.add_alert_callback(callback)

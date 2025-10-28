@@ -81,7 +81,10 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
             # Check that trade history file was created
             expected_filename = generate_trade_filename(config, "json")
             expected_path = os.path.join(
-                temp_dir, "json", "trade_history", expected_filename,
+                temp_dir,
+                "json",
+                "trade_history",
+                expected_filename,
             )
 
             self.assertTrue(
@@ -122,13 +125,19 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
 
             # Run backtest with export enabled via parameter
             backtest_strategy(
-                self.test_data, config, mock_log, export_trade_history=True,
+                self.test_data,
+                config,
+                mock_log,
+                export_trade_history=True,
             )
 
             # Check that trade history file was created despite config setting
             expected_filename = generate_trade_filename(config, "json")
             expected_path = os.path.join(
-                temp_dir, "json", "trade_history", expected_filename,
+                temp_dir,
+                "json",
+                "trade_history",
+                expected_filename,
             )
 
             self.assertTrue(os.path.exists(expected_path))
@@ -150,13 +159,19 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
 
             # Run backtest without export
             backtest_strategy(
-                self.test_data, config, mock_log, export_trade_history=False,
+                self.test_data,
+                config,
+                mock_log,
+                export_trade_history=False,
             )
 
             # Check that no trade history file was created
             expected_filename = generate_trade_filename(config, "json")
             expected_path = os.path.join(
-                temp_dir, "json", "trade_history", expected_filename,
+                temp_dir,
+                "json",
+                "trade_history",
+                expected_filename,
             )
 
             self.assertFalse(os.path.exists(expected_path))
@@ -178,12 +193,18 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
 
             # First backtest - should create file
             backtest_strategy(
-                self.test_data, config, mock_log, export_trade_history=True,
+                self.test_data,
+                config,
+                mock_log,
+                export_trade_history=True,
             )
 
             expected_filename = generate_trade_filename(config, "json")
             expected_path = os.path.join(
-                temp_dir, "json", "trade_history", expected_filename,
+                temp_dir,
+                "json",
+                "trade_history",
+                expected_filename,
             )
 
             self.assertTrue(os.path.exists(expected_path))
@@ -240,12 +261,18 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
 
             # First backtest - creates file
             backtest_strategy(
-                self.test_data, config, mock_log, export_trade_history=True,
+                self.test_data,
+                config,
+                mock_log,
+                export_trade_history=True,
             )
 
             expected_filename = generate_trade_filename(config, "json")
             expected_path = os.path.join(
-                temp_dir, "json", "trade_history", expected_filename,
+                temp_dir,
+                "json",
+                "trade_history",
+                expected_filename,
             )
 
             self.assertTrue(os.path.exists(expected_path))
@@ -260,7 +287,10 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
 
             # Second backtest should regenerate the old file
             backtest_strategy(
-                self.test_data, config, mock_log, export_trade_history=True,
+                self.test_data,
+                config,
+                mock_log,
+                export_trade_history=True,
             )
 
             # File should have been regenerated
@@ -345,7 +375,10 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
             # Read exported data
             expected_filename = generate_trade_filename(config, "json")
             expected_path = os.path.join(
-                temp_dir, "json", "trade_history", expected_filename,
+                temp_dir,
+                "json",
+                "trade_history",
+                expected_filename,
             )
 
             with open(expected_path) as f:
@@ -367,7 +400,9 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
 
             # Allow for small floating point differences
             self.assertAlmostEqual(
-                portfolio_summary["total_return"], portfolio_return, places=6,
+                portfolio_summary["total_return"],
+                portfolio_return,
+                places=6,
             )
 
             # Check trade count consistency
@@ -469,7 +504,10 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
 
                 # Check file creation
                 expected_path = os.path.join(
-                    temp_dir, "json", "trade_history", test_case["expected_filename"],
+                    temp_dir,
+                    "json",
+                    "trade_history",
+                    test_case["expected_filename"],
                 )
                 self.assertTrue(
                     os.path.exists(expected_path),
@@ -508,7 +546,10 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
             # Check filename includes stop loss
             expected_filename = "BTC-USD_D_SMA_10_20_SL_0.0500.json"
             expected_path = os.path.join(
-                temp_dir, "json", "trade_history", expected_filename,
+                temp_dir,
+                "json",
+                "trade_history",
+                expected_filename,
             )
             self.assertTrue(os.path.exists(expected_path))
 
@@ -554,7 +595,8 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
             return True
 
         with patch.object(
-            ma_cross_module, "PortfolioOrchestrator",
+            ma_cross_module,
+            "PortfolioOrchestrator",
         ) as mock_orchestrator:
             mock_orchestrator.return_value.run = mock_orchestrator_run
 
@@ -604,11 +646,14 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
             return mock_portfolio
 
         with patch.object(
-            monte_carlo_module, "backtest_strategy", mock_backtest_strategy,
+            monte_carlo_module,
+            "backtest_strategy",
+            mock_backtest_strategy,
         ):
             with patch.object(monte_carlo_module, "download_data") as mock_download:
                 with patch.object(
-                    monte_carlo_module, "calculate_ma_and_signals",
+                    monte_carlo_module,
+                    "calculate_ma_and_signals",
                 ) as mock_signals:
                     # Mock data responses
                     mock_data = pd.DataFrame(

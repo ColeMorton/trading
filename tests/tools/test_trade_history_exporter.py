@@ -375,7 +375,9 @@ class TestTradeHistoryExporter(unittest.TestCase):
             config["BASE_DIR"] = temp_dir
 
             success = export_trade_history(
-                self.mock_portfolio, config, export_type="json",
+                self.mock_portfolio,
+                config,
+                export_type="json",
             )
 
             self.assertTrue(success)
@@ -383,7 +385,10 @@ class TestTradeHistoryExporter(unittest.TestCase):
             # Check file was created
             expected_filename = generate_trade_filename(config, "json")
             expected_path = os.path.join(
-                temp_dir, "json", "trade_history", expected_filename,
+                temp_dir,
+                "json",
+                "trade_history",
+                expected_filename,
             )
             self.assertTrue(os.path.exists(expected_path))
 
@@ -405,13 +410,18 @@ class TestTradeHistoryExporter(unittest.TestCase):
 
             # First export
             success1 = export_trade_history(
-                self.mock_portfolio, config, export_type="json",
+                self.mock_portfolio,
+                config,
+                export_type="json",
             )
             self.assertTrue(success1)
 
             expected_filename = generate_trade_filename(config, "json")
             expected_path = os.path.join(
-                temp_dir, "json", "trade_history", expected_filename,
+                temp_dir,
+                "json",
+                "trade_history",
+                expected_filename,
             )
 
             # Get file modification time
@@ -424,7 +434,9 @@ class TestTradeHistoryExporter(unittest.TestCase):
 
             # Second export should be skipped
             success2 = export_trade_history(
-                self.mock_portfolio, config, export_type="json",
+                self.mock_portfolio,
+                config,
+                export_type="json",
             )
             self.assertTrue(success2)
 
@@ -440,13 +452,18 @@ class TestTradeHistoryExporter(unittest.TestCase):
 
             # First export
             success1 = export_trade_history(
-                self.mock_portfolio, config, export_type="json",
+                self.mock_portfolio,
+                config,
+                export_type="json",
             )
             self.assertTrue(success1)
 
             expected_filename = generate_trade_filename(config, "json")
             expected_path = os.path.join(
-                temp_dir, "json", "trade_history", expected_filename,
+                temp_dir,
+                "json",
+                "trade_history",
+                expected_filename,
             )
 
             # Get file modification time
@@ -459,7 +476,10 @@ class TestTradeHistoryExporter(unittest.TestCase):
 
             # Force refresh should regenerate the file
             success2 = export_trade_history(
-                self.mock_portfolio, config, export_type="json", force_refresh=True,
+                self.mock_portfolio,
+                config,
+                export_type="json",
+                force_refresh=True,
             )
             self.assertTrue(success2)
 
@@ -474,7 +494,9 @@ class TestTradeHistoryExporter(unittest.TestCase):
             config["BASE_DIR"] = temp_dir
 
             success = export_trade_history(
-                self.mock_portfolio, config, export_type="csv",
+                self.mock_portfolio,
+                config,
+                export_type="csv",
             )
 
             self.assertTrue(success)
@@ -484,13 +506,16 @@ class TestTradeHistoryExporter(unittest.TestCase):
             trade_history_dir = os.path.join(temp_dir, "json", "trade_history")
 
             trades_file = os.path.join(
-                trade_history_dir, base_filename.replace(".csv", "_trades.csv"),
+                trade_history_dir,
+                base_filename.replace(".csv", "_trades.csv"),
             )
             orders_file = os.path.join(
-                trade_history_dir, base_filename.replace(".csv", "_orders.csv"),
+                trade_history_dir,
+                base_filename.replace(".csv", "_orders.csv"),
             )
             positions_file = os.path.join(
-                trade_history_dir, base_filename.replace(".csv", "_positions.csv"),
+                trade_history_dir,
+                base_filename.replace(".csv", "_positions.csv"),
             )
 
             self.assertTrue(os.path.exists(trades_file))
@@ -505,14 +530,17 @@ class TestTradeHistoryExporter(unittest.TestCase):
 
             # First CSV export
             success1 = export_trade_history(
-                self.mock_portfolio, config, export_type="csv",
+                self.mock_portfolio,
+                config,
+                export_type="csv",
             )
             self.assertTrue(success1)
 
             base_filename = generate_trade_filename(config, "csv")
             trade_history_dir = os.path.join(temp_dir, "json", "trade_history")
             trades_file = os.path.join(
-                trade_history_dir, base_filename.replace(".csv", "_trades.csv"),
+                trade_history_dir,
+                base_filename.replace(".csv", "_trades.csv"),
             )
 
             self.assertTrue(os.path.exists(trades_file))
@@ -524,7 +552,9 @@ class TestTradeHistoryExporter(unittest.TestCase):
 
             # Second CSV export (CSV doesn't have optimization, so file should be regenerated)
             success2 = export_trade_history(
-                self.mock_portfolio, config, export_type="csv",
+                self.mock_portfolio,
+                config,
+                export_type="csv",
             )
             self.assertTrue(success2)
 
@@ -653,14 +683,20 @@ class TestTradeHistoryExporter(unittest.TestCase):
 
             # Use base_dir parameter instead
             success = export_trade_history(
-                self.mock_portfolio, config, export_type="json", base_dir=temp_dir,
+                self.mock_portfolio,
+                config,
+                export_type="json",
+                base_dir=temp_dir,
             )
 
             self.assertTrue(success)
 
             expected_filename = generate_trade_filename(config, "json")
             expected_path = os.path.join(
-                temp_dir, "json", "trade_history", expected_filename,
+                temp_dir,
+                "json",
+                "trade_history",
+                expected_filename,
             )
             self.assertTrue(os.path.exists(expected_path))
 
@@ -678,7 +714,9 @@ class TestTradeHistoryExporter(unittest.TestCase):
 
             # Export first strategy
             success1 = export_trade_history(
-                self.mock_portfolio, config1, export_type="json",
+                self.mock_portfolio,
+                config1,
+                export_type="json",
             )
             self.assertTrue(success1)
 
@@ -697,7 +735,9 @@ class TestTradeHistoryExporter(unittest.TestCase):
 
             # Export second strategy (should create new file, not skip)
             success2 = export_trade_history(
-                self.mock_portfolio, config2, export_type="json",
+                self.mock_portfolio,
+                config2,
+                export_type="json",
             )
             self.assertTrue(success2)
 
@@ -713,19 +753,24 @@ class TestTradeHistoryExporter(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             config = self.test_configs["sma_config"].copy()
             config["BASE_DIR"] = temp_dir
-            config[
-                "EXPORT_TRADE_HISTORY"
-            ] = False  # Should not affect the function directly
+            config["EXPORT_TRADE_HISTORY"] = (
+                False  # Should not affect the function directly
+            )
 
             # First export
             success1 = export_trade_history(
-                self.mock_portfolio, config, export_type="json",
+                self.mock_portfolio,
+                config,
+                export_type="json",
             )
             self.assertTrue(success1)
 
             expected_filename = generate_trade_filename(config, "json")
             expected_path = os.path.join(
-                temp_dir, "json", "trade_history", expected_filename,
+                temp_dir,
+                "json",
+                "trade_history",
+                expected_filename,
             )
 
             original_mtime = os.path.getmtime(expected_path)
@@ -736,7 +781,9 @@ class TestTradeHistoryExporter(unittest.TestCase):
 
             # Second export should still be skipped
             success2 = export_trade_history(
-                self.mock_portfolio, config, export_type="json",
+                self.mock_portfolio,
+                config,
+                export_type="json",
             )
             self.assertTrue(success2)
 

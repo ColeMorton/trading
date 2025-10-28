@@ -347,7 +347,6 @@ if __name__ == "__main__":
     )
 '''
 
-
     def generate_strategy_execution_file(self) -> str:
         """Generate the strategy execution file template."""
         strategy_name = self.config.strategy_name
@@ -478,7 +477,6 @@ def validate_strategy_config(config: Dict[str, Any]) -> bool:
 
     return True
 '''
-
 
     def _generate_indicator_calculations(self) -> str:
         """Generate indicator calculation code based on strategy configuration."""
@@ -788,4 +786,3 @@ class {class_name}PortfolioError({class_name}Error):
         )
         self.error_code = StrategyErrorCode.PORTFOLIO_ERROR
 '''
-

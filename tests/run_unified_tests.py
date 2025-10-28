@@ -121,7 +121,9 @@ class UnifiedTestRunner:
         }
 
     def _calculate_optimal_workers(
-        self, category: str, parallel_override: bool | None = None,
+        self,
+        category: str,
+        parallel_override: bool | None = None,
     ) -> int:
         """Calculate optimal number of workers for a test category."""
         config = self.test_categories[category]
@@ -393,7 +395,6 @@ class UnifiedTestRunner:
                 workers,
             )
 
-
         except subprocess.TimeoutExpired:
             end_time = time.time()
             duration = end_time - start_time
@@ -412,7 +413,8 @@ class UnifiedTestRunner:
                     "initial_resources": initial_resources,
                     "final_resources": final_resources,
                     "resource_delta": self._calculate_resource_delta(
-                        initial_resources, final_resources,
+                        initial_resources,
+                        final_resources,
                     ),
                 },
             }
@@ -498,13 +500,16 @@ class UnifiedTestRunner:
             "initial_resources": initial_resources,
             "final_resources": final_resources,
             "resource_delta": self._calculate_resource_delta(
-                initial_resources, final_resources,
+                initial_resources,
+                final_resources,
             ),
             "tests_per_second": (
                 test_counts.get("total_tests", 0) / duration if duration > 0 else 0
             ),
             "memory_efficiency": self._calculate_memory_efficiency(
-                initial_resources, final_resources, test_counts.get("total_tests", 0),
+                initial_resources,
+                final_resources,
+                test_counts.get("total_tests", 0),
             ),
             "parallel_efficiency": (
                 self._calculate_parallel_efficiency(duration, workers)
@@ -602,7 +607,9 @@ class UnifiedTestRunner:
         return slow_tests[:10]  # Top 10 slowest
 
     def _calculate_resource_delta(
-        self, initial: dict[str, float], final: dict[str, float],
+        self,
+        initial: dict[str, float],
+        final: dict[str, float],
     ) -> dict[str, float]:
         """Calculate the change in system resources during test execution."""
         return {
@@ -617,7 +624,10 @@ class UnifiedTestRunner:
         }
 
     def _calculate_memory_efficiency(
-        self, initial: dict[str, float], final: dict[str, float], test_count: int,
+        self,
+        initial: dict[str, float],
+        final: dict[str, float],
+        test_count: int,
     ) -> float:
         """Calculate memory efficiency metric (tests per MB of memory used)."""
         memory_used_mb = (final["memory_used_gb"] - initial["memory_used_gb"]) * 1024
@@ -640,7 +650,10 @@ class UnifiedTestRunner:
         return min(1.0, theoretical_speedup / workers)
 
     def run_multiple_categories(
-        self, categories: list[str], concurrent: bool = False, **kwargs,
+        self,
+        categories: list[str],
+        concurrent: bool = False,
+        **kwargs,
     ) -> dict[str, any]:
         """Run multiple test categories with optional concurrent execution."""
         self.start_time = time.time()
@@ -690,7 +703,9 @@ class UnifiedTestRunner:
         return summary
 
     def _run_categories_sequential(
-        self, categories: list[str], **kwargs,
+        self,
+        categories: list[str],
+        **kwargs,
     ) -> dict[str, any]:
         """Run test categories sequentially (traditional approach)."""
         results = {}
@@ -705,7 +720,9 @@ class UnifiedTestRunner:
         return results
 
     def _run_categories_concurrent(
-        self, categories: list[str], **kwargs,
+        self,
+        categories: list[str],
+        **kwargs,
     ) -> dict[str, any]:
         """Run test categories concurrently where safe to do so."""
         # Categorize by isolation requirements
@@ -729,7 +746,8 @@ class UnifiedTestRunner:
                 f"🔒 Running high-isolation categories sequentially: {', '.join(sequential_categories)}",
             )
             sequential_results = self._run_categories_sequential(
-                sequential_categories, **kwargs,
+                sequential_categories,
+                **kwargs,
             )
             results.update(sequential_results)
 
@@ -740,7 +758,8 @@ class UnifiedTestRunner:
             )
 
             max_workers = min(
-                len(parallel_categories), 3,
+                len(parallel_categories),
+                3,
             )  # Limit concurrent categories
 
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -796,7 +815,8 @@ class UnifiedTestRunner:
         if status == "passed" and result.get("total_tests", 0) > 0:
             total_tests = result["total_tests"]
             tests_per_sec = result.get("performance_metrics", {}).get(
-                "tests_per_second", 0,
+                "tests_per_second",
+                0,
             )
             print(f"   📊 {total_tests} tests, {tests_per_sec:.1f} tests/sec")
 
@@ -815,7 +835,9 @@ class UnifiedTestRunner:
                 print(f"   💬 {stderr_preview}...")
 
     def _calculate_aggregate_metrics(
-        self, results: dict[str, any], total_duration: float,
+        self,
+        results: dict[str, any],
+        total_duration: float,
     ) -> dict[str, any]:
         """Calculate aggregate performance metrics across all categories."""
         total_tests = sum(r.get("total_tests", 0) for r in results.values())
@@ -901,7 +923,9 @@ class UnifiedTestRunner:
 
             print("\n📊 Performance Metrics:")
             print(f"🧪 Total Tests: {total_tests}")
-            print(f"⚡ Tests/Second: {metrics.get('tests_per_second_aggregate', 0):.1f}")
+            print(
+                f"⚡ Tests/Second: {metrics.get('tests_per_second_aggregate', 0):.1f}"
+            )
             print(f"⏰ Time Efficiency: {metrics.get('time_efficiency', 0):.1%}")
             print(
                 f"🚀 Parallel Efficiency: {metrics.get('average_parallel_efficiency', 1.0):.1%}",
@@ -929,7 +953,8 @@ class UnifiedTestRunner:
                 total_tests = result.get("total_tests", 0)
                 if total_tests > 0:
                     tests_per_sec = result.get("performance_metrics", {}).get(
-                        "tests_per_second", 0,
+                        "tests_per_second",
+                        0,
                     )
                     print(f"     📊 {total_tests} tests, {tests_per_sec:.1f} tests/sec")
 
@@ -972,7 +997,8 @@ class UnifiedTestRunner:
                 # Check parallel efficiency
                 if result.get("workers", 1) > 1:
                     efficiency = result.get("performance_metrics", {}).get(
-                        "parallel_efficiency", 1.0,
+                        "parallel_efficiency",
+                        1.0,
                     )
                     if efficiency < 0.7:  # Less than 70% efficiency
                         recommendations.append(
@@ -1052,10 +1078,16 @@ Examples:
 
     # Test execution options
     parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable verbose output",
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Enable verbose output",
     )
     parser.add_argument(
-        "-c", "--coverage", action="store_true", help="Enable coverage reporting",
+        "-c",
+        "--coverage",
+        action="store_true",
+        help="Enable coverage reporting",
     )
     parser.add_argument(
         "-p",
@@ -1069,7 +1101,10 @@ Examples:
         help="Enable concurrent execution of multiple categories",
     )
     parser.add_argument(
-        "-f", "--fail-fast", action="store_true", help="Stop on first failure",
+        "-f",
+        "--fail-fast",
+        action="store_true",
+        help="Stop on first failure",
     )
     parser.add_argument(
         "-d",
@@ -1086,7 +1121,9 @@ Examples:
     # Output options
     parser.add_argument("--save", metavar="FILE", help="Save results to JSON file")
     parser.add_argument(
-        "--list", action="store_true", help="List available test categories",
+        "--list",
+        action="store_true",
+        help="List available test categories",
     )
 
     args = parser.parse_args()

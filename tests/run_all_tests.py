@@ -22,7 +22,10 @@ class TestRunner:
         self.start_time = time.time()
 
     def run_command(
-        self, cmd: list[str], description: str, timeout: int = 300,
+        self,
+        cmd: list[str],
+        description: str,
+        timeout: int = 300,
     ) -> tuple[bool, str]:
         """Run a command and return success status and output."""
         print(f"\n{'='*60}")

@@ -34,7 +34,9 @@ class SignalProcessorBase(ABC):
 
     @abstractmethod
     def generate_current_signals(
-        self, config: dict[str, Any], log: Callable,
+        self,
+        config: dict[str, Any],
+        log: Callable,
     ) -> pl.DataFrame:
         """Generate current signals for the strategy.
 
@@ -165,12 +167,18 @@ class SignalProcessorBase(ABC):
             # USE_CURRENT fast path - process only current signals without full analysis
             if config.get("USE_CURRENT", False):
                 return self.process_current_signals(
-                    ticker, config, log, progress_update_fn,
+                    ticker,
+                    config,
+                    log,
+                    progress_update_fn,
                 )
 
             # Regular path - run full parameter sweep analysis
             portfolios = self._process_full_ticker_analysis(
-                ticker, config, log, progress_update_fn,
+                ticker,
+                config,
+                log,
+                progress_update_fn,
             )
             if portfolios is None:
                 log(f"Failed to process {ticker}", "error")
@@ -189,7 +197,10 @@ class SignalProcessorBase(ABC):
             return None
 
     def _filter_by_current_signals(
-        self, portfolios_df: pl.DataFrame, current_signals: pl.DataFrame, log: Callable,
+        self,
+        portfolios_df: pl.DataFrame,
+        current_signals: pl.DataFrame,
+        log: Callable,
     ) -> pl.DataFrame:
         """Filter portfolios to only include those with current signals.
 
@@ -213,7 +224,8 @@ class SignalProcessorBase(ABC):
         return filtered
 
     def _extract_signal_parameters_for_filtering(
-        self, current_signals: pl.DataFrame,
+        self,
+        current_signals: pl.DataFrame,
     ) -> dict[str, list]:
         """Extract parameter values from current signals for filtering.
 
@@ -296,7 +308,10 @@ class SignalProcessorBase(ABC):
 
         # Use strategy-specific parameter analysis
         return self.analyze_parameter_combination(
-            data, strategy_config, log, **strategy_params,
+            data,
+            strategy_config,
+            log,
+            **strategy_params,
         )
 
     @abstractmethod
@@ -344,7 +359,9 @@ class MASignalProcessor(SignalProcessorBase):
         self.ma_type = ma_type
 
     def generate_current_signals(
-        self, config: dict[str, Any], log: Callable,
+        self,
+        config: dict[str, Any],
+        log: Callable,
     ) -> pl.DataFrame:
         """Generate current signals for MA strategy."""
         try:
@@ -398,7 +415,8 @@ class MASignalProcessor(SignalProcessorBase):
         }
 
     def _extract_signal_parameters_for_filtering(
-        self, current_signals: pl.DataFrame,
+        self,
+        current_signals: pl.DataFrame,
     ) -> dict[str, list]:
         """Extract MA parameter values from current signals for filtering."""
         if len(current_signals) == 0:
@@ -433,7 +451,9 @@ class MACDSignalProcessor(SignalProcessorBase):
         super().__init__("MACD")
 
     def generate_current_signals(
-        self, config: dict[str, Any], log: Callable,
+        self,
+        config: dict[str, Any],
+        log: Callable,
     ) -> pl.DataFrame:
         """Generate current signals for MACD strategy."""
         try:
@@ -490,7 +510,8 @@ class MACDSignalProcessor(SignalProcessorBase):
         }
 
     def _extract_signal_parameters_for_filtering(
-        self, current_signals: pl.DataFrame,
+        self,
+        current_signals: pl.DataFrame,
     ) -> dict[str, list]:
         """Extract MACD parameter values from current signals for filtering."""
         if len(current_signals) == 0:
@@ -528,7 +549,9 @@ class MeanReversionSignalProcessor(SignalProcessorBase):
         super().__init__("MEAN_REVERSION")
 
     def generate_current_signals(
-        self, config: dict[str, Any], log: Callable,
+        self,
+        config: dict[str, Any],
+        log: Callable,
     ) -> pl.DataFrame:
         """Generate current signals for Mean Reversion strategy."""
         try:
@@ -557,7 +580,10 @@ class MeanReversionSignalProcessor(SignalProcessorBase):
             change_pct = strategy_params.get("change_pct") or config.get("CHANGE_PCT")
 
             return analyze_parameter_combination(
-                data=data, change_pct=change_pct, config=config, log=log,
+                data=data,
+                change_pct=change_pct,
+                config=config,
+                log=log,
             )
         except ImportError:
             log("Failed to import Mean Reversion sensitivity analysis", "error")
@@ -593,7 +619,9 @@ class ATRSignalProcessor(SignalProcessorBase):
         super().__init__("ATR")
 
     def generate_current_signals(
-        self, config: dict[str, Any], log: Callable,
+        self,
+        config: dict[str, Any],
+        log: Callable,
     ) -> pl.DataFrame:
         """Generate current signals for ATR strategy."""
         # For now, return empty DataFrame as ATR focuses on parameter sweep analysis
@@ -649,7 +677,9 @@ class SMAAtrSignalProcessor(SignalProcessorBase):
         super().__init__("SMA_ATR")
 
     def generate_current_signals(
-        self, config: dict[str, Any], log: Callable,
+        self,
+        config: dict[str, Any],
+        log: Callable,
     ) -> pl.DataFrame:
         """Generate current signals for SMA_ATR strategy."""
         try:
@@ -709,7 +739,8 @@ class SMAAtrSignalProcessor(SignalProcessorBase):
         }
 
     def _extract_signal_parameters_for_filtering(
-        self, current_signals: pl.DataFrame,
+        self,
+        current_signals: pl.DataFrame,
     ) -> dict[str, list]:
         """Extract SMA_ATR parameter values from current signals for filtering."""
         if len(current_signals) == 0:
@@ -859,7 +890,10 @@ def process_ticker_portfolios(
 
     processor = SignalProcessorFactory.create_processor(strategy_type)
     portfolios_df = processor.process_ticker_portfolios(
-        ticker, config, log, progress_update_fn,
+        ticker,
+        config,
+        log,
+        progress_update_fn,
     )
 
     if portfolios_df is not None and len(portfolios_df) > 0:

@@ -26,7 +26,10 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer, primary_key=True, autoincrement=True),
         sa.Column("ticker", sa.String(50), nullable=False, unique=True, index=True),
         sa.Column(
-            "created_at", sa.DateTime, nullable=False, server_default=sa.text("now()"),
+            "created_at",
+            sa.DateTime,
+            nullable=False,
+            server_default=sa.text("now()"),
         ),
     )
 
@@ -73,7 +76,8 @@ def upgrade() -> None:
     # 7. Drop the old ticker string column
     op.drop_index("ix_strategy_sweep_ticker", table_name="strategy_sweep_results")
     op.drop_index(
-        "ix_strategy_sweep_ticker_strategy", table_name="strategy_sweep_results",
+        "ix_strategy_sweep_ticker_strategy",
+        table_name="strategy_sweep_results",
     )
     op.drop_column("strategy_sweep_results", "ticker")
 
@@ -90,7 +94,8 @@ def downgrade() -> None:
 
     # 1. Drop composite index
     op.drop_index(
-        "ix_strategy_sweep_ticker_id_strategy", table_name="strategy_sweep_results",
+        "ix_strategy_sweep_ticker_id_strategy",
+        table_name="strategy_sweep_results",
     )
 
     # 2. Add back ticker string column

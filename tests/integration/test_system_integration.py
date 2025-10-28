@@ -109,7 +109,9 @@ MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:
 
                         # Test the function
                         result = _generate_spds_compatible_entries(
-                            aggregated_portfolios, "test_portfolio.csv", mock_log,
+                            aggregated_portfolios,
+                            "test_portfolio.csv",
+                            mock_log,
                         )
 
                         # Verify results
@@ -300,7 +302,10 @@ MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:
             ]
 
             calculate_breadth_metrics(
-                portfolios, [{"Ticker": "AAPL"}], [{"Ticker": "MSFT"}], mock_log,
+                portfolios,
+                [{"Ticker": "AAPL"}],
+                [{"Ticker": "MSFT"}],
+                mock_log,
             )
 
             breadth_messages = [
@@ -422,7 +427,9 @@ MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:
             mock_root.return_value = Path("/nonexistent/path")
 
             result = _generate_spds_compatible_entries(
-                aggregated_portfolios, "nonexistent.csv", mock_log,
+                aggregated_portfolios,
+                "nonexistent.csv",
+                mock_log,
             )
 
             # Should fall back to original data

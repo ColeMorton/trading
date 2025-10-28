@@ -381,9 +381,11 @@ class TestSPDSAnalysisEnginePerformance:
         print(f"  Final: {final_memory:.1f} MB")
         print(f"  Increase: {memory_increase:.1f} MB")
         print(
-            f"  Per position: {memory_increase / len(results):.2f} MB"
-            if results
-            else "N/A",
+            (
+                f"  Per position: {memory_increase / len(results):.2f} MB"
+                if results
+                else "N/A"
+            ),
         )
 
         # Memory increase should be reasonable

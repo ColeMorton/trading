@@ -347,7 +347,9 @@ class RiskMetricsValidator:
             if not is_valid and strategy_names:
                 log("Individual risk contributions:", "info")
                 for name, contrib in zip(
-                    strategy_names, individual_risk_contributions, strict=False,
+                    strategy_names,
+                    individual_risk_contributions,
+                    strict=False,
                 ):
                     log(
                         f"  {name}: {contrib:.4f} ({contrib/portfolio_total_risk:.1%} of total)",
@@ -409,7 +411,10 @@ class RiskMetricsValidator:
 
                 # Validate
                 dd_result = self.validate_max_drawdown(
-                    csv_max_dd, json_max_dd, ticker, log,
+                    csv_max_dd,
+                    json_max_dd,
+                    ticker,
+                    log,
                 )
                 results[f"max_drawdown_{ticker}"] = dd_result
 
@@ -558,7 +563,9 @@ class DrawdownCalculator:
         )
 
     def calculate_individual_drawdown(
-        self, equity_curve: np.ndarray, log: Callable[[str, str], None] | None = None,
+        self,
+        equity_curve: np.ndarray,
+        log: Callable[[str, str], None] | None = None,
     ) -> DrawdownComponents:
         """
         Calculate drawdown for an individual strategy equity curve.
@@ -712,7 +719,10 @@ class VolatilityAggregator:
         """
         # Calculate portfolio volatility first
         portfolio_vol = self.calculate_portfolio_volatility(
-            individual_volatilities, correlation_matrix, allocation_weights, log,
+            individual_volatilities,
+            correlation_matrix,
+            allocation_weights,
+            log,
         )
 
         if portfolio_vol <= 0:

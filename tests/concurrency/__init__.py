@@ -39,7 +39,8 @@ TEST_CONFIGS = {
 
 
 def create_test_portfolio(
-    strategies: list[dict[str, Any]], format: str = "json",
+    strategies: list[dict[str, Any]],
+    format: str = "json",
 ) -> str:
     """Create a temporary test portfolio file.
 
@@ -66,7 +67,10 @@ def create_test_portfolio(
 
 
 def create_test_price_data(
-    ticker: str, days: int = 365, start_price: float = 100.0, volatility: float = 0.02,
+    ticker: str,
+    days: int = 365,
+    start_price: float = 100.0,
+    volatility: float = 0.02,
 ) -> dict[str, list[float]]:
     """Create synthetic price data for testing.
 
@@ -100,7 +104,8 @@ def create_test_price_data(
 
 
 def create_test_strategies(
-    count: int = 3, strategy_type: str = "SMA",
+    count: int = 3,
+    strategy_type: str = "SMA",
 ) -> list[dict[str, Any]]:
     """Create test strategy configurations.
 

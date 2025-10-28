@@ -46,11 +46,21 @@ def dispatch_fresh_analysis(
     try:
         if strategy_type in ["SMA", "EMA"]:
             return _dispatch_ma_analysis(
-                ticker, strategy_type, fast_period, slow_period, config, log,
+                ticker,
+                strategy_type,
+                fast_period,
+                slow_period,
+                config,
+                log,
             )
         if strategy_type == "MACD":
             return _dispatch_macd_analysis(
-                ticker, fast_period, slow_period, signal_period, config, log,
+                ticker,
+                fast_period,
+                slow_period,
+                signal_period,
+                config,
+                log,
             )
         log(
             f"Unsupported strategy type for fresh analysis: {strategy_type}",
@@ -113,7 +123,12 @@ def _dispatch_ma_analysis(
 
         # Calculate signals
         data = calculate_ma_and_signals(
-            data, fast_period, slow_period, fresh_config, log, strategy_type,
+            data,
+            fast_period,
+            slow_period,
+            fresh_config,
+            log,
+            strategy_type,
         )
 
         if data is None:

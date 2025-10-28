@@ -77,7 +77,9 @@ class PositionCalculator:
             return 0.0, 0.0
 
     def calculate_days_since_entry(
-        self, entry_timestamp: str, current_date: datetime | None = None,
+        self,
+        entry_timestamp: str,
+        current_date: datetime | None = None,
     ) -> int:
         """
         Calculate days since position entry.
@@ -103,7 +105,9 @@ class PositionCalculator:
             return 0
 
     def calculate_exit_efficiency(
-        self, final_return: float, mfe: float,
+        self,
+        final_return: float,
+        mfe: float,
     ) -> float | None:
         """
         Calculate exit efficiency with standardized precision.
@@ -150,7 +154,10 @@ class PositionCalculator:
             return "Unknown"
 
     def assess_trade_quality(
-        self, mfe: float, mae: float, final_return: float | None = None,
+        self,
+        mfe: float,
+        mae: float,
+        final_return: float | None = None,
     ) -> str:
         """
         Assess trade quality based on MFE/MAE metrics.
@@ -261,7 +268,10 @@ class PositionCalculator:
 
             # Recalculate P&L and Return
             expected_pnl, expected_return = self.calculate_pnl_and_return(
-                entry_price, exit_price, position_size, direction,
+                entry_price,
+                exit_price,
+                position_size,
+                direction,
             )
 
             # Check P&L consistency
@@ -313,7 +323,8 @@ class PositionCalculator:
             # Validate Exit Efficiency if present
             if reported_return is not None and mfe is not None:
                 expected_efficiency = self.calculate_exit_efficiency(
-                    expected_return, mfe,
+                    expected_return,
+                    mfe,
                 )
                 reported_efficiency = position_data.get("Exit_Efficiency_Fixed")
 
@@ -418,7 +429,10 @@ class PositionCalculator:
 
             if entry_price is not None and exit_price is not None:
                 new_pnl, new_return = self.calculate_pnl_and_return(
-                    entry_price, exit_price, position_size, direction,
+                    entry_price,
+                    exit_price,
+                    position_size,
+                    direction,
                 )
 
                 if refreshed_data.get("PnL") != new_pnl:
@@ -467,7 +481,8 @@ class PositionCalculator:
             current_return = refreshed_data.get("Return")
             if current_return is not None and current_mfe is not None:
                 new_efficiency = self.calculate_exit_efficiency(
-                    current_return, current_mfe,
+                    current_return,
+                    current_mfe,
                 )
                 if new_efficiency is not None:
                     if refreshed_data.get("Exit_Efficiency_Fixed") != new_efficiency:
@@ -498,7 +513,9 @@ class PositionCalculator:
             # 7. Reassess Trade Quality
             if current_mfe is not None and current_mae is not None:
                 new_quality = self.assess_trade_quality(
-                    current_mfe, current_mae, current_return,
+                    current_mfe,
+                    current_mae,
+                    current_return,
                 )
                 if refreshed_data.get("Trade_Quality") != new_quality:
                     changes_made.append(
@@ -556,7 +573,10 @@ def calculate_position_pnl_return(
     """Convenience function to calculate P&L and return."""
     calculator = get_position_calculator()
     return calculator.calculate_pnl_and_return(
-        entry_price, exit_price, position_size, direction,
+        entry_price,
+        exit_price,
+        position_size,
+        direction,
     )
 
 
@@ -575,5 +595,8 @@ def refresh_position_calculations(
     """Convenience function to refresh all position calculations."""
     calculator = get_position_calculator()
     return calculator.comprehensive_position_refresh(
-        position_data, mfe, mae, current_excursion,
+        position_data,
+        mfe,
+        mae,
+        current_excursion,
     )

@@ -63,7 +63,9 @@ async def update_job_status(db_manager, job_id: str, status: str, **kwargs) -> N
 
 
 async def execute_strategy_run(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute strategy run command."""
     try:
@@ -101,7 +103,9 @@ async def execute_strategy_run(
 
 
 async def execute_strategy_sweep(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute strategy parameter sweep."""
     try:
@@ -139,7 +143,9 @@ async def execute_strategy_sweep(
 
 
 async def execute_strategy_review(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute strategy review command."""
     try:
@@ -177,7 +183,9 @@ async def execute_strategy_review(
 
 
 async def execute_sector_compare(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute sector comparison analysis."""
     try:
@@ -218,7 +226,9 @@ async def execute_sector_compare(
 
 
 async def execute_config_list(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute config list command."""
     try:
@@ -258,7 +268,9 @@ async def execute_config_list(
 
 
 async def execute_config_show(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute config show command."""
     try:
@@ -298,7 +310,9 @@ async def execute_config_show(
 
 
 async def execute_config_verify_defaults(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute config verify-defaults command."""
     try:
@@ -338,7 +352,9 @@ async def execute_config_verify_defaults(
 
 
 async def execute_config_set_default(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute config set-default command."""
     try:
@@ -378,7 +394,9 @@ async def execute_config_set_default(
 
 
 async def execute_config_edit(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute config edit command."""
     try:
@@ -418,7 +436,9 @@ async def execute_config_edit(
 
 
 async def execute_config_validate(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute config validate command."""
     try:
@@ -461,7 +481,9 @@ async def execute_config_validate(
 
 
 async def execute_concurrency_analyze(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute concurrency analyze command."""
     try:
@@ -486,13 +508,18 @@ async def execute_concurrency_analyze(
         return result
     except Exception as e:
         await update_job_status(
-            ctx["db_manager"], job_id, JobStatus.FAILED.value, error_message=str(e),
+            ctx["db_manager"],
+            job_id,
+            JobStatus.FAILED.value,
+            error_message=str(e),
         )
         raise
 
 
 async def execute_concurrency_export(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute concurrency export command."""
     try:
@@ -517,13 +544,18 @@ async def execute_concurrency_export(
         return result
     except Exception as e:
         await update_job_status(
-            ctx["db_manager"], job_id, JobStatus.FAILED.value, error_message=str(e),
+            ctx["db_manager"],
+            job_id,
+            JobStatus.FAILED.value,
+            error_message=str(e),
         )
         raise
 
 
 async def execute_concurrency_review(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute concurrency review command."""
     try:
@@ -548,13 +580,18 @@ async def execute_concurrency_review(
         return result
     except Exception as e:
         await update_job_status(
-            ctx["db_manager"], job_id, JobStatus.FAILED.value, error_message=str(e),
+            ctx["db_manager"],
+            job_id,
+            JobStatus.FAILED.value,
+            error_message=str(e),
         )
         raise
 
 
 async def execute_concurrency_construct(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute concurrency construct command."""
     try:
@@ -579,13 +616,18 @@ async def execute_concurrency_construct(
         return result
     except Exception as e:
         await update_job_status(
-            ctx["db_manager"], job_id, JobStatus.FAILED.value, error_message=str(e),
+            ctx["db_manager"],
+            job_id,
+            JobStatus.FAILED.value,
+            error_message=str(e),
         )
         raise
 
 
 async def execute_concurrency_optimize(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute concurrency optimize command."""
     try:
@@ -610,13 +652,18 @@ async def execute_concurrency_optimize(
         return result
     except Exception as e:
         await update_job_status(
-            ctx["db_manager"], job_id, JobStatus.FAILED.value, error_message=str(e),
+            ctx["db_manager"],
+            job_id,
+            JobStatus.FAILED.value,
+            error_message=str(e),
         )
         raise
 
 
 async def execute_concurrency_monte_carlo(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute concurrency monte-carlo command."""
     try:
@@ -641,13 +688,18 @@ async def execute_concurrency_monte_carlo(
         return result
     except Exception as e:
         await update_job_status(
-            ctx["db_manager"], job_id, JobStatus.FAILED.value, error_message=str(e),
+            ctx["db_manager"],
+            job_id,
+            JobStatus.FAILED.value,
+            error_message=str(e),
         )
         raise
 
 
 async def execute_concurrency_health(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute concurrency health command."""
     try:
@@ -672,13 +724,18 @@ async def execute_concurrency_health(
         return result
     except Exception as e:
         await update_job_status(
-            ctx["db_manager"], job_id, JobStatus.FAILED.value, error_message=str(e),
+            ctx["db_manager"],
+            job_id,
+            JobStatus.FAILED.value,
+            error_message=str(e),
         )
         raise
 
 
 async def execute_concurrency_demo(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute concurrency demo command."""
     try:
@@ -703,7 +760,10 @@ async def execute_concurrency_demo(
         return result
     except Exception as e:
         await update_job_status(
-            ctx["db_manager"], job_id, JobStatus.FAILED.value, error_message=str(e),
+            ctx["db_manager"],
+            job_id,
+            JobStatus.FAILED.value,
+            error_message=str(e),
         )
         raise
 
@@ -712,7 +772,9 @@ async def execute_concurrency_demo(
 
 
 async def execute_seasonality_run(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute seasonality run command."""
     try:
@@ -737,13 +799,18 @@ async def execute_seasonality_run(
         return result
     except Exception as e:
         await update_job_status(
-            ctx["db_manager"], job_id, JobStatus.FAILED.value, error_message=str(e),
+            ctx["db_manager"],
+            job_id,
+            JobStatus.FAILED.value,
+            error_message=str(e),
         )
         raise
 
 
 async def execute_seasonality_list(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute seasonality list command."""
     try:
@@ -768,13 +835,18 @@ async def execute_seasonality_list(
         return result
     except Exception as e:
         await update_job_status(
-            ctx["db_manager"], job_id, JobStatus.FAILED.value, error_message=str(e),
+            ctx["db_manager"],
+            job_id,
+            JobStatus.FAILED.value,
+            error_message=str(e),
         )
         raise
 
 
 async def execute_seasonality_results(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute seasonality results command."""
     try:
@@ -799,13 +871,18 @@ async def execute_seasonality_results(
         return result
     except Exception as e:
         await update_job_status(
-            ctx["db_manager"], job_id, JobStatus.FAILED.value, error_message=str(e),
+            ctx["db_manager"],
+            job_id,
+            JobStatus.FAILED.value,
+            error_message=str(e),
         )
         raise
 
 
 async def execute_seasonality_clean(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute seasonality clean command."""
     try:
@@ -830,13 +907,18 @@ async def execute_seasonality_clean(
         return result
     except Exception as e:
         await update_job_status(
-            ctx["db_manager"], job_id, JobStatus.FAILED.value, error_message=str(e),
+            ctx["db_manager"],
+            job_id,
+            JobStatus.FAILED.value,
+            error_message=str(e),
         )
         raise
 
 
 async def execute_seasonality_current(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute seasonality current command."""
     try:
@@ -861,13 +943,18 @@ async def execute_seasonality_current(
         return result
     except Exception as e:
         await update_job_status(
-            ctx["db_manager"], job_id, JobStatus.FAILED.value, error_message=str(e),
+            ctx["db_manager"],
+            job_id,
+            JobStatus.FAILED.value,
+            error_message=str(e),
         )
         raise
 
 
 async def execute_seasonality_portfolio(
-    ctx: dict[str, Any], job_id: str, parameters: dict,
+    ctx: dict[str, Any],
+    job_id: str,
+    parameters: dict,
 ) -> dict:
     """Execute seasonality portfolio command."""
     try:
@@ -892,7 +979,10 @@ async def execute_seasonality_portfolio(
         return result
     except Exception as e:
         await update_job_status(
-            ctx["db_manager"], job_id, JobStatus.FAILED.value, error_message=str(e),
+            ctx["db_manager"],
+            job_id,
+            JobStatus.FAILED.value,
+            error_message=str(e),
         )
         raise
 

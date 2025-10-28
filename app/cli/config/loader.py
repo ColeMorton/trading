@@ -130,7 +130,9 @@ class ConfigLoader:
         return config_type(**config_dict)
 
     def _merge_configs(
-        self, base: dict[str, Any], override: dict[str, Any],
+        self,
+        base: dict[str, Any],
+        override: dict[str, Any],
     ) -> dict[str, Any]:
         """Merge two configuration dictionaries."""
         result = base.copy()

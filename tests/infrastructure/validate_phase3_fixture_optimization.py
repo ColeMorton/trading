@@ -138,7 +138,6 @@ class FixtureDuplicationAnalyzer:
             "duplicate_conftest_removed": self._check_conftest_consolidation(),
         }
 
-
     def _check_event_loop_consolidation(self) -> bool:
         """Check if event loop fixtures were consolidated."""
         api_conftest = self.project_root / "tests" / "api" / "conftest.py"

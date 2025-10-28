@@ -65,7 +65,10 @@ class ExportManager:
                 context.log(error_msg, "error")
 
             return ExportResult(
-                success=False, path="", rows_exported=0, error_message=error_msg,
+                success=False,
+                path="",
+                rows_exported=0,
+                error_message=error_msg,
             )
 
         # Delegate to the specific exporter

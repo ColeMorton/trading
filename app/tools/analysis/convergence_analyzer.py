@@ -95,7 +95,9 @@ class ConvergenceAnalyzer:
 
             # Load data for all timeframes
             timeframe_data = await self._load_multi_timeframe_data(
-                strategy_name, ticker, timeframes,
+                strategy_name,
+                ticker,
+                timeframes,
             )
 
             # Calculate convergence for each metric
@@ -104,7 +106,9 @@ class ConvergenceAnalyzer:
 
             for metric in convergence_metrics:
                 convergence_result = await self._calculate_metric_convergence(
-                    timeframe_data, metric, timeframes,
+                    timeframe_data,
+                    metric,
+                    timeframes,
                 )
                 metric_convergences[metric] = convergence_result
                 dimensional_convergence[f"timeframe_{metric}"] = convergence_result[
@@ -116,17 +120,23 @@ class ConvergenceAnalyzer:
 
             # Analyze convergence stability over time
             convergence_stability = await self._analyze_convergence_stability(
-                timeframe_data, timeframes, convergence_metrics,
+                timeframe_data,
+                timeframes,
+                convergence_metrics,
             )
 
             # Identify divergence periods
             divergence_periods = await self._identify_divergence_periods(
-                timeframe_data, timeframes, convergence_metrics,
+                timeframe_data,
+                timeframes,
+                convergence_metrics,
             )
 
             # Cross-validation
             cross_validation_scores = await self._cross_validate_convergence(
-                timeframe_data, timeframes, convergence_metrics,
+                timeframe_data,
+                timeframes,
+                convergence_metrics,
             )
 
             # Statistical significance testing
@@ -199,7 +209,9 @@ class ConvergenceAnalyzer:
 
             # Load data for all strategies
             strategy_data = await self._load_multi_strategy_data(
-                strategies, ticker, timeframe,
+                strategies,
+                ticker,
+                timeframe,
             )
 
             # Calculate convergence for each metric
@@ -208,7 +220,9 @@ class ConvergenceAnalyzer:
 
             for metric in convergence_metrics:
                 convergence_result = await self._calculate_strategy_metric_convergence(
-                    strategy_data, metric, strategies,
+                    strategy_data,
+                    metric,
+                    strategies,
                 )
                 metric_convergences[metric] = convergence_result
                 dimensional_convergence[f"strategy_{metric}"] = convergence_result[
@@ -220,17 +234,23 @@ class ConvergenceAnalyzer:
 
             # Analyze convergence stability
             convergence_stability = await self._analyze_strategy_convergence_stability(
-                strategy_data, strategies, convergence_metrics,
+                strategy_data,
+                strategies,
+                convergence_metrics,
             )
 
             # Identify divergence periods
             divergence_periods = await self._identify_strategy_divergence_periods(
-                strategy_data, strategies, convergence_metrics,
+                strategy_data,
+                strategies,
+                convergence_metrics,
             )
 
             # Cross-validation
             cross_strategy_validation = await self._cross_validate_strategy_convergence(
-                strategy_data, strategies, convergence_metrics,
+                strategy_data,
+                strategies,
+                convergence_metrics,
             )
 
             # Statistical significance
@@ -299,7 +319,8 @@ class ConvergenceAnalyzer:
             for measure in statistical_measures:
                 convergence_result = (
                     await self._calculate_statistical_measure_convergence(
-                        data_sources, measure,
+                        data_sources,
+                        measure,
                     )
                 )
                 measure_convergences[measure] = convergence_result
@@ -313,13 +334,15 @@ class ConvergenceAnalyzer:
             # Stability analysis
             convergence_stability = (
                 await self._analyze_statistical_convergence_stability(
-                    data_sources, statistical_measures,
+                    data_sources,
+                    statistical_measures,
                 )
             )
 
             # Divergence periods
             divergence_periods = await self._identify_statistical_divergence_periods(
-                data_sources, statistical_measures,
+                data_sources,
+                statistical_measures,
             )
 
             # Significance testing
@@ -354,7 +377,10 @@ class ConvergenceAnalyzer:
     # Helper methods
 
     async def _load_multi_timeframe_data(
-        self, strategy_name: str, ticker: str, timeframes: list[str],
+        self,
+        strategy_name: str,
+        ticker: str,
+        timeframes: list[str],
     ) -> dict[str, dict[str, Any]]:
         """Load data for multiple timeframes"""
         timeframe_data = {}
@@ -364,11 +390,15 @@ class ConvergenceAnalyzer:
                 # Load strategy data for this timeframe
                 if self.config.USE_TRADE_HISTORY:
                     data = await self._load_trade_history_data(
-                        strategy_name, ticker, timeframe,
+                        strategy_name,
+                        ticker,
+                        timeframe,
                     )
                 else:
                     data = await self._load_equity_data(
-                        strategy_name, ticker, timeframe,
+                        strategy_name,
+                        ticker,
+                        timeframe,
                     )
 
                 if (
@@ -385,7 +415,10 @@ class ConvergenceAnalyzer:
         return timeframe_data
 
     async def _load_multi_strategy_data(
-        self, strategies: list[str], ticker: str, timeframe: str,
+        self,
+        strategies: list[str],
+        ticker: str,
+        timeframe: str,
     ) -> dict[str, dict[str, Any]]:
         """Load data for multiple strategies"""
         strategy_data = {}
@@ -394,7 +427,9 @@ class ConvergenceAnalyzer:
             try:
                 if self.config.USE_TRADE_HISTORY:
                     data = await self._load_trade_history_data(
-                        strategy, ticker, timeframe,
+                        strategy,
+                        ticker,
+                        timeframe,
                     )
                 else:
                     data = await self._load_equity_data(strategy, ticker, timeframe)
@@ -413,7 +448,10 @@ class ConvergenceAnalyzer:
         return strategy_data
 
     async def _load_trade_history_data(
-        self, strategy_name: str, ticker: str, timeframe: str,
+        self,
+        strategy_name: str,
+        ticker: str,
+        timeframe: str,
     ) -> dict[str, Any] | None:
         """Load trade history data"""
         # Simplified implementation - would integrate with TradeHistoryAnalyzer
@@ -450,7 +488,10 @@ class ConvergenceAnalyzer:
         return None
 
     async def _load_equity_data(
-        self, strategy_name: str, ticker: str, timeframe: str,
+        self,
+        strategy_name: str,
+        ticker: str,
+        timeframe: str,
     ) -> dict[str, Any] | None:
         """Load equity curve data"""
         # Search for equity files
@@ -637,7 +678,9 @@ class ConvergenceAnalyzer:
         }
 
     async def _calculate_statistical_measure_convergence(
-        self, data_sources: dict[str, dict[str, Any]], measure: str,
+        self,
+        data_sources: dict[str, dict[str, Any]],
+        measure: str,
     ) -> dict[str, Any]:
         """Calculate convergence between statistical measures"""
         measure_values = []
@@ -676,7 +719,10 @@ class ConvergenceAnalyzer:
         }
 
     async def _analyze_convergence_stability(
-        self, data: dict[str, dict[str, Any]], dimensions: list[str], metrics: list[str],
+        self,
+        data: dict[str, dict[str, Any]],
+        dimensions: list[str],
+        metrics: list[str],
     ) -> float:
         """Analyze stability of convergence over time"""
         stability_scores = []
@@ -714,20 +760,28 @@ class ConvergenceAnalyzer:
         return np.mean(stability_scores) if stability_scores else 0.5
 
     async def _analyze_strategy_convergence_stability(
-        self, data: dict[str, dict[str, Any]], strategies: list[str], metrics: list[str],
+        self,
+        data: dict[str, dict[str, Any]],
+        strategies: list[str],
+        metrics: list[str],
     ) -> float:
         """Analyze stability of strategy convergence"""
         return await self._analyze_convergence_stability(data, strategies, metrics)
 
     async def _analyze_statistical_convergence_stability(
-        self, data: dict[str, dict[str, Any]], measures: list[str],
+        self,
+        data: dict[str, dict[str, Any]],
+        measures: list[str],
     ) -> float:
         """Analyze stability of statistical measure convergence"""
         # Simplified stability analysis for statistical measures
         return 0.7  # Default stability score
 
     async def _identify_divergence_periods(
-        self, data: dict[str, dict[str, Any]], dimensions: list[str], metrics: list[str],
+        self,
+        data: dict[str, dict[str, Any]],
+        dimensions: list[str],
+        metrics: list[str],
     ) -> list[dict[str, Any]]:
         """Identify periods of significant divergence"""
         divergence_periods = []
@@ -774,20 +828,28 @@ class ConvergenceAnalyzer:
         return divergence_periods
 
     async def _identify_strategy_divergence_periods(
-        self, data: dict[str, dict[str, Any]], strategies: list[str], metrics: list[str],
+        self,
+        data: dict[str, dict[str, Any]],
+        strategies: list[str],
+        metrics: list[str],
     ) -> list[dict[str, Any]]:
         """Identify periods of strategy divergence"""
         return await self._identify_divergence_periods(data, strategies, metrics)
 
     async def _identify_statistical_divergence_periods(
-        self, data: dict[str, dict[str, Any]], measures: list[str],
+        self,
+        data: dict[str, dict[str, Any]],
+        measures: list[str],
     ) -> list[dict[str, Any]]:
         """Identify periods of statistical measure divergence"""
         # Simplified implementation
         return []
 
     async def _cross_validate_convergence(
-        self, data: dict[str, dict[str, Any]], dimensions: list[str], metrics: list[str],
+        self,
+        data: dict[str, dict[str, Any]],
+        dimensions: list[str],
+        metrics: list[str],
     ) -> dict[str, float]:
         """Cross-validate convergence analysis"""
         cv_scores = {}
@@ -821,13 +883,17 @@ class ConvergenceAnalyzer:
         return cv_scores
 
     async def _cross_validate_strategy_convergence(
-        self, data: dict[str, dict[str, Any]], strategies: list[str], metrics: list[str],
+        self,
+        data: dict[str, dict[str, Any]],
+        strategies: list[str],
+        metrics: list[str],
     ) -> dict[str, float]:
         """Cross-validate strategy convergence"""
         return await self._cross_validate_convergence(data, strategies, metrics)
 
     async def _test_convergence_significance(
-        self, metric_convergences: dict[str, dict[str, Any]],
+        self,
+        metric_convergences: dict[str, dict[str, Any]],
     ) -> float:
         """Test statistical significance of convergence"""
         convergence_scores = []
@@ -849,7 +915,8 @@ class ConvergenceAnalyzer:
         return max(0.001, min(1.0, p_value))
 
     def _calculate_current_divergence_level(
-        self, divergence_periods: list[dict[str, Any]],
+        self,
+        divergence_periods: list[dict[str, Any]],
     ) -> float:
         """Calculate current level of divergence"""
         if not divergence_periods:
@@ -866,7 +933,8 @@ class ConvergenceAnalyzer:
         return 0.0
 
     def _analyze_divergence_trend(
-        self, divergence_periods: list[dict[str, Any]],
+        self,
+        divergence_periods: list[dict[str, Any]],
     ) -> str:
         """Analyze trend in divergence over time"""
         if len(divergence_periods) < 2:

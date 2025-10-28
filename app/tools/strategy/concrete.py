@@ -94,9 +94,10 @@ class SMAStrategy(BaseStrategy):
             strategy_config["SLOW_PERIOD"] = slow_period
 
             return convert_signals_to_positions(
-                data=data, config=strategy_config, log=log,
+                data=data,
+                config=strategy_config,
+                log=log,
             )
-
 
         except Exception as e:
             log(f"Failed to calculate {direction} SMAs and signals: {e}", "error")
@@ -180,9 +181,10 @@ class EMAStrategy(BaseStrategy):
             strategy_config["SLOW_PERIOD"] = slow_period
 
             return convert_signals_to_positions(
-                data=data, config=strategy_config, log=log,
+                data=data,
+                config=strategy_config,
+                log=log,
             )
-
 
         except Exception as e:
             log(f"Failed to calculate {direction} EMAs and signals: {e}", "error")
@@ -248,7 +250,11 @@ class MACDStrategy(BaseStrategy):
         try:
             # Calculate MACD components
             data = self._calculate_macd_components(
-                data, fast_period, slow_period, signal_period, log,
+                data,
+                fast_period,
+                slow_period,
+                signal_period,
+                log,
             )
 
             # Calculate RSI if enabled
@@ -282,9 +288,10 @@ class MACDStrategy(BaseStrategy):
             strategy_config["SIGNAL_PERIOD"] = signal_period
 
             return convert_signals_to_positions(
-                data=data, config=strategy_config, log=log,
+                data=data,
+                config=strategy_config,
+                log=log,
             )
-
 
         except Exception as e:
             log(f"Failed to calculate {direction} MACD signals: {e}", "error")
@@ -335,7 +342,9 @@ class MACDStrategy(BaseStrategy):
         return data
 
     def _calculate_macd_signals(
-        self, data: pl.DataFrame, config: dict[str, Any],
+        self,
+        data: pl.DataFrame,
+        config: dict[str, Any],
     ) -> tuple:
         """Calculate MACD entry and exit signals based on MACD line crossing signal line."""
 
@@ -428,7 +437,12 @@ class SMAAtrStrategy(BaseStrategy):
 
             # Generate SMA_ATR positions using combined logic
             data = self._generate_sma_atr_positions(
-                data, entries, atr_multiplier, direction, config, log,
+                data,
+                entries,
+                atr_multiplier,
+                direction,
+                config,
+                log,
             )
 
             # Convert to final strategy format

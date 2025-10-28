@@ -38,7 +38,6 @@ class ConfigService:
         # Apply normalize_config() logic - ensure absolute paths
         return ConfigService._normalize_paths(processed)
 
-
     @staticmethod
     def _apply_defaults(config: dict[str, Any]) -> None:
         """Apply default values to configuration (replaces get_config functionality).
@@ -81,7 +80,8 @@ class ConfigService:
 
     @staticmethod
     def merge_configs(
-        base_config: dict[str, Any], overrides: dict[str, Any] | None = None,
+        base_config: dict[str, Any],
+        overrides: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Merge a base configuration with overrides.
 

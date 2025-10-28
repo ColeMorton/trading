@@ -39,7 +39,9 @@ class TestSyntheticTickerHandling:
         return pl.DataFrame(
             {
                 "Date": pl.date_range(
-                    start=pl.date(2023, 1, 1), end=pl.date(2023, 3, 31), interval="1d",
+                    start=pl.date(2023, 1, 1),
+                    end=pl.date(2023, 3, 31),
+                    interval="1d",
                 ),
                 "Close": [100.0 + i * 0.5 for i in range(90)],
                 "High": [102.0 + i * 0.5 for i in range(90)],
@@ -78,7 +80,8 @@ class TestSyntheticTickerHandling:
 
             # Execute command
             result = cli_runner.invoke(
-                strategy_app, ["run", "--ticker", ticker, "--strategy", "SMA"],
+                strategy_app,
+                ["run", "--ticker", ticker, "--strategy", "SMA"],
             )
 
             # Verify synthetic ticker handling
@@ -120,7 +123,8 @@ class TestSyntheticTickerHandling:
 
             # Execute command
             result = cli_runner.invoke(
-                strategy_app, ["run", "--ticker", ticker, "--strategy", "SMA"],
+                strategy_app,
+                ["run", "--ticker", ticker, "--strategy", "SMA"],
             )
 
             # Verify crypto ticker handling
@@ -168,7 +172,8 @@ class TestSyntheticTickerHandling:
 
             # Execute command
             result = cli_runner.invoke(
-                strategy_app, ["run", "--ticker", ticker, "--strategy", "SMA"],
+                strategy_app,
+                ["run", "--ticker", ticker, "--strategy", "SMA"],
             )
 
             # Verify derivative ticker handling
@@ -216,7 +221,8 @@ class TestSyntheticTickerHandling:
 
             # Execute command
             result = cli_runner.invoke(
-                strategy_app, ["run", "--ticker", ticker, "--strategy", "SMA"],
+                strategy_app,
+                ["run", "--ticker", ticker, "--strategy", "SMA"],
             )
 
             # Verify international ticker handling
@@ -266,7 +272,8 @@ class TestSyntheticTickerHandling:
 
             # Execute command
             result = cli_runner.invoke(
-                strategy_app, ["run", "--ticker", ticker, "--strategy", "SMA"],
+                strategy_app,
+                ["run", "--ticker", ticker, "--strategy", "SMA"],
             )
 
             # Verify index/ETF ticker handling
@@ -324,7 +331,8 @@ class TestSpecialCharacterHandling:
 
         for profile in special_profiles:
             result = cli_runner.invoke(
-                strategy_app, ["run", "--profile", profile, "--dry-run"],
+                strategy_app,
+                ["run", "--profile", profile, "--dry-run"],
             )
 
             # Should handle special characters in profile names
@@ -340,7 +348,8 @@ class TestSpecialCharacterHandling:
 
         # Test empty spaces
         result2 = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", " ", "--strategy", "SMA", "--dry-run"],
+            strategy_app,
+            ["run", "--ticker", " ", "--strategy", "SMA", "--dry-run"],
         )
 
         # Should handle whitespace appropriately
@@ -361,7 +370,8 @@ class TestSpecialCharacterHandling:
 
         for path in special_paths:
             result = cli_runner.invoke(
-                strategy_app, ["run", "--profile", path, "--dry-run"],
+                strategy_app,
+                ["run", "--profile", path, "--dry-run"],
             )
 
             # Should handle special characters in paths
@@ -501,7 +511,11 @@ class TestExtremeParameterValues:
     @patch("app.cli.commands.strategy.analyze_parameter_sensitivity")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_extreme_parameter_sweep_ranges(
-        self, mock_config_loader, mock_analyze, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_analyze,
+        mock_get_data,
+        cli_runner,
     ):
         """Test handling of extreme parameter sweep ranges."""
         # Setup mocks
@@ -618,7 +632,8 @@ class TestEmptyResultSetHandling:
         mock_get_data.return_value = minimal_price_data
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
+            strategy_app,
+            ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle insufficient data gracefully
@@ -654,7 +669,8 @@ class TestEmptyResultSetHandling:
         mock_get_data.return_value = insufficient_price_data
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
+            strategy_app,
+            ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle insufficient data for calculations
@@ -664,7 +680,11 @@ class TestEmptyResultSetHandling:
     @patch("app.cli.commands.strategy.analyze_parameter_sensitivity")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_parameter_sweep_no_valid_combinations(
-        self, mock_config_loader, mock_analyze, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_analyze,
+        mock_get_data,
+        cli_runner,
     ):
         """Test parameter sweep when no valid combinations exist."""
         # Setup mocks
@@ -705,14 +725,20 @@ class TestEmptyResultSetHandling:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_zero_volume_data_handling(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test handling of price data with zero volume."""
         # Create data with zero volume
         zero_volume_data = pl.DataFrame(
             {
                 "Date": pl.date_range(
-                    start=pl.date(2023, 1, 1), end=pl.date(2023, 3, 31), interval="1d",
+                    start=pl.date(2023, 1, 1),
+                    end=pl.date(2023, 3, 31),
+                    interval="1d",
                 ),
                 "Close": [100.0] * 90,  # Flat prices
                 "High": [100.0] * 90,
@@ -735,7 +761,8 @@ class TestEmptyResultSetHandling:
         mock_get_data.return_value = zero_volume_data
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
+            strategy_app,
+            ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle zero volume data
@@ -745,14 +772,20 @@ class TestEmptyResultSetHandling:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_constant_price_data_handling(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test handling of constant price data (no price movement)."""
         # Create constant price data
         constant_price_data = pl.DataFrame(
             {
                 "Date": pl.date_range(
-                    start=pl.date(2023, 1, 1), end=pl.date(2023, 12, 31), interval="1d",
+                    start=pl.date(2023, 1, 1),
+                    end=pl.date(2023, 12, 31),
+                    interval="1d",
                 ),
                 "Close": [100.0] * 365,  # Constant prices
                 "High": [100.0] * 365,
@@ -775,7 +808,8 @@ class TestEmptyResultSetHandling:
         mock_get_data.return_value = constant_price_data
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
+            strategy_app,
+            ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle constant price data
@@ -794,7 +828,11 @@ class TestDateTimeEdgeCases:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_leap_year_data_handling(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test handling of leap year data."""
         # Create leap year data including Feb 29
@@ -826,7 +864,8 @@ class TestDateTimeEdgeCases:
         mock_get_data.return_value = leap_year_data
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
+            strategy_app,
+            ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle leap year data
@@ -836,7 +875,11 @@ class TestDateTimeEdgeCases:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_weekend_gap_data_handling(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test handling of data with weekend gaps."""
         # Create data with missing weekend days
@@ -872,7 +915,8 @@ class TestDateTimeEdgeCases:
         mock_get_data.return_value = weekend_gap_data
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
+            strategy_app,
+            ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle weekend gaps
@@ -882,7 +926,11 @@ class TestDateTimeEdgeCases:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_holiday_gap_data_handling(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test handling of data with holiday gaps."""
         # Create data with missing holiday (e.g., Christmas week)
@@ -918,7 +966,8 @@ class TestDateTimeEdgeCases:
         mock_get_data.return_value = holiday_gap_data
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
+            strategy_app,
+            ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle holiday gaps
@@ -928,14 +977,20 @@ class TestDateTimeEdgeCases:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_year_boundary_data_handling(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test handling of data spanning year boundaries."""
         # Create data spanning New Year's Eve/Day
         year_boundary_data = pl.DataFrame(
             {
                 "Date": pl.date_range(
-                    start=pl.date(2022, 12, 30), end=pl.date(2023, 1, 2), interval="1d",
+                    start=pl.date(2022, 12, 30),
+                    end=pl.date(2023, 1, 2),
+                    interval="1d",
                 ),
                 "Close": [100.0, 101.0, 102.0, 103.0],
                 "High": [102.0, 103.0, 104.0, 105.0],
@@ -958,7 +1013,8 @@ class TestDateTimeEdgeCases:
         mock_get_data.return_value = year_boundary_data
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
+            strategy_app,
+            ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle year boundary data
@@ -977,7 +1033,11 @@ class TestUnusualMarketConditions:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_extreme_volatility_handling(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test handling of extremely volatile price data."""
         # Create highly volatile data
@@ -993,7 +1053,9 @@ class TestUnusualMarketConditions:
         volatile_data = pl.DataFrame(
             {
                 "Date": pl.date_range(
-                    start=pl.date(2023, 1, 1), end=pl.date(2023, 12, 31), interval="1d",
+                    start=pl.date(2023, 1, 1),
+                    end=pl.date(2023, 12, 31),
+                    interval="1d",
                 )[:252],
                 "Close": volatile_prices,
                 "High": [p * 1.1 for p in volatile_prices],
@@ -1016,7 +1078,8 @@ class TestUnusualMarketConditions:
         mock_get_data.return_value = volatile_data
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "VOLATILE_STOCK", "--strategy", "SMA"],
+            strategy_app,
+            ["run", "--ticker", "VOLATILE_STOCK", "--strategy", "SMA"],
         )
 
         # Should handle extreme volatility
@@ -1026,18 +1089,22 @@ class TestUnusualMarketConditions:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_trending_market_handling(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test handling of strongly trending markets."""
         # Create strongly trending data (consistent upward movement)
-        trending_prices = [
-            100.0 * (1.001**i) for i in range(252)
-        ]  # ~0.1% daily growth
+        trending_prices = [100.0 * (1.001**i) for i in range(252)]  # ~0.1% daily growth
 
         trending_data = pl.DataFrame(
             {
                 "Date": pl.date_range(
-                    start=pl.date(2023, 1, 1), end=pl.date(2023, 12, 31), interval="1d",
+                    start=pl.date(2023, 1, 1),
+                    end=pl.date(2023, 12, 31),
+                    interval="1d",
                 )[:252],
                 "Close": trending_prices,
                 "High": [p * 1.01 for p in trending_prices],
@@ -1060,7 +1127,8 @@ class TestUnusualMarketConditions:
         mock_get_data.return_value = trending_data
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "TRENDING_STOCK", "--strategy", "SMA"],
+            strategy_app,
+            ["run", "--ticker", "TRENDING_STOCK", "--strategy", "SMA"],
         )
 
         # Should handle trending markets
@@ -1070,7 +1138,11 @@ class TestUnusualMarketConditions:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_sideways_market_handling(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test handling of sideways/ranging markets."""
         # Create sideways market data (oscillating around mean)
@@ -1084,7 +1156,9 @@ class TestUnusualMarketConditions:
         sideways_data = pl.DataFrame(
             {
                 "Date": pl.date_range(
-                    start=pl.date(2023, 1, 1), end=pl.date(2023, 12, 31), interval="1d",
+                    start=pl.date(2023, 1, 1),
+                    end=pl.date(2023, 12, 31),
+                    interval="1d",
                 )[:252],
                 "Close": sideways_prices,
                 "High": [p * 1.01 for p in sideways_prices],
@@ -1107,7 +1181,8 @@ class TestUnusualMarketConditions:
         mock_get_data.return_value = sideways_data
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "SIDEWAYS_STOCK", "--strategy", "SMA"],
+            strategy_app,
+            ["run", "--ticker", "SIDEWAYS_STOCK", "--strategy", "SMA"],
         )
 
         # Should handle sideways markets
@@ -1117,7 +1192,11 @@ class TestUnusualMarketConditions:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_market_crash_scenario_handling(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test handling of market crash scenarios."""
         # Create crash scenario data (sudden large drop)
@@ -1141,7 +1220,9 @@ class TestUnusualMarketConditions:
         crash_data = pl.DataFrame(
             {
                 "Date": pl.date_range(
-                    start=pl.date(2023, 1, 1), end=pl.date(2023, 4, 15), interval="1d",
+                    start=pl.date(2023, 1, 1),
+                    end=pl.date(2023, 4, 15),
+                    interval="1d",
                 )[: len(crash_prices)],
                 "Close": crash_prices,
                 "High": [p * 1.02 for p in crash_prices],
@@ -1164,7 +1245,8 @@ class TestUnusualMarketConditions:
         mock_get_data.return_value = crash_data
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "CRASH_STOCK", "--strategy", "SMA"],
+            strategy_app,
+            ["run", "--ticker", "CRASH_STOCK", "--strategy", "SMA"],
         )
 
         # Should handle market crash scenarios
@@ -1203,12 +1285,18 @@ class TestLargeScaleDataProcessing:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_very_large_dataset_handling(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test handling of very large datasets."""
         # Create large dataset (10 years of daily data)
         large_dates = pl.date_range(
-            start=pl.date(2014, 1, 1), end=pl.date(2023, 12, 31), interval="1d",
+            start=pl.date(2014, 1, 1),
+            end=pl.date(2023, 12, 31),
+            interval="1d",
         )
 
         large_dataset = pl.DataFrame(
@@ -1235,7 +1323,8 @@ class TestLargeScaleDataProcessing:
         mock_get_data.return_value = large_dataset
 
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"],
+            strategy_app,
+            ["run", "--ticker", "AAPL", "--strategy", "SMA"],
         )
 
         # Should handle large datasets

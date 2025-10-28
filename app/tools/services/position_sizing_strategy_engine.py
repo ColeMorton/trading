@@ -46,7 +46,8 @@ class PositionSizingOrchestrator:
         self.config = config
 
     async def calculate_position_sizing(
-        self, request: PositionSizingRequest,
+        self,
+        request: PositionSizingRequest,
     ) -> PositionSizingResponse:
         """Calculate position sizing."""
         # Basic position sizing logic
@@ -192,7 +193,10 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
             }
 
     async def _process_position_sizing_for_portfolios(
-        self, portfolio_dicts: list[dict[str, Any]], portfolio_type: PortfolioType, log,
+        self,
+        portfolio_dicts: list[dict[str, Any]],
+        portfolio_type: PortfolioType,
+        log,
     ) -> list[dict[str, Any]]:
         """
         Process position sizing for multiple portfolio results.
@@ -264,7 +268,11 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
         return position_sizing_results
 
     async def _calculate_position_sizing_for_signal(
-        self, ticker: str, signal: dict[str, Any], portfolio_type: PortfolioType, log,
+        self,
+        ticker: str,
+        signal: dict[str, Any],
+        portfolio_type: PortfolioType,
+        log,
     ) -> Any | None:
         """
         Calculate position sizing for a specific signal.
@@ -313,7 +321,11 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
             return None
 
     async def _calculate_position_sizing_for_data(
-        self, ticker: str, data: dict[str, Any], portfolio_type: PortfolioType, log,
+        self,
+        ticker: str,
+        data: dict[str, Any],
+        portfolio_type: PortfolioType,
+        log,
     ) -> Any | None:
         """
         Calculate position sizing for portfolio data (when no signals available).
@@ -351,7 +363,8 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
             return None
 
     def _extract_latest_portfolio_data(
-        self, portfolio: dict[str, Any],
+        self,
+        portfolio: dict[str, Any],
     ) -> dict[str, Any] | None:
         """
         Extract latest data from portfolio for position sizing.
@@ -544,7 +557,6 @@ class PositionSizingStrategyEngine(StrategyExecutionEngine):
                 "integration_status": "active",
                 "last_updated": dashboard.last_updated.isoformat(),
             }
-
 
         except Exception as e:
             return {

@@ -78,7 +78,9 @@ class TestAdvancedStrategyIntegration:
 
     @stabilize_integration_test(tickers=["AAPL", "MSFT", "GOOGL"], timeout_override=45)
     def test_full_pipeline_data_to_export_integration(
-        self, integration_workspace, mock_strategy_factory,
+        self,
+        integration_workspace,
+        mock_strategy_factory,
     ):
         """
         Test complete pipeline: Data acquisition → Strategy execution → Portfolio generation → Export
@@ -169,7 +171,9 @@ class TestAdvancedStrategyIntegration:
 
             # Modify profile state
             editor_service.set_field_value(
-                loaded_profile, "config.ticker", "AAPL,MSFT,GOOGL",
+                loaded_profile,
+                "config.ticker",
+                "AAPL,MSFT,GOOGL",
             )
 
             # Save modified profile
@@ -182,7 +186,8 @@ class TestAdvancedStrategyIntegration:
         # Step 4: Test portfolio service with modified state
         mock_tickers = loaded_profile["config"]["ticker"]
         with patch.object(
-            portfolio_service, "aggregate_portfolios_best",
+            portfolio_service,
+            "aggregate_portfolios_best",
         ) as mock_aggregate:
             import pandas as pd
 
@@ -279,7 +284,8 @@ config:
 
     @pytest.mark.slow
     @stabilize_integration_test(
-        tickers=["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"], timeout_override=60,
+        tickers=["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"],
+        timeout_override=60,
     )
     def test_large_scale_integration_workflow(self, integration_workspace):
         """
@@ -307,7 +313,8 @@ config:
             years=2,  # Reduce for testing performance
             multi_ticker=True,
             minimums=StrategyMinimums(
-                win_rate=0.5, trades=20,
+                win_rate=0.5,
+                trades=20,
             ),  # Lower for more results
         )
 
@@ -356,10 +363,12 @@ config:
 
         # Step 1: Create multiple service instances with different states
         service1 = PortfolioAnalysisService(
-            str(integration_workspace), use_current=True,
+            str(integration_workspace),
+            use_current=True,
         )
         service2 = PortfolioAnalysisService(
-            str(integration_workspace), use_current=False,
+            str(integration_workspace),
+            use_current=False,
         )
 
         # Step 2: Create temporary files in workspace
@@ -425,7 +434,9 @@ class TestCrossComponentCommunication:
         }
 
         with patch.object(
-            config_manager.profile_manager, "load_profile", return_value=test_profile,
+            config_manager.profile_manager,
+            "load_profile",
+            return_value=test_profile,
         ):
             # Load profile through editor
             profile_data = editor_service.load_profile("test_profile")
@@ -435,7 +446,8 @@ class TestCrossComponentCommunication:
 
             # Use tickers in portfolio service
             with patch.object(
-                portfolio_service, "aggregate_portfolios_best",
+                portfolio_service,
+                "aggregate_portfolios_best",
             ) as mock_aggregate:
                 import pandas as pd
 

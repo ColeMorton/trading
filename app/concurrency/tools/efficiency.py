@@ -36,7 +36,9 @@ def calculate_strategy_efficiency(
 
         # Calculate independence using the improved formula
         independence = calculate_independence_factor(
-            exclusive_ratio, concurrent_ratio, inactive_ratio,
+            exclusive_ratio,
+            concurrent_ratio,
+            inactive_ratio,
         )
 
         # Log a warning if exclusive_ratio is 0, but we're still using a better
@@ -121,7 +123,9 @@ def calculate_portfolio_efficiency(
 
         # Calculate independence using the improved formula
         independence = calculate_independence_factor(
-            exclusive_ratio, concurrent_ratio, inactive_ratio,
+            exclusive_ratio,
+            concurrent_ratio,
+            inactive_ratio,
         )
 
         # Log a note if exclusive_ratio is 0, but we're still using a better
@@ -147,7 +151,8 @@ def calculate_portfolio_efficiency(
         log(f"Strategy efficiencies: {strategy_efficiencies}", "info")
         log(f"Strategy expectancies: {strategy_expectancies}", "info")
         log(
-            f"Using equal allocation: {equal_allocation:.6f} for all strategies", "info",
+            f"Using equal allocation: {equal_allocation:.6f} for all strategies",
+            "info",
         )
         log(f"Strategy risk contributions: {strategy_risk_contributions}", "info")
 
@@ -260,10 +265,12 @@ def calculate_portfolio_efficiency(
                     "info",
                 )
                 portfolio_efficiency = max(
-                    portfolio_efficiency, avg_strategy_efficiency * 0.5,
+                    portfolio_efficiency,
+                    avg_strategy_efficiency * 0.5,
                 )
                 log(
-                    f"Adjusted portfolio efficiency: {portfolio_efficiency:.6f}", "info",
+                    f"Adjusted portfolio efficiency: {portfolio_efficiency:.6f}",
+                    "info",
                 )
 
         # VALIDATION: Check expectancy calculation reasonableness
@@ -288,7 +295,9 @@ def calculate_portfolio_efficiency(
 
 
 def calculate_independence_factor(
-    exclusive_ratio: float, concurrent_ratio: float, inactive_ratio: float,
+    exclusive_ratio: float,
+    concurrent_ratio: float,
+    inactive_ratio: float,
 ) -> float:
     """Calculate an independence factor that provides a more nuanced measure of strategy independence.
 
@@ -319,7 +328,6 @@ def calculate_independence_factor(
         if (exclusive_proportion + concurrent_proportion) > 0
         else 0.1
     )
-
 
 
 def calculate_risk_factor(risk: float) -> float:

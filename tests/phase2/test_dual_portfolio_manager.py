@@ -57,7 +57,8 @@ class TestDualPortfolioManager:
 
         # Test invalid allocation percentage
         with pytest.raises(
-            ValueError, match="Allocation percentage must be between 0 and 100",
+            ValueError,
+            match="Allocation percentage must be between 0 and 100",
         ):
             self.manager.add_portfolio_holding("AAPL", PortfolioType.RISK_ON, 1000, 150)
 
@@ -153,10 +154,18 @@ class TestDualPortfolioManager:
         """Test portfolio summary calculation."""
         # Add holdings
         self.manager.add_portfolio_holding(
-            "AAPL", PortfolioType.RISK_ON, 5000, 10, risk_amount=250,
+            "AAPL",
+            PortfolioType.RISK_ON,
+            5000,
+            10,
+            risk_amount=250,
         )
         self.manager.add_portfolio_holding(
-            "TSLA", PortfolioType.RISK_ON, 7500, 15, risk_amount=375,
+            "TSLA",
+            PortfolioType.RISK_ON,
+            7500,
+            15,
+            risk_amount=375,
         )
         self.manager.add_portfolio_holding("SPY", PortfolioType.INVESTMENT, 15000, 50)
         self.manager.add_portfolio_holding("QQQ", PortfolioType.INVESTMENT, 10000, 33)
@@ -235,7 +244,11 @@ class TestDualPortfolioManager:
 
         # Add some holdings
         self.manager.add_portfolio_holding(
-            "AAPL", PortfolioType.RISK_ON, 5000, 10, risk_amount=250,
+            "AAPL",
+            PortfolioType.RISK_ON,
+            5000,
+            10,
+            risk_amount=250,
         )
         self.manager.add_portfolio_holding("SPY", PortfolioType.INVESTMENT, 15000, 50)
 

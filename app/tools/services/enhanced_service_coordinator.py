@@ -67,7 +67,8 @@ class PositionSizingOrchestrator:
         self.config = config
 
     async def calculate_position_sizing(
-        self, request: PositionSizingRequest,
+        self,
+        request: PositionSizingRequest,
     ) -> PositionSizingResponse:
         """Calculate position sizing."""
         # Basic position sizing logic
@@ -135,7 +136,8 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
         self.position_sizing_enabled = True
 
     async def analyze_strategy_with_position_sizing(
-        self, request: StrategyAnalysisRequest,
+        self,
+        request: StrategyAnalysisRequest,
     ) -> dict[str, Any]:
         """
         Execute strategy analysis with integrated position sizing calculations.
@@ -327,7 +329,9 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
         return result
 
     async def update_position_metrics(
-        self, symbol: str, updates: dict[str, Any],
+        self,
+        symbol: str,
+        updates: dict[str, Any],
     ) -> dict[str, Any]:
         """
         Update position metrics across all tracking systems.
@@ -361,7 +365,8 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
         return self.position_sizing.get_position_analysis(symbol)
 
     async def validate_excel_compatibility(
-        self, excel_data: dict[str, Any],
+        self,
+        excel_data: dict[str, Any],
     ) -> dict[str, Any]:
         """
         Validate position sizing calculations against Excel formulas.
@@ -426,7 +431,8 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
         }
 
     async def sync_with_strategy_results(
-        self, strategy_results: dict[str, Any],
+        self,
+        strategy_results: dict[str, Any],
     ) -> dict[str, Any]:
         """
         Synchronize position sizing with latest strategy analysis results.
@@ -460,7 +466,8 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
                 if latest_signal.get("position", 0) > 0:
                     # Calculate position sizing for new signal
                     ps_response = await self.calculate_position_size_for_signal(
-                        ticker, latest_signal,
+                        ticker,
+                        latest_signal,
                     )
 
                     sync_results["new_signals"].append(
@@ -484,4 +491,3 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
 # Backward compatibility alias
 class ServiceCoordinatorWithPositionSizing(EnhancedServiceCoordinator):
     """Backward compatibility alias for enhanced service coordinator."""
-

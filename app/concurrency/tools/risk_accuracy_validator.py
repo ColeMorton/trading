@@ -80,7 +80,9 @@ class RiskAccuracyValidator:
         }
 
     def validate_return_data(
-        self, returns_matrix: np.ndarray, strategy_names: list[str],
+        self,
+        returns_matrix: np.ndarray,
+        strategy_names: list[str],
     ) -> ValidationResult:
         """
         Validate return data quality for variance estimation.
@@ -336,7 +338,8 @@ class RiskAccuracyValidator:
             # Condition number quality score
             max_acceptable = thresholds["max_condition_number"]
             condition_quality = max(
-                0.0, 1.0 - min(1.0, condition_number / max_acceptable),
+                0.0,
+                1.0 - min(1.0, condition_number / max_acceptable),
             )
             quality_factors.append(condition_quality)
 
@@ -401,7 +404,9 @@ class RiskAccuracyValidator:
         )
 
     def validate_covariance_matrix(
-        self, cov_matrix: np.ndarray, strategy_names: list[str],
+        self,
+        cov_matrix: np.ndarray,
+        strategy_names: list[str],
     ) -> ValidationResult:
         """
         Validate covariance matrix properties for risk calculation.
@@ -489,7 +494,8 @@ class RiskAccuracyValidator:
                 min_eigenvalue / np.max(eigenvalues) if np.max(eigenvalues) > 0 else 0
             )
             eigenvalue_quality = min(
-                1.0, max(0.0, np.log10(eigenvalue_ratio) + 8) / 8,
+                1.0,
+                max(0.0, np.log10(eigenvalue_ratio) + 8) / 8,
             )  # Scale -8 to 0 -> 0 to 1
             quality_factors.append(eigenvalue_quality)
 
@@ -639,7 +645,8 @@ class RiskAccuracyValidator:
             )
         else:
             self.log(
-                f"Covariance matrix validation failed: {'; '.join(messages)}", "error",
+                f"Covariance matrix validation failed: {'; '.join(messages)}",
+                "error",
             )
 
         if warnings:
@@ -655,7 +662,9 @@ class RiskAccuracyValidator:
         )
 
     def validate_portfolio_weights(
-        self, weights: np.ndarray, strategy_names: list[str],
+        self,
+        weights: np.ndarray,
+        strategy_names: list[str],
     ) -> ValidationResult:
         """
         Validate portfolio weights for risk calculation.
@@ -759,7 +768,8 @@ class RiskAccuracyValidator:
 
         # Calculate quality score
         concentration_score = 1.0 - max(
-            0, (max_weight - 0.5) / 0.5,
+            0,
+            (max_weight - 0.5) / 0.5,
         )  # Penalize concentration > 50%
         sum_score = (
             1.0 if abs(weight_sum - 1.0) < 0.1 else 0.8
@@ -775,7 +785,8 @@ class RiskAccuracyValidator:
             )
         else:
             self.log(
-                f"Portfolio weights validation failed: {'; '.join(messages)}", "error",
+                f"Portfolio weights validation failed: {'; '.join(messages)}",
+                "error",
             )
 
         if warnings:
@@ -865,7 +876,8 @@ class RiskAccuracyValidator:
 
 
 def create_validator(
-    log: Callable[[str, str], None], validation_level: str = "strict",
+    log: Callable[[str, str], None],
+    validation_level: str = "strict",
 ) -> RiskAccuracyValidator:
     """
     Factory function to create a RiskAccuracyValidator with specified validation level.

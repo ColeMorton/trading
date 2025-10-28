@@ -216,10 +216,10 @@ def _transform_to_canonical_schema(
 
         # Determine target schema based on whether we have Metric Type
         if csv_data and "Metric Type" in csv_data[0]:
-            CANONICAL_COLUMN_NAMES = FilteredPortfolioSchema.get_column_names()
+            canonical_column_names = FilteredPortfolioSchema.get_column_names()
             target_schema_name = "FILTERED"
         else:
-            CANONICAL_COLUMN_NAMES = ExtendedPortfolioSchema.get_column_names()
+            canonical_column_names = ExtendedPortfolioSchema.get_column_names()
             target_schema_name = "EXTENDED"
     except ImportError:
         if log:
@@ -256,7 +256,7 @@ def _transform_to_canonical_schema(
         canonical_row = {}
 
         # Process each canonical column
-        for col_name in CANONICAL_COLUMN_NAMES:
+        for col_name in canonical_column_names:
             # Check for direct mapping
             if col_name in row:
                 # Direct mapping - column exists in source
@@ -273,14 +273,16 @@ def _transform_to_canonical_schema(
                 if not mapped:
                     # Apply transformation rules for missing columns
                     canonical_row[col_name] = _get_canonical_default_value(
-                        col_name, row, current_schema,
+                        col_name,
+                        row,
+                        current_schema,
                     )
 
         canonical_data.append(canonical_row)
 
     if log:
         log(
-            f"Successfully transformed data to {target_schema_name} schema with {len(CANONICAL_COLUMN_NAMES)} columns",
+            f"Successfully transformed data to {target_schema_name} schema with {len(canonical_column_names)} columns",
             "info",
         )
 
@@ -288,7 +290,9 @@ def _transform_to_canonical_schema(
 
 
 def _get_canonical_default_value(
-    column_name: str, source_row: dict[str, Any], source_schema: SchemaVersion,
+    column_name: str,
+    source_row: dict[str, Any],
+    source_schema: SchemaVersion,
 ) -> Any:
     """
     Get appropriate default value for a missing canonical column.

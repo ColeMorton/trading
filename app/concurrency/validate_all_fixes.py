@@ -239,13 +239,16 @@ def main():
                     "fixes_enabled": {
                         "USE_FIXED_RISK_CALC": config.get("USE_FIXED_RISK_CALC", False),
                         "USE_FIXED_EXPECTANCY_CALC": config.get(
-                            "USE_FIXED_EXPECTANCY_CALC", False,
+                            "USE_FIXED_EXPECTANCY_CALC",
+                            False,
                         ),
                         "USE_FIXED_WIN_RATE_CALC": config.get(
-                            "USE_FIXED_WIN_RATE_CALC", False,
+                            "USE_FIXED_WIN_RATE_CALC",
+                            False,
                         ),
                         "USE_FIXED_SIGNAL_PROC": config.get(
-                            "USE_FIXED_SIGNAL_PROC", False,
+                            "USE_FIXED_SIGNAL_PROC",
+                            False,
                         ),
                     },
                     "validations": dict(validations),

@@ -34,16 +34,20 @@ class ReportIncludeOptions(BaseModel):
     """Options for what to include in concurrency reports."""
 
     ticker_metrics: bool = Field(
-        default=True, description="Include ticker-level metrics in report",
+        default=True,
+        description="Include ticker-level metrics in report",
     )
     strategies: bool = Field(
-        default=True, description="Include detailed strategy information",
+        default=True,
+        description="Include detailed strategy information",
     )
     strategy_relationships: bool = Field(
-        default=True, description="Include strategy relationship analysis",
+        default=True,
+        description="Include strategy relationship analysis",
     )
     allocation: bool = Field(
-        default=True, description="Include allocation calculations and fields",
+        default=True,
+        description="Include allocation calculations and fields",
     )
 
 
@@ -63,7 +67,8 @@ class TradeHistoryConfig(BaseModel):
         description="Output format for trade history",
     )
     output_dir: Path | None = Field(
-        default=None, description="Output directory for trade history files",
+        default=None,
+        description="Output directory for trade history files",
     )
 
 
@@ -71,22 +76,28 @@ class MemoryOptimizationConfig(BaseModel):
     """Configuration for memory optimization features."""
 
     enable_memory_optimization: bool = Field(
-        default=False, description="Enable memory optimization features",
+        default=False,
+        description="Enable memory optimization features",
     )
     memory_threshold_mb: float = Field(
-        default=1000.0, description="Memory threshold for GC triggers (MB)",
+        default=1000.0,
+        description="Memory threshold for GC triggers (MB)",
     )
     streaming_threshold_mb: float = Field(
-        default=5.0, description="File size threshold for streaming (MB)",
+        default=5.0,
+        description="File size threshold for streaming (MB)",
     )
     enable_pooling: bool = Field(
-        default=True, description="Enable DataFrame object pooling",
+        default=True,
+        description="Enable DataFrame object pooling",
     )
     enable_monitoring: bool = Field(
-        default=True, description="Enable memory usage monitoring",
+        default=True,
+        description="Enable memory usage monitoring",
     )
     chunk_size_rows: int = Field(
-        default=10000, description="Chunk size for streaming operations",
+        default=10000,
+        description="Chunk size for streaming operations",
     )
 
 
@@ -94,7 +105,8 @@ class GeneralConfig(BaseModel):
     """General configuration settings for concurrency analysis."""
 
     portfolio: str = Field(
-        default="risk_on.csv", description="Portfolio filename (CSV or JSON)",
+        default="risk_on.csv",
+        description="Portfolio filename (CSV or JSON)",
     )
     base_dir: str = Field(
         default="",
@@ -102,17 +114,24 @@ class GeneralConfig(BaseModel):
     )
     refresh: bool = Field(default=True, description="Refresh cached market data")
     csv_use_hourly: bool = Field(
-        default=False, description="Use hourly timeframe for CSV strategies",
+        default=False,
+        description="Use hourly timeframe for CSV strategies",
     )
     sort_by: str = Field(default="score", description="Field to sort results by")
     ensure_counterpart: bool = Field(
-        default=True, description="Ensure strategy counterpart validation",
+        default=True,
+        description="Ensure strategy counterpart validation",
     )
     initial_value: float = Field(
-        default=10000.0, ge=0, description="Initial portfolio value for position sizing",
+        default=10000.0,
+        ge=0,
+        description="Initial portfolio value for position sizing",
     )
     target_var: float = Field(
-        default=0.05, ge=0, le=1, description="Target Value at Risk (VaR) threshold",
+        default=0.05,
+        ge=0,
+        le=1,
+        description="Target Value at Risk (VaR) threshold",
     )
 
     @field_validator("portfolio")
@@ -145,13 +164,18 @@ class RiskManagementConfig(BaseModel):
     """Risk management configuration settings."""
 
     max_risk_per_strategy: float = Field(
-        default=100.0, ge=0, description="Maximum risk percentage per strategy",
+        default=100.0,
+        ge=0,
+        description="Maximum risk percentage per strategy",
     )
     max_risk_total: float = Field(
-        default=100.0, ge=0, description="Maximum total portfolio risk percentage",
+        default=100.0,
+        ge=0,
+        description="Maximum total portfolio risk percentage",
     )
     risk_calculation_method: str = Field(
-        default="standard", description="Risk calculation method",
+        default="standard",
+        description="Risk calculation method",
     )
 
     @field_validator("risk_calculation_method")
@@ -170,7 +194,8 @@ class ConcurrencyConfig(BaseConfig):
 
     # General configuration
     general: GeneralConfig = Field(
-        default_factory=GeneralConfig, description="General configuration settings",
+        default_factory=GeneralConfig,
+        description="General configuration settings",
     )
 
     # Risk management
@@ -181,7 +206,8 @@ class ConcurrencyConfig(BaseConfig):
 
     # Execution and signal modes
     execution_mode: ExecutionMode = Field(
-        default=ExecutionMode.SAME_PERIOD, description="Signal execution timing mode",
+        default=ExecutionMode.SAME_PERIOD,
+        description="Signal execution timing mode",
     )
     signal_definition_mode: SignalDefinitionMode = Field(
         default=SignalDefinitionMode.COMPLETE_TRADE,
@@ -190,17 +216,20 @@ class ConcurrencyConfig(BaseConfig):
 
     # Portfolio allocation modes
     ratio_based_allocation: bool = Field(
-        default=False, description="Enable ratio-based allocation",
+        default=False,
+        description="Enable ratio-based allocation",
     )
 
     # Visualization
     visualization: bool = Field(
-        default=False, description="Enable visualization of results",
+        default=False,
+        description="Enable visualization of results",
     )
 
     # Report configuration
     report_includes: ReportIncludeOptions = Field(
-        default_factory=ReportIncludeOptions, description="Options for report content",
+        default_factory=ReportIncludeOptions,
+        description="Options for report content",
     )
 
     # Trade history export
@@ -310,28 +339,42 @@ class OptimizationConfig(BaseModel):
     """Configuration for strategy optimization features."""
 
     enable_optimization: bool = Field(
-        default=False, description="Enable strategy combination optimization",
+        default=False,
+        description="Enable strategy combination optimization",
     )
     min_strategies: int = Field(
-        default=3, ge=2, description="Minimum strategies per combination",
+        default=3,
+        ge=2,
+        description="Minimum strategies per combination",
     )
     max_permutations: int | None = Field(
-        default=None, gt=0, description="Maximum permutations to evaluate",
+        default=None,
+        gt=0,
+        description="Maximum permutations to evaluate",
     )
     enable_early_stopping: bool = Field(
-        default=True, description="Enable early stopping when convergence detected",
+        default=True,
+        description="Enable early stopping when convergence detected",
     )
     convergence_threshold: float = Field(
-        default=0.001, gt=0, description="Threshold for convergence detection",
+        default=0.001,
+        gt=0,
+        description="Threshold for convergence detection",
     )
     convergence_window: int = Field(
-        default=50, gt=0, description="Window size for convergence detection",
+        default=50,
+        gt=0,
+        description="Window size for convergence detection",
     )
     parallel_processing: bool = Field(
-        default=False, description="Enable parallel processing for optimization",
+        default=False,
+        description="Enable parallel processing for optimization",
     )
     max_workers: int = Field(
-        default=4, ge=1, le=16, description="Maximum worker threads/processes",
+        default=4,
+        ge=1,
+        le=16,
+        description="Maximum worker threads/processes",
     )
 
 
@@ -339,7 +382,8 @@ class RiskAnalysisConfig(BaseModel):
     """Configuration for Monte Carlo risk analysis."""
 
     enable_monte_carlo: bool = Field(
-        default=False, description="Enable Monte Carlo simulations",
+        default=False,
+        description="Enable Monte Carlo simulations",
     )
     n_simulations: int = Field(
         default=10000,
@@ -348,10 +392,14 @@ class RiskAnalysisConfig(BaseModel):
         description="Number of Monte Carlo simulations",
     )
     confidence_levels: list[float] = Field(
-        default=[95, 99], description="Confidence levels for risk metrics",
+        default=[95, 99],
+        description="Confidence levels for risk metrics",
     )
     horizon_days: int = Field(
-        default=252, ge=1, le=2520, description="Forecast horizon in trading days",
+        default=252,
+        ge=1,
+        le=2520,
+        description="Forecast horizon in trading days",
     )
     use_bootstrap: bool = Field(default=True, description="Use bootstrap resampling")
 
@@ -379,31 +427,43 @@ class ConcurrencyAnalysisConfig(ConcurrencyConfig):
         description="Correlation threshold for filtering strategies",
     )
     max_concurrent_positions: int | None = Field(
-        default=None, gt=0, description="Maximum number of concurrent positions",
+        default=None,
+        gt=0,
+        description="Maximum number of concurrent positions",
     )
 
     # Risk management
     max_portfolio_risk: float | None = Field(
-        default=None, gt=0, le=1, description="Maximum portfolio risk exposure",
+        default=None,
+        gt=0,
+        le=1,
+        description="Maximum portfolio risk exposure",
     )
     sector_concentration_limit: float | None = Field(
-        default=None, gt=0, le=1, description="Maximum concentration per sector",
+        default=None,
+        gt=0,
+        le=1,
+        description="Maximum concentration per sector",
     )
 
     # Analysis modes
     enable_correlation_filtering: bool = Field(
-        default=False, description="Enable correlation-based strategy filtering",
+        default=False,
+        description="Enable correlation-based strategy filtering",
     )
     enable_concurrency_limits: bool = Field(
-        default=False, description="Enable concurrency limit enforcement",
+        default=False,
+        description="Enable concurrency limit enforcement",
     )
     enable_risk_management: bool = Field(
-        default=False, description="Enable risk management rules",
+        default=False,
+        description="Enable risk management rules",
     )
 
     # Optimization configuration
     optimization: OptimizationConfig = Field(
-        default_factory=OptimizationConfig, description="Optimization configuration",
+        default_factory=OptimizationConfig,
+        description="Optimization configuration",
     )
 
     # Risk analysis configuration
@@ -415,10 +475,14 @@ class ConcurrencyAnalysisConfig(ConcurrencyConfig):
     # Performance settings
     enable_caching: bool = Field(default=False, description="Enable result caching")
     cache_ttl_hours: int = Field(
-        default=24, ge=1, le=168, description="Cache time-to-live in hours",
+        default=24,
+        ge=1,
+        le=168,
+        description="Cache time-to-live in hours",
     )
     enable_compression: bool = Field(
-        default=False, description="Enable data compression",
+        default=False,
+        description="Enable data compression",
     )
 
     @field_validator("correlation_threshold")

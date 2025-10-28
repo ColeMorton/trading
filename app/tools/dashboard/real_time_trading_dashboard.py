@@ -287,7 +287,8 @@ class RealTimeTradingDashboard:
 
                         for _, row in open_positions.iterrows():
                             position_id = row.get(
-                                "Position_UUID", f"pos_{len(current_positions)}",
+                                "Position_UUID",
+                                f"pos_{len(current_positions)}",
                             )
 
                             # Calculate current metrics
@@ -617,7 +618,10 @@ class RealTimeTradingDashboard:
                 await self._display_position_signal(position, signal, "🟢")
 
     async def _display_position_signal(
-        self, position: PositionSnapshot, signal: DashboardSignal, indicator: str,
+        self,
+        position: PositionSnapshot,
+        signal: DashboardSignal,
+        indicator: str,
     ) -> None:
         """Display a single position with its signal"""
         position_info = f"{indicator} {position.strategy_name}_{position.ticker}"
@@ -721,7 +725,8 @@ class RealTimeTradingDashboard:
 
         # Health score (0-100)
         base_health = min(
-            100, max(0, (avg_unrealized_pnl + 0.1) * 500),
+            100,
+            max(0, (avg_unrealized_pnl + 0.1) * 500),
         )  # Scale to 0-100
         confidence_bonus = avg_confidence * 20  # Up to 20 point bonus
 
@@ -733,7 +738,8 @@ class RealTimeTradingDashboard:
         return 0.82  # 82% efficiency
 
     async def _generate_position_recommendations(
-        self, position: PositionSnapshot,
+        self,
+        position: PositionSnapshot,
     ) -> list[str]:
         """Generate specific recommendations for a position"""
         recommendations = []
@@ -757,7 +763,8 @@ class RealTimeTradingDashboard:
         return recommendations
 
     async def _get_position_historical_context(
-        self, position: PositionSnapshot,
+        self,
+        position: PositionSnapshot,
     ) -> dict[str, Any]:
         """Get historical context for position"""
         return {

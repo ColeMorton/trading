@@ -87,7 +87,11 @@ def process_strategy_portfolios(
             )
             strategy_config["USE_SMA"] = True
             signal_data = calculate_ma_and_signals(
-                data.clone(), fast_period, slow_period, strategy_config, log,
+                data.clone(),
+                fast_period,
+                slow_period,
+                strategy_config,
+                log,
             )
 
         elif strategy_type == "EMA":
@@ -96,7 +100,11 @@ def process_strategy_portfolios(
             )
             strategy_config["USE_SMA"] = False
             signal_data = calculate_ma_and_signals(
-                data.clone(), fast_period, slow_period, strategy_config, log,
+                data.clone(),
+                fast_period,
+                slow_period,
+                strategy_config,
+                log,
             )
 
         elif strategy_type == "MACD":

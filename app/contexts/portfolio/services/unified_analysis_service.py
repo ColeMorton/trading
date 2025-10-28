@@ -120,7 +120,9 @@ class UnifiedAnalysisService:
                 self.log("Running SPDS analysis", "info")
 
                 spds_results = self._run_spds_analysis(
-                    portfolio_path, config_overrides, progress_callback,
+                    portfolio_path,
+                    config_overrides,
+                    progress_callback,
                 )
 
                 unified_results["spds_analysis"] = spds_results
@@ -134,9 +136,9 @@ class UnifiedAnalysisService:
 
             # Generate cross-system insights
             if len(unified_results["analysis_components"]) > 1:
-                unified_results[
-                    "cross_system_insights"
-                ] = self._generate_cross_system_insights(unified_results)
+                unified_results["cross_system_insights"] = (
+                    self._generate_cross_system_insights(unified_results)
+                )
 
             # Generate unified recommendations
             unified_results["recommendations"] = self._generate_unified_recommendations(
@@ -183,13 +185,16 @@ class UnifiedAnalysisService:
 
                 interaction_results["system_specific_results"]["concurrency"] = {
                     "correlation_matrix": concurrency_analysis.get(
-                        "correlation_matrix", {},
+                        "correlation_matrix",
+                        {},
                     ),
                     "efficiency_metrics": concurrency_analysis.get(
-                        "portfolio_efficiency", {},
+                        "portfolio_efficiency",
+                        {},
                     ),
                     "activity_periods": concurrency_analysis.get(
-                        "activity_periods", {},
+                        "activity_periods",
+                        {},
                     ),
                 }
 
@@ -202,10 +207,10 @@ class UnifiedAnalysisService:
 
             # Cross-system interaction analysis
             if len(interaction_results["system_specific_results"]) > 1:
-                interaction_results[
-                    "cross_system_analysis"
-                ] = self._analyze_cross_system_interactions(
-                    interaction_results["system_specific_results"],
+                interaction_results["cross_system_analysis"] = (
+                    self._analyze_cross_system_interactions(
+                        interaction_results["system_specific_results"],
+                    )
                 )
 
             return interaction_results
@@ -248,21 +253,24 @@ class UnifiedAnalysisService:
             # Analyze concurrency results
             if "concurrency_analysis" in analysis_results:
                 concurrency_recs = self._generate_concurrency_recommendations(
-                    analysis_results["concurrency_analysis"], criteria,
+                    analysis_results["concurrency_analysis"],
+                    criteria,
                 )
                 recommendations["recommendations"].extend(concurrency_recs)
 
             # Analyze SPDS results (placeholder)
             if "spds_analysis" in analysis_results:
                 spds_recs = self._generate_spds_recommendations(
-                    analysis_results["spds_analysis"], criteria,
+                    analysis_results["spds_analysis"],
+                    criteria,
                 )
                 recommendations["recommendations"].extend(spds_recs)
 
             # Cross-system recommendations
             if "cross_system_insights" in analysis_results:
                 cross_recs = self._generate_cross_system_recommendations(
-                    analysis_results["cross_system_insights"], criteria,
+                    analysis_results["cross_system_insights"],
+                    criteria,
                 )
                 recommendations["recommendations"].extend(cross_recs)
 
@@ -304,7 +312,8 @@ class UnifiedAnalysisService:
         }
 
     def _analyze_spds_interactions(
-        self, strategies: list[StrategyConfig],
+        self,
+        strategies: list[StrategyConfig],
     ) -> dict[str, Any]:
         """Analyze SPDS-based strategy interactions (placeholder)."""
         return {
@@ -314,7 +323,8 @@ class UnifiedAnalysisService:
         }
 
     def _generate_cross_system_insights(
-        self, unified_results: dict[str, Any],
+        self,
+        unified_results: dict[str, Any],
     ) -> dict[str, Any]:
         """Generate insights by combining results from multiple systems."""
         insights = {
@@ -347,7 +357,8 @@ class UnifiedAnalysisService:
         return insights
 
     def _analyze_cross_system_interactions(
-        self, system_results: dict[str, Any],
+        self,
+        system_results: dict[str, Any],
     ) -> dict[str, Any]:
         """Analyze interactions across different analysis systems."""
         return {
@@ -359,7 +370,8 @@ class UnifiedAnalysisService:
         # Placeholder for cross-system interaction analysis
 
     def _generate_unified_recommendations(
-        self, unified_results: dict[str, Any],
+        self,
+        unified_results: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Generate recommendations based on unified analysis results."""
         recommendations = []
@@ -407,7 +419,9 @@ class UnifiedAnalysisService:
         return recommendations
 
     def _generate_concurrency_recommendations(
-        self, concurrency_results: dict[str, Any], criteria: dict[str, Any],
+        self,
+        concurrency_results: dict[str, Any],
+        criteria: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Generate recommendations based on concurrency analysis."""
         recommendations = []
@@ -431,7 +445,9 @@ class UnifiedAnalysisService:
         return recommendations
 
     def _generate_spds_recommendations(
-        self, spds_results: dict[str, Any], criteria: dict[str, Any],
+        self,
+        spds_results: dict[str, Any],
+        criteria: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Generate recommendations based on SPDS analysis (placeholder)."""
         return [
@@ -444,7 +460,9 @@ class UnifiedAnalysisService:
         ]
 
     def _generate_cross_system_recommendations(
-        self, cross_insights: dict[str, Any], criteria: dict[str, Any],
+        self,
+        cross_insights: dict[str, Any],
+        criteria: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Generate recommendations based on cross-system insights."""
         recommendations = []

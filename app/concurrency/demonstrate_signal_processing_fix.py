@@ -158,13 +158,19 @@ def demonstrate_consistency_across_modules():
 
     # Method 2: Convenience function
     method2_raw = calculate_signal_count_standardized(
-        test_data, SignalType.RAW, signal_def,
+        test_data,
+        SignalType.RAW,
+        signal_def,
     )
     method2_filtered = calculate_signal_count_standardized(
-        test_data, SignalType.FILTERED, signal_def,
+        test_data,
+        SignalType.FILTERED,
+        signal_def,
     )
     method2_position = calculate_signal_count_standardized(
-        test_data, SignalType.POSITION, signal_def,
+        test_data,
+        SignalType.POSITION,
+        signal_def,
     )
 
     # Method 3: Legacy approach (manual counting)
@@ -214,13 +220,17 @@ def demonstrate_filtering_transparency():
     )
 
     signal_def = SignalDefinition(
-        min_volume=2000, rsi_column="RSI", rsi_oversold=30, rsi_overbought=70,
+        min_volume=2000,
+        rsi_column="RSI",
+        rsi_oversold=30,
+        rsi_overbought=70,
     )
 
     processor = SignalProcessor()
     raw_count = processor.count_raw_signals(filter_data, signal_def)
     filtered_count, filtered_df = processor.count_filtered_signals(
-        filter_data, signal_def,
+        filter_data,
+        signal_def,
     )
 
     print("Filtering Process Analysis:")

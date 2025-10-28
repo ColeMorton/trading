@@ -31,7 +31,9 @@ class CoverageReporter:
         self.analysis = {}
 
     def run_coverage_tests(
-        self, test_categories: list[str] | None = None, verbose: bool = False,
+        self,
+        test_categories: list[str] | None = None,
+        verbose: bool = False,
     ) -> dict:
         """
         Run tests with coverage collection.
@@ -281,7 +283,9 @@ class CoverageReporter:
         return analysis
 
     def generate_report(
-        self, output_file: str | None = None, format_type: str = "console",
+        self,
+        output_file: str | None = None,
+        format_type: str = "console",
     ) -> dict:
         """
         Generate comprehensive coverage report.
@@ -444,7 +448,10 @@ Examples:
         help="Skip running tests, use existing coverage data",
     )
     parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable verbose output",
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Enable verbose output",
     )
 
     args = parser.parse_args()
@@ -455,7 +462,8 @@ Examples:
         # Run tests with coverage (unless skipped)
         if not args.skip_tests:
             test_result = reporter.run_coverage_tests(
-                test_categories=args.categories, verbose=args.verbose,
+                test_categories=args.categories,
+                verbose=args.verbose,
             )
 
             if test_result.get("status") == "error":
@@ -464,7 +472,8 @@ Examples:
 
         # Generate report
         report = reporter.generate_report(
-            output_file=args.save, format_type=args.format,
+            output_file=args.save,
+            format_type=args.format,
         )
 
         if not report:

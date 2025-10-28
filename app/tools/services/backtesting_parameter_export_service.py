@@ -108,7 +108,8 @@ class BacktestingParameterExportService:
 
                 # Generate parameters for this strategy
                 strategy_params = await self._generate_strategy_parameters(
-                    result, confidence_level,
+                    result,
+                    confidence_level,
                 )
 
                 parameters_by_strategy[strategy_key] = strategy_params
@@ -130,7 +131,9 @@ class BacktestingParameterExportService:
             raise
 
     async def export_all_frameworks(
-        self, parameters_data: dict[str, Any], export_name: str,
+        self,
+        parameters_data: dict[str, Any],
+        export_name: str,
     ) -> dict[str, str]:
         """
         Export parameters to all supported backtesting frameworks
@@ -154,19 +157,22 @@ class BacktestingParameterExportService:
 
             # VectorBT export
             vectorbt_file = await self.export_vectorbt_parameters(
-                parameters_data, file_base,
+                parameters_data,
+                file_base,
             )
             exported_files["vectorbt"] = str(vectorbt_file)
 
             # Backtrader export
             backtrader_file = await self.export_backtrader_templates(
-                parameters_data, file_base,
+                parameters_data,
+                file_base,
             )
             exported_files["backtrader"] = str(backtrader_file)
 
             # Zipline export
             zipline_file = await self.export_zipline_templates(
-                parameters_data, file_base,
+                parameters_data,
+                file_base,
             )
             exported_files["zipline"] = str(zipline_file)
 
@@ -180,7 +186,8 @@ class BacktestingParameterExportService:
 
             # Parameter validation report
             validation_file = await self._generate_parameter_validation_report(
-                parameters_data, file_base,
+                parameters_data,
+                file_base,
             )
             exported_files["validation"] = str(validation_file)
 
@@ -193,7 +200,9 @@ class BacktestingParameterExportService:
             raise
 
     async def export_vectorbt_parameters(
-        self, parameters_data: dict[str, Any], file_base: str,
+        self,
+        parameters_data: dict[str, Any],
+        file_base: str,
     ) -> Path:
         """
         Export VectorBT-compatible parameter dictionary
@@ -219,7 +228,8 @@ class BacktestingParameterExportService:
                     "trailing_stop": params["trailing_stop_pct"] / 100,
                     "min_holding_days": params["min_holding_days"],
                     "momentum_exit_threshold": params.get(
-                        "momentum_exit_threshold", 0.02,
+                        "momentum_exit_threshold",
+                        0.02,
                     ),
                     "trend_exit_threshold": params.get("trend_exit_threshold", 0.015),
                     "confidence_level": params["confidence_level"],
@@ -229,7 +239,8 @@ class BacktestingParameterExportService:
 
             # Generate Python file content
             python_content = self._generate_vectorbt_python_file(
-                vectorbt_params, parameters_data["metadata"],
+                vectorbt_params,
+                parameters_data["metadata"],
             )
 
             with open(export_file, "w", encoding="utf-8") as f:
@@ -244,7 +255,9 @@ class BacktestingParameterExportService:
             raise
 
     async def export_backtrader_templates(
-        self, parameters_data: dict[str, Any], file_base: str,
+        self,
+        parameters_data: dict[str, Any],
+        file_base: str,
     ) -> Path:
         """
         Export Backtrader strategy class templates
@@ -261,7 +274,8 @@ class BacktestingParameterExportService:
 
             # Generate Backtrader template
             backtrader_content = self._generate_backtrader_template(
-                parameters_data["parameters"], parameters_data["metadata"],
+                parameters_data["parameters"],
+                parameters_data["metadata"],
             )
 
             with open(export_file, "w", encoding="utf-8") as f:
@@ -276,7 +290,9 @@ class BacktestingParameterExportService:
             raise
 
     async def export_zipline_templates(
-        self, parameters_data: dict[str, Any], file_base: str,
+        self,
+        parameters_data: dict[str, Any],
+        file_base: str,
     ) -> Path:
         """
         Export Zipline algorithm templates
@@ -293,7 +309,8 @@ class BacktestingParameterExportService:
 
             # Generate Zipline template
             zipline_content = self._generate_zipline_template(
-                parameters_data["parameters"], parameters_data["metadata"],
+                parameters_data["parameters"],
+                parameters_data["metadata"],
             )
 
             with open(export_file, "w", encoding="utf-8") as f:
@@ -308,7 +325,9 @@ class BacktestingParameterExportService:
             raise
 
     async def export_generic_csv(
-        self, parameters_data: dict[str, Any], file_base: str,
+        self,
+        parameters_data: dict[str, Any],
+        file_base: str,
     ) -> Path:
         """
         Export parameters to CSV format for batch backtesting
@@ -345,7 +364,8 @@ class BacktestingParameterExportService:
                     "StopLoss_Pct": params["stop_loss_pct"],
                     "MaxDays": params["max_holding_days"],
                     "MomentumExitThreshold": params.get(
-                        "momentum_exit_threshold", 0.02,
+                        "momentum_exit_threshold",
+                        0.02,
                     ),
                     "TrendExitThreshold": params.get("trend_exit_threshold", 0.015),
                     "TrailingStop_Pct": params["trailing_stop_pct"],
@@ -369,7 +389,9 @@ class BacktestingParameterExportService:
             raise
 
     async def export_generic_json(
-        self, parameters_data: dict[str, Any], file_base: str,
+        self,
+        parameters_data: dict[str, Any],
+        file_base: str,
     ) -> Path:
         """
         Export parameters to JSON format
@@ -416,7 +438,9 @@ class BacktestingParameterExportService:
     # Parameter generation methods
 
     async def _generate_strategy_parameters(
-        self, analysis_result: StatisticalAnalysisResult, confidence_level: float,
+        self,
+        analysis_result: StatisticalAnalysisResult,
+        confidence_level: float,
     ) -> dict[str, Any]:
         """Generate deterministic parameters for a single strategy"""
 
@@ -496,10 +520,13 @@ class BacktestingParameterExportService:
 
             # Set dynamic exit signal thresholds based on statistical analysis
             momentum_exit_threshold = self._calculate_momentum_exit_threshold(
-                returns_data, durations_data, performance_metrics,
+                returns_data,
+                durations_data,
+                performance_metrics,
             )
             trend_exit_threshold = self._calculate_trend_exit_threshold(
-                returns_data, performance_metrics,
+                returns_data,
+                performance_metrics,
             )
 
             self.logger.debug(
@@ -513,7 +540,8 @@ class BacktestingParameterExportService:
 
             # Calculate statistical minimum from volatility analysis
             min_holding_days = self._calculate_statistical_min_days(
-                performance_metrics=performance_metrics, returns_data=returns_data,
+                performance_metrics=performance_metrics,
+                returns_data=returns_data,
             )
 
             # Calculate statistical maximum from strategy performance metrics
@@ -557,10 +585,12 @@ class BacktestingParameterExportService:
                 )
                 base_win_rate = 0.5  # Neutral baseline
                 performance_factor = min(
-                    0.3, performance_metrics["current_return"] * 2,
+                    0.3,
+                    performance_metrics["current_return"] * 2,
                 )  # Cap at 30% adjustment
                 strategy_metrics["win_rate"] = min(
-                    max_win_rate, base_win_rate + performance_factor,
+                    max_win_rate,
+                    base_win_rate + performance_factor,
                 )
 
             # MFE/MAE ratio
@@ -601,7 +631,9 @@ class BacktestingParameterExportService:
 
         # Calculate trailing stop with strategy-specific adjustments
         trailing_stop_pct = self._calculate_optimal_trailing_stop(
-            returns_data, confidence_level, strategy_metrics,
+            returns_data,
+            confidence_level,
+            strategy_metrics,
         )
 
         self.logger.debug(
@@ -617,7 +649,8 @@ class BacktestingParameterExportService:
             "max_holding_days": max_holding_days,  # Statistical failsafe maximum
             "min_holding_days": min_holding_days,
             "trailing_stop_pct": round(
-                trailing_stop_pct * 100, 2,
+                trailing_stop_pct * 100,
+                2,
             ),  # 2 decimal precision
             "confidence_level": confidence_level,
             "sample_size": sample_size,
@@ -660,7 +693,8 @@ class BacktestingParameterExportService:
         if mfe > 0 and mae > 0:
             # Create distribution using percentile model instead of arbitrary multipliers
             percentiles = self.statistical_models.get("percentile_model", {}).get(
-                "percentiles", [25, 50, 75, 90],
+                "percentiles",
+                [25, 50, 75, 90],
             )
             mfe_percentiles = [
                 mfe * (p / 100) for p in percentiles
@@ -753,7 +787,10 @@ class BacktestingParameterExportService:
         return base_durations
 
     def _calculate_real_atr_from_equity_curve(
-        self, strategy_name: str, ticker: str, period: int = 14,
+        self,
+        strategy_name: str,
+        ticker: str,
+        period: int = 14,
     ) -> float | None:
         """Calculate real ATR from equity curve data and corresponding price data"""
 
@@ -1015,7 +1052,8 @@ class BacktestingParameterExportService:
 
         # Return with 2 decimal precision as requested
         return round(
-            constrained_stop, 4,
+            constrained_stop,
+            4,
         )  # 4 decimal internal precision for calculations
 
     def _calculate_optimal_exit_levels(
@@ -1088,7 +1126,8 @@ class BacktestingParameterExportService:
                 # VaR-based stop loss using statistical model
                 confidence_model = self.statistical_models.get("confidence_model", {})
                 var_percentiles = confidence_model.get(
-                    "confidence_levels", [0.95, 0.99],
+                    "confidence_levels",
+                    [0.95, 0.99],
                 )
 
                 var_95 = np.percentile(returns_array, (1 - var_percentiles[0]) * 100)
@@ -1135,7 +1174,8 @@ class BacktestingParameterExportService:
             if volatility > high_vol_threshold:
                 # High volatility: Scale based on actual volatility level
                 vol_multiplier = min(
-                    1.5, volatility / high_vol_threshold,
+                    1.5,
+                    volatility / high_vol_threshold,
                 )  # Cap multiplier
                 take_profit *= 1.0 + vol_multiplier * 0.2  # Dynamic scaling
                 stop_loss *= 1.0 + vol_multiplier * 0.15  # Dynamic scaling
@@ -1186,7 +1226,8 @@ class BacktestingParameterExportService:
             elif current_return < poor_performance:
                 # Poor performance: Need tighter risk control
                 performance_factor = min(
-                    1.5, abs(current_return) / abs(poor_performance),
+                    1.5,
+                    abs(current_return) / abs(poor_performance),
                 )
                 take_profit *= 1.0 - performance_factor * 0.03  # Max 6% reduction
                 stop_loss *= 1.0 - performance_factor * 0.08  # Max 12% tightening
@@ -1216,7 +1257,8 @@ class BacktestingParameterExportService:
         # Final safety check using statistical relationship
         if stop_loss >= take_profit:
             stop_loss = round(
-                take_profit / min_ratio, 4,
+                take_profit / min_ratio,
+                4,
             )  # Use minimum ratio instead of arbitrary 0.6
 
         return take_profit, stop_loss
@@ -1296,12 +1338,14 @@ class BacktestingParameterExportService:
         # Calculate duration thresholds based on market characteristics
         # Short-term: Noise decay period (statistical significance)
         short_term_days = max(
-            5, int(7 / vol_adjustment),
+            5,
+            int(7 / vol_adjustment),
         )  # Inverse volatility relationship
 
         # Long-term: Trend exhaustion period (momentum decay)
         long_term_days = max(
-            30, int(50 / vol_adjustment),
+            30,
+            int(50 / vol_adjustment),
         )  # Inverse volatility relationship
 
         # Optimal range based on statistical analysis of market cycles
@@ -1437,7 +1481,9 @@ class BacktestingParameterExportService:
             return 0.02
 
     def _calculate_trend_exit_threshold(
-        self, returns_data: list[float], performance_metrics: dict[str, Any],
+        self,
+        returns_data: list[float],
+        performance_metrics: dict[str, Any],
     ) -> float:
         """
         Calculate dynamic trend exit threshold based on trend strength analysis
@@ -1467,7 +1513,9 @@ class BacktestingParameterExportService:
                 if i > window_size:
                     prev_window = returns_array[i - window_size - 1 : i - 1]
                     prev_slope, _ = np.polyfit(
-                        np.arange(len(prev_window)), prev_window, 1,
+                        np.arange(len(prev_window)),
+                        prev_window,
+                        1,
                     )
 
                     trend_change = abs(slope - prev_slope)
@@ -1559,7 +1607,8 @@ class BacktestingParameterExportService:
                 # Make volatility strategy-specific using sample size and current return
                 base_volatility = abs(current_return) * 0.5
                 sample_factor = max(
-                    0.5, min(2.0, sample_size / 5000),
+                    0.5,
+                    min(2.0, sample_size / 5000),
                 )  # Normalize around 5000 samples
                 volatility = base_volatility * sample_factor
 
@@ -1621,7 +1670,6 @@ class BacktestingParameterExportService:
             normalized = (data_array - mean) / std
             return np.mean(normalized**3)
 
-
         except Exception:
             return 0.0
 
@@ -1658,7 +1706,8 @@ class BacktestingParameterExportService:
         }
 
     def _assess_parameter_validity(
-        self, analysis_result: StatisticalAnalysisResult,
+        self,
+        analysis_result: StatisticalAnalysisResult,
     ) -> str:
         """Assess the validity level of generated parameters using dynamic thresholds"""
         sample_size = analysis_result.sample_size
@@ -1679,7 +1728,9 @@ class BacktestingParameterExportService:
     # Template generation methods
 
     def _generate_vectorbt_python_file(
-        self, parameters: dict[str, Any], metadata: dict[str, Any],
+        self,
+        parameters: dict[str, Any],
+        metadata: dict[str, Any],
     ) -> str:
         """Generate VectorBT-compatible Python file"""
 
@@ -1749,9 +1800,10 @@ framework_compatibility = {{
 }}
 '''
 
-
     def _generate_backtrader_template(
-        self, parameters: dict[str, Any], metadata: dict[str, Any],
+        self,
+        parameters: dict[str, Any],
+        metadata: dict[str, Any],
     ) -> str:
         """Generate Backtrader strategy class template"""
 
@@ -1873,9 +1925,10 @@ def create_strategy(strategy_key):
     return strategy_registry[strategy_key]
 '''
 
-
     def _generate_zipline_template(
-        self, parameters: dict[str, Any], metadata: dict[str, Any],
+        self,
+        parameters: dict[str, Any],
+        metadata: dict[str, Any],
     ) -> str:
         """Generate Zipline algorithm template"""
 
@@ -1995,9 +2048,10 @@ def reset_position_tracking(context):
     context.days_held = 0
 '''
 
-
     async def _generate_parameter_validation_report(
-        self, parameters_data: dict[str, Any], file_base: str,
+        self,
+        parameters_data: dict[str, Any],
+        file_base: str,
     ) -> Path:
         """Generate parameter validation report"""
         report_file = self.export_base_path / f"{file_base}_validation_report.md"
@@ -2093,7 +2147,9 @@ These parameters have limited statistical support. Not recommended for productio
         return report_file
 
     async def export_backtesting_parameters(
-        self, results_list: list[StatisticalAnalysisResult], portfolio: str,
+        self,
+        results_list: list[StatisticalAnalysisResult],
+        portfolio: str,
     ) -> dict[str, str]:
         """
         Export backtesting parameters from statistical analysis results
@@ -2112,12 +2168,15 @@ These parameters have limited statistical support. Not recommended for productio
 
             # Generate deterministic parameters
             parameters_data = await self.generate_deterministic_parameters(
-                results_list, confidence_level=0.90, export_name=portfolio,
+                results_list,
+                confidence_level=0.90,
+                export_name=portfolio,
             )
 
             # Export to all frameworks
             exported_files = await self.export_all_frameworks(
-                parameters_data, portfolio,
+                parameters_data,
+                portfolio,
             )
 
             self.logger.info(

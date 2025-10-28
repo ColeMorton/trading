@@ -39,11 +39,14 @@ class ConversionCache:
             key_data = f"polars_{df.shape}_{sorted(df.columns)}_{target_type}"
 
         return hashlib.md5(
-            key_data.encode(), usedforsecurity=False,
+            key_data.encode(),
+            usedforsecurity=False,
         ).hexdigest()  # nosec B324
 
     def get(
-        self, df: pd.DataFrame | pl.DataFrame, target_type: str,
+        self,
+        df: pd.DataFrame | pl.DataFrame,
+        target_type: str,
     ) -> pd.DataFrame | pl.DataFrame | None:
         """Get cached conversion if available."""
         key = self._generate_key(df, target_type)
@@ -196,7 +199,9 @@ class DataConverter:
         raise TypeError(msg)
 
     def to_polars(
-        self, df: pd.DataFrame | pl.DataFrame | pl.LazyFrame, lazy: bool = False,
+        self,
+        df: pd.DataFrame | pl.DataFrame | pl.LazyFrame,
+        lazy: bool = False,
     ) -> pl.DataFrame | pl.LazyFrame:
         """
         Convert DataFrame to Polars format.
@@ -451,7 +456,8 @@ def to_pandas(df: pd.DataFrame | pl.DataFrame | pl.LazyFrame) -> pd.DataFrame:
 
 
 def to_polars(
-    df: pd.DataFrame | pl.DataFrame, lazy: bool = False,
+    df: pd.DataFrame | pl.DataFrame,
+    lazy: bool = False,
 ) -> pl.DataFrame | pl.LazyFrame:
     """Convert any DataFrame to Polars format."""
     converter = DataConverter()

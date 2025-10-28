@@ -203,7 +203,8 @@ def log_configuration_validation(config: dict[str, Any], log_func):
         metric_type = equity_config.get("METRIC", "mean")
 
         log_func(
-            f"Equity data export: {'ENABLED' if export_enabled else 'DISABLED'}", "info",
+            f"Equity data export: {'ENABLED' if export_enabled else 'DISABLED'}",
+            "info",
         )
         if export_enabled:
             log_func(f"Equity metric selection: {metric_type}", "info")

@@ -100,7 +100,9 @@ class TestCOMPStrategyService:
         assert legacy_config_2d.get("USE_2DAY") is True
 
     def test_convert_config_to_legacy_multiple_tickers(
-        self, comp_service, base_comp_config,
+        self,
+        comp_service,
+        base_comp_config,
     ):
         """Test config conversion with multiple tickers."""
         config = base_comp_config
@@ -112,7 +114,10 @@ class TestCOMPStrategyService:
 
     @patch("app.cli.services.strategy_services.importlib")
     def test_execute_strategy_success(
-        self, mock_importlib, comp_service, base_comp_config,
+        self,
+        mock_importlib,
+        comp_service,
+        base_comp_config,
     ):
         """Test successful strategy execution."""
         # Mock the COMP strategy module
@@ -140,7 +145,11 @@ class TestCOMPStrategyService:
     @patch("app.cli.services.strategy_services.importlib")
     @patch("app.cli.services.strategy_services.rprint")
     def test_execute_strategy_missing_csv(
-        self, mock_rprint, mock_importlib, comp_service, base_comp_config,
+        self,
+        mock_rprint,
+        mock_importlib,
+        comp_service,
+        base_comp_config,
     ):
         """Test execution when component CSV file is missing."""
         # Mock the COMP strategy module to simulate missing CSV
@@ -160,7 +169,11 @@ class TestCOMPStrategyService:
     @patch("app.cli.services.strategy_services.importlib")
     @patch("app.cli.services.strategy_services.rprint")
     def test_execute_strategy_import_error(
-        self, mock_rprint, mock_importlib, comp_service, base_comp_config,
+        self,
+        mock_rprint,
+        mock_importlib,
+        comp_service,
+        base_comp_config,
     ):
         """Test strategy execution handles import failures gracefully."""
         # Mock import failure

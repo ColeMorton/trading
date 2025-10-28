@@ -15,15 +15,18 @@ class SchemaConfig(BaseConfig):
     """Configuration for schema operations."""
 
     file_path: str | None = Field(
-        None, description="Path to file for schema detection/conversion",
+        None,
+        description="Path to file for schema detection/conversion",
     )
     target_schema: str = Field(
-        "extended", description="Target schema type: base, extended, filtered",
+        "extended",
+        description="Target schema type: base, extended, filtered",
     )
     validate_only: bool = Field(False, description="Only validate, don't convert")
     strict_mode: bool = Field(True, description="Strict validation mode")
     output_file: str | None = Field(
-        None, description="Output file path for conversions",
+        None,
+        description="Output file path for conversions",
     )
 
 
@@ -31,16 +34,19 @@ class ValidationConfig(BaseConfig):
     """Configuration for data validation."""
 
     file_paths: list[str] = Field(
-        default_factory=list, description="List of file paths to validate",
+        default_factory=list,
+        description="List of file paths to validate",
     )
     directory: str | None = Field(
-        None, description="Directory to validate all CSV files",
+        None,
+        description="Directory to validate all CSV files",
     )
     schema_validation: bool = Field(True, description="Enable schema validation")
     data_validation: bool = Field(True, description="Enable data content validation")
     strict_mode: bool = Field(False, description="Strict validation mode")
     output_format: str = Field(
-        "table", description="Output format: table, json, summary",
+        "table",
+        description="Output format: table, json, summary",
     )
     save_report: str | None = Field(None, description="Save validation report to file")
 
@@ -52,7 +58,8 @@ class ExportMADataConfig(BaseConfig):
     period: int = Field(..., description="Moving average period", gt=0)
     ma_type: Literal["SMA", "EMA"] = Field("SMA", description="Moving average type")
     output_dir: str | None = Field(
-        None, description="Custom output directory (default: data/raw/ma_cross/prices/)",
+        None,
+        description="Custom output directory (default: data/raw/ma_cross/prices/)",
     )
 
     @field_validator("ticker")
@@ -81,21 +88,25 @@ class ExportMADataSweepConfig(BaseConfig):
     """Configuration for moving average data export sweep analysis."""
 
     tickers: list[str] = Field(
-        ..., description="List of ticker symbols (e.g., ['AAPL', 'BTC-USD'])",
+        ...,
+        description="List of ticker symbols (e.g., ['AAPL', 'BTC-USD'])",
     )
     period_min: int = Field(..., description="Minimum MA period for sweep", gt=0)
     period_max: int = Field(..., description="Maximum MA period for sweep", gt=0)
     period_step: int = Field(1, description="Step size for period sweep", gt=0)
     ma_type: Literal["SMA", "EMA"] = Field("SMA", description="Moving average type")
     output_dir: str | None = Field(
-        None, description="Custom output directory (default: data/raw/ma_cross/prices/)",
+        None,
+        description="Custom output directory (default: data/raw/ma_cross/prices/)",
     )
     show_stats: bool = Field(True, description="Display analytics for each export")
     stats_format: str = Field(
-        "table", description="Statistics format: table, summary, json",
+        "table",
+        description="Statistics format: table, summary, json",
     )
     period_detail: str = Field(
-        "none", description="Period analysis detail: none, compact, summary, full",
+        "none",
+        description="Period analysis detail: none, compact, summary, full",
     )
 
     @field_validator("tickers")
@@ -175,6 +186,7 @@ class HealthConfig(BaseConfig):
     check_config: bool = Field(True, description="Check configuration validity")
     check_performance: bool = Field(False, description="Run performance checks")
     output_format: str = Field(
-        "table", description="Output format: table, json, summary",
+        "table",
+        description="Output format: table, json, summary",
     )
     save_report: str | None = Field(None, description="Save health report to file")

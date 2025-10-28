@@ -73,7 +73,10 @@ def analyze_stop_loss_parameters(
         baseline_config = {**config, "STOP_LOSS": None}
         baseline_portfolio = backtest_strategy(data_with_signals, baseline_config, log)
         baseline_stats = convert_stats(
-            baseline_portfolio.stats(), log, baseline_config, None,
+            baseline_portfolio.stats(),
+            log,
+            baseline_config,
+            None,
         )
 
         # Store baseline metrics
@@ -87,11 +90,13 @@ def analyze_stop_loss_parameters(
             "sortino": float(baseline_stats.get("Sortino Ratio", 0)),
             "beats_bnh": float(baseline_stats.get("Beats BNH [%]", 0)),
             "avg_trade_duration": float(
-                baseline_stats.get("Avg Trade Duration", "0")
-                .replace(" days", "")
-                .split()[0]
-                if isinstance(baseline_stats.get("Avg Trade Duration"), str)
-                else 0,
+                (
+                    baseline_stats.get("Avg Trade Duration", "0")
+                    .replace(" days", "")
+                    .split()[0]
+                    if isinstance(baseline_stats.get("Avg Trade Duration"), str)
+                    else 0
+                ),
             ),
             "trades_per_day": float(baseline_stats.get("Trades Per Day", 0)),
         }
@@ -133,11 +138,13 @@ def analyze_stop_loss_parameters(
             "sortino": float(converted_stats.get("Sortino Ratio", 0)),
             "beats_bnh": float(converted_stats.get("Beats BNH [%]", 0)),
             "avg_trade_duration": float(
-                converted_stats.get("Avg Trade Duration", "0")
-                .replace(" days", "")
-                .split()[0]
-                if isinstance(converted_stats.get("Avg Trade Duration"), str)
-                else 0,
+                (
+                    converted_stats.get("Avg Trade Duration", "0")
+                    .replace(" days", "")
+                    .split()[0]
+                    if isinstance(converted_stats.get("Avg Trade Duration"), str)
+                    else 0
+                ),
             ),
             "trades_per_day": float(converted_stats.get("Trades Per Day", 0)),
         }
@@ -229,7 +236,8 @@ def analyze_stop_loss_parameters(
 
     # Export portfolios
     export_config = ExportConfig(
-        BASE_DIR=config["BASE_DIR"], TICKER=config.get("TICKER"),
+        BASE_DIR=config["BASE_DIR"],
+        TICKER=config.get("TICKER"),
     )
     export_csv(portfolios, "ma_cross", export_config, "stop_loss", filename)
 

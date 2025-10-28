@@ -119,7 +119,11 @@ class TradeHistoryService:
                         current_excursion,
                         error_msg,
                     ) = self._calculate_position_metrics(
-                        ticker, entry_date, entry_price, direction, verbose,
+                        ticker,
+                        entry_date,
+                        entry_price,
+                        direction,
+                        verbose,
                     )
 
                     if mfe is not None and mae is not None:
@@ -147,7 +151,10 @@ class TradeHistoryService:
 
                         # Assess trade quality
                         trade_quality = self._assess_trade_quality(
-                            mfe, mae, verbose, ticker,
+                            mfe,
+                            mae,
+                            verbose,
+                            ticker,
                         )
                         df.loc[idx, "Trade_Quality"] = trade_quality
 
@@ -302,7 +309,12 @@ class TradeHistoryService:
                         current_excursion,
                         mfe_mae_error,
                     ) = self._calculate_position_metrics_comprehensive(
-                        ticker, entry_date, entry_price, direction, exit_date, verbose,
+                        ticker,
+                        entry_date,
+                        entry_price,
+                        direction,
+                        exit_date,
+                        verbose,
                     )
 
                     # Step 2: Use PositionCalculator for comprehensive refresh
@@ -440,7 +452,9 @@ class TradeHistoryService:
             }
 
     def _validate_all_calculations(
-        self, df: pd.DataFrame, verbose: bool = False,
+        self,
+        df: pd.DataFrame,
+        verbose: bool = False,
     ) -> dict[str, Any]:
         """
         Validate calculations for all positions in the DataFrame.
@@ -469,7 +483,9 @@ class TradeHistoryService:
                     ticker = position.get("Ticker", "Unknown")
 
                     validation_result = calculator.validate_calculation_consistency(
-                        position_data, tolerance_pnl=0.01, tolerance_return=0.0001,
+                        position_data,
+                        tolerance_pnl=0.01,
+                        tolerance_return=0.0001,
                     )
 
                     if not validation_result.get("valid", True):
@@ -528,7 +544,10 @@ class TradeHistoryService:
             }
 
     def _refresh_price_data(
-        self, tickers: list, earliest_date: str | None = None, verbose: bool = False,
+        self,
+        tickers: list,
+        earliest_date: str | None = None,
+        verbose: bool = False,
     ) -> None:
         """
         Force refresh price data for the given tickers.
@@ -650,7 +669,8 @@ class TradeHistoryService:
             # For closed positions, limit data to exit date
             if exit_date:
                 exit_date = pd.to_datetime(
-                    exit_date, format="mixed",
+                    exit_date,
+                    format="mixed",
                 ).date()  # Convert to date only
                 entry_date_only = entry_date.date()  # Convert to date only
                 # Filter by date comparison
@@ -881,7 +901,9 @@ class TradeHistoryService:
         )
 
     def list_positions(
-        self, portfolio_name: str, status_filter: str | None = None,
+        self,
+        portfolio_name: str,
+        status_filter: str | None = None,
     ) -> list[dict[str, Any]]:
         """Delegate position listing to unified PositionService."""
         return self.position_service.list_positions(portfolio_name, status_filter)

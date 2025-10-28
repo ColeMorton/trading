@@ -40,7 +40,9 @@ class TestIntegrationDemonstration:
         }
 
         with patch.object(
-            config_manager.profile_manager, "load_profile", return_value=test_profile,
+            config_manager.profile_manager,
+            "load_profile",
+            return_value=test_profile,
         ):
             # Load through editor service
             profile_data = editor_service.load_profile("integration_test")
@@ -50,7 +52,8 @@ class TestIntegrationDemonstration:
 
             # Use in portfolio service
             with patch.object(
-                portfolio_service, "aggregate_portfolios_best",
+                portfolio_service,
+                "aggregate_portfolios_best",
             ) as mock_agg:
                 import pandas as pd
 
@@ -227,7 +230,9 @@ class TestErrorHandlingDemonstration:
         # Test numeric validation
         with pytest.raises(ValueError, match="win_rate must be between 0 and 1"):
             editor_service.set_field_value(
-                test_profile, "config.minimums.win_rate", "1.5",
+                test_profile,
+                "config.minimums.win_rate",
+                "1.5",
             )
 
         with pytest.raises(ValueError, match="trades must be non-negative"):
@@ -397,7 +402,9 @@ class TestAdvancedTestingPatterns:
         )
 
         with patch.object(
-            service, "aggregate_portfolios_best", return_value=large_data,
+            service,
+            "aggregate_portfolios_best",
+            return_value=large_data,
         ):
             start_time = time.time()
 

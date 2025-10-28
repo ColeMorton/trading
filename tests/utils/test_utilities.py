@@ -132,7 +132,9 @@ class MockDataFactory:
 
     @staticmethod
     def create_multi_ticker_results(
-        tickers: list[str], strategy_types: list[str], results_per_combination: int = 3,
+        tickers: list[str],
+        strategy_types: list[str],
+        results_per_combination: int = 3,
     ) -> pl.DataFrame:
         """Create multi-ticker, multi-strategy results."""
         all_results = []
@@ -462,7 +464,8 @@ class ExportValidator:
 
     @staticmethod
     def validate_metric_type_preservation(
-        df: pl.DataFrame, expected_metric_types: list[str],
+        df: pl.DataFrame,
+        expected_metric_types: list[str],
     ):
         """Validate that metric types are preserved correctly."""
         if "Metric Type" not in df.columns:
@@ -548,7 +551,10 @@ class ConfigBuilder:
         return self
 
     def with_minimums(
-        self, win_rate: float = 0.5, trades: int = 20, profit_factor: float = 1.0,
+        self,
+        win_rate: float = 0.5,
+        trades: int = 20,
+        profit_factor: float = 1.0,
     ):
         """Add minimum criteria."""
         self.config["minimums"] = {
@@ -644,7 +650,9 @@ class AssertionHelpers:
 
     @staticmethod
     def assert_export_file_naming_convention(
-        file_path: Path, ticker: str, strategy: str | None = None,
+        file_path: Path,
+        ticker: str,
+        strategy: str | None = None,
     ):
         """Assert export file follows naming convention."""
         filename = file_path.name
@@ -685,11 +693,14 @@ class AssertionHelpers:
 
     @staticmethod
     def assert_cli_command_failure(
-        result, expected_error_messages: list[str] | None = None,
+        result,
+        expected_error_messages: list[str] | None = None,
     ):
         """Assert CLI command failed appropriately."""
         if result.exit_code == 0:
-            msg = f"CLI command should have failed but succeeded. Output: {result.stdout}"
+            msg = (
+                f"CLI command should have failed but succeeded. Output: {result.stdout}"
+            )
             raise AssertionError(
                 msg,
             )
@@ -705,7 +716,9 @@ class AssertionHelpers:
 
     @staticmethod
     def assert_dataframe_equals_with_tolerance(
-        df1: pl.DataFrame, df2: pl.DataFrame, tolerance: float = 1e-6,
+        df1: pl.DataFrame,
+        df2: pl.DataFrame,
+        tolerance: float = 1e-6,
     ):
         """Assert DataFrames are equal with numerical tolerance."""
         if df1.shape != df2.shape:
@@ -737,7 +750,9 @@ class AssertionHelpers:
     def assert_performance_within_bounds(execution_time: float, max_time: float):
         """Assert execution time is within performance bounds."""
         if execution_time > max_time:
-            msg = f"Execution time {execution_time:.2f}s exceeds maximum {max_time:.2f}s"
+            msg = (
+                f"Execution time {execution_time:.2f}s exceeds maximum {max_time:.2f}s"
+            )
             raise AssertionError(
                 msg,
             )
@@ -760,7 +775,8 @@ def create_test_workspace() -> Path:
     # Create expected directories
     (temp_dir / "data" / "raw" / "portfolios").mkdir(parents=True, exist_ok=True)
     (temp_dir / "data" / "raw" / "portfolios_filtered").mkdir(
-        parents=True, exist_ok=True,
+        parents=True,
+        exist_ok=True,
     )
     (temp_dir / "data" / "raw" / "portfolios_best").mkdir(parents=True, exist_ok=True)
     (temp_dir / "app" / "cli" / "profiles").mkdir(parents=True, exist_ok=True)
@@ -769,7 +785,9 @@ def create_test_workspace() -> Path:
 
 
 def create_test_profile(
-    workspace: Path, profile_name: str, config_builder: ConfigBuilder,
+    workspace: Path,
+    profile_name: str,
+    config_builder: ConfigBuilder,
 ) -> Path:
     """Create test profile file in workspace."""
     profiles_dir = workspace / "app" / "cli" / "profiles"

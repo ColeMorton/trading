@@ -125,7 +125,9 @@ class TestContextManagers:
         recovery_func = Mock(return_value="recovered")
 
         with concurrency_error_context(
-            "test operation", log_mock, recovery_func=recovery_func,
+            "test operation",
+            log_mock,
+            recovery_func=recovery_func,
         ):
             msg = "Test error"
             raise ValueError(msg)
@@ -170,7 +172,10 @@ class TestContextManagers:
         log_mock = Mock()
 
         with batch_operation_context(
-            "batch test", 5, log_mock, max_failures=3,
+            "batch test",
+            5,
+            log_mock,
+            max_failures=3,
         ) as tracker:
             tracker.record_success()
             tracker.record_error(ValueError("Error 1"), 1)
@@ -189,7 +194,10 @@ class TestContextManagers:
         with (
             pytest.raises(ConcurrencyError),
             batch_operation_context(
-                "batch test", 5, log_mock, max_failures=2,
+                "batch test",
+                5,
+                log_mock,
+                max_failures=2,
             ) as tracker,
         ):
             tracker.record_error(ValueError("Error 1"))
@@ -342,7 +350,9 @@ class TestErrorRecovery:
     def test_create_recovery_policy(self):
         """Test recovery policy creation."""
         policy = create_recovery_policy(
-            strategy=RecoveryStrategy.RETRY, max_retries=5, retry_delay=2.0,
+            strategy=RecoveryStrategy.RETRY,
+            max_retries=5,
+            retry_delay=2.0,
         )
 
         assert policy.strategy == RecoveryStrategy.RETRY
@@ -363,7 +373,9 @@ class TestErrorRecovery:
             return "success"
 
         policy = create_recovery_policy(
-            RecoveryStrategy.RETRY, max_retries=3, retry_delay=0.01,
+            RecoveryStrategy.RETRY,
+            max_retries=3,
+            retry_delay=0.01,
         )
         result = apply_error_recovery(test_func, policy, log_mock, "test operation")
 
@@ -669,7 +681,10 @@ class TestIntegration:
 
         # Apply recovery to the decorated function
         result = apply_error_recovery(
-            lambda: test_func(log_mock), policy, log_mock, "decorated function",
+            lambda: test_func(log_mock),
+            policy,
+            log_mock,
+            "decorated function",
         )
 
         assert result == "success"

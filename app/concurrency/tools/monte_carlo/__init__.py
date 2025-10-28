@@ -98,7 +98,8 @@ class MonteCarloManager:
 
             # Run simulations
             simulated_returns = self._run_return_simulations(
-                portfolio_returns, progress_callback,
+                portfolio_returns,
+                progress_callback,
             )
 
             # Calculate risk metrics
@@ -127,7 +128,8 @@ class MonteCarloManager:
             raise RuntimeError(msg)
 
     def _calculate_portfolio_returns(
-        self, portfolio_data: list[dict[str, Any]],
+        self,
+        portfolio_data: list[dict[str, Any]],
     ) -> np.ndarray:
         """Calculate historical portfolio returns.
 
@@ -159,7 +161,9 @@ class MonteCarloManager:
             if self.use_bootstrap:
                 # Bootstrap from historical returns
                 daily_returns = np.random.choice(
-                    historical_returns, size=n_days, replace=True,
+                    historical_returns,
+                    size=n_days,
+                    replace=True,
                 )
             else:
                 # Generate from normal distribution
@@ -178,7 +182,8 @@ class MonteCarloManager:
         return simulated_returns
 
     def _calculate_risk_metrics(
-        self, simulated_returns: np.ndarray,
+        self,
+        simulated_returns: np.ndarray,
     ) -> dict[str, float]:
         """Calculate VaR and CVaR from simulated returns."""
         final_returns = simulated_returns[:, -1]  # Terminal values
@@ -248,7 +253,6 @@ class MonteCarloManager:
 
         # Placeholder for actual visualization
         return output_path / "monte_carlo_results.html"
-
 
 
 __all__ = [

@@ -94,7 +94,8 @@ class StatisticalAnalysisService:
                     concurrent_loading=True,
                 )
                 self.data_coordinator = StrategyDataCoordinator(
-                    logger=self.logger, config=coordinator_config,
+                    logger=self.logger,
+                    config=coordinator_config,
                 )
             self.logger.info(
                 "StatisticalAnalysisService initialized with central data coordinator",
@@ -107,13 +108,16 @@ class StatisticalAnalysisService:
 
         # Initialize components
         self.divergence_detector = DivergenceDetector(
-            config=self.config, logger=self.logger,
+            config=self.config,
+            logger=self.logger,
         )
         self.trade_history_analyzer = TradeHistoryAnalyzer(
-            config=self.config, logger=self.logger,
+            config=self.config,
+            logger=self.logger,
         )
         self.bootstrap_validator = BootstrapValidator(
-            config=self.config, logger=self.logger,
+            config=self.config,
+            logger=self.logger,
         )
 
         # Memory optimization
@@ -149,7 +153,8 @@ class StatisticalAnalysisService:
     # =================== POSITION CONTEXT INTEGRATION ===================
 
     async def _load_position_context(
-        self, portfolio_name: str,
+        self,
+        portfolio_name: str,
     ) -> dict[str, dict[str, Any]]:
         """
         Load position context data from positions/{portfolio}.csv
@@ -230,7 +235,8 @@ class StatisticalAnalysisService:
             return {}
 
     def _create_strategy_uuid_from_position(
-        self, position_data: dict[str, Any],
+        self,
+        position_data: dict[str, Any],
     ) -> str | None:
         """Create strategy UUID from position components"""
         try:
@@ -247,7 +253,9 @@ class StatisticalAnalysisService:
             return None
 
     def _find_matching_position(
-        self, strategy_name: str, position_map: dict[str, dict[str, Any]],
+        self,
+        strategy_name: str,
+        position_map: dict[str, dict[str, Any]],
     ) -> dict[str, Any] | None:
         """
         Find matching position data for a given strategy name
@@ -277,14 +285,17 @@ class StatisticalAnalysisService:
                 ticker = strategy_parts[0]
                 for position_uuid, position_data in position_map.items():
                     if position_data.get("Ticker") == ticker and strategy_name.replace(
-                        "_", "",
+                        "_",
+                        "",
                     ) in position_uuid.replace("_", ""):
                         return position_data
 
             return None
 
         except Exception as e:
-            self.logger.exception(f"Error finding position match for {strategy_name}: {e}")
+            self.logger.exception(
+                f"Error finding position match for {strategy_name}: {e}"
+            )
             return None
 
     def _is_position_open(self, position_data: dict[str, Any] | None) -> bool:
@@ -300,7 +311,8 @@ class StatisticalAnalysisService:
                 "status": position_data.get("Status", ""),
                 "days_since_entry": position_data.get("Days_Since_Entry", 0),
                 "current_unrealized_pnl": position_data.get(
-                    "Current_Unrealized_PnL", 0.0,
+                    "Current_Unrealized_PnL",
+                    0.0,
                 ),
                 "mfe": position_data.get("Max_Favourable_Excursion", 0.0),
                 "mae": position_data.get("Max_Adverse_Excursion", 0.0),
@@ -422,12 +434,14 @@ class StatisticalAnalysisService:
 
             # Asset analysis for tertiary strength (market context)
             tertiary_strength = self._calculate_tertiary_signal_strength(
-                asset_analysis, strategy_analysis,
+                asset_analysis,
+                strategy_analysis,
             )
 
             # Enhanced position-specific contributions
             asset_layer_contribution = self._calculate_asset_layer_contribution(
-                asset_analysis, asset_divergence,
+                asset_analysis,
+                asset_divergence,
             )
 
             # Use actual position metrics instead of theoretical
@@ -487,18 +501,23 @@ class StatisticalAnalysisService:
                 statistical_validity=confidence_level,
                 combined_source_confidence=position_performance_contribution,
                 expected_upside=self._estimate_position_exit_upside(
-                    position_metrics, signal_type,
+                    position_metrics,
+                    signal_type,
                 ),
                 expected_timeline=self._estimate_position_exit_timeline(
-                    position_metrics, signal_type,
+                    position_metrics,
+                    signal_type,
                 ),
                 risk_warning=self._generate_position_risk_warning(
-                    position_metrics, signal_type,
+                    position_metrics,
+                    signal_type,
                 ),
             )
 
         except Exception as e:
-            self.logger.exception(f"Error generating exit signals for open position: {e}")
+            self.logger.exception(
+                f"Error generating exit signals for open position: {e}"
+            )
             # Fallback to standard signal generation
             return await self._generate_exit_signal(
                 asset_analysis,
@@ -535,7 +554,9 @@ class StatisticalAnalysisService:
                 component_scores,
             )
         except Exception as e:
-            self.logger.exception(f"Error generating entry signals for new strategy: {e}")
+            self.logger.exception(
+                f"Error generating entry signals for new strategy: {e}"
+            )
             raise
 
     # =================== END POSITION CONTEXT INTEGRATION ===================
@@ -578,21 +599,28 @@ class StatisticalAnalysisService:
 
             # Layer 2: Strategy performance analysis
             strategy_analysis = await self._analyze_strategy_performance(
-                strategy_name, ticker, use_trade_history,
+                strategy_name,
+                ticker,
+                use_trade_history,
             )
 
             # Divergence detection for both layers
             asset_divergence = await self._detect_asset_divergence(
-                asset_analysis, current_position_data,
+                asset_analysis,
+                current_position_data,
             )
 
             strategy_divergence = await self._detect_strategy_divergence(
-                strategy_analysis, current_position_data,
+                strategy_analysis,
+                current_position_data,
             )
 
             # Dual-layer convergence analysis
             dual_layer_convergence = await self._analyze_dual_layer_convergence(
-                asset_analysis, strategy_analysis, asset_divergence, strategy_divergence,
+                asset_analysis,
+                strategy_analysis,
+                asset_divergence,
+                strategy_divergence,
             )
 
             # Probabilistic exit signal generation
@@ -611,19 +639,25 @@ class StatisticalAnalysisService:
             if use_trade_history:
                 try:
                     trade_history_metrics = await self._get_trade_history_metrics(
-                        strategy_name, ticker,
+                        strategy_name,
+                        ticker,
                     )
                 except Exception as e:
                     self.logger.warning(f"Could not load trade history metrics: {e}")
 
             # Calculate overall confidence
             overall_confidence = self._calculate_overall_confidence(
-                asset_analysis, strategy_analysis, dual_layer_convergence, exit_signal,
+                asset_analysis,
+                strategy_analysis,
+                dual_layer_convergence,
+                exit_signal,
             )
 
             # Generate recommendation summary
             recommendation_summary = self._generate_recommendation_summary(
-                exit_signal, dual_layer_convergence, overall_confidence,
+                exit_signal,
+                dual_layer_convergence,
+                overall_confidence,
             )
 
             # Extract raw analysis data for backtesting parameter generation
@@ -679,11 +713,14 @@ class StatisticalAnalysisService:
             return result
 
         except Exception as e:
-            self.logger.exception(f"Analysis failed for {strategy_name} on {ticker}: {e}")
+            self.logger.exception(
+                f"Analysis failed for {strategy_name} on {ticker}: {e}"
+            )
             raise
 
     async def _analyze_asset_distribution(
-        self, ticker: str,
+        self,
+        ticker: str,
     ) -> AssetDistributionAnalysis:
         """Analyze asset-level return distribution (Layer 1) using coordinated data loading"""
         try:
@@ -692,12 +729,14 @@ class StatisticalAnalysisService:
                 # Try to get coordinated strategy data first
                 try:
                     strategy_data = self.data_coordinator.get_strategy_data(
-                        strategy_identifier=ticker, force_refresh=False,
+                        strategy_identifier=ticker,
+                        force_refresh=False,
                     )
                     if strategy_data and hasattr(strategy_data, "raw_analysis_data"):
                         # Extract asset distribution from coordinated data
                         return self._extract_asset_analysis_from_coordinated_data(
-                            strategy_data, ticker,
+                            strategy_data,
+                            ticker,
                         )
                 except (StrategyDataCoordinatorError, AttributeError):
                     self.logger.debug(
@@ -723,7 +762,8 @@ class StatisticalAnalysisService:
                 # New structure
                 timeframe_analysis = distribution_data["timeframe_analysis"]
                 timeframe_data = timeframe_analysis.get(
-                    "D", timeframe_analysis.get(next(iter(timeframe_analysis.keys()))),
+                    "D",
+                    timeframe_analysis.get(next(iter(timeframe_analysis.keys()))),
                 )
 
                 # Extract statistics from new structure
@@ -774,7 +814,8 @@ class StatisticalAnalysisService:
             else:
                 # Old structure (fallback)
                 timeframe_data = distribution_data.get(
-                    "D", distribution_data.get(next(iter(distribution_data.keys()))),
+                    "D",
+                    distribution_data.get(next(iter(distribution_data.keys()))),
                 )
 
                 # Create statistical metrics
@@ -806,10 +847,12 @@ class StatisticalAnalysisService:
                     var_95=timeframe_data["var"]["95"],
                     var_99=timeframe_data["var"]["99"],
                     expected_shortfall_95=timeframe_data.get(
-                        "expected_shortfall", {},
+                        "expected_shortfall",
+                        {},
                     ).get("95", timeframe_data["var"]["95"] * 1.2),
                     expected_shortfall_99=timeframe_data.get(
-                        "expected_shortfall", {},
+                        "expected_shortfall",
+                        {},
                     ).get("99", timeframe_data["var"]["99"] * 1.2),
                 )
 
@@ -826,13 +869,15 @@ class StatisticalAnalysisService:
                 period_start = data_range.get("start_date", "2020-01-01")
                 period_end = data_range.get("end_date", "2025-01-01")
                 last_updated = distribution_data.get(
-                    "analysis_date", datetime.now().isoformat(),
+                    "analysis_date",
+                    datetime.now().isoformat(),
                 )
             else:
                 period_start = timeframe_data.get("period_start", "2020-01-01")
                 period_end = timeframe_data.get("period_end", "2025-01-01")
                 last_updated = timeframe_data.get(
-                    "last_updated", datetime.now().isoformat(),
+                    "last_updated",
+                    datetime.now().isoformat(),
                 )
 
             return AssetDistributionAnalysis(
@@ -864,7 +909,9 @@ class StatisticalAnalysisService:
             )
 
         except Exception as e:
-            self.logger.exception(f"Failed to analyze asset distribution for {ticker}: {e}")
+            self.logger.exception(
+                f"Failed to analyze asset distribution for {ticker}: {e}"
+            )
             raise
 
     async def _analyze_strategy_performance(
@@ -880,13 +927,15 @@ class StatisticalAnalysisService:
             if self.use_coordinator and self.data_coordinator:
                 try:
                     strategy_data = self.data_coordinator.get_strategy_data(
-                        strategy_identifier=strategy_name, force_refresh=False,
+                        strategy_identifier=strategy_name,
+                        force_refresh=False,
                     )
                     if strategy_data:
                         self.metrics["coordinator_cache_hits"] += 1
                         # Extract strategy distribution analysis from coordinated data
                         return self._extract_strategy_analysis_from_coordinated_data(
-                            strategy_data, use_trade_history,
+                            strategy_data,
+                            use_trade_history,
                         )
                 except StrategyDataCoordinatorError:
                     self.logger.debug(
@@ -898,10 +947,12 @@ class StatisticalAnalysisService:
             if enable_dual_source:
                 # Check availability of both data sources
                 trade_history_available = await self._check_trade_history_availability(
-                    strategy_name, ticker,
+                    strategy_name,
+                    ticker,
                 )
                 equity_data_available = await self._check_equity_data_availability(
-                    strategy_name, ticker,
+                    strategy_name,
+                    ticker,
                 )
 
                 if trade_history_available and equity_data_available:
@@ -910,7 +961,8 @@ class StatisticalAnalysisService:
                         f"Performing dual-source analysis for {strategy_name} on {ticker}",
                     )
                     return await self._analyze_combined_strategy_performance(
-                        strategy_name, ticker,
+                        strategy_name,
+                        ticker,
                     )
                 if trade_history_available and (
                     use_trade_history is None or use_trade_history
@@ -920,7 +972,8 @@ class StatisticalAnalysisService:
                         f"Using trade history analysis for {strategy_name} on {ticker}",
                     )
                     return await self._analyze_trade_history_performance(
-                        strategy_name, ticker,
+                        strategy_name,
+                        ticker,
                     )
                 if equity_data_available:
                     # Only equity data available or fallback
@@ -928,7 +981,8 @@ class StatisticalAnalysisService:
                         f"Using equity curve analysis for {strategy_name} on {ticker}",
                     )
                     return await self._analyze_equity_curve_performance(
-                        strategy_name, ticker,
+                        strategy_name,
+                        ticker,
                     )
                 msg = f"No data sources available for {strategy_name} on {ticker}"
                 raise FileNotFoundError(
@@ -938,7 +992,8 @@ class StatisticalAnalysisService:
             # Legacy single-source mode (for compatibility)
             if use_trade_history:
                 return await self._analyze_trade_history_performance(
-                    strategy_name, ticker,
+                    strategy_name,
+                    ticker,
                 )
             return await self._analyze_equity_curve_performance(strategy_name, ticker)
 
@@ -949,13 +1004,16 @@ class StatisticalAnalysisService:
             raise
 
     async def _analyze_trade_history_performance(
-        self, strategy_name: str, ticker: str,
+        self,
+        strategy_name: str,
+        ticker: str,
     ) -> StrategyDistributionAnalysis:
         """Analyze strategy performance using trade history data"""
         try:
             # Use trade history analyzer
             trade_data = await self.trade_history_analyzer.analyze_strategy_trades(
-                strategy_name, ticker,
+                strategy_name,
+                ticker,
             )
 
             # Convert trade data to strategy distribution analysis
@@ -1006,12 +1064,15 @@ class StatisticalAnalysisService:
                     f"Falling back to equity curve analysis for {strategy_name}",
                 )
                 return await self._analyze_equity_curve_performance(
-                    strategy_name, ticker,
+                    strategy_name,
+                    ticker,
                 )
             raise
 
     async def _analyze_equity_curve_performance(
-        self, strategy_name: str, ticker: str,
+        self,
+        strategy_name: str,
+        ticker: str,
     ) -> StrategyDistributionAnalysis:
         """Analyze strategy performance using equity curve data"""
         try:
@@ -1148,20 +1209,25 @@ class StatisticalAnalysisService:
             raise
 
     async def _check_trade_history_availability(
-        self, strategy_name: str, ticker: str,
+        self,
+        strategy_name: str,
+        ticker: str,
     ) -> bool:
         """Check if trade history data is available for the strategy"""
         try:
             # Use trade history analyzer to check availability
             trade_data = await self.trade_history_analyzer.analyze_strategy_trades(
-                strategy_name, ticker,
+                strategy_name,
+                ticker,
             )
             return trade_data is not None and trade_data.get("total_trades", 0) > 0
         except Exception:
             return False
 
     async def _check_equity_data_availability(
-        self, strategy_name: str, ticker: str,
+        self,
+        strategy_name: str,
+        ticker: str,
     ) -> bool:
         """Check if equity curve data is available for the strategy with enhanced pattern matching"""
         try:
@@ -1219,20 +1285,26 @@ class StatisticalAnalysisService:
             return False
 
     async def _analyze_combined_strategy_performance(
-        self, strategy_name: str, ticker: str,
+        self,
+        strategy_name: str,
+        ticker: str,
     ) -> StrategyDistributionAnalysis:
         """Analyze strategy performance using BOTH trade history AND equity curve data"""
         try:
             # Perform both analyses in parallel
             trade_analysis_task = self._analyze_trade_history_performance_raw(
-                strategy_name, ticker,
+                strategy_name,
+                ticker,
             )
             equity_analysis_task = self._analyze_equity_curve_performance_raw(
-                strategy_name, ticker,
+                strategy_name,
+                ticker,
             )
 
             trade_analysis, equity_analysis = await asyncio.gather(
-                trade_analysis_task, equity_analysis_task, return_exceptions=True,
+                trade_analysis_task,
+                equity_analysis_task,
+                return_exceptions=True,
             )
 
             # Handle analysis results
@@ -1259,7 +1331,9 @@ class StatisticalAnalysisService:
 
             # Ensure at least one analysis succeeded
             if trade_history_analysis is None and equity_curve_analysis is None:
-                msg = f"Both trade history and equity analysis failed for {strategy_name}"
+                msg = (
+                    f"Both trade history and equity analysis failed for {strategy_name}"
+                )
                 raise ValueError(
                     msg,
                 )
@@ -1285,7 +1359,8 @@ class StatisticalAnalysisService:
     ) -> DivergenceMetrics:
         """Detect divergence in asset-level performance"""
         return await self.divergence_detector.detect_asset_divergence(
-            asset_analysis, current_position_data,
+            asset_analysis,
+            current_position_data,
         )
 
     async def _detect_strategy_divergence(
@@ -1295,7 +1370,8 @@ class StatisticalAnalysisService:
     ) -> DivergenceMetrics:
         """Detect divergence in strategy-level performance"""
         return await self.divergence_detector.detect_strategy_divergence(
-            strategy_analysis, current_position_data,
+            strategy_analysis,
+            current_position_data,
         )
 
     async def _analyze_dual_layer_convergence(
@@ -1307,13 +1383,17 @@ class StatisticalAnalysisService:
     ) -> DualLayerConvergence:
         """Analyze convergence between asset and strategy layers"""
         return await self.divergence_detector.analyze_dual_layer_convergence(
-            asset_analysis, strategy_analysis, asset_divergence, strategy_divergence,
+            asset_analysis,
+            strategy_analysis,
+            asset_divergence,
+            strategy_divergence,
         )
 
     # =================== POSITION-SPECIFIC ANALYSIS METHODS ===================
 
     def _analyze_position_exit_factors(
-        self, position_metrics: dict[str, Any],
+        self,
+        position_metrics: dict[str, Any],
     ) -> dict[str, Any]:
         """Analyze position-specific factors that influence exit decisions"""
         try:
@@ -1325,7 +1405,8 @@ class StatisticalAnalysisService:
             return {
                 "duration_factor": min(days_held / 60.0, 1.0),  # Normalize to 60 days
                 "profit_factor": max(
-                    min(current_pnl / 0.2, 1.0), -1.0,
+                    min(current_pnl / 0.2, 1.0),
+                    -1.0,
                 ),  # Normalize to 20%
                 "mfe_utilization": current_pnl / mfe if mfe > 0 else 0.0,
                 "risk_factor": (
@@ -1367,7 +1448,8 @@ class StatisticalAnalysisService:
             return 0.5
 
     def _calculate_position_performance_strength(
-        self, position_metrics: dict[str, Any],
+        self,
+        position_metrics: dict[str, Any],
     ) -> float:
         """Calculate strength based on actual position performance"""
         try:
@@ -1396,11 +1478,14 @@ class StatisticalAnalysisService:
             return max(0.1, min(1.0, performance_strength))
 
         except Exception as e:
-            self.logger.exception(f"Error calculating position performance strength: {e}")
+            self.logger.exception(
+                f"Error calculating position performance strength: {e}"
+            )
             return 0.5
 
     def _calculate_position_performance_contribution(
-        self, position_metrics: dict[str, Any],
+        self,
+        position_metrics: dict[str, Any],
     ) -> float:
         """Calculate position performance contribution to signal confidence"""
         try:
@@ -1415,12 +1500,14 @@ class StatisticalAnalysisService:
             # MFE/MAE ratio contribution
             mfe_mae_ratio = mfe / max(mae, 0.001)
             ratio_contribution = min(
-                mfe_mae_ratio / 5.0, 1.0,
+                mfe_mae_ratio / 5.0,
+                1.0,
             )  # Normalize to ratio of 5
 
             # Trade quality bonus
             quality_bonus = {"excellent": 0.2, "good": 0.1, "poor": -0.1}.get(
-                trade_quality, 0.0,
+                trade_quality,
+                0.0,
             )
 
             total_contribution = (
@@ -1476,7 +1563,8 @@ class StatisticalAnalysisService:
 
             # 4. Market-based exits (use existing logic for market conditions)
             max_percentile = max(
-                asset_divergence.percentile_rank, strategy_divergence.percentile_rank,
+                asset_divergence.percentile_rank,
+                strategy_divergence.percentile_rank,
             )
 
             if dual_layer_convergence.convergence_score > 0.8 and max_percentile > 90:
@@ -1487,7 +1575,8 @@ class StatisticalAnalysisService:
             # 5. Component score overrides for open positions
             if component_scores:
                 component_override = self._check_component_score_override(
-                    component_scores, SignalType.HOLD,
+                    component_scores,
+                    SignalType.HOLD,
                 )
                 if component_override and component_override in [
                     SignalType.SELL,
@@ -1522,7 +1611,8 @@ class StatisticalAnalysisService:
             days_held = position_metrics.get("days_since_entry", 0)
             trade_quality = position_metrics.get("trade_quality", "").lower()
             mfe_mae_ratio = position_metrics.get("mfe", 0) / max(
-                position_metrics.get("mae", 0.001), 0.001,
+                position_metrics.get("mae", 0.001),
+                0.001,
             )
 
             # Experience bonus (longer holds have more data)
@@ -1530,7 +1620,8 @@ class StatisticalAnalysisService:
 
             # Quality bonus
             quality_bonus = {"excellent": 0.15, "good": 0.05, "poor": -0.1}.get(
-                trade_quality, 0.0,
+                trade_quality,
+                0.0,
             )
 
             # Risk management bonus (good MFE/MAE ratio)
@@ -1554,7 +1645,9 @@ class StatisticalAnalysisService:
             return 0.5
 
     def _estimate_position_exit_upside(
-        self, position_metrics: dict[str, Any], signal_type: "SignalType",
+        self,
+        position_metrics: dict[str, Any],
+        signal_type: "SignalType",
     ) -> float | None:
         """Estimate remaining upside for open position"""
         try:
@@ -1579,7 +1672,9 @@ class StatisticalAnalysisService:
             return None
 
     def _estimate_position_exit_timeline(
-        self, position_metrics: dict[str, Any], signal_type: "SignalType",
+        self,
+        position_metrics: dict[str, Any],
+        signal_type: "SignalType",
     ) -> str | None:
         """Estimate timeline for position exit execution"""
         try:
@@ -1605,7 +1700,9 @@ class StatisticalAnalysisService:
             return None
 
     def _generate_position_risk_warning(
-        self, position_metrics: dict[str, Any], signal_type: "SignalType",
+        self,
+        position_metrics: dict[str, Any],
+        signal_type: "SignalType",
     ) -> str | None:
         """Generate position-specific risk warnings"""
         try:
@@ -1651,18 +1748,23 @@ class StatisticalAnalysisService:
         try:
             # Calculate signal strength for each layer
             primary_strength = self._calculate_primary_signal_strength(
-                dual_layer_convergence, asset_divergence, strategy_divergence,
+                dual_layer_convergence,
+                asset_divergence,
+                strategy_divergence,
             )
             secondary_strength = self._calculate_secondary_signal_strength(
-                strategy_analysis, current_position_data,
+                strategy_analysis,
+                current_position_data,
             )
             tertiary_strength = self._calculate_tertiary_signal_strength(
-                asset_analysis, strategy_analysis,
+                asset_analysis,
+                strategy_analysis,
             )
 
             # Enhanced multi-source signal contributions
             asset_layer_contribution = self._calculate_asset_layer_contribution(
-                asset_analysis, asset_divergence,
+                asset_analysis,
+                asset_divergence,
             )
 
             trade_history_contribution = None
@@ -1697,15 +1799,18 @@ class StatisticalAnalysisService:
 
             # Enhanced multi-source confidence assessment
             data_source_confidence = self._calculate_data_source_confidence(
-                asset_analysis, strategy_analysis,
+                asset_analysis,
+                strategy_analysis,
             )
 
             combined_source_confidence = self._calculate_combined_source_confidence(
-                data_source_confidence, strategy_analysis,
+                data_source_confidence,
+                strategy_analysis,
             )
 
             source_reliability_score = self._calculate_source_reliability_score(
-                strategy_analysis, dual_layer_convergence,
+                strategy_analysis,
+                dual_layer_convergence,
             )
 
             # Calculate component scores with multi-source enhancements
@@ -1713,12 +1818,14 @@ class StatisticalAnalysisService:
             triple_layer_score = dual_layer_convergence.triple_layer_convergence
             timeframe_score = dual_layer_convergence.cross_timeframe_score
             risk_adjusted_score = self._calculate_risk_adjusted_score(
-                asset_analysis, strategy_analysis,
+                asset_analysis,
+                strategy_analysis,
             )
 
             # Enhanced sample size confidence with multi-source weighting
             sample_size_confidence = self._calculate_enhanced_sample_size_confidence(
-                strategy_analysis, combined_source_confidence,
+                strategy_analysis,
+                combined_source_confidence,
             )
 
             # Determine signal type with multi-source analysis
@@ -1747,10 +1854,14 @@ class StatisticalAnalysisService:
 
             # Enhanced expected outcomes with multi-source insights
             expected_upside = self._estimate_enhanced_expected_upside(
-                signal_type, asset_divergence, strategy_divergence, strategy_analysis,
+                signal_type,
+                asset_divergence,
+                strategy_divergence,
+                strategy_analysis,
             )
             expected_timeline = self._estimate_expected_timeline(
-                signal_type, strategy_analysis,
+                signal_type,
+                strategy_analysis,
             )
             risk_warning = self._generate_enhanced_risk_warning(
                 signal_type,
@@ -1823,7 +1934,8 @@ class StatisticalAnalysisService:
         return min(value, 0.0)  # Ensure it's <= 0
 
     def _calculate_statistical_metrics(
-        self, data: pd.Series | np.ndarray | list,
+        self,
+        data: pd.Series | np.ndarray | list,
     ) -> StatisticalMetrics:
         """Calculate basic statistical metrics from data"""
         data = np.array(data)
@@ -1871,7 +1983,8 @@ class StatisticalAnalysisService:
         )
 
     def _calculate_percentile_metrics(
-        self, data: pd.Series | np.ndarray | list,
+        self,
+        data: pd.Series | np.ndarray | list,
     ) -> PercentileMetrics:
         """Calculate percentile metrics from data"""
         data = np.array(data)
@@ -1879,14 +1992,28 @@ class StatisticalAnalysisService:
         # Handle empty data
         if len(data) == 0:
             return PercentileMetrics(
-                p5=0.0, p10=0.0, p25=0.0, p50=0.0, p75=0.0, p90=0.0, p95=0.0, p99=0.0,
+                p5=0.0,
+                p10=0.0,
+                p25=0.0,
+                p50=0.0,
+                p75=0.0,
+                p90=0.0,
+                p95=0.0,
+                p99=0.0,
             )
 
         # Filter out non-finite values
         finite_data = data[np.isfinite(data)]
         if len(finite_data) == 0:
             return PercentileMetrics(
-                p5=0.0, p10=0.0, p25=0.0, p50=0.0, p75=0.0, p90=0.0, p95=0.0, p99=0.0,
+                p5=0.0,
+                p10=0.0,
+                p25=0.0,
+                p50=0.0,
+                p75=0.0,
+                p90=0.0,
+                p95=0.0,
+                p99=0.0,
             )
 
         def safe_percentile(data, percentile, fallback=0.0):
@@ -2050,17 +2177,21 @@ class StatisticalAnalysisService:
             return 0.0
 
     async def _perform_bootstrap_validation(
-        self, data: pd.Series | np.ndarray | list,
+        self,
+        data: pd.Series | np.ndarray | list,
     ) -> BootstrapResults:
         """Perform bootstrap validation for small samples"""
         return await self.bootstrap_validator.validate_sample(data)
 
     async def _get_trade_history_metrics(
-        self, strategy_name: str, ticker: str,
+        self,
+        strategy_name: str,
+        ticker: str,
     ) -> TradeHistoryMetrics:
         """Get trade history metrics if available"""
         return await self.trade_history_analyzer.get_trade_metrics(
-            strategy_name, ticker,
+            strategy_name,
+            ticker,
         )
 
     def _calculate_regime_score(self, timeframe_data: dict) -> float:
@@ -2206,10 +2337,12 @@ class StatisticalAnalysisService:
         """Determine signal type based on analysis results - Complete Entry/Exit System"""
         # Get the minimum and maximum percentile ranks for comprehensive analysis
         min_percentile_rank = min(
-            asset_div.percentile_rank, strategy_div.percentile_rank,
+            asset_div.percentile_rank,
+            strategy_div.percentile_rank,
         )
         max_percentile_rank = max(
-            asset_div.percentile_rank, strategy_div.percentile_rank,
+            asset_div.percentile_rank,
+            strategy_div.percentile_rank,
         )
 
         # ENTRY SIGNALS - Low percentiles indicate undervalued conditions (good entries)
@@ -2283,7 +2416,9 @@ class StatisticalAnalysisService:
         return None  # Unknown signal type
 
     def _estimate_expected_timeline(
-        self, signal_type: SignalType, strategy_analysis: StrategyDistributionAnalysis,
+        self,
+        signal_type: SignalType,
+        strategy_analysis: StrategyDistributionAnalysis,
     ) -> str | None:
         """Estimate expected timeline for signal execution - Complete Entry/Exit System"""
         # Entry signals - time to potential realization
@@ -2416,7 +2551,8 @@ class StatisticalAnalysisService:
         }
 
         base_summary = signal_descriptions.get(
-            exit_signal.signal_type, "Unknown signal",
+            exit_signal.signal_type,
+            "Unknown signal",
         )
 
         # Add confidence qualifier
@@ -2456,7 +2592,9 @@ class StatisticalAnalysisService:
         return sources
 
     def _update_metrics(
-        self, result: StatisticalAnalysisResult, processing_time: float,
+        self,
+        result: StatisticalAnalysisResult,
+        processing_time: float,
     ):
         """Update service metrics"""
         self.metrics["analyses_performed"] += 1
@@ -2514,9 +2652,9 @@ class StatisticalAnalysisService:
                 data_sources = coordinator_status.get("data_sources", {})
                 if not any(data_sources.values()):
                     health_status["status"] = "degraded"
-                    health_status[
-                        "coordinator_warning"
-                    ] = "No data sources available via coordinator"
+                    health_status["coordinator_warning"] = (
+                        "No data sources available via coordinator"
+                    )
 
             except Exception as coord_error:
                 health_status["status"] = "degraded"
@@ -2587,10 +2725,12 @@ class StatisticalAnalysisService:
                                 from datetime import datetime
 
                                 entry_date = datetime.strptime(
-                                    str(trade["Entry_Date"]), "%Y-%m-%d",
+                                    str(trade["Entry_Date"]),
+                                    "%Y-%m-%d",
                                 )
                                 exit_date = datetime.strptime(
-                                    str(trade["Exit_Date"]), "%Y-%m-%d",
+                                    str(trade["Exit_Date"]),
+                                    "%Y-%m-%d",
                                 )
                                 duration = (exit_date - entry_date).days
                                 if duration > 0:
@@ -2621,15 +2761,19 @@ class StatisticalAnalysisService:
                         # Constrain statistical parameters to realistic daily trading ranges
                         # Daily returns typically don't exceed ±50% except in extreme cases
                         constrained_mean = max(
-                            -0.10, min(0.10, stats.mean),
+                            -0.10,
+                            min(0.10, stats.mean),
                         )  # ±10% daily mean
                         constrained_std = max(
-                            0.005, min(0.08, stats.std),
+                            0.005,
+                            min(0.08, stats.std),
                         )  # 0.5% to 8% daily volatility
 
                         # Generate normal distribution with constrained parameters
                         base_returns = np.random.normal(
-                            constrained_mean, constrained_std, sample_size,
+                            constrained_mean,
+                            constrained_std,
+                            sample_size,
                         )
 
                         # Apply skewness adjustment if available, but keep it modest
@@ -2644,7 +2788,9 @@ class StatisticalAnalysisService:
 
                         # Final clipping to ensure no extreme outliers
                         base_returns = np.clip(
-                            base_returns, -0.25, 0.50,
+                            base_returns,
+                            -0.25,
+                            0.50,
                         )  # ±25% to +50% daily range
 
                         raw_data["returns"] = base_returns.tolist()
@@ -2653,7 +2799,8 @@ class StatisticalAnalysisService:
                     if asset_analysis and asset_analysis.statistics:
                         # Create strategy-specific duration profiles based on volatility and returns
                         asset_vol = max(
-                            0.005, min(0.08, asset_analysis.statistics.std),
+                            0.005,
+                            min(0.08, asset_analysis.statistics.std),
                         )  # Constrain volatility
                         strategy_return = (
                             max(-0.10, min(0.10, strategy_analysis.statistics.mean))
@@ -2667,28 +2814,33 @@ class StatisticalAnalysisService:
                             asset_vol / 0.02
                         )  # Normalize around 2% daily vol
                         return_factor = max(
-                            0.5, min(2.0, 1.0 + strategy_return * 5),
+                            0.5,
+                            min(2.0, 1.0 + strategy_return * 5),
                         )  # Return influence
 
                         # Base duration: 15-45 days scaled by factors
                         base_duration = int(30 / volatility_factor * return_factor)
                         base_duration = max(
-                            5, min(90, base_duration),
+                            5,
+                            min(90, base_duration),
                         )  # Realistic range
 
                         # Create realistic duration distribution with strategy variation
                         # Use different distribution shapes for different strategies
                         np.random.seed(
-                            hash(strategy_analysis.statistics.mean + asset_vol)
-                            % 2**32,
+                            hash(strategy_analysis.statistics.mean + asset_vol) % 2**32,
                         )  # Strategy-specific seed
 
                         # Generate mixed distribution: some short-term, some medium-term, few long-term
                         short_term = np.random.gamma(
-                            2, base_duration * 0.3, sample_size // 3,
+                            2,
+                            base_duration * 0.3,
+                            sample_size // 3,
                         )  # 1/3 short positions
                         medium_term = np.random.gamma(
-                            3, base_duration * 0.6, sample_size // 2,
+                            3,
+                            base_duration * 0.6,
+                            sample_size // 2,
                         )  # 1/2 medium positions
                         long_term = np.random.gamma(
                             4,
@@ -2703,7 +2855,9 @@ class StatisticalAnalysisService:
 
                         # Add some noise for realism
                         noise = np.random.normal(
-                            0, base_duration * 0.1, len(all_durations),
+                            0,
+                            base_duration * 0.1,
+                            len(all_durations),
                         )
                         all_durations = all_durations + noise
 
@@ -2730,7 +2884,9 @@ class StatisticalAnalysisService:
             return None
 
     def _extract_asset_analysis_from_coordinated_data(
-        self, strategy_data, ticker: str,
+        self,
+        strategy_data,
+        ticker: str,
     ) -> AssetDistributionAnalysis:
         """Extract asset distribution analysis from coordinated strategy data"""
         try:
@@ -2810,7 +2966,9 @@ class StatisticalAnalysisService:
             raise
 
     def _extract_strategy_analysis_from_coordinated_data(
-        self, strategy_data, use_trade_history: bool,
+        self,
+        strategy_data,
+        use_trade_history: bool,
     ) -> StrategyDistributionAnalysis:
         """Extract strategy distribution analysis from coordinated strategy data"""
         try:
@@ -2951,13 +3109,16 @@ class StatisticalAnalysisService:
             raise
 
     async def _analyze_trade_history_performance_raw(
-        self, strategy_name: str, ticker: str,
+        self,
+        strategy_name: str,
+        ticker: str,
     ) -> TradeHistoryAnalysis:
         """Analyze strategy performance using trade history data returning raw TradeHistoryAnalysis"""
         try:
             # Use trade history analyzer
             trade_data = await self.trade_history_analyzer.analyze_strategy_trades(
-                strategy_name, ticker,
+                strategy_name,
+                ticker,
             )
 
             # Calculate additional trade-specific metrics
@@ -3030,7 +3191,9 @@ class StatisticalAnalysisService:
             raise
 
     async def _analyze_equity_curve_performance_raw(
-        self, strategy_name: str, ticker: str,
+        self,
+        strategy_name: str,
+        ticker: str,
     ) -> EquityAnalysis:
         """Analyze strategy performance using equity curve data returning raw EquityAnalysis"""
         try:
@@ -3166,7 +3329,8 @@ class StatisticalAnalysisService:
             dual_source_convergence = None
             if trade_history_analysis and equity_analysis:
                 dual_source_convergence = await self._calculate_dual_source_convergence(
-                    trade_history_analysis, equity_analysis,
+                    trade_history_analysis,
+                    equity_analysis,
                 )
 
             # Combined confidence assessment
@@ -3269,10 +3433,12 @@ class StatisticalAnalysisService:
 
             # Calculate correlation proxy (normalized difference in means and stds)
             mean_agreement = 1.0 - min(
-                1.0, abs(th_mean - eq_mean) / max(abs(th_mean), abs(eq_mean), 0.01),
+                1.0,
+                abs(th_mean - eq_mean) / max(abs(th_mean), abs(eq_mean), 0.01),
             )
             std_agreement = 1.0 - min(
-                1.0, abs(th_std - eq_std) / max(th_std, eq_std, 0.01),
+                1.0,
+                abs(th_std - eq_std) / max(th_std, eq_std, 0.01),
             )
 
             return_correlation = (mean_agreement + std_agreement) / 2.0
@@ -3288,7 +3454,8 @@ class StatisticalAnalysisService:
             th_var95 = trade_history_analysis.var_metrics.var_95
             eq_var95 = equity_analysis.var_metrics.var_95
             risk_agreement = 1.0 - min(
-                1.0, abs(th_var95 - eq_var95) / max(abs(th_var95), abs(eq_var95), 0.01),
+                1.0,
+                abs(th_var95 - eq_var95) / max(abs(th_var95), abs(eq_var95), 0.01),
             )
 
             # Overall convergence score
@@ -3330,7 +3497,8 @@ class StatisticalAnalysisService:
             )
 
     def _generate_source_agreement_summary(
-        self, strategy_analysis: StrategyDistributionAnalysis,
+        self,
+        strategy_analysis: StrategyDistributionAnalysis,
     ) -> str:
         """Generate summary of agreement/divergence between data sources"""
         if not strategy_analysis.dual_source_convergence:
@@ -3351,7 +3519,8 @@ class StatisticalAnalysisService:
         return f"Dual-source analysis with {strength} convergence ({score:.2f}). Good agreement between trade history and equity curve data."
 
     def _generate_data_quality_assessment(
-        self, strategy_analysis: StrategyDistributionAnalysis,
+        self,
+        strategy_analysis: StrategyDistributionAnalysis,
     ) -> dict[str, str]:
         """Generate quality assessment for each data source"""
         assessment = {}
@@ -3359,16 +3528,16 @@ class StatisticalAnalysisService:
         if strategy_analysis.trade_history_analysis:
             total_trades = strategy_analysis.trade_history_analysis.total_trades
             confidence = strategy_analysis.trade_history_analysis.confidence_level.value
-            assessment[
-                "trade_history"
-            ] = f"{confidence} confidence with {total_trades} trades"
+            assessment["trade_history"] = (
+                f"{confidence} confidence with {total_trades} trades"
+            )
 
         if strategy_analysis.equity_analysis:
             confidence = strategy_analysis.equity_analysis.confidence_level.value
             sharpe = strategy_analysis.equity_analysis.sharpe_ratio
-            assessment[
-                "equity_curves"
-            ] = f"{confidence} confidence, Sharpe ratio: {sharpe:.2f}"
+            assessment["equity_curves"] = (
+                f"{confidence} confidence, Sharpe ratio: {sharpe:.2f}"
+            )
 
         if not assessment:
             assessment["unknown"] = "Data quality assessment unavailable"
@@ -3386,19 +3555,22 @@ class StatisticalAnalysisService:
 
         # Adjust for volatility regime
         regime_adjustment = {"low": 0.8, "medium": 1.0, "high": 1.2}.get(
-            asset_analysis.volatility_regime, 1.0,
+            asset_analysis.volatility_regime,
+            1.0,
         )
 
         # Adjust for sample size quality
         sample_quality = min(
-            1.0, asset_analysis.statistics.count / self.config.PREFERRED_SAMPLE_SIZE,
+            1.0,
+            asset_analysis.statistics.count / self.config.PREFERRED_SAMPLE_SIZE,
         )
 
         contribution = divergence_strength * regime_adjustment * sample_quality
         return min(1.0, max(0.0, contribution))
 
     def _calculate_trade_history_contribution(
-        self, trade_history_analysis: TradeHistoryAnalysis,
+        self,
+        trade_history_analysis: TradeHistoryAnalysis,
     ) -> float:
         """Calculate trade history contribution to exit signal"""
         # Base contribution from win rate deviation from 50%
@@ -3422,7 +3594,8 @@ class StatisticalAnalysisService:
         return min(1.0, max(0.0, contribution))
 
     def _calculate_equity_curve_contribution(
-        self, equity_analysis: EquityAnalysis,
+        self,
+        equity_analysis: EquityAnalysis,
     ) -> float:
         """Calculate equity curve contribution to exit signal"""
         # Base contribution from Sharpe ratio strength
@@ -3454,7 +3627,8 @@ class StatisticalAnalysisService:
 
         # Asset data confidence
         asset_sample_ratio = min(
-            1.0, asset_analysis.statistics.count / self.config.PREFERRED_SAMPLE_SIZE,
+            1.0,
+            asset_analysis.statistics.count / self.config.PREFERRED_SAMPLE_SIZE,
         )
         confidence_scores["asset"] = (
             asset_sample_ratio * 0.9
@@ -3529,7 +3703,8 @@ class StatisticalAnalysisService:
         # Sample size reliability
         if strategy_analysis.trade_history_analysis:
             trade_sample_reliability = min(
-                1.0, strategy_analysis.trade_history_analysis.total_trades / 50.0,
+                1.0,
+                strategy_analysis.trade_history_analysis.total_trades / 50.0,
             )
             reliability_factors.append(trade_sample_reliability)
 
@@ -3600,7 +3775,8 @@ class StatisticalAnalysisService:
 
         # COMPONENT SCORE OVERRIDE: Check for extreme component scores and override signal if necessary
         component_override_signal = self._check_component_score_override(
-            component_scores, base_signal,
+            component_scores,
+            base_signal,
         )
         if component_override_signal is not None:
             self.logger.info(
@@ -3714,7 +3890,9 @@ class StatisticalAnalysisService:
     ) -> float | None:
         """Estimate expected upside with enhanced multi-source insights"""
         base_upside = self._estimate_expected_upside(
-            signal_type, asset_divergence, strategy_divergence,
+            signal_type,
+            asset_divergence,
+            strategy_divergence,
         )
 
         # Enhance with dual-source insights
@@ -3748,7 +3926,9 @@ class StatisticalAnalysisService:
     ) -> str | None:
         """Generate enhanced risk warning with multi-source considerations"""
         base_warning = self._generate_risk_warning(
-            signal_type, strategy_analysis, dual_layer_convergence,
+            signal_type,
+            strategy_analysis,
+            dual_layer_convergence,
         )
 
         warnings = []
@@ -3805,35 +3985,35 @@ class StatisticalAnalysisService:
 
             # Define extreme thresholds for both directions
             # Positive thresholds for entry signals
-            EXTREME_POSITIVE_THRESHOLD = +80  # Very positive scores
-            SEVERE_POSITIVE_THRESHOLD = +95  # Extremely positive scores
-            EXTREME_OVERALL_POSITIVE = +15  # Very positive overall scores
+            extreme_positive_threshold = +80  # Very positive scores
+            severe_positive_threshold = +95  # Extremely positive scores
+            extreme_overall_positive = +15  # Very positive overall scores
 
             # Negative thresholds for exit signals (existing)
-            EXTREME_NEGATIVE_THRESHOLD = -80  # Very negative scores
-            SEVERE_NEGATIVE_THRESHOLD = (
+            extreme_negative_threshold = -80  # Very negative scores
+            severe_negative_threshold = (
                 -95
             )  # Extremely negative scores (like -96 momentum)
-            EXTREME_OVERALL_NEGATIVE = -15  # Very negative overall scores
+            extreme_overall_negative = -15  # Very negative overall scores
 
             # ENTRY SIGNAL OVERRIDES - Only if dual-layer convergence >= 0.7
             if dual_layer_convergence >= 0.7:
                 # Check for extremely positive momentum (strong buy signal)
-                if momentum_score >= SEVERE_POSITIVE_THRESHOLD:
+                if momentum_score >= severe_positive_threshold:
                     self.logger.info(
                         f"Extreme positive momentum detected: {momentum_score} with convergence {dual_layer_convergence}. Overriding to STRONG_BUY",
                     )
                     return SignalType.STRONG_BUY
 
                 # Check for very positive risk score (exceptional entry opportunity)
-                if risk_score >= EXTREME_POSITIVE_THRESHOLD and overall_score > 0:
+                if risk_score >= extreme_positive_threshold and overall_score > 0:
                     self.logger.info(
                         f"Positive risk score ({risk_score}) + positive overall ({overall_score}) with convergence {dual_layer_convergence}. Overriding to STRONG_BUY",
                     )
                     return SignalType.STRONG_BUY
 
                 # Check for extremely positive overall score
-                if overall_score >= EXTREME_OVERALL_POSITIVE:
+                if overall_score >= extreme_overall_positive:
                     self.logger.info(
                         f"Extreme positive overall score detected: {overall_score} with convergence {dual_layer_convergence}. Overriding to BUY",
                     )
@@ -3861,21 +4041,21 @@ class StatisticalAnalysisService:
 
             # EXIT SIGNAL OVERRIDES (existing logic)
             # Check for extremely negative momentum (like the -96 case)
-            if momentum_score <= SEVERE_NEGATIVE_THRESHOLD:
+            if momentum_score <= severe_negative_threshold:
                 self.logger.info(
                     f"Extreme negative momentum detected: {momentum_score}. Overriding to STRONG_SELL",
                 )
                 return SignalType.STRONG_SELL
 
             # Check for very negative momentum combined with negative overall
-            if momentum_score <= EXTREME_NEGATIVE_THRESHOLD and overall_score < 0:
+            if momentum_score <= extreme_negative_threshold and overall_score < 0:
                 self.logger.info(
                     f"Negative momentum ({momentum_score}) + negative overall ({overall_score}). Overriding to SELL",
                 )
                 return SignalType.SELL
 
             # Check for extremely negative overall score
-            if overall_score <= EXTREME_OVERALL_NEGATIVE:
+            if overall_score <= extreme_overall_negative:
                 self.logger.info(
                     f"Extreme negative overall score detected: {overall_score}. Overriding to SELL",
                 )
@@ -4088,7 +4268,8 @@ class StatisticalAnalysisService:
 
             # Test the component score override logic
             override_signal = self._check_component_score_override(
-                test_case["component_scores"], SignalType.HOLD,
+                test_case["component_scores"],
+                SignalType.HOLD,
             )
 
             actual_signal = override_signal.value if override_signal else "HOLD"
@@ -4129,7 +4310,9 @@ class StatisticalAnalysisService:
         return summary
 
     def update_exit_signal_with_component_scores(
-        self, result: "StatisticalAnalysisResult", component_scores: dict[str, Any],
+        self,
+        result: "StatisticalAnalysisResult",
+        component_scores: dict[str, Any],
     ) -> "StatisticalAnalysisResult":
         """
         Update the exit signal in a StatisticalAnalysisResult with component score override logic.
@@ -4142,7 +4325,8 @@ class StatisticalAnalysisService:
 
             # Check for component score override
             override_signal = self._check_component_score_override(
-                component_scores, current_signal,
+                component_scores,
+                current_signal,
             )
 
             if override_signal is not None:
@@ -4191,5 +4375,7 @@ class StatisticalAnalysisService:
             return result
 
         except Exception as e:
-            self.logger.exception(f"Error updating exit signal with component scores: {e}")
+            self.logger.exception(
+                f"Error updating exit signal with component scores: {e}"
+            )
             return result

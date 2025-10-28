@@ -26,7 +26,10 @@ class TestRunner:
         self.total_time = 0
 
     def run_test_layer(
-        self, layer_name: str, test_pattern: str, verbosity: int = 1,
+        self,
+        layer_name: str,
+        test_pattern: str,
+        verbosity: int = 1,
     ) -> bool:
         """Run a specific layer of tests."""
         print(f"\n{'='*60}")
@@ -38,13 +41,17 @@ class TestRunner:
         # Discover tests in the specified pattern
         loader = unittest.TestLoader()
         suite = loader.discover(
-            "tests", pattern=test_pattern, top_level_dir=str(project_root),
+            "tests",
+            pattern=test_pattern,
+            top_level_dir=str(project_root),
         )
 
         # Run tests with custom result handling
         stream = StringIO()
         runner = unittest.TextTestRunner(
-            stream=stream, verbosity=verbosity, failfast=False,
+            stream=stream,
+            verbosity=verbosity,
+            failfast=False,
         )
 
         result = runner.run(suite)
@@ -179,7 +186,8 @@ def run_comparison_with_old_tests():
     # Run some existing tests for comparison
     old_runner = TestRunner()
     old_success = old_runner.run_test_layer(
-        "Old USE_CURRENT", "test_use_current_export.py",
+        "Old USE_CURRENT",
+        "test_use_current_export.py",
     )
 
     print(f"\n{'='*60}")
@@ -198,7 +206,9 @@ def run_comparison_with_old_tests():
     if new_success and old_success:
         print("✨ Both test suites pass - migration ready!")
     elif new_success and not old_success:
-        print("🔧 New tests pass but old tests fail - this is expected during migration")
+        print(
+            "🔧 New tests pass but old tests fail - this is expected during migration"
+        )
     elif not new_success and old_success:
         print("⚠️  Old tests pass but new tests fail - need to fix new implementation")
     else:

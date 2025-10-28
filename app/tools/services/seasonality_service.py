@@ -68,7 +68,8 @@ class SeasonalityService:
             console=self.console,
         ) as progress:
             task = progress.add_task(
-                "[cyan]Analyzing seasonality patterns...", total=len(tickers),
+                "[cyan]Analyzing seasonality patterns...",
+                total=len(tickers),
             )
 
             for ticker in tickers:
@@ -113,7 +114,9 @@ class SeasonalityService:
         return sorted(tickers)
 
     def _analyze_ticker(
-        self, ticker: str, _retry: bool = False,
+        self,
+        ticker: str,
+        _retry: bool = False,
     ) -> SeasonalityResult | None:
         """Analyze seasonality for a single ticker.
 
@@ -203,7 +206,8 @@ class SeasonalityService:
 
         # Analyze patterns
         patterns = self.analyzer.analyze_all_patterns(
-            data, detrend=self.config.detrend_data,
+            data,
+            detrend=self.config.detrend_data,
         )
 
         # Calculate overall seasonal strength
@@ -214,7 +218,8 @@ class SeasonalityService:
         strongest_pattern = None
         if patterns:
             strongest_pattern = max(
-                patterns, key=lambda p: p.average_return * p.win_rate,
+                patterns,
+                key=lambda p: p.average_return * p.win_rate,
             )
 
         # Create result
@@ -232,7 +237,6 @@ class SeasonalityService:
                 "confidence_level": self.config.confidence_level,
             },
         )
-
 
     def _save_result(self, result: SeasonalityResult) -> None:
         """Save analysis result to file.
@@ -416,7 +420,8 @@ class SeasonalityService:
             "week_of_year_patterns": [
                 pattern_to_dict(p)
                 for p in sorted(
-                    week_of_year_patterns, key=lambda p: p.period_number or 0,
+                    week_of_year_patterns,
+                    key=lambda p: p.period_number or 0,
                 )
             ],
             "day_of_month_patterns": [
@@ -515,7 +520,8 @@ class SeasonalityService:
 
         for month_name in month_order:
             pattern = next(
-                (p for p in monthly_patterns if p.period == month_name), None,
+                (p for p in monthly_patterns if p.period == month_name),
+                None,
             )
             if not pattern:
                 continue
@@ -568,9 +574,7 @@ class SeasonalityService:
             risk = (
                 "Low"
                 if pattern.std_dev < 3
-                else "Moderate"
-                if pattern.std_dev < 5
-                else "High"
+                else "Moderate" if pattern.std_dev < 5 else "High"
             )
             risk_color = (
                 "green" if risk == "Low" else "yellow" if risk == "Moderate" else "red"
@@ -668,7 +672,9 @@ class SeasonalityService:
 
         # Sort by average return
         sorted_patterns = sorted(
-            week_patterns, key=lambda p: p.average_return, reverse=True,
+            week_patterns,
+            key=lambda p: p.average_return,
+            reverse=True,
         )
         best_weeks = sorted_patterns[:3]
         worst_weeks = sorted_patterns[-3:][::-1]  # Reverse to show worst first
@@ -827,9 +833,7 @@ class SeasonalityService:
                 else (
                     "Moderate"
                     if strength > 0.4
-                    else "Weak"
-                    if strength > 0.2
-                    else "Very Weak"
+                    else "Weak" if strength > 0.2 else "Very Weak"
                 )
             )
         )
@@ -878,9 +882,7 @@ class SeasonalityService:
             cons_color = (
                 "green"
                 if consistency_pct >= 60
-                else "yellow"
-                if consistency_pct >= 50
-                else "red"
+                else "yellow" if consistency_pct >= 50 else "red"
             )
             self.console.print(
                 f"Overall Consistency: [{cons_color}]{consistency_pct:.0f}% (months with positive returns)[/{cons_color}]",

@@ -30,7 +30,10 @@ def upgrade() -> None:
         sa.Column("rate_limit", sa.Integer, nullable=False, default=60),
         sa.Column("is_active", sa.Boolean, nullable=False, default=True),
         sa.Column(
-            "created_at", sa.DateTime, nullable=False, server_default=sa.text("now()"),
+            "created_at",
+            sa.DateTime,
+            nullable=False,
+            server_default=sa.text("now()"),
         ),
         sa.Column("last_used_at", sa.DateTime, nullable=True),
     )
@@ -49,7 +52,10 @@ def upgrade() -> None:
         sa.Column("result_data", postgresql.JSON, nullable=True),
         sa.Column("error_message", sa.Text, nullable=True),
         sa.Column(
-            "created_at", sa.DateTime, nullable=False, server_default=sa.text("now()"),
+            "created_at",
+            sa.DateTime,
+            nullable=False,
+            server_default=sa.text("now()"),
         ),
         sa.Column("started_at", sa.DateTime, nullable=True),
         sa.Column("completed_at", sa.DateTime, nullable=True),

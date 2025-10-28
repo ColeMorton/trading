@@ -397,12 +397,16 @@ class DashboardGenerator:
         metric_summaries = {}
         for metric in key_metrics:
             metric_summaries[metric] = self.log_analyzer.get_metric_summary(
-                metric, hours=1,
+                metric,
+                hours=1,
             )
 
         # Generate HTML
         html_content = self._generate_html_content(
-            health_score, operation_analysis, metric_summaries, hours_back,
+            health_score,
+            operation_analysis,
+            metric_summaries,
+            hours_back,
         )
 
         # Write to file
@@ -432,7 +436,8 @@ class DashboardGenerator:
         }
 
         status_color = status_colors.get(
-            health_score.get("status", "unknown"), "#6c757d",
+            health_score.get("status", "unknown"),
+            "#6c757d",
         )
 
         return f"""
@@ -647,7 +652,8 @@ class DashboardGenerator:
             trend = summary.get("trend", "stable")
             trend_class = f"trend-{trend.replace('ing', '')}"
             trend_symbol = {"increasing": "↗", "decreasing": "↘", "stable": "→"}.get(
-                trend, "→",
+                trend,
+                "→",
             )
 
             html += f"""
@@ -759,7 +765,8 @@ def get_dashboard_generator(
 
 
 def generate_performance_dashboard(
-    output_file: Path | None = None, hours_back: int = 24,
+    output_file: Path | None = None,
+    hours_back: int = 24,
 ) -> str:
     """Generate performance dashboard HTML file."""
     if output_file is None:
@@ -770,7 +777,8 @@ def generate_performance_dashboard(
 
 
 def analyze_performance_logs(
-    log_file: Path | None = None, hours_back: int = 24,
+    log_file: Path | None = None,
+    hours_back: int = 24,
 ) -> dict[str, Any]:
     """Analyze performance logs and return summary."""
     analyzer = LogAnalyzer(log_file)

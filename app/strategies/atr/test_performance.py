@@ -39,7 +39,9 @@ class TestATRPerformanceMetrics(unittest.TestCase):
         # Create large dataset for performance testing
         self.large_dataset_size = 5000  # 5000 days ≈ 13.7 years
         self.dates = pd.date_range(
-            "2010-01-01", periods=self.large_dataset_size, freq="D",
+            "2010-01-01",
+            periods=self.large_dataset_size,
+            freq="D",
         )
 
         # Create realistic large dataset
@@ -48,7 +50,9 @@ class TestATRPerformanceMetrics(unittest.TestCase):
 
         # Generate realistic price series with trends and volatility
         returns = np.random.normal(
-            0.0005, 0.02, self.large_dataset_size,
+            0.0005,
+            0.02,
+            self.large_dataset_size,
         )  # 0.05% drift, 2% volatility
         prices = base_price * np.exp(np.cumsum(returns))
 
@@ -147,7 +151,9 @@ class TestATRPerformanceMetrics(unittest.TestCase):
         results = []
         for atr_length, atr_multiplier in test_params:
             signals_df = generate_signals(
-                self.large_test_data, atr_length, atr_multiplier,
+                self.large_test_data,
+                atr_length,
+                atr_multiplier,
             )
             results.append(signals_df)
 
@@ -220,7 +226,9 @@ class TestATRPerformanceMetrics(unittest.TestCase):
         time_per_combination = execution_time / combinations
 
         self.assertEqual(
-            len(results), combinations, "Should complete all parameter combinations",
+            len(results),
+            combinations,
+            "Should complete all parameter combinations",
         )
 
         self.assertLess(
@@ -381,7 +389,8 @@ class TestATRPerformanceMetrics(unittest.TestCase):
         # Force errors during processing
         problematic_data = self.large_test_data.copy()
         problematic_data.loc[
-            problematic_data.index[100:110], "Close",
+            problematic_data.index[100:110],
+            "Close",
         ] = np.nan  # Inject NaN values
 
         try:

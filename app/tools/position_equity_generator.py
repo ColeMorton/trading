@@ -214,16 +214,18 @@ class DirectEquityCalculator:
         self.precision_fee_calculator = PrecisionFeeCalculator(self.fee_rate)
         self.precision_equity_calculator = PrecisionEquityCalculator(self.fee_rate)
         self.baseline_calculator = PortfolioBaselineCalculator(self.fee_rate)
-        self._positions_cache: list[
-            dict[str, Any]
-        ] = []  # Cache for position data access
+        self._positions_cache: list[dict[str, Any]] = (
+            []
+        )  # Cache for position data access
 
     def _default_log(self, message: str, level: str = "info") -> None:
         """Default logging function when none provided."""
         print(f"[{level.upper()}] {message}")
 
     def calculate_equity_timeline(
-        self, positions: list[PositionEntry], init_cash: float = 10000.0,
+        self,
+        positions: list[PositionEntry],
+        init_cash: float = 10000.0,
     ) -> pd.DataFrame:
         """
         Calculate equity timeline from position events.
@@ -268,7 +270,9 @@ class DirectEquityCalculator:
             if event["type"] == "entry":
                 # Position entry with high-precision calculations
                 cash_flow = self.precision_equity_calculator.calculate_cash_flow(
-                    "entry", event["price"], event["size"],
+                    "entry",
+                    event["price"],
+                    event["size"],
                 )
                 entry_cost = float(cash_flow["gross_amount"])
                 entry_fee = float(cash_flow["fee"])
@@ -309,7 +313,9 @@ class DirectEquityCalculator:
 
                 # Use precision calculator for exit
                 cash_flow = self.precision_equity_calculator.calculate_cash_flow(
-                    "exit", event["price"], position["size"],
+                    "exit",
+                    event["price"],
+                    position["size"],
                 )
                 exit_proceeds = float(cash_flow["gross_amount"])
                 exit_fee = float(cash_flow["fee"])
@@ -320,7 +326,9 @@ class DirectEquityCalculator:
 
                 # Calculate P&L for logging with precision
                 pnl_breakdown = self.precision_fee_calculator.calculate_net_pnl(
-                    position["entry_price"], event["price"], position["size"],
+                    position["entry_price"],
+                    event["price"],
+                    position["size"],
                 )
                 net_pnl = float(pnl_breakdown["net_pnl"])
 
@@ -333,7 +341,8 @@ class DirectEquityCalculator:
             # Only add one entry per day (last event for that day)
             # Calculate total portfolio value (cash + open positions at current market value)
             positions_value = self._calculate_open_positions_current_value(
-                open_positions, timestamp,
+                open_positions,
+                timestamp,
             )
             current_value = cash + positions_value
 
@@ -365,13 +374,13 @@ class DirectEquityCalculator:
         # Convert to DataFrame and clean up
         equity_df = pd.DataFrame(equity_timeline)
         equity_df = equity_df.drop(
-            "date", axis=1,
+            "date",
+            axis=1,
         )  # Remove date column used for grouping
         equity_df = equity_df.set_index("timestamp")
 
         # Generate daily timeline
         return self._generate_daily_equity(equity_df)
-
 
     def _process_position_events(self, positions: list[PositionEntry]) -> list[dict]:
         """Convert positions to chronological entry/exit events."""
@@ -412,7 +421,9 @@ class DirectEquityCalculator:
         return events
 
     def _calculate_open_positions_current_value(
-        self, open_positions: dict, current_timestamp: datetime,
+        self,
+        open_positions: dict,
+        current_timestamp: datetime,
     ) -> float:
         """
         Calculate current market value of open positions using unrealized P&L data.
@@ -528,9 +539,10 @@ class DirectEquityCalculator:
         # Fill any remaining NaN values at the beginning
         return daily_equity.bfill()
 
-
     def reconstruct_portfolio(
-        self, positions: list[PositionEntry], init_cash: float = 10000.0,
+        self,
+        positions: list[PositionEntry],
+        init_cash: float = 10000.0,
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """
         Calculate portfolio equity curve directly from position data.
@@ -603,7 +615,8 @@ class DirectEquityCalculator:
             raise TradingSystemError(error_msg) from e
 
     def _calculate_position_based_allocation(
-        self, ticker_positions: dict[str, list[PositionEntry]],
+        self,
+        ticker_positions: dict[str, list[PositionEntry]],
     ) -> dict[str, float]:
         """
         Calculate the actual cash allocation for each ticker based on position entry values.
@@ -635,7 +648,9 @@ class DirectEquityCalculator:
         return ticker_cash_allocation
 
     def _load_combined_prices(
-        self, tickers: list[str], positions: list[PositionEntry],
+        self,
+        tickers: list[str],
+        positions: list[PositionEntry],
     ) -> pd.DataFrame:
         """Load and combine price data for all tickers."""
         # Determine date range from positions
@@ -675,7 +690,9 @@ class DirectEquityCalculator:
         return prices
 
     def _create_order_sequence(
-        self, positions: list[PositionEntry], prices: pd.DataFrame,
+        self,
+        positions: list[PositionEntry],
+        prices: pd.DataFrame,
     ) -> pd.DataFrame:
         """Create chronological order sequence from positions."""
         orders = []
@@ -722,12 +739,16 @@ class DirectEquityCalculator:
             orders_df = orders_df.sort_values("timestamp").reset_index(drop=True)
 
         self.log(
-            f"Created {len(orders_df)} orders from {len(positions)} positions", "info",
+            f"Created {len(orders_df)} orders from {len(positions)} positions",
+            "info",
         )
         return orders_df
 
     def _create_vectorbt_portfolio(
-        self, orders_df: pd.DataFrame, prices: pd.DataFrame, init_cash: float,
+        self,
+        orders_df: pd.DataFrame,
+        prices: pd.DataFrame,
+        init_cash: float,
     ) -> vbt.Portfolio:
         """Create VectorBT portfolio from order sequence."""
         try:
@@ -756,7 +777,6 @@ class DirectEquityCalculator:
                 freq="D",
             )
 
-
         except Exception as e:
             msg = f"Failed to create VectorBT portfolio: {e!s}"
             raise TradingSystemError(
@@ -764,7 +784,9 @@ class DirectEquityCalculator:
             ) from e
 
     def _align_orders_with_prices(
-        self, orders_df: pd.DataFrame, prices: pd.DataFrame,
+        self,
+        orders_df: pd.DataFrame,
+        prices: pd.DataFrame,
     ) -> pd.DataFrame:
         """Align orders with price data timeline."""
         # Create series aligned with price data index
@@ -785,7 +807,10 @@ class DirectEquityCalculator:
         return pd.DataFrame({"size": size_series, "price": price_series})
 
     def _create_ticker_portfolio(
-        self, ticker: str, positions: list[PositionEntry], allocated_cash: float,
+        self,
+        ticker: str,
+        positions: list[PositionEntry],
+        allocated_cash: float,
     ) -> tuple[vbt.Portfolio, pd.DataFrame]:
         """Create VectorBT portfolio for a single ticker."""
         try:
@@ -820,7 +845,9 @@ class DirectEquityCalculator:
 
             # Create VectorBT portfolio
             portfolio = self._create_vectorbt_portfolio(
-                orders_df, prices, allocated_cash,
+                orders_df,
+                prices,
+                allocated_cash,
             )
 
             return portfolio, prices
@@ -832,7 +859,9 @@ class DirectEquityCalculator:
             ) from e
 
     def _create_ticker_order_sequence(
-        self, positions: list[PositionEntry], prices: pd.DataFrame,
+        self,
+        positions: list[PositionEntry],
+        prices: pd.DataFrame,
     ) -> pd.DataFrame:
         """Create order sequence for a single ticker."""
         orders = []
@@ -916,7 +945,8 @@ class DirectEquityCalculator:
             for ticker, curve_data in ticker_equity_curves.items():
                 if ticker not in ticker_position_data:
                     self.log(
-                        f"Skipping {ticker} - no position data available", "warning",
+                        f"Skipping {ticker} - no position data available",
+                        "warning",
                     )
                     continue
 
@@ -925,7 +955,8 @@ class DirectEquityCalculator:
 
                 # Create equity series for this ticker (VectorBT returns indexed at 0)
                 ticker_equity = pd.Series(
-                    curve_data["equity"], index=curve_data["index"],
+                    curve_data["equity"],
+                    index=curve_data["index"],
                 )
 
                 # VectorBT portfolio.value() already returns absolute portfolio values
@@ -937,9 +968,9 @@ class DirectEquityCalculator:
 
                 # For dates before this ticker's first date, use initial cash allocation
                 first_date = ticker_equity.index.min()
-                ticker_aligned.loc[
-                    ticker_aligned.index < first_date
-                ] = ticker_initial_value
+                ticker_aligned.loc[ticker_aligned.index < first_date] = (
+                    ticker_initial_value
+                )
 
                 # Forward fill remaining NaN values
                 ticker_aligned = ticker_aligned.ffill()
@@ -1011,7 +1042,9 @@ class PositionEquityGenerator:
         print(f"[{level.upper()}] {message}")
 
     def _create_mock_portfolio(
-        self, combined_equity: pd.DataFrame, prices: pd.DataFrame,
+        self,
+        combined_equity: pd.DataFrame,
+        prices: pd.DataFrame,
     ):
         """Create a mock VectorBT portfolio from combined equity data."""
 
@@ -1092,7 +1125,8 @@ class PositionEquityGenerator:
         """
         try:
             self.log(
-                f"Starting equity generation for portfolio: {portfolio_name}", "info",
+                f"Starting equity generation for portfolio: {portfolio_name}",
+                "info",
             )
 
             # Load position data
@@ -1113,7 +1147,9 @@ class PositionEquityGenerator:
 
             # Extract equity data using existing infrastructure
             equity_data = self.equity_extractor.extract_equity_data(
-                mock_portfolio, metric_type, config,
+                mock_portfolio,
+                metric_type,
+                config,
             )
 
             self.log(f"Successfully generated equity data for {portfolio_name}", "info")
@@ -1148,7 +1184,10 @@ class PositionEquityGenerator:
         try:
             # Generate equity data
             equity_data = self.generate_equity_data(
-                portfolio_name, metric_type, init_cash, config,
+                portfolio_name,
+                metric_type,
+                init_cash,
+                config,
             )
 
             # Determine output path
@@ -1215,5 +1254,9 @@ def generate_position_equity(
     # Create generator and export
     generator = PositionEquityGenerator(log=log)
     return generator.export_equity_data(
-        portfolio_name, output_dir, metric_type, init_cash, config,
+        portfolio_name,
+        output_dir,
+        metric_type,
+        init_cash,
+        config,
     )

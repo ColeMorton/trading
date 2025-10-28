@@ -48,7 +48,8 @@ class PortfolioSeasonalityService:
             transient=True,
         ) as progress:
             task = progress.add_task(
-                "Analyzing seasonality patterns...", total=len(ticker_periods),
+                "Analyzing seasonality patterns...",
+                total=len(ticker_periods),
             )
 
             for ticker, time_period_days in ticker_periods.items():
@@ -211,7 +212,8 @@ class PortfolioSeasonalityService:
                     # Use average duration across all signal entry strategies
                     avg_duration = int(round(sum(durations) / len(durations)))
                     ticker_periods[ticker] = max(
-                        1, avg_duration,
+                        1,
+                        avg_duration,
                     )  # Ensure at least 1 day
                 else:
                     # Fallback to default if duration parsing failed
@@ -364,7 +366,8 @@ class PortfolioSeasonalityService:
                         "Best_Pattern": strongest_pattern.pattern_type,
                         "Period": strongest_pattern.period,
                         "Avg_Return_Percent": round(
-                            strongest_pattern.average_return, 2,
+                            strongest_pattern.average_return,
+                            2,
                         ),
                         "Win_Rate": round(strongest_pattern.win_rate, 3),
                         "Expectancy": round(
@@ -374,7 +377,8 @@ class PortfolioSeasonalityService:
                         ),
                         "Sample_Size": strongest_pattern.sample_size,
                         "Statistical_Significance": round(
-                            strongest_pattern.statistical_significance, 3,
+                            strongest_pattern.statistical_significance,
+                            3,
                         ),
                         "Time_Period_Days": result_info["time_period_days"],
                         "Analysis_Source": result_info["analysis_source"],
@@ -468,7 +472,8 @@ class PortfolioSeasonalityService:
                         ),
                         "sample_size": strongest_pattern.sample_size,
                         "statistical_significance": round(
-                            strongest_pattern.statistical_significance, 3,
+                            strongest_pattern.statistical_significance,
+                            3,
                         ),
                         "time_period_days": result_info["time_period_days"],
                         "analysis_source": result_info["analysis_source"],

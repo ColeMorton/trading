@@ -58,7 +58,10 @@ class ProfileEditorService:
         return backup_path
 
     def set_field_value(
-        self, profile_data: dict[str, Any], field_path: str, value: str,
+        self,
+        profile_data: dict[str, Any],
+        field_path: str,
+        value: str,
     ) -> None:
         """
         Set field value with proper validation and type conversion.
@@ -127,7 +130,8 @@ class ProfileEditorService:
         self.config_manager.profile_manager.save_profile(profile_name, profile_data)
 
     def get_editable_fields(
-        self, profile_data: dict[str, Any],
+        self,
+        profile_data: dict[str, Any],
     ) -> list[tuple[str, Any]]:
         """
         Extract editable fields from profile data.

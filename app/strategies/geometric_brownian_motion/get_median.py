@@ -46,7 +46,6 @@ def get_median(config: dict) -> pl.DataFrame:
     )
 
 
-
 if __name__ == "__main__":
     df = get_median(config)
     print(df)

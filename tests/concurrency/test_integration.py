@@ -7,10 +7,11 @@ import json
 from pathlib import Path
 import unittest
 
+import pytest
+
 from app.concurrency.review import run_analysis
 
 from .base import ConcurrencyTestCase, MockDataMixin
-import pytest
 
 
 class TestBasicIntegration(ConcurrencyTestCase, MockDataMixin):
@@ -29,7 +30,8 @@ class TestBasicIntegration(ConcurrencyTestCase, MockDataMixin):
 
         # Create portfolio file
         self.portfolio_path = self.create_portfolio_file(
-            self.test_strategies, "integration_test.json",
+            self.test_strategies,
+            "integration_test.json",
         )
 
     def test_configuration_validation(self):
@@ -231,12 +233,17 @@ class TestErrorHandlingIntegration(ConcurrencyTestCase):
 
         # Create retry policy
         policy = create_recovery_policy(
-            RecoveryStrategy.RETRY, max_retries=3, retry_delay=0.01,
+            RecoveryStrategy.RETRY,
+            max_retries=3,
+            retry_delay=0.01,
         )
 
         # Apply recovery
         result = apply_error_recovery(
-            flaky_function, policy, self.log_mock, "test operation",
+            flaky_function,
+            policy,
+            self.log_mock,
+            "test operation",
         )
 
         self.assertEqual(result, "Success")

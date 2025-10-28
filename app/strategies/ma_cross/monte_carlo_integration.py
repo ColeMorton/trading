@@ -146,7 +146,8 @@ class MonteCarloEnhancedAnalyzer:
         """
         # Setup logging
         self.log, log_close, _, _ = setup_logging(
-            module_name="ma_cross_monte_carlo", log_file="enhanced_analysis.log",
+            module_name="ma_cross_monte_carlo",
+            log_file="enhanced_analysis.log",
         )
 
         try:
@@ -173,7 +174,6 @@ class MonteCarloEnhancedAnalyzer:
 
             # Convert results back to legacy format for compatibility
             return self._convert_results_to_legacy_format(monte_carlo_results)
-
 
         finally:
             if log_close:
@@ -208,7 +208,8 @@ class MonteCarloEnhancedAnalyzer:
         return strategies[: self.mc_config.max_parameters_to_test]  # Respect limits
 
     def _convert_results_to_legacy_format(
-        self, monte_carlo_results: dict[str, Any],
+        self,
+        monte_carlo_results: dict[str, Any],
     ) -> dict[str, Any]:
         """Convert new Monte Carlo results to legacy format."""
         legacy_results = {
@@ -231,16 +232,24 @@ class MonteCarloEnhancedAnalyzer:
                             {
                                 "ticker": ticker,
                                 "parameter_combination": getattr(
-                                    param_result, "parameter_combination", None,
+                                    param_result,
+                                    "parameter_combination",
+                                    None,
                                 ),
                                 "stability_score": getattr(
-                                    param_result, "stability_score", 0.0,
+                                    param_result,
+                                    "stability_score",
+                                    0.0,
                                 ),
                                 "parameter_robustness": getattr(
-                                    param_result, "parameter_robustness", 0.0,
+                                    param_result,
+                                    "parameter_robustness",
+                                    0.0,
                                 ),
                                 "regime_consistency": getattr(
-                                    param_result, "regime_consistency", 0.0,
+                                    param_result,
+                                    "regime_consistency",
+                                    0.0,
                                 ),
                             },
                         )
@@ -255,7 +264,9 @@ class MonteCarloEnhancedAnalyzer:
                         "ticker": ticker,
                         "recommended_parameters": result.recommended_parameters,
                         "stability_score": getattr(
-                            result, "portfolio_stability_score", 0.0,
+                            result,
+                            "portfolio_stability_score",
+                            0.0,
                         ),
                     },
                 )
@@ -267,7 +278,8 @@ class MonteCarloEnhancedAnalyzer:
             "stable_parameters_found": len(legacy_results["robust_parameters"]),
             "recommendations_generated": len(legacy_results["recommendations"]),
             "average_stability_score": portfolio_metrics.get(
-                "portfolio_stability_score", 0.0,
+                "portfolio_stability_score",
+                0.0,
             ),
         }
 
@@ -298,13 +310,18 @@ class MonteCarloEnhancedAnalyzer:
                 short_windows = list(range(5, self.parameter_config.windows))
                 long_windows = list(
                     range(
-                        self.parameter_config.windows, self.parameter_config.windows * 3,
+                        self.parameter_config.windows,
+                        self.parameter_config.windows * 3,
                     ),
                 )
 
                 # Run parameter sensitivity analysis
                 results_df = analyze_parameter_sensitivity(
-                    data, short_windows, long_windows, current_config, self.log,
+                    data,
+                    short_windows,
+                    long_windows,
+                    current_config,
+                    self.log,
                 )
 
                 if results_df is not None:
@@ -318,7 +335,9 @@ class MonteCarloEnhancedAnalyzer:
         return all_results
 
     def _filter_promising_parameters(
-        self, standard_results: list[dict[str, Any]], top_percentage: float = 0.3,
+        self,
+        standard_results: list[dict[str, Any]],
+        top_percentage: float = 0.3,
     ) -> list[tuple[str, int, int]]:
         """
         Filter promising parameter combinations for robustness testing.
@@ -376,7 +395,8 @@ class MonteCarloEnhancedAnalyzer:
         return promising_params
 
     def _run_robustness_analysis(
-        self, promising_params: list[tuple[str, int, int]],
+        self,
+        promising_params: list[tuple[str, int, int]],
     ) -> dict[str, list]:
         """
         Run Monte Carlo robustness analysis on promising parameters.
@@ -493,17 +513,21 @@ class MonteCarloEnhancedAnalyzer:
                     "Is_Stable": robustness_result.is_stable,
                     # Monte Carlo statistics
                     "MC_Mean_Sharpe": robustness_result.performance_mean.get(
-                        "Sharpe Ratio", 0,
+                        "Sharpe Ratio",
+                        0,
                     ),
                     "MC_Sharpe_CI_Lower": robustness_result.confidence_intervals.get(
-                        "Sharpe Ratio", (0, 0),
+                        "Sharpe Ratio",
+                        (0, 0),
                     )[0],
                     "MC_Sharpe_CI_Upper": robustness_result.confidence_intervals.get(
-                        "Sharpe Ratio", (0, 0),
+                        "Sharpe Ratio",
+                        (0, 0),
                     )[1],
                     # Recommendation score (composite of performance and stability)
                     "Recommendation_Score": self._calculate_recommendation_score(
-                        standard_result, robustness_result,
+                        standard_result,
+                        robustness_result,
                     ),
                     "Recommendation_Rank": "TBD",  # Will be filled after sorting
                 }
@@ -530,7 +554,9 @@ class MonteCarloEnhancedAnalyzer:
         return recommendations
 
     def _calculate_recommendation_score(
-        self, standard_result: dict[str, Any], robustness_result,
+        self,
+        standard_result: dict[str, Any],
+        robustness_result,
     ) -> float:
         """
         Calculate composite recommendation score consistent with existing strategy scoring.
@@ -749,7 +775,6 @@ def run_monte_carlo_enhanced_ma_cross(
     # Run enhanced analysis
     analyzer = MonteCarloEnhancedAnalyzer(param_config, mc_config)
     return analyzer.run_enhanced_analysis()
-
 
 
 if __name__ == "__main__":

@@ -11,7 +11,8 @@ from app.tools.setup_logging import setup_logging
 
 
 log, log_close, _, _ = setup_logging(
-    module_name="ma_cross", log_file="1_jump_diffusion.log",
+    module_name="ma_cross",
+    log_file="1_jump_diffusion.log",
 )
 
 TICKER = "SUI20947-USD"
@@ -44,40 +45,52 @@ sigma = returns.std() / np.sqrt(dt)
 
 
 def merton_jump_diffusion_model(
-    S0, mu, sigma, lambda_jump, jump_mean, jump_std, dt, num_steps, num_simulations,
+    S0,
+    mu,
+    sigma,
+    lambda_jump,
+    jump_mean,
+    jump_std,
+    dt,
+    num_steps,
+    num_simulations,
 ):
-    dW = np.random.normal(0, np.sqrt(dt), size=(num_steps, num_simulations))
-    N = np.random.poisson(lambda_jump * dt, size=(num_steps, num_simulations))
-    J = np.random.normal(jump_mean, jump_std, size=(num_steps, num_simulations))
+    dw = np.random.normal(0, np.sqrt(dt), size=(num_steps, num_simulations))
+    n_jumps = np.random.poisson(lambda_jump * dt, size=(num_steps, num_simulations))
+    jump_sizes = np.random.normal(
+        jump_mean, jump_std, size=(num_steps, num_simulations)
+    )
 
-    S = np.zeros((num_steps + 1, num_simulations))
-    S[0] = S0
+    s_prices = np.zeros((num_steps + 1, num_simulations))
+    s_prices[0] = S0
 
     for t in range(1, num_steps + 1):
-        S[t] = S[t - 1] * np.exp(
+        s_prices[t] = s_prices[t - 1] * np.exp(
             (
                 mu
                 - 0.5 * sigma**2
                 - lambda_jump * (np.exp(jump_mean + 0.5 * jump_std**2) - 1)
             )
             * dt
-            + sigma * dW[t - 1]
-            + N[t - 1] * J[t - 1],
+            + sigma * dw[t - 1]
+            + n_jumps[t - 1] * jump_sizes[t - 1],
         )
 
-    return S
+    return s_prices
 
 
 def geometric_brownian_motion(S0, mu, sigma, dt, num_steps, num_simulations):
-    dW = np.random.normal(0, np.sqrt(dt), size=(num_steps, num_simulations))
+    dw = np.random.normal(0, np.sqrt(dt), size=(num_steps, num_simulations))
 
-    S = np.zeros((num_steps + 1, num_simulations))
-    S[0] = S0
+    s_prices = np.zeros((num_steps + 1, num_simulations))
+    s_prices[0] = S0
 
     for t in range(1, num_steps + 1):
-        S[t] = S[t - 1] * np.exp((mu - 0.5 * sigma**2) * dt + sigma * dW[t - 1])
+        s_prices[t] = s_prices[t - 1] * np.exp(
+            (mu - 0.5 * sigma**2) * dt + sigma * dw[t - 1]
+        )
 
-    return S
+    return s_prices
 
 
 def calculate_var(returns, confidence_level=0.95):
@@ -145,10 +158,20 @@ if USE_MERTON:
     )
 else:
     jd_simulations = geometric_brownian_motion(
-        S0, mu_est, sigma_est, dt, num_steps, num_simulations,
+        S0,
+        mu_est,
+        sigma_est,
+        dt,
+        num_steps,
+        num_simulations,
     )
 gbm_simulations = geometric_brownian_motion(
-    S0, mu_est, sigma_est, dt, num_steps, num_simulations,
+    S0,
+    mu_est,
+    sigma_est,
+    dt,
+    num_steps,
+    num_simulations,
 )
 
 # Calculate returns
@@ -211,9 +234,7 @@ print(f"GBM VaR: {gbm_var:.4f}")
 results_df = pl.DataFrame(
     {
         "Metric": ["Final Price Mean", "Final Price Std Dev", "VaR (95%)"],
-        "Merton Jump-Diffusion"
-        if USE_MERTON
-        else "GBM": [
+        "Merton Jump-Diffusion" if USE_MERTON else "GBM": [
             jd_final_prices.mean(),
             jd_final_prices.std(),
             jd_var,

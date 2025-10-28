@@ -80,7 +80,9 @@ def valid_data(ticker: str, config: DataConfig, log: Callable):
 
 
 def get_data(
-    ticker: str, config: DataConfig, log: Callable,
+    ticker: str,
+    config: DataConfig,
+    log: Callable,
 ) -> pl.DataFrame | tuple[pl.DataFrame, str]:
     """Get data based on configuration settings.
 

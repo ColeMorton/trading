@@ -246,7 +246,9 @@ def detect_portfolio_format(file_path: str) -> PortfolioFormat:
 
     if extension == ".csv":
         return PortfolioFormat(
-            extension=".csv", content_type="text/csv", validator=validate_csv_portfolio,
+            extension=".csv",
+            content_type="text/csv",
+            validator=validate_csv_portfolio,
         )
     if extension == ".json":
         # Detect JSON subtype by content
@@ -256,7 +258,9 @@ def detect_portfolio_format(file_path: str) -> PortfolioFormat:
                 if not isinstance(data, list) or not data:
                     error = FileFormatError("JSON file must contain a non-empty array")
                     track_error(
-                        error, "portfolio format detection", {"file_path": file_path},
+                        error,
+                        "portfolio format detection",
+                        {"file_path": file_path},
                     )
                     raise error
 
@@ -351,7 +355,8 @@ def validate_config(config: dict[str, Any]) -> ConcurrencyConfig:
         raise error
 
     if "RATIO_BASED_ALLOCATION" in config and not isinstance(
-        config["RATIO_BASED_ALLOCATION"], bool,
+        config["RATIO_BASED_ALLOCATION"],
+        bool,
     ):
         error = ValidationError("RATIO_BASED_ALLOCATION must be a boolean if provided")
         track_error(

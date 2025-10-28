@@ -64,7 +64,9 @@ class PortfolioMetricsValidator:
         """Initialize the validator with logging."""
         if log is None:
             self.log, _, _, _ = setup_logging(
-                "portfolio_validator", Path("./logs"), "validation.log",
+                "portfolio_validator",
+                Path("./logs"),
+                "validation.log",
             )
         else:
             self.log = log
@@ -104,16 +106,22 @@ class PortfolioMetricsValidator:
         # Run validation checks
         self._validate_trade_counts(csv_data, json_metrics, tolerances["trade_count"])
         self._validate_performance_signs(
-            csv_data, json_metrics, tolerances["performance"],
+            csv_data,
+            json_metrics,
+            tolerances["performance"],
         )
         self._validate_risk_bounds(csv_data, json_metrics, tolerances["risk"])
         self._validate_allocation_weights(json_metrics, tolerances["allocation"])
         self._validate_unit_consistency(
-            csv_data, json_metrics, tolerances["unit_consistency"],
+            csv_data,
+            json_metrics,
+            tolerances["unit_consistency"],
         )
         self._validate_win_rates(csv_data, json_metrics, tolerances["performance"])
         self._validate_expectancy_units(
-            csv_data, json_metrics, tolerances["unit_consistency"],
+            csv_data,
+            json_metrics,
+            tolerances["unit_consistency"],
         )
 
         # Generate summary
@@ -123,7 +131,10 @@ class PortfolioMetricsValidator:
         return summary
 
     def _validate_trade_counts(
-        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float,
+        self,
+        csv_data: pd.DataFrame,
+        json_metrics: dict[str, Any],
+        tolerance: float,
     ) -> None:
         """Validate that signal counts are consistent with actual trade counts."""
         try:
@@ -198,7 +209,10 @@ class PortfolioMetricsValidator:
             )
 
     def _validate_performance_signs(
-        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float,
+        self,
+        csv_data: pd.DataFrame,
+        json_metrics: dict[str, Any],
+        tolerance: float,
     ) -> None:
         """Validate that performance metrics maintain correct signs."""
         try:
@@ -266,7 +280,10 @@ class PortfolioMetricsValidator:
             )
 
     def _validate_risk_bounds(
-        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float,
+        self,
+        csv_data: pd.DataFrame,
+        json_metrics: dict[str, Any],
+        tolerance: float,
     ) -> None:
         """Validate that JSON risk metrics don't exceed CSV bounds."""
         try:
@@ -326,7 +343,9 @@ class PortfolioMetricsValidator:
             )
 
     def _validate_allocation_weights(
-        self, json_metrics: dict[str, Any], tolerance: float,
+        self,
+        json_metrics: dict[str, Any],
+        tolerance: float,
     ) -> None:
         """Validate that allocation weights sum to 1.0."""
         try:
@@ -385,7 +404,10 @@ class PortfolioMetricsValidator:
             )
 
     def _validate_unit_consistency(
-        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float,
+        self,
+        csv_data: pd.DataFrame,
+        json_metrics: dict[str, Any],
+        tolerance: float,
     ) -> None:
         """Validate unit consistency across metrics."""
         try:
@@ -458,7 +480,10 @@ class PortfolioMetricsValidator:
             )
 
     def _validate_win_rates(
-        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float,
+        self,
+        csv_data: pd.DataFrame,
+        json_metrics: dict[str, Any],
+        tolerance: float,
     ) -> None:
         """Validate win rate calculations against CSV data."""
         try:
@@ -517,7 +542,10 @@ class PortfolioMetricsValidator:
             )
 
     def _validate_expectancy_units(
-        self, csv_data: pd.DataFrame, json_metrics: dict[str, Any], tolerance: float,
+        self,
+        csv_data: pd.DataFrame,
+        json_metrics: dict[str, Any],
+        tolerance: float,
     ) -> None:
         """Validate that expectancy values use consistent units."""
         try:

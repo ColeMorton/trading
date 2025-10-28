@@ -191,7 +191,10 @@ class CacheWarmer:
         self._warming_thread = None
 
     def register_data_generator(
-        self, pattern: str, generator: Callable[[], Any], category: str = "default",
+        self,
+        pattern: str,
+        generator: Callable[[], Any],
+        category: str = "default",
     ):
         """Register a data generator for cache warming.
 
@@ -215,7 +218,9 @@ class CacheWarmer:
 
         self._warming_active = True
         self._warming_thread = threading.Thread(
-            target=self._warming_loop, daemon=daemon, name="CacheWarmer",
+            target=self._warming_loop,
+            daemon=daemon,
+            name="CacheWarmer",
         )
         self._warming_thread.start()
         logger.info("Cache warming cycle started")
@@ -372,7 +377,8 @@ class CacheWarmer:
         return stats
 
     def trigger_immediate_warming(
-        self, cache_keys: list[str] | None = None,
+        self,
+        cache_keys: list[str] | None = None,
     ) -> dict[str, bool]:
         """Trigger immediate warming for specific keys or top patterns.
 
@@ -471,7 +477,8 @@ _global_cache_warmer: CacheWarmer | None = None
 
 
 def get_cache_warmer(
-    cache_manager: IntelligentCacheManager | None = None, auto_start: bool = True,
+    cache_manager: IntelligentCacheManager | None = None,
+    auto_start: bool = True,
 ) -> CacheWarmer:
     """Get or create global cache warmer instance."""
     global _global_cache_warmer

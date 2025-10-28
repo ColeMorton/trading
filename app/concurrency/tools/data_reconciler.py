@@ -145,7 +145,9 @@ class DataReconciler:
             # Reconcile ticker-level metrics
             if "ticker_metrics" in csv_metrics and "ticker_metrics" in json_metrics:
                 ticker_results = self._reconcile_ticker_metrics(
-                    csv_metrics["ticker_metrics"], json_metrics["ticker_metrics"], log,
+                    csv_metrics["ticker_metrics"],
+                    json_metrics["ticker_metrics"],
+                    log,
                 )
                 report.ticker_results = ticker_results
 
@@ -257,7 +259,10 @@ class DataReconciler:
                             json_value *= 100  # Convert decimal to percentage
 
                     discrepancy = self._compare_metric_values(
-                        csv_key, csv_value, json_value, ticker,
+                        csv_key,
+                        csv_value,
+                        json_value,
+                        ticker,
                     )
 
                     if discrepancy:
@@ -369,7 +374,10 @@ class DataReconciler:
                         json_value *= 100
 
                     discrepancy = self._compare_metric_values(
-                        csv_key, csv_value, json_value, "portfolio",
+                        csv_key,
+                        csv_value,
+                        json_value,
+                        "portfolio",
                     )
 
                     if discrepancy:
@@ -400,7 +408,11 @@ class DataReconciler:
         return result
 
     def _compare_metric_values(
-        self, metric_name: str, csv_value: float, json_value: float, entity_id: str,
+        self,
+        metric_name: str,
+        csv_value: float,
+        json_value: float,
+        entity_id: str,
     ) -> MetricDiscrepancy | None:
         """
         Compare two metric values and return discrepancy if significant.
@@ -444,7 +456,8 @@ class DataReconciler:
         else:
             relative_diff = absolute_diff / abs(csv_value)
             tolerance = self.tolerance_config.get(
-                metric_name, 0.1,
+                metric_name,
+                0.1,
             )  # Default 10% tolerance
 
         # Check if tolerance is exceeded
@@ -718,18 +731,22 @@ class DataReconciler:
         total_metrics = report.overall_summary.get("total_metrics_compared", 1)
         total_discrepancies = report.overall_summary.get("total_discrepancies", 0)
         severe_critical_discrepancies = report.overall_summary.get(
-            "discrepancies_by_severity", {},
+            "discrepancies_by_severity",
+            {},
         ).get("severe", 0) + report.overall_summary.get(
-            "discrepancies_by_severity", {},
+            "discrepancies_by_severity",
+            {},
         ).get(
-            "critical", 0,
+            "critical",
+            0,
         )
 
         # Trustworthiness decreases with severity of discrepancies
         base_trustworthiness = 1.0 - (total_discrepancies / total_metrics)
         severity_penalty = (severe_critical_discrepancies / total_metrics) * 0.5
         assessment["trustworthiness_score"] = max(
-            0.0, base_trustworthiness - severity_penalty,
+            0.0,
+            base_trustworthiness - severity_penalty,
         )
 
         # Readiness for production

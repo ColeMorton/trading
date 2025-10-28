@@ -69,26 +69,30 @@ def resolve_portfolio_from_profile(profile_name: str, loader) -> tuple[str, str]
 @app.command()
 def analyze(
     ctx: typer.Context,
-    profile: str
-    | None = typer.Option(None, "--profile", "-p", help="Configuration profile name"),
-    portfolio: str
-    | None = typer.Argument(
+    profile: str | None = typer.Option(
+        None, "--profile", "-p", help="Configuration profile name"
+    ),
+    portfolio: str | None = typer.Argument(
         None,
         help="Portfolio filename (JSON or CSV) - uses profile portfolio if not specified",
     ),
     # General configuration options
-    base_dir: str
-    | None = typer.Option(
-        None, "--base-dir", help="Base directory for logs and outputs",
+    base_dir: str | None = typer.Option(
+        None,
+        "--base-dir",
+        help="Base directory for logs and outputs",
     ),
     refresh: bool = typer.Option(
-        True, "--refresh/--no-refresh", help="Refresh cached market data",
+        True,
+        "--refresh/--no-refresh",
+        help="Refresh cached market data",
     ),
     csv_use_hourly: bool = typer.Option(
-        False, "--hourly/--daily", help="Use hourly timeframe for CSV strategies",
+        False,
+        "--hourly/--daily",
+        help="Use hourly timeframe for CSV strategies",
     ),
-    sort_by: str
-    | None = typer.Option(
+    sort_by: str | None = typer.Option(
         None,
         "--sort-by",
         help="Field to sort results by (score, win_rate, total_return, sharpe_ratio, allocation)",
@@ -98,38 +102,39 @@ def analyze(
         "--ensure-counterpart/--no-counterpart",
         help="Ensure strategy counterpart validation",
     ),
-    initial_value: float
-    | None = typer.Option(
-        None, "--initial-value", help="Initial portfolio value for position sizing",
+    initial_value: float | None = typer.Option(
+        None,
+        "--initial-value",
+        help="Initial portfolio value for position sizing",
     ),
-    target_var: float
-    | None = typer.Option(
-        None, "--target-var", help="Target Value at Risk (VaR) threshold (0.0-1.0)",
+    target_var: float | None = typer.Option(
+        None,
+        "--target-var",
+        help="Target Value at Risk (VaR) threshold (0.0-1.0)",
     ),
     # Risk management options
-    max_risk_per_strategy: float
-    | None = typer.Option(
-        None, "--max-risk-strategy", help="Maximum risk percentage per strategy",
+    max_risk_per_strategy: float | None = typer.Option(
+        None,
+        "--max-risk-strategy",
+        help="Maximum risk percentage per strategy",
     ),
-    max_risk_total: float
-    | None = typer.Option(
-        None, "--max-risk-total", help="Maximum total portfolio risk percentage",
+    max_risk_total: float | None = typer.Option(
+        None,
+        "--max-risk-total",
+        help="Maximum total portfolio risk percentage",
     ),
-    risk_calculation_method: str
-    | None = typer.Option(
+    risk_calculation_method: str | None = typer.Option(
         None,
         "--risk-method",
         help="Risk calculation method (standard, monte_carlo, bootstrap, var)",
     ),
     # Execution and signal options
-    execution_mode: str
-    | None = typer.Option(
+    execution_mode: str | None = typer.Option(
         None,
         "--execution-mode",
         help="Signal execution timing mode (same_period, next_period, delayed)",
     ),
-    signal_definition_mode: str
-    | None = typer.Option(
+    signal_definition_mode: str | None = typer.Option(
         None,
         "--signal-mode",
         help="Signal definition approach (complete_trade, entry_only, exit_only, both)",
@@ -146,13 +151,19 @@ def analyze(
         help="Enable visualization of results",
     ),
     export_trade_history: bool = typer.Option(
-        True, "--export-trade-history/--no-export", help="Export trade history data",
+        True,
+        "--export-trade-history/--no-export",
+        help="Export trade history data",
     ),
     allocation: bool = typer.Option(
-        True, "--allocation/--no-allocation", help="Include allocation analysis",
+        True,
+        "--allocation/--no-allocation",
+        help="Include allocation analysis",
     ),
     stop_loss: bool = typer.Option(
-        True, "--stop-loss/--no-stop-loss", help="Include stop loss analysis",
+        True,
+        "--stop-loss/--no-stop-loss",
+        help="Include stop loss analysis",
     ),
     # Memory optimization options
     memory_optimization: bool = typer.Option(
@@ -161,11 +172,15 @@ def analyze(
         help="Enable memory optimization for large portfolios",
     ),
     memory_threshold: int = typer.Option(
-        1000, "--memory-threshold", help="Memory threshold in MB for optimization",
+        1000,
+        "--memory-threshold",
+        help="Memory threshold in MB for optimization",
     ),
     # Control options
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Preview configuration without executing",
+        False,
+        "--dry-run",
+        help="Preview configuration without executing",
     ),
 ):
     """
@@ -247,7 +262,8 @@ def analyze(
         if profile:
             # Use smart portfolio resolution
             portfolio_path, resolution_type = resolve_portfolio_from_profile(
-                profile, loader,
+                profile,
+                loader,
             )
 
             if resolution_type == "concurrency":
@@ -265,7 +281,9 @@ def analyze(
                 overrides["general"]["portfolio"] = portfolio_filename
 
                 config = loader.load_from_profile(
-                    "default_concurrency", ConcurrencyConfig, overrides,
+                    "default_concurrency",
+                    ConcurrencyConfig,
+                    overrides,
                 )
 
                 rprint(
@@ -276,7 +294,9 @@ def analyze(
                 config = loader.load_from_profile(profile, ConcurrencyConfig, overrides)
         else:
             config = loader.load_from_profile(
-                "default_concurrency", ConcurrencyConfig, overrides,
+                "default_concurrency",
+                ConcurrencyConfig,
+                overrides,
             )
 
         # Validate that we have a portfolio to analyze
@@ -335,19 +355,29 @@ def analyze(
                 "MEMORY_THRESHOLD_MB": config.memory_optimization.memory_threshold_mb,
                 # Add missing optimization settings with safe attribute access
                 "OPTIMIZE": getattr(
-                    getattr(config, "optimization", None), "enable_optimization", False,
+                    getattr(config, "optimization", None),
+                    "enable_optimization",
+                    False,
                 ),
                 "OPTIMIZE_MIN_STRATEGIES": getattr(
-                    getattr(config, "optimization", None), "min_strategies", 3,
+                    getattr(config, "optimization", None),
+                    "min_strategies",
+                    3,
                 ),
                 "OPTIMIZE_MAX_PERMUTATIONS": getattr(
-                    getattr(config, "optimization", None), "max_permutations", 1000,
+                    getattr(config, "optimization", None),
+                    "max_permutations",
+                    1000,
                 ),
                 "OPTIMIZE_PARALLEL_PROCESSING": getattr(
-                    getattr(config, "optimization", None), "parallel_processing", False,
+                    getattr(config, "optimization", None),
+                    "parallel_processing",
+                    False,
                 ),
                 "OPTIMIZE_MAX_WORKERS": getattr(
-                    getattr(config, "optimization", None), "max_workers", 4,
+                    getattr(config, "optimization", None),
+                    "max_workers",
+                    4,
                 ),
                 "REPORT_INCLUDES": {
                     "TICKER_METRICS": True,
@@ -411,15 +441,22 @@ def export(
     portfolio: str = typer.Argument(
         help="Portfolio filename to export trade history from",
     ),
-    output_dir: Path
-    | None = typer.Option(
-        None, "--output-dir", "-o", help="Output directory for trade history files",
+    output_dir: Path | None = typer.Option(
+        None,
+        "--output-dir",
+        "-o",
+        help="Output directory for trade history files",
     ),
     format: str = typer.Option(
-        "json", "--format", "-f", help="Export format: json, csv",
+        "json",
+        "--format",
+        "-f",
+        help="Export format: json, csv",
     ),
     include_analytics: bool = typer.Option(
-        True, "--analytics/--no-analytics", help="Include trade analytics and metrics",
+        True,
+        "--analytics/--no-analytics",
+        help="Include trade analytics and metrics",
     ),
 ):
     """
@@ -520,13 +557,18 @@ def export(
 def review(
     portfolio: str = typer.Argument(help="Portfolio filename to review"),
     focus: str = typer.Option(
-        "all", "--focus", help="Analysis focus: all, relationships, allocation, metrics",
+        "all",
+        "--focus",
+        help="Analysis focus: all, relationships, allocation, metrics",
     ),
     output_format: str = typer.Option(
-        "table", "--output", help="Output format: table, json, summary",
+        "table",
+        "--output",
+        help="Output format: table, json, summary",
     ),
-    save_report: str
-    | None = typer.Option(None, "--save-report", help="Save detailed report to file"),
+    save_report: str | None = typer.Option(
+        None, "--save-report", help="Save detailed report to file"
+    ),
 ):
     """
     Review portfolio interactions and strategy relationships.
@@ -550,13 +592,13 @@ def review(
 
         # Import required modules
         from ...tools.logging_context import logging_context
-        from ...tools.portfolio.enhanced_loader import load_portfolio_with_context
+        from ...tools.portfolio.enhanced_loader import load_portfolio_with_logging
 
         with logging_context("cli_portfolio_review", "portfolio_review.log") as log:
             rprint("📊 Loading portfolio data...")
 
             # Load portfolio using the enhanced loader
-            portfolio_data = load_portfolio_with_context(str(portfolio_path), log)
+            portfolio_data = load_portfolio_with_logging(str(portfolio_path), log)
 
             if portfolio_data:
                 # Generate portfolio review
@@ -606,11 +648,13 @@ def _show_concurrency_config_preview(config: ConcurrencyConfig):
 
     # Risk management
     table.add_row(
-        "Max Risk Per Strategy", f"{config.risk_management.max_risk_per_strategy:.1f}%",
+        "Max Risk Per Strategy",
+        f"{config.risk_management.max_risk_per_strategy:.1f}%",
     )
     table.add_row("Max Risk Total", f"{config.risk_management.max_risk_total:.1f}%")
     table.add_row(
-        "Risk Calculation Method", str(config.risk_management.risk_calculation_method),
+        "Risk Calculation Method",
+        str(config.risk_management.risk_calculation_method),
     )
 
     # Execution modes
@@ -631,7 +675,8 @@ def _show_concurrency_config_preview(config: ConcurrencyConfig):
     # Analysis options
     table.add_row("Visualization", str(config.visualization))
     table.add_row(
-        "Export Trade History", str(config.trade_history.export_trade_history),
+        "Export Trade History",
+        str(config.trade_history.export_trade_history),
     )
     table.add_row("Include Allocation", str(config.report_includes.allocation))
 
@@ -642,7 +687,8 @@ def _show_concurrency_config_preview(config: ConcurrencyConfig):
     )
     if config.memory_optimization.enable_memory_optimization:
         table.add_row(
-            "Memory Threshold", f"{config.memory_optimization.memory_threshold_mb} MB",
+            "Memory Threshold",
+            f"{config.memory_optimization.memory_threshold_mb} MB",
         )
 
     console.print(table)
@@ -694,13 +740,15 @@ def _generate_portfolio_review(portfolio_data: list, focus: str) -> dict:
             "index": i + 1,
             "ticker": strategy.get("Ticker", strategy.get("TICKER", "Unknown")),
             "strategy_type": strategy.get(
-                "Strategy Type", strategy.get("STRATEGY_TYPE", "Unknown"),
+                "Strategy Type",
+                strategy.get("STRATEGY_TYPE", "Unknown"),
             ),
             "score": strategy.get("Score", 0),
             "win_rate": strategy.get("Win Rate [%]", 0),
             "total_return": strategy.get("Total Return [%]", 0),
             "allocation": strategy.get(
-                "Allocation [%]", strategy.get("ALLOCATION", None),
+                "Allocation [%]",
+                strategy.get("ALLOCATION", None),
             ),
             "stop_loss": strategy.get("Stop Loss [%]", strategy.get("STOP_LOSS", None)),
         }
@@ -870,7 +918,8 @@ def _display_portfolio_size_comparison(size_results: dict, best_size: int) -> No
 
     # Create comparison table
     comparison_table = Table(
-        title="📊 Portfolio Size Analysis Results", show_header=True,
+        title="📊 Portfolio Size Analysis Results",
+        show_header=True,
     )
     comparison_table.add_column("Portfolio\nSize", style="cyan", justify="center")
     comparison_table.add_column("Efficiency\nScore", style="green", justify="right")
@@ -1135,7 +1184,8 @@ def _select_diversified_portfolio(
 
                 if verbose:
                     div_score = diversification_scores.get(
-                        best_strategy["strategy_id"], 1.0,
+                        best_strategy["strategy_id"],
+                        1.0,
                     )
                     weighted = best_strategy["score"] * div_score
                     rprint(
@@ -1188,7 +1238,9 @@ def _select_diversified_portfolio(
 
 
 def _export_strategies_to_file(
-    asset: str, strategies: list, force_overwrite: bool = False,
+    asset: str,
+    strategies: list,
+    force_overwrite: bool = False,
 ) -> None:
     """Export strategies to data/raw/strategies/{asset}.csv.
 
@@ -1261,39 +1313,44 @@ def _export_strategies_to_file(
 
 @app.command()
 def construct(
-    asset: str
-    | None = typer.Argument(
+    asset: str | None = typer.Argument(
         None,
         help="Asset symbol (e.g., MSFT, NVDA, BTC-USD) - omit when using -t/-t1/-t2",
     ),
-    ticker: list[str]
-    | None = typer.Option(
+    ticker: list[str] | None = typer.Option(
         None,
         "--ticker",
         "-t",
         help="Ticker symbol(s) to construct portfolios for (multiple args or comma-separated: -t AAPL,MSFT or -t AAPL -t MSFT). Overrides ASSET if both provided.",
     ),
-    ticker_1: str
-    | None = typer.Option(
-        None, "--ticker-1", "-t1", help="First ticker for synthetic pair analysis",
+    ticker_1: str | None = typer.Option(
+        None,
+        "--ticker-1",
+        "-t1",
+        help="First ticker for synthetic pair analysis",
     ),
-    ticker_2: str
-    | None = typer.Option(
+    ticker_2: str | None = typer.Option(
         None,
         "--ticker-2",
         "-t2",
         help="Second ticker for synthetic pair analysis (automatically enables synthetic mode)",
     ),
     min_score: float = typer.Option(
-        1.0, "--min-score", help="Minimum Score threshold for strategy inclusion",
+        1.0,
+        "--min-score",
+        help="Minimum Score threshold for strategy inclusion",
     ),
-    profile: str
-    | None = typer.Option(None, "--profile", "-p", help="Configuration profile to use"),
+    profile: str | None = typer.Option(
+        None, "--profile", "-p", help="Configuration profile to use"
+    ),
     output_format: str = typer.Option(
-        "table", "--format", help="Output format: table, json, csv",
+        "table",
+        "--format",
+        help="Output format: table, json, csv",
     ),
-    save_portfolio: str
-    | None = typer.Option(None, "--save", help="Save optimal portfolio to file"),
+    save_portfolio: str | None = typer.Option(
+        None, "--save", help="Save optimal portfolio to file"
+    ),
     export: bool = typer.Option(
         False,
         "--export",
@@ -1301,7 +1358,10 @@ def construct(
         help="Export strategies to data/raw/strategies/{TICKER}.csv (overwrites if exists)",
     ),
     verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output",
+        False,
+        "--verbose",
+        "-v",
+        help="Enable verbose output",
     ),
 ):
     """Construct optimal portfolio from asset strategy universe.
@@ -1419,13 +1479,16 @@ def construct(
                 )
 
                 strategies = loader.load_strategies_for_asset(
-                    asset_name, min_score=min_score,
+                    asset_name,
+                    min_score=min_score,
                 )
 
                 # Export strategies if requested
                 if export:
                     _export_strategies_to_file(
-                        asset_name, strategies, force_overwrite=True,
+                        asset_name,
+                        strategies,
+                        force_overwrite=True,
                     )
                     rprint(
                         f"[green]✓ Exported {len(strategies)} available strategies to data/raw/strategies/{asset_name}.csv[/green]",
@@ -1448,7 +1511,8 @@ def construct(
 
             # Load strategies and create temporary portfolio file
             strategies = loader.load_strategies_for_asset(
-                asset_name, min_score=min_score,
+                asset_name,
+                min_score=min_score,
             )
 
             # Calculate diversification scores for strategy selection
@@ -1618,7 +1682,8 @@ def construct(
 
                         # Run direct analysis on THIS SIZE
                         success = run_concurrency_review(
-                            size_temp_filename, config_overrides=config_overrides,
+                            size_temp_filename,
+                            config_overrides=config_overrides,
                         )
 
                         if success:
@@ -1642,18 +1707,22 @@ def construct(
 
                                     # Extract metrics from nested report structure
                                     portfolio_metrics = report_data.get(
-                                        "portfolio_metrics", {},
+                                        "portfolio_metrics",
+                                        {},
                                     )
                                     efficiency_metrics = portfolio_metrics.get(
-                                        "efficiency", {},
+                                        "efficiency",
+                                        {},
                                     )
                                     risk_metrics = portfolio_metrics.get(
-                                        "risk", {},
+                                        "risk",
+                                        {},
                                     ).get("portfolio_metrics", {})
 
                                     # Extract efficiency score and multipliers from nested structure
                                     efficiency_score = efficiency_metrics.get(
-                                        "efficiency_score", {},
+                                        "efficiency_score",
+                                        {},
                                     ).get("value", 0.0)
                                     diversification = (
                                         efficiency_metrics.get("multipliers", {})
@@ -1671,13 +1740,15 @@ def construct(
                                         .get("value", 0.0)
                                     )
                                     total_expectancy = efficiency_metrics.get(
-                                        "expectancy", {},
+                                        "expectancy",
+                                        {},
                                     ).get("value", 0.0)
                                     average_expectancy = (
                                         total_expectancy / size if size > 0 else 0.0
                                     )
                                     risk_concentration = risk_metrics.get(
-                                        "risk_concentration_index", {},
+                                        "risk_concentration_index",
+                                        {},
                                     ).get("value", 0.0)
 
                                     metrics_loaded = True
@@ -1779,18 +1850,25 @@ def construct(
                             # Only show table if single size (no comparison was done)
                             strategy_table = Table(show_header=True)
                             strategy_table.add_column(
-                                "#", style="white", justify="right",
+                                "#",
+                                style="white",
+                                justify="right",
                             )
                             strategy_table.add_column("Strategy ID", style="cyan")
                             strategy_table.add_column(
-                                "Score", style="green", justify="right",
+                                "Score",
+                                style="green",
+                                justify="right",
                             )
                             strategy_table.add_column(
-                                "Sharpe", style="yellow", justify="right",
+                                "Sharpe",
+                                style="yellow",
+                                justify="right",
                             )
 
                             for i, strategy in enumerate(
-                                best_result["strategies"][: best_result["size"]], 1,
+                                best_result["strategies"][: best_result["size"]],
+                                1,
                             ):
                                 strategy_table.add_row(
                                     str(i),
@@ -1913,26 +1991,36 @@ def optimize(
     ctx: typer.Context,
     portfolio: str = typer.Argument(help="Portfolio filename to optimize"),
     min_strategies: int = typer.Option(
-        3, "--min-strategies", "-m", help="Minimum strategies per combination",
+        3,
+        "--min-strategies",
+        "-m",
+        help="Minimum strategies per combination",
     ),
-    max_permutations: int
-    | None = typer.Option(
-        None, "--max-permutations", help="Maximum permutations to evaluate",
+    max_permutations: int | None = typer.Option(
+        None,
+        "--max-permutations",
+        help="Maximum permutations to evaluate",
     ),
     allocation_mode: str = typer.Option(
         "EQUAL",
         "--allocation",
         help="Allocation mode: EQUAL, SIGNAL_COUNT, PERFORMANCE, RISK_ADJUSTED",
     ),
-    output_file: Path
-    | None = typer.Option(
-        None, "--output", "-o", help="Save optimization results to file",
+    output_file: Path | None = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Save optimization results to file",
     ),
     visualize: bool = typer.Option(
-        True, "--visualize/--no-visualize", help="Generate visualization charts",
+        True,
+        "--visualize/--no-visualize",
+        help="Generate visualization charts",
     ),
     parallel: bool = typer.Option(
-        False, "--parallel", help="Enable parallel processing for faster execution",
+        False,
+        "--parallel",
+        help="Enable parallel processing for faster execution",
     ),
 ):
     """
@@ -1992,7 +2080,8 @@ def optimize(
             ) as progress:
                 # Run optimization with progress tracking
                 task = progress.add_task(
-                    "Optimizing strategy combinations...", total=100,
+                    "Optimizing strategy combinations...",
+                    total=100,
                 )
 
                 def update_progress(current: int, total: int):
@@ -2051,7 +2140,10 @@ def optimize(
 def monte_carlo(
     portfolio: str = typer.Argument(help="Portfolio filename for Monte Carlo analysis"),
     simulations: int = typer.Option(
-        10000, "--simulations", "-n", help="Number of Monte Carlo simulations",
+        10000,
+        "--simulations",
+        "-n",
+        help="Number of Monte Carlo simulations",
     ),
     confidence_levels: str = typer.Option(
         "95,99",
@@ -2059,20 +2151,30 @@ def monte_carlo(
         help="Confidence levels for risk metrics (comma-separated)",
     ),
     horizon_days: int = typer.Option(
-        252, "--horizon", help="Forecast horizon in days (252 = 1 year)",
+        252,
+        "--horizon",
+        help="Forecast horizon in days (252 = 1 year)",
     ),
     bootstrap: bool = typer.Option(
-        True, "--bootstrap/--no-bootstrap", help="Use bootstrap resampling",
+        True,
+        "--bootstrap/--no-bootstrap",
+        help="Use bootstrap resampling",
     ),
     save_simulations: bool = typer.Option(
-        False, "--save-simulations", help="Save individual simulation paths",
+        False,
+        "--save-simulations",
+        help="Save individual simulation paths",
     ),
-    output_file: Path
-    | None = typer.Option(
-        None, "--output", "-o", help="Save Monte Carlo results to file",
+    output_file: Path | None = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Save Monte Carlo results to file",
     ),
     visualize: bool = typer.Option(
-        True, "--visualize/--no-visualize", help="Generate visualization charts",
+        True,
+        "--visualize/--no-visualize",
+        help="Generate visualization charts",
     ),
 ):
     """
@@ -2116,7 +2218,8 @@ def monte_carlo(
                 TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
             ) as progress:
                 task = progress.add_task(
-                    f"Running {simulations:,} simulations...", total=simulations,
+                    f"Running {simulations:,} simulations...",
+                    total=simulations,
                 )
 
                 # Initialize Monte Carlo manager
@@ -2137,7 +2240,8 @@ def monte_carlo(
                     progress.update(task, completed=completed)
 
                 results = mc_manager.run_portfolio_simulation(
-                    portfolio_data, progress_callback=update_progress,
+                    portfolio_data,
+                    progress_callback=update_progress,
                 )
 
                 if results:
@@ -2195,16 +2299,24 @@ def monte_carlo(
 @app.command()
 def health(
     check_dependencies: bool = typer.Option(
-        True, "--deps/--no-deps", help="Check system dependencies",
+        True,
+        "--deps/--no-deps",
+        help="Check system dependencies",
     ),
     check_data: bool = typer.Option(
-        True, "--data/--no-data", help="Validate data directories",
+        True,
+        "--data/--no-data",
+        help="Validate data directories",
     ),
     check_config: bool = typer.Option(
-        True, "--config/--no-config", help="Validate configuration files",
+        True,
+        "--config/--no-config",
+        help="Validate configuration files",
     ),
     fix_issues: bool = typer.Option(
-        False, "--fix", help="Attempt to fix identified issues",
+        False,
+        "--fix",
+        help="Attempt to fix identified issues",
     ),
 ):
     """
@@ -2319,15 +2431,21 @@ def health(
 
 @app.command()
 def demo(
-    output_dir: Path
-    | None = typer.Option(
-        None, "--output", "-o", help="Output directory for demo results",
+    output_dir: Path | None = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Output directory for demo results",
     ),
     strategies: int = typer.Option(
-        5, "--strategies", help="Number of strategies to generate",
+        5,
+        "--strategies",
+        help="Number of strategies to generate",
     ),
     run_analysis: bool = typer.Option(
-        True, "--analyze/--no-analyze", help="Run full analysis after generation",
+        True,
+        "--analyze/--no-analyze",
+        help="Run full analysis after generation",
     ),
 ):
     """

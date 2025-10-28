@@ -28,53 +28,58 @@ console = Console()
 def close(
     ctx: typer.Context,
     strategy: str = typer.Argument(
-        ..., help="Strategy name (e.g., 'MA_SMA_78_82') or Position_UUID to analyze",
+        ...,
+        help="Strategy name (e.g., 'MA_SMA_78_82') or Position_UUID to analyze",
     ),
-    portfolio: str
-    | None = typer.Option(
+    portfolio: str | None = typer.Option(
         None,
         "--portfolio",
         help="Portfolio name for position closing (live_signals, protected, risk_on, custom)",
     ),
-    price: float
-    | None = typer.Option(
+    price: float | None = typer.Option(
         None,
         "--price",
         help="Closing price for position exit (required when portfolio specified)",
     ),
-    date: str
-    | None = typer.Option(
+    date: str | None = typer.Option(
         None,
         "--date",
         help="Exit date/timestamp (YYYY-MM-DD or 'YYYY-MM-DD HH:MM:SS') - defaults to current time",
     ),
-    profile: str
-    | None = typer.Option(None, "--profile", "-p", help="Configuration profile name"),
-    output: str
-    | None = typer.Option(
-        None, "--output", "-o", help="Output file path (default: stdout)",
+    profile: str | None = typer.Option(
+        None, "--profile", "-p", help="Configuration profile name"
+    ),
+    output: str | None = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Output file path (default: stdout)",
     ),
     format: str = typer.Option(
-        "markdown", "--format", "-f", help="Output format: markdown, json, html",
+        "markdown",
+        "--format",
+        "-f",
+        help="Output format: markdown, json, html",
     ),
     include_raw_data: bool = typer.Option(
         False,
         "--include-raw-data/--no-raw-data",
         help="Include raw statistical data in appendices",
     ),
-    current_price: float
-    | None = typer.Option(
-        None, "--current-price", help="Current market price for enhanced analysis",
+    current_price: float | None = typer.Option(
+        None,
+        "--current-price",
+        help="Current market price for enhanced analysis",
     ),
-    market_condition: str
-    | None = typer.Option(
+    market_condition: str | None = typer.Option(
         None,
         "--market-condition",
         help="Market condition: bullish, bearish, sideways, volatile",
     ),
-    base_path: str
-    | None = typer.Option(
-        None, "--base-path", help="Base path to trading system directory",
+    base_path: str | None = typer.Option(
+        None,
+        "--base-path",
+        help="Base path to trading system directory",
     ),
 ):
     """
@@ -157,7 +162,9 @@ def close(
             loader.load_from_profile(profile, TradeHistoryConfig, overrides)
         else:
             loader.load_from_profile(
-                "default_trade_history", TradeHistoryConfig, overrides,
+                "default_trade_history",
+                TradeHistoryConfig,
+                overrides,
             )
 
         if global_verbose:
@@ -248,45 +255,49 @@ def close(
 def add(
     ctx: typer.Context,
     ticker: str = typer.Argument(..., help="Ticker symbol (e.g., 'AAPL', 'BTC-USD')"),
-    portfolio: str
-    | None = typer.Option(
+    portfolio: str | None = typer.Option(
         None,
         "--portfolio",
         help="Portfolio name to add position to (live_signals, protected, risk_on, custom)",
     ),
-    strategy_type: str
-    | None = typer.Option(
+    strategy_type: str | None = typer.Option(
         None,
         "--strategy-type",
         "-s",
         help="Strategy type: SMA, EMA, MACD, ATR (auto-selected if not specified)",
     ),
-    fast_period: int
-    | None = typer.Option(
+    fast_period: int | None = typer.Option(
         None,
         "--short-window",
         help="Short period window (auto-selected if not specified)",
     ),
-    slow_period: int
-    | None = typer.Option(
+    slow_period: int | None = typer.Option(
         None,
         "--long-window",
         help="Long period window (auto-selected if not specified)",
     ),
-    profile: str
-    | None = typer.Option(None, "--profile", "-p", help="Configuration profile name"),
-    timeframe: str = typer.Option(
-        "D", "--timeframe", "-t", help="Timeframe: D, H, 4H, 1H",
+    profile: str | None = typer.Option(
+        None, "--profile", "-p", help="Configuration profile name"
     ),
-    entry_price: float
-    | None = typer.Option(None, "--entry-price", help="Manual entry price override"),
+    timeframe: str = typer.Option(
+        "D",
+        "--timeframe",
+        "-t",
+        help="Timeframe: D, H, 4H, 1H",
+    ),
+    entry_price: float | None = typer.Option(
+        None, "--entry-price", help="Manual entry price override"
+    ),
     quantity: float | None = typer.Option(None, "--quantity", help="Position quantity"),
-    signal_date: str
-    | None = typer.Option(
-        None, "--signal-date", help="Signal date (YYYY-MM-DD format)",
+    signal_date: str | None = typer.Option(
+        None,
+        "--signal-date",
+        help="Signal date (YYYY-MM-DD format)",
     ),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Preview the addition without executing",
+        False,
+        "--dry-run",
+        help="Preview the addition without executing",
     ),
 ):
     """
@@ -420,7 +431,8 @@ def add(
         table.add_row("Slow Period", str(slow_period))
         table.add_row("Timeframe", timeframe)
         table.add_row(
-            "Entry Price", str(entry_price) if entry_price else "Market Price",
+            "Entry Price",
+            str(entry_price) if entry_price else "Market Price",
         )
         table.add_row("Quantity", str(quantity) if quantity else "Auto-calculated")
         table.add_row("Signal Date", signal_date if signal_date else "Today")
@@ -486,7 +498,10 @@ def add(
 def update(
     ctx: typer.Context,
     portfolio: str = typer.Option(
-        "live_signals", "--portfolio", "-f", help="Portfolio name to update",
+        "live_signals",
+        "--portfolio",
+        "-f",
+        help="Portfolio name to update",
     ),
     refresh: bool = typer.Option(
         False,
@@ -503,21 +518,28 @@ def update(
         "--fix-errors/--no-fix-errors",
         help="Automatically fix calculation errors found during validation",
     ),
-    profile: str
-    | None = typer.Option(None, "--profile", "-p", help="Configuration profile name"),
+    profile: str | None = typer.Option(
+        None, "--profile", "-p", help="Configuration profile name"
+    ),
     refresh_prices: bool = typer.Option(
         True,
         "--refresh-prices/--no-refresh-prices",
         help="Refresh current market prices",
     ),
     recalculate_metrics: bool = typer.Option(
-        True, "--recalculate/--no-recalculate", help="Recalculate MFE/MAE metrics",
+        True,
+        "--recalculate/--no-recalculate",
+        help="Recalculate MFE/MAE metrics",
     ),
     update_risk_assessment: bool = typer.Option(
-        True, "--update-risk/--no-update-risk", help="Update risk assessment scores",
+        True,
+        "--update-risk/--no-update-risk",
+        help="Update risk assessment scores",
     ),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Preview updates without executing",
+        False,
+        "--dry-run",
+        help="Preview updates without executing",
     ),
 ):
     """
@@ -623,7 +645,9 @@ def update(
             else:
                 # Default mode: update only open positions
                 result = service.update_open_positions(
-                    portfolio_name=portfolio, dry_run=dry_run, verbose=global_verbose,
+                    portfolio_name=portfolio,
+                    dry_run=dry_run,
+                    verbose=global_verbose,
                 )
 
             if result["success"]:
@@ -722,17 +746,23 @@ def update(
 def list(
     ctx: typer.Context,
     show_signals: bool = typer.Option(
-        True, "--show-signals/--no-signals", help="Show exit signals in listing",
+        True,
+        "--show-signals/--no-signals",
+        help="Show exit signals in listing",
     ),
-    filter_signal: str
-    | None = typer.Option(
-        None, "--filter-signal", help="Filter by signal type: SELL, HOLD, BUY",
+    filter_signal: str | None = typer.Option(
+        None,
+        "--filter-signal",
+        help="Filter by signal type: SELL, HOLD, BUY",
     ),
     sort_by: str = typer.Option(
-        "confidence", "--sort-by", help="Sort by: confidence, ticker, signal, strategy",
+        "confidence",
+        "--sort-by",
+        help="Sort by: confidence, ticker, signal, strategy",
     ),
-    limit: int
-    | None = typer.Option(None, "--limit", "-n", help="Limit number of results"),
+    limit: int | None = typer.Option(
+        None, "--limit", "-n", help="Limit number of results"
+    ),
 ):
     """
     List all available strategies for analysis.
@@ -806,7 +836,9 @@ def validate(
         help="Check data integrity across sources",
     ),
     check_file_existence: bool = typer.Option(
-        True, "--check-files/--no-check-files", help="Check required file existence",
+        True,
+        "--check-files/--no-check-files",
+        help="Check required file existence",
     ),
     check_strategy_data: bool = typer.Option(
         True,
@@ -814,7 +846,9 @@ def validate(
         help="Validate strategy data quality",
     ),
     show_details: bool = typer.Option(
-        False, "--show-details", help="Show detailed validation results",
+        False,
+        "--show-details",
+        help="Show detailed validation results",
     ),
 ):
     """

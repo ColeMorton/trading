@@ -91,7 +91,8 @@ class TestPortfolioAnalysisIntegration(unittest.TestCase):
     def test_service_initialization_with_realistic_paths(self):
         """Test service initializes correctly with realistic file paths."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=True,
+            base_dir=str(self.temp_path),
+            use_current=True,
         )
 
         self.assertTrue(service.portfolios_best_dir.exists())
@@ -102,7 +103,8 @@ class TestPortfolioAnalysisIntegration(unittest.TestCase):
     def test_end_to_end_portfolio_aggregation_current_mode(self, mock_print):
         """Test complete workflow from service initialization to final results."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=True,
+            base_dir=str(self.temp_path),
+            use_current=True,
         )
 
         # Simulate current date
@@ -133,14 +135,17 @@ class TestPortfolioAnalysisIntegration(unittest.TestCase):
     def test_end_to_end_portfolio_aggregation_general_mode(self, mock_print):
         """Test complete workflow in general (non-current) mode."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         # Complete workflow
         df = service.aggregate_portfolios_best(["AAPL", "MSFT"])
         df_clean = service.remove_metric_type_column(df)
         df_sorted = service.sort_portfolios(
-            df_clean, "Total Return [%]", ascending=False,
+            df_clean,
+            "Total Return [%]",
+            ascending=False,
         )
         display_data = service.format_for_display(df_sorted, top_n=5)
 
@@ -154,7 +159,8 @@ class TestPortfolioAnalysisIntegration(unittest.TestCase):
     def test_auto_discovery_workflow(self, mock_print):
         """Test auto-discovery workflow for current portfolios."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=True,
+            base_dir=str(self.temp_path),
+            use_current=True,
         )
 
         with patch.object(service, "_get_current_date_string", return_value="20250815"):
@@ -219,7 +225,8 @@ class TestPortfolioAnalysisIntegration(unittest.TestCase):
         large_df.to_csv(large_file, index=False)
 
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=True,
+            base_dir=str(self.temp_path),
+            use_current=True,
         )
 
         with patch.object(service, "_get_current_date_string", return_value="20250815"):
@@ -237,7 +244,8 @@ class TestPortfolioAnalysisIntegration(unittest.TestCase):
     def test_column_filtering_and_display_formatting(self):
         """Test column filtering and display formatting for different use cases."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         with patch("builtins.print"):
@@ -264,7 +272,9 @@ class TestPortfolioAnalysisIntegration(unittest.TestCase):
         # Test different sorting options
         by_score = service.sort_portfolios(df_clean, "Score", ascending=False)
         by_return = service.sort_portfolios(
-            df_clean, "Total Return [%]", ascending=False,
+            df_clean,
+            "Total Return [%]",
+            ascending=False,
         )
         by_winrate = service.sort_portfolios(df_clean, "Win Rate [%]", ascending=False)
 
@@ -275,13 +285,15 @@ class TestPortfolioAnalysisIntegration(unittest.TestCase):
             by_return.iloc[-1]["Total Return [%]"],
         )
         self.assertGreaterEqual(
-            by_winrate.iloc[0]["Win Rate [%]"], by_winrate.iloc[-1]["Win Rate [%]"],
+            by_winrate.iloc[0]["Win Rate [%]"],
+            by_winrate.iloc[-1]["Win Rate [%]"],
         )
 
     def test_csv_output_formatting(self):
         """Test CSV output formatting for different scenarios."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         with patch("builtins.print"):
@@ -307,7 +319,8 @@ class TestPortfolioAnalysisIntegration(unittest.TestCase):
     def test_statistics_calculation_accuracy(self, mock_print):
         """Test accuracy of statistics calculations with known data."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         df = service.aggregate_portfolios_best(["AAPL", "MSFT", "GOOGL"])
@@ -348,7 +361,8 @@ class TestPortfolioAnalysisServiceEdgeCases(unittest.TestCase):
         portfolios_dir.mkdir(parents=True)
 
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         with patch("builtins.print"):
@@ -368,7 +382,8 @@ class TestPortfolioAnalysisServiceEdgeCases(unittest.TestCase):
             f.write("Invalid data without proper CSV structure")
 
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         with patch("builtins.print"):
@@ -397,7 +412,8 @@ class TestPortfolioAnalysisServiceEdgeCases(unittest.TestCase):
         incomplete_data.to_csv(incomplete_file, index=False)
 
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         with patch("builtins.print"):
@@ -408,7 +424,8 @@ class TestPortfolioAnalysisServiceEdgeCases(unittest.TestCase):
         self.assertFalse(df.empty)
         self.assertEqual(stats["avg_score"], 0)  # Default when Score column missing
         self.assertEqual(
-            stats["win_rate_range"], (0, 0),
+            stats["win_rate_range"],
+            (0, 0),
         )  # Default when Win Rate missing
 
     def test_non_numeric_data_handling(self):
@@ -432,7 +449,8 @@ class TestPortfolioAnalysisServiceEdgeCases(unittest.TestCase):
         bad_numeric_data.to_csv(bad_file, index=False)
 
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         with patch("builtins.print"):
@@ -443,7 +461,8 @@ class TestPortfolioAnalysisServiceEdgeCases(unittest.TestCase):
         # Should handle non-numeric data gracefully
         self.assertFalse(df.empty)
         self.assertIsInstance(
-            stats["avg_score"], float,
+            stats["avg_score"],
+            float,
         )  # Should handle non-numeric gracefully
 
 

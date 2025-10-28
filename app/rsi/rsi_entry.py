@@ -25,7 +25,10 @@ def backtest_rsi(data, rsi_window, rsi_oversold):
 
     # Use VectorBT for portfolio simulation
     pf = vbt.Portfolio.from_signals(
-        data["Close"], entries=buy_signal, exits=sell_signal, direction="longonly",
+        data["Close"],
+        entries=buy_signal,
+        exits=sell_signal,
+        direction="longonly",
     )
 
     # Check the number of trades

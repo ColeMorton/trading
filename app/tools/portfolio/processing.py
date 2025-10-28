@@ -19,7 +19,10 @@ from app.tools.get_data import get_data
 
 
 def process_single_ticker(
-    ticker: str, config: dict, log: Callable, progress_update_fn=None,
+    ticker: str,
+    config: dict,
+    log: Callable,
+    progress_update_fn=None,
 ) -> pl.DataFrame | None:
     """
     Process portfolio analysis for a single ticker.
@@ -59,7 +62,10 @@ def process_single_ticker(
         from app.tools.strategy.signal_processing import process_current_signals
 
         return process_current_signals(
-            ticker, config_copy, log, progress_update_fn=progress_update_fn,
+            ticker,
+            config_copy,
+            log,
+            progress_update_fn=progress_update_fn,
         )
 
     # Generate parameter ranges using explicit range configuration
@@ -132,7 +138,12 @@ def process_single_ticker(
 
     log("Beginning analysis...")
     return analyze_parameter_sensitivity(
-        data, short_windows, long_windows, config_copy, log, progress_update_fn,
+        data,
+        short_windows,
+        long_windows,
+        config_copy,
+        log,
+        progress_update_fn,
     )
 
 

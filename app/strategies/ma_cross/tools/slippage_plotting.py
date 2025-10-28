@@ -49,7 +49,10 @@ def plot_results(ticker: str, results_df: pl.DataFrame, log: Callable) -> None:
         if mask.any():
             slippage_at_target = results_df.filter(mask)["Slippage Percentage"][0]
             line = ax1.axvline(
-                x=slippage_at_target, color=color, linestyle="--", alpha=0.5,
+                x=slippage_at_target,
+                color=color,
+                linestyle="--",
+                alpha=0.5,
             )
             lines.append(
                 (line, f"{label} below max at {slippage_at_target:.2f}% slippage"),

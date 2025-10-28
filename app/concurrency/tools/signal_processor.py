@@ -298,7 +298,9 @@ class SignalProcessor:
         }
 
     def standardize_signal_column(
-        self, data: pd.DataFrame | pl.DataFrame, method: str = "crossover",
+        self,
+        data: pd.DataFrame | pl.DataFrame,
+        method: str = "crossover",
     ) -> pd.DataFrame | pl.DataFrame:
         """
         Standardize signal detection method across different data formats.
@@ -406,7 +408,10 @@ if __name__ == "__main__":
     # Test signal processor
     processor = SignalProcessor()
     signal_def = SignalDefinition(
-        min_volume=2000, rsi_column="RSI", rsi_oversold=30, rsi_overbought=70,
+        min_volume=2000,
+        rsi_column="RSI",
+        rsi_oversold=30,
+        rsi_overbought=70,
     )
 
     counts = processor.get_comprehensive_counts(sample_data, signal_def)

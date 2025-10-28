@@ -19,7 +19,8 @@ from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
 from app.tools.config.statistical_analysis_config import StatisticalAnalysisConfig
@@ -52,7 +53,8 @@ async def demo_simplified_interface():
         try:
             # Method 1: Using the analyzer class
             analyzer = PortfolioStatisticalAnalyzer(
-                portfolio=portfolio_name, use_trade_history=use_trade_history,
+                portfolio=portfolio_name,
+                use_trade_history=use_trade_history,
             )
 
             # Show file paths that will be used
@@ -120,7 +122,8 @@ async def demo_quick_analysis():
 
         # This is literally all you need:
         results, summary = await analyze_portfolio(
-            "risk_on.csv", use_trade_history=True,
+            "risk_on.csv",
+            use_trade_history=True,
         )
 
         print("✅ Analysis complete!")
@@ -152,7 +155,8 @@ def demo_configuration():
 
     # Method 2: Quick config for different scenarios
     config2 = StatisticalAnalysisConfig.create(
-        "conservative.csv", use_trade_history=False,
+        "conservative.csv",
+        use_trade_history=False,
     )
     print(
         f"   Config 2: {config2.PORTFOLIO} (trade history: {config2.USE_TRADE_HISTORY})",

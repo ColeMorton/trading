@@ -23,7 +23,8 @@ def test_multi_ticker_execution():
 
     # Set up logging
     log, log_close, _, _ = setup_logging(
-        module_name="macd_test", log_file="test_multi_ticker.log",
+        module_name="macd_test",
+        log_file="test_multi_ticker.log",
     )
 
     try:

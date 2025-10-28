@@ -32,7 +32,8 @@ class TestUseCurrentExport(unittest.TestCase):
 
         # Set up logging
         self.log, self.log_close, _, _ = setup_logging(
-            "test_use_current", "test_use_current.log",
+            "test_use_current",
+            "test_use_current.log",
         )
 
         # Create test portfolio data
@@ -114,17 +115,21 @@ class TestUseCurrentExport(unittest.TestCase):
         files = list(expected_path.glob(f"{self.test_ticker}*.csv"))
 
         self.assertTrue(
-            len(files) > 0, f"No files found in date subdirectory {self.today}",
+            len(files) > 0,
+            f"No files found in date subdirectory {self.today}",
         )
         self.assertTrue(
-            expected_path.exists(), f"Date subdirectory {self.today} was not created",
+            expected_path.exists(),
+            f"Date subdirectory {self.today} was not created",
         )
 
         # Verify no files in root
         root_path = self.base_dir / "csv" / "portfolios_best"
         root_files = list(root_path.glob(f"{self.test_ticker}*.csv"))
         self.assertEqual(
-            len(root_files), 0, "Files found in root when USE_CURRENT=True",
+            len(root_files),
+            0,
+            "Files found in root when USE_CURRENT=True",
         )
 
     def test_portfolios_best_use_current_false(self):
@@ -182,10 +187,12 @@ class TestUseCurrentExport(unittest.TestCase):
         files = list(expected_path.glob(f"{self.test_ticker}*.csv"))
 
         self.assertTrue(
-            len(files) > 0, f"No files found in date subdirectory {self.today}",
+            len(files) > 0,
+            f"No files found in date subdirectory {self.today}",
         )
         self.assertTrue(
-            expected_path.exists(), f"Date subdirectory {self.today} was not created",
+            expected_path.exists(),
+            f"Date subdirectory {self.today} was not created",
         )
 
     def test_export_type_consistency(self):

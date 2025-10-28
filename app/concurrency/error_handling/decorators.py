@@ -82,14 +82,16 @@ def handle_concurrency_errors(
                     concurrency_exception = error_mapping_to_use[type(e)]
                     msg = f"Error in {operation}: {e!s}"
                     raise concurrency_exception(
-                        msg, context=context_data,
+                        msg,
+                        context=context_data,
                     ) from e
                 if not isinstance(e, ConcurrencyError) and reraise:
                     # Wrap in generic ConcurrencyError if not already a concurrency
                     # exception
                     msg = f"Error in {operation}: {e!s}"
                     raise ConcurrencyError(
-                        msg, context=context_data,
+                        msg,
+                        context=context_data,
                     ) from e
                 if reraise:
                     raise
@@ -325,7 +327,9 @@ def require_fields(*required_fields):
                             missing_fields.append(field)
 
                     if missing_fields:
-                        msg = f"Missing required fields in {param_name}: {missing_fields}"
+                        msg = (
+                            f"Missing required fields in {param_name}: {missing_fields}"
+                        )
                         raise ValidationError(
                             msg,
                             field_name=param_name,

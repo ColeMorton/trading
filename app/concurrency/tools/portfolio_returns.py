@@ -100,12 +100,17 @@ class PortfolioReturnsCalculator:
 
         # Calculate weighted portfolio returns
         portfolio_returns = self._calculate_weighted_returns(
-            returns_matrix, weights, position_arrays,
+            returns_matrix,
+            weights,
+            position_arrays,
         )
 
         # Calculate diagnostics
         diagnostics = self._calculate_diagnostics(
-            portfolio_returns, returns_matrix, weights, return_columns,
+            portfolio_returns,
+            returns_matrix,
+            weights,
+            return_columns,
         )
 
         self.log("Portfolio return calculation completed", "info")
@@ -252,7 +257,6 @@ class PortfolioReturnsCalculator:
         n = len(returns)
         return n / ((n - 1) * (n - 2)) * np.sum(((returns - mean) / std) ** 3)
 
-
     def _calculate_kurtosis(self, returns: np.ndarray) -> float:
         """Calculate excess kurtosis of return distribution."""
         if len(returns) < 4:
@@ -267,7 +271,6 @@ class PortfolioReturnsCalculator:
         len(returns)
         m4 = np.mean((returns - mean) ** 4)
         return m4 / (std**4) - 3
-
 
     def calculate_rolling_metrics(
         self,
@@ -402,12 +405,17 @@ class PortfolioReturnsCalculator:
 
             # Align returns
             aligned_returns, aligned_names = align_portfolio_returns(
-                portfolios, self.log, min_observations=10,
+                portfolios,
+                self.log,
+                min_observations=10,
             )
 
             # Calculate portfolio returns
             portfolio_returns, diagnostics = self.calculate_portfolio_returns(
-                aligned_returns, allocations, position_arrays, aligned_names,
+                aligned_returns,
+                allocations,
+                position_arrays,
+                aligned_names,
             )
 
             # Calculate portfolio variance and risk

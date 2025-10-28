@@ -25,7 +25,9 @@ class SimpleAnalysisResult(BaseModel):
         description="Recommendation signal (supports BUY/SELL/HOLD)",
     )
     confidence_level: float = Field(
-        ge=0.0, le=1.0, description="Confidence level (0-1)",
+        ge=0.0,
+        le=1.0,
+        description="Confidence level (0-1)",
     )
     p_value: float = Field(ge=0.0, le=1.0, description="Statistical p-value")
     sample_size: int = Field(ge=0, description="Sample size used in analysis")
@@ -36,7 +38,8 @@ class SimpleAnalysisResult(BaseModel):
 
     # Additional metrics (flexible)
     metrics: dict[str, Any] = Field(
-        default_factory=dict, description="Additional analysis metrics",
+        default_factory=dict,
+        description="Additional analysis metrics",
     )
 
     class Config:

@@ -63,7 +63,8 @@ class MemoryOptimizedConcurrencyRunner:
 
             # Initialize streaming processor
             self.streaming_processor = StreamingProcessor(
-                streaming_threshold_mb=streaming_threshold_mb, chunk_size_rows=10000,
+                streaming_threshold_mb=streaming_threshold_mb,
+                chunk_size_rows=10000,
             )
 
             # Initialize data converter with caching
@@ -97,12 +98,15 @@ class MemoryOptimizedConcurrencyRunner:
 
             # Process strategies with memory optimization
             processed_data = self._process_strategies_optimized(
-                portfolio_strategies, config, progress_callback,
+                portfolio_strategies,
+                config,
+                progress_callback,
             )
 
             # Run concurrency analysis with memory optimization
             analysis_results = self._analyze_concurrency_optimized(
-                processed_data, config,
+                processed_data,
+                config,
             )
 
             # Generate reports with memory optimization
@@ -111,7 +115,9 @@ class MemoryOptimizedConcurrencyRunner:
             # Run optimization if enabled
             if config.get("OPTIMIZE", False):
                 optimization_results = self._run_optimization_optimized(
-                    portfolio_strategies, config, progress_callback,
+                    portfolio_strategies,
+                    config,
+                    progress_callback,
                 )
                 report["optimization_results"] = optimization_results
 
@@ -122,7 +128,8 @@ class MemoryOptimizedConcurrencyRunner:
             raise RuntimeError(msg)
 
     def _load_portfolio_optimized(
-        self, config: ConcurrencyConfig,
+        self,
+        config: ConcurrencyConfig,
     ) -> list[StrategyConfig]:
         """Load portfolio with memory optimization."""
         portfolio_path = self._get_portfolio_path(config)
@@ -192,7 +199,9 @@ class MemoryOptimizedConcurrencyRunner:
         return processed_data
 
     def _process_single_strategy_optimized(
-        self, strategy: StrategyConfig, config: ConcurrencyConfig,
+        self,
+        strategy: StrategyConfig,
+        config: ConcurrencyConfig,
     ) -> pl.DataFrame | None:
         """Process a single strategy with memory optimization."""
         try:
@@ -201,7 +210,9 @@ class MemoryOptimizedConcurrencyRunner:
                 with self.memory_optimizer.df_pool.polars() as pooled_df:
                     # Process strategy using pooled DataFrame
                     result = self._execute_strategy_processing(
-                        strategy, config, pooled_df,
+                        strategy,
+                        config,
+                        pooled_df,
                     )
 
                     # Convert to optimized DataFrame
@@ -238,7 +249,9 @@ class MemoryOptimizedConcurrencyRunner:
             return None
 
     def _analyze_concurrency_optimized(
-        self, processed_data: dict[str, pl.DataFrame], config: ConcurrencyConfig,
+        self,
+        processed_data: dict[str, pl.DataFrame],
+        config: ConcurrencyConfig,
     ) -> dict[str, Any]:
         """Run concurrency analysis with memory optimization."""
         if not self.enable_optimization:
@@ -265,7 +278,9 @@ class MemoryOptimizedConcurrencyRunner:
         return results
 
     def _generate_report_optimized(
-        self, analysis_results: dict[str, Any], config: ConcurrencyConfig,
+        self,
+        analysis_results: dict[str, Any],
+        config: ConcurrencyConfig,
     ) -> dict[str, Any]:
         """Generate report with memory optimization."""
         if not self.enable_optimization:
@@ -303,22 +318,27 @@ class MemoryOptimizedConcurrencyRunner:
             try:
                 # Run analysis with memory optimization
                 subset_data = self._process_strategies_optimized(
-                    subset_strategies, subset_config,
+                    subset_strategies,
+                    subset_config,
                 )
                 results = self._analyze_concurrency_optimized(
-                    subset_data, subset_config,
+                    subset_data,
+                    subset_config,
                 )
 
                 return pl.DataFrame(
                     {
                         "efficiency_score": [
                             results.get("portfolio_efficiency", {}).get(
-                                "efficiency_score", 0,
+                                "efficiency_score",
+                                0,
                             ),
                         ],
                         "strategies": [len(subset_strategies)],
                         "strategy_ids": [
-                            ",".join(generate_strategy_id(s) for s in subset_strategies),
+                            ",".join(
+                                generate_strategy_id(s) for s in subset_strategies
+                            ),
                         ],
                     },
                 )
@@ -336,7 +356,9 @@ class MemoryOptimizedConcurrencyRunner:
         max_permutations = config.get("OPTIMIZE_MAX_PERMUTATIONS", 1000)
 
         parameter_grid = self._generate_optimization_parameters(
-            strategies, min_strategies, max_permutations,
+            strategies,
+            min_strategies,
+            max_permutations,
         )
 
         # Run memory-efficient optimization
@@ -402,7 +424,9 @@ class MemoryOptimizedConcurrencyRunner:
         return {"strategies": strategy_combinations}
 
     def _process_optimization_results(
-        self, results: pl.DataFrame, original_strategies: list[StrategyConfig],
+        self,
+        results: pl.DataFrame,
+        original_strategies: list[StrategyConfig],
     ) -> dict[str, Any]:
         """Process optimization results into final format."""
         # Find best result

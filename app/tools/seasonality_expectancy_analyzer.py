@@ -170,7 +170,10 @@ class SeasonalityExpectancyAnalyzer:
 
         # Calculate risk-adjusted score
         risk_adjusted_score = self._calculate_risk_adjusted_score(
-            combined_return, avg_significance, avg_win_rate, avg_volatility,
+            combined_return,
+            avg_significance,
+            avg_win_rate,
+            avg_volatility,
         )
 
         # Determine asset class
@@ -329,7 +332,9 @@ class SeasonalityExpectancyAnalyzer:
         return "\n".join(report_lines)
 
     def save_detailed_results(
-        self, results_df: pd.DataFrame, filename: str | None = None,
+        self,
+        results_df: pd.DataFrame,
+        filename: str | None = None,
     ) -> str:
         """Save detailed results to CSV file."""
         if filename is None:

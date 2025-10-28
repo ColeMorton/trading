@@ -29,7 +29,8 @@ class PortfolioProcessor:
         pass
 
     def process_portfolios(
-        self, portfolios: list[dict[str, Any]],
+        self,
+        portfolios: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Process portfolios."""
         # Basic processing logic
@@ -39,7 +40,10 @@ class PortfolioProcessor:
         """Calculate portfolio metrics."""
         # Basic metrics calculation
         return PortfolioMetrics(
-            total_return=0.0, win_rate=0.0, sharpe_ratio=0.0, max_drawdown=0.0,
+            total_return=0.0,
+            win_rate=0.0,
+            sharpe_ratio=0.0,
+            max_drawdown=0.0,
         )
 
 
@@ -48,7 +52,6 @@ from app.core.interfaces import LoggingInterface
 
 class PortfolioProcessingServiceError(Exception):
     """Exception raised by PortfolioProcessingService."""
-
 
 
 class PortfolioProcessingService:
@@ -68,7 +71,9 @@ class PortfolioProcessingService:
         self.portfolio_processor = PortfolioProcessor()
 
     def convert_portfolios_to_metrics(
-        self, portfolio_dicts: list[dict[str, Any]], log,
+        self,
+        portfolio_dicts: list[dict[str, Any]],
+        log,
     ) -> list[PortfolioMetrics]:
         """
         Convert portfolio dictionaries to PortfolioMetrics objects.
@@ -81,11 +86,14 @@ class PortfolioProcessingService:
             List of PortfolioMetrics objects
         """
         return self.portfolio_processor.convert_portfolios_to_metrics(
-            portfolio_dicts, log,
+            portfolio_dicts,
+            log,
         )
 
     def process_and_deduplicate_portfolios(
-        self, all_portfolio_dicts: list[dict[str, Any]], log,
+        self,
+        all_portfolio_dicts: list[dict[str, Any]],
+        log,
     ) -> tuple[list[PortfolioMetrics], list[dict[str, Any]]]:
         """
         Process portfolios and return both metrics and deduplicated dictionaries.
@@ -103,7 +111,8 @@ class PortfolioProcessingService:
         if all_portfolio_dicts:
             # Convert to PortfolioMetrics
             portfolio_metrics = self.convert_portfolios_to_metrics(
-                all_portfolio_dicts, log,
+                all_portfolio_dicts,
+                log,
             )
 
             # Deduplicate portfolios for response
@@ -139,7 +148,10 @@ class PortfolioProcessingService:
         return f"{ticker}_{strategy_type}_{timeframe}_{fast_period}_{slow_period}"
 
     def collect_export_paths(
-        self, config: dict[str, Any], strategy_types: list[str], log,
+        self,
+        config: dict[str, Any],
+        strategy_types: list[str],
+        log,
     ) -> dict[str, list[str]]:
         """
         Collect paths of exported portfolio CSV files.
@@ -217,7 +229,9 @@ class PortfolioProcessingService:
         return True
 
     def calculate_portfolio_summary(
-        self, portfolios: list[dict[str, Any]], log,
+        self,
+        portfolios: list[dict[str, Any]],
+        log,
     ) -> dict[str, Any]:
         """
         Calculate summary statistics for a collection of portfolios.
@@ -266,7 +280,10 @@ class PortfolioProcessingService:
         return summary
 
     def filter_portfolios_by_criteria(
-        self, portfolios: list[dict[str, Any]], criteria: dict[str, Any], log,
+        self,
+        portfolios: list[dict[str, Any]],
+        criteria: dict[str, Any],
+        log,
     ) -> list[dict[str, Any]]:
         """
         Filter portfolios based on specified criteria.

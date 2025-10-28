@@ -100,7 +100,8 @@ class TestEndToEndBatchWorkflows:
         4. Continues processing remaining tickers
         """
         batch_service = BatchProcessingService(
-            strategy_config_batch.batch_file_path, mock_console,
+            strategy_config_batch.batch_file_path,
+            mock_console,
         )
 
         # Phase 1: Initial batch processing
@@ -166,7 +167,9 @@ class TestEndToEndBatchWorkflows:
         assert final_status["pending"] == 400  # Remaining tickers
 
     def test_multi_day_batch_processing_simulation(
-        self, strategy_config_batch, mock_console,
+        self,
+        strategy_config_batch,
+        mock_console,
     ):
         """
         Test multi-day batch processing simulation.
@@ -175,7 +178,8 @@ class TestEndToEndBatchWorkflows:
         ensuring proper cleanup and continuation.
         """
         batch_service = BatchProcessingService(
-            strategy_config_batch.batch_file_path, mock_console,
+            strategy_config_batch.batch_file_path,
+            mock_console,
         )
 
         # Day 1: Process first batch
@@ -220,7 +224,9 @@ class TestEndToEndBatchWorkflows:
         assert final_processed == set(day1_batch + day2_new_batch)
 
     def test_large_scale_batch_processing_performance(
-        self, mock_console, large_ticker_list,
+        self,
+        mock_console,
+        large_ticker_list,
     ):
         """
         Test large-scale batch processing performance.
@@ -245,7 +251,9 @@ class TestEndToEndBatchWorkflows:
 
             # Measure performance of large-scale selection
             result = batch_service.get_tickers_needing_processing(
-                large_ticker_list, batch_size, mock_resume_check,
+                large_ticker_list,
+                batch_size,
+                mock_resume_check,
             )
 
             # Verify results
@@ -296,7 +304,9 @@ class TestEndToEndBatchWorkflows:
 
             # Process 1: Get first batch
             batch_1 = batch_service_1.get_tickers_needing_processing(
-                all_tickers, batch_size, mock_resume_check,
+                all_tickers,
+                batch_size,
+                mock_resume_check,
             )
             assert len(batch_1) == batch_size
 
@@ -306,7 +316,9 @@ class TestEndToEndBatchWorkflows:
 
             # Process 2: Get next batch (should exclude Process 1's tickers)
             batch_2 = batch_service_2.get_tickers_needing_processing(
-                all_tickers, batch_size, mock_resume_check,
+                all_tickers,
+                batch_size,
+                mock_resume_check,
             )
             assert len(batch_2) == batch_size
 
@@ -326,7 +338,9 @@ class TestEndToEndBatchWorkflows:
             Path(f.name).unlink()
 
     def test_error_recovery_and_retry_workflow(
-        self, strategy_config_batch, mock_console,
+        self,
+        strategy_config_batch,
+        mock_console,
     ):
         """
         Test error recovery and retry workflow.
@@ -335,7 +349,8 @@ class TestEndToEndBatchWorkflows:
         to ensure the batch system is resilient.
         """
         batch_service = BatchProcessingService(
-            strategy_config_batch.batch_file_path, mock_console,
+            strategy_config_batch.batch_file_path,
+            mock_console,
         )
 
         # Scenario 1: Resume check failures for some tickers
@@ -349,7 +364,9 @@ class TestEndToEndBatchWorkflows:
 
         # Should handle failures gracefully
         result = batch_service.get_tickers_needing_processing(
-            strategy_config_batch.ticker[:10], 5, mock_resume_check_with_failures,
+            strategy_config_batch.ticker[:10],
+            5,
+            mock_resume_check_with_failures,
         )
 
         # Should exclude failed tickers and return successful ones
@@ -373,7 +390,9 @@ class TestEndToEndBatchWorkflows:
             return ticker not in successful_tickers  # Exclude already processed
 
         retry_batch = batch_service.get_tickers_needing_processing(
-            strategy_config_batch.ticker[:10], 5, mock_resume_check_retry,
+            strategy_config_batch.ticker[:10],
+            5,
+            mock_resume_check_retry,
         )
 
         # Should include previously failed tickers and new tickers
@@ -446,7 +465,9 @@ class TestEndToEndBatchWorkflows:
                     break
 
                 current_batch = batch_service.get_tickers_needing_processing(
-                    remaining_tickers, batch_size, mock_resume_check,
+                    remaining_tickers,
+                    batch_size,
+                    mock_resume_check,
                 )
 
                 # Process batch
@@ -487,7 +508,9 @@ class TestEndToEndBatchWorkflows:
 
             # Strategy run: Process first batch
             first_batch = batch_service_run.get_tickers_needing_processing(
-                run_tickers, batch_size, mock_resume_check,
+                run_tickers,
+                batch_size,
+                mock_resume_check,
             )
             assert len(first_batch) == batch_size
 
@@ -507,7 +530,9 @@ class TestEndToEndBatchWorkflows:
 
             # Continue with strategy run for remaining tickers
             second_batch = batch_service_run.get_tickers_needing_processing(
-                run_tickers, batch_size, mock_resume_check,
+                run_tickers,
+                batch_size,
+                mock_resume_check,
             )
             assert len(second_batch) == batch_size
             assert set(second_batch).isdisjoint(set(first_batch))
@@ -567,7 +592,9 @@ class TestBatchWorkflowStateConsistency:
 
             # Continue processing
             remaining_batch = new_batch_service.get_tickers_needing_processing(
-                tickers, 2, mock_resume_check,
+                tickers,
+                2,
+                mock_resume_check,
             )
 
             # Should exclude already processed tickers

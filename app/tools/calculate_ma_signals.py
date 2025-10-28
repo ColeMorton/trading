@@ -2,7 +2,8 @@ import polars as pl
 
 
 def calculate_ma_signals(
-    data: pl.DataFrame, config: dict,
+    data: pl.DataFrame,
+    config: dict,
 ) -> tuple[pl.Series, pl.Series]:
     """
     Generate entry and exit signals based on the strategy configuration.

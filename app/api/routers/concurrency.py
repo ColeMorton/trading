@@ -4,6 +4,8 @@ Concurrency analysis endpoints.
 This router provides endpoints for concurrency analysis and strategy optimization.
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,7 +24,6 @@ from ..models.schemas import (
 )
 from ..services.job_service import JobService
 from ..services.queue_service import enqueue_job
-from typing import Annotated
 
 
 router = APIRouter()

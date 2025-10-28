@@ -183,7 +183,8 @@ class ErrorHandler:
             if config is None:
                 msg = f"{name} is None"
                 raise ConfigurationError(
-                    msg, {"name": name, "required_keys": required_keys},
+                    msg,
+                    {"name": name, "required_keys": required_keys},
                 )
 
             # Check for required keys
@@ -252,12 +253,15 @@ class ErrorHandler:
             if values is None:
                 msg = f"{name} is None"
                 raise DataValidationError(
-                    msg, {"name": name, "min_length": min_length},
+                    msg,
+                    {"name": name, "min_length": min_length},
                 )
 
             # Check if array is empty or too short
             if len(values) < min_length:
-                msg = f"{name} is too short (length {len(values)}, minimum {min_length})"
+                msg = (
+                    f"{name} is too short (length {len(values)}, minimum {min_length})"
+                )
                 raise DataValidationError(
                     msg,
                     {"name": name, "length": len(values), "min_length": min_length},
@@ -293,7 +297,8 @@ class ErrorHandler:
             # Wrap other exceptions in DataValidationError
             msg = f"Error validating {name}: {e!s}"
             raise DataValidationError(
-                msg, {"name": name, "error": str(e)},
+                msg,
+                {"name": name, "error": str(e)},
             ) from e
 
     def handle_calculation_error(
@@ -337,7 +342,8 @@ class ErrorHandler:
             return fallback_value
         msg = f"Calculation error: {error!s}"
         raise CalculationError(
-            msg, error_details,
+            msg,
+            error_details,
         ) from error
 
     def with_error_handling(

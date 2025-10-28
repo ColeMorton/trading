@@ -57,7 +57,10 @@ class IntelligentCacheManager:
         self._metadata = self._load_metadata()
 
     def _generate_cache_key(
-        self, category: str, identifier: str, params: dict[str, Any] | None = None,
+        self,
+        category: str,
+        identifier: str,
+        params: dict[str, Any] | None = None,
     ) -> str:
         """Generate a unique cache key from category, identifier, and parameters."""
         key_data = {
@@ -71,7 +74,10 @@ class IntelligentCacheManager:
         return hashlib.sha256(key_string.encode()).hexdigest()[:16]
 
     def _get_cache_path(
-        self, category: str, cache_key: str, extension: str = ".pkl",
+        self,
+        category: str,
+        cache_key: str,
+        extension: str = ".pkl",
     ) -> Path:
         """Get the file path for a cache entry."""
         return self.cache_dir / category / f"{cache_key}{extension}"
@@ -449,7 +455,10 @@ def get_cached_portfolio_results(
 
 
 def cache_computation(
-    computation_name: str, params: dict[str, Any], result_data: Any, ttl_hours: int = 6,
+    computation_name: str,
+    params: dict[str, Any],
+    result_data: Any,
+    ttl_hours: int = 6,
 ) -> str:
     """Cache expensive computation results."""
     cache = get_cache_manager()

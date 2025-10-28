@@ -329,7 +329,9 @@ class ConfigFactory:
 
     @classmethod
     def create_config(
-        cls, strategy_type: str, **kwargs,
+        cls,
+        strategy_type: str,
+        **kwargs,
     ) -> MAConfig | MACDConfig | MeanReversionConfig | RangeConfig:
         """
         Create a configuration for the specified strategy type.
@@ -358,7 +360,9 @@ class ConfigFactory:
 
     @classmethod
     def validate_config(
-        cls, strategy_type: str, config: dict[str, Any],
+        cls,
+        strategy_type: str,
+        config: dict[str, Any],
     ) -> dict[str, Any]:
         """
         Validate configuration for the specified strategy type.
@@ -474,7 +478,8 @@ def create_range_config(
 
 
 def validate_strategy_config(
-    strategy_type: str, config: dict[str, Any],
+    strategy_type: str,
+    config: dict[str, Any],
 ) -> dict[str, Any]:
     """Convenience function for configuration validation."""
     return ConfigFactory.validate_config(strategy_type, config)

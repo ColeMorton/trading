@@ -81,9 +81,9 @@ class TickerProcessor:
                 # Preserve original ticker count and global progress allocation for accurate progress calculation
                 ticker_config["_ORIGINAL_TICKER_COUNT"] = original_ticker_count
                 if global_progress_per_ticker is not None:
-                    ticker_config[
-                        "_GLOBAL_PROGRESS_PER_TICKER"
-                    ] = global_progress_per_ticker
+                    ticker_config["_GLOBAL_PROGRESS_PER_TICKER"] = (
+                        global_progress_per_ticker
+                    )
 
                 # Use unified signal processing that supports both MA and MACD
                 portfolios_df = process_ticker_portfolios(
@@ -159,7 +159,9 @@ class TickerProcessor:
         return ticker
 
     def _extract_synthetic_components(
-        self, ticker: str, config: dict[str, Any],
+        self,
+        ticker: str,
+        config: dict[str, Any],
     ) -> None:
         """
         Extract components from synthetic ticker and update config.

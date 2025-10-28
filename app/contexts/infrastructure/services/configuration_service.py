@@ -71,7 +71,10 @@ class ConfigurationService:
             raise
 
     def save_config(
-        self, config_name: str, config: dict[str, Any], format: str = "yaml",
+        self,
+        config_name: str,
+        config: dict[str, Any],
+        format: str = "yaml",
     ) -> bool:
         """Save configuration to file."""
         try:
@@ -103,7 +106,10 @@ class ConfigurationService:
             return False
 
     def get_config_value(
-        self, config_name: str, key_path: str, default: Any = None,
+        self,
+        config_name: str,
+        key_path: str,
+        default: Any = None,
     ) -> Any:
         """Get specific configuration value using dot notation."""
         try:
@@ -168,7 +174,9 @@ class ConfigurationService:
             return False
 
     def _validate_config(
-        self, config_name: str, config: dict[str, Any],
+        self,
+        config_name: str,
+        config: dict[str, Any],
     ) -> dict[str, Any]:
         """Validate configuration structure and values."""
         if not isinstance(config, dict):
@@ -227,7 +235,10 @@ class ConfigurationService:
         return config
 
     def _get_nested_value(
-        self, config: dict[str, Any], key_path: str, default: Any = None,
+        self,
+        config: dict[str, Any],
+        key_path: str,
+        default: Any = None,
     ) -> Any:
         """Get nested value using dot notation."""
         keys = key_path.split(".")
@@ -242,7 +253,10 @@ class ConfigurationService:
         return current
 
     def _set_nested_value(
-        self, config: dict[str, Any], key_path: str, value: Any,
+        self,
+        config: dict[str, Any],
+        key_path: str,
+        value: Any,
     ) -> None:
         """Set nested value using dot notation."""
         keys = key_path.split(".")
@@ -256,7 +270,9 @@ class ConfigurationService:
         current[keys[-1]] = value
 
     def _deep_merge(
-        self, base: dict[str, Any], override: dict[str, Any],
+        self,
+        base: dict[str, Any],
+        override: dict[str, Any],
     ) -> dict[str, Any]:
         """Deep merge two dictionaries."""
         result = base.copy()

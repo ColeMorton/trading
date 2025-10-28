@@ -27,7 +27,8 @@ from .data_alignment import find_common_dates
     },
 )
 def validate_return_series_data(
-    portfolios: list[dict[str, Any]], log: Callable[[str, str], None],
+    portfolios: list[dict[str, Any]],
+    log: Callable[[str, str], None],
 ) -> None:
     """Validate portfolio data for return series alignment.
 
@@ -67,7 +68,8 @@ def validate_return_series_data(
     },
 )
 def calculate_return_series(
-    df: pl.DataFrame, log: Callable[[str, str], None],
+    df: pl.DataFrame,
+    log: Callable[[str, str], None],
 ) -> pl.DataFrame:
     """Calculate return series from position data.
 
@@ -349,7 +351,9 @@ def align_portfolio_returns(
 
     # Align all return series
     returns_matrix, strategy_names = align_return_series(
-        portfolio_returns, log, min_observations,
+        portfolio_returns,
+        log,
+        min_observations,
     )
 
     # Validate final result

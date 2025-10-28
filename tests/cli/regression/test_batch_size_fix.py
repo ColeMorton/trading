@@ -107,7 +107,9 @@ class TestBatchSizeFixRegression:
             return ticker != "AAPL"
 
         result = batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check,
+            all_tickers,
+            batch_size,
+            mock_resume_check,
         )
 
         # CRITICAL: Should return exactly batch_size tickers that need processing
@@ -139,7 +141,9 @@ class TestBatchSizeFixRegression:
             return ticker not in ["AAPL", "GOOGL"]
 
         result = batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check,
+            all_tickers,
+            batch_size,
+            mock_resume_check,
         )
 
         # Should return exactly 3 tickers
@@ -167,7 +171,9 @@ class TestBatchSizeFixRegression:
             return False  # All tickers are complete
 
         result = batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check,
+            all_tickers,
+            batch_size,
+            mock_resume_check,
         )
 
         # Should return empty list (no tickers need processing)
@@ -189,7 +195,9 @@ class TestBatchSizeFixRegression:
             return ticker in ["MSFT", "GOOGL"]
 
         result = batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check,
+            all_tickers,
+            batch_size,
+            mock_resume_check,
         )
 
         # Should return only the tickers that need processing
@@ -197,7 +205,8 @@ class TestBatchSizeFixRegression:
         assert set(result) == {"MSFT", "GOOGL"}
 
     def test_regression_batch_file_integration_with_resume_aware_selection(
-        self, batch_service,
+        self,
+        batch_service,
     ):
         """
         REGRESSION TEST: Test integration of batch file status with resume-aware selection.
@@ -222,7 +231,9 @@ class TestBatchSizeFixRegression:
             return ticker != "GOOGL"
 
         result = batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check,
+            all_tickers,
+            batch_size,
+            mock_resume_check,
         )
 
         # Should exclude AAPL, MSFT (batch file) and GOOGL (resume check)
@@ -250,7 +261,9 @@ class TestBatchSizeFixRegression:
             return True  # All tickers need processing
 
         result = batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check,
+            all_tickers,
+            batch_size,
+            mock_resume_check,
         )
 
         # Should return exactly batch_size tickers
@@ -277,7 +290,9 @@ class TestBatchSizeFixRegression:
             return ticker != "AAPL"
 
         result = batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check,
+            all_tickers,
+            batch_size,
+            mock_resume_check,
         )
 
         # Should return exactly 1 ticker
@@ -299,7 +314,9 @@ class TestBatchSizeFixRegression:
             return True
 
         result = batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check,
+            all_tickers,
+            batch_size,
+            mock_resume_check,
         )
 
         # Should return first batch_size tickers
@@ -307,7 +324,9 @@ class TestBatchSizeFixRegression:
         assert result == ["AAPL", "MSFT"]
 
     def test_regression_resume_check_exception_handling(
-        self, batch_service, mock_console,
+        self,
+        batch_service,
+        mock_console,
     ):
         """
         REGRESSION TEST: Test handling of resume check exceptions.
@@ -326,7 +345,9 @@ class TestBatchSizeFixRegression:
             return True
 
         result = batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check,
+            all_tickers,
+            batch_size,
+            mock_resume_check,
         )
 
         # Should handle exception and continue processing
@@ -402,7 +423,8 @@ class TestBatchSizeFixIntegrationRegression:
         # Create dispatcher
         dispatcher = StrategyDispatcher(console=mock_console)
         dispatcher.batch_service = BatchProcessingService(
-            strategy_config.batch_file_path, mock_console,
+            strategy_config.batch_file_path,
+            mock_console,
         )
         dispatcher.resume_service = mock_resume_service
 
@@ -433,7 +455,9 @@ class TestBatchSizeFixIntegrationRegression:
 
         # Get tickers needing processing using the fixed logic
         result = dispatcher.batch_service.get_tickers_needing_processing(
-            strategy_config.ticker, strategy_config.batch_size, resume_check_fn,
+            strategy_config.ticker,
+            strategy_config.batch_size,
+            resume_check_fn,
         )
 
         # CRITICAL REGRESSION CHECK: Should return exactly batch_size tickers
@@ -453,7 +477,8 @@ class TestBatchSizeFixIntegrationRegression:
         exactly the tickers that were processed.
         """
         batch_service = BatchProcessingService(
-            strategy_config.batch_file_path, mock_console,
+            strategy_config.batch_file_path,
+            mock_console,
         )
 
         # Simulate processing exactly batch_size tickers
@@ -474,7 +499,9 @@ class TestBatchSizeFixIntegrationRegression:
         assert all(df["Last Modified"] == today)
 
     def test_regression_subsequent_batch_run_accuracy(
-        self, strategy_config, mock_console,
+        self,
+        strategy_config,
+        mock_console,
     ):
         """
         REGRESSION TEST: Test accuracy of subsequent batch runs.
@@ -483,7 +510,8 @@ class TestBatchSizeFixIntegrationRegression:
         run correctly excludes already processed tickers.
         """
         batch_service = BatchProcessingService(
-            strategy_config.batch_file_path, mock_console,
+            strategy_config.batch_file_path,
+            mock_console,
         )
 
         # Simulate first batch run - process 2 tickers
@@ -500,7 +528,9 @@ class TestBatchSizeFixIntegrationRegression:
             return True
 
         result = batch_service.get_tickers_needing_processing(
-            all_tickers, batch_size, mock_resume_check,
+            all_tickers,
+            batch_size,
+            mock_resume_check,
         )
 
         # Should exclude first batch and return next batch_size tickers
@@ -535,7 +565,9 @@ class TestBatchSizeFixIntegrationRegression:
                 return True  # All need processing
 
             result = batch_service.get_tickers_needing_processing(
-                all_tickers, batch_size, mock_resume_check,
+                all_tickers,
+                batch_size,
+                mock_resume_check,
             )
 
             # Should return exactly batch_size tickers
@@ -573,7 +605,9 @@ class TestBatchSizeFixIntegrationRegression:
 
             # First processor gets first batch
             result_1 = batch_service_1.get_tickers_needing_processing(
-                all_tickers, batch_size, mock_resume_check,
+                all_tickers,
+                batch_size,
+                mock_resume_check,
             )
 
             # Update batch file with first batch
@@ -582,7 +616,9 @@ class TestBatchSizeFixIntegrationRegression:
 
             # Second processor gets next batch (should exclude first batch)
             result_2 = batch_service_2.get_tickers_needing_processing(
-                all_tickers, batch_size, mock_resume_check,
+                all_tickers,
+                batch_size,
+                mock_resume_check,
             )
 
             # Results should not overlap

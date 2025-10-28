@@ -147,7 +147,10 @@ class TestSingleOperationBenchmarks(TestMACrossPerformanceBenchmarks):
         assert execution_time < 0.5
 
     def test_portfolio_filtering_performance(
-        self, large_portfolio_dataset, performance_config, mock_log,
+        self,
+        large_portfolio_dataset,
+        performance_config,
+        mock_log,
     ):
         """Benchmark portfolio filtering performance."""
         from app.tools.portfolio.filtering_service import PortfolioFilterService
@@ -160,7 +163,9 @@ class TestSingleOperationBenchmarks(TestMACrossPerformanceBenchmarks):
         # Filter portfolios multiple times
         for _ in range(100):
             filtered_df = filter_service.filter_portfolios_dataframe(
-                portfolios_df, performance_config, mock_log,
+                portfolios_df,
+                performance_config,
+                mock_log,
             )
 
         execution_time = time.time() - start_time
@@ -174,7 +179,11 @@ class TestWorkflowBenchmarks(TestMACrossPerformanceBenchmarks):
     """Benchmark complete workflow operations."""
 
     def test_single_ticker_workflow_benchmark(
-        self, performance_config, large_price_dataset, large_portfolio_dataset, mock_log,
+        self,
+        performance_config,
+        large_price_dataset,
+        large_portfolio_dataset,
+        mock_log,
     ):
         """Benchmark single ticker complete workflow."""
 
@@ -210,7 +219,11 @@ class TestWorkflowBenchmarks(TestMACrossPerformanceBenchmarks):
             assert result is not None
 
     def test_multiple_ticker_workflow_benchmark(
-        self, performance_config, large_price_dataset, large_portfolio_dataset, mock_log,
+        self,
+        performance_config,
+        large_price_dataset,
+        large_portfolio_dataset,
+        mock_log,
     ):
         """Benchmark multiple ticker workflow."""
 
@@ -250,7 +263,11 @@ class TestWorkflowBenchmarks(TestMACrossPerformanceBenchmarks):
             assert result is not None
 
     def test_multi_strategy_workflow_benchmark(
-        self, performance_config, large_price_dataset, large_portfolio_dataset, mock_log,
+        self,
+        performance_config,
+        large_price_dataset,
+        large_portfolio_dataset,
+        mock_log,
     ):
         """Benchmark multiple strategy workflow."""
 
@@ -294,7 +311,11 @@ class TestMemoryBenchmarks(TestMACrossPerformanceBenchmarks):
     """Benchmark memory usage patterns."""
 
     def test_workflow_memory_usage(
-        self, performance_config, large_price_dataset, large_portfolio_dataset, mock_log,
+        self,
+        performance_config,
+        large_price_dataset,
+        large_portfolio_dataset,
+        mock_log,
     ):
         """Test memory usage during workflow execution."""
 
@@ -332,7 +353,11 @@ class TestMemoryBenchmarks(TestMACrossPerformanceBenchmarks):
             assert result is not None
 
     def test_memory_cleanup(
-        self, performance_config, large_price_dataset, large_portfolio_dataset, mock_log,
+        self,
+        performance_config,
+        large_price_dataset,
+        large_portfolio_dataset,
+        mock_log,
     ):
         """Test memory cleanup after workflow execution."""
 
@@ -380,7 +405,11 @@ class TestConcurrencyBenchmarks(TestMACrossPerformanceBenchmarks):
     """Benchmark concurrency and parallelization."""
 
     def test_concurrent_ticker_processing(
-        self, performance_config, large_price_dataset, large_portfolio_dataset, mock_log,
+        self,
+        performance_config,
+        large_price_dataset,
+        large_portfolio_dataset,
+        mock_log,
     ):
         """Test concurrent processing of multiple tickers."""
         import concurrent.futures
@@ -463,7 +492,9 @@ class TestScalabilityBenchmarks(TestMACrossPerformanceBenchmarks):
 
         start_time = time.time()
         filtered_df = filter_service.filter_portfolios_dataframe(
-            portfolios_df, performance_config, mock_log,
+            portfolios_df,
+            performance_config,
+            mock_log,
         )
         execution_time = time.time() - start_time
 
@@ -474,7 +505,10 @@ class TestScalabilityBenchmarks(TestMACrossPerformanceBenchmarks):
 
     @pytest.mark.parametrize("data_points", [100, 500, 1000, 2000])
     def test_data_processing_scalability(
-        self, performance_config, mock_log, data_points,
+        self,
+        performance_config,
+        mock_log,
+        data_points,
     ):
         """Test data processing performance with increasing data sizes."""
 

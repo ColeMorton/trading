@@ -2,6 +2,8 @@
 
 import unittest
 
+import pytest
+
 from app.concurrency.config import (
     FileFormatError,
     ValidationError,
@@ -13,7 +15,6 @@ from app.concurrency.config import (
 from app.concurrency.config_defaults import get_default_config
 
 from .base import ConcurrencyTestCase
-import pytest
 
 
 class TestConfigValidation(ConcurrencyTestCase):
@@ -113,7 +114,8 @@ class TestConfigValidation(ConcurrencyTestCase):
             validate_config(config)
 
         self.assertIn(
-            "OPTIMIZE_MIN_STRATEGIES must be an integer >= 2", str(cm.exception),
+            "OPTIMIZE_MIN_STRATEGIES must be an integer >= 2",
+            str(cm.exception),
         )
 
 
@@ -133,7 +135,8 @@ class TestPortfolioFormatDetection(ConcurrencyTestCase):
     def test_detect_json_format(self):
         """Test detection of JSON portfolio format."""
         json_file = self.create_portfolio_file(
-            [{"ticker": "BTC", "type": "SMA"}], "test.json",
+            [{"ticker": "BTC", "type": "SMA"}],
+            "test.json",
         )
 
         format_info = detect_portfolio_format(json_file)

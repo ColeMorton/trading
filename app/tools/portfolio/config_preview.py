@@ -36,7 +36,8 @@ def show_portfolio_config_preview(config: PortfolioConfig, console: ConsoleLogge
     if config.equity_data.export:
         table.add_row("Equity Metric", config.equity_data.metric)
         table.add_row(
-            "Force Fresh Analysis", str(config.equity_data.force_fresh_analysis),
+            "Force Fresh Analysis",
+            str(config.equity_data.force_fresh_analysis),
         )
 
     console.table(table)
@@ -44,7 +45,8 @@ def show_portfolio_config_preview(config: PortfolioConfig, console: ConsoleLogge
 
 
 def show_processing_config_preview(
-    config: PortfolioProcessingConfig, console: ConsoleLogger,
+    config: PortfolioProcessingConfig,
+    console: ConsoleLogger,
 ):
     """Display portfolio processing configuration preview.
 
@@ -69,7 +71,8 @@ def show_processing_config_preview(
 
 
 def show_portfolio_synthesis_config_preview(
-    config: PortfolioSynthesisConfig, console: ConsoleLogger,
+    config: PortfolioSynthesisConfig,
+    console: ConsoleLogger,
 ):
     """Display portfolio synthesis configuration preview for dry run.
 

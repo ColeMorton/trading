@@ -322,7 +322,8 @@ def build_configuration_overrides(
 
 
 def convert_to_legacy_config(
-    config: StrategyConfig, **additional_params,
+    config: StrategyConfig,
+    **additional_params,
 ) -> dict[str, Any]:
     """
     Convert Pydantic StrategyConfig to legacy config format.
@@ -518,7 +519,10 @@ def convert_to_legacy_config(
 
 
 def handle_command_error(
-    error: Exception, command_name: str, verbose: bool = False, console=None,
+    error: Exception,
+    command_name: str,
+    verbose: bool = False,
+    console=None,
 ) -> None:
     """
     Handle command errors consistently across all strategy sub-commands.
@@ -546,7 +550,8 @@ def handle_command_error(
 
 
 def show_config_preview(
-    config: StrategyConfig, title: str = "Configuration Preview",
+    config: StrategyConfig,
+    title: str = "Configuration Preview",
 ) -> None:
     """
     Display configuration preview for dry run mode.
@@ -663,7 +668,9 @@ def show_config_preview(
                     f"{strategy_params.signal_period_min}-{strategy_params.signal_period_max}",
                 )
         elif hasattr(config, "signal_period_range") and getattr(
-            config, "signal_period_range", None,
+            config,
+            "signal_period_range",
+            None,
         ):
             table.add_row("Signal Period Range", str(config.signal_period_range))
 
@@ -707,7 +714,9 @@ def show_config_preview(
         if hasattr(config, "slow_period_range") and config.slow_period_range:
             table.add_row("Slow Period Range", str(config.slow_period_range))
         if hasattr(config, "signal_period_range") and getattr(
-            config, "signal_period_range", None,
+            config,
+            "signal_period_range",
+            None,
         ):
             table.add_row("Signal Period Range", str(config.signal_period_range))
 
@@ -885,7 +894,9 @@ def display_sweep_results_table(
 
 
 def show_execution_progress(
-    message: str, ticker_count: int | None = None, combination_count: int | None = None,
+    message: str,
+    ticker_count: int | None = None,
+    combination_count: int | None = None,
 ) -> None:
     """
     Display consistent execution progress messages.
@@ -965,7 +976,8 @@ def validate_parameter_relationships(config: StrategyConfig) -> None:
 
 
 def _display_risk_comparison_matrix(
-    comparison_data: list[dict[str, Any]], console: Console,
+    comparison_data: list[dict[str, Any]],
+    console: Console,
 ) -> None:
     """
     Display additional risk comparison matrix with categorized analysis.
@@ -1100,7 +1112,9 @@ def _display_risk_comparison_matrix(
             [f"{s['ticker']} ({s['score']:.2f})" for s in balanced_picks],
         )
         alloc_table.add_row(
-            "[blue]Balanced[/blue]", balanced_sectors, "One from each risk category",
+            "[blue]Balanced[/blue]",
+            balanced_sectors,
+            "One from each risk category",
         )
 
     console.print()
@@ -1151,7 +1165,10 @@ def display_sector_comparison_table(
     benchmark_ticker = benchmark_data["ticker"] if benchmark_data else None
     if has_benchmark:
         table.add_column(
-            f"vs {benchmark_ticker}", style="yellow", width=10, justify="right",
+            f"vs {benchmark_ticker}",
+            style="yellow",
+            width=10,
+            justify="right",
         )
 
     # Add rows with color coding

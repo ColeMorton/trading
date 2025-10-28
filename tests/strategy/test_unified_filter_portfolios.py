@@ -230,7 +230,9 @@ class TestCreateMetricResultFromRows:
         rows = {"most": 1, "least": None, "mean": 0}
 
         results = create_metric_result_from_rows(
-            metric="Total Return [%]", rows=rows, df=df,
+            metric="Total Return [%]",
+            rows=rows,
+            df=df,
         )
 
         assert len(results) == 2  # Should skip None values
@@ -480,7 +482,9 @@ class TestConvenienceFunctions:
         )
 
         result = get_extreme_values(
-            df, metrics=["Total Return [%]"], strategy_type="SMA",
+            df,
+            metrics=["Total Return [%]"],
+            strategy_type="SMA",
         )
 
         assert not result.is_empty()

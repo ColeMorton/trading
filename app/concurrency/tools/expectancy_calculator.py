@@ -62,7 +62,9 @@ class ExpectancyCalculator:
         return calculate_expectancy(win_rate, avg_win, avg_loss)
 
     def calculate_from_returns(
-        self, returns: list[float] | np.ndarray, legacy_mode: bool = False,
+        self,
+        returns: list[float] | np.ndarray,
+        legacy_mode: bool = False,
     ) -> tuple[float, dict[str, float]]:
         """Calculate expectancy from a series of returns.
 
@@ -95,7 +97,10 @@ class ExpectancyCalculator:
             avg_loss = abs(np.mean(losing_returns)) if len(losing_returns) > 0 else 0
 
             expectancy = self.calculate_from_components(
-                win_rate, avg_win, avg_loss, legacy_mode=True,
+                win_rate,
+                avg_win,
+                avg_loss,
+                legacy_mode=True,
             )
 
             return expectancy, {
@@ -138,17 +143,19 @@ class ExpectancyCalculator:
             True if expectancy is within reasonable bounds
         """
         # Reasonable bounds for per-trade expectancy
-        MIN_REASONABLE = -1.0  # -100% (total loss)
-        MAX_REASONABLE = 2.0  # 200% (very rare but possible)
+        min_reasonable = -1.0  # -100% (total loss)
+        max_reasonable = 2.0  # 200% (very rare but possible)
 
-        if expectancy < MIN_REASONABLE or expectancy > MAX_REASONABLE:
+        if expectancy < min_reasonable or expectancy > max_reasonable:
             print(f"Warning: Unreasonable expectancy {expectancy:.2%} from {source}")
             return False
 
         return True
 
     def convert_r_multiple_to_percentage(
-        self, r_expectancy: float, avg_loss: float,
+        self,
+        r_expectancy: float,
+        avg_loss: float,
     ) -> float:
         """Convert R-multiple expectancy to percentage expectancy.
 
@@ -175,7 +182,9 @@ def get_fixed_expectancy_calculator() -> ExpectancyCalculator:
 
 # Convenience functions for backward compatibility
 def calculate_fixed_expectancy(
-    win_rate: float, avg_win: float, avg_loss: float,
+    win_rate: float,
+    avg_win: float,
+    avg_loss: float,
 ) -> float:
     """Calculate expectancy using the fixed formula.
 

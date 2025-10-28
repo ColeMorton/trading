@@ -113,7 +113,9 @@ class PortfolioBaselineCalculator:
         for position in positions:
             # Entry event (cash outflow)
             entry_cash_flow = self.precision_calculator.calculate_cash_flow(
-                "entry", position.avg_entry_price, position.position_size,
+                "entry",
+                position.avg_entry_price,
+                position.position_size,
             )
 
             events.append(
@@ -136,7 +138,9 @@ class PortfolioBaselineCalculator:
                 and position.avg_exit_price
             ):
                 exit_cash_flow = self.precision_calculator.calculate_cash_flow(
-                    "exit", position.avg_exit_price, position.position_size,
+                    "exit",
+                    position.avg_exit_price,
+                    position.position_size,
                 )
 
                 events.append(
@@ -163,7 +167,9 @@ class PortfolioBaselineCalculator:
 
         for position in positions:
             cash_flow = self.precision_calculator.calculate_cash_flow(
-                "entry", position.avg_entry_price, position.position_size,
+                "entry",
+                position.avg_entry_price,
+                position.position_size,
             )
             total_cost += abs(cash_flow["net_cash_flow"])
 
@@ -236,4 +242,3 @@ class PortfolioBaselineCalculator:
             "cash_flow_events": len(baseline_calc["cash_timeline"]),
             "final_cash_position": baseline_calc["final_cash_position"],
         }
-

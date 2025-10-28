@@ -81,7 +81,10 @@ class TransactionCostAnalyzer:
 
             # Estimate market impact based on volume characteristics
             market_impact = self._estimate_market_impact(
-                avg_volume, relative_volume, current_price, liquidity_score,
+                avg_volume,
+                relative_volume,
+                current_price,
+                liquidity_score,
             )
 
             # Commission costs
@@ -121,7 +124,9 @@ class TransactionCostAnalyzer:
             )
 
         except Exception as e:
-            self.logger.exception(f"Transaction cost estimation failed for {ticker}: {e}")
+            self.logger.exception(
+                f"Transaction cost estimation failed for {ticker}: {e}"
+            )
             return self._default_cost_estimate(ticker, signal)
 
     def _estimate_spread(self, liquidity_score: float, price: float) -> float:
@@ -336,7 +341,9 @@ class TransactionCostAnalyzer:
             return original_signal, original_confidence, "Cost adjustment failed"
 
     def _default_cost_estimate(
-        self, ticker: str, signal: str,
+        self,
+        ticker: str,
+        signal: str,
     ) -> TransactionCostEstimate:
         """Return default cost estimate when calculation fails."""
         return TransactionCostEstimate(
@@ -384,7 +391,8 @@ class TransactionCostAnalyzer:
                     }
 
             summary["overall_turnover_rate"] = total_changes / max(
-                1, total_signals - len(self.signal_history),
+                1,
+                total_signals - len(self.signal_history),
             )
 
             return summary

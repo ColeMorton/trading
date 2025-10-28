@@ -113,7 +113,8 @@ class TestMACrossStrategyPipeline(unittest.TestCase):
         # Convert to pandas temporarily for easier manipulation, then back to Polars
         price_data_pandas = price_data.to_pandas()
         price_data_pandas.iloc[
-            -1, price_data_pandas.columns.get_loc("Close"),
+            -1,
+            price_data_pandas.columns.get_loc("Close"),
         ] *= 1.1  # 10% jump
         price_data = pl.from_pandas(price_data_pandas)
 
@@ -138,7 +139,8 @@ class TestMACrossStrategyPipeline(unittest.TestCase):
         # At least one date directory should exist
         date_dirs_exist = any(os.path.exists(path) for path in expected_paths)
         self.assertTrue(
-            date_dirs_exist, f"USE_CURRENT should create date directory {today}",
+            date_dirs_exist,
+            f"USE_CURRENT should create date directory {today}",
         )
 
     def test_portfolio_filtering_workflow(self):
@@ -160,12 +162,16 @@ class TestMACrossStrategyPipeline(unittest.TestCase):
         filter_service = PortfolioFilterService()
 
         filtered = filter_service.filter_portfolios_list(
-            portfolios, filter_config, self.log,
+            portfolios,
+            filter_config,
+            self.log,
         )
 
         # Should filter out low-performing portfolios
         self.assertLess(
-            len(filtered), len(portfolios), "Filtering should reduce portfolio count",
+            len(filtered),
+            len(portfolios),
+            "Filtering should reduce portfolio count",
         )
 
         # Verify filtering criteria were applied

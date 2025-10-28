@@ -59,7 +59,9 @@ class StrategiesCountIntegration:
         except json.JSONDecodeError as e:
             msg = f"Invalid JSON in portfolio file: {self.portfolio_file}"
             raise json.JSONDecodeError(
-                msg, e.doc, e.pos,
+                msg,
+                e.doc,
+                e.pos,
             )
 
     def get_total_strategies_count(self) -> int:
@@ -171,7 +173,9 @@ class StrategiesCountIntegration:
             raise KeyError(msg)
 
     def validate_strategies_count(
-        self, expected_count: int, tolerance: int = 0,
+        self,
+        expected_count: int,
+        tolerance: int = 0,
     ) -> tuple[bool, str]:
         """Validate strategies count against expected value.
 

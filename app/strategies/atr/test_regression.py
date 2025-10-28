@@ -121,7 +121,9 @@ class TestATRRegressionPrevention(unittest.TestCase):
         if result["Total Trades"] > 0:
             # If there are trades, Score should not be 0 (unless truly awful performance)
             self.assertNotEqual(
-                score, 0.0, "REGRESSION BUG: Score calculation is broken (always 0)",
+                score,
+                0.0,
+                "REGRESSION BUG: Score calculation is broken (always 0)",
             )
 
             # Score should be a reasonable numeric value
@@ -276,7 +278,9 @@ class TestATRRegressionPrevention(unittest.TestCase):
 
         # Should generate some trades (not 0)
         self.assertGreater(
-            total_trades, 0, "Should generate some trades in long-term trending market",
+            total_trades,
+            0,
+            "Should generate some trades in long-term trending market",
         )
 
     def test_prevent_duration_export_errors(self):
@@ -309,7 +313,8 @@ class TestATRRegressionPrevention(unittest.TestCase):
             # Should not be NaN or complex object
             if isinstance(value, int | float):
                 self.assertFalse(
-                    np.isnan(value), f"Duration field {field} should not be NaN",
+                    np.isnan(value),
+                    f"Duration field {field} should not be NaN",
                 )
 
     def test_prevent_signal_entry_always_true_export(self):

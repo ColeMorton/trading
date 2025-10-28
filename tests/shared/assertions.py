@@ -135,7 +135,8 @@ def assert_trading_signals_valid(
 
 
 def assert_risk_metrics_valid(
-    risk_metrics: dict[str, float], check_bounds: bool = True,
+    risk_metrics: dict[str, float],
+    check_bounds: bool = True,
 ):
     """
     Assert risk metrics are valid and within expected bounds.
@@ -150,7 +151,8 @@ def assert_risk_metrics_valid(
     for metric in required_metrics:
         assert metric in risk_metrics, f"Risk metrics missing required metric: {metric}"
         assert isinstance(
-            risk_metrics[metric], int | float,
+            risk_metrics[metric],
+            int | float,
         ), f"Risk metric {metric} must be numeric"
 
     if check_bounds:
@@ -235,7 +237,8 @@ def assert_backtest_results_valid(
 
 
 def assert_configuration_valid(
-    config: dict[str, Any], schema: dict[str, type] | None = None,
+    config: dict[str, Any],
+    schema: dict[str, type] | None = None,
 ):
     """
     Assert configuration is valid against schema.
@@ -252,7 +255,8 @@ def assert_configuration_valid(
             assert field in config, f"Configuration missing required field: {field}"
             actual_type = type(config[field])
             assert actual_type == expected_type or isinstance(
-                config[field], expected_type,
+                config[field],
+                expected_type,
             ), f"Field {field} expected type {expected_type}, got {actual_type}"
 
 
@@ -289,7 +293,9 @@ def assert_api_response_valid(
 
 
 def assert_performance_within_tolerance(
-    actual_time: float, expected_time: float, tolerance: float = 0.2,
+    actual_time: float,
+    expected_time: float,
+    tolerance: float = 0.2,
 ):
     """
     Assert performance is within acceptable tolerance.
@@ -335,7 +341,9 @@ def assert_dataframe_schema(df: pl.DataFrame, expected_schema: dict[str, pl.Data
 
 
 def assert_no_data_leakage(
-    train_data: pl.DataFrame, test_data: pl.DataFrame, date_column: str = "Date",
+    train_data: pl.DataFrame,
+    test_data: pl.DataFrame,
+    date_column: str = "Date",
 ):
     """
     Assert no data leakage between train and test sets.

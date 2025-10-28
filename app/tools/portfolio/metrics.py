@@ -97,7 +97,9 @@ def get_metric_rows(df: pl.DataFrame, column: str) -> list[Any]:
 
 
 def create_metric_result(
-    metric: str, rows: list[Any], df_columns: list[str],
+    metric: str,
+    rows: list[Any],
+    df_columns: list[str],
 ) -> list[dict[str, Any]]:
     """
     Create result dictionaries for a metric's rows.

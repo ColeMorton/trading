@@ -121,7 +121,8 @@ class RiskMetricsCalculator:
             volatility = np.std(returns_array)
             annualized_volatility = volatility * np.sqrt(frequency)
             downside_volatility = self._calculate_downside_volatility(
-                returns_array, frequency,
+                returns_array,
+                frequency,
             )
 
             # Calculate drawdown metrics
@@ -207,7 +208,9 @@ class RiskMetricsCalculator:
 
             # Calculate confidence intervals using bootstrap
             confidence_intervals = self._calculate_confidence_intervals(
-                returns, confidence_level, bootstrap_samples,
+                returns,
+                confidence_level,
+                bootstrap_samples,
             )
 
             # Perform stress tests
@@ -228,7 +231,8 @@ class RiskMetricsCalculator:
             )
 
     def _calculate_var_cvar(
-        self, returns: np.ndarray,
+        self,
+        returns: np.ndarray,
     ) -> tuple[float, float, float, float]:
         """Calculate Value at Risk and Conditional VaR at 95% and 99% levels."""
         try:
@@ -260,7 +264,9 @@ class RiskMetricsCalculator:
             return 0.0, 0.0, 0.0, 0.0
 
     def _calculate_downside_volatility(
-        self, returns: np.ndarray, frequency: int,
+        self,
+        returns: np.ndarray,
+        frequency: int,
     ) -> float:
         """Calculate downside volatility (volatility of negative returns only)."""
         try:
@@ -274,7 +280,8 @@ class RiskMetricsCalculator:
             return 0.0
 
     def _calculate_drawdown_metrics(
-        self, prices: pd.Series | np.ndarray,
+        self,
+        prices: pd.Series | np.ndarray,
     ) -> tuple[float, float, int]:
         """Calculate drawdown metrics from price series."""
         try:
@@ -308,7 +315,8 @@ class RiskMetricsCalculator:
             return 0.0, 0.0, 0
 
     def _calculate_drawdown_from_returns(
-        self, cumulative_returns: np.ndarray,
+        self,
+        cumulative_returns: np.ndarray,
     ) -> tuple[float, float, int]:
         """Calculate drawdown metrics from cumulative returns."""
         try:
@@ -369,7 +377,10 @@ class RiskMetricsCalculator:
             return 0.0
 
     def _calculate_calmar_ratio(
-        self, mean_return: float, max_drawdown: float, frequency: int,
+        self,
+        mean_return: float,
+        max_drawdown: float,
+        frequency: int,
     ) -> float:
         """Calculate Calmar ratio (annual return / max drawdown)."""
         try:
@@ -409,12 +420,14 @@ class RiskMetricsCalculator:
             # Pain index is the square root of mean squared drawdowns
             return np.sqrt(np.mean(drawdowns**2))
 
-
         except Exception:
             return 0.0
 
     def _calculate_confidence_intervals(
-        self, returns: np.ndarray, confidence_level: float, bootstrap_samples: int,
+        self,
+        returns: np.ndarray,
+        confidence_level: float,
+        bootstrap_samples: int,
     ) -> dict[str, tuple[float, float]]:
         """Calculate confidence intervals for key metrics using bootstrap."""
         try:
@@ -424,7 +437,9 @@ class RiskMetricsCalculator:
             for _ in range(bootstrap_samples):
                 # Sample with replacement
                 bootstrap_returns = np.random.choice(
-                    returns, size=len(returns), replace=True,
+                    returns,
+                    size=len(returns),
+                    replace=True,
                 )
 
                 # Calculate metrics for this sample

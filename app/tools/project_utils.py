@@ -19,7 +19,6 @@ def get_project_root() -> str:
     return os.path.dirname(app_dir)
 
 
-
 def resolve_path(path: str, base_dir: str | None | None = None) -> str:
     """Resolve a path relative to a base directory.
 

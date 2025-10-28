@@ -88,7 +88,6 @@ class StrategyDataCoordinatorError(Exception):
     """Exception raised by StrategyDataCoordinator."""
 
 
-
 class StrategyDataCoordinator:
     """
     Central coordinator for all strategy data loading, validation, and consistency.
@@ -176,7 +175,9 @@ class StrategyDataCoordinator:
             from app.tools.processing import configure_memory_optimizer
 
             self.memory_optimizer = configure_memory_optimizer(
-                enable_pooling=True, enable_monitoring=True, memory_threshold_mb=1000.0,
+                enable_pooling=True,
+                enable_monitoring=True,
+                memory_threshold_mb=1000.0,
             )
             (
                 logger.info("Memory optimization enabled in StrategyDataCoordinator")
@@ -283,7 +284,8 @@ class StrategyDataCoordinator:
             raise StrategyDataCoordinatorError(msg)
 
     def _load_coordinated_strategy_data(
-        self, strategy_identifier: str,
+        self,
+        strategy_identifier: str,
     ) -> StrategyData | None:
         """
         Load strategy data with full coordination across all sources.
@@ -308,9 +310,9 @@ class StrategyDataCoordinator:
                 strategy_name = (
                     f"{ticker}_{strategy_type}_{int(fast_period)}_{int(slow_period)}"
                 )
-                strategy_row[
-                    "strategy_name"
-                ] = strategy_name  # Add to row for consistency
+                strategy_row["strategy_name"] = (
+                    strategy_name  # Add to row for consistency
+                )
 
             # Step 2: Create unified strategy data object with structured components
             strategy_data = UnifiedStrategyData(
@@ -394,13 +396,15 @@ class StrategyDataCoordinator:
                 self._populate_from_backtesting_data(strategy_data, strategy_name)
                 self._populate_from_positions_data(strategy_data, strategy_name)
                 self._populate_from_asset_distribution(
-                    strategy_data, strategy_data.ticker,
+                    strategy_data,
+                    strategy_data.ticker,
                 )
 
             # Step 4: Perform central validation
             if self.config.enable_validation:
                 validation_result = self._validate_strategy_data(
-                    strategy_data, strategy_name,
+                    strategy_data,
+                    strategy_name,
                 )
                 if validation_result["critical_violations"]:
                     (
@@ -417,13 +421,14 @@ class StrategyDataCoordinator:
                 try:
                     # Optimize any dataframes in raw_analysis_data
                     if strategy_data.raw_analysis_data and isinstance(
-                        strategy_data.raw_analysis_data, dict,
+                        strategy_data.raw_analysis_data,
+                        dict,
                     ):
                         for key, value in strategy_data.raw_analysis_data.items():
                             if hasattr(value, "memory_usage"):  # Likely a DataFrame
-                                strategy_data.raw_analysis_data[
-                                    key
-                                ] = self.memory_optimizer.optimize_dataframe(value)
+                                strategy_data.raw_analysis_data[key] = (
+                                    self.memory_optimizer.optimize_dataframe(value)
+                                )
                 except Exception as e:
                     (
                         logger.warning(
@@ -446,7 +451,9 @@ class StrategyDataCoordinator:
             return None
 
     def _populate_from_statistical_csv(
-        self, strategy_data: UnifiedStrategyData, strategy_row: dict[str, Any],
+        self,
+        strategy_data: UnifiedStrategyData,
+        strategy_row: dict[str, Any],
     ):
         """Populate strategy data from statistical CSV using structured format"""
         try:
@@ -467,7 +474,8 @@ class StrategyDataCoordinator:
                 strategy_row.get("strategy_layer_percentile", 0.0),
             )
             strategy_data.statistics.statistical_significance = strategy_row.get(
-                "statistical_significance", "LOW",
+                "statistical_significance",
+                "LOW",
             )
             strategy_data.statistics.p_value = float(strategy_row.get("p_value", 0.1))
             strategy_data.statistics.z_score_divergence = float(
@@ -482,30 +490,37 @@ class StrategyDataCoordinator:
 
             # Update signal information
             strategy_data.signal.exit_signal = strategy_row.get(
-                "exit_signal", "UNKNOWN",
+                "exit_signal",
+                "UNKNOWN",
             )
             strategy_data.signal.signal_confidence = float(
                 strategy_row.get("signal_confidence", 0.0),
             )
             strategy_data.signal.exit_recommendation = strategy_row.get(
-                "exit_recommendation", "",
+                "exit_recommendation",
+                "",
             )
             strategy_data.signal.target_exit_timeframe = strategy_row.get(
-                "target_exit_timeframe", "",
+                "target_exit_timeframe",
+                "",
             )
 
             # Update performance metrics with NaN handling
             strategy_data.performance.current_return = self._safe_float_conversion(
-                strategy_row.get("current_return", 0.0), default=0.0,
+                strategy_row.get("current_return", 0.0),
+                default=0.0,
             )
             strategy_data.performance.mfe = self._safe_float_conversion(
-                strategy_row.get("mfe", 0.0), default=0.0,
+                strategy_row.get("mfe", 0.0),
+                default=0.0,
             )
             strategy_data.performance.mae = self._safe_float_conversion(
-                strategy_row.get("mae", 0.0), default=0.0,
+                strategy_row.get("mae", 0.0),
+                default=0.0,
             )
             strategy_data.performance.unrealized_pnl = self._safe_float_conversion(
-                strategy_row.get("unrealized_pnl", 0.0), default=0.0,
+                strategy_row.get("unrealized_pnl", 0.0),
+                default=0.0,
             )
 
             # Add data lineage
@@ -523,7 +538,9 @@ class StrategyDataCoordinator:
             )
 
     def _populate_from_statistical_json(
-        self, strategy_data: UnifiedStrategyData, strategy_name: str,
+        self,
+        strategy_data: UnifiedStrategyData,
+        strategy_name: str,
     ):
         """Populate strategy data from statistical JSON using structured format"""
         try:
@@ -553,7 +570,8 @@ class StrategyDataCoordinator:
                 ):
                     strategy_data.performance.current_return = (
                         self._safe_float_conversion(
-                            performance_metrics["current_return"], default=0.0,
+                            performance_metrics["current_return"],
+                            default=0.0,
                         )
                     )
 
@@ -563,7 +581,8 @@ class StrategyDataCoordinator:
                     0.0,
                 ):
                     strategy_data.performance.mfe = self._safe_float_conversion(
-                        performance_metrics["mfe"], default=0.0,
+                        performance_metrics["mfe"],
+                        default=0.0,
                     )
 
                 if "mae" in performance_metrics and performance_metrics["mae"] not in (
@@ -571,7 +590,8 @@ class StrategyDataCoordinator:
                     0.0,
                 ):
                     strategy_data.performance.mae = self._safe_float_conversion(
-                        performance_metrics["mae"], default=0.0,
+                        performance_metrics["mae"],
+                        default=0.0,
                     )
 
                 if (
@@ -605,7 +625,9 @@ class StrategyDataCoordinator:
             )
 
     def _populate_from_backtesting_data(
-        self, strategy_data: UnifiedStrategyData, strategy_name: str,
+        self,
+        strategy_data: UnifiedStrategyData,
+        strategy_name: str,
     ):
         """Populate backtesting parameters using structured format"""
         try:
@@ -616,11 +638,15 @@ class StrategyDataCoordinator:
 
                 if file_path.suffix == ".json":
                     self._load_backtesting_from_json(
-                        strategy_data, strategy_name, file_path,
+                        strategy_data,
+                        strategy_name,
+                        file_path,
                     )
                 else:
                     self._load_backtesting_from_csv(
-                        strategy_data, strategy_name, file_path,
+                        strategy_data,
+                        strategy_name,
+                        file_path,
                     )
 
                 # Break if we successfully loaded parameters
@@ -638,9 +664,11 @@ class StrategyDataCoordinator:
                     else DataSourceType.BACKTESTING_CSV
                 ),
                 file_path=str(
-                    self.backtesting_json
-                    if self.backtesting_json.exists()
-                    else self.backtesting_csv,
+                    (
+                        self.backtesting_json
+                        if self.backtesting_json.exists()
+                        else self.backtesting_csv
+                    ),
                 ),
                 metadata={"backtesting_params_loaded": True},
             )
@@ -655,7 +683,10 @@ class StrategyDataCoordinator:
             )
 
     def _load_backtesting_from_json(
-        self, strategy_data: UnifiedStrategyData, strategy_name: str, file_path: Path,
+        self,
+        strategy_data: UnifiedStrategyData,
+        strategy_name: str,
+        file_path: Path,
     ):
         """Load backtesting parameters from JSON file using structured format"""
         try:
@@ -701,7 +732,10 @@ class StrategyDataCoordinator:
             )
 
     def _load_backtesting_from_csv(
-        self, strategy_data: UnifiedStrategyData, strategy_name: str, file_path: Path,
+        self,
+        strategy_data: UnifiedStrategyData,
+        strategy_name: str,
+        file_path: Path,
     ):
         """Load backtesting parameters from CSV file using structured format"""
         try:
@@ -811,7 +845,9 @@ class StrategyDataCoordinator:
             )
 
     def _populate_from_positions_data(
-        self, strategy_data: UnifiedStrategyData, strategy_name: str,
+        self,
+        strategy_data: UnifiedStrategyData,
+        strategy_name: str,
     ):
         """Populate data from positions file with enhanced validation using structured format"""
         try:
@@ -871,7 +907,9 @@ class StrategyDataCoordinator:
             )
 
     def _find_matching_position(
-        self, df: pd.DataFrame, strategy_name: str,
+        self,
+        df: pd.DataFrame,
+        strategy_name: str,
     ) -> pd.Series | None:
         """Find matching position using multiple patterns"""
         patterns = [
@@ -971,7 +1009,9 @@ class StrategyDataCoordinator:
             )
 
     def _populate_from_asset_distribution(
-        self, strategy_data: UnifiedStrategyData, ticker: str,
+        self,
+        strategy_data: UnifiedStrategyData,
+        ticker: str,
     ):
         """Populate asset distribution analysis data from return distribution files"""
         try:
@@ -1057,7 +1097,9 @@ class StrategyDataCoordinator:
             )
 
     def _validate_strategy_data(
-        self, strategy_data: UnifiedStrategyData, strategy_name: str,
+        self,
+        strategy_data: UnifiedStrategyData,
+        strategy_name: str,
     ) -> dict[str, Any]:
         """
         Central validation logic for mathematical constraints and data quality using unified data models.
@@ -1182,9 +1224,9 @@ class StrategyDataCoordinator:
 
             # Combine results (use unified validation score if available, otherwise legacy)
             if unified_validation_results:
-                validation_result[
-                    "data_quality_score"
-                ] = strategy_data.get_data_quality_score()
+                validation_result["data_quality_score"] = (
+                    strategy_data.get_data_quality_score()
+                )
                 validation_result["constraints_passed"] = sum(
                     1
                     for r in unified_validation_results
@@ -1263,7 +1305,9 @@ class StrategyDataCoordinator:
                             matches = df[
                                 (
                                     df["strategy_name"].str.contains(
-                                        pattern, case=False, na=False,
+                                        pattern,
+                                        case=False,
+                                        na=False,
                                     )
                                 )
                                 & (df["ticker"] == ticker)
@@ -1307,7 +1351,11 @@ class StrategyDataCoordinator:
             return None
 
         except Exception as e:
-            logger.exception(f"Error finding strategy in CSV: {e}") if self.logger else None
+            (
+                logger.exception(f"Error finding strategy in CSV: {e}")
+                if self.logger
+                else None
+            )
             return None
 
     def _parse_strategy_identifier(self, identifier: str) -> dict[str, Any] | None:
@@ -1396,7 +1444,9 @@ class StrategyDataCoordinator:
             return None
 
     def _find_strategy_by_constructed_name(
-        self, df: pd.DataFrame, identifier: str,
+        self,
+        df: pd.DataFrame,
+        identifier: str,
     ) -> dict[str, Any] | None:
         """Find strategy in CSV by constructing strategy names from ticker, strategy_type, and window parameters"""
         try:
@@ -1441,7 +1491,9 @@ class StrategyDataCoordinator:
             # Partial match (case insensitive)
             matches = df_with_strategy_name[
                 df_with_strategy_name["strategy_name"].str.contains(
-                    identifier, case=False, na=False,
+                    identifier,
+                    case=False,
+                    na=False,
                 )
             ]
             if not matches.empty:
@@ -1458,7 +1510,9 @@ class StrategyDataCoordinator:
             # Try matching by ticker only as fallback
             matches = df_with_strategy_name[
                 df_with_strategy_name["ticker"].str.contains(
-                    identifier, case=False, na=False,
+                    identifier,
+                    case=False,
+                    na=False,
                 )
             ]
             if not matches.empty:
@@ -1525,7 +1579,8 @@ class StrategyDataCoordinator:
                 # Load all requested strategies into snapshot
                 for identifier in strategy_identifiers:
                     strategy_data = self.get_strategy_data(
-                        identifier, force_refresh=False,
+                        identifier,
+                        force_refresh=False,
                     )
                     if strategy_data:
                         snapshot_data[identifier] = strategy_data
@@ -1560,7 +1615,11 @@ class StrategyDataCoordinator:
                 return snapshot_id
 
         except Exception as e:
-            logger.exception(f"Error creating data snapshot: {e}") if self.logger else None
+            (
+                logger.exception(f"Error creating data snapshot: {e}")
+                if self.logger
+                else None
+            )
             msg = f"Failed to create data snapshot: {e}"
             raise StrategyDataCoordinatorError(msg)
 
@@ -1612,7 +1671,8 @@ class StrategyDataCoordinator:
                 for strategy_name in strategy_names:
                     try:
                         strategy_data = self.get_strategy_data(
-                            strategy_name, force_refresh=True,
+                            strategy_name,
+                            force_refresh=True,
                         )
                         if strategy_data:
                             refreshed += 1
@@ -1670,7 +1730,8 @@ class StrategyDataCoordinator:
             return {"error": str(e)}
 
     def _log_strategy_not_found_with_suggestions(
-        self, strategy_identifier: str,
+        self,
+        strategy_identifier: str,
     ) -> None:
         """
         Log detailed error message with suggestions when strategy is not found.
@@ -1737,7 +1798,8 @@ class StrategyDataCoordinator:
                                         f"{strategy_type}_{fast_period}_{slow_period}"
                                     )
                                     closest_match = self._find_closest_strategy_match(
-                                        expected_strategy, available_strategies,
+                                        expected_strategy,
+                                        available_strategies,
                                     )
                                     if closest_match:
                                         (
@@ -1792,7 +1854,9 @@ class StrategyDataCoordinator:
             )
 
     def _find_closest_strategy_match(
-        self, target_strategy: str, available_strategies: list[str],
+        self,
+        target_strategy: str,
+        available_strategies: list[str],
     ) -> str | None:
         """
         Find the closest matching strategy name using simple similarity.
@@ -1907,12 +1971,14 @@ class StrategyDataCoordinator:
 
             # Step 2: Check availability in different data sources
             diagnosis["found_in_sources"] = self._check_strategy_in_all_sources(
-                strategy_identifier, parsed_components,
+                strategy_identifier,
+                parsed_components,
             )
 
             # Step 3: Generate specific suggestions based on findings
             diagnosis["suggestions"] = self._generate_diagnostic_suggestions(
-                parsed_components, diagnosis["found_in_sources"],
+                parsed_components,
+                diagnosis["found_in_sources"],
             )
 
             # Step 4: Find alternative strategies
@@ -1940,7 +2006,9 @@ class StrategyDataCoordinator:
             }
 
     def _check_strategy_in_all_sources(
-        self, strategy_identifier: str, parsed_components: dict[str, Any],
+        self,
+        strategy_identifier: str,
+        parsed_components: dict[str, Any],
     ) -> dict[str, bool]:
         """
         Check if strategy exists in all data sources.
@@ -2001,7 +2069,9 @@ class StrategyDataCoordinator:
         return sources
 
     def _generate_diagnostic_suggestions(
-        self, parsed_components: dict[str, Any], sources: dict[str, bool],
+        self,
+        parsed_components: dict[str, Any],
+        sources: dict[str, bool],
     ) -> list[str]:
         """
         Generate specific suggestions based on diagnostic results.
@@ -2047,7 +2117,8 @@ class StrategyDataCoordinator:
         return suggestions
 
     def _find_alternative_strategies(
-        self, parsed_components: dict[str, Any],
+        self,
+        parsed_components: dict[str, Any],
     ) -> list[str]:
         """
         Find alternative strategies that might be what the user is looking for.
@@ -2076,7 +2147,9 @@ class StrategyDataCoordinator:
                 if strategy_type and "strategy_name" in df.columns:
                     type_strategies = df[
                         df["strategy_name"].str.contains(
-                            strategy_type, case=False, na=False,
+                            strategy_type,
+                            case=False,
+                            na=False,
                         )
                     ]
                     if not type_strategies.empty:

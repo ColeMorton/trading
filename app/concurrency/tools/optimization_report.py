@@ -144,7 +144,9 @@ def generate_optimization_report(
 
 
 def save_optimization_report(
-    report: dict[str, Any], config: ConcurrencyConfig, log: Callable[[str, str], None],
+    report: dict[str, Any],
+    config: ConcurrencyConfig,
+    log: Callable[[str, str], None],
 ) -> Path:
     """Save optimization report to file.
 

@@ -123,7 +123,9 @@ class TestNormalization(unittest.TestCase):
 
         # Test with clipping
         result = self.normalizer.robust_scale(
-            data_with_outliers, clip=True, clip_range=(-3, 3),
+            data_with_outliers,
+            clip=True,
+            clip_range=(-3, 3),
         )
         expected = np.array([-0.83333333, -0.5, -0.16666667, 0.16666667, 0.5, 3.0])
         np.testing.assert_array_almost_equal(result, expected)

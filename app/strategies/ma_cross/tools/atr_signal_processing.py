@@ -17,7 +17,8 @@ from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 
 
 def calculate_sma_signals(
-    data: pd.DataFrame, ma_config: dict[str, Any],
+    data: pd.DataFrame,
+    ma_config: dict[str, Any],
 ) -> pd.DataFrame:
     """
     Calculate SMA signals for MA Cross strategy.
@@ -147,7 +148,8 @@ def generate_hybrid_ma_atr_signals(
     # Initialize ATR-specific columns
     data["ATR_Trailing_Stop"] = pd.Series(np.full(len(data), np.nan), index=data.index)
     data["Highest_Since_Entry"] = pd.Series(
-        np.full(len(data), np.nan), index=data.index,
+        np.full(len(data), np.nan),
+        index=data.index,
     )
     data["ATR_Signal"] = pd.Series(np.zeros(len(data)), index=data.index)
 
@@ -159,7 +161,10 @@ def generate_hybrid_ma_atr_signals(
 
 
 def _combine_ma_entry_atr_exit_signals(
-    data: pd.DataFrame, atr_length: int, atr_multiplier: float, log: callable,
+    data: pd.DataFrame,
+    atr_length: int,
+    atr_multiplier: float,
+    log: callable,
 ) -> pd.DataFrame:
     """
     Combine MA Cross entry signals with ATR trailing stop exit logic.
@@ -208,7 +213,11 @@ def _combine_ma_entry_atr_exit_signals(
             # Calculate new trailing stop
             prev_stop = float(data["ATR_Trailing_Stop"].iloc[i - 1])
             new_stop = calculate_atr_trailing_stop(
-                current_close, current_atr, atr_multiplier, current_highest, prev_stop,
+                current_close,
+                current_atr,
+                atr_multiplier,
+                current_highest,
+                prev_stop,
             )
             data.loc[data.index[i], "ATR_Trailing_Stop"] = new_stop
 
@@ -278,7 +287,9 @@ def create_atr_parameter_combinations(
                 upper_bound = atr_multiplier_range[1] + atr_multiplier_step / 2
 
         multipliers = np.arange(
-            atr_multiplier_range[0], upper_bound, atr_multiplier_step,
+            atr_multiplier_range[0],
+            upper_bound,
+            atr_multiplier_step,
         )
 
         # Convert to list with proper rounding
@@ -293,7 +304,8 @@ def create_atr_parameter_combinations(
 
 
 def validate_atr_parameters(
-    atr_length: int, atr_multiplier: float,
+    atr_length: int,
+    atr_multiplier: float,
 ) -> tuple[bool, str | None]:
     """
     Validate ATR parameters for signal generation.

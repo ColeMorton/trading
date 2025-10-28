@@ -142,7 +142,8 @@ class MAStrategyService(BaseStrategyService):
         def get_strategy_specific_params(strategy_type: str):
             """Extract strategy-specific parameters with fallback to global parameters."""
             if config.strategy_params and hasattr(
-                config.strategy_params, strategy_type,
+                config.strategy_params,
+                strategy_type,
             ):
                 strategy_params = getattr(config.strategy_params, strategy_type)
                 if strategy_params:
@@ -214,9 +215,9 @@ class MAStrategyService(BaseStrategyService):
 
         # Pass global progress allocation for accurate multi-ticker progress calculation
         if hasattr(config, "_GLOBAL_PROGRESS_PER_TICKER"):
-            legacy_config[
-                "_GLOBAL_PROGRESS_PER_TICKER"
-            ] = config._GLOBAL_PROGRESS_PER_TICKER
+            legacy_config["_GLOBAL_PROGRESS_PER_TICKER"] = (
+                config._GLOBAL_PROGRESS_PER_TICKER
+            )
         elif (
             hasattr(config, "__dict__")
             and "_GLOBAL_PROGRESS_PER_TICKER" in config.__dict__
@@ -399,9 +400,9 @@ class MACDStrategyService(BaseStrategyService):
                 legacy_config["USE_SYNTHETIC"] = True
                 legacy_config["TICKER_1"] = config.synthetic.ticker_1
                 legacy_config["TICKER_2"] = config.synthetic.ticker_2
-                legacy_config[
-                    "MULTI_TICKER"
-                ] = False  # Synthetic pairs are treated as single ticker
+                legacy_config["MULTI_TICKER"] = (
+                    False  # Synthetic pairs are treated as single ticker
+                )
             else:
                 # For normal mode, set TICKER as usual
                 legacy_config["TICKER"] = ticker_list
@@ -524,9 +525,9 @@ class ATRStrategyService(BaseStrategyService):
                 legacy_config["USE_SYNTHETIC"] = True
                 legacy_config["TICKER_1"] = config.synthetic.ticker_1
                 legacy_config["TICKER_2"] = config.synthetic.ticker_2
-                legacy_config[
-                    "MULTI_TICKER"
-                ] = False  # Synthetic pairs are treated as single ticker
+                legacy_config["MULTI_TICKER"] = (
+                    False  # Synthetic pairs are treated as single ticker
+                )
             else:
                 # For normal mode, set TICKER as usual
                 legacy_config["TICKER"] = ticker_list
@@ -647,7 +648,9 @@ class SMAAtrStrategyService(BaseStrategyService):
             "STEP": step,
             # ATR parameters (use discrete length values from profile)
             "ATR_LENGTH_RANGE": getattr(
-                config, "atr_length_range", [3, 5, 7, 9, 11, 13],
+                config,
+                "atr_length_range",
+                [3, 5, 7, 9, 11, 13],
             ),
             "ATR_MULTIPLIER_RANGE": [
                 getattr(config, "atr_multiplier_min", None) or 1.0,

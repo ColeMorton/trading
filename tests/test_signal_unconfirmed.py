@@ -360,7 +360,8 @@ class TestCalculateSignalUnconfirmed:
         for test_data in test_cases:
             result = calculate_signal_unconfirmed(test_data)
             assert isinstance(
-                result, str,
+                result,
+                str,
             ), f"Result should be string, got {type(result)}"
             assert (
                 result in valid_returns

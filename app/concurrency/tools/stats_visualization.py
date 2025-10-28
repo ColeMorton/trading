@@ -6,7 +6,8 @@ from app.concurrency.tools.types import ConcurrencyStats
 
 
 def create_stats_annotation(
-    stats: ConcurrencyStats, log: Callable[[str, str], None],
+    stats: ConcurrencyStats,
+    log: Callable[[str, str], None],
 ) -> dict:
     """Create annotation with concurrency statistics.
 

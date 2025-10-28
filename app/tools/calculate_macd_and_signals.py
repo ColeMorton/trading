@@ -51,7 +51,6 @@ def calculate_macd_and_signals(
         # Add Position column (shifted Signal)
         return data.with_columns([pl.col("Signal").shift(1).alias("Position")])
 
-
     except Exception as e:
         log(f"Failed to calculate {direction} MACD and signals: {e}", "error")
         raise

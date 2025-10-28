@@ -89,7 +89,9 @@ def test_basic_parameter_robustness():
 
             # Show top 3 most stable combinations
             sorted_results = sorted(
-                btc_results, key=lambda x: x.stability_score, reverse=True,
+                btc_results,
+                key=lambda x: x.stability_score,
+                reverse=True,
             )
 
             print("\nTop 3 Most Stable Parameter Combinations:")
@@ -118,16 +120,22 @@ def test_basic_parameter_robustness():
 
             # Create stability heatmap
             visualizer.create_stability_heatmap(
-                btc_results, "BTC-USD", "stability_score",
+                btc_results,
+                "BTC-USD",
+                "stability_score",
             )
             visualizer.create_confidence_interval_plot(
-                btc_results, "BTC-USD", "Sharpe Ratio",
+                btc_results,
+                "BTC-USD",
+                "Sharpe Ratio",
             )
 
             # Create distribution plot for best parameter combination
             if sorted_results:
                 visualizer.create_performance_distribution_plot(
-                    sorted_results[0], "BTC-USD_best", "Sharpe Ratio",
+                    sorted_results[0],
+                    "BTC-USD_best",
+                    "Sharpe Ratio",
                 )
 
             print("Visualizations saved to: png/monte_carlo/test_results/")
@@ -164,7 +172,8 @@ def test_visualization_only():
             )
 
             visualize_monte_carlo_results(
-                results_file, "png/monte_carlo/test_visualizations",
+                results_file,
+                "png/monte_carlo/test_visualizations",
             )
 
             print("Visualization test completed!")

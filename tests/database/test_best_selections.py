@@ -202,7 +202,9 @@ class TestBestSelectionService:
     def test_top_3_all_match(self, service, sample_results):
         """Test finding best when top 3 all match."""
         selection = service.find_best_for_ticker_strategy(
-            sample_results, "BTC-USD", "SMA",
+            sample_results,
+            "BTC-USD",
+            "SMA",
         )
 
         assert selection is not None

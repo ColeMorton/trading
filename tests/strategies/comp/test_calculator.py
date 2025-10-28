@@ -129,7 +129,10 @@ class TestCalculateComponentPosition:
             mock_calc.return_value = mock_data
 
             position = calculate_component_position(
-                sample_data, strategy, config, log_func,
+                sample_data,
+                strategy,
+                config,
+                log_func,
             )
 
             assert position is not None
@@ -152,7 +155,10 @@ class TestCalculateComponentPosition:
             mock_calc.return_value = mock_data
 
             position = calculate_component_position(
-                sample_data, strategy, config, log_func,
+                sample_data,
+                strategy,
+                config,
+                log_func,
             )
 
             assert position is not None
@@ -175,14 +181,20 @@ class TestCalculateComponentPosition:
             mock_calc.return_value = mock_data
 
             position = calculate_component_position(
-                sample_data, strategy, config, log_func,
+                sample_data,
+                strategy,
+                config,
+                log_func,
             )
 
             assert position is not None
             assert all(position == 0)
 
     def test_calculate_component_position_unsupported(
-        self, sample_data, config, log_func,
+        self,
+        sample_data,
+        config,
+        log_func,
     ):
         """Test that unsupported strategy type returns None."""
         strategy = {
@@ -397,7 +409,10 @@ class TestCalculateCompoundStrategy:
             mock_pos.return_value = pl.Series([1, 0, 1, 0] * 25)
 
             result = calculate_compound_strategy(
-                sample_data, sample_csv, config, log_func,
+                sample_data,
+                sample_csv,
+                config,
+                log_func,
             )
 
             assert result is not None
@@ -420,7 +435,10 @@ class TestCalculateCompoundStrategy:
             log_func = Mock()
 
             result = calculate_compound_strategy(
-                sample_data, csv_path, config, log_func,
+                sample_data,
+                csv_path,
+                config,
+                log_func,
             )
 
             assert result is None

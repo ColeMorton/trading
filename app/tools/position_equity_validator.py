@@ -169,12 +169,16 @@ class PositionEquityValidator:
 
             # Determine validation status
             status = self._determine_status(
-                error_percentage, position_metrics["num_positions"],
+                error_percentage,
+                position_metrics["num_positions"],
             )
 
             # Generate recommendations
             recommendations = self._generate_recommendations(
-                error_percentage, position_metrics, equity_metrics, difference,
+                error_percentage,
+                position_metrics,
+                equity_metrics,
+                difference,
             )
 
             # Create validation result
@@ -234,7 +238,9 @@ class PositionEquityValidator:
         return results
 
     def generate_validation_report(
-        self, results: dict[str, ValidationResult], output_format: str = "console",
+        self,
+        results: dict[str, ValidationResult],
+        output_format: str = "console",
     ) -> str | None:
         """
         Generate comprehensive validation report.
@@ -332,7 +338,9 @@ class PositionEquityValidator:
         }
 
     def _determine_status(
-        self, error_percentage: float, num_positions: int,
+        self,
+        error_percentage: float,
+        num_positions: int,
     ) -> ValidationStatus:
         """Determine validation status based on error percentage and portfolio size."""
         thresholds = self._get_adjusted_thresholds(num_positions)

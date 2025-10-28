@@ -158,27 +158,36 @@ class UnifiedMetricsCalculator:
 
             # Step 3: Calculate unified metrics
             unified_metrics = self._calculate_metrics(
-                csv_metrics, json_data, portfolio_data, log,
+                csv_metrics,
+                json_data,
+                portfolio_data,
+                log,
             )
             result.metrics = unified_metrics
 
             # Step 4: Perform reconciliation (if both sources available)
             if csv_metrics and json_data and self.config.enable_reconciliation:
                 reconciliation = self._perform_reconciliation(
-                    csv_metrics, json_data, log,
+                    csv_metrics,
+                    json_data,
+                    log,
                 )
                 result.reconciliation_report = reconciliation
 
                 # Apply auto-corrections if enabled
                 if self.config.auto_correction:
                     result.metrics = self._apply_corrections(
-                        result.metrics, reconciliation, log,
+                        result.metrics,
+                        reconciliation,
+                        log,
                     )
 
             # Step 5: Risk validation
             if self.config.enable_risk_validation and csv_path:
                 risk_validation = self._perform_risk_validation(
-                    result.metrics, csv_path, log,
+                    result.metrics,
+                    csv_path,
+                    log,
                 )
                 result.validation_results["risk_metrics"] = risk_validation
 
@@ -224,7 +233,8 @@ class UnifiedMetricsCalculator:
 
             # Validate CSV data quality
             validation_result = self.csv_validator.validate_csv_data(
-                load_result.data, log,
+                load_result.data,
+                log,
             )
 
             # Extract metrics from CSV
@@ -342,7 +352,8 @@ class UnifiedMetricsCalculator:
 
                 unified_metrics["ticker_metrics"] = json_data.get("ticker_metrics", {})
                 unified_metrics["portfolio_metrics"] = json_data.get(
-                    "portfolio_metrics", {},
+                    "portfolio_metrics",
+                    {},
                 )
                 unified_metrics["calculation_metadata"]["sources_used"] = [
                     "json_primary",
@@ -353,7 +364,6 @@ class UnifiedMetricsCalculator:
 
         # Add computational enhancements
         return self._enhance_metrics(unified_metrics, log)
-
 
     def _supplement_with_json_metrics(
         self,
@@ -387,7 +397,9 @@ class UnifiedMetricsCalculator:
             log("Supplemented CSV metrics with JSON-only advanced metrics", "info")
 
     def _enhance_metrics(
-        self, metrics: dict[str, Any], log: Callable[[str, str], None] | None = None,
+        self,
+        metrics: dict[str, Any],
+        log: Callable[[str, str], None] | None = None,
     ) -> dict[str, Any]:
         """Enhance metrics with additional calculations."""
         enhanced_metrics = metrics.copy()
@@ -402,7 +414,8 @@ class UnifiedMetricsCalculator:
         # Calculate additional portfolio-level metrics if ticker data available
         if enhanced_metrics.get("ticker_metrics"):
             portfolio_enhancements = self._calculate_portfolio_enhancements(
-                enhanced_metrics["ticker_metrics"], log,
+                enhanced_metrics["ticker_metrics"],
+                log,
             )
             enhanced_metrics["portfolio_metrics"].update(portfolio_enhancements)
 
@@ -572,7 +585,9 @@ class UnifiedMetricsCalculator:
 
             # Perform risk validation using Phase 4 validator
             validation_results = self.risk_validator.validate_all_risk_metrics(
-                csv_data, metrics, log,
+                csv_data,
+                metrics,
+                log,
             )
 
             return {
@@ -620,7 +635,8 @@ class UnifiedMetricsCalculator:
             if result.reconciliation_report:
                 reconciliation_quality = (
                     result.reconciliation_report.overall_summary.get(
-                        "average_quality_score", 0,
+                        "average_quality_score",
+                        0,
                     )
                 )
                 if reconciliation_quality < 0.7:
@@ -701,9 +717,9 @@ def export_unified_metrics(
             }
 
             if include_validation:
-                export_data[
-                    "validation_results"
-                ] = calculation_result.validation_results
+                export_data["validation_results"] = (
+                    calculation_result.validation_results
+                )
                 if calculation_result.reconciliation_report:
                     # Convert reconciliation report to dict
                     export_data["reconciliation_summary"] = {
@@ -720,7 +736,8 @@ def export_unified_metrics(
             # Export ticker metrics as CSV
             if "ticker_metrics" in calculation_result.metrics:
                 ticker_df = pd.DataFrame.from_dict(
-                    calculation_result.metrics["ticker_metrics"], orient="index",
+                    calculation_result.metrics["ticker_metrics"],
+                    orient="index",
                 )
                 ticker_df.to_csv(output_path)
             else:

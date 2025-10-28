@@ -19,12 +19,15 @@ from app.tools.setup_logging import setup_logging
 
 
 log, log_close, _, _ = setup_logging(
-    module_name="macd_rsi", log_file="2_macd_cross_rsi.log",
+    module_name="macd_rsi",
+    log_file="2_macd_cross_rsi.log",
 )
 
 
 def backtest(
-    data: pl.DataFrame, rsi_threshold: int, config: PortfolioConfig,
+    data: pl.DataFrame,
+    rsi_threshold: int,
+    config: PortfolioConfig,
 ) -> list[tuple[float, float]]:
     log(f"Running backtest with RSI threshold: {rsi_threshold}")
     position, entry_price = 0, 0
@@ -80,7 +83,9 @@ def calculate_metrics(
 
 
 def run_sensitivity_analysis(
-    data: pl.DataFrame, rsi_range: np.ndarray, config: PortfolioConfig,
+    data: pl.DataFrame,
+    rsi_range: np.ndarray,
+    config: PortfolioConfig,
 ) -> pl.DataFrame:
     log("Starting sensitivity analysis")
     results = []
@@ -100,7 +105,10 @@ def run_sensitivity_analysis(
 
 
 def find_prominent_peaks(
-    x: np.ndarray, y: np.ndarray, prominence: float = 1, distance: int = 10,
+    x: np.ndarray,
+    y: np.ndarray,
+    prominence: float = 1,
+    distance: int = 10,
 ) -> np.ndarray:
     log("Finding prominent peaks")
     peaks, _ = find_peaks(y, prominence=prominence, distance=distance)
@@ -108,7 +116,11 @@ def find_prominent_peaks(
 
 
 def add_peak_labels(
-    ax: plt.Axes, x: np.ndarray, y: np.ndarray, peaks: np.ndarray, fmt: str = ".2f",
+    ax: plt.Axes,
+    x: np.ndarray,
+    y: np.ndarray,
+    peaks: np.ndarray,
+    fmt: str = ".2f",
 ):
     for peak in peaks:
         ax.annotate(
@@ -152,7 +164,9 @@ def plot_results(ticker: str, results_df: pl.DataFrame):
     ax2_twin = ax2.twinx()
     ax2_twin.set_ylabel("Number of Positions", color=color4)
     ax2_twin.plot(
-        results_df["RSI Threshold"], results_df["Number of Positions"], color=color4,
+        results_df["RSI Threshold"],
+        results_df["Number of Positions"],
+        color=color4,
     )
     ax2_twin.tick_params(axis="y", labelcolor=color4)
 
@@ -173,7 +187,8 @@ def plot_results(ticker: str, results_df: pl.DataFrame):
         results_df["RSI Threshold"].to_numpy(),
         results_df["Win Rate"].to_numpy(),
         find_prominent_peaks(
-            results_df["RSI Threshold"].to_numpy(), results_df["Win Rate"].to_numpy(),
+            results_df["RSI Threshold"].to_numpy(),
+            results_df["Win Rate"].to_numpy(),
         ),
     )
     add_peak_labels(
@@ -181,7 +196,8 @@ def plot_results(ticker: str, results_df: pl.DataFrame):
         results_df["RSI Threshold"].to_numpy(),
         results_df["Expectancy"].to_numpy(),
         find_prominent_peaks(
-            results_df["RSI Threshold"].to_numpy(), results_df["Expectancy"].to_numpy(),
+            results_df["RSI Threshold"].to_numpy(),
+            results_df["Expectancy"].to_numpy(),
         ),
     )
     add_peak_labels(

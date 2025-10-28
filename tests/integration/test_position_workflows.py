@@ -11,6 +11,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 import pandas as pd
+import pytest
 
 from app.exceptions import (
     DataNotFoundError,
@@ -21,7 +22,6 @@ from app.exceptions import (
 )
 from app.services import PositionService
 from app.services.position_service import TradingSystemConfig
-import pytest
 
 
 class TestPositionWorkflowsIntegration(unittest.TestCase):

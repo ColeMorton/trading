@@ -112,7 +112,9 @@ class MarketDataFactory:
             base_returns = np.random.normal(drift, vol * 1.5, n_periods)
             spike_probability = 0.05
             spikes = np.random.binomial(
-                1, spike_probability, n_periods,
+                1,
+                spike_probability,
+                n_periods,
             ) * np.random.normal(0, vol * 3, n_periods)
             returns = base_returns + spikes
         else:
@@ -174,7 +176,6 @@ class MarketDataFactory:
                 "Volume": volumes,
             },
         )
-
 
     def create_multi_ticker_data(
         self,
@@ -238,7 +239,9 @@ class MarketDataFactory:
 
         # Generate correlated returns using Cholesky decomposition
         independent_returns = np.random.normal(
-            0, self.base_volatility, (n_periods, n_tickers),
+            0,
+            self.base_volatility,
+            (n_periods, n_tickers),
         )
 
         try:
@@ -256,7 +259,8 @@ class MarketDataFactory:
         ticker_data = {}
         for i, ticker in enumerate(tickers):
             base_price = base_prices.get(
-                ticker, 100.0 + i * 10,
+                ticker,
+                100.0 + i * 10,
             )  # Slight price variation
 
             # Generate prices from returns
@@ -336,7 +340,10 @@ class MarketDataFactory:
 
         # Generate data for all tickers
         ticker_data = self.create_multi_ticker_data(
-            tickers, start_date, end_date, frequency,
+            tickers,
+            start_date,
+            end_date,
+            frequency,
         )
 
         if len(tickers) == 1:
@@ -360,7 +367,8 @@ class MarketDataFactory:
         # Create MultiIndex columns
         result_df = pd.DataFrame(all_data, index=dates)
         result_df.columns = pd.MultiIndex.from_tuples(
-            result_df.columns, names=[None, None],
+            result_df.columns,
+            names=[None, None],
         )
         result_df.index.name = "Date"
 
@@ -479,7 +487,9 @@ def create_stable_price_data(
 
 
 def create_multi_asset_data(
-    tickers: list[str], days: int = 365, correlation: float = 0.6,
+    tickers: list[str],
+    days: int = 365,
+    correlation: float = 0.6,
 ) -> dict[str, pl.DataFrame]:
     """Create correlated multi-asset data - convenience function."""
     factory = MarketDataFactory(seed=42)
@@ -512,5 +522,8 @@ def mock_yfinance_download(tickers, start=None, end=None, interval="1d", **kwarg
     frequency = freq_map.get(interval, "D")
 
     return factory.create_yfinance_compatible_data(
-        tickers=tickers, start_date=start_date, end_date=end_date, frequency=frequency,
+        tickers=tickers,
+        start_date=start_date,
+        end_date=end_date,
+        frequency=frequency,
     )

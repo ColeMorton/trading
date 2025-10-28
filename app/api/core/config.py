@@ -30,7 +30,8 @@ class APISettings(BaseSettings):
 
     # Redis/ARQ Configuration
     REDIS_URL: str = Field(
-        default="redis://localhost:6379", description="Redis connection URL",
+        default="redis://localhost:6379",
+        description="Redis connection URL",
     )
     ARQ_QUEUE_NAME: str = "trading_jobs"
     REDIS_MAX_CONNECTIONS: int = 50
@@ -74,7 +75,8 @@ class APISettings(BaseSettings):
 
     # File Storage
     RESULT_STORAGE_PATH: str = Field(
-        default="./data/api_results", description="Path for storing job results",
+        default="./data/api_results",
+        description="Path for storing job results",
     )
     MAX_RESULT_SIZE_MB: int = 100
 

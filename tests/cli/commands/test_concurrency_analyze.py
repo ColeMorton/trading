@@ -80,7 +80,11 @@ class TestConcurrencyAnalyzeCommand:
     @patch("app.cli.commands.concurrency.ConfigLoader")
     @patch("app.concurrency.review.run_concurrency_review")
     def test_analyze_basic_success(
-        self, mock_review, mock_loader_class, runner, sample_portfolio_file,
+        self,
+        mock_review,
+        mock_loader_class,
+        runner,
+        sample_portfolio_file,
     ):
         """Test basic successful portfolio analysis."""
         # Setup config loader mock
@@ -194,13 +198,17 @@ class TestConcurrencyAnalyzeCommand:
         mock_review.return_value = True
 
         runner.invoke(
-            concurrency_app, ["analyze", "test.json", "--memory-optimization"],
+            concurrency_app,
+            ["analyze", "test.json", "--memory-optimization"],
         )
 
     @patch("app.cli.commands.concurrency.ConfigLoader")
     @patch("app.concurrency.review.run_concurrency_review")
     def test_analyze_configuration_overrides(
-        self, mock_review, mock_loader_class, runner,
+        self,
+        mock_review,
+        mock_loader_class,
+        runner,
     ):
         """Test that CLI arguments properly override config."""
         mock_loader = mock_loader_class.return_value
@@ -228,7 +236,10 @@ class TestConcurrencyAnalyzeCommand:
     @patch("app.cli.commands.concurrency.ConfigLoader")
     @patch("app.concurrency.review.run_concurrency_review")
     def test_analyze_handles_analysis_failure(
-        self, mock_review, mock_loader_class, runner,
+        self,
+        mock_review,
+        mock_loader_class,
+        runner,
     ):
         """Test error handling when analysis fails."""
         mock_loader = mock_loader_class.return_value
@@ -307,17 +318,20 @@ class TestConcurrencyReviewCommand:
         try:
             # Test table format (default)
             runner.invoke(
-                concurrency_app, ["review", str(temp_file), "--output", "table"],
+                concurrency_app,
+                ["review", str(temp_file), "--output", "table"],
             )
 
             # Test JSON format
             runner.invoke(
-                concurrency_app, ["review", str(temp_file), "--output", "json"],
+                concurrency_app,
+                ["review", str(temp_file), "--output", "json"],
             )
 
             # Test summary format
             runner.invoke(
-                concurrency_app, ["review", str(temp_file), "--output", "summary"],
+                concurrency_app,
+                ["review", str(temp_file), "--output", "summary"],
             )
         finally:
             temp_file.unlink(missing_ok=True)
@@ -337,7 +351,8 @@ class TestConcurrencyHelperFunctions:
             mock_loader.profile_manager.load_profile.return_value = mock_profile
 
             portfolio_path, resolution_type = resolve_portfolio_from_profile(
-                "test_profile", mock_loader,
+                "test_profile",
+                mock_loader,
             )
 
             assert resolution_type == "concurrency"
@@ -357,7 +372,8 @@ class TestConcurrencyHelperFunctions:
             }
 
             portfolio_path, resolution_type = resolve_portfolio_from_profile(
-                "test_profile", mock_loader,
+                "test_profile",
+                mock_loader,
             )
 
             assert resolution_type == "portfolio_reference"

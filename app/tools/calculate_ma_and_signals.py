@@ -40,7 +40,6 @@ def calculate_ma_and_signals(
         # Execute strategy calculation
         return strategy.calculate(data, fast_period, slow_period, config, log)
 
-
     except Exception as e:
         # Log error with context
         direction = "Short" if config.get("DIRECTION", "Long") == "Short" else "Long"

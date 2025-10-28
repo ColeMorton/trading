@@ -151,7 +151,8 @@ def compare_with_and_without_fixes():
 
     for strategy_id in stats_with.get("strategies", {}):
         risk_without = stats_without["strategies"][strategy_id].get(
-            "risk_contribution", 0,
+            "risk_contribution",
+            0,
         )
         risk_with = stats_with["strategies"][strategy_id].get("risk_contribution", 0)
         print(f"{strategy_id}:")
@@ -196,7 +197,10 @@ def run_performance_benchmarks():
 
     # Create larger test portfolio for benchmarking
     dates = pl.date_range(
-        datetime(2020, 1, 1), datetime(2024, 12, 31), interval="1d", eager=True,
+        datetime(2020, 1, 1),
+        datetime(2024, 12, 31),
+        interval="1d",
+        eager=True,
     )
 
     # Create 5 strategies with different characteristics
@@ -272,12 +276,16 @@ def run_performance_benchmarks():
     # Run benchmarks with fewer iterations for speed
     print("\nBenchmarking without fixes...")
     without_result = benchmark.benchmark_calculation(
-        "without_fixes", run_without_fixes, iterations=10,
+        "without_fixes",
+        run_without_fixes,
+        iterations=10,
     )
 
     print("Benchmarking with fixes...")
     with_result = benchmark.benchmark_calculation(
-        "with_fixes", run_with_fixes, iterations=10,
+        "with_fixes",
+        run_with_fixes,
+        iterations=10,
     )
 
     # Calculate improvement

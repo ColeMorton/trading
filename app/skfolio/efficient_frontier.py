@@ -33,8 +33,8 @@ def create_efficient_frontier() -> tuple[bool, str]:
         # Load and prepare data
         log("Loading S&P 500 dataset...", "info")
         prices = load_sp500_dataset()
-        X = prices_to_returns(prices)
-        X_train, X_test = train_test_split(X, test_size=0.33, shuffle=False)
+        x_features = prices_to_returns(prices)
+        x_train, x_test = train_test_split(x_features, test_size=0.33, shuffle=False)
 
         # Create Mean-Variance model
         log("Creating Mean-Variance model...", "info")

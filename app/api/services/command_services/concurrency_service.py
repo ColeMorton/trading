@@ -21,7 +21,8 @@ class ConcurrencyService(BaseCommandService):
     """Service for executing concurrency commands."""
 
     async def execute_analyze(
-        self, params: ConcurrencyAnalyzeRequest,
+        self,
+        params: ConcurrencyAnalyzeRequest,
     ) -> dict[str, Any]:
         """Execute concurrency analyze command."""
         await self.update_progress(5, "Initializing concurrency analysis...")
@@ -38,7 +39,8 @@ class ConcurrencyService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -68,7 +70,8 @@ class ConcurrencyService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -98,7 +101,8 @@ class ConcurrencyService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -115,7 +119,8 @@ class ConcurrencyService(BaseCommandService):
         }
 
     async def execute_construct(
-        self, params: ConcurrencyConstructRequest,
+        self,
+        params: ConcurrencyConstructRequest,
     ) -> dict[str, Any]:
         """Execute concurrency construct command."""
         await self.update_progress(10, "Discovering strategies...")
@@ -131,7 +136,8 @@ class ConcurrencyService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -144,7 +150,8 @@ class ConcurrencyService(BaseCommandService):
         return {"success": True, "output": result["stdout"]}
 
     async def execute_optimize(
-        self, params: ConcurrencyOptimizeRequest,
+        self,
+        params: ConcurrencyOptimizeRequest,
     ) -> dict[str, Any]:
         """Execute concurrency optimize command."""
         await self.update_progress(5, "Initializing optimization...")
@@ -161,7 +168,8 @@ class ConcurrencyService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -178,7 +186,8 @@ class ConcurrencyService(BaseCommandService):
         }
 
     async def execute_monte_carlo(
-        self, params: ConcurrencyMonteCarloRequest,
+        self,
+        params: ConcurrencyMonteCarloRequest,
     ) -> dict[str, Any]:
         """Execute Monte Carlo simulation."""
         await self.update_progress(5, "Initializing Monte Carlo simulation...")
@@ -195,7 +204,8 @@ class ConcurrencyService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -225,7 +235,8 @@ class ConcurrencyService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -252,7 +263,8 @@ class ConcurrencyService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")

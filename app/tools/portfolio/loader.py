@@ -58,7 +58,9 @@ from app.tools.portfolio.validation import (
 
 
 def load_portfolio_from_csv(
-    csv_path: str | Path, log: Callable[[str, str], None], config: dict[str, Any],
+    csv_path: str | Path,
+    log: Callable[[str, str], None],
+    config: dict[str, Any],
 ) -> list[StrategyConfig]:
     """Load portfolio configuration from CSV file.
 
@@ -176,7 +178,9 @@ def load_portfolio_from_csv(
 
     # Validate required columns
     is_valid, errors = validate_portfolio_schema(
-        df, log, required_columns=required_columns,
+        df,
+        log,
+        required_columns=required_columns,
     )
 
     if not is_valid:
@@ -204,7 +208,9 @@ def load_portfolio_from_csv(
 
 
 def load_portfolio_from_json(
-    json_path: str | Path, log: Callable[[str, str], None], config: dict[str, Any],
+    json_path: str | Path,
+    log: Callable[[str, str], None],
+    config: dict[str, Any],
 ) -> list[StrategyConfig]:
     """Load portfolio configuration from JSON file.
 
@@ -246,7 +252,9 @@ def load_portfolio_from_json(
 
 
 def load_portfolio_from_yaml(
-    yaml_path: str | Path, log: Callable[[str, str], None], config: dict[str, Any],
+    yaml_path: str | Path,
+    log: Callable[[str, str], None],
+    config: dict[str, Any],
 ) -> list[StrategyConfig]:
     """Load portfolio configuration from YAML portfolio definition file.
 
@@ -360,7 +368,9 @@ def load_portfolio_from_yaml(
 
 
 def load_portfolio(
-    portfolio_name: str, log: Callable[[str, str], None], config: dict[str, Any],
+    portfolio_name: str,
+    log: Callable[[str, str], None],
+    config: dict[str, Any],
 ) -> list[StrategyConfig]:
     """Load portfolio configuration from either JSON or CSV file.
 

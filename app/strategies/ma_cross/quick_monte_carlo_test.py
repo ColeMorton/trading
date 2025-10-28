@@ -110,14 +110,17 @@ def test_core_monte_carlo_functionality():
             )
 
             param_config = ParameterTestingConfig(
-                tickers=["BTC-USD"], windows=20, strategy_types=["EMA"],
+                tickers=["BTC-USD"],
+                windows=20,
+                strategy_types=["EMA"],
             )
 
             analyzer = MonteCarloEnhancedAnalyzer(param_config, mc_config)
 
             if btc_results:
                 recommendation_score = analyzer._calculate_recommendation_score(
-                    mock_standard_result, btc_results[0],
+                    mock_standard_result,
+                    btc_results[0],
                 )
                 print("✅ Recommendation scoring test passed!")
                 print(f"Sample recommendation score: {recommendation_score:.3f}")
@@ -167,7 +170,8 @@ def test_scoring_consistency():
 
         # Test each normalization function
         win_rate_norm = calculate_win_rate_normalized(
-            test_stats["Win Rate [%]"], test_stats["Total Trades"],
+            test_stats["Win Rate [%]"],
+            test_stats["Total Trades"],
         )
         trades_norm = calculate_total_trades_normalized(test_stats["Total Trades"])
         sortino_norm = calculate_sortino_normalized(test_stats["Sortino Ratio"])

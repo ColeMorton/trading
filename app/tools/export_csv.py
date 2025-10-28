@@ -80,7 +80,9 @@ def _get_ticker_prefix(config: ExportConfig) -> str:
 
 
 def _get_filename_components(
-    config: ExportConfig, feature1: str = "", feature2: str = "",
+    config: ExportConfig,
+    feature1: str = "",
+    feature2: str = "",
 ) -> list[str]:
     """Generate standardized filename components based on configuration.
 
@@ -216,7 +218,10 @@ def _is_generic_filename(filename: str) -> bool:
 
 
 def _get_filename(
-    config: ExportConfig, feature1: str = "", feature2: str = "", extension: str = "csv",
+    config: ExportConfig,
+    feature1: str = "",
+    feature2: str = "",
+    extension: str = "csv",
 ) -> str:
     """Generate standardized filename based on configuration.
 
@@ -426,7 +431,9 @@ def export_csv(
         ]:
             # Validate schema compliance before export
             validated_data = _validate_and_ensure_schema_compliance(
-                data, log, target_schema,
+                data,
+                log,
+                target_schema,
             )
             # Use validated data for export
             data = validated_data
@@ -688,12 +695,15 @@ def _ensure_canonical_column_order(
                 try:
                     # Preserve existing metric type if present
                     existing_metric_type = portfolio.get(
-                        "Metric Type", "Most Total Return [%]",
+                        "Metric Type",
+                        "Most Total Return [%]",
                     )
 
                     # Normalize each portfolio to target schema with canonical ordering
                     normalized_portfolio = transformer.normalize_to_schema(
-                        portfolio, schema_type, metric_type=existing_metric_type,
+                        portfolio,
+                        schema_type,
+                        metric_type=existing_metric_type,
                     )
                     normalized_portfolios.append(normalized_portfolio)
                 except Exception as e:
@@ -729,7 +739,9 @@ def _ensure_canonical_column_order(
 
 
 def _get_default_column_value(
-    column_name: str, existing_df: pd.DataFrame, log: Callable | None = None,
+    column_name: str,
+    existing_df: pd.DataFrame,
+    log: Callable | None = None,
 ) -> pd.Series:
     """
     Get default values for a missing column.
@@ -870,7 +882,8 @@ def _format_duration_microseconds(total_microseconds: int) -> str:
 
 
 def _convert_duration_columns_for_csv(
-    data: pl.DataFrame, log: Callable | None = None,
+    data: pl.DataFrame,
+    log: Callable | None = None,
 ) -> pl.DataFrame:
     """
     Convert duration columns to string format for CSV export compatibility.

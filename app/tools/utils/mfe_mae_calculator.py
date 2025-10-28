@@ -65,14 +65,16 @@ class MFEMAECalculator:
             # Calculate MFE/MAE based on direction and return
             df["mfe"] = df.apply(
                 lambda row: self._calculate_mfe_single_trade(
-                    row[return_col], row[direction_col],
+                    row[return_col],
+                    row[direction_col],
                 ),
                 axis=1,
             )
 
             df["mae"] = df.apply(
                 lambda row: self._calculate_mae_single_trade(
-                    row[return_col], row[direction_col],
+                    row[return_col],
+                    row[direction_col],
                 ),
                 axis=1,
             )
@@ -173,7 +175,9 @@ class MFEMAECalculator:
             return 0.0, 0.0
 
     def calculate_from_returns_only(
-        self, returns: list[float] | pd.Series | float, direction: str = "Long",
+        self,
+        returns: list[float] | pd.Series | float,
+        direction: str = "Long",
     ) -> tuple[float, float]:
         """
         Calculate MFE/MAE from return data only (simplified calculation)
@@ -189,7 +193,8 @@ class MFEMAECalculator:
             # Handle single return value
             if isinstance(returns, int | float):
                 return self._calculate_mfe_mae_from_single_return(
-                    float(returns), direction,
+                    float(returns),
+                    direction,
                 )
 
             # Handle series of returns
@@ -358,7 +363,9 @@ class MFEMAECalculator:
             return 0.0
 
     def _calculate_mfe_mae_from_single_return(
-        self, return_pct: float, direction: str,
+        self,
+        return_pct: float,
+        direction: str,
     ) -> tuple[float, float]:
         """Calculate MFE/MAE from a single return value"""
         try:
@@ -413,12 +420,19 @@ def calculate_mfe_mae_from_trades(
     """Convenience function to calculate MFE/MAE from trades"""
     calculator = get_mfe_mae_calculator()
     return calculator.calculate_from_trades(
-        trades_df, entry_price_col, exit_price_col, direction_col, return_col,
+        trades_df,
+        entry_price_col,
+        exit_price_col,
+        direction_col,
+        return_col,
     )
 
 
 def validate_mfe_mae_data(
-    current_return: float, mfe: float, mae: float, direction: str = "Long",
+    current_return: float,
+    mfe: float,
+    mae: float,
+    direction: str = "Long",
 ) -> list[str]:
     """Convenience function to validate MFE/MAE data"""
     calculator = get_mfe_mae_calculator()

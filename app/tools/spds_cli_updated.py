@@ -15,7 +15,8 @@ import sys
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -62,10 +63,15 @@ Examples:
             help='Portfolio filename (e.g., "risk_on.csv")',
         )
         analyze_group.add_argument(
-            "--strategy", "-s", type=str, help="Strategy name (e.g., AAPL_SMA_20_50)",
+            "--strategy",
+            "-s",
+            type=str,
+            help="Strategy name (e.g., AAPL_SMA_20_50)",
         )
         analyze_group.add_argument(
-            "--position", type=str, help="Position UUID (e.g., AAPL_SMA_20_50_20250101)",
+            "--position",
+            type=str,
+            help="Position UUID (e.g., AAPL_SMA_20_50_20250101)",
         )
 
         # Analysis options
@@ -82,7 +88,9 @@ Examples:
             help="Output format (default: table)",
         )
         analyze_parser.add_argument(
-            "--save-results", type=str, help="Save results to file (JSON format)",
+            "--save-results",
+            type=str,
+            help="Save results to file (JSON format)",
         )
 
         # Health command
@@ -99,7 +107,10 @@ Examples:
 
         # Global options
         parser.add_argument(
-            "--verbose", "-v", action="store_true", help="Verbose output",
+            "--verbose",
+            "-v",
+            action="store_true",
+            help="Verbose output",
         )
         parser.add_argument("--quiet", "-q", action="store_true", help="Quiet mode")
 
@@ -283,7 +294,9 @@ Examples:
 
         # Sort by confidence level (highest first)
         sorted_results = sorted(
-            results.items(), key=lambda x: x[1].confidence_level, reverse=True,
+            results.items(),
+            key=lambda x: x[1].confidence_level,
+            reverse=True,
         )
 
         for strategy_name, result in sorted_results:
@@ -352,7 +365,8 @@ Examples:
             print("5. Simple Analysis Test... ", end="")
             try:
                 request = AnalysisRequest(
-                    analysis_type="strategy", parameter="TEST_SMA_20_50",
+                    analysis_type="strategy",
+                    parameter="TEST_SMA_20_50",
                 )
                 await engine.analyze(request)
                 print("✅")

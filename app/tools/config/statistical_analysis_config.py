@@ -303,7 +303,9 @@ class SPDSConfig:
             )
 
         if self.MIN_SAMPLE_SIZE < 5:
-            msg = "Minimum sample size must be at least 5 for basic statistical validity"
+            msg = (
+                "Minimum sample size must be at least 5 for basic statistical validity"
+            )
             raise ValueError(
                 msg,
             )
@@ -345,7 +347,8 @@ class SPDSConfig:
     def get_percentile_threshold(self, signal_type: str) -> float:
         """Get percentile threshold for a specific signal type"""
         return self.PERCENTILE_THRESHOLDS.get(
-            signal_type, self.PERCENTILE_THRESHOLDS["hold"],
+            signal_type,
+            self.PERCENTILE_THRESHOLDS["hold"],
         )
 
     def validate_framework_support(self, framework: str) -> bool:
@@ -374,7 +377,9 @@ class SPDSConfig:
 
     @classmethod
     def for_portfolio(
-        cls, portfolio: str, use_trade_history: bool = True,
+        cls,
+        portfolio: str,
+        use_trade_history: bool = True,
     ) -> "SPDSConfig":
         """Create configuration for a specific portfolio - SIMPLIFIED INTERFACE"""
         return cls(
@@ -544,7 +549,8 @@ if __name__ == "__main__":
 
     # Example 2: Portfolio with equity curve fallback
     config2 = StatisticalAnalysisConfig.create(
-        "conservative.csv", use_trade_history=False,
+        "conservative.csv",
+        use_trade_history=False,
     )
     print(f"Portfolio file: {config2.get_portfolio_file_path()}")
     print(f"Using trade history: {config2.USE_TRADE_HISTORY}")

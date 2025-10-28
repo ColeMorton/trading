@@ -67,7 +67,8 @@ class PerformanceLogger:
         }
 
     def start_execution_monitoring(
-        self, operation_name: str = "strategy_execution",
+        self,
+        operation_name: str = "strategy_execution",
     ) -> None:
         """
         Start monitoring overall execution performance.
@@ -148,7 +149,9 @@ class PerformanceLogger:
         )
 
     def end_phase(
-        self, success: bool = True, details: dict[str, Any] | None = None,
+        self,
+        success: bool = True,
+        details: dict[str, Any] | None = None,
     ) -> None:
         """
         End the current execution phase.
@@ -185,7 +188,10 @@ class PerformanceLogger:
 
             # Check for bottlenecks
             self._detect_bottlenecks(
-                self._current_phase, duration, memory_delta, details,
+                self._current_phase,
+                duration,
+                memory_delta,
+                details,
             )
 
         # Display phase completion
@@ -229,7 +235,8 @@ class PerformanceLogger:
             details: Additional phase details
         """
         thresholds = self._phase_thresholds.get(
-            phase_name, {"target": 30.0, "warning": 60.0, "critical": 120.0},
+            phase_name,
+            {"target": 30.0, "warning": 60.0, "critical": 120.0},
         )
 
         severity = None
@@ -307,7 +314,8 @@ class PerformanceLogger:
             pct_total = (duration / total_time) * 100 if total_time > 0 else 0
 
             thresholds = self._phase_thresholds.get(
-                phase_name, {"target": 30.0, "warning": 60.0, "critical": 120.0},
+                phase_name,
+                {"target": 30.0, "warning": 60.0, "critical": 120.0},
             )
 
             if duration <= thresholds["target"]:

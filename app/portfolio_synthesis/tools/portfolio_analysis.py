@@ -17,7 +17,9 @@ from app.tools.get_data import get_data
 
 
 def prepare_data(
-    symbols: list[str], config: dict, log,
+    symbols: list[str],
+    config: dict,
+    log,
 ) -> tuple[dict[str, pl.DataFrame], dict[str, pd.DataFrame]]:
     """
     Download and prepare data for all symbols.
@@ -71,7 +73,10 @@ def find_common_dates(data_dict: dict[str, pl.DataFrame], log) -> list:
 
 
 def create_pricesframe(
-    common_dates: list, data_dict: dict[str, pl.DataFrame], config: dict, log,
+    common_dates: list,
+    data_dict: dict[str, pl.DataFrame],
+    config: dict,
+    log,
 ) -> pd.DataFrame:
     """Create aligned price DataFrame for all strategies."""
     price_df = pl.DataFrame({"Date": pl.Series(common_dates).cast(pl.Datetime("ns"))})
@@ -79,7 +84,9 @@ def create_pricesframe(
     for strategy_name, strategy in config["strategies"].items():
         close_prices = data_dict[strategy["symbol"]].select(["Date", "Close"])
         price_df = price_df.join(
-            close_prices.rename({"Close": strategy_name}), on="Date", how="left",
+            close_prices.rename({"Close": strategy_name}),
+            on="Date",
+            how="left",
         )
 
     # Convert to pandas for vectorbt
@@ -93,7 +100,10 @@ def create_pricesframe(
 
 
 def create_benchmark_data(
-    common_dates: list, data_dict: dict[str, pl.DataFrame], symbols: list[str], log,
+    common_dates: list,
+    data_dict: dict[str, pl.DataFrame],
+    symbols: list[str],
+    log,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Create benchmark portfolio data."""
     benchmark_close = pl.DataFrame(
@@ -103,14 +113,17 @@ def create_benchmark_data(
     for symbol in symbols:
         close_prices = data_dict[symbol].select(["Date", "Close"])
         benchmark_close = benchmark_close.join(
-            close_prices.rename({"Close": symbol}), on="Date", how="left",
+            close_prices.rename({"Close": symbol}),
+            on="Date",
+            how="left",
         )
     benchmark_close_pd = benchmark_close.to_pandas().set_index("Date")
 
     # Ensure numeric type for benchmark prices
     for col in benchmark_close_pd.columns:
         benchmark_close_pd[col] = pd.to_numeric(
-            benchmark_close_pd[col], errors="coerce",
+            benchmark_close_pd[col],
+            errors="coerce",
         )
 
     # Create benchmark entries (always True after first row)
@@ -153,7 +166,9 @@ def calculate_risk_metrics(returns: np.ndarray) -> dict[str, float]:
 
 
 def check_open_positions(
-    portfolio: "vbt.Portfolio", price_df_pd: pd.DataFrame, log,
+    portfolio: "vbt.Portfolio",
+    price_df_pd: pd.DataFrame,
+    log,
 ) -> list[tuple[str, float]]:
     """Check which strategies have open positions at the end."""
     positions = portfolio.positions.values[-1]

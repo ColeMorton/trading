@@ -19,7 +19,9 @@ from app.tools.stats_converter import convert_stats
 
 
 def process_single_ticker(
-    ticker: str, config: PortfolioConfig, log: Callable,
+    ticker: str,
+    config: PortfolioConfig,
+    log: Callable,
 ) -> list[dict[str, Any]] | None:
     """Process a single ticker through the portfolio analysis pipeline.
 
@@ -57,7 +59,11 @@ def process_single_ticker(
 
                 # Calculate signals for this combination
                 signals_data = calculate_range_signals(
-                    data.clone(), range_length, candle_lookback, ticker_config, log,
+                    data.clone(),
+                    range_length,
+                    candle_lookback,
+                    ticker_config,
+                    log,
                 )
                 if signals_data is None:
                     continue
@@ -155,14 +161,15 @@ def calculate_range_signals(
             ],
         )
 
-
     except Exception as e:
         log(f"Failed to calculate range signals: {e!s}", "error")
         return None
 
 
 def execute_strategy(
-    config: PortfolioConfig, strategy_type: str, log: Callable,
+    config: PortfolioConfig,
+    strategy_type: str,
+    log: Callable,
 ) -> list[dict[str, Any]]:
     """Execute the Range High Break strategy for all tickers.
 
@@ -191,7 +198,9 @@ def execute_strategy(
         if portfolios:
             # Find best portfolio based on Score
             sorted_portfolios = sorted(
-                portfolios, key=lambda x: float(x.get("Score", 0)), reverse=True,
+                portfolios,
+                key=lambda x: float(x.get("Score", 0)),
+                reverse=True,
             )
             best_portfolios.append(sorted_portfolios[0])
 

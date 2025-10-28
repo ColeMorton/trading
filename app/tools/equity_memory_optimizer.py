@@ -132,7 +132,8 @@ class StreamingEquityExporter:
         self.memory_peak = 0.0
 
     def chunk_portfolios(
-        self, portfolios: list[dict[str, Any]],
+        self,
+        portfolios: list[dict[str, Any]],
     ) -> Iterator[list[dict[str, Any]]]:
         """
         Split portfolios into memory-efficient chunks.
@@ -377,7 +378,8 @@ def analyze_memory_requirements(portfolios: list[dict[str, Any]]) -> dict[str, A
         memory_usage = optimizer.estimate_memory_usage(equity_data)
         analysis["estimated_memory_mb"] += memory_usage
         analysis["largest_equity_dataset_mb"] = max(
-            analysis["largest_equity_dataset_mb"], memory_usage,
+            analysis["largest_equity_dataset_mb"],
+            memory_usage,
         )
 
         # Track by strategy type

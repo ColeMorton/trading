@@ -145,7 +145,8 @@ def main():
             if i >= holding_period:
                 if short:
                     if np.any(
-                        price[i - holding_period : i] >= entry_price[i - holding_period],
+                        price[i - holding_period : i]
+                        >= entry_price[i - holding_period],
                     ):
                         exit_signal[i] = 1
                 elif np.any(
@@ -164,12 +165,17 @@ def main():
     results = []
     for holding_period in range(longest_holding_period, 0, -1):
         exits_psl = psl_exit(
-            data["Close"].values, entry_price.values, holding_period, short=short,
+            data["Close"].values,
+            entry_price.values,
+            holding_period,
+            short=short,
         )
         exits = exits_macd | exits_psl
         if short:
             pf = vbt.Portfolio.from_signals(
-                data["Close"], short_entries=entries, short_exits=exits,
+                data["Close"],
+                short_entries=entries,
+                short_exits=exits,
             )
         else:
             pf = vbt.Portfolio.from_signals(data["Close"], entries, exits)

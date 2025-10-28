@@ -139,7 +139,9 @@ class TestSignalMetrics(unittest.TestCase):
 
         # Calculate quality metrics
         metrics = self.metrics.calculate_quality_metrics(
-            signals_df, self.returns_data, "test_strategy",
+            signals_df,
+            self.returns_data,
+            "test_strategy",
         )
 
         # Verify metrics exist
@@ -190,7 +192,8 @@ class TestSignalMetrics(unittest.TestCase):
 
         # Calculate portfolio metrics
         metrics = self.metrics.calculate_portfolio_metrics(
-            [df1, df2], ["strategy_1", "strategy_2"],
+            [df1, df2],
+            ["strategy_1", "strategy_2"],
         )
 
         # Verify metrics
@@ -200,10 +203,12 @@ class TestSignalMetrics(unittest.TestCase):
 
         # Verify total signals
         self.assertEqual(
-            metrics["strategy_1_total_signals"], 10,
+            metrics["strategy_1_total_signals"],
+            10,
         )  # 10 non-zero signals in df1
         self.assertEqual(
-            metrics["strategy_2_total_signals"], 10,
+            metrics["strategy_2_total_signals"],
+            10,
         )  # 10 non-zero signals in df2
         self.assertEqual(metrics["portfolio_total_signals"], 20)  # 20 total signals
 
@@ -236,7 +241,9 @@ class TestSignalMetrics(unittest.TestCase):
 
         # Calculate quality metrics which should include horizon metrics
         metrics = self.metrics.calculate_quality_metrics(
-            signals_df, returns_df, "test_strategy",
+            signals_df,
+            returns_df,
+            "test_strategy",
         )
 
         # Check if quality metrics were calculated
@@ -259,7 +266,9 @@ class TestSignalMetrics(unittest.TestCase):
 
         # Calculate quality metrics
         metrics = self.metrics.calculate_quality_metrics(
-            signals_df, returns_df, "test_strategy",
+            signals_df,
+            returns_df,
+            "test_strategy",
         )
 
         # Verify metrics were calculated
@@ -283,7 +292,9 @@ class TestSignalMetrics(unittest.TestCase):
         empty_df_renamed = empty_df_renamed.rename(columns={"Signal": "signal"})
 
         quality_metrics = self.metrics.calculate_quality_metrics(
-            empty_df_renamed, empty_returns, "test_strategy",
+            empty_df_renamed,
+            empty_returns,
+            "test_strategy",
         )
 
         # Verify metrics
@@ -309,7 +320,10 @@ class TestSignalMetrics(unittest.TestCase):
         signals_df = signals_pl.rename({"Position": "signal"})
 
         quality_metrics = calculate_signal_quality_metrics(
-            signals_df, returns_pl, "test_strategy", self.log,
+            signals_df,
+            returns_pl,
+            "test_strategy",
+            self.log,
         )
 
         # Verify metrics

@@ -71,7 +71,10 @@ class ResourceTracker:
             pass  # Silent failure
 
     def _display_resource_meters(
-        self, cpu_percent: float, memory_percent: float, memory_gb: float,
+        self,
+        cpu_percent: float,
+        memory_percent: float,
+        memory_gb: float,
     ):
         """
         Display live resource meters with visual indicators.
@@ -132,7 +135,8 @@ class ResourceTracker:
 
         self._resource_monitor_active = True
         self._resource_monitor_thread = threading.Thread(
-            target=self._resource_monitor_loop, daemon=True,
+            target=self._resource_monitor_loop,
+            daemon=True,
         )
         self._resource_monitor_thread.start()
 

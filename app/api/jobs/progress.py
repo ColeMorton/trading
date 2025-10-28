@@ -29,7 +29,10 @@ class ProgressTracker:
         self.ttl = 3600  # 1 hour TTL
 
     async def update(
-        self, percent: int, message: str, metadata: dict[str, Any] | None = None,
+        self,
+        percent: int,
+        message: str,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """
         Update progress status.

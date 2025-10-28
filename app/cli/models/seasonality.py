@@ -62,21 +62,26 @@ class SeasonalityConfig(BaseConfig):
 
     config_type: str = "seasonality"
     tickers: list[str] | None = Field(
-        default=None, description="Specific tickers to analyze",
+        default=None,
+        description="Specific tickers to analyze",
     )
     min_years: float = Field(default=3.0, description="Minimum years of data required")
     confidence_level: float = Field(
-        default=0.95, description="Confidence level for statistical tests",
+        default=0.95,
+        description="Confidence level for statistical tests",
     )
     output_format: str = Field(default="csv", description="Output format (csv or json)")
     include_holidays: bool = Field(
-        default=False, description="Include holiday effect analysis",
+        default=False,
+        description="Include holiday effect analysis",
     )
     detrend_data: bool = Field(
-        default=True, description="Remove trend before analyzing seasonality",
+        default=True,
+        description="Remove trend before analyzing seasonality",
     )
     min_sample_size: int = Field(
-        default=10, description="Minimum sample size for pattern",
+        default=10,
+        description="Minimum sample size for pattern",
     )
     time_period_days: int = Field(
         default=1,
@@ -140,17 +145,21 @@ class PortfolioSeasonalityConfig(BaseConfig):
         description="Override time period for ALL tickers (ignores signal entry and default)",
     )
     confidence_level: float = Field(
-        default=0.95, description="Confidence level for statistical tests",
+        default=0.95,
+        description="Confidence level for statistical tests",
     )
     output_format: str = Field(default="csv", description="Output format (csv or json)")
     include_holidays: bool = Field(
-        default=False, description="Include holiday effect analysis",
+        default=False,
+        description="Include holiday effect analysis",
     )
     detrend_data: bool = Field(
-        default=True, description="Remove trend before analyzing seasonality",
+        default=True,
+        description="Remove trend before analyzing seasonality",
     )
     min_sample_size: int = Field(
-        default=10, description="Minimum sample size for pattern",
+        default=10,
+        description="Minimum sample size for pattern",
     )
 
     @field_validator("portfolio")
@@ -212,17 +221,21 @@ class SeasonalityExpectancyConfig(BaseConfig):
 
     config_type: str = "seasonality_expectancy"
     tickers: list[str] | None = Field(
-        default=None, description="Specific tickers to analyze",
+        default=None,
+        description="Specific tickers to analyze",
     )
     days: int = Field(default=30, description="Number of days for hold period")
     min_sample_size: int = Field(
-        default=50, description="Minimum sample size for reliable patterns",
+        default=50,
+        description="Minimum sample size for reliable patterns",
     )
     min_significance: float = Field(
-        default=0.5, description="Minimum statistical significance threshold",
+        default=0.5,
+        description="Minimum statistical significance threshold",
     )
     top_n_results: int = Field(
-        default=20, description="Number of top results to display",
+        default=20,
+        description="Number of top results to display",
     )
     save_csv: bool = Field(default=True, description="Save detailed CSV results")
     save_markdown: bool = Field(default=True, description="Save markdown report")

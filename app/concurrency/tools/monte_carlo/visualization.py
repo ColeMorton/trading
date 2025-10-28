@@ -155,7 +155,9 @@ class PortfolioMonteCarloVisualizer:
 
             # Create pivot table for heatmap
             heatmap_data = ticker_data.pivot(
-                index="slow_period", columns="fast_period", values="score",
+                index="slow_period",
+                columns="fast_period",
+                values="score",
             )
 
             ax = axes[i] if i < len(axes) else None
@@ -175,7 +177,11 @@ class PortfolioMonteCarloVisualizer:
                 )
             else:
                 im = ax.imshow(
-                    heatmap_data.values, cmap="RdYlGn", aspect="auto", vmin=0, vmax=1,
+                    heatmap_data.values,
+                    cmap="RdYlGn",
+                    aspect="auto",
+                    vmin=0,
+                    vmax=1,
                 )
                 ax.set_xticks(range(len(heatmap_data.columns)))
                 ax.set_yticks(range(len(heatmap_data.index)))
@@ -196,7 +202,8 @@ class PortfolioMonteCarloVisualizer:
         # Save figure
         if save_path is None:
             save_path = os.path.join(
-                self.config.output_dir, f"portfolio_{metric}_heatmap.png",
+                self.config.output_dir,
+                f"portfolio_{metric}_heatmap.png",
             )
 
         plt.savefig(save_path, dpi=self.config.dpi, bbox_inches="tight")
@@ -312,7 +319,8 @@ class PortfolioMonteCarloVisualizer:
         # Save figure
         if save_path is None:
             save_path = os.path.join(
-                self.config.output_dir, "portfolio_stability_distribution.png",
+                self.config.output_dir,
+                "portfolio_stability_distribution.png",
             )
 
         plt.savefig(save_path, dpi=self.config.dpi, bbox_inches="tight")
@@ -352,7 +360,10 @@ class PortfolioMonteCarloVisualizer:
 
         bars = axes[0, 0].bar(ticker_names, ticker_scores, alpha=0.7)
         axes[0, 0].axhline(
-            y=0.7, color="red", linestyle="--", label="Stability Threshold (0.7)",
+            y=0.7,
+            color="red",
+            linestyle="--",
+            label="Stability Threshold (0.7)",
         )
         axes[0, 0].set_title("Ticker Stability Scores")
         axes[0, 0].set_ylabel("Portfolio Stability Score")
@@ -449,7 +460,8 @@ Max Params: {portfolio_metrics.get('simulation_parameters', {}).get('max_paramet
             if result.parameter_results:
                 # Use best parameter result for each ticker
                 best_result = max(
-                    result.parameter_results, key=lambda x: x.stability_score,
+                    result.parameter_results,
+                    key=lambda x: x.stability_score,
                 )
                 stability_scores.append(best_result.stability_score)
                 robustness_scores.append(best_result.parameter_robustness)
@@ -502,7 +514,8 @@ Max Params: {portfolio_metrics.get('simulation_parameters', {}).get('max_paramet
         # Save figure
         if save_path is None:
             save_path = os.path.join(
-                self.config.output_dir, "portfolio_monte_carlo_summary.png",
+                self.config.output_dir,
+                "portfolio_monte_carlo_summary.png",
             )
 
         plt.savefig(save_path, dpi=self.config.dpi, bbox_inches="tight")
@@ -543,7 +556,8 @@ Max Params: {portfolio_metrics.get('simulation_parameters', {}).get('max_paramet
         try:
             # Portfolio summary plot
             path = self.create_portfolio_summary_plot(
-                monte_carlo_results, portfolio_metrics,
+                monte_carlo_results,
+                portfolio_metrics,
             )
             saved_paths.append(path)
         except Exception as e:
@@ -569,5 +583,6 @@ def create_monte_carlo_visualizations(
     """
     visualizer = PortfolioMonteCarloVisualizer(config)
     return visualizer.generate_portfolio_visualizations(
-        monte_carlo_results, portfolio_metrics,
+        monte_carlo_results,
+        portfolio_metrics,
     )

@@ -35,7 +35,10 @@ class TestPhase1Integration:
         "app.api.services.ma_cross_service.MACrossService._convert_portfolios_to_metrics",
     )
     def test_end_to_end_concurrent_flow(
-        self, mock_convert, mock_execute, integration_config,
+        self,
+        mock_convert,
+        mock_execute,
+        integration_config,
     ):
         """Test complete flow with concurrent execution and streamlined pipeline."""
         # Setup mocks

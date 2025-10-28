@@ -109,25 +109,30 @@ class AdvancedThresholdOptimizer:
                 objective_func = custom_objective
             else:
                 objective_func = self._create_objective_function(
-                    training_data, optimization_target,
+                    training_data,
+                    optimization_target,
                 )
 
             # Perform optimization based on method
             if method == "grid_search":
                 optimal_thresholds = await self._grid_search_optimization(
-                    objective_func, training_data,
+                    objective_func,
+                    training_data,
                 )
             elif method == "bayesian":
                 optimal_thresholds = await self._bayesian_optimization(
-                    objective_func, training_data,
+                    objective_func,
+                    training_data,
                 )
             elif method == "genetic":
                 optimal_thresholds = await self._genetic_optimization(
-                    objective_func, training_data,
+                    objective_func,
+                    training_data,
                 )
             elif method == "gradient":
                 optimal_thresholds = await self._gradient_optimization(
-                    objective_func, training_data,
+                    objective_func,
+                    training_data,
                 )
             else:
                 msg = f"Unknown optimization method: {method}"
@@ -135,16 +140,20 @@ class AdvancedThresholdOptimizer:
 
             # Evaluate optimization results
             baseline_performance = await self._evaluate_performance(
-                training_data, self.config.PERCENTILE_THRESHOLDS,
+                training_data,
+                self.config.PERCENTILE_THRESHOLDS,
             )
 
             optimized_performance = await self._evaluate_performance(
-                training_data, optimal_thresholds,
+                training_data,
+                optimal_thresholds,
             )
 
             # Cross-validation
             cv_score = await self._cross_validate_thresholds(
-                training_data, optimal_thresholds, optimization_target,
+                training_data,
+                optimal_thresholds,
+                optimization_target,
             )
 
             # Risk assessment
@@ -156,7 +165,8 @@ class AdvancedThresholdOptimizer:
             )
 
             robustness_score = await self._assess_threshold_robustness(
-                training_data, optimal_thresholds,
+                training_data,
+                optimal_thresholds,
             )
 
             # Calculate improvement
@@ -171,7 +181,8 @@ class AdvancedThresholdOptimizer:
 
             # Calculate threshold confidence
             threshold_confidence = await self._calculate_threshold_confidence(
-                training_data, optimal_thresholds,
+                training_data,
+                optimal_thresholds,
             )
 
             # Determine convergence
@@ -274,7 +285,9 @@ class AdvancedThresholdOptimizer:
 
             # Calculate performance gradients
             gradients = await self._calculate_performance_gradients(
-                streaming_data, current_thresholds, performance_window,
+                streaming_data,
+                current_thresholds,
+                performance_window,
             )
 
             # Update thresholds using gradient ascent
@@ -287,7 +300,8 @@ class AdvancedThresholdOptimizer:
 
                 # Ensure thresholds stay within valid ranges
                 min_val, max_val = self.threshold_ranges.get(
-                    threshold_name, (0.0, 100.0),
+                    threshold_name,
+                    (0.0, 100.0),
                 )
                 new_value = max(min_val, min(max_val, new_value))
 
@@ -295,7 +309,6 @@ class AdvancedThresholdOptimizer:
 
             # Validate threshold ordering
             return self._enforce_threshold_ordering(updated_thresholds)
-
 
         except Exception as e:
             self.logger.exception(f"Adaptive threshold learning failed: {e}")
@@ -337,7 +350,8 @@ class AdvancedThresholdOptimizer:
 
                 for i, objective in enumerate(objectives):
                     objective_func = self._create_objective_function(
-                        training_data, objective,
+                        training_data,
+                        objective,
                     )
                     score = objective_func(thresholds_dict)
                     total_score += weights[i] * score
@@ -346,16 +360,19 @@ class AdvancedThresholdOptimizer:
 
             # Optimize composite objective
             optimal_thresholds = await self._bayesian_optimization(
-                composite_objective, training_data,
+                composite_objective,
+                training_data,
             )
 
             # Evaluate performance for each objective
             baseline_performance = await self._evaluate_performance(
-                training_data, self.config.PERCENTILE_THRESHOLDS,
+                training_data,
+                self.config.PERCENTILE_THRESHOLDS,
             )
 
             optimized_performance = await self._evaluate_performance(
-                training_data, optimal_thresholds,
+                training_data,
+                optimal_thresholds,
             )
 
             # Calculate composite improvement
@@ -373,7 +390,8 @@ class AdvancedThresholdOptimizer:
                 optimization_method="multi_objective_bayesian",
                 optimal_thresholds=optimal_thresholds,
                 threshold_confidence=await self._calculate_threshold_confidence(
-                    training_data, optimal_thresholds,
+                    training_data,
+                    optimal_thresholds,
                 ),
                 baseline_performance=sum(
                     weights[i] * baseline_performance[obj]
@@ -401,7 +419,8 @@ class AdvancedThresholdOptimizer:
     # Helper methods
 
     async def _prepare_optimization_data(
-        self, performance_data: dict[str, Any],
+        self,
+        performance_data: dict[str, Any],
     ) -> dict[str, Any]:
         """Prepare data for optimization"""
         # Extract relevant features for optimization
@@ -436,7 +455,9 @@ class AdvancedThresholdOptimizer:
         return prepared_data
 
     def _create_objective_function(
-        self, training_data: dict[str, Any], target_metric: str,
+        self,
+        training_data: dict[str, Any],
+        target_metric: str,
     ) -> Callable:
         """Create objective function for optimization"""
 
@@ -455,7 +476,9 @@ class AdvancedThresholdOptimizer:
         return objective
 
     def _simulate_performance(
-        self, data: dict[str, Any], thresholds: dict[str, float],
+        self,
+        data: dict[str, Any],
+        thresholds: dict[str, float],
     ) -> dict[str, float]:
         """Simulate performance with given thresholds"""
         returns = np.array(data["returns"])
@@ -480,7 +503,8 @@ class AdvancedThresholdOptimizer:
         # Calculate performance metrics
         exit_efficiency = self._calculate_exit_efficiency(returns, exit_signals)
         precision = self._calculate_precision(
-            exit_signals, data.get("actual_outcomes", []),
+            exit_signals,
+            data.get("actual_outcomes", []),
         )
         recall = self._calculate_recall(exit_signals, data.get("actual_outcomes", []))
 
@@ -492,7 +516,9 @@ class AdvancedThresholdOptimizer:
         }
 
     def _calculate_exit_efficiency(
-        self, returns: np.ndarray, exit_signals: list[str],
+        self,
+        returns: np.ndarray,
+        exit_signals: list[str],
     ) -> float:
         """Calculate exit efficiency metric"""
         if len(returns) == 0:
@@ -520,7 +546,9 @@ class AdvancedThresholdOptimizer:
         return captured_returns / potential_returns if potential_returns > 0 else 0.0
 
     def _calculate_precision(
-        self, predicted_signals: list[str], actual_outcomes: list[str],
+        self,
+        predicted_signals: list[str],
+        actual_outcomes: list[str],
     ) -> float:
         """Calculate precision of exit signals"""
         if len(actual_outcomes) == 0:
@@ -546,7 +574,9 @@ class AdvancedThresholdOptimizer:
         return tp / (tp + fp) if (tp + fp) > 0 else 0.0
 
     def _calculate_recall(
-        self, predicted_signals: list[str], actual_outcomes: list[str],
+        self,
+        predicted_signals: list[str],
+        actual_outcomes: list[str],
     ) -> float:
         """Calculate recall of exit signals"""
         if len(actual_outcomes) == 0:
@@ -572,7 +602,9 @@ class AdvancedThresholdOptimizer:
         return tp / (tp + fn) if (tp + fn) > 0 else 0.0
 
     async def _grid_search_optimization(
-        self, objective_func: Callable, training_data: dict[str, Any],
+        self,
+        objective_func: Callable,
+        training_data: dict[str, Any],
     ) -> dict[str, float]:
         """Perform grid search optimization"""
         best_score = -float("inf")
@@ -603,7 +635,9 @@ class AdvancedThresholdOptimizer:
         return best_thresholds
 
     async def _bayesian_optimization(
-        self, objective_func: Callable, training_data: dict[str, Any],
+        self,
+        objective_func: Callable,
+        training_data: dict[str, Any],
     ) -> dict[str, float]:
         """Perform Bayesian optimization (simplified implementation)"""
         # Simplified Bayesian optimization using random search with exploitation/exploration
@@ -628,7 +662,9 @@ class AdvancedThresholdOptimizer:
         return best_thresholds
 
     async def _genetic_optimization(
-        self, objective_func: Callable, training_data: dict[str, Any],
+        self,
+        objective_func: Callable,
+        training_data: dict[str, Any],
     ) -> dict[str, float]:
         """Perform genetic algorithm optimization (simplified)"""
         population_size = 20
@@ -649,7 +685,9 @@ class AdvancedThresholdOptimizer:
             for _ in range(population_size):
                 tournament_size = 3
                 tournament_indices = np.random.choice(
-                    population_size, tournament_size, replace=False,
+                    population_size,
+                    tournament_size,
+                    replace=False,
                 )
                 tournament_fitness = [fitness_scores[i] for i in tournament_indices]
                 winner_idx = tournament_indices[np.argmax(tournament_fitness)]
@@ -669,7 +707,9 @@ class AdvancedThresholdOptimizer:
         return population[best_idx]
 
     async def _gradient_optimization(
-        self, objective_func: Callable, training_data: dict[str, Any],
+        self,
+        objective_func: Callable,
+        training_data: dict[str, Any],
     ) -> dict[str, float]:
         """Perform gradient-based optimization"""
         # Use scipy.optimize for gradient-based optimization
@@ -723,7 +763,8 @@ class AdvancedThresholdOptimizer:
         }
 
     def _generate_thresholds_near_best(
-        self, best_thresholds: dict[str, float],
+        self,
+        best_thresholds: dict[str, float],
     ) -> dict[str, float]:
         """Generate thresholds near the current best"""
         noise_std = 2.0
@@ -759,7 +800,8 @@ class AdvancedThresholdOptimizer:
         thresholds.update(ordered_thresholds)
 
     def _enforce_threshold_ordering(
-        self, thresholds: dict[str, float],
+        self,
+        thresholds: dict[str, float],
     ) -> dict[str, float]:
         """Ensure thresholds are in correct order"""
         ordered_names = ["exit_immediately", "strong_sell", "sell", "hold"]
@@ -776,13 +818,18 @@ class AdvancedThresholdOptimizer:
         return dict(zip(ordered_names, values, strict=False))
 
     async def _evaluate_performance(
-        self, data: dict[str, Any], thresholds: dict[str, float],
+        self,
+        data: dict[str, Any],
+        thresholds: dict[str, float],
     ) -> dict[str, float]:
         """Evaluate performance with given thresholds"""
         return self._simulate_performance(data, thresholds)
 
     async def _cross_validate_thresholds(
-        self, data: dict[str, Any], thresholds: dict[str, float], target_metric: str,
+        self,
+        data: dict[str, Any],
+        thresholds: dict[str, float],
+        target_metric: str,
     ) -> float:
         """Perform cross-validation on thresholds"""
         returns = np.array(data["returns"])
@@ -837,7 +884,9 @@ class AdvancedThresholdOptimizer:
         return max(0.0, overfitting_risk)
 
     async def _assess_threshold_robustness(
-        self, data: dict[str, Any], thresholds: dict[str, float],
+        self,
+        data: dict[str, Any],
+        thresholds: dict[str, float],
     ) -> float:
         """Assess robustness of thresholds"""
         # Test sensitivity to small changes
@@ -851,7 +900,8 @@ class AdvancedThresholdOptimizer:
                 perturbed_thresholds[name] = value + delta
 
                 perturbed_performance = self._simulate_performance(
-                    data, perturbed_thresholds,
+                    data,
+                    perturbed_thresholds,
                 )
 
                 # Calculate sensitivity
@@ -869,9 +919,10 @@ class AdvancedThresholdOptimizer:
         avg_sensitivity = np.mean(sensitivity_scores) if sensitivity_scores else 1.0
         return 1.0 / (1.0 + avg_sensitivity)
 
-
     async def _calculate_threshold_confidence(
-        self, data: dict[str, Any], thresholds: dict[str, float],
+        self,
+        data: dict[str, Any],
+        thresholds: dict[str, float],
     ) -> dict[str, float]:
         """Calculate confidence in each threshold"""
         confidence = {}
@@ -898,7 +949,9 @@ class AdvancedThresholdOptimizer:
         return confidence
 
     async def _identify_regimes(
-        self, performance_data: dict[str, Any], regime_indicators: dict[str, Any],
+        self,
+        performance_data: dict[str, Any],
+        regime_indicators: dict[str, Any],
     ) -> dict[str, dict[str, Any]]:
         """Identify different market regimes in the data"""
         regimes = {
@@ -920,7 +973,9 @@ class AdvancedThresholdOptimizer:
         return regimes
 
     async def _calculate_recent_performance(
-        self, streaming_data: dict[str, Any], window_size: int,
+        self,
+        streaming_data: dict[str, Any],
+        window_size: int,
     ) -> dict[str, float]:
         """Calculate performance metrics for recent data"""
         recent_returns = streaming_data.get("returns", [])[-window_size:]
@@ -950,7 +1005,8 @@ class AdvancedThresholdOptimizer:
         epsilon = 1.0  # Small threshold change
 
         base_performance = await self._calculate_recent_performance(
-            streaming_data, window_size,
+            streaming_data,
+            window_size,
         )
         base_score = base_performance["exit_efficiency"]
 

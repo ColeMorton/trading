@@ -23,7 +23,9 @@ class StrategyParameter(TypedDict):
 
 
 def create_strategy_object(
-    config: dict[str, Any], index: int, stats: dict[str, Any],
+    config: dict[str, Any],
+    index: int,
+    stats: dict[str, Any],
 ) -> Strategy:
     """Create a strategy object with the optimized structure.
 
@@ -268,7 +270,8 @@ def create_strategy_object(
     # Get strategy-specific signal quality metrics if available
     # We still need to use "strategy_" prefix for internal lookups in stats
     signal_quality_metrics_data = stats.get("signal_quality_metrics", {}).get(
-        f"strategy_{index}", {},
+        f"strategy_{index}",
+        {},
     )
 
     # Only include signal quality metrics if they exist
@@ -285,7 +288,8 @@ def create_strategy_object(
     if include_allocation:
         # We still need to use "strategy_" prefix for internal lookups in stats
         strategy_obj["allocation_score"] = stats.get(
-            f"strategy_{index}_allocation_score", 0.0,
+            f"strategy_{index}_allocation_score",
+            0.0,
         )
         strategy_obj["allocation"] = stats.get(f"strategy_{index}_allocation", 0.0)
 

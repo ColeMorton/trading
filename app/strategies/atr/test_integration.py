@@ -128,7 +128,9 @@ class TestATRWorkflowIntegration(unittest.TestCase):
                 # Verify results structure
                 self.assertIsInstance(results, list)
                 self.assertGreater(
-                    len(results), 0, "Should generate at least some portfolio results",
+                    len(results),
+                    0,
+                    "Should generate at least some portfolio results",
                 )
 
                 # Verify each result has required ATR fields
@@ -146,7 +148,9 @@ class TestATRWorkflowIntegration(unittest.TestCase):
                     ]
                     for field in essential_fields:
                         self.assertIn(
-                            field, result, f"Missing essential field: {field}",
+                            field,
+                            result,
+                            f"Missing essential field: {field}",
                         )
 
                     # Verify ATR-specific values
@@ -223,7 +227,8 @@ class TestATRWorkflowIntegration(unittest.TestCase):
             self.assertEqual(result["Strategy Type"], "ATR")
             self.assertEqual(result["Fast Period"], 15)
             self.assertEqual(
-                result["Slow Period"], 15,
+                result["Slow Period"],
+                15,
             )  # atr_multiplier * 10 for display
 
             # Validate we get reasonable number of trades (not 70+ as in bug)
@@ -233,7 +238,9 @@ class TestATRWorkflowIntegration(unittest.TestCase):
             # Should have reasonable trade count (not excessive short-term trades)
             self.assertGreater(total_trades, 0, "Should generate some trades")
             self.assertLess(
-                total_trades, 50, "Should not generate excessive short-term trades",
+                total_trades,
+                50,
+                "Should not generate excessive short-term trades",
             )
 
             # Should have calculated Score (not 0)
@@ -324,7 +331,9 @@ class TestATRWorkflowIntegration(unittest.TestCase):
         except Exception as e:
             # Should provide informative error message
             self.assertIn(
-                "config", str(e).lower(), "Error should mention configuration issue",
+                "config",
+                str(e).lower(),
+                "Error should mention configuration issue",
             )
 
     def test_signal_entry_accuracy(self):
@@ -420,7 +429,9 @@ class TestATRSignalIntegration(unittest.TestCase):
         """Test ATR signals in trending market conditions."""
         # Test ATR signal generation in trending market
         signals_df = generate_signals(
-            self.pattern_data, atr_length=10, atr_multiplier=2.0,
+            self.pattern_data,
+            atr_length=10,
+            atr_multiplier=2.0,
         )
 
         # Verify signal structure
@@ -438,7 +449,9 @@ class TestATRSignalIntegration(unittest.TestCase):
 
         # Should have some long signals during uptrend
         self.assertGreaterEqual(
-            long_signals, 0, "Should have some positioning during trends",
+            long_signals,
+            0,
+            "Should have some positioning during trends",
         )
 
     def test_atr_signal_integration_ranging_market(self):
@@ -529,7 +542,8 @@ class TestATRExportIntegration(unittest.TestCase):
                 )
 
                 success = export_portfolios_to_csv(
-                    self.sample_portfolios, f"{temp_dir}/TSLA_D_ATR.csv",
+                    self.sample_portfolios,
+                    f"{temp_dir}/TSLA_D_ATR.csv",
                 )
 
                 self.assertTrue(success)
@@ -589,10 +603,14 @@ class TestATRExportIntegration(unittest.TestCase):
 
         # Should have both true and false values (regression test)
         self.assertIn(
-            "true", unique_entries, "Should have some true Signal Entry values",
+            "true",
+            unique_entries,
+            "Should have some true Signal Entry values",
         )
         self.assertIn(
-            "false", unique_entries, "Should have some false Signal Entry values",
+            "false",
+            unique_entries,
+            "Should have some false Signal Entry values",
         )
         self.assertGreater(len(unique_entries), 1, "Signal Entry values should vary")
 

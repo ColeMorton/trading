@@ -109,7 +109,8 @@ class ConsoleLogger:
                 self.console.print(f"\n[bold blue]📊 {message}[/bold blue]", **kwargs)
             elif level == 3:
                 self.console.print(
-                    f"\n[bold yellow]💡 {message}[/bold yellow]", **kwargs,
+                    f"\n[bold yellow]💡 {message}[/bold yellow]",
+                    **kwargs,
                 )
             else:
                 self.console.print(f"\n[bold white]• {message}[/bold white]", **kwargs)
@@ -159,7 +160,10 @@ class ConsoleLogger:
         columns.append(TimeElapsedColumn())
 
         return Progress(
-            *columns, console=self.console, expand=True, refresh_per_second=10,
+            *columns,
+            console=self.console,
+            expand=True,
+            refresh_per_second=10,
         )
 
     def live_table_context(self, table: Table):
@@ -200,7 +204,10 @@ class ConsoleLogger:
         self.console.print(table)
 
     def strategy_header(
-        self, ticker: str, strategy_types: list[str], profile: str | None = None,
+        self,
+        ticker: str,
+        strategy_types: list[str],
+        profile: str | None = None,
     ) -> None:
         """Display strategy analysis header with enhanced formatting."""
         if self.quiet:
@@ -218,7 +225,11 @@ class ConsoleLogger:
         content = f"[bold white]{subtitle}[/bold white]"
 
         panel = Panel(
-            content, title=title, border_style="cyan", box=ROUNDED, padding=(0, 2),
+            content,
+            title=title,
+            border_style="cyan",
+            box=ROUNDED,
+            padding=(0, 2),
         )
 
         self.console.print("\n")
@@ -572,7 +583,10 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
 
             # Enhanced bottleneck identification
             self._detect_bottlenecks(
-                self._current_phase, duration, memory_delta, details,
+                self._current_phase,
+                duration,
+                memory_delta,
+                details,
             )
 
         # Display phase completion
@@ -596,7 +610,8 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
     ):
         """Enhanced bottleneck detection with pattern analysis and actionable insights."""
         thresholds = self._phase_thresholds.get(
-            phase_name, {"target": 30.0, "warning": 60.0, "critical": 120.0},
+            phase_name,
+            {"target": 30.0, "warning": 60.0, "critical": 120.0},
         )
 
         # Determine severity level
@@ -703,7 +718,10 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
                     self.info(f"💡 Quick fix: {recommendations[0]}")
 
     def _track_bottleneck_patterns(
-        self, phase_name: str, duration: float, severity: str,
+        self,
+        phase_name: str,
+        duration: float,
+        severity: str,
     ):
         """Track bottleneck patterns for trend analysis."""
         if phase_name not in self._phase_trend_history:
@@ -752,7 +770,10 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
         self._display_execution_summary(total_time)
 
     def _display_phase_performance(
-        self, phase_name: str, duration: float, details: dict[str, Any] | None,
+        self,
+        phase_name: str,
+        duration: float,
+        details: dict[str, Any] | None,
     ):
         """Display detailed phase performance information."""
         if self.quiet:
@@ -760,7 +781,8 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
 
         # Get phase thresholds for context
         thresholds = self._phase_thresholds.get(
-            phase_name, {"target": 30.0, "warning": 60.0, "critical": 120.0},
+            phase_name,
+            {"target": 30.0, "warning": 60.0, "critical": 120.0},
         )
         target_threshold = thresholds["target"]
 
@@ -787,9 +809,7 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
             bottleneck_severity = (
                 "critical"
                 if duration > thresholds["critical"]
-                else "warning"
-                if duration > thresholds["warning"]
-                else "info"
+                else "warning" if duration > thresholds["warning"] else "info"
             )
             self.console.print(
                 f"   [dim]• Bottleneck Level: {bottleneck_severity.upper()}[/dim]",
@@ -828,7 +848,8 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
 
             # Performance indicator using new threshold structure
             thresholds = self._phase_thresholds.get(
-                phase_name, {"target": 30.0, "warning": 60.0, "critical": 120.0},
+                phase_name,
+                {"target": 30.0, "warning": 60.0, "critical": 120.0},
             )
             if duration <= thresholds["target"]:
                 perf_indicator = "[green]⚡ Excellent[/green]"
@@ -892,7 +913,8 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
                 if alert.get("recommendations"):
                     self.console.print("   [yellow]💡 Recommended Actions:[/yellow]")
                     for i, rec in enumerate(
-                        alert["recommendations"][:2], 1,
+                        alert["recommendations"][:2],
+                        1,
                     ):  # Top 2 recommendations
                         self.console.print(f"   [dim]   {i}. {rec}[/dim]")
                 self.console.print()
@@ -904,7 +926,9 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
                     f"   [yellow]⚠️ {alert['phase'].replace('_', ' ').title()}: {alert['duration']:.1f}s[/yellow]",
                 )
                 if alert.get("recommendations") and self.performance_mode == "detailed":
-                    self.console.print(f"   [dim]💡 {alert['recommendations'][0]}[/dim]")
+                    self.console.print(
+                        f"   [dim]💡 {alert['recommendations'][0]}[/dim]"
+                    )
 
     def _display_bottleneck_patterns(self):
         """Display detected bottleneck patterns for system optimization."""
@@ -921,7 +945,9 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
                 self.console.print(
                     f"   [dim]   • Average duration: {pattern['avg_duration']:.1f}s[/dim]",
                 )
-                self.console.print(f"   [yellow]💡 {pattern['recommendation']}[/yellow]")
+                self.console.print(
+                    f"   [yellow]💡 {pattern['recommendation']}[/yellow]"
+                )
                 self.console.print()
 
     def _display_optimization_recommendations(self):
@@ -933,7 +959,8 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
         for phase_name, timing_info in self._phase_timings.items():
             duration = timing_info["duration"]
             thresholds = self._phase_thresholds.get(
-                phase_name, {"target": 30.0, "warning": 60.0, "critical": 120.0},
+                phase_name,
+                {"target": 30.0, "warning": 60.0, "critical": 120.0},
             )
 
             # Priority recommendations for critical bottlenecks
@@ -1025,7 +1052,8 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
 
         self._resource_monitor_active = True
         self._resource_monitor_thread = threading.Thread(
-            target=self._resource_monitor_loop, daemon=True,
+            target=self._resource_monitor_loop,
+            daemon=True,
         )
         self._resource_monitor_thread.start()
 
@@ -1068,14 +1096,19 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
 
             # Create live resource meters
             self._display_resource_meters(
-                cpu_percent, memory.percent, memory.used / (1024**3),
+                cpu_percent,
+                memory.percent,
+                memory.used / (1024**3),
             )
 
         except Exception:
             pass  # Silent failure
 
     def _display_resource_meters(
-        self, cpu_percent: float, memory_percent: float, memory_gb: float,
+        self,
+        cpu_percent: float,
+        memory_percent: float,
+        memory_gb: float,
     ):
         """Display live resource meters with visual indicators."""
         # Create CPU meter
@@ -1148,7 +1181,10 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
     ):
         """Create a performance monitoring context for a phase."""
         return PerformancePhaseContext(
-            self, phase_name, description, estimated_duration,
+            self,
+            phase_name,
+            description,
+            estimated_duration,
         )
 
     def parameter_progress_context(
@@ -1190,7 +1226,8 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
             ]
             if show_parallel_workers:
                 columns.insert(
-                    -1, TextColumn("[dim]({task.fields[workers]} workers)[/dim]"),
+                    -1,
+                    TextColumn("[dim]({task.fields[workers]} workers)[/dim]"),
                 )
         else:
             # Detailed/benchmark mode: full metrics
@@ -1207,13 +1244,15 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
             ]
             if show_parallel_workers:
                 columns.insert(
-                    -2, TextColumn("[dim]({task.fields[workers]} workers)[/dim]"),
+                    -2,
+                    TextColumn("[dim]({task.fields[workers]} workers)[/dim]"),
                 )
 
             # Add memory monitoring for detailed modes
             if self.show_resources:
                 columns.insert(
-                    -1, TextColumn("[yellow]Mem: {task.fields[memory]}MB[/yellow]"),
+                    -1,
+                    TextColumn("[yellow]Mem: {task.fields[memory]}MB[/yellow]"),
                 )
 
         # Calculate adaptive refresh rate based on total combinations
@@ -1235,7 +1274,6 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
             refresh_per_second=refresh_rate,
             disable=disable_progress,
         )
-
 
     def info(self, message: str, **kwargs) -> None:
         """Display info message with enhanced strategy execution awareness."""
@@ -1293,7 +1331,8 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
                 self.console.print(f"\n[bold blue]📊 {message}[/bold blue]", **kwargs)
             elif level == 3:
                 self.console.print(
-                    f"\n[bold yellow]💡 {message}[/bold yellow]", **kwargs,
+                    f"\n[bold yellow]💡 {message}[/bold yellow]",
+                    **kwargs,
                 )
             else:
                 self.console.print(f"\n[bold white]• {message}[/bold white]", **kwargs)
@@ -1306,7 +1345,10 @@ class LiveResourceDashboard:
     """Live updating resource dashboard for long-running phases."""
 
     def __init__(
-        self, logger: PerformanceAwareConsoleLogger, phase_name: str, description: str,
+        self,
+        logger: PerformanceAwareConsoleLogger,
+        phase_name: str,
+        description: str,
     ):
         self.logger = logger
         self.phase_name = phase_name
@@ -1325,17 +1367,21 @@ class LiveResourceDashboard:
         # Create live updating layout
         layout = Layout()
         layout.split_column(
-            Layout(name="phase", size=3), Layout(name="resources", size=4),
+            Layout(name="phase", size=3),
+            Layout(name="resources", size=4),
         )
 
         self.live_display = Live(
-            layout, console=self.logger.console, refresh_per_second=2,
+            layout,
+            console=self.logger.console,
+            refresh_per_second=2,
         )
         self.live_display.start()
 
         # Start update thread
         self._update_thread = threading.Thread(
-            target=self._update_dashboard, daemon=True,
+            target=self._update_dashboard,
+            daemon=True,
         )
         self._update_thread.start()
 
@@ -1384,16 +1430,16 @@ class LiveResourceDashboard:
                 cpu_color = (
                     "green"
                     if cpu_percent < 50
-                    else "yellow"
-                    if cpu_percent < 80
-                    else "red"
+                    else "yellow" if cpu_percent < 80 else "red"
                 )
                 cpu_meter = (
                     f"[{cpu_color}]{'█' * cpu_filled}[/{cpu_color}]{'░' * cpu_empty}"
                 )
 
                 resource_table.add_row(
-                    "CPU", cpu_meter, f"[{cpu_color}]{cpu_percent:5.1f}%[/{cpu_color}]",
+                    "CPU",
+                    cpu_meter,
+                    f"[{cpu_color}]{cpu_percent:5.1f}%[/{cpu_color}]",
                 )
 
                 # Memory meter
@@ -1403,9 +1449,7 @@ class LiveResourceDashboard:
                 mem_color = (
                     "green"
                     if memory.percent < 50
-                    else "yellow"
-                    if memory.percent < 80
-                    else "red"
+                    else "yellow" if memory.percent < 80 else "red"
                 )
                 mem_meter = (
                     f"[{mem_color}]{'█' * mem_filled}[/{mem_color}]{'░' * mem_empty}"
@@ -1418,12 +1462,15 @@ class LiveResourceDashboard:
                 )
 
                 resource_panel = Panel(
-                    resource_table, title="📊 Resource Usage", border_style="blue",
+                    resource_table,
+                    title="📊 Resource Usage",
+                    border_style="blue",
                 )
 
                 # Update layout
                 if hasattr(self.live_display, "renderable") and hasattr(
-                    self.live_display.renderable, "children",
+                    self.live_display.renderable,
+                    "children",
                 ):
                     self.live_display.renderable["phase"].update(phase_panel)
                     self.live_display.renderable["resources"].update(resource_panel)
@@ -1453,7 +1500,9 @@ class PerformancePhaseContext:
 
     def __enter__(self):
         self.logger.start_phase(
-            self.phase_name, self.description, self.estimated_duration,
+            self.phase_name,
+            self.description,
+            self.estimated_duration,
         )
         return self
 

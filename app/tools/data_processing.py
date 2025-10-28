@@ -37,7 +37,9 @@ class DataProcessor:
             # Create a default logger if none provided
             try:
                 self.log, _, _, _ = setup_logging(
-                    "data_processor", Path("./logs"), "data_processor.log",
+                    "data_processor",
+                    Path("./logs"),
+                    "data_processor.log",
                 )
             except Exception:
                 # Fallback to a simple print-based logger if setup fails
@@ -115,7 +117,8 @@ class DataProcessor:
         self,
         dfs: list[pd.DataFrame | pl.DataFrame],
         process_func: Callable[
-            [pd.DataFrame | pl.DataFrame], pd.DataFrame | pl.DataFrame,
+            [pd.DataFrame | pl.DataFrame],
+            pd.DataFrame | pl.DataFrame,
         ],
         batch_size: int = 10,
         parallel: bool = False,
@@ -153,7 +156,9 @@ class DataProcessor:
                             batch = dfs[i : i + batch_size]
                             futures.append(
                                 executor.submit(
-                                    self._process_batch, batch, process_func,
+                                    self._process_batch,
+                                    batch,
+                                    process_func,
                                 ),
                             )
 
@@ -185,7 +190,8 @@ class DataProcessor:
         self,
         batch: list[pd.DataFrame | pl.DataFrame],
         process_func: Callable[
-            [pd.DataFrame | pl.DataFrame], pd.DataFrame | pl.DataFrame,
+            [pd.DataFrame | pl.DataFrame],
+            pd.DataFrame | pl.DataFrame,
         ],
     ) -> list[pd.DataFrame | pl.DataFrame]:
         """Process a batch of DataFrames.
@@ -265,10 +271,14 @@ class DataProcessor:
             return self.process_in_native_format(
                 df,
                 lambda pandas_df: self._optimize_pandas_dataframe(
-                    pandas_df, categorical_threshold, date_columns,
+                    pandas_df,
+                    categorical_threshold,
+                    date_columns,
                 ),
                 lambda polars_df: self._optimize_polars_dataframe(
-                    polars_df, categorical_threshold, date_columns,
+                    polars_df,
+                    categorical_threshold,
+                    date_columns,
                 ),
             )
         except Exception as e:
@@ -472,7 +482,9 @@ class DataProcessor:
         try:
             # Validate DataFrame
             self.error_handler.validate_dataframe(
-                data, [signal_column, return_column], "Data for signal extraction",
+                data,
+                [signal_column, return_column],
+                "Data for signal extraction",
             )
 
             # Extract based on DataFrame type
@@ -494,7 +506,9 @@ class DataProcessor:
             return np.array([]), np.array([])
 
     def convert_hourly_to_4hour(
-        self, df: pd.DataFrame | pl.DataFrame, ticker: str | None = None,
+        self,
+        df: pd.DataFrame | pl.DataFrame,
+        ticker: str | None = None,
     ) -> pd.DataFrame | pl.DataFrame:
         """Convert 1-hour OHLC data to 4-hour OHLC bars with market-aware logic.
 
@@ -524,7 +538,9 @@ class DataProcessor:
             return df
 
     def convert_hourly_to_4hour_market_aware(
-        self, df: pd.DataFrame | pl.DataFrame, market_type,
+        self,
+        df: pd.DataFrame | pl.DataFrame,
+        market_type,
     ) -> pd.DataFrame | pl.DataFrame:
         """Convert 1-hour OHLC data to 4-hour OHLC bars with market-specific logic.
 
@@ -832,7 +848,9 @@ class DataProcessor:
         return four_hour_data
 
     def convert_daily_to_2day(
-        self, df: pd.DataFrame | pl.DataFrame, ticker: str | None = None,
+        self,
+        df: pd.DataFrame | pl.DataFrame,
+        ticker: str | None = None,
     ) -> pd.DataFrame | pl.DataFrame:
         """Convert daily OHLC data to 2-day OHLC bars with market-aware logic.
 
@@ -862,7 +880,9 @@ class DataProcessor:
             return df
 
     def convert_daily_to_2day_market_aware(
-        self, df: pd.DataFrame | pl.DataFrame, market_type,
+        self,
+        df: pd.DataFrame | pl.DataFrame,
+        market_type,
     ) -> pd.DataFrame | pl.DataFrame:
         """Convert daily OHLC data to 2-day OHLC bars with market-specific logic.
 
@@ -1165,7 +1185,10 @@ class DataProcessor:
         return two_day_data
 
     def time_operation(
-        self, operation: Callable[..., T], *args, **kwargs,
+        self,
+        operation: Callable[..., T],
+        *args,
+        **kwargs,
     ) -> tuple[T, float]:
         """Time the execution of an operation.
 
@@ -1183,7 +1206,8 @@ class DataProcessor:
         execution_time = end_time - start_time
 
         self.log(
-            f"Operation {operation.__name__} took {execution_time:.4f} seconds", "info",
+            f"Operation {operation.__name__} took {execution_time:.4f} seconds",
+            "info",
         )
 
         return result, execution_time
@@ -1193,7 +1217,8 @@ class DataProcessor:
 
 
 def ensure_polars(
-    df: pd.DataFrame | pl.DataFrame, log: Callable | None | None = None,
+    df: pd.DataFrame | pl.DataFrame,
+    log: Callable | None | None = None,
 ) -> pl.DataFrame:
     """Ensure a DataFrame is a polars DataFrame.
 
@@ -1209,7 +1234,8 @@ def ensure_polars(
 
 
 def ensure_pandas(
-    df: pd.DataFrame | pl.DataFrame, log: Callable | None | None = None,
+    df: pd.DataFrame | pl.DataFrame,
+    log: Callable | None | None = None,
 ) -> pd.DataFrame:
     """Ensure a DataFrame is a pandas DataFrame.
 
@@ -1225,7 +1251,8 @@ def ensure_pandas(
 
 
 def optimize_dataframe(
-    df: pd.DataFrame | pl.DataFrame, log: Callable | None | None = None,
+    df: pd.DataFrame | pl.DataFrame,
+    log: Callable | None | None = None,
 ) -> pd.DataFrame | pl.DataFrame:
     """Optimize a DataFrame for memory usage.
 

@@ -80,7 +80,9 @@ class PositionService:
     """
 
     def __init__(
-        self, config: TradingSystemConfig = None, logger: logging.Logger | None = None,
+        self,
+        config: TradingSystemConfig = None,
+        logger: logging.Logger | None = None,
     ):
         """Initialize the position service."""
         self.config = config or TradingSystemConfig()
@@ -424,7 +426,10 @@ class PositionService:
         # Calculate basic metrics if we have exit data
         if exit_price is not None and entry_price is not None:
             pnl, return_pct = self.calculator.calculate_pnl_and_return(
-                entry_price, exit_price, position_size, direction,
+                entry_price,
+                exit_price,
+                position_size,
+                direction,
             )
             position_data["PnL"] = pnl
             position_data["Return"] = return_pct
@@ -440,7 +445,11 @@ class PositionService:
         # Calculate MFE/MAE if we have price data
         try:
             mfe, mae, mfe_mae_ratio = self.calculate_mfe_mae(
-                ticker, entry_date, exit_date or "", entry_price, direction,
+                ticker,
+                entry_date,
+                exit_date or "",
+                entry_price,
+                direction,
             )
 
             if mfe is not None and mae is not None:
@@ -451,13 +460,16 @@ class PositionService:
                 # Calculate exit efficiency if closed position
                 if exit_price is not None:
                     exit_efficiency = self.calculator.calculate_exit_efficiency(
-                        position_data["Return"], mfe,
+                        position_data["Return"],
+                        mfe,
                     )
                     position_data["Exit_Efficiency_Fixed"] = exit_efficiency
 
                 # Assess trade quality
                 trade_quality = self.calculator.assess_trade_quality(
-                    mfe, mae, position_data.get("Return"),
+                    mfe,
+                    mae,
+                    position_data.get("Return"),
                 )
                 position_data["Trade_Quality"] = trade_quality
 
@@ -568,7 +580,9 @@ class PositionService:
             "Position_UUID" in df.columns
             and position_uuid in df["Position_UUID"].values
         ):
-            msg = f"Position {position_uuid} already exists in portfolio {portfolio_name}"
+            msg = (
+                f"Position {position_uuid} already exists in portfolio {portfolio_name}"
+            )
             raise PortfolioError(
                 msg,
             )
@@ -637,7 +651,10 @@ class PositionService:
         direction = position["Direction"]
 
         pnl, return_pct = self.calculator.calculate_pnl_and_return(
-            entry_price, exit_price, position_size, direction,
+            entry_price,
+            exit_price,
+            position_size,
+            direction,
         )
 
         df.loc[position_idx, "PnL"] = pnl
@@ -660,13 +677,16 @@ class PositionService:
 
                 # Calculate exit efficiency
                 exit_efficiency = self.calculator.calculate_exit_efficiency(
-                    return_pct, mfe,
+                    return_pct,
+                    mfe,
                 )
                 df.loc[position_idx, "Exit_Efficiency_Fixed"] = exit_efficiency
 
                 # Assess trade quality
                 trade_quality = self.calculator.assess_trade_quality(
-                    mfe, mae, return_pct,
+                    mfe,
+                    mae,
+                    return_pct,
                 )
                 df.loc[position_idx, "Trade_Quality"] = trade_quality
 
@@ -695,7 +715,9 @@ class PositionService:
         }
 
     def list_positions(
-        self, portfolio_name: str, status_filter: str | None = None,
+        self,
+        portfolio_name: str,
+        status_filter: str | None = None,
     ) -> list[dict[str, Any]]:
         """
         List all positions in a portfolio.

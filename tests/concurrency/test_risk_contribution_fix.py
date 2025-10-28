@@ -34,7 +34,9 @@ class TestRiskContributionCalculator:
 
         calculator = RiskContributionCalculator()
         metrics = calculator.calculate_portfolio_metrics(
-            returns, weights, strategy_names,
+            returns,
+            weights,
+            strategy_names,
         )
 
         # Extract risk contribution percentages
@@ -46,7 +48,9 @@ class TestRiskContributionCalculator:
         # Assert sum equals 1.0
         total = sum(risk_contribs)
         assert np.isclose(
-            total, 1.0, rtol=1e-5,
+            total,
+            1.0,
+            rtol=1e-5,
         ), f"Risk contributions sum to {total}, expected 1.0"
 
     def test_risk_contributions_with_correlation(self):
@@ -69,7 +73,9 @@ class TestRiskContributionCalculator:
 
         calculator = RiskContributionCalculator()
         metrics = calculator.calculate_portfolio_metrics(
-            returns, weights, strategy_names,
+            returns,
+            weights,
+            strategy_names,
         )
 
         # With perfect correlation, risk contributions should be proportional to
@@ -107,7 +113,9 @@ class TestRiskContributionCalculator:
 
         calculator = RiskContributionCalculator()
         metrics = calculator.calculate_portfolio_metrics(
-            returns, weights, strategy_names,
+            returns,
+            weights,
+            strategy_names,
         )
 
         # Verify sum to 1.0
@@ -133,7 +141,9 @@ class TestRiskContributionCalculator:
 
         calculator = RiskContributionCalculator()
         metrics = calculator.calculate_portfolio_metrics(
-            returns, weights, strategy_names,
+            returns,
+            weights,
+            strategy_names,
         )
 
         # Single strategy should have 100% risk contribution
@@ -193,7 +203,10 @@ class TestRiskContributionCalculator:
         # Calculate risk metrics
         risk_metrics = (
             RiskContributionCalculator.calculate_risk_metrics_from_dataframes(
-                position_arrays, data_list, strategy_allocations, strategy_names,
+                position_arrays,
+                data_list,
+                strategy_allocations,
+                strategy_names,
             )
         )
 
@@ -249,7 +262,10 @@ class TestRiskContributionCalculator:
 
         # Test that fixed implementation is always used
         result = calculate_risk_contributions_fixed(
-            position_arrays, data_list, strategy_allocations, mock_log,
+            position_arrays,
+            data_list,
+            strategy_allocations,
+            mock_log,
         )
 
         # Check logs indicate fixed usage
@@ -261,7 +277,9 @@ class TestRiskContributionCalculator:
             total = sum(risk_contribs)
             # With fixed implementation, should be close to 1.0
             assert np.isclose(
-                total, 1.0, rtol=0.01,
+                total,
+                1.0,
+                rtol=0.01,
             ), f"Risk contributions sum to {total*100:.2f}%"
 
     def test_extreme_allocations(self):
@@ -278,7 +296,9 @@ class TestRiskContributionCalculator:
 
         calculator = RiskContributionCalculator()
         metrics = calculator.calculate_portfolio_metrics(
-            returns, weights, strategy_names,
+            returns,
+            weights,
+            strategy_names,
         )
 
         # Verify sum to 1.0
@@ -305,7 +325,9 @@ class TestRiskContributionCalculator:
 
         calculator = RiskContributionCalculator()
         metrics = calculator.calculate_portfolio_metrics(
-            returns, weights, strategy_names,
+            returns,
+            weights,
+            strategy_names,
         )
 
         # With zero returns, portfolio volatility should be zero

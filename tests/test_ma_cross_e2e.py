@@ -286,7 +286,10 @@ class TestWorkflowErrorScenarios(TestMACrossWorkflowE2E):
                 orchestrator.run(sample_config)
 
     def test_portfolio_processing_failure(
-        self, sample_config, sample_price_data, mock_log,
+        self,
+        sample_config,
+        sample_price_data,
+        mock_log,
     ):
         """Test workflow when portfolio processing fails."""
 
@@ -306,7 +309,11 @@ class TestWorkflowErrorScenarios(TestMACrossWorkflowE2E):
                 orchestrator.run(sample_config)
 
     def test_filtering_failure(
-        self, sample_config, sample_price_data, sample_portfolio_data, mock_log,
+        self,
+        sample_config,
+        sample_price_data,
+        sample_portfolio_data,
+        mock_log,
     ):
         """Test workflow when filtering fails."""
 
@@ -421,7 +428,11 @@ class TestWorkflowPerformance(TestMACrossWorkflowE2E):
             assert result is not None
 
     def test_memory_usage(
-        self, sample_config, sample_price_data, sample_portfolio_data, mock_log,
+        self,
+        sample_config,
+        sample_price_data,
+        sample_portfolio_data,
+        mock_log,
     ):
         """Test memory usage during workflow execution."""
         import os

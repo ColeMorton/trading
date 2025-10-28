@@ -28,7 +28,10 @@ class PriceDataIntegration:
         self.cache_enabled = cache_enabled
 
     def _create_config(
-        self, refresh: bool = False, use_hourly: bool = False, period: str = "max",
+        self,
+        refresh: bool = False,
+        use_hourly: bool = False,
+        period: str = "max",
     ) -> DataConfig:
         """Create standardized data configuration.
 
@@ -85,7 +88,9 @@ class PriceDataIntegration:
             raise ValueError(msg)
 
     def get_multiple_prices(
-        self, symbols: list[str], use_cache: bool = True,
+        self,
+        symbols: list[str],
+        use_cache: bool = True,
     ) -> dict[str, float]:
         """Get current prices for multiple symbols.
 
@@ -114,7 +119,10 @@ class PriceDataIntegration:
         return prices
 
     def get_historical_data(
-        self, symbol: str, period: str = "1y", use_hourly: bool = False,
+        self,
+        symbol: str,
+        period: str = "1y",
+        use_hourly: bool = False,
     ) -> pl.DataFrame:
         """Get historical price data for analysis.
 
@@ -127,7 +135,9 @@ class PriceDataIntegration:
             Polars DataFrame with historical OHLCV data
         """
         config = self._create_config(
-            refresh=False, use_hourly=use_hourly, period=period,
+            refresh=False,
+            use_hourly=use_hourly,
+            period=period,
         )
 
         data = get_data(symbol, config, self._silent_log)

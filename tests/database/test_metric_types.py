@@ -80,7 +80,9 @@ class TestStrategySweepResultMetricModel:
         sweep_id = uuid4()
 
         junction = StrategySweepResultMetric(
-            id=1, sweep_result_id=sweep_id, metric_type_id=5,
+            id=1,
+            sweep_result_id=sweep_id,
+            metric_type_id=5,
         )
 
         repr_str = repr(junction)

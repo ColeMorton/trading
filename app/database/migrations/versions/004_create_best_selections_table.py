@@ -76,7 +76,9 @@ def upgrade() -> None:
 
     # Create index on algorithm_code
     op.create_index(
-        "ix_selection_algorithms_code", "selection_algorithms", ["algorithm_code"],
+        "ix_selection_algorithms_code",
+        "selection_algorithms",
+        ["algorithm_code"],
     )
 
     # Populate selection_algorithms with predefined values
@@ -110,12 +112,18 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer, primary_key=True, autoincrement=True),
         # Core identifiers
         sa.Column(
-            "sweep_run_id", postgresql.UUID(as_uuid=True), nullable=False, index=True,
+            "sweep_run_id",
+            postgresql.UUID(as_uuid=True),
+            nullable=False,
+            index=True,
         ),
         sa.Column("ticker_id", sa.Integer, nullable=False, index=True),
         sa.Column("strategy_type", sa.String(50), nullable=False),
         sa.Column(
-            "best_result_id", postgresql.UUID(as_uuid=True), nullable=False, index=True,
+            "best_result_id",
+            postgresql.UUID(as_uuid=True),
+            nullable=False,
+            index=True,
         ),
         # Selection algorithm metadata
         sa.Column("selection_algorithm", sa.String(50), nullable=False),
@@ -133,7 +141,10 @@ def upgrade() -> None:
         sa.Column("result_win_rate_pct", sa.Numeric(10, 4), nullable=True),
         # Audit timestamp
         sa.Column(
-            "created_at", sa.DateTime, nullable=False, server_default=sa.text("now()"),
+            "created_at",
+            sa.DateTime,
+            nullable=False,
+            server_default=sa.text("now()"),
         ),
         # Foreign keys
         sa.ForeignKeyConstraint(
@@ -143,7 +154,9 @@ def upgrade() -> None:
             ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(
-            ["ticker_id"], ["tickers.id"], name="fk_best_selections_ticker_id",
+            ["ticker_id"],
+            ["tickers.id"],
+            name="fk_best_selections_ticker_id",
         ),
     )
 
@@ -172,10 +185,14 @@ def downgrade() -> None:
         type_="unique",
     )
     op.drop_constraint(
-        "fk_best_selections_ticker_id", "sweep_best_selections", type_="foreignkey",
+        "fk_best_selections_ticker_id",
+        "sweep_best_selections",
+        type_="foreignkey",
     )
     op.drop_constraint(
-        "fk_best_selections_result_id", "sweep_best_selections", type_="foreignkey",
+        "fk_best_selections_result_id",
+        "sweep_best_selections",
+        type_="foreignkey",
     )
     op.drop_table("sweep_best_selections")
 

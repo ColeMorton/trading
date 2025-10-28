@@ -35,13 +35,20 @@ class ProgressTrackerInterface(ABC):
 
     @abstractmethod
     async def track(
-        self, task_id: str, operation: str, total_items: int | None | None = None,
+        self,
+        task_id: str,
+        operation: str,
+        total_items: int | None | None = None,
     ) -> None:
         """Start tracking a new operation."""
 
     @abstractmethod
     async def update(
-        self, task_id: str, progress: float, message: str, status: str = "running",
+        self,
+        task_id: str,
+        progress: float,
+        message: str,
+        status: str = "running",
     ) -> None:
         """Update progress for a task."""
 

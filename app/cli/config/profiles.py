@@ -29,18 +29,22 @@ class ProfileMetadata(BaseModel):
     name: str = Field(description="Profile name")
     description: str | None = Field(default=None, description="Profile description")
     created_at: datetime = Field(
-        default_factory=datetime.now, description="Creation timestamp",
+        default_factory=datetime.now,
+        description="Creation timestamp",
     )
     updated_at: datetime = Field(
-        default_factory=datetime.now, description="Last update timestamp",
+        default_factory=datetime.now,
+        description="Last update timestamp",
     )
     version: str = Field(default="1.0", description="Profile version")
     tags: list[str] = Field(
-        default_factory=list, description="Profile tags for organization",
+        default_factory=list,
+        description="Profile tags for organization",
     )
     author: str | None = Field(default=None, description="Profile author")
     is_template: bool = Field(
-        default=False, description="Whether this is a base template profile",
+        default=False,
+        description="Whether this is a base template profile",
     )
 
 
@@ -137,13 +141,17 @@ class ProfileConfig(BaseModel):
         description="Directory containing profile files",
     )
     default_profile: str | None = Field(
-        default=None, description="Default profile name to use",
+        default=None,
+        description="Default profile name to use",
     )
     auto_save: bool = Field(
-        default=True, description="Automatically save profile changes",
+        default=True,
+        description="Automatically save profile changes",
     )
     backup_count: int = Field(
-        default=5, ge=0, description="Number of backup copies to keep",
+        default=5,
+        ge=0,
+        description="Number of backup copies to keep",
     )
 
     @field_validator("profiles_dir", mode="before")

@@ -55,7 +55,8 @@ def _validate_portfolio_schema(
             log(error_msg, "error")
         # In Phase 3, we implement fail-fast validation
         raise PortfolioSchemaValidationError(
-            error_msg, {"errors": errors, "schema": expected_schema.name},
+            error_msg,
+            {"errors": errors, "schema": expected_schema.name},
         )
 
     if log:
@@ -65,7 +66,9 @@ def _validate_portfolio_schema(
 
 
 def _validate_canonical_ordering(
-    df: pl.DataFrame, expected_schema: SchemaType, log: Callable | None = None,
+    df: pl.DataFrame,
+    expected_schema: SchemaType,
+    log: Callable | None = None,
 ) -> tuple[bool, list[str]]:
     """
     Perform strict canonical ordering validation on DataFrame.
@@ -321,10 +324,12 @@ def export_portfolios(
 
         if log:
             log(
-                "No portfolios to export - creating empty CSV with headers only", "info",
+                "No portfolios to export - creating empty CSV with headers only",
+                "info",
             )
             log(
-                f"Using {target_schema_type.name} schema for empty file headers", "info",
+                f"Using {target_schema_type.name} schema for empty file headers",
+                "info",
             )
 
         # Get schema-specific column names instead of generic CANONICAL_COLUMN_NAMES
@@ -497,7 +502,8 @@ def export_portfolios(
                 log(f"Aggregating {len(pre_agg_portfolios)} portfolios", "debug")
 
             aggregated_portfolios = deduplicate_and_aggregate_portfolios(
-                pre_agg_portfolios, log,
+                pre_agg_portfolios,
+                log,
             )
             df = pl.DataFrame(aggregated_portfolios)
 
@@ -663,7 +669,8 @@ def export_portfolios(
 
                     # Preserve existing metric type if present (critical for aggregated portfolios)
                     existing_metric_type = portfolio_dict.get(
-                        "Metric Type", "Most Total Return [%]",
+                        "Metric Type",
+                        "Most Total Return [%]",
                     )
 
                     normalized_portfolio = transformer.normalize_to_schema(
@@ -675,7 +682,10 @@ def export_portfolios(
 
                     # Step 2: Mandatory schema validation (Phase 3 enhancement)
                     _validate_portfolio_schema(
-                        normalized_portfolio, target_schema_type, transformer, log,
+                        normalized_portfolio,
+                        target_schema_type,
+                        transformer,
+                        log,
                     )
 
                     portfolios_normalized.append(normalized_portfolio)
@@ -701,7 +711,9 @@ def export_portfolios(
 
             # Phase 3: Strict canonical ordering validation
             ordering_valid, ordering_errors = _validate_canonical_ordering(
-                df, target_schema_type, log,
+                df,
+                target_schema_type,
+                log,
             )
             if not ordering_valid:
                 error_msg = f"Canonical ordering validation failed: {'; '.join(ordering_errors)}"

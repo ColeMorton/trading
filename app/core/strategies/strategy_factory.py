@@ -54,7 +54,8 @@ class StrategyFactory:
 
     @staticmethod
     def validate_strategy_config(
-        strategy_type: StrategyTypeEnum, config: dict[str, Any],
+        strategy_type: StrategyTypeEnum,
+        config: dict[str, Any],
     ) -> bool:
         """Validate configuration for a specific strategy type.
 

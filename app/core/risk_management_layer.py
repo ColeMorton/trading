@@ -97,7 +97,8 @@ class RiskMetrics(BaseModel):
     # Drawdown Metrics
     max_drawdown: float = Field(..., description="Maximum drawdown percentage")
     max_drawdown_duration: int = Field(
-        ..., description="Maximum drawdown duration in periods",
+        ...,
+        description="Maximum drawdown duration in periods",
     )
     current_drawdown: float = Field(..., description="Current drawdown percentage")
 
@@ -164,7 +165,12 @@ class PositionSizer:
                     msg,
                 )
             return self._kelly_criterion_sizing(
-                portfolio_value, entry_price, stop_loss, win_rate, avg_win, avg_loss,
+                portfolio_value,
+                entry_price,
+                stop_loss,
+                win_rate,
+                avg_win,
+                avg_loss,
             )
 
         if method == PositionSizingMethod.VOLATILITY_TARGET:
@@ -174,7 +180,9 @@ class PositionSizer:
                     msg,
                 )
             return self._volatility_target_sizing(
-                portfolio_value, entry_price, volatility,
+                portfolio_value,
+                entry_price,
+                volatility,
             )
 
         if method == PositionSizingMethod.MAX_DRAWDOWN_TARGET:
@@ -184,7 +192,9 @@ class PositionSizer:
         raise ValueError(msg)
 
     def _fixed_percentage_sizing(
-        self, portfolio_value: float, entry_price: float,
+        self,
+        portfolio_value: float,
+        entry_price: float,
     ) -> dict[str, Any]:
         """Fixed percentage position sizing."""
         dollar_amount = portfolio_value * self.risk_params.max_position_size
@@ -227,7 +237,8 @@ class PositionSizer:
         # Apply safety factor and limits
         safety_factor = 0.25  # Use 25% of Kelly for safety
         kelly_fraction = max(
-            0, min(kelly_fraction * safety_factor, self.risk_params.max_position_size),
+            0,
+            min(kelly_fraction * safety_factor, self.risk_params.max_position_size),
         )
 
         dollar_amount = portfolio_value * kelly_fraction
@@ -253,13 +264,17 @@ class PositionSizer:
         }
 
     def _volatility_target_sizing(
-        self, portfolio_value: float, entry_price: float, volatility: float,
+        self,
+        portfolio_value: float,
+        entry_price: float,
+        volatility: float,
     ) -> dict[str, Any]:
         """Volatility target position sizing."""
         # Size position to achieve target portfolio volatility
         target_vol = self.risk_params.volatility_target
         position_vol_contribution = min(
-            target_vol / volatility, self.risk_params.max_position_size,
+            target_vol / volatility,
+            self.risk_params.max_position_size,
         )
 
         dollar_amount = portfolio_value * position_vol_contribution
@@ -277,7 +292,10 @@ class PositionSizer:
         }
 
     def _max_drawdown_sizing(
-        self, portfolio_value: float, entry_price: float, stop_loss: float,
+        self,
+        portfolio_value: float,
+        entry_price: float,
+        stop_loss: float,
     ) -> dict[str, Any]:
         """Position sizing based on maximum drawdown target."""
         # Size position so that stop loss hit equals portfolio heat
@@ -529,7 +547,9 @@ class RiskManagementLayer:
     ) -> RiskMetrics:
         """Assess comprehensive risk metrics for a strategy."""
         return self.calculator.calculate_comprehensive_metrics(
-            returns, trades, benchmark_returns,
+            returns,
+            trades,
+            benchmark_returns,
         )
 
     def calculate_position_size(
@@ -542,7 +562,11 @@ class RiskManagementLayer:
     ) -> dict[str, Any]:
         """Calculate optimal position size using specified method."""
         return self.position_sizer.calculate_position_size(
-            method, portfolio_value, entry_price, stop_loss, **kwargs,
+            method,
+            portfolio_value,
+            entry_price,
+            stop_loss,
+            **kwargs,
         )
 
     def validate_trade(
@@ -612,7 +636,8 @@ class RiskManagementLayer:
         return validation_result
 
     def get_portfolio_risk_summary(
-        self, positions: list[dict[str, Any]],
+        self,
+        positions: list[dict[str, Any]],
     ) -> dict[str, Any]:
         """
         Calculate portfolio-level risk summary.

@@ -100,7 +100,8 @@ app.add_middleware(SSERateLimiter)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(
-    request: Request, exc: RequestValidationError,
+    request: Request,
+    exc: RequestValidationError,
 ) -> JSONResponse:
     """Handle validation errors with detailed field information."""
     error_resp = ErrorResponse(
@@ -130,7 +131,9 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
         detail = "An unexpected error occurred"
 
     error_resp = ErrorResponse(
-        error="Internal Server Error", detail=detail, code="INTERNAL_ERROR",
+        error="Internal Server Error",
+        detail=detail,
+        code="INTERNAL_ERROR",
     )
     # Convert to dict and manually serialize datetime
     content = error_resp.model_dump()
@@ -211,18 +214,26 @@ from .routers import (
 
 
 app.include_router(
-    auth.router, prefix=f"{settings.API_V1_PREFIX}/auth", tags=["Authentication"],
+    auth.router,
+    prefix=f"{settings.API_V1_PREFIX}/auth",
+    tags=["Authentication"],
 )
 app.include_router(sse_proxy.router, prefix="/sse-proxy", tags=["SSE Proxy"])
 app.include_router(jobs.router, prefix=f"{settings.API_V1_PREFIX}/jobs", tags=["Jobs"])
 app.include_router(
-    strategy.router, prefix=f"{settings.API_V1_PREFIX}/strategy", tags=["Strategy"],
+    strategy.router,
+    prefix=f"{settings.API_V1_PREFIX}/strategy",
+    tags=["Strategy"],
 )
 app.include_router(
-    sweeps.router, prefix=f"{settings.API_V1_PREFIX}/sweeps", tags=["Sweeps"],
+    sweeps.router,
+    prefix=f"{settings.API_V1_PREFIX}/sweeps",
+    tags=["Sweeps"],
 )
 app.include_router(
-    config.router, prefix=f"{settings.API_V1_PREFIX}/config", tags=["Config"],
+    config.router,
+    prefix=f"{settings.API_V1_PREFIX}/config",
+    tags=["Config"],
 )
 app.include_router(
     concurrency.router,

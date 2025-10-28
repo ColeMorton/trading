@@ -18,32 +18,25 @@ class ATRError(Exception):
     """Base exception for ATR strategy errors."""
 
 
-
 class ATRConfigurationError(ATRError, ConfigurationError):
     """Exception raised for ATR configuration errors."""
-
 
 
 class ATRExecutionError(ATRError, StrategyProcessingError):
     """Exception raised for ATR strategy execution errors."""
 
 
-
 class ATRPortfolioError(ATRError, PortfolioLoadError):
     """Exception raised for ATR portfolio processing errors."""
-
 
 
 class ATRDataError(ATRError):
     """Exception raised for ATR data processing errors."""
 
 
-
 class ATRSyntheticTickerError(ATRError, SyntheticTickerError):
     """Exception raised for ATR synthetic ticker errors."""
 
 
-
 class ATRExportError(ATRError, ExportError):
     """Exception raised for ATR export errors."""
-

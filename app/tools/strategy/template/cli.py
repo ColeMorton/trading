@@ -48,7 +48,8 @@ class StrategyTemplateCLI:
 
         # Create strategy command
         create_parser = subparsers.add_parser(
-            "create", help="Create a new strategy from template",
+            "create",
+            help="Create a new strategy from template",
         )
         self._add_create_arguments(create_parser)
         create_parser.set_defaults(func=self._create_strategy)
@@ -59,17 +60,21 @@ class StrategyTemplateCLI:
 
         # Info command
         info_parser = subparsers.add_parser(
-            "info", help="Get information about a strategy",
+            "info",
+            help="Get information about a strategy",
         )
         info_parser.add_argument("strategy_name", help="Name of the strategy")
         info_parser.set_defaults(func=self._strategy_info)
 
         # Interactive command
         interactive_parser = subparsers.add_parser(
-            "interactive", help="Interactive strategy creation wizard",
+            "interactive",
+            help="Interactive strategy creation wizard",
         )
         interactive_parser.add_argument(
-            "--overwrite", action="store_true", help="Overwrite existing strategy",
+            "--overwrite",
+            action="store_true",
+            help="Overwrite existing strategy",
         )
         interactive_parser.add_argument(
             "--dry-run",
@@ -83,7 +88,8 @@ class StrategyTemplateCLI:
     def _add_create_arguments(self, parser: argparse.ArgumentParser):
         """Add arguments for create command."""
         parser.add_argument(
-            "strategy_name", help="Name of the strategy (e.g., my_custom_strategy)",
+            "strategy_name",
+            help="Name of the strategy (e.g., my_custom_strategy)",
         )
 
         parser.add_argument(
@@ -131,11 +137,15 @@ class StrategyTemplateCLI:
         )
 
         parser.add_argument(
-            "--no-stop-loss", action="store_true", help="Disable stop loss",
+            "--no-stop-loss",
+            action="store_true",
+            help="Disable stop loss",
         )
 
         parser.add_argument(
-            "--no-take-profit", action="store_true", help="Disable take profit",
+            "--no-take-profit",
+            action="store_true",
+            help="Disable take profit",
         )
 
         parser.add_argument(
@@ -146,7 +156,9 @@ class StrategyTemplateCLI:
         )
 
         parser.add_argument(
-            "--overwrite", action="store_true", help="Overwrite existing strategy",
+            "--overwrite",
+            action="store_true",
+            help="Overwrite existing strategy",
         )
 
         parser.add_argument(
@@ -196,7 +208,9 @@ class StrategyTemplateCLI:
                     print(f"  - {file_path}")
             else:
                 result = self.generator.generate_strategy(
-                    config, overwrite=args.overwrite, dry_run=False,
+                    config,
+                    overwrite=args.overwrite,
+                    dry_run=False,
                 )
 
                 print(f"✅ Successfully created strategy '{args.strategy_name}'")
@@ -306,7 +320,9 @@ class StrategyTemplateCLI:
                 return
 
             result = self.generator.generate_strategy(
-                config, overwrite=args.overwrite, dry_run=False,
+                config,
+                overwrite=args.overwrite,
+                dry_run=False,
             )
 
             print(f"\n✅ Strategy '{strategy_name}' created successfully!")

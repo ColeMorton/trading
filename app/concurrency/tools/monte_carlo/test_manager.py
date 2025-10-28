@@ -71,7 +71,9 @@ class TestPortfolioMonteCarloManager(unittest.TestCase):
         )
 
         self.manager = PortfolioMonteCarloManager(
-            config=self.config, max_workers=2, log=Mock(),  # Mock logging
+            config=self.config,
+            max_workers=2,
+            log=Mock(),  # Mock logging
         )
 
     def test_disabled_analysis(self):

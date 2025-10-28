@@ -535,7 +535,9 @@ class TestErrorHandling:
 
         # This should trigger exception handling
         with pytest.patch.object(
-            analyzer, "_score_momentum", side_effect=Exception("Test error"),
+            analyzer,
+            "_score_momentum",
+            side_effect=Exception("Test error"),
         ):
             signal, confidence, reasoning = analyzer.generate_recommendation(
                 {"test": "data"},

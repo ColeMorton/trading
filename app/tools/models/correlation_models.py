@@ -51,14 +51,18 @@ class CorrelationResult(BaseModel):
 
     # Correlation statistics
     correlation_coefficient: float = Field(
-        description="Correlation coefficient", ge=-1, le=1,
+        description="Correlation coefficient",
+        ge=-1,
+        le=1,
     )
     p_value: float = Field(description="Statistical p-value", ge=0, le=1)
     confidence_interval_lower: float | None = Field(
-        description="Lower confidence interval", default=None,
+        description="Lower confidence interval",
+        default=None,
     )
     confidence_interval_upper: float | None = Field(
-        description="Upper confidence interval", default=None,
+        description="Upper confidence interval",
+        default=None,
     )
 
     # Classification
@@ -72,15 +76,21 @@ class CorrelationResult(BaseModel):
     # Sample information
     sample_size: int = Field(description="Sample size used", gt=0)
     effective_sample_size: int | None = Field(
-        description="Effective sample size (adjusted)", default=None,
+        description="Effective sample size (adjusted)",
+        default=None,
     )
 
     # Quality metrics
     data_quality_score: float = Field(
-        description="Data quality score", ge=0, le=1, default=1.0,
+        description="Data quality score",
+        ge=0,
+        le=1,
+        default=1.0,
     )
     outlier_count: int = Field(
-        description="Number of outliers detected", ge=0, default=0,
+        description="Number of outliers detected",
+        ge=0,
+        default=0,
     )
 
     # Temporal information
@@ -88,7 +98,8 @@ class CorrelationResult(BaseModel):
         description="When correlation was calculated",
     )
     data_period_start: date | None = Field(
-        description="Start of data period", default=None,
+        description="Start of data period",
+        default=None,
     )
     data_period_end: date | None = Field(description="End of data period", default=None)
 
@@ -104,7 +115,8 @@ class CorrelationMatrix(BaseModel):
         description="Correlation matrix as nested dict",
     )
     p_value_matrix: dict[str, dict[str, float]] | None = Field(
-        description="P-value matrix", default=None,
+        description="P-value matrix",
+        default=None,
     )
 
     # Matrix statistics
@@ -122,12 +134,14 @@ class CorrelationMatrix(BaseModel):
     sample_size: int = Field(description="Sample size used", gt=0)
     matrix_rank: int | None = Field(description="Matrix rank", default=None)
     condition_number: float | None = Field(
-        description="Matrix condition number", default=None,
+        description="Matrix condition number",
+        default=None,
     )
 
     # Quality metrics
     missing_pairs: list[str] = Field(
-        description="Pairs with insufficient data", default_factory=list,
+        description="Pairs with insufficient data",
+        default_factory=list,
     )
     calculation_timestamp: datetime = Field(description="Matrix calculation timestamp")
 
@@ -164,10 +178,13 @@ class CrossStrategyCorrelation(BaseModel):
 
     # Performance implications
     diversification_score: float = Field(
-        description="Portfolio diversification score", ge=0, le=1,
+        description="Portfolio diversification score",
+        ge=0,
+        le=1,
     )
     concentration_risk: float = Field(
-        description="Correlation concentration risk", ge=0,
+        description="Correlation concentration risk",
+        ge=0,
     )
 
     # Metadata
@@ -198,7 +215,9 @@ class TimeframeCorrelation(BaseModel):
 
     # Convergence analysis
     convergence_score: float = Field(
-        description="Multi-timeframe convergence score", ge=0, le=1,
+        description="Multi-timeframe convergence score",
+        ge=0,
+        le=1,
     )
     divergence_periods: list[dict[str, Any]] = Field(
         description="Periods of timeframe divergence",
@@ -235,7 +254,9 @@ class DynamicCorrelation(BaseModel):
 
     # Stability metrics
     stability_score: float = Field(
-        description="Correlation stability score", ge=0, le=1,
+        description="Correlation stability score",
+        ge=0,
+        le=1,
     )
     volatility_score: float = Field(description="Correlation volatility score", ge=0)
 
@@ -273,10 +294,12 @@ class PatternResult(BaseModel):
         description="IDs of similar historical patterns",
     )
     pattern_outcome: str | None = Field(
-        description="Historical outcome of pattern", default=None,
+        description="Historical outcome of pattern",
+        default=None,
     )
     success_rate: float | None = Field(
-        description="Historical success rate", default=None,
+        description="Historical success rate",
+        default=None,
     )
 
     # Detection metadata
@@ -298,7 +321,8 @@ class SignificanceTestResult(BaseModel):
     # Test parameters
     alpha: float = Field(description="Significance level", gt=0, lt=1, default=0.05)
     degrees_of_freedom: int | None = Field(
-        description="Degrees of freedom", default=None,
+        description="Degrees of freedom",
+        default=None,
     )
 
     # Test result
@@ -312,13 +336,15 @@ class SignificanceTestResult(BaseModel):
     # Effect size
     effect_size: float | None = Field(description="Effect size measure", default=None)
     effect_size_interpretation: str | None = Field(
-        description="Effect size interpretation", default=None,
+        description="Effect size interpretation",
+        default=None,
     )
 
     # Test assumptions
     assumptions_met: dict[str, bool] = Field(description="Test assumption validation")
     assumption_warnings: list[str] = Field(
-        description="Assumption violations", default_factory=list,
+        description="Assumption violations",
+        default_factory=list,
     )
 
     # Sample information
@@ -379,16 +405,20 @@ class ThresholdOptimizationResult(BaseModel):
 
     # Validation
     cross_validation_score: float | None = Field(
-        description="Cross-validation score", default=None,
+        description="Cross-validation score",
+        default=None,
     )
     out_of_sample_performance: float | None = Field(
-        description="Out-of-sample performance", default=None,
+        description="Out-of-sample performance",
+        default=None,
     )
 
     # Risk assessment
     overfitting_risk: float = Field(description="Overfitting risk score", ge=0, le=1)
     robustness_score: float = Field(
-        description="Threshold robustness score", ge=0, le=1,
+        description="Threshold robustness score",
+        ge=0,
+        le=1,
     )
 
     # Metadata
@@ -407,13 +437,17 @@ class ConvergenceAnalysisResult(BaseModel):
 
     # Convergence metrics
     overall_convergence_score: float = Field(
-        description="Overall convergence score", ge=0, le=1,
+        description="Overall convergence score",
+        ge=0,
+        le=1,
     )
     dimensional_convergence: dict[str, float] = Field(
         description="Convergence by dimension",
     )
     convergence_stability: float = Field(
-        description="Convergence stability over time", ge=0, le=1,
+        description="Convergence stability over time",
+        ge=0,
+        le=1,
     )
 
     # Divergence analysis
@@ -421,7 +455,8 @@ class ConvergenceAnalysisResult(BaseModel):
         description="Periods of significant divergence",
     )
     current_divergence_level: float = Field(
-        description="Current divergence level", ge=0,
+        description="Current divergence level",
+        ge=0,
     )
     divergence_trend: str = Field(description="Divergence trend direction")
 
@@ -435,7 +470,9 @@ class ConvergenceAnalysisResult(BaseModel):
 
     # Statistical significance
     convergence_p_value: float = Field(
-        description="P-value for convergence test", ge=0, le=1,
+        description="P-value for convergence test",
+        ge=0,
+        le=1,
     )
     significance_level: SignificanceLevel = Field(
         description="Statistical significance",
@@ -459,30 +496,37 @@ class ModelValidationResult(BaseModel):
         description="Cross-validation fold scores",
     )
     out_of_sample_score: float | None = Field(
-        description="Out-of-sample validation score", default=None,
+        description="Out-of-sample validation score",
+        default=None,
     )
 
     # Model diagnostics
     overfitting_score: float = Field(description="Overfitting risk score", ge=0, le=1)
     underfitting_score: float = Field(description="Underfitting risk score", ge=0, le=1)
     statistical_model_complexity: float = Field(
-        description="Model complexity measure", ge=0,
+        description="Model complexity measure",
+        ge=0,
     )
 
     # Statistical tests
     normality_test: SignificanceTestResult | None = Field(
-        description="Normality test result", default=None,
+        description="Normality test result",
+        default=None,
     )
     stationarity_test: SignificanceTestResult | None = Field(
-        description="Stationarity test result", default=None,
+        description="Stationarity test result",
+        default=None,
     )
     independence_test: SignificanceTestResult | None = Field(
-        description="Independence test result", default=None,
+        description="Independence test result",
+        default=None,
     )
 
     # Performance stability
     performance_stability: float = Field(
-        description="Performance stability score", ge=0, le=1,
+        description="Performance stability score",
+        ge=0,
+        le=1,
     )
     regime_robustness: dict[str, float] = Field(
         description="Performance across different regimes",

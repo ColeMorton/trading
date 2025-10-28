@@ -126,7 +126,9 @@ def format_status(status: str) -> Text:
 
 
 def format_signal_status(
-    entry: bool, exit: bool, unconfirmed: str | None = None,
+    entry: bool,
+    exit: bool,
+    unconfirmed: str | None = None,
 ) -> Text:
     """Format signal status with appropriate icons and colors.
 

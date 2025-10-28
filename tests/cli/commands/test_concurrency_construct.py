@@ -128,7 +128,11 @@ class TestConcurrencyConstructCommand:
     @patch("app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader")
     @patch("app.concurrency.review.run_concurrency_review")
     def test_construct_basic_success(
-        self, mock_review, mock_loader_class, runner, mock_strategies,
+        self,
+        mock_review,
+        mock_loader_class,
+        runner,
+        mock_strategies,
     ):
         """Test basic successful portfolio construction."""
         # Setup mocks
@@ -218,7 +222,11 @@ class TestConcurrencyConstructCommand:
     @patch("app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader")
     @patch("app.concurrency.review.run_concurrency_review")
     def test_construct_min_score_filter(
-        self, mock_review, mock_loader_class, runner, mock_strategies,
+        self,
+        mock_review,
+        mock_loader_class,
+        runner,
+        mock_strategies,
     ):
         """Test --min-score flag filters strategies."""
         mock_loader = mock_loader_class.return_value
@@ -242,7 +250,11 @@ class TestConcurrencyConstructCommand:
     @patch("app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader")
     @patch("app.concurrency.review.run_concurrency_review")
     def test_construct_verbose_output(
-        self, mock_review, mock_loader_class, runner, mock_strategies,
+        self,
+        mock_review,
+        mock_loader_class,
+        runner,
+        mock_strategies,
     ):
         """Test --verbose flag shows detailed output."""
         mock_loader = mock_loader_class.return_value
@@ -262,7 +274,12 @@ class TestConcurrencyConstructCommand:
     @patch("app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader")
     @patch("app.concurrency.review.run_concurrency_review")
     def test_construct_creates_temp_files_for_each_size(
-        self, mock_review, mock_loader_class, runner, mock_strategies, tmp_path,
+        self,
+        mock_review,
+        mock_loader_class,
+        runner,
+        mock_strategies,
+        tmp_path,
     ):
         """Test that separate temp files are created for portfolio sizes 5, 7, 9."""
         mock_loader = mock_loader_class.return_value
@@ -305,7 +322,8 @@ class TestConcurrencyConstructCommand:
             }
 
             result = runner.invoke(
-                concurrency_app, ["construct", "-t1", "NVDA", "-t2", "QQQ"],
+                concurrency_app,
+                ["construct", "-t1", "NVDA", "-t2", "QQQ"],
             )
 
             # Should process as synthetic pair NVDA_QQQ
@@ -341,7 +359,12 @@ class TestConcurrencyConstructCommand:
     @patch("app.concurrency.review.run_concurrency_review")
     @patch("app.cli.commands.concurrency._export_strategies_to_file")
     def test_construct_export_flag_creates_csv(
-        self, mock_export, mock_review, mock_loader_class, runner, mock_strategies,
+        self,
+        mock_export,
+        mock_review,
+        mock_loader_class,
+        runner,
+        mock_strategies,
     ):
         """Test --export flag exports strategies to CSV."""
         mock_loader = mock_loader_class.return_value
@@ -370,7 +393,8 @@ class TestConcurrencyConstructCommand:
                 mock_review.return_value = True
 
                 runner.invoke(
-                    concurrency_app, ["construct", "TEST", "--format", "table"],
+                    concurrency_app,
+                    ["construct", "TEST", "--format", "table"],
                 )
 
                 # Should produce table output (default)
@@ -388,7 +412,8 @@ class TestConcurrencyConstructCommand:
                 mock_review.return_value = True
 
                 result = runner.invoke(
-                    concurrency_app, ["construct", "TEST", "--format", "json"],
+                    concurrency_app,
+                    ["construct", "TEST", "--format", "json"],
                 )
 
                 # Output should be JSON formatted
@@ -407,7 +432,10 @@ class TestConstructPortfolioSizeComparison:
     @patch("app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader")
     @patch("app.concurrency.review.run_concurrency_review")
     def test_construct_compares_multiple_sizes(
-        self, mock_review, mock_loader_class, runner,
+        self,
+        mock_review,
+        mock_loader_class,
+        runner,
     ):
         """Test that construct compares portfolios of sizes 5, 7, and 9."""
         mock_loader = mock_loader_class.return_value
@@ -528,7 +556,10 @@ class TestConstructDiversificationSorting:
     @patch("app.concurrency.tools.asset_strategy_loader.AssetStrategyLoader")
     @patch("app.concurrency.review.run_concurrency_review")
     def test_construct_applies_diversification_weighting(
-        self, mock_review, mock_loader_class, runner,
+        self,
+        mock_review,
+        mock_loader_class,
+        runner,
     ):
         """Test that strategies are sorted by score * diversification."""
         mock_loader = mock_loader_class.return_value

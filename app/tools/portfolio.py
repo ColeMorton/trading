@@ -16,7 +16,8 @@ from app.tools.exceptions import PortfolioLoadError
 
 
 def process_portfolio_strategies(
-    strategies: list[dict[str, Any]], log: Callable,
+    strategies: list[dict[str, Any]],
+    log: Callable,
 ) -> list[dict[str, Any]]:
     """Process portfolio strategies and assign strategy IDs.
 
@@ -135,7 +136,9 @@ def load_csv_portfolio(file_path: str, config: dict[str, Any]) -> list[dict[str,
         # Normalize the data to handle both schema versions
         try:
             normalized_data = normalize_portfolio_data(
-                raw_data, schema_version, log_func,
+                raw_data,
+                schema_version,
+                log_func,
             )
 
             # Add schema version information to each row
@@ -227,7 +230,8 @@ def load_portfolio_with_logging(
 
         # Resolve portfolio path
         portfolio_path = resolve_portfolio_path(
-            portfolio_name, config.get("BASE_DIR", "."),
+            portfolio_name,
+            config.get("BASE_DIR", "."),
         )
 
         log(f"Resolved portfolio path: {portfolio_path}", "info")
@@ -281,7 +285,8 @@ def portfolio_context(
     try:
         # Resolve portfolio path
         portfolio_path = resolve_portfolio_path(
-            portfolio_name, config.get("BASE_DIR", "."),
+            portfolio_name,
+            config.get("BASE_DIR", "."),
         )
 
         log(f"Loading portfolio from {portfolio_path}", "info")

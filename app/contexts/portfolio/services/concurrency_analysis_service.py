@@ -101,14 +101,16 @@ class ConcurrencyAnalysisEngine:
             validated_config = validate_config(config)
 
             self.log(
-                f"Starting concurrency analysis for portfolio: {portfolio_path}", "info",
+                f"Starting concurrency analysis for portfolio: {portfolio_path}",
+                "info",
             )
 
             # Use memory-optimized runner if available
             if self.optimized_runner and config.get("ENABLE_MEMORY_OPTIMIZATION"):
                 self.log("Using memory-optimized analysis", "info")
                 return self.optimized_runner.run_analysis(
-                    validated_config, progress_callback,
+                    validated_config,
+                    progress_callback,
                 )
 
             # Standard analysis pipeline
@@ -146,7 +148,9 @@ class ConcurrencyAnalysisEngine:
 
             # Process strategies
             processed_data = self._process_strategies(
-                strategies, config, progress_callback,
+                strategies,
+                config,
+                progress_callback,
             )
 
             # Run concurrency analysis
@@ -158,7 +162,9 @@ class ConcurrencyAnalysisEngine:
             # Run optimization if enabled
             if self.enable_optimization or config.get("OPTIMIZE", False):
                 optimization_results = self._run_optimization(
-                    strategies, config, progress_callback,
+                    strategies,
+                    config,
+                    progress_callback,
                 )
                 report["optimization_results"] = optimization_results
 
@@ -192,16 +198,17 @@ class ConcurrencyAnalysisEngine:
             # Extract efficiency metrics
             return {
                 "portfolio_efficiency": analysis_results.get(
-                    "portfolio_efficiency", {},
+                    "portfolio_efficiency",
+                    {},
                 ),
                 "strategy_efficiencies": analysis_results.get(
-                    "strategy_efficiencies", {},
+                    "strategy_efficiencies",
+                    {},
                 ),
                 "correlation_matrix": analysis_results.get("correlation_matrix", {}),
                 "activity_periods": analysis_results.get("activity_periods", {}),
                 "concurrent_periods": analysis_results.get("concurrent_periods", {}),
             }
-
 
         except Exception as e:
             error_msg = f"Efficiency calculation failed: {e!s}"
@@ -228,7 +235,8 @@ class ConcurrencyAnalysisEngine:
         """
         try:
             self.log(
-                f"Finding optimal combination from {len(strategies)} strategies", "info",
+                f"Finding optimal combination from {len(strategies)} strategies",
+                "info",
             )
 
             # Build optimization configuration
@@ -274,7 +282,9 @@ class ConcurrencyAnalysisEngine:
         # Run optimization if enabled
         if self.enable_optimization or config.get("OPTIMIZE", False):
             optimization_results = self._run_optimization(
-                strategies, config, progress_callback,
+                strategies,
+                config,
+                progress_callback,
             )
             report["optimization_results"] = optimization_results
 
@@ -369,7 +379,8 @@ class ConcurrencyAnalysisEngine:
     ) -> dict[str, Any]:
         """Run permutation optimization using the dedicated service."""
         self.log(
-            "Running strategy optimization using PermutationOptimizationService", "info",
+            "Running strategy optimization using PermutationOptimizationService",
+            "info",
         )
 
         try:
@@ -425,7 +436,8 @@ class ConcurrencyAnalysisEngine:
             return optimization_results
 
     def _build_config(
-        self, config_overrides: dict[str, Any] | None = None,
+        self,
+        config_overrides: dict[str, Any] | None = None,
     ) -> ConcurrencyConfig:
         """Build configuration with defaults and overrides."""
         # Start with default configuration

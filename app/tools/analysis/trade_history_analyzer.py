@@ -61,7 +61,9 @@ class TradeHistoryAnalyzer:
         self.logger.info("TradeHistoryAnalyzer initialized")
 
     async def analyze_strategy_trades(
-        self, strategy_name: str, ticker: str,
+        self,
+        strategy_name: str,
+        ticker: str,
     ) -> dict[str, Any]:
         """
         Analyze all trades for a specific strategy and ticker
@@ -133,7 +135,9 @@ class TradeHistoryAnalyzer:
             raise
 
     async def get_trade_metrics(
-        self, strategy_name: str, ticker: str,
+        self,
+        strategy_name: str,
+        ticker: str,
     ) -> TradeHistoryMetrics:
         """
         Get trade history metrics in structured format
@@ -170,7 +174,9 @@ class TradeHistoryAnalyzer:
             raise
 
     async def _load_trade_history(
-        self, strategy_name: str, ticker: str,
+        self,
+        strategy_name: str,
+        ticker: str,
     ) -> pd.DataFrame | None:
         """
         Load trade history data from available sources
@@ -247,7 +253,8 @@ class TradeHistoryAnalyzer:
                 file_name = Path(file_path).name
                 # Check if strategy components are in the filename
                 if strategy_name in file_name or self._filename_matches_strategy(
-                    file_name, strategy_name,
+                    file_name,
+                    strategy_name,
                 ):
                     self.logger.info(
                         f"Found trade history using glob pattern: {file_path}",
@@ -328,7 +335,9 @@ class TradeHistoryAnalyzer:
         return strategy_name
 
     def _extract_position_uuid_patterns(
-        self, strategy_name: str, ticker: str,
+        self,
+        strategy_name: str,
+        ticker: str,
     ) -> list[str]:
         """
         Extract multiple filename patterns from Position_UUID format.
@@ -392,7 +401,6 @@ class TradeHistoryAnalyzer:
             # Standardize column names
             return self._standardize_trade_columns(df)
 
-
         except Exception as e:
             self.logger.exception(
                 f"Failed to load JSON trade history from {file_path}: {e}",
@@ -407,9 +415,10 @@ class TradeHistoryAnalyzer:
             # Standardize column names
             return self._standardize_trade_columns(df)
 
-
         except Exception as e:
-            self.logger.exception(f"Failed to load CSV trade history from {file_path}: {e}")
+            self.logger.exception(
+                f"Failed to load CSV trade history from {file_path}: {e}"
+            )
             raise
 
     def _standardize_trade_columns(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -489,7 +498,10 @@ class TradeHistoryAnalyzer:
 
                 # Validate using centralized utility
                 validation_errors = mfe_mae_calculator.validate_mfe_mae(
-                    current_return, mfe, mae, direction,
+                    current_return,
+                    mfe,
+                    mae,
+                    direction,
                 )
 
                 if validation_errors:
@@ -635,7 +647,8 @@ class TradeHistoryAnalyzer:
                         df[col]
                         .apply(
                             lambda x: not isinstance(
-                                x, int | float | np.integer | np.floating,
+                                x,
+                                int | float | np.integer | np.floating,
                             ),
                         )
                         .sum()
@@ -701,9 +714,7 @@ class TradeHistoryAnalyzer:
         profit_factor = (
             winning_trades.sum() / abs(losing_trades.sum())
             if len(losing_trades) > 0 and losing_trades.sum() < 0
-            else float("inf")
-            if len(winning_trades) > 0
-            else 0.0
+            else float("inf") if len(winning_trades) > 0 else 0.0
         )
 
         sharpe_ratio = returns.mean() / returns.std() if returns.std() > 0 else 0.0
@@ -903,5 +914,12 @@ class TradeHistoryAnalyzer:
     def _create_empty_percentiles(self) -> PercentileMetrics:
         """Create empty percentile metrics"""
         return PercentileMetrics(
-            p5=0.0, p10=0.0, p25=0.0, p50=0.0, p75=0.0, p90=0.0, p95=0.0, p99=0.0,
+            p5=0.0,
+            p10=0.0,
+            p25=0.0,
+            p50=0.0,
+            p75=0.0,
+            p90=0.0,
+            p95=0.0,
+            p99=0.0,
         )

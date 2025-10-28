@@ -106,7 +106,9 @@ def analyze_permutation(
 
     # Analyze concurrency
     stats, aligned_data = analyze_concurrency_func(
-        strategy_data, updated_strategies, log,
+        strategy_data,
+        updated_strategies,
+        log,
     )
 
     return stats, aligned_data
@@ -163,7 +165,8 @@ def find_optimal_permutation(
 
     # Track progress
     progress_interval = max(
-        1, total_permutations // 10,
+        1,
+        total_permutations // 10,
     )  # Report progress at 10% intervals
     start_time = time.time()
 
@@ -200,7 +203,10 @@ def find_optimal_permutation(
         try:
             # Analyze this permutation
             stats, aligned_data = analyze_permutation(
-                permutation, process_strategies_func, analyze_concurrency_func, log,
+                permutation,
+                process_strategies_func,
+                analyze_concurrency_func,
+                log,
             )
 
             # Extract risk-adjusted efficiency score

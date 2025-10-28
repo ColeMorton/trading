@@ -41,7 +41,10 @@ class SensitivityAnalyzerBase(ABC):
 
     @abstractmethod
     def _calculate_signals(
-        self, data: pl.DataFrame, strategy_config: dict[str, Any], log: Callable,
+        self,
+        data: pl.DataFrame,
+        strategy_config: dict[str, Any],
+        log: Callable,
     ) -> pl.DataFrame | None:
         """Calculate signals for the strategy with given parameters.
 
@@ -106,7 +109,8 @@ class SensitivityAnalyzerBase(ABC):
                     "USE_CURRENT": config.get("USE_CURRENT", False),
                     "STRATEGY_TYPE": self.strategy_type,
                     "DIRECTION": config.get(
-                        "DIRECTION", "Long",
+                        "DIRECTION",
+                        "Long",
                     ),  # Preserve direction parameter
                 },
             )
@@ -157,7 +161,6 @@ class SensitivityAnalyzerBase(ABC):
             # Convert stats to standard format
             return convert_stats(stats, log, config, current)
 
-
         except Exception as e:
             param_str = self._format_parameters(**strategy_params)
             log(
@@ -192,7 +195,11 @@ class SensitivityAnalyzerBase(ABC):
             # Use parallel processing for large parameter sets when external progress is tracked
             if parallel and len(parameter_sets) > 10:
                 return self._analyze_combinations_parallel(
-                    data, parameter_sets, config, log, progress_update_fn,
+                    data,
+                    parameter_sets,
+                    config,
+                    log,
+                    progress_update_fn,
                 )
 
             # Sequential processing with external progress tracking
@@ -210,7 +217,11 @@ class SensitivityAnalyzerBase(ABC):
         # No external progress - use local progress displays
         if parallel and len(parameter_sets) > 10:
             return self._analyze_combinations_parallel(
-                data, parameter_sets, config, log, None,
+                data,
+                parameter_sets,
+                config,
+                log,
+                None,
             )
 
         # Sequential processing for small sets or when parallel is disabled
@@ -247,7 +258,10 @@ class SensitivityAnalyzerBase(ABC):
                     params: dict[str, Any],
                 ) -> dict[str, Any] | None:
                     return self.analyze_parameter_combination(
-                        data, config, log, **params,
+                        data,
+                        config,
+                        log,
+                        **params,
                     )
 
                 # Use parallel parameter sweep with external progress callback
@@ -264,7 +278,8 @@ class SensitivityAnalyzerBase(ABC):
                 # Check if we have access to enhanced progress display
                 log_self = log.__self__ if hasattr(log, "__self__") else None
                 use_enhanced_progress = isinstance(
-                    log_self, PerformanceAwareConsoleLogger,
+                    log_self,
+                    PerformanceAwareConsoleLogger,
                 )
 
                 if use_enhanced_progress:
@@ -272,7 +287,8 @@ class SensitivityAnalyzerBase(ABC):
 
                     # Use enhanced progress context for large parameter sets
                     with console_logger.parameter_progress_context(
-                        self.strategy_type, len(parameter_sets),
+                        self.strategy_type,
+                        len(parameter_sets),
                     ) as progress:
                         # Initialize task fields based on performance mode
                         task_fields = {
@@ -310,7 +326,10 @@ class SensitivityAnalyzerBase(ABC):
                         ) -> dict[str, Any] | None:
                             nonlocal completed_count
                             result = self.analyze_parameter_combination(
-                                data, config, log, **params,
+                                data,
+                                config,
+                                log,
+                                **params,
                             )
                             completed_count += 1
 
@@ -355,14 +374,17 @@ class SensitivityAnalyzerBase(ABC):
                                         pass
 
                                 progress.update(
-                                    task, completed=completed_count, **update_fields,
+                                    task,
+                                    completed=completed_count,
+                                    **update_fields,
                                 )
 
                             return result
 
                         # Use parallel parameter sweep
                         batch_size = max(
-                            1, len(parameter_sets) // (os.cpu_count() or 4),
+                            1,
+                            len(parameter_sets) // (os.cpu_count() or 4),
                         )
                         results = parallel_parameter_sweep(
                             parameter_combinations=parameter_sets,
@@ -393,7 +415,9 @@ class SensitivityAnalyzerBase(ABC):
                                 pass
 
                         progress.update(
-                            task, completed=len(parameter_sets), **final_fields,
+                            task,
+                            completed=len(parameter_sets),
+                            **final_fields,
                         )
                 else:
                     # Fallback to basic logging without enhanced progress
@@ -407,7 +431,10 @@ class SensitivityAnalyzerBase(ABC):
                         params: dict[str, Any],
                     ) -> dict[str, Any] | None:
                         return self.analyze_parameter_combination(
-                            data, config, log, **params,
+                            data,
+                            config,
+                            log,
+                            **params,
                         )
 
                     # Use parallel parameter sweep with CPU-bound executor
@@ -440,7 +467,11 @@ class SensitivityAnalyzerBase(ABC):
                 "warning",
             )
             return self._analyze_combinations_sequential(
-                data, parameter_sets, config, log, progress_update_fn,
+                data,
+                parameter_sets,
+                config,
+                log,
+                progress_update_fn,
             )
         except Exception as e:
             log(
@@ -448,7 +479,11 @@ class SensitivityAnalyzerBase(ABC):
                 "warning",
             )
             return self._analyze_combinations_sequential(
-                data, parameter_sets, config, log, progress_update_fn,
+                data,
+                parameter_sets,
+                config,
+                log,
+                progress_update_fn,
             )
 
     def _analyze_combinations_sequential(
@@ -509,7 +544,10 @@ class MASensitivityAnalyzer(SensitivityAnalyzerBase):
         self.ma_type = ma_type
 
     def _calculate_signals(
-        self, data: pl.DataFrame, strategy_config: dict[str, Any], log: Callable,
+        self,
+        data: pl.DataFrame,
+        strategy_config: dict[str, Any],
+        log: Callable,
     ) -> pl.DataFrame | None:
         """Calculate MA signals."""
         try:
@@ -597,7 +635,10 @@ class MACDSensitivityAnalyzer(SensitivityAnalyzerBase):
         super().__init__("MACD")
 
     def _calculate_signals(
-        self, data: pl.DataFrame, strategy_config: dict[str, Any], log: Callable,
+        self,
+        data: pl.DataFrame,
+        strategy_config: dict[str, Any],
+        log: Callable,
     ) -> pl.DataFrame | None:
         """Calculate MACD signals."""
         try:
@@ -640,13 +681,16 @@ class MACDSensitivityAnalyzer(SensitivityAnalyzerBase):
     def _check_data_sufficiency(self, data: pl.DataFrame, **strategy_params) -> bool:
         """Check if data is sufficient for MACD periods."""
         fast_period = strategy_params.get("fast_period") or strategy_params.get(
-            "fast_period", 0,
+            "fast_period",
+            0,
         )
         slow_period = strategy_params.get("slow_period") or strategy_params.get(
-            "slow_period", 0,
+            "slow_period",
+            0,
         )
         signal_period = strategy_params.get("signal_period") or strategy_params.get(
-            "signal_period", 0,
+            "signal_period",
+            0,
         )
 
         max_period = max(fast_period, slow_period, signal_period)
@@ -675,7 +719,10 @@ class MeanReversionSensitivityAnalyzer(SensitivityAnalyzerBase):
         super().__init__("MEAN_REVERSION")
 
     def _calculate_signals(
-        self, data: pl.DataFrame, strategy_config: dict[str, Any], log: Callable,
+        self,
+        data: pl.DataFrame,
+        strategy_config: dict[str, Any],
+        log: Callable,
     ) -> pl.DataFrame | None:
         """Calculate Mean Reversion signals."""
         try:
@@ -859,7 +906,11 @@ def analyze_window_combination(
     strategy_type = config.get("STRATEGY_TYPE", "SMA")
     analyzer = SensitivityAnalyzerFactory.create_analyzer(strategy_type)
     return analyzer.analyze_parameter_combination(
-        data, config, log, fast_period=fast, slow_period=slow,
+        data,
+        config,
+        log,
+        fast_period=fast,
+        slow_period=slow,
     )
 
 
@@ -910,7 +961,10 @@ def analyze_macd_combination(
 
 
 def analyze_mean_reversion_combination(
-    data: pl.DataFrame, change_pct: float, config: dict[str, Any], log: Callable,
+    data: pl.DataFrame,
+    change_pct: float,
+    config: dict[str, Any],
+    log: Callable,
 ) -> dict[str, Any] | None:
     """Analyze Mean Reversion parameter combination (convenience function).
 
@@ -925,7 +979,10 @@ def analyze_mean_reversion_combination(
     """
     analyzer = SensitivityAnalyzerFactory.create_analyzer("MEAN_REVERSION")
     return analyzer.analyze_parameter_combination(
-        data, config, log, change_pct=change_pct,
+        data,
+        config,
+        log,
+        change_pct=change_pct,
     )
 
 
@@ -983,7 +1040,6 @@ def analyze_single_portfolio(
 
         # Convert stats to standard format
         return convert_stats(stats, log, config, current)
-
 
     except Exception as e:
         log(f"Failed to analyze single portfolio: {e!s}", "error")

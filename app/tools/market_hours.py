@@ -24,7 +24,11 @@ class TradingHours:
     """Configuration for market trading hours and sessions."""
 
     def __init__(
-        self, start_time: str, end_time: str, timezone: str, trading_days: list[int],
+        self,
+        start_time: str,
+        end_time: str,
+        timezone: str,
+        trading_days: list[int],
     ):
         """Initialize trading hours configuration.
 
@@ -119,7 +123,8 @@ def is_trading_hour(dt: datetime, market_type: MarketType) -> bool:
 
 
 def filter_trading_hours_pandas(
-    df: pd.DataFrame, market_type: MarketType,
+    df: pd.DataFrame,
+    market_type: MarketType,
 ) -> pd.DataFrame:
     """Filter pandas DataFrame to only include trading hours data.
 
@@ -145,7 +150,8 @@ def filter_trading_hours_pandas(
 
 
 def filter_trading_hours_polars(
-    df: pl.DataFrame, market_type: MarketType,
+    df: pl.DataFrame,
+    market_type: MarketType,
 ) -> pl.DataFrame:
     """Filter polars DataFrame to only include trading hours data.
 
@@ -193,9 +199,9 @@ def filter_trading_hours_polars(
     )
 
 
-
 def filter_trading_hours(
-    df: pd.DataFrame | pl.DataFrame, market_type: MarketType,
+    df: pd.DataFrame | pl.DataFrame,
+    market_type: MarketType,
 ) -> pd.DataFrame | pl.DataFrame:
     """Filter DataFrame to only include trading hours data (supports both pandas and polars).
 
@@ -215,7 +221,8 @@ def filter_trading_hours(
 
 
 def validate_4hour_bars(
-    df: pd.DataFrame | pl.DataFrame, market_type: MarketType,
+    df: pd.DataFrame | pl.DataFrame,
+    market_type: MarketType,
 ) -> dict[str, bool | int | str]:
     """Validate that 4-hour bars are appropriate for the market type.
 
@@ -295,7 +302,8 @@ def get_market_session_boundaries(market_type: MarketType) -> list[time]:
 
 
 def validate_market_hours_data(
-    df: pd.DataFrame | pl.DataFrame, market_type: MarketType,
+    df: pd.DataFrame | pl.DataFrame,
+    market_type: MarketType,
 ) -> dict[str, bool | int | float]:
     """Validate that DataFrame contains appropriate market hours data.
 

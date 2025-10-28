@@ -113,7 +113,9 @@ class TestCVaRCalculator:
             return self.mock_portfolio_data
 
         with patch.object(
-            self.calculator, "_load_json_file", side_effect=mock_load_json,
+            self.calculator,
+            "_load_json_file",
+            side_effect=mock_load_json,
         ):
             result = self.calculator.get_portfolio_risk_metrics()
 

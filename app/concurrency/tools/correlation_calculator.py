@@ -126,7 +126,8 @@ class CorrelationCalculator:
             # Handle outliers if requested
             if self.handle_outliers:
                 clean_series1, clean_series2 = self._remove_outliers(
-                    clean_series1, clean_series2,
+                    clean_series1,
+                    clean_series2,
                 )
                 observations = len(clean_series1)
 
@@ -169,7 +170,9 @@ class CorrelationCalculator:
             confidence_interval = None
             if method.lower() == "pearson" and observations > 3:
                 confidence_interval = self._calculate_confidence_interval(
-                    correlation, observations, confidence_level=0.95,
+                    correlation,
+                    observations,
+                    confidence_level=0.95,
                 )
 
             is_valid = not np.isnan(correlation) and abs(correlation) <= 1.0
@@ -196,11 +199,17 @@ class CorrelationCalculator:
                 log(error_message, "error")
 
             return CorrelationResult(
-                correlation=0.0, observations=0, valid=False, message=error_message,
+                correlation=0.0,
+                observations=0,
+                valid=False,
+                message=error_message,
             )
 
     def _remove_outliers(
-        self, series1: np.ndarray, series2: np.ndarray, threshold: float = 3.0,
+        self,
+        series1: np.ndarray,
+        series2: np.ndarray,
+        threshold: float = 3.0,
     ) -> tuple[np.ndarray, np.ndarray]:
         """
         Remove outliers using z-score threshold.
@@ -223,7 +232,10 @@ class CorrelationCalculator:
         return series1[mask], series2[mask]
 
     def _calculate_confidence_interval(
-        self, correlation: float, n: int, confidence_level: float = 0.95,
+        self,
+        correlation: float,
+        n: int,
+        confidence_level: float = 0.95,
     ) -> tuple[float, float]:
         """
         Calculate confidence interval for Pearson correlation using Fisher's z-transformation.
@@ -388,7 +400,9 @@ class CorrelationCalculator:
             return fallback_cov, diagnostics
 
     def apply_shrinkage_estimator(
-        self, sample_cov: np.ndarray, shrinkage_target: str = "constant_correlation",
+        self,
+        sample_cov: np.ndarray,
+        shrinkage_target: str = "constant_correlation",
     ) -> tuple[np.ndarray, float]:
         """Apply shrinkage estimator to covariance matrix.
 
@@ -497,7 +511,10 @@ class CorrelationMatrix:
 
                 # Calculate correlation for this pair
                 result = self.calculator.calculate_correlation(
-                    data_matrix[:, i], data_matrix[:, j], method, log,
+                    data_matrix[:, i],
+                    data_matrix[:, j],
+                    method,
+                    log,
                 )
 
                 if result.valid:
@@ -581,8 +598,8 @@ class CorrelationMatrix:
                 )
 
                 # Rescale to maintain unit diagonal
-                D = np.sqrt(np.diag(regularized_matrix))
-                regularized_matrix = regularized_matrix / np.outer(D, D)
+                d_diag = np.sqrt(np.diag(regularized_matrix))
+                regularized_matrix = regularized_matrix / np.outer(d_diag, d_diag)
 
                 # Verify positive definiteness
                 new_eigenvals = np.linalg.eigvals(regularized_matrix)
@@ -643,7 +660,9 @@ def calculate_rolling_correlation(
         window_series2 = series2[start_idx : i + 1]
 
         result = calculator.calculate_correlation(
-            window_series1, window_series2, "pearson",
+            window_series1,
+            window_series2,
+            "pearson",
         )
 
         if result.valid:

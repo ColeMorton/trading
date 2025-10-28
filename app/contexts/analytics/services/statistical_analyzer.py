@@ -39,7 +39,8 @@ class StatisticalAnalyzer:
         self.logger = logger or logging.getLogger(__name__)
 
     def calculate_basic_statistics(
-        self, data: pd.DataFrame | pl.DataFrame,
+        self,
+        data: pd.DataFrame | pl.DataFrame,
     ) -> dict[str, float]:
         """Calculate basic statistical metrics."""
         if isinstance(data, pl.DataFrame):
@@ -79,11 +80,15 @@ class StatisticalAnalyzer:
         )
 
         return VaRMetrics(
-            var_95=var_95, var_99=var_99, cvar_95=cvar_95, cvar_99=cvar_99,
+            var_95=var_95,
+            var_99=var_99,
+            cvar_95=cvar_95,
+            cvar_99=cvar_99,
         )
 
     def calculate_percentile_metrics(
-        self, data: pd.Series | pl.Series,
+        self,
+        data: pd.Series | pl.Series,
     ) -> PercentileMetrics:
         """Calculate percentile-based metrics."""
         if isinstance(data, pl.Series):
@@ -91,7 +96,12 @@ class StatisticalAnalyzer:
 
         if data.empty:
             return PercentileMetrics(
-                p25=0.0, p50=0.0, p75=0.0, p90=0.0, p95=0.0, p99=0.0,
+                p25=0.0,
+                p50=0.0,
+                p75=0.0,
+                p90=0.0,
+                p95=0.0,
+                p99=0.0,
             )
 
         return PercentileMetrics(
@@ -104,7 +114,8 @@ class StatisticalAnalyzer:
         )
 
     def calculate_statistical_metrics(
-        self, data: pd.DataFrame | pl.DataFrame,
+        self,
+        data: pd.DataFrame | pl.DataFrame,
     ) -> StatisticalMetrics:
         """Calculate comprehensive statistical metrics."""
         if isinstance(data, pl.DataFrame):
@@ -117,10 +128,18 @@ class StatisticalAnalyzer:
                 skew=0.0,
                 kurtosis=0.0,
                 var_metrics=VaRMetrics(
-                    var_95=0.0, var_99=0.0, cvar_95=0.0, cvar_99=0.0,
+                    var_95=0.0,
+                    var_99=0.0,
+                    cvar_95=0.0,
+                    cvar_99=0.0,
                 ),
                 percentile_metrics=PercentileMetrics(
-                    p25=0.0, p50=0.0, p75=0.0, p90=0.0, p95=0.0, p99=0.0,
+                    p25=0.0,
+                    p50=0.0,
+                    p75=0.0,
+                    p90=0.0,
+                    p95=0.0,
+                    p99=0.0,
                 ),
             )
 

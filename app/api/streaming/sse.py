@@ -17,7 +17,9 @@ from ..models.tables import JobStatus
 
 
 async def stream_job_progress(
-    job_id: str, db: AsyncSession, redis: Redis,
+    job_id: str,
+    db: AsyncSession,
+    redis: Redis,
 ) -> StreamingResponse:
     """
     Create SSE stream for job progress.

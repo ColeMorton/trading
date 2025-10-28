@@ -60,7 +60,8 @@ class TestDataCache:
 
         # Sort by access time (oldest first)
         sorted_items = sorted(
-            self._cache_metadata.items(), key=lambda x: x[1]["last_accessed"],
+            self._cache_metadata.items(),
+            key=lambda x: x[1]["last_accessed"],
         )
 
         # Evict items until we have enough space
@@ -128,7 +129,8 @@ class TestDataCache:
             "total_size_mb": round(self._current_size_mb, 2),
             "max_size_mb": self.max_size_mb,
             "utilization_pct": round(
-                (self._current_size_mb / self.max_size_mb) * 100, 1,
+                (self._current_size_mb / self.max_size_mb) * 100,
+                1,
             ),
             "total_accesses": total_accesses,
             "avg_accesses_per_item": round(total_accesses / max(total_items, 1), 1),
@@ -237,7 +239,6 @@ def create_test_market_data(
             "Adj Close": prices,  # Assume no dividends/splits
         },
     )
-
 
 
 @cached_factory()
@@ -376,7 +377,8 @@ def create_test_portfolio(
 
 @cached_factory()
 def create_test_strategy_config(
-    strategy_type: str = "MA_CROSS", timeframe: str = "D",
+    strategy_type: str = "MA_CROSS",
+    timeframe: str = "D",
 ) -> dict[str, Any]:
     """
     Create test strategy configuration.
@@ -426,7 +428,8 @@ def create_test_strategy_config(
 
 
 def create_test_backtest_results(
-    config: dict[str, Any] | None = None, num_trades: int = 50,
+    config: dict[str, Any] | None = None,
+    num_trades: int = 50,
 ) -> dict[str, Any]:
     """
     Create realistic backtest results for testing.
@@ -519,14 +522,17 @@ class TestDataFactory:
         for i, asset in enumerate(assets):
             prices = 100 * np.cumprod(1 + returns[:, i])
             asset_data[asset] = create_test_market_data(
-                ticker=asset, days=days, start_price=prices[0],
+                ticker=asset,
+                days=days,
+                start_price=prices[0],
             )
 
         return asset_data
 
     @staticmethod
     def create_stress_test_scenario(
-        base_data: pl.DataFrame, scenario_type: str = "crash",
+        base_data: pl.DataFrame,
+        scenario_type: str = "crash",
     ) -> pl.DataFrame:
         """Create stress test scenarios for portfolio testing."""
         data = base_data.clone()

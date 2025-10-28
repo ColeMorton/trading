@@ -79,7 +79,9 @@ class TestMultiTickerATRAnalysis(unittest.TestCase):
 
         # Strong uptrend with high volatility
         returns = np.random.normal(
-            0.0012, 0.035, len(dates),
+            0.0012,
+            0.035,
+            len(dates),
         )  # 1.2% drift, 3.5% volatility
         prices = base_price * np.exp(np.cumsum(returns))
 
@@ -92,7 +94,9 @@ class TestMultiTickerATRAnalysis(unittest.TestCase):
 
         # Modest uptrend with low volatility
         returns = np.random.normal(
-            0.0003, 0.015, len(dates),
+            0.0003,
+            0.015,
+            len(dates),
         )  # 0.3% drift, 1.5% volatility
         prices = base_price * np.exp(np.cumsum(returns))
 
@@ -125,7 +129,9 @@ class TestMultiTickerATRAnalysis(unittest.TestCase):
 
         # Downtrend with moderate volatility
         returns = np.random.normal(
-            -0.0008, 0.025, len(dates),
+            -0.0008,
+            0.025,
+            len(dates),
         )  # -0.8% drift, 2.5% volatility
         prices = base_price * np.exp(np.cumsum(returns))
 
@@ -176,7 +182,8 @@ class TestMultiTickerATRAnalysis(unittest.TestCase):
             self.assertEqual(result["Strategy Type"], "ATR")
             self.assertEqual(result["Fast Period"], test_params["atr_length"])
             self.assertEqual(
-                result["Slow Period"], int(test_params["atr_multiplier"] * 10),
+                result["Slow Period"],
+                int(test_params["atr_multiplier"] * 10),
             )
             self.assertEqual(result["Signal Period"], 0)
 
@@ -205,10 +212,13 @@ class TestMultiTickerATRAnalysis(unittest.TestCase):
         # Verify ATR calculation properties
         for ticker, atr_series in atr_values.items():
             self.assertGreater(
-                len(atr_series), 0, f"ATR should be calculated for {ticker}",
+                len(atr_series),
+                0,
+                f"ATR should be calculated for {ticker}",
             )
             self.assertTrue(
-                (atr_series > 0).all(), f"ATR values should be positive for {ticker}",
+                (atr_series > 0).all(),
+                f"ATR values should be positive for {ticker}",
             )
 
         # Volatile assets should have higher ATR values
@@ -253,7 +263,9 @@ class TestMultiTickerATRAnalysis(unittest.TestCase):
         # Verify signal generation makes sense for each market type
         for ticker, stats in signal_stats.items():
             self.assertGreater(
-                stats["total_signals"], 0, f"Should generate signals for {ticker}",
+                stats["total_signals"],
+                0,
+                f"Should generate signals for {ticker}",
             )
 
             # Buy and sell signals should both exist in most market conditions
@@ -348,7 +360,9 @@ class TestATRUSECurrentBehavior(unittest.TestCase):
 
         # With USE_CURRENT=False, should not detect current signal
         self.assertEqual(
-            is_current, False, "Should not detect current signal when USE_CURRENT=False",
+            is_current,
+            False,
+            "Should not detect current signal when USE_CURRENT=False",
         )
 
     def test_use_current_true_behavior(self):
@@ -410,7 +424,9 @@ class TestATRUSECurrentBehavior(unittest.TestCase):
         is_exit_current = is_exit_signal_current(signals_df, config)
 
         self.assertIsInstance(
-            is_exit_current, bool, "Should return boolean value for exit signal",
+            is_exit_current,
+            bool,
+            "Should return boolean value for exit signal",
         )
 
     def test_edge_cases_signal_detection(self):

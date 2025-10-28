@@ -140,19 +140,25 @@ class TestDataConsistencyValidation(unittest.TestCase):
 
         self.assertEqual(result["pnl"], expected_pnl)
         self.assertAlmostEqual(
-            result["return"], expected_return, places=4,
+            result["return"],
+            expected_return,
+            places=4,
         )  # Allow for rounding precision
 
         # Verify position data consistency
         position = self.service.get_position(position_uuid, "precision_test")
         self.assertEqual(position["PnL"], expected_pnl)
         self.assertAlmostEqual(
-            position["Return"], expected_return, places=4,
+            position["Return"],
+            expected_return,
+            places=4,
         )  # Allow for rounding precision
 
         # Test calculator consistency using the available method
         calculator_pnl, calculator_return = self.calculator.calculate_pnl_and_return(
-            entry_price=150.00, exit_price=exit_price, position_size=100.0,
+            entry_price=150.00,
+            exit_price=exit_price,
+            position_size=100.0,
         )
 
         self.assertEqual(calculator_pnl, expected_pnl)
@@ -445,10 +451,12 @@ class TestDataConsistencyValidation(unittest.TestCase):
             mfe = position.get("Max_Favourable_Excursion")
             mae = position.get("Max_Adverse_Excursion")
             self.assertTrue(
-                mfe is None or pd.isna(mfe), f"Expected None or NaN for MFE, got {mfe}",
+                mfe is None or pd.isna(mfe),
+                f"Expected None or NaN for MFE, got {mfe}",
             )
             self.assertTrue(
-                mae is None or pd.isna(mae), f"Expected None or NaN for MAE, got {mae}",
+                mae is None or pd.isna(mae),
+                f"Expected None or NaN for MAE, got {mae}",
             )
         except (DataNotFoundError, ValidationError):
             # This is also acceptable behavior
@@ -458,7 +466,9 @@ class TestDataConsistencyValidation(unittest.TestCase):
         try:
             positions = self.service.list_positions(portfolio_name)
             self.assertEqual(
-                len(positions), 0, "Portfolio should be empty after failed addition",
+                len(positions),
+                0,
+                "Portfolio should be empty after failed addition",
             )
         except Exception:
             # Portfolio file might not exist, which is acceptable

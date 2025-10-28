@@ -283,7 +283,8 @@ class SectorComparisonEngine:
         return sector_data
 
     def extract_best_strategies(
-        self, sector_data: dict[str, pd.DataFrame],
+        self,
+        sector_data: dict[str, pd.DataFrame],
     ) -> list[dict]:
         """
         Extract the best performing strategy for each sector based on Score.
@@ -413,7 +414,9 @@ class SectorComparisonEngine:
         return ranked_results
 
     def export_to_json(
-        self, comparison_data: list[dict], output_file: str | Path,
+        self,
+        comparison_data: list[dict],
+        output_file: str | Path,
     ) -> bool:
         """
         Export comparison data to JSON file.
@@ -440,7 +443,9 @@ class SectorComparisonEngine:
             return False
 
     def export_to_csv(
-        self, comparison_data: list[dict], output_file: str | Path,
+        self,
+        comparison_data: list[dict],
+        output_file: str | Path,
     ) -> bool:
         """
         Export comparison data to CSV file.

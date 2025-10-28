@@ -406,7 +406,8 @@ def convert_stats(
 
         # Calculate months in the backtest period
         if isinstance(stats["End"], int | float) and isinstance(
-            stats["Start"], int | float,
+            stats["Start"],
+            int | float,
         ):
             if config.get("USE_HOURLY", False):
                 # For hourly data, convert hours to days first
@@ -456,7 +457,8 @@ def convert_stats(
             try:
                 # Use optimized normalization functions with confidence adjustment
                 win_rate_normalized = calculate_win_rate_normalized(
-                    stats["Win Rate [%]"], total_trades=stats.get("Total Trades"),
+                    stats["Win Rate [%]"],
+                    total_trades=stats.get("Total Trades"),
                 )
                 total_trades_normalized = calculate_total_trades_normalized(
                     stats["Total Trades"],
@@ -525,7 +527,8 @@ def convert_stats(
                 )
                 log(f"Normalized: Sortino {sortino_normalized:.4f}", "debug")
                 log(
-                    f"Normalized: Profit Factor {profit_factor_normalized:.4f}", "debug",
+                    f"Normalized: Profit Factor {profit_factor_normalized:.4f}",
+                    "debug",
                 )
                 log(
                     f"Normalized: Expectancy {expectancy_per_trade_normalized:.4f}",
@@ -784,7 +787,9 @@ def convert_stats(
 
 
 def _ensure_canonical_schema_compliance(
-    stats: dict[str, Any], log: Callable[[str, str], None], verbose: bool = False,
+    stats: dict[str, Any],
+    log: Callable[[str, str], None],
+    verbose: bool = False,
 ) -> dict[str, Any]:
     """
     Ensure the stats dictionary conforms to the canonical 59-column schema.
@@ -818,7 +823,10 @@ def _ensure_canonical_schema_compliance(
         else:
             # Set default values for missing columns
             canonical_stats[column_name] = _get_default_value_for_column(
-                column_name, stats, log, verbose,
+                column_name,
+                stats,
+                log,
+                verbose,
             )
 
     # Preserve non-canonical fields (like _equity_data for equity export)

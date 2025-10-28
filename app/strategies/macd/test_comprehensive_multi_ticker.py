@@ -78,7 +78,8 @@ def test_comprehensive_macd_functionality():
 
     # Set up logging
     log, log_close, _, _ = setup_logging(
-        module_name="macd_test", log_file="test_comprehensive.log",
+        module_name="macd_test",
+        log_file="test_comprehensive.log",
     )
 
     results = TestResults()
@@ -137,7 +138,9 @@ def test_comprehensive_macd_functionality():
             )
         else:
             results.record_test(
-                "Single ticker processing", False, "No portfolios generated",
+                "Single ticker processing",
+                False,
+                "No portfolios generated",
             )
 
         # Test 2: Multi-ticker with USE_CURRENT=False
@@ -207,7 +210,9 @@ def test_comprehensive_macd_functionality():
                     )
                 except Exception as e:
                     results.record_test(
-                        "Filtered portfolio export", False, f"Export failed: {e!s}",
+                        "Filtered portfolio export",
+                        False,
+                        f"Export failed: {e!s}",
                     )
             else:
                 results.record_test(
@@ -264,7 +269,9 @@ def test_comprehensive_macd_functionality():
                     )
                 except Exception as e:
                     results.record_test(
-                        "Best portfolio export", False, f"Export failed: {e!s}",
+                        "Best portfolio export",
+                        False,
+                        f"Export failed: {e!s}",
                     )
             else:
                 results.record_test(

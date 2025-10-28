@@ -33,7 +33,9 @@ class TestMACrossExceptions:
     def test_ma_cross_configuration_error(self):
         """Test MACrossConfigurationError with details."""
         error = MACrossConfigurationError(
-            "Invalid config field", config_field="TICKER", config_value="invalid",
+            "Invalid config field",
+            config_field="TICKER",
+            config_value="invalid",
         )
         assert error.details["config_field"] == "TICKER"
         assert error.details["config_value"] == "invalid"
@@ -42,7 +44,9 @@ class TestMACrossExceptions:
     def test_ma_cross_data_error(self):
         """Test MACrossDataError with details."""
         error = MACrossDataError(
-            "Data processing failed", ticker="BTC-USD", data_type="price_data",
+            "Data processing failed",
+            ticker="BTC-USD",
+            data_type="price_data",
         )
         assert error.details["ticker"] == "BTC-USD"
         assert error.details["data_type"] == "price_data"
@@ -51,7 +55,9 @@ class TestMACrossExceptions:
     def test_ma_cross_calculation_error(self):
         """Test MACrossCalculationError with details."""
         error = MACrossCalculationError(
-            "Calculation failed", ticker="BTC-USD", calculation_type="moving_average",
+            "Calculation failed",
+            ticker="BTC-USD",
+            calculation_type="moving_average",
         )
         assert error.details["ticker"] == "BTC-USD"
         assert error.details["calculation_type"] == "moving_average"
@@ -60,7 +66,9 @@ class TestMACrossExceptions:
     def test_ma_cross_portfolio_error(self):
         """Test MACrossPortfolioError with details."""
         error = MACrossPortfolioError(
-            "Portfolio operation failed", ticker="BTC-USD", operation="filtering",
+            "Portfolio operation failed",
+            ticker="BTC-USD",
+            operation="filtering",
         )
         assert error.details["ticker"] == "BTC-USD"
         assert error.details["operation"] == "filtering"
@@ -76,7 +84,9 @@ class TestMACrossExceptions:
     def test_ma_cross_execution_error(self):
         """Test MACrossExecutionError with details."""
         error = MACrossExecutionError(
-            "Strategy execution failed", ticker="BTC-USD", stage="signal_generation",
+            "Strategy execution failed",
+            ticker="BTC-USD",
+            stage="signal_generation",
         )
         assert error.details["ticker"] == "BTC-USD"
         assert error.details["execution_stage"] == "signal_generation"
@@ -126,7 +136,8 @@ class TestPortfolioOrchestratorErrorHandling:
         from app.tools.exceptions import StrategyProcessingError
 
         with patch.object(
-            orchestrator.ticker_processor, "execute_strategy",
+            orchestrator.ticker_processor,
+            "execute_strategy",
         ) as mock_execute:
             mock_execute.side_effect = StrategyProcessingError("Strategy failed")
 
@@ -201,7 +212,9 @@ class TestTickerProcessorErrorHandling:
         mock_log.assert_called()
 
     def test_synthetic_ticker_extraction_invalid_format(
-        self, ticker_processor, mock_log,
+        self,
+        ticker_processor,
+        mock_log,
     ):
         """Test error handling for invalid synthetic ticker format."""
         config = {}
@@ -212,7 +225,9 @@ class TestTickerProcessorErrorHandling:
         assert "Not a synthetic ticker" in str(exc_info.value)
 
     def test_synthetic_ticker_extraction_insufficient_parts(
-        self, ticker_processor, mock_log,
+        self,
+        ticker_processor,
+        mock_log,
     ):
         """Test error handling for synthetic ticker with insufficient parts."""
         config = {}
@@ -245,7 +260,8 @@ class TestMainScriptErrorHandling:
 
         # Check that the function has the error handling decorator
         assert hasattr(
-            module.run, "__wrapped__",
+            module.run,
+            "__wrapped__",
         )  # This indicates a decorator was applied
 
     def test_run_strategies_function_error_decoration(self):
@@ -262,7 +278,8 @@ class TestMainScriptErrorHandling:
 
         # Check that the function has the error handling decorator
         assert hasattr(
-            module.run_strategies, "__wrapped__",
+            module.run_strategies,
+            "__wrapped__",
         )  # This indicates a decorator was applied
 
     @patch("app.tools.orchestration.portfolio_orchestrator.PortfolioOrchestrator")
@@ -289,7 +306,8 @@ class TestMainScriptErrorHandling:
 
     @patch("app.tools.orchestration.portfolio_orchestrator.PortfolioOrchestrator")
     def test_run_strategies_function_orchestrator_error_handling(
-        self, mock_orchestrator_class,
+        self,
+        mock_orchestrator_class,
     ):
         """Test error handling in run_strategies function."""
         import importlib.util

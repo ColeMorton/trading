@@ -70,7 +70,9 @@ class StrategyDispatcher:
         self.batch_service = None  # Will be initialized when needed
 
     def _extract_strategy_parameters(
-        self, config: StrategyConfig, strategy_type: StrategyType | str,
+        self,
+        config: StrategyConfig,
+        strategy_type: StrategyType | str,
     ) -> dict[str, int | None]:
         """
         Extract strategy-specific parameters from StrategyConfig with proper fallback hierarchy.
@@ -185,7 +187,9 @@ class StrategyDispatcher:
         return params
 
     def _analyze_cached_results(
-        self, config: StrategyConfig, resume_analysis,
+        self,
+        config: StrategyConfig,
+        resume_analysis,
     ) -> dict[str, Any]:
         """
         PHASE 1: Analyze cached results from existing CSV files.
@@ -299,10 +303,12 @@ class StrategyDispatcher:
                                                 "ticker": ticker,
                                                 "strategy": strategy,
                                                 "fast_period": best_row.get(
-                                                    "Fast Period", "N/A",
+                                                    "Fast Period",
+                                                    "N/A",
                                                 ),
                                                 "slow_period": best_row.get(
-                                                    "Slow Period", "N/A",
+                                                    "Slow Period",
+                                                    "N/A",
                                                 ),
                                                 "total_return": float(
                                                     best_row.get("Total Return [%]", 0),
@@ -383,14 +389,17 @@ class StrategyDispatcher:
                                                     "ticker": ticker,
                                                     "strategy": strategy,
                                                     "fast_period": best_row.get(
-                                                        "Fast Period", "N/A",
+                                                        "Fast Period",
+                                                        "N/A",
                                                     ),
                                                     "slow_period": best_row.get(
-                                                        "Slow Period", "N/A",
+                                                        "Slow Period",
+                                                        "N/A",
                                                     ),
                                                     "total_return": float(
                                                         best_row.get(
-                                                            "Total Return [%]", 0,
+                                                            "Total Return [%]",
+                                                            0,
                                                         ),
                                                     ),
                                                     "win_rate": float(
@@ -398,7 +407,8 @@ class StrategyDispatcher:
                                                     ),
                                                     "max_drawdown": float(
                                                         best_row.get(
-                                                            "Max Drawdown [%]", 0,
+                                                            "Max Drawdown [%]",
+                                                            0,
                                                         ),
                                                     ),
                                                     "total_trades": int(
@@ -433,7 +443,9 @@ class StrategyDispatcher:
         return analysis
 
     def _display_cached_results_summary(
-        self, analysis: dict[str, Any], config: StrategyConfig,
+        self,
+        analysis: dict[str, Any],
+        config: StrategyConfig,
     ):
         """
         PHASE 2: Display comprehensive Rich CLI summary for cached results.
@@ -446,7 +458,9 @@ class StrategyDispatcher:
 
         # Export Summary Table
         export_table = Table(
-            title="📁 Export Summary", show_header=True, header_style="bold magenta",
+            title="📁 Export Summary",
+            show_header=True,
+            header_style="bold magenta",
         )
         export_table.add_column("Export Type", style="cyan", no_wrap=True)
         export_table.add_column("Files", justify="center", style="green")
@@ -456,7 +470,10 @@ class StrategyDispatcher:
         for export_type, data in analysis["export_summary"].items():
             status = "✅ Complete" if data["exists"] else "❌ Missing"
             export_table.add_row(
-                export_type, str(data["files"]), f"{data['portfolios']:,}", status,
+                export_type,
+                str(data["files"]),
+                f"{data['portfolios']:,}",
+                status,
             )
 
         console.print(export_table)
@@ -531,7 +548,9 @@ class StrategyDispatcher:
             console.print()
 
     def _calculate_parameter_combinations(
-        self, config: StrategyConfig, strategy_type: StrategyType | str,
+        self,
+        config: StrategyConfig,
+        strategy_type: StrategyType | str,
     ) -> int:
         """
         Calculate expected parameter combinations for a strategy type.
@@ -712,7 +731,9 @@ class StrategyDispatcher:
             return 100
 
     def _calculate_actual_current_signal_combinations(
-        self, config: StrategyConfig, strategy_type: StrategyType | str,
+        self,
+        config: StrategyConfig,
+        strategy_type: StrategyType | str,
     ) -> int:
         """
         Calculate actual current signal combinations when USE_CURRENT mode is enabled.
@@ -796,7 +817,8 @@ class StrategyDispatcher:
             # Fallback to theoretical calculation as conservative estimate
             ticker_count = len(config.ticker) if isinstance(config.ticker, list) else 1
             combinations_per_ticker = self._calculate_parameter_combinations(
-                config, strategy_type,
+                config,
+                strategy_type,
             )
             return ticker_count * combinations_per_ticker
 
@@ -839,7 +861,8 @@ class StrategyDispatcher:
 
             # Initialize batch service
             self.batch_service = BatchProcessingService(
-                batch_file_path=batch_file_path, console=self.console,
+                batch_file_path=batch_file_path,
+                console=self.console,
             )
 
             # Validate batch file
@@ -885,7 +908,9 @@ class StrategyDispatcher:
 
             # Get tickers that actually need processing using resume-aware selection
             pending_tickers = self.batch_service.get_tickers_needing_processing(
-                original_tickers, batch_size, resume_check_function,
+                original_tickers,
+                batch_size,
+                resume_check_function,
             )
 
             if not pending_tickers:
@@ -904,7 +929,8 @@ class StrategyDispatcher:
             config.ticker = pending_tickers
 
             self.console.heading(
-                f"Batch Processing: {len(pending_tickers)} tickers", level=2,
+                f"Batch Processing: {len(pending_tickers)} tickers",
+                level=2,
             )
             self.console.info(f"Processing tickers: {', '.join(pending_tickers)}")
 
@@ -916,7 +942,9 @@ class StrategyDispatcher:
         # Smart Resume Analysis (unless refresh is enabled or in batch mode)
         # Skip resume analysis for batch mode since it's already handled during batch selection
         if not getattr(config, "refresh", False) and not getattr(
-            config, "batch", False,
+            config,
+            "batch",
+            False,
         ):
             # Convert StrategyConfig to legacy format for resume analysis
             legacy_config = self._convert_strategy_config_to_legacy(config)
@@ -937,13 +965,15 @@ class StrategyDispatcher:
                 # PHASE 1 & 2: Analyze cached results and display Rich CLI summary
                 try:
                     cached_analysis = self._analyze_cached_results(
-                        config, resume_analysis,
+                        config,
+                        resume_analysis,
                     )
                     self._display_cached_results_summary(cached_analysis, config)
 
                     # Update summary with actual portfolio count from cached analysis
                     summary.total_portfolios_generated = cached_analysis.get(
-                        "total_portfolios", 0,
+                        "total_portfolios",
+                        0,
                     )
                 except Exception as e:
                     self.console.warning(f"Error analyzing cached results: {e}")
@@ -965,12 +995,14 @@ class StrategyDispatcher:
 
             # Filter config to only process remaining work
             filtered_legacy_config = self.resume_service.filter_config_for_resume(
-                legacy_config, resume_analysis,
+                legacy_config,
+                resume_analysis,
             )
 
             # Convert back to StrategyConfig format
             config = self._convert_legacy_to_strategy_config(
-                filtered_legacy_config, config,
+                filtered_legacy_config,
+                config,
             )
 
             if filtered_legacy_config.get("_RESUME_SKIP_ALL", False):
@@ -981,13 +1013,15 @@ class StrategyDispatcher:
                 # PHASE 1 & 2: Enhanced CLI output for secondary skip check
                 try:
                     cached_analysis = self._analyze_cached_results(
-                        config, resume_analysis,
+                        config,
+                        resume_analysis,
                     )
                     self._display_cached_results_summary(cached_analysis, config)
 
                     # Update summary with actual portfolio count from cached analysis
                     summary.total_portfolios_generated = cached_analysis.get(
-                        "total_portfolios", 0,
+                        "total_portfolios",
+                        0,
                     )
                 except Exception as e:
                     self.console.warning(f"Error analyzing cached results: {e}")
@@ -1030,7 +1064,9 @@ class StrategyDispatcher:
         if config.skip_analysis:
             if isinstance(self.console, PerformanceAwareConsoleLogger):
                 with self.console.performance_context(
-                    "portfolio_processing", "Processing existing portfolios", 5.0,
+                    "portfolio_processing",
+                    "Processing existing portfolios",
+                    5.0,
                 ) as phase:
                     success = self._execute_skip_analysis_mode(config)
                     phase.add_detail("portfolios_processed", "existing")
@@ -1084,7 +1120,8 @@ class StrategyDispatcher:
                 )
                 actual_combinations = (
                     self._calculate_actual_current_signal_combinations(
-                        config, config.strategy_types[0],
+                        config,
+                        config.strategy_types[0],
                     )
                 )
                 total_combinations = actual_combinations
@@ -1094,7 +1131,8 @@ class StrategyDispatcher:
             else:
                 # Use theoretical combinations for full parameter sweeps
                 combinations_per_ticker = self._calculate_parameter_combinations(
-                    config, config.strategy_types[0],
+                    config,
+                    config.strategy_types[0],
                 )
                 total_combinations = ticker_count * combinations_per_ticker
                 self.console.info(
@@ -1126,7 +1164,8 @@ class StrategyDispatcher:
 
                 # Execute strategy with progress update function
                 success = strategy_service.execute_strategy(
-                    config, progress_update_fn=update_progress,
+                    config,
+                    progress_update_fn=update_progress,
                 )
 
                 # Validate progress reached expected total
@@ -1177,7 +1216,10 @@ class StrategyDispatcher:
         return summary
 
     def _extract_portfolio_results_from_files(
-        self, ticker: str, strategy_type: str, config: StrategyConfig,
+        self,
+        ticker: str,
+        strategy_type: str,
+        config: StrategyConfig,
     ) -> StrategyPortfolioResults:
         """
         Extract actual portfolio results by reading generated CSV files.
@@ -1322,7 +1364,8 @@ class StrategyDispatcher:
             summary.tickers_processed = [config.ticker]
 
         self.console.heading(
-            f"Executing {len(config.strategy_types)} strategies", level=2,
+            f"Executing {len(config.strategy_types)} strategies",
+            level=2,
         )
 
         # Calculate total combinations across all strategies and tickers for holistic progress
@@ -1340,7 +1383,8 @@ class StrategyDispatcher:
             for strategy_type in config.strategy_types:
                 actual_combinations = (
                     self._calculate_actual_current_signal_combinations(
-                        config, strategy_type,
+                        config,
+                        strategy_type,
                     )
                 )
                 total_combinations += actual_combinations
@@ -1364,7 +1408,8 @@ class StrategyDispatcher:
 
             for strategy_type in config.strategy_types:
                 combinations = self._calculate_parameter_combinations(
-                    config, strategy_type,
+                    config,
+                    strategy_type,
                 )
                 total_combinations += ticker_count * combinations
                 strategy_name = (
@@ -1381,7 +1426,8 @@ class StrategyDispatcher:
         # Execute strategies with holistic progress tracking
         # Show progress bar for parameter sweeps (>10 combinations) OR USE_CURRENT mode (always valuable)
         should_show_progress = isinstance(
-            self.console, PerformanceAwareConsoleLogger,
+            self.console,
+            PerformanceAwareConsoleLogger,
         ) and (total_combinations > 10 or use_current_mode)
 
         if should_show_progress:
@@ -1428,14 +1474,15 @@ class StrategyDispatcher:
 
                     # Create single-strategy config
                     single_config = self._create_single_strategy_config(
-                        config, strategy_type,
+                        config,
+                        strategy_type,
                     )
 
                     # Add global progress allocation for accurate multi-ticker progress
                     if hasattr(single_config, "__dict__"):
-                        single_config.__dict__[
-                            "_GLOBAL_PROGRESS_PER_TICKER"
-                        ] = global_progress_per_ticker
+                        single_config.__dict__["_GLOBAL_PROGRESS_PER_TICKER"] = (
+                            global_progress_per_ticker
+                        )
                     else:
                         # Fallback for dict-like configs
                         single_config._GLOBAL_PROGRESS_PER_TICKER = (
@@ -1454,7 +1501,8 @@ class StrategyDispatcher:
 
                     # Execute strategy with progress update function
                     success = service.execute_strategy(
-                        single_config, progress_update_fn=update_progress,
+                        single_config,
+                        progress_update_fn=update_progress,
                     )
                     results.append(success)
 
@@ -1501,7 +1549,8 @@ class StrategyDispatcher:
 
                 # Create single-strategy config
                 single_config = self._create_single_strategy_config(
-                    config, strategy_type,
+                    config,
+                    strategy_type,
                 )
 
                 # Get appropriate service for this strategy type
@@ -1568,7 +1617,9 @@ class StrategyDispatcher:
         return summary
 
     def _create_single_strategy_config(
-        self, original_config: StrategyConfig, strategy_type: StrategyType | str,
+        self,
+        original_config: StrategyConfig,
+        strategy_type: StrategyType | str,
     ) -> StrategyConfig:
         """
         Create a single-strategy configuration from a multi-strategy config.
@@ -1599,7 +1650,8 @@ class StrategyDispatcher:
         return single_config
 
     def _determine_single_service(
-        self, strategy_type: StrategyType | str,
+        self,
+        strategy_type: StrategyType | str,
     ) -> BaseStrategyService | None:
         """
         Determine service for a single strategy type.
@@ -1631,7 +1683,8 @@ class StrategyDispatcher:
         return None
 
     def _determine_service(
-        self, strategy_types: list[StrategyType | str],
+        self,
+        strategy_types: list[StrategyType | str],
     ) -> BaseStrategyService | None:
         """
         Determine which service to use based on strategy types.
@@ -1706,7 +1759,8 @@ class StrategyDispatcher:
         }
 
     def validate_strategy_compatibility(
-        self, strategy_types: list[StrategyType | str],
+        self,
+        strategy_types: list[StrategyType | str],
     ) -> bool:
         """
         Validate that strategy types are compatible with available services.
@@ -1757,7 +1811,8 @@ class StrategyDispatcher:
             return False
 
     def _convert_config_to_legacy_for_skip_mode(
-        self, config: StrategyConfig,
+        self,
+        config: StrategyConfig,
     ) -> dict[str, Any]:
         """
         Convert StrategyConfig to legacy format for PortfolioOrchestrator in skip mode.
@@ -1811,7 +1866,8 @@ class StrategyDispatcher:
         return legacy_config
 
     def _convert_strategy_config_to_legacy(
-        self, config: StrategyConfig,
+        self,
+        config: StrategyConfig,
     ) -> dict[str, Any]:
         """
         Convert StrategyConfig to legacy format for resume analysis.
@@ -1860,7 +1916,8 @@ class StrategyDispatcher:
         def get_strategy_specific_params(strategy_type: str):
             """Extract strategy-specific parameters with fallback to global parameters."""
             if config.strategy_params and hasattr(
-                config.strategy_params, strategy_type,
+                config.strategy_params,
+                strategy_type,
             ):
                 strategy_params = getattr(config.strategy_params, strategy_type)
                 if strategy_params:
@@ -1925,7 +1982,9 @@ class StrategyDispatcher:
         return legacy_config
 
     def _convert_legacy_to_strategy_config(
-        self, legacy_config: dict[str, Any], original_config: StrategyConfig,
+        self,
+        legacy_config: dict[str, Any],
+        original_config: StrategyConfig,
     ) -> StrategyConfig:
         """
         Convert filtered legacy config back to StrategyConfig format.
@@ -1989,7 +2048,8 @@ class StrategyDispatcher:
         failed_tickers = []
 
         self.console.heading(
-            f"Batch Processing: {len(tickers_to_process)} tickers", level=2,
+            f"Batch Processing: {len(tickers_to_process)} tickers",
+            level=2,
         )
 
         for idx, ticker in enumerate(tickers_to_process, 1):

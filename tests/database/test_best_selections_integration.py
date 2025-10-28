@@ -96,7 +96,9 @@ class TestBestSelectionIntegration:
 
     @pytest.mark.skip(reason="Requires live database connection")
     async def test_compute_and_save_best_selections(
-        self, repository, sample_sweep_results_for_best,
+        self,
+        repository,
+        sample_sweep_results_for_best,
     ):
         """Test computing and saving best selections."""
         sweep_run_id = uuid4()
@@ -107,7 +109,9 @@ class TestBestSelectionIntegration:
 
         # Save sweep results first
         await repository.save_sweep_results_with_metrics(
-            sweep_run_id, sample_sweep_results_for_best, sweep_config,
+            sweep_run_id,
+            sample_sweep_results_for_best,
+            sweep_config,
         )
 
         # Compute and save best selections
@@ -131,7 +135,9 @@ class TestBestSelectionIntegration:
 
     @pytest.mark.skip(reason="Requires live database connection")
     async def test_get_best_result_for_ticker(
-        self, repository, sample_sweep_results_for_best,
+        self,
+        repository,
+        sample_sweep_results_for_best,
     ):
         """Test retrieving best result for specific ticker."""
         sweep_run_id = uuid4()
@@ -139,13 +145,17 @@ class TestBestSelectionIntegration:
 
         # Save and compute
         await repository.save_sweep_results_with_metrics(
-            sweep_run_id, sample_sweep_results_for_best, sweep_config,
+            sweep_run_id,
+            sample_sweep_results_for_best,
+            sweep_config,
         )
         await repository.compute_and_save_best_selections(sweep_run_id)
 
         # Get best for ticker
         best = await repository.get_best_result_for_ticker(
-            sweep_run_id, "BTC-USD", "SMA",
+            sweep_run_id,
+            "BTC-USD",
+            "SMA",
         )
 
         assert best is not None
@@ -155,7 +165,9 @@ class TestBestSelectionIntegration:
 
     @pytest.mark.skip(reason="Requires live database connection")
     async def test_get_sweep_results_with_best_flag(
-        self, repository, sample_sweep_results_for_best,
+        self,
+        repository,
+        sample_sweep_results_for_best,
     ):
         """Test retrieving all results with is_best flag."""
         sweep_run_id = uuid4()
@@ -163,7 +175,9 @@ class TestBestSelectionIntegration:
 
         # Save and compute
         await repository.save_sweep_results_with_metrics(
-            sweep_run_id, sample_sweep_results_for_best, sweep_config,
+            sweep_run_id,
+            sample_sweep_results_for_best,
+            sweep_config,
         )
         await repository.compute_and_save_best_selections(sweep_run_id)
 
@@ -210,7 +224,9 @@ class TestBestSelectionIntegration:
 
         # Save and compute
         await repository.save_sweep_results_with_metrics(
-            sweep_run_id, results, sweep_config,
+            sweep_run_id,
+            results,
+            sweep_config,
         )
         count = await repository.compute_and_save_best_selections(sweep_run_id)
 
@@ -245,7 +261,9 @@ class TestBestSelectionIntegration:
         sweep_config = {"tickers": ["AAPL"]}
 
         await repository.save_sweep_results_with_metrics(
-            sweep_run_id, results, sweep_config,
+            sweep_run_id,
+            results,
+            sweep_config,
         )
 
         # Compute twice - should not fail, should upsert

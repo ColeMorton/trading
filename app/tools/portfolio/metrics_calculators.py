@@ -73,7 +73,9 @@ def update_breadth_metrics(df: pd.DataFrame, breadth_metrics: dict, file_info: d
 
 
 def calculate_summary_stats(
-    aggregation_results: dict[str, Any], processed_files: int, total_rows: int,
+    aggregation_results: dict[str, Any],
+    processed_files: int,
+    total_rows: int,
 ):
     """Calculate final summary statistics for aggregation.
 

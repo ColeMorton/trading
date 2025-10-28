@@ -225,7 +225,8 @@ class ProfileManager:
                 except FileNotFoundError:
                     msg = f"Parent profile '{current.inherits_from}' not found"
                     raise ValidationError(
-                        msg, Profile,
+                        msg,
+                        Profile,
                     )
 
             # Merge configurations from parent to child
@@ -274,7 +275,10 @@ class ProfileManager:
             Created profile
         """
         metadata = ProfileMetadata(
-            name=name, description=description, tags=tags or [], author=author,
+            name=name,
+            description=description,
+            tags=tags or [],
+            author=author,
         )
 
         profile = Profile(
@@ -371,7 +375,9 @@ class ProfileManager:
         return resolved_config
 
     def _merge_configs(
-        self, base: dict[str, Any], override: dict[str, Any],
+        self,
+        base: dict[str, Any],
+        override: dict[str, Any],
     ) -> dict[str, Any]:
         """Merge two configuration dictionaries."""
         result = base.copy()
@@ -463,7 +469,8 @@ class ConfigManager:
         # Apply overrides
         if config_overrides:
             config_dict = self.profile_manager._merge_configs(
-                config_dict, config_overrides,
+                config_dict,
+                config_overrides,
             )
 
         # Get appropriate model and validate

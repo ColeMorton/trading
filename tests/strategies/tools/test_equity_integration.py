@@ -39,7 +39,9 @@ class TestEquityIntegration:
 
         # Mock value() method
         timestamp_index = pd.date_range(
-            "2023-01-01", periods=len(equity_values), freq="D",
+            "2023-01-01",
+            periods=len(equity_values),
+            freq="D",
         )
         value_series = pd.Series(equity_values, index=timestamp_index)
         portfolio.value.return_value = value_series
@@ -79,7 +81,11 @@ class TestEquityIntegration:
     @patch("app.strategies.tools.summary_processing.is_exit_signal_current")
     @patch("app.strategies.tools.summary_processing.convert_stats")
     def test_macd_strategy_with_equity_extraction(
-        self, mock_convert_stats, mock_exit_signal, mock_signal, mock_process_macd,
+        self,
+        mock_convert_stats,
+        mock_exit_signal,
+        mock_signal,
+        mock_process_macd,
     ):
         """Test MACD strategy processing with equity data extraction."""
         # Setup mocks
@@ -131,7 +137,11 @@ class TestEquityIntegration:
     @patch("app.strategies.tools.summary_processing.is_exit_signal_current")
     @patch("app.strategies.tools.summary_processing.convert_stats")
     def test_sma_strategy_with_equity_extraction(
-        self, mock_convert_stats, mock_exit_signal, mock_signal, mock_process_ma,
+        self,
+        mock_convert_stats,
+        mock_exit_signal,
+        mock_signal,
+        mock_process_ma,
     ):
         """Test SMA strategy processing with equity data extraction."""
         # Setup mocks
@@ -186,7 +196,11 @@ class TestEquityIntegration:
     @patch("app.strategies.tools.summary_processing.is_exit_signal_current")
     @patch("app.strategies.tools.summary_processing.convert_stats")
     def test_ema_strategy_with_equity_extraction(
-        self, mock_convert_stats, mock_exit_signal, mock_signal, mock_process_ma,
+        self,
+        mock_convert_stats,
+        mock_exit_signal,
+        mock_signal,
+        mock_process_ma,
     ):
         """Test EMA strategy processing with equity data extraction."""
         # Setup mocks
@@ -418,7 +432,10 @@ class TestEquityIntegration:
                         }
 
                         result = process_ticker_portfolios(
-                            "TEST", row, config, self.mock_log,
+                            "TEST",
+                            row,
+                            config,
+                            self.mock_log,
                         )
 
                         # Verify processing succeeded

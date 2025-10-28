@@ -17,7 +17,9 @@ from ..config import ConfigManager
 
 # Create config sub-app
 app = typer.Typer(
-    name="config", help="Configuration and profile management", no_args_is_help=True,
+    name="config",
+    help="Configuration and profile management",
+    no_args_is_help=True,
 )
 
 console = Console()
@@ -70,7 +72,9 @@ def list():
 def show(
     profile_name: str = typer.Argument(help="Profile name to display"),
     resolved: bool = typer.Option(
-        False, "--resolved", help="Show resolved configuration with inheritance",
+        False,
+        "--resolved",
+        help="Show resolved configuration with inheritance",
     ),
 ):
     """Show configuration details for a specific profile."""
@@ -178,10 +182,14 @@ def set_default(
 def edit(
     profile_name: str = typer.Argument(help="Profile name to edit"),
     set_field: builtins.list[str] = typer.Option(
-        [], "--set-field", help="Set field value (format: field.path value)",
+        [],
+        "--set-field",
+        help="Set field value (format: field.path value)",
     ),
     interactive: bool = typer.Option(
-        False, "--interactive", help="Use interactive editor",
+        False,
+        "--interactive",
+        help="Use interactive editor",
     ),
 ):
     """Edit a configuration profile."""
@@ -225,7 +233,9 @@ def edit(
                 # Apply field modification with validation
                 try:
                     editor_service.set_field_value(
-                        modified_profile, field_path, field_value,
+                        modified_profile,
+                        field_path,
+                        field_value,
                     )
                 except ValueError as e:
                     rprint(f"[red]Invalid value for {field_path}: {e}[/red]")
@@ -261,7 +271,9 @@ def _display_profile_summary(profile_data: dict) -> None:
 
 
 def _run_interactive_editor(
-    profile_data: dict, editor_service, profile_name: str,
+    profile_data: dict,
+    editor_service,
+    profile_name: str,
 ) -> None:
     """Run interactive profile editor."""
     rprint("\n[bold cyan]Interactive Profile Editor[/bold cyan]")
@@ -293,7 +305,9 @@ def _run_interactive_editor(
                 if new_value:
                     try:
                         editor_service.set_field_value(
-                            profile_data, f"config.{field_name}", new_value,
+                            profile_data,
+                            f"config.{field_name}",
+                            new_value,
                         )
                         # Update the display list
                         editable_fields[choice_num - 1] = (field_name, new_value)
@@ -310,9 +324,9 @@ def _run_interactive_editor(
 
 @app.command()
 def validate(
-    profile_name: str
-    | None = typer.Argument(
-        None, help="Profile name to validate (validates all if not specified)",
+    profile_name: str | None = typer.Argument(
+        None,
+        help="Profile name to validate (validates all if not specified)",
     ),
 ):
     """Validate configuration profiles."""

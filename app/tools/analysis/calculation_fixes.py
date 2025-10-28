@@ -134,7 +134,8 @@ class PortfolioAggregationFixes:
 
     @staticmethod
     def calculate_portfolio_return_correct(
-        positions: pd.DataFrame, method: str = "equal_weighted",
+        positions: pd.DataFrame,
+        method: str = "equal_weighted",
     ) -> float:
         """
         Calculate portfolio return using proper methodologies
@@ -205,10 +206,11 @@ class PortfolioAggregationFixes:
         metrics = {}
 
         # Correct portfolio return calculation
-        metrics[
-            "total_return_equal_weighted"
-        ] = PortfolioAggregationFixes.calculate_portfolio_return_correct(
-            positions, "equal_weighted",
+        metrics["total_return_equal_weighted"] = (
+            PortfolioAggregationFixes.calculate_portfolio_return_correct(
+                positions,
+                "equal_weighted",
+            )
         )
 
         # Success rate calculation
@@ -306,7 +308,9 @@ class PercentileCalculationFixes:
 
     @staticmethod
     def calculate_correct_percentile_rank(
-        current_return: float, historical_returns: pd.Series, holding_period_days: int,
+        current_return: float,
+        historical_returns: pd.Series,
+        holding_period_days: int,
     ) -> float:
         """
         Calculate correct percentile rank for a position return
@@ -421,7 +425,9 @@ class SharpeRatioFixes:
 
     @staticmethod
     def calculate_correct_sharpe_ratio(
-        returns: pd.Series, risk_free_rate: float = 0.05, period: str = "daily",
+        returns: pd.Series,
+        risk_free_rate: float = 0.05,
+        period: str = "daily",
     ) -> float:
         """
         Calculate correct Sharpe ratio
@@ -529,7 +535,9 @@ class DataValidationFixes:
 
     @staticmethod
     def safe_divide(
-        numerator: float, denominator: float, default: float = 0.0,
+        numerator: float,
+        denominator: float,
+        default: float = 0.0,
     ) -> float:
         """
         Safe division with handling for edge cases
@@ -584,7 +592,8 @@ class EdgeCaseHandling:
 
     @staticmethod
     def validate_extreme_values(
-        values: dict[str, float], bounds: dict[str, tuple[float, float]],
+        values: dict[str, float],
+        bounds: dict[str, tuple[float, float]],
     ) -> dict[str, Any]:
         """
         Validate values against expected bounds
@@ -630,7 +639,9 @@ class SPDSCalculationCorrector:
         self.edge_case_handler = EdgeCaseHandling()
 
     def correct_portfolio_analysis(
-        self, positions: pd.DataFrame, historical_returns: pd.Series | None = None,
+        self,
+        positions: pd.DataFrame,
+        historical_returns: pd.Series | None = None,
     ) -> dict[str, Any]:
         """
         Apply comprehensive corrections to portfolio analysis

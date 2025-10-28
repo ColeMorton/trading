@@ -4,7 +4,11 @@ import polars as pl
 
 
 def calculate_mas(
-    data: pl.DataFrame, fast_period: int, slow_period: int, use_sma: bool, log: Callable,
+    data: pl.DataFrame,
+    fast_period: int,
+    slow_period: int,
+    use_sma: bool,
+    log: Callable,
 ) -> pl.DataFrame:
     """Calculate Moving Averages (SMA or EMA).
 

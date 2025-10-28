@@ -67,7 +67,9 @@ class BacktestingParameterService:
         self.logger = logger or logging.getLogger(__name__)
 
     def convert_analysis_to_parameters(
-        self, analysis_result: dict[str, Any], strategy_type: str = "ma_cross",
+        self,
+        analysis_result: dict[str, Any],
+        strategy_type: str = "ma_cross",
     ) -> BacktestingParameters:
         """Convert statistical analysis results to backtesting parameters."""
         try:
@@ -140,7 +142,8 @@ class BacktestingParameterService:
             return self._get_default_parameters(strategy_type)
 
     def generate_vectorbt_parameters(
-        self, backtesting_params: BacktestingParameters,
+        self,
+        backtesting_params: BacktestingParameters,
     ) -> VectorBTParameters:
         """Generate VectorBT-specific parameters."""
         strategy_params = {
@@ -177,7 +180,8 @@ class BacktestingParameterService:
         )
 
     def generate_backtrader_parameters(
-        self, backtesting_params: BacktestingParameters,
+        self,
+        backtesting_params: BacktestingParameters,
     ) -> dict[str, Any]:
         """Generate Backtrader-specific parameters."""
         return {
@@ -269,13 +273,15 @@ class BacktestingParameterService:
             # Adjust stop loss based on volatility
             volatility_adjusted_stop = parameters.stop_loss_pct * (1 + volatility)
             optimized_params.stop_loss_pct = min(
-                volatility_adjusted_stop, 0.1,
+                volatility_adjusted_stop,
+                0.1,
             )  # Cap at 10%
 
             # Adjust position size based on volatility
             volatility_adjusted_size = parameters.position_size_pct * (1 - volatility)
             optimized_params.position_size_pct = max(
-                volatility_adjusted_size, 0.01,
+                volatility_adjusted_size,
+                0.01,
             )  # Minimum 1%
 
         return optimized_params
@@ -418,7 +424,8 @@ class BacktestingParameterService:
         return False  # Default to disabled
 
     def _calculate_momentum_exit_threshold(
-        self, analysis_result: dict[str, Any],
+        self,
+        analysis_result: dict[str, Any],
     ) -> float:
         """Calculate momentum exit threshold."""
         # Default momentum exit threshold
@@ -431,7 +438,8 @@ class BacktestingParameterService:
         return max(0.3, min(threshold, 0.8))  # Between 0.3 and 0.8
 
     def _should_enable_volatility_adjustment(
-        self, analysis_result: dict[str, Any],
+        self,
+        analysis_result: dict[str, Any],
     ) -> bool:
         """Determine if volatility adjustment should be enabled."""
         # Enable for high volatility environments
@@ -441,7 +449,8 @@ class BacktestingParameterService:
         return False  # Default to disabled
 
     def _calculate_volatility_multiplier(
-        self, analysis_result: dict[str, Any],
+        self,
+        analysis_result: dict[str, Any],
     ) -> float:
         """Calculate volatility multiplier."""
         # Default volatility multiplier

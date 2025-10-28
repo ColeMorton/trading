@@ -120,7 +120,8 @@ else:
     # Handle infinite values in ratios
     for ratio in ["Sharpe Ratio", "Sortino Ratio", "Calmar Ratio"]:
         combined_results[ratio] = combined_results[ratio].replace(
-            [np.inf, -np.inf], np.nan,
+            [np.inf, -np.inf],
+            np.nan,
         )
 
     # Calculate median values
@@ -135,7 +136,8 @@ else:
 
     # Total Return
     axes[0, 0].bar(
-        range(len(combined_results) - 1), combined_results["Total Return (%)"][:-1],
+        range(len(combined_results) - 1),
+        combined_results["Total Return (%)"][:-1],
     )
     axes[0, 0].set_title("Total Return (%)")
     axes[0, 0].set_xticks(range(len(combined_results) - 1))
@@ -143,7 +145,8 @@ else:
 
     # Sharpe Ratio
     axes[0, 1].bar(
-        range(len(combined_results) - 1), combined_results["Sharpe Ratio"][:-1],
+        range(len(combined_results) - 1),
+        combined_results["Sharpe Ratio"][:-1],
     )
     axes[0, 1].set_title("Sharpe Ratio")
     axes[0, 1].set_xticks(range(len(combined_results) - 1))
@@ -151,7 +154,8 @@ else:
 
     # Sortino Ratio
     axes[1, 0].bar(
-        range(len(combined_results) - 1), combined_results["Sortino Ratio"][:-1],
+        range(len(combined_results) - 1),
+        combined_results["Sortino Ratio"][:-1],
     )
     axes[1, 0].set_title("Sortino Ratio")
     axes[1, 0].set_xticks(range(len(combined_results) - 1))
@@ -159,7 +163,8 @@ else:
 
     # Calmar Ratio
     axes[1, 1].bar(
-        range(len(combined_results) - 1), combined_results["Calmar Ratio"][:-1],
+        range(len(combined_results) - 1),
+        combined_results["Calmar Ratio"][:-1],
     )
     axes[1, 1].set_title("Calmar Ratio")
     axes[1, 1].set_xticks(range(len(combined_results) - 1))
@@ -167,7 +172,8 @@ else:
 
     # Max Drawdown
     axes[2, 0].bar(
-        range(len(combined_results) - 1), combined_results["Max Drawdown (%)"][:-1],
+        range(len(combined_results) - 1),
+        combined_results["Max Drawdown (%)"][:-1],
     )
     axes[2, 0].set_title("Max Drawdown (%)")
     axes[2, 0].set_xticks(range(len(combined_results) - 1))

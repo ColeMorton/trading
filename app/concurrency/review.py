@@ -142,7 +142,8 @@ def run_analysis(config: dict[str, Any]) -> bool:
 
             # Configure engine based on settings
             enable_memory_optimization = validated_config.get(
-                "ENABLE_MEMORY_OPTIMIZATION", False,
+                "ENABLE_MEMORY_OPTIMIZATION",
+                False,
             )
             enable_visualization = validated_config.get("VISUALIZATION", False)
             enable_optimization = validated_config.get("OPTIMIZE", False)
@@ -167,7 +168,8 @@ def run_analysis(config: dict[str, Any]) -> bool:
 
             if result:
                 log(
-                    "Concurrency analysis completed successfully using service!", "info",
+                    "Concurrency analysis completed successfully using service!",
+                    "info",
                 )
                 return True
             log("Concurrency analysis failed", "error")
@@ -194,7 +196,9 @@ def run_analysis(config: dict[str, Any]) -> bool:
             reraise=True,
         ):
             with portfolio_context(
-                portfolio_filename, log, validated_config,
+                portfolio_filename,
+                log,
+                validated_config,
             ) as portfolio_data:
                 # Process portfolio data with schema detection and allocation handling
                 if portfolio_data:
@@ -237,7 +241,8 @@ def run_analysis(config: dict[str, Any]) -> bool:
                         # Ensure allocations sum to 100% only for strategies that have
                         # allocations
                         portfolio_data = ensure_allocation_sum_100_percent(
-                            normalized_data, log,
+                            normalized_data,
+                            log,
                         )
 
                         # Calculate position sizes if account value is provided
@@ -247,7 +252,9 @@ def run_analysis(config: dict[str, Any]) -> bool:
                         ):
                             account_value = float(validated_config["INITIAL_VALUE"])
                             portfolio_data = calculate_position_sizes(
-                                portfolio_data, account_value, log,
+                                portfolio_data,
+                                account_value,
+                                log,
                             )
                             log(
                                 f"Calculated position sizes based on account value: {account_value}",
@@ -256,7 +263,8 @@ def run_analysis(config: dict[str, Any]) -> bool:
 
                             # Get allocation summary
                             allocation_summary = get_allocation_summary(
-                                portfolio_data, log,
+                                portfolio_data,
+                                log,
                             )
                             log(
                                 f"Allocation summary (using only CSV-defined allocations): {allocation_summary}",
@@ -290,7 +298,8 @@ def run_analysis(config: dict[str, Any]) -> bool:
                                 "info",
                             )
                             use_candle_close = validated_config.get(
-                                "SL_CANDLE_CLOSE", True,
+                                "SL_CANDLE_CLOSE",
+                                True,
                             )
 
                             # Only apply to strategies with explicitly defined stop loss
@@ -381,7 +390,8 @@ def run_analysis(config: dict[str, Any]) -> bool:
                             "info",
                         )
                         validated_config = process_synthetic_config(
-                            validated_config, log,
+                            validated_config,
+                            log,
                         )
 
         # Run analysis
@@ -427,7 +437,8 @@ def run_analysis(config: dict[str, Any]) -> bool:
 
 
 def run_concurrency_review(
-    portfolio_name: str, config_overrides: dict[str, Any] | None = None,
+    portfolio_name: str,
+    config_overrides: dict[str, Any] | None = None,
 ) -> bool:
     """Run concurrency review with a specific portfolio file and configuration overrides.
 

@@ -121,7 +121,8 @@ class ProgressTracker:
 
 
 def create_progress_callback(
-    execution_id: str, task_status_dict: dict[str, Any],
+    execution_id: str,
+    task_status_dict: dict[str, Any],
 ) -> Callable[[dict[str, Any]], None]:
     """
     Create a progress callback function for updating task status.

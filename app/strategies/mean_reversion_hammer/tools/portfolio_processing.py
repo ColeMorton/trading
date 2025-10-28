@@ -19,7 +19,9 @@ from app.tools.strategy.sensitivity_analysis import analyze_parameter_combinatio
 
 
 def process_single_ticker(
-    ticker: str, config: dict, log: Callable,
+    ticker: str,
+    config: dict,
+    log: Callable,
 ) -> pl.DataFrame | None:
     """
     Process portfolio analysis for a single ticker using the hammer strategy.
@@ -43,7 +45,10 @@ def process_single_ticker(
             # Construct file path using BASE_DIR
             file_name = f'{ticker}{"_H" if config.get("USE_HOURLY", False) else "_D"}'
             directory = os.path.join(
-                config["BASE_DIR"], "csv", "mean_reversion_hammer", "portfolios",
+                config["BASE_DIR"],
+                "csv",
+                "mean_reversion_hammer",
+                "portfolios",
             )
 
             # Ensure directory exists
@@ -74,7 +79,10 @@ def process_single_ticker(
 
         log("Beginning analysis...")
         portfolios = analyze_parameter_combinations(
-            data=data, change_pcts=change_pcts, config=config_copy, log=log,
+            data=data,
+            change_pcts=change_pcts,
+            config=config_copy,
+            log=log,
         )
 
         if not portfolios:

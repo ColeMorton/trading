@@ -77,10 +77,12 @@ class JobCreate(SQLModel):
     command_name: str = Field(..., max_length=50)
     parameters: dict[str, Any]
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
 
@@ -135,25 +137,32 @@ class StrategyRunRequest(SQLModel):
     fast_period: int = Field(..., gt=0, description="Fast moving average period")
     slow_period: int = Field(..., gt=0, description="Slow moving average period")
     signal_period: int | None = Field(
-        None, gt=0, description="Signal period (for MACD only)",
+        None,
+        gt=0,
+        description="Signal period (for MACD only)",
     )
     strategy_type: str = Field(
-        default="SMA", description="Strategy type: SMA, EMA, MACD",
+        default="SMA",
+        description="Strategy type: SMA, EMA, MACD",
     )
     direction: str = Field(
-        default="Long", description="Trading direction: Long or Short",
+        default="Long",
+        description="Trading direction: Long or Short",
     )
     years: int | None = Field(None, gt=0, description="Years of historical data")
     use_4hour: bool = Field(default=False, description="Use 4-hour timeframe")
     use_2day: bool = Field(default=False, description="Use 2-day timeframe")
     market_type: str | None = Field(
-        None, description="Market type: crypto, us_stock, auto",
+        None,
+        description="Market type: crypto, us_stock, auto",
     )
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -203,10 +212,12 @@ class StrategySweepRequest(SQLModel):
 
     # Support both array format and min/max format
     fast_range: list[int] | None = Field(
-        None, description="Fast period range [min, max]",
+        None,
+        description="Fast period range [min, max]",
     )
     slow_range: list[int] | None = Field(
-        None, description="Slow period range [min, max]",
+        None,
+        description="Slow period range [min, max]",
     )
     step: int | None = Field(5, description="Step size for range")
 
@@ -220,10 +231,12 @@ class StrategySweepRequest(SQLModel):
     strategy_type: str = Field(default="SMA", description="Strategy type")
     config_path: str | None = Field(None, description="Path to config file")
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     @model_validator(mode="after")
@@ -298,10 +311,12 @@ class StrategyReviewRequest(SQLModel):
     slow_period: int = Field(..., gt=0, description="Slow period")
     strategy_type: str = Field(default="SMA", description="Strategy type")
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -327,13 +342,16 @@ class SectorCompareRequest(SQLModel):
     """Request model for sector comparison."""
 
     output_format: str = Field(
-        default="table", description="Output format: table, json, csv",
+        default="table",
+        description="Output format: table, json, csv",
     )
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -359,10 +377,12 @@ class ConfigListRequest(SQLModel):
 
     detailed: bool = Field(default=False, description="Show detailed information")
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -380,10 +400,12 @@ class ConfigShowRequest(SQLModel):
     resolved: bool = Field(default=False, description="Show resolved configuration")
     format: str = Field(default="table", description="Output format: table, json")
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -400,10 +422,12 @@ class ConfigVerifyDefaultsRequest(SQLModel):
     """Request model for config verify-defaults command."""
 
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -416,10 +440,12 @@ class ConfigSetDefaultRequest(SQLModel):
 
     profile_name: str = Field(..., description="Profile name to set as default")
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -432,13 +458,16 @@ class ConfigEditRequest(SQLModel):
 
     profile_name: str = Field(..., description="Profile name to edit")
     set_field: list[str] | None = Field(
-        None, description="Set field values (field=value)",
+        None,
+        description="Set field values (field=value)",
     )
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -454,16 +483,20 @@ class ConfigValidateRequest(SQLModel):
     """Request model for config validate command."""
 
     profile_name: str | None = Field(
-        None, description="Profile name to validate (validates all if not specified)",
+        None,
+        description="Profile name to validate (validates all if not specified)",
     )
     detailed: bool = Field(
-        default=False, description="Show detailed validation results",
+        default=False,
+        description="Show detailed validation results",
     )
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -489,18 +522,24 @@ class ConcurrencyAnalyzeRequest(SQLModel):
     refresh: bool = Field(default=True, description="Refresh cached market data")
     initial_value: float | None = Field(None, description="Initial portfolio value")
     target_var: float | None = Field(
-        None, ge=0, le=1, description="Target VaR threshold",
+        None,
+        ge=0,
+        le=1,
+        description="Target VaR threshold",
     )
     visualization: bool = Field(default=True, description="Enable visualization")
     export_trade_history: bool = Field(default=True, description="Export trade history")
     memory_optimization: bool = Field(
-        default=False, description="Enable memory optimization",
+        default=False,
+        description="Enable memory optimization",
     )
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -534,10 +573,12 @@ class ConcurrencyExportRequest(SQLModel):
     output_dir: str | None = Field(None, description="Output directory path")
     format: str = Field(default="json", description="Export format: json, csv")
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -559,16 +600,20 @@ class ConcurrencyReviewRequest(SQLModel):
 
     portfolio: str = Field(..., description="Portfolio filename to review")
     focus: str = Field(
-        default="all", description="Focus area: all, allocation, metrics, risk",
+        default="all",
+        description="Focus area: all, allocation, metrics, risk",
     )
     output_format: str = Field(
-        default="table", description="Output format: table, json, summary",
+        default="table",
+        description="Output format: table, json, summary",
     )
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -588,19 +633,24 @@ class ConcurrencyConstructRequest(SQLModel):
 
     asset: str | None = Field(None, description="Asset symbol (e.g., BTC-USD, AAPL)")
     tickers: list[str] | None = Field(
-        None, description="List of tickers to construct for",
+        None,
+        description="List of tickers to construct for",
     )
     min_score: float = Field(default=1.0, description="Minimum score threshold")
     max_strategies: int = Field(
-        default=10, ge=1, description="Maximum strategies in portfolio",
+        default=10,
+        ge=1,
+        description="Maximum strategies in portfolio",
     )
     min_sharpe: float | None = Field(None, description="Minimum Sharpe ratio filter")
     export_csv: bool = Field(default=False, description="Export to CSV file")
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -631,15 +681,19 @@ class ConcurrencyOptimizeRequest(SQLModel):
     portfolio: str = Field(..., description="Portfolio filename to optimize")
     min_strategies: int = Field(default=3, ge=1, description="Minimum strategies")
     max_permutations: int = Field(
-        default=5000, ge=1, description="Maximum permutations to test",
+        default=5000,
+        ge=1,
+        description="Maximum permutations to test",
     )
     allocation: str = Field(default="EQUAL", description="Allocation method")
     parallel: bool = Field(default=False, description="Enable parallel processing")
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -674,10 +728,12 @@ class ConcurrencyMonteCarloRequest(SQLModel):
     horizon: int = Field(default=252, ge=1, description="Time horizon in days")
     save_simulations: bool = Field(default=False, description="Save simulation data")
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -710,10 +766,12 @@ class ConcurrencyHealthRequest(SQLModel):
     check_data: bool = Field(default=True, description="Check data files")
     check_config: bool = Field(default=True, description="Check configuration")
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -737,10 +795,12 @@ class ConcurrencyDemoRequest(SQLModel):
     strategies: int = Field(default=10, ge=1, le=50, description="Number of strategies")
     analyze: bool = Field(default=True, description="Run analysis on demo data")
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -767,16 +827,21 @@ class SeasonalityRunRequest(SQLModel):
     min_years: float = Field(default=3.0, gt=0, description="Minimum years of data")
     time_period: int = Field(default=1, ge=1, le=365, description="Time period in days")
     confidence_level: float = Field(
-        default=0.95, gt=0, lt=1, description="Confidence level",
+        default=0.95,
+        gt=0,
+        lt=1,
+        description="Confidence level",
     )
     output_format: str = Field(default="csv", description="Output format: csv, json")
     detrend: bool = Field(default=True, description="Remove trend before analysis")
     min_sample_size: int = Field(default=10, ge=1, description="Minimum sample size")
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -816,10 +881,12 @@ class SeasonalityListRequest(SQLModel):
     """Request model for seasonality list command."""
 
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -833,10 +900,12 @@ class SeasonalityResultsRequest(SQLModel):
     ticker: str = Field(..., description="Ticker symbol to view results for")
     format: str = Field(default="table", description="Output format: table, raw")
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -855,10 +924,12 @@ class SeasonalityCleanRequest(SQLModel):
     """Request model for seasonality clean command."""
 
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -873,16 +944,21 @@ class SeasonalityCurrentRequest(SQLModel):
     days: int = Field(default=30, ge=1, le=365, description="Hold period in days")
     min_sample_size: int = Field(default=50, ge=1, description="Minimum sample size")
     min_significance: float = Field(
-        default=0.5, ge=0, le=1, description="Min significance",
+        default=0.5,
+        ge=0,
+        le=1,
+        description="Min significance",
     )
     top_n: int = Field(default=20, ge=1, description="Number of top results")
     no_csv: bool = Field(default=False, description="Skip CSV report")
     no_markdown: bool = Field(default=False, description="Skip markdown report")
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:
@@ -922,20 +998,27 @@ class SeasonalityPortfolioRequest(SQLModel):
     portfolio_name: str = Field(..., description="Portfolio filename")
     default_time_period: int = Field(default=21, ge=1, description="Default days")
     time_period: int | None = Field(
-        None, ge=1, description="Override time period for all",
+        None,
+        ge=1,
+        description="Override time period for all",
     )
     confidence_level: float = Field(
-        default=0.95, gt=0, lt=1, description="Confidence level",
+        default=0.95,
+        gt=0,
+        lt=1,
+        description="Confidence level",
     )
     output_format: str = Field(default="csv", description="Output format: csv, json")
     detrend: bool = Field(default=True, description="Remove trend")
     min_sample_size: int = Field(default=10, ge=1, description="Min sample size")
     include_holidays: bool = Field(default=False, description="Include holiday effects")
     webhook_url: str | None = Field(
-        None, description="Callback URL for job completion notification",
+        None,
+        description="Callback URL for job completion notification",
     )
     webhook_headers: dict[str, str] | None = Field(
-        None, description="Custom headers for webhook request",
+        None,
+        description="Custom headers for webhook request",
     )
 
     def to_cli_args(self) -> list[str]:

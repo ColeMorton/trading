@@ -40,7 +40,9 @@ class Ticker(Base):
 
     # Relationship to strategy sweep results
     sweep_results = relationship(
-        "StrategySweepResult", back_populates="ticker_obj", cascade="all, delete-orphan",
+        "StrategySweepResult",
+        back_populates="ticker_obj",
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self) -> str:
@@ -152,21 +154,27 @@ class StrategySweepResultMetric(Base):
         index=True,
     )
     metric_type_id = Column(
-        Integer, ForeignKey("metric_types.id"), nullable=False, index=True,
+        Integer,
+        ForeignKey("metric_types.id"),
+        nullable=False,
+        index=True,
     )
     created_at = Column(DateTime, nullable=False, server_default=func.now())
 
     # Unique constraint to prevent duplicate assignments
     __table_args__ = (
         UniqueConstraint(
-            "sweep_result_id", "metric_type_id", name="uq_sweep_result_metric",
+            "sweep_result_id",
+            "metric_type_id",
+            name="uq_sweep_result_metric",
         ),
     )
 
     # Relationships
     metric_type = relationship("MetricType", back_populates="sweep_result_associations")
     sweep_result = relationship(
-        "StrategySweepResult", back_populates="metric_type_associations",
+        "StrategySweepResult",
+        back_populates="metric_type_associations",
     )
 
     def __repr__(self) -> str:
@@ -189,7 +197,9 @@ class StrategySweepResult(Base):
 
     # Primary key and metadata
     id = Column(
-        PG_UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid(),
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        server_default=func.gen_random_uuid(),
     )
     sweep_run_id = Column(PG_UUID(as_uuid=True), nullable=False, index=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
@@ -443,7 +453,9 @@ class SweepBestSelection(Base):
 
     # Relationships
     best_result = relationship(
-        "StrategySweepResult", foreign_keys=[best_result_id], backref="best_selections",
+        "StrategySweepResult",
+        foreign_keys=[best_result_id],
+        backref="best_selections",
     )
     strategy_type_obj = relationship("StrategyType", back_populates="best_selections")
 

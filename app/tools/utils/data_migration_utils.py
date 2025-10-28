@@ -28,7 +28,9 @@ class DataMigrationManager:
     """Manager for data migration and cleanup operations."""
 
     def __init__(
-        self, base_dir: Path | None = None, logger: logging.Logger | None = None,
+        self,
+        base_dir: Path | None = None,
+        logger: logging.Logger | None = None,
     ):
         """
         Initialize migration manager.
@@ -178,7 +180,8 @@ class DataMigrationManager:
             }
 
     def _apply_comprehensive_migration(
-        self, df: pd.DataFrame,
+        self,
+        df: pd.DataFrame,
     ) -> tuple[pd.DataFrame, list[str]]:
         """
         Apply comprehensive migration fixes to a DataFrame.
@@ -409,7 +412,8 @@ class DataMigrationManager:
 
 
 def migrate_portfolio_data(
-    base_dir: str | None = None, create_backup: bool = True,
+    base_dir: str | None = None,
+    create_backup: bool = True,
 ) -> dict[str, Any]:
     """
     Convenience function to migrate all portfolio data.

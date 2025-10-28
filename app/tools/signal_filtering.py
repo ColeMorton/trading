@@ -62,7 +62,9 @@ class BaseFilter(FilterInterface):
         if log is None:
             # Create a default logger if none provided
             self.log, _, _, _ = setup_logging(
-                f"filter_{name.lower()}", Path("./logs"), f"filter_{name.lower()}.log",
+                f"filter_{name.lower()}",
+                Path("./logs"),
+                f"filter_{name.lower()}.log",
             )
         else:
             self.log = log
@@ -268,7 +270,8 @@ class VolumeFilter(BaseFilter):
 
         # Apply volume filter
         df.loc[
-            (df[signal_column] != 0) & (df[volume_column] < min_volume), signal_column,
+            (df[signal_column] != 0) & (df[volume_column] < min_volume),
+            signal_column,
         ] = 0
 
         # Count filtered signals
@@ -327,7 +330,8 @@ class VolatilityFilter(BaseFilter):
             return data
 
         self.log(
-            f"Applying volatility filter with ATR range {min_atr} to {max_atr}", "info",
+            f"Applying volatility filter with ATR range {min_atr} to {max_atr}",
+            "info",
         )
 
         # Convert to pandas for processing
@@ -399,7 +403,9 @@ class SignalFilterPipeline:
         if log is None:
             # Create a default logger if none provided
             self.log, _, _, _ = setup_logging(
-                "signal_filter_pipeline", Path("./logs"), "signal_filter_pipeline.log",
+                "signal_filter_pipeline",
+                Path("./logs"),
+                "signal_filter_pipeline.log",
             )
         else:
             self.log = log

@@ -37,7 +37,9 @@ class SPDSExporter:
             directory.mkdir(parents=True, exist_ok=True)
 
     async def export_analysis_results(
-        self, results: dict[str, AnalysisResult], filename_prefix: str = "analysis",
+        self,
+        results: dict[str, AnalysisResult],
+        filename_prefix: str = "analysis",
     ) -> dict[str, str]:
         """
         Export analysis results in all supported formats.
@@ -68,7 +70,8 @@ class SPDSExporter:
 
         # Export backtesting parameters
         backtesting_file = await self._export_backtesting_parameters(
-            results, base_filename,
+            results,
+            base_filename,
         )
         exported_files["backtesting"] = str(backtesting_file)
 
@@ -79,14 +82,16 @@ class SPDSExporter:
         return exported_files
 
     async def export_batch_results(
-        self, batch_result: BatchAnalysisResult,
+        self,
+        batch_result: BatchAnalysisResult,
     ) -> dict[str, str]:
         """Export batch analysis results."""
         filename_prefix = f"batch_{batch_result.request.analysis_type}"
 
         # Export individual results
         exported_files = await self.export_analysis_results(
-            batch_result.results, filename_prefix,
+            batch_result.results,
+            filename_prefix,
         )
 
         # Export batch summary
@@ -96,7 +101,9 @@ class SPDSExporter:
         return exported_files
 
     async def _export_json(
-        self, results: dict[str, AnalysisResult], base_filename: str,
+        self,
+        results: dict[str, AnalysisResult],
+        base_filename: str,
     ) -> Path:
         """Export results in JSON format."""
         json_file = self.analysis_dir / f"{base_filename}.json"
@@ -123,7 +130,9 @@ class SPDSExporter:
         return json_file
 
     async def _export_csv(
-        self, results: dict[str, AnalysisResult], base_filename: str,
+        self,
+        results: dict[str, AnalysisResult],
+        base_filename: str,
     ) -> Path:
         """Export results in CSV format."""
         csv_file = self.analysis_dir / f"{base_filename}.csv"
@@ -156,7 +165,8 @@ class SPDSExporter:
                 # Divergence metrics
                 "z_score_return": result.divergence_metrics.get("z_score_return", 0.0),
                 "percentile_return": result.divergence_metrics.get(
-                    "percentile_return", 0.0,
+                    "percentile_return",
+                    0.0,
                 ),
                 "outlier_score": result.divergence_metrics.get("outlier_score", 0.0),
                 # Metadata
@@ -176,7 +186,9 @@ class SPDSExporter:
         return csv_file
 
     async def _export_markdown(
-        self, results: dict[str, AnalysisResult], base_filename: str,
+        self,
+        results: dict[str, AnalysisResult],
+        base_filename: str,
     ) -> Path:
         """Export results in Markdown format."""
         markdown_file = self.reports_dir / f"{base_filename}.md"
@@ -212,7 +224,9 @@ class SPDSExporter:
 
         # Sort results by confidence (descending)
         sorted_results = sorted(
-            results.items(), key=lambda x: x[1].exit_signal.confidence, reverse=True,
+            results.items(),
+            key=lambda x: x[1].exit_signal.confidence,
+            reverse=True,
         )
 
         for position_uuid, result in sorted_results:
@@ -273,7 +287,9 @@ class SPDSExporter:
         return markdown_file
 
     async def _export_backtesting_parameters(
-        self, results: dict[str, AnalysisResult], base_filename: str,
+        self,
+        results: dict[str, AnalysisResult],
+        base_filename: str,
     ) -> Path:
         """Export backtesting parameters."""
         backtesting_file = self.backtesting_dir / f"{base_filename}_parameters.json"
@@ -313,13 +329,16 @@ class SPDSExporter:
                 # Performance metrics
                 "historical_win_rate": result.statistical_metrics.get("win_rate", 0.0),
                 "historical_return": result.statistical_metrics.get(
-                    "total_return", 0.0,
+                    "total_return",
+                    0.0,
                 ),
                 "historical_sharpe": result.statistical_metrics.get(
-                    "sharpe_ratio", 0.0,
+                    "sharpe_ratio",
+                    0.0,
                 ),
                 "historical_drawdown": result.statistical_metrics.get(
-                    "max_drawdown", 0.0,
+                    "max_drawdown",
+                    0.0,
                 ),
                 # Component weights (for backtesting)
                 "risk_weight": 0.25,
@@ -338,7 +357,9 @@ class SPDSExporter:
         return backtesting_file
 
     async def _export_excel(
-        self, results: dict[str, AnalysisResult], base_filename: str,
+        self,
+        results: dict[str, AnalysisResult],
+        base_filename: str,
     ) -> Path:
         """Export results in Excel format with multiple sheets."""
         excel_file = self.analysis_dir / f"{base_filename}.xlsx"
@@ -363,30 +384,38 @@ class SPDSExporter:
                         "Overall_Confidence": result.confidence_level,
                         "Win_Rate": result.statistical_metrics.get("win_rate", 0.0),
                         "Total_Return": result.statistical_metrics.get(
-                            "total_return", 0.0,
+                            "total_return",
+                            0.0,
                         ),
                         "Sharpe_Ratio": result.statistical_metrics.get(
-                            "sharpe_ratio", 0.0,
+                            "sharpe_ratio",
+                            0.0,
                         ),
                         "Max_Drawdown": result.statistical_metrics.get(
-                            "max_drawdown", 0.0,
+                            "max_drawdown",
+                            0.0,
                         ),
                         "Total_Trades": result.statistical_metrics.get(
-                            "total_trades", 0,
+                            "total_trades",
+                            0,
                         ),
                         "Risk_Score": result.component_scores.get("risk_score", 0.0),
                         "Momentum_Score": result.component_scores.get(
-                            "momentum_score", 0.0,
+                            "momentum_score",
+                            0.0,
                         ),
                         "Trend_Score": result.component_scores.get("trend_score", 0.0),
                         "Overall_Score": result.component_scores.get(
-                            "overall_score", 0.0,
+                            "overall_score",
+                            0.0,
                         ),
                         "Outlier_Score": result.divergence_metrics.get(
-                            "outlier_score", 0.0,
+                            "outlier_score",
+                            0.0,
                         ),
                         "Percentile_Return": result.divergence_metrics.get(
-                            "percentile_return", 0.0,
+                            "percentile_return",
+                            0.0,
                         ),
                     }
                     main_data.append(row)
@@ -408,7 +437,9 @@ class SPDSExporter:
 
                 component_df = pd.DataFrame(component_data)
                 component_df.to_excel(
-                    writer, sheet_name="Component_Scores", index=False,
+                    writer,
+                    sheet_name="Component_Scores",
+                    index=False,
                 )
 
                 # Warnings sheet
@@ -430,7 +461,9 @@ class SPDSExporter:
         return excel_file
 
     async def _export_batch_summary(
-        self, batch_result: BatchAnalysisResult, base_filename: str,
+        self,
+        batch_result: BatchAnalysisResult,
+        base_filename: str,
     ) -> Path:
         """Export batch analysis summary."""
         summary_file = self.reports_dir / f"{base_filename}_summary.json"
@@ -458,7 +491,8 @@ class SPDSExporter:
         return summary_file
 
     def _create_summary_data(
-        self, results: dict[str, AnalysisResult],
+        self,
+        results: dict[str, AnalysisResult],
     ) -> dict[str, Any]:
         """Create summary data for results."""
         if not results:
@@ -501,7 +535,6 @@ class SPDSExporter:
             "export_timestamp": datetime.now().isoformat(),
         }
 
-
     def get_export_directory(self) -> Path:
         """Get the export directory path."""
         return self.export_dir
@@ -531,7 +564,6 @@ class SPDSExporter:
             },
             "total_files": len(list(self.export_dir.rglob("*"))),
         }
-
 
 
 # Convenience functions

@@ -77,7 +77,10 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
             # Use lock to ensure thread-safe yfinance download
             with _yfinance_lock:
                 data = yf.download(
-                    ticker, start=start_date, end=end_date, interval=interval,
+                    ticker,
+                    start=start_date,
+                    end=end_date,
+                    interval=interval,
                 )
         elif config.get("USE_YEARS", False) and config.get("YEARS", False):
             # Convert years to days for timedelta
@@ -87,7 +90,10 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
             # Use lock to ensure thread-safe yfinance download
             with _yfinance_lock:
                 data = yf.download(
-                    ticker, start=start_date, end=end_date, interval=interval,
+                    ticker,
+                    start=start_date,
+                    end=end_date,
+                    interval=interval,
                 )
         else:
             period = config.get("PERIOD", "max")
@@ -95,7 +101,10 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
             # Use lock to ensure thread-safe yfinance download
             with _yfinance_lock:
                 data = yf.download(
-                    ticker, period=period, interval=interval, auto_adjust=False,
+                    ticker,
+                    period=period,
+                    interval=interval,
+                    auto_adjust=False,
                 )
 
         # Flatten MultiIndex columns - do this for all data retrieval methods
@@ -181,11 +190,7 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
                 "frequency": (
                     "2-Day"
                     if use_2day
-                    else "4-Hour"
-                    if use_4hour
-                    else "Hourly"
-                    if use_hourly
-                    else "Daily"
+                    else "4-Hour" if use_4hour else "Hourly" if use_hourly else "Daily"
                 ),
                 "records_count": len(df),
             }

@@ -117,7 +117,9 @@ class ParameterTestingEngine:
         }
 
     def generate_parameter_grid(
-        self, parameter_ranges: dict[str, list[Any]], strategy_type: str | None = None,
+        self,
+        parameter_ranges: dict[str, list[Any]],
+        strategy_type: str | None = None,
     ) -> list[ParameterSet]:
         """
         Generate parameter combinations from ranges.
@@ -149,7 +151,9 @@ class ParameterTestingEngine:
         return parameter_sets
 
     def _calculate_priority(
-        self, parameters: dict[str, Any], strategy_type: str | None = None,
+        self,
+        parameters: dict[str, Any],
+        strategy_type: str | None = None,
     ) -> float:
         """
         Calculate priority for parameter set.
@@ -226,7 +230,8 @@ class ParameterTestingEngine:
 
         # Generate parameter sets
         parameter_sets = self.generate_parameter_grid(
-            parameter_ranges, base_config.strategy_type,
+            parameter_ranges,
+            base_config.strategy_type,
         )
 
         self._execution_stats["total_tests"] = len(parameter_sets)
@@ -240,7 +245,10 @@ class ParameterTestingEngine:
 
             # Execute batch
             batch_results = await self._execute_parameter_batch(
-                strategy_executor, ticker, base_config, batch,
+                strategy_executor,
+                ticker,
+                base_config,
+                batch,
             )
 
             # Filter and validate results
@@ -320,7 +328,10 @@ class ParameterTestingEngine:
             # Create execution task
             task = asyncio.create_task(
                 self._execute_single_parameter_set(
-                    strategy_executor, ticker, config, param_set.id,
+                    strategy_executor,
+                    ticker,
+                    config,
+                    param_set.id,
                 ),
             )
             tasks.append(task)
@@ -375,7 +386,10 @@ class ParameterTestingEngine:
         self._results_cache.clear()
 
     def export_results(
-        self, results: list[dict[str, Any]], output_path: str, format: str = "csv",
+        self,
+        results: list[dict[str, Any]],
+        output_path: str,
+        format: str = "csv",
     ) -> None:
         """
         Export optimization results to file.

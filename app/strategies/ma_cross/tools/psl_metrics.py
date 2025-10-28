@@ -34,7 +34,9 @@ def initialize_metric_matrices(num_periods: int) -> MetricMatrices:
 
 
 def calculate_portfolio_metrics(
-    portfolio: "vbt.Portfolio", metrics: MetricMatrices, index: int,
+    portfolio: "vbt.Portfolio",
+    metrics: MetricMatrices,
+    index: int,
 ) -> None:
     """
     Calculate and store portfolio metrics for a given holding period.

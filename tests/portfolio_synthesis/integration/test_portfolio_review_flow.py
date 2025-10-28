@@ -75,7 +75,9 @@ class TestPortfolioReviewFlowIntegration:
             # Verify function call sequence
             mock_get_config.assert_called_once()
             mock_get_data.assert_called_once_with(
-                mock_config["TICKER"], mock_config, mock_log,
+                mock_config["TICKER"],
+                mock_config,
+                mock_log,
             )
             mock_calc_ma.assert_called_once()
             mock_backtest.assert_called_once()
@@ -357,7 +359,9 @@ class TestPortfolioReviewFlowIntegration:
 
             # Verify function calls
             mock_get_data.assert_called_once_with(
-                mock_config["TICKER"], mock_config, mock_log,
+                mock_config["TICKER"],
+                mock_config,
+                mock_log,
             )
             mock_calc_ma.assert_called_once_with(
                 mock_data,
@@ -463,7 +467,8 @@ class TestPortfolioReviewFlowIntegration:
                 "data/outputs/portfolio/ma_cross/equity_curve/EXPORT-TEST.csv"
             )
             mock_makedirs.assert_called_once_with(
-                os.path.dirname(expected_csv_path), exist_ok=True,
+                os.path.dirname(expected_csv_path),
+                exist_ok=True,
             )
 
             # Verify DataFrame creation and export

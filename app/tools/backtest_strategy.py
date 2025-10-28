@@ -138,13 +138,16 @@ def backtest_strategy(
             # Add period parameters with new naming convention
             # Support both new and legacy parameter names
             fast_period = config_obj.get(
-                "fast_period", config_obj.get("fast_period", 0),
+                "fast_period",
+                config_obj.get("fast_period", 0),
             )
             slow_period = config_obj.get(
-                "slow_period", config_obj.get("slow_period", 0),
+                "slow_period",
+                config_obj.get("slow_period", 0),
             )
             signal_period = config_obj.get(
-                "signal_period", config_obj.get("signal_period", 0),
+                "signal_period",
+                config_obj.get("signal_period", 0),
             )
 
             # Export with new column names
@@ -194,7 +197,8 @@ def backtest_strategy(
                     else:
                         stats_dict["Tail Ratio"] = None
                     log_func(
-                        f"Calculated Tail Ratio: {stats_dict['Tail Ratio']}", "debug",
+                        f"Calculated Tail Ratio: {stats_dict['Tail Ratio']}",
+                        "debug",
                     )
                 except Exception as e:
                     log_func(f"Could not calculate Tail Ratio: {e}", "warning")
@@ -209,7 +213,8 @@ def backtest_strategy(
 
                         win_calc = WinRateCalculator()
                         win_components = win_calc.calculate_trade_win_rate(
-                            returns_series.values, include_zeros=False,
+                            returns_series.values,
+                            include_zeros=False,
                         )
                         win_rate = win_components.win_rate
                         stats_dict["Common Sense Ratio"] = (
@@ -239,7 +244,8 @@ def backtest_strategy(
                         # Check if Avg Losing Trade is NaN (happens when all trades are
                         # winning)
                         if isinstance(
-                            stats_dict["Avg Losing Trade [%]"], float,
+                            stats_dict["Avg Losing Trade [%]"],
+                            float,
                         ) and math.isnan(stats_dict["Avg Losing Trade [%]"]):
                             # If all trades are winning (win_rate = 1.0), set expectancy
                             # to avg_win
@@ -251,9 +257,9 @@ def backtest_strategy(
                                     f"All trades are winning. Setting Expectancy per Trade to Avg Win: {avg_win:.4f}",
                                     "debug",
                                 )
-                                stats_dict[
-                                    "Expectancy per Trade"
-                                ] = expectancy_per_trade
+                                stats_dict["Expectancy per Trade"] = (
+                                    expectancy_per_trade
+                                )
 
                                 # Add debug logging
                                 log_func(
@@ -281,7 +287,9 @@ def backtest_strategy(
 
                             # Use the standardized expectancy calculation
                             expectancy_per_trade = calculate_expectancy(
-                                win_rate, avg_win, avg_loss,
+                                win_rate,
+                                avg_win,
+                                avg_loss,
                             )
                             stats_dict["Expectancy per Trade"] = expectancy_per_trade
 
@@ -302,7 +310,8 @@ def backtest_strategy(
                         stats_dict["Expectancy per Trade"] = None
                 except Exception as e:
                     log_func(
-                        f"Could not calculate Expectancy per Trade: {e}", "warning",
+                        f"Could not calculate Expectancy per Trade: {e}",
+                        "warning",
                     )
                     stats_dict["Expectancy per Trade"] = None
 
@@ -435,7 +444,8 @@ def backtest_strategy(
 
         # Export trade history if requested (only available through app/concurrency/review.py)
         should_export = export_trade_history or config.get(
-            "EXPORT_TRADE_HISTORY", False,
+            "EXPORT_TRADE_HISTORY",
+            False,
         )
         if should_export:
             try:

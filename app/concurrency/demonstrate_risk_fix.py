@@ -59,7 +59,9 @@ def create_mock_portfolio_data():
         # Create position array (more active strategies have higher activity)
         activity_rate = 0.5 + (i / n_strategies) * 0.4  # 50% to 90% active
         positions = np.random.choice(
-            [0, 1], size=n_periods, p=[1 - activity_rate, activity_rate],
+            [0, 1],
+            size=n_periods,
+            p=[1 - activity_rate, activity_rate],
         )
         position_arrays.append(positions)
 
@@ -96,7 +98,9 @@ def main():
     print("-" * 60)
 
     comparison = compare_risk_calculations(
-        position_arrays, data_list, strategy_allocations,
+        position_arrays,
+        data_list,
+        strategy_allocations,
     )
 
     # Display results
@@ -148,7 +152,9 @@ def main():
     weights = np.array(allocation_pcts)
     calculator = RiskContributionCalculator()
     risk_metrics = calculator.calculate_portfolio_metrics(
-        return_matrix, weights, strategy_names,
+        return_matrix,
+        weights,
+        strategy_names,
     )
 
     # Create and display report

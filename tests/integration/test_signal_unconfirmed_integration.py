@@ -133,7 +133,9 @@ class TestSignalUnconfirmedIntegration:
 
         # Test CSV export (using temporary file)
         with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".csv", delete=False,
+            mode="w",
+            suffix=".csv",
+            delete=False,
         ) as tmp_file:
             try:
                 df.write_csv(tmp_file.name)

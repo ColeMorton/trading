@@ -14,7 +14,10 @@ from app.tools.get_data import get_data
 
 
 def calculate_macd(
-    data: pl.DataFrame, fast_period: int, slow_period: int, signal_period: int,
+    data: pl.DataFrame,
+    fast_period: int,
+    slow_period: int,
+    signal_period: int,
 ) -> pl.DataFrame:
     """Calculate MACD and Signal line values.
 
@@ -166,14 +169,15 @@ def generate_macd_signals(data: pl.DataFrame, config: dict) -> pl.DataFrame | No
 
         return convert_signals_to_positions(data, config, simple_log)
 
-
     except Exception:
         # Error logging removed for performance
         return None
 
 
 def get_current_signals(
-    data: pl.DataFrame, config: dict, log: Callable,
+    data: pl.DataFrame,
+    config: dict,
+    log: Callable,
 ) -> pl.DataFrame:
     """Get current signals for MACD parameter combinations.
 
@@ -218,7 +222,9 @@ def get_current_signals(
                     if slow_period <= fast_period:
                         continue
                     for signal_period in range(
-                        signal_window_start, signal_window_end + 1, step,
+                        signal_window_start,
+                        signal_window_end + 1,
+                        step,
                     ):
                         parameter_combinations.append(
                             (fast_period, slow_period, signal_period),

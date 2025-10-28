@@ -105,7 +105,8 @@ def compile_statistics(
         # Store individual strategy efficiency metrics
         strategy_efficiency_metrics = {}
         for idx, ((efficiency, div, ind, act), expectancy) in enumerate(
-            zip(strategy_efficiencies, strategy_expectancies, strict=False), 1,
+            zip(strategy_efficiencies, strategy_expectancies, strict=False),
+            1,
         ):
             strategy_efficiency_metrics.update(
                 {
@@ -207,7 +208,8 @@ def analyze_concurrency(
         total_allocation = sum(strategy_allocations)
         if total_allocation == 0:
             log(
-                "No allocations provided for any strategy. Using equal weights.", "info",
+                "No allocations provided for any strategy. Using equal weights.",
+                "info",
             )
             equal_weight = 100.0 / len(strategy_allocations)
             strategy_allocations = [equal_weight] * len(strategy_allocations)
@@ -218,7 +220,9 @@ def analyze_concurrency(
         else:
             # Log individual allocations when they are provided
             for config, allocation in zip(
-                config_list, strategy_allocations, strict=False,
+                config_list,
+                strategy_allocations,
+                strict=False,
             ):
                 ticker = config.get("TICKER", "unknown")
                 log(f"Using allocation {allocation:.2f}% for {ticker}", "info")
@@ -250,7 +254,8 @@ def analyze_concurrency(
                 # Direct top-level field (rare, but check first)
                 expectancy = config["EXPECTANCY_PER_TRADE"]
                 log(
-                    f"Using EXPECTANCY_PER_TRADE for {ticker}: {expectancy:.6f}", "info",
+                    f"Using EXPECTANCY_PER_TRADE for {ticker}: {expectancy:.6f}",
+                    "info",
                 )
             elif (
                 "PORTFOLIO_STATS" in config
@@ -432,7 +437,8 @@ def analyze_concurrency(
             if aggregate_metrics:
                 signal_quality_metrics["aggregate"] = aggregate_metrics
                 log(
-                    "Allocation-weighted aggregate signal quality metrics added", "info",
+                    "Allocation-weighted aggregate signal quality metrics added",
+                    "info",
                 )
         except Exception as e:
             log(f"Error calculating aggregate signal quality metrics: {e!s}", "error")
@@ -520,12 +526,14 @@ def analyze_concurrency(
                 except (ValueError, TypeError):
                     # If original allocation is invalid, use the calculated allocation
                     stats[f"strategy_{i}_original_allocation"] = stats.get(
-                        f"strategy_{i}_allocation", 0.0,
+                        f"strategy_{i}_allocation",
+                        0.0,
                     )
             else:
                 # If no original allocation exists, use the calculated allocation
                 stats[f"strategy_{i}_original_allocation"] = stats.get(
-                    f"strategy_{i}_allocation", 0.0,
+                    f"strategy_{i}_allocation",
+                    0.0,
                 )
 
             # Add stop loss values to stats

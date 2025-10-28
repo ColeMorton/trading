@@ -286,7 +286,8 @@ class DataQualityValidator:
         if "Strategy_Type" in df_fixed.columns and "Position_UUID" in df_fixed.columns:
             sma_ema_mask = df_fixed["Strategy_Type"].isin(["SMA", "EMA"])
             incorrect_uuid_mask = df_fixed["Position_UUID"].str.contains(
-                "_0_", na=False,
+                "_0_",
+                na=False,
             )
 
             positions_to_fix = sma_ema_mask & incorrect_uuid_mask
@@ -295,7 +296,8 @@ class DataQualityValidator:
                 count = positions_to_fix.sum()
                 # Fix UUID format by removing "_0"
                 df_fixed.loc[positions_to_fix, "Position_UUID"] = df_fixed.loc[
-                    positions_to_fix, "Position_UUID",
+                    positions_to_fix,
+                    "Position_UUID",
                 ].str.replace("_0_", "_", regex=False)
                 fixes_applied.append(f"Fixed UUID format for {count} SMA/EMA positions")
 
@@ -307,7 +309,8 @@ class DataQualityValidator:
             if missing_trade_type.any():
                 count = missing_trade_type.sum()
                 df_fixed.loc[missing_trade_type, "Trade_Type"] = df_fixed.loc[
-                    missing_trade_type, "Direction",
+                    missing_trade_type,
+                    "Direction",
                 ]
                 fixes_applied.append(f"Populated Trade_Type for {count} positions")
 

@@ -191,16 +191,16 @@ class TestSeasonalityConfigModel:
 
         # Test values outside (0, 1)
         with pytest.raises(ValidationError):
-                config_cls(confidence_level=0.0)
+            config_cls(confidence_level=0.0)
 
         with pytest.raises(ValidationError):
-                config_cls(confidence_level=1.0)
+            config_cls(confidence_level=1.0)
 
         with pytest.raises(ValidationError):
-                config_cls(confidence_level=1.5)
+            config_cls(confidence_level=1.5)
 
         with pytest.raises(ValidationError):
-                config_cls(confidence_level=-0.5)
+            config_cls(confidence_level=-0.5)
 
     def test_confidence_level_validation_accepts_valid(self):
         """Test that valid confidence levels are accepted."""
@@ -221,10 +221,10 @@ class TestSeasonalityConfigModel:
         _, _, _, config_cls = get_models()
 
         with pytest.raises(ValidationError):
-                config_cls(min_years=0)
+            config_cls(min_years=0)
 
         with pytest.raises(ValidationError):
-                config_cls(min_years=-1)
+            config_cls(min_years=-1)
 
     def test_min_years_validation_accepts_valid(self):
         """Test that valid min_years are accepted."""
@@ -238,10 +238,10 @@ class TestSeasonalityConfigModel:
         _, _, _, config_cls = get_models()
 
         with pytest.raises(ValidationError):
-                config_cls(output_format="xml")
+            config_cls(output_format="xml")
 
         with pytest.raises(ValidationError):
-                config_cls(output_format="txt")
+            config_cls(output_format="txt")
 
     def test_output_format_validation_accepts_valid(self):
         """Test that valid output formats are accepted."""
@@ -262,13 +262,13 @@ class TestSeasonalityConfigModel:
         _, _, _, config_cls = get_models()
 
         with pytest.raises(ValidationError):
-                config_cls(time_period_days=0)
+            config_cls(time_period_days=0)
 
         with pytest.raises(ValidationError):
-                config_cls(time_period_days=-1)
+            config_cls(time_period_days=-1)
 
         with pytest.raises(ValidationError):
-                config_cls(time_period_days=366)
+            config_cls(time_period_days=366)
 
     def test_time_period_days_validation_accepts_valid(self):
         """Test that valid time_period_days are accepted."""

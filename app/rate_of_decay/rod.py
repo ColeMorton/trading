@@ -36,7 +36,10 @@ def calculate_rate_of_decay(risk_percentage):
 
 
 def model_loss_streaks(
-    initial_equity, risk_percentage, max_streak_length, loss_probability,
+    initial_equity,
+    risk_percentage,
+    max_streak_length,
+    loss_probability,
 ):
     """
     Model loss streaks based on the given parameters.
@@ -50,7 +53,9 @@ def model_loss_streaks(
     streak_lengths = np.arange(1, max_streak_length + 1)
     streak_probabilities = loss_probability**streak_lengths * (1 - loss_probability)
     equity_values = calculate_equity_curve(
-        initial_equity, risk_percentage, max_streak_length,
+        initial_equity,
+        risk_percentage,
+        max_streak_length,
     )
 
     return pd.DataFrame(
@@ -109,7 +114,10 @@ def main():
 
     # Model loss streaks
     streak_data = model_loss_streaks(
-        initial_equity, risk_percentage, max_streak_length, loss_probability,
+        initial_equity,
+        risk_percentage,
+        max_streak_length,
+        loss_probability,
     )
 
     # Create output directory if it doesn't exist

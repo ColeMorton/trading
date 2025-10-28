@@ -91,7 +91,8 @@ class TestMASensitivityAnalyzer:
         analyzer = MASensitivityAnalyzer()
 
         with pytest.raises(
-            ValueError, match="MA strategy requires fast_period and slow_period",
+            ValueError,
+            match="MA strategy requires fast_period and slow_period",
         ):
             analyzer._extract_strategy_parameters(slow_period=20)
 
@@ -100,7 +101,8 @@ class TestMASensitivityAnalyzer:
         analyzer = MASensitivityAnalyzer()
 
         with pytest.raises(
-            ValueError, match="MA strategy requires fast_period and slow_period",
+            ValueError,
+            match="MA strategy requires fast_period and slow_period",
         ):
             analyzer._extract_strategy_parameters(fast_period=10)
 
@@ -220,7 +222,9 @@ class TestMACDSensitivityAnalyzer:
         analyzer = MACDSensitivityAnalyzer()
 
         params = analyzer._extract_strategy_parameters(
-            fast_period=12, slow_period=26, signal_period=9,
+            fast_period=12,
+            slow_period=26,
+            signal_period=9,
         )
 
         assert params["fast_period"] == 12
@@ -267,7 +271,10 @@ class TestMACDSensitivityAnalyzer:
 
         assert (
             analyzer._check_data_sufficiency(
-                data, fast_period=12, slow_period=26, signal_period=9,
+                data,
+                fast_period=12,
+                slow_period=26,
+                signal_period=9,
             )
             is True
         )
@@ -282,7 +289,10 @@ class TestMACDSensitivityAnalyzer:
 
         assert (
             analyzer._check_data_sufficiency(
-                data, fast_period=12, slow_period=26, signal_period=9,
+                data,
+                fast_period=12,
+                slow_period=26,
+                signal_period=9,
             )
             is False
         )
@@ -292,7 +302,9 @@ class TestMACDSensitivityAnalyzer:
         analyzer = MACDSensitivityAnalyzer()
 
         formatted = analyzer._format_parameters(
-            fast_period=12, slow_period=26, signal_period=9,
+            fast_period=12,
+            slow_period=26,
+            signal_period=9,
         )
 
         assert formatted == "Short: 12, Long: 26, Signal: 9"
@@ -351,7 +363,8 @@ class TestMeanReversionSensitivityAnalyzer:
         analyzer = MeanReversionSensitivityAnalyzer()
 
         with pytest.raises(
-            ValueError, match="Mean Reversion strategy requires change_pct parameter",
+            ValueError,
+            match="Mean Reversion strategy requires change_pct parameter",
         ):
             analyzer._extract_strategy_parameters()
 
@@ -466,7 +479,11 @@ class TestAnalyzeParameterCombination:
     @patch.object(MASensitivityAnalyzer, "_calculate_signals")
     @patch.object(MASensitivityAnalyzer, "_check_signal_currency")
     def test_analyze_parameter_combination_success(
-        self, mock_check_currency, mock_calculate, mock_convert, mock_backtest,
+        self,
+        mock_check_currency,
+        mock_calculate,
+        mock_convert,
+        mock_backtest,
     ):
         """Test successful parameter combination analysis."""
         # Setup mocks
@@ -491,7 +508,12 @@ class TestAnalyzeParameterCombination:
 
         # Execute
         result = analyze_parameter_combination(
-            data, config, log, strategy_type="SMA", fast_period=10, slow_period=20,
+            data,
+            config,
+            log,
+            strategy_type="SMA",
+            fast_period=10,
+            slow_period=20,
         )
 
         # Verify
@@ -507,7 +529,12 @@ class TestAnalyzeParameterCombination:
         log = Mock()
 
         result = analyze_parameter_combination(
-            data, config, log, strategy_type="SMA", fast_period=10, slow_period=20,
+            data,
+            config,
+            log,
+            strategy_type="SMA",
+            fast_period=10,
+            slow_period=20,
         )
 
         assert result is None
@@ -521,7 +548,12 @@ class TestAnalyzeParameterCombination:
 
         # This should not fail, but will return None due to missing signal calculation
         result = analyze_parameter_combination(
-            data, config, log, fast_period=12, slow_period=26, signal_period=9,
+            data,
+            config,
+            log,
+            fast_period=12,
+            slow_period=26,
+            signal_period=9,
         )
 
         # Check that the function returns a valid result (it's now working correctly)
@@ -551,7 +583,8 @@ class TestAnalyzeParameterCombinations:
 
         # Mock the analyzer factory to return a mock analyzer
         with patch.object(
-            SensitivityAnalyzerFactory, "create_analyzer",
+            SensitivityAnalyzerFactory,
+            "create_analyzer",
         ) as mock_factory:
             mock_analyzer = Mock()
             # Return success for first and third, None for second
@@ -597,13 +630,21 @@ class TestBackwardCompatibilityFunctions:
         log = Mock()
 
         result = analyze_window_combination(
-            data, fast_period=10, slow_period=20, config=config, log=log,
+            data,
+            fast_period=10,
+            slow_period=20,
+            config=config,
+            log=log,
         )
 
         assert result["Total Return [%]"] == 10.0
         mock_create.assert_called_once_with("SMA")
         mock_analyzer.analyze_parameter_combination.assert_called_once_with(
-            data, config, log, fast_period=10, slow_period=20,
+            data,
+            config,
+            log,
+            fast_period=10,
+            slow_period=20,
         )
 
     @patch(
@@ -626,7 +667,12 @@ class TestBackwardCompatibilityFunctions:
         assert result["Total Return [%]"] == 12.0
         mock_create.assert_called_once_with("MACD")
         mock_analyzer.analyze_parameter_combination.assert_called_once_with(
-            data, config, log, fast_period=12, slow_period=26, signal_period=9,
+            data,
+            config,
+            log,
+            fast_period=12,
+            slow_period=26,
+            signal_period=9,
         )
 
     @patch(
@@ -649,7 +695,10 @@ class TestBackwardCompatibilityFunctions:
         assert result["Total Return [%]"] == 8.0
         mock_create.assert_called_once_with("MEAN_REVERSION")
         mock_analyzer.analyze_parameter_combination.assert_called_once_with(
-            data, config, log, change_pct=0.05,
+            data,
+            config,
+            log,
+            change_pct=0.05,
         )
 
 
@@ -661,7 +710,11 @@ class TestAnalyzeParameterCombinationIntegration:
     @patch.object(MASensitivityAnalyzer, "_calculate_signals")
     @patch.object(MASensitivityAnalyzer, "_check_signal_currency")
     def test_full_ma_analysis_workflow(
-        self, mock_check_currency, mock_calculate, mock_convert, mock_backtest,
+        self,
+        mock_check_currency,
+        mock_calculate,
+        mock_convert,
+        mock_backtest,
     ):
         """Test full MA analysis workflow with all components."""
         # Setup comprehensive mock data
@@ -708,7 +761,12 @@ class TestAnalyzeParameterCombinationIntegration:
         log = Mock()
 
         result = analyze_parameter_combination(
-            data, config, log, strategy_type="SMA", fast_period=10, slow_period=20,
+            data,
+            config,
+            log,
+            strategy_type="SMA",
+            fast_period=10,
+            slow_period=20,
         )
 
         # Verify result

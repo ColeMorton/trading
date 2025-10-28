@@ -16,7 +16,11 @@ class TestLoadStrategiesFromRawCsv:
     @patch("app.tools.portfolio.data_loaders.convert_csv_to_strategy_config")
     @patch("app.tools.portfolio.data_loaders.ConsoleLogger")
     def test_load_strategies_success(
-        self, mock_console_logger, mock_convert, mock_read_csv, mock_path,
+        self,
+        mock_console_logger,
+        mock_convert,
+        mock_read_csv,
+        mock_path,
     ):
         """Test successful loading of strategies from CSV."""
         # Setup mocks
@@ -67,7 +71,8 @@ class TestLoadStrategiesFromRawCsv:
         mock_path.return_value = mock_path_instance
 
         with pytest.raises(
-            ValueError, match="(does not exist|Failed to load strategies)",
+            ValueError,
+            match="(does not exist|Failed to load strategies)",
         ):
             load_strategies_from_raw_csv("nonexistent")
 
@@ -76,7 +81,11 @@ class TestLoadStrategiesFromRawCsv:
     @patch("app.tools.portfolio.data_loaders.convert_csv_to_strategy_config")
     @patch("app.tools.portfolio.data_loaders.ConsoleLogger")
     def test_load_strategies_with_custom_console(
-        self, mock_console_logger_class, mock_convert, mock_read_csv, mock_path,
+        self,
+        mock_console_logger_class,
+        mock_convert,
+        mock_read_csv,
+        mock_path,
     ):
         """Test loading strategies with custom console logger."""
         # Setup mocks
@@ -123,7 +132,11 @@ class TestLoadStrategiesFromRawCsv:
     @patch("app.tools.portfolio.data_loaders.convert_csv_to_strategy_config")
     @patch("app.tools.portfolio.data_loaders.ConsoleLogger")
     def test_load_strategies_unknown_strategy_type(
-        self, mock_console_logger, mock_convert, mock_read_csv, mock_path,
+        self,
+        mock_console_logger,
+        mock_convert,
+        mock_read_csv,
+        mock_path,
     ):
         """Test handling of unknown strategy type (should default to SMA)."""
         # Setup mocks
@@ -160,7 +173,11 @@ class TestLoadStrategiesFromRawCsv:
     @patch("app.tools.portfolio.data_loaders.convert_csv_to_strategy_config")
     @patch("app.tools.portfolio.data_loaders.ConsoleLogger")
     def test_load_strategies_unknown_direction(
-        self, mock_console_logger, mock_convert, mock_read_csv, mock_path,
+        self,
+        mock_console_logger,
+        mock_convert,
+        mock_read_csv,
+        mock_path,
     ):
         """Test handling of unknown direction (should default to LONG)."""
         # Setup mocks
@@ -210,7 +227,11 @@ class TestLoadStrategiesFromRawCsv:
     @patch("app.tools.portfolio.data_loaders.convert_csv_to_strategy_config")
     @patch("app.tools.portfolio.data_loaders.ConsoleLogger")
     def test_load_strategies_multiple_strategies(
-        self, mock_console_logger, mock_convert, mock_read_csv, mock_path,
+        self,
+        mock_console_logger,
+        mock_convert,
+        mock_read_csv,
+        mock_path,
     ):
         """Test loading multiple strategies from CSV."""
         # Setup mocks

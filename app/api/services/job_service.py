@@ -80,7 +80,9 @@ class JobService:
 
     @staticmethod
     async def update_job(
-        db: AsyncSession, job_id: str, update: JobUpdate,
+        db: AsyncSession,
+        job_id: str,
+        update: JobUpdate,
     ) -> Job | None:
         """
         Update job with new data.

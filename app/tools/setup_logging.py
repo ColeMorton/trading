@@ -21,7 +21,10 @@ def setup_logging(
     mode: str = "w",
     log_subdir: str | None = None,
 ) -> tuple[
-    Callable[[str, str], None], Callable[[], None], logging.Logger, logging.FileHandler,
+    Callable[[str, str], None],
+    Callable[[], None],
+    logging.Logger,
+    logging.FileHandler,
 ]:
     """
     Sets up logging configuration with standardized directory structure and returns logging utilities.

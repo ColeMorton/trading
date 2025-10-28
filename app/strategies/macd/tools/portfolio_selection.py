@@ -14,7 +14,9 @@ from app.tools.portfolio.collection import sort_portfolios
 
 
 def get_best_portfolio(
-    portfolios: pl.DataFrame, config: PortfolioConfig, log: callable,
+    portfolios: pl.DataFrame,
+    config: PortfolioConfig,
+    log: callable,
 ) -> dict[str, Any] | None:
     """
     Get the best portfolio based on window parameter combination frequency in top performers.
@@ -80,7 +82,8 @@ def get_best_portfolio(
 
         # Function to check if combination appears enough times
         def check_combination_frequency(
-            df: pl.DataFrame, required_count: int,
+            df: pl.DataFrame,
+            required_count: int,
         ) -> tuple | None:
             combinations = df.select(
                 ["Fast Period", "Slow Period", "Signal Period"],
@@ -113,7 +116,6 @@ def get_best_portfolio(
                 .to_dicts()[0]
             )
 
-
         # 2. 3 out of top 5 have same combination
         if result := check_combination_frequency(top_5, 3):
             log(
@@ -128,7 +130,6 @@ def get_best_portfolio(
                 .head(1)
                 .to_dicts()[0]
             )
-
 
         # 3. 5 out of top 8 have same combination
         if result := check_combination_frequency(top_8, 5):
@@ -145,7 +146,6 @@ def get_best_portfolio(
                 .to_dicts()[0]
             )
 
-
         # 4. 2 out of top 2 have same combination
         top_2 = sorted_portfolios.head(2)
         if result := check_combination_frequency(top_2, 2):
@@ -161,7 +161,6 @@ def get_best_portfolio(
                 .head(1)
                 .to_dicts()[0]
             )
-
 
         # If no consistent combination found, return the top portfolio
         log("No consistent window parameter combination found, returning top portfolio")

@@ -93,7 +93,9 @@ def stable_market_data(
                     )
 
                 patches.append(
-                    patch("app.tools.get_data.get_data", side_effect=mock_get_data_func),
+                    patch(
+                        "app.tools.get_data.get_data", side_effect=mock_get_data_func
+                    ),
                 )
 
             # Apply all patches
@@ -115,7 +117,8 @@ def stable_market_data(
 
 
 def mock_external_apis(
-    apis: list[str] | None = None, return_values: dict[str, Any] | None = None,
+    apis: list[str] | None = None,
+    return_values: dict[str, Any] | None = None,
 ):
     """
     Decorator to mock specific external APIs with custom return values.
@@ -183,7 +186,9 @@ def fast_test_data(pattern: str = "simple", periods: int = 100):
         def wrapper(*args, **kwargs):
             def mock_fast_get_data(ticker, config, log):
                 return _stabilizer.factory.create_strategy_test_data(
-                    ticker=ticker, periods=periods, pattern="trending_with_signals",
+                    ticker=ticker,
+                    periods=periods,
+                    pattern="trending_with_signals",
                 )
 
             def mock_fast_yf_download(symbols, **yf_kwargs):
@@ -194,7 +199,8 @@ def fast_test_data(pattern: str = "simple", periods: int = 100):
                 data_dict = {}
                 for symbol in symbols:
                     df = _stabilizer.factory.create_strategy_test_data(
-                        ticker=symbol, periods=periods,
+                        ticker=symbol,
+                        periods=periods,
                     ).to_pandas()
                     df = df.set_index("Date")
                     data_dict.update(
@@ -277,7 +283,8 @@ def stabilize_integration_test(
 
             def mock_comprehensive_yf_download(symbols, **yf_kwargs):
                 return _stabilizer.factory.create_yfinance_compatible_data(
-                    symbols, **yf_kwargs,
+                    symbols,
+                    **yf_kwargs,
                 )
 
             # Comprehensive API mocking
@@ -336,7 +343,6 @@ def create_test_fixtures(tickers: list[str]) -> dict[str, Any]:
             factory.create_yfinance_compatible_data(tickers) if tickers else None
         ),
     }
-
 
 
 # Context managers for temporary API mocking

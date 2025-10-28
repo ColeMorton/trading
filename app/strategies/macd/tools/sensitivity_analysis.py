@@ -167,7 +167,10 @@ def analyze_parameter_combination(
 
         # Analyze the portfolio using the centralized framework
         result = analyze_single_portfolio(
-            signal_data, temp_config, log, strategy_type="MACD",
+            signal_data,
+            temp_config,
+            log,
+            strategy_type="MACD",
         )
 
         if result is not None:
@@ -210,7 +213,10 @@ def export_results(df: pl.DataFrame, config: dict[str, Any], log: Callable) -> N
 
         # Export using centralized portfolio export functionality
         export_portfolios(
-            portfolios=df.to_dicts(), config=config, export_type="portfolios", log=log,
+            portfolios=df.to_dicts(),
+            config=config,
+            export_type="portfolios",
+            log=log,
         )
 
         log("MACD analysis results exported successfully")

@@ -4,7 +4,10 @@ import polars as pl
 
 
 def calculate_macd(
-    data: pl.DataFrame, fast_period: int, slow_period: int, signal_period: int,
+    data: pl.DataFrame,
+    fast_period: int,
+    slow_period: int,
+    signal_period: int,
 ) -> pl.DataFrame:
     """Calculate MACD and Signal Line using EMA.
 
@@ -105,7 +108,6 @@ def calculate_macd(
                 pl.col("MACD_Histogram").fill_null(0).alias("MACD_Histogram"),
             ],
         )
-
 
     except Exception as e:
         logging.exception(f"Failed to calculate MACD: {e}")

@@ -107,7 +107,10 @@ class VolumeParameterSweepEngine:
         return combinations
 
     def validate_volume_parameters(
-        self, ema_period: int, rvol_threshold: float, volume_lookback: int,
+        self,
+        ema_period: int,
+        rvol_threshold: float,
+        volume_lookback: int,
     ) -> tuple[bool, str]:
         """
         Validate volume parameters.
@@ -248,7 +251,8 @@ class VolumeParameterSweepEngine:
                 # Maintain position state from previous bar if no signal
                 elif i > 0:
                     signal_data.iloc[
-                        i, signal_data.columns.get_loc("position"),
+                        i,
+                        signal_data.columns.get_loc("position"),
                     ] = signal_data.iloc[i - 1]["position"]
 
             # For compatibility, also keep separate entry/exit columns
@@ -272,7 +276,6 @@ class VolumeParameterSweepEngine:
                 # Don't include "position" as it's just for internal tracking
             ]
             return signal_data[columns_to_keep]
-
 
         except Exception as e:
             log(f"Error generating volume signals: {e!s}", "error")
@@ -306,7 +309,9 @@ class VolumeParameterSweepEngine:
         try:
             # Validate volume parameters
             is_valid, error_msg = self.validate_volume_parameters(
-                ema_period, rvol_threshold, volume_lookback,
+                ema_period,
+                rvol_threshold,
+                volume_lookback,
             )
             if not is_valid:
                 log(
@@ -320,7 +325,12 @@ class VolumeParameterSweepEngine:
 
             # Generate hybrid MA+Volume signals
             signal_data = self.generate_hybrid_ma_volume_signals(
-                pandas_data, ma_config, ema_period, rvol_threshold, volume_lookback, log,
+                pandas_data,
+                ma_config,
+                ema_period,
+                rvol_threshold,
+                volume_lookback,
+                log,
             )
 
             if signal_data is None or len(signal_data) == 0:
@@ -614,7 +624,12 @@ class VolumeParameterSweepEngine:
                 log("Starting sequential processing", "info")
                 for i, chunk in enumerate(parameter_chunks):
                     chunk_results = self.process_volume_parameter_chunk(
-                        ticker, ma_config, chunk, prices, log, i,
+                        ticker,
+                        ma_config,
+                        chunk,
+                        prices,
+                        log,
+                        i,
                     )
                     all_results.extend(chunk_results)
 
@@ -626,7 +641,8 @@ class VolumeParameterSweepEngine:
                 if hasattr(self.memory_optimizer, "get_memory_info"):
                     memory_info = self.memory_optimizer.get_memory_info()
                     self.sweep_stats["memory_usage_mb"] = memory_info.get(
-                        "current_mb", 0.0,
+                        "current_mb",
+                        0.0,
                     )
                 else:
                     # Fallback to basic memory tracking
@@ -763,7 +779,8 @@ def create_volume_sweep_engine(
     # Extract volume parameter configuration
     ema_periods = config.get("EMA_PERIODS", [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
     rvol_thresholds = config.get(
-        "RVOL_THRESHOLDS", [1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0],
+        "RVOL_THRESHOLDS",
+        [1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0],
     )
     volume_lookbacks = config.get("VOLUME_LOOKBACKS", [10, 15, 20])
 

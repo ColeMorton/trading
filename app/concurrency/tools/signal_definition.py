@@ -193,9 +193,9 @@ def align_signal_definitions(
 
             # If implementation had any signals during this period, consider it aligned
             if np.any(impl_signals_during_trade != 0):
-                aligned_implementation[
-                    trade_start_idx : i + 1
-                ] = implementation_signals[trade_start_idx : i + 1]
+                aligned_implementation[trade_start_idx : i + 1] = (
+                    implementation_signals[trade_start_idx : i + 1]
+                )
 
     if log:
         match_rate = np.mean(
@@ -352,7 +352,10 @@ def calculate_portfolio_unique_signals_v2(
     for i, df in enumerate(strategy_dataframes):
         # Count strategy-level signals
         strategy_counts_result = count_signals_standardized(
-            df, standards, level="strategy", log=log,
+            df,
+            standards,
+            level="strategy",
+            log=log,
         )
         strategy_signal_count = strategy_counts_result["total"]
         total_strategy_signals += strategy_signal_count
@@ -360,7 +363,10 @@ def calculate_portfolio_unique_signals_v2(
 
         # Extract signal dates for portfolio-level uniqueness
         signals_df = extract_signals(
-            df, standards.portfolio_method, standards.position_column, log,
+            df,
+            standards.portfolio_method,
+            standards.position_column,
+            log,
         )
 
         if len(signals_df) > 0:

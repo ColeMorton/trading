@@ -84,7 +84,8 @@ class WebhookReceiver:
         """
         try:
             return await asyncio.wait_for(
-                self.received_webhooks.get(), timeout=timeout,
+                self.received_webhooks.get(),
+                timeout=timeout,
             )
         except asyncio.TimeoutError:
             logger.exception(f"⏰ Timeout waiting for webhook after {timeout}s")

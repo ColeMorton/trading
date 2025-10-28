@@ -409,7 +409,9 @@ class TestStrategyTemplateGenerator:
 
         # Should succeed with overwrite=True
         result2 = self.generator.generate_strategy(
-            config, overwrite=True, dry_run=False,
+            config,
+            overwrite=True,
+            dry_run=False,
         )
         assert result2["strategy_path"] == result1["strategy_path"]
 

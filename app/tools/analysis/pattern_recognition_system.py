@@ -100,31 +100,41 @@ class PatternRecognitionSystem:
 
             # 1. Shape-based pattern discovery
             shape_patterns = await self._discover_shape_patterns(
-                time_series, entity_name, timeframe,
+                time_series,
+                entity_name,
+                timeframe,
             )
             discovered_patterns.extend(shape_patterns)
 
             # 2. Statistical pattern discovery
             statistical_patterns = await self._discover_statistical_patterns(
-                time_series, entity_name, timeframe,
+                time_series,
+                entity_name,
+                timeframe,
             )
             discovered_patterns.extend(statistical_patterns)
 
             # 3. Regime change patterns
             regime_patterns = await self._discover_regime_patterns(
-                time_series, entity_name, timeframe,
+                time_series,
+                entity_name,
+                timeframe,
             )
             discovered_patterns.extend(regime_patterns)
 
             # 4. Cyclical patterns
             cyclical_patterns = await self._discover_cyclical_patterns(
-                time_series, entity_name, timeframe,
+                time_series,
+                entity_name,
+                timeframe,
             )
             discovered_patterns.extend(cyclical_patterns)
 
             # 5. Volatility patterns
             volatility_patterns = await self._discover_volatility_patterns(
-                time_series, entity_name, timeframe,
+                time_series,
+                entity_name,
+                timeframe,
             )
             discovered_patterns.extend(volatility_patterns)
 
@@ -187,13 +197,16 @@ class PatternRecognitionSystem:
 
                 # Calculate similarity
                 similarity = await self._calculate_pattern_similarity(
-                    normalized_current, pattern_template,
+                    normalized_current,
+                    pattern_template,
                 )
 
                 if similarity >= self.similarity_threshold:
                     # Calculate confidence based on pattern history
                     confidence = self._calculate_match_confidence(
-                        pattern, similarity, len(current_series),
+                        pattern,
+                        similarity,
+                        len(current_series),
                     )
 
                     match = {
@@ -222,7 +235,9 @@ class PatternRecognitionSystem:
             raise
 
     async def detect_regime_changes(
-        self, data: pd.Series | np.ndarray, window_size: int = 20,
+        self,
+        data: pd.Series | np.ndarray,
+        window_size: int = 20,
     ) -> list[dict[str, Any]]:
         """
         Detect regime changes in time series data
@@ -296,7 +311,9 @@ class PatternRecognitionSystem:
             raise
 
     async def analyze_pattern_performance(
-        self, patterns: list[PatternResult], outcomes_data: dict[str, Any],
+        self,
+        patterns: list[PatternResult],
+        outcomes_data: dict[str, Any],
     ) -> dict[str, Any]:
         """
         Analyze the performance of discovered patterns
@@ -374,7 +391,10 @@ class PatternRecognitionSystem:
     # Helper methods for pattern discovery
 
     async def _discover_shape_patterns(
-        self, series: pd.Series, entity_name: str, timeframe: str,
+        self,
+        series: pd.Series,
+        entity_name: str,
+        timeframe: str,
     ) -> list[PatternResult]:
         """Discover shape-based patterns using sliding window"""
         patterns = []
@@ -402,7 +422,10 @@ class PatternRecognitionSystem:
                 for cluster_data in clusters.values():
                     if len(cluster_data["indices"]) >= self.min_pattern_frequency:
                         pattern = self._create_shape_pattern(
-                            cluster_data, window_size, entity_name, timeframe,
+                            cluster_data,
+                            window_size,
+                            entity_name,
+                            timeframe,
                         )
                         patterns.append(pattern)
 
@@ -413,7 +436,10 @@ class PatternRecognitionSystem:
             return []
 
     async def _discover_statistical_patterns(
-        self, series: pd.Series, entity_name: str, timeframe: str,
+        self,
+        series: pd.Series,
+        entity_name: str,
+        timeframe: str,
     ) -> list[PatternResult]:
         """Discover statistical patterns (mean reversion, momentum, etc.)"""
         patterns = []
@@ -421,21 +447,27 @@ class PatternRecognitionSystem:
         try:
             # Mean reversion patterns
             mr_pattern = await self._detect_mean_reversion_pattern(
-                series, entity_name, timeframe,
+                series,
+                entity_name,
+                timeframe,
             )
             if mr_pattern:
                 patterns.append(mr_pattern)
 
             # Momentum patterns
             momentum_pattern = await self._detect_momentum_pattern(
-                series, entity_name, timeframe,
+                series,
+                entity_name,
+                timeframe,
             )
             if momentum_pattern:
                 patterns.append(momentum_pattern)
 
             # Volatility clustering patterns
             vol_pattern = await self._detect_volatility_clustering(
-                series, entity_name, timeframe,
+                series,
+                entity_name,
+                timeframe,
             )
             if vol_pattern:
                 patterns.append(vol_pattern)
@@ -447,7 +479,10 @@ class PatternRecognitionSystem:
             return []
 
     async def _discover_regime_patterns(
-        self, series: pd.Series, entity_name: str, timeframe: str,
+        self,
+        series: pd.Series,
+        entity_name: str,
+        timeframe: str,
     ) -> list[PatternResult]:
         """Discover regime change patterns"""
         try:
@@ -458,7 +493,9 @@ class PatternRecognitionSystem:
 
             # Analyze regime transition patterns
             transition_pattern = self._create_regime_transition_pattern(
-                regime_changes, entity_name, timeframe,
+                regime_changes,
+                entity_name,
+                timeframe,
             )
 
             return [transition_pattern] if transition_pattern else []
@@ -468,7 +505,10 @@ class PatternRecognitionSystem:
             return []
 
     async def _discover_cyclical_patterns(
-        self, series: pd.Series, entity_name: str, timeframe: str,
+        self,
+        series: pd.Series,
+        entity_name: str,
+        timeframe: str,
     ) -> list[PatternResult]:
         """Discover cyclical patterns using frequency analysis"""
         try:
@@ -486,7 +526,10 @@ class PatternRecognitionSystem:
                     period = 1 / frequencies[idx]
                     if 5 <= period <= len(series) / 3:  # Reasonable periods
                         cyclical_pattern = self._create_cyclical_pattern(
-                            period, magnitude[idx], entity_name, timeframe,
+                            period,
+                            magnitude[idx],
+                            entity_name,
+                            timeframe,
                         )
                         patterns.append(cyclical_pattern)
 
@@ -497,7 +540,10 @@ class PatternRecognitionSystem:
             return []
 
     async def _discover_volatility_patterns(
-        self, series: pd.Series, entity_name: str, timeframe: str,
+        self,
+        series: pd.Series,
+        entity_name: str,
+        timeframe: str,
     ) -> list[PatternResult]:
         """Discover volatility-related patterns"""
         try:
@@ -509,7 +555,9 @@ class PatternRecognitionSystem:
 
             if len(vol_regimes) >= 2:
                 vol_pattern = self._create_volatility_pattern(
-                    vol_regimes, entity_name, timeframe,
+                    vol_regimes,
+                    entity_name,
+                    timeframe,
                 )
                 return [vol_pattern] if vol_pattern else []
 
@@ -520,7 +568,8 @@ class PatternRecognitionSystem:
             return []
 
     async def _cluster_subsequences(
-        self, subsequences: list[np.ndarray],
+        self,
+        subsequences: list[np.ndarray],
     ) -> dict[int, dict[str, Any]]:
         """Cluster similar subsequences"""
         try:
@@ -529,7 +578,7 @@ class PatternRecognitionSystem:
 
             # Standardize subsequences
             scaler = StandardScaler()
-            X = scaler.fit_transform(subsequences)
+            x_features = scaler.fit_transform(subsequences)
 
             # Determine optimal number of clusters
             max_clusters = min(len(subsequences) // 2, 10)
@@ -573,7 +622,9 @@ class PatternRecognitionSystem:
         return (series - series.mean()) / (series.std() + 1e-8)
 
     async def _calculate_pattern_similarity(
-        self, current_data: pd.Series, pattern_template: list[float],
+        self,
+        current_data: pd.Series,
+        pattern_template: list[float],
     ) -> float:
         """Calculate similarity between current data and pattern template"""
         try:
@@ -597,7 +648,10 @@ class PatternRecognitionSystem:
             return 0.0
 
     def _calculate_match_confidence(
-        self, pattern: PatternResult, similarity: float, data_length: int,
+        self,
+        pattern: PatternResult,
+        similarity: float,
+        data_length: int,
     ) -> float:
         """Calculate confidence in pattern match"""
         # Base confidence from similarity
@@ -668,7 +722,10 @@ class PatternRecognitionSystem:
         )
 
     async def _detect_mean_reversion_pattern(
-        self, series: pd.Series, entity_name: str, timeframe: str,
+        self,
+        series: pd.Series,
+        entity_name: str,
+        timeframe: str,
     ) -> PatternResult | None:
         """Detect mean reversion pattern"""
         try:
@@ -711,7 +768,10 @@ class PatternRecognitionSystem:
             return None
 
     async def _detect_momentum_pattern(
-        self, series: pd.Series, entity_name: str, timeframe: str,
+        self,
+        series: pd.Series,
+        entity_name: str,
+        timeframe: str,
     ) -> PatternResult | None:
         """Detect momentum pattern"""
         try:
@@ -758,7 +818,10 @@ class PatternRecognitionSystem:
             return None
 
     async def _detect_volatility_clustering(
-        self, series: pd.Series, entity_name: str, timeframe: str,
+        self,
+        series: pd.Series,
+        entity_name: str,
+        timeframe: str,
     ) -> PatternResult | None:
         """Detect volatility clustering pattern"""
         try:
@@ -770,7 +833,8 @@ class PatternRecognitionSystem:
 
             if len(squared_returns) > 20:
                 lm_stat, lm_pvalue, f_stat, f_pvalue = het_arch(
-                    squared_returns.dropna(), maxlag=5,
+                    squared_returns.dropna(),
+                    maxlag=5,
                 )
 
                 if f_pvalue < 0.05:  # Significant ARCH effect
@@ -805,7 +869,10 @@ class PatternRecognitionSystem:
             return None
 
     def _create_regime_transition_pattern(
-        self, regime_changes: list[dict[str, Any]], entity_name: str, timeframe: str,
+        self,
+        regime_changes: list[dict[str, Any]],
+        entity_name: str,
+        timeframe: str,
     ) -> PatternResult | None:
         """Create pattern from regime changes"""
         if len(regime_changes) < 2:
@@ -835,7 +902,11 @@ class PatternRecognitionSystem:
         )
 
     def _create_cyclical_pattern(
-        self, period: float, magnitude: float, entity_name: str, timeframe: str,
+        self,
+        period: float,
+        magnitude: float,
+        entity_name: str,
+        timeframe: str,
     ) -> PatternResult:
         """Create cyclical pattern"""
         pattern_id = f"cyclical_{entity_name}_{timeframe}_{int(period)}"
@@ -859,7 +930,10 @@ class PatternRecognitionSystem:
         )
 
     def _create_volatility_pattern(
-        self, vol_regimes: list[dict[str, Any]], entity_name: str, timeframe: str,
+        self,
+        vol_regimes: list[dict[str, Any]],
+        entity_name: str,
+        timeframe: str,
     ) -> PatternResult:
         """Create volatility pattern"""
         pattern_id = f"volatility_regime_{entity_name}_{timeframe}"
@@ -886,7 +960,8 @@ class PatternRecognitionSystem:
         )
 
     async def _filter_and_rank_patterns(
-        self, patterns: list[PatternResult],
+        self,
+        patterns: list[PatternResult],
     ) -> list[PatternResult]:
         """Filter and rank patterns by significance and quality"""
         # Filter out low-quality patterns
@@ -904,4 +979,3 @@ class PatternRecognitionSystem:
             * (p.success_rate or 0.5),
             reverse=True,
         )
-

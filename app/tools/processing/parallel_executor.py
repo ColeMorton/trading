@@ -99,7 +99,8 @@ class AdaptiveThreadPoolExecutor:
             self._executor.shutdown(wait=True)
 
         self._executor = ThreadPoolExecutor(
-            max_workers=self._current_workers, thread_name_prefix="trading_worker",
+            max_workers=self._current_workers,
+            thread_name_prefix="trading_worker",
         )
         self._metrics.worker_count = self._current_workers
 
@@ -172,7 +173,8 @@ class AdaptiveThreadPoolExecutor:
             # Update peak memory
             current_memory = psutil.Process().memory_info().rss / (1024**2)
             self._metrics.peak_memory_mb = max(
-                self._metrics.peak_memory_mb, current_memory,
+                self._metrics.peak_memory_mb,
+                current_memory,
             )
 
             # Update CPU usage
@@ -362,7 +364,9 @@ def shutdown_all_executors():
 
 
 def parallel_ticker_analysis(
-    tickers: list[str], analysis_fn: Callable[[str], T], timeout: float | None = None,
+    tickers: list[str],
+    analysis_fn: Callable[[str], T],
+    timeout: float | None = None,
 ) -> dict[str, T]:
     """
     Analyze multiple tickers in parallel.

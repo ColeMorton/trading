@@ -116,7 +116,10 @@ def calculate_signals(data: pl.DataFrame, config: dict) -> pl.DataFrame | None:
 
 
 def get_current_signals(
-    data: pl.DataFrame, change_pcts: list[float], config: dict, log: Callable,
+    data: pl.DataFrame,
+    change_pcts: list[float],
+    config: dict,
+    log: Callable,
 ) -> pl.DataFrame:
     """
     Get current signals for all parameter combinations.
@@ -191,7 +194,10 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
 
         if not config.get("USE_SCANNER", False):
             export_csv(
-                current_signals, "mean_reversion_hammer", config, "current_signals",
+                current_signals,
+                "mean_reversion_hammer",
+                config,
+                "current_signals",
             )
 
             if len(current_signals) == 0:
@@ -205,7 +211,10 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
 
 
 def process_mean_reversion_signals(
-    ticker: str, config: Config, change_pct: float, log: Callable,
+    ticker: str,
+    config: Config,
+    change_pct: float,
+    log: Callable,
 ) -> bool:
     """
     Process mean reversion hammer signals for a given ticker and configuration.
@@ -225,6 +234,6 @@ def process_mean_reversion_signals(
     signals = generate_current_signals(mr_config, log)
 
     return check_signal_match(
-        signals.to_dicts() if len(signals) > 0 else [], change_pct,
+        signals.to_dicts() if len(signals) > 0 else [],
+        change_pct,
     )
-

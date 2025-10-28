@@ -90,7 +90,8 @@ class TestMarketAware4HourConversion:
 
         # Test crypto conversion (should use standard UTC-aligned 4-hour bars)
         result = processor.convert_hourly_to_4hour(
-            sample_hourly_data_pandas, ticker="ETH-USD",
+            sample_hourly_data_pandas,
+            ticker="ETH-USD",
         )
 
         # Should have 6 bars from 24 hours of data (24/4 = 6)
@@ -127,7 +128,8 @@ class TestMarketAware4HourConversion:
 
         # Test crypto conversion
         result = processor.convert_hourly_to_4hour(
-            sample_hourly_data_polars, ticker="BTC-USD",
+            sample_hourly_data_polars,
+            ticker="BTC-USD",
         )
 
         # Should have 6 bars from 24 hours of data
@@ -151,7 +153,8 @@ class TestMarketAware4HourConversion:
 
         # Test stock conversion (should use market-aware filtering)
         result = processor.convert_hourly_to_4hour(
-            sample_hourly_data_pandas, ticker="AAPL",
+            sample_hourly_data_pandas,
+            ticker="AAPL",
         )
 
         # Result should be smaller due to trading hours filtering
@@ -175,7 +178,8 @@ class TestMarketAware4HourConversion:
 
         # Test stock conversion
         result = processor.convert_hourly_to_4hour(
-            sample_hourly_data_polars, ticker="MSFT",
+            sample_hourly_data_polars,
+            ticker="MSFT",
         )
 
         # Result should be processed through market hours filtering
@@ -384,7 +388,8 @@ class TestIntegration:
 
         # 2. Market-aware 4-hour conversion
         four_hour_data = processor.convert_hourly_to_4hour(
-            hourly_data, ticker="ETH-USD",
+            hourly_data,
+            ticker="ETH-USD",
         )
 
         # 3. Validation

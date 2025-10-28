@@ -83,9 +83,9 @@ class SignalAggregator:
 
             # Aggregate signals across sources
             return self._aggregate_across_sources(
-                extracted_signals, strategy_identifier,
+                extracted_signals,
+                strategy_identifier,
             )
-
 
         except Exception as e:
             self.logger.exception(f"Signal aggregation failed: {e!s}")
@@ -133,7 +133,9 @@ class SignalAggregator:
         )
 
     def validate_signal_consistency(
-        self, signals: list[AggregatedSignal], consistency_threshold: float = 0.8,
+        self,
+        signals: list[AggregatedSignal],
+        consistency_threshold: float = 0.8,
     ) -> dict[str, Any]:
         """Validate consistency across aggregated signals."""
         if not signals:
@@ -164,7 +166,8 @@ class SignalAggregator:
         }
 
     def _normalize_sources(
-        self, sources: dict[str, pd.DataFrame | pl.DataFrame],
+        self,
+        sources: dict[str, pd.DataFrame | pl.DataFrame],
     ) -> dict[str, pd.DataFrame]:
         """Normalize all sources to pandas DataFrames."""
         normalized = {}
@@ -178,7 +181,9 @@ class SignalAggregator:
         return normalized
 
     def _extract_signals_from_source(
-        self, data: pd.DataFrame, source_name: str,
+        self,
+        data: pd.DataFrame,
+        source_name: str,
     ) -> list[dict[str, Any]]:
         """Extract signals from a single source."""
         signals = []
@@ -209,7 +214,8 @@ class SignalAggregator:
                     "signal_type": row.get(signal_col, "UNKNOWN"),
                     "timestamp": row.get("timestamp", row.get("date", str(idx))),
                     "confidence": row.get(
-                        "confidence", row.get("signal_confidence", 0.5),
+                        "confidence",
+                        row.get("signal_confidence", 0.5),
                     ),
                     "raw_data": row.to_dict(),
                 }
@@ -303,7 +309,9 @@ class SignalAggregator:
         return 0.6
 
     def _calculate_signal_to_noise_ratio(
-        self, signal_data: pd.DataFrame, baseline_data: pd.DataFrame | None = None,
+        self,
+        signal_data: pd.DataFrame,
+        baseline_data: pd.DataFrame | None = None,
     ) -> float:
         """Calculate signal-to-noise ratio."""
         if signal_data.empty:

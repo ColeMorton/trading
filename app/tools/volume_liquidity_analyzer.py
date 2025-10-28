@@ -128,12 +128,16 @@ class VolumeLiquidityAnalyzer:
                 1 - (volume_std / avg_volume_20d) if avg_volume_20d > 0 else 0.5
             )
             volume_consistency = max(
-                0, min(1, volume_consistency),
+                0,
+                min(1, volume_consistency),
             )  # Clamp between 0 and 1
 
             # Liquidity score estimation
             liquidity_score = self._calculate_liquidity_score(
-                volumes, closes, highs, lows,
+                volumes,
+                closes,
+                highs,
+                lows,
             )
 
             return VolumeMetrics(
@@ -335,7 +339,8 @@ class VolumeLiquidityAnalyzer:
 
 
 def create_volume_analyzer(
-    ticker: str, logger: logging.Logger | None = None,
+    ticker: str,
+    logger: logging.Logger | None = None,
 ) -> VolumeLiquidityAnalyzer:
     """Factory function to create volume liquidity analyzer."""
     return VolumeLiquidityAnalyzer(ticker, logger)

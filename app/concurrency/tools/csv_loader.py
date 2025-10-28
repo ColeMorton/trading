@@ -209,7 +209,8 @@ class CSVLoader:
 
             # Calculate data quality score
             quality_score = self._calculate_data_quality_score(
-                data_cleaned, schema_detected,
+                data_cleaned,
+                schema_detected,
             )
 
             if log:
@@ -278,7 +279,10 @@ class CSVLoader:
         return best_match
 
     def _clean_data(
-        self, data: pd.DataFrame, warnings_list: list[str], errors_list: list[str],
+        self,
+        data: pd.DataFrame,
+        warnings_list: list[str],
+        errors_list: list[str],
     ) -> pd.DataFrame:
         """
         Clean and validate CSV data.
@@ -347,7 +351,10 @@ class CSVLoader:
         return cleaned_data
 
     def _validate_data_ranges(
-        self, data: pd.DataFrame, warnings_list: list[str], errors_list: list[str],
+        self,
+        data: pd.DataFrame,
+        warnings_list: list[str],
+        errors_list: list[str],
     ) -> None:
         """
         Validate that data values are within reasonable ranges.
@@ -470,7 +477,9 @@ class CSVMetricsExtractor:
         self.aggregation_method = aggregation_method
 
     def extract_metrics(
-        self, csv_data: pd.DataFrame, log: Callable[[str, str], None] | None = None,
+        self,
+        csv_data: pd.DataFrame,
+        log: Callable[[str, str], None] | None = None,
     ) -> CSVMetrics:
         """
         Extract comprehensive metrics from CSV data.
@@ -539,7 +548,9 @@ class CSVMetricsExtractor:
             )
 
     def _extract_ticker_metrics(
-        self, csv_data: pd.DataFrame, log: Callable[[str, str], None] | None = None,
+        self,
+        csv_data: pd.DataFrame,
+        log: Callable[[str, str], None] | None = None,
     ) -> dict[str, dict[str, float]]:
         """Extract metrics aggregated by ticker."""
         if "Ticker" not in csv_data.columns:
@@ -571,14 +582,14 @@ class CSVMetricsExtractor:
                     # Use different aggregation methods based on column type
                     if col == "Total Trades":
                         # Sum total trades
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(ticker_data[col].sum())
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(ticker_data[col].sum())
+                        )
                     elif col in ["Max Drawdown %"]:
                         # Use maximum for drawdown
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(ticker_data[col].max())
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(ticker_data[col].max())
+                        )
                     # Use weighted average for other metrics
                     elif (
                         self.aggregation_method == "trade_weighted"
@@ -589,21 +600,23 @@ class CSVMetricsExtractor:
                             ticker_data[col].dropna(),
                             weights=weights[ticker_data[col].notna()],
                         )
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(weighted_avg)
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(weighted_avg)
+                        )
                     else:
                         # Simple average
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(ticker_data[col].mean())
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(ticker_data[col].mean())
+                        )
 
             ticker_metrics[ticker] = metrics
 
         return ticker_metrics
 
     def _calculate_portfolio_summary(
-        self, csv_data: pd.DataFrame, log: Callable[[str, str], None] | None = None,
+        self,
+        csv_data: pd.DataFrame,
+        log: Callable[[str, str], None] | None = None,
     ) -> dict[str, float]:
         """Calculate portfolio-level summary metrics."""
         summary = {}
@@ -631,7 +644,8 @@ class CSVMetricsExtractor:
                 ):
                     weights = csv_data["Total Trades"]
                     weighted_avg = np.average(
-                        csv_data[col].dropna(), weights=weights[csv_data[col].notna()],
+                        csv_data[col].dropna(),
+                        weights=weights[csv_data[col].notna()],
                     )
                     summary[col.lower().replace(" ", "_").replace("%", "_pct")] = float(
                         weighted_avg,
@@ -655,7 +669,9 @@ class CSVMetricsExtractor:
         return summary
 
     def _extract_strategy_breakdown(
-        self, csv_data: pd.DataFrame, log: Callable[[str, str], None] | None = None,
+        self,
+        csv_data: pd.DataFrame,
+        log: Callable[[str, str], None] | None = None,
     ) -> dict[str, dict[str, float]]:
         """Extract metrics broken down by strategy."""
         if "Strategy" not in csv_data.columns:
@@ -684,17 +700,17 @@ class CSVMetricsExtractor:
             for col in numeric_columns:
                 if col in strategy_data.columns:
                     if col == "Total Trades":
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(strategy_data[col].sum())
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(strategy_data[col].sum())
+                        )
                     elif col == "Max Drawdown %":
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(strategy_data[col].max())
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(strategy_data[col].max())
+                        )
                     else:
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(strategy_data[col].mean())
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(strategy_data[col].mean())
+                        )
 
             # Add strategy-specific metrics
             if "Ticker" in strategy_data.columns:
@@ -705,7 +721,9 @@ class CSVMetricsExtractor:
         return strategy_metrics
 
     def _assess_data_quality(
-        self, csv_data: pd.DataFrame, log: Callable[[str, str], None] | None = None,
+        self,
+        csv_data: pd.DataFrame,
+        log: Callable[[str, str], None] | None = None,
     ) -> dict[str, Any]:
         """Assess data quality of the CSV data."""
         quality = {}
@@ -808,7 +826,9 @@ class CSVValidator:
         }
 
     def validate_csv_data(
-        self, csv_data: pd.DataFrame, log: Callable[[str, str], None] | None = None,
+        self,
+        csv_data: pd.DataFrame,
+        log: Callable[[str, str], None] | None = None,
     ) -> dict[str, Any]:
         """
         Perform comprehensive validation of CSV data.

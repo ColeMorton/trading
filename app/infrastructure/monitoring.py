@@ -13,7 +13,10 @@ class Metric:
     """Base metric class."""
 
     def __init__(
-        self, name: str, description: str, labels: list[str] | None | None = None,
+        self,
+        name: str,
+        description: str,
+        labels: list[str] | None | None = None,
     ):
         self.name = name
         self.description = description
@@ -54,7 +57,10 @@ class Histogram(Metric):
     """Histogram metric - tracks distribution."""
 
     def __init__(
-        self, name: str, description: str, labels: list[str] | None | None = None,
+        self,
+        name: str,
+        description: str,
+        labels: list[str] | None | None = None,
     ):
         super().__init__(name, description, labels)
         self._observations = defaultdict(list)
@@ -143,11 +149,16 @@ class MonitoringService(MonitoringInterface):
 
         # Track duration
         self.observe_histogram(
-            "operation_duration_seconds", duration, labels={"operation": operation},
+            "operation_duration_seconds",
+            duration,
+            labels={"operation": operation},
         )
 
     def increment_counter(
-        self, name: str, value: float = 1, labels: dict[str, str] | None = None,
+        self,
+        name: str,
+        value: float = 1,
+        labels: dict[str, str] | None = None,
     ) -> None:
         """Increment a counter metric."""
         metric = self._get_or_create_metric(name, MetricType.COUNTER)
@@ -155,7 +166,10 @@ class MonitoringService(MonitoringInterface):
             metric.increment(value, labels)
 
     def set_gauge(
-        self, name: str, value: float, labels: dict[str, str] | None = None,
+        self,
+        name: str,
+        value: float,
+        labels: dict[str, str] | None = None,
     ) -> None:
         """Set a gauge metric."""
         metric = self._get_or_create_metric(name, MetricType.GAUGE)
@@ -163,7 +177,10 @@ class MonitoringService(MonitoringInterface):
             metric.set(value, labels)
 
     def observe_histogram(
-        self, name: str, value: float, labels: dict[str, str] | None = None,
+        self,
+        name: str,
+        value: float,
+        labels: dict[str, str] | None = None,
     ) -> None:
         """Observe a histogram metric."""
         metric = self._get_or_create_metric(name, MetricType.HISTOGRAM)

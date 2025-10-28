@@ -91,47 +91,63 @@ class StatisticalModelValidator:
             self.logger.info(f"Starting comprehensive validation for {model_name}")
 
             # Prepare data
-            X_train, y_train = self._prepare_model_data(training_data)
+            x_train, y_train = self._prepare_model_data(training_data)
 
             if validation_data:
-                X_val, y_val = self._prepare_model_data(validation_data)
+                x_val, y_val = self._prepare_model_data(validation_data)
             else:
                 # Split training data
-                split_point = int(0.8 * len(X_train))
-                X_val, y_val = X_train[split_point:], y_train[split_point:]
-                X_train, y_train = X_train[:split_point], y_train[:split_point]
+                split_point = int(0.8 * len(x_train))
+                x_val, y_val = x_train[split_point:], y_train[split_point:]
+                x_train, y_train = x_train[:split_point], y_train[:split_point]
 
             # 1. Cross-validation
-            cv_scores = await self._perform_cross_validation(model, X_train, y_train)
+            cv_scores = await self._perform_cross_validation(model, x_train, y_train)
 
             # 2. Overfitting assessment
             overfitting_score = await self._assess_overfitting(
-                model, X_train, y_train, X_val, y_val,
+                model,
+                x_train,
+                y_train,
+                x_val,
+                y_val,
             )
 
             # 3. Model complexity analysis
             complexity_score = await self._assess_model_complexity(
-                model, X_train, y_train,
+                model,
+                x_train,
+                y_train,
             )
 
             # 4. Statistical assumption tests
             assumption_tests = await self._test_model_assumptions(
-                model, X_train, y_train, X_val, y_val,
+                model,
+                x_train,
+                y_train,
+                x_val,
+                y_val,
             )
 
             # 5. Performance stability
             stability_score = await self._assess_performance_stability(
-                model, X_train, y_train,
+                model,
+                x_train,
+                y_train,
             )
 
             # 6. Regime robustness
             regime_robustness = await self._assess_regime_robustness(
-                model, training_data, validation_data,
+                model,
+                training_data,
+                validation_data,
             )
 
             # 7. Out-of-sample performance
             oos_score = await self._evaluate_out_of_sample_performance(
-                model, X_val, y_val,
+                model,
+                x_val,
+                y_val,
             )
 
             # Calculate primary validation score
@@ -148,12 +164,16 @@ class StatisticalModelValidator:
 
             # Assess deployment readiness
             deployment_ready = await self._assess_deployment_readiness(
-                validation_score, overfitting_score, stability_score,
+                validation_score,
+                overfitting_score,
+                stability_score,
             )
 
             # Determine model quality
             model_quality = self._classify_model_quality(
-                validation_score, overfitting_score, stability_score,
+                validation_score,
+                overfitting_score,
+                stability_score,
             )
 
             validation_duration = (datetime.now() - start_time).total_seconds()
@@ -205,27 +225,36 @@ class StatisticalModelValidator:
 
             # Prepare threshold validation data
             validation_data = await self._prepare_threshold_validation_data(
-                performance_data, threshold_function, threshold_params,
+                performance_data,
+                threshold_function,
+                threshold_params,
             )
 
             # Cross-validation for threshold model
             cv_scores = await self._cross_validate_threshold_model(
-                threshold_function, validation_data, threshold_params,
+                threshold_function,
+                validation_data,
+                threshold_params,
             )
 
             # Stability testing
             stability_score = await self._test_threshold_stability(
-                threshold_function, validation_data, threshold_params,
+                threshold_function,
+                validation_data,
+                threshold_params,
             )
 
             # Robustness testing
             robustness_results = await self._test_threshold_robustness(
-                threshold_function, validation_data, threshold_params,
+                threshold_function,
+                validation_data,
+                threshold_params,
             )
 
             # Overfitting assessment for thresholds
             overfitting_score = await self._assess_threshold_overfitting(
-                validation_data, threshold_params,
+                validation_data,
+                threshold_params,
             )
 
             return ModelValidationResult(
@@ -240,10 +269,14 @@ class StatisticalModelValidator:
                 performance_stability=stability_score,
                 regime_robustness=robustness_results,
                 model_quality=self._classify_model_quality(
-                    np.mean(cv_scores), overfitting_score, stability_score,
+                    np.mean(cv_scores),
+                    overfitting_score,
+                    stability_score,
                 ),
                 recommendations=await self._generate_threshold_recommendations(
-                    cv_scores, overfitting_score, stability_score,
+                    cv_scores,
+                    overfitting_score,
+                    stability_score,
                 ),
                 deployment_readiness=np.mean(cv_scores) >= self.min_validation_score,
                 validation_timestamp=datetime.now(),
@@ -274,16 +307,16 @@ class StatisticalModelValidator:
             Overfitting detection results
         """
         try:
-            X_train, y_train = self._prepare_model_data(training_data)
-            X_val, y_val = self._prepare_model_data(validation_data)
+            x_train, y_train = self._prepare_model_data(training_data)
+            x_val, y_val = self._prepare_model_data(validation_data)
 
             # Training performance
-            train_pred = model.predict(X_train)
+            train_pred = model.predict(x_train)
             train_r2 = r2_score(y_train, train_pred)
             train_mse = mean_squared_error(y_train, train_pred)
 
             # Validation performance
-            val_pred = model.predict(X_val)
+            val_pred = model.predict(x_val)
             val_r2 = r2_score(y_val, val_pred)
             val_mse = mean_squared_error(y_val, val_pred)
 
@@ -314,7 +347,9 @@ class StatisticalModelValidator:
                 "mse_ratio": mse_ratio,
                 "model_complexity": complexity,
                 "recommendations": self._generate_overfitting_recommendations(
-                    overfitting_score, r2_gap, complexity,
+                    overfitting_score,
+                    r2_gap,
+                    complexity,
                 ),
             }
 
@@ -323,7 +358,9 @@ class StatisticalModelValidator:
             raise
 
     async def test_model_assumptions(
-        self, residuals: np.ndarray, features: np.ndarray | None = None,
+        self,
+        residuals: np.ndarray,
+        features: np.ndarray | None = None,
     ) -> dict[str, SignificanceTestResult]:
         """
         Test statistical assumptions of models
@@ -349,7 +386,8 @@ class StatisticalModelValidator:
             # 3. Homoscedasticity test
             if features is not None:
                 homoscedasticity_test = await self._test_homoscedasticity(
-                    residuals, features,
+                    residuals,
+                    features,
                 )
                 assumption_tests["homoscedasticity"] = homoscedasticity_test
 
@@ -366,25 +404,26 @@ class StatisticalModelValidator:
     # Helper methods
 
     def _prepare_model_data(
-        self, data: dict[str, Any],
+        self,
+        data: dict[str, Any],
     ) -> tuple[np.ndarray, np.ndarray]:
         """Prepare data for model validation"""
         if "features" in data and "targets" in data:
-            X = np.array(data["features"])
+            x_features = np.array(data["features"])
             y = np.array(data["targets"])
         elif "returns" in data:
             # Create features from returns (simplified)
             returns = np.array(data["returns"])
 
             # Create lagged features
-            X = []
+            x_features = []
             y = []
 
             for i in range(5, len(returns)):  # Use 5 lags
                 X.append(returns[i - 5 : i])
                 y.append(returns[i])
 
-            X = np.array(X)
+            x_features = np.array(X)
             y = np.array(y)
         else:
             msg = "Data must contain 'features'/'targets' or 'returns'"
@@ -393,7 +432,10 @@ class StatisticalModelValidator:
         return X, y
 
     async def _perform_cross_validation(
-        self, model: Any, X: np.ndarray, y: np.ndarray,
+        self,
+        model: Any,
+        X: np.ndarray,
+        y: np.ndarray,
     ) -> list[float]:
         """Perform time series cross-validation"""
         try:
@@ -406,16 +448,16 @@ class StatisticalModelValidator:
             scores = []
             for train_idx, test_idx in tscv.split(X):
                 try:
-                    X_train_cv, X_test_cv = X[train_idx], X[test_idx]
+                    x_train_cv, x_test_cv = X[train_idx], X[test_idx]
                     y_train_cv, y_test_cv = y[train_idx], y[test_idx]
 
                     # Clone and train model
                     if hasattr(model, "fit"):
                         model_cv = self._clone_model(model)
-                        model_cv.fit(X_train_cv, y_train_cv)
+                        model_cv.fit(x_train_cv, y_train_cv)
 
                         # Predict and score
-                        y_pred = model_cv.predict(X_test_cv)
+                        y_pred = model_cv.predict(x_test_cv)
                         score = r2_score(y_test_cv, y_pred)
                         scores.append(max(0, score))  # Ensure non-negative
                     else:
@@ -435,20 +477,20 @@ class StatisticalModelValidator:
     async def _assess_overfitting(
         self,
         model: Any,
-        X_train: np.ndarray,
+        x_train: np.ndarray,
         y_train: np.ndarray,
-        X_val: np.ndarray,
+        x_val: np.ndarray,
         y_val: np.ndarray,
     ) -> float:
         """Assess overfitting risk"""
         try:
             if hasattr(model, "predict"):
                 # Training performance
-                train_pred = model.predict(X_train)
+                train_pred = model.predict(x_train)
                 train_score = r2_score(y_train, train_pred)
 
                 # Validation performance
-                val_pred = model.predict(X_val)
+                val_pred = model.predict(x_val)
                 val_score = r2_score(y_val, val_pred)
 
                 # Overfitting is performance gap
@@ -465,7 +507,10 @@ class StatisticalModelValidator:
             return 0.5
 
     async def _assess_model_complexity(
-        self, model: Any, X: np.ndarray, y: np.ndarray,
+        self,
+        model: Any,
+        X: np.ndarray,
+        y: np.ndarray,
     ) -> float:
         """Assess model complexity"""
         try:
@@ -473,7 +518,6 @@ class StatisticalModelValidator:
 
             # Normalize complexity score
             return min(complexity, 1.0)
-
 
         except Exception as e:
             self.logger.warning(f"Complexity assessment failed: {e}")
@@ -495,9 +539,9 @@ class StatisticalModelValidator:
     async def _test_model_assumptions(
         self,
         model: Any,
-        X_train: np.ndarray,
+        x_train: np.ndarray,
         y_train: np.ndarray,
-        X_val: np.ndarray,
+        x_val: np.ndarray,
         y_val: np.ndarray,
     ) -> dict[str, SignificanceTestResult | None]:
         """Test model assumptions"""
@@ -506,11 +550,11 @@ class StatisticalModelValidator:
         try:
             if hasattr(model, "predict"):
                 # Get residuals
-                train_pred = model.predict(X_train)
+                train_pred = model.predict(x_train)
                 residuals = y_train - train_pred
 
                 # Test assumptions
-                assumption_tests = await self.test_model_assumptions(residuals, X_train)
+                assumption_tests = await self.test_model_assumptions(residuals, x_train)
             else:
                 # Default assumption results
                 assumption_tests = {
@@ -530,7 +574,10 @@ class StatisticalModelValidator:
         return assumption_tests
 
     async def _assess_performance_stability(
-        self, model: Any, X: np.ndarray, y: np.ndarray,
+        self,
+        model: Any,
+        X: np.ndarray,
+        y: np.ndarray,
     ) -> float:
         """Assess performance stability over time"""
         try:
@@ -543,19 +590,19 @@ class StatisticalModelValidator:
 
             for i in range(window_size, len(X) - window_size, window_size // 2):
                 try:
-                    X_window = X[i - window_size : i + window_size]
+                    x_window = X[i - window_size : i + window_size]
                     y_window = y[i - window_size : i + window_size]
 
                     # Split window
-                    split = len(X_window) // 2
-                    X_train_w, X_test_w = X_window[:split], X_window[split:]
+                    split = len(x_window) // 2
+                    x_train_w, x_test_w = x_window[:split], x_window[split:]
                     y_train_w, y_test_w = y_window[:split], y_window[split:]
 
                     if hasattr(model, "fit"):
                         model_w = self._clone_model(model)
-                        model_w.fit(X_train_w, y_train_w)
+                        model_w.fit(x_train_w, y_train_w)
 
-                        y_pred_w = model_w.predict(X_test_w)
+                        y_pred_w = model_w.predict(x_test_w)
                         score = r2_score(y_test_w, y_pred_w)
                         scores.append(max(0, score))
                     else:
@@ -601,12 +648,15 @@ class StatisticalModelValidator:
             return {"overall": 0.6}
 
     async def _evaluate_out_of_sample_performance(
-        self, model: Any, X_val: np.ndarray, y_val: np.ndarray,
+        self,
+        model: Any,
+        x_val: np.ndarray,
+        y_val: np.ndarray,
     ) -> float | None:
         """Evaluate out-of-sample performance"""
         try:
             if hasattr(model, "predict"):
-                y_pred = model.predict(X_val)
+                y_pred = model.predict(x_val)
                 score = r2_score(y_val, y_pred)
                 return max(0, score)
             return None
@@ -664,7 +714,10 @@ class StatisticalModelValidator:
         return recommendations
 
     async def _assess_deployment_readiness(
-        self, validation_score: float, overfitting_score: float, stability_score: float,
+        self,
+        validation_score: float,
+        overfitting_score: float,
+        stability_score: float,
     ) -> bool:
         """Assess if model is ready for deployment"""
         return (
@@ -674,7 +727,10 @@ class StatisticalModelValidator:
         )
 
     def _classify_model_quality(
-        self, validation_score: float, overfitting_score: float, stability_score: float,
+        self,
+        validation_score: float,
+        overfitting_score: float,
+        stability_score: float,
     ) -> str:
         """Classify overall model quality"""
         if (
@@ -751,7 +807,9 @@ class StatisticalModelValidator:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 lb_result = acorr_ljungbox(
-                    residuals, lags=min(10, len(residuals) // 4), return_df=True,
+                    residuals,
+                    lags=min(10, len(residuals) // 4),
+                    return_df=True,
                 )
 
             # Use the minimum p-value
@@ -777,7 +835,9 @@ class StatisticalModelValidator:
             return self._create_default_test_result("independence_test")
 
     async def _test_homoscedasticity(
-        self, residuals: np.ndarray, features: np.ndarray,
+        self,
+        residuals: np.ndarray,
+        features: np.ndarray,
     ) -> SignificanceTestResult:
         """Test homoscedasticity (constant variance)"""
         try:
@@ -788,7 +848,8 @@ class StatisticalModelValidator:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 bp_stat, bp_pvalue, f_stat, f_pvalue = het_breuschpagan(
-                    residuals, features,
+                    residuals,
+                    features,
                 )
 
             return SignificanceTestResult(
@@ -910,7 +971,8 @@ class StatisticalModelValidator:
 
             # Apply thresholds and calculate performance
             test_performance = self._evaluate_threshold_performance(
-                test_returns, threshold_params,
+                test_returns,
+                threshold_params,
             )
 
             scores.append(test_performance)
@@ -918,7 +980,9 @@ class StatisticalModelValidator:
         return scores
 
     def _evaluate_threshold_performance(
-        self, returns: list[float], thresholds: dict[str, float],
+        self,
+        returns: list[float],
+        thresholds: dict[str, float],
     ) -> float:
         """Evaluate threshold performance"""
         if not returns:
@@ -957,7 +1021,8 @@ class StatisticalModelValidator:
 
         # Test stability by perturbing thresholds
         base_performance = self._evaluate_threshold_performance(
-            returns, threshold_params,
+            returns,
+            threshold_params,
         )
 
         stability_scores = []
@@ -967,7 +1032,8 @@ class StatisticalModelValidator:
                 perturbed_thresholds[threshold_name] = threshold_value + perturbation
 
                 perturbed_performance = self._evaluate_threshold_performance(
-                    returns, perturbed_thresholds,
+                    returns,
+                    perturbed_thresholds,
                 )
 
                 # Stability is inverse of performance change
@@ -996,7 +1062,9 @@ class StatisticalModelValidator:
         }
 
     async def _assess_threshold_overfitting(
-        self, validation_data: dict[str, Any], threshold_params: dict[str, float],
+        self,
+        validation_data: dict[str, Any],
+        threshold_params: dict[str, float],
     ) -> float:
         """Assess overfitting in threshold model"""
         # Threshold models are less prone to overfitting
@@ -1011,14 +1079,18 @@ class StatisticalModelValidator:
 
         # Overfitting score
         return 0.3 * min(
-            num_params / 10, 1.0,
+            num_params / 10,
+            1.0,
         ) + 0.7 * min(  # Parameter count
-            param_extremity / num_params, 1.0,
+            param_extremity / num_params,
+            1.0,
         )  # Parameter extremity
 
-
     async def _generate_threshold_recommendations(
-        self, cv_scores: list[float], overfitting_score: float, stability_score: float,
+        self,
+        cv_scores: list[float],
+        overfitting_score: float,
+        stability_score: float,
     ) -> list[str]:
         """Generate recommendations for threshold model"""
         recommendations = []
@@ -1046,7 +1118,10 @@ class StatisticalModelValidator:
         return recommendations
 
     def _generate_overfitting_recommendations(
-        self, overfitting_score: float, r2_gap: float, complexity: float,
+        self,
+        overfitting_score: float,
+        r2_gap: float,
+        complexity: float,
     ) -> list[str]:
         """Generate overfitting-specific recommendations"""
         recommendations = []

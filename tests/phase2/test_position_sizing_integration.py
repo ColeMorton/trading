@@ -32,7 +32,10 @@ class TestPositionSizingPortfolioIntegration:
     @patch("app.tools.risk.CVaRCalculator.calculate_trading_cvar")
     @patch("app.tools.risk.CVaRCalculator.calculate_investment_cvar")
     def test_create_position_sizing_row(
-        self, mock_investment_cvar, mock_trading_cvar, mock_price,
+        self,
+        mock_investment_cvar,
+        mock_trading_cvar,
+        mock_price,
     ):
         """Test creating a position sizing row."""
         # Setup mocks
@@ -124,7 +127,8 @@ class TestPositionSizingPortfolioIntegration:
             ),
         ):
             df = self.integration.create_position_sizing_portfolio(
-                tickers, manual_data_by_ticker,
+                tickers,
+                manual_data_by_ticker,
             )
 
         # Verify DataFrame structure
@@ -222,7 +226,11 @@ class TestPositionSizingPortfolioIntegration:
 
         self.integration.position_tracker.add_position_entry("AAPL", 3000.0, 0.04)
         self.integration.dual_portfolio.add_portfolio_holding(
-            "AAPL", "Risk_On", 3000.0, 15.0, risk_amount=120.0,
+            "AAPL",
+            "Risk_On",
+            3000.0,
+            15.0,
+            risk_amount=120.0,
         )
 
         # Mock strategies integration to avoid file dependencies

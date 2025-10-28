@@ -86,7 +86,11 @@ class BenchmarkComparisonService:
             if benchmark_config.strategy_type == "buy_and_hold":
                 try:
                     return self._create_buy_and_hold_benchmark(
-                        benchmark_config.symbol, start_date, end_date, init_cash, fees,
+                        benchmark_config.symbol,
+                        start_date,
+                        end_date,
+                        init_cash,
+                        fees,
                     )
                 except ValueError as e:
                     # Try fallback symbols if original symbol fails
@@ -138,7 +142,12 @@ class BenchmarkComparisonService:
 
                 try:
                     return self._create_equal_weighted_benchmark(
-                        symbols, start_date, end_date, init_cash, fees, benchmark_config,
+                        symbols,
+                        start_date,
+                        end_date,
+                        init_cash,
+                        fees,
+                        benchmark_config,
                     )
                 except Exception as e:
                     # For multi-asset benchmarks, try with subset of working symbols
@@ -187,7 +196,12 @@ class BenchmarkComparisonService:
                         msg,
                     )
                 return self._create_custom_weighted_benchmark(
-                    symbols, start_date, end_date, init_cash, fees, benchmark_config,
+                    symbols,
+                    start_date,
+                    end_date,
+                    init_cash,
+                    fees,
+                    benchmark_config,
                 )
 
             else:
@@ -209,7 +223,9 @@ class BenchmarkComparisonService:
             raise ValueError(msg) from e
 
     def compare_portfolios(
-        self, portfolio: "vbt.Portfolio", benchmark_portfolio: "vbt.Portfolio",
+        self,
+        portfolio: "vbt.Portfolio",
+        benchmark_portfolio: "vbt.Portfolio",
     ) -> ComparisonMetrics:
         """
         Compare portfolio performance against benchmark.
@@ -343,7 +359,9 @@ class BenchmarkComparisonService:
             for symbol in symbols:
                 close_prices = data_dict[symbol].select(["Date", "Close"])
                 price_df = price_df.join(
-                    close_prices.rename({"Close": symbol}), on="Date", how="left",
+                    close_prices.rename({"Close": symbol}),
+                    on="Date",
+                    how="left",
                 )
 
             # Convert to pandas for VectorBT
@@ -363,7 +381,9 @@ class BenchmarkComparisonService:
             if allocation_method == "equal_weight":
                 weight = 1.0 / len(symbols)
                 sizes_pd = pd.DataFrame(
-                    weight, index=close_pd.index, columns=close_pd.columns,
+                    weight,
+                    index=close_pd.index,
+                    columns=close_pd.columns,
                 )
             else:
                 msg = f"Unsupported allocation method: {allocation_method}"
@@ -388,7 +408,12 @@ class BenchmarkComparisonService:
             raise
 
     def _create_buy_and_hold_benchmark(
-        self, symbol: str, start_date: str, end_date: str, init_cash: float, fees: float,
+        self,
+        symbol: str,
+        start_date: str,
+        end_date: str,
+        init_cash: float,
+        fees: float,
     ) -> "vbt.Portfolio":
         """Create simple buy and hold benchmark for single asset."""
         try:
@@ -442,7 +467,8 @@ class BenchmarkComparisonService:
 
             except Exception as e:
                 self._log(
-                    f"Failed to process price data for '{symbol}': {e!s}", "error",
+                    f"Failed to process price data for '{symbol}': {e!s}",
+                    "error",
                 )
                 msg = f"Invalid price data format for benchmark symbol '{symbol}'"
                 raise ValueError(
@@ -487,7 +513,8 @@ class BenchmarkComparisonService:
                 ) from e
 
             self._log(
-                f"Successfully created buy-and-hold benchmark for '{symbol}'", "debug",
+                f"Successfully created buy-and-hold benchmark for '{symbol}'",
+                "debug",
             )
             return portfolio
 
@@ -513,7 +540,12 @@ class BenchmarkComparisonService:
     ) -> "vbt.Portfolio":
         """Create equal weighted portfolio benchmark."""
         portfolio, _, _, _ = self.create_multi_asset_benchmark(
-            symbols, start_date, end_date, init_cash, fees, "equal_weight",
+            symbols,
+            start_date,
+            end_date,
+            init_cash,
+            fees,
+            "equal_weight",
         )
         return portfolio
 
@@ -530,7 +562,12 @@ class BenchmarkComparisonService:
         # Implementation for custom weights would go here
         # For now, fall back to equal weight
         return self._create_equal_weighted_benchmark(
-            symbols, start_date, end_date, init_cash, fees, benchmark_config,
+            symbols,
+            start_date,
+            end_date,
+            init_cash,
+            fees,
+            benchmark_config,
         )
 
     # _calculate_beta and _calculate_alpha methods removed (June 2025 decision)
@@ -538,7 +575,9 @@ class BenchmarkComparisonService:
     # value and were dependent on benchmark data availability, leading to inconsistent results
 
     def _calculate_sharpe_ratio(
-        self, returns: np.ndarray, risk_free_rate: float = 0.0,
+        self,
+        returns: np.ndarray,
+        risk_free_rate: float = 0.0,
     ) -> float:
         """Calculate Sharpe ratio for returns series."""
         try:

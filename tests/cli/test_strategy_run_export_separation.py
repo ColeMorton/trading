@@ -304,7 +304,10 @@ class TestStrategySweepCSVExportSeparation:
             ), f"File in wrong directory: {file_path}"
 
     def _verify_file_content_purity(
-        self, file_path: Path, expected_ticker: str, expected_strategy: str,
+        self,
+        file_path: Path,
+        expected_ticker: str,
+        expected_strategy: str,
     ):
         """
         Verify file contains only expected ticker and strategy - no mixing.
@@ -476,9 +479,9 @@ class TestStrategyDispatcherBugDocumentation:
         for strategy_type in mixed_strategies:
             service = dispatcher._determine_single_service(strategy_type)
             assert service is not None, f"No service found for {strategy_type.value}"
-            individual_services[
-                strategy_type.value
-            ] = service.get_supported_strategy_types()
+            individual_services[strategy_type.value] = (
+                service.get_supported_strategy_types()
+            )
 
         # Verify each strategy type has appropriate service
         assert (

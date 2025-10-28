@@ -142,7 +142,9 @@ class TestBootstrapSampler(unittest.TestCase):
         results = []
         for _ in range(100):
             noisy_short, noisy_long = self.sampler.parameter_noise_injection(
-                short, long, noise_std=0.1,
+                short,
+                long,
+                noise_std=0.1,
             )
             results.append((noisy_short, noisy_long))
 
@@ -215,7 +217,9 @@ class TestMonteCarloAnalyzer(unittest.TestCase):
         mock_calculate_signals.return_value = mock_signals_data
 
         performance = self.analyzer._calculate_strategy_performance(
-            self.test_data, 10, 20,
+            self.test_data,
+            10,
+            20,
         )
 
         self.assertIn("total_return", performance)
@@ -256,14 +260,17 @@ class TestMonteCarloAnalyzer(unittest.TestCase):
 
         # Analyzer is configured to test max 3 parameters
         with patch.object(
-            self.analyzer, "_analyze_single_parameter_combination",
+            self.analyzer,
+            "_analyze_single_parameter_combination",
         ) as mock_analyze:
             mock_analyze.return_value = None
 
             # This would normally fail, but we're just testing the limiting logic
             try:
                 self.analyzer.analyze_parameter_stability(
-                    "TEST", self.test_data, many_params,
+                    "TEST",
+                    self.test_data,
+                    many_params,
                 )
             except:
                 pass  # We expect this to fail due to mocked method

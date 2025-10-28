@@ -27,7 +27,8 @@ class SimpleBackupManager:
     def __init__(self):
         # Simple settings without Prisma
         self.database_url = os.getenv(
-            "DATABASE_URL", "postgresql://colemorton@localhost:5432/trading_db",
+            "DATABASE_URL",
+            "postgresql://colemorton@localhost:5432/trading_db",
         )
         self.database_host = os.getenv("DATABASE_HOST", "localhost")
         self.database_port = os.getenv("DATABASE_PORT", "5432")

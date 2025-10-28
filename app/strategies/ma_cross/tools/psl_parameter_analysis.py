@@ -32,7 +32,9 @@ from app.tools.export_csv import ExportConfig, export_csv
 
 
 def analyze_protective_stop_loss_parameters(
-    data: pl.DataFrame, config: PSLConfig, log: Callable,
+    data: pl.DataFrame,
+    config: PSLConfig,
+    log: Callable,
 ) -> AnalysisResult:
     """
     Analyze different holding periods and their impact on strategy performance.
@@ -64,7 +66,8 @@ def analyze_protective_stop_loss_parameters(
 
     # Create holding period range
     holding_period_range = np.arange(
-        1, max_holding_period + 2,
+        1,
+        max_holding_period + 2,
     )  # +2 to include the first profitable period
 
     # Initialize metrics
@@ -102,7 +105,8 @@ def analyze_protective_stop_loss_parameters(
     # Export results
     filename = create_filename(config)
     export_config = ExportConfig(
-        BASE_DIR=config["BASE_DIR"], TICKER=config.get("TICKER"),
+        BASE_DIR=config["BASE_DIR"],
+        TICKER=config.get("TICKER"),
     )
     export_csv(portfolios, "ma_cross", export_config, "protective_stop_loss", filename)
 

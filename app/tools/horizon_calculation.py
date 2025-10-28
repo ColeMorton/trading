@@ -33,7 +33,9 @@ class HorizonCalculator:
         if log is None:
             # Create a default logger if none provided
             self.log, _, _, _ = setup_logging(
-                "horizon_calculator", Path("./logs"), "horizon_calculator.log",
+                "horizon_calculator",
+                Path("./logs"),
+                "horizon_calculator.log",
             )
         else:
             self.log = log
@@ -166,18 +168,22 @@ class HorizonCalculator:
                 ):
                     horizon_returns_np = self._cache[cache_key][horizon]
                     self.log(
-                        f"Using cached horizon returns for horizon {horizon}", "debug",
+                        f"Using cached horizon returns for horizon {horizon}",
+                        "debug",
                     )
                 else:
                     # Calculate horizon returns
                     horizon_returns = self._calculate_horizon_returns(
-                        positions, returns, horizon,
+                        positions,
+                        returns,
+                        horizon,
                     )
 
                     # Skip if no positions were active
                     if len(horizon_returns) == 0:
                         self.log(
-                            f"No active positions for horizon {horizon}", "warning",
+                            f"No active positions for horizon {horizon}",
+                            "warning",
                         )
                         continue
 
@@ -212,7 +218,10 @@ class HorizonCalculator:
             return {}
 
     def _calculate_horizon_returns(
-        self, positions: np.ndarray, returns: np.ndarray, horizon: int,
+        self,
+        positions: np.ndarray,
+        returns: np.ndarray,
+        horizon: int,
     ) -> list[float]:
         """Calculate returns over a specific horizon for all positions.
 
@@ -269,7 +278,9 @@ class HorizonCalculator:
         }
 
     def find_best_horizon(
-        self, horizon_metrics: HorizonMetrics, config: dict[str, Any] | None = None,
+        self,
+        horizon_metrics: HorizonMetrics,
+        config: dict[str, Any] | None = None,
     ) -> int | None:
         """Find the best performing time horizon.
 
@@ -381,7 +392,11 @@ def calculate_horizon_metrics(
     """
     calculator = get_horizon_calculator(log)
     return calculator.calculate_horizon_metrics(
-        signals, returns, horizons, min_sample_size, use_cache,
+        signals,
+        returns,
+        horizons,
+        min_sample_size,
+        use_cache,
     )
 
 

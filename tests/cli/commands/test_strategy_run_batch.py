@@ -163,7 +163,9 @@ config:
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
         mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
-            ticker="AAPL", strategy_type="SMA", tickers_processed=["AAPL", "MSFT"],
+            ticker="AAPL",
+            strategy_type="SMA",
+            tickers_processed=["AAPL", "MSFT"],
         )
         mock_dispatcher_class.return_value = mock_dispatcher
 
@@ -297,7 +299,8 @@ config:
 
             # Run command
             result = cli_runner.invoke(
-                strategy_app, ["sweep", "--profile", "test_batch"],
+                strategy_app,
+                ["sweep", "--profile", "test_batch"],
             )
 
         assert result.exit_code == 0
@@ -327,7 +330,8 @@ config:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--profile", "test_batch", "--batch-size", "5"],
+            strategy_app,
+            ["sweep", "--profile", "test_batch", "--batch-size", "5"],
         )
 
         assert result.exit_code == 0
@@ -341,7 +345,9 @@ config:
     def test_batch_dry_run_shows_batch_config(self, mock_config_loader, cli_runner):
         """Test that dry-run shows batch configuration."""
         mock_config = create_mock_strategy_config_batch(
-            ticker=["AAPL", "MSFT", "GOOGL"], batch=True, batch_size=2,
+            ticker=["AAPL", "MSFT", "GOOGL"],
+            batch=True,
+            batch_size=2,
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
@@ -401,7 +407,9 @@ config:
     ):
         """Test batch processing with single ticker."""
         mock_config = create_mock_strategy_config_batch(
-            ticker=["AAPL"], batch=True, batch_size=1,
+            ticker=["AAPL"],
+            batch=True,
+            batch_size=1,
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
@@ -436,7 +444,9 @@ config:
     ):
         """Test batch processing handles execution failures gracefully."""
         mock_config = create_mock_strategy_config_batch(
-            ticker=["AAPL", "MSFT"], batch=True, batch_size=2,
+            ticker=["AAPL", "MSFT"],
+            batch=True,
+            batch_size=2,
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
@@ -444,7 +454,8 @@ config:
         mock_dispatcher.validate_strategy_compatibility.return_value = True
         # Mock failure scenario
         mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
-            success_rate=0.0, successful_strategies=0,
+            success_rate=0.0,
+            successful_strategies=0,
         )
         mock_dispatcher_class.return_value = mock_dispatcher
 
@@ -526,7 +537,8 @@ config:
     ):
         """Test overriding default batch file path."""
         mock_config = create_mock_strategy_config_batch(
-            batch=True, batch_file_path=temp_batch_file,
+            batch=True,
+            batch_file_path=temp_batch_file,
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
@@ -536,7 +548,8 @@ config:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "AAPL", "--strategy", "SMA", "--batch"],
+            strategy_app,
+            ["sweep", "--ticker", "AAPL", "--strategy", "SMA", "--batch"],
         )
 
         assert result.exit_code == 0
@@ -563,7 +576,9 @@ class TestStrategySweepBatchResumeIntegration:
     ):
         """Test that batch processing integrates with resume analysis to skip completed work."""
         mock_config = create_mock_strategy_config_batch(
-            ticker=["AAPL", "MSFT", "GOOGL"], batch=True, batch_size=2,
+            ticker=["AAPL", "MSFT", "GOOGL"],
+            batch=True,
+            batch_size=2,
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
@@ -610,7 +625,10 @@ class TestStrategySweepBatchResumeIntegration:
     ):
         """Test that --refresh flag overrides resume analysis in batch mode."""
         mock_config = create_mock_strategy_config_batch(
-            ticker=["AAPL", "MSFT"], batch=True, batch_size=2, refresh=True,
+            ticker=["AAPL", "MSFT"],
+            batch=True,
+            batch_size=2,
+            refresh=True,
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
@@ -649,7 +667,9 @@ class TestStrategySweepBatchResumeIntegration:
     ):
         """Test that batch processing shows progress information."""
         mock_config = create_mock_strategy_config_batch(
-            ticker=["AAPL", "MSFT", "GOOGL", "TSLA"], batch=True, batch_size=2,
+            ticker=["AAPL", "MSFT", "GOOGL", "TSLA"],
+            batch=True,
+            batch_size=2,
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
@@ -690,7 +710,9 @@ class TestStrategySweepBatchResumeIntegration:
     ):
         """Test that batch processing displays status information."""
         mock_config = create_mock_strategy_config_batch(
-            ticker=["AAPL", "MSFT", "GOOGL"], batch=True, batch_size=2,
+            ticker=["AAPL", "MSFT", "GOOGL"],
+            batch=True,
+            batch_size=2,
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
@@ -754,7 +776,8 @@ class TestStrategySweepBatchEdgeCases:
     def test_batch_with_empty_ticker_list(self, cli_runner):
         """Test batch processing with empty ticker list."""
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--ticker", "", "--strategy", "SMA", "--batch"],
+            strategy_app,
+            ["sweep", "--ticker", "", "--strategy", "SMA", "--batch"],
         )
 
         # Should handle empty list gracefully
@@ -790,7 +813,9 @@ class TestStrategySweepBatchEdgeCases:
         """Test batch processing with special characters in tickers."""
         special_tickers = ["BTC-USD", "STRK/MSTR", "TICKER.L"]
         mock_config = create_mock_strategy_config_batch(
-            ticker=special_tickers, batch=True, batch_size=2,
+            ticker=special_tickers,
+            batch=True,
+            batch_size=2,
         )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 

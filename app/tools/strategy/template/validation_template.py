@@ -319,7 +319,6 @@ if __name__ == "__main__":
     pytest.main([__file__])
 '''
 
-
     def _generate_config_field_tests(self) -> str:
         """Generate configuration field tests based on strategy type."""
         lines = []
@@ -679,4 +678,3 @@ class TestPerformanceBenchmarks:
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "-s"])
 '''
-

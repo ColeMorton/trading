@@ -384,10 +384,18 @@ class TestUnifiedExportProcessorPhase4:
         """Test content hash generation for caching."""
         # Test with same data - should generate same hash
         hash1 = self.processor._generate_content_hash(
-            self.test_data, "test.csv", "AAPL", "SMA", "TEST",
+            self.test_data,
+            "test.csv",
+            "AAPL",
+            "SMA",
+            "TEST",
         )
         hash2 = self.processor._generate_content_hash(
-            self.test_data, "test.csv", "AAPL", "SMA", "TEST",
+            self.test_data,
+            "test.csv",
+            "AAPL",
+            "SMA",
+            "TEST",
         )
         assert hash1 == hash2
 
@@ -396,13 +404,21 @@ class TestUnifiedExportProcessorPhase4:
         different_data["New_Col"] = [1, 2]
 
         hash3 = self.processor._generate_content_hash(
-            different_data, "test.csv", "AAPL", "SMA", "TEST",
+            different_data,
+            "test.csv",
+            "AAPL",
+            "SMA",
+            "TEST",
         )
         assert hash1 != hash3
 
         # Test with different parameters - should generate different hash
         hash4 = self.processor._generate_content_hash(
-            self.test_data, "different.csv", "AAPL", "SMA", "TEST",
+            self.test_data,
+            "different.csv",
+            "AAPL",
+            "SMA",
+            "TEST",
         )
         assert hash1 != hash4
 

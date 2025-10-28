@@ -59,7 +59,9 @@ def calculate_portfolio_max_drawdown_fixed(
     if VALIDATION_AVAILABLE and USE_FIXED_DRAWDOWN_CALC:
         calculator = DrawdownCalculator()
         drawdown_components = calculator.calculate_portfolio_max_drawdown(
-            strategy_equity_curves, allocation_weights, log,
+            strategy_equity_curves,
+            allocation_weights,
+            log,
         )
 
         return {
@@ -73,7 +75,9 @@ def calculate_portfolio_max_drawdown_fixed(
         }
     # Fallback to legacy calculation
     return calculate_portfolio_max_drawdown_legacy(
-        strategy_equity_curves, allocation_weights, log,
+        strategy_equity_curves,
+        allocation_weights,
+        log,
     )
 
 
@@ -110,7 +114,9 @@ def calculate_portfolio_max_drawdown_legacy(
             sum(
                 dd * weight
                 for dd, weight in zip(
-                    individual_drawdowns, allocation_weights, strict=False,
+                    individual_drawdowns,
+                    allocation_weights,
+                    strict=False,
                 )
             )
             / total_allocation
@@ -148,7 +154,10 @@ def calculate_portfolio_volatility_fixed(
     if VALIDATION_AVAILABLE:
         aggregator = VolatilityAggregator()
         return aggregator.calculate_portfolio_volatility(
-            individual_volatilities, correlation_matrix, allocation_weights, log,
+            individual_volatilities,
+            correlation_matrix,
+            allocation_weights,
+            log,
         )
     # Fallback to simple weighted average (incorrect but functional)
     if not individual_volatilities or not allocation_weights:
@@ -345,7 +354,11 @@ def calculate_component_var(
 
         # Calculate portfolio VaR first
         portfolio_var_result = calculate_portfolio_var_fixed(
-            strategy_returns, allocation_weights, [confidence_level], "historical", log,
+            strategy_returns,
+            allocation_weights,
+            [confidence_level],
+            "historical",
+            log,
         )
 
         confidence_pct = int(confidence_level * 100)
@@ -393,9 +406,9 @@ def calculate_component_var(
 
                 # Component VaR = weight * marginal VaR
                 component_var = normalized_weights[i] * marginal_var
-                component_vars[
-                    f"strategy_{i+1}_component_var_{confidence_pct}"
-                ] = component_var
+                component_vars[f"strategy_{i+1}_component_var_{confidence_pct}"] = (
+                    component_var
+                )
 
                 if log:
                     log(
@@ -496,7 +509,11 @@ def calculate_risk_contributions(
     if FIXED_IMPLEMENTATION_AVAILABLE:
         log("Using fixed risk contribution calculation", "info")
         return calculate_risk_contributions_fixed(
-            position_arrays, data_list, strategy_allocations, log, strategy_configs,
+            position_arrays,
+            data_list,
+            strategy_allocations,
+            log,
+            strategy_configs,
         )
     msg = "Fixed risk contribution implementation not available"
     raise ImportError(msg)
@@ -541,12 +558,12 @@ def calculate_risk_contributions_legacy(
         log("Calculating strategy returns and volatilities", "info")
         volatilities = []
         strategy_returns = []
-        all_active_returns: list[
-            float
-        ] = []  # Store all active returns for combined VaR/CVaR
-        weighted_active_returns: list[
-            float
-        ] = []  # Store returns weighted by allocation
+        all_active_returns: list[float] = (
+            []
+        )  # Store all active returns for combined VaR/CVaR
+        weighted_active_returns: list[float] = (
+            []
+        )  # Store returns weighted by allocation
         for i, df in enumerate(data_list):
             # Get stop loss value if available
             stop_loss = None
@@ -584,7 +601,10 @@ def calculate_risk_contributions_legacy(
 
                     # Apply stop loss to active returns
                     adjusted_returns, stop_loss_triggers = apply_stop_loss_to_returns(
-                        active_returns, signal_array, stop_loss, log,
+                        active_returns,
+                        signal_array,
+                        stop_loss,
+                        log,
                     )
 
                     # Log stop loss impact

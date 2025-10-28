@@ -79,9 +79,9 @@ def process_strategy_portfolios(
         if isinstance(data_result, tuple):
             data, synthetic_ticker = data_result  # Unpack tuple
             log(f"Received synthetic ticker data for {synthetic_ticker}")
-            strategy_config[
-                "TICKER"
-            ] = synthetic_ticker  # Update config with synthetic ticker
+            strategy_config["TICKER"] = (
+                synthetic_ticker  # Update config with synthetic ticker
+            )
         else:
             data = data_result
 
@@ -99,7 +99,11 @@ def process_strategy_portfolios(
             )
             strategy_config["USE_SMA"] = True
             signal_data = calculate_ma_and_signals(
-                data.clone(), fast_period, slow_period, strategy_config, log,
+                data.clone(),
+                fast_period,
+                slow_period,
+                strategy_config,
+                log,
             )
 
         elif strategy_type == "EMA":
@@ -108,7 +112,11 @@ def process_strategy_portfolios(
             )
             strategy_config["USE_SMA"] = False
             signal_data = calculate_ma_and_signals(
-                data.clone(), fast_period, slow_period, strategy_config, log,
+                data.clone(),
+                fast_period,
+                slow_period,
+                strategy_config,
+                log,
             )
 
         elif strategy_type == "MACD":

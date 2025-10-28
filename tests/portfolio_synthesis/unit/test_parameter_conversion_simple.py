@@ -108,7 +108,11 @@ class TestParameterConversionSimple:
         ],
     )
     def test_all_timeframe_conversions(
-        self, timeframe, expected_hourly, expected_4hour, expected_2day,
+        self,
+        timeframe,
+        expected_hourly,
+        expected_4hour,
+        expected_2day,
     ):
         """Test all timeframe conversion combinations."""
         mock_config_dict = {

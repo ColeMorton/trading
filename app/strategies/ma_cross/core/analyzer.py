@@ -42,11 +42,14 @@ class MACrossAnalyzer:
 
         if self._log is None:
             self._log, self._log_close, _, _ = setup_logging(
-                "ma_cross_analyzer", "analyzer.log",
+                "ma_cross_analyzer",
+                "analyzer.log",
             )
 
     def analyze_single(
-        self, config: AnalysisConfig, calculate_metrics: bool = True,
+        self,
+        config: AnalysisConfig,
+        calculate_metrics: bool = True,
     ) -> TickerResult:
         """
         Analyze a single ticker with the given configuration.
@@ -71,7 +74,9 @@ class MACrossAnalyzer:
 
                 # Execute strategy to get portfolio metrics
                 portfolio_stats = execute_single_strategy(
-                    config.ticker, exec_config, self._log,
+                    config.ticker,
+                    exec_config,
+                    self._log,
                 )
 
                 if portfolio_stats:
@@ -153,7 +158,9 @@ class MACrossAnalyzer:
         )
 
     def analyze_portfolio(
-        self, tickers: list[str], base_config: AnalysisConfig,
+        self,
+        tickers: list[str],
+        base_config: AnalysisConfig,
     ) -> AnalysisResult:
         """
         Analyze a portfolio of tickers with the same base configuration.
@@ -210,7 +217,10 @@ class MACrossAnalyzer:
             # If specific windows are provided, analyze just those
             if config.fast_period and config.slow_period:
                 signal = self._check_single_window(
-                    data, config.fast_period, config.slow_period, config,
+                    data,
+                    config.fast_period,
+                    config.slow_period,
+                    config,
                 )
                 if signal:
                     signals.append(signal)
@@ -226,7 +236,11 @@ class MACrossAnalyzer:
             return []
 
     def _check_single_window(
-        self, data: Any, fast_period: int, slow_period: int, config: AnalysisConfig,
+        self,
+        data: Any,
+        fast_period: int,
+        slow_period: int,
+        config: AnalysisConfig,
     ) -> SignalInfo | None:
         """Check for signal with specific window combination."""
         try:
@@ -283,12 +297,15 @@ class MACrossAnalyzer:
 
         except Exception as e:
             self._log(
-                f"Error checking window {fast_period}/{slow_period}: {e!s}", "error",
+                f"Error checking window {fast_period}/{slow_period}: {e!s}",
+                "error",
             )
             return None
 
     def _scan_window_permutations(
-        self, data: Any, config: AnalysisConfig,
+        self,
+        data: Any,
+        config: AnalysisConfig,
     ) -> list[SignalInfo]:
         """Scan all window permutations for signals."""
         signals = []

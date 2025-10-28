@@ -103,7 +103,9 @@ def process_strategies(
                     # get_data returns a tuple (data, synthetic_ticker) for synthetic
                     # tickers
                     data_result = get_data(
-                        strategy_config["TICKER"], strategy_config, log,
+                        strategy_config["TICKER"],
+                        strategy_config,
+                        log,
                     )
 
                     # Check if the result is a tuple (indicating synthetic ticker
@@ -311,7 +313,9 @@ def process_strategies(
 
                         # Merge the ATR columns back into the data
                         data_pd = data_pd.merge(
-                            atr_columns["ATR_Trailing_Stop"], on="Date", how="left",
+                            atr_columns["ATR_Trailing_Stop"],
+                            on="Date",
+                            how="left",
                         )
                         log(
                             f"Restored ATR_Trailing_Stop column with {data_pd['ATR_Trailing_Stop'].notna().sum()} non-null values",

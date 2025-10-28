@@ -105,7 +105,9 @@ class BusinessConfigLoader:
             )
 
     def _process_inheritance(
-        self, config: dict[str, Any], current_path: str,
+        self,
+        config: dict[str, Any],
+        current_path: str,
     ) -> dict[str, Any]:
         """Process inheritance directives in configuration.
 
@@ -147,7 +149,9 @@ class BusinessConfigLoader:
         return final_config
 
     def _load_parent_config(
-        self, parent_path: str, current_path: str,
+        self,
+        parent_path: str,
+        current_path: str,
     ) -> dict[str, Any]:
         """Load a parent configuration with support for section references.
 
@@ -244,7 +248,9 @@ class BusinessConfigLoader:
         return current
 
     def _merge_configs(
-        self, base: dict[str, Any], override: dict[str, Any],
+        self,
+        base: dict[str, Any],
+        override: dict[str, Any],
     ) -> dict[str, Any]:
         """Merge two configuration dictionaries.
 

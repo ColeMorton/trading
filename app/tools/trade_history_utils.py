@@ -150,7 +150,8 @@ def normalize_position_data(position: dict[str, Any]) -> dict[str, Any]:
 
 
 def get_portfolio_summary(
-    portfolio_name: str, config: TradingSystemConfig = None,
+    portfolio_name: str,
+    config: TradingSystemConfig = None,
 ) -> dict[str, Any]:
     """Get summary statistics for a portfolio."""
     if config is None:
@@ -219,9 +220,9 @@ def get_portfolio_summary(
     }
 
 
-
 def compare_portfolios(
-    portfolio_names: list[str], config: TradingSystemConfig = None,
+    portfolio_names: list[str],
+    config: TradingSystemConfig = None,
 ) -> dict[str, Any]:
     """Compare multiple portfolios and return comparative analysis."""
     if config is None:
@@ -256,7 +257,8 @@ def compare_portfolios(
         comparison["comparison"]["win_rates"][name] = perf.get("win_rate")
         comparison["comparison"]["avg_returns"][name] = perf.get("avg_return")
         comparison["comparison"]["quality_distributions"][name] = data.get(
-            "trade_quality_breakdown", {},
+            "trade_quality_breakdown",
+            {},
         )
 
     return comparison
@@ -286,7 +288,8 @@ def export_portfolio_summary(
 
 
 def bulk_update_trade_quality(
-    portfolio_name: str, config: TradingSystemConfig = None,
+    portfolio_name: str,
+    config: TradingSystemConfig = None,
 ) -> int:
     """Bulk update trade quality assessments for all positions in a portfolio."""
     if config is None:
@@ -322,7 +325,8 @@ def bulk_update_trade_quality(
 
 
 def find_duplicate_positions(
-    portfolio_name: str, config: TradingSystemConfig = None,
+    portfolio_name: str,
+    config: TradingSystemConfig = None,
 ) -> list[str]:
     """Find duplicate positions in a portfolio based on UUID."""
     if config is None:
@@ -349,7 +353,8 @@ def find_duplicate_positions(
 
 
 def remove_duplicate_positions(
-    portfolio_name: str, config: TradingSystemConfig = None,
+    portfolio_name: str,
+    config: TradingSystemConfig = None,
 ) -> int:
     """Remove duplicate positions from a portfolio, keeping the first occurrence."""
     if config is None:
@@ -421,7 +426,11 @@ def merge_portfolios(
 
 # Quick utility functions
 def quick_add_position(
-    ticker: str, strategy: str, short: int, long: int, portfolio: str = "live_signals",
+    ticker: str,
+    strategy: str,
+    short: int,
+    long: int,
+    portfolio: str = "live_signals",
 ) -> str:
     """Quick way to add a position with minimal parameters."""
     return add_position_to_portfolio(
@@ -449,7 +458,9 @@ def list_portfolios(config: TradingSystemConfig = None) -> list[str]:
 
 
 def get_position_by_uuid(
-    uuid: str, portfolio_name: str | None = None, config: TradingSystemConfig = None,
+    uuid: str,
+    portfolio_name: str | None = None,
+    config: TradingSystemConfig = None,
 ) -> dict[str, Any] | None:
     """Get a specific position by UUID from a portfolio or search all portfolios."""
     if config is None:
@@ -507,64 +518,99 @@ Examples:
     # Configuration options
     config_group = parser.add_argument_group("Configuration")
     config_group.add_argument(
-        "--base-dir", type=str, help="Base directory for trading system",
+        "--base-dir",
+        type=str,
+        help="Base directory for trading system",
     )
     config_group.add_argument(
-        "--verbose", "-v", action="store_true", help="Verbose output",
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Verbose output",
     )
     config_group.add_argument("--debug", action="store_true", help="Debug mode")
     config_group.add_argument(
-        "--health-check", action="store_true", help="Check system health",
+        "--health-check",
+        action="store_true",
+        help="Check system health",
     )
 
     # Main operations
     operations = parser.add_mutually_exclusive_group(required=True)
     operations.add_argument(
-        "--summary", action="store_true", help="Get portfolio summary",
+        "--summary",
+        action="store_true",
+        help="Get portfolio summary",
     )
     operations.add_argument(
-        "--compare", action="store_true", help="Compare multiple portfolios",
+        "--compare",
+        action="store_true",
+        help="Compare multiple portfolios",
     )
     operations.add_argument(
-        "--update-quality", action="store_true", help="Update trade quality assessments",
+        "--update-quality",
+        action="store_true",
+        help="Update trade quality assessments",
     )
     operations.add_argument("--merge", action="store_true", help="Merge portfolios")
     operations.add_argument(
-        "--list-portfolios", action="store_true", help="List all portfolios",
+        "--list-portfolios",
+        action="store_true",
+        help="List all portfolios",
     )
     operations.add_argument(
-        "--remove-duplicates", action="store_true", help="Remove duplicate positions",
+        "--remove-duplicates",
+        action="store_true",
+        help="Remove duplicate positions",
     )
     operations.add_argument(
-        "--find-duplicates", action="store_true", help="Find duplicate positions",
+        "--find-duplicates",
+        action="store_true",
+        help="Find duplicate positions",
     )
     operations.add_argument(
-        "--find-position", action="store_true", help="Find position by UUID",
+        "--find-position",
+        action="store_true",
+        help="Find position by UUID",
     )
     operations.add_argument(
-        "--export-summary", action="store_true", help="Export portfolio summary to JSON",
+        "--export-summary",
+        action="store_true",
+        help="Export portfolio summary to JSON",
     )
     operations.add_argument(
-        "--validate-portfolio", action="store_true", help="Validate portfolio data",
+        "--validate-portfolio",
+        action="store_true",
+        help="Validate portfolio data",
     )
     operations.add_argument(
-        "--normalize-portfolio", action="store_true", help="Normalize portfolio data",
+        "--normalize-portfolio",
+        action="store_true",
+        help="Normalize portfolio data",
     )
     operations.add_argument(
-        "--fix-quality", action="store_true", help="Fix data quality issues",
+        "--fix-quality",
+        action="store_true",
+        help="Fix data quality issues",
     )
 
     # Portfolio parameters
     portfolio_group = parser.add_argument_group("Portfolio Parameters")
     portfolio_group.add_argument("--portfolio", type=str, help="Portfolio name")
     portfolio_group.add_argument(
-        "--portfolios", type=str, help="Comma-separated portfolio names",
+        "--portfolios",
+        type=str,
+        help="Comma-separated portfolio names",
     )
     portfolio_group.add_argument(
-        "--source", type=str, help="Source portfolios for merge (comma-separated)",
+        "--source",
+        type=str,
+        help="Source portfolios for merge (comma-separated)",
     )
     portfolio_group.add_argument(
-        "--target", type=str, help="Target portfolio for merge",
+        "--target",
+        type=str,
+        help="Target portfolio for merge",
     )
     portfolio_group.add_argument("--uuid", type=str, help="Position UUID to find")
     portfolio_group.add_argument("--output", type=str, help="Output file path")

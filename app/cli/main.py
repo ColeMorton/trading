@@ -39,16 +39,24 @@ app = typer.Typer(
 
 # Add subcommands
 app.add_typer(
-    strategy.app, name="strategy", help="MA Cross strategy execution and analysis",
+    strategy.app,
+    name="strategy",
+    help="MA Cross strategy execution and analysis",
 )
 app.add_typer(
-    portfolio.app, name="portfolio", help="Portfolio processing and aggregation",
+    portfolio.app,
+    name="portfolio",
+    help="Portfolio processing and aggregation",
 )
 app.add_typer(
-    positions.app, name="positions", help="Position management and equity generation",
+    positions.app,
+    name="positions",
+    help="Position management and equity generation",
 )
 app.add_typer(
-    concurrency.app, name="concurrency", help="Concurrency analysis and trade history",
+    concurrency.app,
+    name="concurrency",
+    help="Concurrency analysis and trade history",
 )
 app.add_typer(config.app, name="config", help="Configuration and profile management")
 app.add_typer(tools.app, name="tools", help="Utility tools and system management")
@@ -89,7 +97,9 @@ def status():
 
         # Create status table
         table = Table(
-            title="Trading CLI Status", show_header=True, header_style="bold magenta",
+            title="Trading CLI Status",
+            show_header=True,
+            header_style="bold magenta",
         )
         table.add_column("Component", style="cyan", no_wrap=True)
         table.add_column("Status", style="green")
@@ -211,18 +221,22 @@ def pinescript(
         ...,
         help="CSV filename (with or without .csv extension). Searches in data/raw/strategies/",
     ),
-    ticker: str
-    | None = typer.Option(
+    ticker: str | None = typer.Option(
         None,
         "--ticker",
         "-t",
         help="Filter to specific ticker(s), comma-separated (e.g., 'BTC-USD' or 'HIMS,MP,NVDA')",
     ),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Preview generation without writing files",
+        False,
+        "--dry-run",
+        help="Preview generation without writing files",
     ),
     verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Show detailed generation information",
+        False,
+        "--verbose",
+        "-v",
+        help="Show detailed generation information",
     ),
     quiet: bool = typer.Option(
         False,
@@ -333,7 +347,9 @@ def pinescript(
             from rich.panel import Panel
 
             table = Table(
-                title="Strategy Breakdown", show_header=True, header_style="bold cyan",
+                title="Strategy Breakdown",
+                show_header=True,
+                header_style="bold cyan",
             )
             table.add_column("Ticker", style="cyan", no_wrap=True)
             table.add_column("Strategies", justify="right", style="green")
@@ -412,7 +428,10 @@ def pinescript(
 def main(
     ctx: typer.Context,
     verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output with rich formatting",
+        False,
+        "--verbose",
+        "-v",
+        help="Enable verbose output with rich formatting",
     ),
     show_output: bool = typer.Option(
         False,
@@ -426,8 +445,9 @@ def main(
         "-q",
         help="Suppress all output except success/failure messages",
     ),
-    profiles_dir: Path
-    | None = typer.Option(None, "--profiles-dir", help="Custom profiles directory"),
+    profiles_dir: Path | None = typer.Option(
+        None, "--profiles-dir", help="Custom profiles directory"
+    ),
 ):
     """
     Unified Trading Strategy Analysis CLI.

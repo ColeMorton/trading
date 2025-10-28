@@ -42,7 +42,8 @@ def validate_portfolio_schema(
 
 
 def validate_strategy_config(
-    strategy: dict[str, Any], log: Callable[[str, str], None],
+    strategy: dict[str, Any],
+    log: Callable[[str, str], None],
 ) -> tuple[bool, list[str]]:
     """
     Validate a strategy configuration dictionary.
@@ -199,7 +200,8 @@ def validate_strategy_config(
 
 
 def validate_portfolio_configs(
-    strategies: list[dict[str, Any]], log: Callable[[str, str], None],
+    strategies: list[dict[str, Any]],
+    log: Callable[[str, str], None],
 ) -> tuple[bool, list[dict[str, Any]]]:
     """
     Validate a list of strategy configurations.

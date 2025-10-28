@@ -21,7 +21,8 @@ from app.strategies.ma_cross.config_types import Config
 
 # Import get_portfolios using importlib due to numeric filename
 spec = importlib.util.spec_from_file_location(
-    "get_portfolios", str(project_root / "app/strategies/ma_cross/1_get_portfolios.py"),
+    "get_portfolios",
+    str(project_root / "app/strategies/ma_cross/1_get_portfolios.py"),
 )
 get_portfolios_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(get_portfolios_module)

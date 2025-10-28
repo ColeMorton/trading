@@ -427,7 +427,10 @@ class UnifiedStrategyData:
         )
 
     def add_data_lineage(
-        self, source_type: DataSourceType, file_path: str | None = None, **metadata,
+        self,
+        source_type: DataSourceType,
+        file_path: str | None = None,
+        **metadata,
     ):
         """Add data lineage information"""
         lineage = DataLineage(
@@ -490,7 +493,8 @@ class UnifiedStrategyData:
 
     @classmethod
     def from_legacy_strategy_data(
-        cls, legacy_data: dict[str, Any],
+        cls,
+        legacy_data: dict[str, Any],
     ) -> "UnifiedStrategyData":
         """
         Create UnifiedStrategyData from legacy StrategyData format.
@@ -509,7 +513,8 @@ class UnifiedStrategyData:
             sample_size=legacy_data.get("sample_size", 0),
             sample_size_confidence=legacy_data.get("sample_size_confidence", 0.0),
             dual_layer_convergence_score=legacy_data.get(
-                "dual_layer_convergence_score", 0.0,
+                "dual_layer_convergence_score",
+                0.0,
             ),
             asset_layer_percentile=legacy_data.get("asset_layer_percentile", 0.0),
             strategy_layer_percentile=legacy_data.get("strategy_layer_percentile", 0.0),
@@ -549,7 +554,8 @@ class UnifiedStrategyData:
             backtesting=backtesting,
             signal=signal,
             generation_timestamp=legacy_data.get(
-                "generation_timestamp", datetime.now().isoformat(),
+                "generation_timestamp",
+                datetime.now().isoformat(),
             ),
             raw_returns=legacy_data.get("raw_returns"),
             raw_analysis_data=legacy_data.get("raw_analysis_data"),
@@ -602,7 +608,8 @@ class UnifiedStrategyData:
 
         # Handle validation results
         if "validation_results" in data and isinstance(
-            data["validation_results"], list,
+            data["validation_results"],
+            list,
         ):
             validation_objects = []
             for validation_data in data["validation_results"]:

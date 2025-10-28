@@ -299,7 +299,8 @@ class DualPortfolioManager:
         return None
 
     def get_holdings_by_portfolio_type(
-        self, portfolio_type: PortfolioType | str,
+        self,
+        portfolio_type: PortfolioType | str,
     ) -> list[PortfolioHolding]:
         """Get all holdings for a specific portfolio type.
 
@@ -477,7 +478,6 @@ class DualPortfolioManager:
                 "all_services_available": True,  # If we got here, all services worked
             },
         }
-
 
     def export_portfolio_to_csv(self, output_path: str | None = None) -> str:
         """Export dual portfolio holdings to CSV format.

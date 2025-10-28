@@ -373,7 +373,9 @@ class MACrossTestRunner:
         print(f"{'='*80}")
 
     def generate_report(
-        self, results: dict[str, Any], output_file: str | None = None,
+        self,
+        results: dict[str, Any],
+        output_file: str | None = None,
     ) -> None:
         """
         Generate a detailed test report.
@@ -421,16 +423,27 @@ def main():
         help="Specific test suite(s) to run",
     )
     parser.add_argument(
-        "--verbose", "-v", action="store_true", help="Enable verbose output",
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Enable verbose output",
     )
     parser.add_argument(
-        "--coverage", "-c", action="store_true", help="Enable coverage reporting",
+        "--coverage",
+        "-c",
+        action="store_true",
+        help="Enable coverage reporting",
     )
     parser.add_argument(
-        "--report", "-r", type=str, help="Generate JSON report to specified file",
+        "--report",
+        "-r",
+        type=str,
+        help="Generate JSON report to specified file",
     )
     parser.add_argument(
-        "--quick", action="store_true", help="Run only smoke tests for quick validation",
+        "--quick",
+        action="store_true",
+        help="Run only smoke tests for quick validation",
     )
 
     args = parser.parse_args()

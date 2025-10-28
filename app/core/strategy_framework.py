@@ -30,54 +30,65 @@ class UnifiedStrategyConfig(BaseModel):
 
     # Core Strategy Parameters
     strategy_type: str = Field(
-        ..., description="Strategy type (MA_CROSS, MACD, RSI, etc.)",
+        ...,
+        description="Strategy type (MA_CROSS, MACD, RSI, etc.)",
     )
     ticker: str | list[str] = Field(..., description="Ticker symbol(s) to analyze")
     timeframe: str = Field(default="D", description="Timeframe (D, H, etc.)")
 
     # Strategy-Specific Parameters
     parameters: dict[str, Any] = Field(
-        default_factory=dict, description="Strategy-specific parameters",
+        default_factory=dict,
+        description="Strategy-specific parameters",
     )
 
     # Data Parameters
     data_years: float | None = Field(
-        default=None, description="Years of historical data",
+        default=None,
+        description="Years of historical data",
     )
     use_synthetic: bool = Field(default=False, description="Use synthetic ticker pairs")
 
     # Risk Management
     risk_management: dict[str, Any] = Field(
-        default_factory=dict, description="Risk management settings",
+        default_factory=dict,
+        description="Risk management settings",
     )
     stop_loss: float | None = Field(default=None, description="Stop loss percentage")
     allocation: float | None = Field(
-        default=None, description="Position allocation percentage",
+        default=None,
+        description="Position allocation percentage",
     )
 
     # Filtering and Selection
     filtering_criteria: dict[str, Any] = Field(
-        default_factory=dict, description="Portfolio filtering criteria",
+        default_factory=dict,
+        description="Portfolio filtering criteria",
     )
     sort_by: str = Field(
-        default="Total Return [%]", description="Metric to sort results by",
+        default="Total Return [%]",
+        description="Metric to sort results by",
     )
 
     # Execution Options
     use_current: bool = Field(
-        default=False, description="Emphasize current window combinations",
+        default=False,
+        description="Emphasize current window combinations",
     )
     refresh_data: bool = Field(default=True, description="Refresh existing data")
     parallel_execution: bool = Field(
-        default=True, description="Enable parallel processing",
+        default=True,
+        description="Enable parallel processing",
     )
 
     # Output Options
     output_dir: Path | None = Field(
-        default=None, description="Output directory for results",
+        default=None,
+        description="Output directory for results",
     )
     export_formats: list[str] = Field(
-        default_factory=lambda: ["csv"], description="Export formats",
+        default_factory=lambda: ["csv"],
+        description="Export formats",
     )
 
     def validate_for_strategy(self, strategy_type: str) -> bool:
@@ -110,7 +121,8 @@ class UnifiedStrategyResult(BaseModel):
     # Core Results
     metrics: dict[str, float] = Field(..., description="Performance metrics")
     signals: pd.DataFrame | pl.DataFrame | dict[str, Any] = Field(
-        ..., description="Trading signals",
+        ...,
+        description="Trading signals",
     )
 
     # Backtest Results
@@ -323,7 +335,9 @@ class UnifiedStrategyExecutor:
             return await strategy.execute_single(config.ticker, config)
         # Portfolio execution
         return await strategy.execute_portfolio(
-            config.ticker, config, progress_callback,
+            config.ticker,
+            config,
+            progress_callback,
         )
 
     async def optimize(

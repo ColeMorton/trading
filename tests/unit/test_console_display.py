@@ -146,7 +146,9 @@ def test_results_summary_table():
     console = ConsoleDisplay()
     # Should not raise
     console.results_summary_table(
-        portfolios_generated=50, best_config="SMA_20_50", files_exported=3,
+        portfolios_generated=50,
+        best_config="SMA_20_50",
+        files_exported=3,
     )
 
 

@@ -19,32 +19,25 @@ class ValidationError(PositionError):
     """Raised when position data fails validation."""
 
 
-
 class CalculationError(PositionError):
     """Raised when position calculations fail."""
-
 
 
 class DataNotFoundError(PositionError):
     """Raised when required data is not found."""
 
 
-
 class PriceDataError(PositionError):
     """Raised when price data is missing or invalid."""
-
 
 
 class SignalValidationError(PositionError):
     """Raised when signal validation fails."""
 
 
-
 class PortfolioError(PositionError):
     """Raised when portfolio operations fail."""
 
 
-
 class ConfigurationError(PositionError):
     """Raised when configuration is invalid or missing."""
-

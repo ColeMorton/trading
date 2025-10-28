@@ -123,7 +123,6 @@ def calculate_component_position(
         # Handle any potential non-zero values as "in position"
         return (position != 0).cast(pl.Int32)
 
-
     except Exception as e:
         log(f"Error calculating position for strategy {strategy}: {e}", "error")
         return None
@@ -329,7 +328,6 @@ def calculate_compound_strategy(
                 data["Volume"],
             ],
         )
-
 
     except Exception as e:
         log(f"Error calculating compound strategy: {e}", "error")

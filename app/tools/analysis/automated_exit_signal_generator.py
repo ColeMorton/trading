@@ -118,7 +118,9 @@ class AutomatedExitSignalGenerator:
 
             # Generate enhanced exit signal
             enhanced_signal = await self._generate_enhanced_exit_signal(
-                analysis_result, position_data, thresholds,
+                analysis_result,
+                position_data,
+                thresholds,
             )
 
             # Track signal generation
@@ -131,7 +133,8 @@ class AutomatedExitSignalGenerator:
             return None
 
     async def generate_portfolio_signals(
-        self, positions_data: list[dict[str, Any]],
+        self,
+        positions_data: list[dict[str, Any]],
     ) -> dict[str, StatisticalAnalysisResult | None]:
         """
         Generate exit signals for multiple positions
@@ -147,7 +150,8 @@ class AutomatedExitSignalGenerator:
             signal_tasks: list[tuple[str, Any]] = []
             for position_data in positions_data:
                 position_id = position_data.get(
-                    "position_id", f"pos_{len(signal_tasks)}",
+                    "position_id",
+                    f"pos_{len(signal_tasks)}",
                 )
                 task = self.generate_exit_signal(position_data)
                 signal_tasks.append((position_id, task))
@@ -156,11 +160,14 @@ class AutomatedExitSignalGenerator:
             results: dict[str, Any] = {}
             if signal_tasks:
                 task_results = await asyncio.gather(
-                    *[task for _, task in signal_tasks], return_exceptions=True,
+                    *[task for _, task in signal_tasks],
+                    return_exceptions=True,
                 )
 
                 for (position_id, _), result in zip(
-                    signal_tasks, task_results, strict=False,
+                    signal_tasks,
+                    task_results,
+                    strict=False,
                 ):
                     if isinstance(result, Exception):
                         self.logger.warning(
@@ -177,7 +184,8 @@ class AutomatedExitSignalGenerator:
             return {}
 
     async def generate_real_time_alerts(
-        self, position_data: dict[str, Any],
+        self,
+        position_data: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """
         Generate real-time alerts based on exit signals
@@ -251,7 +259,8 @@ class AutomatedExitSignalGenerator:
         try:
             # Calculate composite signal strength
             composite_score = await self._calculate_composite_signal_strength(
-                analysis_result, position_data,
+                analysis_result,
+                position_data,
             )
 
             # Determine exit signal based on composite score
@@ -259,7 +268,9 @@ class AutomatedExitSignalGenerator:
 
             # Generate recommendation and timeframe
             recommendation, timeframe = self._generate_recommendation_and_timeframe(
-                exit_signal, composite_score, analysis_result,
+                exit_signal,
+                composite_score,
+                analysis_result,
             )
 
             # Create enhanced result
@@ -283,13 +294,14 @@ class AutomatedExitSignalGenerator:
                 performance_metrics=analysis_result.performance_metrics,
             )
 
-
         except Exception as e:
             self.logger.exception(f"Enhanced signal generation failed: {e}")
             return analysis_result
 
     async def _calculate_composite_signal_strength(
-        self, analysis_result: StatisticalAnalysisResult, position_data: dict[str, Any],
+        self,
+        analysis_result: StatisticalAnalysisResult,
+        position_data: dict[str, Any],
     ) -> float:
         """Calculate composite signal strength from multiple factors"""
         try:
@@ -334,13 +346,14 @@ class AutomatedExitSignalGenerator:
             # Final composite score
             return min(1.0, composite_score * 0.7 + position_adjustment * 0.3)
 
-
         except Exception as e:
             self.logger.exception(f"Composite signal calculation failed: {e}")
             return analysis_result.dual_layer_convergence_score
 
     def _classify_exit_signal(
-        self, composite_score: float, thresholds: dict[str, float],
+        self,
+        composite_score: float,
+        thresholds: dict[str, float],
     ) -> str:
         """Classify exit signal based on composite score"""
         if composite_score >= thresholds["exit_immediately"]:
@@ -402,7 +415,8 @@ class AutomatedExitSignalGenerator:
         return recommendation, timeframe
 
     def _get_effective_thresholds(
-        self, override_thresholds: dict[str, float] | None,
+        self,
+        override_thresholds: dict[str, float] | None,
     ) -> dict[str, float]:
         """Get effective thresholds with overrides applied"""
         base_thresholds = {
@@ -417,7 +431,9 @@ class AutomatedExitSignalGenerator:
         return base_thresholds
 
     def _track_signal_generation(
-        self, signal_result: StatisticalAnalysisResult, position_data: dict[str, Any],
+        self,
+        signal_result: StatisticalAnalysisResult,
+        position_data: dict[str, Any],
     ) -> None:
         """Track signal generation for analytics"""
         self.signals_generated += 1
@@ -474,16 +490,19 @@ class AutomatedExitSignalGenerator:
                 1 for c in confidences if c >= self.high_confidence_threshold
             ),
             "immediate_exit_signals": signal_counts.get(
-                ExitSignalType.EXIT_IMMEDIATELY.value, 0,
+                ExitSignalType.EXIT_IMMEDIATELY.value,
+                0,
             ),
             "strong_sell_signals": signal_counts.get(
-                ExitSignalType.STRONG_SELL.value, 0,
+                ExitSignalType.STRONG_SELL.value,
+                0,
             ),
             "hold_signals": signal_counts.get(ExitSignalType.HOLD.value, 0),
         }
 
     async def optimize_thresholds(
-        self, historical_performance_data: list[dict[str, Any]],
+        self,
+        historical_performance_data: list[dict[str, Any]],
     ) -> dict[str, float]:
         """
         Optimize exit signal thresholds based on historical performance
@@ -514,24 +533,28 @@ class AutomatedExitSignalGenerator:
 
             # If immediate exits perform well, lower the threshold slightly
             immediate_returns = performance_by_signal.get(
-                ExitSignalType.EXIT_IMMEDIATELY.value, [],
+                ExitSignalType.EXIT_IMMEDIATELY.value,
+                [],
             )
             if immediate_returns and np.mean(immediate_returns) > 0.15:
                 optimized_thresholds["exit_immediately"] = max(
-                    0.90, self.exit_immediately_threshold - 0.02,
+                    0.90,
+                    self.exit_immediately_threshold - 0.02,
                 )
             else:
-                optimized_thresholds[
-                    "exit_immediately"
-                ] = self.exit_immediately_threshold
+                optimized_thresholds["exit_immediately"] = (
+                    self.exit_immediately_threshold
+                )
 
             # Similar logic for other signals
             strong_sell_returns = performance_by_signal.get(
-                ExitSignalType.STRONG_SELL.value, [],
+                ExitSignalType.STRONG_SELL.value,
+                [],
             )
             if strong_sell_returns and np.mean(strong_sell_returns) > 0.10:
                 optimized_thresholds["strong_sell"] = max(
-                    0.80, self.strong_sell_threshold - 0.02,
+                    0.80,
+                    self.strong_sell_threshold - 0.02,
                 )
             else:
                 optimized_thresholds["strong_sell"] = self.strong_sell_threshold

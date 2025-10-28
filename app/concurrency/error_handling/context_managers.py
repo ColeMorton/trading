@@ -75,13 +75,15 @@ def concurrency_error_context(
             concurrency_exception = error_mapping[type(e)]
             msg = f"Error in {operation}: {e!s}"
             raise concurrency_exception(
-                msg, context=context_data,
+                msg,
+                context=context_data,
             ) from e
         elif not isinstance(e, ConcurrencyError):
             # Wrap in generic ConcurrencyError if not already a concurrency exception
             msg = f"Error in {operation}: {e!s}"
             raise ConcurrencyError(
-                msg, context=context_data,
+                msg,
+                context=context_data,
             ) from e
         elif reraise:
             raise

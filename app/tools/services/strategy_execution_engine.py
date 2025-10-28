@@ -39,7 +39,6 @@ class StrategyExecutionEngineError(Exception):
     """Exception raised by StrategyExecutionEngine."""
 
 
-
 class StrategyExecutionEngine:
     """
     Handles strategy execution logic including validation and execution.
@@ -114,12 +113,17 @@ class StrategyExecutionEngine:
 
             # Validate strategy parameters
             self._validate_strategy_parameters(
-                strategy, strategy_config, strategy_type, log,
+                strategy,
+                strategy_config,
+                strategy_type,
+                log,
             )
 
             # Configure strategy parameters
             configured_params = self._configure_strategy_parameters(
-                strategy_type, strategy_config, log,
+                strategy_type,
+                strategy_config,
+                log,
             )
 
             # Add project root to Python path
@@ -127,7 +131,10 @@ class StrategyExecutionEngine:
 
             # Execute strategy analysis
             return await self._execute_strategy_with_tracking(
-                strategy, configured_params, log, execution_id,
+                strategy,
+                configured_params,
+                log,
+                execution_id,
             )
 
         except Exception as e:
@@ -182,7 +189,10 @@ class StrategyExecutionEngine:
         log(f"Strategy parameters validated for {strategy_type_str}")
 
     def _configure_strategy_parameters(
-        self, strategy_type: StrategyTypeEnum, strategy_config: dict[str, Any], log,
+        self,
+        strategy_type: StrategyTypeEnum,
+        strategy_config: dict[str, Any],
+        log,
     ) -> dict[str, Any]:
         """Configure strategy-specific parameters."""
         configured_params = strategy_config.copy()
@@ -221,7 +231,8 @@ class StrategyExecutionEngine:
         # Update cache hit tracking if execution_id provided
         if execution_id:
             get_strategy_performance_tracker().update_execution_progress(
-                execution_id=execution_id, cache_hits=0,
+                execution_id=execution_id,
+                cache_hits=0,
             )
 
         # Monitor memory during execution if optimization enabled
@@ -236,13 +247,17 @@ class StrategyExecutionEngine:
                 # Execute strategy analysis in thread pool
                 loop = asyncio.get_event_loop()
                 all_portfolio_dicts = await loop.run_in_executor(
-                    self.executor, strategy.execute, strategy_config, log,
+                    self.executor,
+                    strategy.execute,
+                    strategy_config,
+                    log,
                 )
 
                 # Optimize portfolio dictionaries if memory optimization enabled
                 if self.memory_optimizer and all_portfolio_dicts:
                     all_portfolio_dicts = self._optimize_portfolio_results(
-                        all_portfolio_dicts, log,
+                        all_portfolio_dicts,
+                        log,
                     )
 
         finally:
@@ -256,7 +271,9 @@ class StrategyExecutionEngine:
         return all_portfolio_dicts or []
 
     def _optimize_portfolio_results(
-        self, portfolio_dicts: list[dict[str, Any]], log,
+        self,
+        portfolio_dicts: list[dict[str, Any]],
+        log,
     ) -> list[dict[str, Any]]:
         """Optimize portfolio results for memory efficiency."""
         if not self.memory_optimizer:

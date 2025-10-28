@@ -130,7 +130,8 @@ class TestBaseStrategy:
         # Invalid: fast >= slow
         assert strategy.validate_periods(10, 5, log) is False
         log.assert_called_with(
-            "Fast period (10) must be less than slow period (5)", "error",
+            "Fast period (10) must be less than slow period (5)",
+            "error",
         )
 
         # Invalid: negative period
@@ -359,7 +360,8 @@ class TestEMAStrategy:
 
             assert "Calculation error" in str(exc_info.value)
             log.assert_any_call(
-                "Failed to calculate Long EMAs and signals: Calculation error", "error",
+                "Failed to calculate Long EMAs and signals: Calculation error",
+                "error",
             )
 
 

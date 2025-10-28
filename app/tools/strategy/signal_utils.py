@@ -132,7 +132,8 @@ def check_signal_match(signals: list[dict], fast_window: int, slow_window: int) 
 
 
 def calculate_signal_unconfirmed(
-    signals: pl.DataFrame, config: dict | None = None,
+    signals: pl.DataFrame,
+    config: dict | None = None,
 ) -> str:
     """
     Calculate what signal would be produced if the current price bar closes at the current price.

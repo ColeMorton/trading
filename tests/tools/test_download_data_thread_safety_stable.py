@@ -61,7 +61,9 @@ class TestDownloadDataThreadSafetyStable:
             multi_data = {}
             for t in ticker:
                 single_df = factory.create_price_data(
-                    ticker=t, start_date="2023-01-01", end_date="2023-12-31",
+                    ticker=t,
+                    start_date="2023-01-01",
+                    end_date="2023-12-31",
                 ).to_pandas()
 
                 for col in ["Open", "High", "Low", "Close", "Volume"]:
@@ -77,7 +79,10 @@ class TestDownloadDataThreadSafetyStable:
 
     @stable_market_data(tickers=["AAPL", "MSFT", "GOOGL"])
     def test_concurrent_downloads_with_stable_data(
-        self, mock_config, mock_log, stable_data_factory,
+        self,
+        mock_config,
+        mock_log,
+        stable_data_factory,
     ):
         """Test concurrent downloads using stable data - no external API calls."""
         tickers = ["AAPL", "MSFT", "GOOGL"]
@@ -223,7 +228,11 @@ class TestDownloadDataThreadSafetyStable:
             # Execute strategy concurrently with stable data
             try:
                 results = execute_strategy_concurrent(
-                    strategy_config, "SMA", mock_log, None, max_workers=2,
+                    strategy_config,
+                    "SMA",
+                    mock_log,
+                    None,
+                    max_workers=2,
                 )
 
                 # Verify results structure
@@ -242,7 +251,10 @@ class TestDownloadDataThreadSafetyStable:
         assert True  # Test completed successfully without external API timeouts
 
     def test_data_integrity_across_multiple_calls(
-        self, mock_config, mock_log, stable_data_factory,
+        self,
+        mock_config,
+        mock_log,
+        stable_data_factory,
     ):
         """Test that multiple calls return consistent data."""
         ticker = "AAPL"
@@ -398,7 +410,11 @@ class TestConcurrentStrategyExecutionStable:
             try:
                 # This should complete quickly with stable data
                 results = execute_strategy_concurrent(
-                    strategy_config, "SMA", mock_log, None, max_workers=2,
+                    strategy_config,
+                    "SMA",
+                    mock_log,
+                    None,
+                    max_workers=2,
                 )
                 execution_time = time.time() - start_time
 

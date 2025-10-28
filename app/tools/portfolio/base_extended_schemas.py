@@ -846,7 +846,9 @@ class SchemaTransformer:
         raise ValueError(msg)
 
     def validate_schema(
-        self, portfolio: dict[str, Any], expected_schema: SchemaType,
+        self,
+        portfolio: dict[str, Any],
+        expected_schema: SchemaType,
     ) -> tuple[bool, list[str]]:
         """
         Validate portfolio against expected schema.
@@ -906,7 +908,8 @@ class SchemaTransformer:
 
     @staticmethod
     def extended_to_filtered(
-        extended_data: list[dict[str, Any]], metric_type: str = "Most Total Return [%]",
+        extended_data: list[dict[str, Any]],
+        metric_type: str = "Most Total Return [%]",
     ) -> list[dict[str, Any]]:
         """
         Transform extended schema data to filtered schema (backward compatibility).

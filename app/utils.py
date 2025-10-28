@@ -16,7 +16,8 @@ import vectorbt as vbt
 
 
 def calculate_metrics(
-    trades: list[tuple[float, float]], short: bool,
+    trades: list[tuple[float, float]],
+    short: bool,
 ) -> tuple[float, float, float]:
     """Calculate performance metrics from a list of trades.
 
@@ -49,7 +50,10 @@ def calculate_metrics(
 
 
 def find_prominent_peaks(
-    x: np.ndarray, y: np.ndarray, prominence: float = 1, distance: int = 10,
+    x: np.ndarray,
+    y: np.ndarray,
+    prominence: float = 1,
+    distance: int = 10,
 ) -> np.ndarray:
     """Find prominent peaks in a dataset.
 
@@ -69,7 +73,11 @@ def find_prominent_peaks(
 
 
 def add_peak_labels(
-    ax: Any, x: np.ndarray, y: np.ndarray, peaks: np.ndarray, fmt: str = ".2f",
+    ax: Any,
+    x: np.ndarray,
+    y: np.ndarray,
+    peaks: np.ndarray,
+    fmt: str = ".2f",
 ) -> None:
     """Add labels to peaks in a plot.
 
@@ -94,7 +102,9 @@ def add_peak_labels(
 
 
 def backtest_strategy(
-    data: pl.DataFrame, config: dict[str, Any], log: Callable[[str, str], None],
+    data: pl.DataFrame,
+    config: dict[str, Any],
+    log: Callable[[str, str], None],
 ) -> Optional["vbt.Portfolio"]:
     """Backtest the MA cross strategy.
 
@@ -187,7 +197,10 @@ def get_filename(type: str, config: dict[str, Any], path: str = "") -> str:
 
 
 def get_path(
-    type: str, feature1: str, config: dict[str, Any], feature2: str = "",
+    type: str,
+    feature1: str,
+    config: dict[str, Any],
+    feature2: str = "",
 ) -> str:
     """Generate path based on configuration.
 

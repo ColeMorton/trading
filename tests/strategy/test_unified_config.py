@@ -242,7 +242,10 @@ class TestConfigFactory:
     def test_create_macd_config(self):
         """Test creating MACD configuration."""
         config = ConfigFactory.create_config(
-            "MACD", TICKER="MSFT", BASE_DIR="/tmp", SIGNAL_PERIOD=9,
+            "MACD",
+            TICKER="MSFT",
+            BASE_DIR="/tmp",
+            SIGNAL_PERIOD=9,
         )
 
         assert config["TICKER"] == "MSFT"

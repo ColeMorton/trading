@@ -55,7 +55,9 @@ class PortfolioManager:
         self.logger = logger or logging.getLogger(__name__)
 
     def create_portfolio(
-        self, strategies: list[dict[str, Any]], allocation_method: str = "equal_weight",
+        self,
+        strategies: list[dict[str, Any]],
+        allocation_method: str = "equal_weight",
     ) -> dict[str, Any]:
         """Create a portfolio from multiple strategies."""
         if not strategies:
@@ -72,7 +74,8 @@ class PortfolioManager:
 
             # Calculate portfolio metrics
             portfolio_metrics = self._calculate_portfolio_metrics(
-                strategies, allocations,
+                strategies,
+                allocations,
             )
 
             return {
@@ -150,19 +153,24 @@ class PortfolioManager:
 
             # Calculate optimized allocation
             optimized_allocation = self._optimize_allocation(
-                strategies, optimization_method,
+                strategies,
+                optimization_method,
             )
 
             # Calculate improvement
             current_metrics = self._calculate_portfolio_metrics(
-                strategies, current_allocation,
+                strategies,
+                current_allocation,
             )
             optimized_metrics = self._calculate_portfolio_metrics(
-                strategies, optimized_allocation,
+                strategies,
+                optimized_allocation,
             )
 
             improvement = self._calculate_improvement(
-                current_metrics, optimized_metrics, optimization_method,
+                current_metrics,
+                optimized_metrics,
+                optimization_method,
             )
 
             return {
@@ -185,7 +193,9 @@ class PortfolioManager:
             }
 
     def _calculate_allocations(
-        self, strategies: list[dict[str, Any]], allocation_method: str,
+        self,
+        strategies: list[dict[str, Any]],
+        allocation_method: str,
     ) -> dict[str, float]:
         """Calculate allocation weights for strategies."""
         if not strategies:
@@ -210,7 +220,8 @@ class PortfolioManager:
                 for i, strategy in enumerate(strategies):
                     strategy_key = f"strategy_{i}"
                     performance = strategy.get("performance", {}).get(
-                        "total_return", 0.0,
+                        "total_return",
+                        0.0,
                     )
                     allocations[strategy_key] = performance / total_performance
             else:
@@ -228,7 +239,8 @@ class PortfolioManager:
                 for i, strategy in enumerate(strategies):
                     strategy_key = f"strategy_{i}"
                     sharpe = max(
-                        strategy.get("performance", {}).get("sharpe_ratio", 0.0), 0.0,
+                        strategy.get("performance", {}).get("sharpe_ratio", 0.0),
+                        0.0,
                     )
                     allocations[strategy_key] = sharpe / total_sharpe
             else:
@@ -242,7 +254,9 @@ class PortfolioManager:
         return allocations
 
     def _calculate_portfolio_metrics(
-        self, strategies: list[dict[str, Any]], allocations: dict[str, float],
+        self,
+        strategies: list[dict[str, Any]],
+        allocations: dict[str, float],
     ) -> PortfolioMetrics:
         """Calculate portfolio-level metrics."""
         if not strategies or not allocations:
@@ -286,7 +300,9 @@ class PortfolioManager:
         )
 
     def _optimize_allocation(
-        self, strategies: list[dict[str, Any]], optimization_method: str,
+        self,
+        strategies: list[dict[str, Any]],
+        optimization_method: str,
     ) -> dict[str, float]:
         """Optimize allocation using specified method."""
         # This is a simplified optimization

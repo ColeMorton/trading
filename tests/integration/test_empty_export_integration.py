@@ -56,7 +56,10 @@ class TestEmptyExportIntegration:
         return log_func
 
     def test_export_portfolios_empty_creates_headers_only_file(
-        self, test_config, temp_dir, mock_log,
+        self,
+        test_config,
+        temp_dir,
+        mock_log,
     ):
         """Test that export_portfolios creates headers-only CSV with empty portfolio list."""
 
@@ -97,7 +100,10 @@ class TestEmptyExportIntegration:
             assert col in df_read.columns
 
     def test_export_portfolios_filtered_empty_creates_headers_only_file(
-        self, test_config, temp_dir, mock_log,
+        self,
+        test_config,
+        temp_dir,
+        mock_log,
     ):
         """Test that export_portfolios creates headers-only CSV for portfolios_filtered."""
 
@@ -128,7 +134,10 @@ class TestEmptyExportIntegration:
         assert "Metric Type" in df_read.columns  # Filtered schema has Metric Type
 
     def test_export_portfolios_best_empty_creates_headers_only_file(
-        self, test_config, temp_dir, mock_log,
+        self,
+        test_config,
+        temp_dir,
+        mock_log,
     ):
         """Test that export_portfolios skips export for empty portfolios_best."""
 
@@ -154,7 +163,10 @@ class TestEmptyExportIntegration:
         # Directory may not exist if no export happened, which is acceptable
 
     def test_export_best_portfolios_empty_creates_file(
-        self, test_config, temp_dir, mock_log,
+        self,
+        test_config,
+        temp_dir,
+        mock_log,
     ):
         """Test that export_best_portfolios creates headers-only CSV with empty list."""
 
@@ -183,7 +195,10 @@ class TestEmptyExportIntegration:
         assert len(df_read.columns) > 0  # Has header columns
 
     def test_portfolio_orchestrator_empty_workflow(
-        self, test_config, temp_dir, mock_log,
+        self,
+        test_config,
+        temp_dir,
+        mock_log,
     ):
         """Test complete PortfolioOrchestrator workflow with empty results."""
 
@@ -316,7 +331,10 @@ class TestEmptyExportIntegration:
         assert len(csv_files) > 0
 
     def test_empty_export_file_overwrite_behavior(
-        self, test_config, temp_dir, mock_log,
+        self,
+        test_config,
+        temp_dir,
+        mock_log,
     ):
         """Test that empty exports properly overwrite existing files."""
 

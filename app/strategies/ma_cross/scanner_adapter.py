@@ -31,11 +31,14 @@ class ScannerAdapter:
 
         if self._log is None:
             self._log, self._log_close, _, _ = setup_logging(
-                "ma_cross_scanner_adapter", "scanner_adapter.log",
+                "ma_cross_scanner_adapter",
+                "scanner_adapter.log",
             )
 
     def process_portfolio_file(
-        self, portfolio_path: str, config: dict[str, Any],
+        self,
+        portfolio_path: str,
+        config: dict[str, Any],
     ) -> AnalysisResult:
         """
         Process a portfolio CSV file using the existing scanner logic.
@@ -93,7 +96,10 @@ class ScannerAdapter:
             raise
 
     def _process_ticker_row(
-        self, ticker: str, row: dict[str, Any], config: dict[str, Any],
+        self,
+        ticker: str,
+        row: dict[str, Any],
+        config: dict[str, Any],
     ) -> list[TickerResult]:
         """
         Process a single row from the portfolio using existing scanner logic.
@@ -280,7 +286,9 @@ class ScannerAdapter:
             "slow_period": getattr(portfolio_result, "slow_period", 0),
             "beats_bnh_pct": getattr(portfolio_result, "beats_bnh_pct", 0.0),
             "expectancy_per_trade": getattr(
-                portfolio_result, "expectancy_per_trade", 0.0,
+                portfolio_result,
+                "expectancy_per_trade",
+                0.0,
             ),
         }
 

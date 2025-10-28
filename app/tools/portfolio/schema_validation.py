@@ -69,11 +69,14 @@ class SchemaValidator:
             error_msg = f"Error reading CSV file {file_path}: {e!s}"
             logger.exception(error_msg)
             raise PortfolioSchemaValidationError(
-                error_msg, {"file_path": str(file_path)},
+                error_msg,
+                {"file_path": str(file_path)},
             )
 
     def validate_dataframe(
-        self, df: pd.DataFrame, source_file: str | None = None,
+        self,
+        df: pd.DataFrame,
+        source_file: str | None = None,
     ) -> dict[str, Any]:
         """
         Validate a DataFrame against the canonical schema.
@@ -151,7 +154,9 @@ class SchemaValidator:
             result["violations"].append(violation)
 
     def _validate_column_names_and_order(
-        self, df: pd.DataFrame, result: dict[str, Any],
+        self,
+        df: pd.DataFrame,
+        result: dict[str, Any],
     ) -> None:
         """Validate column names and their order match canonical schema."""
         actual_columns = list(df.columns)
@@ -201,7 +206,9 @@ class SchemaValidator:
                 result["violations"].append(violation)
 
     def _validate_column_data_types(
-        self, df: pd.DataFrame, result: dict[str, Any],
+        self,
+        df: pd.DataFrame,
+        result: dict[str, Any],
     ) -> None:
         """Validate column data types match expected types."""
         column_types = self.canonical_schema.get_column_types()
@@ -234,7 +241,9 @@ class SchemaValidator:
                     result["warnings"].append(violation)
 
     def _validate_required_columns(
-        self, df: pd.DataFrame, result: dict[str, Any],
+        self,
+        df: pd.DataFrame,
+        result: dict[str, Any],
     ) -> None:
         """Validate that required (non-nullable) columns have data."""
         for col_name in REQUIRED_COLUMNS:
@@ -283,7 +292,9 @@ class SchemaValidator:
                 result["warnings"].append(violation)
 
     def _is_type_compatible(
-        self, series: pd.Series, expected_type: ColumnDataType,
+        self,
+        series: pd.Series,
+        expected_type: ColumnDataType,
     ) -> bool:
         """Check if pandas series is compatible with expected column type."""
         try:
@@ -355,7 +366,8 @@ def validate_dataframe_schema(df: pd.DataFrame, strict: bool = True) -> dict[str
 
 
 def batch_validate_csv_files(
-    file_paths: list[str | Path], strict: bool = False,
+    file_paths: list[str | Path],
+    strict: bool = False,
 ) -> dict[str, dict[str, Any]]:
     """
     Validate multiple CSV files in batch.

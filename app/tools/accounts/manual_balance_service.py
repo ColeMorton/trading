@@ -75,7 +75,9 @@ class ManualAccountBalanceService:
             json.dump(data, f, indent=2, default=str)
 
     def update_account_balance(
-        self, account_type: str, balance: float,
+        self,
+        account_type: str,
+        balance: float,
     ) -> AccountBalance:
         """Update balance for a specific account type.
 
@@ -223,7 +225,8 @@ class ManualAccountBalanceService:
         )
 
     def update_multiple_balances(
-        self, balances: dict[str, float],
+        self,
+        balances: dict[str, float],
     ) -> dict[str, AccountBalance]:
         """Update multiple account balances at once.
 
@@ -289,7 +292,9 @@ class ManualAccountBalanceService:
                 self.update_account_balance(account_type, float(balance))
 
     def validate_net_worth_calculation(
-        self, expected_net_worth: float, tolerance: float = 0.01,
+        self,
+        expected_net_worth: float,
+        tolerance: float = 0.01,
     ) -> tuple[bool, str]:
         """Validate net worth calculation against expected value.
 

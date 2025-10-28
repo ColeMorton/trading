@@ -45,7 +45,9 @@ class TestPortfolioMonteCarloManager:
     def manager(self, test_config, mock_log):
         """Create portfolio Monte Carlo manager."""
         return PortfolioMonteCarloManager(
-            config=test_config, max_workers=2, log=mock_log,
+            config=test_config,
+            max_workers=2,
+            log=mock_log,
         )
 
     @pytest.fixture
@@ -158,7 +160,8 @@ class TestPortfolioMonteCarloManager:
         }
 
         result = manager._analyze_strategy_with_error_handling(
-            "BTC-USD_SMA_2_3_0", strategy,
+            "BTC-USD_SMA_2_3_0",
+            strategy,
         )
 
         assert isinstance(result, MonteCarloPortfolioResult)
@@ -167,7 +170,10 @@ class TestPortfolioMonteCarloManager:
 
     @patch("app.concurrency.tools.monte_carlo.manager.download_price_data")
     def test_analyze_single_strategy_download_failure(
-        self, mock_download, manager, mock_log,
+        self,
+        mock_download,
+        manager,
+        mock_log,
     ):
         """Test handling of data download failure."""
         # Mock download failure
@@ -181,7 +187,8 @@ class TestPortfolioMonteCarloManager:
         }
 
         result = manager._analyze_strategy_with_error_handling(
-            "INVALID-TICKER_SMA_10_20_0", strategy,
+            "INVALID-TICKER_SMA_10_20_0",
+            strategy,
         )
 
         assert result is None
@@ -557,7 +564,9 @@ class TestMonteCarloManagerEdgeCases:
 
         # Should handle gracefully
         manager = PortfolioMonteCarloManager(
-            config=config, max_workers=1000, log=Mock(),
+            config=config,
+            max_workers=1000,
+            log=Mock(),
         )
         assert manager.max_workers == 1000  # Should accept but may be limited by system
 

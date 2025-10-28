@@ -124,7 +124,9 @@ class SignalDataAggregator:
                 concurrent_loading=True,
             )
             self.coordinator = StrategyDataCoordinator(
-                base_path=self.base_path, logger=logger, config=config,
+                base_path=self.base_path,
+                logger=logger,
+                config=config,
             )
 
         # Legacy file paths (kept for backward compatibility)
@@ -204,7 +206,8 @@ class SignalDataAggregator:
             if self.enable_legacy_validation:
                 try:
                     validation_warnings = self._validate_performance_metrics(
-                        strategy_data, strategy_data.strategy_name,
+                        strategy_data,
+                        strategy_data.strategy_name,
                     )
                     if validation_warnings:
                         logger.warning(
@@ -221,7 +224,9 @@ class SignalDataAggregator:
             return strategy_data
 
         except StrategyDataCoordinatorError as coord_error:
-            logger.exception(f"Coordinator error for {strategy_identifier}: {coord_error}")
+            logger.exception(
+                f"Coordinator error for {strategy_identifier}: {coord_error}"
+            )
             return None
         except Exception as e:
             logger.exception(
@@ -413,7 +418,9 @@ class SignalDataAggregator:
             return f"UNKNOWN_{strategy_row.get('ticker', 'UNK')}_20250706"
 
     def _populate_from_statistical_csv(
-        self, strategy_data: StrategyData, row: dict[str, Any],
+        self,
+        strategy_data: StrategyData,
+        row: dict[str, Any],
     ) -> None:
         """Populate strategy data from statistical analysis CSV"""
         try:
@@ -453,7 +460,9 @@ class SignalDataAggregator:
             logger.warning(f"Error populating from statistical CSV: {e}")
 
     def _populate_from_statistical_json(
-        self, strategy_data: StrategyData, strategy_name: str,
+        self,
+        strategy_data: StrategyData,
+        strategy_name: str,
     ) -> None:
         """Populate strategy data from statistical analysis JSON"""
         try:
@@ -525,7 +534,9 @@ class SignalDataAggregator:
             logger.warning(f"Error populating from statistical JSON: {e}")
 
     def _populate_from_backtesting_data(
-        self, strategy_data: StrategyData, strategy_name: str,
+        self,
+        strategy_data: StrategyData,
+        strategy_name: str,
     ) -> None:
         """Populate strategy data from backtesting parameters"""
         try:
@@ -608,7 +619,9 @@ class SignalDataAggregator:
             logger.warning(f"Error populating from backtesting data: {e}")
 
     def _populate_from_trade_history(
-        self, strategy_data: StrategyData, strategy_name: str,
+        self,
+        strategy_data: StrategyData,
+        strategy_name: str,
     ) -> None:
         """Load trade history data including MFE and MAE from consolidated positions file"""
         try:
@@ -645,7 +658,9 @@ class SignalDataAggregator:
                             )
                             match = df[
                                 df["Position_UUID"].str.contains(
-                                    pattern, case=False, na=False,
+                                    pattern,
+                                    case=False,
+                                    na=False,
                                 )
                             ]
 
@@ -800,7 +815,9 @@ class SignalDataAggregator:
             logger.warning(f"Error loading trade history for {strategy_name}: {e}")
 
     def _validate_performance_metrics(
-        self, strategy_data: StrategyData, strategy_name: str,
+        self,
+        strategy_data: StrategyData,
+        strategy_name: str,
     ) -> list[str]:
         """
         Validate performance metrics for mathematical consistency and logical constraints
@@ -871,7 +888,9 @@ class SignalDataAggregator:
 
             # Constraint 7: Check statistical validity consistency
             statistical_validity = getattr(
-                strategy_data, "statistical_validity", "UNKNOWN",
+                strategy_data,
+                "statistical_validity",
+                "UNKNOWN",
             )
             sample_size = getattr(strategy_data, "sample_size", 0)
 
@@ -891,7 +910,10 @@ class SignalDataAggregator:
         return warnings
 
     def validate_mathematical_constraints(
-        self, strategy_data: StrategyData, strategy_name: str, auto_fix: bool = True,
+        self,
+        strategy_data: StrategyData,
+        strategy_name: str,
+        auto_fix: bool = True,
     ) -> dict[str, Any]:
         """
         Real-time mathematical constraint validation with automatic fixing capability
@@ -953,7 +975,8 @@ class SignalDataAggregator:
                     if auto_fix:
                         # Attempt to recalculate MFE/MAE
                         fix_attempted = self._check_and_update_stale_mfe_mae(
-                            strategy_data, strategy_name,
+                            strategy_data,
+                            strategy_name,
                         )
                         validation_result["auto_fixes_attempted"].append(
                             "Negative MFE recalculation",
@@ -992,7 +1015,8 @@ class SignalDataAggregator:
                         auto_fix and excess_pct <= 100
                     ):  # Only auto-fix if not too extreme
                         fix_attempted = self._check_and_update_stale_mfe_mae(
-                            strategy_data, strategy_name,
+                            strategy_data,
+                            strategy_name,
                         )
                         validation_result["auto_fixes_attempted"].append(
                             "MFE data refresh",
@@ -1061,7 +1085,8 @@ class SignalDataAggregator:
 
                     if auto_fix:
                         fix_attempted = self._check_and_update_stale_mfe_mae(
-                            strategy_data, strategy_name,
+                            strategy_data,
+                            strategy_name,
                         )
                         validation_result["auto_fixes_attempted"].append(
                             "Zero values refresh",
@@ -1104,7 +1129,9 @@ class SignalDataAggregator:
             return validation_result
 
     def _check_and_update_stale_mfe_mae(
-        self, strategy_data: StrategyData, strategy_name: str,
+        self,
+        strategy_data: StrategyData,
+        strategy_name: str,
     ) -> bool:
         """
         Check if MFE/MAE data appears stale and attempt to update with fresh calculations
@@ -1278,7 +1305,9 @@ class SignalDataAggregator:
             return False
 
     def detect_statistical_uniformity_coordinated(
-        self, strategy_identifiers: list[str], use_fresh_data: bool = False,
+        self,
+        strategy_identifiers: list[str],
+        use_fresh_data: bool = False,
     ) -> dict[str, Any]:
         """
         Detect statistical uniformity using coordinated data loading.
@@ -1339,7 +1368,8 @@ class SignalDataAggregator:
             }
 
     def detect_statistical_uniformity(
-        self, strategies_data: list[StrategyData],
+        self,
+        strategies_data: list[StrategyData],
     ) -> dict[str, Any]:
         """
         Detect suspicious statistical uniformity across multiple strategies
@@ -1401,7 +1431,10 @@ class SignalDataAggregator:
 
             # Check for exact matches (highly suspicious)
             self._check_exact_uniformity(
-                uniformity_report, "p_value", p_values, strategy_names,
+                uniformity_report,
+                "p_value",
+                p_values,
+                strategy_names,
             )
             self._check_exact_uniformity(
                 uniformity_report,
@@ -1431,7 +1464,11 @@ class SignalDataAggregator:
                 tolerance=0.02,
             )  # 2% tolerance
             self._check_statistical_clustering(
-                uniformity_report, "p_value", p_values, strategy_names, tolerance=0.001,
+                uniformity_report,
+                "p_value",
+                p_values,
+                strategy_names,
+                tolerance=0.001,
             )  # 0.1% tolerance
 
             # Check for suspicious patterns
@@ -1588,7 +1625,10 @@ class SignalDataAggregator:
             )
 
     def _check_suspicious_patterns(
-        self, report: dict, metrics: dict[str, list[float]], strategy_names: list[str],
+        self,
+        report: dict,
+        metrics: dict[str, list[float]],
+        strategy_names: list[str],
     ):
         """Check for suspicious patterns across metrics"""
         import numpy as np
@@ -1830,14 +1870,16 @@ class SignalDataAggregator:
 
                     # Validate and categorize issues
                     validation_warnings = self._validate_performance_metrics(
-                        strategy_data, strategy_name,
+                        strategy_data,
+                        strategy_name,
                     )
 
                     strategy_report = {
                         "strategy_name": strategy_name,
                         "ticker": strategy_data.ticker,
                         "data_quality_score": self._calculate_data_quality_score(
-                            strategy_data, validation_warnings,
+                            strategy_data,
+                            validation_warnings,
                         ),
                         "issues": validation_warnings,
                         "issue_severity": (
@@ -1902,7 +1944,8 @@ class SignalDataAggregator:
 
             # Generate recommendations
             report["recommendations"] = self._generate_recommendations(
-                issue_counts, report,
+                issue_counts,
+                report,
             )
 
         except Exception as e:
@@ -1912,7 +1955,9 @@ class SignalDataAggregator:
         return report
 
     def _calculate_data_quality_score(
-        self, strategy_data: StrategyData, validation_warnings: list[str],
+        self,
+        strategy_data: StrategyData,
+        validation_warnings: list[str],
     ) -> float:
         """Calculate data quality score (0-100) for a strategy"""
         score = 100.0
@@ -1941,7 +1986,8 @@ class SignalDataAggregator:
         return max(0.0, min(100.0, score))
 
     def _identify_data_sources_used(
-        self, strategy_data: StrategyData,
+        self,
+        strategy_data: StrategyData,
     ) -> dict[str, bool]:
         """Identify which data sources were used for this strategy"""
         return {
@@ -1952,7 +1998,9 @@ class SignalDataAggregator:
         }
 
     def _generate_recommendations(
-        self, issue_counts: dict[str, int], report: dict[str, Any],
+        self,
+        issue_counts: dict[str, int],
+        report: dict[str, Any],
     ) -> list[str]:
         """Generate actionable recommendations based on issue analysis"""
         recommendations = []
@@ -2127,7 +2175,8 @@ RECOMMENDATIONS:
 
                 # Show data quality assessment
                 validation_warnings = aggregator._validate_performance_metrics(
-                    strategy_data, strategy_data.strategy_name,
+                    strategy_data,
+                    strategy_data.strategy_name,
                 )
                 if validation_warnings:
                     print("\nData Quality Issues:")

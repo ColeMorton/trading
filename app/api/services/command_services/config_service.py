@@ -40,7 +40,8 @@ class ConfigService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -69,7 +70,8 @@ class ConfigService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -86,7 +88,8 @@ class ConfigService(BaseCommandService):
         }
 
     async def execute_verify_defaults(
-        self, params: ConfigVerifyDefaultsRequest,
+        self,
+        params: ConfigVerifyDefaultsRequest,
     ) -> dict[str, Any]:
         """Execute config verify-defaults command."""
         await self.update_progress(10, "Verifying default profiles...")
@@ -101,7 +104,8 @@ class ConfigService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -117,7 +121,8 @@ class ConfigService(BaseCommandService):
         }
 
     async def execute_set_default(
-        self, params: ConfigSetDefaultRequest,
+        self,
+        params: ConfigSetDefaultRequest,
     ) -> dict[str, Any]:
         """Execute config set-default command."""
         await self.update_progress(10, "Setting default profile...")
@@ -132,7 +137,8 @@ class ConfigService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -162,7 +168,8 @@ class ConfigService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -193,7 +200,8 @@ class ConfigService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")

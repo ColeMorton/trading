@@ -126,7 +126,9 @@ class PortfolioManager(PortfolioManagerInterface):
             self._logger.get_logger(__name__).info(f"Saved portfolio to {path}")
 
     def list_portfolios(
-        self, directory: Path, pattern: str | None | None = None,
+        self,
+        directory: Path,
+        pattern: str | None | None = None,
     ) -> list[Portfolio]:
         """List all portfolios in a directory."""
         if not directory.exists():
@@ -150,7 +152,9 @@ class PortfolioManager(PortfolioManagerInterface):
         return portfolios
 
     def filter_portfolios(
-        self, portfolios: list[Portfolio], filters: list[PortfolioFilter],
+        self,
+        portfolios: list[Portfolio],
+        filters: list[PortfolioFilter],
     ) -> list[Portfolio]:
         """Filter portfolios based on criteria."""
         result = portfolios
@@ -162,7 +166,8 @@ class PortfolioManager(PortfolioManagerInterface):
         return result
 
     def aggregate_portfolios(
-        self, portfolios: list[Portfolio],
+        self,
+        portfolios: list[Portfolio],
     ) -> pd.DataFrame | pl.DataFrame:
         """Aggregate multiple portfolios into a summary."""
         if not portfolios:
@@ -189,12 +194,17 @@ class PortfolioManager(PortfolioManagerInterface):
         return df
 
     def get_best_portfolios(
-        self, portfolios: list[Portfolio], metric: str = "sharpe_ratio", top_n: int = 10,
+        self,
+        portfolios: list[Portfolio],
+        metric: str = "sharpe_ratio",
+        top_n: int = 10,
     ) -> list[Portfolio]:
         """Get best performing portfolios by metric."""
         # Sort portfolios by metric
         sorted_portfolios = sorted(
-            portfolios, key=lambda p: p.metrics.get(metric, float("-inf")), reverse=True,
+            portfolios,
+            key=lambda p: p.metrics.get(metric, float("-inf")),
+            reverse=True,
         )
 
         return sorted_portfolios[:top_n]

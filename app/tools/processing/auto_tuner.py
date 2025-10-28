@@ -234,7 +234,6 @@ class ResourceMonitor:
             "sample_count": len(recent_snapshots),
         }
 
-
     def _calculate_trend(self, values: list[float]) -> float:
         """Calculate trend direction (-1 to 1, where 1 is increasing)."""
         if len(values) < 2:
@@ -304,7 +303,9 @@ class AutoTuner:
 
         self.active_tuning = True
         self._tuning_thread = threading.Thread(
-            target=self._tuning_loop, daemon=daemon, name="AutoTuner",
+            target=self._tuning_loop,
+            daemon=daemon,
+            name="AutoTuner",
         )
         self._tuning_thread.start()
         logger.info("Auto-tuning started")
@@ -373,7 +374,9 @@ class AutoTuner:
         return recommendations
 
     def _cpu_recommendations(
-        self, resource_trend: dict, performance_trend: dict,
+        self,
+        resource_trend: dict,
+        performance_trend: dict,
     ) -> list[TuningRecommendation]:
         """Generate CPU-related recommendations."""
         recommendations = []
@@ -420,7 +423,9 @@ class AutoTuner:
         return recommendations
 
     def _memory_recommendations(
-        self, resource_trend: dict, performance_trend: dict,
+        self,
+        resource_trend: dict,
+        performance_trend: dict,
     ) -> list[TuningRecommendation]:
         """Generate memory-related recommendations."""
         recommendations = []
@@ -488,7 +493,9 @@ class AutoTuner:
         return recommendations
 
     def _performance_recommendations(
-        self, resource_trend: dict, performance_trend: dict,
+        self,
+        resource_trend: dict,
+        performance_trend: dict,
     ) -> list[TuningRecommendation]:
         """Generate performance-related recommendations."""
         recommendations = []
@@ -540,7 +547,8 @@ class AutoTuner:
         return recommendations
 
     def _apply_recommendations(
-        self, recommendations: list[TuningRecommendation],
+        self,
+        recommendations: list[TuningRecommendation],
     ) -> int:
         """Apply high-confidence recommendations."""
         applied_count = 0
@@ -607,7 +615,6 @@ class AutoTuner:
                 else None
             ),
         }
-
 
     def manual_recommendation(self) -> list[TuningRecommendation]:
         """Get manual tuning recommendations without applying them."""

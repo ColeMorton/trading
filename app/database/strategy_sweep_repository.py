@@ -50,7 +50,6 @@ class StrategySweepRepository:
         name = name.replace("bnh", "bnh")  # Keep as is
         return name.replace("p&l", "pnl")
 
-
     def _convert_value(self, value: Any) -> Any:
         """
         Convert Python value to database-compatible type.
@@ -110,7 +109,9 @@ class StrategySweepRepository:
         return await connection.fetchval(insert_query, ticker_symbol)
 
     async def _get_or_create_strategy_type(
-        self, strategy_type_name: str, connection,
+        self,
+        strategy_type_name: str,
+        connection,
     ) -> int:
         """
         Get or create a strategy type and return its ID.
@@ -142,7 +143,10 @@ class StrategySweepRepository:
         return await connection.fetchval(insert_query, strategy_type_name)
 
     def _prepare_record(
-        self, result: dict[str, Any], sweep_run_id: UUID, sweep_config: dict[str, Any],
+        self,
+        result: dict[str, Any],
+        sweep_run_id: UUID,
+        sweep_config: dict[str, Any],
     ) -> dict[str, Any]:
         """
         Prepare a single result record for database insertion.
@@ -239,7 +243,8 @@ class StrategySweepRepository:
                             if "ticker" in record:
                                 ticker_symbol = record["ticker"]
                                 ticker_id = await self._get_or_create_ticker(
-                                    ticker_symbol, connection,
+                                    ticker_symbol,
+                                    connection,
                                 )
                                 record["ticker_id"] = ticker_id
                                 del record["ticker"]
@@ -264,7 +269,8 @@ class StrategySweepRepository:
                                 if strategy_type_name:
                                     strategy_type_id = (
                                         await self._get_or_create_strategy_type(
-                                            strategy_type_name, connection,
+                                            strategy_type_name,
+                                            connection,
                                         )
                                     )
                                     record["strategy_type_id"] = strategy_type_id
@@ -403,7 +409,9 @@ class StrategySweepRepository:
         return [name for name in metric_names if name]
 
     async def _get_metric_type_ids(
-        self, metric_names: list[str], connection,
+        self,
+        metric_names: list[str],
+        connection,
     ) -> dict[str, int]:
         """
         Get metric type IDs for given metric names.
@@ -528,7 +536,8 @@ class StrategySweepRepository:
                             if "ticker" in record:
                                 ticker_symbol = record["ticker"]
                                 ticker_id = await self._get_or_create_ticker(
-                                    ticker_symbol, connection,
+                                    ticker_symbol,
+                                    connection,
                                 )
                                 record["ticker_id"] = ticker_id
                                 del record["ticker"]
@@ -554,7 +563,8 @@ class StrategySweepRepository:
                                 if strategy_type_name:
                                     strategy_type_id = (
                                         await self._get_or_create_strategy_type(
-                                            strategy_type_name, connection,
+                                            strategy_type_name,
+                                            connection,
                                         )
                                     )
                                     record["strategy_type_id"] = strategy_type_id
@@ -594,13 +604,16 @@ class StrategySweepRepository:
                                 if metric_names:
                                     # Get metric type IDs
                                     metric_type_map = await self._get_metric_type_ids(
-                                        metric_names, connection,
+                                        metric_names,
+                                        connection,
                                     )
                                     metric_type_ids = list(metric_type_map.values())
 
                                     # Save associations
                                     await self._save_metric_type_associations(
-                                        str(result_id), metric_type_ids, connection,
+                                        str(result_id),
+                                        metric_type_ids,
+                                        connection,
                                     )
 
                             total_inserted += 1
@@ -621,7 +634,8 @@ class StrategySweepRepository:
             raise
 
     async def get_sweep_results_with_metrics(
-        self, sweep_run_id: UUID,
+        self,
+        sweep_run_id: UUID,
     ) -> list[dict[str, Any]]:
         """
         Retrieve all results for a specific sweep run with metric types.
@@ -754,7 +768,9 @@ class StrategySweepRepository:
             raise
 
     async def compute_and_save_best_selections(
-        self, sweep_run_id: UUID, algorithm: str = "parameter_consistency",
+        self,
+        sweep_run_id: UUID,
+        algorithm: str = "parameter_consistency",
     ) -> int:
         """
         Compute best portfolio for each ticker+strategy in sweep and save to database.
@@ -809,7 +825,9 @@ class StrategySweepRepository:
             best_selections = []
             for ticker, strategy_type in combinations:
                 selection = selection_service.find_best_for_ticker_strategy(
-                    results, ticker, strategy_type,
+                    results,
+                    ticker,
+                    strategy_type,
                 )
 
                 if selection:
@@ -821,10 +839,12 @@ class StrategySweepRepository:
                     for ticker_symbol, strategy_type_name, selection in best_selections:
                         # Get ticker_id and strategy_type_id
                         ticker_id = await self._get_or_create_ticker(
-                            ticker_symbol, connection,
+                            ticker_symbol,
+                            connection,
                         )
                         strategy_type_id = await self._get_or_create_strategy_type(
-                            strategy_type_name, connection,
+                            strategy_type_name,
+                            connection,
                         )
 
                         best_result = selection["best_result"]
@@ -944,7 +964,10 @@ class StrategySweepRepository:
             raise
 
     async def get_best_result_for_ticker(
-        self, sweep_run_id: UUID, ticker: str, strategy_type: str,
+        self,
+        sweep_run_id: UUID,
+        ticker: str,
+        strategy_type: str,
     ) -> dict[str, Any] | None:
         """
         Get the best result for specific ticker and strategy.
@@ -983,7 +1006,10 @@ class StrategySweepRepository:
 
             async with self.db_manager._connection_pool.acquire() as connection:
                 row = await connection.fetchrow(
-                    query, str(sweep_run_id), ticker, strategy_type,
+                    query,
+                    str(sweep_run_id),
+                    ticker,
+                    strategy_type,
                 )
                 return dict(row) if row else None
 
@@ -992,7 +1018,8 @@ class StrategySweepRepository:
             raise
 
     async def get_sweep_results_with_best_flag(
-        self, sweep_run_id: UUID,
+        self,
+        sweep_run_id: UUID,
     ) -> list[dict[str, Any]]:
         """
         Get all sweep results with is_best boolean flag.

@@ -70,7 +70,11 @@ def create_dendrogram_trace(linkage_matrix, labels):
         y_coords.append(None)
 
     return go.Scatter(
-        x=x_coords, y=y_coords, mode="lines", line={"color": "black"}, hoverinfo="none",
+        x=x_coords,
+        y=y_coords,
+        mode="lines",
+        line={"color": "black"},
+        hoverinfo="none",
     )
 
 
@@ -123,10 +127,10 @@ def generate_correlation_plot(assets, days, title_suffix=""):
     # Perform hierarchical clustering
     distance_matrix = 1 - correlation_matrix
     condensed_dist = squareform(distance_matrix)
-    Z = linkage(condensed_dist, method="ward")
+    z_linkage = linkage(condensed_dist, method="ward")
 
     # Create dendrogram figure
-    dendro_trace = create_dendrogram_trace(Z, assets)
+    dendro_trace = create_dendrogram_trace(z_linkage, assets)
     dendro_fig = go.Figure(data=[dendro_trace])
     dendro_fig.update_layout(
         title=f"Dendrogram of Asset Correlation{title_suffix}",
@@ -144,7 +148,8 @@ def generate_correlation_plot(assets, days, title_suffix=""):
     # Reorder correlation matrix based on clustering
     ordered_assets = [assets[idx] for idx in leaves_list(Z)]
     reordered_correlation_matrix = correlation_matrix.loc[
-        ordered_assets, ordered_assets,
+        ordered_assets,
+        ordered_assets,
     ]
 
     # Create heatmap
@@ -215,7 +220,9 @@ for i, next_asset in enumerate(NEXT):
         dict.fromkeys([*PORTFOLIO, next_asset]),
     )  # Remove duplicates
     dendro, heatmap = generate_correlation_plot(
-        portfolio_plus_asset, DAYS, f" (Portfolio + {next_asset})",
+        portfolio_plus_asset,
+        DAYS,
+        f" (Portfolio + {next_asset})",
     )
     main_fig.add_trace(dendro.data[0], row=2 * i + 3, col=1)
     main_fig.add_trace(heatmap.data[0], row=2 * i + 4, col=1)

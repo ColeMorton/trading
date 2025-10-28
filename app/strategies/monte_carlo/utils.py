@@ -31,14 +31,16 @@ def calculate_sharpe_ratio(returns: list[float], risk_free_rate: float = 0.02) -
 
 
 def calculate_final_portfolio_value(
-    returns: list[float], initial_value: float,
+    returns: list[float],
+    initial_value: float,
 ) -> float:
     """Calculate the final portfolio value given a sequence of returns."""
     return initial_value * np.prod(1 + np.array(returns))
 
 
 def calculate_loss_streak_probability(
-    returns: list[float], streak_length: int = 3,
+    returns: list[float],
+    streak_length: int = 3,
 ) -> float:
     """Calculate the probability of encountering a loss streak of a given length."""
     loss_streaks = [1 if r < 0 else 0 for r in returns]

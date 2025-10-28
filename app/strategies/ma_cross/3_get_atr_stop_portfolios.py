@@ -145,7 +145,8 @@ def execute_atr_analysis_for_ticker(
 
         # Validate sweep results
         is_valid, validation_errors = sweep_engine.validate_sweep_results(
-            portfolio_results, log,
+            portfolio_results,
+            log,
         )
         if not is_valid:
             log(
@@ -210,7 +211,9 @@ def export_atr_portfolios(
         # Apply MINIMUMS filtering before sorting using the same logic as 1_get_portfolios.py
         filter_service = PortfolioFilterService()
         filtered_portfolios = filter_service.filter_portfolios_list(
-            portfolios, config, log,
+            portfolios,
+            config,
+            log,
         )
 
         if not filtered_portfolios:
@@ -306,7 +309,8 @@ def run_atr_analysis(config: CacheConfig = None) -> bool:
         config = default_config.copy()
 
     with logging_context(
-        module_name="ma_cross_atr", log_file="3_get_atr_stop_portfolios.log",
+        module_name="ma_cross_atr",
+        log_file="3_get_atr_stop_portfolios.log",
     ) as log:
         log("=== ATR Trailing Stop Parameter Sensitivity Analysis ===", "info")
         log(
@@ -391,5 +395,7 @@ def run_atr_analysis(config: CacheConfig = None) -> bool:
 
 if __name__ == "__main__":
     run_from_command_line(
-        run_atr_analysis, default_config, "ATR Trailing Stop Parameter Analysis",
+        run_atr_analysis,
+        default_config,
+        "ATR Trailing Stop Parameter Analysis",
     )

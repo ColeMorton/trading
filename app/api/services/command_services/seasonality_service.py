@@ -34,7 +34,8 @@ class SeasonalityService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -64,7 +65,8 @@ class SeasonalityService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -77,7 +79,8 @@ class SeasonalityService(BaseCommandService):
         return {"success": True, "output": result["stdout"]}
 
     async def execute_results(
-        self, params: SeasonalityResultsRequest,
+        self,
+        params: SeasonalityResultsRequest,
     ) -> dict[str, Any]:
         """Execute seasonality results command."""
         await self.update_progress(20, "Loading seasonality results...")
@@ -92,7 +95,8 @@ class SeasonalityService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -118,7 +122,8 @@ class SeasonalityService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -131,7 +136,8 @@ class SeasonalityService(BaseCommandService):
         return {"success": True, "output": result["stdout"]}
 
     async def execute_current(
-        self, params: SeasonalityCurrentRequest,
+        self,
+        params: SeasonalityCurrentRequest,
     ) -> dict[str, Any]:
         """Execute seasonality current command."""
         await self.update_progress(10, "Analyzing current seasonality patterns...")
@@ -148,7 +154,8 @@ class SeasonalityService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -161,7 +168,8 @@ class SeasonalityService(BaseCommandService):
         return {"success": True, "output": result["stdout"]}
 
     async def execute_portfolio(
-        self, params: SeasonalityPortfolioRequest,
+        self,
+        params: SeasonalityPortfolioRequest,
     ) -> dict[str, Any]:
         """Execute seasonality portfolio command."""
         await self.update_progress(10, "Loading portfolio...")
@@ -178,7 +186,8 @@ class SeasonalityService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")

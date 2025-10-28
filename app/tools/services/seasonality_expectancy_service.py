@@ -99,7 +99,8 @@ class SeasonalityExpectancyService:
             console=self.console,
         ) as progress:
             task = progress.add_task(
-                "[cyan]Analyzing seasonality patterns...", total=len(csv_files),
+                "[cyan]Analyzing seasonality patterns...",
+                total=len(csv_files),
             )
 
             for csv_file in csv_files:
@@ -145,7 +146,9 @@ class SeasonalityExpectancyService:
         return df
 
     def _calculate_time_weights(
-        self, start_date: datetime.date, end_date: datetime.date,
+        self,
+        start_date: datetime.date,
+        end_date: datetime.date,
     ) -> dict[str, float]:
         """Calculate time weights for different periods based on actual calendar days.
 
@@ -201,7 +204,10 @@ class SeasonalityExpectancyService:
         return weights
 
     def _analyze_ticker_file(
-        self, csv_file: Path, ticker: str, time_weights: dict[str, float],
+        self,
+        csv_file: Path,
+        ticker: str,
+        time_weights: dict[str, float],
     ) -> dict | None:
         """Analyze a single ticker's seasonality file."""
 
@@ -310,7 +316,10 @@ class SeasonalityExpectancyService:
 
         # Calculate risk-adjusted score
         risk_adjusted_score = self._calculate_risk_adjusted_score(
-            combined_return, avg_significance, avg_win_rate, avg_volatility,
+            combined_return,
+            avg_significance,
+            avg_win_rate,
+            avg_volatility,
         )
 
         # Determine asset class and confidence

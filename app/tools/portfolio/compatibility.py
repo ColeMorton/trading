@@ -13,7 +13,9 @@ from app.tools.portfolio.types import StrategyConfig
 
 
 def load_portfolio_from_path(
-    file_path: str, log: Callable[[str, str], None], config: dict[str, Any],
+    file_path: str,
+    log: Callable[[str, str], None],
+    config: dict[str, Any],
 ) -> list[StrategyConfig]:
     """
     Compatibility function that mimics the behavior of the legacy load_portfolio function.

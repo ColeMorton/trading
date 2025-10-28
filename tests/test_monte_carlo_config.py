@@ -86,7 +86,9 @@ class TestMonteCarloConfig:
     def test_configuration_to_dict(self):
         """Test configuration to dictionary conversion."""
         config = MonteCarloConfig(
-            num_simulations=25, confidence_level=0.90, max_parameters_to_test=3,
+            num_simulations=25,
+            confidence_level=0.90,
+            max_parameters_to_test=3,
         )
 
         config_dict = config.to_dict()

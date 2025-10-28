@@ -68,7 +68,8 @@ class TestPortfolioAggregationFixes(unittest.TestCase):
 
         # Correct method (equal weighted average)
         correct_total = PortfolioAggregationFixes.calculate_portfolio_return_correct(
-            self.sample_positions, "equal_weighted",
+            self.sample_positions,
+            "equal_weighted",
         )
 
         # The original method was summing instead of averaging
@@ -120,7 +121,8 @@ class TestPercentileCalculationFixes(unittest.TestCase):
         """Test holding period percentile calculations"""
 
         percentiles = PercentileCalculationFixes.calculate_holding_period_percentiles(
-            self.historical_returns, [30, 60, 90],
+            self.historical_returns,
+            [30, 60, 90],
         )
 
         # Should have results for all requested periods
@@ -145,7 +147,9 @@ class TestPercentileCalculationFixes(unittest.TestCase):
         holding_period = 30
 
         percentile_rank = PercentileCalculationFixes.calculate_correct_percentile_rank(
-            current_return, self.historical_returns, holding_period,
+            current_return,
+            self.historical_returns,
+            holding_period,
         )
 
         # Should be a high percentile for 30% return
@@ -154,7 +158,9 @@ class TestPercentileCalculationFixes(unittest.TestCase):
 
         # Test edge cases
         zero_return_rank = PercentileCalculationFixes.calculate_correct_percentile_rank(
-            0.0, self.historical_returns, holding_period,
+            0.0,
+            self.historical_returns,
+            holding_period,
         )
 
         # Zero return should be around 50th percentile
@@ -208,7 +214,9 @@ class TestMAECalculationFixes(unittest.TestCase):
 
         expected_ratio = 0.438 / 0.014
         self.assertAlmostEqual(
-            validation["corrected_values"]["mfe_mae_ratio"], expected_ratio, places=2,
+            validation["corrected_values"]["mfe_mae_ratio"],
+            expected_ratio,
+            places=2,
         )
 
     def test_exit_efficiency_correction(self):
@@ -243,7 +251,9 @@ class TestSharpeRatioFixes(unittest.TestCase):
         """Test correct Sharpe ratio calculation"""
 
         sharpe_ratio = SharpeRatioFixes.calculate_correct_sharpe_ratio(
-            self.returns, risk_free_rate=0.05, period="daily",
+            self.returns,
+            risk_free_rate=0.05,
+            period="daily",
         )
 
         # Should be a reasonable value
@@ -268,13 +278,15 @@ class TestSharpeRatioFixes(unittest.TestCase):
         """Test Sharpe ratio calculation for different periods"""
 
         daily_sharpe = SharpeRatioFixes.calculate_correct_sharpe_ratio(
-            self.returns, period="daily",
+            self.returns,
+            period="daily",
         )
 
         # Convert to weekly returns for comparison
         weekly_returns = self.returns.rolling(5).sum().dropna()
         weekly_sharpe = SharpeRatioFixes.calculate_correct_sharpe_ratio(
-            weekly_returns, period="weekly",
+            weekly_returns,
+            period="weekly",
         )
 
         # Both should be reasonable
@@ -294,7 +306,8 @@ class TestDataValidationFixes(unittest.TestCase):
 
         # Test percentage formatting
         percentage = DataValidationFixes.format_financial_precision(
-            0.123456, "percentage",
+            0.123456,
+            "percentage",
         )
         self.assertEqual(percentage, 0.1235)
 
@@ -368,7 +381,8 @@ class TestEdgeCaseHandling(unittest.TestCase):
         }
 
         extreme_validation = EdgeCaseHandling.validate_extreme_values(
-            extreme_values, bounds,
+            extreme_values,
+            bounds,
         )
 
         self.assertFalse(extreme_validation["is_valid"])

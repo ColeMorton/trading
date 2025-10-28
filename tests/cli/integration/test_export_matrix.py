@@ -136,7 +136,10 @@ class TestExportTypeMatrix:
         }
 
     def test_sma_portfolios_export(
-        self, sample_portfolios_sma, base_config, temp_export_dir,
+        self,
+        sample_portfolios_sma,
+        base_config,
+        temp_export_dir,
     ):
         """Test SMA strategy with portfolios export type."""
         config = base_config.copy()
@@ -168,7 +171,10 @@ class TestExportTypeMatrix:
         assert "SMA" in filename
 
     def test_sma_portfolios_filtered_export(
-        self, sample_portfolios_sma, base_config, temp_export_dir,
+        self,
+        sample_portfolios_sma,
+        base_config,
+        temp_export_dir,
     ):
         """Test SMA strategy with portfolios_filtered export type."""
         config = base_config.copy()
@@ -199,7 +205,10 @@ class TestExportTypeMatrix:
         assert len(csv_files) > 0
 
     def test_sma_portfolios_best_export(
-        self, sample_portfolios_sma, base_config, temp_export_dir,
+        self,
+        sample_portfolios_sma,
+        base_config,
+        temp_export_dir,
     ):
         """Test SMA strategy with portfolios_best export type."""
         config = base_config.copy()
@@ -234,7 +243,10 @@ class TestExportTypeMatrix:
         assert any(char.isdigit() for char in filename)  # Contains timestamp
 
     def test_ema_portfolios_export(
-        self, sample_portfolios_ema, base_config, temp_export_dir,
+        self,
+        sample_portfolios_ema,
+        base_config,
+        temp_export_dir,
     ):
         """Test EMA strategy with portfolios export type."""
         config = base_config.copy()
@@ -265,7 +277,10 @@ class TestExportTypeMatrix:
         assert "EMA" in filename
 
     def test_ema_portfolios_filtered_export(
-        self, sample_portfolios_ema, base_config, temp_export_dir,
+        self,
+        sample_portfolios_ema,
+        base_config,
+        temp_export_dir,
     ):
         """Test EMA strategy with portfolios_filtered export type."""
         config = base_config.copy()
@@ -296,7 +311,10 @@ class TestExportTypeMatrix:
         assert export_path.exists()
 
     def test_ema_portfolios_best_export(
-        self, sample_portfolios_ema, base_config, temp_export_dir,
+        self,
+        sample_portfolios_ema,
+        base_config,
+        temp_export_dir,
     ):
         """Test EMA strategy with portfolios_best export type."""
         config = base_config.copy()
@@ -322,7 +340,10 @@ class TestExportTypeMatrix:
         assert export_path.exists()
 
     def test_macd_portfolios_export(
-        self, sample_portfolios_macd, base_config, temp_export_dir,
+        self,
+        sample_portfolios_macd,
+        base_config,
+        temp_export_dir,
     ):
         """Test MACD strategy with portfolios export type."""
         config = base_config.copy()
@@ -358,7 +379,10 @@ class TestExportTypeMatrix:
         assert "MACD" in filename
 
     def test_macd_portfolios_filtered_export(
-        self, sample_portfolios_macd, base_config, temp_export_dir,
+        self,
+        sample_portfolios_macd,
+        base_config,
+        temp_export_dir,
     ):
         """Test MACD strategy with portfolios_filtered export type."""
         config = base_config.copy()
@@ -389,7 +413,10 @@ class TestExportTypeMatrix:
         assert export_path.exists()
 
     def test_macd_portfolios_best_export(
-        self, sample_portfolios_macd, base_config, temp_export_dir,
+        self,
+        sample_portfolios_macd,
+        base_config,
+        temp_export_dir,
     ):
         """Test MACD strategy with portfolios_best export type."""
         config = base_config.copy()
@@ -418,7 +445,11 @@ class TestExportTypeMatrix:
         assert len(csv_files) > 0
 
     def test_mixed_strategies_portfolios_export(
-        self, sample_portfolios_sma, sample_portfolios_ema, base_config, temp_export_dir,
+        self,
+        sample_portfolios_sma,
+        sample_portfolios_ema,
+        base_config,
+        temp_export_dir,
     ):
         """Test mixed SMA/EMA strategies with portfolios export type."""
         mixed_portfolios = sample_portfolios_sma + sample_portfolios_ema
@@ -455,7 +486,10 @@ class TestExportTypeMatrix:
         assert len(csv_files) > 0
 
     def test_multiple_tickers_single_strategy(
-        self, sample_portfolios_sma, base_config, temp_export_dir,
+        self,
+        sample_portfolios_sma,
+        base_config,
+        temp_export_dir,
     ):
         """Test multiple tickers with single strategy type."""
         # Duplicate portfolios for different tickers
@@ -497,7 +531,10 @@ class TestExportTypeMatrix:
         assert export_path.exists()
 
     def test_synthetic_ticker_export(
-        self, sample_portfolios_sma, base_config, temp_export_dir,
+        self,
+        sample_portfolios_sma,
+        base_config,
+        temp_export_dir,
     ):
         """Test export with synthetic ticker format."""
         synthetic_portfolios = []
@@ -543,7 +580,10 @@ class TestExportTypeMatrix:
 
         # Empty portfolios should now succeed and create headers-only CSV
         df, success = export_portfolios(
-            portfolios=[], config=config, export_type="portfolios", log=Mock(),
+            portfolios=[],
+            config=config,
+            export_type="portfolios",
+            log=Mock(),
         )
 
         # Verify export succeeded
@@ -553,7 +593,10 @@ class TestExportTypeMatrix:
         assert len(df.columns) > 0  # Has header columns
 
     def test_invalid_export_type(
-        self, sample_portfolios_sma, base_config, temp_export_dir,
+        self,
+        sample_portfolios_sma,
+        base_config,
+        temp_export_dir,
     ):
         """Test export with invalid export type."""
         config = base_config.copy()
@@ -581,7 +624,11 @@ class TestExportTypeMatrix:
         ],
     )
     def test_all_strategy_export_combinations(
-        self, strategy_type, export_type, base_config, temp_export_dir,
+        self,
+        strategy_type,
+        export_type,
+        base_config,
+        temp_export_dir,
     ):
         """Parametrized test for all strategy×export type combinations."""
         # Create appropriate sample data based on strategy type
@@ -733,7 +780,10 @@ class TestExportSchemaConsistency:
         }
 
     def test_portfolios_schema_consistency(
-        self, comprehensive_portfolio, base_config, temp_export_dir,
+        self,
+        comprehensive_portfolio,
+        base_config,
+        temp_export_dir,
     ):
         """Test that portfolios export maintains schema consistency."""
         config = base_config.copy()
@@ -765,7 +815,10 @@ class TestExportSchemaConsistency:
             assert col in df.columns
 
     def test_portfolios_filtered_schema_consistency(
-        self, comprehensive_portfolio, base_config, temp_export_dir,
+        self,
+        comprehensive_portfolio,
+        base_config,
+        temp_export_dir,
     ):
         """Test that portfolios_filtered export maintains schema consistency."""
         config = base_config.copy()
@@ -801,7 +854,10 @@ class TestExportSchemaConsistency:
             assert col in df.columns
 
     def test_portfolios_best_schema_consistency(
-        self, comprehensive_portfolio, base_config, temp_export_dir,
+        self,
+        comprehensive_portfolio,
+        base_config,
+        temp_export_dir,
     ):
         """Test that portfolios_best export maintains schema consistency."""
         config = base_config.copy()
@@ -841,7 +897,10 @@ class TestExportSchemaConsistency:
             assert col in df.columns
 
     def test_column_ordering_consistency(
-        self, comprehensive_portfolio, base_config, temp_export_dir,
+        self,
+        comprehensive_portfolio,
+        base_config,
+        temp_export_dir,
     ):
         """Test that column ordering is consistent across export types."""
         config = base_config.copy()
@@ -883,7 +942,10 @@ class TestExportSchemaConsistency:
             )  # Allow some variance due to additional columns
 
     def test_data_type_consistency(
-        self, comprehensive_portfolio, base_config, temp_export_dir,
+        self,
+        comprehensive_portfolio,
+        base_config,
+        temp_export_dir,
     ):
         """Test that data types are consistent across export types."""
         config = base_config.copy()

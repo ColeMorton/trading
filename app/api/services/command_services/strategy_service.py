@@ -40,7 +40,8 @@ class StrategyService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -83,7 +84,8 @@ class StrategyService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -121,7 +123,8 @@ class StrategyService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")
@@ -138,7 +141,8 @@ class StrategyService(BaseCommandService):
         }
 
     async def execute_sector_compare(
-        self, params: SectorCompareRequest,
+        self,
+        params: SectorCompareRequest,
     ) -> dict[str, Any]:
         """
         Execute sector comparison.
@@ -161,7 +165,8 @@ class StrategyService(BaseCommandService):
 
         if not result["success"]:
             error_msg = result.get("stderr") or result.get(
-                "error", "Unknown error occurred",
+                "error",
+                "Unknown error occurred",
             )
             error_type = result.get("error_type", "CLI_EXECUTION_ERROR")
             await self.update_progress(0, f"Failed: {error_msg}")

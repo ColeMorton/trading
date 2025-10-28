@@ -62,7 +62,10 @@ class TestDownloadDataThreadSafety:
 
     @patch("yfinance.download")
     def test_concurrent_downloads_without_lock_causes_contamination(
-        self, mock_yf_download, mock_config, mock_log,
+        self,
+        mock_yf_download,
+        mock_config,
+        mock_log,
     ):
         """Test that concurrent downloads without proper locking cause column contamination."""
         # This test simulates the original bug by removing the lock temporarily
@@ -98,7 +101,10 @@ class TestDownloadDataThreadSafety:
             with ThreadPoolExecutor(max_workers=4) as executor:
                 futures = {
                     executor.submit(
-                        download_data, ticker, mock_config, mock_log,
+                        download_data,
+                        ticker,
+                        mock_config,
+                        mock_log,
                     ): ticker
                     for ticker in ["FANG", "ADI", "TSN", "KULR"]
                 }
@@ -124,7 +130,10 @@ class TestDownloadDataThreadSafety:
 
     @patch("yfinance.download")
     def test_concurrent_downloads_with_lock_prevents_contamination(
-        self, mock_yf_download, mock_config, mock_log,
+        self,
+        mock_yf_download,
+        mock_config,
+        mock_log,
     ):
         """Test that the thread lock prevents column contamination in concurrent downloads."""
 
@@ -176,7 +185,10 @@ class TestDownloadDataThreadSafety:
 
     @patch("yfinance.download")
     def test_thread_lock_ensures_sequential_yfinance_calls(
-        self, mock_yf_download, mock_config, mock_log,
+        self,
+        mock_yf_download,
+        mock_config,
+        mock_log,
     ):
         """Test that the thread lock ensures yfinance calls happen sequentially."""
 
@@ -221,7 +233,10 @@ class TestDownloadDataThreadSafety:
 
     @patch("yfinance.download")
     def test_error_handling_with_concurrent_downloads(
-        self, mock_yf_download, mock_config, mock_log,
+        self,
+        mock_yf_download,
+        mock_config,
+        mock_log,
     ):
         """Test that errors in one download don't affect others."""
 
@@ -261,7 +276,10 @@ class TestDownloadDataThreadSafety:
 
     @patch("yfinance.download")
     def test_data_integrity_across_concurrent_downloads(
-        self, mock_yf_download, mock_config, mock_log,
+        self,
+        mock_yf_download,
+        mock_config,
+        mock_log,
     ):
         """Test that each ticker gets its own correct data without mixing."""
 
@@ -351,7 +369,10 @@ class TestConcurrentStrategyExecution:
     @patch("yfinance.download")
     @patch("app.strategies.ma_cross.tools.strategy_execution.backtest_strategy")
     def test_full_concurrent_pipeline_with_thread_safety(
-        self, mock_backtest, mock_yf_download, strategy_config,
+        self,
+        mock_backtest,
+        mock_yf_download,
+        strategy_config,
     ):
         """Test the full concurrent execution pipeline with thread-safe downloads."""
         from app.strategies.ma_cross.tools.strategy_execution import (
@@ -372,7 +393,11 @@ class TestConcurrentStrategyExecution:
 
         # Execute strategy concurrently
         execute_strategy_concurrent(
-            strategy_config, "SMA", mock_log, None, max_workers=4,
+            strategy_config,
+            "SMA",
+            mock_log,
+            None,
+            max_workers=4,
         )
 
         # Verify downloads happened sequentially (no overlap due to lock)

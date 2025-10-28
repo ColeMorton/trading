@@ -99,7 +99,6 @@ class ResultAggregationServiceError(Exception):
     """Exception raised by ResultAggregationService."""
 
 
-
 class ResultAggregationService:
     """
     Handles result aggregation and response formatting.
@@ -212,7 +211,9 @@ class ResultAggregationService:
             raise ResultAggregationServiceError(error_msg)
 
     def create_async_response(
-        self, request: Any, execution_id: str,
+        self,
+        request: Any,
+        execution_id: str,
     ) -> MACrossAsyncResponse:
         """
         Create asynchronous response for long-running analysis.
@@ -276,10 +277,12 @@ class ResultAggregationService:
                         {
                             "progress_percentage": progress_status.get("progress", 0.0),
                             "progress_message": progress_status.get(
-                                "message", status.get("progress", ""),
+                                "message",
+                                status.get("progress", ""),
                             ),
                             "operation": progress_status.get(
-                                "operation", "Strategy Analysis",
+                                "operation",
+                                "Strategy Analysis",
                             ),
                             "progress_updated_at": (
                                 progress_status.get("updated_at", "").isoformat()
@@ -394,7 +397,8 @@ class ResultAggregationService:
             task_data["updated_at"] = datetime.now().isoformat()
 
     def get_analysis_summary(
-        self, portfolio_metrics: list[PortfolioMetrics],
+        self,
+        portfolio_metrics: list[PortfolioMetrics],
     ) -> dict[str, Any]:
         """
         Generate summary statistics for analysis results.

@@ -57,7 +57,8 @@ class DynamicRiskFreeRateProvider:
         }
 
     def get_current_risk_free_rate(
-        self, volatility_regime: str = "normal",
+        self,
+        volatility_regime: str = "normal",
     ) -> RiskFreeRateData:
         """
         Get current risk-free rate with caching and fallback.
@@ -195,7 +196,9 @@ class MarketBetaCalculator:
         self.logger = logging.getLogger(__name__)
 
     def calculate_beta(
-        self, ticker: str, returns: np.ndarray | None = None,
+        self,
+        ticker: str,
+        returns: np.ndarray | None = None,
     ) -> dict[str, float]:
         """
         Calculate market beta and related metrics.

@@ -97,7 +97,11 @@ class PerformanceBaseline:
         self.baselines[category][metric] = value
 
     def check_regression(
-        self, category: str, metric: str, current_value: float, tolerance: float = 0.2,
+        self,
+        category: str,
+        metric: str,
+        current_value: float,
+        tolerance: float = 0.2,
     ) -> dict[str, Any]:
         """Check if current value represents a performance regression."""
         baseline = self.get_baseline(category, metric)
@@ -167,7 +171,9 @@ class TestCachePerformanceRegression:
 
         # Check regression
         result = performance_baseline.check_regression(
-            "cache_operations", "cache_write_ms", avg_write_time,
+            "cache_operations",
+            "cache_write_ms",
+            avg_write_time,
         )
 
         assert not result["regression"], (
@@ -197,7 +203,9 @@ class TestCachePerformanceRegression:
 
         # Check regression
         result = performance_baseline.check_regression(
-            "cache_operations", "cache_read_ms", avg_read_time,
+            "cache_operations",
+            "cache_read_ms",
+            avg_read_time,
         )
 
         assert not result["regression"], (
@@ -227,7 +235,9 @@ class TestCachePerformanceRegression:
 
         # Check regression
         result = performance_baseline.check_regression(
-            "cache_operations", "cache_hit_rate", hit_rate,
+            "cache_operations",
+            "cache_hit_rate",
+            hit_rate,
         )
 
         assert not result["regression"], (
@@ -322,7 +332,9 @@ class TestMemoryOptimizationRegression:
 
         # Check regression
         result = performance_baseline.check_regression(
-            "memory_optimization", "memory_usage_mb", memory_increase,
+            "memory_optimization",
+            "memory_usage_mb",
+            memory_increase,
         )
 
         # Allow some tolerance for memory usage
@@ -345,7 +357,8 @@ class TestParallelProcessingRegression:
             start_time = time.time()
 
             executor = AdaptiveThreadPoolExecutor(
-                workload_type="cpu_bound", max_workers=4,
+                workload_type="cpu_bound",
+                max_workers=4,
             )
 
             setup_time = (time.time() - start_time) * 1000  # Convert to ms
@@ -358,7 +371,9 @@ class TestParallelProcessingRegression:
 
         # Check regression
         result = performance_baseline.check_regression(
-            "parallel_processing", "thread_pool_setup_ms", avg_setup_time,
+            "parallel_processing",
+            "thread_pool_setup_ms",
+            avg_setup_time,
         )
 
         assert not result["regression"], (
@@ -391,7 +406,9 @@ class TestParallelProcessingRegression:
 
         # Check regression
         result = performance_baseline.check_regression(
-            "parallel_processing", "batch_processing_throughput", throughput,
+            "parallel_processing",
+            "batch_processing_throughput",
+            throughput,
         )
 
         assert not result["regression"], (
@@ -455,7 +472,9 @@ class TestOverallSystemRegression:
 
         # Check regression
         result = performance_baseline.check_regression(
-            "overall_system", "portfolio_analysis_ms", avg_analysis_time,
+            "overall_system",
+            "portfolio_analysis_ms",
+            avg_analysis_time,
         )
 
         assert not result["regression"], (
@@ -508,7 +527,8 @@ class TestOverallSystemRegression:
         threads = []
         for i in range(max_concurrent):
             thread = threading.Thread(
-                target=mock_request_handler, args=(i, result_queue),
+                target=mock_request_handler,
+                args=(i, result_queue),
             )
             threads.append(thread)
             thread.start()
@@ -536,7 +556,9 @@ class TestOverallSystemRegression:
 
         # Check throughput regression
         result = performance_baseline.check_regression(
-            "overall_system", "concurrent_requests", requests_per_second,
+            "overall_system",
+            "concurrent_requests",
+            requests_per_second,
         )
 
         # Allow more tolerance for concurrent request testing
@@ -631,7 +653,9 @@ class TestEndToEndPerformanceRegression:
                 data = pd.DataFrame(
                     {
                         "timestamp": pd.date_range(
-                            "2023-01-01", periods=5000, freq="1min",
+                            "2023-01-01",
+                            periods=5000,
+                            freq="1min",
                         ),
                         "price": np.random.uniform(100, 200, 5000),
                         "volume": np.random.randint(1000, 10000, 5000),
@@ -662,7 +686,10 @@ class TestEndToEndPerformanceRegression:
 
         # Check overall pipeline performance
         result = performance_baseline.check_regression(
-            "overall_system", "portfolio_analysis_ms", avg_pipeline_time, tolerance=0.3,
+            "overall_system",
+            "portfolio_analysis_ms",
+            avg_pipeline_time,
+            tolerance=0.3,
         )
 
         assert not result["regression"], (

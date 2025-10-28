@@ -64,7 +64,9 @@ def create_strategy_traces(
 
         # Highlight long positions
         for date, close in zip(
-            long_positions["Date"], long_positions["Close"], strict=False,
+            long_positions["Date"],
+            long_positions["Close"],
+            strict=False,
         ):
             traces.append(
                 go.Scatter(
@@ -80,7 +82,9 @@ def create_strategy_traces(
 
         # Highlight short positions with a different pattern (dashed line)
         for date, close in zip(
-            short_positions["Date"], short_positions["Close"], strict=False,
+            short_positions["Date"],
+            short_positions["Close"],
+            strict=False,
         ):
             traces.append(
                 go.Scatter(
@@ -266,10 +270,12 @@ def plot_concurrency(
                 config.get("Strategy Type", config.get("type", "Unknown")),
             )
             fast_period = config.get(
-                "FAST_PERIOD", config.get("Fast Period", config.get("fast_period", "?")),
+                "FAST_PERIOD",
+                config.get("Fast Period", config.get("fast_period", "?")),
             )
             slow_period = config.get(
-                "SLOW_PERIOD", config.get("Slow Period", config.get("slow_period", "?")),
+                "SLOW_PERIOD",
+                config.get("Slow Period", config.get("slow_period", "?")),
             )
 
             # Score is stored in nested PORTFOLIO_STATS from CSV data
@@ -279,7 +285,8 @@ def plot_concurrency(
             # Fallback to top-level keys for other config formats
             if score == 0.0 or score is None:
                 score = config.get(
-                    "SCORE", config.get("Score", config.get("score", 0.0)),
+                    "SCORE",
+                    config.get("Score", config.get("score", 0.0)),
                 )
 
             if isinstance(score, int | float):
@@ -341,7 +348,8 @@ def plot_concurrency(
         # Add strategy subplots
         log("Adding strategy subplots", "info")
         for i, (data, config) in enumerate(
-            zip(data_list, config_list, strict=False), 1,
+            zip(data_list, config_list, strict=False),
+            1,
         ):
             color = STRATEGY_COLORS[(i - 1) % len(STRATEGY_COLORS)]
             log(f"Creating subplot {i}/{n_strategies} for {config['TICKER']}", "info")

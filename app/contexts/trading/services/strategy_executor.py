@@ -69,7 +69,9 @@ class StrategyExecutor:
 
             # Execute the strategy
             signals = self._execute_strategy_logic(
-                strategy_type, market_data, validated_params,
+                strategy_type,
+                market_data,
+                validated_params,
             )
 
             # Calculate performance metrics
@@ -95,7 +97,9 @@ class StrategyExecutor:
             }
 
     def validate_strategy_config(
-        self, strategy_type: StrategyType, parameters: dict[str, Any],
+        self,
+        strategy_type: StrategyType,
+        parameters: dict[str, Any],
     ) -> bool:
         """Validate strategy configuration."""
         try:
@@ -106,7 +110,9 @@ class StrategyExecutor:
             return False
 
     def _validate_parameters(
-        self, strategy_type: StrategyType, parameters: dict[str, Any],
+        self,
+        strategy_type: StrategyType,
+        parameters: dict[str, Any],
     ) -> dict[str, Any]:
         """Validate and normalize strategy parameters."""
         if strategy_type == StrategyType.SMA:
@@ -184,7 +190,8 @@ class StrategyExecutor:
         return validated
 
     def _validate_bollinger_parameters(
-        self, parameters: dict[str, Any],
+        self,
+        parameters: dict[str, Any],
     ) -> dict[str, Any]:
         """Validate Bollinger Bands strategy parameters."""
         default_params = {"period": 20, "std_dev": 2.0}
@@ -225,7 +232,9 @@ class StrategyExecutor:
         return signals
 
     def _execute_sma_strategy(
-        self, market_data: pd.DataFrame, parameters: dict[str, Any],
+        self,
+        market_data: pd.DataFrame,
+        parameters: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Execute SMA crossover strategy."""
         # Simplified SMA strategy implementation
@@ -239,7 +248,9 @@ class StrategyExecutor:
         ]
 
     def _execute_ema_strategy(
-        self, market_data: pd.DataFrame, parameters: dict[str, Any],
+        self,
+        market_data: pd.DataFrame,
+        parameters: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Execute EMA crossover strategy."""
         # Simplified EMA strategy implementation
@@ -253,7 +264,9 @@ class StrategyExecutor:
         ]
 
     def _execute_macd_strategy(
-        self, market_data: pd.DataFrame, parameters: dict[str, Any],
+        self,
+        market_data: pd.DataFrame,
+        parameters: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Execute MACD strategy."""
         # Simplified MACD strategy implementation
@@ -267,7 +280,9 @@ class StrategyExecutor:
         ]
 
     def _execute_rsi_strategy(
-        self, market_data: pd.DataFrame, parameters: dict[str, Any],
+        self,
+        market_data: pd.DataFrame,
+        parameters: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Execute RSI strategy."""
         # Simplified RSI strategy implementation
@@ -281,7 +296,9 @@ class StrategyExecutor:
         ]
 
     def _execute_bollinger_strategy(
-        self, market_data: pd.DataFrame, parameters: dict[str, Any],
+        self,
+        market_data: pd.DataFrame,
+        parameters: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Execute Bollinger Bands strategy."""
         # Simplified Bollinger Bands strategy implementation
@@ -295,7 +312,9 @@ class StrategyExecutor:
         ]
 
     def _calculate_performance(
-        self, market_data: pd.DataFrame, signals: list[dict[str, Any]],
+        self,
+        market_data: pd.DataFrame,
+        signals: list[dict[str, Any]],
     ) -> dict[str, Any]:
         """Calculate strategy performance metrics."""
         # Simplified performance calculation

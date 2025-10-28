@@ -28,7 +28,9 @@ class TestAutoDownloadTriggers:
     """Test that auto-download is triggered in correct scenarios."""
 
     def test_download_triggered_when_file_missing(
-        self, tmp_path, mock_yfinance_success_data,
+        self,
+        tmp_path,
+        mock_yfinance_success_data,
     ):
         """CRITICAL: Download must trigger when price file doesn't exist."""
         # Setup
@@ -233,7 +235,9 @@ class TestDownloadSuccess:
 
             # Verify file can be read back
             loaded_data = pd.read_csv(
-                price_file, parse_dates=["Date"], index_col="Date",
+                price_file,
+                parse_dates=["Date"],
+                index_col="Date",
             )
             assert "Close" in loaded_data.columns
             assert len(loaded_data) == 1260
@@ -316,7 +320,9 @@ class TestMultiIndexHandling:
     """Test handling of MultiIndex columns from yfinance."""
 
     def test_multiindex_columns_handled_correctly(
-        self, tmp_path, mock_yfinance_multiindex_data,
+        self,
+        tmp_path,
+        mock_yfinance_multiindex_data,
     ):
         """CRITICAL: yfinance sometimes returns MultiIndex columns that must be flattened."""
         # This test verifies the download_data utility handles MultiIndex correctly

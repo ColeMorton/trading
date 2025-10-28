@@ -248,7 +248,10 @@ class TestATRDirectionSupport(unittest.TestCase):
         # Test with default direction (Long)
         result_default = generate_signals(self.direction_test_data, 10, 1.5)
         result_explicit_long = generate_signals(
-            self.direction_test_data, 10, 1.5, "Long",
+            self.direction_test_data,
+            10,
+            1.5,
+            "Long",
         )
 
         # Results should be identical
@@ -402,7 +405,9 @@ class TestATRAnalysisIntegration(unittest.TestCase):
 
         # Simulate realistic price movement
         returns = np.random.normal(
-            0.0005, 0.02, len(dates),
+            0.0005,
+            0.02,
+            len(dates),
         )  # 0.05% daily drift, 2% volatility
         prices = [100]
         for ret in returns:

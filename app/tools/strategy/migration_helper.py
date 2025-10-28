@@ -73,7 +73,9 @@ def migrate_strategy_execution(
 
 
 def _execute_legacy_fallback(
-    module_path: str, config: dict[str, Any], log: Callable[[str, str], None],
+    module_path: str,
+    config: dict[str, Any],
+    log: Callable[[str, str], None],
 ) -> list[dict[str, Any]]:
     """Execute legacy strategy implementation as fallback."""
     try:
@@ -98,7 +100,8 @@ def _execute_legacy_fallback(
 
 
 def validate_unified_parameters(
-    strategy_type: str, config: dict[str, Any],
+    strategy_type: str,
+    config: dict[str, Any],
 ) -> dict[str, Any]:
     """
     Validate parameters using the unified strategy framework.
@@ -138,7 +141,8 @@ def validate_unified_parameters(
 
 
 def _generate_validation_errors(
-    config: dict[str, Any], ranges: dict[str, Any],
+    config: dict[str, Any],
+    ranges: dict[str, Any],
 ) -> list[str]:
     """Generate specific validation error messages."""
     errors = []
@@ -169,7 +173,8 @@ def _generate_validation_errors(
 
 
 def _generate_parameter_suggestions(
-    config: dict[str, Any], ranges: dict[str, Any],
+    config: dict[str, Any],
+    ranges: dict[str, Any],
 ) -> dict[str, Any]:
     """Generate parameter suggestions for invalid configurations."""
     suggestions = {}
@@ -209,7 +214,10 @@ def create_migration_wrapper(strategy_type: str, legacy_module_path: str | None 
             try:
                 # Try unified execution
                 return migrate_strategy_execution(
-                    strategy_type, config, log, legacy_module_path,
+                    strategy_type,
+                    config,
+                    log,
+                    legacy_module_path,
                 )
             except StrategyError:
                 # Fall back to original function
@@ -226,15 +234,22 @@ def migrate_ma_cross_execution(config: dict[str, Any], log: Callable[[str, str],
     """Migrate MA Cross strategy execution to unified framework."""
     # Strategy type must be explicitly specified - no defaults or USE_SMA fallbacks
     strategy_type = config.get(
-        "STRATEGY_TYPE", "SMA",
+        "STRATEGY_TYPE",
+        "SMA",
     )  # Default to SMA for backward compatibility
     return migrate_strategy_execution(
-        strategy_type, config, log, "app.strategies.ma_cross.tools.strategy_execution",
+        strategy_type,
+        config,
+        log,
+        "app.strategies.ma_cross.tools.strategy_execution",
     )
 
 
 def migrate_macd_execution(config: dict[str, Any], log: Callable[[str, str], None]):
     """Migrate MACD strategy execution to unified framework."""
     return migrate_strategy_execution(
-        "MACD", config, log, "app.strategies.macd.tools.strategy_execution",
+        "MACD",
+        config,
+        log,
+        "app.strategies.macd.tools.strategy_execution",
     )

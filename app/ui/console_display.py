@@ -79,7 +79,8 @@ class ConsoleDisplay:
                 self.console.print(f"\n[bold blue]📊 {message}[/bold blue]", **kwargs)
             elif level == 3:
                 self.console.print(
-                    f"\n[bold yellow]💡 {message}[/bold yellow]", **kwargs,
+                    f"\n[bold yellow]💡 {message}[/bold yellow]",
+                    **kwargs,
                 )
             else:
                 self.console.print(f"\n[bold white]• {message}[/bold white]", **kwargs)
@@ -164,7 +165,10 @@ class ConsoleDisplay:
         self.console.print(table)
 
     def strategy_header(
-        self, ticker: str, strategy_types: list[str], profile: str | None = None,
+        self,
+        ticker: str,
+        strategy_types: list[str],
+        profile: str | None = None,
     ) -> None:
         """Display strategy analysis header with enhanced formatting."""
         if self.quiet:
@@ -182,7 +186,11 @@ class ConsoleDisplay:
         content = f"[bold white]{subtitle}[/bold white]"
 
         panel = Panel(
-            content, title=title, border_style="cyan", box=ROUNDED, padding=(0, 2),
+            content,
+            title=title,
+            border_style="cyan",
+            box=ROUNDED,
+            padding=(0, 2),
         )
 
         self.console.print("\n")

@@ -85,12 +85,14 @@ class BootstrapValidator:
 
             # Perform bootstrap resampling
             bootstrap_estimates = self._perform_bootstrap_resampling(
-                data_clean, statistic,
+                data_clean,
+                statistic,
             )
 
             # Calculate confidence intervals
             confidence_intervals = self._calculate_confidence_intervals(
-                bootstrap_estimates, confidence_level,
+                bootstrap_estimates,
+                confidence_level,
             )
 
             # Calculate bootstrap statistics
@@ -132,7 +134,9 @@ class BootstrapValidator:
             for stat in statistics_to_validate:
                 try:
                     result = await self.validate_sample(
-                        returns, statistic=stat, confidence_level=confidence_level,
+                        returns,
+                        statistic=stat,
+                        confidence_level=confidence_level,
                     )
                     results[stat] = result
                 except Exception as e:
@@ -165,10 +169,12 @@ class BootstrapValidator:
         try:
             # Validate individual samples
             results1 = await self.validate_sample(
-                sample1, confidence_level=confidence_level,
+                sample1,
+                confidence_level=confidence_level,
             )
             results2 = await self.validate_sample(
-                sample2, confidence_level=confidence_level,
+                sample2,
+                confidence_level=confidence_level,
             )
 
             # Calculate difference in means
@@ -176,11 +182,13 @@ class BootstrapValidator:
 
             # Bootstrap the difference
             difference_estimates = self._bootstrap_difference(
-                np.array(sample1), np.array(sample2),
+                np.array(sample1),
+                np.array(sample2),
             )
 
             difference_ci = self._calculate_confidence_intervals(
-                difference_estimates, confidence_level,
+                difference_estimates,
+                confidence_level,
             )
 
             # Statistical significance test
@@ -201,7 +209,9 @@ class BootstrapValidator:
             raise
 
     def _perform_bootstrap_resampling(
-        self, data: np.ndarray, statistic: str,
+        self,
+        data: np.ndarray,
+        statistic: str,
     ) -> np.ndarray:
         """
         Perform bootstrap resampling for a given statistic
@@ -219,7 +229,9 @@ class BootstrapValidator:
         for _i in range(self.n_iterations):
             # Resample with replacement
             bootstrap_sample = self.random_state.choice(
-                data, size=sample_size, replace=True,
+                data,
+                size=sample_size,
+                replace=True,
             )
 
             # Calculate statistic
@@ -229,7 +241,9 @@ class BootstrapValidator:
         return np.array(bootstrap_estimates)
 
     def _bootstrap_difference(
-        self, sample1: np.ndarray, sample2: np.ndarray,
+        self,
+        sample1: np.ndarray,
+        sample2: np.ndarray,
     ) -> np.ndarray:
         """
         Bootstrap the difference between two sample means
@@ -252,10 +266,14 @@ class BootstrapValidator:
         for _i in range(self.n_iterations):
             # Bootstrap both samples
             bootstrap1 = self.random_state.choice(
-                sample1_clean, size=sample_size1, replace=True,
+                sample1_clean,
+                size=sample_size1,
+                replace=True,
             )
             bootstrap2 = self.random_state.choice(
-                sample2_clean, size=sample_size2, replace=True,
+                sample2_clean,
+                size=sample_size2,
+                replace=True,
             )
 
             # Calculate difference in means
@@ -297,7 +315,9 @@ class BootstrapValidator:
         raise ValueError(msg)
 
     def _calculate_confidence_intervals(
-        self, bootstrap_estimates: np.ndarray, confidence_level: float,
+        self,
+        bootstrap_estimates: np.ndarray,
+        confidence_level: float,
     ) -> dict[str, float]:
         """
         Calculate confidence intervals from bootstrap estimates
@@ -319,7 +339,9 @@ class BootstrapValidator:
         return {"lower": lower_bound, "upper": upper_bound}
 
     def assess_sample_adequacy(
-        self, sample_size: int, required_precision: float = 0.1,
+        self,
+        sample_size: int,
+        required_precision: float = 0.1,
     ) -> dict[str, Any]:
         """
         Assess whether sample size is adequate for bootstrap validation
@@ -375,9 +397,7 @@ class BootstrapValidator:
         precision_assessment = (
             "high"
             if relative_precision < 0.1
-            else "medium"
-            if relative_precision < 0.2
-            else "low"
+            else "medium" if relative_precision < 0.2 else "low"
         )
 
         return (

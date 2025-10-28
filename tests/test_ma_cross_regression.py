@@ -236,7 +236,10 @@ class TestWorkflowRegression(TestMACrossRegression):
     """Test complete workflow regression."""
 
     def test_single_ticker_workflow_consistency(
-        self, baseline_config, baseline_price_data, mock_log,
+        self,
+        baseline_config,
+        baseline_price_data,
+        mock_log,
     ):
         """Test that single ticker workflow produces consistent results."""
 
@@ -299,7 +302,10 @@ class TestWorkflowRegression(TestMACrossRegression):
             assert mock_process.call_count == 5
 
     def test_multi_ticker_workflow_consistency(
-        self, baseline_config, baseline_price_data, mock_log,
+        self,
+        baseline_config,
+        baseline_price_data,
+        mock_log,
     ):
         """Test that multi-ticker workflow produces consistent results."""
 
@@ -402,11 +408,13 @@ class TestDataValidationRegression(TestMACrossRegression):
                 actual_value = portfolio_data[field]
                 if isinstance(expected_type, tuple):
                     assert isinstance(
-                        actual_value, expected_type,
+                        actual_value,
+                        expected_type,
                     ), f"Field '{field}' has wrong type"
                 else:
                     assert isinstance(
-                        actual_value, expected_type,
+                        actual_value,
+                        expected_type,
                     ), f"Field '{field}' has wrong type"
 
         # Check value ranges
@@ -490,7 +498,8 @@ class TestErrorHandlingRegression(TestMACrossRegression):
 
         # Should raise a specific error type (not generic Exception)
         assert not isinstance(exc_info.value, Exception) or hasattr(
-            exc_info.value, "details",
+            exc_info.value,
+            "details",
         )
 
     def test_error_recovery_regression(self, baseline_config, mock_log):

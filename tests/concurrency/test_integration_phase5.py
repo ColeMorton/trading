@@ -41,7 +41,10 @@ class TestPortfolioBuilder:
         """
         # Create two simple strategies with known trades
         dates = pl.date_range(
-            datetime(2024, 1, 1), datetime(2024, 1, 31), interval="1d", eager=True,
+            datetime(2024, 1, 1),
+            datetime(2024, 1, 31),
+            interval="1d",
+            eager=True,
         )
 
         # Strategy 1: 2 trades, 1 win, 1 loss
@@ -296,7 +299,9 @@ class DataIntegrityValidator:
         return all_valid
 
     def validate_signal_processing(
-        self, data_list: list[pl.DataFrame], stats: dict[str, Any],
+        self,
+        data_list: list[pl.DataFrame],
+        stats: dict[str, Any],
     ) -> bool:
         """Validate signal processing counts.
 
@@ -363,7 +368,10 @@ class PerformanceBenchmark:
         self.results = []
 
     def benchmark_calculation(
-        self, name: str, func: callable, iterations: int = 100,
+        self,
+        name: str,
+        func: callable,
+        iterations: int = 100,
     ) -> dict[str, float]:
         """Benchmark a calculation function.
 
@@ -397,7 +405,10 @@ class PerformanceBenchmark:
         return result
 
     def compare_implementations(
-        self, old_func: callable, new_func: callable, name: str,
+        self,
+        old_func: callable,
+        new_func: callable,
+        name: str,
     ) -> dict[str, Any]:
         """Compare old and new implementations.
 
@@ -461,7 +472,8 @@ class TestConcurrencyIntegrationPhase5:
             stats,
         ), "Expectancy should be correctly calculated"
         assert validator.validate_signal_processing(
-            data_list, stats,
+            data_list,
+            stats,
         ), "Signal counts should match"
 
         # Generate and check report
@@ -514,7 +526,8 @@ class TestConcurrencyIntegrationPhase5:
                 ), f"{fix_flag} validation failed"
             elif validation_method == "signal_processing":
                 assert validator.validate_signal_processing(
-                    data_list, stats,
+                    data_list,
+                    stats,
                 ), f"{fix_flag} validation failed"
 
     def test_cross_module_validation(self):
@@ -601,7 +614,9 @@ class TestConcurrencyIntegrationPhase5:
 
         # Compare implementations
         comparison = benchmark.compare_implementations(
-            run_without_fixes, run_with_fixes, "all_fixes",
+            run_without_fixes,
+            run_with_fixes,
+            "all_fixes",
         )
 
         # Log results

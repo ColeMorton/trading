@@ -153,7 +153,6 @@ class StrategyAnalysisServiceError(Exception):
     """Exception raised by StrategyAnalysisService."""
 
 
-
 class ServiceCoordinator:
     """
     Coordinates strategy analysis services while maintaining interface compatibility.
@@ -216,7 +215,8 @@ class ServiceCoordinator:
         )
 
     async def analyze_strategy(
-        self, request: StrategyAnalysisRequest,
+        self,
+        request: StrategyAnalysisRequest,
     ) -> MACrossResponse:
         """
         Execute strategy analysis using the Strategy Pattern.
@@ -250,7 +250,8 @@ class ServiceCoordinator:
             cache_key = f"strategy:{strategy_type_str}:{ticker_str}"
 
             cached_result = await self.strategy_engine.check_cache(
-                cache_key, self.logger.log,
+                cache_key,
+                self.logger.log,
             )
             if cached_result:
                 return cached_result
@@ -266,7 +267,8 @@ class ServiceCoordinator:
                 )
             except StrategyDataCoordinatorError as e:
                 self.logger.log(
-                    f"Warning: Could not create data snapshot: {e}", "warning",
+                    f"Warning: Could not create data snapshot: {e}",
+                    "warning",
                 )
                 snapshot_id = None
 
@@ -308,15 +310,19 @@ class ServiceCoordinator:
                     portfolio_metrics,
                     deduplicated_portfolios,
                 ) = self.portfolio_processor.process_and_deduplicate_portfolios(
-                    all_portfolio_dicts, log,
+                    all_portfolio_dicts,
+                    log,
                 )
 
                 # Collect export paths
                 strategy_types = strategy_config.get(
-                    "STRATEGY_TYPES", [strategy_type_str],
+                    "STRATEGY_TYPES",
+                    [strategy_type_str],
                 )
                 export_paths = self.portfolio_processor.collect_export_paths(
-                    strategy_config, strategy_types, log,
+                    strategy_config,
+                    strategy_types,
+                    log,
                 )
 
                 # Create response using the result aggregation service
@@ -399,7 +405,8 @@ class ServiceCoordinator:
 
         # Create async response
         async_response = self.result_aggregator.create_async_response(
-            request, execution_id,
+            request,
+            execution_id,
         )
 
         # Submit task to executor
@@ -422,13 +429,17 @@ class ServiceCoordinator:
         """Execute analysis asynchronously with progress tracking."""
         try:
             self.result_aggregator.update_task_status(
-                execution_id, "running", "Starting analysis...",
+                execution_id,
+                "running",
+                "Starting analysis...",
             )
 
             # Create progress callback
             async def progress_callback(percentage: float, message: str):
                 self.result_aggregator.update_task_status(
-                    execution_id, "running", f"{message} ({percentage:.1f}%)",
+                    execution_id,
+                    "running",
+                    f"{message} ({percentage:.1f}%)",
                 )
 
             # Convert request to strategy config
@@ -474,15 +485,19 @@ class ServiceCoordinator:
                     portfolio_metrics,
                     deduplicated_portfolios,
                 ) = self.portfolio_processor.process_and_deduplicate_portfolios(
-                    all_portfolio_dicts, log,
+                    all_portfolio_dicts,
+                    log,
                 )
 
                 # Create final response
                 strategy_types = strategy_config.get(
-                    "STRATEGY_TYPES", [request.strategy_type.value],
+                    "STRATEGY_TYPES",
+                    [request.strategy_type.value],
                 )
                 export_paths = self.portfolio_processor.collect_export_paths(
-                    strategy_config, strategy_types, log,
+                    strategy_config,
+                    strategy_types,
+                    log,
                 )
 
                 response = self.result_aggregator.create_analysis_response(
@@ -510,7 +525,10 @@ class ServiceCoordinator:
         except Exception as e:
             error_msg = f"Async analysis failed: {e!s}"
             self.result_aggregator.update_task_status(
-                execution_id, "failed", error_msg, error=error_msg,
+                execution_id,
+                "failed",
+                error_msg,
+                error=error_msg,
             )
 
     async def get_analysis_status(self, execution_id: str) -> dict[str, Any]:
@@ -523,15 +541,21 @@ class ServiceCoordinator:
 
     # Additional utility methods for interface compatibility
     def _collect_export_paths(
-        self, config: dict[str, Any], strategy_types: list[str], log,
+        self,
+        config: dict[str, Any],
+        strategy_types: list[str],
+        log,
     ) -> dict[str, list[str]]:
         """Legacy method for export path collection."""
         return self.portfolio_processor.collect_export_paths(
-            config, strategy_types, log,
+            config,
+            strategy_types,
+            log,
         )
 
     def _extract_strategy_identifiers(
-        self, request: StrategyAnalysisRequest,
+        self,
+        request: StrategyAnalysisRequest,
     ) -> list[str]:
         """Extract strategy identifiers from request for data snapshot creation."""
         identifiers = []
@@ -610,12 +634,9 @@ class StrategyAnalysisService(ServiceCoordinator):
     """Backward compatibility alias for StrategyAnalysisService."""
 
 
-
 class MACrossService(ServiceCoordinator):
     """Backward compatibility alias for MACrossService."""
 
 
-
 class MACrossServiceError(StrategyAnalysisServiceError):
     """Backward compatibility alias for MACrossServiceError."""
-

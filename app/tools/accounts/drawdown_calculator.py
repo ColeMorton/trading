@@ -275,7 +275,8 @@ class DrawdownCalculator:
         return drawdowns
 
     def calculate_drawdown_summary(
-        self, net_worth: float | None = None,
+        self,
+        net_worth: float | None = None,
     ) -> DrawdownSummary:
         """Calculate summary of all drawdown entries.
 
@@ -350,7 +351,9 @@ class DrawdownCalculator:
         return False
 
     def calculate_position_risk_amount(
-        self, symbol: str, current_price: float,
+        self,
+        symbol: str,
+        current_price: float,
     ) -> float | None:
         """Calculate current risk amount based on current price and stop loss.
 
@@ -443,7 +446,9 @@ class DrawdownCalculator:
                     )
 
     def validate_total_risk(
-        self, expected_total_risk: float, tolerance: float = 0.01,
+        self,
+        expected_total_risk: float,
+        tolerance: float = 0.01,
     ) -> tuple[bool, str]:
         """Validate total risk amount against expected value.
 

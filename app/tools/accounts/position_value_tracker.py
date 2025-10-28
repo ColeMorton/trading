@@ -393,7 +393,9 @@ class PositionValueTracker:
                     )
 
     def validate_position_totals(
-        self, expected_total: float, tolerance: float = 0.01,
+        self,
+        expected_total: float,
+        tolerance: float = 0.01,
     ) -> tuple[bool, str]:
         """Validate total position value against expected value.
 

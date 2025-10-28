@@ -32,7 +32,10 @@ console = Console()
 
 
 def calculate_comp_status_from_aggregates(
-    entry_count: int, exit_count: int, active_count: int, total_count: int,
+    entry_count: int,
+    exit_count: int,
+    active_count: int,
+    total_count: int,
 ) -> str:
     """Calculate COMP status from aggregated strategy counts.
 
@@ -73,7 +76,8 @@ def calculate_comp_status_from_aggregates(
 
 
 def filter_open_trades(
-    portfolios: list[dict[str, Any]], log_func=None,
+    portfolios: list[dict[str, Any]],
+    log_func=None,
 ) -> list[dict[str, Any]]:
     """Filter portfolios to only include open trades.
 
@@ -354,7 +358,9 @@ def _display_portfolio_table_core(
             relevant_statuses = {k: v for k, v in status_counts.items() if v > 0}
 
         for status, count in sorted(
-            relevant_statuses.items(), key=lambda x: x[1], reverse=True,
+            relevant_statuses.items(),
+            key=lambda x: x[1],
+            reverse=True,
         ):
             percentage = (count / total_strategies) * 100
             bar_length = int(percentage / 5)  # Scale for visual bar
@@ -398,7 +404,8 @@ def _display_portfolio_table_core(
 
 
 def display_portfolio_table(
-    portfolios: list[dict[str, Any]], log_func=None,
+    portfolios: list[dict[str, Any]],
+    log_func=None,
 ) -> list[dict[str, Any]]:
     """Display all portfolios in a comprehensive table.
 
@@ -433,7 +440,8 @@ def display_portfolio_table(
 
 
 def display_portfolio_entry_exit_table(
-    portfolios: list[dict[str, Any]], log_func=None,
+    portfolios: list[dict[str, Any]],
+    log_func=None,
 ) -> list[dict[str, Any]]:
     """Display only Entry/Exit portfolios in a comprehensive table.
 
@@ -475,7 +483,8 @@ def display_portfolio_entry_exit_table(
 
 
 def display_ticker_summary_table(
-    portfolios: list[dict[str, Any]], log_func=None,
+    portfolios: list[dict[str, Any]],
+    log_func=None,
 ) -> None:
     """Display ticker-level summary when multiple strategies exist per ticker.
 
@@ -929,18 +938,14 @@ def calculate_breadth_metrics(
     entry_ratio_color = (
         "green"
         if signal_entry_ratio > 0.1
-        else "yellow"
-        if signal_entry_ratio > 0
-        else "red"
+        else "yellow" if signal_entry_ratio > 0 else "red"
     )
     entry_ratio_text = Text(f"{signal_entry_ratio:.1%}", style=entry_ratio_color)
 
     exit_ratio_color = (
         "red"
         if signal_exit_ratio > 0.1
-        else "yellow"
-        if signal_exit_ratio > 0
-        else "green"
+        else "yellow" if signal_exit_ratio > 0 else "green"
     )
     exit_ratio_text = Text(f"{signal_exit_ratio:.1%}", style=exit_ratio_color)
 
@@ -964,7 +969,10 @@ def calculate_breadth_metrics(
     momentum_text = Text(f"{breadth_momentum:.2f}", style=momentum_color)
 
     breadth_table.add_row(
-        "Total Strategies", str(total_strategies), "100%", "Universe size",
+        "Total Strategies",
+        str(total_strategies),
+        "100%",
+        "Universe size",
     )
     breadth_table.add_row(
         "🎯 Open Positions",
@@ -1055,7 +1063,9 @@ def calculate_breadth_metrics(
 
 
 def display_portfolio_summary(
-    portfolios: list[dict[str, Any]], execution_time: float | None = None, log_func=None,
+    portfolios: list[dict[str, Any]],
+    execution_time: float | None = None,
+    log_func=None,
 ) -> None:
     """Display comprehensive portfolio summary with market insights and key takeaways.
 
@@ -1080,7 +1090,9 @@ def display_portfolio_summary(
 
     # Get top performers
     sorted_portfolios = sorted(
-        portfolios, key=lambda x: float(x.get("Score", 0)), reverse=True,
+        portfolios,
+        key=lambda x: float(x.get("Score", 0)),
+        reverse=True,
     )
     top_3_performers = sorted_portfolios[:3]
 
@@ -1169,19 +1181,13 @@ def display_portfolio_summary(
         else (
             "📈 Good"
             if profit_rate >= 60
-            else "⚖️ Fair"
-            if profit_rate >= 40
-            else "📉 Poor"
+            else "⚖️ Fair" if profit_rate >= 40 else "📉 Poor"
         )
     )
     profit_color = (
         "bright_green"
         if profit_rate >= 80
-        else "green"
-        if profit_rate >= 60
-        else "yellow"
-        if profit_rate >= 40
-        else "red"
+        else "green" if profit_rate >= 60 else "yellow" if profit_rate >= 40 else "red"
     )
 
     # High score percentage
@@ -1192,19 +1198,13 @@ def display_portfolio_summary(
         else (
             "📈 Strong"
             if score_rate >= 50
-            else "⚖️ Moderate"
-            if score_rate >= 30
-            else "📉 Weak"
+            else "⚖️ Moderate" if score_rate >= 30 else "📉 Weak"
         )
     )
     score_color = (
         "bright_green"
         if score_rate >= 70
-        else "green"
-        if score_rate >= 50
-        else "yellow"
-        if score_rate >= 30
-        else "red"
+        else "green" if score_rate >= 50 else "yellow" if score_rate >= 30 else "red"
     )
 
     perf_table.add_row(
@@ -1226,7 +1226,10 @@ def display_portfolio_summary(
         "Score ≥ 1.2",
     )
     perf_table.add_row(
-        "Average Score", f"{avg_score:.3f}", format_score(avg_score), "> 1.0 is good",
+        "Average Score",
+        f"{avg_score:.3f}",
+        format_score(avg_score),
+        "> 1.0 is good",
     )
     perf_table.add_row(
         "Average Win Rate",
@@ -1314,7 +1317,9 @@ def display_portfolio_summary(
     if strategy_types:
         rprint("\n📊 [bold yellow]Strategy Distribution:[/bold yellow]")
         for strategy, count in sorted(
-            strategy_types.items(), key=lambda x: x[1], reverse=True,
+            strategy_types.items(),
+            key=lambda x: x[1],
+            reverse=True,
         ):
             percentage = (count / total_strategies) * 100
             bar_length = int(percentage / 5)  # Scale for visual bar
@@ -1337,7 +1342,9 @@ def display_portfolio_summary(
             f"   ⚖️ [yellow]Moderate performance - average score {avg_score:.3f}[/yellow]",
         )
     else:
-        rprint("   📉 [red]Below-average performance - review strategy parameters[/red]")
+        rprint(
+            "   📉 [red]Below-average performance - review strategy parameters[/red]"
+        )
 
     if profit_rate >= 70:
         rprint(

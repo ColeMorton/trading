@@ -20,13 +20,14 @@ import pandas as pd
 # Add parent directories to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
+import pytest
+
 from app.concurrency.tools.win_rate_calculator import (
     WinRateCalculator,
     WinRateComponents,
     WinRateType,
     calculate_win_rate_standardized,
 )
-import pytest
 
 
 class TestWinRateCalculator(unittest.TestCase):
@@ -62,7 +63,8 @@ class TestWinRateCalculator(unittest.TestCase):
     def test_signal_win_rate_basic(self):
         """Test basic signal win rate calculation."""
         result = self.calc.calculate_signal_win_rate(
-            self.test_returns, self.test_signals,
+            self.test_returns,
+            self.test_signals,
         )
 
         # All signals are active (no zeros), so should match trade calculation
@@ -75,7 +77,8 @@ class TestWinRateCalculator(unittest.TestCase):
     def test_zero_returns_excluded(self):
         """Test zero returns are properly excluded."""
         result = self.calc.calculate_trade_win_rate(
-            self.returns_with_zeros, include_zeros=False,
+            self.returns_with_zeros,
+            include_zeros=False,
         )
 
         # 3 zeros should be excluded, leaving 7 non-zero returns (4 wins, 3 losses)
@@ -88,7 +91,8 @@ class TestWinRateCalculator(unittest.TestCase):
     def test_zero_returns_included(self):
         """Test zero returns are properly included."""
         result = self.calc.calculate_trade_win_rate(
-            self.returns_with_zeros, include_zeros=True,
+            self.returns_with_zeros,
+            include_zeros=True,
         )
 
         # When including zeros: zeros don't count as wins or losses for win rate calculation
@@ -100,7 +104,8 @@ class TestWinRateCalculator(unittest.TestCase):
         self.assertEqual(result.wins, 4)
         self.assertEqual(result.losses, 3)  # Only negative returns
         self.assertEqual(
-            result.total, 7,
+            result.total,
+            7,
         )  # wins + losses (zeros excluded from denominator)
         self.assertEqual(result.zero_returns, 3)
         self.assertAlmostEqual(result.win_rate, 4 / 7, places=3)
@@ -108,7 +113,9 @@ class TestWinRateCalculator(unittest.TestCase):
     def test_signal_filtering(self):
         """Test signal-based calculation filters inactive periods."""
         result = self.calc.calculate_signal_win_rate(
-            self.returns_with_zeros, self.signals_with_zeros, include_zeros=False,
+            self.returns_with_zeros,
+            self.signals_with_zeros,
+            include_zeros=False,
         )
 
         # Only periods with signals ±1: indices 0,2,4,5,6,8,9 = 7 periods
@@ -163,7 +170,8 @@ class TestWinRateCalculator(unittest.TestCase):
     def test_compare_calculations(self):
         """Test comparison of different calculation methods."""
         comparisons = self.calc.compare_calculations(
-            self.test_returns, self.test_signals,
+            self.test_returns,
+            self.test_signals,
         )
 
         # Should have multiple calculation types
@@ -219,13 +227,16 @@ class TestWinRateCalculator(unittest.TestCase):
 
         # Test signal method
         result_signal = self.calc.calculate_from_dataframe(
-            df, method=WinRateType.SIGNAL,
+            df,
+            method=WinRateType.SIGNAL,
         )
         self.assertEqual(result_signal.calculation_type, "signal")
 
         # Test weighted method
         result_weighted = self.calc.calculate_from_dataframe(
-            df, method=WinRateType.WEIGHTED, weight_col="weight",
+            df,
+            method=WinRateType.WEIGHTED,
+            weight_col="weight",
         )
         self.assertEqual(result_weighted.calculation_type, "weighted")
 
@@ -233,19 +244,23 @@ class TestWinRateCalculator(unittest.TestCase):
         """Test the convenience function."""
         # Trade method
         win_rate_trade = calculate_win_rate_standardized(
-            self.test_returns, method="trade",
+            self.test_returns,
+            method="trade",
         )
         self.assertAlmostEqual(win_rate_trade, 0.6, places=3)
 
         # Signal method
         win_rate_signal = calculate_win_rate_standardized(
-            self.test_returns, method="signal", signals=self.test_signals,
+            self.test_returns,
+            method="signal",
+            signals=self.test_signals,
         )
         self.assertAlmostEqual(win_rate_signal, 0.6, places=3)
 
         # Legacy method
         win_rate_legacy = calculate_win_rate_standardized(
-            self.test_returns, method="legacy",
+            self.test_returns,
+            method="legacy",
         )
         self.assertAlmostEqual(win_rate_legacy, 0.6, places=3)
 
@@ -279,12 +294,15 @@ class TestWinRateDiscrepancyFix(unittest.TestCase):
         """Test the discrepancy between signal and trade calculations."""
         # Signal-based calculation (counts individual signal returns)
         signal_result = self.calc.calculate_signal_win_rate(
-            self.returns_with_multi_signals, self.multi_signals, include_zeros=False,
+            self.returns_with_multi_signals,
+            self.multi_signals,
+            include_zeros=False,
         )
 
         # Trade-based calculation (counts overall trade returns)
         trade_result = self.calc.calculate_trade_win_rate(
-            self.returns_with_multi_signals, include_zeros=False,
+            self.returns_with_multi_signals,
+            include_zeros=False,
         )
 
         # The discrepancy should be minimal with standardized calculation
@@ -292,7 +310,9 @@ class TestWinRateDiscrepancyFix(unittest.TestCase):
 
         # With proper standardization, discrepancy should be reasonable
         self.assertLess(
-            discrepancy, 0.2, f"Win rate discrepancy too high: {discrepancy:.3f}",
+            discrepancy,
+            0.2,
+            f"Win rate discrepancy too high: {discrepancy:.3f}",
         )
 
     def test_zero_handling_consistency(self):
@@ -305,7 +325,8 @@ class TestWinRateDiscrepancyFix(unittest.TestCase):
 
         # Trade method excluding zeros
         trade_result = self.calc.calculate_trade_win_rate(
-            returns_with_zeros[signals != 0], include_zeros=False,
+            returns_with_zeros[signals != 0],
+            include_zeros=False,
         )
 
         # Should be identical when applied to same data

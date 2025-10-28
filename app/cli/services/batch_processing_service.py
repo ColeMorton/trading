@@ -226,7 +226,10 @@ class BatchProcessingService:
             return []
 
     def get_tickers_needing_processing(
-        self, all_tickers: list[str], batch_size: int, resume_check_fn: Callable,
+        self,
+        all_tickers: list[str],
+        batch_size: int,
+        resume_check_fn: Callable,
     ) -> list[str]:
         """
         Get exactly batch_size tickers that need processing, considering both batch file
@@ -408,10 +411,7 @@ class BatchProcessingService:
             tickers = df["Ticker"].dropna().unique().tolist()
 
             # Clean and uppercase ticker symbols
-            return [
-                ticker.strip().upper() for ticker in tickers if ticker.strip()
-            ]
-
+            return [ticker.strip().upper() for ticker in tickers if ticker.strip()]
 
         except Exception as e:
             self.console.error(f"Error reading tickers from batch file: {e}")

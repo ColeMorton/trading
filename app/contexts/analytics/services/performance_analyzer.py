@@ -40,7 +40,8 @@ class PerformanceAnalyzer:
         self.logger = logger or logging.getLogger(__name__)
 
     def analyze_trade_history(
-        self, trades_data: pd.DataFrame | pl.DataFrame,
+        self,
+        trades_data: pd.DataFrame | pl.DataFrame,
     ) -> TradeHistoryMetrics:
         """Analyze trade history and calculate performance metrics."""
         if isinstance(trades_data, pl.DataFrame):
@@ -118,7 +119,8 @@ class PerformanceAnalyzer:
         )
 
     def analyze_equity_curve(
-        self, equity_data: pd.DataFrame | pl.DataFrame,
+        self,
+        equity_data: pd.DataFrame | pl.DataFrame,
     ) -> EquityAnalysis:
         """Analyze equity curve and calculate performance metrics."""
         if isinstance(equity_data, pl.DataFrame):
@@ -197,7 +199,8 @@ class PerformanceAnalyzer:
         )
 
     def analyze_strategy_distribution(
-        self, strategy_data: pd.DataFrame | pl.DataFrame,
+        self,
+        strategy_data: pd.DataFrame | pl.DataFrame,
     ) -> StrategyDistributionAnalysis:
         """Analyze strategy performance distribution."""
         if isinstance(strategy_data, pl.DataFrame):
@@ -258,7 +261,8 @@ class PerformanceAnalyzer:
         )
 
     def calculate_risk_metrics(
-        self, returns: pd.Series | pl.Series,
+        self,
+        returns: pd.Series | pl.Series,
     ) -> dict[str, float]:
         """Calculate comprehensive risk metrics."""
         if isinstance(returns, pl.Series):

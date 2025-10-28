@@ -44,7 +44,8 @@ def _detect_available_data_sources(portfolio: str) -> dict:
 
         # Create a temporary config to check file paths
         temp_config = SPDSConfig(
-            PORTFOLIO=resolve_portfolio_path(portfolio), USE_TRADE_HISTORY=True,
+            PORTFOLIO=resolve_portfolio_path(portfolio),
+            USE_TRADE_HISTORY=True,
         )
         trade_history_path = temp_config.get_trade_history_file_path()
 
@@ -75,42 +76,42 @@ def _detect_available_data_sources(portfolio: str) -> dict:
 @app.command()
 def analyze(
     ctx: typer.Context,
-    parameter: str
-    | None = typer.Argument(
+    parameter: str | None = typer.Argument(
         None,
         help='Analysis parameter: portfolio file (e.g., "risk_on.csv"), ticker (e.g., "AMD"), strategy (e.g., "TSLA_SMA_15_25"), or position UUID (e.g., "TSLA_SMA_15_25_20250710")',
     ),
-    portfolio: str
-    | None = typer.Option(
+    portfolio: str | None = typer.Option(
         None,
         "--portfolio",
         help="Portfolio file name (e.g., 'protected', 'risk_on.csv')",
     ),
-    profile: str
-    | None = typer.Option(None, "--profile", "-p", help="Configuration profile name"),
-    data_source: str
-    | None = typer.Option(
+    profile: str | None = typer.Option(
+        None, "--profile", "-p", help="Configuration profile name"
+    ),
+    data_source: str | None = typer.Option(
         None,
         "--data-source",
         help="Data source mode: 'trade-history', 'equity-curves', 'both', or 'auto' (default: auto)",
     ),
     output_format: str = typer.Option(
-        "table", "--output-format", help="Output format: json, table, summary",
+        "table",
+        "--output-format",
+        help="Output format: json, table, summary",
     ),
     detailed: bool = typer.Option(
         True,
         "--detailed/--no-detailed",
         help="Show detailed component scores breakdown",
     ),
-    components: str
-    | None = typer.Option(
+    components: str | None = typer.Option(
         None,
         "--components",
         help="Show specific components: 'risk,momentum,trend,risk-adj,mean-rev,volume' (comma-separated)",
     ),
-    save_results: str
-    | None = typer.Option(
-        None, "--save-results", help="Save results to file (JSON format)",
+    save_results: str | None = typer.Option(
+        None,
+        "--save-results",
+        help="Save results to file (JSON format)",
     ),
     export_backtesting: bool = typer.Option(
         False,
@@ -118,16 +119,24 @@ def analyze(
         help="Export deterministic backtesting parameters",
     ),
     percentile_threshold: int = typer.Option(
-        95, "--percentile-threshold", help="Percentile threshold for exit signals",
+        95,
+        "--percentile-threshold",
+        help="Percentile threshold for exit signals",
     ),
     dual_layer_threshold: float = typer.Option(
-        0.85, "--dual-layer-threshold", help="Dual layer convergence threshold",
+        0.85,
+        "--dual-layer-threshold",
+        help="Dual layer convergence threshold",
     ),
     sample_size_min: int = typer.Option(
-        15, "--sample-size-min", help="Minimum sample size for analysis",
+        15,
+        "--sample-size-min",
+        help="Minimum sample size for analysis",
     ),
     confidence_level: str = typer.Option(
-        "medium", "--confidence-level", help="Confidence level: low, medium, high",
+        "medium",
+        "--confidence-level",
+        help="Confidence level: low, medium, high",
     ),
 ):
     """
@@ -264,21 +273,25 @@ def analyze(
 def export(
     ctx: typer.Context,
     portfolio: str = typer.Argument(
-        ..., help='Portfolio filename (e.g., "risk_on.csv")',
+        ...,
+        help='Portfolio filename (e.g., "risk_on.csv")',
     ),
-    profile: str
-    | None = typer.Option(None, "--profile", "-p", help="Configuration profile name"),
-    data_source: str
-    | None = typer.Option(
+    profile: str | None = typer.Option(
+        None, "--profile", "-p", help="Configuration profile name"
+    ),
+    data_source: str | None = typer.Option(
         None,
         "--data-source",
         help="Data source mode: 'trade-history', 'equity-curves', 'both', or 'auto' (default: auto)",
     ),
     format: str = typer.Option(
-        "all", "--format", help="Export format: all, json, csv, markdown",
+        "all",
+        "--format",
+        help="Export format: all, json, csv, markdown",
     ),
-    output_dir: str
-    | None = typer.Option(None, "--output-dir", help="Output directory for exports"),
+    output_dir: str | None = typer.Option(
+        None, "--output-dir", help="Output directory for exports"
+    ),
 ):
     """
     Export backtesting parameters and analysis results.
@@ -526,7 +539,9 @@ def configure():
             "Number of bootstrap iterations",
         )
         table.add_row(
-            "Confidence Level", config.CONFIDENCE_LEVEL, "Analysis confidence level",
+            "Confidence Level",
+            config.CONFIDENCE_LEVEL,
+            "Analysis confidence level",
         )
 
         console.print(table)
@@ -1016,7 +1031,12 @@ async def _run_export_operations(results, summary, portfolio, format, config):
 
 # Helper functions
 async def _export_all_formats(
-    results, summary, analyzer, portfolio, config, export_backtesting,
+    results,
+    summary,
+    analyzer,
+    portfolio,
+    config,
+    export_backtesting,
 ):
     """Export results in all formats with validation and fallback"""
     try:
@@ -1103,7 +1123,11 @@ def _output_summary_results(summary):
 
 
 def _output_table_results(
-    results, summary, analyzer, detailed: bool = False, components: str | None = None,
+    results,
+    summary,
+    analyzer,
+    detailed: bool = False,
+    components: str | None = None,
 ):
     """Output results in table format"""
     # Create results table
@@ -1159,7 +1183,8 @@ def _output_table_results(
         elif hasattr(result, "confidence"):
             confidence = f"{result.confidence:.1f}%"
         elif hasattr(result, "exit_signal") and hasattr(
-            result.exit_signal, "confidence",
+            result.exit_signal,
+            "confidence",
         ):
             confidence = f"{result.exit_signal.confidence:.1f}%"
 
@@ -1168,7 +1193,8 @@ def _output_table_results(
         if hasattr(result, "p_value"):
             p_value = f"{result.p_value:.3f}"
         elif hasattr(result, "exit_signal") and hasattr(
-            result.exit_signal, "confidence",
+            result.exit_signal,
+            "confidence",
         ):
             # Convert confidence to approximate p-value
             conf_val = result.exit_signal.confidence
@@ -1200,7 +1226,8 @@ def _output_table_results(
                 # Check if component scores are in raw_analysis_data
                 component_scores = result.raw_analysis_data["component_scores"]
             elif hasattr(result, "divergence_metrics") and isinstance(
-                result.divergence_metrics, dict,
+                result.divergence_metrics,
+                dict,
             ):
                 # Check if component scores are in divergence_metrics
                 metrics = result.divergence_metrics

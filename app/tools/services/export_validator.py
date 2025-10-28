@@ -108,7 +108,9 @@ class ExportValidator:
         return len(issues) == 0, issues
 
     def generate_fallback_exports(
-        self, portfolio_name: str, position_data_path: str | None = None,
+        self,
+        portfolio_name: str,
+        position_data_path: str | None = None,
     ) -> bool:
         """
         Generate fallback exports using position data when standard exports fail.
@@ -171,7 +173,8 @@ class ExportValidator:
             return False
 
     def _generate_analysis_data(
-        self, open_positions: pd.DataFrame,
+        self,
+        open_positions: pd.DataFrame,
     ) -> tuple[list[dict], list[dict]]:
         """Generate analysis results and backtesting parameters from position data."""
         results = []
@@ -225,9 +228,7 @@ class ExportValidator:
                 "statistical_significance": (
                     "HIGH"
                     if confidence >= 0.85
-                    else "MEDIUM"
-                    if confidence >= 0.70
-                    else "LOW"
+                    else "MEDIUM" if confidence >= 0.70 else "LOW"
                 ),
                 "analysis_timestamp": datetime.now().isoformat(),
             }
@@ -256,7 +257,10 @@ class ExportValidator:
         return results, backtesting_params
 
     def _export_statistical_analysis(
-        self, portfolio_base: str, results: list[dict], open_positions: pd.DataFrame,
+        self,
+        portfolio_base: str,
+        results: list[dict],
+        open_positions: pd.DataFrame,
     ):
         """Export statistical analysis to JSON and CSV."""
         # Generate portfolio summary
@@ -324,7 +328,9 @@ class ExportValidator:
             pd.DataFrame(results).to_csv(csv_file, index=False)
 
     def _export_backtesting_parameters(
-        self, portfolio_base: str, backtesting_params: list[dict],
+        self,
+        portfolio_base: str,
+        backtesting_params: list[dict],
     ):
         """Export backtesting parameters to JSON and CSV."""
         export_data = {
@@ -347,7 +353,10 @@ class ExportValidator:
             pd.DataFrame(backtesting_params).to_csv(csv_file, index=False)
 
     def _export_markdown_report(
-        self, portfolio_base: str, results: list[dict], open_positions: pd.DataFrame,
+        self,
+        portfolio_base: str,
+        results: list[dict],
+        open_positions: pd.DataFrame,
     ):
         """Export comprehensive SPDS analysis report."""
         md_file = self.statistical_dir / f"{portfolio_base}.md"
@@ -361,7 +370,10 @@ class ExportValidator:
 
         # Generate comprehensive markdown content using the enhanced format
         content = self._generate_comprehensive_fallback_report(
-            portfolio_base, results, open_positions, signal_dist,
+            portfolio_base,
+            results,
+            open_positions,
+            signal_dist,
         )
 
         with open(md_file, "w") as f:

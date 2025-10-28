@@ -92,14 +92,18 @@ class SellReportGenerator:
         return "\n\n".join(report_sections)
 
     def _get_strategy_data(
-        self, strategy_identifier: str, snapshot_id: str | None = None,
+        self,
+        strategy_identifier: str,
+        snapshot_id: str | None = None,
     ) -> UnifiedStrategyData | None:
         """Get strategy data using coordinator or fallback to aggregator"""
         try:
             if self.use_coordinator and self.data_coordinator:
                 # Use central coordinator for data loading
                 unified_data = self.data_coordinator.get_strategy_data(
-                    strategy_identifier, force_refresh=False, snapshot_id=snapshot_id,
+                    strategy_identifier,
+                    force_refresh=False,
+                    snapshot_id=snapshot_id,
                 )
                 if unified_data:
                     logger.debug(
@@ -113,9 +117,11 @@ class SellReportGenerator:
             if legacy_data:
                 # Convert legacy data to unified format for consistent processing
                 unified_data = UnifiedStrategyData.from_legacy_strategy_data(
-                    legacy_data.to_dict()
-                    if hasattr(legacy_data, "to_dict")
-                    else vars(legacy_data),
+                    (
+                        legacy_data.to_dict()
+                        if hasattr(legacy_data, "to_dict")
+                        else vars(legacy_data)
+                    ),
                 )
                 logger.debug(
                     f"Retrieved and converted legacy data for {strategy_identifier}",
@@ -189,16 +195,12 @@ class SellReportGenerator:
         sample_quality = (
             "Excellent"
             if data.statistics.sample_size >= 5000
-            else "Good"
-            if data.statistics.sample_size >= 1000
-            else "Fair"
+            else "Good" if data.statistics.sample_size >= 1000 else "Fair"
         )
         significance_strength = (
             "Strong"
             if data.statistics.p_value <= 0.05
-            else "Moderate"
-            if data.statistics.p_value <= 0.1
-            else "Weak"
+            else "Moderate" if data.statistics.p_value <= 0.1 else "Weak"
         )
 
         return f"""## 📈 Statistical Foundation
@@ -234,9 +236,7 @@ class SellReportGenerator:
         iqr_strength = (
             "High"
             if abs(data.statistics.iqr_divergence) > 0.15
-            else "Moderate"
-            if abs(data.statistics.iqr_divergence) > 0.08
-            else "Low"
+            else "Moderate" if abs(data.statistics.iqr_divergence) > 0.08 else "Low"
         )
 
         return f"""## 🔍 Technical Analysis
@@ -377,7 +377,9 @@ ELSE:
 - [ ] Schedule post-exit analysis"""
 
     def _generate_appendices(
-        self, data: UnifiedStrategyData, include_raw_data: bool,
+        self,
+        data: UnifiedStrategyData,
+        include_raw_data: bool,
     ) -> str:
         """Generate appendices with supporting data"""
         appendix = f"""## 📚 Appendices
@@ -551,9 +553,7 @@ Max Return: {max(data.raw_returns):.4f}
         signal_strength = (
             "strong"
             if data.signal.signal_confidence > 80
-            else "moderate"
-            if data.signal.signal_confidence > 60
-            else "weak"
+            else "moderate" if data.signal.signal_confidence > 60 else "weak"
         )
 
         if data.signal.exit_signal == "SELL":
@@ -680,13 +680,18 @@ def generate_sell_report(
     if use_coordinator and (data_coordinator or base_path is None):
         # Use central data coordination for consistency
         coordinator = data_coordinator or StrategyDataCoordinator(
-            config=DataCoordinationConfig(), logger=None,
+            config=DataCoordinationConfig(),
+            logger=None,
         )
         generator = SellReportGenerator(
-            aggregator=None, data_coordinator=coordinator, use_coordinator=True,
+            aggregator=None,
+            data_coordinator=coordinator,
+            use_coordinator=True,
         )
         return generator.generate_sell_report(
-            strategy_identifier, include_raw_data, snapshot_id,
+            strategy_identifier,
+            include_raw_data,
+            snapshot_id,
         )
     # Fallback to legacy aggregator
     aggregator = SignalDataAggregator(base_path)
@@ -700,11 +705,15 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Sell Report Generator")
     parser.add_argument(
-        "--strategy", required=True, help="Strategy name or Position_UUID",
+        "--strategy",
+        required=True,
+        help="Strategy name or Position_UUID",
     )
     parser.add_argument("--output", help="Output file path")
     parser.add_argument(
-        "--include-raw", action="store_true", help="Include raw statistical data",
+        "--include-raw",
+        action="store_true",
+        help="Include raw statistical data",
     )
     parser.add_argument("--base-path", help="Base path to trading system")
 

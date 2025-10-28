@@ -35,7 +35,8 @@ from app.tools.analysis.calculation_fixes import SPDSCalculationCorrector
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -160,7 +161,8 @@ class SPDSFixApplicator:
 
         # Apply comprehensive corrections
         correction_results = self.corrector.correct_portfolio_analysis(
-            positions, historical_returns,
+            positions,
+            historical_returns,
         )
 
         # Ensure corrected metrics are populated even if validation fails
@@ -169,10 +171,10 @@ class SPDSFixApplicator:
             or not correction_results["corrected_metrics"]
         ):
             logger.warning("Corrected metrics not populated, calculating manually...")
-            correction_results[
-                "corrected_metrics"
-            ] = self.corrector.portfolio_fixes.calculate_portfolio_metrics_correct(
-                positions,
+            correction_results["corrected_metrics"] = (
+                self.corrector.portfolio_fixes.calculate_portfolio_metrics_correct(
+                    positions,
+                )
             )
 
         return correction_results
@@ -263,7 +265,8 @@ class SPDSFixApplicator:
 """
 
         for i, correction in enumerate(
-            correction_results.get("corrections_applied", []), 1,
+            correction_results.get("corrections_applied", []),
+            1,
         ):
             report += f"{i}. **{correction.replace('_', ' ').title()}**: Implementation fixed\n"
 
@@ -345,7 +348,9 @@ class SPDSFixApplicator:
             # Generate corrected report
             logger.info("Generating corrected SPDS report...")
             corrected_report = self.generate_corrected_report(
-                positions, correction_results, error_analysis,
+                positions,
+                correction_results,
+                error_analysis,
             )
 
             # Save corrected report

@@ -102,7 +102,9 @@ def test_performance_monitoring_flow():
     from app.monitoring.performance_logger import PerformanceLogger
 
     perf_logger = PerformanceLogger(
-        __name__, performance_mode="minimal", show_resources=False,
+        __name__,
+        performance_mode="minimal",
+        show_resources=False,
     )
 
     # Start monitoring

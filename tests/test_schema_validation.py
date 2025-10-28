@@ -317,7 +317,9 @@ if __name__ == "__main__":
     # Test compliant data
     test_case = get_test_case("compliant")
     result = validate_dataframe_schema(test_case["data"], strict=False)
-    print(f"Compliant data validation: {'✅ PASS' if result['is_valid'] else '❌ FAIL'}")
+    print(
+        f"Compliant data validation: {'✅ PASS' if result['is_valid'] else '❌ FAIL'}"
+    )
 
     # Test non-compliant data
     test_case = get_test_case("missing_columns")

@@ -189,7 +189,12 @@ class TestATRSignalProcessing:
     )
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_atr")
     def test_generate_hybrid_ma_atr_signals(
-        self, mock_atr, mock_sma, sample_price_data, sample_ma_config, mock_logger,
+        self,
+        mock_atr,
+        mock_sma,
+        sample_price_data,
+        sample_ma_config,
+        mock_logger,
     ):
         """Test hybrid MA+ATR signal generation."""
         # Mock SMA signals - return Polars DataFrame as expected by the function
@@ -231,7 +236,12 @@ class TestATRSignalProcessing:
     )
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_atr")
     def test_generate_signals_with_atr_exits(
-        self, mock_atr, mock_sma, sample_price_data, sample_ma_config, mock_logger,
+        self,
+        mock_atr,
+        mock_sma,
+        sample_price_data,
+        sample_ma_config,
+        mock_logger,
     ):
         """Test that ATR exits are properly generated."""
         pandas_data = sample_price_data.to_pandas()
@@ -468,7 +478,11 @@ class TestATRParameterSweepEngine:
         assert engine.sweep_stats["failed_combinations"] == 1
 
     def test_process_single_atr_combination_invalid_parameters(
-        self, sample_atr_config, sample_price_data, sample_ma_config, mock_logger,
+        self,
+        sample_atr_config,
+        sample_price_data,
+        sample_ma_config,
+        mock_logger,
     ):
         """Test handling of invalid ATR parameters."""
         engine = create_atr_sweep_engine(sample_atr_config)
@@ -538,7 +552,11 @@ class TestATRParameterSweepEngine:
 
     @patch("app.strategies.ma_cross.tools.atr_parameter_sweep.get_data")
     def test_execute_atr_parameter_sweep_data_failure(
-        self, mock_get_data, sample_atr_config, sample_ma_config, mock_logger,
+        self,
+        mock_get_data,
+        sample_atr_config,
+        sample_ma_config,
+        mock_logger,
     ):
         """Test handling of data retrieval failure."""
         engine = create_atr_sweep_engine(sample_atr_config)
@@ -661,7 +679,9 @@ class TestATRParameterSweepEngine:
         assert "No results generated" in errors[0]
 
     def test_validate_sweep_results_missing_atr_fields(
-        self, sample_atr_config, mock_logger,
+        self,
+        sample_atr_config,
+        mock_logger,
     ):
         """Test validation with missing ATR fields."""
         engine = create_atr_sweep_engine(sample_atr_config)
@@ -721,7 +741,8 @@ class TestATRPortfolioExport:
 
         # Validate schema compliance
         is_valid, errors = schema_transformer.validate_schema(
-            extended_portfolio, SchemaType.EXTENDED,
+            extended_portfolio,
+            SchemaType.EXTENDED,
         )
 
         assert is_valid is True

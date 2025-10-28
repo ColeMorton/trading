@@ -194,7 +194,8 @@ def apply_error_recovery(
         except tuple(policy.applicable_exceptions) as e:
             last_exception = e
             log_message(
-                f"Using fallback for {operation} due to error: {e!s}", "warning",
+                f"Using fallback for {operation} due to error: {e!s}",
+                "warning",
             )
 
             if policy.fallback_func:
@@ -220,7 +221,8 @@ def apply_error_recovery(
         except tuple(policy.applicable_exceptions) as e:
             last_exception = e
             log_message(
-                f"Partial execution for {operation} due to error: {e!s}", "warning",
+                f"Partial execution for {operation} due to error: {e!s}",
+                "warning",
             )
 
             # Try to extract partial results
@@ -266,7 +268,8 @@ def get_recovery_policy(operation_type: str) -> ErrorRecoveryPolicy | None:
 
 
 def create_fallback_function(
-    default_value: Any, log_message: str | None | None = None,
+    default_value: Any,
+    log_message: str | None | None = None,
 ) -> Callable:
     """Create a simple fallback function that returns a default value.
 

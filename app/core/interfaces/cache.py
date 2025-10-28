@@ -15,7 +15,10 @@ class CacheInterface(ABC):
 
     @abstractmethod
     async def set(
-        self, key: str, value: Any, ttl: timedelta | None | None = None,
+        self,
+        key: str,
+        value: Any,
+        ttl: timedelta | None | None = None,
     ) -> None:
         """Set value in cache with optional TTL."""
 
@@ -37,6 +40,9 @@ class CacheInterface(ABC):
 
     @abstractmethod
     async def get_or_set(
-        self, key: str, factory: Callable, ttl: timedelta | None | None = None,
+        self,
+        key: str,
+        factory: Callable,
+        ttl: timedelta | None | None = None,
     ) -> Any:
         """Get from cache or compute and set."""

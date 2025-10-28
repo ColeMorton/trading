@@ -55,7 +55,8 @@ class PortfolioStatisticalAnalyzer:
 
         # Initialize service
         self.service = StatisticalAnalysisService(
-            config=self.config, logger=self.logger,
+            config=self.config,
+            logger=self.logger,
         )
 
         # Cache loaded data
@@ -116,7 +117,8 @@ class PortfolioStatisticalAnalyzer:
         return self._trade_history_data
 
     async def analyze(
-        self, detailed: bool = False,
+        self,
+        detailed: bool = False,
     ) -> dict[str, StatisticalAnalysisResult]:
         """
         Analyze entire portfolio and return results for all strategies.
@@ -154,7 +156,10 @@ class PortfolioStatisticalAnalyzer:
         for strategy_info in strategies:
             try:
                 result = await self._analyze_strategy(
-                    strategy_info, trade_history_data, detailed, position_context,
+                    strategy_info,
+                    trade_history_data,
+                    detailed,
+                    position_context,
                 )
                 results[strategy_info["strategy_name"]] = result
 
@@ -168,7 +173,8 @@ class PortfolioStatisticalAnalyzer:
         return results
 
     def get_exit_signals(
-        self, results: dict[str, StatisticalAnalysisResult],
+        self,
+        results: dict[str, StatisticalAnalysisResult],
     ) -> dict[str, str]:
         """
         Extract exit signals from analysis results.
@@ -200,7 +206,8 @@ class PortfolioStatisticalAnalyzer:
         return signals
 
     def get_summary_report(
-        self, results: dict[str, StatisticalAnalysisResult],
+        self,
+        results: dict[str, StatisticalAnalysisResult],
     ) -> dict[str, Any]:
         """
         Generate summary report of portfolio analysis.
@@ -270,7 +277,8 @@ class PortfolioStatisticalAnalyzer:
         }
 
     def _extract_strategies_from_portfolio(
-        self, portfolio_data: pd.DataFrame,
+        self,
+        portfolio_data: pd.DataFrame,
     ) -> list[dict[str, Any]]:
         """Extract strategy information from portfolio CSV."""
         strategies = []
@@ -299,10 +307,12 @@ class PortfolioStatisticalAnalyzer:
                     )
                     # Fall back to manual extraction
                     ticker = row.get(
-                        "Ticker", row.get("ticker", row.get("Symbol", "UNKNOWN")),
+                        "Ticker",
+                        row.get("ticker", row.get("Symbol", "UNKNOWN")),
                     )
                     strategy_type = row.get(
-                        "Strategy Type", row.get("strategy_type", "SMA"),
+                        "Strategy Type",
+                        row.get("strategy_type", "SMA"),
                     )
                     fast_period = row.get("Fast Period", row.get("fast_period", ""))
                     slow_period = row.get("Slow Period", row.get("slow_period", ""))
@@ -314,10 +324,12 @@ class PortfolioStatisticalAnalyzer:
             else:
                 # Handle other CSV formats with separate columns
                 ticker = row.get(
-                    "Ticker", row.get("ticker", row.get("Symbol", "UNKNOWN")),
+                    "Ticker",
+                    row.get("ticker", row.get("Symbol", "UNKNOWN")),
                 )
                 strategy_type = row.get(
-                    "Strategy Type", row.get("strategy_type", "SMA"),
+                    "Strategy Type",
+                    row.get("strategy_type", "SMA"),
                 )
                 fast_period = row.get("Fast Period", row.get("fast_period", ""))
                 slow_period = row.get("Slow Period", row.get("slow_period", ""))
@@ -328,7 +340,8 @@ class PortfolioStatisticalAnalyzer:
                 else:
                     # Fallback to existing logic for other formats
                     strategy_name = row.get(
-                        "strategy_name", row.get("Strategy", "UNKNOWN"),
+                        "strategy_name",
+                        row.get("Strategy", "UNKNOWN"),
                     )
 
             strategy_info = {
@@ -420,7 +433,10 @@ class PortfolioStatisticalAnalyzer:
                 # Approach 3: Fuzzy UUID matching if exact matching fails
                 if strategy_trades is None or len(strategy_trades) == 0:
                     strategy_trades = self._fuzzy_match_trade_history(
-                        trade_history_data, strategy_name, ticker, strategy_info,
+                        trade_history_data,
+                        strategy_name,
+                        ticker,
+                        strategy_info,
                     )
 
             if strategy_trades is not None and len(strategy_trades) > 0:
@@ -437,7 +453,8 @@ class PortfolioStatisticalAnalyzer:
         position_data = None
         if position_context:
             position_data = self.service._find_matching_position(
-                strategy_name, position_context,
+                strategy_name,
+                position_context,
             )
             if position_data:
                 self.logger.info(
@@ -548,7 +565,8 @@ class PortfolioStatisticalAnalyzer:
 
                         # Apply component score override to exit signal
                         result = self.service.update_exit_signal_with_component_scores(
-                            result, component_scores,
+                            result,
+                            component_scores,
                         )
                     else:
                         self.logger.warning(
@@ -567,7 +585,11 @@ class PortfolioStatisticalAnalyzer:
         return result
 
     def _fuzzy_match_trade_history(
-        self, trade_history_data, strategy_name, ticker, strategy_info,
+        self,
+        trade_history_data,
+        strategy_name,
+        ticker,
+        strategy_info,
     ):
         """
         Fuzzy match trade history using Position_UUID pattern matching.
@@ -632,7 +654,8 @@ class PortfolioStatisticalAnalyzer:
 
 # Convenience function for quick analysis
 async def analyze_portfolio(
-    portfolio: str, use_trade_history: bool = True,
+    portfolio: str,
+    use_trade_history: bool = True,
 ) -> tuple[dict[str, StatisticalAnalysisResult], dict[str, Any]]:
     """
     Quick portfolio analysis function.
@@ -675,7 +698,8 @@ if __name__ == "__main__":
         # Example 2: Analyze conservative portfolio with equity curves
         print("\n=== Conservative Portfolio with Equity Curves ===")
         analyzer2 = PortfolioStatisticalAnalyzer(
-            "conservative.csv", use_trade_history=False,
+            "conservative.csv",
+            use_trade_history=False,
         )
         results2 = await analyzer2.analyze()
         summary2 = analyzer2.get_summary_report(results2)
@@ -686,7 +710,8 @@ if __name__ == "__main__":
         # Example 3: Quick analysis function
         print("\n=== Quick Analysis ===")
         results3, summary3 = await analyze_portfolio(
-            "momentum.csv", use_trade_history=True,
+            "momentum.csv",
+            use_trade_history=True,
         )
         print(f"Quick analysis complete for {summary3['total_strategies']} strategies")
 

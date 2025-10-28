@@ -195,7 +195,8 @@ class TestUnifiedMACDStrategy:
         config = {"DIRECTION": "Long"}  # Missing SIGNAL_PERIOD
 
         with pytest.raises(
-            ValueError, match="MACD strategy requires valid SIGNAL_PERIOD",
+            ValueError,
+            match="MACD strategy requires valid SIGNAL_PERIOD",
         ):
             strategy.calculate(test_data, 12, 26, config, mock_log)
 

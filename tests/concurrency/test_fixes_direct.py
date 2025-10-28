@@ -73,7 +73,10 @@ def test_risk_calc_fix():
     # Calculate risk contributions
     print("\nCalculating risk contributions...")
     risk_metrics = calculate_risk_contributions(
-        position_arrays, data_list, allocations, log,
+        position_arrays,
+        data_list,
+        allocations,
+        log,
     )
 
     # Check results

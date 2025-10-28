@@ -254,7 +254,8 @@ class ATRTestConfigBuilder:
 
     @staticmethod
     def create_performance_config(
-        ticker: str = "PERF_TEST", large_parameter_space: bool = False,
+        ticker: str = "PERF_TEST",
+        large_parameter_space: bool = False,
     ) -> dict[str, Any]:
         """Create configuration optimized for performance testing."""
         if large_parameter_space:
@@ -299,7 +300,8 @@ class ATRTestAssertions:
 
     @staticmethod
     def assert_valid_atr_portfolio(
-        portfolio: dict[str, Any], ticker: str | None = None,
+        portfolio: dict[str, Any],
+        ticker: str | None = None,
     ):
         """Assert that portfolio dictionary has valid ATR structure."""
         # Required fields
@@ -333,16 +335,20 @@ class ATRTestAssertions:
 
         # Numeric validations
         assert isinstance(
-            portfolio["Fast Period"], int | float,
+            portfolio["Fast Period"],
+            int | float,
         ), "Fast Period should be numeric"
         assert isinstance(
-            portfolio["Slow Period"], int | float,
+            portfolio["Slow Period"],
+            int | float,
         ), "Slow Period should be numeric"
         assert isinstance(
-            portfolio["Total Trades"], int | float,
+            portfolio["Total Trades"],
+            int | float,
         ), "Total Trades should be numeric"
         assert isinstance(
-            portfolio["Win Rate [%]"], int | float,
+            portfolio["Win Rate [%]"],
+            int | float,
         ), "Win Rate should be numeric"
         assert isinstance(portfolio["Score"], int | float), "Score should be numeric"
 
@@ -410,7 +416,8 @@ class ATRTestAssertions:
         if "Signal Entry" in portfolio:
             # Can't test specific value without context, but should be string representation
             assert isinstance(
-                portfolio["Signal Entry"], str,
+                portfolio["Signal Entry"],
+                str,
             ), "Signal Entry should be string representation"
 
     @staticmethod
@@ -555,14 +562,17 @@ class ATRTestUtilities:
 
     @staticmethod
     def create_temporary_config_file(
-        config: dict[str, Any], filename: str | None = None,
+        config: dict[str, Any],
+        filename: str | None = None,
     ) -> str:
         """Create temporary configuration file for testing."""
         import yaml
 
         if filename is None:
             temp_file = tempfile.NamedTemporaryFile(
-                mode="w", suffix=".yaml", delete=False,
+                mode="w",
+                suffix=".yaml",
+                delete=False,
             )
             filename = temp_file.name
         else:

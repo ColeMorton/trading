@@ -8,6 +8,8 @@ This router provides endpoints for all strategy-related commands:
 - sector-compare: Cross-sector performance comparison
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Body, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,7 +24,6 @@ from ..models.schemas import (
 )
 from ..services.job_service import JobService
 from ..services.queue_service import enqueue_job
-from typing import Annotated
 
 
 router = APIRouter()

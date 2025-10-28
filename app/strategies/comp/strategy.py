@@ -127,7 +127,10 @@ def run(
             success = True
             for ticker in ticker_list:
                 ticker_success = process_ticker(
-                    ticker, config, log_func, progress_update_fn,
+                    ticker,
+                    config,
+                    log_func,
+                    progress_update_fn,
                 )
                 success = success and ticker_success
 
@@ -214,12 +217,12 @@ def process_ticker(
         # Add Signal Entry and Signal Exit based on position status
         # Check if we're currently in a position
         stats.get("Total Open Trades", 0)
-        stats[
-            "Signal Entry"
-        ] = False  # COMP doesn't generate new entry signals in this context
-        stats[
-            "Signal Exit"
-        ] = False  # COMP doesn't generate new exit signals in this context
+        stats["Signal Entry"] = (
+            False  # COMP doesn't generate new entry signals in this context
+        )
+        stats["Signal Exit"] = (
+            False  # COMP doesn't generate new exit signals in this context
+        )
 
         # Calculate Score using the same formula as other strategies
         stats["Score"] = calculate_comp_score(stats, log)
@@ -264,7 +267,6 @@ def get_strategies_csv_path(ticker: str, config: dict) -> Path:
     # Default: look in data/raw/strategies/{ticker}.csv
     base_dir = Path(config.get("BASE_DIR", get_project_root()))
     return base_dir / "data" / "raw" / "strategies" / f"{ticker}.csv"
-
 
 
 def export_compound_results(

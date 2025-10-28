@@ -25,11 +25,18 @@ def upgrade() -> None:
         "strategy_types",
         sa.Column("id", sa.Integer, primary_key=True, autoincrement=True),
         sa.Column(
-            "strategy_type", sa.String(50), nullable=False, unique=True, index=True,
+            "strategy_type",
+            sa.String(50),
+            nullable=False,
+            unique=True,
+            index=True,
         ),
         sa.Column("description", sa.Text, nullable=True),
         sa.Column(
-            "created_at", sa.DateTime, nullable=False, server_default=sa.text("now()"),
+            "created_at",
+            sa.DateTime,
+            nullable=False,
+            server_default=sa.text("now()"),
         ),
     )
 
@@ -80,7 +87,8 @@ def upgrade() -> None:
 
     # 3e. Drop old composite index that uses strategy_type
     op.drop_index(
-        "ix_strategy_sweep_ticker_id_strategy", table_name="strategy_sweep_results",
+        "ix_strategy_sweep_ticker_id_strategy",
+        table_name="strategy_sweep_results",
     )
 
     # 3f. Drop the old strategy_type string column

@@ -63,7 +63,9 @@ class TestMonteCarloIntegration(unittest.TestCase):
         mc_config = create_monte_carlo_config(self.base_config)
 
         manager = PortfolioMonteCarloManager(
-            config=mc_config, max_workers=2, log=Mock(),
+            config=mc_config,
+            max_workers=2,
+            log=Mock(),
         )
 
         self.assertEqual(manager.config, mc_config)
@@ -175,7 +177,11 @@ class TestMonteCarloIntegration(unittest.TestCase):
 
         # Generate report with Monte Carlo results
         report = generate_json_report(
-            strategies, stats, Mock(), config, monte_carlo_results,
+            strategies,
+            stats,
+            Mock(),
+            config,
+            monte_carlo_results,
         )
 
         # Verify report structure

@@ -17,7 +17,8 @@ if TYPE_CHECKING:
 
 
 def load_strategies_from_raw_csv(
-    raw_strategies_name: str, console: ConsoleLogger = None,
+    raw_strategies_name: str,
+    console: ConsoleLogger = None,
 ) -> list["ReviewStrategyConfig"]:
     """
     Load strategy configurations from a CSV file in data/raw/strategies/.

@@ -29,7 +29,9 @@ def create_mock_data(n_periods: int = 500) -> pl.DataFrame:
     # Generate realistic price series
     initial_price = 100.0
     returns = np.random.normal(
-        0.001, 0.02, n_periods,
+        0.001,
+        0.02,
+        n_periods,
     )  # Daily returns ~0.1% mean, 2% std
 
     prices = [initial_price]
@@ -115,7 +117,8 @@ def test_parameter_noise():
     for i in range(10):
         np.random.seed(i)
         noisy_short, noisy_long = analyzer.add_parameter_noise(
-            original_short, original_long,
+            original_short,
+            original_long,
         )
         noisy_params.append((noisy_short, noisy_long))
 
@@ -287,7 +290,9 @@ def test_config_validation():
 
     # Valid configuration
     valid_config = MonteCarloConfig(
-        num_simulations=100, confidence_level=0.95, bootstrap_block_size=63,
+        num_simulations=100,
+        confidence_level=0.95,
+        bootstrap_block_size=63,
     )
 
     ParameterRobustnessAnalyzer(valid_config)

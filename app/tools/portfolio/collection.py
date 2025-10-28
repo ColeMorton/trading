@@ -54,7 +54,8 @@ class PortfolioExportError(Exception):
 
 
 def sort_portfolios(
-    portfolios: list[dict[str, Any]] | pl.DataFrame, config: Config,
+    portfolios: list[dict[str, Any]] | pl.DataFrame,
+    config: Config,
 ) -> list[dict[str, Any]] | pl.DataFrame:
     """Sort portfolios using consistent logic across the application.
 
@@ -351,7 +352,8 @@ def deduplicate_and_aggregate_portfolios(
             best_fast_col = best_portfolio_mapping["fast_period"]
             best_slow_col = best_portfolio_mapping["slow_period"]
             best_signal_col = best_portfolio_mapping.get(
-                "signal_period", "Signal Period",
+                "signal_period",
+                "Signal Period",
             )
 
             # Extract values using the correct column names from best_portfolio
@@ -557,7 +559,8 @@ def deduplicate_and_aggregate_portfolios(
 
             # Validate schema compliance
             is_valid, validation_errors = transformer.validate_schema(
-                normalized_portfolio, SchemaType.FILTERED,
+                normalized_portfolio,
+                SchemaType.FILTERED,
             )
             if not is_valid:
                 if log:
@@ -604,9 +607,9 @@ def deduplicate_and_aggregate_portfolios(
             # Enhanced fallback with proper error handling
             try:
                 # Fallback: Clear Allocation [%] for portfolios_best exports since this represents aggregated data
-                final_portfolio[
-                    "Allocation [%]"
-                ] = None  # Use None instead of empty string for consistency
+                final_portfolio["Allocation [%]"] = (
+                    None  # Use None instead of empty string for consistency
+                )
                 final_portfolio["Stop Loss [%]"] = None
 
                 # Ensure Metric Type is preserved even in fallback
@@ -835,7 +838,9 @@ def test_bkng_metric_aggregation(log: Callable | None = None) -> bool:
 
 
 def export_best_portfolios(
-    portfolios: list[dict[str, Any]], config: Config, log: Callable,
+    portfolios: list[dict[str, Any]],
+    config: Config,
+    log: Callable,
 ) -> bool:
     """Export the best portfolios to a CSV file with deduplication.
 
@@ -949,7 +954,9 @@ def export_best_portfolios(
 
             # Apply deduplication and metric type aggregation
             deduplicated_portfolios = deduplicate_and_aggregate_portfolios(
-                sorted_portfolios, log, desired_metric_types,
+                sorted_portfolios,
+                log,
+                desired_metric_types,
             )
 
         # Restore original sort configuration
@@ -985,7 +992,8 @@ def export_best_portfolios(
 
 
 def combine_strategy_portfolios(
-    ema_portfolios: list[dict[str, Any]], sma_portfolios: list[dict[str, Any]],
+    ema_portfolios: list[dict[str, Any]],
+    sma_portfolios: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     """Combine portfolios from EMA and SMA strategies.
 
@@ -1032,7 +1040,9 @@ def combine_strategy_portfolios(
 
 
 def collect_filtered_portfolios_for_export(
-    config: dict[str, Any], strategy_types: list[str], log: Callable,
+    config: dict[str, Any],
+    strategy_types: list[str],
+    log: Callable,
 ) -> list[dict[str, Any]]:
     """
     Collect filtered portfolios data (multiple metric types per configuration)

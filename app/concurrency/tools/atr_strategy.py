@@ -14,7 +14,9 @@ from app.tools.portfolio import StrategyConfig
 
 
 def process_atr_strategy(
-    data: pl.DataFrame, strategy_config: StrategyConfig, log: Callable[[str, str], None],
+    data: pl.DataFrame,
+    strategy_config: StrategyConfig,
+    log: Callable[[str, str], None],
 ) -> pl.DataFrame:
     """Process ATR Trailing Stop strategy data.
 
@@ -43,7 +45,8 @@ def process_atr_strategy(
     # Get ATR parameters
     atr_length = strategy_config.get("LENGTH", strategy_config.get("length", 14))
     atr_multiplier = strategy_config.get(
-        "MULTIPLIER", strategy_config.get("multiplier", 2.0),
+        "MULTIPLIER",
+        strategy_config.get("multiplier", 2.0),
     )
 
     # Check if it's a short strategy
@@ -62,7 +65,10 @@ def process_atr_strategy(
 
     # Calculate ATR signals
     result_data = calculate_atr_signals(
-        pandas_data, atr_length=atr_length, atr_multiplier=atr_multiplier, log=log,
+        pandas_data,
+        atr_length=atr_length,
+        atr_multiplier=atr_multiplier,
+        log=log,
     )
 
     # If short strategy, invert signals
@@ -90,7 +96,8 @@ def process_atr_strategy(
             log("WARNING: ATR_Trailing_Stop column has no valid values", "warning")
     else:
         log(
-            "WARNING: ATR_Trailing_Stop column not found in pandas DataFrame", "warning",
+            "WARNING: ATR_Trailing_Stop column not found in pandas DataFrame",
+            "warning",
         )
 
     # Convert back to polars DataFrame with explicit schema to preserve columns
@@ -146,10 +153,12 @@ def get_atr_strategy_description(strategy_config: StrategyConfig) -> str:
     ticker = strategy_config.get("TICKER", strategy_config.get("ticker", "Unknown"))
     length = strategy_config.get("LENGTH", strategy_config.get("length", 14))
     multiplier = strategy_config.get(
-        "MULTIPLIER", strategy_config.get("multiplier", 2.0),
+        "MULTIPLIER",
+        strategy_config.get("multiplier", 2.0),
     )
     direction = strategy_config.get(
-        "DIRECTION", strategy_config.get("direction", "Long"),
+        "DIRECTION",
+        strategy_config.get("direction", "Long"),
     )
     timeframe = "Hourly" if strategy_config.get("USE_HOURLY", False) else "Daily"
 

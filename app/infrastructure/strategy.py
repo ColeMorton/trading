@@ -274,7 +274,11 @@ class StrategyExecutor(StrategyExecutorInterface):
 
         # Use progress tracking
         return await self.execute_with_progress(
-            strategy_type, tickers, config, task_id, self._progress_tracker,
+            strategy_type,
+            tickers,
+            config,
+            task_id,
+            self._progress_tracker,
         )
 
     async def execute_with_progress(
@@ -302,7 +306,9 @@ class StrategyExecutor(StrategyExecutorInterface):
                 # Update progress
                 progress = (i / len(tickers)) * 100
                 await progress_tracker.update(
-                    task_id, progress, f"Processing {ticker} ({i+1}/{len(tickers)})",
+                    task_id,
+                    progress,
+                    f"Processing {ticker} ({i+1}/{len(tickers)})",
                 )
 
                 # Create strategy config
@@ -328,7 +334,8 @@ class StrategyExecutor(StrategyExecutorInterface):
         # Complete tracking
         if errors:
             await progress_tracker.complete(
-                task_id, f"Completed with {len(errors)} errors",
+                task_id,
+                f"Completed with {len(errors)} errors",
             )
         else:
             await progress_tracker.complete(task_id)

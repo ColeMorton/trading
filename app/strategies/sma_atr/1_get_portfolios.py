@@ -74,7 +74,9 @@ CONFIG: Config = {
 
 
 def filter_portfolios(
-    portfolios: list[dict[str, Any]], config: Config, log,
+    portfolios: list[dict[str, Any]],
+    config: Config,
+    log,
 ) -> list[dict[str, Any]]:
     """Filter portfolios based on configuration.
 
@@ -99,17 +101,21 @@ def filter_portfolios(
         validated_portfolios = validate_allocations(normalized_portfolios, log)
         normalized_portfolios = normalize_allocations(validated_portfolios, log)
         distributed_portfolios = distribute_missing_allocations(
-            normalized_portfolios, log,
+            normalized_portfolios,
+            log,
         )
         normalized_portfolios = ensure_allocation_sum_100_percent(
-            distributed_portfolios, log,
+            distributed_portfolios,
+            log,
         )
 
         # Calculate position sizes if account value is provided
         if "ACCOUNT_VALUE" in config and config["ACCOUNT_VALUE"] > 0:
             account_value = float(config["ACCOUNT_VALUE"])
             normalized_portfolios = calculate_position_sizes(
-                normalized_portfolios, account_value, log,
+                normalized_portfolios,
+                account_value,
+                log,
             )
             log(
                 f"Calculated position sizes based on account value: {account_value}",
@@ -123,7 +129,9 @@ def filter_portfolios(
         # If we have entry prices, calculate stop loss levels
         if config.get("ENTRY_PRICES"):
             normalized_portfolios = calculate_stop_loss_levels(
-                normalized_portfolios, config["ENTRY_PRICES"], log,
+                normalized_portfolios,
+                config["ENTRY_PRICES"],
+                log,
             )
             log("Calculated stop loss levels based on entry prices", "info")
 

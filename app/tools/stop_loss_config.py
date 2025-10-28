@@ -29,7 +29,8 @@ class StopLossConfig:
 
 
 def get_stop_loss_value(
-    strategy_config: dict[str, Any], global_config: dict[str, Any],
+    strategy_config: dict[str, Any],
+    global_config: dict[str, Any],
 ) -> float | None:
     """Get the stop loss value for a strategy, respecting the global configuration.
 

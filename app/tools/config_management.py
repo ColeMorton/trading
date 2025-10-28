@@ -54,7 +54,8 @@ class ConfigManager:
         # Initialize configuration storage
         self.configs: dict[str, ConfigDict] = {}
         self.config_schemas: dict[
-            str, type[Any],
+            str,
+            type[Any],
         ] = {}  # Changed from Type[TypedDict] to Type[Any]
         self.config_docs: dict[str, dict[str, str]] = {}
         self.config_presets: dict[str, dict[str, ConfigDict]] = {}
@@ -375,7 +376,9 @@ class ConfigManager:
                     )
 
     def load_from_file(
-        self, config_name: str, filepath: str | Path | None = None,
+        self,
+        config_name: str,
+        filepath: str | Path | None = None,
     ) -> bool:
         """Load configuration from a JSON file.
 
@@ -404,7 +407,9 @@ class ConfigManager:
             return False
 
     def save_to_file(
-        self, config_name: str, filepath: str | Path | None = None,
+        self,
+        config_name: str,
+        filepath: str | Path | None = None,
     ) -> bool:
         """Save configuration to a JSON file.
 
@@ -430,7 +435,8 @@ class ConfigManager:
             return True
         except Exception as e:
             self.logger.error(
-                f"Error saving configuration for {config_name}: {e!s}", exc_info=True,
+                f"Error saving configuration for {config_name}: {e!s}",
+                exc_info=True,
             )
             return False
 
@@ -510,7 +516,8 @@ _config_manager = None
 
 
 def get_config_manager(
-    name: str = "global", config_dir: str | Path | None = None,
+    name: str = "global",
+    config_dir: str | Path | None = None,
 ) -> ConfigManager:
     """Get or create the singleton ConfigManager instance.
 
@@ -543,7 +550,10 @@ def register_config_schema(
     """
     manager = get_config_manager()
     manager.register_config_schema(
-        config_name, schema_class, documentation, default_config,
+        config_name,
+        schema_class,
+        documentation,
+        default_config,
     )
 
 
@@ -703,7 +713,8 @@ def normalize_config(config: dict[str, Any]) -> dict[str, Any]:
 
 
 def merge_configs(
-    base_config: dict[str, Any], overrides: dict[str, Any] | None = None,
+    base_config: dict[str, Any],
+    overrides: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Merge a base configuration with overrides.
 

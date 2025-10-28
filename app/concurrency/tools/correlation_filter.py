@@ -121,7 +121,9 @@ def filter_correlated_strategies(
 
         # Simple clustering algorithm
         groups = _simple_hierarchical_clustering(
-            distance_matrix, strategy_ids, correlation_threshold,
+            distance_matrix,
+            strategy_ids,
+            correlation_threshold,
         )
 
         if log:
@@ -168,7 +170,9 @@ def filter_correlated_strategies(
 
 
 def _simple_hierarchical_clustering(
-    distance_matrix: np.ndarray, strategy_ids: list[str], threshold: float,
+    distance_matrix: np.ndarray,
+    strategy_ids: list[str],
+    threshold: float,
 ) -> dict[str, list[str]]:
     """Simple hierarchical clustering implementation.
 

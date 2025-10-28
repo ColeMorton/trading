@@ -57,7 +57,10 @@ class CacheService(CacheInterface):
             return entry.value
 
     async def set(
-        self, key: str, value: Any, ttl: timedelta | None | None = None,
+        self,
+        key: str,
+        value: Any,
+        ttl: timedelta | None | None = None,
     ) -> None:
         """Set value in cache with optional TTL."""
         if not self._enabled:
@@ -106,7 +109,8 @@ class CacheService(CacheInterface):
                     key_parts.append(json.dumps(kwargs, sort_keys=True))
 
                 cache_key = hashlib.md5(
-                    ":".join(key_parts).encode(), usedforsecurity=False,
+                    ":".join(key_parts).encode(),
+                    usedforsecurity=False,
                 ).hexdigest()
 
                 # Try to get from cache
@@ -130,7 +134,10 @@ class CacheService(CacheInterface):
         return decorator
 
     async def get_or_set(
-        self, key: str, factory: Callable, ttl: timedelta | None | None = None,
+        self,
+        key: str,
+        factory: Callable,
+        ttl: timedelta | None | None = None,
     ) -> Any:
         """Get from cache or compute and set."""
         result = await self.get(key)

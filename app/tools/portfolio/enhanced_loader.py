@@ -68,7 +68,8 @@ def load_portfolio_with_logging(
     try:
         # Resolve portfolio path
         portfolio_path = resolve_portfolio_file_path(
-            portfolio_name, config.get("BASE_DIR"),
+            portfolio_name,
+            config.get("BASE_DIR"),
         )
         log(f"Resolved portfolio path: {portfolio_path}", "info")
         log(f"Path exists: {portfolio_path.exists()}", "info")
@@ -91,7 +92,9 @@ def load_portfolio_with_logging(
 
 @contextlib.contextmanager
 def portfolio_context(
-    portfolio_name: str, log: Callable[[str, str], None], config: dict[str, Any],
+    portfolio_name: str,
+    log: Callable[[str, str], None],
+    config: dict[str, Any],
 ) -> Generator[list[StrategyConfig], None, None]:
     """Context manager for portfolio loading with automatic error handling.
 

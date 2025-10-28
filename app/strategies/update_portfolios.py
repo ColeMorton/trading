@@ -159,13 +159,16 @@ def run(portfolio: str, console: "ConsoleLogger" = None) -> bool:
             return _execute_portfolio_processing(portfolio, file_log, context_console)
     else:
         with logging_context(
-            module_name="strategies", log_file="update_portfolios.log",
+            module_name="strategies",
+            log_file="update_portfolios.log",
         ) as log:
             return _execute_portfolio_processing(portfolio, log, None)
 
 
 def _execute_portfolio_processing(
-    portfolio: str, log, console: "ConsoleLogger" = None,
+    portfolio: str,
+    log,
+    console: "ConsoleLogger" = None,
 ) -> bool:
     """Execute the core portfolio processing logic."""
     import time
@@ -203,7 +206,9 @@ def _execute_portfolio_processing(
     # Use the enhanced portfolio loader with standardized error handling
     daily_df = None
     with error_context(
-        "Loading portfolio", log, {FileNotFoundError: PortfolioLoadError},
+        "Loading portfolio",
+        log,
+        {FileNotFoundError: PortfolioLoadError},
     ):
         daily_df = load_portfolio_with_logging(portfolio, log, local_config)
         if not daily_df:
@@ -458,15 +463,18 @@ def _execute_portfolio_processing(
                             "",
                             "None",
                         ):
-                            portfolio_result[
-                                "Last Position Close Date"
-                            ] = last_close_date
+                            portfolio_result["Last Position Close Date"] = (
+                                last_close_date
+                            )
                         else:
                             portfolio_result["Last Position Close Date"] = None
 
     # Export results with config
     with error_context(
-        "Exporting summary results", log, {Exception: ExportError}, reraise=False,
+        "Exporting summary results",
+        log,
+        {Exception: ExportError},
+        reraise=False,
     ):
         # Ensure we're using the correct schema for export
         # This might have been set during schema detection, but let's make sure
@@ -492,7 +500,8 @@ def _execute_portfolio_processing(
                         continue
                     # Convert complex objects to strings for DataFrame compatibility
                     if value is not None and not isinstance(
-                        value, str | int | float | bool,
+                        value,
+                        str | int | float | bool,
                     ):
                         # Check if it's an EquityData object specifically
                         if hasattr(value, "__class__") and "EquityData" in str(
@@ -547,12 +556,16 @@ def _execute_portfolio_processing(
             # First get signal entries using the strategy_utils filter
             temp_config = {"USE_CURRENT": True}
             signal_entry_strategies = filter_portfolios_by_signal(
-                sorted_portfolios, temp_config, log,
+                sorted_portfolios,
+                temp_config,
+                log,
             )
 
             # Then use the portfolio_results utility to process and display them
             signal_entry_strategies = filter_signal_entries(
-                signal_entry_strategies, portfolio_strategies, log,
+                signal_entry_strategies,
+                portfolio_strategies,
+                log,
             )
 
             # Calculate and display breadth metrics
@@ -572,7 +585,9 @@ def _execute_portfolio_processing(
             if "ACCOUNT_VALUE" in local_config and local_config["ACCOUNT_VALUE"] > 0:
                 account_value = float(local_config["ACCOUNT_VALUE"])
                 position_sized_portfolios = calculate_position_sizes(
-                    sorted_portfolios, account_value, log,
+                    sorted_portfolios,
+                    account_value,
+                    log,
                 )
                 log(
                     f"Calculated position sizes based on account value: {account_value}",
@@ -633,7 +648,10 @@ if __name__ == "__main__":
 
     # Check if the portfolio file exists and detect its schema
     portfolio_path = os.path.join(
-        get_project_root(), "csv", "strategies", resolved_portfolio,
+        get_project_root(),
+        "csv",
+        "strategies",
+        resolved_portfolio,
     )
     if os.path.exists(portfolio_path):
         try:

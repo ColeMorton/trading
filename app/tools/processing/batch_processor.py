@@ -116,7 +116,9 @@ class TickerBatchProcessor:
             )
 
             processed_results = self._process_with_retries(
-                tickers_to_process, processing_fn, batch_size,
+                tickers_to_process,
+                processing_fn,
+                batch_size,
             )
 
             # Cache successful results
@@ -194,7 +196,8 @@ class TickerBatchProcessor:
 
         # Collect results as they complete
         for future in as_completed(
-            futures, timeout=len(tickers) * self.timeout_per_ticker,
+            futures,
+            timeout=len(tickers) * self.timeout_per_ticker,
         ):
             try:
                 ticker, result, error = future.result()
@@ -301,7 +304,8 @@ class ParameterSweepProcessor:
             }
 
             for future in as_completed(
-                chunk_futures, timeout=len(chunks) * self.timeout_per_chunk,
+                chunk_futures,
+                timeout=len(chunks) * self.timeout_per_chunk,
             ):
                 try:
                     chunk_results = future.result()
@@ -520,7 +524,10 @@ class MemoryEfficientParameterSweep:
                 # Process chunk results
                 if chunk_results and self.stream_to_disk and output_dir:
                     output_file = self._save_chunk_results(
-                        chunk_results, chunk_idx, base_identifier, output_dir,
+                        chunk_results,
+                        chunk_idx,
+                        base_identifier,
+                        output_dir,
                     )
                     output_files.append(output_file)
 

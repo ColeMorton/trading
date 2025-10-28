@@ -146,9 +146,10 @@ def calculate_cvar(returns: np.ndarray, confidence_level: float = 0.95) -> float
     return -sorted_returns[sorted_returns <= var].mean()  # Convert to positive value
 
 
-
 def calculate_asset_metrics(
-    returns: pl.DataFrame, weights: dict[str, float], log: Callable[[str, str], None],
+    returns: pl.DataFrame,
+    weights: dict[str, float],
+    log: Callable[[str, str], None],
 ) -> list[dict[str, float]]:
     """
     Calculate performance metrics for individual assets.
@@ -347,7 +348,9 @@ def main() -> None:
         # Calculate position sizes and metrics
         log("Calculating position sizes and metrics", "info")
         results = calculate_position_sizes(
-            portfolio_config["portfolio"], merged_config, log,
+            portfolio_config["portfolio"],
+            merged_config,
+            log,
         )
 
         # Calculate total leveraged value to check against target if needed
@@ -364,7 +367,9 @@ def main() -> None:
 
             # Scale down initial values while keeping leverage and allocation same
             for asset, metrics in zip(
-                portfolio_config["portfolio"], results, strict=False,
+                portfolio_config["portfolio"],
+                results,
+                strict=False,
             ):
                 metrics["initial_value"] *= scale_factor
                 metrics["leveraged_value"] = (
@@ -418,7 +423,9 @@ def main() -> None:
                     "allocation": metrics["allocation"],
                 }
                 for asset, metrics in zip(
-                    portfolio_config["portfolio"], results, strict=False,
+                    portfolio_config["portfolio"],
+                    results,
+                    strict=False,
                 )
             ],
             "position_sizing_config": {

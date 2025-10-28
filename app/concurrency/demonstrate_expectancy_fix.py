@@ -37,10 +37,16 @@ def demonstrate_variance_issue():
 
     # Calculate both ways
     legacy = calc.calculate_from_components(
-        win_rate, avg_win, avg_loss, legacy_mode=True,
+        win_rate,
+        avg_win,
+        avg_loss,
+        legacy_mode=True,
     )
     fixed = calc.calculate_from_components(
-        win_rate, avg_win, avg_loss, legacy_mode=False,
+        win_rate,
+        avg_win,
+        avg_loss,
+        legacy_mode=False,
     )
 
     print(f"Win Rate: {win_rate:.1%}")
@@ -57,10 +63,16 @@ def demonstrate_variance_issue():
     avg_loss_normal = 0.015  # 1.5% average loss
 
     legacy_normal = calc.calculate_from_components(
-        win_rate, avg_win, avg_loss_normal, legacy_mode=True,
+        win_rate,
+        avg_win,
+        avg_loss_normal,
+        legacy_mode=True,
     )
     fixed_normal = calc.calculate_from_components(
-        win_rate, avg_win, avg_loss_normal, legacy_mode=False,
+        win_rate,
+        avg_win,
+        avg_loss_normal,
+        legacy_mode=False,
     )
 
     print(f"Win Rate: {win_rate:.1%}")

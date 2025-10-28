@@ -303,7 +303,9 @@ class TestMomentumErrorHandling:
 
         # This should trigger the exception handling
         with pytest.patch.object(
-            analyzer, "_rolling_momentum", side_effect=Exception("Test error"),
+            analyzer,
+            "_rolling_momentum",
+            side_effect=Exception("Test error"),
         ):
             result = analyzer._calculate_momentum_metrics(np.array([0.01, 0.02, 0.03]))
 

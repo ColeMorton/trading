@@ -113,7 +113,8 @@ class TestPortfolioAnalysisService(unittest.TestCase):
     def test_initialization_general_mode(self):
         """Test service initialization in general mode."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         self.assertEqual(service.base_dir, self.temp_path)
@@ -123,7 +124,8 @@ class TestPortfolioAnalysisService(unittest.TestCase):
     def test_initialization_current_mode(self):
         """Test service initialization in current mode."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=True,
+            base_dir=str(self.temp_path),
+            use_current=True,
         )
 
         self.assertEqual(service.base_dir, self.temp_path)
@@ -147,7 +149,8 @@ class TestPortfolioAnalysisService(unittest.TestCase):
     def test_find_ticker_files_current_mode(self):
         """Test finding ticker files in current mode."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=True,
+            base_dir=str(self.temp_path),
+            use_current=True,
         )
 
         with patch.object(service, "_get_current_date_string", return_value="20250815"):
@@ -159,7 +162,8 @@ class TestPortfolioAnalysisService(unittest.TestCase):
     def test_find_ticker_files_general_mode(self):
         """Test finding ticker files in general mode."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         files = service._find_ticker_files("AAPL")
@@ -170,7 +174,8 @@ class TestPortfolioAnalysisService(unittest.TestCase):
     def test_find_ticker_files_nonexistent_ticker(self):
         """Test finding files for nonexistent ticker."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         files = service._find_ticker_files("NONEXISTENT")
@@ -181,7 +186,8 @@ class TestPortfolioAnalysisService(unittest.TestCase):
     def test_aggregate_portfolios_best_current_mode(self, mock_print):
         """Test aggregating portfolios in current mode."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=True,
+            base_dir=str(self.temp_path),
+            use_current=True,
         )
 
         with patch.object(service, "_get_current_date_string", return_value="20250815"):
@@ -196,7 +202,8 @@ class TestPortfolioAnalysisService(unittest.TestCase):
     def test_aggregate_portfolios_best_general_mode(self, mock_print):
         """Test aggregating portfolios in general mode."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         result_df = service.aggregate_portfolios_best(["AAPL", "MSFT"])
@@ -210,7 +217,8 @@ class TestPortfolioAnalysisService(unittest.TestCase):
     def test_aggregate_portfolios_best_missing_tickers(self, mock_print):
         """Test aggregating portfolios with some missing tickers."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         result_df = service.aggregate_portfolios_best(["AAPL", "NONEXISTENT"])
@@ -224,7 +232,8 @@ class TestPortfolioAnalysisService(unittest.TestCase):
     def test_aggregate_portfolios_best_no_valid_data(self, mock_print):
         """Test aggregating portfolios when no valid data found."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         result_df = service.aggregate_portfolios_best(["NONEXISTENT1", "NONEXISTENT2"])
@@ -235,7 +244,8 @@ class TestPortfolioAnalysisService(unittest.TestCase):
     def test_aggregate_all_current_portfolios(self, mock_print):
         """Test aggregating all current portfolios."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=True,
+            base_dir=str(self.temp_path),
+            use_current=True,
         )
 
         with patch.object(service, "_get_current_date_string", return_value="20250815"):
@@ -248,7 +258,8 @@ class TestPortfolioAnalysisService(unittest.TestCase):
     def test_aggregate_all_current_portfolios_not_current_mode(self, mock_print):
         """Test aggregating all current portfolios when not in current mode."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         result_df = service.aggregate_all_current_portfolios()
@@ -258,7 +269,8 @@ class TestPortfolioAnalysisService(unittest.TestCase):
     def test_discover_all_current_files(self):
         """Test discovering all current files."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=True,
+            base_dir=str(self.temp_path),
+            use_current=True,
         )
 
         with patch.object(service, "_get_current_date_string", return_value="20250815"):
@@ -272,7 +284,8 @@ class TestPortfolioAnalysisService(unittest.TestCase):
     def test_discover_all_current_files_not_current_mode(self):
         """Test discovering all current files when not in current mode."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         files = service._discover_all_current_files()
@@ -444,7 +457,8 @@ class TestPortfolioAnalysisService(unittest.TestCase):
         mock_read_csv.side_effect = Exception("Corrupt CSV file")
 
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         with patch("builtins.print"):  # Mock rprint
@@ -456,7 +470,8 @@ class TestPortfolioAnalysisService(unittest.TestCase):
     def test_file_discovery_patterns(self):
         """Test file discovery patterns for different timeframes."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         # Create files with different timeframe patterns
@@ -547,7 +562,8 @@ class TestPortfolioAnalysisServiceIntegration(unittest.TestCase):
     def test_large_portfolio_aggregation(self, mock_print):
         """Test aggregating large number of portfolios."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=True,
+            base_dir=str(self.temp_path),
+            use_current=True,
         )
 
         with patch.object(service, "_get_current_date_string", return_value="20250815"):
@@ -567,7 +583,8 @@ class TestPortfolioAnalysisServiceIntegration(unittest.TestCase):
     def test_performance_sorting_and_filtering(self, mock_print):
         """Test performance with sorting and filtering operations."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         # Aggregate all portfolios
@@ -578,7 +595,9 @@ class TestPortfolioAnalysisServiceIntegration(unittest.TestCase):
         # Test sorting by different metrics
         sorted_by_score = service.sort_portfolios(df, "Score", ascending=False)
         sorted_by_return = service.sort_portfolios(
-            df, "Total Return [%]", ascending=False,
+            df,
+            "Total Return [%]",
+            ascending=False,
         )
 
         # Verify sorting worked correctly
@@ -592,7 +611,8 @@ class TestPortfolioAnalysisServiceIntegration(unittest.TestCase):
     def test_comprehensive_stats_calculation(self, mock_print):
         """Test comprehensive statistics calculation with realistic data."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         df = service.aggregate_portfolios_best(["AAPL", "MSFT", "GOOGL"])
@@ -608,7 +628,8 @@ class TestPortfolioAnalysisServiceIntegration(unittest.TestCase):
     def test_display_formatting_with_large_dataset(self):
         """Test display formatting with large dataset."""
         service = PortfolioAnalysisService(
-            base_dir=str(self.temp_path), use_current=False,
+            base_dir=str(self.temp_path),
+            use_current=False,
         )
 
         with patch("builtins.print"):

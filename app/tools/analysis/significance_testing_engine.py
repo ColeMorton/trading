@@ -121,7 +121,10 @@ class SignificanceTestingEngine:
                     dof = len(x1) - 1
                 else:
                     test_stat, p_value = ttest_ind(
-                        x1, x2, equal_var=True, alternative=alternative,
+                        x1,
+                        x2,
+                        equal_var=True,
+                        alternative=alternative,
                     )
                     test_name = "Independent t-test"
                     dof = len(x1) + len(x2) - 2
@@ -131,7 +134,10 @@ class SignificanceTestingEngine:
             elif assumptions["normality"] and not assumptions["equal_variance"]:
                 # Welch's t-test
                 test_stat, p_value = ttest_ind(
-                    x1, x2, equal_var=False, alternative=alternative,
+                    x1,
+                    x2,
+                    equal_var=False,
+                    alternative=alternative,
                 )
                 test_name = "Welch's t-test"
                 test_type = "parametric"
@@ -348,7 +354,9 @@ class SignificanceTestingEngine:
             raise
 
     async def test_normality(
-        self, data: list[float] | np.ndarray | pd.Series, alpha: float = 0.05,
+        self,
+        data: list[float] | np.ndarray | pd.Series,
+        alpha: float = 0.05,
     ) -> SignificanceTestResult:
         """
         Test for normality of data distribution
@@ -393,7 +401,8 @@ class SignificanceTestingEngine:
                 effect_size=None,
                 effect_size_interpretation=None,
                 assumptions_met={
-                    "sample_size_adequate": len(x) >= self.min_sample_sizes["normality"],
+                    "sample_size_adequate": len(x)
+                    >= self.min_sample_sizes["normality"],
                 },
                 assumption_warnings=[],
                 sample_size=len(x),
@@ -468,7 +477,10 @@ class SignificanceTestingEngine:
             raise
 
     async def apply_multiple_testing_correction(
-        self, p_values: list[float], method: str = "fdr_bh", alpha: float = 0.05,
+        self,
+        p_values: list[float],
+        method: str = "fdr_bh",
+        alpha: float = 0.05,
     ) -> MultipleTestingCorrection:
         """
         Apply multiple testing correction to p-values
@@ -486,7 +498,9 @@ class SignificanceTestingEngine:
 
             # Apply correction
             rejected, corrected_p_values, alpha_sidak, alpha_bonf = multipletests(
-                p_values_array, alpha=alpha, method=method,
+                p_values_array,
+                alpha=alpha,
+                method=method,
             )
 
             # Calculate corrected alpha based on method
@@ -523,7 +537,10 @@ class SignificanceTestingEngine:
     # Helper methods
 
     async def _test_assumptions_for_ttest(
-        self, x1: np.ndarray, x2: np.ndarray, paired: bool,
+        self,
+        x1: np.ndarray,
+        x2: np.ndarray,
+        paired: bool,
     ) -> dict[str, bool]:
         """Test assumptions for t-test"""
         assumptions = {}
@@ -557,7 +574,8 @@ class SignificanceTestingEngine:
         return assumptions
 
     async def _test_assumptions_for_anova(
-        self, groups: list[np.ndarray],
+        self,
+        groups: list[np.ndarray],
     ) -> dict[str, bool]:
         """Test assumptions for ANOVA"""
         assumptions = {}
@@ -596,7 +614,11 @@ class SignificanceTestingEngine:
         return numerator / denominator
 
     def _calculate_effect_size(
-        self, x1: np.ndarray, x2: np.ndarray, test_type: str, paired: bool,
+        self,
+        x1: np.ndarray,
+        x2: np.ndarray,
+        test_type: str,
+        paired: bool,
     ) -> dict[str, Any]:
         """Calculate appropriate effect size measure"""
         if test_type == "parametric":
@@ -627,7 +649,9 @@ class SignificanceTestingEngine:
         }
 
     def _calculate_group_effect_size(
-        self, groups: list[np.ndarray], test_type: str,
+        self,
+        groups: list[np.ndarray],
+        test_type: str,
     ) -> dict[str, Any]:
         """Calculate effect size for multiple groups comparison"""
         if test_type == "parametric":
@@ -655,7 +679,10 @@ class SignificanceTestingEngine:
         }
 
     def _correlation_confidence_interval(
-        self, r: float, n: int, alpha: float = 0.05,
+        self,
+        r: float,
+        n: int,
+        alpha: float = 0.05,
     ) -> tuple[float, float]:
         """Calculate confidence interval for correlation coefficient"""
         # Fisher z-transformation

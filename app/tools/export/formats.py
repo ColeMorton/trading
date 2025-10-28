@@ -85,7 +85,9 @@ class CSVExporter(ExportStrategy):
                 context.log(f"✅ {rows_exported} results → {full_path}", "debug")
 
             return ExportResult(
-                success=True, path=str(full_path), rows_exported=rows_exported,
+                success=True,
+                path=str(full_path),
+                rows_exported=rows_exported,
             )
 
         except Exception as e:
@@ -95,7 +97,10 @@ class CSVExporter(ExportStrategy):
             logging.exception(error_msg)
 
             return ExportResult(
-                success=False, path="", rows_exported=0, error_message=error_msg,
+                success=False,
+                path="",
+                rows_exported=0,
+                error_message=error_msg,
             )
 
     def _prepare_dataframe(self, context: ExportContext) -> pl.DataFrame | pd.DataFrame:
@@ -129,7 +134,9 @@ class CSVExporter(ExportStrategy):
         return self._ensure_canonical_schema_compliance(df, context)
 
     def _ensure_canonical_schema_compliance(
-        self, df: pl.DataFrame | pd.DataFrame, context: ExportContext,
+        self,
+        df: pl.DataFrame | pd.DataFrame,
+        context: ExportContext,
     ) -> pl.DataFrame | pd.DataFrame:
         """Ensure DataFrame complies with canonical 59-column schema.
 
@@ -162,7 +169,8 @@ class CSVExporter(ExportStrategy):
             if context.log:
                 if validation_result["is_valid"]:
                     context.log(
-                        "Export data is fully compliant with canonical schema", "info",
+                        "Export data is fully compliant with canonical schema",
+                        "info",
                     )
                 else:
                     violations = len(validation_result.get("violations", []))
@@ -175,7 +183,8 @@ class CSVExporter(ExportStrategy):
                     # Log specific violations
                     for violation in validation_result.get("violations", []):
                         context.log(
-                            f"Schema violation: {violation['message']}", "warning",
+                            f"Schema violation: {violation['message']}",
+                            "warning",
                         )
 
         except Exception as e:
@@ -191,7 +200,9 @@ class CSVExporter(ExportStrategy):
         return canonical_df
 
     def _apply_canonical_column_order(
-        self, df: pd.DataFrame, context: ExportContext,
+        self,
+        df: pd.DataFrame,
+        context: ExportContext,
     ) -> pd.DataFrame:
         """Apply canonical column order and add missing columns.
 
@@ -222,7 +233,8 @@ class CSVExporter(ExportStrategy):
             else:
                 # Add missing column with appropriate default
                 canonical_df[col_name] = self._get_default_column_value(
-                    col_name, len(df),
+                    col_name,
+                    len(df),
                 )
                 missing_columns.append(col_name)
 
@@ -409,7 +421,9 @@ class CSVExporter(ExportStrategy):
         return f"{filename}.csv" if filename else "export.csv"
 
     def _validate_metrics(
-        self, df: pl.DataFrame | pd.DataFrame, context: ExportContext,
+        self,
+        df: pl.DataFrame | pd.DataFrame,
+        context: ExportContext,
     ) -> None:
         """Validate and log missing risk metrics.
 
@@ -511,7 +525,10 @@ class JSONExporter(ExportStrategy):
             with open(full_path, "w") as f:
                 if context.json_encoder:
                     json.dump(
-                        json_data, f, indent=context.indent, cls=context.json_encoder,
+                        json_data,
+                        f,
+                        indent=context.indent,
+                        cls=context.json_encoder,
                     )
                 else:
                     json.dump(json_data, f, indent=context.indent)
@@ -526,7 +543,9 @@ class JSONExporter(ExportStrategy):
             logging.info(message)
 
             return ExportResult(
-                success=True, path=str(full_path), rows_exported=rows_exported,
+                success=True,
+                path=str(full_path),
+                rows_exported=rows_exported,
             )
 
         except Exception as e:
@@ -536,7 +555,10 @@ class JSONExporter(ExportStrategy):
             logging.exception(error_msg)
 
             return ExportResult(
-                success=False, path="", rows_exported=0, error_message=error_msg,
+                success=False,
+                path="",
+                rows_exported=0,
+                error_message=error_msg,
             )
 
     def _prepare_json_data(self, context: ExportContext) -> dict | list:

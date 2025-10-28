@@ -34,7 +34,6 @@ def extract_file_metadata(filename: str) -> dict[str, str]:
     }
 
 
-
 def save_aggregation_csv(aggregation_results: dict[str, Any], output_path: Path):
     """Save aggregation results to CSV format.
 

@@ -29,7 +29,10 @@ from app.tools.strategy.signal_utils import (
 
 
 def process_ticker_portfolios(
-    ticker: str, row: dict, config: dict[str, Any], log: Callable[[str, str], None],
+    ticker: str,
+    row: dict,
+    config: dict[str, Any],
+    log: Callable[[str, str], None],
 ) -> list[dict] | None:
     """
     Process portfolios for a single ticker based on strategy type.
@@ -189,7 +192,12 @@ def process_ticker_portfolios(
 
                         # Convert stats with current signal status
                         converted_stats = convert_stats(
-                            stats, log, config, current_signal, None, signal_unconfirmed,
+                            stats,
+                            log,
+                            config,
+                            current_signal,
+                            None,
+                            signal_unconfirmed,
                         )
                         portfolios.append(converted_stats)
                     except Exception as e:
@@ -239,7 +247,8 @@ def process_ticker_portfolios(
                         # Check if there's a current signal
                         current_signal = is_signal_current(sma_data, config)
                         log(
-                            f"Current SMA signal for {ticker}: {current_signal}", "info",
+                            f"Current SMA signal for {ticker}: {current_signal}",
+                            "info",
                         )
 
                         # Check if there's a current exit signal
@@ -252,7 +261,8 @@ def process_ticker_portfolios(
                         # Get total open trades from portfolio stats
                         sma_portfolio_stats = sma_portfolio.stats()
                         total_open_trades = sma_portfolio_stats.get(
-                            "Total Open Trades", 0,
+                            "Total Open Trades",
+                            0,
                         )
 
                         # Calculate unconfirmed signal using real-time data
@@ -304,7 +314,8 @@ def process_ticker_portfolios(
                         # Check if there's a current signal
                         current_signal = is_signal_current(ema_data, config)
                         log(
-                            f"Current EMA signal for {ticker}: {current_signal}", "info",
+                            f"Current EMA signal for {ticker}: {current_signal}",
+                            "info",
                         )
 
                         # Check if there's a current exit signal
@@ -317,7 +328,8 @@ def process_ticker_portfolios(
                         # Get total open trades from portfolio stats
                         ema_portfolio_stats = ema_portfolio.stats()
                         total_open_trades = ema_portfolio_stats.get(
-                            "Total Open Trades", 0,
+                            "Total Open Trades",
+                            0,
                         )
 
                         # Calculate unconfirmed signal using real-time data

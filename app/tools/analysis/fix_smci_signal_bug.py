@@ -209,9 +209,7 @@ class PercentileRankFixer:
                     if val2 == val1:
                         return rank1  # Avoid division by zero
 
-                    return rank1 + (rank2 - rank1) * (value - val1) / (
-                        val2 - val1
-                    )
+                    return rank1 + (rank2 - rank1) * (value - val1) / (val2 - val1)
 
             # Fallback - should not reach here if logic is correct
             self.logger.warning(
@@ -415,7 +413,8 @@ class PercentileRankFixer:
         # Apply the fix
         if old_percentile_extraction in content:
             content = content.replace(
-                old_percentile_extraction, new_percentile_extraction,
+                old_percentile_extraction,
+                new_percentile_extraction,
             )
 
             # Write the fixed content

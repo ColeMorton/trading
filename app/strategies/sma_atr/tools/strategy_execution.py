@@ -47,7 +47,12 @@ def cache_sma_entry_signals(
     try:
         # Calculate SMA signals using existing functionality
         data_with_sma = calculate_ma_and_signals(
-            data, fast_period, slow_period, config, log, strategy_type="SMA",
+            data,
+            fast_period,
+            slow_period,
+            config,
+            log,
+            strategy_type="SMA",
         )
 
         log(
@@ -106,9 +111,11 @@ def apply_atr_exits_to_cached_entries(
 
         # Apply ATR exits to cached SMA entries
         return generate_sma_atr_positions(
-            data_with_atr, atr_multiplier, config, log,
+            data_with_atr,
+            atr_multiplier,
+            config,
+            log,
         )
-
 
     except Exception as e:
         log(f"Error applying ATR exits: {e}", "error")
@@ -147,9 +154,11 @@ def apply_atr_exits_to_precalculated_data(
 
         # Apply ATR exits using pre-calculated ATR data (no recalculation!)
         return generate_sma_atr_positions(
-            data_with_atr, atr_multiplier, config, log,
+            data_with_atr,
+            atr_multiplier,
+            config,
+            log,
         )
-
 
     except Exception as e:
         log(f"Error applying ATR exits to precalculated data: {e}", "error")
@@ -203,7 +212,11 @@ def execute_backtest_on_signals(
 
         # Convert stats using the standard format
         converted_stats = convert_stats(
-            valid_stats, log, config, current_signal, exit_signal,
+            valid_stats,
+            log,
+            config,
+            current_signal,
+            exit_signal,
         )
 
         # Add strategy identification fields (same as original implementation)
@@ -216,7 +229,8 @@ def execute_backtest_on_signals(
                 "Slow Period": config["SLOW_PERIOD"],
                 "Exit Fast Period": config.get("ATR_LENGTH", 14),
                 "Exit Slow Period": round(
-                    config.get("ATR_MULTIPLIER", 2.0), 1,
+                    config.get("ATR_MULTIPLIER", 2.0),
+                    1,
                 ),  # Round to 1 decimal to avoid floating point errors
                 "Exit Signal Period": None,  # Not used by ATR strategy
                 "Allocation [%]": config.get("ALLOCATION"),
@@ -259,7 +273,12 @@ def calculate_sma_atr_signals(
         # First, calculate SMA signals for entries using existing functionality
         # We'll use SMA specifically (not EMA) for this strategy
         data_with_sma = calculate_ma_and_signals(
-            data, fast_period, slow_period, config, log, strategy_type="SMA",
+            data,
+            fast_period,
+            slow_period,
+            config,
+            log,
+            strategy_type="SMA",
         )
 
         # Calculate ATR for trailing stops
@@ -273,9 +292,11 @@ def calculate_sma_atr_signals(
 
         # Generate combined SMA_ATR signals
         return generate_sma_atr_positions(
-            data_with_atr, atr_multiplier, config, log,
+            data_with_atr,
+            atr_multiplier,
+            config,
+            log,
         )
-
 
     except Exception as e:
         log(f"Error calculating SMA_ATR signals: {e}", "error")
@@ -283,7 +304,10 @@ def calculate_sma_atr_signals(
 
 
 def generate_sma_atr_positions(
-    data: pl.DataFrame, atr_multiplier: float, config: dict, log: Callable,
+    data: pl.DataFrame,
+    atr_multiplier: float,
+    config: dict,
+    log: Callable,
 ) -> pl.DataFrame:
     """
     Generate trading positions using SMA entries and ATR trailing stops (OPTIMIZED).
@@ -405,14 +429,16 @@ def generate_sma_atr_positions(
         # Convert back to polars
         return pl.from_pandas(df)
 
-
     except Exception as e:
         log(f"Error generating SMA_ATR positions (optimized): {e}", "error")
         raise
 
 
 def execute_single_strategy(
-    ticker: str, data: pl.DataFrame, config: Config, log: Callable,
+    ticker: str,
+    data: pl.DataFrame,
+    config: Config,
+    log: Callable,
 ) -> dict | None:
     """Execute a single SMA_ATR strategy with specified parameters and pre-fetched data.
 
@@ -472,7 +498,11 @@ def execute_single_strategy(
 
         # Convert stats using app/tools/stats_converter.py
         converted_stats = convert_stats(
-            valid_stats, log, config, current_signal, exit_signal,
+            valid_stats,
+            log,
+            config,
+            current_signal,
+            exit_signal,
         )
 
         # Add strategy identification fields
@@ -485,7 +515,8 @@ def execute_single_strategy(
                 "Slow Period": config["SLOW_PERIOD"],
                 "Exit Fast Period": config.get("ATR_LENGTH", 14),
                 "Exit Slow Period": round(
-                    config.get("ATR_MULTIPLIER", 2.0), 1,
+                    config.get("ATR_MULTIPLIER", 2.0),
+                    1,
                 ),  # Round to 1 decimal to avoid floating point errors
                 "Exit Signal Period": None,  # Not used by ATR strategy
                 "Allocation [%]": config.get("ALLOCATION", None),
@@ -590,7 +621,11 @@ def process_single_ticker(
                 if sma_key not in sma_entry_cache:
                     try:
                         cached_sma_signals = cache_sma_entry_signals(
-                            data, fast, slow, config, log,
+                            data,
+                            fast,
+                            slow,
+                            config,
+                            log,
                         )
                         sma_entry_cache[sma_key] = cached_sma_signals
                         log(
@@ -610,7 +645,8 @@ def process_single_ticker(
                     if atr_key not in atr_cache:
                         try:
                             atr_series = calculate_atr(
-                                sma_entry_cache[sma_key].to_pandas(), atr_length,
+                                sma_entry_cache[sma_key].to_pandas(),
+                                atr_length,
                             )
                             data_with_atr = sma_entry_cache[sma_key].with_columns(
                                 [pl.Series("ATR", atr_series.values)],
@@ -679,7 +715,10 @@ def process_single_ticker(
 
                             # Run backtest with complete signals (skip signal recalculation)
                             result = execute_backtest_on_signals(
-                                ticker, complete_signals, param_config, log,
+                                ticker,
+                                complete_signals,
+                                param_config,
+                                log,
                             )
                             if result is not None:
                                 portfolios.append(result)
@@ -719,7 +758,8 @@ def process_single_ticker(
         )
 
         log(
-            f"Generated {len(portfolios)} valid SMA_ATR portfolios for {ticker}", "info",
+            f"Generated {len(portfolios)} valid SMA_ATR portfolios for {ticker}",
+            "info",
         )
 
         # Return portfolios directly for orchestration compatibility

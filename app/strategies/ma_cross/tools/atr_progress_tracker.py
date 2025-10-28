@@ -297,7 +297,8 @@ class ATRProgressTracker:
             return
 
         progress_file = os.path.join(
-            self.cache_dir, f"{self.current_state.ticker}_progress.json",
+            self.cache_dir,
+            f"{self.current_state.ticker}_progress.json",
         )
 
         try:

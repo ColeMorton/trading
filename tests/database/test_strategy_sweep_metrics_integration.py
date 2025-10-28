@@ -101,7 +101,9 @@ class TestMetricTypeIntegration:
 
     @pytest.mark.skip(reason="Requires live database connection")
     async def test_save_and_retrieve_with_metrics(
-        self, repository, sample_sweep_results,
+        self,
+        repository,
+        sample_sweep_results,
     ):
         """Test saving sweep results with metric types and retrieving them."""
         sweep_run_id = uuid4()
@@ -116,7 +118,9 @@ class TestMetricTypeIntegration:
 
         # Save results with metric types
         inserted_count = await repository.save_sweep_results_with_metrics(
-            sweep_run_id, sample_sweep_results, sweep_config,
+            sweep_run_id,
+            sample_sweep_results,
+            sweep_config,
         )
 
         assert inserted_count == len(sample_sweep_results)
@@ -142,12 +146,15 @@ class TestMetricTypeIntegration:
 
         # Save results
         await repository.save_sweep_results_with_metrics(
-            sweep_run_id, sample_sweep_results, sweep_config,
+            sweep_run_id,
+            sample_sweep_results,
+            sweep_config,
         )
 
         # Find results with "Most Sharpe Ratio"
         results = await repository.find_results_by_metric_type(
-            "Most Sharpe Ratio", sweep_run_id,
+            "Most Sharpe Ratio",
+            sweep_run_id,
         )
 
         assert len(results) > 0
@@ -193,7 +200,9 @@ class TestMetricTypeIntegration:
 
         # Save using new method (should populate both string and junction table)
         await repository.save_sweep_results_with_metrics(
-            sweep_run_id, old_format_result, sweep_config,
+            sweep_run_id,
+            old_format_result,
+            sweep_config,
         )
 
         # Retrieve and verify both representations exist
@@ -259,12 +268,15 @@ class TestComplexScenarios:
         ]
 
         await repository.save_sweep_results_with_metrics(
-            sweep_run_id, results, sweep_config,
+            sweep_run_id,
+            results,
+            sweep_config,
         )
 
         # Find all results with "Most Sharpe Ratio"
         sharpe_results = await repository.find_results_by_metric_type(
-            "Most Sharpe Ratio", sweep_run_id,
+            "Most Sharpe Ratio",
+            sweep_run_id,
         )
 
         assert len(sharpe_results) == 2
@@ -285,7 +297,9 @@ class TestComplexScenarios:
         ]
 
         await repository.save_sweep_results_with_metrics(
-            sweep_run_id, results, sweep_config,
+            sweep_run_id,
+            results,
+            sweep_config,
         )
 
         retrieved = await repository.get_sweep_results_with_metrics(sweep_run_id)
@@ -314,7 +328,9 @@ class TestComplexScenarios:
         ]
 
         await repository.save_sweep_results_with_metrics(
-            sweep_run_id, results, sweep_config,
+            sweep_run_id,
+            results,
+            sweep_config,
         )
 
         retrieved = await repository.get_sweep_results_with_metrics(sweep_run_id)
@@ -339,7 +355,9 @@ class TestComplexScenarios:
         ]
 
         await repository.save_sweep_results_with_metrics(
-            sweep_run_id, results, sweep_config,
+            sweep_run_id,
+            results,
+            sweep_config,
         )
 
         retrieved = await repository.get_sweep_results_with_metrics(sweep_run_id)
@@ -377,7 +395,9 @@ class TestQueryPerformance:
         # Measure save time
         start = time.time()
         await repository.save_sweep_results_with_metrics(
-            sweep_run_id, large_results, sweep_config,
+            sweep_run_id,
+            large_results,
+            sweep_config,
         )
         save_time = time.time() - start
 

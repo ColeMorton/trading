@@ -32,7 +32,9 @@ class TestPositionSizingIntegration:
     @patch("app.tools.risk.cvar_calculator.CVaRCalculator.calculate_trading_cvar")
     @patch("app.tools.risk.cvar_calculator.CVaRCalculator.calculate_investment_cvar")
     def test_complete_excel_formula_chain(
-        self, mock_investment_cvar, mock_trading_cvar,
+        self,
+        mock_investment_cvar,
+        mock_trading_cvar,
     ):
         """Test complete Excel formula chain B2→B5→B12/E11→B17-B21."""
         # Mock CVaR values from actual concurrency data
@@ -59,13 +61,16 @@ class TestPositionSizingIntegration:
 
         # Excel B17-B21: Kelly analysis
         b20_confidence = self.kelly_sizer.calculate_excel_b20_equivalent(
-            self.num_primary, self.num_outliers,
+            self.num_primary,
+            self.num_outliers,
         )
         expected_b20 = 85 / (85 + 15)  # 0.85
         assert b20_confidence == expected_b20
 
         b21_adjusted_kelly = self.kelly_sizer.calculate_excel_b21_equivalent(
-            self.num_primary, self.num_outliers, self.kelly_criterion,
+            self.num_primary,
+            self.num_outliers,
+            self.kelly_criterion,
         )
         expected_b21 = 0.25 * 0.85  # 0.2125
         assert b21_adjusted_kelly == expected_b21
@@ -78,7 +83,10 @@ class TestPositionSizingIntegration:
 
         # Step 2: Apply Kelly criterion adjustment
         kelly_analysis = self.kelly_sizer.get_complete_kelly_analysis(
-            self.num_primary, self.num_outliers, self.kelly_criterion, self.net_worth,
+            self.num_primary,
+            self.num_outliers,
+            self.kelly_criterion,
+            self.net_worth,
         )
 
         # Kelly-adjusted position size should be smaller than max risk
@@ -87,13 +95,15 @@ class TestPositionSizingIntegration:
 
         # Step 3: Position risk per individual position
         single_position_risk = self.risk_allocator.calculate_position_risk_limit(
-            self.net_worth, 1,
+            self.net_worth,
+            1,
         )
         assert single_position_risk == 29500.0  # Full allocation for 1 position
 
         # Multiple positions
         five_position_risk = self.risk_allocator.calculate_position_risk_limit(
-            self.net_worth, 5,
+            self.net_worth,
+            5,
         )
         assert five_position_risk == 5900.0  # $29.5k / 5 positions
 
@@ -126,7 +136,8 @@ class TestPositionSizingIntegration:
         allocations = {"AAPL": 40.0, "MSFT": 35.0, "GOOGL": 25.0}
 
         position_values = self.allocation_optimizer.calculate_position_values(
-            allocations, total_risk_budget,
+            allocations,
+            total_risk_budget,
         )
 
         assert position_values["AAPL"] == 11800.0  # 40% of $29.5k
@@ -145,7 +156,8 @@ class TestPositionSizingIntegration:
         total_current_exposure = sum(current_positions.values())  # $18k
 
         utilization = self.risk_allocator.calculate_risk_utilization(
-            self.net_worth, total_current_exposure,
+            self.net_worth,
+            total_current_exposure,
         )
 
         assert utilization["allocated_risk"] == 29500.0  # Total allocation
@@ -209,7 +221,9 @@ class TestPositionSizingIntegration:
         """Test validation and error handling across components."""
         # Test Kelly validation
         kelly_valid, kelly_msg = self.kelly_sizer.validate_kelly_inputs(
-            self.num_primary, self.num_outliers, self.kelly_criterion,
+            self.num_primary,
+            self.num_outliers,
+            self.kelly_criterion,
         )
         assert kelly_valid
 
@@ -247,7 +261,8 @@ class TestPositionSizingIntegration:
         assert b5_result == excel_test_data["B5_risk_allocation"]
 
         b20_result = self.kelly_sizer.calculate_excel_b20_equivalent(
-            excel_test_data["B17_primary"], excel_test_data["B18_outliers"],
+            excel_test_data["B17_primary"],
+            excel_test_data["B18_outliers"],
         )
         assert b20_result == excel_test_data["B20_confidence"]
 

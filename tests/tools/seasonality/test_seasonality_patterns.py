@@ -165,7 +165,9 @@ class TestWeeklyPatterns:
         analyzer = analyzer_cls(min_sample_size=10)
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
-        weekly_patterns = [p for p in patterns if p.pattern_type == pattern_type_cls.WEEKLY]
+        weekly_patterns = [
+            p for p in patterns if p.pattern_type == pattern_type_cls.WEEKLY
+        ]
 
         # Should have 5 weekdays (Mon-Fri)
         assert len(weekly_patterns) == 5
@@ -185,7 +187,9 @@ class TestWeeklyPatterns:
         analyzer = analyzer_cls()
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
-        weekly_patterns = [p for p in patterns if p.pattern_type == pattern_type_cls.WEEKLY]
+        weekly_patterns = [
+            p for p in patterns if p.pattern_type == pattern_type_cls.WEEKLY
+        ]
 
         # Get the order of days
         day_names = [p.period for p in weekly_patterns]
@@ -202,7 +206,9 @@ class TestWeeklyPatterns:
         analyzer = analyzer_cls()
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
-        weekly_patterns = [p for p in patterns if p.pattern_type == pattern_type_cls.WEEKLY]
+        weekly_patterns = [
+            p for p in patterns if p.pattern_type == pattern_type_cls.WEEKLY
+        ]
 
         # Get day names
         day_names = [p.period for p in weekly_patterns]
@@ -219,7 +225,9 @@ class TestWeeklyPatterns:
         analyzer = analyzer_cls()
 
         patterns = analyzer.analyze_all_patterns(standard_5yr_data, detrend=False)
-        weekly_patterns = [p for p in patterns if p.pattern_type == pattern_type_cls.WEEKLY]
+        weekly_patterns = [
+            p for p in patterns if p.pattern_type == pattern_type_cls.WEEKLY
+        ]
 
         # Check for duplicates
         day_names = [p.period for p in weekly_patterns]
@@ -458,7 +466,8 @@ class TestPatternAnalysisIntegration:
 
         # Run with detrending
         patterns_detrended = analyzer.analyze_all_patterns(
-            standard_5yr_data, detrend=True,
+            standard_5yr_data,
+            detrend=True,
         )
 
         # Run without detrending
@@ -493,15 +502,17 @@ class TestPatternAnalysisIntegration:
         analyzer_cls = get_analyzer_class()
 
         # High min_sample_size should filter out more patterns
-        analyzer_strict = SeasonalityAnalyzer(min_sample_size=100)
+        analyzer_strict = analyzer_cls(min_sample_size=100)
         patterns_strict = analyzer_strict.analyze_all_patterns(
-            standard_5yr_data, detrend=False,
+            standard_5yr_data,
+            detrend=False,
         )
 
         # Low min_sample_size should allow more patterns
-        analyzer_lenient = SeasonalityAnalyzer(min_sample_size=5)
+        analyzer_lenient = analyzer_cls(min_sample_size=5)
         patterns_lenient = analyzer_lenient.analyze_all_patterns(
-            standard_5yr_data, detrend=False,
+            standard_5yr_data,
+            detrend=False,
         )
 
         # Lenient should have >= strict

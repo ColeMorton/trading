@@ -115,7 +115,11 @@ class TestDefaultStrategyProfileIntegration:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_default_strategy_profile_cli_execution(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test CLI execution with default_strategy profile."""
         # Setup real config loading
@@ -135,7 +139,8 @@ class TestDefaultStrategyProfileIntegration:
 
         # Execute CLI command with default_strategy profile
         result = cli_runner.invoke(
-            strategy_app, ["run", "--profile", "default_strategy"],
+            strategy_app,
+            ["run", "--profile", "default_strategy"],
         )
 
         # Verify successful execution
@@ -164,7 +169,11 @@ class TestDefaultStrategyProfileIntegration:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_default_strategy_profile_dry_run(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test dry-run execution with default_strategy profile."""
         # Setup real config
@@ -174,7 +183,8 @@ class TestDefaultStrategyProfileIntegration:
 
         # Execute dry-run
         result = cli_runner.invoke(
-            strategy_app, ["run", "--profile", "default_strategy", "--dry-run"],
+            strategy_app,
+            ["run", "--profile", "default_strategy", "--dry-run"],
         )
 
         # Verify dry-run execution
@@ -243,7 +253,12 @@ class TestMACrossCryptoProfileIntegration:
     @patch("app.cli.commands.strategy.logging_context")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_ma_cross_crypto_profile_sweep_execution(
-        self, mock_config_loader, mock_logging, mock_analyze, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_logging,
+        mock_analyze,
+        mock_get_data,
+        cli_runner,
     ):
         """Test parameter sweep execution with ma_cross_crypto profile."""
         # Setup real config
@@ -265,7 +280,8 @@ class TestMACrossCryptoProfileIntegration:
 
         # Execute sweep with ma_cross_crypto profile
         result = cli_runner.invoke(
-            strategy_app, ["sweep", "--profile", "ma_cross_crypto"],
+            strategy_app,
+            ["sweep", "--profile", "ma_cross_crypto"],
         )
 
         # Verify successful execution
@@ -292,7 +308,11 @@ class TestMACrossCryptoProfileIntegration:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_ma_cross_crypto_profile_strategy_compatibility(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test strategy compatibility validation with ma_cross_crypto profile."""
         # Setup real config
@@ -312,7 +332,8 @@ class TestMACrossCryptoProfileIntegration:
 
         # Execute CLI command
         result = cli_runner.invoke(
-            strategy_app, ["run", "--profile", "ma_cross_crypto"],
+            strategy_app,
+            ["run", "--profile", "ma_cross_crypto"],
         )
 
         # Verify strategy compatibility was validated
@@ -338,7 +359,9 @@ class TestDefaultStrategyCurrentProfileIntegration:
         # Load both profiles
         base_config = config_loader.load_from_profile("default_strategy", {}, {})
         current_config = config_loader.load_from_profile(
-            "default_strategy_current", {}, {},
+            "default_strategy_current",
+            {},
+            {},
         )
 
         # Verify inheritance - current should have all base parameters
@@ -373,13 +396,19 @@ class TestDefaultStrategyCurrentProfileIntegration:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_default_strategy_current_profile_cli_execution(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test CLI execution with default_strategy_current profile."""
         # Setup real config
         real_config_loader = ConfigLoader()
         real_config = real_config_loader.load_from_profile(
-            "default_strategy_current", {}, {},
+            "default_strategy_current",
+            {},
+            {},
         )
         mock_config_loader.return_value.load_from_profile.return_value = real_config
 
@@ -395,7 +424,8 @@ class TestDefaultStrategyCurrentProfileIntegration:
 
         # Execute CLI command
         result = cli_runner.invoke(
-            strategy_app, ["run", "--profile", "default_strategy_current"],
+            strategy_app,
+            ["run", "--profile", "default_strategy_current"],
         )
 
         # Verify successful execution
@@ -407,7 +437,9 @@ class TestDefaultStrategyCurrentProfileIntegration:
         # Test override on inherited profile
         overrides = {"ticker": ["DOGE-USD"], "years": 3}
         config = config_loader.load_from_profile(
-            "default_strategy_current", {}, overrides,
+            "default_strategy_current",
+            {},
+            overrides,
         )
 
         # Verify overrides applied
@@ -451,31 +483,37 @@ class TestCrossProfileCompatibility:
         configs = {}
         for profile_name in all_strategy_profiles:
             configs[profile_name] = config_loader.load_from_profile(
-                profile_name, {}, {},
+                profile_name,
+                {},
+                {},
             )
 
         # Test common parameters have consistent types
         for profile_name, config in configs.items():
             # Ticker should always be a list
             assert isinstance(
-                config.ticker, list,
+                config.ticker,
+                list,
             ), f"{profile_name}: ticker should be list"
 
             # Years should always be positive integer
             if hasattr(config, "years"):
                 assert isinstance(
-                    config.years, int,
+                    config.years,
+                    int,
                 ), f"{profile_name}: years should be int"
                 assert config.years > 0, f"{profile_name}: years should be positive"
 
             # Boolean flags should be boolean
             if hasattr(config, "use_hourly"):
                 assert isinstance(
-                    config.use_hourly, bool,
+                    config.use_hourly,
+                    bool,
                 ), f"{profile_name}: use_hourly should be bool"
             if hasattr(config, "use_years"):
                 assert isinstance(
-                    config.use_years, bool,
+                    config.use_years,
+                    bool,
                 ), f"{profile_name}: use_years should be bool"
 
     def test_profile_schema_validation(self, config_loader, all_strategy_profiles):
@@ -489,18 +527,21 @@ class TestCrossProfileCompatibility:
             # Verify ticker format
             for ticker in config.ticker:
                 assert isinstance(
-                    ticker, str,
+                    ticker,
+                    str,
                 ), f"{profile_name}: ticker should be string"
                 assert len(ticker) > 0, f"{profile_name}: ticker should not be empty"
 
             # Verify strategy types if present
             if hasattr(config, "strategy_types"):
                 assert isinstance(
-                    config.strategy_types, list,
+                    config.strategy_types,
+                    list,
                 ), f"{profile_name}: strategy_types should be list"
                 for strategy_type in config.strategy_types:
                     assert isinstance(
-                        strategy_type, StrategyType,
+                        strategy_type,
+                        StrategyType,
                     ), f"{profile_name}: invalid strategy type"
 
     def test_profile_override_consistency(self, config_loader, all_strategy_profiles):
@@ -547,7 +588,8 @@ class TestCrossProfileCompatibility:
 
             # Test CLI execution
             result = cli_runner.invoke(
-                strategy_app, ["run", "--profile", profile_name, "--dry-run"],
+                strategy_app,
+                ["run", "--profile", profile_name, "--dry-run"],
             )
 
             # Verify CLI compatibility
@@ -608,7 +650,9 @@ class TestProfileErrorHandling:
         for profile_name in ["default_strategy"]:
             try:
                 config = config_loader.load_from_profile(
-                    profile_name, {}, invalid_overrides,
+                    profile_name,
+                    {},
+                    invalid_overrides,
                 )
                 # Some validation might occur during config creation
                 # If no exception, verify the invalid values were handled
@@ -635,7 +679,11 @@ class TestProfileRealWorldUsage:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_default_strategy_typical_usage(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test default_strategy profile in typical usage scenario."""
         # Setup real config
@@ -667,7 +715,12 @@ class TestProfileRealWorldUsage:
     @patch("app.cli.commands.strategy.logging_context")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_ma_cross_crypto_typical_usage(
-        self, mock_config_loader, mock_logging, mock_analyze, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_logging,
+        mock_analyze,
+        mock_get_data,
+        cli_runner,
     ):
         """Test ma_cross_crypto profile in typical parameter sweep scenario."""
         # Setup real config
@@ -708,7 +761,11 @@ class TestProfileRealWorldUsage:
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_profile_chain_usage(
-        self, mock_config_loader, mock_dispatcher_class, mock_get_data, cli_runner,
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        mock_get_data,
+        cli_runner,
     ):
         """Test using profiles in a sequence of commands (realistic workflow)."""
         # Setup real config loading
@@ -736,7 +793,8 @@ class TestProfileRealWorldUsage:
             mock_config_loader.return_value.load_from_profile.return_value = real_config
 
             result = cli_runner.invoke(
-                strategy_app, ["run", "--profile", profile_name, "--dry-run"],
+                strategy_app,
+                ["run", "--profile", profile_name, "--dry-run"],
             )
             assert result.exit_code == 0, f"Profile {profile_name} failed in sequence"
 

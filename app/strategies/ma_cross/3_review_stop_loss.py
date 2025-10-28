@@ -163,7 +163,8 @@ def run(config: CacheConfig) -> bool:
         - Beats Buy-and-Hold [%], Avg Trade Duration, Trades Per Day
     """
     log, log_close, _, _ = setup_logging(
-        module_name="ma_cross", log_file="3_review_stop_loss.log",
+        module_name="ma_cross",
+        log_file="3_review_stop_loss.log",
     )
 
     try:
@@ -204,7 +205,10 @@ def run(config: CacheConfig) -> bool:
             data = get_data(config["TICKER"], config, log)
 
             metric_matrices = analyze_stop_loss_parameters(
-                data=data, config=config, stop_loss_range=stop_loss_range, log=log,
+                data=data,
+                config=config,
+                stop_loss_range=stop_loss_range,
+                log=log,
             )
 
         if metric_matrices is None:

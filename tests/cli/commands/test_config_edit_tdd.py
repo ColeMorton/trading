@@ -87,7 +87,9 @@ config:
             assert "Current configuration:" in result.stdout
 
     def test_edit_command_handles_nonexistent_profile(
-        self, cli_runner, temp_profiles_dir,
+        self,
+        cli_runner,
+        temp_profiles_dir,
     ):
         """
         RED: Test that edit command handles non-existent profile gracefully.
@@ -110,7 +112,9 @@ config:
             assert "Profile 'nonexistent_profile' not found" in result.stdout
 
     def test_edit_command_allows_field_modification(
-        self, cli_runner, temp_profiles_dir,
+        self,
+        cli_runner,
+        temp_profiles_dir,
     ):
         """
         RED: Test that edit command allows modifying profile fields.
@@ -212,10 +216,12 @@ config:
 
             # Mock interactive input
             with patch(
-                "builtins.input", side_effect=["1", "MSFT,GOOGL", "5"],
+                "builtins.input",
+                side_effect=["1", "MSFT,GOOGL", "5"],
             ):  # Select ticker, change value, exit
                 result = cli_runner.invoke(
-                    config_app, ["edit", "test_profile", "--interactive"],
+                    config_app,
+                    ["edit", "test_profile", "--interactive"],
                 )
 
                 # These assertions will FAIL initially (RED phase)
@@ -226,7 +232,9 @@ config:
                 assert "[5] Save and exit" in result.stdout
 
     def test_edit_command_creates_backup_before_changes(
-        self, cli_runner, temp_profiles_dir,
+        self,
+        cli_runner,
+        temp_profiles_dir,
     ):
         """
         RED: Test that edit command creates backup before making changes.

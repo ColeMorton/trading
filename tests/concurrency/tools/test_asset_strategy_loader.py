@@ -214,7 +214,9 @@ TEST,D,SMA,5,30,,0.90,45.0,1.2,0.40,50.0,-35.0,5.0,40,0.0"""
         ]
 
         with patch.object(
-            loader, "load_strategies_for_asset", return_value=mock_strategies,
+            loader,
+            "load_strategies_for_asset",
+            return_value=mock_strategies,
         ):
             validation = loader.validate_asset_data("TEST")
 
@@ -268,7 +270,9 @@ TEST,D,SMA,5,30,,0.90,45.0,1.2,0.40,50.0,-35.0,5.0,40,0.0"""
 
         # Mock to raise an error
         with patch.object(
-            loader, "load_strategies_for_asset", side_effect=Exception("Test error"),
+            loader,
+            "load_strategies_for_asset",
+            side_effect=Exception("Test error"),
         ):
             validation = loader.validate_asset_data("TEST")
 

@@ -13,7 +13,9 @@ from app.utils import calculate_metrics
 
 
 def analyze_trades(
-    data: pl.DataFrame, slippage: float, config: dict,
+    data: pl.DataFrame,
+    slippage: float,
+    config: dict,
 ) -> list[tuple[float, float]]:
     """
     Analyze trades with slippage on entries.
@@ -81,7 +83,9 @@ def analyze_trades(
 
 
 def run_sensitivity_analysis(
-    data: pl.DataFrame, slippage_range: np.ndarray, config: dict,
+    data: pl.DataFrame,
+    slippage_range: np.ndarray,
+    config: dict,
 ) -> pl.DataFrame:
     """
     Run sensitivity analysis across slippage percentages.
@@ -99,7 +103,8 @@ def run_sensitivity_analysis(
     for slippage in slippage_range:
         trades = analyze_trades(data, slippage, config)
         total_return, win_rate, expectancy = calculate_metrics(
-            trades, config.get("SHORT", False),
+            trades,
+            config.get("SHORT", False),
         )
 
         results.append(

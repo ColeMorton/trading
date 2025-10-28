@@ -41,7 +41,8 @@ def calculate_atr(data: pd.DataFrame, length: int) -> pd.Series:
     # Create a DataFrame with the three components, ensuring it has the same
     # index as the input data
     ranges = pd.DataFrame(
-        {"HL": high_low, "HC": high_close, "LC": low_close}, index=data.index,
+        {"HL": high_low, "HC": high_close, "LC": low_close},
+        index=data.index,
     )
 
     # Calculate the true range as the maximum of the three components
@@ -55,7 +56,10 @@ def calculate_atr(data: pd.DataFrame, length: int) -> pd.Series:
 
 
 def generate_signals(
-    data: pd.DataFrame, atr_length: int, atr_multiplier: float, direction: str = "Long",
+    data: pd.DataFrame,
+    atr_length: int,
+    atr_multiplier: float,
+    direction: str = "Long",
 ) -> pd.DataFrame:
     """
     Generate trading signals based on proper ATR Trailing Stop algorithm.
@@ -312,7 +316,10 @@ def analyze_params(
 
         # Generate signals with optimized function
         data_with_signals: pd.DataFrame = generate_signals(
-            data.copy(), atr_length, atr_multiplier, direction,
+            data.copy(),
+            atr_length,
+            atr_multiplier,
+            direction,
         )
 
         # Create config for shared backtest strategy with ATR-specific parameters
@@ -355,7 +362,11 @@ def analyze_params(
 
         # Use convert_stats for consistency with other strategies (calculates Score field)
         converted_stats = convert_stats(
-            stats, log, backtest_config, current_signal, exit_signal,
+            stats,
+            log,
+            backtest_config,
+            current_signal,
+            exit_signal,
         )
 
         # Override with ATR-specific field mappings to maintain proper naming
@@ -428,7 +439,9 @@ def analyze_params(
 
 
 def execute_strategy(
-    config: ATRConfig, strategy_type: str, log: Callable,
+    config: ATRConfig,
+    strategy_type: str,
+    log: Callable,
 ) -> list[dict[str, Any]]:
     """Execute ATR strategy with parameter sweep and return portfolio results.
 

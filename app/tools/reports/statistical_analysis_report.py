@@ -225,7 +225,8 @@ class StatisticalAnalysisReportGenerator:
     # Report content generation methods
 
     async def _generate_executive_summary_report(
-        self, analysis_results: list[StatisticalAnalysisResult],
+        self,
+        analysis_results: list[StatisticalAnalysisResult],
     ) -> str:
         """Generate executive summary report"""
 
@@ -345,7 +346,8 @@ class StatisticalAnalysisReportGenerator:
         return content
 
     async def _generate_detailed_report(
-        self, analysis_results: list[StatisticalAnalysisResult],
+        self,
+        analysis_results: list[StatisticalAnalysisResult],
     ) -> str:
         """Generate detailed analysis report"""
 
@@ -390,7 +392,8 @@ class StatisticalAnalysisReportGenerator:
         for signal_type, positions in signal_groups.items():
             if positions:
                 content += await self._generate_signal_group_section(
-                    signal_type, positions,
+                    signal_type,
+                    positions,
                 )
 
         content += """
@@ -437,7 +440,8 @@ class StatisticalAnalysisReportGenerator:
         return content
 
     async def _generate_technical_report(
-        self, analysis_results: list[StatisticalAnalysisResult],
+        self,
+        analysis_results: list[StatisticalAnalysisResult],
     ) -> str:
         """Generate technical deep-dive report"""
 
@@ -559,7 +563,8 @@ class StatisticalAnalysisReportGenerator:
         return content
 
     async def _generate_summary_section(
-        self, analysis_results: list[StatisticalAnalysisResult],
+        self,
+        analysis_results: list[StatisticalAnalysisResult],
     ) -> str:
         """Generate summary section"""
         immediate_exits = sum(
@@ -581,7 +586,9 @@ class StatisticalAnalysisReportGenerator:
 """
 
     async def _generate_signal_group_section(
-        self, signal_type: str, positions: list[StatisticalAnalysisResult],
+        self,
+        signal_type: str,
+        positions: list[StatisticalAnalysisResult],
     ) -> str:
         """Generate section for signal group"""
 
@@ -614,7 +621,8 @@ class StatisticalAnalysisReportGenerator:
         return content
 
     async def _generate_performance_report_content(
-        self, performance_data: dict[str, Any],
+        self,
+        performance_data: dict[str, Any],
     ) -> str:
         """Generate performance report content"""
 
@@ -655,7 +663,8 @@ class StatisticalAnalysisReportGenerator:
 """
 
     async def _generate_exit_efficiency_content(
-        self, efficiency_data: dict[str, Any],
+        self,
+        efficiency_data: dict[str, Any],
     ) -> str:
         """Generate exit efficiency report content"""
 
@@ -696,7 +705,8 @@ class StatisticalAnalysisReportGenerator:
 """
 
     async def _generate_correlation_report_content(
-        self, correlation_results: list[CorrelationResult],
+        self,
+        correlation_results: list[CorrelationResult],
     ) -> str:
         """Generate correlation analysis report content"""
 
@@ -750,7 +760,8 @@ class StatisticalAnalysisReportGenerator:
         return content
 
     async def _generate_pattern_report_content(
-        self, pattern_results: list[PatternResult],
+        self,
+        pattern_results: list[PatternResult],
     ) -> str:
         """Generate pattern analysis report content"""
 

@@ -53,7 +53,10 @@ class BaseStrategy(ABC):
         """
 
     def validate_periods(
-        self, fast_period: int, slow_period: int, log: Callable[[str, str], None],
+        self,
+        fast_period: int,
+        slow_period: int,
+        log: Callable[[str, str], None],
     ) -> bool:
         """
         Validate period parameters.
@@ -83,7 +86,9 @@ class BaseStrategy(ABC):
         return True
 
     def validate_data(
-        self, data: pl.DataFrame | None, log: Callable[[str, str], None],
+        self,
+        data: pl.DataFrame | None,
+        log: Callable[[str, str], None],
     ) -> bool:
         """
         Validate input data.

@@ -97,7 +97,9 @@ class FixtureRegistry:
         return resolved_deps
 
     def create_fixture(
-        self, fixture_name: str, dependencies: dict[str, Any] | None = None,
+        self,
+        fixture_name: str,
+        dependencies: dict[str, Any] | None = None,
     ):
         """
         Create fixture instance with resolved dependencies.

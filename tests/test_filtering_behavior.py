@@ -65,7 +65,12 @@ class TestExistingFilteringBehavior:
         """Test the current apply_filter function behavior from strategy_execution.py."""
 
         def apply_filter(
-            df, column_name, min_value, data_type, multiplier=1, message_prefix="",
+            df,
+            column_name,
+            min_value,
+            data_type,
+            multiplier=1,
+            message_prefix="",
         ):
             """Replicated apply_filter function from strategy_execution.py"""
             if column_name in df.columns:
@@ -103,12 +108,20 @@ class TestExistingFilteringBehavior:
         mock_log.assert_called_with("Filtered portfolios with win rate >= 50.0%")
 
     def test_filter_configs_behavior(
-        self, sample_portfolios_df, sample_config, mock_log,
+        self,
+        sample_portfolios_df,
+        sample_config,
+        mock_log,
     ):
         """Test the current filter_configs behavior from strategy_execution.py."""
 
         def apply_filter(
-            df, column_name, min_value, data_type, multiplier=1, message_prefix="",
+            df,
+            column_name,
+            min_value,
+            data_type,
+            multiplier=1,
+            message_prefix="",
         ):
             """Replicated apply_filter function"""
             if column_name in df.columns:
@@ -342,7 +355,8 @@ class TestExistingFilteringBehavior:
                     "info",
                 )
                 mock_log(
-                    f"Remaining portfolios after MINIMUMS filtering: {len(df)}", "info",
+                    f"Remaining portfolios after MINIMUMS filtering: {len(df)}",
+                    "info",
                 )
 
             # Convert back to list of dicts
@@ -356,10 +370,12 @@ class TestExistingFilteringBehavior:
         mock_log.assert_any_call("Filtered portfolios with win rate >= 50.0%", "info")
         mock_log.assert_any_call("Filtered portfolios with at least >= 20", "info")
         mock_log.assert_any_call(
-            "Filtered out 4 portfolios based on MINIMUMS criteria", "info",
+            "Filtered out 4 portfolios based on MINIMUMS criteria",
+            "info",
         )
         mock_log.assert_any_call(
-            "Remaining portfolios after MINIMUMS filtering: 1", "info",
+            "Remaining portfolios after MINIMUMS filtering: 1",
+            "info",
         )
 
     def test_column_name_normalization(self, mock_log):
@@ -375,7 +391,12 @@ class TestExistingFilteringBehavior:
         )
 
         def apply_filter(
-            df, column_name, min_value, data_type, multiplier=1, message_prefix="",
+            df,
+            column_name,
+            min_value,
+            data_type,
+            multiplier=1,
+            message_prefix="",
         ):
             if column_name in df.columns:
                 adjusted_value = min_value * multiplier
@@ -395,7 +416,12 @@ class TestExistingFilteringBehavior:
         df = pl.DataFrame({"Win Rate [%]": [45.5, 55.2], "Ticker": ["A", "B"]})
 
         def apply_filter(
-            df, column_name, min_value, data_type, multiplier=1, message_prefix="",
+            df,
+            column_name,
+            min_value,
+            data_type,
+            multiplier=1,
+            message_prefix="",
         ):
             if column_name in df.columns:
                 adjusted_value = min_value * multiplier
@@ -413,7 +439,12 @@ class TestExistingFilteringBehavior:
         empty_df = pl.DataFrame({"Win Rate [%]": [], "Total Trades": [], "Ticker": []})
 
         def apply_filter(
-            df, column_name, min_value, data_type, multiplier=1, message_prefix="",
+            df,
+            column_name,
+            min_value,
+            data_type,
+            multiplier=1,
+            message_prefix="",
         ):
             if column_name in df.columns:
                 adjusted_value = min_value * multiplier

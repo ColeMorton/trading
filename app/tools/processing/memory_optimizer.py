@@ -112,10 +112,12 @@ class DataFramePool:
     def __init__(self, max_pandas_size: int = 5, max_polars_size: int = 5):
         """Initialize DataFrame pools."""
         self.pandas_pool = ObjectPool(
-            factory=lambda: pd.DataFrame(), max_size=max_pandas_size,
+            factory=lambda: pd.DataFrame(),
+            max_size=max_pandas_size,
         )
         self.polars_pool = ObjectPool(
-            factory=lambda: pl.DataFrame(), max_size=max_polars_size,
+            factory=lambda: pl.DataFrame(),
+            max_size=max_polars_size,
         )
 
     @contextmanager
@@ -282,7 +284,8 @@ class MemoryOptimizer:
         # Handle inf values explicitly (replaces deprecated use_inf_as_na option)
         numeric_cols = df.select_dtypes(include=["int", "float"]).columns
         df[numeric_cols] = df[numeric_cols].replace(
-            [float("inf"), float("-inf")], float("nan"),
+            [float("inf"), float("-inf")],
+            float("nan"),
         )
 
         # Downcast numeric columns

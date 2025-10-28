@@ -53,7 +53,9 @@ class TestPortfolioSizeBugRegression:
         ]
 
     def test_portfolio_files_created_with_different_sizes(
-        self, sample_strategies, tmp_path,
+        self,
+        sample_strategies,
+        tmp_path,
     ):
         """Test that separate portfolio files are created for each size."""
         # Simulate creating size-specific files
@@ -110,7 +112,8 @@ class TestPortfolioSizeBugRegression:
         assert file_sizes == [5, 7, 9], f"Expected [5, 7, 9], got {file_sizes}"
 
     def test_portfolio_sizes_should_have_different_strategy_counts(
-        self, sample_strategies,
+        self,
+        sample_strategies,
     ):
         """
         REGRESSION TEST: Verify that different portfolio sizes contain different numbers of strategies.
@@ -208,7 +211,9 @@ class TestPortfolioSizeBugRegression:
 
     @pytest.mark.integration
     def test_construct_command_creates_size_specific_files(
-        self, sample_strategies, tmp_path,
+        self,
+        sample_strategies,
+        tmp_path,
     ):
         """
         Integration test: Verify the construct command creates separate files for each size.
@@ -850,7 +855,9 @@ class TestStratifiedPortfolioSelection:
 
         # Test 5-strategy portfolio
         selected_5 = _select_diversified_portfolio(
-            strategies, div_scores, target_size=5,
+            strategies,
+            div_scores,
+            target_size=5,
         )
         type_counts_5 = {}
         for s in selected_5:
@@ -868,7 +875,9 @@ class TestStratifiedPortfolioSelection:
 
         # Test 7-strategy portfolio
         selected_7 = _select_diversified_portfolio(
-            strategies, div_scores, target_size=7,
+            strategies,
+            div_scores,
+            target_size=7,
         )
         type_counts_7 = {}
         for s in selected_7:

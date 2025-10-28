@@ -101,13 +101,15 @@ class CrossStrategyOptimizer:
 
         # Calculate correlation matrix
         correlation_matrix = self._calculate_correlation_matrix(
-            positions, historical_returns,
+            positions,
+            historical_returns,
         )
 
         # Calculate expected returns and covariance
         expected_returns = self._calculate_expected_returns(positions, analysis_results)
         covariance_matrix = self._calculate_covariance_matrix(
-            positions, historical_returns,
+            positions,
+            historical_returns,
         )
 
         # Optimize weights
@@ -115,17 +117,23 @@ class CrossStrategyOptimizer:
 
         # Calculate portfolio metrics
         portfolio_metrics = self._calculate_portfolio_metrics(
-            optimal_weights, expected_returns, covariance_matrix,
+            optimal_weights,
+            expected_returns,
+            covariance_matrix,
         )
 
         # Analyze correlations
         correlation_benefits = self._analyze_correlation_benefits(
-            correlation_matrix, optimal_weights,
+            correlation_matrix,
+            optimal_weights,
         )
 
         # Generate recommendations
         recommendations = self._generate_recommendations(
-            positions, optimal_weights, correlation_matrix, portfolio_metrics,
+            positions,
+            optimal_weights,
+            correlation_matrix,
+            portfolio_metrics,
         )
 
         return PortfolioOptimizationResult(
@@ -141,7 +149,9 @@ class CrossStrategyOptimizer:
         )
 
     def analyze_strategy_correlations(
-        self, positions: list[PositionData], historical_returns: pd.DataFrame,
+        self,
+        positions: list[PositionData],
+        historical_returns: pd.DataFrame,
     ) -> list[StrategyCorrelation]:
         """Analyze correlations between all strategy pairs.
 
@@ -177,10 +187,12 @@ class CrossStrategyOptimizer:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
                     pearson_corr, pearson_p = pearsonr(
-                        aligned_returns["returns1"], aligned_returns["returns2"],
+                        aligned_returns["returns1"],
+                        aligned_returns["returns2"],
                     )
                     spearman_corr, spearman_p = spearmanr(
-                        aligned_returns["returns1"], aligned_returns["returns2"],
+                        aligned_returns["returns1"],
+                        aligned_returns["returns2"],
                     )
 
                 # Classify correlation
@@ -234,7 +246,8 @@ class CrossStrategyOptimizer:
 
         # Calculate portfolio risk
         covariance_matrix = self._calculate_covariance_matrix(
-            positions, historical_returns,
+            positions,
+            historical_returns,
         )
         portfolio_risk = np.sqrt(weights @ covariance_matrix @ weights.T)
 
@@ -256,7 +269,9 @@ class CrossStrategyOptimizer:
         }
 
     def _calculate_correlation_matrix(
-        self, positions: list[PositionData], historical_returns: pd.DataFrame,
+        self,
+        positions: list[PositionData],
+        historical_returns: pd.DataFrame,
     ) -> np.ndarray:
         """Calculate correlation matrix for positions."""
         n = len(positions)
@@ -300,7 +315,9 @@ class CrossStrategyOptimizer:
         return np.array(expected_returns)
 
     def _calculate_covariance_matrix(
-        self, positions: list[PositionData], historical_returns: pd.DataFrame,
+        self,
+        positions: list[PositionData],
+        historical_returns: pd.DataFrame,
     ) -> np.ndarray:
         """Calculate covariance matrix for positions."""
         # Build returns matrix
@@ -322,9 +339,10 @@ class CrossStrategyOptimizer:
         eigenvalues = np.maximum(eigenvalues, 1e-8)
         return eigenvectors @ np.diag(eigenvalues) @ eigenvectors.T
 
-
     def _optimize_weights(
-        self, expected_returns: np.ndarray, covariance_matrix: np.ndarray,
+        self,
+        expected_returns: np.ndarray,
+        covariance_matrix: np.ndarray,
     ) -> np.ndarray:
         """Optimize portfolio weights using mean-variance optimization."""
         n = len(expected_returns)
@@ -403,7 +421,9 @@ class CrossStrategyOptimizer:
         }
 
     def _analyze_correlation_benefits(
-        self, correlation_matrix: np.ndarray, weights: np.ndarray,
+        self,
+        correlation_matrix: np.ndarray,
+        weights: np.ndarray,
     ) -> dict[str, float]:
         """Analyze benefits from correlation structure."""
         # Average correlation
@@ -505,7 +525,9 @@ class CrossStrategyOptimizer:
         return recommendations
 
     def _get_position_returns(
-        self, position: PositionData, historical_returns: pd.DataFrame,
+        self,
+        position: PositionData,
+        historical_returns: pd.DataFrame,
     ) -> pd.Series:
         """Get historical returns for a position."""
         # Try different column naming conventions
@@ -524,7 +546,8 @@ class CrossStrategyOptimizer:
         return pd.Series(dtype=float)
 
     def _single_position_result(
-        self, position: PositionData | None,
+        self,
+        position: PositionData | None,
     ) -> PortfolioOptimizationResult:
         """Create result for single position portfolio."""
         if position:

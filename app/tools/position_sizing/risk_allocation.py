@@ -72,7 +72,9 @@ class RiskAllocationCalculator:
         return net_worth * self.risk_percentage
 
     def calculate_position_risk_limit(
-        self, net_worth: float, position_count: int = 1,
+        self,
+        net_worth: float,
+        position_count: int = 1,
     ) -> float:
         """Calculate risk limit per position.
 
@@ -115,7 +117,8 @@ class RiskAllocationCalculator:
         return True, f"Risk percentage valid: {risk_percentage:.1%}"
 
     def calculate_multiple_account_allocation(
-        self, account_balances: dict[str, float],
+        self,
+        account_balances: dict[str, float],
     ) -> dict[str, RiskAllocation]:
         """Calculate risk allocation across multiple accounts.
 
@@ -143,7 +146,8 @@ class RiskAllocationCalculator:
         return allocations
 
     def get_total_risk_across_accounts(
-        self, account_balances: dict[str, float],
+        self,
+        account_balances: dict[str, float],
     ) -> RiskAllocation:
         """Calculate total risk allocation across all accounts.
 
@@ -157,7 +161,9 @@ class RiskAllocationCalculator:
         return self.calculate_risk_allocation(total_net_worth)
 
     def calculate_risk_utilization(
-        self, net_worth: float, current_risk_exposure: float,
+        self,
+        net_worth: float,
+        current_risk_exposure: float,
     ) -> dict[str, Any]:
         """Calculate current risk utilization compared to allocation.
 
@@ -206,7 +212,9 @@ class RiskAllocationCalculator:
         return "Over-allocated - Exceeds risk limit"
 
     def get_risk_allocation_summary(
-        self, net_worth: float, account_breakdown: dict[str, float] | None = None,
+        self,
+        net_worth: float,
+        account_breakdown: dict[str, float] | None = None,
     ) -> dict[str, Any]:
         """Get comprehensive risk allocation summary.
 

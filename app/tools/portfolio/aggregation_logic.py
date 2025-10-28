@@ -83,7 +83,9 @@ def aggregate_by_ticker(df: pd.DataFrame, ticker_aggregation: dict, file_info: d
 
 
 def aggregate_by_strategy(
-    df: pd.DataFrame, strategy_aggregation: dict, file_info: dict,
+    df: pd.DataFrame,
+    strategy_aggregation: dict,
+    file_info: dict,
 ):
     """Aggregate portfolio data by strategy type.
 

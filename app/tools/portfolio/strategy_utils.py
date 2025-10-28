@@ -17,7 +17,8 @@ from app.tools.portfolio.strategy_types import (
 
 
 def determine_strategy_type(
-    row: dict[str, Any], log: Callable[[str, str], None] | None = None,
+    row: dict[str, Any],
+    log: Callable[[str, str], None] | None = None,
 ) -> StrategyTypeLiteral:
     """
     Determine strategy type from row data with consistent priority.
@@ -101,7 +102,8 @@ def create_strategy_type_fields(strategy_type: StrategyTypeLiteral) -> dict[str,
 
 
 def get_strategy_type_for_export(
-    df: dict[str, Any], log: Callable[[str, str], None] | None = None,
+    df: dict[str, Any],
+    log: Callable[[str, str], None] | None = None,
 ) -> StrategyTypeLiteral:
     """
     Get the strategy type for export, handling all possible field names.

@@ -11,7 +11,8 @@ from .validation import PortfolioMetricsValidator, ValidationSummary
 
 
 def resample_hourly_to_daily(
-    data: pl.DataFrame, log: Callable[[str, str], None],
+    data: pl.DataFrame,
+    log: Callable[[str, str], None],
 ) -> pl.DataFrame:
     """Resample hourly data to daily timeframe.
 
@@ -42,7 +43,9 @@ def resample_hourly_to_daily(
 
 
 def prepare_dataframe(
-    df: pl.DataFrame, is_hourly: bool, log: Callable[[str, str], None],
+    df: pl.DataFrame,
+    is_hourly: bool,
+    log: Callable[[str, str], None],
 ) -> pl.DataFrame:
     """Prepare dataframe by resampling if needed and standardizing dates.
 
@@ -71,7 +74,12 @@ def prepare_dataframe(
         if date_dtype == pl.String:
             log("Converting Date column from string to datetime", "info")
             df = df.with_columns(
-                [pl.col("Date").str.to_datetime().cast(pl.Datetime("ns")).alias("Date")],
+                [
+                    pl.col("Date")
+                    .str.to_datetime()
+                    .cast(pl.Datetime("ns"))
+                    .alias("Date")
+                ],
             )
         elif date_dtype == pl.Date:
             log("Converting Date column from date to datetime", "info")
@@ -104,7 +112,8 @@ def prepare_dataframe(
 
 
 def find_common_dates(
-    dfs: list[pl.DataFrame], log: Callable[[str, str], None],
+    dfs: list[pl.DataFrame],
+    log: Callable[[str, str], None],
 ) -> pl.DataFrame:
     """Find dates common to all dataframes.
 
@@ -302,7 +311,9 @@ def validate_aligned_data_quality(
         from app.tools.setup_logging import setup_logging
 
         log, _, _, _ = setup_logging(
-            "data_alignment_validator", Path("./logs"), "alignment_validation.log",
+            "data_alignment_validator",
+            Path("./logs"),
+            "alignment_validation.log",
         )
 
     log("Validating aligned data quality", "info")
@@ -444,7 +455,9 @@ def align_with_validation(
         from app.tools.setup_logging import setup_logging
 
         log, _, _, _ = setup_logging(
-            "align_with_validation", Path("./logs"), "alignment.log",
+            "align_with_validation",
+            Path("./logs"),
+            "alignment.log",
         )
 
     log("Starting data alignment with validation", "info")
@@ -455,7 +468,10 @@ def align_with_validation(
 
         # Validate the aligned data
         validation_summary = validate_aligned_data_quality(
-            aligned_data, csv_path, json_metrics, log,
+            aligned_data,
+            csv_path,
+            json_metrics,
+            log,
         )
 
         if validation_summary.critical_failures > 0:

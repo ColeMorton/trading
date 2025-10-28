@@ -102,7 +102,10 @@ def process_ticker(ticker: str, row: dict, config: dict, log: Callable) -> dict:
 
 
 def export_results(
-    results_data: list[dict], original_df: pl.DataFrame, config: dict, log: Callable,
+    results_data: list[dict],
+    original_df: pl.DataFrame,
+    config: dict,
+    log: Callable,
 ) -> None:
     """
     Export scanner results to CSV in a date-specific subdirectory.
@@ -192,9 +195,7 @@ def export_results(
     use_sma_col = (
         "Use SMA"
         if "Use SMA" in portfolio_df.columns
-        else "USE_SMA"
-        if "USE_SMA" in portfolio_df.columns
-        else None
+        else "USE_SMA" if "USE_SMA" in portfolio_df.columns else None
     )
 
     has_short_window = any(
@@ -203,9 +204,7 @@ def export_results(
     short_window_col = (
         "Fast Period"
         if "Fast Period" in portfolio_df.columns
-        else "FAST_PERIOD"
-        if "FAST_PERIOD" in portfolio_df.columns
-        else None
+        else "FAST_PERIOD" if "FAST_PERIOD" in portfolio_df.columns else None
     )
 
     has_long_window = any(
@@ -214,9 +213,7 @@ def export_results(
     long_window_col = (
         "Slow Period"
         if "Slow Period" in portfolio_df.columns
-        else "SLOW_PERIOD"
-        if "SLOW_PERIOD" in portfolio_df.columns
-        else None
+        else "SLOW_PERIOD" if "SLOW_PERIOD" in portfolio_df.columns else None
     )
 
     # Check if we have the new schema or old schema

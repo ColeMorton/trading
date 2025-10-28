@@ -112,9 +112,10 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
             strategy_config["SLOW_PERIOD"] = slow_period
 
             return convert_signals_to_positions(
-                data=data, config=strategy_config, log=log,
+                data=data,
+                config=strategy_config,
+                log=log,
             )
-
 
         except Exception as e:
             log(
@@ -255,7 +256,11 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
         try:
             # Calculate MACD components
             data = self._calculate_macd_components(
-                data, fast_period, slow_period, signal_period, log,
+                data,
+                fast_period,
+                slow_period,
+                signal_period,
+                log,
             )
 
             # Calculate RSI if enabled
@@ -285,9 +290,10 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
             strategy_config["SIGNAL_PERIOD"] = signal_period
 
             return convert_signals_to_positions(
-                data=data, config=strategy_config, log=log,
+                data=data,
+                config=strategy_config,
+                log=log,
             )
-
 
         except Exception as e:
             log(f"Failed to calculate {direction} MACD signals: {e}", "error")
@@ -333,7 +339,9 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
         return data
 
     def _calculate_macd_signals(
-        self, data: pl.DataFrame, config: dict[str, Any],
+        self,
+        data: pl.DataFrame,
+        config: dict[str, Any],
     ) -> tuple:
         """Calculate MACD entry and exit signals."""
 

@@ -10,7 +10,9 @@ from app.tools.setup_logging import setup_logging
 
 
 def get_historical_data(
-    tickers: list[str], start_date: datetime, end_date: datetime,
+    tickers: list[str],
+    start_date: datetime,
+    end_date: datetime,
 ) -> pd.DataFrame:
     """
     Download historical data for given tickers.

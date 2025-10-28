@@ -155,7 +155,8 @@ class PerformanceProfiler:
         baseline_config["EQUITY_DATA"] = {"EXPORT": False, "METRIC": "mean"}
 
         with self.profile_operation(
-            "baseline_export", len(portfolios),
+            "baseline_export",
+            len(portfolios),
         ) as baseline_metrics:
             baseline_metrics.export_count = 0
             # Simulate baseline processing without equity export
@@ -166,7 +167,8 @@ class PerformanceProfiler:
         current_config["EQUITY_DATA"] = {"EXPORT": True, "METRIC": "mean"}
 
         with self.profile_operation(
-            "equity_export_enabled", len(portfolios),
+            "equity_export_enabled",
+            len(portfolios),
         ) as current_metrics:
             try:
                 result = export_function(portfolios, log_func, current_config)
@@ -279,7 +281,9 @@ class PerformanceProfiler:
         }
 
     def save_performance_report(
-        self, output_path: Path, include_detailed_metrics: bool = True,
+        self,
+        output_path: Path,
+        include_detailed_metrics: bool = True,
     ):
         """
         Save performance report to file.

@@ -193,7 +193,8 @@ class MarketDataAnalyzer:
             momentum_metrics = self._calculate_momentum_metrics(returns)
             trend_metrics = self._calculate_trend_metrics()
             risk_adjusted_metrics = self._calculate_risk_adjusted_metrics(
-                mean_return, std_return,
+                mean_return,
+                std_return,
             )
 
             analysis_result = {
@@ -268,7 +269,8 @@ class MarketDataAnalyzer:
 
                 # Calculate goodness of fit (Kolmogorov-Smirnov test)
                 ks_stat, ks_pvalue = stats.kstest(
-                    returns, lambda x: dist.cdf(x, *params),
+                    returns,
+                    lambda x: dist.cdf(x, *params),
                 )
 
                 results[dist_name] = {
@@ -436,7 +438,9 @@ class MarketDataAnalyzer:
         }
 
     def _calculate_risk_adjusted_metrics(
-        self, mean_return: float, std_return: float,
+        self,
+        mean_return: float,
+        std_return: float,
     ) -> dict[str, Any]:
         """
         Calculate risk-adjusted return metrics.
@@ -498,7 +502,9 @@ class MarketDataAnalyzer:
             }
 
     def generate_recommendation(
-        self, analysis: dict[str, Any], include_components: bool = False,
+        self,
+        analysis: dict[str, Any],
+        include_components: bool = False,
     ) -> tuple[str, float, str] | tuple[str, float, str, dict[str, float]]:
         """
         Generate comprehensive recommendation based on asset analysis.
@@ -529,14 +535,17 @@ class MarketDataAnalyzer:
             volatility_score = self._score_volatility(annual_vol)
             tail_risk_score = self._score_tail_risk(var_95, excess_kurtosis)
             distribution_score = self._score_distribution_shape(
-                skewness, excess_kurtosis, is_normal,
+                skewness,
+                excess_kurtosis,
+                is_normal,
             )
 
             # Market beta risk adjustment
             beta = analysis.get("beta", 1.0)
             systematic_risk_pct = analysis.get("systematic_risk_pct", 0.5)
             beta_risk_adjustment = self._calculate_beta_risk_adjustment(
-                beta, systematic_risk_pct,
+                beta,
+                systematic_risk_pct,
             )
 
             # Combine risk components with beta adjustment
@@ -642,7 +651,10 @@ class MarketDataAnalyzer:
             current_price = analysis.get("current_price", 100.0)
 
             cost_estimate = self.transaction_cost_analyzer.estimate_transaction_costs(
-                self.ticker, signal, volume_analysis_data, current_price,
+                self.ticker,
+                signal,
+                volume_analysis_data,
+                current_price,
             )
 
             # Adjust signal and confidence based on transaction costs
@@ -651,7 +663,9 @@ class MarketDataAnalyzer:
                 final_confidence,
                 cost_reasoning,
             ) = self.transaction_cost_analyzer.adjust_signal_for_costs(
-                signal, confidence, cost_estimate,
+                signal,
+                confidence,
+                cost_estimate,
             )
 
             # Combine original reasoning with cost reasoning
@@ -774,18 +788,23 @@ class MarketDataAnalyzer:
         """Score tail risk component (0-100)."""
         # VaR component (more negative = higher risk)
         var_score = min(
-            100, max(0, (-var_95 - 0.02) * 2000),
+            100,
+            max(0, (-var_95 - 0.02) * 2000),
         )  # -2% daily VaR = 40 points
 
         # Kurtosis component (fat tails = higher risk)
         kurtosis_score = min(
-            100, max(0, excess_kurtosis * 10),
+            100,
+            max(0, excess_kurtosis * 10),
         )  # Excess kurtosis of 10 = 100 points
 
         return (var_score + kurtosis_score) / 2
 
     def _score_distribution_shape(
-        self, skewness: float, excess_kurtosis: float, is_normal: bool,
+        self,
+        skewness: float,
+        excess_kurtosis: float,
+        is_normal: bool,
     ) -> float:
         """Score distribution shape component (0-100)."""
         # Skewness penalty (extreme skewness is concerning)
@@ -793,7 +812,8 @@ class MarketDataAnalyzer:
 
         # Kurtosis penalty
         kurtosis_score = min(
-            100, max(0, excess_kurtosis * 5),
+            100,
+            max(0, excess_kurtosis * 5),
         )  # Excess kurtosis of 20 = 100 points
 
         # Non-normality penalty
@@ -802,7 +822,9 @@ class MarketDataAnalyzer:
         return (skew_score + kurtosis_score + normal_penalty) / 3
 
     def _calculate_beta_risk_adjustment(
-        self, beta: float, systematic_risk_pct: float,
+        self,
+        beta: float,
+        systematic_risk_pct: float,
     ) -> float:
         """Calculate risk adjustment factor based on market beta."""
         # Base adjustment for beta deviation from 1.0
@@ -836,7 +858,8 @@ class MarketDataAnalyzer:
             momentum_20d = analysis.get("momentum_20d", 0)
             acceleration = analysis.get("price_acceleration", 0)
             annual_vol = analysis.get(
-                "annualized_volatility", 0.2,
+                "annualized_volatility",
+                0.2,
             )  # Default 20% volatility
 
             # Volatility adjustment factor (reduce momentum signals in high volatility)
@@ -991,7 +1014,9 @@ class MarketDataAnalyzer:
             return 0.0
 
     async def analyze(
-        self, period_days: int = 252 * 2, include_components: bool = False,
+        self,
+        period_days: int = 252 * 2,
+        include_components: bool = False,
     ) -> dict[str, Any]:
         """
         Perform complete market data analysis.
@@ -1032,7 +1057,8 @@ class MarketDataAnalyzer:
 
         # Generate recommendation with optional component scores
         recommendation_result = self.generate_recommendation(
-            analysis, include_components,
+            analysis,
+            include_components,
         )
 
         if include_components and len(recommendation_result) == 4:
@@ -1064,7 +1090,8 @@ class MarketDataAnalyzer:
 
 
 def create_market_data_analyzer(
-    ticker: str, logger: logging.Logger | None = None,
+    ticker: str,
+    logger: logging.Logger | None = None,
 ) -> MarketDataAnalyzer:
     """
     Create a market data analyzer instance.

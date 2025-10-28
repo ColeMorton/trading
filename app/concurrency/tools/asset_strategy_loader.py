@@ -84,7 +84,9 @@ class AssetStrategyLoader:
         self.data_dir = Path(data_dir)
 
     def load_strategies_for_asset(
-        self, asset: str, min_score: float = 1.0,
+        self,
+        asset: str,
+        min_score: float = 1.0,
     ) -> list[dict[str, Any]]:
         """
         Load all strategy files for a given asset and apply filtering.
@@ -141,7 +143,9 @@ class AssetStrategyLoader:
         return [Path(path) for path in sorted(file_paths)]
 
     def _load_and_filter_file(
-        self, file_path: Path, min_score: float,
+        self,
+        file_path: Path,
+        min_score: float,
     ) -> list[dict[str, Any]]:
         """Load CSV file and convert to strategy dictionaries with filtering."""
         df = pd.read_csv(file_path)
@@ -202,7 +206,9 @@ class AssetStrategyLoader:
         return strategies
 
     def _convert_to_strategy_dict(
-        self, row: pd.Series, source_file: Path,
+        self,
+        row: pd.Series,
+        source_file: Path,
     ) -> dict[str, Any]:
         """Convert CSV row to strategy dictionary."""
 
@@ -299,7 +305,8 @@ class AssetStrategyLoader:
         """Validate data quality for an asset."""
         try:
             strategies = self.load_strategies_for_asset(
-                asset, min_score=0.0,
+                asset,
+                min_score=0.0,
             )  # Load all for validation
 
             # Basic validation metrics

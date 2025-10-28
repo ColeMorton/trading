@@ -104,7 +104,8 @@ def process_synthetic_config(config: dict[str, Any], log_func=None) -> dict[str,
 
         # Create synthetic ticker from TICKER_1 and TICKER_2
         synthetic_ticker = create_synthetic_ticker(
-            config["TICKER_1"], config["TICKER_2"],
+            config["TICKER_1"],
+            config["TICKER_2"],
         )
 
         if log_func:

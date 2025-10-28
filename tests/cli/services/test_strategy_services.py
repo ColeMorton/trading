@@ -51,7 +51,9 @@ class TestMAStrategyService:
         assert supported == ["SMA", "EMA"]
 
     def test_convert_config_to_legacy_sma_single_ticker(
-        self, ma_service, base_strategy_config,
+        self,
+        ma_service,
+        base_strategy_config,
     ):
         """Test config conversion for SMA with single ticker."""
         config = base_strategy_config
@@ -73,7 +75,9 @@ class TestMAStrategyService:
         assert legacy_config["SORT_ASC"] is False
 
     def test_convert_config_to_legacy_ema_multiple_tickers(
-        self, ma_service, base_strategy_config,
+        self,
+        ma_service,
+        base_strategy_config,
     ):
         """Test config conversion for EMA with multiple tickers."""
         config = base_strategy_config
@@ -88,7 +92,9 @@ class TestMAStrategyService:
         assert legacy_config["MULTI_TICKER"] is True
 
     def test_convert_config_to_legacy_mixed_strategies(
-        self, ma_service, base_strategy_config,
+        self,
+        ma_service,
+        base_strategy_config,
     ):
         """Test config conversion with mixed SMA/EMA strategies."""
         config = base_strategy_config
@@ -99,7 +105,9 @@ class TestMAStrategyService:
         assert legacy_config["STRATEGY_TYPES"] == ["SMA", "EMA"]
 
     def test_convert_config_to_legacy_with_minimums(
-        self, ma_service, base_strategy_config,
+        self,
+        ma_service,
+        base_strategy_config,
     ):
         """Test config conversion with minimum criteria."""
         config = base_strategy_config
@@ -120,7 +128,9 @@ class TestMAStrategyService:
         assert legacy_config["MINIMUMS"]["BEATS_BNH"] == 0.1
 
     def test_convert_config_to_legacy_with_synthetic(
-        self, ma_service, base_strategy_config,
+        self,
+        ma_service,
+        base_strategy_config,
     ):
         """Test config conversion with synthetic ticker configuration."""
         config = base_strategy_config
@@ -135,7 +145,9 @@ class TestMAStrategyService:
         assert legacy_config["TICKER_2"] == "MSTR"
 
     def test_convert_config_to_legacy_with_parameter_ranges(
-        self, ma_service, base_strategy_config,
+        self,
+        ma_service,
+        base_strategy_config,
     ):
         """Test config conversion with parameter ranges for sweeps."""
         config = base_strategy_config
@@ -152,7 +164,9 @@ class TestMAStrategyService:
         assert legacy_config["SLOW_PERIOD"] == 26
 
     def test_convert_config_to_legacy_with_filter_settings(
-        self, ma_service, base_strategy_config,
+        self,
+        ma_service,
+        base_strategy_config,
     ):
         """Test config conversion with filter settings."""
         config = base_strategy_config
@@ -164,7 +178,10 @@ class TestMAStrategyService:
 
     @patch("app.cli.services.strategy_services.importlib")
     def test_execute_strategy_success(
-        self, mock_importlib, ma_service, base_strategy_config,
+        self,
+        mock_importlib,
+        ma_service,
+        base_strategy_config,
     ):
         """Test successful strategy execution."""
         # Mock the MA Cross module
@@ -186,7 +203,11 @@ class TestMAStrategyService:
     @patch("app.cli.services.strategy_services.importlib")
     @patch("app.cli.services.strategy_services.rprint")
     def test_execute_strategy_failure(
-        self, mock_rprint, mock_importlib, ma_service, base_strategy_config,
+        self,
+        mock_rprint,
+        mock_importlib,
+        ma_service,
+        base_strategy_config,
     ):
         """Test strategy execution failure handling."""
         # Mock import failure
@@ -202,7 +223,10 @@ class TestMAStrategyService:
 
     @patch("app.cli.services.strategy_services.importlib")
     def test_execute_strategy_with_string_ticker(
-        self, mock_importlib, ma_service, base_strategy_config,
+        self,
+        mock_importlib,
+        ma_service,
+        base_strategy_config,
     ):
         """Test execution with string ticker (backwards compatibility)."""
         mock_module = Mock()
@@ -265,7 +289,9 @@ class TestMACDStrategyService:
         assert supported == ["MACD"]
 
     def test_convert_config_to_legacy_macd_complete(
-        self, macd_service, macd_strategy_config,
+        self,
+        macd_service,
+        macd_strategy_config,
     ):
         """Test config conversion for MACD with complete parameters."""
         config = macd_strategy_config
@@ -309,7 +335,9 @@ class TestMACDStrategyService:
         assert "Incomplete MACD configuration" in str(exc_info.value)
 
     def test_convert_config_to_legacy_with_minimums(
-        self, macd_service, macd_strategy_config,
+        self,
+        macd_service,
+        macd_strategy_config,
     ):
         """Test MACD config conversion with minimum criteria."""
         config = macd_strategy_config
@@ -324,7 +352,9 @@ class TestMACDStrategyService:
         assert legacy_config["MINIMUMS"]["PROFIT_FACTOR"] == 1.3
 
     def test_convert_config_to_legacy_multiple_tickers(
-        self, macd_service, macd_strategy_config,
+        self,
+        macd_service,
+        macd_strategy_config,
     ):
         """Test MACD config conversion with multiple tickers."""
         config = macd_strategy_config
@@ -338,7 +368,10 @@ class TestMACDStrategyService:
 
     @patch("app.cli.services.strategy_services.importlib")
     def test_execute_strategy_success(
-        self, mock_importlib, macd_service, macd_strategy_config,
+        self,
+        mock_importlib,
+        macd_service,
+        macd_strategy_config,
     ):
         """Test successful MACD strategy execution."""
         # Mock the MACD module
@@ -360,7 +393,11 @@ class TestMACDStrategyService:
     @patch("app.cli.services.strategy_services.importlib")
     @patch("app.cli.services.strategy_services.rprint")
     def test_execute_strategy_import_failure(
-        self, mock_rprint, mock_importlib, macd_service, macd_strategy_config,
+        self,
+        mock_rprint,
+        mock_importlib,
+        macd_service,
+        macd_strategy_config,
     ):
         """Test MACD strategy execution with import failure."""
         mock_importlib.import_module.side_effect = ImportError("MACD module not found")
@@ -376,7 +413,11 @@ class TestMACDStrategyService:
     @patch("app.cli.services.strategy_services.importlib")
     @patch("app.cli.services.strategy_services.rprint")
     def test_execute_strategy_runtime_failure(
-        self, mock_rprint, mock_importlib, macd_service, macd_strategy_config,
+        self,
+        mock_rprint,
+        mock_importlib,
+        macd_service,
+        macd_strategy_config,
     ):
         """Test MACD strategy execution with runtime failure."""
         mock_module = Mock()

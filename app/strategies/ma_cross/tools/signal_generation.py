@@ -43,7 +43,12 @@ def get_current_signals(
                 if fast < slow:  # Ensure fast period is always less than slow period
                     temp_data = data.clone()
                     temp_data = calculate_ma_and_signals(
-                        temp_data, fast, slow, config, log, strategy_type,
+                        temp_data,
+                        fast,
+                        slow,
+                        config,
+                        log,
+                        strategy_type,
                     )
 
                     if temp_data is not None and len(temp_data) > 0:
@@ -56,7 +61,8 @@ def get_current_signals(
         # Create DataFrame with explicit schema
         if signals:
             return pl.DataFrame(
-                signals, schema={"Fast Period": pl.Int32, "Slow Period": pl.Int32},
+                signals,
+                schema={"Fast Period": pl.Int32, "Slow Period": pl.Int32},
             )
         return pl.DataFrame(schema={"Fast Period": pl.Int32, "Slow Period": pl.Int32})
     except Exception as e:
@@ -139,7 +145,11 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
         if fast_period is not None and slow_period is not None:
             # Use specific windows from config
             current_signals = get_current_signals(
-                data, [fast_period], [slow_period], config, log,
+                data,
+                [fast_period],
+                [slow_period],
+                config,
+                log,
             )
         else:
             # Use window permutations from explicit ranges for full analysis
@@ -184,7 +194,11 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
                 slow_periods = list(np.arange(slow_range[0], slow_range[1] + 1))
 
             current_signals = get_current_signals(
-                data, fast_periods, slow_periods, config, log,
+                data,
+                fast_periods,
+                slow_periods,
+                config,
+                log,
             )
 
         if not config.get("USE_SCANNER", False):
@@ -235,6 +249,7 @@ def process_ma_signals(
     signals = generate_current_signals(ma_config, log)
 
     return check_signal_match(
-        signals.to_dicts() if len(signals) > 0 else [], fast_period, slow_period,
+        signals.to_dicts() if len(signals) > 0 else [],
+        fast_period,
+        slow_period,
     )
-

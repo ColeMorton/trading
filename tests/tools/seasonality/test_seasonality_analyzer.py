@@ -42,7 +42,9 @@ class TestSeasonalityAnalyzerInitialization:
         get_pattern_type()
 
         analyzer = analyzer_cls(
-            confidence_level=0.99, min_sample_size=20, time_period_days=5,
+            confidence_level=0.99,
+            min_sample_size=20,
+            time_period_days=5,
         )
 
         assert analyzer.confidence_level == 0.99

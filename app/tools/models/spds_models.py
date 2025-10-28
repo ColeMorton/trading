@@ -301,7 +301,9 @@ class SPDSConfig:
 
     @classmethod
     def create_for_portfolio(
-        cls, portfolio_file: str, use_trade_history: bool = True,
+        cls,
+        portfolio_file: str,
+        use_trade_history: bool = True,
     ) -> "SPDSConfig":
         """Create configuration for portfolio analysis."""
         config = cls.create_default()
@@ -414,7 +416,10 @@ def create_default_exit_signal() -> ExitSignal:
 
 
 def create_error_result(
-    strategy_name: str, ticker: str, position_uuid: str, error_message: str,
+    strategy_name: str,
+    ticker: str,
+    position_uuid: str,
+    error_message: str,
 ) -> AnalysisResult:
     """Create an error result for failed analysis."""
     return AnalysisResult(

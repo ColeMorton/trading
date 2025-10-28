@@ -54,7 +54,9 @@ def calculate_signals(data: pd.DataFrame, distance: float) -> pd.DataFrame:
         # Ensure only one entry per signal
         data["Position"] = data["Entry"].cumsum()  # Track cumulative positions
         data["Entry"] = np.where(
-            data["Position"] > 0, 1, np.nan,
+            data["Position"] > 0,
+            1,
+            np.nan,
         )  # Only allow one entry at a time
 
         # Exit signal: exit 1 candle after an entry
@@ -63,7 +65,9 @@ def calculate_signals(data: pd.DataFrame, distance: float) -> pd.DataFrame:
         # Ensure exit for every entry
         data["Position"] = data["Entry"].fillna(0).cumsum()  # Track cumulative position
         data["Exit"] = np.where(
-            data["Exit"] == 1, 1, np.nan,
+            data["Exit"] == 1,
+            1,
+            np.nan,
         )  # Mark exit exactly after entry
         logging.info("Signals calculated successfully")
         return data
@@ -136,13 +140,15 @@ def calculate_expectancy(trades: vbt.portfolio.trades.Trades) -> float:
 
 
 def parameter_sensitivity_analysis(
-    data: pd.DataFrame, distances: list[float],
+    data: pd.DataFrame,
+    distances: list[float],
 ) -> pd.DataFrame:
     """Perform parameter sensitivity analysis."""
     logging.info("Starting parameter sensitivity analysis")
     try:
         results = pd.DataFrame(
-            index=distances, columns=["Net Performance %", "Expectancy", "Distance %"],
+            index=distances,
+            columns=["Net Performance %", "Expectancy", "Distance %"],
         )
 
         for distance in distances:
@@ -190,7 +196,9 @@ def plot_results(results: pd.DataFrame, ticker: str) -> None:
             f"Mean Reversion Strategy Performance ({timeframe}) for {ticker}\nExit: 1 Candle",
         )
         fig.legend(
-            loc="upper right", bbox_to_anchor=(1, 1), bbox_transform=ax1.transAxes,
+            loc="upper right",
+            bbox_to_anchor=(1, 1),
+            bbox_transform=ax1.transAxes,
         )
         plt.grid(True)
         plt.show()

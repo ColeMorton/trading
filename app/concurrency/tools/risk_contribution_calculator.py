@@ -32,7 +32,9 @@ class RiskContributionCalculator:
 
     @staticmethod
     def calculate_portfolio_metrics(
-        returns: np.ndarray, weights: np.ndarray, strategy_names: list[str],
+        returns: np.ndarray,
+        weights: np.ndarray,
+        strategy_names: list[str],
     ) -> dict[str, Any]:
         """
         Calculate complete portfolio risk metrics with correct risk contributions.
@@ -70,13 +72,17 @@ class RiskContributionCalculator:
             )
 
         if np.any(np.isinf(weights)):
-            msg = "Portfolio weights contain infinite values - check strategy allocations"
+            msg = (
+                "Portfolio weights contain infinite values - check strategy allocations"
+            )
             raise PortfolioVarianceError(
                 msg,
             )
 
         if np.any(weights < 0):
-            msg = "Portfolio weights contain negative values - check strategy allocations"
+            msg = (
+                "Portfolio weights contain negative values - check strategy allocations"
+            )
             raise PortfolioVarianceError(
                 msg,
             )
@@ -274,7 +280,8 @@ class RiskContributionCalculator:
         for i in range(n_strategies):
             # Covariance between strategy i and portfolio
             strategy_portfolio_cov = np.cov(strategy_returns[:, i], portfolio_returns)[
-                0, 1,
+                0,
+                1,
             ]
 
             # Risk contribution: w_i * Cov(r_i, r_p) / σ_p
@@ -295,7 +302,9 @@ class RiskContributionCalculator:
         # Normalize risk contributions to sum to 100%
         total_contribution = np.sum(risk_contributions_pct)
         if total_contribution > 0 and not np.isclose(
-            total_contribution, 1.0, rtol=1e-5,
+            total_contribution,
+            1.0,
+            rtol=1e-5,
         ):
             logger.warning(
                 f"Normalizing risk contributions from {total_contribution:.4f} to 1.0",
@@ -342,7 +351,9 @@ class RiskContributionCalculator:
 
     @staticmethod
     def calculate_portfolio_metrics_with_cov(
-        cov_matrix: np.ndarray, weights: np.ndarray, strategy_names: list[str],
+        cov_matrix: np.ndarray,
+        weights: np.ndarray,
+        strategy_names: list[str],
     ) -> dict[str, Any]:
         """
         Calculate portfolio metrics using a pre-computed covariance matrix.
@@ -380,13 +391,17 @@ class RiskContributionCalculator:
             )
 
         if np.any(np.isinf(weights)):
-            msg = "Portfolio weights contain infinite values - check strategy allocations"
+            msg = (
+                "Portfolio weights contain infinite values - check strategy allocations"
+            )
             raise PortfolioVarianceError(
                 msg,
             )
 
         if np.any(weights < 0):
-            msg = "Portfolio weights contain negative values - check strategy allocations"
+            msg = (
+                "Portfolio weights contain negative values - check strategy allocations"
+            )
             raise PortfolioVarianceError(
                 msg,
             )
@@ -569,7 +584,9 @@ class RiskContributionCalculator:
             # Step 1: Comprehensive input validation
             validator = create_validator(log, validation_level)
             validation_result = validator.validate_risk_calculation_inputs(
-                returns, weights, strategy_names,
+                returns,
+                weights,
+                strategy_names,
             )
 
             if not validation_result.is_valid:
@@ -590,7 +607,10 @@ class RiskContributionCalculator:
             # Step 2: Enhanced variance estimation for individual strategies
             strategy_returns_list = [returns[:, i] for i in range(returns.shape[1])]
             variance_estimates = estimate_portfolio_variance(
-                strategy_returns_list, strategy_names, variance_method, log,
+                strategy_returns_list,
+                strategy_names,
+                variance_method,
+                log,
             )
 
             # Step 3: Calculate enhanced covariance matrix
@@ -608,7 +628,8 @@ class RiskContributionCalculator:
             )
 
             cov_matrix, diagnostics = corr_calc.calculate_covariance_matrix(
-                returns_df, min_observations=10,
+                returns_df,
+                min_observations=10,
             )
 
             # Step 4: Apply enhanced variance estimates to diagonal
@@ -623,7 +644,8 @@ class RiskContributionCalculator:
 
             # Step 5: Validate enhanced covariance matrix
             cov_validation = validator.validate_covariance_matrix(
-                enhanced_cov_matrix, strategy_names,
+                enhanced_cov_matrix,
+                strategy_names,
             )
             if not cov_validation.is_valid:
                 log(
@@ -635,7 +657,9 @@ class RiskContributionCalculator:
             # Step 6: Calculate risk metrics using enhanced covariance matrix
             risk_metrics = (
                 RiskContributionCalculator.calculate_portfolio_metrics_with_cov(
-                    enhanced_cov_matrix, weights, strategy_names,
+                    enhanced_cov_matrix,
+                    weights,
+                    strategy_names,
                 )
             )
 
@@ -759,7 +783,8 @@ class RiskContributionCalculator:
         from .return_alignment import align_portfolio_returns
 
         with logging_context(
-            module_name="risk_calculation", log_file="risk_calculation.log",
+            module_name="risk_calculation",
+            log_file="risk_calculation.log",
         ) as log:
             try:
                 # Prepare portfolio data for return alignment
@@ -841,7 +866,8 @@ class RiskContributionCalculator:
                         cov_matrix,
                         shrinkage_intensity,
                     ) = corr_calc.apply_shrinkage_estimator(
-                        sample_cov, shrinkage_target="constant_correlation",
+                        sample_cov,
+                        shrinkage_target="constant_correlation",
                     )
                     log(
                         f"Applied shrinkage with intensity {shrinkage_intensity:.4f}",
@@ -850,7 +876,9 @@ class RiskContributionCalculator:
                 else:
                     # Use standard covariance calculation with validation
                     cov_matrix, diagnostics = corr_calc.calculate_covariance_matrix(
-                        aligned_returns_matrix, aligned_strategy_names, log,
+                        aligned_returns_matrix,
+                        aligned_strategy_names,
+                        log,
                     )
 
                     # Log diagnostics
@@ -888,7 +916,10 @@ class RiskContributionCalculator:
 
                     # Calculate risk metrics from portfolio returns
                     risk_metrics = RiskContributionCalculator.calculate_portfolio_metrics_from_returns(
-                        portfolio_returns, returns_array, weights, strategy_names,
+                        portfolio_returns,
+                        returns_array,
+                        weights,
+                        strategy_names,
                     )
 
                     # Add portfolio diagnostics
@@ -897,7 +928,9 @@ class RiskContributionCalculator:
                     # Use traditional covariance-based calculation
                     risk_metrics = (
                         RiskContributionCalculator.calculate_portfolio_metrics_with_cov(
-                            cov_matrix, weights, strategy_names,
+                            cov_matrix,
+                            weights,
+                            strategy_names,
                         )
                     )
 
@@ -937,7 +970,7 @@ class RiskContributionCalculator:
                 )
                 return risk_metrics
 
-            except (DataAlignmentError, RiskCalculationError) as e:
+            except (DataAlignmentError, RiskCalculationError):
                 # Re-raise specific risk calculation errors
                 raise
             except Exception as e:
@@ -1056,16 +1089,20 @@ def calculate_risk_contributions_fixed(
 
             # Add VaR/CVaR metrics
             risk_contributions[f"strategy_{i+1}_var_95"] = risk_metrics.get(
-                f"strategy_{i+1}_var_95", 0.0,
+                f"strategy_{i+1}_var_95",
+                0.0,
             )
             risk_contributions[f"strategy_{i+1}_cvar_95"] = risk_metrics.get(
-                f"strategy_{i+1}_cvar_95", 0.0,
+                f"strategy_{i+1}_cvar_95",
+                0.0,
             )
             risk_contributions[f"strategy_{i+1}_var_99"] = risk_metrics.get(
-                f"strategy_{i+1}_var_99", 0.0,
+                f"strategy_{i+1}_var_99",
+                0.0,
             )
             risk_contributions[f"strategy_{i+1}_cvar_99"] = risk_metrics.get(
-                f"strategy_{i+1}_cvar_99", 0.0,
+                f"strategy_{i+1}_cvar_99",
+                0.0,
             )
 
             # Calculate Risk-Adjusted Alpha (excess return over benchmark, adjusted
@@ -1100,7 +1137,8 @@ def calculate_risk_contributions_fixed(
         portfolio_volatility = risk_metrics["portfolio_volatility"]
         if np.isnan(portfolio_volatility):
             log(
-                "Warning: NaN detected in portfolio volatility, setting to 0", "warning",
+                "Warning: NaN detected in portfolio volatility, setting to 0",
+                "warning",
             )
             portfolio_volatility = 0.0
         risk_contributions["total_portfolio_risk"] = portfolio_volatility

@@ -180,7 +180,9 @@ def generate_json_report(
                             getattr(result, "portfolio_stability_score", 0.0),
                         ),
                         "recommended_parameters": getattr(
-                            result, "recommended_parameters", None,
+                            result,
+                            "recommended_parameters",
+                            None,
                         ),
                         "parameter_variations": [],
                         "analysis_metadata": getattr(result, "analysis_metadata", {}),
@@ -194,7 +196,9 @@ def generate_json_report(
                         for param_result in result.parameter_results:
                             param_data = {
                                 "parameter_combination": getattr(
-                                    param_result, "parameter_combination", None,
+                                    param_result,
+                                    "parameter_combination",
+                                    None,
                                 ),
                                 "stability_score": float(
                                     getattr(param_result, "stability_score", 0.0),
@@ -230,7 +234,8 @@ def generate_json_report(
 
                         # If no exact match found, search in raw parameter_results
                         if recommended_details is None and hasattr(
-                            result, "parameter_results",
+                            result,
+                            "parameter_results",
                         ):
                             for param_result in result.parameter_results:
                                 if (
@@ -239,11 +244,15 @@ def generate_json_report(
                                 ):
                                     recommended_details = {
                                         "parameter_combination": getattr(
-                                            param_result, "parameter_combination", None,
+                                            param_result,
+                                            "parameter_combination",
+                                            None,
                                         ),
                                         "stability_score": float(
                                             getattr(
-                                                param_result, "stability_score", 0.0,
+                                                param_result,
+                                                "stability_score",
+                                                0.0,
                                             ),
                                         ),
                                         "parameter_robustness": float(
@@ -255,7 +264,9 @@ def generate_json_report(
                                         ),
                                         "regime_consistency": float(
                                             getattr(
-                                                param_result, "regime_consistency", 0.0,
+                                                param_result,
+                                                "regime_consistency",
+                                                0.0,
                                             ),
                                         ),
                                         "is_stable": bool(
@@ -365,7 +376,8 @@ def generate_json_report(
                         "num_simulations": config.get("MC_NUM_SIMULATIONS", 100),
                         "confidence_level": config.get("MC_CONFIDENCE_LEVEL", 0.95),
                         "max_parameters_tested": config.get(
-                            "MC_MAX_PARAMETERS_TO_TEST", 10,
+                            "MC_MAX_PARAMETERS_TO_TEST",
+                            10,
                         ),
                     },
                     "description": "Parameter robustness analysis summary for portfolio. Individual strategy results are nested within each strategy object.",

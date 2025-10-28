@@ -111,7 +111,8 @@ class PerformanceAnalyticsDashboard:
         self.logger.info("PerformanceAnalyticsDashboard initialized")
 
     async def get_dashboard_analytics(
-        self, force_refresh: bool = False,
+        self,
+        force_refresh: bool = False,
     ) -> StatisticalDashboardData:
         """
         Get comprehensive dashboard analytics
@@ -403,7 +404,8 @@ class PerformanceAnalyticsDashboard:
                 ]
                 avg_return = np.mean(recent_returns) if recent_returns else 0
                 health_components["performance"] = min(
-                    100, max(0, (avg_return + 0.1) * 500),
+                    100,
+                    max(0, (avg_return + 0.1) * 500),
                 )
             else:
                 health_components["performance"] = 50
@@ -415,7 +417,8 @@ class PerformanceAnalyticsDashboard:
                 ]
                 max_drawdown = min(unrealized_pnls) if unrealized_pnls else 0
                 health_components["risk"] = min(
-                    100, max(0, (max_drawdown + 0.2) * 250 + 50),
+                    100,
+                    max(0, (max_drawdown + 0.2) * 250 + 50),
                 )
             else:
                 health_components["risk"] = 75
@@ -427,7 +430,8 @@ class PerformanceAnalyticsDashboard:
                 )
                 unique_tickers = len({pos.get("ticker", "") for pos in positions})
                 diversification_score = min(
-                    100, (unique_strategies * 20) + (unique_tickers * 10),
+                    100,
+                    (unique_strategies * 20) + (unique_tickers * 10),
                 )
                 health_components["diversification"] = diversification_score
             else:
@@ -463,7 +467,8 @@ class PerformanceAnalyticsDashboard:
 
             # Generate recommendations
             recommendations = self._generate_health_recommendations(
-                health_components, portfolio_health_score,
+                health_components,
+                portfolio_health_score,
             )
 
             return {
@@ -490,7 +495,8 @@ class PerformanceAnalyticsDashboard:
 
         # Calculate performance metrics
         performance_metrics = await self._calculate_performance_metrics(
-            positions, completed_trades,
+            positions,
+            completed_trades,
         )
 
         # Exit efficiency analysis
@@ -513,7 +519,9 @@ class PerformanceAnalyticsDashboard:
 
         # Recommendations
         recommendations = await self._generate_dashboard_recommendations(
-            performance_metrics, exit_efficiency, health_analysis,
+            performance_metrics,
+            exit_efficiency,
+            health_analysis,
         )
 
         return StatisticalDashboardData(
@@ -529,7 +537,9 @@ class PerformanceAnalyticsDashboard:
         )
 
     async def _calculate_performance_metrics(
-        self, positions: list[dict[str, Any]], completed_trades: list[dict[str, Any]],
+        self,
+        positions: list[dict[str, Any]],
+        completed_trades: list[dict[str, Any]],
     ) -> PerformanceMetrics:
         """Calculate portfolio performance metrics"""
 
@@ -605,7 +615,8 @@ class PerformanceAnalyticsDashboard:
         return avg_return / std_return if std_return > 0 else 0.0
 
     async def _calculate_efficiency_by_strategy(
-        self, completed_trades: list[dict[str, Any]],
+        self,
+        completed_trades: list[dict[str, Any]],
     ) -> dict[str, float]:
         """Calculate exit efficiency by strategy"""
         strategy_efficiencies = defaultdict(list)
@@ -622,7 +633,8 @@ class PerformanceAnalyticsDashboard:
         }
 
     async def _calculate_efficiency_by_timeframe(
-        self, completed_trades: list[dict[str, Any]],
+        self,
+        completed_trades: list[dict[str, Any]],
     ) -> dict[str, float]:
         """Calculate exit efficiency by timeframe"""
         timeframe_efficiencies = defaultdict(list)
@@ -639,7 +651,8 @@ class PerformanceAnalyticsDashboard:
         }
 
     async def _calculate_efficiency_trend(
-        self, completed_trades: list[dict[str, Any]],
+        self,
+        completed_trades: list[dict[str, Any]],
     ) -> str:
         """Calculate efficiency trend"""
         if len(completed_trades) < 10:
@@ -676,7 +689,8 @@ class PerformanceAnalyticsDashboard:
         return "stable"
 
     async def _identify_top_performers(
-        self, completed_trades: list[dict[str, Any]],
+        self,
+        completed_trades: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Identify top performing trades"""
         if not completed_trades:
@@ -684,7 +698,9 @@ class PerformanceAnalyticsDashboard:
 
         # Sort by return and take top 5
         sorted_trades = sorted(
-            completed_trades, key=lambda x: x.get("return_pct", 0), reverse=True,
+            completed_trades,
+            key=lambda x: x.get("return_pct", 0),
+            reverse=True,
         )
 
         return [
@@ -700,7 +716,8 @@ class PerformanceAnalyticsDashboard:
         ]
 
     async def _identify_bottom_performers(
-        self, completed_trades: list[dict[str, Any]],
+        self,
+        completed_trades: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Identify bottom performing trades"""
         if not completed_trades:
@@ -722,7 +739,8 @@ class PerformanceAnalyticsDashboard:
         ]
 
     async def _generate_risk_alerts(
-        self, positions: list[dict[str, Any]],
+        self,
+        positions: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Generate risk alerts for current positions"""
         alerts = []
@@ -758,7 +776,9 @@ class PerformanceAnalyticsDashboard:
         return alerts
 
     def _generate_health_recommendations(
-        self, health_components: dict[str, float], portfolio_health_score: float,
+        self,
+        health_components: dict[str, float],
+        portfolio_health_score: float,
     ) -> list[str]:
         """Generate health-based recommendations"""
         recommendations = []

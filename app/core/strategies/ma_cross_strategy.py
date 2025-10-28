@@ -123,7 +123,10 @@ class MACrossStrategy(StrategyInterface):
                 # Execute the strategy using optimal execution method
                 if use_concurrent:
                     portfolios = execute_strategy_concurrent(
-                        config, strategy_type, log, None,
+                        config,
+                        strategy_type,
+                        log,
+                        None,
                     )
                 else:
                     portfolios = execute_strategy(config, strategy_type, log, None)

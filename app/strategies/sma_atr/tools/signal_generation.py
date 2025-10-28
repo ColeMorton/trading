@@ -80,7 +80,12 @@ def generate_current_signals(config: dict[str, Any], log: Callable) -> pl.DataFr
 
                     # Generate SMA signals
                     data_with_signals = calculate_ma_and_signals(
-                        data, fast, slow, param_config, log, strategy_type="SMA",
+                        data,
+                        fast,
+                        slow,
+                        param_config,
+                        log,
+                        strategy_type="SMA",
                     )
 
                     if data_with_signals is None:
@@ -101,7 +106,8 @@ def generate_current_signals(config: dict[str, Any], log: Callable) -> pl.DataFr
                         # For each valid SMA combination with current signal,
                         # create entries for all ATR parameter combinations
                         for atr_length in range(
-                            atr_length_range[0], atr_length_range[1] + 1,
+                            atr_length_range[0],
+                            atr_length_range[1] + 1,
                         ):
                             multiplier = atr_multiplier_range[0]
                             while multiplier <= atr_multiplier_range[1]:

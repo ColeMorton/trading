@@ -85,7 +85,8 @@ def create_realistic_price_data(
 
 
 def create_crossover_scenario_data(
-    ticker: str = "TEST", crossover_day: int = 50,
+    ticker: str = "TEST",
+    crossover_day: int = 50,
 ) -> pl.DataFrame:
     """
     Create data with a clear MA crossover at specified day.

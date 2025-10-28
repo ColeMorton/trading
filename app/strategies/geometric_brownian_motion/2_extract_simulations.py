@@ -102,14 +102,16 @@ def extract_simulations(csv_content: str) -> tuple[dict, pl.DataFrame]:
         percentile_25_sim = simulations[
             performances.index(
                 min(
-                    performances, key=lambda x: abs(x - np.percentile(performances, 25)),
+                    performances,
+                    key=lambda x: abs(x - np.percentile(performances, 25)),
                 ),
             )
         ]
         percentile_75_sim = simulations[
             performances.index(
                 min(
-                    performances, key=lambda x: abs(x - np.percentile(performances, 75)),
+                    performances,
+                    key=lambda x: abs(x - np.percentile(performances, 75)),
                 ),
             )
         ]

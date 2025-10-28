@@ -11,7 +11,8 @@ NUM_PERMUTATIONS = 1000
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
 
@@ -35,7 +36,8 @@ def shuffle_trades(trades: pl.DataFrame) -> pl.DataFrame:
 
 
 def get_random_permutations(
-    trades: pl.DataFrame, num_permutations: int,
+    trades: pl.DataFrame,
+    num_permutations: int,
 ) -> list[pl.DataFrame]:
     """
     Generate a list of randomly shuffled trade permutations.
@@ -115,7 +117,8 @@ def main():
 
         # Export the data to a JSON file in the 'json/' directory
         json_filename = os.path.join(
-            json_dir, f"monte_carlo/{TICKER}_ema_cross_permutations.json",
+            json_dir,
+            f"monte_carlo/{TICKER}_ema_cross_permutations.json",
         )
         with open(json_filename, "w") as json_file:
             json.dump(json_data, json_file)
