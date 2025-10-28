@@ -354,7 +354,7 @@ class QuantitativeAnalyzer:
                 )
 
             # Diversification recommendations
-            strategy_types = {}
+            strategy_types: dict[str, int] = {}
             for s in strategies:
                 strategy_types[s.strategy_type] = (
                     strategy_types.get(s.strategy_type, 0) + 1

@@ -77,10 +77,20 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
+    allow_credentials=True,  # Required for cookies/sessions
     allow_methods=settings.CORS_ALLOW_METHODS,
     allow_headers=settings.CORS_ALLOW_HEADERS,
 )
+
+# Add session middleware for SSE proxy authentication
+from .core.session import setup_session_middleware
+
+setup_session_middleware(app)
+
+# Add rate limiting middleware for SSE connections
+from .middleware.rate_limit import SSERateLimiter
+
+app.add_middleware(SSERateLimiter)
 
 
 # Exception handlers
@@ -186,9 +196,13 @@ app.openapi = custom_openapi
 app.include_router(health.router, prefix="/health", tags=["Health"])
 
 # Import and include completed routers
-from .routers import concurrency, config, jobs, seasonality, strategy, sweeps
+from .routers import auth, concurrency, config, jobs, seasonality, sse_proxy, strategy, sweeps
 
 
+app.include_router(
+    auth.router, prefix=f"{settings.API_V1_PREFIX}/auth", tags=["Authentication"]
+)
+app.include_router(sse_proxy.router, prefix="/sse-proxy", tags=["SSE Proxy"])
 app.include_router(jobs.router, prefix=f"{settings.API_V1_PREFIX}/jobs", tags=["Jobs"])
 app.include_router(
     strategy.router, prefix=f"{settings.API_V1_PREFIX}/strategy", tags=["Strategy"]

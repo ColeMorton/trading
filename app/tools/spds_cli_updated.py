@@ -245,7 +245,7 @@ Examples:
         print(f"Total Results: {len(results)}")
 
         # Count signals
-        signal_counts = {}
+        signal_counts: dict[str, int] = {}
         for result in results.values():
             signal = result.exit_signal.signal_type.value
             signal_counts[signal] = signal_counts.get(signal, 0) + 1

@@ -341,50 +341,62 @@ Similar process - creates a temporary endpoint to inspect webhook payloads.
 
 Long-running jobs support real-time progress streaming via SSE.
 
-#### JavaScript/TypeScript Example
+#### Browser Clients: Use the SSE Proxy
+
+**⚠️ Important for Browser/Frontend Applications:**
+
+The native browser `EventSource` API **cannot send custom headers** (like `X-API-Key`). For browser-based applications, use the **SSE Proxy** which provides session-based authentication:
 
 ```javascript
-// React/Next.js example
-function StreamJobProgress({ jobId }) {
-  const [progress, setProgress] = useState(0);
-  const [message, setMessage] = useState('');
+// 1. Login first to get session cookie
+await fetch('/api/v1/auth/login', {
+  method: 'POST',
+  credentials: 'include',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ api_key: 'your-api-key' })
+});
 
-  useEffect(() => {
-    const eventSource = new EventSource(
-      `http://localhost:8000/api/v1/jobs/${jobId}/stream`,
-      {
-        headers: {
-          'X-API-Key': 'your-api-key',
-        },
-      }
-    );
+// 2. Use native EventSource with proxy endpoint (no headers needed!)
+const eventSource = new EventSource(`/sse-proxy/jobs/${jobId}/stream`);
 
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setProgress(data.percent);
-      setMessage(data.message);
+eventSource.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log(`Progress: ${data.percent}% - ${data.message}`);
+  
+  if (data.done || data.error) {
+    eventSource.close();
+  }
+};
+```
 
-      if (data.percent === 100) {
-        eventSource.close();
-        onComplete();
-      }
-    };
+**See [SSE_PROXY_GUIDE.md](./SSE_PROXY_GUIDE.md) for complete browser integration guide.**
 
-    eventSource.onerror = (error) => {
-      console.error('SSE error:', error);
-      eventSource.close();
-    };
+#### Backend/Server-Side: Direct API Access
 
-    return () => eventSource.close();
-  }, [jobId]);
+For server-side applications (Python, Node.js backend, etc.), use the direct API endpoint with API key headers:
 
-  return (
-    <div>
-      <ProgressBar value={progress} />
-      <p>{message}</p>
-    </div>
-  );
-}
+```javascript
+// Node.js backend example (not browser)
+// Note: This approach does NOT work in browsers
+const EventSource = require('eventsource');
+
+const eventSource = new EventSource(
+  `http://localhost:8000/api/v1/jobs/${jobId}/stream`,
+  {
+    headers: {
+      'X-API-Key': 'your-api-key'
+    }
+  }
+);
+
+eventSource.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log(`Progress: ${data.percent}% - ${data.message}`);
+  
+  if (data.percent === 100) {
+    eventSource.close();
+  }
+};
 ```
 
 #### Python Example

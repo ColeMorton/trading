@@ -71,7 +71,7 @@ class SPDSFixApplicator:
         """Analyze current calculation errors in the system"""
         logger.info("Analyzing current calculation errors...")
 
-        errors = {
+        errors: dict[str, dict[str, Any]] = {
             "portfolio_aggregation": {},
             "mae_consistency": {},
             "sharpe_ratio": {},

@@ -203,7 +203,7 @@ class ProfileManager:
         else:
             # Prevent circular inheritance
             visited = set()
-            inheritance_chain = []
+            inheritance_chain: list[str] = []
             current = profile
 
             while current.inherits_from is not None:
