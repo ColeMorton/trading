@@ -157,13 +157,12 @@ def generate_signals(
 
     # Ensure all input columns are 1D arrays
     for col in ["Open", "High", "Low", "Close", "Volume"]:
-        if col in data.columns:
-            # Check if values are 2D and flatten if needed
-            if hasattr(data[col].values, "shape") and len(data[col].values.shape) > 1:
-                log(
-                    f"DEBUG: Flattening {col} values from shape {data[col].values.shape}",
-                )
-                data[col] = pd.Series(data[col].values.flatten(), index=data.index)
+        # Check if column exists and values are 2D, then flatten if needed
+        if col in data.columns and hasattr(data[col].values, "shape") and len(data[col].values.shape) > 1:
+            log(
+                f"DEBUG: Flattening {col} values from shape {data[col].values.shape}",
+            )
+            data[col] = pd.Series(data[col].values.flatten(), index=data.index)
 
     # Calculate ATR
     data["ATR"] = calculate_atr(data, atr_length)
@@ -226,13 +225,12 @@ def generate_signals(
 
     # Ensure all columns have the same index and are 1D arrays
     for col in data.columns:
-        if isinstance(data[col], pd.Series):
-            # Check if values are 2D and flatten if needed
-            if hasattr(data[col].values, "shape") and len(data[col].values.shape) > 1:
-                log(
-                    f"DEBUG: Final flattening of {col} values from shape {data[col].values.shape}",
-                )
-                data[col] = pd.Series(data[col].values.flatten(), index=data.index)
+        # Check if column is Series and values are 2D, then flatten if needed
+        if isinstance(data[col], pd.Series) and hasattr(data[col].values, "shape") and len(data[col].values.shape) > 1:
+            log(
+                f"DEBUG: Final flattening of {col} values from shape {data[col].values.shape}",
+            )
+            data[col] = pd.Series(data[col].values.flatten(), index=data.index)
 
     # Final check of data shapes
     log(f"DEBUG: Final data shape: {data.shape}")
