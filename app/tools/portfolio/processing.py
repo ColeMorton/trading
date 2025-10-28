@@ -157,7 +157,7 @@ def normalize_portfolio_data(portfolios: list[dict]) -> list[dict]:
     normalized_portfolios = []
 
     for portfolio in portfolios:
-        normalized_portfolio = {}
+        normalized_portfolio: dict[str, Any] = {}
 
         for key, value in portfolio.items():
             # Handle None string literals

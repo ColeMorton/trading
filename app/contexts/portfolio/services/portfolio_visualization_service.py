@@ -155,7 +155,7 @@ class PortfolioVisualizationService:
         """Initialize portfolio visualization service."""
         self.config = plot_config or PlotConfig()
         self.logger = logger
-        self.plot_paths = []
+        self.plot_paths: list[str] = []
 
     def _get_line_style(
         self, color: str, width: int | None = None, dash: str | None = None

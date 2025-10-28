@@ -49,7 +49,7 @@ class DataProcessor:
         self.error_handler = ErrorHandler(log)
 
         # Initialize cache for intermediate results
-        self._cache = {}
+        self._cache: dict[str, Any] = {}
 
     def ensure_polars(self, df: pd.DataFrame | pl.DataFrame) -> pl.DataFrame:
         """Ensure a DataFrame is a polars DataFrame.

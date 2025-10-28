@@ -211,7 +211,7 @@ class PortfolioStatisticalAnalyzer:
         """
         exit_signals = self.get_exit_signals(results)
 
-        signal_counts = {}
+        signal_counts: dict[str, int] = {}
         for signal in exit_signals.values():
             signal_counts[signal] = signal_counts.get(signal, 0) + 1
 

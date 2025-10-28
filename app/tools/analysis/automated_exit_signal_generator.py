@@ -153,7 +153,7 @@ class AutomatedExitSignalGenerator:
                 signal_tasks.append((position_id, task))
 
             # Execute signal generation in parallel
-            results = {}
+            results: dict[str, Any] = {}
             if signal_tasks:
                 task_results = await asyncio.gather(
                     *[task for _, task in signal_tasks], return_exceptions=True
@@ -459,7 +459,7 @@ class AutomatedExitSignalGenerator:
         recent_signals = self.signal_history[-100:]  # Last 100 signals
 
         # Signal distribution
-        signal_counts = {}
+        signal_counts: dict[str, int] = {}
         confidences = []
 
         for signal in recent_signals:
@@ -501,7 +501,7 @@ class AutomatedExitSignalGenerator:
                 return self._get_effective_thresholds(None)
 
             # Analyze historical performance to optimize thresholds
-            performance_by_signal = {}
+            performance_by_signal: dict[str, list[float]] = {}
 
             for trade in historical_performance_data:
                 exit_signal = trade.get("exit_signal", "UNKNOWN")
