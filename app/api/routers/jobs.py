@@ -5,6 +5,8 @@ This router provides endpoints for creating, monitoring, and managing
 asynchronous jobs.
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,7 +18,6 @@ from ..models.schemas import JobStatusResponse
 from ..models.tables import JobStatus
 from ..services.job_service import JobService
 from ..streaming.sse import stream_job_progress
-from typing import Annotated
 
 
 router = APIRouter()
@@ -37,7 +38,8 @@ async def get_job_status(
 
     if not job:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Job {job_id} not found",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Job {job_id} not found",
         )
 
     # Verify job belongs to this API key
@@ -89,7 +91,8 @@ async def stream_job(
 
     if not job:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Job {job_id} not found",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Job {job_id} not found",
         )
 
     if str(job.api_key_id) != api_key.id:
@@ -116,7 +119,8 @@ async def cancel_job(
 
     if not job:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Job {job_id} not found",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Job {job_id} not found",
         )
 
     if str(job.api_key_id) != api_key.id:
@@ -143,11 +147,15 @@ async def cancel_job(
 
 @router.get("/", response_model=list[JobStatusResponse])
 async def list_jobs(
-    status: Annotated[JobStatus | None, Query(None, description="Filter by job status")],
-    limit: Annotated[int, Query(50, ge=1, le=100, description="Maximum number of results")],
-    offset: Annotated[int, Query(0, ge=0, description="Pagination offset")],
     db: Annotated[AsyncSession, Depends(get_db)],
     api_key: Annotated[APIKey, Depends(validate_api_key)],
+    status: Annotated[
+        JobStatus | None, Query(description="Filter by job status")
+    ] = None,
+    limit: Annotated[
+        int, Query(ge=1, le=100, description="Maximum number of results")
+    ] = 50,
+    offset: Annotated[int, Query(ge=0, description="Pagination offset")] = 0,
 ):
     """
     List jobs for the authenticated API key.
@@ -155,7 +163,11 @@ async def list_jobs(
     Supports filtering by status and pagination.
     """
     jobs = await JobService.list_jobs(
-        db, api_key_id=api_key.id, status=status, limit=limit, offset=offset,
+        db,
+        api_key_id=api_key.id,
+        status=status,
+        limit=limit,
+        offset=offset,
     )
 
     return [

@@ -155,7 +155,8 @@ def process_strategy(config, log):
         if config.get("STRATEGY_TYPE") == "MACD":
             # For MACD strategies, we need the signal period
             signal_period = config.get(
-                "SIGNAL_PERIOD", 9,
+                "SIGNAL_PERIOD",
+                9,
             )  # Default to 9 if not specified
             data = calculate_macd_and_signals(
                 data,
@@ -168,7 +169,11 @@ def process_strategy(config, log):
         else:
             # Default to MA strategy
             data = calculate_ma_and_signals(
-                data, config["FAST_PERIOD"], config["SLOW_PERIOD"], config, log,
+                data,
+                config["FAST_PERIOD"],
+                config["SLOW_PERIOD"],
+                config,
+                log,
             )
 
         return backtest_strategy(data, config, log)
@@ -198,7 +203,8 @@ def run(
         bool: True if analysis successful
     """
     log, log_close, _, _ = setup_logging(
-        module_name="portfolio_review", log_file="review.log",
+        module_name="portfolio_review",
+        log_file="review.log",
     )
 
     # Convert new parameters to legacy format for backward compatibility
@@ -282,7 +288,9 @@ def run(
 
             # Apply parameter conversion to config_dict
             legacy_params = convert_parameters_to_legacy(
-                config_timeframe, config_strategy_type, config_signal_period,
+                config_timeframe,
+                config_strategy_type,
+                config_signal_period,
             )
             enhanced_config = {**config_dict, **legacy_params}
 
@@ -297,7 +305,8 @@ def run(
             if config_strategy_type == "MACD":
                 # For MACD strategies, we need the signal period
                 config_signal_period = config.get(
-                    "SIGNAL_PERIOD", 9,
+                    "SIGNAL_PERIOD",
+                    9,
                 )  # Default to 9 if not specified
                 data = calculate_macd_and_signals(
                     data,
@@ -310,43 +319,53 @@ def run(
             else:
                 # Default to MA strategy
                 data = calculate_ma_and_signals(
-                    data, config["FAST_PERIOD"], config["SLOW_PERIOD"], config, log,
+                    data,
+                    config["FAST_PERIOD"],
+                    config["SLOW_PERIOD"],
+                    config,
+                    log,
                 )
 
             portfolio = backtest_strategy(data, config, log)
 
-        stats = portfolio.stats()
-        log(f"Portfolio stats: {stats}")
+            stats = portfolio.stats()
+            log(f"Portfolio stats: {stats}")
 
-        # Extract value series and convert to DataFrame
-        value_series = portfolio.value()
-        initial_value = value_series[0]
-        equity_curve = pl.DataFrame(
-            {"Date": value_series.index, "Close": value_series.values / initial_value},
-        )
+            # Extract value series and convert to DataFrame
+            value_series = portfolio.value()
+            initial_value = value_series[0]
+            equity_curve = pl.DataFrame(
+                {
+                    "Date": value_series.index,
+                    "Close": value_series.values / initial_value,
+                },
+            )
 
-        # Export to CSV - use appropriate directory based on strategy type
-        export_strategy_type = config.get("STRATEGY_TYPE", DEFAULT_STRATEGY_TYPE)
-        strategy_type_dir = "macd" if export_strategy_type == "MACD" else "ma_cross"
-        csv_path = f'data/outputs/portfolio/{strategy_type_dir}/equity_curve/{config["TICKER"]}.csv'
+            # Export to CSV - use appropriate directory based on strategy type
+            export_strategy_type = config.get("STRATEGY_TYPE", DEFAULT_STRATEGY_TYPE)
+            strategy_type_dir = "macd" if export_strategy_type == "MACD" else "ma_cross"
+            csv_path = f'data/outputs/portfolio/{strategy_type_dir}/equity_curve/{config["TICKER"]}.csv'
 
-        # Ensure directory exists
-        os.makedirs(os.path.dirname(csv_path), exist_ok=True)
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(csv_path), exist_ok=True)
 
-        equity_curve.write_csv(csv_path)
-        log(f"Exported equity curve to {csv_path}")
+            equity_curve.write_csv(csv_path)
+            log(f"Exported equity curve to {csv_path}")
 
-        # Generate portfolio plots and save to files
-        from app.tools.plotting import create_portfolio_plot_files
+            # Generate portfolio plots and save to files
+            from app.tools.plotting import create_portfolio_plot_files
 
-        created_files = create_portfolio_plot_files(portfolio, config, log)
-        if created_files:
-            log(f"Generated portfolio plots: {', '.join(created_files)}")
-        else:
-            log("Portfolio plots generation completed (files saved to disk)", "warning")
+            created_files = create_portfolio_plot_files(portfolio, config, log)
+            if created_files:
+                log(f"Generated portfolio plots: {', '.join(created_files)}")
+            else:
+                log(
+                    "Portfolio plots generation completed (files saved to disk)",
+                    "warning",
+                )
 
-        log_close()
-        return True
+            log_close()
+            return True
 
     except Exception as e:
         log(f"Error during portfolio review: {e!s}", "error")

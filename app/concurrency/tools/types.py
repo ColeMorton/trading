@@ -116,6 +116,21 @@ class SignalValueMetrics(TypedDict):
     market_condition_performance: MarketConditionPerformance
 
 
+class EfficiencyMetrics(TypedDict):
+    """Efficiency-related metrics."""
+
+    efficiency_score: dict[str, float | str]
+    expectancy: dict[str, float | str]
+    multipliers: dict[str, dict[str, float | str]]
+
+
+class SignalMetrics(TypedDict):
+    """Signal-related metrics."""
+
+    monthly_statistics: dict[str, dict[str, float | str]]
+    summary: dict[str, dict[str, float | str]]
+
+
 class Strategy(TypedDict):
     """Complete strategy definition."""
 
@@ -156,14 +171,6 @@ class ConcurrencyMetrics(TypedDict):
     max_concurrent_strategies: dict[str, int | str]
 
 
-class EfficiencyMetrics(TypedDict):
-    """Efficiency-related metrics."""
-
-    efficiency_score: dict[str, float | str]
-    expectancy: dict[str, float | str]
-    multipliers: dict[str, dict[str, float | str]]
-
-
 class RiskMetrics(TypedDict):
     """Portfolio risk metrics."""
 
@@ -172,13 +179,6 @@ class RiskMetrics(TypedDict):
     strategy_relationships: NotRequired[
         dict[str, dict[str, float | str]]
     ]  # Optional field
-
-
-class SignalMetrics(TypedDict):
-    """Signal-related metrics."""
-
-    monthly_statistics: dict[str, dict[str, float | str]]
-    summary: dict[str, dict[str, float | str]]
 
 
 class MonteCarloMetrics(TypedDict):

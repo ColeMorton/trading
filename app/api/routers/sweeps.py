@@ -5,6 +5,8 @@ This router provides endpoints for querying detailed strategy sweep results
 from the database, complementing the job-based sweep execution endpoints.
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,7 +19,6 @@ from ..models.schemas import (
     SweepResultsResponse,
     SweepSummaryResponse,
 )
-from typing import Annotated
 
 
 router = APIRouter()
@@ -25,11 +26,12 @@ router = APIRouter()
 
 @router.get("/", response_model=list[SweepSummaryResponse])
 async def list_sweeps(
-    limit: Annotated[int, Query(
-        10, ge=1, le=100, description="Maximum number of sweeps to return",
-    )],
     db: Annotated[AsyncSession, Depends(get_db)],
     api_key: Annotated[APIKey, Depends(validate_api_key)],
+    limit: Annotated[
+        int,
+        Query(ge=1, le=100, description="Maximum number of sweeps to return"),
+    ] = 10,
 ):
     """
     List all sweep runs with summary statistics.
@@ -90,9 +92,11 @@ async def list_sweeps(
 
 @router.get("/latest", response_model=BestResultsResponse)
 async def get_latest_sweep_results(
-    limit: Annotated[int, Query(10, ge=1, le=100, description="Number of top results to return")],
     db: Annotated[AsyncSession, Depends(get_db)],
     api_key: Annotated[APIKey, Depends(validate_api_key)],
+    limit: Annotated[
+        int, Query(ge=1, le=100, description="Number of top results to return")
+    ] = 10,
 ):
     """
     Get best results from the most recent sweep run.
@@ -132,7 +136,8 @@ async def get_latest_sweep_results(
 
     if not rows:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="No sweep results found",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No sweep results found",
         )
 
     # Get sweep run info from first row
@@ -172,11 +177,15 @@ async def get_latest_sweep_results(
 @router.get("/{sweep_run_id}", response_model=SweepResultsResponse)
 async def get_sweep_results(
     sweep_run_id: str,
-    ticker: Annotated[str | None, Query(None, description="Filter by specific ticker")],
-    limit: Annotated[int, Query(50, ge=1, le=500, description="Maximum results to return")],
-    offset: Annotated[int, Query(0, ge=0, description="Pagination offset")],
     db: Annotated[AsyncSession, Depends(get_db)],
     api_key: Annotated[APIKey, Depends(validate_api_key)],
+    ticker: Annotated[
+        str | None, Query(description="Filter by specific ticker")
+    ] = None,
+    limit: Annotated[
+        int, Query(ge=1, le=500, description="Maximum results to return")
+    ] = 50,
+    offset: Annotated[int, Query(ge=0, description="Pagination offset")] = 0,
 ):
     """
     Get detailed results for a specific sweep run.
@@ -335,9 +344,11 @@ async def get_sweep_results(
 @router.get("/{sweep_run_id}/best", response_model=BestResultsResponse)
 async def get_best_results_for_sweep(
     sweep_run_id: str,
-    ticker: Annotated[str | None, Query(None, description="Filter by specific ticker")],
     db: Annotated[AsyncSession, Depends(get_db)],
     api_key: Annotated[APIKey, Depends(validate_api_key)],
+    ticker: Annotated[
+        str | None, Query(description="Filter by specific ticker")
+    ] = None,
 ):
     """
     Get the best result(s) for a specific sweep run.
