@@ -70,28 +70,28 @@ def main():
 
     # Configuration loaded from inline definition
     config.get("USE_HOURLY", False)
-    USE_SYNTHETIC = config.get("USE_SYNTHETIC", False)
-    TICKER_1 = config.get("TICKER", "EVRG")
-    TICKER_2 = config.get("TICKER_2", "BTC-USD")
-    SHORT = config.get("SHORT", False)
+    use_synthetic = config.get("use_synthetic", False)
+    ticker_1 = config.get("TICKER", "EVRG")
+    ticker_2 = config.get("ticker_2", "BTC-USD")
+    short = config.get("SHORT", False)
 
-    SHORT_PERIOD = config.get("SHORT_WINDOW_START", 8)
-    SLOW_PERIOD = config.get("LONG_WINDOW_START", 15)
-    SIGNAL_PERIOD = config.get("SIGNAL_WINDOW_START", 7)
-    RSI_WINDOW = config.get("RSI_WINDOW", 14)
+    short_period = config.get("SHORT_WINDOW_START", 8)
+    slow_period = config.get("LONG_WINDOW_START", 15)
+    signal_period = config.get("SIGNAL_WINDOW_START", 7)
+    rsi_window = config.get("rsi_window", 14)
 
-    RSI_THRESHOLD = config.get("RSI_THRESHOLD", 48)
-    USE_RSI = config.get("USE_RSI", False)
+    rsi_threshold = config.get("rsi_threshold", 48)
+    use_rsi = config.get("use_rsi", False)
 
-    if USE_SYNTHETIC:
+    if use_synthetic:
         # Get data for both tickers and create synthetic pair
         config_1 = config.copy()
-        config_1["TICKER"] = TICKER_1
-        data_ticker_1 = get_data(TICKER_1, config_1, log_wrapper)
+        config_1["TICKER"] = ticker_1
+        data_ticker_1 = get_data(ticker_1, config_1, log_wrapper)
 
         config_2 = config.copy()
-        config_2["TICKER"] = TICKER_2
-        data_ticker_2 = get_data(TICKER_2, config_2, log_wrapper)
+        config_2["TICKER"] = ticker_2
+        data_ticker_2 = get_data(ticker_2, config_2, log_wrapper)
 
         # Convert to pandas for vectorbt compatibility
         data_ticker_1 = data_ticker_1.to_pandas()
@@ -104,36 +104,36 @@ def main():
         data = data_ticker_3
     else:
         # Get data for single ticker
-        data = get_data(TICKER_1, config, log_wrapper).to_pandas()
+        data = get_data(ticker_1, config, log_wrapper).to_pandas()
 
     # Calculate MACD
     macd_indicator = vbt.MACD.run(
         data["Close"],
-        fast_window=SHORT_PERIOD,
-        slow_window=SLOW_PERIOD,
-        signal_period=SIGNAL_PERIOD,
+        fast_window=short_period,
+        slow_window=slow_period,
+        signal_period=signal_period,
     )
 
     # Store the MACD and Signal lines in the dataframe
     data["MACD"] = macd_indicator.macd
     data["Signal"] = macd_indicator.signal
 
-    if USE_RSI:
-        data = calculate_rsi_local(data, RSI_WINDOW)
+    if use_rsi:
+        data = calculate_rsi_local(data, rsi_window)
 
     # Generate entry and exit signals based on SHORT flag
     if SHORT:
         macd_condition = data["MACD"] < data["Signal"]
-        if USE_RSI:
-            rsi_condition = data["RSI"] <= (100 - RSI_THRESHOLD)
+        if use_rsi:
+            rsi_condition = data["RSI"] <= (100 - rsi_threshold)
             entries = macd_condition & rsi_condition
         else:
             entries = macd_condition
         exits_macd = data["MACD"] > data["Signal"]
     else:
         macd_condition = data["MACD"] > data["Signal"]
-        if USE_RSI:
-            rsi_condition = data["RSI"] >= RSI_THRESHOLD
+        if use_rsi:
+            rsi_condition = data["RSI"] >= rsi_threshold
             entries = macd_condition & rsi_condition
         else:
             entries = macd_condition
@@ -164,10 +164,10 @@ def main():
     results = []
     for holding_period in range(longest_holding_period, 0, -1):
         exits_psl = psl_exit(
-            data["Close"].values, entry_price.values, holding_period, short=SHORT,
+            data["Close"].values, entry_price.values, holding_period, short=short,
         )
         exits = exits_macd | exits_psl
-        if SHORT:
+        if short:
             pf = vbt.Portfolio.from_signals(
                 data["Close"], short_entries=entries, short_exits=exits,
             )

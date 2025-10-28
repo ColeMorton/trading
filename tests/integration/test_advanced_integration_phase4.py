@@ -493,8 +493,8 @@ class TestCrossComponentCommunication:
         # Step 2: Mock components with event emission
         with patch(
             "app.cli.services.portfolio_analysis_service.PortfolioAnalysisService",
-        ) as MockService:
-            mock_service = MockService.return_value
+        ) as mock_service_cls:
+            mock_service = mock_service_cls.return_value
 
             # Configure mock to emit events
             def mock_aggregate(tickers):
@@ -510,7 +510,7 @@ class TestCrossComponentCommunication:
             mock_service.aggregate_portfolios_best.side_effect = mock_aggregate
 
             # Step 3: Execute operation that triggers events
-            service = MockService()
+            service = mock_service_cls()
             service.aggregate_portfolios_best(["AAPL", "MSFT"])
 
             # Step 4: Verify event sequence

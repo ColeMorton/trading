@@ -28,7 +28,7 @@ class TestJobWebhookIntegration:
         mock_session.refresh = AsyncMock()
 
         # Create job with webhook URL using static method
-        with patch("app.api.services.job_service.Job") as MockJob:
+        with patch("app.api.services.job_service.Job") as mock_job_cls:
             mock_job = Mock(spec=Job)
             mock_job.id = "test-job-123"
             mock_job.status = JobStatus.PENDING

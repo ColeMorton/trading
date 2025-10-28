@@ -208,12 +208,12 @@ def main() -> None:
         portfolio_config: PortfolioConfig = load_portfolio_config(config["portfolio"])
 
         # Get portfolio values and tickers
-        TOTAL_PORTFOLIO_VALUE = get_portfolio_value(portfolio_config)
-        INITIAL_VALUE = portfolio_config["initial_value"]
-        TICKERS = get_portfolio_tickers(portfolio_config)
+        total_portfolio_value = get_portfolio_value(portfolio_config)
+        initial_value = portfolio_config["initial_value"]
+        tickers = get_portfolio_tickers(portfolio_config)
 
         # Calculate weights dynamically based on number of tickers
-        equal_weight = 1.0 / len(TICKERS)
+        equal_weight = 1.0 / len(tickers)
         min_weight = equal_weight * (
             2 / 3
         )  # Makes max_weight twice min_weight while averaging to equal_weight
@@ -226,7 +226,7 @@ def main() -> None:
         }
 
         # Get and combine data
-        data = combine_prices(TICKERS, log)
+        data = combine_prices(tickers, log)
 
         # Convert to pandas for skfolio compatibility
         data_pd = data.to_pandas()
@@ -252,12 +252,12 @@ def main() -> None:
         # Fit model and get weights
         log("Fitting optimization model")
         model.fit(returns)
-        weights = dict(zip(TICKERS, model.weights_, strict=False))
+        weights = dict(zip(tickers, model.weights_, strict=False))
 
         # Get optimized portfolio
         log("Calculating portfolio metrics")
         portfolio = model.predict(returns)
-        weights = dict(zip(TICKERS, model.weights_, strict=False))
+        weights = dict(zip(tickers, model.weights_, strict=False))
 
         # Calculate metrics using skfolio's Portfolio object
         annualized_return = portfolio.mean * 252  # annualize the mean return
@@ -276,25 +276,25 @@ def main() -> None:
         portfolio_var_95 = calculate_var(portfolio_returns, 0.95)
         portfolio_cvar_95 = calculate_cvar(portfolio_returns, 0.95)
         # Calculate dollar values using total portfolio value
-        portfolio_var_95_usd = portfolio_var_95 * TOTAL_PORTFOLIO_VALUE / 100
-        portfolio_cvar_95_usd = portfolio_cvar_95 * TOTAL_PORTFOLIO_VALUE / 100
+        portfolio_var_95_usd = portfolio_var_95 * total_portfolio_value / 100
+        portfolio_cvar_95_usd = portfolio_cvar_95 * total_portfolio_value / 100
         # 99% confidence level
         portfolio_var_99 = calculate_var(portfolio_returns, 0.99)
         portfolio_cvar_99 = calculate_cvar(portfolio_returns, 0.99)
-        portfolio_var_99_usd = portfolio_var_99 * TOTAL_PORTFOLIO_VALUE / 100
-        portfolio_cvar_99_usd = portfolio_cvar_99 * TOTAL_PORTFOLIO_VALUE / 100
+        portfolio_var_99_usd = portfolio_var_99 * total_portfolio_value / 100
+        portfolio_cvar_99_usd = portfolio_cvar_99 * total_portfolio_value / 100
 
         # Calculate what percentage these dollar values represent of the initial value
-        portfolio_var_95_pct = (portfolio_var_95_usd / INITIAL_VALUE) * 100
-        portfolio_cvar_95_pct = (portfolio_cvar_95_usd / INITIAL_VALUE) * 100
-        portfolio_var_99_pct = (portfolio_var_99_usd / INITIAL_VALUE) * 100
-        portfolio_cvar_99_pct = (portfolio_cvar_99_usd / INITIAL_VALUE) * 100
+        portfolio_var_95_pct = (portfolio_var_95_usd / initial_value) * 100
+        portfolio_cvar_95_pct = (portfolio_cvar_95_usd / initial_value) * 100
+        portfolio_var_99_pct = (portfolio_var_99_usd / initial_value) * 100
+        portfolio_cvar_99_pct = (portfolio_cvar_99_usd / initial_value) * 100
 
         # Print portfolio summary
         log("\nOptimal Portfolio Allocation:")
         for metrics in asset_metrics:
             asset = metrics["ticker"]
-            usd_allocation = metrics["weight"] * TOTAL_PORTFOLIO_VALUE
+            usd_allocation = metrics["weight"] * total_portfolio_value
             # Convert percentage risk to USD based on position size
             var_usd = (
                 metrics["var"] / 100
@@ -312,16 +312,16 @@ def main() -> None:
         log(f"Downside Volatility: {downside_volatility:.2%}")
         log(f"Sortino Ratio: {sortino_ratio:.2f}")
         log(
-            f"Value at Risk (VaR 95%): ${portfolio_var_95_usd:,.2f} ({portfolio_var_95_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})",
+            f"Value at Risk (VaR 95%): ${portfolio_var_95_usd:,.2f} ({portfolio_var_95_pct:.2f}% of initial ${initial_value:,.2f})",
         )
         log(
-            f"Conditional Value at Risk (CVaR 95%): ${portfolio_cvar_95_usd:,.2f} ({portfolio_cvar_95_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})",
+            f"Conditional Value at Risk (CVaR 95%): ${portfolio_cvar_95_usd:,.2f} ({portfolio_cvar_95_pct:.2f}% of initial ${initial_value:,.2f})",
         )
         log(
-            f"Value at Risk (VaR 99%): ${portfolio_var_99_usd:,.2f} ({portfolio_var_99_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})",
+            f"Value at Risk (VaR 99%): ${portfolio_var_99_usd:,.2f} ({portfolio_var_99_pct:.2f}% of initial ${initial_value:,.2f})",
         )
         log(
-            f"Conditional Value at Risk (CVaR 99%): ${portfolio_cvar_99_usd:,.2f} ({portfolio_cvar_99_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})",
+            f"Conditional Value at Risk (CVaR 99%): ${portfolio_cvar_99_usd:,.2f} ({portfolio_cvar_99_pct:.2f}% of initial ${initial_value:,.2f})",
         )
 
         # Print detailed asset metrics

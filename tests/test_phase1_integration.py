@@ -133,19 +133,19 @@ class TestPhase1Integration:
     def test_cache_optimization_validation(self):
         """Validate cache optimization improvements."""
         cache = {}
-        MAX_CACHE_SIZE = 10
+        max_cache_size = 10
 
         # Add entries
         for i in range(15):
             cache[f"key_{i}"] = f"value_{i}"
 
         # Apply cache management
-        if len(cache) > MAX_CACHE_SIZE:
+        if len(cache) > max_cache_size:
             keys = list(cache.keys())
-            for key in keys[:-MAX_CACHE_SIZE]:
+            for key in keys[:-max_cache_size]:
                 del cache[key]
 
-        assert len(cache) == MAX_CACHE_SIZE
+        assert len(cache) == max_cache_size
 
     @patch("app.api.services.ma_cross_service.MACrossService")
     def test_full_optimization_stack(self, mock_service_class):

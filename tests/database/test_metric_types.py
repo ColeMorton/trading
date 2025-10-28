@@ -250,11 +250,11 @@ class TestMetricTypeSeedData:
         sys.modules["migration_003"] = migration_module
         spec.loader.exec_module(migration_module)
 
-        METRIC_TYPES_SEED_DATA = migration_module.METRIC_TYPES_SEED_DATA
+        metric_types_seed_data = migration_module.metric_types_seed_data
 
-        assert len(METRIC_TYPES_SEED_DATA) > 0
+        assert len(metric_types_seed_data) > 0
 
-        for item in METRIC_TYPES_SEED_DATA:
+        for item in metric_types_seed_data:
             assert len(item) == 3, f"Expected 3 elements, got {len(item)} for {item}"
             name, category, description = item
             assert isinstance(name, str) and name, "Name must be non-empty string"
@@ -274,9 +274,9 @@ class TestMetricTypeSeedData:
         sys.modules["migration_003"] = migration_module
         spec.loader.exec_module(migration_module)
 
-        METRIC_TYPES_SEED_DATA = migration_module.METRIC_TYPES_SEED_DATA
+        metric_types_seed_data = migration_module.metric_types_seed_data
 
-        names = [item[0] for item in METRIC_TYPES_SEED_DATA]
+        names = [item[0] for item in metric_types_seed_data]
         unique_names = set(names)
 
         assert len(names) == len(unique_names), "Duplicate metric type names found"
@@ -294,11 +294,11 @@ class TestMetricTypeSeedData:
         sys.modules["migration_003"] = migration_module
         spec.loader.exec_module(migration_module)
 
-        METRIC_TYPES_SEED_DATA = migration_module.METRIC_TYPES_SEED_DATA
+        metric_types_seed_data = migration_module.metric_types_seed_data
 
         valid_categories = {"return", "risk", "trade", "timing", "composite"}
 
-        for name, category, _ in METRIC_TYPES_SEED_DATA:
+        for name, category, _ in metric_types_seed_data:
             assert category in valid_categories, (
                 f"Invalid category '{category}' for metric '{name}'. "
                 f"Must be one of: {valid_categories}"
@@ -317,9 +317,9 @@ class TestMetricTypeSeedData:
         sys.modules["migration_003"] = migration_module
         spec.loader.exec_module(migration_module)
 
-        METRIC_TYPES_SEED_DATA = migration_module.METRIC_TYPES_SEED_DATA
+        metric_types_seed_data = migration_module.metric_types_seed_data
 
-        names = [item[0] for item in METRIC_TYPES_SEED_DATA]
+        names = [item[0] for item in metric_types_seed_data]
 
         # Check for key metric types
         expected_metrics = [
@@ -349,12 +349,12 @@ class TestMetricTypeSeedData:
         sys.modules["migration_003"] = migration_module
         spec.loader.exec_module(migration_module)
 
-        METRIC_TYPES_SEED_DATA = migration_module.METRIC_TYPES_SEED_DATA
+        metric_types_seed_data = migration_module.metric_types_seed_data
 
         # Should have between 50-100 metric types based on plan
         assert (
-            50 <= len(METRIC_TYPES_SEED_DATA) <= 100
-        ), f"Expected 50-100 metric types, got {len(METRIC_TYPES_SEED_DATA)}"
+            50 <= len(metric_types_seed_data) <= 100
+        ), f"Expected 50-100 metric types, got {len(metric_types_seed_data)}"
 
 
 if __name__ == "__main__":

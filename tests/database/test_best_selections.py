@@ -309,11 +309,11 @@ class TestSelectionAlgorithmSeedData:
         sys.modules["migration_005"] = migration_module
         spec.loader.exec_module(migration_module)
 
-        SELECTION_ALGORITHMS = migration_module.SELECTION_ALGORITHMS
+        selection_algorithms = migration_module.selection_algorithms
 
-        assert len(SELECTION_ALGORITHMS) > 0
+        assert len(selection_algorithms) > 0
 
-        for item in SELECTION_ALGORITHMS:
+        for item in selection_algorithms:
             assert len(item) == 5, f"Expected 5 elements, got {len(item)}"
             code, name, desc, min_conf, max_conf = item
             assert isinstance(code, str) and code
@@ -338,9 +338,9 @@ class TestSelectionAlgorithmSeedData:
         sys.modules["migration_005"] = migration_module
         spec.loader.exec_module(migration_module)
 
-        SELECTION_ALGORITHMS = migration_module.SELECTION_ALGORITHMS
+        selection_algorithms = migration_module.selection_algorithms
 
-        codes = [item[0] for item in SELECTION_ALGORITHMS]
+        codes = [item[0] for item in selection_algorithms]
         unique_codes = set(codes)
 
         assert len(codes) == len(unique_codes), "Duplicate algorithm codes found"
@@ -358,9 +358,9 @@ class TestSelectionAlgorithmSeedData:
         sys.modules["migration_005"] = migration_module
         spec.loader.exec_module(migration_module)
 
-        SELECTION_ALGORITHMS = migration_module.SELECTION_ALGORITHMS
+        selection_algorithms = migration_module.selection_algorithms
 
-        codes = [item[0] for item in SELECTION_ALGORITHMS]
+        codes = [item[0] for item in selection_algorithms]
 
         expected = [
             "top_3_all_match",
