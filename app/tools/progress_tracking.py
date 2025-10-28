@@ -42,7 +42,7 @@ class ProgressTracker:
         self.message = "Starting..."
         self.start_time = time.time()
         self.callback = callback
-        self._last_update_time = 0
+        self._last_update_time = 0.0
         self._update_interval = 0.5  # Minimum seconds between updates
 
     def update(

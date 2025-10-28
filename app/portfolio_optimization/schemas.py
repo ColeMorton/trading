@@ -1,5 +1,10 @@
 from typing import TypedDict
 
+try:
+    from typing import NotRequired  # Python 3.11+
+except ImportError:
+    from typing_extensions import NotRequired  # Python 3.10 and below
+
 
 class PortfolioAsset(TypedDict):
     """

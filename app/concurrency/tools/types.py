@@ -123,11 +123,8 @@ class Strategy(TypedDict):
     parameters: StrategyParameters
     # performance field removed as requested
     risk_metrics: StrategyRiskMetrics
-    efficiency: dict[
-        str,
-        dict[str, float | str] | dict[str, dict[str, float | str]],
-    ]
-    signals: dict[str, dict[str, dict[str, float | str]]]
+    efficiency: EfficiencyMetrics
+    signals: SignalMetrics
     signal_value: NotRequired[SignalValueMetrics]  # Field for signal value metrics
     signal_quality_metrics: NotRequired[
         SignalQualityMetrics

@@ -96,7 +96,7 @@ class SweepPerformanceData:
 
         # Asymptotic transformation: approaches but never reaches maximum
         score = max_score * (sortino**steepness) / (baseline + sortino**steepness)
-        return max(0.1, min(max_score, score))
+        return float(max(0.1, min(max_score, score)))
 
     def _normalize_calmar_ratio(self, calmar: float) -> float:
         """Bounded normalization for Calmar ratio with soft caps."""
@@ -111,7 +111,7 @@ class SweepPerformanceData:
         normalized = (calmar / 5.0) ** 0.8  # Power scaling for smooth curve
         score = 0.1 + 2.518 * normalized  # Map to [0.1, 2.618] range
 
-        return max(0.1, min(2.618, score))
+        return float(max(0.1, min(2.618, score)))
 
     def _calculate_confidence_multiplier(self, data_points: int) -> float:
         """Statistical confidence adjustment based on data quality."""
