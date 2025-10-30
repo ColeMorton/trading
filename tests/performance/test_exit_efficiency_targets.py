@@ -228,6 +228,7 @@ def sample_positions_high_performance():
 class TestExitEfficiencyTargets:
     """Test exit efficiency improvement from 57% to 85%."""
 
+    @pytest.mark.performance
     def test_baseline_exit_efficiency_measurement(
         self,
         performance_validator,
@@ -257,6 +258,7 @@ class TestExitEfficiencyTargets:
             f"Baseline efficiency {baseline_efficiency:.1%}"
         )
 
+    @pytest.mark.performance
     def test_target_exit_efficiency_achievement(
         self,
         performance_validator,
@@ -280,6 +282,7 @@ class TestExitEfficiencyTargets:
             f"Should achieve 80%+ of target improvement, got {improvement:.1%}"
         )
 
+    @pytest.mark.performance
     @pytest.mark.asyncio
     async def test_statistical_analysis_exit_efficiency(
         self,
@@ -338,6 +341,7 @@ class TestExitEfficiencyTargets:
 class TestPortfolioHealthScore:
     """Test portfolio health score improvement from 68 to 85+."""
 
+    @pytest.mark.performance
     def test_portfolio_health_calculation(self, performance_validator):
         """Test portfolio health score calculation."""
 
@@ -358,6 +362,7 @@ class TestPortfolioHealthScore:
         # Should exceed target
         assert health_score >= 85, f"Health score {health_score:.0f} should be ≥85"
 
+    @pytest.mark.performance
     def test_baseline_vs_target_health(self, performance_validator):
         """Test improvement from baseline to target health."""
 
@@ -401,6 +406,7 @@ class TestPortfolioHealthScore:
 class TestSharpeRatioImprovement:
     """Test 25%+ Sharpe ratio improvement."""
 
+    @pytest.mark.performance
     def test_sharpe_ratio_calculation(self):
         """Test Sharpe ratio calculation and improvement."""
 
@@ -430,6 +436,7 @@ class TestSharpeRatioImprovement:
             f"Sharpe improvement {improvement:.1%} should be ≥20%"
         )
 
+    @pytest.mark.performance
     def test_risk_adjusted_performance_improvement(self):
         """Test overall risk-adjusted performance improvement."""
 
@@ -462,6 +469,7 @@ class TestSharpeRatioImprovement:
 class TestSystemIntegrationPerformance:
     """Test integrated system performance validation."""
 
+    @pytest.mark.performance
     def test_end_to_end_performance_validation(
         self,
         performance_validator,
@@ -500,6 +508,7 @@ class TestSystemIntegrationPerformance:
             f"Sharpe improvement target not met: {validation_results['sharpe_improvement']['improvement_pct']:.1%}"
         )
 
+    @pytest.mark.performance
     def test_performance_consistency_validation(self):
         """Test performance consistency across different market conditions."""
 
