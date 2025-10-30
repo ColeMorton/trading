@@ -219,9 +219,7 @@ def print_analysis(stats: dict):
         color = (
             Colors.RED
             if priority == 1
-            else Colors.YELLOW
-            if priority == 2
-            else Colors.CYAN
+            else Colors.YELLOW if priority == 2 else Colors.CYAN
         )
         print(
             f"  {color}[{prefix}]{Colors.RESET} {name:30} {count:5} issues  (Priority: {priority}, Auto-fix: {safe})"

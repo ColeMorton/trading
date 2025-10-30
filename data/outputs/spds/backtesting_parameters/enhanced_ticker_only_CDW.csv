@@ -1,2 +1,0 @@
-strategy_name,Strategy,Ticker,Timeframe,Entry_Signal,TakeProfit_Pct,StopLoss_Pct,MaxDays,MomentumExitThreshold,TrendExitThreshold,TrailingStop_Pct,MinDays,Confidence,SampleSize,StatisticalValidity
-CDW_CDW_ASSET_DISTRIBUTION,CDW_ASSET_DISTRIBUTION,CDW,D,STATISTICAL_DIVERGENCE,15.0,8.0,30,0.03571180555555555,0.015,3.66,5,0.9,344,HIGH

@@ -288,11 +288,14 @@ class DailyTradingExecutor:
 
         try:
             # Create temporary files for output capture
-            with tempfile.NamedTemporaryFile(
-                mode="w+", delete=False, suffix=".stdout"
-            ) as stdout_file, tempfile.NamedTemporaryFile(
-                mode="w+", delete=False, suffix=".stderr"
-            ) as stderr_file:
+            with (
+                tempfile.NamedTemporaryFile(
+                    mode="w+", delete=False, suffix=".stdout"
+                ) as stdout_file,
+                tempfile.NamedTemporaryFile(
+                    mode="w+", delete=False, suffix=".stderr"
+                ) as stderr_file,
+            ):
                 # Execute command with timeout (None means no timeout)
                 result = subprocess.run(
                     ["bash", "-c", f"cd '{self.script_dir}' && {command}"],

@@ -1,0 +1,22 @@
+{
+  "ref": "refs/heads/develop",
+  "before": "0000000000000000000000000000000000000000",
+  "after": "1111111111111111111111111111111111111111",
+  "repository": {
+    "name": "trading",
+    "full_name": "colemorton/trading",
+    "owner": {
+      "name": "colemorton",
+      "login": "colemorton"
+    }
+  },
+  "pusher": {
+    "name": "colemorton",
+    "email": "cole@example.com"
+  },
+  "head_commit": {
+    "id": "1111111111111111111111111111111111111111",
+    "message": "Test commit",
+    "timestamp": "2025-10-29T12:00:00Z"
+  }
+}

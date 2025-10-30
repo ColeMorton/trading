@@ -1,7 +1,3 @@
-# =============================================================================
-# Python
-# =============================================================================
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -47,8 +43,6 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
-coverage.json
-coverage.lcov
 *.cover
 *.py,cover
 .hypothesis/
@@ -90,16 +84,13 @@ ipython_config.py
 .python-version
 
 # pipenv
-#Pipfile.lock
+Pipfile.lock
 
 # poetry
-#poetry.lock
+poetry.lock
 
 # pdm
-#pdm.lock
 .pdm.toml
-.pdm-python
-.pdm-build/
 
 # PEP 582
 __pypackages__/
@@ -113,8 +104,7 @@ celerybeat.pid
 
 # Environments
 .env
-.env.production
-.env.local
+.env.test
 .venv
 env/
 venv/
@@ -146,153 +136,73 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# =============================================================================
-# Linting and Code Quality
-# =============================================================================
-
-.ruff_cache/
-.pylint.d/
-.bandit/
-.vulture_whitelist.py
-.flake8_cache/
-.eslintcache
-.stylelintcache
-
-# Pre-commit
-.pre-commit-config.yaml.lock
-
-# =============================================================================
-# IDEs and Editors
-# =============================================================================
-
-# PyCharm
+# IDEs
 .idea/
-
-# VS Code
 .vscode/
-
-# Vim
 *.swp
 *.swo
 *~
-
-# =============================================================================
-# Operating System
-# =============================================================================
-
-# macOS
 .DS_Store
-.DS_Store?
-._*
 
-# Windows
-Thumbs.db
-Thumbs.db:encryptable
+# Node modules
+node_modules/
 
-# =============================================================================
-# Containers and Databases
-# =============================================================================
+# Large media files
+docs/ai/prompts/BBLEAM/*.wav
 
-# Docker
-docker-data/
-postgres-data/
-redis-data/
-.dockerignore.local
-
-# Database backups
-*.sql.gz
-*.dump
-backups/database/
-database/backups/
-
-# =============================================================================
-# Frontend and Build
-# =============================================================================
-
-# Node.js
-**/node_modules/
-
-# Build artifacts
-dist/
-out/
-.next/
-
-# Frontend specific
-app/frontend/sensylate/dist/
-app/frontend/sensylate/node_modules/
-
-# =============================================================================
-# Media and Assets
-# =============================================================================
-
-# Audio/Video
-*.wav
-*.mp3
-*.mp4
-*.avi
-*.mov
-
-# Screenshots and test artifacts
-**/screenshots/
-**/test_screenshots/
-*.screenshot.*
-*.test.*
-Screenshot*.*
-
-# =============================================================================
-# Temporary and Backup Files
-# =============================================================================
-
-# Temporary files
-*.tmp
-*.temp
-.tmp/
-
-# Backup files
-*.bak
-*.backup
-*.orig
-
-# =============================================================================
-# Trading System Specific
-# =============================================================================
-
-# Logs
+# Project specific
+cache/
 logs/
+*.log
 
-# Generated data directories
-png/
-exports/
-json/
+# Data directories (exclude all data files, keep only code)
+data/outputs/
+data/raw/analysis/
+data/raw/attribution/
+data/raw/ma_cross/
+data/raw/macd_cross/
+data/raw/portfolios/
+data/raw/portfolios_best/
+data/raw/portfolios_filtered/
+data/raw/portfolios_metrics/
+data/raw/prices/
+data/raw/reports/
+data/raw/signals/
+data/raw/seasonality/
+data/raw/*.csv
+data/raw/*.json
+!data/raw/README.md
 
-# CSV data management
+# Strategy-specific data files
+app/strategies/**/portfolios/
+
+# Output directories
 csv/
-!csv/strategies/
-!csv/positions/
+json/
+png/
 
-# Trading data formats
-*.pkl
-*.h5
-*.parquet
-*.feather
+# Database files
+*.db
+*.sqlite
 
-# Price data directories
-/data/raw/price_data/
-/data/raw/prices/
+# Secrets and credentials
+.secrets
+*.pem
+*.key
+credentials.json
+secrets.yaml
 
-# Trading signal and portfolio directories
-/data/raw/macd_cross/current_signals/
-/data/raw/ma_cross/current_signals/
-/data/raw/portfolios/
-/data/raw/portfolios_best/
-/data/raw/portfolios_filtered/
-/data/raw/portfolios_metrics/
+# Local testing artifacts
+/tmp/
+/temp/
+ci_results.json
+test_results.json
+performance_results.json
+e2e-results.json
+*-results.json
 
-attribution_data/
-/data/outputs/spds
-/data/raw/seasonality
-/data/raw/reports
-/data/outputs/spds
-/data/outputs/spds
-/data/outputs/images
-/data/outputs/images
+# act (GitHub Actions local testing)
+/tmp/act-artifacts/
+.actrc.local
+
+/attribution_data/

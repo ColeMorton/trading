@@ -1,0 +1,26 @@
+# act configuration for local GitHub Actions testing
+# https://github.com/nektos/act
+
+# Use catthehacker's images which include more pre-installed tools
+--platform ubuntu-latest=catthehacker/ubuntu:act-latest
+
+# Architecture (for M1/M2 Macs)
+--container-architecture linux/amd64
+
+# Secrets file (create .secrets with your actual secrets)
+--secret-file .secrets
+
+# Environment variables file for testing
+--env-file .env.test
+
+# Artifact server path for actions/upload-artifact and actions/download-artifact
+--artifact-server-path /tmp/act-artifacts
+
+# Enable container reuse for faster subsequent runs
+--reuse
+
+# Show verbose output
+--verbose
+
+# Use Docker host socket for service containers
+--container-daemon-socket /var/run/docker.sock

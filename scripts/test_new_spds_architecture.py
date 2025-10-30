@@ -112,9 +112,9 @@ class NewArchitectureTest:
                 "results_count": len(results),
                 "success": True,
                 "error": None,
-                "sample_result": list(results.values())[0].to_dict()
-                if results
-                else None,
+                "sample_result": (
+                    list(results.values())[0].to_dict() if results else None
+                ),
             }
 
         except Exception as e:
@@ -149,9 +149,9 @@ class NewArchitectureTest:
                 "results_count": len(results),
                 "success": True,
                 "error": None,
-                "sample_result": list(results.values())[0].to_dict()
-                if results
-                else None,
+                "sample_result": (
+                    list(results.values())[0].to_dict() if results else None
+                ),
             }
 
         except Exception as e:
@@ -188,9 +188,9 @@ class NewArchitectureTest:
                 "results_count": len(results),
                 "success": True,
                 "error": None,
-                "sample_result": list(results.values())[0].to_dict()
-                if results
-                else None,
+                "sample_result": (
+                    list(results.values())[0].to_dict() if results else None
+                ),
             }
 
         except Exception as e:
@@ -278,7 +278,9 @@ class NewArchitectureTest:
             avg_time = sum(r["execution_time"] for r in successful_tests) / len(
                 successful_tests
             )
-            console.print(f"\n[green]✅ Average execution time: {avg_time:.3f}s[/green]")
+            console.print(
+                f"\n[green]✅ Average execution time: {avg_time:.3f}s[/green]"
+            )
 
             # Show sample result structure
             sample_result = next(

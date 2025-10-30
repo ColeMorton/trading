@@ -1,72 +1,27 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database
-  postgres:
-    image: postgres:15-alpine
-    container_name: trading_postgres
-    environment:
-      POSTGRES_DB: trading_db
-      POSTGRES_USER: trading_user
-      POSTGRES_PASSWORD: trading_password
-      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --locale=C'
-    ports:
-      - '127.0.0.1:5432:5432'
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./database/init:/docker-entrypoint-initdb.d
-    networks:
-      - trading_network
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U trading_user -d trading_db']
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-
-  # Redis Cache
-  redis:
-    image: redis:7-alpine
-    container_name: trading_redis
-    ports:
-      - '127.0.0.1:6379:6379'
-    volumes:
-      - redis_data:/data
-    networks:
-      - trading_network
-    healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 10s
-    command: redis-server --appendonly yes
-
-  # FastAPI Application
-  api:
+  trading-api:
     build:
       context: .
       dockerfile: Dockerfile.api
       target: development
-    container_name: trading_api
+    image: trading-api:latest # Generic, reusable name
+    container_name: trading-api
+    ports:
+      - '8000:8000'
     environment:
-      - DATABASE_URL=postgresql://trading_user:trading_password@postgres:5432/trading_db
-      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://trading_user:changeme@postgres:5432/trading_db
+      - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=development
       - DEBUG=true
       - API_KEY_SECRET=dev-secret-key-change-in-production
-    ports:
-      - '127.0.0.1:8000:8000'
     volumes:
       - .:/app
       - /app/node_modules
     networks:
-      - trading_network
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - trading-network
+    restart: unless-stopped
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
       interval: 30s
@@ -75,82 +30,26 @@ services:
       start_period: 30s
     command: uvicorn app.api.main:app --host 0.0.0.0 --port 8000 --reload
 
-  # ARQ Worker for async job processing
-  arq_worker:
+  arq-worker:
     build:
       context: .
       dockerfile: Dockerfile.api
       target: development
-    container_name: trading_arq_worker
+    image: arq-worker:latest # Generic, reusable name
+    container_name: arq-worker
     environment:
-      - DATABASE_URL=postgresql://trading_user:trading_password@postgres:5432/trading_db
-      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://trading_user:changeme@postgres:5432/trading_db
+      - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=development
       - DEBUG=true
     volumes:
       - .:/app
       - /app/node_modules
     networks:
-      - trading_network
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    command: arq app.api.jobs.worker.WorkerSettings
+      - trading-network
     restart: unless-stopped
-
-  # React Frontend (for development)
-  # Note: Frontend is disabled by default. Enable with: docker compose --profile frontend up
-  frontend:
-    profiles:
-      - frontend
-    build:
-      context: ./app/frontend/sensylate
-      dockerfile: Dockerfile
-      target: development
-    container_name: trading_frontend
-    environment:
-      - VITE_API_URL=http://localhost:8000
-      - VITE_GRAPHQL_URL=http://localhost:8000/graphql
-    ports:
-      - '127.0.0.1:3000:3000'
-    volumes:
-      - ./app/frontend/sensylate:/app
-      - /app/node_modules
-    networks:
-      - trading_network
-    depends_on:
-      - api
-    command: npm run dev
-
-  # Database Administration (optional)
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: trading_pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@trading.local
-      PGADMIN_DEFAULT_PASSWORD: admin
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    ports:
-      - '127.0.0.1:5050:80'
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    networks:
-      - trading_network
-    depends_on:
-      - postgres
-    profiles:
-      - admin
-
-volumes:
-  postgres_data:
-    driver: local
-  redis_data:
-    driver: local
-  pgadmin_data:
-    driver: local
+    command: arq app.api.jobs.worker.WorkerSettings
 
 networks:
-  trading_network:
+  trading-network:
     driver: bridge

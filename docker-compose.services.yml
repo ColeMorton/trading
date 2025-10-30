@@ -1,0 +1,41 @@
+# Services-only Docker Compose for local development
+# This file provides PostgreSQL and Redis for native development
+# Use: docker-compose -f docker-compose.services.yml up -d
+#
+# For full containerized deployment, use docker-compose.yml or docker-compose.prod.yml
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: trading-postgres
+    environment:
+      POSTGRES_USER: trading_user
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: trading_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U trading_user']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: trading-redis
+    ports:
+      - '6379:6379'
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres-data:
+  redis-data:

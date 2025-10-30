@@ -2,13 +2,13 @@
 indicator("Multi-Ticker Strategy Breadth", shorttitle="Breadth", overlay=false)
 
 // ================ Script Metadata ================
-// Generated: 2025-10-25 13:01:54
+// Generated: 2025-10-30 13:39:28
 // Source CSV: pinescript.csv
-// Total Strategies: 108
-// Tickers: BTC-USD, ETH-USD, ETH-USD_BTC-USD, ETH-USD_MSTR, ETH-USD_QQQ, HIMS, HIMS_QQQ, MA, MP, MSTR, MSTR_BTC-USD, MSTR_QQQ, NRG, NRG_QQQ, NVDA, PLTR, SMR, TSLA, TSLA_QQQ
+// Total Strategies: 113
+// Tickers: BTC-USD, ETH-USD, ETH-USD_BTC-USD, ETH-USD_MSTR, ETH-USD_QQQ, HIMS, HIMS_QQQ, MA, MP, MSTR, MSTR_BTC-USD, MSTR_QQQ, NRG, NRG_QQQ, NVDA, PLTR, SMR, SOL-USD, TSLA, TSLA_QQQ
 
 // ================ Configuration ================
-tickerInput = input.string("BTC-USD", "Select Ticker", options=["BTC-USD", "ETH-USD", "ETH-USD_BTC-USD", "ETH-USD_MSTR", "ETH-USD_QQQ", "HIMS", "HIMS_QQQ", "MA", "MP", "MSTR", "MSTR_BTC-USD", "MSTR_QQQ", "NRG", "NRG_QQQ", "NVDA", "PLTR", "SMR", "TSLA", "TSLA_QQQ"])
+tickerInput = input.string("BTC-USD", "Select Ticker", options=["BTC-USD", "ETH-USD", "ETH-USD_BTC-USD", "ETH-USD_MSTR", "ETH-USD_QQQ", "HIMS", "HIMS_QQQ", "MA", "MP", "MSTR", "MSTR_BTC-USD", "MSTR_QQQ", "NRG", "NRG_QQQ", "NVDA", "PLTR", "SMR", "SOL-USD", "TSLA", "TSLA_QQQ"])
 timeframeInput = input.timeframe("D", "Strategy Timeframe")
 threshold = input.int(50, "Center Threshold", minval=0, maxval=100)
 
@@ -376,6 +376,24 @@ calculateBreadth() =>
             active += 1
 
         if macdSignal(6, 11, 14)
+            active += 1
+
+    else if tickerInput == "SOL-USD"
+        total := 5
+
+        if emaCrossSignal(6, 8)
+            active += 1
+
+        if macdSignal(19, 29, 9)
+            active += 1
+
+        if smaCrossSignal(27, 29)
+            active += 1
+
+        if smaCrossSignal(26, 30)
+            active += 1
+
+        if smaCrossSignal(26, 27)
             active += 1
 
     else if tickerInput == "TSLA"

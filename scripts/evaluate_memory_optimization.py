@@ -434,14 +434,14 @@ class MemoryOptimizationEvaluator:
             },
             "file_analysis": self.analysis_results,
             "recommendations": {
-                "complexity_level": "HIGH"
-                if len(self.analysis_results) > 8
-                else "MEDIUM",
+                "complexity_level": (
+                    "HIGH" if len(self.analysis_results) > 8 else "MEDIUM"
+                ),
                 "consolidation_needed": len(self.analysis_results) > 6,
                 "target_file_count": 3 if len(self.analysis_results) > 8 else 4,
-                "estimated_loc_reduction": "50-70%"
-                if len(self.analysis_results) > 8
-                else "30-50%",
+                "estimated_loc_reduction": (
+                    "50-70%" if len(self.analysis_results) > 8 else "30-50%"
+                ),
             },
         }
 

@@ -25,55 +25,46 @@ repos:
       - id: mixed-line-ending
         args: ['--fix=lf']
 
-  # Ruff - Modern, fast Python linter (replaces flake8, isort checks, and more)
-  # Run before Black to fix linting issues first
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.4
-    hooks:
-      # Run the linter with auto-fix
-      - id: ruff
-        args: ['--fix', '--exit-non-zero-on-fix']
-
-  # black - Code formatting (re-enabled after syntax fixes)
-  - repo: https://github.com/psf/black
-    rev: 23.12.1
+  # LOCAL HOOKS - Use Poetry environment for version consistency
+  - repo: local
     hooks:
       - id: black
-        language_version: python3.11
+        name: black (Poetry)
+        entry: poetry run black
+        language: system
+        types: [python]
+        pass_filenames: true
         args: ['--line-length', '88']
 
-  # flake8 - Style guide enforcement (temporarily disabled - replaced by Ruff)
-  # - repo: https://github.com/pycqa/flake8
-  #   rev: 7.0.0
-  #   hooks:
-  #     - id: flake8
-  #       additional_dependencies:
-  #         - flake8-docstrings
-  #         - flake8-bugbear
-  #         - flake8-comprehensions
-  #         - flake8-simplify
-  #       args:
-  #         [
-  #           '--max-line-length=88',
-  #           '--extend-ignore=E203,W503,D100,D101,D102,D103,D104,D105,D106,D107',
-  #         ]
+      - id: isort
+        name: isort (Poetry)
+        entry: poetry run isort
+        language: system
+        types: [python]
+        pass_filenames: true
 
-  # mypy - Static type checking (enabled with gradual adoption)
-  # Configuration is fully managed in pyproject.toml
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
-    hooks:
+      - id: ruff
+        name: ruff (Poetry)
+        entry: poetry run ruff check --fix
+        language: system
+        types: [python]
+        pass_filenames: true
+
       - id: mypy
-        additional_dependencies:
-          - types-requests
-          - types-PyYAML
-          - types-python-dateutil
-          - types-pytz
-          - pandas-stubs
-          - types-Pillow
-        args: ['--config-file=pyproject.toml']
+        name: mypy (Poetry)
+        entry: poetry run mypy
+        language: system
+        types: [python]
+        pass_filenames: true
         files: ^app/
         exclude: ^(tests/|scripts/|experimental/)
+
+      - id: flake8
+        name: flake8 (Poetry)
+        entry: poetry run flake8
+        language: system
+        types: [python]
+        pass_filenames: true
 
   # pylint - Code analysis (temporarily disabled)
   # - repo: https://github.com/pycqa/pylint

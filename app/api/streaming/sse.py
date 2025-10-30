@@ -6,14 +6,16 @@ import asyncio
 from collections.abc import AsyncGenerator
 from datetime import datetime
 import json
+import uuid
 
 from fastapi import status
 from fastapi.responses import StreamingResponse
 from redis.asyncio import Redis
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.config import settings
-from ..models.tables import JobStatus
+from ..models.tables import Job, JobStatus
 
 
 async def stream_job_progress(
@@ -54,25 +56,29 @@ async def stream_job_progress(
                         yield f"data: {json.dumps(data)}\n\n"
                         last_progress = current_progress
 
-                        # If complete, check job status and finish
-                        if current_progress >= 100:
-                            break
-
                 # Check job status in database
-                result = await db.execute(
-                    f"SELECT status FROM jobs WHERE id = '{job_id}'",
-                )
-                job_status = result.scalar()
+                # Expire the session to force fresh data on next query
+                await db.commit()  # Commit any pending transaction
+                db.expire_all()  # Expire all objects to force refresh
 
-                if job_status in [
+                result = await db.execute(
+                    select(Job).where(Job.id == uuid.UUID(job_id))
+                )
+                job = result.scalar_one_or_none()
+
+                if job and job.status in [
                     JobStatus.COMPLETED.value,
                     JobStatus.FAILED.value,
                     JobStatus.CANCELLED.value,
                 ]:
-                    # Send final status event
+                    # Send final status event with complete job data
                     final_event = {
                         "done": True,
-                        "status": job_status,
+                        "status": job.status,
+                        "progress": job.progress,
+                        "result_data": job.result_data,
+                        "result_path": job.result_path,
+                        "error_message": job.error_message,
                         "timestamp": datetime.utcnow().isoformat(),
                     }
                     yield f"data: {json.dumps(final_event)}\n\n"

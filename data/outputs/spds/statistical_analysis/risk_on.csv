@@ -1,2 +1,0 @@
-strategy_name,ticker,timeframe,analysis_timestamp,sample_size,sample_size_confidence,dual_layer_convergence_score,asset_layer_percentile,strategy_layer_percentile,exit_signal,signal_confidence,exit_recommendation,target_exit_timeframe,statistical_significance,p_value,z_score_divergence,iqr_divergence,rarity_score,current_return,mfe,mae,unrealized_pnl
-AMZN_SMA_77_81,AMZN,D,2025-08-02T10:44:42.306338,0,0.0,1.0,50.0,50.0,STRONG_SELL,36.39717258523641,,,MEDIUM,0.9000000000000001,-0.14975737367325417,,0.029951474734650832,,,,

@@ -33,7 +33,7 @@ PORTFOLIO = [
     "BRK-B",
     "MA",
     "TPR",
-    "AVGO",
+    "XYZ",
     "TTWO",
 ]
 
@@ -41,7 +41,7 @@ PORTFOLIO = [
 
 # PORTFOLIO = ['SPY', 'QQQ']
 
-NEXT = ["BILI", "ANET", "QCOM", "XYZ"]
+NEXT = ["SMCI", "BZ", "RKLB", "APLD"]
 
 # NEXT = [
 #     'BTC-USD',
@@ -146,7 +146,7 @@ def generate_correlation_plot(assets, days, title_suffix=""):
     )
 
     # Reorder correlation matrix based on clustering
-    ordered_assets = [assets[idx] for idx in leaves_list(Z)]
+    ordered_assets = [assets[idx] for idx in leaves_list(z_linkage)]
     reordered_correlation_matrix = correlation_matrix.loc[
         ordered_assets,
         ordered_assets,

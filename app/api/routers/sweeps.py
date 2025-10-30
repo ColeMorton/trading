@@ -226,7 +226,7 @@ async def get_sweep_results(
             FROM strategy_sweep_results sr
             JOIN tickers t ON sr.ticker_id = t.id
             JOIN strategy_types st ON sr.strategy_type_id = st.id
-            WHERE sr.sweep_run_id = :sweep_run_id
+            WHERE sr.sweep_run_id::text LIKE :sweep_run_id || '%'
               AND t.ticker = :ticker
             ORDER BY sr.score DESC
             LIMIT :limit OFFSET :offset
@@ -267,7 +267,7 @@ async def get_sweep_results(
             FROM strategy_sweep_results sr
             JOIN tickers t ON sr.ticker_id = t.id
             JOIN strategy_types st ON sr.strategy_type_id = st.id
-            WHERE sr.sweep_run_id = :sweep_run_id
+            WHERE sr.sweep_run_id::text LIKE :sweep_run_id || '%'
             ORDER BY sr.score DESC
             LIMIT :limit OFFSET :offset
         """,
@@ -289,7 +289,7 @@ async def get_sweep_results(
         SELECT COUNT(*)
         FROM strategy_sweep_results sr
         JOIN tickers t ON sr.ticker_id = t.id
-        WHERE sr.sweep_run_id = :sweep_run_id
+        WHERE sr.sweep_run_id::text LIKE :sweep_run_id || '%'
         """
         + (" AND t.ticker = :ticker" if ticker else ""),
     )
@@ -385,7 +385,7 @@ async def get_best_results_for_sweep(
                 total_trades,
                 expectancy_per_trade
             FROM v_best_by_sweep_and_ticker
-            WHERE sweep_run_id = :sweep_run_id
+            WHERE sweep_run_id::text LIKE :sweep_run_id || '%'
               AND ticker = :ticker
         """,
         )
@@ -413,7 +413,7 @@ async def get_best_results_for_sweep(
                 NULL::integer as total_trades,
                 NULL::numeric as expectancy_per_trade
             FROM v_best_results_per_sweep
-            WHERE sweep_run_id = :sweep_run_id
+            WHERE sweep_run_id::text LIKE :sweep_run_id || '%'
         """,
         )
         params = {"sweep_run_id": sweep_run_id}
@@ -490,7 +490,7 @@ async def get_best_per_ticker(
             total_trades,
             expectancy_per_trade
         FROM v_best_by_sweep_and_ticker
-        WHERE sweep_run_id = :sweep_run_id
+        WHERE sweep_run_id::text LIKE :sweep_run_id || '%'
         ORDER BY score DESC
     """,
     )

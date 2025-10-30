@@ -1,6 +1,7 @@
 """
 Quick test script for database integration.
 """
+
 import asyncio
 import uuid
 

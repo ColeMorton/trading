@@ -1,3 +1,0 @@
-rank,ticker,expected_return,risk_adjusted_score,win_rate,confidence,asset_class,volatility,sample_size,statistical_significance,patterns_used,pattern_details
-1,IR,0.134000424009268,-0.04039389591788295,0.4945054945054945,Low,Stock,1.8327977264348372,182,0.5827105958513114,1,July Monthly
-2,FANG,-0.1285677866675157,-0.4120893111552819,0.4878048780487805,High,Stock,2.4928817327784834,779,0.728325486424875,1,Q3 Quarterly

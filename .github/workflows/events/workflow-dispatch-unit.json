@@ -1,0 +1,14 @@
+{
+  "ref": "refs/heads/main",
+  "inputs": {
+    "test_suite": "unit"
+  },
+  "repository": {
+    "name": "trading",
+    "full_name": "colemorton/trading",
+    "owner": {
+      "name": "colemorton",
+      "login": "colemorton"
+    }
+  }
+}

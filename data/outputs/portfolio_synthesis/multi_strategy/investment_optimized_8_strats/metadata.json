@@ -1,9 +1,0 @@
-{
-  "portfolio_name": "investment_optimized_8_strats",
-  "analysis_type": "multi_strategy",
-  "created_at": "2025-09-10T06:11:35.fZ",
-  "config": {
-    "portfolio_type": "multi_strategy",
-    "strategies": "multiple"
-  }
-}

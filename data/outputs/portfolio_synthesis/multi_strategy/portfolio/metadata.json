@@ -1,9 +1,0 @@
-{
-  "portfolio_name": "portfolio",
-  "analysis_type": "multi_strategy",
-  "created_at": "2025-09-10T06:11:36.fZ",
-  "config": {
-    "portfolio_type": "multi_strategy",
-    "strategies": "multiple"
-  }
-}

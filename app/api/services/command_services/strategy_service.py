@@ -95,10 +95,22 @@ class StrategyService(BaseCommandService):
 
         await self.update_progress(100, "Parameter sweep complete")
 
+        # Extract sweep_run_id from CLI output if database persistence was used
+        sweep_run_id = None
+        output = result["stdout"]
+
+        # Look for "run ID: xxxxxxxx..." pattern in output
+        import re
+
+        run_id_match = re.search(r"run ID: ([a-f0-9]{8})", output)
+        if run_id_match:
+            sweep_run_id = run_id_match.group(1)
+
         return {
             "success": True,
             "ticker": params.ticker,
-            "output": result["stdout"],
+            "output": output,
+            "sweep_run_id": sweep_run_id,  # Include sweep_run_id if found
         }
 
     async def execute_review(self, params: StrategyReviewRequest) -> dict[str, Any]:

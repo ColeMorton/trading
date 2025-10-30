@@ -1,6 +1,7 @@
 """
 Test CLI strategy sweep with database persistence.
 """
+
 import asyncio
 
 from app.database.config import db_manager

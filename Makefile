@@ -1,7 +1,7 @@
 # Trading Application Makefile
 # Provides convenient commands for development and deployment
 
-.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs setup-db migrate backup restore frontend-install frontend-dev frontend-build frontend-codegen frontend-test test-fullstack dev-fullstack lint-help lint-black lint-imports lint-flake8 lint-mypy lint-pylint lint-bandit lint-vulture format-black format-imports lint-python format-python security-scan find-dead-code lint-all pre-commit-install pre-commit-run
+.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs setup-db migrate backup restore frontend-install frontend-dev frontend-build frontend-codegen frontend-test test-fullstack dev-fullstack lint-help lint-black lint-imports lint-flake8 lint-mypy lint-pylint lint-bandit lint-vulture format-black format-imports lint-python format-python security-scan find-dead-code lint-all pre-commit-install pre-commit-run workflow-help workflow-install workflow-list workflow-test workflow-ci workflow-full
 
 # Default target
 help:
@@ -16,6 +16,14 @@ help:
 	@echo "  clean       - Clean temporary files"
 	@echo "  lint-help   - Show all linting commands"
 	@echo "  lint-all    - Run all linters and formatters"
+	@echo ""
+	@echo "Workflow Testing:"
+	@echo "  workflow-help    - Show workflow testing commands"
+	@echo "  workflow-install - Install act for local workflow testing"
+	@echo "  workflow-list    - List all workflows and jobs"
+	@echo "  workflow-test    - Quick workflow validation"
+	@echo "  workflow-ci      - Full CI simulation (no act required)"
+	@echo "  workflow-full    - Complete workflow test with act"
 	@echo ""
 	@echo "Frontend:"
 	@echo "  frontend-install - Install frontend dependencies"
@@ -79,16 +87,24 @@ test-full:
 	@echo "📊 Coverage report available at: htmlcov/index.html"
 
 # Individual test categories (delegating to unified runner)
+# Unit tests run natively - no services needed
 test-unit:
+	@echo "Running unit tests (no services needed)..."
 	poetry run python tests/run_unified_tests.py unit -v
 
-test-integration:
+# Integration tests need services - auto-start them
+test-integration: services-up
+	@echo "Running integration tests with Docker services..."
 	poetry run python tests/run_unified_tests.py integration -v
 
-test-api:
+# API tests need services - auto-start them
+test-api: services-up
+	@echo "Running API tests with Docker services..."
 	poetry run python tests/run_unified_tests.py api -v
 
-test-e2e:
+# E2E tests need services - auto-start them
+test-e2e: services-up
+	@echo "Running E2E tests with Docker services..."
 	poetry run python tests/run_unified_tests.py e2e -v
 
 # Legacy pytest command for direct pytest access
@@ -111,6 +127,27 @@ check-docker:
 	@command -v docker-compose >/dev/null 2>&1 || { echo "❌ docker-compose is not installed. It should come with Docker Desktop."; exit 1; }
 	@echo "✅ Docker and docker-compose are available"
 
+# Service management for local development (PostgreSQL + Redis only)
+services-up: check-docker
+	@echo "Starting PostgreSQL and Redis for local development..."
+	docker-compose -f docker-compose.services.yml up -d
+	@echo "✅ Services started"
+	@echo "PostgreSQL: localhost:5432"
+	@echo "Redis: localhost:6379"
+
+services-down: check-docker
+	@echo "Stopping services..."
+	docker-compose -f docker-compose.services.yml down
+
+services-logs: check-docker
+	docker-compose -f docker-compose.services.yml logs -f
+
+services-clean: check-docker
+	@echo "Stopping services and removing data volumes..."
+	docker-compose -f docker-compose.services.yml down -v
+	@echo "✅ Services stopped and data volumes removed"
+
+# Full Docker deployment commands
 docker-build: check-docker
 	docker-compose build
 
@@ -181,6 +218,13 @@ dev-local: start-local
 	@echo "Make sure your .env file points to local services:"
 	@echo "DATABASE_URL=postgresql://$(USER)@localhost:5432/trading_db"
 	@echo "REDIS_URL=redis://localhost:6379"
+	poetry run python -m app.api.run --reload
+
+# Development with Docker services (native app + Docker services)
+dev-with-services: services-up
+	@echo "Starting API server with Docker services..."
+	@echo "PostgreSQL: postgresql://trading_user:changeme@localhost:5432/trading_db"
+	@echo "Redis: redis://localhost:6379"
 	poetry run python -m app.api.run --reload
 
 # Database commands
@@ -339,6 +383,14 @@ test-fullstack:
 
 # Linting and code quality commands
 lint-help:
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "⚠️  CRITICAL: All tools run via Poetry"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	@echo "❌ WRONG:  black --check ."
+	@echo "✅ RIGHT:  poetry run black --check ."
+	@echo "✅ BETTER: make lint-black"
+	@echo ""
 	@echo "Linting and Code Quality Commands:"
 	@echo ""
 	@echo "Individual Linters (check only):"
@@ -492,3 +544,107 @@ quality-track:
 quality-status:
 	@echo "Quick code quality status..."
 	python scripts/fix_code_quality.py
+
+# Workflow Testing Commands
+workflow-help:
+	@echo "GitHub Workflow Testing Commands:"
+	@echo ""
+	@echo "Setup:"
+	@echo "  workflow-install  - Install act for local workflow testing"
+	@echo "  workflow-setup    - Setup workflow testing environment"
+	@echo ""
+	@echo "Quick Testing:"
+	@echo "  workflow-list     - List all workflows and jobs"
+	@echo "  workflow-test     - Quick workflow syntax validation"
+	@echo "  workflow-ci       - Full CI simulation without act (uses Docker Compose)"
+	@echo ""
+	@echo "Advanced Testing (requires act):"
+	@echo "  workflow-full     - Run complete workflow with act"
+	@echo "  workflow-lint     - Test lint job with act"
+	@echo "  workflow-backend  - Test backend job with act"
+	@echo "  workflow-ma-cross - Test MA Cross workflow with act"
+	@echo ""
+	@echo "Custom Testing:"
+	@echo "  Run specific workflow: ./scripts/test-workflow-with-act.sh --workflow ci-cd.yml --job lint"
+	@echo "  Run with event:       ./scripts/test-workflow-with-act.sh --event push --event-file .github/workflows/events/push-develop.json"
+	@echo ""
+	@echo "Documentation:"
+	@echo "  See docs/development/WORKFLOW_TESTING.md for detailed guide"
+
+workflow-install:
+	@echo "Installing act for local GitHub Actions testing..."
+	@command -v brew >/dev/null 2>&1 || { echo "❌ Homebrew required. Install from https://brew.sh"; exit 1; }
+	@command -v act >/dev/null 2>&1 && echo "✅ act is already installed" || brew install act
+	@command -v docker >/dev/null 2>&1 || { echo "❌ Docker required. Install Docker Desktop from https://www.docker.com/products/docker-desktop"; exit 1; }
+	@echo "✅ act installed successfully"
+	@echo ""
+	@echo "Next steps:"
+	@echo "  1. Copy .secrets.example to .secrets and fill in your values"
+	@echo "  2. Run 'make workflow-list' to see available workflows"
+	@echo "  3. Run 'make workflow-test' for quick validation"
+
+workflow-setup:
+	@echo "Setting up workflow testing environment..."
+	@test -f .secrets || { echo "Creating .secrets from example..."; cp .secrets.example .secrets; echo "⚠️  Please edit .secrets and add your tokens"; }
+	@test -f .env.test || { echo "Creating .env.test from example..."; cp .env.test.example .env.test; }
+	@mkdir -p /tmp/act-artifacts
+	@echo "✅ Workflow testing environment ready"
+	@echo ""
+	@echo "Configuration files:"
+	@echo "  .actrc         - act configuration"
+	@echo "  .secrets       - GitHub tokens and secrets"
+	@echo "  .env.test      - Test environment variables"
+
+workflow-list:
+	@command -v act >/dev/null 2>&1 || { echo "❌ act not installed. Run 'make workflow-install' first"; exit 1; }
+	@echo "Available GitHub Workflows:"
+	@echo ""
+	act -l
+
+workflow-test:
+	@echo "Running quick workflow validation..."
+	@command -v act >/dev/null 2>&1 || { echo "❌ act not installed. Run 'make workflow-install' first"; exit 1; }
+	@echo "Validating CI/CD workflow..."
+	act -n -W .github/workflows/ci-cd.yml
+	@echo ""
+	@echo "Validating MA Cross Tests workflow..."
+	act -n -W .github/workflows/ma_cross_tests.yml
+	@echo ""
+	@echo "✅ Workflow syntax validation complete"
+
+workflow-ci:
+	@echo "Running full CI simulation locally (Docker Compose method)..."
+	@./scripts/test-ci-locally.sh
+
+workflow-ci-verbose:
+	@echo "Running full CI simulation with verbose output..."
+	@./scripts/test-ci-locally.sh --verbose
+
+workflow-ci-lint-only:
+	@echo "Running linting checks only..."
+	@./scripts/test-ci-locally.sh --lint-only
+
+workflow-full:
+	@command -v act >/dev/null 2>&1 || { echo "❌ act not installed. Run 'make workflow-install' first"; exit 1; }
+	@echo "Running complete workflow with act..."
+	@./scripts/test-workflow-with-act.sh
+
+workflow-lint:
+	@command -v act >/dev/null 2>&1 || { echo "❌ act not installed. Run 'make workflow-install' first"; exit 1; }
+	@echo "Testing lint job with act..."
+	@./scripts/test-workflow-with-act.sh --workflow ci-cd.yml --job lint
+
+workflow-backend:
+	@command -v act >/dev/null 2>&1 || { echo "❌ act not installed. Run 'make workflow-install' first"; exit 1; }
+	@echo "Testing backend job with act (note: requires service containers)..."
+	@./scripts/test-workflow-with-act.sh --workflow ci-cd.yml --job test-backend
+
+workflow-ma-cross:
+	@command -v act >/dev/null 2>&1 || { echo "❌ act not installed. Run 'make workflow-install' first"; exit 1; }
+	@echo "Testing MA Cross workflow with act..."
+	@./scripts/test-workflow-with-act.sh --workflow ma_cross_tests.yml
+
+workflow-dry-run:
+	@command -v act >/dev/null 2>&1 || { echo "❌ act not installed. Run 'make workflow-install' first"; exit 1; }
+	@echo "Dry run of all workflows (shows what would run)..."
+	act -n

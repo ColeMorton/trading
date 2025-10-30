@@ -1,4 +1,0 @@
-strategy_name,ticker,timeframe,analysis_timestamp,sample_size,sample_size_confidence,dual_layer_convergence_score,asset_layer_percentile,strategy_layer_percentile,exit_signal,signal_confidence,exit_recommendation,target_exit_timeframe,statistical_significance,p_value
-SMCI_ASSET_DISTRIBUTION,SMCI,D,2025-07-23T17:48:50.227576,0,0.0,0.0,0.0,0.0,HOLD,62.21793139450137,,,ENHANCED_ANALYSIS,0.0
-NVDA_ASSET_DISTRIBUTION,NVDA,D,2025-07-23T17:48:52.059989,0,0.0,0.0,0.0,0.0,HOLD,63.539299655093416,,,ENHANCED_ANALYSIS,0.0
-MA_ASSET_DISTRIBUTION,MA,D,2025-07-23T17:48:54.046946,0,0.0,0.0,0.0,0.0,HOLD,63.517133757904155,,,ENHANCED_ANALYSIS,0.0

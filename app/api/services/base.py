@@ -45,17 +45,61 @@ class BaseCommandService:
         if self.progress:
             await self.progress.update(percent, message, metadata)
 
+    async def _send_heartbeats(
+        self,
+        start_percent: int,
+        end_percent: int,
+        interval: int = 15,
+        message_template: str = "Processing... ({elapsed}s elapsed)",
+    ) -> None:
+        """
+        Send periodic heartbeat progress updates during long-running operations.
+
+        Args:
+            start_percent: Starting progress percentage
+            end_percent: Ending progress percentage (won't exceed this)
+            interval: Seconds between heartbeat updates
+            message_template: Message template (can include {elapsed})
+        """
+        import time
+
+        start_time = time.time()
+        current_percent = start_percent
+        increment_per_beat = 1  # Increment by 1% each heartbeat
+
+        try:
+            while current_percent < end_percent:
+                await asyncio.sleep(interval)
+
+                elapsed = int(time.time() - start_time)
+                current_percent = min(
+                    current_percent + increment_per_beat, end_percent - 1
+                )
+
+                message = message_template.format(elapsed=elapsed)
+                await self.update_progress(current_percent, message)
+
+        except asyncio.CancelledError:
+            # Heartbeat cancelled when command completes
+            pass
+
     async def execute_cli_command(
         self,
         command: list[str],
         timeout: int | None = None,
+        enable_heartbeat: bool = True,
+        heartbeat_start: int = 35,
+        heartbeat_end: int = 85,
     ) -> dict[str, Any]:
         """
-        Execute CLI command as subprocess.
+        Execute CLI command as subprocess with optional heartbeat updates.
 
         Args:
             command: Command and arguments as list
             timeout: Optional timeout in seconds
+            enable_heartbeat: Send periodic heartbeat progress updates
+            heartbeat_start: Starting % for heartbeat (default: 35)
+            heartbeat_end: Ending % for heartbeat (default: 85)
 
         Returns:
             Dict with stdout, stderr, return code, and error categorization
@@ -72,6 +116,18 @@ class BaseCommandService:
                 cwd=Path.cwd(),
             )
 
+            # Start heartbeat task if enabled
+            heartbeat_task = None
+            if enable_heartbeat and self.progress:
+                heartbeat_task = asyncio.create_task(
+                    self._send_heartbeats(
+                        start_percent=heartbeat_start,
+                        end_percent=heartbeat_end,
+                        interval=15,
+                        message_template="Processing... ({elapsed}s elapsed)",
+                    ),
+                )
+
             # Wait for completion with timeout
             try:
                 stdout, stderr = await asyncio.wait_for(
@@ -80,6 +136,8 @@ class BaseCommandService:
                 )
             except asyncio.TimeoutError:
                 process.kill()
+                if heartbeat_task:
+                    heartbeat_task.cancel()
                 logger.exception(f"Command timed out: {' '.join(command)}")
                 return {
                     "stdout": "",
@@ -89,6 +147,14 @@ class BaseCommandService:
                     "error_type": "TIMEOUT_ERROR",
                     "error": f"Command timed out after {timeout} seconds",
                 }
+            finally:
+                # Cancel heartbeat when command completes
+                if heartbeat_task:
+                    heartbeat_task.cancel()
+                    try:
+                        await heartbeat_task
+                    except asyncio.CancelledError:
+                        pass
 
             success = process.returncode == 0
 

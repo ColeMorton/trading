@@ -97,15 +97,15 @@ pytest-strategy:
 # Code quality checks
 lint:
 	@echo "🔍 Running code quality checks..."
-	@python -m black --check tests/
-	@python -m isort --check-only tests/
-	@python -m flake8 tests/
-	@python -m mypy tests/ --ignore-missing-imports
+	@poetry run black --check .
+	@poetry run isort --check-only .
+	@poetry run flake8 .
+	@poetry run mypy . --ignore-missing-imports
 
 lint-fix:
 	@echo "🔧 Fixing code quality issues..."
-	@python -m black tests/
-	@python -m isort tests/
+	@poetry run black .
+	@poetry run isort .
 
 # Dependency management
 install:

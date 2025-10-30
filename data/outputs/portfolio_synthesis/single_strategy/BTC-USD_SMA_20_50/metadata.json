@@ -1,9 +1,0 @@
-{
-  "portfolio_name": "BTC-USD_SMA_20_50",
-  "analysis_type": "single_strategy",
-  "created_at": "2025-09-10T06:11:18.fZ",
-  "config": {
-    "strategy_type": "SMA",
-    "ticker": "BTC-USD"
-  }
-}

@@ -1,5 +1,9 @@
 name: Concurrency Module Tests
 
+env:
+  PYTHON_VERSION: '3.11'
+  POETRY_VERSION: '1.8.3'
+
 on:
   push:
     branches: [main, develop]
@@ -16,17 +20,14 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache Poetry dependencies
         uses: actions/cache@v3
@@ -63,21 +64,19 @@ jobs:
           poetry run python run_tests.py --type error --output error_results.json
 
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-results-${{ matrix.python-version }}
+          name: test-results
           path: tests/concurrency/*_results.json
 
       - name: Run coverage analysis
-        if: matrix.python-version == '3.10'
         run: |
           cd tests/concurrency
           poetry run python run_tests.py --coverage --output coverage_results.json
 
       - name: Upload coverage report
-        if: matrix.python-version == '3.10'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: tests/coverage_html/
@@ -87,12 +86,12 @@ jobs:
     needs: test
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install Poetry
         run: |
@@ -109,7 +108,7 @@ jobs:
           poetry run python run_tests.py --type performance --output performance_results.json
 
       - name: Upload performance results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: performance-results
           path: tests/concurrency/performance_results.json

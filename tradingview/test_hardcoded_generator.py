@@ -62,9 +62,10 @@ def main():
     # Test 2: Update an existing Pine script (create a temporary copy first)
     if os.path.exists("tradingview/strategy_breadth_refactored.pine"):
         temp_pine_path = "tradingview/strategy_breadth_refactored_test.pine"
-        with open("tradingview/strategy_breadth_refactored.pine") as f_in, open(
-            temp_pine_path, "w"
-        ) as f_out:
+        with (
+            open("tradingview/strategy_breadth_refactored.pine") as f_in,
+            open(temp_pine_path, "w") as f_out,
+        ):
             f_out.write(f_in.read())
         run_generator("data/raw/strategies/BTC_d_20250427.csv", temp_pine_path)
 

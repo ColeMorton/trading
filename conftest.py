@@ -158,9 +158,11 @@ def performance_metrics() -> dict[str, Any]:
 @pytest.fixture
 def mock_file_system():
     """Mock file system operations for testing."""
-    with patch("builtins.open", create=True) as mock_open, patch(
-        "os.path.exists"
-    ) as mock_exists, patch("os.makedirs") as mock_makedirs:
+    with (
+        patch("builtins.open", create=True) as mock_open,
+        patch("os.path.exists") as mock_exists,
+        patch("os.makedirs") as mock_makedirs,
+    ):
         mock_exists.return_value = True
         yield {"open": mock_open, "exists": mock_exists, "makedirs": mock_makedirs}
 

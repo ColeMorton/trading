@@ -281,18 +281,16 @@ class ArchitectureComparison:
                 "successful_comparisons": len(
                     [r for r in self.results if r.old_success and r.new_success]
                 ),
-                "new_architecture_success_rate": len(
-                    [r for r in self.results if r.new_success]
-                )
-                / len(self.results)
-                if self.results
-                else 0,
-                "old_architecture_success_rate": len(
-                    [r for r in self.results if r.old_success]
-                )
-                / len(self.results)
-                if self.results
-                else 0,
+                "new_architecture_success_rate": (
+                    len([r for r in self.results if r.new_success]) / len(self.results)
+                    if self.results
+                    else 0
+                ),
+                "old_architecture_success_rate": (
+                    len([r for r in self.results if r.old_success]) / len(self.results)
+                    if self.results
+                    else 0
+                ),
             },
             "comparisons": [
                 {
