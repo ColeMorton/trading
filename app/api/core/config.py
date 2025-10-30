@@ -106,7 +106,7 @@ class APISettings(BaseSettings):
     @classmethod
     def validate_environment(cls, v: str) -> str:
         """Validate environment value."""
-        allowed = ["development", "staging", "production"]
+        allowed = ["development", "staging", "production", "test"]
         if v not in allowed:
             msg = f"Environment must be one of {allowed}"
             raise ValueError(msg)
@@ -136,6 +136,11 @@ class APISettings(BaseSettings):
     def is_local_development(self) -> bool:
         """Strict check for local development environment."""
         return self.ENVIRONMENT == "development" and self.DEBUG is True
+
+    @property
+    def is_test(self) -> bool:
+        """Check if running in test environment."""
+        return self.ENVIRONMENT == "test"
 
     def __init__(self, **kwargs):
         """Initialize settings with automatic secure cookie configuration."""
